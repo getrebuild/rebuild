@@ -27,7 +27,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateProcessing() {
-    $('.J_edit,.J_delete,.J_add-slave').attr('disabled', true)
+    window.RbViewPage && window.RbViewPage.setReadonly(true)
     let aMsg = '当前记录正在审批中'
     if (this.state.imApprover) {
       if (this.state.imApproveSatate === 1) aMsg = '当前记录正在等待你审批'
@@ -44,9 +44,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   renderStateApproved() {
-    $('.J_edit,.J_delete,.J_add-slave').remove()
-    window.RbViewPage && window.RbViewPage.cleanViewActionButton()
-
+    window.RbViewPage && window.RbViewPage.setReadonly(true)
     return (<div className="alert alert-success shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <div className="icon"><span className="zmdi zmdi-check"></span></div>
@@ -73,9 +71,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/approval/state?record=${this.props.id}`, (res) => {
-      this.setState(res.data)
-    })
+    $.get(`${rb.baseUrl}/app/entity/approval/state?record=${this.props.id}`, (res) => this.setState(res.data))
   }
 
   submit = () => {

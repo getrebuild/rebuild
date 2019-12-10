@@ -29,6 +29,7 @@ import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.VCode;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
@@ -47,7 +48,7 @@ import java.io.IOException;
 import static com.rebuild.server.helper.language.Languages.lang;
 
 /**
- * 注册
+ * 用户自助注册
  * 
  * @author devezhao
  * @since 11/01/2018
@@ -57,7 +58,7 @@ import static com.rebuild.server.helper.language.Languages.lang;
 public class SignUpControll extends BasePageControll {
 	
 	@RequestMapping("signup")
-	public ModelAndView pageSignup(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public ModelAndView pageSignup(HttpServletResponse response) throws IOException {
 		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp)) {
 			response.sendError(400, lang("SignupNotOpenTip"));
 			return null;
@@ -119,7 +120,8 @@ public class SignUpControll extends BasePageControll {
 			Application.getBean(UserService.class).txSignUp(userNew);
 			
 			String homeUrl = SysConfiguration.getHomeUrl();
-			String content = String.format(lang("SignupPending"), fullName, loginName, passwd, homeUrl, homeUrl);
+			String content = Languages.currentBundle().formatLang("SignupPending",
+                    fullName, loginName, passwd, homeUrl, homeUrl);
 			SMSender.sendMail(email, lang("AdminReviewSignup"), content);
 			writeSuccess(response);
 		} catch (DataSpecificationException ex) {

@@ -116,7 +116,7 @@ public class MessageBuilder {
 		Matcher atMatcher = AT_PATTERN.matcher(message);
 		while (atMatcher.find()) {
 			String at = atMatcher.group();
-			String atLabel = parseAtId(at.substring(1));
+			String atLabel = parseAtsId(at.substring(1));
 			if (atLabel != null && !atLabel.equals(at)) {
 				message = message.replace(at, atLabel);
 			}
@@ -132,7 +132,7 @@ public class MessageBuilder {
 	 * @param atid
 	 * @return
 	 */
-	static String parseAtId(String atid) {
+	protected static String parseAtsId(String atid) {
 		if (!ID.isId(atid)) {
 			return atid;
 		}

@@ -60,7 +60,11 @@ body {
 }
 
 .rbview-form .form-group.row {
-	padding: 3px 0;
+	padding: 4px 0;
+}
+
+.rbview-form .form-control-plaintext {
+	min-height: 37px;
 }
 
 .rbview-form .img-field .img-thumbnail:hover,
@@ -71,10 +75,6 @@ body {
 .rbview-form .file-field .img-thumbnail {
 	width: 100%;
 	margin: 0;
-}
-
-.rbview-form .form-control-plaintext:hover {
-	background-color: #fff;
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext {
@@ -290,4 +290,82 @@ body {
 .load-mores>.btn {
 	display: inline-block;
 	margin-top: -1.4rem;
+}
+
+.rbview-form .form-group.row.editable a.edit {
+	position: absolute;
+	right: 15px;
+	top: 0;
+	color: #aaa;
+	width: 20px;
+	height: 20px;
+	margin-top: 7px;
+	text-align: center;
+	border-radius: 2px;
+	background-color: #eee;
+	display: none;
+}
+
+.rbview-form .form-group.row.editable a.edit::before {
+	font-family: 'Material-Design-Iconic-Font';
+	content: '\f158';
+	font-size: 14px;
+	display: inline-block;
+}
+
+.rbview-form .form-group.row.editable a.edit:hover {
+	color: gray;
+}
+
+.rbview-form .form-group.row.editable>div {
+	position: relative;
+}
+
+.rbview-form .form-group.row.editable>div:hover>a.edit {
+	display: block;
+}
+
+.rbview-form .form-group.row.editable>div .edit-oper {
+	text-align: right;
+}
+
+.rbview-form .form-group.row.editable>div .edit-oper .btn {
+	width: 28px;
+	height: 28px;
+	overflow: hidden;
+	line-height: 1.1;
+	padding: 0;
+	min-width: 0;
+	min-height: 0;
+	font-weight: bold;
+}
+
+.type-AVATAR .edit-oper,
+.type-BOOL .edit-oper,
+.type-FILE .edit-oper,
+.type-MULTISELECT .edit-oper,
+.type-IMAGE .edit-oper {
+	border-top: 1px solid #dbdbdb;
+}
+
+.type-AVATAR .edit-oper {
+	margin-top: 7px;
+}
+
+.type-IMAGE .edit-oper {
+	margin-top: -2px;
+}
+
+.type-BOOL .edit-oper {
+	margin-top: -8px;
+}
+
+.type-MULTISELECT .edit-oper {
+	margin-top: -1px;
+}
+
+.rbview-form.readonly .form-group.row.editable a.edit {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }

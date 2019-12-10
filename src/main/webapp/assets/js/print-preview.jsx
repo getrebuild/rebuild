@@ -53,9 +53,7 @@ class PreviewTable extends React.Component {
     )
   }
 
-  componentDidMount() {
-    $('.font-italic.hide').removeClass('hide')
-  }
+  componentDidMount = () => $('.font-italic.hide').removeClass('hide')
 
   formatValue(item) {
     if (!item || !item.value) return null
@@ -78,8 +76,18 @@ class PreviewTable extends React.Component {
           return <p key={'kl-' + idx}>{line}</p>
         })}
       </React.Fragment>
+    } else if (item.type === 'BOOL') {
+      return { 'T': '是', 'F': '否' }[item.value]
+    } else if (item.type === 'MULTISELECT') {
+      // eslint-disable-next-line no-undef
+      return __findMultiTexts(item.options, item.value).join(', ')
+    } else if (item.type === 'PICKLIST' || item.type === 'STATE') {
+      // eslint-disable-next-line no-undef
+      return __findOptionText(item.options, item.value)
     } else if (typeof item.value === 'object') {
-      return item.value[1]
+      let text = item.value.text
+      if (!text && item.value.id) text = `@${item.value.id.toUpperCase()}`
+      return text
     } else {
       return item.value
     }

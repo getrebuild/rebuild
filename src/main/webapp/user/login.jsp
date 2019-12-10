@@ -86,7 +86,8 @@
 						<div class="form-group row login-tools">
 							<div class="col-6 login-remember">
 								<label class="custom-control custom-checkbox custom-control-inline mb-0">
-									<input class="custom-control-input" type="checkbox" id="autoLogin"><span class="custom-control-label"> ${bundle.lang('RememberMe')}</span>
+									<input class="custom-control-input" type="checkbox" id="autoLogin">
+                                    <span class="custom-control-label"> ${bundle.lang('RememberMe')}</span>
 								</label>
 							</div>
 							<div class="col-6 login-forgot-password">
@@ -141,9 +142,9 @@ $(document).ready(function() {
 		if (vcodeState && !vcode){ RbHighbar.create($lang('InputCaptchaPls')); return }
 
 		let btn = $('.login-submit button').button('loading')
-		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=' + $encode(passwd) + '&autoLogin=' + $val('#autoLogin')
+		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
-		$.post(url, function(res) {
+		$.post(url, $encode(passwd), function(res) {
 			if (res.error_code == 0){
 				location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			} else if (res.error_msg == 'VCODE') {
@@ -172,12 +173,6 @@ $(document).ready(function() {
 			}
 		}).fail(function () { /* NOOP */ })
 	}
-
-	// $('.select-lang>a').click(function (event) {
-	// 	event.preventDefault()
-	// 	let locale = $(this).attr('href')
-	// 	$.post(rb.baseUrl + '/language/select' + locale, ()=> location.replace(locale))
-	// })
 })
 </script>
 </body>

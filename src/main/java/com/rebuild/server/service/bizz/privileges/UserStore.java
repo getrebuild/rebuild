@@ -194,7 +194,7 @@ public class UserStore {
 		}
 		return top.toArray(new Department[0]);
 	}
-	
+
 	/**
 	 * @param roleId
 	 * @return
@@ -246,19 +246,21 @@ public class UserStore {
 				.unique();
 		final User newUser = new User(
 				userId, (String) o[1], (String) o[2], (String) o[3], (String) o[4], (Boolean) o[5]);
+		final ID deptId = (ID) o[6];
+		final ID roleId = (ID) o[7];
 
 		final User oldUser = exists(userId) ? getUser(userId) : null;
 		if (oldUser != null) {
 			Role role = oldUser.getOwningRole();
 			if (role != null) {
 				role.removeMember(oldUser);
-				role.addMember(newUser);
-			}
+            }
+
 			Department dept = oldUser.getOwningDept();
 			if (dept != null) {
 				dept.removeMember(oldUser);
-				dept.addMember(newUser);
 			}
+
 			for (Team team : oldUser.getOwningTeams().toArray(new Team[0])) {
 				team.removeMember(oldUser);
 				team.addMember(newUser);
@@ -268,13 +270,13 @@ public class UserStore {
 			if (oldUser.getEmail() != null) {
 				USERs_MAIL2ID.remove(normalIdentifier(oldUser.getEmail()));
 			}
-        } else {
-		    if (o[6] != null) {
-		        getDepartment((ID) o[6]).addMember(newUser);
-            }
-		    if (o[7] != null) {
-		        getRole((ID) o[7]).addMember(newUser);
-            }
+        }
+
+        if (deptId != null) {
+            getDepartment(deptId).addMember(newUser);
+        }
+        if (roleId != null) {
+            getRole(roleId).addMember(newUser);
         }
 
 		store(newUser);
@@ -530,7 +532,7 @@ public class UserStore {
 			}
 		}
 
-		// 组织关系
+		// 组织部门关系
 		for (Map.Entry<ID, Set<ID>> e : parentTemp.entrySet()) {
 			BusinessUnit parent = getDepartment(e.getKey());
 			for (ID child : e.getValue()) {

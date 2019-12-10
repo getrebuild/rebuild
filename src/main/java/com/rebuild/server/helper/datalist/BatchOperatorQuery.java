@@ -49,11 +49,12 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
     /**
      * 查询后数据
      */
+    @SuppressWarnings("unused")
     public static final int DR_QUERYED = 3;
     /**
      * 全部数据
      */
-    public static final int DR_ALL = 4;
+    public static final int DR_ALL = 10;
 
     private int dataRange;
     private JSONObject queryData;
@@ -71,9 +72,10 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
      * 对查询数据进行包装（根据数据范围）
      *
      * @param maxRows
+     * @param clearFields
      * @return
      */
-    public JSONObject wrapQueryData(int maxRows) {
+    public JSONObject wrapQueryData(int maxRows, boolean clearFields) {
         if (this.dataRange != DR_PAGED) {
             queryData.put("pageNo", 1);
             queryData.put("pageSize", maxRows);  // Max
@@ -95,8 +97,10 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
             queryData.put("filter", filter);
         }
 
+        if (clearFields) {
+            queryData.put("fields", new String[] { getEntity().getPrimaryField().getName() });
+        }
         queryData.put("reload", Boolean.FALSE);
-        queryData.put("fields", new String[] { getEntity().getPrimaryField().getName() });
         return queryData;
     }
 
@@ -107,7 +111,7 @@ public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
      * @see QueryParser
      */
     protected String getFromClauseSql() {
-        QueryParser queryParser = new QueryParser(wrapQueryData(Integer.MAX_VALUE));
+        QueryParser queryParser = new QueryParser(wrapQueryData(Integer.MAX_VALUE, true));
         String fullSql = queryParser.toSql();
         return fullSql.substring(fullSql.indexOf(" from ")).trim();
     }

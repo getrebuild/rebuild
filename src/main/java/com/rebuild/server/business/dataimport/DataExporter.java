@@ -110,7 +110,7 @@ public class DataExporter extends SetUser<DataExporter> {
     }
 
     /**
-     * 构建数据
+     * 数据
      *
      * @param control
      * @return
@@ -123,40 +123,33 @@ public class DataExporter extends SetUser<DataExporter> {
             JSONArray rowJson = (JSONArray) row;
 
             int cellIndex = 0;
-            List<Object> cellList = new ArrayList<>();
-            for (Object cell : rowJson) {
-                // 最后添加的相关记录 ID
+            List<Object> cellVals = new ArrayList<>();
+            for (Object cellVal : rowJson) {
+                // 最后添加的记录 ID
                 // 详情可见 QueryParser#doParseIfNeed (L171)
                 if (cellIndex >= headFields.size()) {
                     break;
                 }
 
-                if (cell == null) {
-                    cell = StringUtils.EMPTY;
-                }
-
                 Field field = headFields.get(cellIndex++);
                 DisplayType dt = EasyMeta.getDisplayType(field);
-                if (dt == DisplayType.FILE || dt == DisplayType.IMAGE
-                        || dt == DisplayType.AVATAR || dt == DisplayType.ANYREFERENCE) {
-                    cell = "[暂不支持" + dt.getDisplayName() + "字段]";
+                if (cellVal == null) {
+                    cellVal = StringUtils.EMPTY;
+                } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
+                        || dt == DisplayType.ANYREFERENCE) {
+                    cellVal = "[暂不支持" + dt.getDisplayName() + "字段]";
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
-                    cell = cell.toString().replace(",", "");  // 移除千分位
+                    cellVal = cellVal.toString().replace(",", "");  // 移除千分位
                 }
 
-                if (cell instanceof Object[]) {
-                    cellList.add(((Object[]) cell)[1]);
-                } else if (cell instanceof JSONArray) {
-                    cellList.add(((JSONArray) cell).get(1));
-                } else {
-                    if (cell.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
-                        cell = "[无权限]";
-                    }
-
-                    cellList.add(cell);
+                if (cellVal instanceof JSONObject) {
+                    cellVal = ((JSONObject) cellVal).getString("text");
+                } else if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
+                    cellVal = "[无权限]";
                 }
+                cellVals.add(cellVal);
             }
-            into.add(cellList);
+            into.add(cellVals);
         }
         return into;
     }

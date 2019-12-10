@@ -155,10 +155,7 @@ class RbFormHandler extends RbModalHandler {
 
 // ~~ 提示框
 class RbAlert extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { disable: false }
-  }
+  state = { ...this.props, disable: false }
   render() {
     let style = {}
     if (this.props.width) style.maxWidth = ~~this.props.width
@@ -177,11 +174,12 @@ class RbAlert extends React.Component {
       </div>
     )
   }
+
   renderContent() {
-    let icon = this.props.type === 'danger' ? 'alert-triangle' : 'help-outline'
-    if (this.props.type === 'warning') icon = 'alert-circle-o'
-    if (this.props.type === 'primary') icon = 'info-outline'
-    let type = this.props.type || 'primary'
+    const type = this.props.type || 'primary'
+    let icon = this.props.icon
+    if (!icon) icon = type === 'danger' ? 'alert-triangle' : (type === 'primary' ? 'help-outline' : 'alert-circle-o')
+
     let content = this.props.htmlMessage ?
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
       : <p>{this.props.message || 'INMESSAGE'}</p>
@@ -190,9 +188,7 @@ class RbAlert extends React.Component {
     let confirm = (this.props.confirm || this.hide).bind(this)
 
     return <div className="text-center ml-6 mr-6">
-      {this.props.showIcon === false ? null :
-        <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon} /></div>
-      }
+      <div className={`text-${type}`}><i className={`modal-main-icon zmdi zmdi-${icon}`} /></div>
       {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
       <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
       <div className="mt-4 mb-3">

@@ -14,7 +14,7 @@ class AppList extends React.Component {
       {(this.state.list || []).map((item) => {
         let secret = item[2].substr(0, 8) + '...' + item[2].substr(32)
         secret = <a href="#" title="点击显示" onClick={() => this.showSecret(item[2])}>{secret}</a>
-        if (this.state.secretShows.contains(item[2])) secret = item[2]
+        if (this.state.secretShows.includes(item[2])) secret = item[2]
 
         return <tr key={'api-' + item[0]}>
           <td>{item[1]}</td>

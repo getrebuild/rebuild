@@ -20,19 +20,16 @@ package com.rebuild.server.helper.datalist;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.Map;
 
@@ -44,8 +41,6 @@ import java.util.Map;
  */
 public class DataListWrapper {
 	
-	private static final Log LOG = LogFactory.getLog(DataListWrapper.class);
-
 	/**
 	 * 无权限标识
 	 */
@@ -93,45 +88,33 @@ public class DataListWrapper {
 		final int joinFieldsLen = queryJoinFields == null ? 0 : queryJoinFields.size();
 		final int selectFieldsLen = selectFields.length - joinFieldsLen;
 		
-		for (int i = 0; i < data.length; i++) {
-			final Object[] original = data[i];
+		for (int rowIndex = 0; rowIndex < data.length; rowIndex++) {
+			final Object[] original = data[rowIndex];
 
 			Object[] row = original;
 			if (joinFieldsLen > 0) {
 				row = new Object[selectFieldsLen];
 				System.arraycopy(original, 0, row, 0, selectFieldsLen);
-				data[i] = row;
+				data[rowIndex] = row;
 			}
 			
 			Object namedVal = null;
-			for (int j = 0; j < selectFieldsLen; j++) {
-				if (!checkHasJoinFieldPrivileges(selectFields[j], original)) {
-					row[j] = NO_READ_PRIVILEGES;
+			for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
+				if (!checkHasJoinFieldPrivileges(selectFields[colIndex], original)) {
+					row[colIndex] = NO_READ_PRIVILEGES;
 					continue;
 				}
-				
-				if (row[j] == null) {
-					row[j] = StringUtils.EMPTY;
+				if (row[colIndex] == null) {
+					row[colIndex] = StringUtils.EMPTY;
 					continue;
 				}
-				
-				Field field = selectFields[j].getField();
+
+				Field field = selectFields[colIndex].getField();
 				if (field.equals(namedFiled)) {
-					namedVal = row[j];
+					namedVal = row[colIndex];
 				}
-				
-				if (field.getType() == FieldType.REFERENCE) {
-					int rec = field.getReferenceEntity().getEntityCode();
-					if (rec == EntityHelper.ClassificationData || rec == EntityHelper.PickList) {
-						row[j] = FieldValueWrapper.instance.wrapFieldValue(row[j], EasyMeta.valueOf(field));
-					} else {
-						row[j] = readReferenceRich((ID) row[j], null);
-					}
-				} else if (field.getType() == FieldType.PRIMARY) {  // Last index always
-					row[j] = readReferenceRich((ID) row[j], namedVal);
-				} else {
-					row[j] = FieldValueWrapper.instance.wrapFieldValue(row[j], new EasyMeta(field));
-				}
+
+                row[colIndex] = wrapFieldValue(row[colIndex], namedVal, field);
 			}
 		}
 		
@@ -139,36 +122,54 @@ public class DataListWrapper {
 				new String[] { "total", "data" },
 				new Object[] { total, data });
 	}
-	
-	/**
-	 * 读取引用型字段
-	 * 
-	 * @param idVal
-	 * @param nameVal
-	 * @return Returns [ID, Name(Field), EntityMeta[Name, Icon]]
-	 */
-	private Object[] readReferenceRich(ID idVal, Object nameVal) {
-		Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
-		Field nameField = MetadataHelper.getNameField(entity);
-		
+
+    /**
+     * see FormsBuilder#wrapFieldValue(Record, EasyMeta)
+     * @param value
+     * @param namedValue
+     * @param field
+     * @return
+     */
+    protected Object wrapFieldValue(Object value, Object namedValue, Field field) {
+        EasyMeta fieldEasy = EasyMeta.valueOf(field);
+        DisplayType dt = fieldEasy.getDisplayType();
+
+        if (dt == DisplayType.REFERENCE) {
+            return mixFieldValue((ID) value, null);
+        } else if (dt == DisplayType.ID) {
+            return mixFieldValue((ID) value, namedValue);
+        } else {
+            return FieldValueWrapper.instance.wrapFieldValue(value, fieldEasy);
+        }
+    }
+
+    /**
+     * 引用型字段值
+     *
+     * @param idVal
+     * @param nameVal
+     * @return
+     */
+	private JSON mixFieldValue(ID idVal, Object nameVal) {
+        Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
+        Field nameField = MetadataHelper.getNameField(entity);
+
 		if (nameVal == null) {
-			String sql = String.format("select %s from %s where %s = ?",
-					nameField.getName(), entity.getName(), entity.getPrimaryField().getName());
-			Object[] named = Application.createQueryNoFilter(sql).setParameter(1, idVal).unique();
-			if (named == null) {
-				LOG.debug("Reference is deleted : " + idVal);
-				return null;
-			}
-			nameVal = named[0];
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(idVal, nameField.getName());
+            if (o == null) {
+                return null;
+            }
+            nameVal = o[0];
 		}
-		
+
 		nameVal = FieldValueWrapper.instance.wrapFieldValue(nameVal, new EasyMeta(nameField));
-		String[] metadata = new String[] { entity.getName(), new EasyMeta(entity).getIcon() };
-		return new Object[] { idVal, nameVal, metadata };
+        return JSONUtils.toJSONObject(
+                new String[] { "id", "text", "entity" },
+                new Object[] { idVal, nameVal, entity.getName() });
 	}
 	
 	/**
-	 * 验证字段权限
+	 * 验证（引用）字段权限
 	 * 
 	 * @param field
 	 * @param original

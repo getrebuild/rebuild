@@ -1,106 +1,51 @@
-/* global RbFormPickList, RbFormReadonly */
-// 内部用/暂未开放
+// 扩展字段类型
 
-// 布尔 是/否
-class RbFormBool extends RbFormElement {
-  constructor(props) {
-    super(props)
-    if (!props.onView) {
-      if (props.value === true || props.value === 'true') this.state.value = 'T'
-      else if (props.value === false || props.value === 'false') this.state.value = 'F'
-    }
-    this.changeValue = this.changeValue.bind(this)
-  }
-  renderElement() {
-    return (
-      <div className="mt-1">
-        <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-          <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value === 'T'} data-value="T" onChange={this.changeValue} />
-          <span className="custom-control-label">是</span>
-        </label>
-        <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-          <input className="custom-control-input" name={'radio-' + this.props.field} type="radio" checked={this.state.value === 'F'} data-value="F" onChange={this.changeValue} />
-          <span className="custom-control-label">否</span>
-        </label>
-      </div>
-    )
-  }
-  changeValue(e) {
-    let val = e.target.dataset.value
-    this.handleChange({ target: { value: val } }, true)
-  }
-}
-
-// 头像
 class RbFormAvatar extends RbFormElement {
   constructor(props) {
     super(props)
   }
+
   renderElement() {
     let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
-    return (
-      <div className="img-field avatar">
-        <span title="选择头像图片">
-          <input type="file" className="inputfile" ref={(c) => this._uploadInput = c} id={this.props.field + '-input'} accept="image/png,image/jpeg,image/gif" />
-          <label htmlFor={this.props.field + '-input'} className="img-thumbnail img-upload">
-            <img src={aUrl} />
-          </label>
-        </span>
-      </div>
-    )
+    return <div className="img-field avatar">
+      <span title={this.props.readonly ? null : '选择头像'}>
+        {!this.props.readonly &&
+          <input ref={(c) => this._fieldValue__input = c} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/png,image/jpeg,image/gif" />
+        }
+        <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload"><img src={aUrl} alt="头像" /></label>
+      </span>
+    </div>
   }
+
   renderViewElement() {
     let aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
-    return (
-      <div className="img-field avatar">
-        <a className="img-thumbnail img-upload"><img src={aUrl} /></a>
-      </div>
-    )
+    return <div className="img-field avatar"><a className="img-thumbnail img-upload"><img src={aUrl} /></a></div>
   }
-  componentDidMount() {
-    super.componentDidMount()
-    let that = this
-    let mp
-    $createUploader(this._uploadInput, function (res) {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
-      mp.set(res.percent / 100)  // 0.x
-    }, function (res) {
-      mp && mp.end()
-      that.handleChange({ target: { value: res.key } }, true)
-    })
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      // NOOP
+    } else {
+      let mp
+      $createUploader(this._fieldValue__input, (res) => {
+        if (!mp) mp = new Mprogress({ template: 1, start: true })
+        mp.set(res.percent / 100)  // 0.x
+      }, (res) => {
+        mp.end()
+        this.handleChange({ target: { value: res.key } }, true)
+      })
+    }
   }
+
   // Not implemented
   setValue() { }
   getValue() { }
 }
 
-// 状态
-class RbFormState extends RbFormPickList {
-  constructor(props) {
-    super(props)
-  }
-}
-
-// 审批状态
-class RbApprovalState extends RbFormReadonly {
-  constructor(props) {
-    super(props)
-  }
-  getOptionText(options, value) {
-    if (this.props.$$$parent.isNew) return value
-    else return super.getOptionText(options, value)
-  }
-}
-
 // eslint-disable-next-line no-unused-vars
 var detectElementExt = function (item) {
-  if (item.type === 'BOOL') {
-    return <RbFormBool {...item} />
-  } else if (item.type === 'AVATAR') {
+  if (item.type === 'AVATAR') {
     return <RbFormAvatar {...item} />
-  } else if (item.type === 'STATE') {
-    if (item.field === 'approvalState') return <RbApprovalState {...item} />
-    else return item.readonly ? <RbFormReadonly {...item} /> : <RbFormState {...item} />
   }
   return null
 }

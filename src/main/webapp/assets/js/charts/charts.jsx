@@ -544,7 +544,7 @@ class ChartSelect extends RbModalHandler {
                   <p className="text-muted fs-12">{item[4] && <span>{item[4]}</span>}<span>{item[3]}</span></p>
                 </span>
                 <span className="float-right">
-                  {this.state.appended.contains(item[0])
+                  {this.state.appended.includes(item[0])
                     ? <a className="btn disabled" data-id={item[0]}>已添加</a>
                     : <a className="btn" onClick={() => this.selectChart(item)}>添加</a>}
                 </span>

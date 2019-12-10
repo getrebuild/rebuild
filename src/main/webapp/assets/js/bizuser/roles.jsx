@@ -81,18 +81,16 @@ const loadRoles = function () {
 
       action.find('a.J_del').click(function () {
         let alertExt = {
-          type: 'danger', confirmText: '删除', confirm: function () {
-            deleteRole(_id, this)
-          }
+          type: 'danger',
+          confirmText: '删除',
+          confirm: function () { deleteRole(_id, this) }
         }
         $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + _id, function (res) {
           if (res.data.hasMember === 0) {
-            RbAlert.create('此角色可以被安全的删除', '删除角色', alertExt)
+            RbAlert.create('此角色可以被安全的删除', '删除角色', { ...alertExt, icon: 'alert-circle-o' })
           } else {
-            let url = rb.baseUrl + '/admin/bizuser/users#!/Filter/roleId=' + _id
-            let msg = '有 <a href="' + url + '" target="_blank"><b>' + res.data.hasMember + '</b></a> 个用户使用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
-            alertExt.html = true
-            RbAlert.create(msg, '删除角色', alertExt)
+            let msg = '有 <b>' + res.data.hasMember + '</b> 个用户使用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
+            RbAlert.create(msg, '删除角色', { ...alertExt, html: true })
           }
         })
       })

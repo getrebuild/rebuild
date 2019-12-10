@@ -11587,7 +11587,7 @@ canvas {
 }
 
 .rb-top-header .navbar-nav>li.dropdown .dropdown-menu {
-    border-radius: 3px;
+    border-radius: 2px;
     margin-top: 12px;
     line-height: 20px
 }
@@ -12511,13 +12511,13 @@ a.avatar.x48 img {
     border-bottom: 1px solid #ebebeb
 }
 
-.rb-notifications .notification>a {
+.rb-notifications .notification>.a {
     padding: 10px 15px;
     display: block;
     overflow: hidden
 }
 
-.rb-notifications .notification>a .image {
+.rb-notifications .notification>.a .image {
     height: 38px;
     width: 38px;
     border-radius: 50%;
@@ -12529,7 +12529,7 @@ a.avatar.x48 img {
     width: 32px;
 }
 
-.rb-notifications .notification>a .image img {
+.rb-notifications .notification>.a .image img {
     height: 38px;
     width: 38px;
     font-size: 1.923rem;
@@ -12540,24 +12540,24 @@ a.avatar.x48 img {
     line-height: 32px;
 }
 
-.rb-notifications .notification>a .notification-info {
+.rb-notifications .notification>.a .notification-info {
     padding-left: 50px;
     line-height: 14px;
     padding-left: 44px;
 }
 
-.rb-notifications .notification>a .notification-info .text {
+.rb-notifications .notification>.a .notification-info .text {
     color: #8a8a8a;
     font-size: .9231rem;
     line-height: 16px
 }
 
-.rb-notifications .notification>a .notification-info .user-name {
+.rb-notifications .notification>.a .notification-info .user-name {
     color: #4285f4;
     font-size: 1rem
 }
 
-.rb-notifications .notification>a .notification-info .date {
+.rb-notifications .notification>.a .notification-info .date {
     color: #8a8a8a;
     display: block;
     font-size: .6923rem;
@@ -12572,11 +12572,11 @@ a.avatar.x48 img {
     border-bottom: 1px solid #dce9fd
 }
 
-.rb-notifications .notification.notification-unread>a {
+.rb-notifications .notification.notification-unread>.a {
     position: relative
 }
 
-.rb-notifications .notification.notification-unread>a:after {
+.rb-notifications .notification.notification-unread>.a:after {
     content: '';
     display: block;
     position: absolute;
@@ -12597,25 +12597,25 @@ a.avatar.x48 img {
     color: #fff
 }
 
-.rb-notifications .notification:hover>a .logo {
+.rb-notifications .notification:hover>.a .logo {
     background-color: #206ff2
 }
 
-.rb-notifications .notification:hover>a .logo .icon {
+.rb-notifications .notification:hover>.a .logo .icon {
     color: #fff
 }
 
-.rb-notifications .notification:hover>a .notification-info .circle {
+.rb-notifications .notification:hover>.a .notification-info .circle {
     background: #fff
 }
 
-.rb-notifications .notification:hover>a .notification-info .date,
-.rb-notifications .notification:hover>a .notification-info .text,
-.rb-notifications .notification:hover>a .notification-info .user-name {
+.rb-notifications .notification:hover>.a .notification-info .date,
+.rb-notifications .notification:hover>.a .notification-info .text,
+.rb-notifications .notification:hover>.a .notification-info .user-name {
     color: #fff
 }
 
-.rb-notifications .notification:hover>a:after {
+.rb-notifications .notification:hover>.a:after {
     background-color: #fff
 }
 
@@ -23952,7 +23952,8 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
     right: 20px;
     font-size: 1.35rem;
-    top: -1px;
+    top: -2px;
+    font-weight: normal;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {

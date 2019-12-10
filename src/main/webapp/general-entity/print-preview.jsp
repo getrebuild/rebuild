@@ -30,7 +30,12 @@ html, body{
     line-height: 1.428571;
 }
 .preview-content {
-    margin: 0 20px;
+    margin: 0 20px 20px;
+}
+@media print {
+    .preview-content {
+        margin: 0;
+    }
 }
 </style>
 </head>
@@ -55,6 +60,8 @@ window.__PageConfig = {
     content: ${contentBody}
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/print-preview.jsx" type="text/babel"></script>
 </body>
 </html>

@@ -32,11 +32,13 @@ public class SMSenderTest extends TestSupport {
 	@Ignore
 	@Test
 	public void testSendSMS() throws Exception {
+	    SMSender.availableSMS();
 		SMSender.sendSMS("17187472172", "SMSenderTest#testSendSMS");
 	}
 	
 	@Test
 	public void testSendMail() throws Exception {
+	    SMSender.availableMail();
 		SMSender.sendMail("getrebuild@sina.com", "SMSenderTest#testSendMail", "test content");
 	}
 }

@@ -146,7 +146,7 @@ public class LoginControll extends BasePageControll {
 		}
 
 		final String user = getParameterNotNull(request, "user");
-		final String password = getParameterNotNull(request, "passwd");
+		final String password = ServletUtils.getRequestString(request);
 		
 		int retry = getLoginRetryTimes(user, 1);
 		if (retry > 3 && StringUtils.isBlank(vcode)) {

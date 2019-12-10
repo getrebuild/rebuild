@@ -43,20 +43,25 @@ class MessageList extends React.Component {
   renderItem(item) {
     // const append = item[6] === 30
     const append = item[5] && ~~item[5].substr(0, 3) !== 29  // 过滤审批步骤ID
-    return <li className={`notification ${item[3] ? 'notification-unread' : ''} ${append ? 'append' : ''}`} key={item[4]} onClick={item[3] ? () => this._makeRead(item[4]) : null}><a>
-      <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
-      <div className="notification-info">
-        <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
-        <div className="date">{item[2]}</div>
-        {append && <a title="查看相关记录" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
-      </div>
-    </a></li>
+    let clazz = 'notification'
+    if (item[3]) clazz += ' notification-unread'
+    if (append) clazz += ' append'
+    return <li className={clazz} key={item[4]} onClick={item[3] ? () => this.makeRead(item(4)) : null}>
+      <span className="a">
+        <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
+        <div className="notification-info">
+          <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
+          <div className="date">{item[2]}</div>
+          {append && <a title="查看相关记录" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
+        </div>
+      </span>
+    </li>
   }
 
   componentDidMount() {
     // eslint-disable-next-line react/prop-types
     if (this.props.lazy !== true) this.fetchList()
-    $('.read-all').click(() => this._makeRead('ALL'))
+    $('.read-all').click(() => this.makeRead('ALL'))
   }
 
   fetchList(page, type) {
@@ -69,7 +74,12 @@ class MessageList extends React.Component {
       })
     })
   }
-  __setLink = () => $(this._list).find('.notification-info a').attr('target', '_blank').addClass('link')
+  __setLink = () => {
+    $(this._list).find('.notification-info a').attr('target', '_blank').addClass('link')
+      .click('click', (e) => {
+        if (e && e.stopPropagation) e.stopPropagation()
+      })
+  }
 
   gotoPage(p) {
     if (p === -1 && this.state.page === 1) return
@@ -77,7 +87,7 @@ class MessageList extends React.Component {
     this.fetchList(this.state.page + p, null)
   }
 
-  _makeRead(id) {
+  makeRead(id) {
     if (!id) return
     $.post(`${rb.baseUrl}/notification/make-read?id=${id}`, () => {
       let list = (this.state.list || []).map((item) => {
