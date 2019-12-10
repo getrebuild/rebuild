@@ -62,5 +62,14 @@
   "Retry": "再試行",
   "ErrorUnknow": "不明なエラーです。しばらくしてからもう一度お試しください",
   "Error404": "訪問したアドレス/リソースが存在しません",
-  "Error403": "権限が不十分で、アクセスがブロックされました"
+  "Error403": "権限が不十分で、アクセスがブロックされました",
+  "NewUserAddedNotify": "<p>系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。</p><div style='margin:10px 0'>登录账号 <b>%s</b><br>登录密码 <b>%s</b><br>登录地址 <a href='%s'>%s</a></div><p>首次登陆，建议你立即修改登陆密码。修改方式：登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码</p>",
+  "YourAccountReady": "你的 %s 账号已就绪",
+  "NewUserSignupNotify": "用户 @%s 提交了注册申请。请验证用户有效性后为其启用并指定部门和角色，以便用户登录使用。如果这是一个无效申请请忽略。[点击此处激活](%s)",
+  "YourAccountActive": "你的账户已激活",
+  "NewUserAccountActive": "<p>%s 你的账户已激活！现在你可以登陆并使用系统。</p><div style='margin:10px 0'>登录地址 <a href='%s'>%s</a></div><p>首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。</p>",
+  "PasswordLevel1Tip": "密码不能小于6位",
+  "PasswordLevel2Tip": "密码必须包含数字和大小写字母",
+  "PasswordLevel3Tip": "密码不能小于8位，且必须包含特殊字符",
+  "Repeated": "{0}重复"
 }
