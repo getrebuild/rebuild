@@ -27,6 +27,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
@@ -372,7 +373,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 			String signMode = null;
 			try {
 				signMode = getFlowParser().getNode(next).getSignMode();
-			} catch (ApprovalException ignored) {
+			} catch (ApprovalException | ConfigurationException ignored) {
 			}
 
 			JSONArray state = new JSONArray();

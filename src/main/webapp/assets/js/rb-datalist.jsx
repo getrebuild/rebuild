@@ -210,11 +210,12 @@ class RbList extends React.Component {
   }
 
   // 全选
-  toggleRows(e) {
+  toggleRows(e, noUpdate) {
     const body = $(this._rblistBody)
     if (e.target.checked) body.find('>tr').addClass('active').find('.custom-control-input').prop('checked', true)
     else body.find('>tr').removeClass('active').find('.custom-control-input').prop('checked', false)
-    this.setState({ checkedChanged: true })
+    // this.setState({ checkedChanged: true })
+    if (!noUpdate) this.componentDidUpdate()
   }
 
   // 单选
@@ -224,13 +225,14 @@ class RbList extends React.Component {
 
     const tr = $(e.target).parents('tr')
     if (unhold) {
-      this.toggleRows({ target: { checked: false } })
+      this.toggleRows({ target: { checked: false } }, true)
       tr.addClass('active').find('.custom-control-input').prop('checked', true)
     } else {
       if (e.target.checked) tr.addClass('active')
       else tr.removeClass('active')
     }
-    this.setState({ checkedChanged: true })
+    // this.setState({ checkedChanged: true })
+    this.componentDidUpdate()
   }
 
   sortField(field, e) {
