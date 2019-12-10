@@ -756,7 +756,7 @@ a {
 
 .type-MULTISELECT .form-control-plaintext>.text-muted {
     font-size: 1rem;
-    margin: 4px 0px 5px;
+    margin: 4px 0 5px;
     display: inline-block;
 }
 
@@ -1315,7 +1315,6 @@ i.split.ui-draggable-dragging {
 .unselect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
-    -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
@@ -2260,8 +2259,7 @@ form {
 }
 
 .approval-pane .alert .message {
-    padding: 10px;
-    padding-left: 0;
+    padding: 10px 10px 10px 0;
 }
 
 .approval-pane .alert .close.btn {
@@ -2518,6 +2516,10 @@ form {
     padding-right: 80px;
 }
 
+.notification-list .notification.notification-unread.append {
+    padding-right: 0;
+}
+
 .notification-list .notification.append .badge {
     position: absolute;
     right: 15px;
@@ -2525,8 +2527,8 @@ form {
     font-weight: normal;
 }
 
-.notification-list .notification.notification-unread.append .badge {
-    right: 25px;
+.notification-list .notification.notification-unread>.a:after {
+    right: 8px;
 }
 
 .rb-notifications .notification.notification-unread.append>a {
@@ -2534,16 +2536,7 @@ form {
 }
 
 .notification-page {
-    padding-left: 50%
-}
-
-.notification-page>ul {
-    float: left;
-    margin-left: -38px;
-}
-
-.notification-page::after {
-    clear: left
+    padding: 0 10px;
 }
 
 .notification-tab {
@@ -3023,7 +3016,7 @@ form {
 }
 
 #asideWidgets .charts-wrap>div {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 #asideWidgets .chart-box.INDEX {
@@ -3045,6 +3038,8 @@ form {
 
 #asideWidgets .chart-box.ApprovalList .progress-wrap {
     margin: 10px 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 #asideWidgets .chart.ApprovalList .table td,

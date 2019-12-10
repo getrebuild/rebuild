@@ -270,7 +270,7 @@ var $fileExtName = function (fileName) {
 }
 
 var $gotoSection = function (top, target) {
-  $(target || 'body').animate({
+  $(target || 'html').animate({
     scrollTop: top || 0
   }, 600)
 }

@@ -39,7 +39,7 @@ $(document).ready(function () {
           high.on('mouseleave', () => {
             high.removeClass('high').off('mouseleave')
           })
-          $gotoSection(high.offset().top - 115, '.chart-grid')
+          $gotoSection(high.offset().top - 65)
         }
       }
     }

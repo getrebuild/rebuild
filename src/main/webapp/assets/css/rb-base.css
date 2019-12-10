@@ -5540,8 +5540,8 @@ input[type=submit].btn-block {
 }
 
 .page-link .icon {
-    font-size: 1.2rem;
-    transform: translateY(1px);
+    font-size: 1.5rem;
+    margin-top: -3px;
 }
 
 .pagination-sm .page-link .icon {
