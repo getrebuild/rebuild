@@ -1018,7 +1018,7 @@ class RbFormDivider extends React.Component {
   render() {
     // TODO 编辑页暂无分割线
     if (!this.props.onView) return null
-    return <div className="form-line" ref={(c) => this._element = c}>
+    return <div className="form-line hover" ref={(c) => this._element = c}>
       <fieldset>{this.props.label && <legend onClick={this.toggle}>{this.props.label}</legend>}</fieldset>
     </div>
   }
