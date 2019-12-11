@@ -36,7 +36,7 @@ public class FeedsHelperTest extends TestSupportWithUser {
 
     @Test
     public void findMentions() {
-        Map<String, ID> map = FeedsHelper.findMentionsMap("@RB示例用户 @超级管理员 @没有 @RB 示例用户 你还的呵呵我复合 @ @  ");
+        Map<String, ID> map = FeedsHelper.findMentionsMap("@RB示例用户 @没有 @RB 示例用户 @超级管理员\n你还的呵呵我复合 @ @  ");
         System.out.println(map);
     }
 

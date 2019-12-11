@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+/* global autosize */
 
 // ~ 动态发布
 // eslint-disable-next-line no-unused-vars
@@ -6,7 +7,7 @@ class FeedsPost extends React.Component {
   state = { ...this.props, type: 1 }
 
   render() {
-    return (<div className="feeds-post">
+    return <div className="feeds-post">
       <ul className="list-unstyled list-inline mb-1 pl-1">
         <li className="list-inline-item">
           <a onClick={() => this.setState({ type: 1 })} className={`${this.state.type === 1 && 'text-primary'}`}>动态</a>
@@ -35,7 +36,7 @@ class FeedsPost extends React.Component {
         </div>
         <div className="clearfix"></div>
       </div>
-    </div>)
+    </div>
   }
 
   componentDidMount = () => $('#rb-feeds').attr('class', '')
@@ -107,7 +108,7 @@ class FeedsEditor extends React.Component {
 
     return (<React.Fragment>
       <div className={`rich-editor ${this.state.focus && 'active'}`}>
-        <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder}
+        <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder} maxLength="2000"
           onFocus={() => this.setState({ focus: true })}
           onBlur={() => this.setState({ focus: false })}
           defaultValue={this.props.initValue} />
@@ -172,8 +173,8 @@ class FeedsEditor extends React.Component {
       if (e.target && $(e.target).parents('li.list-inline-item').length > 0) return
       this.setState({ showEmoji: false, showAtUser: false })
     })
-    // eslint-disable-next-line no-undef
     autosize(this._editor)
+    setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
 
     let mp
     $createUploader(this._imageInput, (res) => {
@@ -243,6 +244,7 @@ class FeedsEditor extends React.Component {
   focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
   reset = () => {
     $(this._editor).val('')
+    autosize.update(this._editor)
     if (this._selectRelated) this._selectRelated.reset()
     this.setState({ files: null, images: null })
   }
@@ -388,7 +390,7 @@ class FeedsEditDlg extends RbModalHandler {
   }
 
   render() {
-    let _data = {
+    const _data = {
       initValue: this.props.content.replace(/<\/?.+?>/g, ''),
       type: this.props.type,
       images: this.props.images,
