@@ -2470,6 +2470,27 @@ form {
     text-align: center;
 }
 
+
+.notification-page {
+    padding: 0 10px;
+}
+
+.notification-tab {
+    position: relative
+}
+
+.notification-tab .read-all {
+    position: absolute;
+    top: 0;
+    right: 0
+}
+
+@media (max-width:768px) {
+    .float-right .rb-notifications {
+        right: 0;
+    }
+}
+
 .notification-type {
     min-height: 198px;
     position: sticky;
@@ -2515,53 +2536,20 @@ form {
     padding: 0 1px;
 }
 
-.notification-list .notification.notification-unread>a:after {
-    top: 17px;
-    background-color: #4285f4 !important
-}
-
 .notification-list .notification.append {
-    position: relative;
-    padding-right: 80px;
-}
-
-.notification-list .notification.notification-unread.append {
-    padding-right: 0;
+    padding-right: 70px;
 }
 
 .notification-list .notification.append .badge {
     position: absolute;
     right: 15px;
-    top: 10px;
+    top: 11px;
     font-weight: normal;
 }
 
 .notification-list .notification.notification-unread>.a:after {
     right: 8px;
-}
-
-.rb-notifications .notification.notification-unread.append>a {
-    position: static;
-}
-
-.notification-page {
-    padding: 0 10px;
-}
-
-.notification-tab {
-    position: relative
-}
-
-.notification-tab .read-all {
-    position: absolute;
-    top: 0;
-    right: 0
-}
-
-@media (max-width:768px) {
-    .float-right .rb-notifications {
-        right: 0;
-    }
+    background-color: #4285f4 !important;
 }
 
 .select2-sm .select2-container--default .select2-selection--single,

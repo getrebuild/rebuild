@@ -12508,7 +12508,8 @@ a.avatar.x48 img {
 
 .rb-notifications .notification {
     overflow: hidden;
-    border-bottom: 1px solid #ebebeb
+    border-bottom: 1px solid #ebebeb;
+    position: relative;
 }
 
 .rb-notifications .notification>.a {
@@ -12570,10 +12571,6 @@ a.avatar.x48 img {
 .rb-notifications .notification.notification-unread {
     background-color: #ebf2fe;
     border-bottom: 1px solid #dce9fd
-}
-
-.rb-notifications .notification.notification-unread>.a {
-    position: relative
 }
 
 .rb-notifications .notification.notification-unread>.a:after {

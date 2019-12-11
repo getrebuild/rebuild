@@ -187,7 +187,7 @@ var __loadMessages = function () {
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)
       if (item[3] === true) o.addClass('notification-unread')
-      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread' : 'read') + '"></a>').appendTo(o)
+      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread' : 'all') + '"></a>').appendTo(o)
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
       o = $('<div class="notification-info"></div>').appendTo(o)
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
