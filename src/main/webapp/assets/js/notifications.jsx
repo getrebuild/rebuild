@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-target-blank */
 $(document).ready(() => {
   let mList = <MessageList lazy={true} />
   if (window.__PageConfig && window.__PageConfig.type === 'Approval') mList = <ApprovalList />
@@ -54,7 +55,7 @@ class MessageList extends React.Component {
           <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
           <div className="date">{item[2]}</div>
         </div>
-        {append && <a title="查看相关记录" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
+        {append && <a title="查看相关记录" target="_blank" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
       </span>
     </li>
   }
