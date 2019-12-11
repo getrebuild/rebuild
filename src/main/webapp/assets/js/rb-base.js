@@ -37,9 +37,9 @@
     },
     cache: false,
     complete: function (xhr) {
-      // eslint-disable-next-line no-empty
-      if (xhr.status === 200 || xhr.status === 0) { } // That's OK
+      if (xhr.status === 200 || xhr.status === 0) { /* NOOP */ }
       else if (xhr.status === 403 || xhr.status === 401) RbHighbar.error(xhr.responseText || 'Unauthorized access')
+      else if (xhr.status === 502) RbHighbar.error('Service unavailable')
       else {
         var error = xhr.responseText
         if (rb.env !== 'dev' && error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
