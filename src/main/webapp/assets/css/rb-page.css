@@ -955,8 +955,9 @@ a {
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 1099;
     text-align: center;
+    z-index: 1099;
+    background: transparent;
 }
 
 .rbhighbar.faster {

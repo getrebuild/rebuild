@@ -251,7 +251,7 @@ class RbHighbar extends React.Component {
       : <div className="message pl-0">{this.props.message}</div>
 
     return (<div ref={(c) => this._rbhighbar = c} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
-      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')}`}>
+      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')} mb-0`}>
         <button className="close" type="button" onClick={this.close}><i className="zmdi zmdi-close" /></button>
         <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
         {content}
@@ -291,7 +291,7 @@ class RbHighbar extends React.Component {
    */
   static error(message) {
     if (!message) message = $lang('SystemBusy')
-    RbHighbar.create(message, 'danger', { timeout: 5000 })
+    RbHighbar.create(message, 'danger', { timeout: 6000 })
   }
 }
 

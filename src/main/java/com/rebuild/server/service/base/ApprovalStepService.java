@@ -154,7 +154,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
-//			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
+			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, false);
 		}
 		// 会签。检查是否都签了
 		else {
