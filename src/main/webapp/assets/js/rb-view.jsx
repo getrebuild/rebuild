@@ -281,7 +281,7 @@ const RbViewPage = {
         let v = res.data[k]
         if (!v || v === undefined) return
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName2={v[2]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
         } else if (k === 'sharingList') {
           let list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           let _this = this

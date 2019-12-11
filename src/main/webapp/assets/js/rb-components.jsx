@@ -477,8 +477,8 @@ const UserShow = function (props) {
   let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
-      {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
+      {props.showName && (<div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>{props.name}{props.deptName && <em>{props.deptName}</em>}</div>)}
     </a>)
 }
 
