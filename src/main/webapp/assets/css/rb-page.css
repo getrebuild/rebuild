@@ -2122,6 +2122,7 @@ form {
     display: inline-block;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 .user-show+.user-show {
@@ -2139,8 +2140,8 @@ form {
 .user-show .avatar {
     overflow: hidden;
     font-size: 0;
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background-color: #ddd;
     text-align: center;
@@ -2155,21 +2156,21 @@ form {
 
 .user-show .avatar>i.zmdi {
     font-size: 1.7rem;
-    margin-top: 5px;
+    margin-top: 4px;
     color: #666;
 }
 
 .user-show .name {
     margin-left: 6px;
-    height: 32px;
-    line-height: 32px;
+    height: 30px;
+    line-height: 30px;
     color: #4285f4;
     max-width: 140px;
 }
 
 .user-show .name.vm {
-    line-height: 1.25;
-    padding-top: 2px;
+    line-height: 1.2;
+    padding-top: 1px;
 }
 
 .user-show .name>em {

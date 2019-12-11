@@ -192,8 +192,8 @@ body {
 }
 
 .view-user .col-lg-8 {
-	min-height: 32px;
-	margin-top: -7px;
+	min-height: 30px;
+	margin-top: -6px;
 	margin-bottom: 0;
 	padding-right: 0;
 	padding-left: 0;
@@ -214,8 +214,8 @@ body {
 }
 
 .view-user .row ul>li {
-	margin-bottom: 5px;
-	margin-right: 5px;
+	margin-bottom: 0;
+	margin-right: 7px;
 }
 
 .view-user .row ul>li:last-child {
@@ -243,18 +243,18 @@ body {
 	width: 150px;
 	cursor: pointer;
 	position: relative;
-	height: 42px;
+	height: 40px;
 }
 
 .sharing-list ul>li>div .zmdi {
 	position: absolute;
 	right: 0;
 	bottom: 0;
-	font-size: 1.3rem;
+	font-size: 1.2rem;
 	color: #fff;
-	width: 20px;
-	height: 20px;
-	line-height: 20px;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
 	background-color: #4285f4;
 	text-align: center;
 	border-bottom-right-radius: 2px;

@@ -309,7 +309,7 @@ class RbFormElement extends React.Component {
         {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
         {editable && !this.state.editMode && <a className="edit" title="编辑" onClick={() => this.toggleEditMode(true)} />}
         {editable && this.state.editMode && <div className="edit-oper">
-          <div className="btn-group">
+          <div className="btn-group shadow-sm">
             <button type="button" className="btn btn-secondary" onClick={this.handleEditConfirm}><i className="icon zmdi zmdi-check"></i></button>
             <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)}><i className="icon zmdi zmdi-close"></i></button>
           </div>

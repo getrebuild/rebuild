@@ -128,6 +128,7 @@ class Share2Settings extends Share2Switch {
       <div className="form-group">
         <label className="text-bold">共享给</label>
         <UserSelector ref={(c) => this._selector = c} selected={this.state.selected} />
+        <p className="form-text">可以共享给不同的角色或职能部门，便于统一管理</p>
       </div>
       {this.props.noName !== true &&
         <div className="form-group">
