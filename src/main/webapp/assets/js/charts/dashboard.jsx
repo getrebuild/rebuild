@@ -108,7 +108,7 @@ let render_dashboard = function (init) {
     handleClass: 'chart-title',
     animate: true,
     auto: false,
-    verticalMargin: 20
+    verticalMargin: 10
   }).data('gridstack')
 
   gridstack_serialize = init
