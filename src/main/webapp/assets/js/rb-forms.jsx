@@ -186,7 +186,7 @@ class RbForm extends React.Component {
       this.props.children.map((child) => {
         let val = child.props.value
         if (val && child.props.readonly !== true) {
-          if ($.type(val) === 'array') val = val[0]  // 若为数组，第一个就是真实值
+          if (typeof val === 'object') val = val.id  // 复合型值 {id:xxx, text:xxx}
           this.setFieldValue(child.props.field, val)
         }
       })
@@ -338,9 +338,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (props.nullable === false && props.readonly === false) {
-        $empty(props.value) && props.$$$parent.setFieldValue(props.field, null, props.label + '不能为空')
-      }
+      if (!props.nullable && !props.readonly && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, props.label + '不能为空')
       props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
     }
     if (!props.onView && !this.props.readonly) this.onEditModeChanged()
@@ -845,7 +843,7 @@ class RbFormReference extends RbFormElement {
     if (val) {
       let o = new Option(val.text, val.id, true, true)
       this.__select2.append(o)
-      this.handleChange({ target: { value: val[0] } }, true)
+      this.handleChange({ target: { value: val.id } }, true)
     } else this.__select2.val(null).trigger('change')
   }
 }

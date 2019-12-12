@@ -57,14 +57,13 @@
 					<div class="form-group row footer">
 						<div class="col-sm-7 offset-sm-3">
 							<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
-							<a class="btn btn-link" onclick="parent.RbModal.hide()">取消</a>
+							<button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">取消</button>
 						</div>
 					</div>
 				</div>
 			</div>
 			<div class="tab-pane" id="IMPORTS">
-				<div id="metaschemas">
-				</div>
+				<div id="metaschemas"></div>
 			</div>
 		</div>
 	</div>

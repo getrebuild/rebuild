@@ -7,6 +7,9 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>字段信息</title>
 <style type="text/css">
+.col-form-label {
+	padding-bottom: 8px;
+}
 .sortable-box {
 	height: 208px;
 	max-width: 300px;

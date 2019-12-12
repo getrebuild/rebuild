@@ -48,6 +48,7 @@ import org.springframework.util.Assert;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -515,38 +516,43 @@ public class FormsBuilder extends FormsManager {
 			return;
 		}
 
+		// 已布局字段。字段是否布局会影响返回值
+		Set<String> inFormFields = new HashSet<>();
+		for (Object o : elements) {
+			inFormFields.add(((JSONObject) o).getString("field"));
+		}
+
 		Map<String, Object> initialValReady = new HashMap<>();
 		for (Map.Entry<String, Object> e : initialVal.entrySet()) {
-			String field = e.getKey();
-			String value = (String) e.getValue();
+			final String field = e.getKey();
+			final String value = (String) e.getValue();
 			if (StringUtils.isBlank(value)) {
 				continue;
 			}
 
 			// 引用字段值如 `&User`
 			if (field.startsWith(DV_REFERENCE_PREFIX)) {
-				JSON mixValue = readyReferenceValue(value);
+				Object mixValue = readyReferenceValue(value);
 				if (mixValue != null) {
 					Entity source = MetadataHelper.getEntity(field.substring(1));
 					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
 					// 如有多个则全部填充
-					for (Field rtf : reftoFields) {
-						initialValReady.put(rtf.getName(), mixValue);
+					for (Field refto : reftoFields) {
+						initialValReady.put(refto.getName(), inFormFields.contains(refto.getName()) ? mixValue : value);
 					}
 				}
 			}
 			// 主实体字段
 			else if (field.equals(DV_MASTER)) {
-				JSON mixValue = readyReferenceValue(value);
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-				if (mixValue != null && stmField != null) {
+				Object mixValue = inFormFields.contains(Objects.requireNonNull(stmField).getName()) ? readyReferenceValue(value) : value;
+				if (mixValue != null) {
 					initialValReady.put(stmField.getName(), mixValue);
 				}
 			}
 			else if (entity.containsField(field)) {
-				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
-				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
-					JSON mixValue = readyReferenceValue(value);
+				if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+					Object mixValue = inFormFields.contains(field) ? readyReferenceValue(value) : value;
 					if (mixValue != null) {
 						initialValReady.put(field, mixValue);
 					}

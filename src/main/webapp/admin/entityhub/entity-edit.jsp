@@ -6,9 +6,25 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>实体管理</title>
 <style type="text/css">
-a#entityIcon{display:inline-block;width:36px;height:36px;background-color:#e3e3e3;text-align:center;border-radius:2px;}
-a#entityIcon .icon{font-size:26px;color:#555;line-height:36px;}
-a#entityIcon:hover{opacity:0.8}
+.col-form-label {
+	padding-bottom: 8px;
+}
+a#entityIcon {
+	display: inline-block;
+	width: 36px;
+	height: 36px;
+	background-color: #e3e3e3;
+	text-align: center;
+	border-radius: 2px;
+}
+a#entityIcon .icon {
+	font-size: 26px;
+	color: #555;
+	line-height: 36px;
+}
+a#entityIcon:hover {
+	opacity: 0.8
+}
 </style>
 </head>
 <body>

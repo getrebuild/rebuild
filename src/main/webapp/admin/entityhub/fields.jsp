@@ -87,55 +87,56 @@
 
 <%@ include file="/_include/Foot.jsp"%>
 <script>
-window.__PageConfig = { isSuperAdmin: ${isSuperAdmin} }
+window.__PageConfig = {
+	entityName: '${entityName}',
+	nameField: '${nameField}',
+	isSuperAdmin: ${isSuperAdmin}
+}
 </script>
 <script type="text/babel">
-let fields_data = null
-let name_field = '${nameField}'
-$(document).ready(function(){
-	$.get('../list-field?entity=${entityName}', function(res){
-		fields_data = res.data
-		render_list()
-	})
+const wpc = window.__PageConfig
+$(document).ready(function () {
+	loadFields()
 
-	$('.input-search .btn').click(function(){
-		render_list($val('.input-search .form-control'))
-	})
-	$('.input-search .form-control').keydown(function(event){
+	$('.input-search .btn').click(() => __renderList())
+	$('.input-search .form-control').keydown(function (event) {
 		if (event.which == 13) $('.input-search .btn').trigger('click')
 	})
-
-	$('.J_new-field').click(function(){
-		if (window.__PageConfig.isSuperAdmin) RbModal.create('${baseUrl}/admin/p/entityhub/field-new?entity=${entityName}', '添加字段')
+	$('.J_new-field').click(function () {
+		if (wpc.isSuperAdmin) RbModal.create('${baseUrl}/admin/p/entityhub/field-new?entity=${entityName}', '添加字段')
 		else RbHighbar.error('仅超级管理员可添加字段')
 	})
 });
-const render_list = function(q){
-	if (!fields_data) return
-	let tbody = $('#dataList tbody').empty()
-	let size = 0
-	$(fields_data).each(function(idx, item){
-		if (!!q){
-			if (!(item.fieldName.contains(q) || item.fieldLabel.contains(q))) return
+let fields_data = null
+const loadFields = function () {
+	$.get('../list-field?entity=' + wpc.entityName, function (res) {
+		fields_data = res.data
+		__renderList()
+	})
+}
+const __renderList = function () {
+	const $tbody = $('#dataList tbody').empty()
+	const q = ($val('.input-search .form-control') || '').toLowerCase()
+	$(fields_data || []).each(function (idx, item) {
+		if (q && !(item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q))) return
+
+		let $tr = $('<tr data-id="' + (item.fieldId || '') + '"></tr>').appendTo($tbody)
+		let $name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo($tr)
+		if (item.fieldName == wpc.nameField) {
+			$tr.addClass('primary')
+			$('<span class="badge badge-pill badge-secondary thin ml-1">名称</span>').appendTo($name)
+		} else if (item.creatable == false) {
+			$tr.addClass('muted')
+		} else if (item.nullable == false) {
+			$tr.addClass('danger')
 		}
-		let tr = $('<tr data-id="' + (item.fieldId || '') + '"></tr>').appendTo(tbody)
-		let name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo(tr)
-		if (item.fieldName == name_field){
-			tr.addClass('primary')
-			$('<span class="badge badge-pill badge-secondary thin ml-1">名称</span>').appendTo(name)
-		} else if (item.creatable == false){
-			tr.addClass('muted')
-		} else if (item.nullable == false){
-			tr.addClass('danger')
-		}
-		$('<td><div class="text-muted">' + item.fieldName + '</div></td>').appendTo(tr)
-		$('<td><div class="text-muted">' + item.displayType + '</div></td>').appendTo(tr)
-		$('<td><div>' + (item.comments || '') + '</div></td>').appendTo(tr)
-		$('<td class="actions"><a class="icon J_edit" href="field/' + item.fieldName + '"><i class="zmdi zmdi-settings"></i></a></td>').appendTo(tr)
-		size++
+		$('<td><div class="text-muted">' + item.fieldName + '</div></td>').appendTo($tr)
+		$('<td><div class="text-muted">' + item.displayType + '</div></td>').appendTo($tr)
+		$('<td><div>' + (item.comments || '') + '</div></td>').appendTo($tr)
+		$('<td class="actions"><a class="icon J_edit" href="field/' + item.fieldName + '"><i class="zmdi zmdi-settings"></i></a></td>').appendTo($tr)
 	});
-	
-	$('.dataTables_info').text('共 ' + size + ' 个字段')
+
+	$('.dataTables_info').text('共 ' + $tbody.find('tr').length + ' 个字段')
 	$('#dataList').parent().removeClass('rb-loading-active')
 }
 </script>
