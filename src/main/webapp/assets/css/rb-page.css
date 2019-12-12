@@ -170,6 +170,11 @@ a.badge.text-id:hover {
     background-color: #eee;
 }
 
+.link.inline {
+    position: relative;
+    display: inline-block;
+}
+
 .up-1 {
     transform: translateY(-1px);
 }
@@ -1234,8 +1239,6 @@ i.split.ui-draggable-dragging {
 .column-main:hover {
     border-bottom: 0 solid;
 }
-
-.column-url {}
 
 .link:hover,
 .column-url:hover {

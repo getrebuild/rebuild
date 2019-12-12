@@ -145,10 +145,9 @@ class RbForm extends React.Component {
   render() {
     return <div className="rbform">
       <div className="form" ref={(c) => this._form = c}>
-        {this.props.children.map((child) => {
-          return React.cloneElement(child, { $$$parent: this, ref: 'field-' + child.props.field })
-          // Has error in strict-mode
-          //child.$$$parent = that; return child
+        {this.props.children.map((fieldComp) => {
+          let refid = 'fieldcomp-' + fieldComp.props.field
+          return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
         })}
         {this.renderFormAction()}
       </div>
@@ -196,12 +195,13 @@ class RbForm extends React.Component {
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
+    const that = this
     data.forEach((item) => {
       // eslint-disable-next-line react/no-string-refs
-      let reff = this.refs['field-' + item.field]
-      if (reff) {
-        if (item.fillinForce !== true && !!reff.getValue()) return
-        if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) reff.setValue(item.value)
+      let fieldComp = that.refs['fieldcomp-' + item.target]
+      if (fieldComp) {
+        if (!item.fillinForce && fieldComp.getValue()) return
+        if ((that.isNew && item.whenCreate) || (!that.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
     })
   }
