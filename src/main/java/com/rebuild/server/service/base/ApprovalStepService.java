@@ -65,7 +65,7 @@ public class ApprovalStepService extends BaseService {
 		final ID recordId = mainRecord.getPrimary();
 		final ID approvalId = mainRecord.getID(EntityHelper.ApprovalId);
 		
-		// 作废之前的步骤（若有）
+		// 使用新流程，作废之前的步骤
 		cancelAliveSteps(recordId, null, null, null, false);
 
 		super.update(mainRecord);
@@ -134,7 +134,7 @@ public class ApprovalStepService extends BaseService {
 		
 		// 拒绝了直接返回
 		if (state == ApprovalState.REJECTED) {
-			// 更新联合审批
+			// 拒绝了，同一节点的其他审批人全部作废
 			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
 
 			// 更新主记录
