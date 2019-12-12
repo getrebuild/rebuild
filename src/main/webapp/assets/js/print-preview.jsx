@@ -59,17 +59,23 @@ class PreviewTable extends React.Component {
     if (!item || !item.value) return null
 
     if (item.type === 'FILE') {
-      return (<ul className="list-unstyled m-0">
-        {JSON.parse(item.value).map((x) => {
+      return (<ul className="m-0 p-0 pl-3">
+        {item.value.map((x) => {
           return <li key={`file-${x}`}>{$fileCutName(x)}</li>
         })}
       </ul>)
     } else if (item.type === 'IMAGE') {
       return (<ul className="list-inline m-0">
-        {JSON.parse(item.value).map((x) => {
+        {item.value.map((x) => {
           return <li className="list-inline-item" key={`image-${x}`}><img src={`${rb.baseUrl}/filex/img/${x}?imageView2/2/w/100/interlace/1/q/100`} /></li>
         })}
       </ul>)
+    } else if (item.type === 'AVATAR') {
+      return <div className="img-field avatar">
+        <span className="img-thumbnail img-upload">
+          <img src={`${rb.baseUrl}/filex/img/${item.value}?imageView2/2/w/100/interlace/1/q/100`} />
+        </span>
+      </div>
     } else if (item.type === 'NTEXT') {
       return <React.Fragment>
         {item.value.split('\n').map((line, idx) => {

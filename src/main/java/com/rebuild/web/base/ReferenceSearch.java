@@ -213,8 +213,8 @@ public class ReferenceSearch extends BaseControll {
 		String q = getParameter(request, "q");
 		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
-		    String type = entity + "." + field;
-			ID[] recently = Application.getRecentlyUsedCache().gets(user, "ClassificationData", "d" + useClassification);
+		    String type = "d" + useClassification;
+			ID[] recently = Application.getRecentlyUsedCache().gets(user, "ClassificationData", type);
 			if (recently.length == 0) {
 				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			} else {
@@ -244,21 +244,22 @@ public class ReferenceSearch extends BaseControll {
 		Object[][] array = Application.createQuery(sql).setLimit(10).array();
 		List<Object> result = new ArrayList<>();
 		for (Object[] o : array) {
-			ID recordId = (ID) o[0];
+			final ID recordId = (ID) o[0];
+            final Object nameValue = o[1];
 			if (entity != null
                     && MetadataHelper.isBizzEntity(entity.getEntityCode())
 					&& (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER))) {
 				continue;
 			}
-			
+
 			String label;
-			if (o[1] == null || StringUtils.isBlank(o[1].toString())) {
+			if (nameValue == null || StringUtils.isBlank(nameValue.toString()) || nameField == null) {
 				label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
 			} else {
-				label = nameField == null ? o[1].toString()
-                        : (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField);
+				label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField, true);
 			}
-			result.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { recordId, label }));
+			
+			result.add(FieldValueWrapper.wrapMixValue(recordId, label));
 		}
 		return result;
 	}

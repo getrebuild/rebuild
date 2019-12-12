@@ -54,15 +54,9 @@ public class RbRecordCodec implements ObjectSerializer {
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             String field = iter.next();
             Object value = record.getObjectValue(field);
-            value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field));
+            value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field), false);
             map.put(field, value);
         }
-//        // 添加一个固定的主键字段便于使用
-//        if (record.getPrimary() != null) {
-//            map.put("__id", record.getPrimary());
-//        }
-
-        String text = map.toJSONString();
-        out.write(text);
+        out.write(map.toJSONString());
     }
 }

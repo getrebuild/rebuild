@@ -150,15 +150,10 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
             Object fieldValue = record.getObjectValue(name);
             if (fieldValue == null) {
                 data.put(varName, StringUtils.EMPTY);
-                continue;
-            }
-
-            if (easyMeta.getDisplayType() == DisplayType.REFERENCE && fieldValue instanceof ID) {
-                fieldValue = FieldValueWrapper.getLabelNotry((ID) fieldValue);
             } else {
-                fieldValue = FieldValueWrapper.instance.wrapFieldValue(fieldValue, easyMeta);
+                fieldValue = FieldValueWrapper.instance.wrapFieldValue(fieldValue, easyMeta, true);
+                data.put(varName, fieldValue);
             }
-            data.put(varName, fieldValue.toString());
         }
         return data;
     }

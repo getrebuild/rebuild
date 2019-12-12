@@ -84,7 +84,7 @@ public class DataListWrapper {
 	 * @return
 	 */
 	public JSON toJson() {
-		final Field namedFiled = MetadataHelper.getNameField(entity);
+		final Field nameFiled = MetadataHelper.getNameField(entity);
 		final int joinFieldsLen = queryJoinFields == null ? 0 : queryJoinFields.size();
 		final int selectFieldsLen = selectFields.length - joinFieldsLen;
 		
@@ -97,8 +97,8 @@ public class DataListWrapper {
 				System.arraycopy(original, 0, row, 0, selectFieldsLen);
 				data[rowIndex] = row;
 			}
-			
-			Object namedVal = null;
+
+			Object nameValue = StringUtils.EMPTY;
 			for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
 				if (!checkHasJoinFieldPrivileges(selectFields[colIndex], original)) {
 					row[colIndex] = NO_READ_PRIVILEGES;
@@ -110,11 +110,14 @@ public class DataListWrapper {
 				}
 
 				Field field = selectFields[colIndex].getField();
-				if (field.equals(namedFiled)) {
-					namedVal = row[colIndex];
+				if (field.equals(nameFiled)) {
+					nameValue = row[colIndex];
+					if (nameValue == null) {
+                        nameValue = StringUtils.EMPTY;
+                    }
 				}
 
-                row[colIndex] = wrapFieldValue(row[colIndex], namedVal, field);
+                row[colIndex] = wrapFieldValue(row[colIndex], nameValue, field);
 			}
 		}
 		
@@ -126,48 +129,21 @@ public class DataListWrapper {
     /**
      * see FormsBuilder#wrapFieldValue(Record, EasyMeta)
      * @param value
-     * @param namedValue
+     * @param nameValue
      * @param field
      * @return
      */
-    protected Object wrapFieldValue(Object value, Object namedValue, Field field) {
+    protected Object wrapFieldValue(Object value, Object nameValue, Field field) {
         EasyMeta fieldEasy = EasyMeta.valueOf(field);
-        DisplayType dt = fieldEasy.getDisplayType();
-
-        if (dt == DisplayType.REFERENCE) {
-            return mixFieldValue((ID) value, null);
-        } else if (dt == DisplayType.ID) {
-            return mixFieldValue((ID) value, namedValue);
+        if (fieldEasy.getDisplayType() == DisplayType.ID) {
+            return FieldValueWrapper.wrapMixValue((ID) value, (String) nameValue);
+        } else if (fieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
+            return FieldValueWrapper.instance.wrapFieldValue(value, fieldEasy, true);
         } else {
             return FieldValueWrapper.instance.wrapFieldValue(value, fieldEasy);
         }
     }
 
-    /**
-     * 引用型字段值
-     *
-     * @param idVal
-     * @param nameVal
-     * @return
-     */
-	private JSON mixFieldValue(ID idVal, Object nameVal) {
-        Entity entity = MetadataHelper.getEntity(idVal.getEntityCode());
-        Field nameField = MetadataHelper.getNameField(entity);
-
-		if (nameVal == null) {
-            Object[] o = Application.getQueryFactory().uniqueNoFilter(idVal, nameField.getName());
-            if (o == null) {
-                return null;
-            }
-            nameVal = o[0];
-		}
-
-		nameVal = FieldValueWrapper.instance.wrapFieldValue(nameVal, new EasyMeta(nameField));
-        return JSONUtils.toJSONObject(
-                new String[] { "id", "text", "entity" },
-                new Object[] { idVal, nameVal, entity.getName() });
-	}
-	
 	/**
 	 * 验证（引用）字段权限
 	 * 

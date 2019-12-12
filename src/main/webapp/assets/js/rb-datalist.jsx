@@ -362,6 +362,8 @@ const CellRenders = {
    */
   renderSimple(v, s, k) {
     if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
+    else if (k.endsWith('.approvalId') && !v) v = '未提交'
+    else if (k.endsWith('.approvalState') && !v) v = '草稿'
     return <td key={k}><div style={s}>{v || ''}</div></td>
   }
 }
@@ -412,6 +414,10 @@ CellRenders.addRender('URL', function (v, s, k) {
 
 CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
+})
+
+CellRenders.addRender('PHONE', function (v, s, k) {
+  return <td key={k}><div style={s}><a href={'tel:' + v} className="column-url">{v}</a></div></td>
 })
 
 const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }
