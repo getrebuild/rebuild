@@ -377,8 +377,8 @@ function __renderRichContent(e) {
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
     {e.related && <div className="related">
-      <span className="text-muted"><i className={`icon zmdi zmdi-${e.related[3]}`}></i> {e.related[2]} - </span>
-      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related[0]}`}>{e.related[1]}</a>
+      <span className="text-muted"><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} - </span>
+      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`}>{e.related.text}</a>
     </div>
     }
     {(e.images || []).length > 0 && <div className="img-field">

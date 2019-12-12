@@ -20,6 +20,7 @@ package com.rebuild.server.helper.datalist;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
@@ -28,6 +29,7 @@ import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -70,6 +72,8 @@ public class DataListWrapper {
 	}
 	
 	/**
+     * 设置权限过滤（针对引用字段）
+     *
 	 * @param user
 	 * @param joinFields
 	 */
@@ -98,26 +102,41 @@ public class DataListWrapper {
 				data[rowIndex] = row;
 			}
 
-			Object nameValue = StringUtils.EMPTY;
+			Object nameValue = null;
 			for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
 				if (!checkHasJoinFieldPrivileges(selectFields[colIndex], original)) {
 					row[colIndex] = NO_READ_PRIVILEGES;
 					continue;
 				}
-				if (row[colIndex] == null) {
+
+				final Object value = row[colIndex];
+				if (value == null) {
 					row[colIndex] = StringUtils.EMPTY;
 					continue;
 				}
 
-				Field field = selectFields[colIndex].getField();
-				if (field.equals(nameFiled)) {
-					nameValue = row[colIndex];
+                SelectItem fieldItem = selectFields[colIndex];
+				Field field = fieldItem.getField();
+				if (field.equals(nameFiled) && !fieldItem.getFieldPath().contains(".")) {
+					nameValue = value;
 					if (nameValue == null) {
                         nameValue = StringUtils.EMPTY;
                     }
 				}
+				// 如果最终没能取得名称字段，则补充
+				if (field.getType() == FieldType.PRIMARY) {
+				    if (nameValue == null) {
+    				    nameValue = FieldValueWrapper.getLabel((ID) value, StringUtils.EMPTY);
+                    } else {
+                        nameValue = FieldValueWrapper.instance.wrapFieldValue(nameValue, nameFiled, true);
+                        if (nameValue == null) {
+                            nameValue = StringUtils.EMPTY;
+                        }
+                    }
+                    ((ID) value).setLabel(nameValue.toString());
+                }
 
-                row[colIndex] = wrapFieldValue(row[colIndex], nameValue, field);
+                row[colIndex] = wrapFieldValue(value, field);
 			}
 		}
 		
@@ -127,16 +146,14 @@ public class DataListWrapper {
 	}
 
     /**
-     * see FormsBuilder#wrapFieldValue(Record, EasyMeta)
      * @param value
-     * @param nameValue
      * @param field
      * @return
      */
-    protected Object wrapFieldValue(Object value, Object nameValue, Field field) {
+    protected Object wrapFieldValue(Object value, Field field) {
         EasyMeta fieldEasy = EasyMeta.valueOf(field);
         if (fieldEasy.getDisplayType() == DisplayType.ID) {
-            return FieldValueWrapper.wrapMixValue((ID) value, (String) nameValue);
+            return FieldValueWrapper.wrapMixValue((ID) value, null);
         } else if (fieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
             return FieldValueWrapper.instance.wrapFieldValue(value, fieldEasy, true);
         } else {
@@ -152,10 +169,10 @@ public class DataListWrapper {
 	 * @return
 	 */
 	private boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
-		if (this.queryJoinFields == null) {
+		if (this.queryJoinFields == null || UserHelper.isAdmin(user)) {
 			return true;
 		}
-		
+
 		String[] fieldPath = field.getFieldPath().split("\\.");
 		if (fieldPath.length == 1) {
 			return true;

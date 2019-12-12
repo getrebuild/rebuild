@@ -317,10 +317,11 @@ public class FieldValueWrapper {
 	 * 获取记录的 NAME/LABEL 字段值
 	 * 
 	 * @param id
+	 * @param defaultValue
 	 * @return
 	 * @throws NoRecordFoundException If no record found
 	 */
-	public static String getLabel(ID id) throws NoRecordFoundException {
+	public static String getLabel(ID id, String defaultValue) throws NoRecordFoundException {
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
 
@@ -331,10 +332,22 @@ public class FieldValueWrapper {
 
 		Object nameLabel = instance.wrapFieldValue(nameValue[0], nameField, true);
 		if (nameLabel == null || StringUtils.isBlank(nameLabel.toString())) {
-			return NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+		    if (defaultValue == null) {
+                defaultValue = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+            }
+			return defaultValue;
 		}
 		return nameLabel.toString();
 	}
+
+    /**
+     * @param id
+     * @return
+     * @throws NoRecordFoundException
+     */
+	public static String getLabel(ID id) throws NoRecordFoundException {
+        return getLabel(id, null);
+    }
 
 	/**
 	 * @param id
@@ -354,7 +367,7 @@ public class FieldValueWrapper {
      * @param text
      * @return Returns `{ id:xxx, text:xxx, entity:xxx }`
      */
-	public static JSON wrapMixValue(ID id, String text) {
+	public static JSONObject wrapMixValue(ID id, String text) {
         if (id != null && StringUtils.isBlank(text)) {
             text = id.getLabel();
         }
