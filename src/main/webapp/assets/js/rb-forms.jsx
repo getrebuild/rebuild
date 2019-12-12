@@ -742,6 +742,7 @@ class RbFormPickList extends RbFormElement {
     if (this.props.readonly) return super.renderElement(__findOptionText(this.state.options, this.props.value))
     const name = `${this.state.field}-opt-`
     return <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
+      <option value=""></option>
       {this.state.options.map((item) => {
         return (<option key={`${name}${item.id}`} value={item.id}>{item.text}</option>)
       })}
@@ -759,7 +760,6 @@ class RbFormPickList extends RbFormElement {
       this.__select2 = $(this._fieldValue).select2({
         placeholder: '选择' + this.props.label
       })
-      if (!this.state.value) this.__select2.val(null)
 
       const that = this
       this.__select2.on('change', function (e) {
