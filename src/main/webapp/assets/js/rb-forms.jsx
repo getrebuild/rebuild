@@ -181,7 +181,7 @@ class RbForm extends React.Component {
   }
 
   componentDidMount() {
-    if (this.isNew === true) {
+    if (this.isNew) {
       this.props.children.map((child) => {
         let val = child.props.value
         if (val && child.props.readonly !== true) {
@@ -801,6 +801,15 @@ class RbFormReference extends RbFormElement {
   }
   _clickView = (e) => window.RbViewPage && window.RbViewPage.clickView(e.target)
 
+  componentDidMount() {
+    super.componentDidMount()
+
+    // Only trigger on first times and new
+    if (this.props.$$$parent.isNew && !this.props.onView && this.props.value && this.props.value.id) {
+      setTimeout(() => this.triggerAutoFillin(this.props.value.id), 500)
+    }
+  }
+
   onEditModeChanged(destroy) {
     if (destroy) {
       super.onEditModeChanged(destroy)
@@ -824,14 +833,20 @@ class RbFormReference extends RbFormElement {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
-          // 字段回填
-          $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
-            res.error_code === 0 && res.data.length > 0 && that.props.$$$parent.setAutoFillin(res.data)
-          })
+          that.triggerAutoFillin(v)
         }
         that.handleChange({ target: { value: v } }, true)
       })
     }
+  }
+
+  // 字段回填
+  triggerAutoFillin(value) {
+    if (this.props.onView) return
+    const $$$parent = this.props.$$$parent
+    $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
+      res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
+    })
   }
 
   isValueUnchanged() {
