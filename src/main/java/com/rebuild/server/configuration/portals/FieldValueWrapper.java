@@ -287,7 +287,7 @@ public class FieldValueWrapper {
 	 * @param field
 	 * @return
 	 */
-	protected String wrapSpecialField(Object value, EasyMeta field) {
+	protected Object wrapSpecialField(Object value, EasyMeta field) {
 		String fieldName = field.getName().toLowerCase();
 
 		// 密码型字段返回
@@ -299,15 +299,13 @@ public class FieldValueWrapper {
 		if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalState)) {
 			if (value == null) {
 				return ApprovalState.DRAFT.getName();
-			}
-			return ApprovalState.valueOf((Integer) value).getName();
-		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId)) {
-			if (value == null) {
-				return APPROVAL_UNSUBMITTED;
-			}
-			return value.toString();
-		}
-
+			} else {
+    			return ApprovalState.valueOf((Integer) value).getName();
+            }
+		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId) && value == null) {
+		    return wrapMixValue(null, APPROVAL_UNSUBMITTED);
+        }
+		
 		return null;
 	}
 	

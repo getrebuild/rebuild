@@ -254,7 +254,7 @@ class RbForm extends React.Component {
           } else if (next === RbForm.__NEXT_ADDSLAVE) {
             let iv = { '$MASTER$': res.data.id }
             let sm = this.props.$$$parent.state.__formModel.slaveMeta
-            RbFormModal.create({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
+            RbFormModal.create({ title: `添加${sm.entityLabel}`, entity: sm.entity, icon: sm.icon, initialValue: iv })
           } else if (next === RbForm.__NEXT_APPROVAL) {
             renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
           }

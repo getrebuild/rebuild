@@ -33,6 +33,6 @@ public class EasyMetaTest extends TestSupport {
 	public void test() throws Exception {
 		Entity user = MetadataHelper.getEntity("User");
 		EasyMeta.getLabel(user, "roleId.name");
-		EasyMeta.getEntityShow(user);
+		System.out.println(EasyMeta.getEntityShow(user));
 	}
 }
