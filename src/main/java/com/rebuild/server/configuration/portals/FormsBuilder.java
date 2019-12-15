@@ -22,7 +22,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.editor.BoolEditor;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -41,13 +40,14 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.metadata.entity.FieldExtConfigProps;
+import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
-import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -290,13 +290,15 @@ public class FormsBuilder extends FormsManager {
                         case EntityHelper.CreatedBy:
                         case EntityHelper.ModifiedBy:
                         case EntityHelper.OwningUser:
-                            el.put("value", mixFieldValue(currentUser.getId(), currentUser.getFullName(), true));
+                            el.put("value", FieldValueWrapper.wrapMixValue(currentUser.getId(), currentUser.getFullName()));
                             break;
                         case EntityHelper.OwningDept:
-                            el.put("value", mixFieldValue((ID) currentUser.getOwningDept().getIdentity(), currentUser.getOwningDept().getName(), true));
+                            Department dept = currentUser.getOwningDept();
+                            Assert.notNull(dept, "Department of user is unset : " + currentUser.getId());
+                            el.put("value", FieldValueWrapper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
                             break;
 						case EntityHelper.ApprovalId:
-							el.put("value", mixFieldValue("自动值 (审批流程)"));
+							el.put("value", FieldValueWrapper.wrapMixValue(null,"自动值 (审批流程)"));
 							break;
 						case EntityHelper.ApprovalState:
 							el.put("value", ApprovalState.DRAFT.getState());
@@ -372,23 +374,14 @@ public class FormsBuilder extends FormsManager {
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String field = el.getString("field");
-			if (field.startsWith("$")) {
+			if (field.startsWith("$") || !entity.containsField(field)) {
 				continue;
 			}
-			if (!entity.containsField(field)) {
-				continue;
-			}
-			
-			Field fieldMeta = entity.getField(field);
-			
+
 			// REFERENCE
-			if (fieldMeta.getType() == FieldType.REFERENCE) {
-				int ec = fieldMeta.getReferenceEntity().getEntityCode();
-				if (!(ec == EntityHelper.ClassificationData || ec == EntityHelper.PickList)) {
-					ajql.append('&').append(field).append(',');
-				}
+			if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+			    ajql.append('&').append(field).append(',');
 			}
-			
 			ajql.append(field).append(',');
 		}
 		
@@ -398,8 +391,11 @@ public class FormsBuilder extends FormsManager {
 			ajql.deleteCharAt(ajql.length() - 1);
 		}
 
-		ajql.append(" from ").append(entity.getName())
-				.append(" where ").append(entity.getPrimaryField().getName()).append(" = ?");
+		ajql.append(" from ")
+                .append(entity.getName())
+				.append(" where ")
+                .append(entity.getPrimaryField().getName())
+                .append(" = ?");
 		return Application.getQueryFactory().createQuery(ajql.toString(), user).setParameter(1, id).record();
 	}
 	
@@ -407,6 +403,7 @@ public class FormsBuilder extends FormsManager {
 	 * @param entity
 	 * @param recordId
 	 * @return
+     *
 	 * @see RobotApprovalManager#hadApproval(Entity, ID)
 	 */
 	private ApprovalState getHadApproval(Entity entity, ID recordId) {
@@ -434,7 +431,6 @@ public class FormsBuilder extends FormsManager {
 	 * @return
 	 * 
 	 * @see FieldValueWrapper
-	 * @see #findRecord(ID, ID, JSONArray)
 	 */
 	public Object wrapFieldValue(Record data, EasyMeta field) {
 		final String fieldName = field.getName();
@@ -442,7 +438,7 @@ public class FormsBuilder extends FormsManager {
 		// No value
 		if (!data.hasValue(fieldName, false)) {
 			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
-				return mixFieldValue(FieldValueWrapper.APPROVAL_UNSUBMITTED);
+				return FieldValueWrapper.wrapMixValue(null, FieldValueWrapper.APPROVAL_UNSUBMITTED);
 			}
             return null;
         }
@@ -450,52 +446,14 @@ public class FormsBuilder extends FormsManager {
 		final DisplayType dt = field.getDisplayType();
 		final Object fieldValue = data.getObjectValue(fieldName);
 
-		if (dt == DisplayType.CLASSIFICATION) {
-			String classLabel = ClassificationManager.instance.getFullName((ID) fieldValue);
-			classLabel = StringUtils.defaultIfBlank(classLabel, FieldValueWrapper.MISS_REF_PLACE);
-			return mixFieldValue((ID) fieldValue, classLabel, false);
-		}
-		else if (dt == DisplayType.REFERENCE) {
-			ID idValue = (ID) fieldValue;
-			String idLabel = idValue.getLabel();
-			if (idLabel == null) {
-			    idLabel = FieldValueWrapper.getLabelNotry(idValue);
-			}
-			return mixFieldValue(idValue, idLabel, true);
-		} else if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE
-                 || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
+		if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.AVATAR
+                 || dt == DisplayType.STATE || dt == DisplayType.LOCATION) {
 		    return fieldValue.toString();
         } else if (dt == DisplayType.BOOL) {
 		    return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;
         } else {
             return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
         }
-	}
-
-	/**
-	 * @param text
-	 * @return
-	 */
-	private JSON mixFieldValue(String text) {
-		return mixFieldValue(null, text, false);
-	}
-
-	/**
-	 * @param id
-	 * @param text
-	 * @param hasEntity
-	 * @return
-	 */
-	private JSON mixFieldValue(ID id, String text, boolean hasEntity) {
-		if (id != null && StringUtils.isBlank(text)) {
-			text = FieldValueWrapper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
-		}
-
-		JSONObject o = JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { id, text } );
-		if (hasEntity && id != null) {
-			o.put("entity", MetadataHelper.getEntityName(id));
-		}
-		return o;
 	}
 
 	/**
@@ -515,38 +473,43 @@ public class FormsBuilder extends FormsManager {
 			return;
 		}
 
+		// 已布局字段。字段是否布局会影响返回值
+		Set<String> inFormFields = new HashSet<>();
+		for (Object o : elements) {
+			inFormFields.add(((JSONObject) o).getString("field"));
+		}
+
 		Map<String, Object> initialValReady = new HashMap<>();
 		for (Map.Entry<String, Object> e : initialVal.entrySet()) {
-			String field = e.getKey();
-			String value = (String) e.getValue();
+			final String field = e.getKey();
+			final String value = (String) e.getValue();
 			if (StringUtils.isBlank(value)) {
 				continue;
 			}
 
 			// 引用字段值如 `&User`
 			if (field.startsWith(DV_REFERENCE_PREFIX)) {
-				JSON mixValue = readyReferenceValue(value);
+				Object mixValue = readyReferenceValue(value);
 				if (mixValue != null) {
 					Entity source = MetadataHelper.getEntity(field.substring(1));
 					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
 					// 如有多个则全部填充
-					for (Field rtf : reftoFields) {
-						initialValReady.put(rtf.getName(), mixValue);
+					for (Field refto : reftoFields) {
+						initialValReady.put(refto.getName(), inFormFields.contains(refto.getName()) ? mixValue : value);
 					}
 				}
 			}
 			// 主实体字段
 			else if (field.equals(DV_MASTER)) {
-				JSON mixValue = readyReferenceValue(value);
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-				if (mixValue != null && stmField != null) {
+				Object mixValue = inFormFields.contains(Objects.requireNonNull(stmField).getName()) ? readyReferenceValue(value) : value;
+				if (mixValue != null) {
 					initialValReady.put(stmField.getName(), mixValue);
 				}
 			}
 			else if (entity.containsField(field)) {
-				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
-				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
-					JSON mixValue = readyReferenceValue(value);
+				if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+					Object mixValue = inFormFields.contains(field) ? readyReferenceValue(value) : value;
 					if (mixValue != null) {
 						initialValReady.put(field, mixValue);
 					}
@@ -588,7 +551,7 @@ public class FormsBuilder extends FormsManager {
 
 		try {
 			String idLabel = FieldValueWrapper.getLabel(ID.valueOf(idVal));
-			return mixFieldValue(ID.valueOf(idVal), idLabel, true);
+			return FieldValueWrapper.wrapMixValue(ID.valueOf(idVal), idLabel);
 		} catch (NoRecordFoundException ex) {
 			LOG.error("No record found : " + idVal);
 			return null;

@@ -24,17 +24,17 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
-import com.rebuild.server.helper.datalist.DataListWrapper;
 import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
 
 import java.text.DecimalFormat;
 
@@ -44,22 +44,18 @@ import java.text.DecimalFormat;
  * 
  * @author zhaofang123@gmail.com
  * @since 09/23/2018
- * 
- * @see FormsManager
- * @see DataListWrapper
  */
+@SuppressWarnings("unused")
 public class FieldValueWrapper {
 
 	/**
 	 * 引用值被删除时的默认显示
 	 */
 	public static final String MISS_REF_PLACE = "[DELETED]";
-
 	/**
 	 * 流程未提交
 	 */
 	public static final String APPROVAL_UNSUBMITTED = "未提交";
-
 	/**
 	 * 名称字段为空时，采用 @+ID 的方式显示
 	 */
@@ -67,23 +63,48 @@ public class FieldValueWrapper {
 
 	public static final FieldValueWrapper instance = new FieldValueWrapper();
 	private FieldValueWrapper() {}
+
+    /**
+     * @param value
+     * @param field
+     * @param unpackMix
+     * @return
+     * @see #wrapFieldValue(Object, EasyMeta, boolean)
+     */
+    public Object wrapFieldValue(Object value, Field field, boolean unpackMix) {
+        return wrapFieldValue(value, EasyMeta.valueOf(field), unpackMix);
+    }
+
+    /**
+     * @param value
+     * @param field
+     * @param unpackMix
+     * @return
+     * @see #wrapFieldValue(Object, EasyMeta)
+     */
+    public Object wrapFieldValue(Object value, EasyMeta field, boolean unpackMix) {
+        value = wrapFieldValue(value, field);
+        if (unpackMix && value != null) {
+            DisplayType dt = field.getDisplayType();
+            if (dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE) {
+                return ((JSONObject) value).getString("text");
+            } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
+                return value.toString();
+            }
+        }
+        return value;
+    }
 	
 	/**
-	 * @param value
-	 * @param field
-	 * @return
-	 */
-	public Object wrapFieldValue(Object value, Field field) {
-		return wrapFieldValue(value, new EasyMeta(field));
-	}
-	
-	/**
+     * `REFERENCE` 和 `CLASSIFICATION` 返回复合值
+     * `FILE` 和 `IMAGE` 返回 JSONArray
+     * 其他返回格式化后的值
+     *
 	 * @param value
 	 * @param field
 	 * @return
 	 */
 	public Object wrapFieldValue(Object value, EasyMeta field) {
-		// 特殊字段处理
 		Object specialVal = wrapSpecialField(value, field);
 		if (specialVal != null) {
 			return specialVal;
@@ -103,19 +124,19 @@ public class FieldValueWrapper {
 		} else if (dt == DisplayType.DECIMAL) {
 			return wrapDecimal(value, field);
 		} else if (dt == DisplayType.REFERENCE) {
-			return wrapReference(value, field);
-		} else if (dt == DisplayType.BOOL) {
+            return wrapReference(value, field);
+        } else if (dt == DisplayType.BOOL) {
 			return wrapBool(value, field);
 		} else if (dt == DisplayType.PICKLIST) {
 			return wrapPickList(value, field);
-		} else if (dt == DisplayType.CLASSIFICATION) {
-			return wrapClassification(value, field);
 		} else if (dt == DisplayType.STATE) {
-		    return wrapState(value, field);
-        } else if (dt == DisplayType.MULTISELECT) {
+            return wrapState(value, field);
+        } else if (dt == DisplayType.CLASSIFICATION) {
+			return wrapClassification(value, field);
+		} else if (dt == DisplayType.MULTISELECT) {
 			return wrapMultiSelect(value, field);
 		} else if (dt == DisplayType.IMAGE || dt == DisplayType.FILE) {
-            return JSON.parseArray(value.toString());
+            return wrapFile(value, field);
         } else if (dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
             return value;
         } else {
@@ -124,134 +145,134 @@ public class FieldValueWrapper {
 	}
 	
 	/**
-	 * @param date
+	 * @param value
 	 * @param field
 	 * @return
 	 */
-	public String wrapDate(Object date, EasyMeta field) {
+	public String wrapDate(Object value, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("dateFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
-		Assert.notNull(format, "No format : " + field.getBaseMeta());
-		return CalendarUtils.getDateFormat(format).format(date);
+		return CalendarUtils.getDateFormat(format).format(value);
 	}
 
 	/**
-	 * @param date
+	 * @param value
 	 * @param field
 	 * @return
 	 */
-	public String wrapDatetime(Object date, EasyMeta field) {
+	public String wrapDatetime(Object value, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("datetimeFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
-		Assert.notNull(format, "No format : " + field.getBaseMeta());
-		return CalendarUtils.getDateFormat(format).format(date);
+		return CalendarUtils.getDateFormat(format).format(value);
 	}
 	
 	/**
-	 * @param number
+	 * @param value
 	 * @param field
 	 * @return
 	 */
-	public String wrapNumber(Object number, EasyMeta field) {
+	public String wrapNumber(Object value, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("numberFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
-		Assert.notNull(format, "No format : " + field.getBaseMeta());
-		return new DecimalFormat(format).format(number);
+		return new DecimalFormat(format).format(value);
 	}
 
 	/**
-	 * @param decimal
+	 * @param value
 	 * @param field
 	 * @return
 	 */
-	public String wrapDecimal(Object decimal, EasyMeta field) {
+	public String wrapDecimal(Object value, EasyMeta field) {
 		String format = field.getFieldExtConfig().getString("decimalFormat");
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
-		Assert.notNull(format, "No format : " + field.getBaseMeta());
-		return new DecimalFormat(format).format(decimal);
+		return new DecimalFormat(format).format(value);
 	}
 
 	/**
-	 * @param reference 接受参数：1.ID; 2.[ID,Label]数组
+	 * @param value
 	 * @param field
-	 * @return a String of ID or an array [ID, Label, Entity]
+	 * @return
+     * @see #wrapMixValue(ID, String)
 	 */
-	public Object wrapReference(Object reference, EasyMeta field) {
-		if (!(reference instanceof Object[])) {
-			return reference.toString();
-		}
-		
-		Object[] idLabel = (Object[]) reference;
-		Assert.isTrue(idLabel.length == 2, "Must be '[ID, Label]' array");
-		
-		Object[] idNamed = new Object[3];
-		Entity idEntity = MetadataHelper.getEntity(((ID) idLabel[0]).getEntityCode());
-		idNamed[2] = idEntity.getName();
-		idNamed[1] = idLabel[1] == null ? StringUtils.EMPTY : idLabel[1].toString();
-		idNamed[0] = idLabel[0].toString();
-		return idNamed;
+	public JSON wrapReference(Object value, EasyMeta field) {
+        String text = ((ID) value).getLabel();
+	    if (text == null) {
+	        text = getLabelNotry((ID) value);
+        }
+	    return wrapMixValue((ID) value, text);
 	}
 	
 	/**
-	 * @param bool
+	 * @param value
 	 * @param field
 	 * @return
 	 */
-	public String wrapBool(Object bool, EasyMeta field) {
-		return ((Boolean) bool) ? "是" : "否";
+	public String wrapBool(Object value, EasyMeta field) {
+		return (Boolean) value ? "是" : "否";
 	}
 	
 	/**
-	 * @param item
+	 * @param value
 	 * @param field
 	 * @return
 	 * @see PickListManager
 	 */
-	public String wrapPickList(Object item, EasyMeta field) {
-		return StringUtils.defaultIfBlank(PickListManager.instance.getLabel((ID) item), MISS_REF_PLACE);
+	public String wrapPickList(Object value, EasyMeta field) {
+		return StringUtils.defaultIfBlank(PickListManager.instance.getLabel((ID) value), MISS_REF_PLACE);
 	}
+
+    /**
+     * @param value
+     * @param field
+     * @return
+     */
+    public String wrapState(Object value, EasyMeta field) {
+        String stateClass = field.getFieldExtConfig().getString("stateClass");
+        return StateHelper.valueOf(stateClass, (Integer) value).getName();
+    }
 	
 	/**
-	 * @param item
+	 * @param value
 	 * @param field
 	 * @return
 	 * @see ClassificationManager
 	 */
-	public String wrapClassification(Object item, EasyMeta field) {
-		return StringUtils.defaultIfBlank(ClassificationManager.instance.getFullName((ID) item), MISS_REF_PLACE);
+	public JSON wrapClassification(Object value, EasyMeta field) {
+	    ID id = (ID) value;
+	    String text = StringUtils.defaultIfBlank(ClassificationManager.instance.getFullName(id), MISS_REF_PLACE);
+		return wrapMixValue(id, text);
 	}
 
-    /**
-     * @param state
-     * @param field
-     * @return
-     */
-	public String wrapState(Object state, EasyMeta field) {
-        String stateClass = field.getFieldExtConfig().getString("stateClass");
-        return StateHelper.valueOf(stateClass, (Integer) state).getName();
-    }
-
 	/**
-	 * @param item
+	 * @param value
 	 * @param field
 	 * @return
 	 * @see PickListManager
 	 */
-	public String wrapMultiSelect(Object item, EasyMeta field) {
-		if ((Long) item <= 0) {
+	public String wrapMultiSelect(Object value, EasyMeta field) {
+		if ((Long) value <= 0) {
 			return StringUtils.EMPTY;
 		}
-		String[] multiLabel = MultiSelectManager.instance.getLabel((Long) item, (Field) field.getBaseMeta());
+		String[] multiLabel = MultiSelectManager.instance.getLabel((Long) value, (Field) field.getBaseMeta());
 		return StringUtils.join(multiLabel, " / ");
 	}
+
+    /**
+     * @param value
+     * @param field
+     * @return
+     */
+	public JSON wrapFile(Object value, EasyMeta field) {
+	    return JSON.parseArray(value.toString());
+    }
 	
 	/**
-	 * @param simple
+	 * @param value
 	 * @param field
 	 * @return
 	 */
-	public String wrapSimple(Object simple, EasyMeta field) {
-		String text = simple.toString().trim();
+	public String wrapSimple(Object value, EasyMeta field) {
+		String text = value.toString().trim();
 		if (StringUtils.isBlank(text)) {
 			return StringUtils.EMPTY;
 		} else {
@@ -260,11 +281,13 @@ public class FieldValueWrapper {
 	}
 
 	/**
-	 * @param special
+     * 特殊字段处理
+     *
+	 * @param value
 	 * @param field
 	 * @return
 	 */
-	protected String wrapSpecialField(Object special, EasyMeta field) {
+	protected Object wrapSpecialField(Object value, EasyMeta field) {
 		String fieldName = field.getName().toLowerCase();
 
 		// 密码型字段返回
@@ -274,17 +297,15 @@ public class FieldValueWrapper {
 
 		// 审批
 		if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalState)) {
-			if (special == null) {
+			if (value == null) {
 				return ApprovalState.DRAFT.getName();
-			}
-			return ApprovalState.valueOf((Integer) special).getName();
-		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId)) {
-			if (special == null) {
-				return APPROVAL_UNSUBMITTED;
-			}
-			return special.toString();
-		}
-
+			} else {
+    			return ApprovalState.valueOf((Integer) value).getName();
+            }
+		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId) && value == null) {
+		    return wrapMixValue(null, APPROVAL_UNSUBMITTED);
+        }
+		
 		return null;
 	}
 	
@@ -294,10 +315,11 @@ public class FieldValueWrapper {
 	 * 获取记录的 NAME/LABEL 字段值
 	 * 
 	 * @param id
+	 * @param defaultValue
 	 * @return
 	 * @throws NoRecordFoundException If no record found
 	 */
-	public static String getLabel(ID id) throws NoRecordFoundException {
+	public static String getLabel(ID id, String defaultValue) throws NoRecordFoundException {
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		Field nameField = MetadataHelper.getNameField(entity);
 
@@ -306,12 +328,24 @@ public class FieldValueWrapper {
             throw new NoRecordFoundException("No record found by ID : " + id);
         }
 
-		Object nameLabel = FieldValueWrapper.instance.wrapFieldValue(nameValue[0], nameField);
+		Object nameLabel = instance.wrapFieldValue(nameValue[0], nameField, true);
 		if (nameLabel == null || StringUtils.isBlank(nameLabel.toString())) {
-			return NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+		    if (defaultValue == null) {
+                defaultValue = NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+            }
+			return defaultValue;
 		}
 		return nameLabel.toString();
 	}
+
+    /**
+     * @param id
+     * @return
+     * @throws NoRecordFoundException
+     */
+	public static String getLabel(ID id) throws NoRecordFoundException {
+        return getLabel(id, null);
+    }
 
 	/**
 	 * @param id
@@ -325,4 +359,21 @@ public class FieldValueWrapper {
 			return MISS_REF_PLACE;
 		}
 	}
+
+    /**
+     * @param id
+     * @param text
+     * @return Returns `{ id:xxx, text:xxx, entity:xxx }`
+     */
+	public static JSONObject wrapMixValue(ID id, String text) {
+        if (id != null && StringUtils.isBlank(text)) {
+            text = id.getLabel();
+        }
+
+        JSONObject o = JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { id, text } );
+        if (id != null) {
+            o.put("entity", MetadataHelper.getEntityName(id));
+        }
+        return o;
+    }
 }

@@ -68,10 +68,19 @@
 				<textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" placeholder="可选"></textarea>
 			</div>
 		</div>
+		<div class="form-group row pb-0">
+			<label class="col-sm-3 col-form-label text-sm-right"></label>
+			<div class="col-sm-7">
+				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+					<input class="custom-control-input" type="checkbox" id="saveAndNew">
+					<span class="custom-control-label"> 继续添加下一个</span>
+				</label>
+			</div>
+		</div>
 		<div class="form-group row footer">
 			<div class="col-sm-7 offset-sm-3">
             	<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
-            	<a class="btn btn-link" onclick="parent.RbModal.hide()">取消</a>
+            	<button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">取消</button>
 			</div>
 		</div>
 	</form>

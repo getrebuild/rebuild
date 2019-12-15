@@ -251,7 +251,7 @@ class RbHighbar extends React.Component {
       : <div className="message pl-0">{this.props.message}</div>
 
     return (<div ref={(c) => this._rbhighbar = c} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
-      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')}`}>
+      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')} mb-0`}>
         <button className="close" type="button" onClick={this.close}><i className="zmdi zmdi-close" /></button>
         <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
         {content}
@@ -291,7 +291,7 @@ class RbHighbar extends React.Component {
    */
   static error(message) {
     if (!message) message = $lang('SystemBusy')
-    RbHighbar.create(message, 'danger', { timeout: 5000 })
+    RbHighbar.create(message, 'danger', { timeout: 6000 })
   }
 }
 
@@ -477,8 +477,8 @@ const UserShow = function (props) {
   let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
-      {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
+      {props.showName && (<div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>{props.name}{props.deptName && <em>{props.deptName}</em>}</div>)}
     </a>)
 }
 

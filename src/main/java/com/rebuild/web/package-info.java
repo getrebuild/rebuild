@@ -1,6 +1,6 @@
 /*
 rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,23 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <https://www.gnu.org/licenses/>.
 */
 
-package com.rebuild.server.metadata.entity;
-
-import cn.devezhao.persist4j.Entity;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.metadata.MetadataHelper;
-import org.junit.Test;
-
 /**
- * @author devezhao-mbp zhaofang123@gmail.com
- * @since 2019/05/30
+ * 主要是 Controll 控制器，连接前端（WEB）与后端，不涉及任何业务逻辑。此包可以被完整的安全的移除
  */
-public class EasyMetaTest extends TestSupport {
-
-	@Test
-	public void test() throws Exception {
-		Entity user = MetadataHelper.getEntity("User");
-		EasyMeta.getLabel(user, "roleId.name");
-		System.out.println(EasyMeta.getEntityShow(user));
-	}
-}
+package com.rebuild.web;

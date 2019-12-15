@@ -108,7 +108,7 @@ public class FeedsHelper {
             if (StringUtils.isBlank(ats)) {
                 continue;
             }
-            String[] atss = ats.split(" ");
+            String[] atss = ats.split("\\s");
 
             String fullName = atss[0];
             // 全名

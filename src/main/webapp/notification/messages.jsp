@@ -33,7 +33,7 @@
 									<a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action">
 										<span class="text">未读消息</span>
 									</a>
-									<a href="#read" data-type="2" class="list-group-item d-flex list-group-item-action">
+									<a href="#read" data-type="2" class="hide list-group-item d-flex list-group-item-action">
 										<span class="text">已读消息</span>
 									</a>
                                     <a href="#feeds" data-type="30" class="list-group-item d-flex list-group-item-action">

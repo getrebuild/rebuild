@@ -27,6 +27,8 @@ import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
+import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.JSONUtils;
@@ -42,8 +44,10 @@ import javax.servlet.http.HttpServletResponse;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 引用字段搜索
@@ -92,14 +96,21 @@ public class ReferenceSearch extends BaseControll {
 		}
 		q = StringEscapeUtils.escapeSql(q);
 		
-		String sql = "select {0},{1} from {2} where ( {1} like ''%{3}%''";
-		sql = MessageFormat.format(sql, 
-				referenceEntity.getPrimaryField().getName(), referenceNameField.getName(), referenceEntity.getName(), q);
+		// 搜索字符
+		Set<String> searchFields = new HashSet<>();
+		searchFields.add(referenceNameField.getName());
 		if (referenceEntity.containsField(EntityHelper.QuickCode) && StringUtils.isAlphanumericSpace(q)) {
-			sql += MessageFormat.format(" or quickCode like ''%{0}%'' )", q);
-		} else {
-			sql += " )";
+			searchFields.add(EntityHelper.QuickCode);
 		}
+		for (Field seriesField : MetadataSorter.sortFields(referenceEntity, DisplayType.SERIES)) {
+			searchFields.add(seriesField.getName());
+		}
+
+		String like = " like '%" + q + "%'";
+		String searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
+
+		String sql = MessageFormat.format("select {0},{1} from {2} where ( {3} )",
+				referenceEntity.getPrimaryField().getName(), referenceNameField.getName(), referenceEntity.getName(), searchWhere);
 		if (referenceEntity.containsField(EntityHelper.ModifiedOn)) {
 			sql += " order by modifiedOn desc";
 		}
@@ -202,8 +213,8 @@ public class ReferenceSearch extends BaseControll {
 		String q = getParameter(request, "q");
 		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
-		    String type = entity + "." + field;
-			ID[] recently = Application.getRecentlyUsedCache().gets(user, "ClassificationData", "d" + useClassification);
+		    String type = "d" + useClassification;
+			ID[] recently = Application.getRecentlyUsedCache().gets(user, "ClassificationData", type);
 			if (recently.length == 0) {
 				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			} else {
@@ -233,21 +244,22 @@ public class ReferenceSearch extends BaseControll {
 		Object[][] array = Application.createQuery(sql).setLimit(10).array();
 		List<Object> result = new ArrayList<>();
 		for (Object[] o : array) {
-			ID recordId = (ID) o[0];
+			final ID recordId = (ID) o[0];
+            final Object nameValue = o[1];
 			if (entity != null
                     && MetadataHelper.isBizzEntity(entity.getEntityCode())
 					&& (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER))) {
 				continue;
 			}
-			
+
 			String label;
-			if (o[1] == null || StringUtils.isBlank(o[1].toString())) {
+			if (nameValue == null || StringUtils.isBlank(nameValue.toString()) || nameField == null) {
 				label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
 			} else {
-				label = nameField == null ? o[1].toString()
-                        : (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField);
+				label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField, true);
 			}
-			result.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { recordId, label }));
+			
+			result.add(FieldValueWrapper.wrapMixValue(recordId, label));
 		}
 		return result;
 	}

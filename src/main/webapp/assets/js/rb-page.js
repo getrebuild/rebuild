@@ -187,7 +187,7 @@ var __loadMessages = function () {
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)
       if (item[3] === true) o.addClass('notification-unread')
-      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread' : 'read') + '"></a>').appendTo(o)
+      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread' : 'all') + '"></a>').appendTo(o)
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
       o = $('<div class="notification-info"></div>').appendTo(o)
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
@@ -267,12 +267,6 @@ var $fileExtName = function (fileName) {
   fileName = fileName.split('?')[0]
   fileName = fileName.split('.')
   return fileName[fileName.length - 1] || '*'
-}
-
-var $gotoSection = function (top, target) {
-  $(target || 'body').animate({
-    scrollTop: top || 0
-  }, 600)
 }
 
 // Use H5 or Qiuniu

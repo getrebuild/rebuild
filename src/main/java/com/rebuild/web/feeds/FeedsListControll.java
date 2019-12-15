@@ -146,12 +146,17 @@ public class FeedsListControll extends BasePageControll {
             item.put("type", o[8]);
             item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
 
+            // 相关记录
             ID related = (ID) o[9];
             if (related != null && MetadataHelper.containsEntity(related.getEntityCode())) {
                 EasyMeta entity = EasyMeta.valueOf(related.getEntityCode());
-                String recordLabel = FieldValueWrapper.getLabelNotry(related);
-                item.put("related", new Object[] { related, recordLabel, entity.getLabel(), entity.getIcon(), entity.getName() });
+                String nameValue = FieldValueWrapper.getLabelNotry(related);
+                JSONObject mixValue = FieldValueWrapper.wrapMixValue(related, nameValue);
+                mixValue.put("icon", entity.getIcon());
+                mixValue.put("entityLabel", entity.getLabel());
+                item.put("related", mixValue);
             }
+
             list.add(item);
         }
         writeSuccess(response,

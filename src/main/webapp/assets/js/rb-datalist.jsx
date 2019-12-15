@@ -2,11 +2,13 @@ const wpc = window.__PageConfig || {}
 /* eslint-disable react/no-string-refs */
 /* eslint-disable react/prop-types */
 
-// ~~ 数据列表
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
+const COLUMN_DEF_WIDTH = 130
+// 启用试图页编辑功能
 const FIXED_FOOTER = true
 
+// ~~ 数据列表
 class RbList extends React.Component {
 
   constructor(props) {
@@ -16,8 +18,8 @@ class RbList extends React.Component {
     this.__sortFieldKey = 'SortField-' + this.props.config.entity
     this.__columnWidthKey = 'ColumnWidth-' + this.props.config.entity + '.'
 
-    let sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
-    let fields = props.config.fields
+    const sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
+    const fields = props.config.fields
     for (let i = 0; i < fields.length; i++) {
       let cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
@@ -27,7 +29,7 @@ class RbList extends React.Component {
     this.state = { ...props, fields: fields, rowsData: [], pageNo: 1, pageSize: 20, inLoad: true }
 
     this.__defaultColumnWidth = $('#react-list').width() / 10
-    if (this.__defaultColumnWidth < 130) this.__defaultColumnWidth = 130
+    if (this.__defaultColumnWidth < COLUMN_DEF_WIDTH) this.__defaultColumnWidth = COLUMN_DEF_WIDTH
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
@@ -37,91 +39,89 @@ class RbList extends React.Component {
   render() {
     const that = this
     const lastIndex = this.state.fields.length
-    return (
-      <React.Fragment>
-        <div className="row rb-datatable-body">
-          <div className="col-sm-12">
-            <div className="rb-scroller" ref={(c) => this._rblistScroller = c}>
-              <table className="table table-hover table-striped">
-                <thead ref={(c) => this._rblistHead = c}>
-                  <tr>
-                    {this.props.uncheckbox !== true && <th className="column-checkbox">
+    return <React.Fragment>
+      <div className="row rb-datatable-body">
+        <div className="col-sm-12">
+          <div className="rb-scroller" ref={(c) => this._rblistScroller = c}>
+            <table className="table table-hover table-striped">
+              <thead ref={(c) => this._rblistHead = c}>
+                <tr>
+                  {this.props.uncheckbox !== true && <th className="column-checkbox">
+                    <div>
+                      <label className="custom-control custom-control-sm custom-checkbox">
+                        <input className="custom-control-input" type="checkbox" onChange={(e) => this.toggleRows(e)} />
+                        <span className="custom-control-label"></span>
+                      </label>
+                    </div>
+                  </th>}
+                  {this.state.fields.map((item) => {
+                    const cWidth = item.width || that.__defaultColumnWidth
+                    const styles = { width: cWidth + 'px' }
+                    return <th key={'column-' + item.field} style={styles} className={`unselect ${item.unsort ? '' : 'sortable'}`} data-field={item.field}
+                      onClick={!item.unsort && this.sortField.bind(this, item.field)} >
+                      <div style={styles}>
+                        <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
+                        <i className={'zmdi ' + (item.sort || '')} />
+                        <i className="split" />
+                      </div>
+                    </th>
+                  })}
+                  <th className="column-empty"></th>
+                </tr>
+              </thead>
+              <tbody ref={(c) => this._rblistBody = c}>
+                {this.state.rowsData.map((item) => {
+                  const lastPrimary = item[lastIndex]
+                  const rowKey = 'row-' + lastPrimary.id
+                  return <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this.clickRow(e, true)}>
+                    {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
-                          <input className="custom-control-input" type="checkbox" onChange={(e) => this.toggleRows(e)} />
+                          <input className="custom-control-input" type="checkbox" onChange={(e) => this.clickRow(e)} />
                           <span className="custom-control-label"></span>
                         </label>
                       </div>
-                    </th>}
-                    {this.state.fields.map((item) => {
-                      let cWidth = item.width || that.__defaultColumnWidth
-                      let styles = { width: cWidth + 'px' }
-                      let clazz = 'unselect' + (item.unsort ? '' : ' sortable')
-                      let click = item.unsort ? function () { } : this.sortField.bind(this, item.field)
-                      return (<th key={'column-' + item.field} style={styles} className={clazz} onClick={click} data-field={item.field}>
-                        <div style={styles}>
-                          <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
-                          <i className={'zmdi ' + (item.sort || '')} />
-                          <i className="split" />
-                        </div>
-                      </th>)
-                    })}
-                    <th className="column-empty"></th>
+                    </td>
+                    }
+                    {item.map((cell, index) => { return that.renderCell(cell, index, lastPrimary) })}
+                    <td className="column-empty"></td>
                   </tr>
-                </thead>
-                <tbody ref={(c) => this._rblistBody = c}>
-                  {this.state.rowsData.map((item) => {
-                    const lastPrimary = item[lastIndex]
-                    const rowKey = 'row-' + lastPrimary.id
-                    return <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this.clickRow(e, true)}>
-                      {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
-                        <div>
-                          <label className="custom-control custom-control-sm custom-checkbox">
-                            <input className="custom-control-input" type="checkbox" onChange={(e) => this.clickRow(e)} />
-                            <span className="custom-control-label"></span>
-                          </label>
-                        </div>
-                      </td>
-                      }
-                      {item.map((cell, index) => { return that.renderCell(cell, index, lastPrimary) })}
-                      <td className="column-empty"></td>
-                    </tr>
-                  })}
-                </tbody>
-              </table>
-              {this.state.inLoad === false && this.state.rowsData.length === 0 &&
-                <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>}
-            </div>
+                })}
+              </tbody>
+            </table>
+            {this.state.inLoad === false && this.state.rowsData.length === 0 &&
+              <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无数据</p></div>}
           </div>
         </div>
-        {this.state.rowsData.length > 0
-          && <RbListPagination ref={(c) => this._pagination = c} rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
-        {this.state.inLoad === true && <RbSpinner />}
-      </React.Fragment>)
+      </div>
+      {this.state.rowsData.length > 0
+        && <RbListPagination ref={(c) => this._pagination = c} rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
+      {this.state.inLoad === true && <RbSpinner />}
+    </React.Fragment>
   }
 
   componentDidMount() {
-    const scroller = $(this._rblistScroller)
-    scroller.perfectScrollbar()
+    const $scroller = $(this._rblistScroller)
+    $scroller.perfectScrollbar()
 
     if (FIXED_FOOTER && $('.main-content').width() > 998) {
       $('.main-content').addClass('pb-0')
       $addResizeHandler(() => {
         let mh = $(window).height() - 214
         if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 42  // Has tab
-        scroller.css({ maxHeight: mh })
-        scroller.perfectScrollbar('update')
+        $scroller.css({ maxHeight: mh })
+        $scroller.perfectScrollbar('update')
       })()
     }
 
-    let that = this
-    scroller.find('th .split').draggable({
+    const that = this
+    $scroller.find('th .split').draggable({
       containment: '.rb-datatable-body',
       axis: 'x',
       helper: 'clone',
       stop: function (event, ui) {
         let field = $(event.target).parents('th').data('field')
-        let left = ui.position.left - 2
+        let left = ui.position.left - 0
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
         else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
         let fields = that.state.fields
@@ -132,7 +132,7 @@ class RbList extends React.Component {
             break
           }
         }
-        that.setState({ fields: fields }, () => scroller.perfectScrollbar('update'))
+        that.setState({ fields: fields }, () => $scroller.perfectScrollbar('update'))
       }
     })
 
@@ -141,12 +141,13 @@ class RbList extends React.Component {
   }
 
   componentDidUpdate() {
-    const oper = $('.dataTables_oper')
-    oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
+    // 按钮状态
+    const $oper = $('.dataTables_oper')
+    $oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
     const selected = this.getSelectedIds(true).length
-    if (selected > 0) oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
+    if (selected > 0) $oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
     else $(this._rblistHead).find('.custom-control-input').prop('checked', false)
-    if (selected === 1) oper.find('.J_view, .J_edit').attr('disabled', false)
+    if (selected === 1) $oper.find('.J_view, .J_edit').attr('disabled', false)
   }
 
   fetchList(filter) {
@@ -184,6 +185,7 @@ class RbList extends React.Component {
       }
 
       clearTimeout(loadingTimer)
+      loadingTimer = null
       $('#react-list').removeClass('rb-loading-active')
     })
   }
@@ -199,23 +201,23 @@ class RbList extends React.Component {
     if (cellVal === '$NOPRIVILEGES$') {
       return <td key={cellKey}><div className="column-nopriv" title="你无权读取此项数据">[无权限]</div></td>
     } else {
-      let w = this.state.fields[index].width || this.__defaultColumnWidth
-      let t = field.type
+      let width = this.state.fields[index].width || this.__defaultColumnWidth
+      let type = field.type
       if (field.field === this.props.config.nameField) {
         cellVal = lastPrimary
-        t = '$NAME$'
+        type = '$NAME$'
       }
-      return CellRenders.render(cellVal, t, w, cellKey + '.' + field.field)
+      return CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
     }
   }
 
   // 全选
   toggleRows(e, noUpdate) {
-    const body = $(this._rblistBody)
-    if (e.target.checked) body.find('>tr').addClass('active').find('.custom-control-input').prop('checked', true)
-    else body.find('>tr').removeClass('active').find('.custom-control-input').prop('checked', false)
+    const $body = $(this._rblistBody)
+    if (e.target.checked) $body.find('>tr').addClass('active').find('.custom-control-input').prop('checked', true)
+    else $body.find('>tr').removeClass('active').find('.custom-control-input').prop('checked', false)
     // this.setState({ checkedChanged: true })
-    if (!noUpdate) this.componentDidUpdate()
+    if (!noUpdate) this.componentDidUpdate()  // perform
   }
 
   // 单选
@@ -223,16 +225,16 @@ class RbList extends React.Component {
     if (e.target.matches('span.custom-control-label')) return
     if (e.target.matches('input.custom-control-input') && unhold) return
 
-    const tr = $(e.target).parents('tr')
+    const $tr = $(e.target).parents('tr')
     if (unhold) {
       this.toggleRows({ target: { checked: false } }, true)
-      tr.addClass('active').find('.custom-control-input').prop('checked', true)
+      $tr.addClass('active').find('.custom-control-input').prop('checked', true)
     } else {
-      if (e.target.checked) tr.addClass('active')
-      else tr.removeClass('active')
+      if (e.target.checked) $tr.addClass('active')
+      else $tr.removeClass('active')
     }
     // this.setState({ checkedChanged: true })
-    this.componentDidUpdate()
+    this.componentDidUpdate()  // perform
   }
 
   sortField(field, e) {
@@ -246,13 +248,9 @@ class RbList extends React.Component {
         fields[i].sort = null
       }
     }
-    let that = this
-    this.setState({ fields: fields }, function () {
-      that.fetchList()
-    })
+    this.setState({ fields: fields }, () => this.fetchList())
 
-    e.stopPropagation()
-    e.nativeEvent.stopImmediatePropagation()
+    $stopEvent(e)
     return false
   }
 
@@ -304,18 +302,18 @@ class RbList extends React.Component {
    * 获取最后查询过滤数据
    */
   getLastQueryData() {
-    return JSON.parse(JSON.stringify(this.__lastQueryEntry))
+    return JSON.parse(JSON.stringify(this.__lastQueryEntry))  // Use clone
   }
 
   /**
    * 搜索
    */
   search(filter, fromAdv) {
-    let afHold = this.advFilter
+    const afHold = this.advFilter
     if (fromAdv === true) this.advFilter = null
     this.fetchList(filter)
 
-    // Not keep last filter
+    // No keep last filter
     if (fromAdv === true) {
       this.advFilter = afHold
       this.lastFilter = null
@@ -328,7 +326,7 @@ class RbList extends React.Component {
   searchQuick = (el) => this.search(this.__buildQuick(el))
   __buildQuick(el) {
     el = $(el || '.input-search>input')
-    let q = el.val()
+    const q = el.val()
     if (!q && !this.lastFilter) return null
     return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
   }
@@ -364,6 +362,8 @@ const CellRenders = {
    */
   renderSimple(v, s, k) {
     if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
+    else if (k.endsWith('.approvalId') && !v) v = '未提交'
+    else if (k.endsWith('.approvalState') && !v) v = '草稿'
     return <td key={k}><div style={s}>{v || ''}</div></td>
   }
 }
@@ -416,6 +416,10 @@ CellRenders.addRender('EMAIL', function (v, s, k) {
   return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
 })
 
+CellRenders.addRender('PHONE', function (v, s, k) {
+  return <td key={k}><div style={s}><a href={'tel:' + v} className="column-url">{v}</a></div></td>
+})
+
 const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
@@ -447,6 +451,7 @@ class RbListPagination extends React.Component {
     this.state.pageSize = this.state.pageSize || 20
     this.state.rowsTotal = this.state.rowsTotal || 0
   }
+
   render() {
     this.__pageTotal = Math.ceil(this.state.rowsTotal / this.state.pageSize)
     if (this.__pageTotal <= 0) this.__pageTotal = 1
@@ -507,6 +512,7 @@ class RbListPagination extends React.Component {
 // 列表页操作类
 const RbListPage = {
   _RbList: null,
+
   /**
    * @param {*} config DataList config
    * @param {*} entity [Name, Label, Icon]
@@ -582,6 +588,7 @@ const RbListPage = {
 
 // 高级查询操作类
 const AdvFilters = {
+
   /**
    * @param {*} el 控件
    * @param {*} entity 实体
@@ -683,7 +690,7 @@ const AdvFilters = {
   },
 
   showAdvFilter(id, copyId) {
-    let props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
+    const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
     if (!id) {
       if (this.__customAdv) this.__customAdv.show()
       else {
@@ -706,7 +713,7 @@ const AdvFilters = {
 
   saveFilter(filter, name, shareTo) {
     if (!filter) return
-    let that = AdvFilters
+    const that = AdvFilters
     let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
     if (name) url += '&name=' + $encode(name)
     if (shareTo) url += '&shareTo=' + $encode(shareTo)
@@ -717,13 +724,11 @@ const AdvFilters = {
   },
 
   __getFilter(id, call) {
-    $.get(`${rb.baseUrl}/app/entity/advfilter/get?id=${id}`, (res) => {
-      call(res.data)
-    })
+    $.get(`${rb.baseUrl}/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   }
 }
 
-// Init
+// init
 $(document).ready(() => {
   let gs = $urlp('gs', location.hash)
   if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
@@ -737,7 +742,6 @@ $(document).ready(() => {
 
 // ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
-
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
@@ -746,35 +750,33 @@ class RbViewModal extends React.Component {
   }
 
   render() {
-    return (this.state.isDestroy === true ? null :
-      <div className="modal-wrapper">
-        <div className="modal rbview" ref={(c) => this._rbview = c}>
-          <div className="modal-dialog">
-            <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
-              <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                <iframe ref={(c) => this._iframe = c} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
-                <RbSpinner />
-              </div>
+    return !this.state.isDestroy && <div className="modal-wrapper">
+      <div className="modal rbview" ref={(c) => this._rbview = c}>
+        <div className="modal-dialog">
+          <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
+            <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
+              <iframe ref={(c) => this._iframe = c} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
+              <RbSpinner />
             </div>
           </div>
         </div>
       </div>
-    )
+    </div>
   }
 
   componentDidMount() {
-    let root = $(this._rbview)
-    const rootWrap = root.parent().parent()
-    let mc = root.find('.modal-content')
-    let that = this
-    root.on('hidden.bs.modal', function () {
+    const $root = $(this._rbview)
+    const rootWrap = $root.parent().parent()
+    const mc = $root.find('.modal-content')
+    const that = this
+    $root.on('hidden.bs.modal', function () {
       mc.css({ 'margin-right': -1500 })
       that.setState({ inLoad: true, isHide: true })
       if (!$keepModalOpen()) location.hash = '!/View/'
 
       // SubView
       if (that.state.disposeOnHide === true) {
-        root.modal('dispose')
+        $root.modal('dispose')
         that.setState({ isDestroy: true }, () => {
           RbViewModal.holder(that.state.id, 'DISPOSE')
           $unmount(rootWrap)
@@ -865,6 +867,7 @@ window.chart_remove = function (box) {
     ChartsWidget.saveWidget()
   })
 }
+
 // 列表图表部件
 const ChartsWidget = {
 
@@ -895,9 +898,9 @@ const ChartsWidget = {
   },
 
   renderChart: function (chart, append) {
-    let w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
+    let $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
     // eslint-disable-next-line no-undef
-    renderRbcomp(detectChart(chart, chart.chart), w, function () {
+    renderRbcomp(detectChart(chart, chart.chart), $w, function () {
       if (append) ChartsWidget.saveWidget()
     })
   },
@@ -961,6 +964,7 @@ $(document).ready(() => {
 
 // ~~列表记录批量操作
 class BatchOperator extends RbFormHandler {
+
   constructor(props) {
     super(props)
     this.state.dataRange = 2

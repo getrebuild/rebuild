@@ -127,7 +127,7 @@ public class NotificationControll extends BasePageControll {
 	@RequestMapping("/notification/approvals")
 	public void listApprovals(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		int pn = getIntParameter(request, "page", 1);
+		int pn = getIntParameter(request, "pageNo", 1);
 		int ps = getIntParameter(request, "pageSize", 40);
 
 		Object[][] array = Application.createQueryNoFilter(

@@ -1,4 +1,6 @@
 const wpc = window.__PageConfig
+const DIVIDER_LINE = '$DIVIDER$'
+
 $(document).ready(function () {
   $.get('../list-field?from=FORM&entity=' + wpc.entityName, function (res) {
     let validFields = {}, configFields = []
@@ -10,8 +12,8 @@ $(document).ready(function () {
 
     $(wpc.formConfig.elements).each(function () {
       let field = validFields[this.field]
-      if (this.field === '$DIVIDER$') {
-        render_item({ fieldName: this.field, fieldLabel: this.label || '分栏线', isFull: true }, '.form-preview')
+      if (this.field === DIVIDER_LINE) {
+        render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
       } else if (!field) {
         let item = $('<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[' + this.field.toUpperCase() + '] 字段已被删除</span></div></div>').appendTo('.form-preview')
         let action = $('<div class="dd-action"><a>[移除]</a></div>').appendTo(item.find('.dd-handle'))
@@ -34,7 +36,7 @@ $(document).ready(function () {
   })
 
   $('.J_add-divider').click(function () {
-    render_item({ fieldName: '$DIVIDER$', fieldLabel: '分栏线', isFull: true }, '.form-preview')
+    render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', isFull: true }, '.form-preview')
   })
 
   $('.J_save').click(function () {
@@ -43,7 +45,7 @@ $(document).ready(function () {
       let $this = $(this)
       if (!$this.data('field')) return
       let item = { field: $this.data('field') }
-      if (item.field === '$DIVIDER$') {
+      if (item.field === DIVIDER_LINE) {
         item.isFull = true
         item.label = $this.find('span').text()
       } else {
@@ -113,14 +115,14 @@ const render_item = function (data) {
     })
   }
 
-  if (data.fieldName === '$DIVIDER$') {
+  if (data.fieldName === DIVIDER_LINE) {
     item.addClass('divider')
     $('<a>[属性]</a>').appendTo(action).click(function () {
       let call = function (nv) {
-        item.find('.dd-handle span').text(nv.dividerName || '分栏线')
+        item.find('.dd-handle span').text(nv.dividerName || '')
       }
       let ov = item.find('.dd-handle span').text()
-      renderRbcomp(<DlgEditDivider call={call} dividerName={ov === '分栏线' ? null : ov} />)
+      renderRbcomp(<DlgEditDivider call={call} dividerName={ov || ''} />)
     })
     $('<a>[移除]</a>').appendTo(action).click(function () {
       item.remove()

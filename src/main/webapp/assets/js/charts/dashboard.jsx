@@ -39,7 +39,7 @@ $(document).ready(function () {
           high.on('mouseleave', () => {
             high.removeClass('high').off('mouseleave')
           })
-          $gotoSection(high.offset().top - 115, '.chart-grid')
+          $gotoSection(high.offset().top - 65)
         }
       }
     }
@@ -108,7 +108,7 @@ let render_dashboard = function (init) {
     handleClass: 'chart-title',
     animate: true,
     auto: false,
-    verticalMargin: 20
+    verticalMargin: 10
   }).data('gridstack')
 
   gridstack_serialize = init

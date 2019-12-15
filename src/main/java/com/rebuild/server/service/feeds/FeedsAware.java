@@ -108,7 +108,7 @@ public abstract class FeedsAware extends BaseService {
         while (atMatcher.find()) {
             String at = atMatcher.group().substring(1);
             ID atUser = ID.valueOf(at);
-            if (atUser.getEntityCode() != EntityHelper.User) {
+            if (atUser.getEntityCode() != EntityHelper.User || atUsers.contains(atUser)) {
                 continue;
             }
 

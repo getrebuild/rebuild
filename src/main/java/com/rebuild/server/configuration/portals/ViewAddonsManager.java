@@ -30,11 +30,7 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * 视图-相关项/新建相关
@@ -55,13 +51,14 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	public JSON getViewTab(String entity, ID user) {
 		JSON tabs = getViewAddons(entity, user, TYPE_TAB);
 
-		// 添加明细实体到第一个（如有）
+		// 添加明细实体到第一个
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		if (entityMeta.getSlaveEntity() != null) {
-			String[] show = EasyMeta.getEntityShow(entityMeta.getSlaveEntity());
-			JSON allTabs = (JSON) JSON.toJSON(new String[][] { show });
-			((JSONArray) allTabs).fluentAddAll((Collection<?>) tabs);
-			tabs = allTabs;
+			JSON slave = EasyMeta.getEntityShow(entityMeta.getSlaveEntity());
+			JSONArray tabsFluent = new JSONArray();
+            tabsFluent.add(slave);
+            tabsFluent.fluentAddAll((Collection<?>) tabs);
+            tabs = tabsFluent;
 		}
 		return tabs;
 	}
@@ -87,20 +84,18 @@ public class ViewAddonsManager extends BaseLayoutManager {
 
 		// 未配置则使用全部相关项
 		if (config == null) {
-			Set<String[]> refs = new HashSet<>();
+		    JSONArray refs = new JSONArray();
 			for (Field field : MetadataHelper.getEntity(entity).getReferenceToFields(true)) {
 				Entity e = field.getOwnEntity();
-				if (e.getMasterEntity() != null) {
-					continue;
-				}
-				if (Application.getSecurityManager().allow(user, e.getEntityCode(), useAction)) {
+				if (e.getMasterEntity() == null &&
+                        Application.getSecurityManager().allow(user, e.getEntityCode(), useAction)) {
 					refs.add(EasyMeta.getEntityShow(e));
 				}
 			}
-			return (JSON) JSONArray.toJSON(refs);
+			return refs;
 		}
 
-		List<String[]> addons = new ArrayList<>();
+		JSONArray addons = new JSONArray();
 		for (Object o : (JSONArray) config.getJSON("config")) {
 			String e = (String) o;
 			if (MetadataHelper.containsEntity(e)) {
@@ -110,6 +105,6 @@ public class ViewAddonsManager extends BaseLayoutManager {
 				}
 			}
 		}
-		return (JSON) JSON.toJSON(addons);
+		return addons;
 	}
 }

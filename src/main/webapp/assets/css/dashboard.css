@@ -37,6 +37,8 @@
 .grid-stack>.grid-stack-item>.grid-stack-item-content {
     overflow: hidden;
     overflow: unset;
+    left: 5px;
+    right: 5px;
 }
 
 .grid-stack .grid-stack-placeholder>.placeholder-content {
@@ -60,7 +62,7 @@
 }
 
 .chart-grid {
-    padding: 2px 15px 25px 15px;
+    padding: 2px 20px 25px 20px;
     margin-top: 8px;
     min-height: 300px;
     height: auto;

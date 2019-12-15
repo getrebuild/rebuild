@@ -145,10 +145,9 @@ class RbForm extends React.Component {
   render() {
     return <div className="rbform">
       <div className="form" ref={(c) => this._form = c}>
-        {this.props.children.map((child) => {
-          return React.cloneElement(child, { $$$parent: this, ref: 'field-' + child.props.field })
-          // Has error in strict-mode
-          //child.$$$parent = that; return child
+        {this.props.children.map((fieldComp) => {
+          let refid = 'fieldcomp-' + fieldComp.props.field
+          return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
         })}
         {this.renderFormAction()}
       </div>
@@ -182,11 +181,11 @@ class RbForm extends React.Component {
   }
 
   componentDidMount() {
-    if (this.isNew === true) {
+    if (this.isNew) {
       this.props.children.map((child) => {
         let val = child.props.value
         if (val && child.props.readonly !== true) {
-          if ($.type(val) === 'array') val = val[0]  // 若为数组，第一个就是真实值
+          if (typeof val === 'object') val = val.id  // 复合型值 {id:xxx, text:xxx}
           this.setFieldValue(child.props.field, val)
         }
       })
@@ -196,12 +195,13 @@ class RbForm extends React.Component {
   // 表单回填
   setAutoFillin(data) {
     if (!data || data.length === 0) return
+    const that = this
     data.forEach((item) => {
       // eslint-disable-next-line react/no-string-refs
-      let reff = this.refs['field-' + item.field]
-      if (reff) {
-        if (item.fillinForce !== true && !!reff.getValue()) return
-        if ((this.isNew && item.whenCreate) || (!this.isNew && item.whenUpdate)) reff.setValue(item.value)
+      let fieldComp = that.refs['fieldcomp-' + item.target]
+      if (fieldComp) {
+        if (!item.fillinForce && fieldComp.getValue()) return
+        if ((that.isNew && item.whenCreate) || (!that.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
       }
     })
   }
@@ -254,7 +254,7 @@ class RbForm extends React.Component {
           } else if (next === RbForm.__NEXT_ADDSLAVE) {
             let iv = { '$MASTER$': res.data.id }
             let sm = this.props.$$$parent.state.__formModel.slaveMeta
-            RbFormModal.create({ title: `添加${sm[1]}`, entity: sm[0], icon: sm[2], initialValue: iv })
+            RbFormModal.create({ title: `添加${sm.entityLabel}`, entity: sm.entity, icon: sm.icon, initialValue: iv })
           } else if (next === RbForm.__NEXT_APPROVAL) {
             renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
           }
@@ -309,7 +309,7 @@ class RbFormElement extends React.Component {
         {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
         {editable && !this.state.editMode && <a className="edit" title="编辑" onClick={() => this.toggleEditMode(true)} />}
         {editable && this.state.editMode && <div className="edit-oper">
-          <div className="btn-group">
+          <div className="btn-group shadow-sm">
             <button type="button" className="btn btn-secondary" onClick={this.handleEditConfirm}><i className="icon zmdi zmdi-check"></i></button>
             <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)}><i className="icon zmdi zmdi-close"></i></button>
           </div>
@@ -338,9 +338,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (props.nullable === false && props.readonly === false) {
-        $empty(props.value) && props.$$$parent.setFieldValue(props.field, null, props.label + '不能为空')
-      }
+      if (!props.nullable && !props.readonly && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, props.label + '不能为空')
       props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
     }
     if (!props.onView && !this.props.readonly) this.onEditModeChanged()
@@ -744,6 +742,7 @@ class RbFormPickList extends RbFormElement {
     if (this.props.readonly) return super.renderElement(__findOptionText(this.state.options, this.props.value))
     const name = `${this.state.field}-opt-`
     return <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
+      <option value=""></option>
       {this.state.options.map((item) => {
         return (<option key={`${name}${item.id}`} value={item.id}>{item.text}</option>)
       })}
@@ -761,7 +760,6 @@ class RbFormPickList extends RbFormElement {
       this.__select2 = $(this._fieldValue).select2({
         placeholder: '选择' + this.props.label
       })
-      if (!this.state.value) this.__select2.val(null)
 
       const that = this
       this.__select2.on('change', function (e) {
@@ -803,6 +801,15 @@ class RbFormReference extends RbFormElement {
   }
   _clickView = (e) => window.RbViewPage && window.RbViewPage.clickView(e.target)
 
+  componentDidMount() {
+    super.componentDidMount()
+
+    // Only trigger on first times and new
+    if (this.props.$$$parent.isNew && !this.props.onView && this.props.value && this.props.value.id) {
+      setTimeout(() => this.triggerAutoFillin(this.props.value.id), 500)
+    }
+  }
+
   onEditModeChanged(destroy) {
     if (destroy) {
       super.onEditModeChanged(destroy)
@@ -826,14 +833,20 @@ class RbFormReference extends RbFormElement {
         let v = e.target.value
         if (v) {
           $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
-          // 字段回填
-          $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${entity}&field=${that.props.field}&source=${v}`, (res) => {
-            res.error_code === 0 && res.data.length > 0 && that.props.$$$parent.setAutoFillin(res.data)
-          })
+          that.triggerAutoFillin(v)
         }
         that.handleChange({ target: { value: v } }, true)
       })
     }
+  }
+
+  // 字段回填
+  triggerAutoFillin(value) {
+    if (this.props.onView) return
+    const $$$parent = this.props.$$$parent
+    $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
+      res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
+    })
   }
 
   isValueUnchanged() {
@@ -845,7 +858,7 @@ class RbFormReference extends RbFormElement {
     if (val) {
       let o = new Option(val.text, val.id, true, true)
       this.__select2.append(o)
-      this.handleChange({ target: { value: val[0] } }, true)
+      this.handleChange({ target: { value: val.id } }, true)
     } else this.__select2.val(null).trigger('change')
   }
 }
@@ -1018,7 +1031,7 @@ class RbFormDivider extends React.Component {
   render() {
     // TODO 编辑页暂无分割线
     if (!this.props.onView) return null
-    return <div className="form-line" ref={(c) => this._element = c}>
+    return <div className="form-line hover" ref={(c) => this._element = c}>
       <fieldset>{this.props.label && <legend onClick={this.toggle}>{this.props.label}</legend>}</fieldset>
     </div>
   }

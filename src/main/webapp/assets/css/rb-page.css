@@ -170,6 +170,11 @@ a.badge.text-id:hover {
     background-color: #eee;
 }
 
+.link.inline {
+    position: relative;
+    display: inline-block;
+}
+
 .up-1 {
     transform: translateY(-1px);
 }
@@ -756,7 +761,7 @@ a {
 
 .type-MULTISELECT .form-control-plaintext>.text-muted {
     font-size: 1rem;
-    margin: 4px 0px 5px;
+    margin: 4px 0 5px;
     display: inline-block;
 }
 
@@ -955,8 +960,9 @@ a {
     left: 0;
     right: 0;
     width: 100%;
-    z-index: 1099;
     text-align: center;
+    z-index: 1099;
+    background: transparent;
 }
 
 .rbhighbar.faster {
@@ -1234,8 +1240,6 @@ i.split.ui-draggable-dragging {
     border-bottom: 0 solid;
 }
 
-.column-url {}
-
 .link:hover,
 .column-url:hover {
     text-decoration: underline;
@@ -1315,7 +1319,6 @@ i.split.ui-draggable-dragging {
 .unselect {
     -webkit-touch-callout: none;
     -webkit-user-select: none;
-    -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
@@ -1533,10 +1536,13 @@ i.split.ui-draggable-dragging {
     margin: -11px 0 0;
     padding: 3px 5px 3px 5px;
     color: #444;
-    cursor: default;
 }
 
-.form-line fieldset legend:hover {
+.form-line.hover fieldset legend {
+    cursor: pointer;
+}
+
+.form-line.hover fieldset legend:hover {
     color: #4285f4;
 }
 
@@ -2120,6 +2126,7 @@ form {
     display: inline-block;
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 .user-show+.user-show {
@@ -2162,7 +2169,12 @@ form {
     height: 30px;
     line-height: 30px;
     color: #4285f4;
-    max-width: 131px;
+    max-width: 140px;
+}
+
+.user-show .name.vm {
+    line-height: 1.2;
+    padding-top: 1px;
 }
 
 .user-show .name>em {
@@ -2260,8 +2272,7 @@ form {
 }
 
 .approval-pane .alert .message {
-    padding: 10px;
-    padding-left: 0;
+    padding: 10px 10px 10px 0;
 }
 
 .approval-pane .alert .close.btn {
@@ -2463,6 +2474,27 @@ form {
     text-align: center;
 }
 
+
+.notification-page {
+    padding: 0 10px;
+}
+
+.notification-tab {
+    position: relative
+}
+
+.notification-tab .read-all {
+    position: absolute;
+    top: 0;
+    right: 0
+}
+
+@media (max-width:768px) {
+    .float-right .rb-notifications {
+        right: 0;
+    }
+}
+
 .notification-type {
     min-height: 198px;
     position: sticky;
@@ -2508,58 +2540,20 @@ form {
     padding: 0 1px;
 }
 
-.notification-list .notification.notification-unread>a:after {
-    top: 17px;
-    background-color: #4285f4 !important
-}
-
 .notification-list .notification.append {
-    position: relative;
-    padding-right: 80px;
+    padding-right: 70px;
 }
 
 .notification-list .notification.append .badge {
     position: absolute;
     right: 15px;
-    top: 10px;
+    top: 11px;
     font-weight: normal;
 }
 
-.notification-list .notification.notification-unread.append .badge {
-    right: 25px;
-}
-
-.rb-notifications .notification.notification-unread.append>a {
-    position: static;
-}
-
-.notification-page {
-    padding-left: 50%
-}
-
-.notification-page>ul {
-    float: left;
-    margin-left: -38px;
-}
-
-.notification-page::after {
-    clear: left
-}
-
-.notification-tab {
-    position: relative
-}
-
-.notification-tab .read-all {
-    position: absolute;
-    top: 0;
-    right: 0
-}
-
-@media (max-width:768px) {
-    .float-right .rb-notifications {
-        right: 0;
-    }
+.notification-list .notification.notification-unread>.a:after {
+    right: 8px;
+    background-color: #4285f4 !important;
 }
 
 .select2-sm .select2-container--default .select2-selection--single,
@@ -3023,7 +3017,7 @@ form {
 }
 
 #asideWidgets .charts-wrap>div {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 #asideWidgets .chart-box.INDEX {
@@ -3045,6 +3039,8 @@ form {
 
 #asideWidgets .chart-box.ApprovalList .progress-wrap {
     margin: 10px 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 #asideWidgets .chart.ApprovalList .table td,

@@ -281,7 +281,7 @@ const RbViewPage = {
         let v = res.data[k]
         if (!v || v === undefined) return
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName2={v[2]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
         } else if (k === 'sharingList') {
           let list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           let _this = this
@@ -312,13 +312,13 @@ const RbViewPage = {
 
   // 列表
   initVTabs(config) {
-    let that = this
+    const that = this
     that.__vtabEntities = []
     $(config).each(function () {
-      let entity = this[0]
+      const entity = this.entity
+      const tabId = 'tab-' + entity
       that.__vtabEntities.push(entity)
-      let tabId = 'tab-' + entity
-      let tabNav = $('<li class="nav-item"><a class="nav-link" href="#' + tabId + '" data-toggle="tab">' + this[1] + '</a></li>').appendTo('.nav-tabs')
+      let tabNav = $('<li class="nav-item"><a class="nav-link" href="#' + tabId + '" data-toggle="tab">' + this.entityLabel + '</a></li>').appendTo('.nav-tabs')
       let tabPane = $('<div class="tab-pane" id="' + tabId + '"></div>').appendTo('.tab-content')
       tabNav.find('a').click(function () {
         tabPane.find('.related-list').length === 0 && renderRbcomp(<RelatedList entity={entity} master={that.__id} />, tabPane)
@@ -352,16 +352,16 @@ const RbViewPage = {
 
   // 新建
   initVAdds(config) {
-    let that = this
+    const that = this
     $(config).each(function () {
-      let entity = this
-      let item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + entity[2] + '"></i>新建' + entity[1] + '</a>')
-      item.click(function () {
+      const e = this
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${e.icon}"></i>新建${e.entityLabel}</a>`)
+      $item.click(function () {
         let iv = {}
         iv['&' + that.__entity[0]] = that.__id
-        RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2], initialValue: iv })
+        RbFormModal.create({ title: `新建${e.entityLabel}`, entity: e.entity, icon: e.icon, initialValue: iv })
       })
-      $('.J_adds .dropdown-divider').before(item)
+      $('.J_adds .dropdown-divider').before($item)
     })
     this.cleanViewActionButton()
   },

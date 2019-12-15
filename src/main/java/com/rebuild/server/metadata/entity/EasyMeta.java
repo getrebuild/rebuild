@@ -237,7 +237,7 @@ public class EasyMeta implements BaseMeta {
         }
 
         Set<String> set = RobotTriggerManager.instance.getAutoReadonlyFields(field.getOwnEntity().getName());
-        return set.contains(field.getName()) ? false : true;
+        return !set.contains(field.getName());
     }
 
     /**
@@ -373,10 +373,12 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	/**
-	 * @return returns [Name, Label, Icon]
+	 * @return Retuens { entity:xxx, entityLabel:xxx, icon:xxx }
 	 */
-	public static String[] getEntityShow(Entity entity) {
-		EasyMeta em = valueOf(entity);
-		return new String[] { entity.getName(), em.getLabel(), em.getIcon() };
+	public static JSON getEntityShow(Entity entity) {
+		EasyMeta easy = valueOf(entity);
+		return JSONUtils.toJSONObject(
+		        new String[] { "entity", "entityLabel", "icon" },
+                new String[] { easy.getName(), easy.getLabel(), easy.getIcon() });
 	}
 }

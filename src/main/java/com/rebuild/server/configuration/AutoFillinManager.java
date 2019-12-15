@@ -32,8 +32,6 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -47,8 +45,6 @@ import java.util.Set;
  * @since 2019/05/17
  */
 public class AutoFillinManager implements ConfigManager<Field> {
-	
-	private static final Log LOG = LogFactory.getLog(AutoFillinManager.class);
 	
 	public static final AutoFillinManager instance = new AutoFillinManager();
 	private AutoFillinManager() { }
@@ -76,11 +72,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 					|| !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
 				continue;
 			}
-
-			Field sourceFieldMeta = sourceEntity.getField(sourceField);
-			if (EasyMeta.getDisplayType(sourceFieldMeta) == DisplayType.REFERENCE) {
-				sourceFields.add("&" + sourceField);
-			}
+			
 			sourceFields.add(sourceField);
 		}
 		if (sourceFields.isEmpty()) {
@@ -103,7 +95,8 @@ public class AutoFillinManager implements ConfigManager<Field> {
 			if (sourceRecord.hasValue(sourceField)) {
 				String targetField = e.getString("target");
 				value = conversionCompatibleValue(
-						sourceEntity.getField(sourceField), targetEntity.getField(targetField),
+						sourceEntity.getField(sourceField),
+                        targetEntity.getField(targetField),
 						sourceRecord.getObjectValue(sourceField));
 			}
 			
@@ -120,7 +113,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	}
 	
 	/**
-	 * 回填值做兼容处理。例如 引用字段回填至文本，要用 Label，而不是 ID 数组
+	 * 回填值做兼容处理。例如引用字段回填至文本，要用 Label，而不是 ID
 	 * 
 	 * @param source
 	 * @param target
@@ -131,37 +124,34 @@ public class AutoFillinManager implements ConfigManager<Field> {
 		DisplayType sourceType = EasyMeta.getDisplayType(source);
 		DisplayType targetType = EasyMeta.getDisplayType(target);
 		boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
-		
+		EasyMeta sourceField = EasyMeta.valueOf(source);
+
 		Object compatibleValue = null;
 		if (sourceType == DisplayType.REFERENCE) {
+		    String idLabel = FieldValueWrapper.getLabelNotry((ID) value);
 			if (is2Text) {
-				compatibleValue = ((ID) value).getLabel();
+				compatibleValue = idLabel;
 			} else {
-				Object[] idAndLabel = new Object[] { value, ((ID) value).getLabel() };
-				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(idAndLabel, source);
+				compatibleValue = FieldValueWrapper.wrapMixValue((ID) value, idLabel);
 			}
 		} else if (sourceType == DisplayType.CLASSIFICATION) {
-			// Label
-			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
-			if (!is2Text) {
-				compatibleValue = new Object[] { value, compatibleValue };  // [ID, Label]
-			}
+		    compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField, is2Text);
 		} else if (sourceType == DisplayType.PICKLIST || sourceType == DisplayType.STATE) {
 			if (is2Text) {
-				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
+				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField);
 			} else {
 				compatibleValue = value;
 			}
 		} else if (sourceType == DisplayType.DATETIME && targetType == DisplayType.DATE) {
-			String datetime = (String) FieldValueWrapper.instance.wrapFieldValue(value, source);
+			String datetime = FieldValueWrapper.instance.wrapDatetime(value, sourceField);
 			compatibleValue = datetime.split(" ")[0];
 		} else if (sourceType == DisplayType.DATE && targetType == DisplayType.DATETIME) {
-			String date = (String) FieldValueWrapper.instance.wrapFieldValue(value, source);
+			String date = FieldValueWrapper.instance.wrapDate(value, sourceField);
 			compatibleValue = date + " 00:00:00";
 		} else {
-			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, source);
+			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField);
 		}
-		
+
 		return compatibleValue;
 	}
 	
@@ -171,12 +161,12 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	 * @param field
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	private List<ConfigEntry> getConfig(Field field) {
 		final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
 		Object cached = Application.getCommonCache().getx(cKey);
 		if (cached != null) {
-			return (List<ConfigEntry>) cached;
+            //noinspection unchecked
+            return (List<ConfigEntry>) cached;
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(
@@ -202,8 +192,8 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	}
 	
 	@Override
-	public void clean(Field cacheKey) {
-		final String cKey = "AutoFillinManager-" + cacheKey.getOwnEntity().getName() + "." + cacheKey.getName();
+	public void clean(Field field) {
+		final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
 		Application.getCommonCache().evict(cKey);
 	}
 }

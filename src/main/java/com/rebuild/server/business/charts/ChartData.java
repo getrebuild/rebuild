@@ -282,15 +282,11 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 
 		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
 		DisplayType axisType = axisField.getDisplayType();
-		
+
 		String label;
-		if (axisType == DisplayType.REFERENCE) {
-			label = FieldValueWrapper.getLabelNotry((ID) value);
-		} else if (axisType == DisplayType.BOOL
-				|| axisType == DisplayType.PICKLIST 
-				|| axisType == DisplayType.CLASSIFICATION
-				|| axisType == DisplayType.STATE) {
-			label = (String) FieldValueWrapper.instance.wrapFieldValue(value, axisField);
+		if (axisType == DisplayType.REFERENCE || axisType == DisplayType.CLASSIFICATION
+                || axisType == DisplayType.BOOL || axisType == DisplayType.PICKLIST || axisType == DisplayType.STATE) {
+			label = (String) FieldValueWrapper.instance.wrapFieldValue(value, axisField, true);
 		} else {
 			label = value.toString();
 		}

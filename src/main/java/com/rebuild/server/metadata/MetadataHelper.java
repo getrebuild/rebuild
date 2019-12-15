@@ -261,7 +261,7 @@ public class MetadataHelper {
 	}
 
 	/**
-	 * 是否 Bizz 实体
+	 * 是否 Bizz 实体。即 User Department Role Team
 	 *
 	 * @param entityCode
 	 * @return

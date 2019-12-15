@@ -533,7 +533,7 @@ public class GeneralOperatingControll extends BaseControll {
 			JSONArray valuesJson = new JSONArray();
 			for (String field : fields) {
 				Object value = r.getObjectValue(field);
-				value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field));
+				value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field), true);
 				valuesJson.add(value);
 			}
 			data.add(valuesJson);
