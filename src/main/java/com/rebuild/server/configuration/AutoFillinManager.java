@@ -72,11 +72,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 					|| !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
 				continue;
 			}
-
-			Field sourceFieldMeta = sourceEntity.getField(sourceField);
-			if (EasyMeta.getDisplayType(sourceFieldMeta) == DisplayType.REFERENCE) {
-				sourceFields.add("&" + sourceField);
-			}
+			
 			sourceFields.add(sourceField);
 		}
 		if (sourceFields.isEmpty()) {
@@ -99,7 +95,8 @@ public class AutoFillinManager implements ConfigManager<Field> {
 			if (sourceRecord.hasValue(sourceField)) {
 				String targetField = e.getString("target");
 				value = conversionCompatibleValue(
-						sourceEntity.getField(sourceField), targetEntity.getField(targetField),
+						sourceEntity.getField(sourceField),
+                        targetEntity.getField(targetField),
 						sourceRecord.getObjectValue(sourceField));
 			}
 			
@@ -127,31 +124,32 @@ public class AutoFillinManager implements ConfigManager<Field> {
 		DisplayType sourceType = EasyMeta.getDisplayType(source);
 		DisplayType targetType = EasyMeta.getDisplayType(target);
 		boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
-		EasyMeta sourceEasy = EasyMeta.valueOf(source);
+		EasyMeta sourceField = EasyMeta.valueOf(source);
 
 		Object compatibleValue = null;
 		if (sourceType == DisplayType.REFERENCE) {
+		    String idLabel = FieldValueWrapper.getLabelNotry((ID) value);
 			if (is2Text) {
-				compatibleValue = ((ID) value).getLabel();
+				compatibleValue = idLabel;
 			} else {
-				compatibleValue = FieldValueWrapper.wrapMixValue((ID) value, null);
+				compatibleValue = FieldValueWrapper.wrapMixValue((ID) value, idLabel);
 			}
 		} else if (sourceType == DisplayType.CLASSIFICATION) {
-		    compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceEasy, is2Text);
+		    compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField, is2Text);
 		} else if (sourceType == DisplayType.PICKLIST || sourceType == DisplayType.STATE) {
 			if (is2Text) {
-				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceEasy);
+				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField);
 			} else {
 				compatibleValue = value;
 			}
 		} else if (sourceType == DisplayType.DATETIME && targetType == DisplayType.DATE) {
-			String datetime = FieldValueWrapper.instance.wrapDatetime(value, sourceEasy);
+			String datetime = FieldValueWrapper.instance.wrapDatetime(value, sourceField);
 			compatibleValue = datetime.split(" ")[0];
 		} else if (sourceType == DisplayType.DATE && targetType == DisplayType.DATETIME) {
-			String date = FieldValueWrapper.instance.wrapDate(value, sourceEasy);
+			String date = FieldValueWrapper.instance.wrapDate(value, sourceField);
 			compatibleValue = date + " 00:00:00";
 		} else {
-			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceEasy);
+			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField);
 		}
 
 		return compatibleValue;

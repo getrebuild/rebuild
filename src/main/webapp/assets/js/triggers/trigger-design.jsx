@@ -60,6 +60,8 @@ var renderContentComp = function (props) {
   if (rb.env === 'dev') console.log(props)
 }
 
+const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
+
 // 用户选择器
 // eslint-disable-next-line no-unused-vars
 class UserSelectorExt extends UserSelector {
@@ -73,7 +75,7 @@ class UserSelectorExt extends UserSelector {
     this.__fields = []
     $.get(`${rb.baseUrl}/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       $(res.data).each((idx, item) => {
-        if (item.type === 'REFERENCE' && item.ref && (item.ref[0] === 'User' || item.ref[0] === 'Department' || item.ref[0] === 'Role')) {
+        if (item.type === 'REFERENCE' && item.ref && BIZZ_ENTITIES.includes(item.ref[0])) {
           this.__fields.push({ id: item.name, text: item.label })
         }
       })
