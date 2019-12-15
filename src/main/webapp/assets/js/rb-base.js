@@ -342,3 +342,13 @@ var $lang = function () {
 var __getLang = function (key) {
   return (window.__LANGBUNDLE__ || {})[key] || '[' + key.toUpperCase() + ']'
 }
+
+/**
+ * @param top
+ * @param target
+ */
+var $gotoSection = function (top, target) {
+  $(target || 'html').animate({
+    scrollTop: top || 0
+  }, 600)
+}

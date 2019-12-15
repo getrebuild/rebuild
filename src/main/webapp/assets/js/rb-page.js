@@ -269,12 +269,6 @@ var $fileExtName = function (fileName) {
   return fileName[fileName.length - 1] || '*'
 }
 
-var $gotoSection = function (top, target) {
-  $(target || 'html').animate({
-    scrollTop: top || 0
-  }, 600)
-}
-
 // Use H5 or Qiuniu
 var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
