@@ -164,10 +164,10 @@ class DlgRuleEdit extends RbFormHandler {
       if (source.type === 'FILE' && this.type !== 'FILE') return
       if (source.type === 'IMAGE' && this.type !== 'IMAGE') return
       if (source.type === this.type || canFillinByType.includes(this.type)) {
-        if (this.ref) {  // reference field
-          if (source.type === 'REFERENCE' && source.ref[0] === this.ref[0]) {
-            tFields.push(this)
-          }
+        if (source.type === 'REFERENCE') {  // reference field
+          if (source.ref && source.ref[0] === this.ref[0]) tFields.push(this)
+        } else if (source.type === 'STATE') {  // state field
+          if (source.stateClass && source.stateClass === this.stateClass) tFields.push(this)
         } else {
           tFields.push(this)
         }

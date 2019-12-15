@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
+import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -162,10 +163,13 @@ public class MetadataGetting extends BaseControll {
         map.put("creatable", field.isCreatable());
         map.put("updatable", field.isUpdatable());
 
-        if (EasyMeta.getDisplayType(field) == DisplayType.REFERENCE) {
+        DisplayType dt = EasyMeta.getDisplayType(field);
+        if (dt == DisplayType.REFERENCE) {
             Entity refEntity = field.getReferenceEntity();
             Field nameField  = MetadataHelper.getNameField(refEntity);
             map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(nameField).name() });
+        } else if (dt == DisplayType.STATE) {
+            map.put("stateClass", StateHelper.getSatetClass(field).getName());
         }
         return map;
     }
