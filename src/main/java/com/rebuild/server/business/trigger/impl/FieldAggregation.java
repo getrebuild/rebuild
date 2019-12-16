@@ -37,6 +37,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.server.service.query.AdvFilterParser;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -93,10 +94,10 @@ public class FieldAggregation implements TriggerAction {
 	public void execute(OperatingContext operatingContext) throws TriggerException {
 		Integer depth = CALL_CHAIN_DEPTH.get();
 		if (depth == null) {
-			depth = 0;
+			depth = 1;
 		}
-		if (depth >= MAX_DEPTH) {
-			throw new TriggerException("Too many call-chain with triggers");
+		if (depth > MAX_DEPTH) {
+			throw new TriggerException("Too many call-chain with triggers : " + depth);
 		}
 		
 		this.prepare(operatingContext);
@@ -106,16 +107,23 @@ public class FieldAggregation implements TriggerAction {
 		
 		// 如果当前用户对目标记录无修改权限
 		if (!allowNoPermissionUpdate) {
-			if (!Application.getSecurityManager().allowed(
+			if (!Application.getSecurityManager().allow(
 					operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
 				LOG.warn("No privileges to update record of target: " + this.targetRecordId);
 				return;
 			}
 		}
-		
+
+		// 聚合数据过滤
+        JSONObject dataFilter = ((JSONObject) context.getActionContent()).getJSONObject("dataFilter");
+		String dataFilterWhere = null;
+		if (dataFilter != null && !dataFilter.isEmpty()) {
+            dataFilterWhere = new AdvFilterParser(dataFilter).toSqlWhere();
+        }
+
 		// 更新目标
 		Record targetRecord = EntityHelper.forUpdate(targetRecordId, UserService.SYSTEM_USER, false);
-		
+
 		JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
@@ -126,12 +134,16 @@ public class FieldAggregation implements TriggerAction {
 				continue;
 			}
 
-			// 直接利用SQL计算结果
+			// 直接利用 SQL 函数计算结果
 			String calcMode = item.getString("calcMode");
 			String calcField = "COUNT".equalsIgnoreCase(calcMode) ? sourceEntity.getPrimaryField().getName() : sourceField;
 			
 			String sql = String.format("select %s(%s) from %s where %s = ?", 
 					calcMode, calcField, sourceEntity.getName(), followSourceField);
+            if (dataFilterWhere != null) {
+                sql += " and " + dataFilterWhere;
+            }
+
 			Object[] result = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId).unique();
 			double calcValue = result == null || result[0] == null ? 0d : ObjectUtils.toDouble(result[0]);
 			
@@ -148,8 +160,9 @@ public class FieldAggregation implements TriggerAction {
 				PrivilegesGuardInterceptor.setNoPermissionPassOnce(targetRecordId);
 			}
 
-			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
+			// 会关联触发下一触发器（如有）
 			CALL_CHAIN_DEPTH.set(depth + 1);
+			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
 		}
 	}
 
@@ -179,5 +192,10 @@ public class FieldAggregation implements TriggerAction {
 		if (o != null && o[0] != null && o[1] != null) {
 			this.targetRecordId = (ID) o[0];
 		}
+	}
+
+	@Override
+	public void clean() {
+		CALL_CHAIN_DEPTH.remove();
 	}
 }

@@ -60,7 +60,11 @@ body {
 }
 
 .rbview-form .form-group.row {
-	padding: 3px 0;
+	padding: 4px 0;
+}
+
+.rbview-form .form-control-plaintext {
+	min-height: 37px;
 }
 
 .rbview-form .img-field .img-thumbnail:hover,
@@ -71,10 +75,6 @@ body {
 .rbview-form .file-field .img-thumbnail {
 	width: 100%;
 	margin: 0;
-}
-
-.rbview-form .form-control-plaintext:hover {
-	background-color: #fff;
 }
 
 .rbview-form .type-NTEXT .form-control-plaintext {
@@ -137,15 +137,6 @@ body {
 	margin-bottom: 9px;
 }
 
-.related-list .card .float-right {
-	color: #aaa;
-	cursor: help;
-}
-
-.view-operating {
-	padding-left: 30px;
-}
-
 .view-operating>div {
 	margin-bottom: 15px !important;
 }
@@ -194,15 +185,37 @@ body {
 	margin-bottom: 0 !important;
 }
 
-.view-user .row .col-md-8 {
+.view-date .col-lg-4,
+.view-user .col-lg-4 {
+	padding-right: 0;
+	color: #222;
+}
+
+.view-user .col-lg-8 {
 	min-height: 30px;
 	margin-top: -6px;
 	margin-bottom: 0;
+	padding-right: 0;
+	padding-left: 0;
+}
+
+.view-date .col-lg-8 {
+	padding-right: 0;
+	padding-left: 0;
+}
+
+@media screen and (max-width: 991px) {
+
+	.view-user .col-lg-8,
+	.view-date .col-lg-8 {
+		padding-left: 15px;
+		margin-top: 5px;
+	}
 }
 
 .view-user .row ul>li {
-	margin-bottom: 6px;
-	margin-right: 6px;
+	margin-bottom: 0;
+	margin-right: 7px;
 }
 
 .view-user .row ul>li:last-child {
@@ -224,39 +237,35 @@ body {
 }
 
 .sharing-list ul>li>div {
-	border: 1px solid #f7f7f7;
 	background-color: #f7f7f7;
-	padding: 6px 6px;
+	padding: 5px;
 	border-radius: 2px;
 	width: 150px;
 	cursor: pointer;
 	position: relative;
-	height: 44px;
-}
-
-.sharing-list ul>li>div:hover {
-	border: 1px solid #4285f4;
+	height: 40px;
 }
 
 .sharing-list ul>li>div .zmdi {
 	position: absolute;
-	right: 6px;
-	top: 12px;
-	font-size: 1.3rem;
-	color: #4285f4;
+	right: 0;
+	bottom: 0;
+	font-size: 1.2rem;
+	color: #fff;
+	width: 18px;
+	height: 18px;
+	line-height: 18px;
+	background-color: #4285f4;
+	text-align: center;
+	border-bottom-right-radius: 2px;
 }
 
 .sharing-list ul>li>div .user-show .name {
 	color: #555;
-	max-width: 90px;
+	max-width: 100px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
-}
-
-.sharing-list .dialog-footer {
-	margin-left: -20px;
-	margin-right: -25px;
 }
 
 .load-mores {
@@ -282,4 +291,82 @@ body {
 .load-mores>.btn {
 	display: inline-block;
 	margin-top: -1.4rem;
+}
+
+.rbview-form .form-group.row.editable a.edit {
+	position: absolute;
+	right: 15px;
+	top: 0;
+	color: #aaa;
+	width: 20px;
+	height: 20px;
+	margin-top: 7px;
+	text-align: center;
+	border-radius: 2px;
+	background-color: #eee;
+	display: none;
+}
+
+.rbview-form .form-group.row.editable a.edit::before {
+	font-family: 'Material-Design-Iconic-Font';
+	content: '\f158';
+	font-size: 14px;
+	display: inline-block;
+}
+
+.rbview-form .form-group.row.editable a.edit:hover {
+	color: gray;
+}
+
+.rbview-form .form-group.row.editable>div {
+	position: relative;
+}
+
+.rbview-form .form-group.row.editable>div:hover>a.edit {
+	display: block;
+}
+
+.rbview-form .form-group.row.editable>div .edit-oper {
+	text-align: right;
+}
+
+.rbview-form .form-group.row.editable>div .edit-oper .btn {
+	width: 28px;
+	height: 28px;
+	overflow: hidden;
+	line-height: 1.1;
+	padding: 0;
+	min-width: 0;
+	min-height: 0;
+	font-weight: bold;
+}
+
+.type-AVATAR .edit-oper,
+.type-BOOL .edit-oper,
+.type-FILE .edit-oper,
+.type-MULTISELECT .edit-oper,
+.type-IMAGE .edit-oper {
+	border-top: 1px solid #dbdbdb;
+}
+
+.type-AVATAR .edit-oper {
+	margin-top: 7px;
+}
+
+.type-IMAGE .edit-oper {
+	margin-top: -2px;
+}
+
+.type-BOOL .edit-oper {
+	margin-top: -8px;
+}
+
+.type-MULTISELECT .edit-oper {
+	margin-top: -1px;
+}
+
+.rbview-form.readonly .form-group.row.editable a.edit {
+	display: none !important;
+	width: 0 !important;
+	height: 0 !important;
 }

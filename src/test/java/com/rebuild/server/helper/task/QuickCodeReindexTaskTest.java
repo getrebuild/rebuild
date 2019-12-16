@@ -22,7 +22,6 @@ import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.QuickCodeReindexTask;
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -55,11 +54,8 @@ public class QuickCodeReindexTaskTest extends TestSupport {
 		Assert.assertTrue("".equalsIgnoreCase(QuickCodeReindexTask.generateQuickCode("123456helloworld")));
 	}
 	
-	@Ignore
 	@Test
 	public void testReindex() throws Exception {
 		new QuickCodeReindexTask(MetadataHelper.getEntity("User")).run();
-		new QuickCodeReindexTask(MetadataHelper.getEntity("Role")).run();
-		new QuickCodeReindexTask(MetadataHelper.getEntity("Department")).run();
 	}
 }

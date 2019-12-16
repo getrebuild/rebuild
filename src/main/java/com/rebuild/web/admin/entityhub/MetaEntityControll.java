@@ -38,6 +38,7 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,7 +71,7 @@ public class MetaEntityControll extends BasePageControll {
 	}
 
 	@RequestMapping("entity/{entity}/base")
-	public ModelAndView pageEntityBase(@PathVariable String entity, HttpServletRequest request) throws IOException {
+	public ModelAndView pageEntityBase(@PathVariable String entity) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entityhub/entity-edit.jsp");
 		setEntityBase(mv, entity);
 		
@@ -96,7 +97,7 @@ public class MetaEntityControll extends BasePageControll {
 	}
 
 	@RequestMapping("entity/entity-list")
-	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void listEntity(HttpServletResponse response) throws IOException {
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Entity entity : MetadataSorter.sortEntities()) {
 			if (entity.getMasterEntity() != null) {
@@ -177,7 +178,7 @@ public class MetaEntityControll extends BasePageControll {
 		if (needReindex != null) {
 			Entity entity = MetadataHelper.getEntity(needReindex);
 			QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
-			TaskExecutors.submit(reindexTask);
+			TaskExecutors.submit(reindexTask, user);
 		}
 		
 		writeSuccess(response);
@@ -199,12 +200,11 @@ public class MetaEntityControll extends BasePageControll {
 
 	@RequestMapping("entity/entity-export")
 	public void entityExport(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
 		Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
 
 		File dest = SysConfiguration.getFileOfTemp("schema-" + entity.getName() + ".json");
 		if (dest.exists()) {
-			dest.delete();
+            FileUtils.deleteQuietly(dest);
 		}
 		new MetaSchemaGenerator(entity).generate(dest);
 

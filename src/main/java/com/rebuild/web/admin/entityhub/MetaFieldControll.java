@@ -101,23 +101,29 @@ public class MetaFieldControll extends BasePageControll  {
 	}
 
 	@RequestMapping("{entity}/field/{field}")
-	public ModelAndView pageEntityField(@PathVariable String entity, @PathVariable String field, HttpServletRequest request) throws IOException {
+	public ModelAndView pageEntityField(@PathVariable String entity, @PathVariable String field,
+										HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (!MetadataHelper.checkAndWarnField(entity, field)) {
+			response.sendError(404, "无效字段 : " + entity + "." + field);
+			return null;
+		}
+
 		ModelAndView mv = createModelAndView("/admin/entityhub/field-edit.jsp");
-		EasyMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
+		EasyMeta easyEntity = MetaEntityControll.setEntityBase(mv, entity);
+
+		Field fieldMeta = ((Entity) easyEntity.getBaseMeta()).getField(field);
+		EasyMeta easyField = new EasyMeta(fieldMeta);
 		
-		Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
-		EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
-		
-		mv.getModel().put("fieldMetaId", fieldEasyMeta.getMetaId());
-		mv.getModel().put("fieldName", fieldEasyMeta.getName());
-		mv.getModel().put("fieldLabel", fieldEasyMeta.getLabel());
-		mv.getModel().put("fieldComments", fieldEasyMeta.getComments());
-		mv.getModel().put("fieldType", fieldEasyMeta.getDisplayType(false));
-		mv.getModel().put("fieldTypeLabel", fieldEasyMeta.getDisplayType(true));
+		mv.getModel().put("fieldMetaId", easyField.getMetaId());
+		mv.getModel().put("fieldName", easyField.getName());
+		mv.getModel().put("fieldLabel", easyField.getLabel());
+		mv.getModel().put("fieldComments", easyField.getComments());
+		mv.getModel().put("fieldType", easyField.getDisplayType(false));
+		mv.getModel().put("fieldTypeLabel", easyField.getDisplayType(true));
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		mv.getModel().put("fieldRepeatable", fieldMeta.isRepeatable());
-		mv.getModel().put("fieldBuildin", fieldEasyMeta.isBuiltin());
+		mv.getModel().put("fieldBuildin", easyField.isBuiltin());
 		mv.getModel().put("fieldDefaultValue", fieldMeta.getDefaultValue());
 		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		
@@ -128,7 +134,7 @@ public class MetaFieldControll extends BasePageControll  {
 			mv.getModel().put("fieldRefentity", refentity.getName());
 			mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
 		}
-		mv.getModel().put("fieldExtConfig", fieldEasyMeta.getFieldExtConfig());
+		mv.getModel().put("fieldExtConfig", easyField.getFieldExtConfig());
 		
 		return mv;
 	}

@@ -53,33 +53,47 @@ class PreviewTable extends React.Component {
     )
   }
 
-  componentDidMount() {
-    $('.font-italic.hide').removeClass('hide')
-  }
+  componentDidMount = () => $('.font-italic.hide').removeClass('hide')
 
   formatValue(item) {
     if (!item || !item.value) return null
 
     if (item.type === 'FILE') {
-      return (<ul className="list-unstyled m-0">
-        {JSON.parse(item.value).map((x) => {
+      return (<ul className="m-0 p-0 pl-3">
+        {item.value.map((x) => {
           return <li key={`file-${x}`}>{$fileCutName(x)}</li>
         })}
       </ul>)
     } else if (item.type === 'IMAGE') {
       return (<ul className="list-inline m-0">
-        {JSON.parse(item.value).map((x) => {
+        {item.value.map((x) => {
           return <li className="list-inline-item" key={`image-${x}`}><img src={`${rb.baseUrl}/filex/img/${x}?imageView2/2/w/100/interlace/1/q/100`} /></li>
         })}
       </ul>)
+    } else if (item.type === 'AVATAR') {
+      return <div className="img-field avatar">
+        <span className="img-thumbnail img-upload">
+          <img src={`${rb.baseUrl}/filex/img/${item.value}?imageView2/2/w/100/interlace/1/q/100`} />
+        </span>
+      </div>
     } else if (item.type === 'NTEXT') {
       return <React.Fragment>
         {item.value.split('\n').map((line, idx) => {
           return <p key={'kl-' + idx}>{line}</p>
         })}
       </React.Fragment>
+    } else if (item.type === 'BOOL') {
+      return { 'T': '是', 'F': '否' }[item.value]
+    } else if (item.type === 'MULTISELECT') {
+      // eslint-disable-next-line no-undef
+      return __findMultiTexts(item.options, item.value).join(', ')
+    } else if (item.type === 'PICKLIST' || item.type === 'STATE') {
+      // eslint-disable-next-line no-undef
+      return __findOptionText(item.options, item.value)
     } else if (typeof item.value === 'object') {
-      return item.value[1]
+      let text = item.value.text
+      if (!text && item.value.id) text = `@${item.value.id.toUpperCase()}`
+      return text
     } else {
       return item.value
     }

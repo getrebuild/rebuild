@@ -11,7 +11,7 @@ class DlgAssign extends RbModalHandler {
     return (<RbModal title={this.types[1]} ref={(c) => this._dlg = c}>
       <div className="form">
         {this.onView === true ? null : (
-          <div className="form-group row">
+          <div className="form-group row pb-0">
             <label className="col-sm-3 col-form-label text-sm-right">{this.types[1]}哪些记录</label>
             <div className="col-sm-7">
               <div className="form-control-plaintext">{'选中的记录 (' + this.state.ids.length + '条)'}</div>
@@ -141,21 +141,18 @@ class DlgUnshare extends RbModalHandler {
           <label className="col-sm-3 col-form-label text-sm-right">取消哪些用户</label>
           <div className="col-sm-7">
             <div className="mt-1">
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'ALL'} onChange={() => this.whichMode(true)} />
                 <span className="custom-control-label">全部用户</span>
               </label>
-              <label className="custom-control custom-control-sm custom-radio custom-control-inline">
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'SPEC'} onChange={() => this.whichMode()} />
                 <span className="custom-control-label">指定用户</span>
               </label>
             </div>
-          </div>
-        </div>
-        <div className={'form-group row pt-0 ' + (this.state.whichUsers === 'ALL' ? 'hide' : '')}>
-          <label className="col-sm-3 col-form-label text-sm-right"></label>
-          <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref={(c) => this._toUser = c} />
+            <div className={'mb-2 ' + (this.state.whichUsers === 'ALL' ? 'hide' : '')}>
+              <select className="form-control form-control-sm" ref={(c) => this._toUser = c} />
+            </div>
           </div>
         </div>
         <div className="form-group row footer">
@@ -231,15 +228,15 @@ class DlgShareManager extends RbModalHandler {
             return (<li className="list-inline-item" key={'user-' + item[1]}>
               <div onClick={() => this.clickUser(item[1])} title={'由 ' + item[3] + ' 共享于 ' + item[2]}>
                 <UserShow id={item[0][0]} name={item[0][1]} showName={true} />
-                {this.state.selectAccess.contains(item[1]) && <i className="zmdi zmdi-check-circle" />}
+                {this.state.selectAccess.includes(item[1]) && <i className="zmdi zmdi-check" />}
               </div>
             </li>)
           })}
         </ul>
-        <div className="dialog-footer" ref={(c) => this._btns = c}>
-          {this.props.unshare === true && <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>取消共享</button>}
-          <button className="btn btn-secondary btn-space" type="button" onClick={() => this.hide()}>取消</button>
-        </div>
+      </div>
+      <div className="dialog-footer" ref={(c) => this._btns = c}>
+        {this.props.unshare === true && <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>取消共享</button>}
+        <button className="btn btn-secondary btn-space" type="button" onClick={() => this.hide()}>取消</button>
       </div>
     </RbModal>)
   }
@@ -251,7 +248,7 @@ class DlgShareManager extends RbModalHandler {
   clickUser(id) {
     if (this.props.unshare !== true) return
     let s = this.state.selectAccess
-    if (s.contains(id)) s.remove(id)
+    if (s.includes(id)) s.remove(id)
     else s.push(id)
     this.setState({ selectAccess: s })
   }

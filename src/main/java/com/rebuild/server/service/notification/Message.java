@@ -30,16 +30,16 @@ import com.rebuild.server.service.bizz.UserService;
  */
 public class Message {
 	
-	// 一般消息
+	// 未分类
 	public static final int TYPE_DEFAULT = 0;
-	
 	// 分配消息
 	public static final int TYPE_ASSIGN = 10;
 	// 共享消息
 	public static final int TYPE_SAHRE = 11;
-	
 	// 审批消息
 	public static final int TYPE_APPROVAL = 20;
+    // 动态
+    public static final int TYPE_FEEDS = 30;
 
 	private ID fromUser;
 	private ID toUser;

@@ -83,7 +83,7 @@ public class RecentlyUsedCache {
 		List<ID> data = new ArrayList<>();
 		for (int i = 0; i < limit && i < exists.size(); i++) {
 			final ID raw = exists.get(i);
-			if (!Application.getSecurityManager().allowedR(user, raw)) {
+			if (!Application.getSecurityManager().allowRead(user, raw)) {
 				continue;
 			}
 			
@@ -99,7 +99,7 @@ public class RecentlyUsedCache {
 		
 		if (!missed.isEmpty()) {
 			exists.removeAll(missed);
-			cacheManager.putx(key, exists, Integer.MAX_VALUE);
+			cacheManager.putx(key, exists);
 		}
 		
 		return data.toArray(new ID[0]);
@@ -130,7 +130,7 @@ public class RecentlyUsedCache {
 			exists.removeLast();
 		}
 		exists.addFirst(id);
-		cacheManager.putx(key, exists, Integer.MAX_VALUE);
+		cacheManager.putx(key, exists);
 	}
 	
 	/**

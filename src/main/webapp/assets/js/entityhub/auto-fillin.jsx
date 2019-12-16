@@ -1,5 +1,6 @@
 const wpc = window.__PageConfig
 const bProps = { sourceEntity: wpc.referenceEntity, targetEntity: wpc.entityName, field: wpc.fieldName }
+
 $(document).ready(() => {
   $('.J_add-rule').click(() => { renderRbcomp(<DlgRuleEdit {...bProps} />) })
   loadRules()
@@ -45,10 +46,12 @@ const loadRules = () => {
 }
 
 class DlgRuleEdit extends RbFormHandler {
+
   constructor(props) {
     super(props)
     if (!props.id) this.state = { ...this.state, whenCreate: true }
   }
+
   render() {
     return (<RbModal title="回填规则" ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
@@ -102,6 +105,7 @@ class DlgRuleEdit extends RbFormHandler {
       </div>
     </RbModal>)
   }
+
   componentDidMount() {
     this.__select2 = []
     // #1
@@ -115,12 +119,7 @@ class DlgRuleEdit extends RbFormHandler {
 
       // #2
       $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${this.props.sourceEntity}`, (res) => {
-        for (let i = 0; i < res.data.length; i++) {
-          let item = res.data[i]
-          if (item.ref) item.type = 'REFERENCE'
-        }
         this.__sourceFieldsCache = res.data
-
         this.setState({ sourceFields: res.data }, () => {
           let s2source = $(this._sourceField).select2({
             placeholder: '选择字段',
@@ -164,11 +163,11 @@ class DlgRuleEdit extends RbFormHandler {
       if (!this.creatable || this.name === wpc.fieldName) return
       if (source.type === 'FILE' && this.type !== 'FILE') return
       if (source.type === 'IMAGE' && this.type !== 'IMAGE') return
-      if (source.type === this.type || canFillinByType.contains(this.type)) {
-        if (this.ref) {  // reference field
-          if (source.type === 'REFERENCE' && source.ref[0] === this.ref[0]) {
-            tFields.push(this)
-          }
+      if (source.type === this.type || canFillinByType.includes(this.type)) {
+        if (source.type === 'REFERENCE') {  // reference field
+          if (source.ref && source.ref[0] === this.ref[0]) tFields.push(this)
+        } else if (source.type === 'STATE') {  // state field
+          if (source.stateClass && source.stateClass === this.stateClass) tFields.push(this)
         } else {
           tFields.push(this)
         }

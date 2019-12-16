@@ -69,7 +69,9 @@ public class ClassificationControll extends BasePageControll {
 		mv.getModel().put("openLevel", data[1]);
 		return mv;
 	}
-	
+
+	private static final String[] CN_NUMBER = new String[] { "一", "二", "三", "四" };
+
 	@RequestMapping("classification/list")
 	public void list(HttpServletRequest request, HttpServletResponse resp) throws IOException {
 		Object[][] array = Application.createQuery(
@@ -77,10 +79,9 @@ public class ClassificationControll extends BasePageControll {
 				.array();
 		for (Object[] o : array) {
 			int level = (int) o[3];
-			if (level == 0) o[3] = "一";
-			else if (level == 1) o[3] = "二";
-			else if (level == 2) o[3] = "三";
-			else if (level == 3) o[3] = "四";
+			if (level >= 0 && level <= 3) {
+				o[3] = CN_NUMBER[level];
+			}
 		}
 		writeSuccess(resp, array);
 	}

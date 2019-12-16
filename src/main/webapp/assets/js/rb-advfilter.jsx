@@ -1,4 +1,8 @@
 // ~~ 高级过滤器
+
+const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
+const NT_SPLIT = '----'
+
 /* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 class AdvFilter extends React.Component {
@@ -78,17 +82,19 @@ class AdvFilter extends React.Component {
       let valideFs = []
       this.fields = res.data.map((item) => {
         valideFs.push(item.name)
-        if (item.type === 'DATETIME') {
-          item.type = 'DATE'
-        } else if (item.type === 'REFERENCE') {
+        if (item.type === 'REFERENCE') {
           REFMETA_CACHE[this.props.entity + '.' + item.name] = item.ref
+          // Use `NameField` type
+          // if (!BIZZ_ENTITIES.includes(item.ref[0])) item.type = item.ref[1]
+          if ('approvalId' === item.name) item.type = item.ref[1]
         }
+        if (item.type === 'DATETIME') item.type = 'DATE'
         return item
       })
 
       if (this.__items) {
         $(this.__items).each((idx, item) => {
-          if (valideFs.contains(item.field)) this.addItem(item)
+          if (valideFs.includes(item.field)) this.addItem(item)
         })
       }
     })
@@ -205,7 +211,7 @@ class AdvFilter extends React.Component {
 }
 
 const OP_TYPE = { LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '...天前', BFM: '...月前', AFD: '...天后', AFM: '...月后', RED: '最近...天', REM: '最近...月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门', YTA: '昨天', TDA: '今天', TTA: '明天' }
-const OP_DATE_NOPICKER = ['BFD', 'BFM', 'AFD', 'AFM', 'RED', 'REM']
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA']
 const PICKLIST_CACHE = {}
 const REFMETA_CACHE = {}
@@ -232,18 +238,18 @@ class FilterItem extends React.Component {
           <i className="zmdi zmdi-minus-circle" title="移除条件" onClick={() => this.props.$$$parent.removeItem(this.props.id)}></i>
           <select className="form-control form-control-sm" ref={(c) => this._filterField = c}>
             {this.state.fields.map((item) => {
-              return <option value={item.name + '----' + item.type} key={'field-' + item.name}>{item.label}</option>
+              return <option value={item.name + NT_SPLIT + item.type} key={`field-${item.name}`} title={item.label}>{item.label}</option>
             })}
           </select>
         </div>
         <div className="col-sm-2 op">
           <select className="form-control form-control-sm" ref={(c) => this._filterOp = c}>
             {this.selectOp().map((item) => {
-              return <option value={item} key={'op-' + item}>{OP_TYPE[item]}</option>
+              return <option value={item} key={`op-${item}`} title={OP_TYPE[item]}>{OP_TYPE[item]}</option>
             })}
           </select>
         </div>
-        <div className={'col-sm-5 val' + (OP_NOVALUE.contains(this.state.op) ? ' hide' : '')}>
+        <div className={'col-sm-5 val' + (OP_NOVALUE.includes(this.state.op) ? ' hide' : '')}>
           {this.renderValue()}
         </div>
       </div>
@@ -251,13 +257,13 @@ class FilterItem extends React.Component {
   }
 
   selectOp() {
-    let fieldType = this.state.type
+    const fieldType = this.state.type
     let op = ['LK', 'NLK', 'EQ', 'NEQ']
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'BW', 'EQ']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
-    } else if (fieldType === 'FILE' || fieldType === 'IMAGE') {
+    } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
       op = ['IN', 'NIN']
@@ -319,8 +325,8 @@ class FilterItem extends React.Component {
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
       const fRef = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
-      if (!entity) return fRef && (fRef[0] === 'User' || fRef[0] === 'Department' || fRef[0] === 'Role')
-      else return fRef && fRef[0] === entity
+      if (!entity) return BIZZ_ENTITIES.includes(fRef[0])
+      else return fRef[0] === entity
     }
     return false
   }
@@ -328,7 +334,7 @@ class FilterItem extends React.Component {
   isNumberValue() {
     if (this.state.type === 'NUMBER' || this.state.type === 'DECIMAL') {
       return true
-    } else if (this.state.type === 'DATE' && OP_DATE_NOPICKER.contains(this.state.op)) {
+    } else if (this.state.type === 'DATE' && OP_DATE_NOPICKER.includes(this.state.op)) {
       return true
     }
     return false
@@ -342,21 +348,20 @@ class FilterItem extends React.Component {
   componentDidMount() {
     this.props.onRef(this)
 
-    let that = this
-    let s2field = $(this._filterField).select2({
+    const that = this
+    const s2field = $(this._filterField).select2({
       allowClear: false
-    }).on('change.select2', function (e) {
-      let ft = e.target.value.split('----')
+    }).on('change', function (e) {
+      let ft = e.target.value.split(NT_SPLIT)
       that.setState({ field: ft[0], type: ft[1] }, function () {
         s2op.val(that.__op[0]).trigger('change')
       })
     })
-    let s2op = $(this._filterOp).select2({
+    const s2op = $(this._filterOp).select2({
       allowClear: false
-    }).on('change.select2', function (e) {
+    }).on('change', function (e) {
       that.setState({ op: e.target.value }, function () {
         that._componentDidUpdate()
-        // $setTimeout(() => $(that._filterVal).focus(), 200, 'filter-val-focus')
       })
     })
     this.__select2 = [s2field, s2op]
@@ -366,7 +371,7 @@ class FilterItem extends React.Component {
       let field = this.props.field
       $(this.props.fields).each(function () {
         if (this.name === field) {
-          field = [field, this.type].join('----')
+          field = [field, this.type].join(NT_SPLIT)
           return false
         }
       })
@@ -378,8 +383,8 @@ class FilterItem extends React.Component {
   }
 
   _componentDidUpdate() {
-    let state = this.state
-    let lastType = this.__lastType
+    const state = this.state
+    const lastType = this.__lastType
     this.__lastType = state.type
 
     if (state.type === 'PICKLIST' || state.type === 'STATE' || state.type === 'MULTISELECT') {
@@ -390,7 +395,7 @@ class FilterItem extends React.Component {
 
     if (state.type === 'DATE') {
       this.removeDatepicker()
-      if (OP_DATE_NOPICKER.contains(state.op)) {
+      if (OP_DATE_NOPICKER.includes(state.op)) {
         // 无需日期组件
       } else {
         this.renderDatepicker()
@@ -408,7 +413,7 @@ class FilterItem extends React.Component {
 
     if (state.type === 'BOOL') {
       this.removeBool()
-      if (!OP_NOVALUE.contains(state.op)) this.renderBool()
+      if (!OP_NOVALUE.includes(state.op)) this.renderBool()
     } else if (lastType === 'BOOL') {
       this.removeBool()
     }
@@ -611,12 +616,12 @@ class FilterItem extends React.Component {
   getFilterJson() {
     let s = this.state
     if (!s.value) {
-      if (OP_NOVALUE.contains(s.op)) {
+      if (OP_NOVALUE.includes(s.op)) {
         // 允许无值
       } else {
         return
       }
-    } else if (OP_NOVALUE.contains(s.op)) {
+    } else if (OP_NOVALUE.includes(s.op)) {
       s.value = null
     }
 

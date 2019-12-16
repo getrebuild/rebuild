@@ -31,6 +31,7 @@ import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.VCode;
+import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
@@ -38,6 +39,7 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
+import com.rebuild.web.common.LanguagesControll;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang.StringUtils;
@@ -48,6 +50,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static com.rebuild.server.helper.language.Languages.lang;
 
 /**
  * @author zhaofang123@gmail.com
@@ -72,6 +76,12 @@ public class LoginControll extends BasePageControll {
 			return null;
 		}
 
+		// 切换语言
+        if (LanguagesControll.switchLanguage(request)) {
+            response.sendRedirect("login?locale=" + getParameter(request, "locale"));
+            return null;
+        }
+
 		// API 登录
 		String token = getParameter(request, "token");
 		if (StringUtils.isNotBlank(token)) {
@@ -94,7 +104,7 @@ public class LoginControll extends BasePageControll {
 			ID altUser = null;
 			try {
 				alt = AES.decrypt(alt);
-				String alts[] = alt.split(",");
+				String[] alts = alt.split(",");
 				altUser = ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
 
 				// 最大一个月有效期
@@ -131,12 +141,12 @@ public class LoginControll extends BasePageControll {
 		Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, NEED_VCODE);
 		if (needVcode != null && needVcode
 				&& (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
-			writeFailure(response, "验证码错误");
+			writeFailure(response, lang("InputWrong", "Captcha"));
 			return;
 		}
-		
+
 		final String user = getParameterNotNull(request, "user");
-		final String password = getParameterNotNull(request, "passwd");
+		final String password = ServletUtils.getRequestString(request);
 		
 		int retry = getLoginRetryTimes(user, 1);
 		if (retry > 3 && StringUtils.isBlank(vcode)) {
@@ -177,7 +187,7 @@ public class LoginControll extends BasePageControll {
 		retry = retry == null ? 0 : retry;
 		if (state == 1) {
 			retry += 1;
-			Application.getCommonCache().putx(key, retry, 60 * 30);  // cache 30 minutes
+			Application.getCommonCache().putx(key, retry, CommonCache.TS_HOUR);
 		}
 		return retry;
 	}
@@ -247,23 +257,23 @@ public class LoginControll extends BasePageControll {
 	@RequestMapping("user-forgot-passwd")
 	public void userForgotPasswd(HttpServletRequest request, HttpServletResponse response) {
 		if (!SMSender.availableMail()) {
-			writeFailure(response, "邮件服务账户未配置，请联系管理员配置");
+			writeFailure(response, lang("EmailAccountUnset"));
 			return;
 		}
-		
+
 		String email = getParameterNotNull(request, "email");
 		if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
-			writeFailure(response, "无效邮箱");
+			writeFailure(response, lang("InputInvalid", "Email"));
 			return;
 		}
-		
+
 		String vcode = VCode.generate(email, 2);
-		String content = "<p>你的重置密码验证码是 <b>" + vcode + "</b><p>";
-		String sentid = SMSender.sendMail(email, "重置密码", content);
+		String content = String.format(lang("YourVcodeForResetPassword"), vcode);
+		String sentid = SMSender.sendMail(email, lang("ResetPassword"), content);
 		if (sentid != null) {
 			writeSuccess(response);
 		} else {
-			writeFailure(response, "无法发送验证码，请稍后重试");
+			writeFailure(response);
 		}
 	}
 	
@@ -274,7 +284,7 @@ public class LoginControll extends BasePageControll {
 		String email = data.getString("email");
 		String vcode = data.getString("vcode");
 		if (!VCode.verfiy(email, vcode, true)) {
-			writeFailure(response, "验证码无效");
+			writeFailure(response, lang("InputInvalid", "Vcode"));
 			return;
 		}
 		

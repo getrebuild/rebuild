@@ -20,8 +20,7 @@ package com.rebuild.server.business.recyclebin;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
-import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.TestSupportWithUser;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,28 +28,21 @@ import org.junit.Test;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/21
  */
-public class RecycleRestoreTest extends TestSupport {
+public class RecycleRestoreTest extends TestSupportWithUser {
 
     @Test
     public void restore() {
-        ID testId = null;
-        try {
-            Application.getSessionStore().set(UserService.ADMIN_USER);
+        ID testId = addRecordOfTestAllFields();
+        Application.getGeneralEntityService().delete(testId);
 
-            testId = addRecordOfTestAllFields();
-            Application.getGeneralEntityService().delete(testId);
-
-        } finally {
-            Application.getSessionStore().clean();
-        }
-
+        // Is in?
         Object[] recycle = Application.createQueryNoFilter(
                 "select recycleId from RecycleBin where recordId = ?")
                 .setParameter(1, testId)
                 .unique();
-        Assert.assertTrue(recycle != null);
+        Assert.assertNotNull(recycle);
 
         int a = new RecycleRestore((ID) recycle[0]).restore();
-        Assert.assertTrue(a == 1);
+        Assert.assertEquals(1, a);
     }
 }

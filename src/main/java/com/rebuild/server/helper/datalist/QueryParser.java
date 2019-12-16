@@ -31,8 +31,10 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,7 +47,7 @@ import java.util.Set;
 public class QueryParser {
 	
 	private JSONObject queryExpr;
-	private DataList dataListControl;
+	private DataListControl dataListControl;
 	
 	private Entity entity;
 	
@@ -53,8 +55,12 @@ public class QueryParser {
 	private String countSql;
 	private int[] limit;
 	private boolean reload;
-	
+
+	// 连接字段（跨实体查询的字段）
 	private Map<String, Integer> queryJoinFields;
+
+	// 查询字段
+	private List<String> queryFields = new ArrayList<>();
 	
 	/**
 	 * @param queryExpr
@@ -67,7 +73,7 @@ public class QueryParser {
 	 * @param queryExpr
 	 * @param dataListControl
 	 */
-	public QueryParser(JSONObject queryExpr, DataList dataListControl) {
+	protected QueryParser(JSONObject queryExpr, DataListControl dataListControl) {
 		this.queryExpr = queryExpr;
 		this.dataListControl = dataListControl;
 		this.entity = dataListControl != null ? 
@@ -85,18 +91,28 @@ public class QueryParser {
 	/**
 	 * @return
 	 */
-	public String toCountSql() {
+	protected String toCountSql() {
 		doParseIfNeed();
 		return countSql;
 	}
-	
+
 	/**
 	 * @return
 	 */
-	protected Entity getEntity() {
+	public Entity getEntity() {
 		return entity;
 	}
-	
+
+	/**
+	 * 获取查询字段
+	 *
+	 * @return
+	 */
+	public List<String> getQueryFields() {
+		doParseIfNeed();
+		return queryFields;
+	}
+
 	/**
 	 * @return
 	 */
@@ -120,7 +136,7 @@ public class QueryParser {
 		doParseIfNeed();
 		return queryJoinFields;
 	}
-	
+
 	/**
 	 * 解析 SQL
 	 */
@@ -129,7 +145,7 @@ public class QueryParser {
 			return;
 		}
 		
-		StringBuilder sqlBase = new StringBuilder("select ");
+		StringBuilder fullSql = new StringBuilder("select ");
 		
 		JSONArray fieldsNode = queryExpr.getJSONArray("fields");
 		int fieldIndex = -1;
@@ -137,34 +153,36 @@ public class QueryParser {
 		for (Object o : fieldsNode) {
 			// 在 DataListManager 中已验证字段有效，此处不再次验证
 			String field = o.toString().trim();
-			sqlBase.append(field).append(',');
+			fullSql.append(field).append(',');
 			fieldIndex++;
 			
 			if (field.split("\\.").length > 1) {
 				queryJoinFields.add(field.split("\\.")[0]);
 			}
+
+			this.queryFields.add(field);
 		}
 		
 		// 最后增加一个主键列
 		String pkName = entity.getPrimaryField().getName();
-		sqlBase.append(pkName);
+		fullSql.append(pkName);
 		fieldIndex++;
-		
-		// 查询关联项 ID 以验证权限
+
+		// NOTE 查询出关联记录 ID 以便验证权限
 		if (!queryJoinFields.isEmpty()) {
 			this.queryJoinFields = new HashMap<>();
 			for (String field : queryJoinFields) {
-				sqlBase.append(',').append(field);
+				fullSql.append(',').append(field);
 				fieldIndex++;
 				this.queryJoinFields.put(field, fieldIndex);
 			}
 		}
 		
-		sqlBase.append(" from ").append(entity.getName());
+		fullSql.append(" from ").append(entity.getName());
 		
 		// 过滤器
 		
-		StringBuilder sqlWhere = new StringBuilder(" where (1=1)");
+		StringBuilder sqlWhere = new StringBuilder("(1=1)");
 		
 		// Default
 		String defaultFilter = dataListControl == null ? null : dataListControl.getDefaultFilter();
@@ -190,7 +208,7 @@ public class QueryParser {
 				sqlWhere.append(" and ").append(where);
 			}
 		}
-		sqlBase.append(sqlWhere);
+		fullSql.append(" where ").append(sqlWhere);
 		
 		// 排序
 		
@@ -205,17 +223,18 @@ public class QueryParser {
 			sqlSort.append(EntityHelper.CreatedOn + " desc");
 		}
 		if (sqlSort.length() > 10) {
-			sqlBase.append(sqlSort);
+			fullSql.append(sqlSort);
 		}
 		
-		this.sql = sqlBase.toString();
+		this.sql = fullSql.toString();
 		this.countSql = new StringBuilder("select ")
 				.append("count(").append(pkName).append(')')
 				.append(" from ")
 				.append(entity.getName())
+                .append(" where ")
 				.append(sqlWhere)
 				.toString();
-		
+
 		int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
 		int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 20);
 		this.limit = new int[] { pageSize, pageNo * pageSize - pageSize };

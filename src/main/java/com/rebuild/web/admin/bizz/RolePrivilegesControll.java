@@ -85,7 +85,7 @@ public class RolePrivilegesControll extends BaseEntityControll {
 	@RequestMapping("role-list")
 	public void roleList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Object[][] array = Application.createQuery("select roleId,name,isDisabled from Role").array();
-		JSON retJson = JSONUtils.toJSONArray(new String[] { "id", "name", "disabled" }, array);
+		JSON retJson = JSONUtils.toJSONObjectArray(new String[] { "id", "name", "disabled" }, array);
 		writeSuccess(response, retJson);
 	}
 	
@@ -93,7 +93,7 @@ public class RolePrivilegesControll extends BaseEntityControll {
 	public void privilegesList(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID roleId = getIdParameterNotNull(request, "role");
 		if (RoleService.ADMIN_ROLE.equals(roleId)) {
-			writeFailure(response, "系统内建角色，不允许修改。管理员角色拥有系统最高级权限，请谨慎使用");
+			writeFailure(response, "系统内建管理员角色，不允许修改。此角色拥有高级系统权限，请谨慎使用");
 			return;
 		}
 		
@@ -107,7 +107,7 @@ public class RolePrivilegesControll extends BaseEntityControll {
 			}
 		}
 		
-		JSON retJson = JSONUtils.toJSONArray(new String[] { "name", "definition" }, array);
+		JSON retJson = JSONUtils.toJSONObjectArray(new String[] { "name", "definition" }, array);
 		writeSuccess(response, retJson);
 	}
 	

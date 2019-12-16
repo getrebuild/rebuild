@@ -39,7 +39,7 @@ public class RebuildExceptionResolver implements HandlerExceptionResolver {
 	@Override
 	public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler,
 			Exception ex) {
-		LOG.error("Handler - " + handler + "\nException - " + ex);
+		LOG.error("\nHandler   : " + handler + "\nException : ", ex);
 		return null;
 	}
 }

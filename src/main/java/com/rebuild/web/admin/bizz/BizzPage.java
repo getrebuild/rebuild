@@ -61,4 +61,12 @@ public class BizzPage extends BaseEntityControll {
 		mv.getModel().put("id", record);
 		return mv;
 	}
+
+	@RequestMapping("Team/view/{id}")
+	public ModelAndView teamView(@PathVariable String id, HttpServletRequest request) throws IOException {
+		ID record = ID.valueOf(id);
+		ModelAndView mv = createModelAndView("/admin/bizuser/team-view.jsp", "Team", getRequestUser(request));
+		mv.getModel().put("id", record);
+		return mv;
+	}
 }

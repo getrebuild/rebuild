@@ -30,21 +30,31 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.server.service.bizz.privileges.UserStore;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -176,7 +186,7 @@ public class UserHelper {
 		if (ms == null || ms.isEmpty()) {
 			return new Member[0];
 		}
-		return ms.toArray(new Member[0]);
+        return ms.toArray(new Member[0]);
 	}
 	
 	/**
@@ -234,7 +244,7 @@ public class UserHelper {
 			if (bizz.getEntityCode() == EntityHelper.User) {
 				users.add(bizz);
 			} else if (bizz.getEntityCode() == EntityHelper.Department || bizz.getEntityCode() == EntityHelper.Role) {
-				Member ms[] = UserHelper.getMembers(bizz);
+				Member[] ms = UserHelper.getMembers(bizz);
 				for (Member m : ms) {
 					users.add((ID) m.getIdentity());
 				}
@@ -261,7 +271,7 @@ public class UserHelper {
 		File avatarFile = SysConfiguration.getFileOfData("avatar-" + name + ".jpg");
 		if (avatarFile.exists()) {
 			if (reload) {
-				avatarFile.delete();
+                FileUtils.deleteQuietly(avatarFile);
 			} else {
 				return avatarFile;
 			}
@@ -279,7 +289,7 @@ public class UserHelper {
 		g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-		final Font font = createFont(81f);
+		final Font font = createFont();
 		g2d.setFont(font);
 		g2d.setColor(Color.WHITE);
 
@@ -296,21 +306,67 @@ public class UserHelper {
 	}
 
 	/**
-	 * @param fs
 	 * @return
 	 */
-	private static Font createFont(float fs) {
+	private static Font createFont() {
 		File fontFile = SysConfiguration.getFileOfData("SourceHanSansK-Regular.ttf");
 		if (fontFile.exists()) {
 			try {
 				Font font = Font.createFont(Font.TRUETYPE_FONT, fontFile);
-				font = font.deriveFont(fs);
+				font = font.deriveFont((float) 81.0);
 				return font;
 			} catch (Exception ex) {
 				LOG.warn("Couldn't create Font: SourceHanSansK-Regular.ttf", ex);
 			}
 		}
 		// Use default
-		return new Font("SimHei", Font.BOLD, (int) fs);
+		return new Font("SimHei", Font.BOLD, (int) (float) 81.0);
 	}
+
+    /**
+     * 通过用户全称找用户
+     *
+     * @param fullName
+     * @return
+     */
+	public static ID findUserByFullName(String fullName) {
+        for (User u : Application.getUserStore().getAllUsers()) {
+            if (fullName.equalsIgnoreCase(u.getFullName())) {
+                return u.getId();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return
+     * @see #sortUsers(boolean)
+     */
+    public static User[] sortUsers() {
+        return sortUsers(false);
+    }
+
+    /**
+     * 按全称排序的用户列表
+     *
+     * @param isAll 是否包括未激活用户
+     * @return
+     * @see UserStore#getAllUsers()
+     */
+    public static User[] sortUsers(boolean isAll) {
+        User[] users = Application.getUserStore().getAllUsers();
+        // 排除未激活
+        if (!isAll) {
+            List<User> list = new ArrayList<>();
+            for (User u : users) {
+                if (u.isActive()) {
+                    list.add(u);
+                }
+            }
+            users = list.toArray(new User[0]);
+        }
+
+        Arrays.sort(users, Comparator.comparing(User::getFullName));
+        return users;
+    }
 }

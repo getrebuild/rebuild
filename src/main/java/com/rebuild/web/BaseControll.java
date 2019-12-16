@@ -22,6 +22,8 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.Controll;
+import com.rebuild.server.helper.language.LanguageBundle;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,11 +45,20 @@ public abstract class BaseControll extends Controll {
 	 * @return
 	 */
 	protected ID getRequestUser(HttpServletRequest request) {
-		ID userId = AppUtils.getRequestUser(request);
-		if (userId == null) {
+		ID user = AppUtils.getRequestUser(request);
+		if (user == null) {
 			throw new IllegalParameterException("无效请求用户");
 		}
-		return userId;
+		return user;
+	}
+
+	/**
+	 * @param request
+	 * @return
+	 */
+	protected LanguageBundle getBundle(HttpServletRequest request) {
+		String locale = AppUtils.getLocale(request);
+		return Languages.instance.getBundle(locale);
 	}
 	
 	/**
@@ -136,11 +147,7 @@ public abstract class BaseControll extends Controll {
 	 * @return
 	 */
 	protected Integer getIntParameter(HttpServletRequest req, String name) {
-		String v = req.getParameter(name);
-		if (v == null) {
-			return null;
-		}
-		return NumberUtils.toInt(v);
+		return getIntParameter(req, name, null);
 	}
 	
 	/**
@@ -149,9 +156,12 @@ public abstract class BaseControll extends Controll {
 	 * @param defaultValue
 	 * @return
 	 */
-	protected Integer getIntParameter(HttpServletRequest req, String name, int defaultValue) {
-		Integer v = getIntParameter(req, name);
-		return v == null ? (defaultValue) : v;
+	protected Integer getIntParameter(HttpServletRequest req, String name, Integer defaultValue) {
+		String v = req.getParameter(name);
+		if (v == null) {
+			return defaultValue;
+		}
+		return NumberUtils.toInt(v, defaultValue);
 	}
 	
 	/**

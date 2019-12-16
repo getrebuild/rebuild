@@ -25,6 +25,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.notification.NotificationObserver;
+import com.rebuild.server.service.notification.NotificationOnce;
 
 import java.util.Set;
 
@@ -36,23 +37,22 @@ import java.util.Set;
  */
 public class BulkShare extends BulkOperator {
 
-	public BulkShare(BulkContext context, GeneralEntityService ges) {
+	protected BulkShare(BulkContext context, GeneralEntityService ges) {
 		super(context, ges);
 	}
 
 	@Override
-	public Integer exec() {
-		ID[] records = prepareRecords();
+	protected Integer exec() {
+		final ID[] records = prepareRecords();
 		this.setTotal(records.length);
 		
-		int shared = 0;
 		ID firstShared = null;
-		BulkOperatorTx.begin();
+        NotificationOnce.begin();
 		for (ID id : records) {
-			if (Application.getSecurityManager().allowedS(context.getOpUser(), id)) {
+			if (Application.getSecurityManager().allowShare(context.getOpUser(), id)) {
 				int a = ges.share(id, context.getToUser(), context.getCascades());
 				if (a > 0) {
-					shared += a;
+					this.addSucceeded();
 					if (firstShared == null) {
 						firstShared = id;
 					}
@@ -62,10 +62,9 @@ public class BulkShare extends BulkOperator {
 			}
 			this.addCompleted();
 		}
-		
-		Set<ID> affected = BulkOperatorTx.getInTxSet();
-		BulkOperatorTx.end();
-		
+
+		// 合并通知发送
+        Set<ID> affected = NotificationOnce.end();
 		if (firstShared != null && !affected.isEmpty()) {
 			Record notificationNeeds = EntityHelper.forNew(EntityHelper.ShareAccess, context.getOpUser());
 			notificationNeeds.setID("shareTo", context.getToUser());
@@ -75,8 +74,7 @@ public class BulkShare extends BulkOperator {
 					context.getOpUser(), BizzPermission.SHARE, null, notificationNeeds, affected.toArray(new ID[0]));
 			new NotificationObserver().update(null, operatingContext);
 		}
-		
-		this.completedAfter();
-		return shared;
+
+		return getSucceeded();
 	}
 }

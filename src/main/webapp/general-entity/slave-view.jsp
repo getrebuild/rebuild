@@ -18,7 +18,7 @@
 </div>
 <div class="main-content container-fluid">
 	<div class="row">
-		<div class="col-sm-9 pr-0">
+		<div class="col-12 col-md-9">
 			<div class="tab-container">
 				<ul class="nav nav-tabs">
 					<li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">明细视图</a></li>
@@ -28,7 +28,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="col-sm-3 view-operating">
+		<div class="col-12 col-md-3 view-operating">
 			<div class="view-action row">
 				<div class="col-12 col-lg-6">
 					<button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
@@ -38,19 +38,19 @@
 					<div class="dropdown-menu dropdown-menu-right">
 						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 						<div class="dropdown-divider"></div>
-						<a class="dropdown-item J_print" target="_blank" href="${baseUrl}/app/entity/print?id=${id}"><i class="icon zmdi zmdi-print"></i> 打印</a>
+						<a class="dropdown-item J_print" target="_blank" href="${baseUrl}/app/${entityName}/print?id=${id}"><i class="icon zmdi zmdi-print"></i> 打印</a>
 					</div>
 				</div>
 			</div>
 			<div class="view-date">
 				<div class="form-line"><fieldset><legend>日期</legend></fieldset></div>
 				<dl class="row">
-					<dt class="col-12 col-md-4 pr-0">创建时间</dt>
-					<dd class="col-12 col-md-4 pl-0 J_createdOn"></dd>
+					<dt class="col-12 col-lg-4">创建时间</dt>
+					<dd class="col-12 col-lg-8 J_createdOn"></dd>
 				</dl>
 				<dl class="row">
-					<dt class="col-12 col-md-4 pr-0">修改时间</dt>
-					<dd class="col-12 col-md-4 pl-0 J_modifiedOn"></dd>
+					<dt class="col-12 col-lg-4">修改时间</dt>
+					<dd class="col-12 col-lg-8 J_modifiedOn"></dd>
 				</dl>
 			</div>
 		</div>

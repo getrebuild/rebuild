@@ -39,7 +39,7 @@ $(document).ready(function () {
           high.on('mouseleave', () => {
             high.removeClass('high').off('mouseleave')
           })
-          $gotoSection(high.offset().top - 115, '.chart-grid')
+          $gotoSection(high.offset().top - 65)
         }
       }
     }
@@ -82,9 +82,9 @@ let rendered_charts = []
 let win_resize = function (t) {
   if (on_resizestart === true) return
   $setTimeout(() => {
-    let cg = $('.chart-grid')
-    if ($(window).width() >= 768) cg.height($(window).height() - 142)
-    else cg.height('auto')
+    // let cg = $('.chart-grid')
+    // if ($(window).width() >= 768) cg.height($(window).height() - 142)
+    // else cg.height('auto')
     $(rendered_charts).each((idx, item) => { item.resize() })
   }, t || 400, 'resize-charts')
 }
@@ -108,7 +108,7 @@ let render_dashboard = function (init) {
     handleClass: 'chart-title',
     animate: true,
     auto: false,
-    verticalMargin: 20
+    verticalMargin: 10
   }).data('gridstack')
 
   gridstack_serialize = init
@@ -302,6 +302,7 @@ class DlgDashAdd extends RbFormHandler {
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">
             <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
+            <a className="btn btn-link" onClick={this.hide}>取消</a>
           </div>
         </div>
       </div>

@@ -53,8 +53,16 @@ public enum TriggerWhen {
 	/**
 	 * 取消共享时
 	 */
-	UNSHARE(EntityService.UNSHARE.getMask())
-	
+	UNSHARE(EntityService.UNSHARE.getMask()),
+	/**
+	 * 审批通过
+	 */
+	APPROVED(EntityService.UNSHARE.getMask() * 2),   // 128
+	/**
+	 * 撤回重新审批
+	 */
+	REAPPROVAL(EntityService.UNSHARE.getMask() * 4)  // 256
+
 	;
 	
 	private final int maskValue;

@@ -199,10 +199,10 @@ public class QiniuCloud {
 	 */
 	public static String formatFileKey(String fileName, boolean keepName) {
 		if (!keepName) {
-			String fileName_s[] = fileName.split("\\.");
+			String[] fileNameSplit = fileName.split("\\.");
 			fileName = UUID.randomUUID().toString().replace("-", "");
-			if (fileName_s.length > 1 && StringUtils.isNotBlank(fileName_s[fileName_s.length - 1])) {
-				fileName += "." + fileName_s[fileName_s.length - 1];
+			if (fileNameSplit.length > 1 && StringUtils.isNotBlank(fileNameSplit[fileNameSplit.length - 1])) {
+				fileName += "." + fileNameSplit[fileNameSplit.length - 1];
 			}
 		} else {
 			while (fileName.contains("__")) {
@@ -235,9 +235,11 @@ public class QiniuCloud {
 	 * @see #formatFileKey(String)
 	 */
 	public static String parseFileName(String filePath) {
-		String filePath_s[] = filePath.split("/");
-		String fileName = filePath_s[filePath_s.length - 1];
-		fileName = fileName.substring(fileName.indexOf("__") + 2);
+		String[] filePathSplit = filePath.split("/");
+		String fileName = filePathSplit[filePathSplit.length - 1];
+		if (fileName.contains("__")) {
+			fileName = fileName.substring(fileName.indexOf("__") + 2);
+		}
 		return fileName;
 	}
 	
@@ -252,15 +254,15 @@ public class QiniuCloud {
 			return url;
 		}
 		
-		String url_s[] = url.split("/");
-		for (int i = 0; i < url_s.length; i++) {
-			String e = CodecUtils.urlEncode(url_s[i]);
+		String[] urlSplit = url.split("/");
+		for (int i = 0; i < urlSplit.length; i++) {
+			String e = CodecUtils.urlEncode(urlSplit[i]);
 			if (e.contains("+")) {
 				e = e.replace("+", "%20");
 			}
-			url_s[i] = e;
+			urlSplit[i] = e;
 		}
-		return StringUtils.join(url_s, "/");
+		return StringUtils.join(urlSplit, "/");
 	}
 	
 	private static final QiniuCloud INSTANCE = new QiniuCloud();

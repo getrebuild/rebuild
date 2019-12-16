@@ -58,16 +58,16 @@
 				<div class="data-info mt-3">
 					<h5>图表选项</h5>
 					<div class="pl-1 mt-3 chart-option">
-						<div class="J_opt-UNDEF active">
-							此图表无选项
+						<div class="J_opt-UNDEF">
+							当前图表无选项
 						</div>
-						<div class="admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
+						<div class="hide admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
 								<input class="custom-control-input" type="checkbox" data-name="noPrivileges">
 								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用权限范围内的数据"></i></span>
 							</label>
 						</div>
-						<div class="J_opt-TABLE">
+						<div class="hide J_opt-TABLE">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
 								<input class="custom-control-input" type="checkbox" data-name="showLineNumber">
 								<span class="custom-control-label"> 显示行号</span>

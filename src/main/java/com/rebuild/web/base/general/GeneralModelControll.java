@@ -53,7 +53,7 @@ public class GeneralModelControll extends BaseEntityControll {
 		final ID user = getRequestUser(request);
 		Entity thatEntity = MetadataHelper.getEntity(entity);
 		
-		if (!Application.getSecurityManager().allowedR(user, thatEntity.getEntityCode())) {
+		if (!Application.getSecurityManager().allowRead(user, thatEntity.getEntityCode())) {
 			response.sendError(403, "你没有访问此实体的权限");
 			return null;
 		}
@@ -92,13 +92,17 @@ public class GeneralModelControll extends BaseEntityControll {
 				}
 			}
 		}
-		
-		JSON model = FormsBuilder.instance.buildForm(entity, user, record);
-		// 填充前端设定的初始值
-		if (record == null && initialVal != null) {
-			FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+
+		try {
+			JSON model = FormsBuilder.instance.buildForm(entity, user, record);
+			// 填充前端设定的初始值
+			if (record == null && initialVal != null) {
+				FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+			}
+			writeSuccess(response, model);
+		} finally {
+			FormsBuilder.setCurrentMasterId(null);
 		}
-		writeSuccess(response, model);
 	}
 	
 	@RequestMapping("view-model")

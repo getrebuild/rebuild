@@ -26,6 +26,7 @@ import cn.devezhao.bizz.privileges.impl.BizzDepthEntry;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
@@ -35,8 +36,6 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 /**
@@ -51,10 +50,8 @@ import org.springframework.util.Assert;
  */
 public class SecurityManager {
 
-	private static final Log LOG = LogFactory.getLog(SecurityManager.class);
-
 	final private UserStore theUserStore;
-	final private RecordOwningCache theRecordOwning;
+	final private RecordOwningCache theRecordOwningCache;
 
 	/**
 	 * @param us
@@ -62,7 +59,7 @@ public class SecurityManager {
 	 */
 	protected SecurityManager(UserStore us, RecordOwningCache roc) {
 		this.theUserStore = us;
-		this.theRecordOwning = roc;
+		this.theRecordOwningCache = roc;
 	}
 	
 	/**
@@ -70,7 +67,7 @@ public class SecurityManager {
 	 * @return
 	 */
 	public ID getOwningUser(ID record) {
-		return theRecordOwning.getOwningUser(record);
+		return theRecordOwningCache.getOwningUser(record);
 	}
 	
 	/**
@@ -87,18 +84,7 @@ public class SecurityManager {
 		} else if (u.isAdmin()) {
 			return Privileges.ROOT;
 		}
-		return u.getOwningRole().getPrivileges(entity);
-	}
-	
-	/**
-	 * 获取真实的权限实体
-	 * 
-	 * @param entity
-	 * @return
-	 */
-	public int getPrivilegesEntity(int entity) {
-		Entity em = MetadataHelper.getEntity(entity);
-		return em.getMasterEntity() == null ? entity : em.getMasterEntity().getEntityCode();
+		return u.getOwningRole().getPrivileges(convert2MasterEntity(entity));
 	}
 	
 	/**
@@ -108,8 +94,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedC(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.CREATE);
+	public boolean allowCreate(ID user, int entity) {
+		return allow(user, entity, BizzPermission.CREATE);
 	}
 	
 	/**
@@ -119,8 +105,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedD(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.DELETE);
+	public boolean allowDelete(ID user, int entity) {
+		return allow(user, entity, BizzPermission.DELETE);
 	}
 	
 	/**
@@ -130,8 +116,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedU(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.UPDATE);
+	public boolean allowUpdate(ID user, int entity) {
+		return allow(user, entity, BizzPermission.UPDATE);
 	}
 	
 	/**
@@ -141,8 +127,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedR(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.READ);
+	public boolean allowRead(ID user, int entity) {
+		return allow(user, entity, BizzPermission.READ);
 	}
 	
 	/**
@@ -152,8 +138,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedA(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.ASSIGN);
+	public boolean allowAssign(ID user, int entity) {
+		return allow(user, entity, BizzPermission.ASSIGN);
 	}
 	
 	/**
@@ -163,8 +149,8 @@ public class SecurityManager {
 	 * @param entity
 	 * @return
 	 */
-	public boolean allowedS(ID user, int entity) {
-		return allowed(user, entity, BizzPermission.SHARE);
+	public boolean allowShare(ID user, int entity) {
+		return allow(user, entity, BizzPermission.SHARE);
 	}
 	
 	/**
@@ -174,8 +160,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedD(ID user, ID target) {
-		return allowed(user, target, BizzPermission.DELETE);
+	public boolean allowDelete(ID user, ID target) {
+		return allow(user, target, BizzPermission.DELETE);
 	}
 	
 	/**
@@ -185,8 +171,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedU(ID user, ID target) {
-		return allowed(user, target, BizzPermission.UPDATE);
+	public boolean allowUpdate(ID user, ID target) {
+		return allow(user, target, BizzPermission.UPDATE);
 	}
 	
 	/**
@@ -196,8 +182,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedR(ID user, ID target) {
-		return allowed(user, target, BizzPermission.READ);
+	public boolean allowRead(ID user, ID target) {
+		return allow(user, target, BizzPermission.READ);
 	}
 	
 	/**
@@ -207,8 +193,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedA(ID user, ID target) {
-		return allowed(user, target, BizzPermission.ASSIGN);
+	public boolean allowAssign(ID user, ID target) {
+		return allow(user, target, BizzPermission.ASSIGN);
 	}
 	
 	/**
@@ -218,8 +204,8 @@ public class SecurityManager {
 	 * @param target
 	 * @return
 	 */
-	public boolean allowedS(ID user, ID target) {
-		return allowed(user, target, BizzPermission.SHARE);
+	public boolean allowShare(ID user, ID target) {
+		return allow(user, target, BizzPermission.SHARE);
 	}
 	
 	/**
@@ -230,9 +216,11 @@ public class SecurityManager {
 	 * @param action 权限动作
 	 * @return
 	 */
-	public boolean allowed(ID user, int entity, Permission action) {
-		Boolean a = allowedUser(user);
-		if (a != null) return a;
+	public boolean allow(ID user, int entity, Permission action) {
+		Boolean a = userAllow(user);
+		if (a != null) {
+            return a;
+        }
 
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -259,7 +247,7 @@ public class SecurityManager {
 			action = convert2MasterAction(action);
 		}
 		
-		Privileges ep = role.getPrivileges(getPrivilegesEntity(entity));
+		Privileges ep = role.getPrivileges(convert2MasterEntity(entity));
 		return ep.allowed(action);
 	}
 	
@@ -271,9 +259,11 @@ public class SecurityManager {
 	 * @param action 权限动作
 	 * @return
 	 */
-	public boolean allowed(ID user, ID target, Permission action) {
-		Boolean a = allowedUser(user);
-		if (a != null) return a;
+	public boolean allow(ID user, ID target, Permission action) {
+		Boolean a = userAllow(user);
+		if (a != null) {
+            return a;
+        }
 
 		Role role = theUserStore.getUser(user).getOwningRole();
 		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
@@ -298,7 +288,7 @@ public class SecurityManager {
 			action = convert2MasterAction(action);
 		}
 		
-		Privileges ep = role.getPrivileges(getPrivilegesEntity(entity));
+		Privileges ep = role.getPrivileges(convert2MasterEntity(entity));
 		
 		boolean allowed = ep.allowed(action);
 		if (!allowed) {
@@ -313,7 +303,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		ID targetUserId = theRecordOwning.getOwningUser(target);
+		ID targetUserId = theRecordOwningCache.getOwningUser(target);
 		if (targetUserId == null) {
 			return false;
 		}
@@ -321,7 +311,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.PRIVATE.equals(depth)) {
 			allowed = user.equals(targetUserId);
 			if (!allowed) {
-				return allowedViaShare(user, target, action);
+				return allowViaShare(user, target, action);
 			}
 			return true;
 		}
@@ -333,7 +323,7 @@ public class SecurityManager {
 		if (BizzDepthEntry.LOCAL.equals(depth)) {
 			allowed = accessUserDept.equals(targetUser.getOwningDept());
 			if (!allowed) {
-				return allowedViaShare(user, target, action);
+				return allowViaShare(user, target, action);
 			}
 			return true;
 		} else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
@@ -343,7 +333,7 @@ public class SecurityManager {
 			
 			allowed = accessUserDept.isChildrenAll(targetUser.getOwningDept());
 			if (!allowed) {
-				return allowedViaShare(user, target, action);
+				return allowViaShare(user, target, action);
 			}
 			return true;
 		}
@@ -359,7 +349,7 @@ public class SecurityManager {
 	 * @param action
 	 * @return
 	 */
-	public boolean allowedViaShare(ID user, ID target, Permission action) {
+	public boolean allowViaShare(ID user, ID target, Permission action) {
 		
 		// TODO 目前只共享了读取权限
 		// TODO 性能优化-缓存
@@ -388,6 +378,17 @@ public class SecurityManager {
 		int rightsVal = rights == null ? 0 : (int) rights[0];
 		return (rightsVal & BizzPermission.READ.getMask()) != 0;
 	}
+
+	/**
+	 * 获取真实的权限实体。如明细的权限依赖主实体
+	 *
+	 * @param entity
+	 * @return
+	 */
+	private int convert2MasterEntity(int entity) {
+		Entity em = MetadataHelper.getEntity(entity);
+		return em.getMasterEntity() == null ? entity : em.getMasterEntity().getEntityCode();
+	}
 	
 	/**
 	 * 转换明细实体的权限。<tt>删除/新建/更新</tt>明细记录，等于修改主实体，因此要转换成<tt>更新</tt>权限
@@ -410,13 +411,51 @@ public class SecurityManager {
 	 */
 	private ID getMasterRecordId(ID slaveId) {
 		Entity entity = MetadataHelper.getEntity(slaveId.getEntityCode());
-		Entity masterEntity = entity.getMasterEntity();
-		Assert.isTrue(masterEntity != null, "Non slave entty : " + slaveId);
-		
-		String sql = "select %s from %s where %s = '%s'";
-		sql = String.format(sql, masterEntity.getPrimaryField().getName(), entity.getName(), entity.getPrimaryField().getName(), slaveId.toLiteral());
-		Object[] primary = Application.getQueryFactory().createQueryNoFilter(sql).unique();
+		Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+		Assert.isTrue(stmField != null, "Non slave entty : " + slaveId);
+
+		Object[] primary = Application.getQueryFactory().uniqueNoFilter(slaveId, stmField.getName());
 		return primary == null ? null : (ID) primary[0];
+	}
+
+	/**
+	 * 扩展权限
+	 *
+	 * @param user
+	 * @param entry
+	 * @return
+	 * @see ZeroPrivileges
+	 * @see ZeroPermission
+	 */
+	public boolean allow(ID user, ZeroEntry entry) {
+		Boolean a = userAllow(user);
+		if (a != null) {
+			return a;
+		}
+
+		Role role = theUserStore.getUser(user).getOwningRole();
+		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
+			return true;
+		}
+
+		if (role.hasPrivileges(entry.name())) {
+			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
+		}
+		return entry.getDefaultVal();
+	}
+
+	/**
+	 * @param user
+	 * @returny
+	 */
+	private Boolean userAllow(ID user) {
+		if (UserService.ADMIN_USER.equals(user)) {
+			return true;
+		}
+		if (!theUserStore.getUser(user).isActive()) {
+			return false;
+		}
+		return null;
 	}
 	
 	/**
@@ -442,43 +481,5 @@ public class SecurityManager {
 			return EntityQueryFilter.ALLOWED;
 		}
 		return new EntityQueryFilter(theUser, action);
-	}
-	
-	/**
-	 * 扩展权限
-	 * 
-	 * @param user
-	 * @param entry
-	 * @return
-	 * @see ZeroPrivileges
-	 * @see ZeroPermission
-	 */
-	public boolean allowed(ID user, ZeroEntry entry) {
-		Boolean a = allowedUser(user);
-		if (a != null) return a;
-
-		Role role = theUserStore.getUser(user).getOwningRole();
-		if (RoleService.ADMIN_ROLE.equals(role.getIdentity())) {
-			return true;
-		}
-		
-		if (role.hasPrivileges(entry.name())) {
-			return role.getPrivileges(entry.name()).allowed(ZeroPermission.ZERO);
-		}
-		return entry.getDefaultVal();
-	}
-
-	/**
-	 * @param user
-	 * @return
-	 */
-	private Boolean allowedUser(ID user) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		return null;
 	}
 }

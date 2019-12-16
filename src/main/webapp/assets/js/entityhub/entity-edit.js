@@ -23,7 +23,7 @@ $(document).ready(function () {
     let icon = $val('#entityIcon')
     if (icon) _data.icon = icon
     _data = $cleanMap(_data)
-    if (Object.keys(_data) === 0) { location.reload(); return }
+    if (Object.keys(_data).length === 0) { location.reload(); return }
 
     _data.metadata = { entity: 'MetaEntity', id: wpc.metaId }
     _btn.button('loading')

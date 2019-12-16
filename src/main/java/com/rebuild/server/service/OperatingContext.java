@@ -92,6 +92,8 @@ public class OperatingContext {
 	}
 	
 	/**
+     * 一次操作可能涉及多条记录
+     *
 	 * @return
 	 */
 	public ID[] getAffected() {

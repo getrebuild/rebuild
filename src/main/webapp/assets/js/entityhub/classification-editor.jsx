@@ -4,11 +4,8 @@ const wpc = window.__PageConfig
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
   $('.J_imports').click(() => { renderRbcomp(<DlgImports id={wpc.id} />) })
-  window.resize_handler()
+  $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 312))()
 })
-window.resize_handler = function () {
-  $('#boxes .rb-scroller').css('max-height', $(window).height() - 312)
-}
 
 class LevelBoxes extends React.Component {
   constructor(props) {
@@ -27,7 +24,7 @@ class LevelBoxes extends React.Component {
   componentDidMount() {
     this.notifyToggle(wpc.openLevel + 1, true)
     $('#boxes').removeClass('rb-loading-active')
-    window.resize_handler()
+    $addResizeHandler()()
     $('#boxes .rb-scroller').perfectScrollbar()
   }
 
@@ -325,7 +322,7 @@ class DlgImports extends RbModalHandler {
           return
         }
 
-        let cp = res.data.completed
+        let cp = res.data.progress
         if (cp >= 1) {
           RbHighbar.success('导入完成')
           this.__mpro.end()

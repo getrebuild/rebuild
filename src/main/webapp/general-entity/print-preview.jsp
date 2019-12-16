@@ -1,5 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="cn.devezhao.commons.CodecUtils" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -31,7 +30,12 @@ html, body{
     line-height: 1.428571;
 }
 .preview-content {
-    margin: 0 20px;
+    margin: 0 20px 20px;
+}
+@media print {
+    .preview-content {
+        margin: 0;
+    }
 }
 </style>
 </head>
@@ -43,9 +47,10 @@ html, body{
 <div class="preview-content">
     <div id="preview-table">
     </div>
-    <div class="font-italic hide">
-        <div class="float-left">打印时间 ${printTime} · <%=CodecUtils.base64Encode(request.getAttribute("recordId").toString())%></div>
-        <div class="float-right">${appName} 技术支持</div>
+    <div class="font-italic text-muted hide">
+        打印时间：${printTime}
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        打印人：${printUser}
     </div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
@@ -55,6 +60,8 @@ window.__PageConfig = {
     content: ${contentBody}
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/print-preview.jsx" type="text/babel"></script>
 </body>
 </html>

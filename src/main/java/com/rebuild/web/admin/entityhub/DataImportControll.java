@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.admin.entityhub;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
@@ -27,14 +26,11 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializeConfig;
-import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.dataimport.DataFileParser;
 import com.rebuild.server.business.dataimport.DataImporter;
 import com.rebuild.server.business.dataimport.ImportRule;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -57,20 +53,15 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 
  * @author devezhao
  * @since 01/03/2019
  */
 @Controller
 @RequestMapping("/admin/datas/")
 public class DataImportControll extends BasePageControll {
-	
-	static {
-		SerializeConfig.getGlobalInstance().put(Cell.class, ToStringSerializer.instance);
-	}
 
 	@RequestMapping("/data-importer")
-	public ModelAndView pageDataImports(HttpServletRequest request) {
+	public ModelAndView pageDataImports() {
 		return createModelAndView("/admin/entityhub/data-importer.jsp");
 	}
 	
@@ -84,32 +75,32 @@ public class DataImportControll extends BasePageControll {
 			return;
 		}
 		
-		DataFileParser parser = null;
-		int count = 0;
-		List<Cell[]> preview = null;
+		DataFileParser parser;
+		int count = -1;
+		List<Cell[]> preview;
 		try {
 			parser = new DataFileParser(tmp);
-			count = parser.getRowsCount();
-			preview = parser.parse(10);
+			preview = parser.parse(11);
 		} catch (Exception ex) {
 			LOG.error("Parse excel error : " + file, ex);
 			writeFailure(response, "无法解析数据，请检查数据文件格式");
 			return;
 		}
-		
+
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "count", "preview" }, new Object[] { count, preview });
 		writeSuccess(response, ret);
 	}
-	
-	@RequestMapping("/data-importer/check-user-privileges")
+
+	// 检查所属用户权限
+	@RequestMapping("/data-importer/check-user")
 	public void checkUserPrivileges(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID ouser = getIdParameterNotNull(request, "ouser");
+		ID user = getIdParameterNotNull(request, "user");
 		String entity = getParameterNotNull(request, "entity");
 		
 		Entity entityMeta = MetadataHelper.getEntity(entity);
-		boolean canCreated = Application.getSecurityManager().allowedC(ouser, entityMeta.getEntityCode());
-		boolean canUpdated = Application.getSecurityManager().allowedU(ouser, entityMeta.getEntityCode());
+		boolean canCreated = Application.getSecurityManager().allowCreate(user, entityMeta.getEntityCode());
+		boolean canUpdated = Application.getSecurityManager().allowUpdate(user, entityMeta.getEntityCode());
 		
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "canCreate", "canUpdate" }, new Object[] { canCreated, canUpdated });
@@ -124,10 +115,10 @@ public class DataImportControll extends BasePageControll {
 		List<Map<String, Object>> list = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityBase)) {
 			String fieldName = field.getName();
-			if (EntityHelper.OwningDept.equals(fieldName)) {
+			if (EntityHelper.OwningDept.equals(fieldName)
+					|| MetadataHelper.isApprovalField(fieldName) || MetadataHelper.isSystemField(fieldName)) {
 				continue;
 			}
-			
 			EasyMeta easyMeta = new EasyMeta(field);
 			if (easyMeta.getDisplayType() == DisplayType.FILE || easyMeta.getDisplayType() == DisplayType.IMAGE) {
 				continue;
@@ -137,7 +128,7 @@ public class DataImportControll extends BasePageControll {
 			map.put("name", fieldName);
 			map.put("label", easyMeta.getLabel());
 			map.put("type", easyMeta.getDisplayType().getDisplayName());
-			map.put("isNullable", field.isNullable());
+			map.put("nullable", field.isNullable());
 			
 			String defaultValue = null;
 			if (EntityHelper.CreatedOn.equals(fieldName) || EntityHelper.ModifiedOn.equals(fieldName)) {
@@ -159,7 +150,7 @@ public class DataImportControll extends BasePageControll {
 	@RequestMapping("/data-importer/import-submit")
 	public void importSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		JSONObject idata = (JSONObject) ServletUtils.getRequestJson(request);
-		ImportRule irule = null;
+		ImportRule irule;
 		try {
 			irule = ImportRule.parse(idata);
 		} catch (IllegalArgumentException ex) {
@@ -167,66 +158,16 @@ public class DataImportControll extends BasePageControll {
 			return;
 		}
 		
-		DataImporter importer = new DataImporter(irule, getRequestUser(request));
+		DataImporter importer = new DataImporter(irule);
 		if (getBoolParameter(request, "preview")) {
 			// TODO 导入预览
 		} else {
-			String taskid = TaskExecutors.submit(importer);
+			String taskid = TaskExecutors.submit(importer, getRequestUser(request));
 			JSON ret = JSONUtils.toJSONObject("taskid", taskid);
 			writeSuccess(response, ret);
 		}
 	}
-	
-	// 导入状态
-	@RequestMapping("/data-importer/import-state")
-	public void importState(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String taskid = getParameterNotNull(request, "taskid");
-		HeavyTask<?> task = TaskExecutors.getTask(taskid);
-		if (task == null) {
-			writeFailure(response, "无效任务 : " + taskid);
-			return;
-		}
-		
-		writeSuccess(response, formatTaskState((DataImporter) task));
-	}
-	
-	// 导入取消
-	@RequestMapping("/data-importer/import-cancel")
-	public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		String taskid = getParameterNotNull(request, "taskid");
-		HeavyTask<?> task = TaskExecutors.getTask(taskid);
-		if (task == null) {
-			writeFailure(response, "无效任务 : " + taskid);
-			return;
-		}
-		if (task.isCompleted()) {
-			writeFailure(response, "无法终止，因为导入任务已执行完成");
-			return;
-		}
-		
-		task.interrupt();
-		for (int i = 0; i < 10; i++) {
-			if (task.isInterrupted()) {
-				writeSuccess(response, formatTaskState((DataImporter) task));
-				return;
-			}
-			ThreadPool.waitFor(200);
-		}
-		writeFailure(response);
-	}
-	
-	/**
-	 * @param task
-	 * @return
-	 */
-	private JSON formatTaskState(DataImporter task) {
-		JSON state = JSONUtils.toJSONObject(
-				new String[] { "total", "complete", "success", "isCompleted", "isInterrupted", "elapsedTime" },
-				new Object[] { task.getTotal(), task.getCompleted(),
-						task.getSuccessed(), task.isCompleted(), task.isInterrupted(), task.getElapsedTime() });
-		return state;
-	}
-	
+
 	/**
 	 * @param file
 	 * @return

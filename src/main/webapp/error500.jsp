@@ -1,7 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" isErrorPage="true"%>
-<%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="cn.devezhao.commons.web.ServletUtils"%>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@ page import="com.rebuild.server.helper.language.Languages"%>
+<%@ page import="com.rebuild.utils.AppUtils"%>
+<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
 <%
 final String errorMsg = AppUtils.getErrorMessage(request, exception);
 if (ServletUtils.isAjaxRequest(request)) {
@@ -18,7 +19,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 <link rel="shortcut icon" href="${baseUrl}/assets/img/favicon.png">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/material-design-iconic-font.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
-<title>系统错误 · ${appName}</title>
+<title>${appName}</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-error">
@@ -31,10 +32,10 @@ if (ServletUtils.isAjaxRequest(request)) {
 					<pre><%=StringEscapeUtils.escapeHtml(errorMsg)%></pre>
 				</div>
 				<div class="error-goback-button">
-					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home">返回首页</a>
-					<a class="btn btn-xl btn-space btn-primary" href="javascript:;" onclick="location.reload(true)">重试</a>
+					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home"><%=Languages.lang("ReturnHome")%></a>
+					<a class="btn btn-xl btn-space btn-primary" href="javascript:;" onclick="location.reload()"><%=Languages.lang("Retry")%></a>
 					<div class="mt-4">
-						<a href="https://github.com/getrebuild/rebuild/issues/new?title=error-500" target="_blank">报告此问题</a>
+						<a href="https://getrebuild.com/report-issue?title=error-500" target="_blank"><%=Languages.lang("ReportIssue")%></a>
 					</div>
 				</div>
 			</div>

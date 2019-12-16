@@ -16,11 +16,9 @@ $(document).ready(() => {
       activeNode = null
     }
   })
-  window.resize_handler()
+
+  $addResizeHandler(() => $('#rbflow').css('min-height', $(window).height() - 225))()
 })
-window.resize_handler = function () {
-  $('#rbflow').css('min-height', $(window).height() - 225)
-}
 
 // 画布准备完毕
 let isCanvasMounted = false

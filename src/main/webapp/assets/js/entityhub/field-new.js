@@ -34,8 +34,17 @@ $(document).ready(function () {
     btn.button('loading')
     $.post(rb.baseUrl + '/admin/entity/field-new', JSON.stringify(_data), function (res) {
       btn.button('reset')
-      if (res.error_code === 0) parent.location.href = rb.baseUrl + '/admin/entity/' + entity + '/field/' + res.data
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        if ($('#saveAndNew').prop('checked')) {
+          RbHighbar.success('字段已添加')
+          $('#fieldLabel, #comments').val('')
+          $('#type').val('TEXT').trigger('change')
+          $('#fieldLabel').focus()
+          parent && parent.loadFields && parent.loadFields()
+        } else {
+          parent.location.href = `${rb.baseUrl}/admin/entity/${entity}/field/${res.data}`
+        }
+      } else RbHighbar.error(res.error_msg)
     })
   })
 

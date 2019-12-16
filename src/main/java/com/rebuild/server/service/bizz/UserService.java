@@ -28,6 +28,7 @@ import com.rebuild.server.helper.BlackList;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
@@ -61,13 +62,25 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public Record create(Record record) {
-		final String passwd = record.getString("password");
-		saveBefore(record);
-		Record r = super.create(record);
-		Application.getUserStore().refreshUser(record.getPrimary());
-		notifyNewUser(r, passwd);
-		return r;
+		return create(record, true);
 	}
+
+    /**
+     * @param record
+     * @param notifyUser
+     * @return
+     */
+    private Record create(Record record, boolean notifyUser) {
+        final String passwd = record.getString("password");
+        saveBefore(record);
+        record = super.create(record);
+        Application.getUserStore().refreshUser(record.getPrimary());
+
+        if (notifyUser) {
+            notifyNewUser(record, passwd);
+        }
+        return record;
+    }
 	
 	@Override
 	public Record update(Record record) {
@@ -99,7 +112,7 @@ public class UserService extends SystemEntityService {
 		}
 		
 		if (record.hasValue("email") && Application.getUserStore().exists(record.getString("email"))) {
-			throw new DataSpecificationException("邮箱重复");
+			throw new DataSpecificationException(Languages.lang("Repeated", "Email"));
 		}
 		
 		if (record.getPrimary() == null && !record.hasValue("fullName")) {
@@ -136,10 +149,10 @@ public class UserService extends SystemEntityService {
      */
     public void checkPassword(String password) throws DataSpecificationException {
         if (password.length() < 6) {
-            throw new DataSpecificationException("密码不能小于6位");
+            throw new DataSpecificationException(Languages.lang("PasswordLevel1Tip"));
         }
 
-        int policy = (int) SysConfiguration.getLong(ConfigurableItem.PasswordPolicy);
+        int policy = SysConfiguration.getInt(ConfigurableItem.PasswordPolicy);
         if (policy <= 1) {
             return;
         }
@@ -161,14 +174,13 @@ public class UserService extends SystemEntityService {
         }
 
         if (policy >= 2 && (countUpper == 0 || countLower == 0 || countDigit == 0)) {
-            throw new DataSpecificationException("密码必须包含数字和大小写字母");
+            throw new DataSpecificationException(Languages.lang("PasswordLevel2Tip"));
         }
         if (policy >= 3 && (countSpecial == 0 || password.length() < 8)) {
-            throw new DataSpecificationException("密码不能小于8位，且必须包含特殊字符");
+            throw new DataSpecificationException(Languages.lang("PasswordLevel3Tip"));
         }
     }
 
-	private static final String MSG_NEWUSER = "<p>系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。</p><div style='margin:10px 0'>登录账号 <b>%s</b><br>登录密码 <b>%s</b><br>登录地址 <a href='%s'>%s</a></div><p>首次登陆，建议你立即修改登陆密码。修改方式：登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码</p>";
 	/**
 	 * @param newUser
 	 * @param passwd
@@ -179,39 +191,18 @@ public class UserService extends SystemEntityService {
 			return false;
 		}
 
-		String subject = "你的 " + SysConfiguration.get(ConfigurableItem.AppName) + " 账号已就绪";
-		String content = String.format(MSG_NEWUSER,
-				SysConfiguration.get(ConfigurableItem.AppName),
-				newUser.getString("loginName"), passwd,
-				SysConfiguration.getHomeUrl(),
-				SysConfiguration.getHomeUrl());
+        String appName = SysConfiguration.get(ConfigurableItem.AppName);
+		String homeUrl = SysConfiguration.getHomeUrl();
+
+        String subject = Languages.defaultBundle().formatLang("YourAccountReady",
+                appName);
+        String content = Languages.defaultBundle().formatLang("NewUserAddedNotify",
+                appName, newUser.getString("loginName"), passwd, homeUrl, homeUrl);
 
 		SMSender.sendMail(newUser.getString("email"), subject, content);
 		return true;
 	}
 	
-	/**
-	 * 改变部门
-	 * 
-	 * @param user
-	 * @param deptNew
-	 * @see #updateEnableUser(ID, ID, ID, Boolean)
-	 */
-	public void updateDepartment(ID user, ID deptNew) {
-		updateEnableUser(user, deptNew, null, null);
-	}
-	
-	/**
-	 * 改变角色
-	 * 
-	 * @param user
-	 * @param roleNew
-	 * @see #updateEnableUser(ID, ID, ID, Boolean)
-	 */
-	public void updateRole(ID user, ID roleNew) {
-		updateEnableUser(user, null, roleNew, null);
-	}
-
 	/**
 	 * 入参值为 null 表示不做修改
 	 * 
@@ -252,7 +243,7 @@ public class UserService extends SystemEntityService {
 		
 		// 改变记录的所属部门
 		if (deptOld != null) {
-			TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew));
+			TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew), Application.getCurrentUser());
 		}
 	}
 	
@@ -261,20 +252,15 @@ public class UserService extends SystemEntityService {
 	 * 
 	 * @param record
 	 */
-	public void txSignUp(Record record) {
-		if (!SysConfiguration.getBool(ConfigurableItem.OpenSignUp)) {
-			throw new DataSpecificationException("管理员未开放公开注册");
-		}
-		
-		record = this.create(record);
-		
+	public ID txSignUp(Record record) {
+		record = this.create(record, false);
+
 		ID newUserId = record.getPrimary();
-		String content = String.format(
-				"用户 @%s 提交了注册申请。请验证用户有效性后为其启用并指定部门和角色，以便用户登录使用。如果这是一个无效的注册申请请忽略。"
-				+ "[点击此处激活](%s/admin/bizuser/users#!/View/User/%s)",
-				newUserId, AppUtils.getContextPath(), newUserId);
-		
-		Message message = MessageBuilder.createMessage(ADMIN_USER, content);
+		String viewUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + newUserId;
+		String content = Languages.defaultBundle().formatLang("NewUserSignupNotify", newUserId, viewUrl);
+
+		Message message = MessageBuilder.createMessage(ADMIN_USER, content, newUserId);
 		Application.getNotifications().send(message);
+		return newUserId;
 	}
 }

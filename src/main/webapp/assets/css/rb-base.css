@@ -5540,7 +5540,12 @@ input[type=submit].btn-block {
 }
 
 .page-link .icon {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+    margin-top: -3px;
+}
+
+.pagination-sm .page-link .icon {
+    transform: translateY(2px);
 }
 
 .page-link:hover {
@@ -5574,7 +5579,7 @@ input[type=submit].btn-block {
 }
 
 .page-item.active .page-link {
-    z-index: 1;
+    /* z-index: 1; */
     color: #fff !important;
     background-color: #4285f4;
     border-color: #4285f4;
@@ -5790,8 +5795,8 @@ input[type=submit].btn-block {
     font-weight: 700
 }
 
-.alert-dismissible {
-    padding-right: 4.27rem
+.alert-dismissible .message>p {
+    padding-right: 2.4rem
 }
 
 .alert-dismissible .close {
@@ -11582,7 +11587,7 @@ canvas {
 }
 
 .rb-top-header .navbar-nav>li.dropdown .dropdown-menu {
-    border-radius: 3px;
+    border-radius: 2px;
     margin-top: 12px;
     line-height: 20px
 }
@@ -11725,7 +11730,7 @@ canvas {
     }
 }
 
-.rb-top-header .search-input {
+.rb-top-header .search-input-gs {
     color: #404040;
     border-radius: 99px;
     background: #f7f7f7;
@@ -11735,12 +11740,12 @@ canvas {
     text-align: left;
 }
 
-.rb-top-header .search-input::placeholder {
+.rb-top-header .search-input-gs::placeholder {
     color: #aaa;
     text-align: center;
 }
 
-.rb-top-header .search-input:focus::placeholder {
+.rb-top-header .search-input-gs:focus::placeholder {
     text-align: left !important
 }
 
@@ -12503,16 +12508,17 @@ a.avatar.x48 img {
 
 .rb-notifications .notification {
     overflow: hidden;
-    border-bottom: 1px solid #ebebeb
+    border-bottom: 1px solid #ebebeb;
+    position: relative;
 }
 
-.rb-notifications .notification>a {
+.rb-notifications .notification>.a {
     padding: 10px 15px;
     display: block;
     overflow: hidden
 }
 
-.rb-notifications .notification>a .image {
+.rb-notifications .notification>.a .image {
     height: 38px;
     width: 38px;
     border-radius: 50%;
@@ -12524,7 +12530,7 @@ a.avatar.x48 img {
     width: 32px;
 }
 
-.rb-notifications .notification>a .image img {
+.rb-notifications .notification>.a .image img {
     height: 38px;
     width: 38px;
     font-size: 1.923rem;
@@ -12535,24 +12541,24 @@ a.avatar.x48 img {
     line-height: 32px;
 }
 
-.rb-notifications .notification>a .notification-info {
+.rb-notifications .notification>.a .notification-info {
     padding-left: 50px;
     line-height: 14px;
     padding-left: 44px;
 }
 
-.rb-notifications .notification>a .notification-info .text {
+.rb-notifications .notification>.a .notification-info .text {
     color: #8a8a8a;
     font-size: .9231rem;
     line-height: 16px
 }
 
-.rb-notifications .notification>a .notification-info .user-name {
+.rb-notifications .notification>.a .notification-info .user-name {
     color: #4285f4;
     font-size: 1rem
 }
 
-.rb-notifications .notification>a .notification-info .date {
+.rb-notifications .notification>.a .notification-info .date {
     color: #8a8a8a;
     display: block;
     font-size: .6923rem;
@@ -12567,11 +12573,7 @@ a.avatar.x48 img {
     border-bottom: 1px solid #dce9fd
 }
 
-.rb-notifications .notification.notification-unread>a {
-    position: relative
-}
-
-.rb-notifications .notification.notification-unread>a:after {
+.rb-notifications .notification.notification-unread>.a:after {
     content: '';
     display: block;
     position: absolute;
@@ -12592,25 +12594,25 @@ a.avatar.x48 img {
     color: #fff
 }
 
-.rb-notifications .notification:hover>a .logo {
+.rb-notifications .notification:hover>.a .logo {
     background-color: #206ff2
 }
 
-.rb-notifications .notification:hover>a .logo .icon {
+.rb-notifications .notification:hover>.a .logo .icon {
     color: #fff
 }
 
-.rb-notifications .notification:hover>a .notification-info .circle {
+.rb-notifications .notification:hover>.a .notification-info .circle {
     background: #fff
 }
 
-.rb-notifications .notification:hover>a .notification-info .date,
-.rb-notifications .notification:hover>a .notification-info .text,
-.rb-notifications .notification:hover>a .notification-info .user-name {
+.rb-notifications .notification:hover>.a .notification-info .date,
+.rb-notifications .notification:hover>.a .notification-info .text,
+.rb-notifications .notification:hover>.a .notification-info .user-name {
     color: #fff
 }
 
-.rb-notifications .notification:hover>a:after {
+.rb-notifications .notification:hover>.a:after {
     background-color: #fff
 }
 
@@ -20253,6 +20255,7 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
     margin-right: 8px;
     color: #696969;
     width: 14px;
+    text-align: center;
 }
 
 .dropdown-menu>.dropdown-item:active,
@@ -22531,7 +22534,7 @@ address {
 }
 
 .page-link>span {
-    line-height: 12px
+    line-height: 10px
 }
 
 .pagination-rounded .page-link {
@@ -22824,12 +22827,12 @@ select.form-control-xs:not([size]):not([multiple]) {
 }
 
 .row.login-tools {
-    padding: 15px 0 0;
-    margin-bottom: 16px
+    padding: 10px 0 0;
+    margin-bottom: 10px
 }
 
 .login-forgot-password {
-    line-height: 2.1;
+    line-height: 1.92;
     text-align: right
 }
 
@@ -22940,36 +22943,6 @@ select.form-control-xs:not([size]):not([multiple]) {
     .rb-error-404 .error-container .error-number {
         font-size: 3.077rem
     }
-}
-
-.splash-container.sign-up {
-    max-width: 433px;
-    margin: 10px auto
-}
-
-.splash-container.sign-up .card .card-header {
-    margin-bottom: 0
-}
-
-.signup-password.row {
-    padding: 0;
-    margin-bottom: 1.3842rem
-}
-
-.signup-password .btn {
-    width: 100%
-}
-
-.signup-password>div:first-child {
-    padding-right: 10px
-}
-
-.signup-password>div:last-child {
-    padding-left: 10px
-}
-
-.splash-container.forgot-password .card .card-header {
-    margin-bottom: 5px
 }
 
 .gallery-container .item {
@@ -23932,7 +23905,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
     border-color: #4285f4
 }
 
-.ms-container .search-input {
+.ms-container .search-input-gs {
     height: 30px;
     margin-bottom: 10px
 }
@@ -23976,7 +23949,8 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
     right: 20px;
     font-size: 1.35rem;
-    top: -1px;
+    top: -2px;
+    font-weight: normal;
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {

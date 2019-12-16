@@ -40,16 +40,19 @@ public class BulkContext {
 	private Permission action;
 	// [目标用户]
 	private ID toUser;
+
 	// 待操作记录
 	private ID[] records;
-	// 待操作记录（通过过滤条件获得）
-	private JSONObject filterExp;
 	// [待操作记录所依附的主记录]
 	private ID targetRecord;
 	// [级联操作实体]
 	private String[] cascades;
-	
-	final private Entity mainEntity;
+
+    // [特定数据] 默认为高级查询表达式
+    // 如果为查询条件，其必须含有查询项，否则将抛出异常
+    private JSONObject customData;
+
+    final private Entity mainEntity;
 	
 	/**
 	 * @param opUser
@@ -57,15 +60,15 @@ public class BulkContext {
 	 * @param toUser
 	 * @param cascades
 	 * @param records
-	 * @param filterExp
+	 * @param customData
 	 * @param recordMaster
 	 */
-	private BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records, JSONObject filterExp, ID recordMaster) {
+	private BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records, JSONObject customData, ID recordMaster) {
 		this.opUser = opUser;
 		this.action = action;
 		this.toUser = toUser;
 		this.records = records;
-		this.filterExp = filterExp;
+		this.customData = customData;
 		this.targetRecord = recordMaster;
 		this.cascades = cascades;
 		this.mainEntity = detecteMainEntity();
@@ -96,6 +99,15 @@ public class BulkContext {
 		this(opUser, action, null, null, records, null, targetRecord);
 	}
 
+    /**
+     * @param opUser
+     * @param action
+     * @param customData
+     */
+	public BulkContext(ID opUser, Permission action, JSONObject customData) {
+        this(opUser, action, null, null, null, customData, null);
+    }
+
 	public ID getOpUser() {
 		return opUser;
 	}
@@ -116,8 +128,8 @@ public class BulkContext {
 		return records;
 	}
 	
-	public JSONObject getFilterExp() {
-		return filterExp;
+	public JSONObject getCustomData() {
+		return customData;
 	}
 
 	public ID getTargetRecord() {
@@ -133,8 +145,8 @@ public class BulkContext {
 			return MetadataHelper.getEntity(targetRecord.getEntityCode());
 		} else if (records != null && records.length > 0) {
 			return MetadataHelper.getEntity(records[0].getEntityCode());
-		} else if (filterExp != null) {
-			return MetadataHelper.getEntity(filterExp.getString("entity"));
+		} else if (customData != null) {
+			return MetadataHelper.getEntity(customData.getString("entity"));
 		}
 		throw new RebuildException("No record for operate");
 	}

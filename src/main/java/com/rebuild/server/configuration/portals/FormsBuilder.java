@@ -22,7 +22,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.editor.BoolEditor;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -32,6 +31,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.DefaultValueHelper;
@@ -39,15 +39,19 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.metadata.entity.FieldExtConfigProps;
+import com.rebuild.server.service.bizz.privileges.Department;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 表单构造
@@ -121,7 +125,7 @@ public class FormsBuilder extends FormsManager {
 		// 明细实体
 		final Entity masterEntity = entityMeta.getMasterEntity();
 		// 审批流程（状态）
-		ApprovalState approvalState = null;
+		ApprovalState approvalState;
 
 		// 判断表单权限
 		
@@ -144,33 +148,33 @@ public class FormsBuilder extends FormsManager {
 				// 明细无需审批
 				approvalState = null;
 				
-				if (!Application.getSecurityManager().allowedU(user, masterRecordId)) {
+				if (!Application.getSecurityManager().allowUpdate(user, masterRecordId)) {
 					return formatModelError("你没有权限向此记录添加明细");
 				}
-			} else if (!Application.getSecurityManager().allowedC(user, entityMeta.getEntityCode())) {
+			} else if (!Application.getSecurityManager().allowCreate(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
 			} else {
 				approvalState = getHadApproval(entityMeta, null);
 			}
-			
-		} 
+		}
 		// 查看（视图）
 		else if (viewMode) {
-			if (!Application.getSecurityManager().allowedR(user, record)) {
-				return formatModelError("你没有读取此记录的权限");
+			if (!Application.getSecurityManager().allowRead(user, record)) {
+				return formatModelError("你无权读取此记录或记录已被删除");
 			}
 			
 			approvalState = getHadApproval(entityMeta, record);
 
+		}
 		// 编辑
-		} else {
-			if (!Application.getSecurityManager().allowedU(user, record)) {
+		else {
+			if (!Application.getSecurityManager().allowUpdate(user, record)) {
 				return formatModelError("你没有编辑此记录的权限");
 			}
 			
 			approvalState = getHadApproval(entityMeta, record);
 			if (approvalState != null) {
-				String masterType = masterEntity == null ? "" : "主";
+				String masterType = masterEntity == null ? StringUtils.EMPTY : "主";
 				if (approvalState == ApprovalState.APPROVED) {
 					return formatModelError(masterType + "记录已完成审批，不能编辑");
 				} else if (approvalState == ApprovalState.PROCESSING) {
@@ -182,28 +186,32 @@ public class FormsBuilder extends FormsManager {
 		ConfigEntry model = getFormLayout(entity, user);
 		JSONArray elements = (JSONArray) model.getJSON("elements");
 		if (elements == null || elements.isEmpty()) {
-			return formatModelError("此表单布局尚未配置，请配置后使用");
+			return formatModelError("表单布局尚未配置，请配置后使用");
 		}
 		
 		Record data = null;
 		if (record != null) {
 			data = findRecord(record, user, elements);
 			if (data == null) {
-				return formatModelError("此记录已被删除，或你对此记录没有读取权限");
+				return formatModelError("记录已被删除，或你对此记录没有读取权限");
 			}
 		}
+
+		// 自动只读字段
+		final Set<String> autoReadonlyByTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
 		
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
 			JSONObject el = (JSONObject) iter.next();
 			String fieldName = el.getString("field");
-			
-			if (fieldName.equalsIgnoreCase(DIVIDER_LINE)) {
+
+			if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) {
 				// 分割线表单页暂不支持
-				if (!viewMode) iter.remove();
+				if (!viewMode) {
+					iter.remove();
+				}
 				continue;
 			}
-
 			// 已删除字段
 			if (!MetadataHelper.checkAndWarnField(entityMeta, fieldName)) {
 				iter.remove();
@@ -212,25 +220,25 @@ public class FormsBuilder extends FormsManager {
 
 			Field fieldMeta = entityMeta.getField(fieldName);
 			EasyMeta easyField = new EasyMeta(fieldMeta);
-			el.put("label", easyField.getLabel());
 			final DisplayType dt = easyField.getDisplayType();
+			el.put("label", easyField.getLabel());
 			el.put("type", dt.name());
 			el.put("nullable", fieldMeta.isNullable());
 			el.put("readonly", false);
-			
+
+			boolean triggersReadonly = autoReadonlyByTriggers.contains(fieldName);
 			// 不可更新字段
-			if (data != null && !fieldMeta.isUpdatable()) {
+			if ((data != null && !fieldMeta.isUpdatable()) || triggersReadonly) {
 				el.put("readonly", true);
 			}
-			
-			// 针对字段的配置
-			
+
+			// 字段扩展配置 FieldExtConfigProps
 			JSONObject fieldExt = easyField.getFieldExtConfig();
 			for (Map.Entry<String, Object> e : fieldExt.entrySet()) {
 				el.put(e.getKey(), e.getValue());
 			}
 			
-			// 不同类型的处理
+			// 不同字段类型的处理
 			
 			int dateLength = -1;
 			
@@ -241,6 +249,7 @@ public class FormsBuilder extends FormsManager {
 			else if (dt == DisplayType.STATE) {
 				JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
 				el.put("options", options);
+				el.remove(FieldExtConfigProps.STATE_STATECLASS);
 			}
 			else if (dt == DisplayType.MULTISELECT) {
 				JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
@@ -264,7 +273,7 @@ public class FormsBuilder extends FormsManager {
 
 			// 编辑/视图
 			if (data != null) {
-				Object value = wrapFieldValue(data, easyField, viewMode);
+				Object value = wrapFieldValue(data, easyField);
 				if (value != null) {
 					el.put("value", value);
 				}
@@ -273,25 +282,36 @@ public class FormsBuilder extends FormsManager {
 			else {
 				if (!fieldMeta.isCreatable()) {
 					el.put("readonly", true);
-					if (fieldName.equals(EntityHelper.CreatedOn) || fieldName.equals(EntityHelper.ModifiedOn)) {
-						el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
-					} else if (fieldName.equals(EntityHelper.CreatedBy) || fieldName.equals(EntityHelper.ModifiedBy) || fieldName.equals(EntityHelper.OwningUser)) {
-						el.put("value", new Object[] { currentUser.getId(), currentUser.getFullName(), "User" });
-					} else if (fieldName.equals(EntityHelper.OwningDept)) {
-						el.put("value", new Object[] { currentUser.getOwningDept().getIdentity(), currentUser.getOwningDept().getName(), "Department" });
-					}
+                    switch (fieldName) {
+                        case EntityHelper.CreatedOn:
+                        case EntityHelper.ModifiedOn:
+                            el.put("value", CalendarUtils.getUTCDateTimeFormat().format(now));
+                            break;
+                        case EntityHelper.CreatedBy:
+                        case EntityHelper.ModifiedBy:
+                        case EntityHelper.OwningUser:
+                            el.put("value", FieldValueWrapper.wrapMixValue(currentUser.getId(), currentUser.getFullName()));
+                            break;
+                        case EntityHelper.OwningDept:
+                            Department dept = currentUser.getOwningDept();
+                            Assert.notNull(dept, "Department of user is unset : " + currentUser.getId());
+                            el.put("value", FieldValueWrapper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
+                            break;
+						case EntityHelper.ApprovalId:
+							el.put("value", FieldValueWrapper.wrapMixValue(null,"自动值 (审批流程)"));
+							break;
+						case EntityHelper.ApprovalState:
+							el.put("value", ApprovalState.DRAFT.getState());
+							break;
+                    }
 				}
 
-				if (MetadataHelper.isApprovalField(fieldName)) {
-					if (EntityHelper.ApprovalId.equals(fieldName)) {
-						el.put("value", new String[] { null, "自动值 (审批流程)" });
-					} else {
-						el.put("value", "自动值 (审批流程)");
-					}
-				} else if (dt == DisplayType.SERIES) {
+				if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (自动编号)");
 				} else if (dt == DisplayType.BOOL) {
 					el.put("value", BoolEditor.FALSE);
+				} else if (triggersReadonly) {
+					el.put("value", "自动值 (触发器)");
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
 					if (defVal != null) {
@@ -354,23 +374,14 @@ public class FormsBuilder extends FormsManager {
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String field = el.getString("field");
-			if (field.startsWith("$")) {
+			if (field.startsWith("$") || !entity.containsField(field)) {
 				continue;
 			}
-			if (!entity.containsField(field)) {
-				continue;
-			}
-			
-			Field fieldMeta = entity.getField(field);
-			
+
 			// REFERENCE
-			if (fieldMeta.getType() == FieldType.REFERENCE) {
-				int ec = fieldMeta.getReferenceEntity().getEntityCode();
-				if (!(ec == EntityHelper.ClassificationData || ec == EntityHelper.PickList)) {
-					ajql.append('&').append(field).append(',');
-				}
+			if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+			    ajql.append('&').append(field).append(',');
 			}
-			
 			ajql.append(field).append(',');
 		}
 		
@@ -379,18 +390,20 @@ public class FormsBuilder extends FormsManager {
 		} else {
 			ajql.deleteCharAt(ajql.length() - 1);
 		}
-		
-		ajql.append(" from ").append(entity.getName())
-				.append(" where ").append(entity.getPrimaryField().getName())
-				.append(" = '").append(id).append("'");
-		
-		return Application.getQueryFactory().createQuery(ajql.toString(), user).record();
+
+		ajql.append(" from ")
+                .append(entity.getName())
+				.append(" where ")
+                .append(entity.getPrimaryField().getName())
+                .append(" = ?");
+		return Application.getQueryFactory().createQuery(ajql.toString(), user).setParameter(1, id).record();
 	}
 	
 	/**
 	 * @param entity
 	 * @param recordId
 	 * @return
+     *
 	 * @see RobotApprovalManager#hadApproval(Entity, ID)
 	 */
 	private ApprovalState getHadApproval(Entity entity, ID recordId) {
@@ -404,7 +417,7 @@ public class FormsBuilder extends FormsManager {
 			Field stm = MetadataHelper.getSlaveToMasterField(entity);
 			String sql = String.format("select %s from %s where %s = ?",
 					Objects.requireNonNull(stm).getName(), entity.getName(), entity.getPrimaryField().getName());
-			Object o[] = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
+			Object[] o = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
 			masterRecordId = (ID) o[0];
 		}
 		return RobotApprovalManager.instance.hadApproval(masterEntity, masterRecordId);
@@ -415,73 +428,37 @@ public class FormsBuilder extends FormsManager {
 	 * 
 	 * @param data
 	 * @param field
-	 * @param viewMode
 	 * @return
 	 * 
 	 * @see FieldValueWrapper
-	 * @see #findRecord(ID, ID, JSONArray)
 	 */
-	protected Object wrapFieldValue(Record data, EasyMeta field, boolean viewMode) {
+	public Object wrapFieldValue(Record data, EasyMeta field) {
 		final String fieldName = field.getName();
 
 		// No value
-		if (!data.hasValue(fieldName)) {
+		if (!data.hasValue(fieldName, false)) {
 			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
-				return viewMode ? FieldValueWrapper.APPROVAL_UNSUBMITTED
-								: new String[] { null, FieldValueWrapper.APPROVAL_UNSUBMITTED };
-			} else {
-				return null;
+				return FieldValueWrapper.wrapMixValue(null, FieldValueWrapper.APPROVAL_UNSUBMITTED);
 			}
-		}
+            return null;
+        }
 
 		final DisplayType dt = field.getDisplayType();
 		final Object fieldValue = data.getObjectValue(fieldName);
 
-		// 编辑模式下原值返回
-		if (!viewMode && (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE
-				|| dt == DisplayType.BOOL || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL)) {
-			return fieldValue.toString();
-		}
-
-		if (dt == DisplayType.PICKLIST) {
-			String wrapped = PickListManager.instance.getLabel((ID) fieldValue);
-			return wrapped == null ? FieldValueWrapper.MISS_REF_PLACE : wrapped;
-		}
-		else if (dt == DisplayType.CLASSIFICATION) {
-			String wrapped = ClassificationManager.instance.getFullName((ID) fieldValue);
-			if (wrapped == null) {
-				wrapped = FieldValueWrapper.MISS_REF_PLACE;
-			}
-			return viewMode ? wrapped : new String[] { fieldValue.toString(), wrapped };
-		}
-		else if (fieldValue instanceof ID) {
-			ID idValue = (ID) fieldValue;
-			String idLabel = idValue.getLabel();
-			if (idLabel == null) {
-				idLabel = '[' + idValue.toLiteral().toUpperCase() + ']';
-			}
-			return new String[] { idValue.toLiteral(), idLabel, MetadataHelper.getEntityName(idValue) };
-		}
-
-		return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
-	}
-	
-	// -- 主/明细实体权限处理
-	
-	private static final ThreadLocal<ID> MASTERID4NEWSLAVE = new ThreadLocal<>();
-	/**
-	 * 创建明细实体必须指定主实体，以便验证权限
-	 * 
-	 * @param masterId
-	 */
-	public static void setCurrentMasterId(ID masterId) {
-		MASTERID4NEWSLAVE.set(masterId);
+		if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.AVATAR
+                 || dt == DisplayType.STATE || dt == DisplayType.LOCATION) {
+		    return fieldValue.toString();
+        } else if (dt == DisplayType.BOOL) {
+		    return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;
+        } else {
+            return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
+        }
 	}
 
-
-	// -- 表单初始值
-
 	/**
+	 * 表单初始值填充
+	 *
 	 * @param entity
 	 * @param formModel
 	 * @param initialVal 此值优先级大于字段默认值
@@ -496,40 +473,45 @@ public class FormsBuilder extends FormsManager {
 			return;
 		}
 
+		// 已布局字段。字段是否布局会影响返回值
+		Set<String> inFormFields = new HashSet<>();
+		for (Object o : elements) {
+			inFormFields.add(((JSONObject) o).getString("field"));
+		}
+
 		Map<String, Object> initialValReady = new HashMap<>();
 		for (Map.Entry<String, Object> e : initialVal.entrySet()) {
-			String field = e.getKey();
-			String value = (String) e.getValue();
+			final String field = e.getKey();
+			final String value = (String) e.getValue();
 			if (StringUtils.isBlank(value)) {
 				continue;
 			}
 
-			// 引用字段实体，如 `&User`
+			// 引用字段值如 `&User`
 			if (field.startsWith(DV_REFERENCE_PREFIX)) {
-				Object idLabel[] = readyReferenceValue(value);
-				if (idLabel != null) {
+				Object mixValue = readyReferenceValue(value);
+				if (mixValue != null) {
 					Entity source = MetadataHelper.getEntity(field.substring(1));
 					Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
 					// 如有多个则全部填充
-					for (Field rtf : reftoFields) {
-						initialValReady.put(rtf.getName(), idLabel);
+					for (Field refto : reftoFields) {
+						initialValReady.put(refto.getName(), inFormFields.contains(refto.getName()) ? mixValue : value);
 					}
 				}
 			}
 			// 主实体字段
 			else if (field.equals(DV_MASTER)) {
-				Object idLabel[] = readyReferenceValue(value);
-				if (idLabel != null) {
-					Field stm = MetadataHelper.getSlaveToMasterField(entity);
-					initialValReady.put(Objects.requireNonNull(stm).getName(), idLabel);
+				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+				Object mixValue = inFormFields.contains(Objects.requireNonNull(stmField).getName()) ? readyReferenceValue(value) : value;
+				if (mixValue != null) {
+					initialValReady.put(stmField.getName(), mixValue);
 				}
 			}
 			else if (entity.containsField(field)) {
-				EasyMeta fieldMeta = EasyMeta.valueOf(entity.getField(field));
-				if (fieldMeta.getDisplayType() == DisplayType.REFERENCE) {
-					Object idLabel[] = readyReferenceValue(value);
-					if (idLabel != null) {
-						initialValReady.put(field, readyReferenceValue(value));
+				if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+					Object mixValue = inFormFields.contains(field) ? readyReferenceValue(value) : value;
+					if (mixValue != null) {
+						initialValReady.put(field, mixValue);
 					}
 				}
 			} else {
@@ -545,39 +527,50 @@ public class FormsBuilder extends FormsManager {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
 			if (initialValReady.containsKey(field)) {
-				item.put("value", initialValReady.get(field));
-				initialValReady.remove(field);
+				item.put("value", initialValReady.remove(field));
 			}
 		}
 
-		// 没布局出来的也得返回（如明细记录中的主实体字段值）
+		// 没布局出来的也需要返回（放入 initialValue 节点）
+		// 如明细记录中的主实体字段值
 		if (!initialValReady.isEmpty()) {
-			JSONObject initial = new JSONObject();
-			for (Map.Entry<String, Object> e : initialValReady.entrySet()) {
-				Object v = e.getValue();
-				if (v instanceof Object[]) {
-					v = ((Object[]) v)[0].toString();
-				}
-				initial.put(e.getKey(), v);
-			}
-			((JSONObject) formModel).put("initialValue", initial);
+			((JSONObject) formModel).put("initialValue", initialValReady);
 		}
 	}
 
 	/**
+     * 引用字段值
+     *
 	 * @param idVal
-	 * @return
+	 * @return returns [ID, LABEL]
 	 */
-	private Object[] readyReferenceValue(String idVal) {
+	private JSON readyReferenceValue(String idVal) {
 		if (!ID.isId(idVal)) {
 			return null;
 		}
+
 		try {
-			String label = FieldValueWrapper.getLabel(ID.valueOf(idVal));
-			return new Object[] { idVal, label };
+			String idLabel = FieldValueWrapper.getLabel(ID.valueOf(idVal));
+			return FieldValueWrapper.wrapMixValue(ID.valueOf(idVal), idLabel);
 		} catch (NoRecordFoundException ex) {
 			LOG.error("No record found : " + idVal);
 			return null;
+		}
+	}
+
+	// -- 主/明细实体权限处理
+
+	private static final ThreadLocal<ID> MASTERID4NEWSLAVE = new ThreadLocal<>();
+	/**
+	 * 创建明细实体必须指定主实体，以便验证权限
+	 *
+	 * @param masterId
+	 */
+	public static void setCurrentMasterId(ID masterId) {
+		if (masterId == null) {
+			MASTERID4NEWSLAVE.remove();
+		} else {
+			MASTERID4NEWSLAVE.set(masterId);
 		}
 	}
 }

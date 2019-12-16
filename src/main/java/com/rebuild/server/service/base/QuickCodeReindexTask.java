@@ -57,7 +57,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 	}
 	
 	@Override
-	public Integer exec() throws Exception {
+	protected Integer exec() throws Exception {
 		if (!entity.containsField(EntityHelper.QuickCode)) {
 			throw new IllegalArgumentException("No QuickCode field found : " + entity);
 		}
@@ -180,7 +180,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 		// 仅包含字母数字或空格
 		if (nameVal.matches("[a-zA-Z0-9\\s]+")) {
 			// 提取英文单词的首字母
-			String asplit[] = nameVal.split("(?=[A-Z\\s])");
+			String[] asplit = nameVal.split("(?=[A-Z\\s])");
 			if (asplit.length == 1) {
 				quickCode = nameVal;
 			} else {

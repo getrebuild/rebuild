@@ -21,7 +21,7 @@ final JSONArray navArray = NavManager.instance.getNavForPortal(request);
 			</div>
 		</div>
 	</div>
-	<% if (AppUtils.allowed(request, ZeroEntry.AllowCustomNav)) { %>
+	<% if (AppUtils.allow(request, ZeroEntry.AllowCustomNav)) { %>
 	<div class="bottom-widget">
 		<a class="nav-settings" href="javascript:;" title="设置导航菜单"><i class="icon zmdi zmdi-apps"></i></a>
 	</div>

@@ -39,8 +39,8 @@
 						<div class="row rb-datatable-header">
 							<div class="col-12 col-lg-5">
 								<div class="dataTables_filter">
-									<div class="input-group input-search" data-qfields="loginName,fullName,email,quickCode">
-										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
+									<div class="input-group input-search">
+										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40" data-fields="loginName,fullName,email,quickCode">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
 								</div>
@@ -89,15 +89,15 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/bizuser/dept-tree.js"></script>
 <script type="text/babel">
 let formPostType = 1
-RbForm.postAfter = function(){
-	if (formPostType == 1) RbListPage._RbList.reload()
+let RbForm_postAfter = RbForm.postAfter
+RbForm.postAfter = function() {
+	if (formPostType == 1) RbForm_postAfter()
 	else loadDeptTree()
 }
 $(document).ready(function(){
 	loadDeptTree()
-
-	$('.J_new').click(function(){ formPostType = 1 })
-	$('.J_new-dept').click(function(){
+	$('.J_new').click(function() { formPostType = 1 })
+	$('.J_new-dept').click(function() {
 		formPostType = 2
 		RbFormModal.create({ title: '新建部门', entity: 'Department', icon: 'accounts' })
 	})

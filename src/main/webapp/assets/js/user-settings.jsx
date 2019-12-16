@@ -29,6 +29,33 @@ $(document).ready(function () {
       else RbHighbar.create(res.error_msg)
     })
   })
+
+  let logsLoad = false
+  $('a.nav-link[href="#logs"]').click(() => {
+    if (logsLoad) return
+    logsLoad = true
+    $.get(`${rb.baseUrl}/account/settings/login-logs`, (res) => {
+      $(res.data).each(function (idx) {
+        let $tr = $('<tr></tr>').appendTo('#logs tbody')
+        $('<td class="text-muted">' + (idx + 1) + '.</td>').appendTo($tr)
+        $('<td>' + this[0] + '</td>').appendTo($tr)
+        $('<td>' + this[1] + '</td>').appendTo($tr)
+        $('<td>' + this[2] + '</td>').appendTo($tr)
+        $('<td>' + (this[3] || '--') + '</td>').appendTo($tr)
+      })
+
+      $('#logs tbody>tr').each(function () {
+        let ipAddr = $(this).find('td:eq(3)')
+        let ip = ipAddr.text()
+        $.get(rb.baseUrl + '/commons/ip-location?ip=' + ip, (res) => {
+          if (res.error_code === 0 && res.data.country !== 'N') {
+            let L = res.data.country === 'R' ? '局域网' : [res.data.region, res.data.country].join(', ')
+            ipAddr.text(ip + ' (' + L + ')')
+          }
+        })
+      })
+    })
+  })
 })
 
 // 修改密码

@@ -15,7 +15,7 @@
 		<a class="close J_close"><i class="zmdi zmdi-close"></i></a>
 	</span>
 </div>
-<div class="main-content container-fluid">
+<div class="main-content container-fluid p-0">
     <div class="rbflow-design preview" id="rbflow">
     </div>
 </div>
@@ -27,7 +27,7 @@ window.__PageConfig = {
 }
 </script>
 <script type="text/babel">
-window.resize_handler = function () {}
+__RESIZE_CALLS = null
 $(document).ready(function() {
     const ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(window.__PageConfig.id) : null
     if (ph) $('.J_close').click(() => ph.hide())

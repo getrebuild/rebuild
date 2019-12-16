@@ -78,6 +78,7 @@ span.badge {
 							</div>
 							<div class="col-sm-6">
 								<div class="dataTables_oper">
+									<a class="link inline mr-3" target="_blank" href="https://getrebuild.com/docs/admin/meta-entity#%E5%BC%95%E7%94%A8%E5%AD%97%E6%AE%B5%E5%9B%9E%E5%A1%AB">如何使用 <i class="zmdi zmdi-help zicon"></i></a>
 									<button class="btn btn-primary J_add-rule"><i class="icon zmdi zmdi-plus"></i> 添加</button>
 								</div>
 							</div>

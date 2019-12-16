@@ -65,7 +65,7 @@ public class NotificationService extends BaseService {
 	
 	// 清理缓存
 	private void cleanCache(ID messageId) {
-		Object m[] = Application.createQueryNoFilter(
+		Object[] m = Application.createQueryNoFilter(
 				"select toUser from Notification where messageId = ?")
 				.setParameter(1, messageId)
 				.unique();

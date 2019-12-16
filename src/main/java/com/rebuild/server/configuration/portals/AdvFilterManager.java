@@ -88,7 +88,9 @@ public class AdvFilterManager extends ShareToManager<ID> {
 
 		Object[][] cached = getAllConfig((String) o[0], null);
 		for (Object[] c : cached) {
-			if (!c[0].equals(cfgid)) continue;
+			if (!c[0].equals(cfgid)) {
+                continue;
+            }
 			return new ConfigEntry()
 					.set("id", c[0])
 					.set("shareTo", c[1])

@@ -69,11 +69,12 @@ public class RelatedListControll extends BaseControll {
 		
 		Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
 		for (Object[] o : array) {
-			o[1] = FieldValueWrapper.instance.wrapFieldValue(o[1], MetadataHelper.getNameField(relatedEntity));
-			if (o[1] == null || StringUtils.isEmpty(o[1].toString())) {
-				o[1] = o[0].toString().toUpperCase();  // 使用ID值作为名称字段值
+		    Object nameValue = o[1];
+            nameValue = FieldValueWrapper.instance.wrapFieldValue(nameValue, MetadataHelper.getNameField(relatedEntity), true);
+			if (nameValue == null || StringUtils.isEmpty(nameValue.toString())) {
+                nameValue = FieldValueWrapper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
 			}
-//			o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
+			o[1] = nameValue;
 			o[2] = Moment.moment((Date) o[2]).fromNow();
 		}
 		

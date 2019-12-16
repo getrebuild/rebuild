@@ -22,13 +22,9 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.ClassificationManager;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.rebuild.server.configuration.portals.FieldPortalAttrs;
-import com.rebuild.server.configuration.portals.MultiSelectManager;
-import com.rebuild.server.configuration.portals.PickListManager;
-import com.rebuild.server.helper.state.StateManager;
+import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -81,31 +77,28 @@ public class MetadataGetting extends BaseControll {
 	@RequestMapping("fields")
 	public void fields(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
-		Entity entityBase = MetadataHelper.getEntity(entity);
+		Entity entityMeta = MetadataHelper.getEntity(entity);
 		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
 		String fromType = getParameter(request, "from");
 		
 		List<Map<String, Object>> list = new ArrayList<>();
-		putFields(list, entityBase, appendRefFields, null, fromType);
-		// 追加二级字段
+		putFields(list, entityMeta, appendRefFields, fromType);
+
+		// 追加二级引用字段
 		if (appendRefFields) {
-			for (Field field : entityBase.getFields()) {
-				EasyMeta easyField = EasyMeta.valueOf(field);
-				if (easyField.getDisplayType() != DisplayType.REFERENCE) {
+			for (Field field : entityMeta.getFields()) {
+				if (EasyMeta.getDisplayType(field) != DisplayType.REFERENCE) {
 					continue;
 				}
-				
+
 				int entityCode = field.getReferenceEntity().getEntityCode();
-				if (!(MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig)) {
-					// 显示父级字段
-					Map<String, Object> parent = new HashMap<>();
-					parent.put("name", field.getName());
-					parent.put("label", easyField.getLabel());
-					parent.put("type", easyField.getDisplayType().name());
-					parent.put("creatable", field.isCreatable());
-					list.add(parent);
-					
-					putFields(list, field.getReferenceEntity(), false, easyField, fromType);
+				if (!MetadataHelper.isBizzEntity(entityCode)) {
+					list.add(buildField(field));
+
+					// 引用实体字段
+					if (entityCode != EntityHelper.RobotApprovalConfig) {
+    					putFields(list, field, false, fromType);
+                    }
 				}
 			}
 		}
@@ -113,51 +106,73 @@ public class MetadataGetting extends BaseControll {
 		writeSuccess(response, list);
 	}
 
-	/**
-	 * @param dest
-	 * @param entity
-	 * @param filterField
-	 * @param parentField
-	 * @param fromType
-	 */
+    /**
+     * @param dest
+     * @param entityOrField
+     * @param filterRefField
+     * @param fromType
+     */
 	private void putFields(
-			List<Map<String, Object>> dest, Entity entity, boolean filterField, EasyMeta parentField, String fromType) {
-		for (Field field : MetadataSorter.sortFields(entity)) {
+            List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField, String fromType) {
+	    Field parentField = null;
+	    Entity useEntity = null;
+	    if (entityOrField instanceof Field) {
+            parentField = (Field) entityOrField;
+            useEntity = parentField.getReferenceEntity();
+        } else {
+	        useEntity = (Entity) entityOrField;
+        }
+
+		for (Field field : MetadataSorter.sortFields(useEntity)) {
 			if (!FieldPortalAttrs.instance.allowByType(field, fromType)) {
 				continue;
 			}
-			
-			Map<String, Object> map = new HashMap<>();
-			map.put("name", field.getName());
-			map.put("creatable", field.isCreatable());
-			EasyMeta easyMeta = new EasyMeta(field);
-			map.put("label", easyMeta.getLabel());
-			DisplayType dt = easyMeta.getDisplayType();
-			map.put("type", dt.name());
-			if (dt == DisplayType.REFERENCE) {
-				Entity refEntity = field.getReferenceEntity();
-				// Bizz 字段前台有特殊处理
-				boolean isBizzField = MetadataHelper.isBizzEntity(refEntity.getEntityCode());
-				if (filterField && !(isBizzField || refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig)) {
-					continue;
-				}
-				
-				Field nameField  = MetadataHelper.getNameField(refEntity);
-				map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(nameField).name() });
-				// Fix fieldType to nameField
-				if (!isBizzField) {
-					map.put("type", EasyMeta.getDisplayType(nameField));
-				}
+
+			Map<String, Object> map = buildField(field);
+			// 引用字段处理
+			if (EasyMeta.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {
+				boolean isBizz = MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode());
+				boolean isApprovalId = field.getName().equalsIgnoreCase(EntityHelper.ApprovalId);
+				if (isApprovalId) {
+				    continue;
+                } else if (!isBizz) {
+				    continue;
+                }
 			}
 
 			if (parentField != null) {
 				map.put("name", parentField.getName() + "." + map.get("name"));
-				map.put("label", parentField.getLabel() + "." + map.get("label"));
+				map.put("label", EasyMeta.getLabel(parentField) + "." + map.get("label"));
 			}
 
 			dest.add(map);
 		}
 	}
+
+    /**
+     * @param field
+     * @return
+     */
+	public static Map<String, Object> buildField(Field field) {
+        Map<String, Object> map = new HashMap<>();
+        EasyMeta easyField = EasyMeta.valueOf(field);
+        map.put("name", field.getName());
+        map.put("label", easyField.getLabel());
+        map.put("type", easyField.getDisplayType().name());
+        map.put("nullable", field.isNullable());
+        map.put("creatable", field.isCreatable());
+        map.put("updatable", field.isUpdatable());
+
+        DisplayType dt = EasyMeta.getDisplayType(field);
+        if (dt == DisplayType.REFERENCE) {
+            Entity refEntity = field.getReferenceEntity();
+            Field nameField  = MetadataHelper.getNameField(refEntity);
+            map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(nameField).name() });
+        } else if (dt == DisplayType.STATE) {
+            map.put("stateClass", StateHelper.getSatetClass(field).getName());
+        }
+        return map;
+    }
 	
 	// 哪些实体引用了指定实体
 	@RequestMapping("references")
@@ -172,74 +187,12 @@ public class MetadataGetting extends BaseControll {
 				references.add(own);
 			}
 		}
-		
+
 		List<String[]> list = new ArrayList<>();
 		for (Entity e : references) {
 			EasyMeta easy = new EasyMeta(e);
 			list.add(new String[] { easy.getName(), easy.getLabel() });
 		}
 		writeSuccess(response, list);
-	}
-	
-	// --
-	
-	// PickList/State 值列表
-	@RequestMapping({ "picklist", "field-options" })
-	public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) {
-		String entity = getParameterNotNull(request, "entity");
-		String field = getParameterNotNull(request, "field");
-
-		Field fieldMeta = getRealField(entity, field);
-		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
-
-		JSON options = null;
-		if (dt == DisplayType.STATE) {
-			options = StateManager.instance.getStateOptions(fieldMeta);
-        }
-		else if (dt == DisplayType.MULTISELECT) {
-			options = MultiSelectManager.instance.getSelectList(fieldMeta);
-		}
-		else {
-            options = PickListManager.instance.getPickList(fieldMeta);
-        }
-		writeSuccess(response, options);
-	}
-	
-	// Classification 值列表
-	@RequestMapping("classification")
-	public void fetchClassification(HttpServletRequest request, HttpServletResponse response) {
-		String entity = getParameterNotNull(request, "entity");
-		String field = getParameterNotNull(request, "field");
-		
-		Field fieldMeta = getRealField(entity, field);
-		ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, true);
-		if (useClassification == null) {
-			writeFailure(response, "分类字段配置有误");
-			return;
-		}
-		
-		ID parent = getIdParameter(request, "parent");
-		String sql = "select itemId,name from ClassificationData where dataId = ? and isHide = 'F' and ";
-		if (parent != null) {
-			sql += "parent = '" + parent + "'";
-		} else {
-			sql += "parent is null";
-		}
-		sql += " order by code, name";
-		Object[][] data = Application.createQueryNoFilter(sql)
-				.setParameter(1, useClassification)
-				.setLimit(200)
-				.array();
-		writeSuccess(response, data);
-	}
-
-	/**
-	 * @param entity
-	 * @param field
-	 * @return
-	 */
-	private Field getRealField(String entity, String field) {
-		Entity entityMeta = MetadataHelper.getEntity(entity);
-		return MetadataHelper.getLastJoinField(entityMeta, field);
 	}
 }

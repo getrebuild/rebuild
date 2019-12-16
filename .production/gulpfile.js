@@ -21,7 +21,7 @@ gulp.task('xjs', () => {
         }))
         .pipe(gulp.dest('./_temp/es5'))
         .pipe(uglify())
-        .pipe(debug({ title: 'compress js file : ' }))
+        .pipe(debug({ title: 'Compressed js(x) file : ' }))
         //.pipe(rename({ extname: '.min.js' }))
         .pipe(gulp.dest('./build/assets/js'))
 })
@@ -30,12 +30,12 @@ gulp.task('xjs', () => {
 gulp.task('xcss', () => {
     return gulp.src('../src/main/webapp/assets/css/**/*.css')
         .pipe(cleancss())
-        .pipe(debug({ title: 'compress css file : ' }))
+        .pipe(debug({ title: 'Compressed css file : ' }))
         //.pipe(rename({ extname: '.min.css' }))
         .pipe(gulp.dest('./build/assets/css'))
 })
 
-// JSP 文件内的 ES6 转码并压缩
+// JSP 文件内的 JS/CSS 转码并压缩
 // 去除 babel 标记并为 JS/CSS 添加版本号
 const ASSETS_HEX = {}
 const fileHex = (file) => {
@@ -53,7 +53,7 @@ const fileHex = (file) => {
 
 gulp.task('xjsp', () => {
     return gulp.src('../src/main/webapp/**/*.jsp')
-        .pipe(debug({ title: 'compress jsp file : ' }))
+        .pipe(debug({ title: 'Compressing jsp file : ' }))
         .pipe(replace(/<script type="text\/babel">([\s\S]*)<\/script>/igm, (m, p, o, s) => {
             if (p.trim().length == 0) return '<!-- No script -->'
             let min = BabelCore.transformSync(p, {
@@ -68,11 +68,15 @@ gulp.task('xjsp', () => {
                 if (file.includes('babel')) return '<!-- No Babel -->'
                 if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
                 return '<script src="' + file + '"></script>'
+            } else if (file.includes('/language/')) {
+                console.warn('Ignore file : ' + file)
+                return '<script src="' + file + '"></script>'
+            } else {
+                file = file.replace('.jsx', '.js').split('?')[0]
+                console.log(p + ' >> ' + file)
+                file += '?v=' + fileHex(file)
+                return '<script src="' + file + '"></script>'
             }
-            file = file.replace('.jsx', '.js').split('?')[0]
-            file += '?v=' + fileHex(file)
-            console.log(p + ' >> ' + file)
-            return '<script src="' + file + '"></script>'
         }))
         .pipe(replace(/<style type="text\/css">([\s\S]*)<\/style>/igm, (m, p, o, s) => {
             if (p.trim().length == 0) return '<!-- No style -->'
@@ -90,22 +94,36 @@ gulp.task('xjsp', () => {
         .pipe(gulp.dest('./build'))
 })
 
+// MVN 编译&打包
+gulp.task('maven', () => {
+    const pomfile = `${__dirname}`.replace('.production', 'pom.xml')
+    console.log('Using pom.xml : ' + pomfile)
+    const mvn = require('child_process').spawnSync(
+        process.platform === 'win32' ? 'mvn.cmd' : 'mvn',
+        ['clean', 'package', '-f', pomfile],
+        { stdio: 'inherit' })
 
-gulp.task('clear', () => {
+    if (mvn.status != 0) {
+        process.stderr.write(mvn.stderr)
+        process.exit(mvn.status)
+    }
+})
+
+
+gulp.task('clean', () => {
     del(['./_temp', './build'])
 })
 
-gulp.task('cp', () => {
+const DEPLOY_HOME = '/data/rebuild47070/webapps/ROOT'
+gulp.task('cp2server', () => {
     gulp.src('./build/**')
-        .pipe(gulp.dest('/data/rebuild47070/webapps/ROOT'))
+        .pipe(gulp.dest(DEPLOY_HOME))
 })
-gulp.task('cp2', () => {
+gulp.task('cp2target', () => {
     gulp.src('./build/**')
         .pipe(gulp.dest('../target/rebuild'))
 })
 
 gulp.task('default', gulpSequence(['xjs', 'xcss'], 'xjsp'))
-
-gulp.task('all', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp'))
-gulp.task('all2', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp2'))
-
+gulp.task('d', gulpSequence(['xjs', 'xcss'], 'xjsp', 'cp2server'))  // deploy
+gulp.task('p', gulpSequence('maven', ['xjs', 'xcss'], 'xjsp', 'cp2target'))  // package

@@ -68,16 +68,16 @@ public class FlowNodeGroup {
 	}
 	
 	/**
-	 * @param user
+	 * @param operator
 	 * @param recordId
 	 * @param selectUsers
 	 * @return
 	 */
-	public Set<ID> getCcUsers(ID user, ID recordId, JSONObject selectUsers) {
+	public Set<ID> getCcUsers(ID operator, ID recordId, JSONObject selectUsers) {
 		Set<ID> users = new HashSet<>();
 		for (FlowNode node : nodes) {
 			if (FlowNode.TYPE_CC.equals(node.getType())) {
-				users.addAll(node.getSpecUsers(user, recordId));
+				users.addAll(node.getSpecUsers(operator, recordId));
 			}
 		}
 		
@@ -88,16 +88,16 @@ public class FlowNodeGroup {
 	}
 	
 	/**
-	 * @param user
+	 * @param operator
 	 * @param recordId
 	 * @param selectUsers
 	 * @return
 	 */
-	public Set<ID> getApproveUsers(ID user, ID recordId, JSONObject selectUsers) {
+	public Set<ID> getApproveUsers(ID operator, ID recordId, JSONObject selectUsers) {
 		Set<ID> users = new HashSet<>();
 		for (FlowNode node : nodes) {
 			if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
-				users.addAll(node.getSpecUsers(user, recordId));
+				users.addAll(node.getSpecUsers(operator, recordId));
 			}
 		}
 		

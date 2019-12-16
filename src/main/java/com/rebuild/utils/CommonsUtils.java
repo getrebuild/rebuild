@@ -28,8 +28,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -53,8 +51,6 @@ import java.util.regex.Pattern;
  * @since 01/31/2019
  */
 public class CommonsUtils {
-
-	private static final Log LOG = LogFactory.getLog(CommonsUtils.class);
 
 	private static final Pattern PLAIN_PATTERN = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 	/**
@@ -101,7 +97,9 @@ public class CommonsUtils {
 	 */
 	public static boolean isSpecialChar(char ch) {
 		for (char c : SPECIAL_CHARS) {
-			if (c == ch) return true;
+			if (c == ch) {
+				return true;
+			}
 		}
 		return false;
 	}
@@ -113,8 +111,10 @@ public class CommonsUtils {
 	public static OkHttpClient getHttpClient() {
 		if (okHttpClient == null) {
 			okHttpClient = new OkHttpClient.Builder()
-					.retryOnConnectionFailure(false)
-					.callTimeout(60, TimeUnit.SECONDS)
+					.connectTimeout(15, TimeUnit.SECONDS)
+					.writeTimeout(45, TimeUnit.SECONDS)
+					.readTimeout(45, TimeUnit.SECONDS)
+					.retryOnConnectionFailure(true)
 					.build();
 		}
 		return okHttpClient;
@@ -178,7 +178,7 @@ public class CommonsUtils {
 				try (BufferedInputStream bis = new BufferedInputStream(is)) {
 					try (OutputStream os = new FileOutputStream(dest)) {
 						byte[] chunk = new byte[1024];
-						int count = 0;
+						int count;
 						while ((count = bis.read(chunk)) != -1) {
 							os.write(chunk, 0, count);
 						}
@@ -225,10 +225,11 @@ public class CommonsUtils {
 							return;
 						}
 
+						@SuppressWarnings("unchecked")
 						Map<Integer, String> dataMap = (Map<Integer, String>) data;
 						List<Cell> row = new ArrayList<>();
 						for (int i = 0; i < dataMap.size(); i++) {
-							row.add(new CellExt(dataMap.get(i), rowNo.get(), i));
+							row.add(new Cell(dataMap.get(i), rowNo.get(), i));
 						}
 						rows.add(row.toArray(new Cell[0]));
 						rowNo.incrementAndGet();
@@ -243,5 +244,18 @@ public class CommonsUtils {
 			throw new RebuildException(e);
 		}
 		return rows;
+	}
+
+	/**
+	 * 只转义 &gt; &lt;
+	 *
+	 * @param text
+	 * @return
+	 */
+	public static String escapeHtml(String text) {
+		if (StringUtils.isBlank(text)) {
+			return text;
+		}
+		return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
 	}
 }

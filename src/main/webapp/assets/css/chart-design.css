@@ -160,12 +160,9 @@
 	cursor: default;
 }
 
-.axis-target.ui-droppable-active {
-	background-color: rgba(255, 255, 0, 0.4);
-}
-
+.axis-target.ui-droppable-active,
 .axis-target.ui-droppable-hover {
-	background-color: rgba(255, 255, 0, 0.8);
+	background-color: #fff7c5
 }
 
 .data-info {
@@ -284,8 +281,8 @@ a.ui-draggable.ui-draggable-dragging {
 	width: 40px;
 	height: 40px;
 	padding: 4px;
-    margin: 4px 0 4px 6px;
-    cursor: default;
+	margin: 4px 0 4px 6px;
+	cursor: default;
 	cursor: not-allowed;
 }
 
@@ -363,12 +360,4 @@ a.ui-draggable.ui-draggable-dragging {
 
 .chart-type>a.active>i.C370 {
 	background-position: -864px -1520px;
-}
-
-.chart-option>div {
-	display: none;
-}
-
-.chart-option>div.active {
-	display: block;
 }

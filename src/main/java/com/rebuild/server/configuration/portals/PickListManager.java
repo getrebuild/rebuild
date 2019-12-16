@@ -45,7 +45,7 @@ public class PickListManager implements ConfigManager<Object> {
 	 * @return
 	 */
 	public JSONArray getPickList(Field field) {
-		ConfigEntry entries[] = getPickListRaw(field, false);
+		ConfigEntry[] entries = getPickListRaw(field, false);
 		for (ConfigEntry e : entries) {
 			e.set("hide", null);
 			e.set("mask", null);
@@ -59,7 +59,7 @@ public class PickListManager implements ConfigManager<Object> {
 	 * @return
 	 */
 	public JSONArray getPickList(Field field, boolean includeHide) {
-		ConfigEntry entries[] = getPickListRaw(field, includeHide);
+		ConfigEntry[] entries = getPickListRaw(field, includeHide);
 		return JSONUtils.toJSONArray(entries);
 	}
 

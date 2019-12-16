@@ -24,6 +24,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
@@ -56,30 +57,40 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 	public boolean isNoCache() {
 		return noCache;
 	}
-	
+
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
 			Object handler) throws Exception {
 		response.setCharacterEncoding("utf-8");
-		
+		request.getSession(true);
+
+		// for Language
+		Application.getSessionStore().setLocale(AppUtils.getLocale(request));
+
 		final String requestUrl = request.getRequestURI();
-		if (noCache && !(ServletUtils.isAjaxRequest(request) 
-				|| requestUrl.contains("/filex/img/") || requestUrl.contains("/account/user-avatar/"))) {
-			ServletUtils.setNoCacheHeaders(response);
-		}
-		
+
+		// 无缓存
+        if (isNoCache() && !isSpecCache(requestUrl)) {
+            ServletUtils.setNoCacheHeaders(response);
+        }
+
 		// If server status is not passed
 		if (!Application.serversReady()) {
-			LOG.error("Server Unavailable : " + requestUrl);
-			
-			if (!requestUrl.contains("/gw/server-status")) {
-				response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
-				return false;
-			} 
-		}
-		
-		Application.getSessionStore().storeLastActive(request);
-		
+		    if (Installer.checkInstall()) {
+                LOG.error("Server Unavailable : " + requestUrl);
+
+                if (!requestUrl.contains("/gw/server-status")) {
+                    response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
+		            return false;
+                }
+            } else if (!requestUrl.contains("/setup/")) {
+		        response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
+		        return false;
+            }
+		} else {
+            Application.getSessionStore().storeLastActive(request);
+        }
+
 		boolean chain = super.preHandle(request, response, handler);
 		if (chain) {
 			return verfiyPass(request, response);
@@ -95,8 +106,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 			HttpServletResponse response, Object handler, Exception exception)
 			throws Exception {
 		super.afterCompletion(request, response, handler, exception);
-		
-		final ID caller = Application.getSessionStore().get(true);
+
+		final ID caller = Application.serversReady() ? Application.getSessionStore().get(true) : null;
 		if (caller != null) {
 			Application.getSessionStore().clean();
 		}
@@ -129,7 +140,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		if (startTime > 500) {
 			String url = request.getRequestURI();
 			String qstr = request.getQueryString();
-			if (qstr != null) url += '?' + qstr;
+			if (qstr != null) {
+				url += '?' + qstr;
+			}
 			LOG.warn("Method handle time " + startTime + " ms. Request URL [ " + url + " ] from [ " + StringUtils.defaultIfEmpty(ServletUtils.getReferer(request), "-") + " ]");
 		}
 	}
@@ -196,6 +209,19 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 
 		reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
 		return reqUrl.startsWith("/gw/") || reqUrl.startsWith("/assets/") || reqUrl.startsWith("/error/")
-                || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/");
+                || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/")
+				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/");
 	}
+
+    /**
+     * 是否特定缓存策略
+     *
+     * @param reqUrl
+     * @return
+     */
+	private static boolean isSpecCache(String reqUrl) {
+        reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
+        return reqUrl.startsWith("/filex/img/") || reqUrl.startsWith("/account/user-avatar/")
+                || reqUrl.startsWith("/language/");
+    }
 }

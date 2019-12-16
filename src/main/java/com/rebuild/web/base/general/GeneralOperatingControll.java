@@ -24,13 +24,17 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.exception.jdbc.GenericJdbcException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.configuration.portals.FormsBuilder;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
@@ -51,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.DataTruncation;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -101,10 +106,36 @@ public class GeneralOperatingControll extends BaseControll {
 		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
-		}
+		} catch (GenericJdbcException ex) {
+		    if (ex.getCause() instanceof DataTruncation) {
+                writeFailure(response, "字段长度超过限制");
+            } else {
+                writeFailure(response, ex.getLocalizedMessage());
+            }
+		    return;
+        }
+
+		// 单字段修改
+		boolean fromSingle = getBoolParameter(request, "single");
+        Map<String, Object> fieldsVal = null;
+		if (fromSingle) {
+		    fieldsVal = new HashMap<>();
+		    for (String field : record.getAvailableFields()) {
+                Field fieldMeta = record.getEntity().getField(field);
+		        if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {
+		            continue;
+                }
+
+		        Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
+		        fieldsVal.put(field, newValue);
+            }
+        }
 		
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", record.getPrimary());
+		if (fieldsVal != null) {
+		    map.putAll(fieldsVal);
+        }
 		writeSuccess(response, map);
 	}
 	
@@ -348,7 +379,7 @@ public class GeneralOperatingControll extends BaseControll {
 					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
 					.setParameter(1, entity.getName())
 					.setParameter(2, id)
-					.setLimit(9)
+					.setLimit(9)  // 显示多了页面显示不出
 					.array();
 			sharingList = new ArrayList<>();
 			for (Object[] st : shareTo) {
@@ -410,7 +441,9 @@ public class GeneralOperatingControll extends BaseControll {
 		Set<ID> idList = new HashSet<>();
 		int sameEntityCode = 0;
 		for (String id : ids.split(",")) {
-			if (!ID.isId(id)) continue;
+			if (!ID.isId(id)) {
+                continue;
+            }
 			ID id0 = ID.valueOf(id);
 			if (sameEntityCode == 0) {
 				sameEntityCode = id0.getEntityCode();
@@ -500,7 +533,7 @@ public class GeneralOperatingControll extends BaseControll {
 			JSONArray valuesJson = new JSONArray();
 			for (String field : fields) {
 				Object value = r.getObjectValue(field);
-				value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field));
+				value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field), true);
 				valuesJson.add(value);
 			}
 			data.add(valuesJson);

@@ -18,7 +18,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserService;
+import org.apache.commons.lang.math.RandomUtils;
 import org.junit.After;
 import org.junit.Before;
 
@@ -49,5 +55,29 @@ public abstract class TestSupportWithUser extends TestSupport {
      *
      * @return
      */
-    abstract protected ID getSessionUser();
+    protected ID getSessionUser() {
+        return SIMPLE_USER;
+    }
+
+    /**
+     * 添加一条测试记录
+     *
+     * @return
+     */
+    protected ID addRecordOfTestAllFields() {
+        Entity testEntity = MetadataHelper.getEntity(TEST_ENTITY);
+        // 自动添加权限
+        if (!Application.getSecurityManager().allowCreate(getSessionUser(), testEntity.getEntityCode())) {
+            Record p = EntityHelper.forNew(EntityHelper.RolePrivileges, UserService.SYSTEM_USER);
+            p.setID("roleId", SIMPLE_ROLE);
+            p.setInt("entity", testEntity.getEntityCode());
+            p.setString("definition", "{'A':1,'R':1,'C':4,'S':1,'D':1,'U':1}");
+            Application.getCommonService().create(p, Boolean.FALSE);
+            Application.getUserStore().refreshRole(SIMPLE_ROLE);
+        }
+
+        Record record = EntityHelper.forNew(testEntity.getEntityCode(), getSessionUser());
+        record.setString("text", "TEXT-" + RandomUtils.nextLong());
+        return Application.getGeneralEntityService().create(record).getPrimary();
+    }
 }

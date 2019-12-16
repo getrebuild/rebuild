@@ -105,7 +105,7 @@ public class MetaSchemaGenerator {
 
 		// 布局相关（仅管理员）
 		JSONObject putLayouts = new JSONObject();
-		Object layouts[][] = Application.createQueryNoFilter(
+		Object[][] layouts = Application.createQueryNoFilter(
 				"select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
 				.setParameter(1, entity.getName())
 				.setParameter(2, UserService.ADMIN_USER)
@@ -120,7 +120,7 @@ public class MetaSchemaGenerator {
 		schemaEntity.put("layouts", putLayouts);
 		
 		// 过滤器（仅管理员）
-		Object filters[][] = Application.createQueryNoFilter(
+		Object[][] filters = Application.createQueryNoFilter(
 				"select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
 				.setParameter(1, entity.getName())
 				.setParameter(2, UserService.ADMIN_USER)
@@ -181,7 +181,7 @@ public class MetaSchemaGenerator {
 	 * @return
 	 */
 	private JSON performPickList(Field field) {
-		ConfigEntry entries[] = PickListManager.instance.getPickListRaw(
+		ConfigEntry[] entries = PickListManager.instance.getPickListRaw(
 				field.getOwnEntity().getName(), field.getName(), false);
 		JSONArray items = new JSONArray();
 		for (ConfigEntry e : entries) {

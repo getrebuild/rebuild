@@ -24,7 +24,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
-import com.rebuild.server.service.base.BulkOperatorTx;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -39,8 +38,8 @@ public class NotificationObserver extends OperatingObserver {
 	@Override
 	public void onAssign(OperatingContext context) {
 		final ID related = context.getAfterRecord().getPrimary();
-		if (BulkOperatorTx.isInTx()) {
-			BulkOperatorTx.getInTxSet().add(related);
+		if (NotificationOnce.didBegin()) {
+            NotificationOnce.getMergeSet().add(related);
 			return;
 		}
 		
@@ -50,14 +49,14 @@ public class NotificationObserver extends OperatingObserver {
 		String content = makeMessage(context.getAffected(), related, false);
 		content = MessageFormat.format(content, from, context.getAffected().length, getLabel(related));
 		Application.getNotifications().send(
-				MessageBuilder.createMessage(from, to, content, Message.TYPE_SAHRE));
+				MessageBuilder.createMessage(from, to, content, Message.TYPE_ASSIGN));
 	}
 	
 	@Override
 	public void onShare(OperatingContext context) {
 		final ID related = context.getAfterRecord().getID("recordId");
-		if (BulkOperatorTx.isInTx()) {
-			BulkOperatorTx.getInTxSet().add(related);
+		if (NotificationOnce.didBegin()) {
+            NotificationOnce.getMergeSet().add(related);
 			return;
 		}
 		
@@ -84,7 +83,7 @@ public class NotificationObserver extends OperatingObserver {
 	 * @param shareType
 	 * @return
 	 */
-	private String makeMessage(ID affected[], ID related, boolean shareType) {
+	private String makeMessage(ID[] affected, ID related, boolean shareType) {
 		String msg = "@{0} 共享了 {1} 条{2}记录给你";
 		if (affected.length > 1) {
 			for (ID id : affected) {

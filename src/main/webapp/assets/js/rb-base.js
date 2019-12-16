@@ -8,7 +8,7 @@
     'button': function (state) {
       return this.each(function () {
         var el = $(this)
-        if (el.prop('nodeName') !== 'BUTTON') return
+        if (!(el.prop('nodeName') === 'BUTTON' || el.prop('nodeName') === 'A')) return
         if (state === 'loading') {
           el.attr('disabled', true)
           var loadingText = el.data('loading-text')
@@ -37,9 +37,9 @@
     },
     cache: false,
     complete: function (xhr) {
-      // eslint-disable-next-line no-empty
-      if (xhr.status === 200 || xhr.status === 0) { } // That's OK
-      else if (xhr.status === 403 || xhr.status === 401) RbHighbar.error(xhr.responseText || '未授权访问')
+      if (xhr.status === 200 || xhr.status === 0) { /* NOOP */ }
+      else if (xhr.status === 403 || xhr.status === 401) RbHighbar.error(xhr.responseText || 'Unauthorized access')
+      else if (xhr.status === 502) RbHighbar.error('Service unavailable')
       else {
         var error = xhr.responseText
         if (rb.env !== 'dev' && error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
@@ -284,7 +284,7 @@ var $pages = function (tp, cp) {
 }
 
 /**
- * 可以比较对象或数组
+ * 是否相同。兼容对象或数组
  * @param {*} a 
  * @param {*} b 
  */
@@ -303,4 +303,52 @@ var $same = function (a, b) {
   }
   // eslint-disable-next-line eqeqeq
   return a == b
+}
+
+/**
+ * 是否为空。兼容对象或数组
+ * @param {*} a 
+ */
+var $empty = function (a) {
+  if (a === undefined || a === null || a === '') return true
+  let type = $.type(a)
+  if (type === 'array' && a.length === 0) return true
+  else if (type === 'object' && Object.keys(a).length === 0) return true
+  else return false
+}
+
+/**
+ * 停止事件传播
+ * @param {Event} e
+ */
+var $stopEvent = function (e) {
+  if (e && e.stopPropagation) e.stopPropagation()
+  if (e && e.nativeEvent) e.nativeEvent.stopImmediatePropagation()
+  return false
+}
+
+/**
+ * 获取语言
+ */
+var $lang = function () {
+  var lang = __getLang(arguments[0])
+  if (arguments.length < 2) return lang
+  for (var i = 1; i < arguments.length; i++) {
+    var iLang = __getLang(arguments[i])
+    lang = lang.replace('{' + (i - 1) + '}', iLang)
+  }
+  return lang
+}
+var __getLang = function (key) {
+  return (window.__LANGBUNDLE__ || {})[key] || '[' + key.toUpperCase() + ']'
+}
+
+/**
+ * @param top
+ * @param target
+ */
+var $gotoSection = function (top, target) {
+  $(target || 'html').animate({
+    scrollTop: top || 0
+  }, 600)
 }

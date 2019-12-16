@@ -95,30 +95,29 @@ public class NotificationControll extends BasePageControll {
 	@RequestMapping("/notification/messages")
 	public void listMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		int pn = getIntParameter(request, "page", 1);
+		int pn = getIntParameter(request, "pageNo", 1);
 		int ps = getIntParameter(request, "pageSize", 40);
 		int type = getIntParameter(request, "type", 0);
+		boolean preview = getBoolParameter(request, "preview");
 
-		String sql = "select fromUser,message,createdOn,unread,messageId from Notification where toUser = ? and (1=1) order by createdOn desc";
+		String sql = "select fromUser,message,createdOn,unread,messageId,relatedRecord,type from Notification" +
+                " where toUser = ? and (1=1) order by createdOn desc";
 		if (type == 1) {
-			sql = sql.replace("(1=1)", "unread = 'T'");
-		} else if (type == 2) {
-			sql = sql.replace("(1=1)", "unread = 'F'");
-		} else if (type == 10) {
-			sql = sql.replace("(1=1)", "(type > 9 and type < 20)");
-		} else if (type == 20) {
-			sql = sql.replace("(1=1)", "(type > 19 and type < 30)");
-		}
+            sql = sql.replace("(1=1)", "unread = 'T'");
+        } else if (type == 2) {
+            sql = sql.replace("(1=1)", "unread = 'F'");
+        } else if (type >= 10) {
+            sql = sql.replace("(1=1)", String.format("(type >= %d and type < %d)", type, type + 10));
+        }
 
 		Object[][] array = Application.createQueryNoFilter(sql)
 				.setParameter(1, user)
 				.setLimit(ps, pn * ps - ps)
 				.array();
-		
 		for (int i = 0; i < array.length; i++) {
 			Object[] m = array[i];
 			m[0] = new Object[] { m[0], UserHelper.getName((ID) m[0]) };
-			m[1] = MessageBuilder.toHTML((String) m[1]);
+			m[1] = MessageBuilder.formatMessage((String) m[1], !preview);
 			m[2] = Moment.moment((Date) m[2]).fromNow();
 			array[i] = m;
 		}
@@ -128,7 +127,7 @@ public class NotificationControll extends BasePageControll {
 	@RequestMapping("/notification/approvals")
 	public void listApprovals(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		int pn = getIntParameter(request, "page", 1);
+		int pn = getIntParameter(request, "pageNo", 1);
 		int ps = getIntParameter(request, "pageSize", 40);
 
 		Object[][] array = Application.createQueryNoFilter(
@@ -141,7 +140,7 @@ public class NotificationControll extends BasePageControll {
 		for (int i = 0; i < array.length; i++) {
 			Object[] m = array[i];
 			m[0] = new Object[] { m[0], UserHelper.getName((ID) m[0]) };
-			m[1] = MessageBuilder.toHTML((String) m[1]);
+			m[1] = MessageBuilder.formatMessage((String) m[1]);
 			m[2] = Moment.moment((Date) m[2]).fromNow();
 
 			// 审批状态

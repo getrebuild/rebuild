@@ -59,7 +59,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 	@RequestMapping(value = "nav-settings", method = RequestMethod.POST)
 	public void sets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		Assert.isTrue(Application.getSecurityManager().allowed(user, ZeroEntry.AllowCustomNav), "没有权限");
+		Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowCustomNav), "没有权限");
 
 		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "id");

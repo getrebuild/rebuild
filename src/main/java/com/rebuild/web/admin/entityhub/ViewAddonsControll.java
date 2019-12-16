@@ -95,10 +95,10 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 			if (e.getMasterEntity() != null) {
 				continue;
 			}
-
 			refs.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
 		}
-		
+//		refs.add(new String[] { "Feeds", "跟进" });  // 动态-跟进
+
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "config", "refs" },
 				new Object[] { config == null ? null : config.getJSON("config"), refs });

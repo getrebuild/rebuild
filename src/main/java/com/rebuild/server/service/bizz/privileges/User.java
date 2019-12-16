@@ -91,7 +91,8 @@ public class User extends cn.devezhao.bizz.security.member.User {
 	/**
 	 * 是否激活/可用。如果用户所属部门或角色被禁用，用户同样也不可用
 	 */
-	public boolean isActive() {
+	@Override
+    public boolean isActive() {
 		if (isDisabled()) {
 			return false;
 		}

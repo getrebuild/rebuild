@@ -52,6 +52,7 @@
         "$same": true,
         "$unmount": true,
         "$initUserSelect2": true,
+        "$initReferenceSelect2": true,
         "$keepModalOpen": true,
         "rb": true,
         "renderRbcomp": true,
@@ -84,7 +85,11 @@
         "$countdownButton": true,
         "ChartSelect": true,
         "Share2": true,
-        "$pgt": true
+        "$pgt": true,
+        "$stopEvent": true,
+        "$addResizeHandler": true,
+        "$lang": true,
+        "$empty": true
     },
     "rules": {
         "strict": 0,

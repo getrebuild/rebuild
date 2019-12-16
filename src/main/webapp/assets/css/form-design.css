@@ -1,9 +1,10 @@
 .rb-content .main-content {
-	margin-right: 300px;
+	margin-right: 280px;
 }
 
 .rb-right-sidebar.field-aside {
-	width: 300px;
+	width: 280px;
+	z-index: 1;
 }
 
 .readonly {
@@ -123,7 +124,6 @@
 	width: 99% !important;
 }
 
-.form-preview .dd-item a.rowspan {}
 
 .form-preview .dd-item span.ft {
 	top: 13px;
@@ -135,6 +135,12 @@
 
 .form-preview .divider .dd-handle {
 	background-color: #eee;
+}
+
+.form-preview .divider .dd-handle>span:empty::after {
+	content: '分栏线';
+	font-style: italic;
+	color: #999;
 }
 
 .form-preview .dd-item,

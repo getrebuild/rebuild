@@ -12,7 +12,7 @@ class RbModal extends React.Component {
       <div className="modal-dialog" style={{ maxWidth: (this.props.width || 680) + 'px' }}>
         <div className="modal-content">
           <div className="modal-header modal-header-colored">
-            <h3 className="modal-title">{this.props.title || '无标题'}</h3>
+            <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
             <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
           </div>
           <div className={'modal-body' + (inFrame ? ' iframe rb-loading' : '') + (inFrame && this.state.frameLoad !== false ? ' rb-loading-active' : '')}>
@@ -112,7 +112,8 @@ class RbModalHandler extends React.Component {
     if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
   }
-  hide = () => {
+  hide = (e) => {
+    if (e && e.target && $(e.target).attr('disabled')) return
     // eslint-disable-next-line react/no-string-refs
     let dlg = this._dlg || this.refs['dlg']
     if (dlg) dlg.hide()
@@ -154,10 +155,7 @@ class RbFormHandler extends RbModalHandler {
 
 // ~~ 提示框
 class RbAlert extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { disable: false }
-  }
+  state = { ...this.props, disable: false }
   render() {
     let style = {}
     if (this.props.width) style.maxWidth = ~~this.props.width
@@ -176,22 +174,21 @@ class RbAlert extends React.Component {
       </div>
     )
   }
+
   renderContent() {
-    let icon = this.props.type === 'danger' ? 'alert-triangle' : 'help-outline'
-    if (this.props.type === 'warning') icon = 'alert-circle-o'
-    if (this.props.type === 'primary') icon = 'info-outline'
-    let type = this.props.type || 'primary'
+    const type = this.props.type || 'primary'
+    let icon = this.props.icon
+    if (!icon) icon = type === 'danger' ? 'alert-triangle' : (type === 'primary' ? 'help-outline' : 'alert-circle-o')
+
     let content = this.props.htmlMessage ?
       <div className="mt-3" style={{ lineHeight: 1.8 }} dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
-      : <p>{this.props.message || '提示内容'}</p>
+      : <p>{this.props.message || 'INMESSAGE'}</p>
 
     let cancel = (this.props.cancel || this.hide).bind(this)
     let confirm = (this.props.confirm || this.hide).bind(this)
 
     return <div className="text-center ml-6 mr-6">
-      {this.props.showIcon === false ? null :
-        <div className={'text-' + type}><span className={'modal-main-icon zmdi zmdi-' + icon} /></div>
-      }
+      <div className={`text-${type}`}><i className={`modal-main-icon zmdi zmdi-${icon}`} /></div>
       {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
       <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
       <div className="mt-4 mb-3">
@@ -223,17 +220,16 @@ class RbAlert extends React.Component {
   // -- Usage
   /**
    * @param {*} message 
-   * @param {*} titleExt 
+   * @param {*} titleOrExt 
    * @param {*} ext 
    */
-  static create(message, titleExt, ext) {
-    let title = titleExt
-    if ($.type(titleExt) === 'object') {
-      title = null
-      ext = titleExt
+  static create(message, titleOrExt, ext) {
+    if (typeof titleOrExt === 'object') {
+      ext = titleOrExt
+      titleOrExt = null
     }
     ext = ext || {}
-    let props = { ...ext, title: title }
+    let props = { ...ext, title: titleOrExt }
     if (ext.html === true) props.htmlMessage = message
     else props.message = message
     renderRbcomp(<RbAlert {...props} />, null, ext.call)
@@ -250,25 +246,23 @@ class RbHighbar extends React.Component {
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
-    let content = this.props.htmlMessage ? <div className="message" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message">{this.props.message}</div>
-    return (<div ref={(c) => this._rbhighbar = c} className={'rbhighbar animated faster ' + this.state.animatedClass}>
-      <div className={'alert alert-dismissible alert-' + (this.props.type || 'warning')}>
-        <button className="close" type="button" onClick={() => this.close()}><span className="zmdi zmdi-close" /></button>
-        <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
+    let content = this.props.htmlMessage
+      ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
+      : <div className="message pl-0">{this.props.message}</div>
+
+    return (<div ref={(c) => this._rbhighbar = c} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')} mb-0`}>
+        <button className="close" type="button" onClick={this.close}><i className="zmdi zmdi-close" /></button>
+        <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
         {content}
       </div>
     </div>)
   }
 
   componentDidMount() {
-    setTimeout(() => { this.close() }, this.props.timeout || 3000)
+    setTimeout(() => this.close(), this.props.timeout || 3000)
   }
-
-  close() {
-    this.setState({ animatedClass: 'fadeOut' }, () => {
-      $unmount($(this._rbhighbar).parent())
-    })
-  }
+  close = () => this.setState({ animatedClass: 'fadeOut' }, () => $unmount($(this._rbhighbar).parent()))
 
   // -- Usage
   /**
@@ -289,17 +283,32 @@ class RbHighbar extends React.Component {
    * @param {*} message 
    */
   static success(message) {
-    RbHighbar.create(message || '操作成功', 'success', { timeout: 2000 })
+    if (!message) message = $lang('ActionSuccess')
+    RbHighbar.create(message, 'success', { timeout: 2000 })
   }
   /**
    * @param {*} message 
    */
   static error(message) {
-    RbHighbar.create(message || '系统繁忙，请稍后重试', 'danger', { timeout: 5000 })
+    if (!message) message = $lang('SystemBusy')
+    RbHighbar.create(message, 'danger', { timeout: 6000 })
   }
 }
 
-// ~~ 加载界面
+// ~~ 提示条
+function RbAlertBox(props) {
+  let type = (props || {}).type || 'warning'
+  let icon = type === 'success' ? 'check' : (type === 'danger' ? 'close-circle-o' : 'info-outline')
+  return <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
+    <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
+    <div className="message">
+      <a className="close" data-dismiss="alert"><i className="zmdi zmdi-close" /></a>
+      <p>{props.message || 'INMESSAGE'}</p>
+    </div>
+  </div>
+}
+
+// ~~ 加载动画
 function RbSpinner(props) {
   let spinner = <div className="rb-spinner">
     <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
@@ -308,19 +317,6 @@ function RbSpinner(props) {
   </div>
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
-}
-
-// ~~ 提示条幅
-function RbAlertBox(props) {
-  let icon = props.type === 'success' ? 'check' : 'info-outline'
-  if (props.type === 'danger') icon = 'close-circle-o'
-  return (<div className={'alert alert-icon alert-dismissible min alert-' + (props.type || 'warning')}>
-    <div className="icon"><span className={'zmdi zmdi-' + icon} /></div>
-    <div className="message">
-      <a className="close" data-dismiss="alert"><span className="zmdi zmdi-close" /></a>
-      <p>{props.message}</p>
-    </div>
-  </div>)
 }
 
 // ~~ 用户选择器
@@ -341,6 +337,7 @@ class UserSelector extends React.Component {
     if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
     else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
 
+    // select2-container--above
     return <div className="user-selector">
       <span className="select2 select2-container select2-container--default select2-container--below">
         <span className="selection">
@@ -357,10 +354,10 @@ class UserSelector extends React.Component {
         <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')}>
           <div className="selector-search">
             <div>
-              <input type="search" className="form-control" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
+              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
             </div>
           </div>
-          <div className="tab-container">
+          <div className="tab-container m-0">
             <ul className="nav nav-tabs nav-tabs-classic">
               {this.tabTypes.map((item) => {
                 return <li className="nav-item" key={'t-' + item[0]}><a onClick={() => this.switchTab(item[0])} className={'nav-link' + (this.state.tabType === item[0] ? ' active' : '')}>{item[1]}</a></li>
@@ -380,7 +377,7 @@ class UserSelector extends React.Component {
           </div>
         </span>
       </span>
-    </div >
+    </div>
   }
 
   componentDidMount() {
@@ -445,9 +442,7 @@ class UserSelector extends React.Component {
       return true
     })
 
-    if (exists === false) {
-      ns.push({ id: id, text: $(e.target).text() })
-    }
+    if (exists === false) ns.push({ id: id, text: $(e.target).text() })
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
 
@@ -470,6 +465,10 @@ class UserSelector extends React.Component {
     })
     return ids
   }
+
+  val() {
+    return this.getSelected()
+  }
 }
 
 // ~~ 用户显示
@@ -478,8 +477,8 @@ const UserShow = function (props) {
   let avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} />}</div>
-      {props.showName === true ? <div className="name text-truncate">{props.name}{props.deptName ? <em>{props.deptName}</em> : null}</div> : null}
+      <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
+      {props.showName && (<div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>{props.name}{props.deptName && <em>{props.deptName}</em>}</div>)}
     </a>)
 }
 
