@@ -63,7 +63,7 @@ class RbWelcome extends React.Component {
         <li>
           <a onClick={this._quick}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示（实验功能，可能存在问题）</p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="可能存在问题" className="text-danger">实验功能</u></p>
           </a>
         </li>
       </ul>

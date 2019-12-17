@@ -23,6 +23,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.setup.InstallAfter;
 import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -45,7 +46,7 @@ import java.sql.SQLException;
  */
 @Controller
 @RequestMapping("/setup/")
-public class InstallControll extends BasePageControll {
+public class InstallControll extends BasePageControll implements InstallAfter {
 
     @RequestMapping("install")
     public ModelAndView pageIndex(HttpServletResponse response) throws IOException {
@@ -54,7 +55,7 @@ public class InstallControll extends BasePageControll {
             return null;
         }
 
-        ModelAndView mv = createModelAndView("/setup/install.jsp");
+        ModelAndView mv = new ModelAndView("/setup/install.jsp");
         mv.getModel().put("defaultDataDirectory", SysConfiguration.getFileOfData(null).getAbsolutePath().replace("\\", "/"));
         mv.getModel().put("defaultAppName", SysConfiguration.get(ConfigurableItem.AppName));
         mv.getModel().put("defaultHomeURL", SysConfiguration.get(ConfigurableItem.HomeURL));
@@ -64,8 +65,9 @@ public class InstallControll extends BasePageControll {
     @RequestMapping("test-connection")
     public void testConnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONObject dbProps = (JSONObject) ServletUtils.getRequestJson(request);
+        JSONObject props = JSONUtils.toJSONObject("databaseProps", dbProps);
 
-        try (Connection conn = new Installer(JSONUtils.toJSONObject("databaseProps", dbProps)).getConnection(null)) {
+        try (Connection conn = new Installer(props).getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
             String msg = String.format("连接成功 : %s %s", dmd.getDatabaseProductName(), dmd.getDatabaseProductVersion());
             writeSuccess(response, msg);
