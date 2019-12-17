@@ -29,7 +29,6 @@ import com.rebuild.server.ServerListener;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -76,6 +75,13 @@ public class NavManager extends BaseLayoutManager {
 
 	// ----
 
+    /**
+     * 默认导航
+     */
+    private static final JSONArray NAVS_DEFAULT = JSON.parseArray("[" +
+            "{icon:'chart-donut', text:'动态', type:'ENTITY', value:'$FEEDS$'}," +
+            "{icon:'folder', text:'文件', type:'ENTITY', value:'$FILEMRG$'}]");
+
 	/**
 	 * @param request
 	 * @return
@@ -84,9 +90,9 @@ public class NavManager extends BaseLayoutManager {
 		final ID user = AppUtils.getRequestUser(request);
 		ConfigEntry config = getLayoutOfNav(user);
 		if (config == null) {
-			return JSONUtils.EMPTY_ARRAY;
+			return NAVS_DEFAULT;
 		}
-		
+
 		// 过滤
 		JSONArray navs = (JSONArray) config.getJSON("config");
 		for (Iterator<Object> iter = navs.iterator(); iter.hasNext(); ) {

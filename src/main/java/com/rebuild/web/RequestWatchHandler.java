@@ -24,7 +24,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.helper.setup.Installer;
+import com.rebuild.server.helper.setup.InstallAfter;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +42,7 @@ import java.io.IOException;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-24
  */
-public class RequestWatchHandler extends HandlerInterceptorAdapter {
+public class RequestWatchHandler extends HandlerInterceptorAdapter implements InstallAfter {
 
 	private static final Log LOG = LogFactory.getLog(RequestWatchHandler.class);
 	
@@ -64,9 +64,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		response.setCharacterEncoding("utf-8");
 		request.getSession(true);
 
-		// for Language
-		Application.getSessionStore().setLocale(AppUtils.getLocale(request));
-
 		final String requestUrl = request.getRequestURI();
 
 		// 无缓存
@@ -76,7 +73,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 
 		// If server status is not passed
 		if (!Application.serversReady()) {
-		    if (Installer.checkInstall()) {
+		    if (checkInstalled()) {
                 LOG.error("Server Unavailable : " + requestUrl);
 
                 if (!requestUrl.contains("/gw/server-status")) {
@@ -87,7 +84,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter {
 		        response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
 		        return false;
             }
-		} else {
+        } else {
+            // for Language
+            Application.getSessionStore().setLocale(AppUtils.getLocale(request));
+            // Last active
             Application.getSessionStore().storeLastActive(request);
         }
 
