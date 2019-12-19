@@ -90,7 +90,7 @@ public class UserStore {
 	 * @param emailOrName
 	 * @return
 	 */
-	public boolean exists(String emailOrName) {
+	public boolean existsUser(String emailOrName) {
 		return existsName(emailOrName) || existsEmail(emailOrName);
 	}
 
@@ -98,7 +98,7 @@ public class UserStore {
 	 * @param userId
 	 * @return
 	 */
-	public boolean exists(ID userId) {
+	public boolean existsUser(ID userId) {
 		return USERs.containsKey(userId);
 	}
 
@@ -267,7 +267,7 @@ public class UserStore {
 		final ID deptId = (ID) o[6];
 		final ID roleId = (ID) o[7];
 
-		final User oldUser = exists(userId) ? getUser(userId) : null;
+		final User oldUser = existsUser(userId) ? getUser(userId) : null;
 		if (oldUser != null) {
 			Role role = oldUser.getOwningRole();
 			if (role != null) {

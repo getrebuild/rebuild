@@ -177,7 +177,7 @@ public class FeedsHelper {
         while (atMatcher.find()) {
             String at = atMatcher.group();
             ID user = ID.valueOf(at.substring(1));
-            if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().exists(user)) {
+            if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().existsUser(user)) {
                 String fullName = Application.getUserStore().getUser(user).getFullName();
                 content = content.replace(at, String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
             }

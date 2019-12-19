@@ -119,7 +119,7 @@ public class LoginControll extends BasePageControll {
 				LOG.error("Can't decode User from alt : " + alt, ex);
 			}
 			
-			if (altUser != null && Application.getUserStore().exists(altUser)) {
+			if (altUser != null && Application.getUserStore().existsUser(altUser)) {
 				loginSuccessed(request, response, altUser, true);
 				
 				String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
