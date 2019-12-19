@@ -408,7 +408,7 @@ class AnnouncementOptions extends React.Component {
           </label>
           <label className="custom-control custom-checkbox custom-control-inline">
             <input className="custom-control-input" name="showOn" type="checkbox" value={4} disabled={this.props.readonly} />
-            <span className="custom-control-label">登录页</span>
+            <span className="custom-control-label">登录页 <i className="zmdi zmdi-help zicon down-3" data-toggle="tooltip" title="选择登录页公示请注意不要发布敏感信息" /></span>
           </label>
         </dd>
       </dl>
@@ -443,6 +443,8 @@ class AnnouncementOptions extends React.Component {
       keyboardNavigation: false,
       minuteStep: 5
     })
+
+    $(this._showWhere).find('.zicon').tooltip()
 
     const initValue = this.props.initValue
     if (initValue) {

@@ -384,8 +384,10 @@ function __renderRichContent(e) {
     </div>
     }
     {e.type === 3 && <div className="mores">
-      <div><span>公示时间 : </span> {e.contentMore.timeStart || ''} 至 {e.contentMore.timeEnd}</div>
-      <div><span>公示位置 : </span> {__findMaskTexts(e.contentMore.showWhere, ANN_OPTIONS).join('、')}</div>
+      {e.contentMore.showWhere > 0
+        && <div><span>公示位置 : </span> {__findMaskTexts(e.contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
+      {(e.contentMore.timeStart || e.contentMore.timeEnd)
+        && <div><span>公示时间 : </span> {e.contentMore.timeStart || ''} 至 {e.contentMore.timeEnd}</div>}
     </div>
     }
     {(e.images || []).length > 0 && <div className="img-field">
