@@ -120,7 +120,7 @@ public class FeedsListControll extends BasePageControll {
             }
         }
 
-        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord from Feeds where " + sqlWhere;
+        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore from Feeds where " + sqlWhere;
         if ("older".equalsIgnoreCase(sort)) {
             sql += " order by createdOn asc";
         } else if ("modified".equalsIgnoreCase(sort)) {
@@ -155,6 +155,11 @@ public class FeedsListControll extends BasePageControll {
                 mixValue.put("icon", entity.getIcon());
                 mixValue.put("entityLabel", entity.getLabel());
                 item.put("related", mixValue);
+            }
+
+            // 更多内容
+            if (o[10] != null) {
+                item.put("contentMore", JSON.parse((String) o[10]));
             }
 
             list.add(item);

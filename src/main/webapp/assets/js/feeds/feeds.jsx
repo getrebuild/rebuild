@@ -147,5 +147,8 @@ $(document).ready(function () {
   })
 
   execFilter()
+
+  // eslint-disable-next-line no-undef
+  $showAnnouncement()
 })
 

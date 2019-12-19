@@ -15,6 +15,7 @@
 		<jsp:param value="nav_entity-Feeds" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
+		<div class="announcement-wrapper"></div>
 		<div class="main-content container container-smart">
 			<div class="row">
 				<div class="col-lg-8 col-12">

@@ -63,6 +63,7 @@
 <div class="rb-wrapper rb-login">
 	<div class="rb-bgimg"></div>
 	<div class="rb-content">
+		<div class="announcement-wrapper"></div>
 		<div class="main-content container-fluid">
 			<div class="splash-container mb-0">
 				<div class="card card-border-color card-border-color-primary">
@@ -173,6 +174,8 @@ $(document).ready(function() {
 			}
 		}).fail(function () { /* NOOP */ })
 	}
+
+	$showAnnouncement()
 })
 </script>
 </body>

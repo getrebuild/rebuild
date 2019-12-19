@@ -303,7 +303,7 @@ class RbFormElement extends React.Component {
     }
     const editable = EDIT_ON_VIEW && props.onView && !props.readonly
     return <div className={`form-group row type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
-      <label ref={(c) => this._fieldLabel = c} className={`col-12 col-form-label text-sm-right col-sm-${colWidths[0]} ${!props.onView && !props.nullable && 'required'}`}>{props.label}</label>
+      <label ref={(c) => this._fieldLabel = c} className={`col-12 col-sm-${colWidths[0]} col-form-label text-sm-right ${(!props.onView && !props.nullable) ? 'required' : ''}`}>{props.label}</label>
       <div ref={(c) => this._fieldText = c} className={'col-12 col-sm-' + colWidths[1]}>
         {(!props.onView || (editable && this.state.editMode)) ? this.renderElement() : this.renderViewElement()}
         {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
@@ -950,7 +950,7 @@ class RbFormMultiSelect extends RbFormElement {
     return <div className="mt-1" ref={(c) => this._fieldValue__wrap = c}>
       {(this.props.options || []).length === 0 && <div className="text-danger">选项未配置</div>}
       {(this.props.options || []).map((item) => {
-        return <label key={name + item.mask} className="custom-control custom-checkbox  custom-control-inline">
+        return <label key={name + item.mask} className="custom-control custom-checkbox custom-control-inline">
           <input className="custom-control-input" name={name} type="checkbox" checked={(this.state.value & item.mask) !== 0} value={item.mask}
             onChange={this.changeValue} disabled={this.props.readonly} />
           <span className="custom-control-label">{item.text}</span>

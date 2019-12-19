@@ -3091,3 +3091,12 @@ a.icon-link>.zmdi {
     font-weight: normal;
     font-size: 12px;
 }
+
+.announcement-wrapper>div {
+    margin: 0;
+    border-radius: 0;
+}
+
+.announcement-wrapper>div+div {
+    margin-top: 1px;
+}

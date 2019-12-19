@@ -20,6 +20,7 @@
 		<%@ include file="/_include/spinner.jsp"%>
 	</div>
 	<div class="rb-content">
+		<div class="announcement-wrapper"></div>
 		<div class="main-content container-fluid p-0">
 			<div class="tools-bar">
 				<div class="row">

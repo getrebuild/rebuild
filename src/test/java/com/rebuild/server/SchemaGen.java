@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.PersistManagerFactoryImpl;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
+import com.rebuild.server.metadata.EntityHelper;
 import org.dom4j.Element;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -45,7 +46,8 @@ public class SchemaGen {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
-		genAll();
+//		genAll();
+		gen(EntityHelper.Feeds);
 
 		System.exit(0);
 	}

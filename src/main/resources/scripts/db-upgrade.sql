@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #19 Announcement
+alter table `feeds`
+    add column `CONTENT_MORE` text(3000) comment '不同类型的扩展内容, JSON格式KV';
+
 -- #18 Folder scope
 alter table `attachment_folder`
   add column `SCOPE` varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
