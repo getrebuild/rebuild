@@ -24,12 +24,14 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.notification.MessageBuilder;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 
 /**
  * @author devezhao
@@ -162,5 +164,24 @@ public class FeedsHelper {
             return team.isMember(user);
         }
         return false;
+    }
+
+    /**
+     * 格式化动态内容
+     *
+     * @param content
+     * @return
+     */
+    public static String formatContent(String content) {
+        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);
+        while (atMatcher.find()) {
+            String at = atMatcher.group();
+            ID user = ID.valueOf(at.substring(1));
+            if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().existsUser(user)) {
+                String fullName = Application.getUserStore().getUser(user).getFullName();
+                content = content.replace(at, String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
+            }
+        }
+        return content;
     }
 }

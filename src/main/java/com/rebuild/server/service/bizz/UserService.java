@@ -111,7 +111,7 @@ public class UserService extends SystemEntityService {
 			record.setString("password", EncryptUtils.toSHA256Hex(password));
 		}
 		
-		if (record.hasValue("email") && Application.getUserStore().exists(record.getString("email"))) {
+		if (record.hasValue("email") && Application.getUserStore().existsUser(record.getString("email"))) {
 			throw new DataSpecificationException(Languages.lang("Repeated", "Email"));
 		}
 		
@@ -133,7 +133,7 @@ public class UserService extends SystemEntityService {
 	 * @throws DataSpecificationException
 	 */
 	private void checkLoginName(String loginName) throws DataSpecificationException {
-		if (Application.getUserStore().exists(loginName)) {
+		if (Application.getUserStore().existsUser(loginName)) {
 			throw new DataSpecificationException("登陆名重复");
 		}
 		if (!CommonsUtils.isPlainText(loginName) || BlackList.isBlack(loginName)) {

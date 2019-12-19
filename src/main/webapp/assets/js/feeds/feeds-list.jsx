@@ -3,7 +3,7 @@
 /* global converEmoji, FeedsEditor */
 
 const FeedsSorts = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
-const FeedsTypes = { 1: '动态', 2: '跟进' }
+const FeedsTypes = { 1: '动态', 2: '跟进', 3: '公告' }
 
 // ~ 动态列表
 // eslint-disable-next-line no-unused-vars
@@ -373,12 +373,21 @@ function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
   const contentHtml = converEmoji(e.content.replace(/\n/g, '<br>'))
   return <div className="rich-content">
-    <div className="texts"
+    <div className="texts text-break"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
-    {e.related && <div className="related">
-      <span className="text-muted"><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} - </span>
-      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`}>{e.related.text}</a>
+    {e.related && <div className="mores">
+      <div>
+        <span><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} : </span>
+        <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`} title="查看相关记录">{e.related.text}</a>
+      </div>
+    </div>
+    }
+    {e.type === 3 && <div className="mores">
+      {e.contentMore.showWhere > 0
+        && <div><span>公示位置 : </span> {__findMaskTexts(e.contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
+      {(e.contentMore.timeStart || e.contentMore.timeEnd)
+        && <div><span>公示时间 : </span> {e.contentMore.timeStart || ''} 至 {e.contentMore.timeEnd}</div>}
     </div>
     }
     {(e.images || []).length > 0 && <div className="img-field">
@@ -401,6 +410,15 @@ function __renderRichContent(e) {
     </div>
     }
   </div>
+}
+
+const ANN_OPTIONS = [[1, '动态页'], [2, '首页'], [4, '登录页']]
+function __findMaskTexts(mask, options) {
+  let texts = []
+  options.forEach((item) => {
+    if ((item[0] & mask) !== 0) texts.push(item[1])
+  })
+  return texts
 }
 
 // 点赞

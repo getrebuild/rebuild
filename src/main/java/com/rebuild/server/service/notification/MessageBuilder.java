@@ -139,7 +139,7 @@ public class MessageBuilder {
 
 		final ID id = ID.valueOf(atid);
 		if (id.getEntityCode() == EntityHelper.User) {
-			if (Application.getUserStore().exists(id)) {
+			if (Application.getUserStore().existsUser(id)) {
 				return Application.getUserStore().getUser(id).getFullName();
 			} else {
 				return "[无效用户]";

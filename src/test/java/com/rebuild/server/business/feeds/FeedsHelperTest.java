@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -52,6 +53,11 @@ public class FeedsHelperTest extends TestSupportWithUser {
         FeedsHelper.isMyLike(feedsId, SIMPLE_USER);
         FeedsHelper.getNumOfLike(feedsId);
         FeedsHelper.checkReadable(feedsId, SIMPLE_USER);
+    }
+
+    @Test
+    public void formatContent() {
+        FeedsHelper.formatContent("123 @" + UserService.ADMIN_USER);
     }
 
     private ID createFeeds() {

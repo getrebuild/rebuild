@@ -25,6 +25,7 @@ import com.rebuild.utils.JSONable;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,6 +78,7 @@ public class LanguageBundle implements JSONable {
 
     /**
      * @return
+     * @see Locale#forLanguageTag(String)
      */
     public String locale() {
         return locale;

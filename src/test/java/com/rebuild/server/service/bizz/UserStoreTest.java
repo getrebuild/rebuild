@@ -23,8 +23,9 @@ import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.junit.Test;
 
-import java.util.Arrays;
+import java.util.Collections;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -56,25 +57,30 @@ public class UserStoreTest extends TestSupport {
 	
 	@Test
 	public void testExists() throws Exception {
-		assertTrue(Application.getUserStore().exists("admin"));
-		assertTrue(!Application.getUserStore().exists("not_exists"));
+		assertTrue(Application.getUserStore().existsUser("admin"));
+        assertFalse(Application.getUserStore().existsUser("not_exists"));
 	}
 
 	@Test
 	public void testMemberToTeam() {
 		Application.getSessionStore().set(SIMPLE_USER);
 		try {
-			Application.getBean(TeamService.class).createMembers(SIMPLE_TEAM, Arrays.asList(SIMPLE_USER));
+			Application.getBean(TeamService.class).createMembers(SIMPLE_TEAM, Collections.singletonList(SIMPLE_USER));
 			User user = Application.getUserStore().getUser(SIMPLE_USER);
 			System.out.println(user.getOwningTeams());
 
-			assertTrue(!user.getOwningTeams().isEmpty());
+            assertFalse(user.getOwningTeams().isEmpty());
 			assertTrue(Application.getUserStore().getTeam(SIMPLE_TEAM).isMember(SIMPLE_USER));
 
-			Application.getBean(TeamService.class).deleteMembers(SIMPLE_TEAM, Arrays.asList(SIMPLE_USER));
+			Application.getBean(TeamService.class).deleteMembers(SIMPLE_TEAM, Collections.singletonList(SIMPLE_USER));
 			System.out.println(user.getOwningTeams());
 		} finally {
 			Application.getSessionStore().clean();
 		}
 	}
+
+	@Test
+	public void existsAny() {
+	    Application.getUserStore().existsAny(RoleService.ADMIN_ROLE);
+    }
 }
