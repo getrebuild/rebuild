@@ -75,8 +75,6 @@ $(document).ready(function () {
   }))
 
   $(window).resize(win_resize)
-  // eslint-disable-next-line no-undef
-  $showAnnouncement()
 })
 
 let on_resizestart = false

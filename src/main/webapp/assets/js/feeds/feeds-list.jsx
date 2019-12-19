@@ -373,7 +373,7 @@ function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
   const contentHtml = converEmoji(e.content.replace(/\n/g, '<br>'))
   return <div className="rich-content">
-    <div className="texts"
+    <div className="texts text-break"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
     {e.related && <div className="mores">

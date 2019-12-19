@@ -103,6 +103,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/lib/jquery.textarea.js"></script>
+<script src="${baseUrl}/assets/js/feeds/announcement.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds-post.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds.jsx" type="text/babel"></script>

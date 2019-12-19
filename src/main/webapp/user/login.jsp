@@ -174,9 +174,8 @@ $(document).ready(function() {
 			}
 		}).fail(function () { /* NOOP */ })
 	}
-
-	$showAnnouncement()
 })
 </script>
+<script src="${baseUrl}/assets/js/feeds/announcement.jsx" type="text/babel"></script>
 </body>
 </html>

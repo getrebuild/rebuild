@@ -23,9 +23,10 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -63,7 +64,7 @@ public class AnnouncementControll extends BaseControll {
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select content,contentMore,scope,createdBy,createdOn from Feeds where type = 3")
+                "select content,contentMore,scope,createdBy,createdOn,feedsId from Feeds where type = 3")
                 .array();
 
         List<JSON> as = new ArrayList<>();
@@ -103,30 +104,15 @@ public class AnnouncementControll extends BaseControll {
             }
 
             if (allow) {
-                JSON a = JSONUtils.toJSONObject(new String[] { "content" }, new Object[] { o[0] });
+                JSONObject a = new JSONObject();
+                a.put("content", FeedsHelper.formatContent((String) o[0]));
+                a.put("publishOn", CalendarUtils.getUTCDateTimeFormat().format(o[4]));
+                a.put("publishBy", UserHelper.getName((ID) o[3]));
+                a.put("id", o[5]);
                 as.add(a);
             }
         }
 
         writeSuccess(response, as);
-    }
-
-
-    /**
-     * 匹配可见范围
-     *
-     * @param scope
-     * @param user
-     * @return
-     */
-    private boolean matchsScope(FeedsScope scope, ID user) {
-        switch (scope) {
-            case ALL:
-                return true;
-            case GROUP:
-
-            default:
-                return false;
-        }
     }
 }

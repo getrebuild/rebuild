@@ -459,14 +459,3 @@ var $pgt = {
   SlaveView: 'SlaveView',
   SlaveList: 'SlaveList'
 }
-
-// 公告
-var $showAnnouncement = function (dest) {
-  $.get(rb.baseUrl + '/commons/announcements', function (res) {
-    if (res.error_code !== 0 || !res.data || res.data.length === 0) return
-    $(res.data).each(function () {
-      var $wrap = $('<div class="alert alert-primary"><div class="icon"><span class="zmdi zmdi-notifications-active"></span></div><div class="message"></div></div>').appendTo(dest || '.announcement-wrapper')
-      $wrap.find('.message').text(this.content)
-    })
-  })
-}
