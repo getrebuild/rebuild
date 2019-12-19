@@ -31,11 +31,11 @@ $(function () {
     setTimeout(__globalSearch, 200)
   }
 
-  if (rb.isAdminUser === true) {
+  if (rb.isAdminUser) {
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified === true) $('.admin-settings a i').addClass('text-danger')
+    else if (rb.isAdminVerified) $('.admin-settings a i').addClass('text-danger')
   } else {
     $('.admin-show').remove()
   }

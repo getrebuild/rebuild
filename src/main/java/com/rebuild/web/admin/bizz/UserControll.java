@@ -67,7 +67,7 @@ public class UserControll extends BaseEntityControll {
 	@RequestMapping("check-user-status")
 	public void checkUserStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID id = getIdParameterNotNull(request, "id");
-		if (!Application.getUserStore().exists(id)) {
+		if (!Application.getUserStore().existsUser(id)) {
 		    writeFailure(response);
 		    return;
         }

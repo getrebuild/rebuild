@@ -31,6 +31,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -89,16 +90,33 @@ public class UserStore {
 	 * @param emailOrName
 	 * @return
 	 */
-	public boolean exists(String emailOrName) {
+	public boolean existsUser(String emailOrName) {
 		return existsName(emailOrName) || existsEmail(emailOrName);
 	}
-	
+
 	/**
 	 * @param userId
 	 * @return
 	 */
-	public boolean exists(ID userId) {
+	public boolean existsUser(ID userId) {
 		return USERs.containsKey(userId);
+	}
+
+	/**
+	 * @param bizzId
+	 * @return
+	 */
+	public boolean existsAny(ID bizzId) {
+		if (bizzId.getEntityCode() == EntityHelper.User) {
+			return USERs.containsKey(bizzId);
+		} else if (bizzId.getEntityCode() == EntityHelper.Role) {
+			return ROLEs.containsKey(bizzId);
+		} else if (bizzId.getEntityCode() == EntityHelper.Department) {
+			return DEPTs.containsKey(bizzId);
+		} else if (bizzId.getEntityCode() == EntityHelper.Team) {
+			return TEAMs.containsKey(bizzId);
+		}
+		return false;
 	}
 	
 	/**
@@ -249,7 +267,7 @@ public class UserStore {
 		final ID deptId = (ID) o[6];
 		final ID roleId = (ID) o[7];
 
-		final User oldUser = exists(userId) ? getUser(userId) : null;
+		final User oldUser = existsUser(userId) ? getUser(userId) : null;
 		if (oldUser != null) {
 			Role role = oldUser.getOwningRole();
 			if (role != null) {

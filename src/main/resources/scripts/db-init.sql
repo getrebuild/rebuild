@@ -498,6 +498,7 @@ create table if not exists `feeds` (
   `FEEDS_ID`           char(20) not null,
   `TYPE`               smallint(6) not null default '1' comment '类型',
   `CONTENT`            text(3000) not null comment '内容',
+  `CONTENT_MORE`       text(3000) comment '不同类型的扩展内容, JSON格式KV',
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
@@ -588,4 +589,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  VALUES ('021-9000000000000001', 'DBVer', 18);
+  VALUES ('021-9000000000000001', 'DBVer', 19);

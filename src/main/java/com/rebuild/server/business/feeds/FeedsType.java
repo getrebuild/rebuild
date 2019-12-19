@@ -28,6 +28,7 @@ public enum FeedsType {
 
     ACTIVITY(1, "动态"),
     FOLLOWUP(2, "跟进"),
+    ANNOUNCEMENT(3, "公告"),
 
     ;
 

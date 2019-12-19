@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author devezhao
@@ -37,8 +37,10 @@ public class LanguagesTest extends TestSupport {
         System.out.println(Languages.instance.getCurrentBundle());
         System.out.println(Languages.instance.getBundle(Locale.getDefault()));
 
-        assertEquals(Locale.US.toString(), Languages.instance.getBundle(Locale.US).locale());
-        assertEquals(Locale.JAPAN.toString(), Languages.instance.getBundle(Locale.JAPAN).locale());
+        assertEquals(Locale.US,
+                Locale.forLanguageTag(Languages.instance.getBundle(Locale.US).locale()));
+        assertEquals(Locale.JAPAN,
+                Locale.forLanguageTag(Languages.instance.getBundle(Locale.JAPAN).locale()));
     }
 
     @Test
