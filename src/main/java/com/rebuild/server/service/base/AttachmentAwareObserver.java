@@ -25,6 +25,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.files.FilesHelper;
+import com.rebuild.server.business.recyclebin.RecycleBinCleanerJob;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.OperatingContext;
@@ -71,7 +73,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
 			return;
 		}
 		
-		Application.getCommonService().createOrUpdate(createWill.toArray(new Record[0]));
+		Application.getCommonService().createOrUpdate(createWill.toArray(new Record[0]), false);
 	}
 	
 	@Override
@@ -100,8 +102,8 @@ public class AttachmentAwareObserver extends OperatingObserver {
 					}
 				}
 				if (LOG.isDebugEnabled()) {
-					LOG.debug("删除 ... " + beforeFiles);
-					LOG.debug("增加 ... " + afterFiles);
+					LOG.debug("Remove ... " + beforeFiles);
+					LOG.debug("Add ... " + afterFiles);
 				}
 				
 				for (Object o : beforeFiles) {
@@ -128,7 +130,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
 		}
 		
 		Application.getCommonService().createOrUpdateAndDelete(
-				createWill.toArray(new Record[0]), deleteWill.toArray(new ID[0]));
+				createWill.toArray(new Record[0]), deleteWill.toArray(new ID[0]), false);
 	}
 	
 	@Override
@@ -143,17 +145,29 @@ public class AttachmentAwareObserver extends OperatingObserver {
 				"select attachmentId from Attachment where relatedRecord = ?")
 				.setParameter(1, record.getPrimary())
 				.array();
-		List<ID> deleteWill = new ArrayList<>();
-		for (Object[] o : array) {
-			deleteWill.add((ID) o[0]);
-		}
-		if (deleteWill.isEmpty()) {
+		if (array.length == 0) {
 			return;
 		}
-		
-		Application.getCommonService().delete(deleteWill.toArray(new ID[0]));
+
+		// 回收站开启
+		boolean recycleEnable = RecycleBinCleanerJob.getKeepingDays() > 0;
+
+		List<Record> updateWill = new ArrayList<>();
+		List<ID> deleteWill = new ArrayList<>();
+		for (Object[] o : array) {
+			if (recycleEnable) {
+				Record u = EntityHelper.forUpdate((ID) o[0], null, false);
+				u.setBoolean(EntityHelper.IsDeleted, true);
+				updateWill.add(u);
+			} else {
+				deleteWill.add((ID) o[0]);
+			}
+		}
+
+		Application.getCommonService().createOrUpdateAndDelete(
+				updateWill.toArray(new Record[0]), deleteWill.toArray(new ID[0]), false);
 	}
-	
+
 	private JSONArray parseFilesJson(String files) {
 		if (StringUtils.isBlank(files)) {
 			return JSONUtils.EMPTY_ARRAY;

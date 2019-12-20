@@ -460,14 +460,15 @@ class AnnouncementOptions extends React.Component {
   }
 
   val() {
+    let where = 0
+    $(this._showWhere).find('input:checked').each(function () { where += ~~$(this).val() })
+
     let timeStart = $(this._showTime).find('.form-control:eq(0)').val()
     let timeEnd = $(this._showTime).find('.form-control:eq(1)').val()
-    if (!timeEnd) {
+    if (where > 0 && !timeEnd) {
       RbHighbar.create('请选择结束时间')
       return
     }
-    let where = 0
-    $(this._showWhere).find('input:checked').each(function () { where += ~~$(this).val() })
 
     return {
       timeStart: timeStart || null,
