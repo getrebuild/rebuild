@@ -101,7 +101,11 @@ public class UserAvatar extends BaseControll {
 		} else {
 			BufferedImage avatarBi = null;
 			try {
-				File avatarFile = UserHelper.generateAvatar(realUser.getFullName(), false);
+			    String fullName = realUser.getFullName();
+			    if (realUser.getId().equals(UserService.SYSTEM_USER)) {
+			        fullName = "RB";
+                }
+				File avatarFile = UserHelper.generateAvatar(fullName, false);
 				avatarBi = ImageIO.read(avatarFile);
 			} catch (IOException ex) {
 				LOG.warn("Couldn't generate avatar", ex);
