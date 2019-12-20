@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.setup;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -27,9 +28,13 @@ import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -103,6 +108,24 @@ public class InstallControll extends BasePageControll {
             writeFailure(response);
         } else {
             writeSuccess(response, file.getAbsolutePath());
+        }
+    }
+
+    @RequestMapping("test-cache")
+    public void testCache(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject cacheProps = (JSONObject) ServletUtils.getRequestJson(request);
+
+        JedisPool pool = new JedisPool(new JedisPoolConfig(),
+                StringUtils.defaultIfBlank(cacheProps.getString("CacheHost"), "127.0.0.1"),
+                ObjectUtils.toInt(cacheProps.getString("CachePort"), 6379),
+                3000,
+                StringUtils.defaultIfBlank(cacheProps.getString("CachePassword"), null));
+        try (Jedis client = pool.getResource()) {
+            String info = client.info();
+            pool.destroy();
+            writeSuccess(response, "连接成功 : " + info);
+        } catch (Exception ex) {
+            writeSuccess(response, "连接失败 : " + ex.getLocalizedMessage());
         }
     }
 
