@@ -46,8 +46,9 @@ public class RecycleBinCleanerJob extends QuartzJobBean {
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
-        int keepingDays = SysConfiguration.getInt(ConfigurableItem.RecycleBinKeepingDays);
+        final int keepingDays = getKeepingDays();
         LOG.info("RecycleBinCleanerJob running ... " + keepingDays);
+        // Keep forever
         if (keepingDays > 9999) {
             return;
         }
@@ -61,5 +62,16 @@ public class RecycleBinCleanerJob extends QuartzJobBean {
                 CalendarUtils.getUTCDateFormat().format(before));
         int del = Application.getSQLExecutor().execute(delSql, 120);
         LOG.warn("RecycleBin cleaned : " + del);
+
+        // TODO 相关引用也在此时一并删除，因为记录已经彻底删除了
+    }
+
+    /**
+     * 回收站保留天数。小于等于 0 表示未开启回收站，大于等于 9999 表示永远保留
+     *
+     * @return
+     */
+    public static int getKeepingDays() {
+        return SysConfiguration.getInt(ConfigurableItem.RecycleBinKeepingDays);
     }
 }

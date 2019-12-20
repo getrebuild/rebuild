@@ -1,9 +1,13 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
--- #19 Announcement
+-- #20 Attachment delete mark
+alter table `attachment`
+  add column `IS_DELETED` char(1) default 'F' comment '标记删除';
+
+-- #19 Announcement in Feeds
 alter table `feeds`
-    add column `CONTENT_MORE` text(3000) comment '不同类型的扩展内容, JSON格式KV';
+  add column `CONTENT_MORE` text(3000) comment '不同类型的扩展内容, JSON格式KV';
 
 -- #18 Folder scope
 alter table `attachment_folder`

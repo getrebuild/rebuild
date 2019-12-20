@@ -58,7 +58,7 @@ class RbList extends React.Component {
                     const cWidth = item.width || that.__defaultColumnWidth
                     const styles = { width: cWidth + 'px' }
                     return <th key={'column-' + item.field} style={styles} className={`unselect ${item.unsort ? '' : 'sortable'}`} data-field={item.field}
-                      onClick={!item.unsort && this.sortField.bind(this, item.field)} >
+                      onClick={item.unsort ? null : this.sortField.bind(this, item.field)}>
                       <div style={styles}>
                         <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
                         <i className={'zmdi ' + (item.sort || '')} />
@@ -108,7 +108,7 @@ class RbList extends React.Component {
       $('.main-content').addClass('pb-0')
       $addResizeHandler(() => {
         let mh = $(window).height() - 214
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 42  // Has tab
+        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 44  // Has tab
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
