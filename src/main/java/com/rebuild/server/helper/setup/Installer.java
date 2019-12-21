@@ -26,20 +26,20 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.cache.EhcacheTemplate;
+import com.rebuild.server.helper.cache.JedisCacheTemplate;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.AES;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
+import redis.clients.jedis.Jedis;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,7 +51,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -60,11 +59,9 @@ import java.util.Properties;
  * @author devezhao
  * @since 2019/11/25
  */
-public class Installer {
+public class Installer implements InstallAfter {
 
     private static final Log LOG = LogFactory.getLog(Installer.class);
-
-    private static final String INSTALL_FILE = ".rebuild";
 
     private JSONObject installProps;
     // 快速安装模式
@@ -103,8 +100,18 @@ public class Installer {
 
         // init again
         new ServerListener().contextInitialized(null);
+
         // Gen SN
         Lisence.SN();
+
+        // Clean cached
+        if (Application.getCommonCache().isUseRedis()) {
+            try (Jedis jedis = ((JedisCacheTemplate) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
+                jedis.flushAll();
+            }
+        } else {
+            ((EhcacheTemplate) Application.getCommonCache().getCacheTemplate()).cache().clear();
+        }
     }
 
     /**
@@ -217,11 +224,11 @@ public class Installer {
         for (Object L : LS) {
             String L2 = L.toString().trim();
 
-            // double 字段也不支持
-            boolean H2Supported = quickMode && L2.startsWith("fulltext");
+            // NOTE double 字段也不支持
+            boolean H2Unsupported = quickMode && L2.startsWith("fulltext");
 
             // Ignore comments and line of blank
-            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Supported) {
+            if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupported) {
                 continue;
             }
             if (L2.startsWith("/*") || L2.endsWith("*/")) {
@@ -234,6 +241,7 @@ public class Installer {
             SQL.append(L2);
             if (L2.endsWith(";")) {  // SQL ends
                 SQLS.add(SQL.toString().replace(",\n)Engine=", "\n)Engine="));
+                System.out.println(SQL);
                 SQL = new StringBuilder();
             } else {
                 SQL.append('\n');
@@ -304,51 +312,5 @@ public class Installer {
         } catch (SQLException sqlex) {
             LOG.error("Couldn't execute SQL : " + sql, sqlex);
         }
-    }
-
-    // --
-
-    /**
-     * 检查安装状态
-     *
-     * @return
-     */
-    public static boolean checkInstall() {
-        if (Application.devMode()) {
-            return true;  // for dev
-        }
-
-        File file = SysConfiguration.getFileOfData(INSTALL_FILE);
-        if (file.exists()) {
-            try {
-                Properties dbProps = PropertiesLoaderUtils.loadProperties(new FileSystemResource(file));
-                String dbPasswd = (String) dbProps.remove("db.passwd.aes");
-                if (dbPasswd != null) {
-                    dbProps.put("db.passwd", AES.decrypt(dbPasswd));
-                }
-
-                for (Map.Entry<Object, Object> e : dbProps.entrySet()) {
-                    System.setProperty((String) e.getKey(), (String) e.getValue());
-                    if ("db.url".equals(e.getKey()) && ((String) e.getValue()).contains("jdbc:h2:")) {
-                        LOG.warn("Using QuickMode with H2 database!");
-                    }
-                }
-            } catch (IOException e) {
-                throw new SetupException(e);
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 使用 H2 数据库
-     *
-     * @return
-     */
-    public static boolean isUseH2() {
-        String dbUrl = Application.getBean(AesPreferencesConfigurer.class).getItem("db.url");
-        return dbUrl.contains("jdbc:h2:");
     }
 }
