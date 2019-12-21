@@ -20,18 +20,14 @@ package com.rebuild.server.helper.setup;
 
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.sql.SqlBuilder;
-import cn.devezhao.commons.sql.builder.InsertBuilder;
 import cn.devezhao.commons.sql.builder.UpdateBuilder;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.JedisCacheTemplate;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.AES;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -80,13 +76,18 @@ public class Installer implements InstallAfter {
      */
     public void install() {
         this.installDatabase();
-        this.installSystem();
         this.installAdmin();
 
-        // Save install state
+        // Save install state (file)
         File dest = SysConfiguration.getFileOfData(INSTALL_FILE);
         Properties dbProps = buildConnectionProps(null);
         dbProps.put("db.passwd.aes", AES.encrypt((String) dbProps.remove("db.passwd")));
+        // redis
+        JSONObject cacheProps = installProps.getJSONObject("cacheProps");
+        if (cacheProps != null && !cacheProps.isEmpty()) {
+            dbProps.putAll(cacheProps);
+        }
+
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
@@ -106,10 +107,12 @@ public class Installer implements InstallAfter {
 
         // Clean cached
         if (Application.getCommonCache().isUseRedis()) {
+            //noinspection rawtypes
             try (Jedis jedis = ((JedisCacheTemplate) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
                 jedis.flushAll();
             }
         } else {
+            //noinspection rawtypes
             ((EhcacheTemplate) Application.getCommonCache().getCacheTemplate()).cache().clear();
         }
     }
@@ -225,7 +228,8 @@ public class Installer implements InstallAfter {
             String L2 = L.toString().trim();
 
             // NOTE double 字段也不支持
-            boolean H2Unsupported = quickMode && L2.startsWith("fulltext");
+            boolean H2Unsupported = quickMode
+                    && (L2.startsWith("fulltext ") || L2.startsWith("unique ") || L2.startsWith("index "));
 
             // Ignore comments and line of blank
             if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupported) {
@@ -241,27 +245,12 @@ public class Installer implements InstallAfter {
             SQL.append(L2);
             if (L2.endsWith(";")) {  // SQL ends
                 SQLS.add(SQL.toString().replace(",\n)Engine=", "\n)Engine="));
-                System.out.println(SQL);
                 SQL = new StringBuilder();
             } else {
                 SQL.append('\n');
             }
         }
         return SQLS.toArray(new String[0]);
-    }
-
-    /**
-     * 系统参数
-     */
-    protected void installSystem() {
-        JSONObject systemProps = installProps.getJSONObject("systemProps");
-        if (systemProps == null || systemProps.isEmpty()) {
-            return;
-        }
-
-        insertSystemProp(ConfigurableItem.DataDirectory, systemProps.getString("dataDirectory"));
-        insertSystemProp(ConfigurableItem.AppName, systemProps.getString("appName"));
-        insertSystemProp(ConfigurableItem.HomeURL, systemProps.getString("homeUrl"));
     }
 
     /**
@@ -291,18 +280,9 @@ public class Installer implements InstallAfter {
         executeSql(ub.toSql());
     }
 
-    private void insertSystemProp(ConfigurableItem item, String value) {
-        if (StringUtils.isBlank(value)) {
-            return;
-        }
-
-        InsertBuilder ib = SqlBuilder.buildInsert("system_config")
-                .addColumn("CONFIG_ID", ID.newId(EntityHelper.SystemConfig))
-                .addColumn("ITEM", item.name())
-                .addColumn("VALUE", value);
-        executeSql(ib.toSql());
-    }
-
+    /**
+     * @param sql
+     */
     private void executeSql(String sql) {
         try (Connection conn = getConnection(null)) {
             try (Statement stmt = conn.createStatement()) {

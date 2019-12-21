@@ -19,14 +19,8 @@ package com.rebuild.server.helper.setup;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.utils.AES;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.support.PropertiesLoaderUtils;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.Map;
-import java.util.Properties;
 
 /**
  * 标记接口。
@@ -38,7 +32,7 @@ import java.util.Properties;
 public interface InstallAfter {
 
     /**
-     * 状态文件。位置 ～/.rebuild/.rebuild
+     * 状态文件位置 ～/.rebuild/.rebuild
      */
     String INSTALL_FILE = ".rebuild";
 
@@ -49,28 +43,7 @@ public interface InstallAfter {
      */
     default boolean checkInstalled() {
         if (Application.devMode()) return true;  // for dev
-
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
-        if (file.exists()) {
-            try {
-                Properties dbProps = PropertiesLoaderUtils.loadProperties(new FileSystemResource(file));
-                String dbPasswd = (String) dbProps.remove("db.passwd.aes");
-                if (dbPasswd != null) {
-                    dbProps.put("db.passwd", AES.decrypt(dbPasswd));
-                }
-
-                for (Map.Entry<Object, Object> e : dbProps.entrySet()) {
-                    System.setProperty((String) e.getKey(), (String) e.getValue());
-                    if ("db.url".equals(e.getKey()) && ((String) e.getValue()).contains("jdbc:h2:")) {
-                        Application.LOG.warn("Using QuickMode with H2 database!");
-                    }
-                }
-            } catch (IOException e) {
-                throw new SetupException(e);
-            }
-
-            return true;
-        }
-        return false;
+        return file != null && file.exists();
     }
 }

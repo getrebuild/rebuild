@@ -127,7 +127,7 @@ public class InstallControll extends BasePageControll implements InstallAfter {
             pool.destroy();
             writeSuccess(response, "连接成功 : " + info);
         } catch (Exception ex) {
-            writeSuccess(response, "连接失败 : " + ex.getLocalizedMessage());
+            writeFailure(response, "连接失败 : " + ex.getLocalizedMessage());
         }
     }
 

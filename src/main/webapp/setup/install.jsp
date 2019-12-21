@@ -9,7 +9,7 @@
 }
 .splash-footer {
 	border-top: 1px solid #eee;
-	margin-top: 10px;
+	margin-top: 20px;
 	padding-top: 20px;
 	padding-bottom: 15px;
 	text-align: left;

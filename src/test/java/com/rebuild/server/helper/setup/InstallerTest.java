@@ -56,7 +56,6 @@ public class InstallerTest {
     public void install() throws Exception {
         Installer installer = new Installer(USE_H2);
         installer.installDatabase();
-        installer.installSystem();
         installer.installAdmin();
     }
 
