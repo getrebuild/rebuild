@@ -81,13 +81,20 @@ public class Installer implements InstallAfter {
         // Save install state (file)
         File dest = SysConfiguration.getFileOfData(INSTALL_FILE);
         Properties dbProps = buildConnectionProps(null);
-        dbProps.put("db.passwd.aes", AES.encrypt((String) dbProps.remove("db.passwd")));
+        String passwd = (String) dbProps.remove("db.passwd");
+        if (StringUtils.isNotBlank(passwd)) {
+            dbProps.put("db.passwd.aes", AES.encrypt(passwd));
+        }
         // redis
         JSONObject cacheProps = installProps.getJSONObject("cacheProps");
         if (cacheProps != null && !cacheProps.isEmpty()) {
+            passwd = cacheProps.getString("CachePassword");
+            if (StringUtils.isNotBlank(passwd)) {
+                cacheProps.put("CachePassword.aes", AES.encrypt(passwd));
+            }
             dbProps.putAll(cacheProps);
         }
-
+        
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
