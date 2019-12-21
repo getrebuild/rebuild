@@ -107,12 +107,10 @@ public class Installer implements InstallAfter {
 
         // Clean cached
         if (Application.getCommonCache().isUseRedis()) {
-            //noinspection rawtypes
             try (Jedis jedis = ((JedisCacheTemplate) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
                 jedis.flushAll();
             }
         } else {
-            //noinspection rawtypes
             ((EhcacheTemplate) Application.getCommonCache().getCacheTemplate()).cache().clear();
         }
     }
@@ -245,6 +243,7 @@ public class Installer implements InstallAfter {
             SQL.append(L2);
             if (L2.endsWith(";")) {  // SQL ends
                 SQLS.add(SQL.toString().replace(",\n)Engine=", "\n)Engine="));
+                System.out.println(SQL);
                 SQL = new StringBuilder();
             } else {
                 SQL.append('\n');

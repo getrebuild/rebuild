@@ -19,7 +19,6 @@ package com.rebuild.server.helper.setup;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SysConfiguration;
-
 import java.io.File;
 
 /**
