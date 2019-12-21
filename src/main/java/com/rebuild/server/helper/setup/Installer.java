@@ -94,7 +94,7 @@ public class Installer implements InstallAfter {
             }
             dbProps.putAll(cacheProps);
         }
-        
+
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
