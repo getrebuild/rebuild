@@ -258,17 +258,8 @@ public class Entity2Schema extends Field2Schema {
 	private boolean schema2Database(Entity entity) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
-		String[] ddls = table.generateDDL(false, false);
-		// Fix MySQL5.7 NO_ZERO_IN_DATE NO_ZERO_DATE
-		for (int i = 0; i < ddls.length; i++) {
-		    String ddl = ddls[i];
-		    if (ddl.contains("0000-00-00")) {
-                ddls[i] = ddl
-                        .replace("default '0000-00-00 00:00:00'", "default current_timestamp")
-                        .replace("default '0000-00-00'", "default current_date");
-            }
-        }
-		
+		String[] ddls = table.generateDDL(false, false, false);
+
 		try {
 			Application.getSQLExecutor().executeBatch(ddls);
 		} catch (Throwable ex) {
