@@ -3092,6 +3092,31 @@ a.icon-link>.zmdi {
     font-size: 12px;
 }
 
+.syscfg .card {
+    margin-bottom: 0;
+}
+
+.syscfg .card .card-header-divider>a {
+    font-size: 1rem;
+    margin-top: 4px;
+    display: none;
+}
+
+.syscfg .card:hover .card-header-divider>a {
+    display: inline-block;
+}
+
+.syscfg .edit-footer {
+    background-color: #eee;
+    padding: 10px;
+    text-align: right;
+    display: none;
+}
+
+.syscfg.edit .edit-footer {
+    display: block;
+}
+
 .announcement-wrapper>div {
     margin: 0;
     border-radius: 0;

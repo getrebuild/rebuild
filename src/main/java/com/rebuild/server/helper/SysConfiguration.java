@@ -122,17 +122,7 @@ public final class SysConfiguration extends KVStorage {
 		return getsNoUnset(false,
 				ConfigurableItem.StorageApiKey, ConfigurableItem.StorageApiSecret, ConfigurableItem.StorageBucket, ConfigurableItem.StorageURL);
 	}
-	
-	/**
-	 * 缓存账号
-	 * 
-	 * @return returns [CacheHost, CachePort, CachePassword]
-	 */
-	public static String[] getCacheAccount() {
-		return getsNoUnset(false,
-				ConfigurableItem.CacheHost, ConfigurableItem.CachePort, ConfigurableItem.CachePassword);
-	}
-	
+
 	/**
 	 * 邮件账号
 	 * 
@@ -153,23 +143,30 @@ public final class SysConfiguration extends KVStorage {
 				ConfigurableItem.SmsUser, ConfigurableItem.SmsPassword, ConfigurableItem.SmsSign);
 	}
 
+    /**
+     * @return
+     */
+	public static String getHomeUrl() {
+	    return getHomeUrl(null);
+    }
+
 	/**
 	 * 获取绝对 URL
 	 *
 	 * @param path 可带有路径，会自动拼接
 	 * @return
 	 */
-	public static String getHomeUrl(String...path) {
+	public static String getHomeUrl(String path) {
 		String homeUrl = get(ConfigurableItem.HomeURL);
 		if (!homeUrl.endsWith("/")) {
 			homeUrl += "/";
 		}
 
-		if (path.length > 0) {
-			if (path[0].startsWith("/")) {
-                path[0] = path[0].substring(1);
+		if (path != null) {
+			if (path.startsWith("/")) {
+                path = path.substring(1);
             }
-			return homeUrl + path[0];
+			return homeUrl + path;
 		}
 		return homeUrl;
 	}

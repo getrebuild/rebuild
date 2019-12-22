@@ -26,10 +26,14 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SMSender;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.metadata.EntityHelper;
@@ -304,4 +308,19 @@ public class LoginControll extends BasePageControll {
 			Application.getSessionStore().clean();
 		}
 	}
+
+    @RequestMapping("live-wallpaper")
+    public void getLiveWallpaper(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    if (!SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)) {
+            writeFailure(response);
+            return;
+        }
+
+        JSON ret = Lisence.rbApi("api/misc/bgimg");
+        if (ret == null) {
+            writeFailure(response);
+        } else {
+            writeSuccess(response, ((JSONObject) ret).getString("url"));
+        }
+    }
 }

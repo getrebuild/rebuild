@@ -57,14 +57,33 @@ public final class Lisence {
      * @return
      */
     public static JSON queryAuthority() {
-        String queryUrl = "https://getrebuild.com/authority/query?k=IjkMHgq94T7s7WkP&sn=" + SN();
+        JSON result = rbApi("authority/query");
+        if (result == null) {
+            result = JSONUtils.toJSONObject(
+                    new String[]{ "sn", "authType" },
+                    new String[]{ SN(), "开源社区版" });
+        }
+        return result;
+    }
+
+    /**
+     * 调用 RB 官方服务 API
+     *
+     * @param apiPath
+     * @return
+     */
+    public static JSON rbApi(String apiPath) {
+        String apiUrl = "https://getrebuild.com/" + apiPath;
+        apiUrl += apiPath.contains("\\?") ? "&" : "?";
+        apiUrl += "k=IjkMHgq94T7s7WkP&sn=" + SN();
+
         try {
-            String result = CommonsUtils.get(queryUrl);
+            String result = CommonsUtils.get(apiUrl);
             if (StringUtils.isNotBlank(result) && JSONUtils.wellFormat(result)) {
                 return JSON.parseObject(result);
             }
         } catch (Exception ignored) {
         }
-        return JSONUtils.toJSONObject(new String[]{"sn", "authType"}, new String[]{SN(), "开源社区版"});
+        return null;
     }
 }
