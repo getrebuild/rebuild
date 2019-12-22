@@ -102,7 +102,7 @@ public class UserAvatar extends BaseControll {
 			BufferedImage avatarBi = null;
 			try {
 			    String fullName = realUser.getFullName();
-			    if (realUser.getId().equals(UserService.SYSTEM_USER)) {
+			    if (realUser.getId().equals(UserService.SYSTEM_USER) || realUser.getId().equals(UserService.ADMIN_USER)) {
 			        fullName = "RB";
                 }
 				File avatarFile = UserHelper.generateAvatar(fullName, false);

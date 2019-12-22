@@ -109,8 +109,8 @@
 				</div>
 				<div class="splash-footer">
 					<div class="copyright">
-						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-						<div class="fs-12">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+						<span>&copy; 2020 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+						<div class="fs-12 dev-show">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
 					</div>
 				</div>
 			</div>

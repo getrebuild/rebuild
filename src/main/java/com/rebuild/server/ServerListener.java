@@ -21,7 +21,7 @@ package com.rebuild.server;
 import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.setup.InstallAfter;
+import com.rebuild.server.helper.setup.InstallState;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,7 +38,7 @@ import java.util.Date;
  * @author devezhao
  * @since 10/13/2018
  */
-public class ServerListener extends ContextCleanupListener implements InstallAfter {
+public class ServerListener extends ContextCleanupListener implements InstallState {
 
 	private static final Log LOG = LogFactory.getLog(ServerListener.class);
 

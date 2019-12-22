@@ -14,7 +14,7 @@ class Setup extends React.Component {
     return <div>
       {!this.state.stepNo && <RbWelcome $$$parent={this} />}
       {this.state.stepNo === 2 && <DatabaseConf {...this.state.databaseProps} $$$parent={this} />}
-      {this.state.stepNo === 3 && <SystemConf {...this.state.systemProps} $$$parent={this} />}
+      {this.state.stepNo === 3 && <CacheConf {...this.state.cacheProps} $$$parent={this} />}
       {this.state.stepNo === 4 && <AdminConf {...this.state.adminProps} $$$parent={this} />}
       {this.state.stepNo === 10 && <div>
         <div className="rb-finish text-center">
@@ -36,10 +36,9 @@ class Setup extends React.Component {
     let data = {
       installType: this.state.installType || 1,
       databaseProps: this.state.databaseProps || {},
-      systemProps: this.state.systemProps || {},
+      cacheProps: this.state.cacheProps || {},
       adminProps: this.state.adminProps || {},
     }
-
     this.setState({ installState: 10 })
     $.post(`${rb.baseUrl}/setup/install-rebuild`, JSON.stringify(data), (res) => {
       this.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
@@ -63,7 +62,7 @@ class RbWelcome extends React.Component {
         <li>
           <a onClick={this._quick}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="可能存在问题" className="text-danger">实验功能</u></p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="本功能为实验功能，可能存在问题" className="text-danger">实验功能</u></p>
           </a>
         </li>
       </ul>
@@ -110,9 +109,10 @@ class DatabaseConf extends React.Component {
           </div>
         </div>
         <div className="form-group row">
-          <div className="col-sm-3 col-form-label text-sm-right">用户名</div>
+          <div className="col-sm-3 col-form-label text-sm-right">用户</div>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" name="dbUser" value={this.state.dbUser || ''} onChange={this.handleValue} placeholder="rebuild" />
+            <div className="form-text">请赋予用户除管理员权限以外的所有权限</div>
           </div>
         </div>
         <div className="form-group row">
@@ -122,11 +122,13 @@ class DatabaseConf extends React.Component {
           </div>
         </div>
       </form>
+      <div className="progress"><div className="progress-bar" style={{ width: '25%' }}></div></div>
       <div className="splash-footer">
         {this.state.testMessage && <div className={`alert ${this.state.testState ? 'alert-success' : 'alert-danger'} alert-icon alert-icon-border text-left alert-sm`}>
           <div className="icon"><span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span></div>
           <div className="message">{this.state.testMessage}</div>
-        </div>}
+        </div>
+        }
         <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>选择安装模式</button>
         <div className="float-right">
           <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
@@ -161,54 +163,76 @@ class DatabaseConf extends React.Component {
 
   _testConnection = (call) => {
     if (this.state.inTest) return
-    let ps = this._buildProps()
+    let ps = this._buildProps(true)
     if (!ps) return
 
     this.setState({ inTest: true })
     $.post(`${rb.baseUrl}/setup/test-connection`, JSON.stringify(ps), (res) => {
-      this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg }, () => typeof call === 'function' && call(ps, res))
+      this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
+        () => typeof call === 'function' && call(ps, res))
     })
   }
 
   _prev = () => this.props.$$$parent.setState({ stepNo: 0, databaseProps: this._buildProps() })
   _next = () => {
     this._testConnection((ps, res) => {
-      if (res.error_code !== 0) return
-      this.props.$$$parent.setState({ stepNo: 3, databaseProps: ps })
+      if (res.error_code === 0) this.props.$$$parent.setState({ stepNo: 3, databaseProps: ps })
     })
   }
 }
 
 // ~
-class SystemConf extends DatabaseConf {
+class CacheConf extends DatabaseConf {
   state = { ...this.props }
   render() {
-    const wpc = window.__PageConfig
     return <div className="rb-systems">
-      <h3>设置系统参数</h3>
+      <h3>设置缓存</h3>
       <form>
         <div className="form-group row">
-          <div className="col-sm-3 col-form-label text-sm-right">数据目录</div>
+          <div className="col-sm-3 col-form-label text-sm-right">缓存类型</div>
           <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" name="dataDirectory" value={this.state.dataDirectory || ''} onChange={this.handleValue} placeholder={wpc.defaultDataDirectory.replace('\\', '/')} />
+            <select className="form-control form-control-sm" name="cacheType" onChange={this.handleValue} defaultValue={this.props.cacheType}>
+              <option value="ehcache">EHCACHE (内建)</option>
+              <option value="redis">REDIS</option>
+            </select>
+            {this.state.cacheType === 'redis' && <div className="form-text">支持 REDIS 3.0 及以上版本</div>}
           </div>
         </div>
-        <div className="form-group row">
-          <div className="col-sm-3 col-form-label text-sm-right">标题</div>
-          <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" name="appName" value={this.state.appName || ''} onChange={this.handleValue} placeholder={wpc.defaultAppName} />
+        {this.state.cacheType === 'redis' && <React.Fragment>
+          <div className="form-group row">
+            <div className="col-sm-3 col-form-label text-sm-right">主机</div>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" name="CacheHost" value={this.state.CacheHost || ''} onChange={this.handleValue} placeholder="127.0.0.1" />
+            </div>
           </div>
-        </div>
-        <div className="form-group row">
-          <div className="col-sm-3 col-form-label text-sm-right">主页地址/域名</div>
-          <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" name="homeUrl" value={this.state.homeUrl || ''} onChange={this.handleValue} placeholder={wpc.defaultHomeURL} />
+          <div className="form-group row">
+            <div className="col-sm-3 col-form-label text-sm-right">端口</div>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" name="CachePort" value={this.state.CachePort || ''} onChange={this.handleValue} placeholder="6379" />
+            </div>
           </div>
-        </div>
+          <div className="form-group row">
+            <div className="col-sm-3 col-form-label text-sm-right">密码</div>
+            <div className="col-sm-7">
+              <input type="text" className="form-control form-control-sm" name="CachePassword" value={this.state.CachePassword || ''} onChange={this.handleValue} placeholder="(无密码请留空)" />
+            </div>
+          </div>
+        </React.Fragment>}
       </form>
+      <div className="progress"><div className="progress-bar" style={{ width: '50%' }}></div></div>
       <div className="splash-footer">
+        {this.state.testMessage && <div className={`alert ${this.state.testState ? 'alert-success' : 'alert-danger'} alert-icon alert-icon-border text-left alert-sm`}>
+          <div className="icon"><span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span></div>
+          <div className="message">{this.state.testMessage}</div>
+        </div>
+        }
         <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>设置数据库</button>
         <div className="float-right">
+          {this.state.cacheType === 'redis' &&
+            <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
+              {this.state.inTest && <i className="zmdi icon zmdi-refresh zmdi-hc-spin" />} 测试连接
+            </button>
+          }
           <button className="btn btn-secondary" onClick={this._next}>下一步</button>
         </div>
         <div className="clearfix"></div>
@@ -217,27 +241,37 @@ class SystemConf extends DatabaseConf {
   }
 
   _buildProps(check) {
+    if (this.state.cacheType !== 'redis') return {}
     let ps = {
-      dataDirectory: this.state.dataDirectory,
-      appName: this.state.appName,
-      homeUrl: this.state.homeUrl
+      cacheType: 'redis',
+      CacheHost: this.state.CacheHost || '127.0.0.1',
+      CachePort: this.state.CachePort || 6379,
+      CachePassword: this.state.CachePassword || ''
     }
-    if (ps.dataDirectory) ps.dataDirectory = ps.dataDirectory.replace(/\\/g, '/')
-    if (check && ps.homeUrl && !$regex.isUrl(ps.homeUrl)) { RbHighbar.create('无效主页地址'); return }
+    if (check && isNaN(ps.CachePort)) { RbHighbar.create('无效端口'); return }
     return ps
   }
 
-  _prev = () => this.props.$$$parent.setState({ stepNo: 2, systemProps: this._buildProps() })
-  _next = () => {
+  _testConnection = (call) => {
+    if (this.state.inTest) return
     let ps = this._buildProps(true)
     if (!ps) return
-    if (ps.dataDirectory) {
-      $.post(`${rb.baseUrl}/setup/test-directory?dir=${$encode(ps.dataDirectory)}`, (res) => {
-        if (res.error_code === 0) this.props.$$$parent.setState({ stepNo: 4, systemProps: ps })
-        else RbHighbar.create('无效数据目录')
+
+    this.setState({ inTest: true })
+    $.post(`${rb.baseUrl}/setup/test-cache`, JSON.stringify(ps), (res) => {
+      this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
+        () => typeof call === 'function' && call(ps, res))
+    })
+  }
+
+  _prev = () => this.props.$$$parent.setState({ stepNo: 2, cacheProps: this._buildProps() })
+  _next = () => {
+    if (this.state.cacheType === 'redis') {
+      this._testConnection((ps, res) => {
+        if (res.error_code === 0) this.props.$$$parent.setState({ stepNo: 4, cacheProps: ps })
       })
     } else {
-      this.props.$$$parent.setState({ stepNo: 4, systemProps: ps })
+      this.props.$$$parent.setState({ stepNo: 4, cacheProps: {} })
     }
   }
 }
@@ -260,12 +294,13 @@ class AdminConf extends DatabaseConf {
           <div className="col-sm-3 col-form-label text-sm-right">管理员邮箱</div>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" name="adminMail" value={this.state.adminMail || ''} onChange={this.handleValue} placeholder="(选填)" />
-            <div className="form-text">用于找回密码等重要操作，可在安装完成后填写</div>
+            <div className="form-text">用于找回密码等重要操作，也可在安装完成后填写</div>
           </div>
         </div>
       </form>
+      <div className="progress"><div className="progress-bar" style={{ width: '75%' }}></div></div>
       <div className="splash-footer">
-        {this.props.$$$parent.state.installType === 1 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>设置系统参数</button>}
+        {this.props.$$$parent.state.installType === 1 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>设置缓存</button>}
         {this.props.$$$parent.state.installType === 99 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>选择安装模式</button>}
         <div className="float-right">
           <button className="btn btn-primary" onClick={this._next}>完成安装</button>

@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.rebuild.server.Application" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -8,8 +9,6 @@
 	max-width: 680px;
 }
 .splash-footer {
-	border-top: 1px solid #eee;
-	margin-top: 10px;
 	padding-top: 20px;
 	padding-bottom: 15px;
 	text-align: left;
@@ -44,6 +43,12 @@
 	font-size: 48px;
 	color: #999;
 }
+.card-body .progress {
+    border-radius: 0;
+    height: 2px;
+    margin-top: 20px;
+    background-color: #eee;
+}
 </style>
 <title>REBUILD 安装程序</title>
 </head>
@@ -59,9 +64,11 @@
 					</div>
 				</div>
 				<div class="copyright">
-                    &copy; 2019 REBUILD
+                    &copy; 2020 REBUILD
                     &nbsp;·&nbsp;
-                    <a href="https://getrebuild.com/docs/admin/install" target="_blank">安装指南</a>
+                    版本 <%=Application.VER%>
+                    &nbsp;·&nbsp;
+                    <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">安装手册</a>
                 </div>
 			</div>
 		</div>

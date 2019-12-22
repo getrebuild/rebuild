@@ -32,7 +32,7 @@ public class StartupTest extends TestSupport {
 		LOG.warn("Initialize all beans ^_^");
 		Application.getApplicationContext().getBeansOfType(Object.class);
 		
-		double used[] = ServerStatus.getHeapMemoryUsed();
+		double[] used = ServerStatus.getHeapMemoryUsed();
 		LOG.warn("Memory Used : " + used[1] + " " + used[0]);
 	}
 }

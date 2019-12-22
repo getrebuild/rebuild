@@ -24,7 +24,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.helper.setup.InstallAfter;
+import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +42,7 @@ import java.io.IOException;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-24
  */
-public class RequestWatchHandler extends HandlerInterceptorAdapter implements InstallAfter {
+public class RequestWatchHandler extends HandlerInterceptorAdapter implements InstallState {
 
 	private static final Log LOG = LogFactory.getLog(RequestWatchHandler.class);
 	

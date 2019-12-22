@@ -19,10 +19,15 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.setup.InstallState;
+import com.rebuild.server.helper.setup.SetupException;
 import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.support.PropertiesLoaderUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -30,17 +35,23 @@ import java.util.Properties;
  * @author Zhao Fangfang
  * @since 1.0, 2013-7-7
  */
-public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
+public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer implements InstallState {
+
+	private Properties propsHold = null;
 
 	@Override
 	protected void loadProperties(Properties props) throws IOException {
 		super.loadProperties(props);
 		this.afterLoad(props);
+		setNullValue(StringUtils.EMPTY);
 	}
-	
-	private Properties propsHold = null;
-	
+
+    /**
+     * @param props
+     */
 	private void afterLoad(Properties props) {
+        props.putAll(fromInstallFile());
+
 		final Object[] keys = props.keySet().toArray(new Object[0]);
 		for (Object key : keys) {
 			String cleanKey = key.toString();
@@ -55,9 +66,9 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 			}
 			
 			// Overrides by command-line
-			String valInCL = System.getProperty(cleanKey);
-			if (StringUtils.isNotBlank(valInCL)) {
-				props.put(cleanKey, valInCL);
+			String viaCL = System.getProperty(cleanKey);
+			if (StringUtils.isNotBlank(viaCL)) {
+				props.put(cleanKey, viaCL);
 			}
 		}
 
@@ -68,14 +79,35 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer {
 			dbUrl = dbUrl.replace("3306", "4653");
 			props.put("db.url", dbUrl);
 		}
-		
+
 		propsHold = (Properties) props.clone();
-		
+
+        if (propsHold.getProperty("db.url").contains("jdbc:h2:")) {
+            Application.LOG.warn("Using QuickMode with H2 database!");
+        }
 		if (Application.devMode()) {
 			Application.LOG.info("System properties : " + propsHold);
 		}
 	}
-	
+
+    /**
+     * 从安装文件加载配置
+     *
+     * @return
+     * @see #INSTALL_FILE
+     */
+	private Properties fromInstallFile() {
+        File file = SysConfiguration.getFileOfData(INSTALL_FILE);
+        if (file.exists()) {
+            try {
+                return PropertiesLoaderUtils.loadProperties(new FileSystemResource(file));
+            } catch (IOException e) {
+                throw new SetupException(e);
+            }
+        }
+        return new Properties();
+    }
+
 	/**
 	 * 获取配置项
 	 * 
