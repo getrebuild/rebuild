@@ -19,26 +19,29 @@
 			<div class="row">
 				<div class="col-md-9 col-12">
 					<div class="card">
-						<div class="card-header card-header-divider">云存储</div>
+						<div class="card-header card-header-divider">
+                            云存储
+                            <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> 修改</a>
+                        </div>
 						<div class="card-body">
 							<h5><a class="cl-base" href="https://portal.qiniu.com/signup?utm_source=getrebuild.com&code=3letk048wdsnm" target="_blank" rel="noopener noreferrer">七牛云</a></h5>
 							<table class="table">
 							<tbody>
 								<tr>
 									<td width="40%">访问域名</td>
-									<td>${storageAccount == null ? "未配置" : storageAccount[3]}</td>
+									<td data-id="StorageURL">${storageAccount == null ? "未配置" : storageAccount[3]}</td>
 								</tr>
 								<tr>
 									<td>存储空间</td>
-									<td>${storageAccount == null ? "未配置" : storageAccount[2]}</td>
+									<td data-id="StorageBucket">${storageAccount == null ? "未配置" : storageAccount[2]}</td>
 								</tr>
 								<tr>
 									<td>秘钥 AK</td>
-									<td>${storageAccount == null ? "未配置" : storageAccount[0]}</td>
+									<td data-id="StorageApiKey">${storageAccount == null ? "未配置" : storageAccount[0]}</td>
 								</tr>
 								<tr>
 									<td>秘钥 SK</td>
-									<td>${storageAccount == null ? "未配置" : storageAccount[1]}</td>
+									<td data-id="StorageApiSecret">${storageAccount == null ? "未配置" : storageAccount[1]}</td>
 								</tr>
 							</tbody>
 							</table>
@@ -48,6 +51,10 @@
                                 <div class="message">七牛云存储账户未配置或配置有误，当前已启用本地文件存储</div>
                             </div>
 							</c:if>
+                            <div class="edit-footer">
+                                <button class="btn btn-link">取消</button>
+                                <button class="btn btn-primary">保存</button>
+                            </div>
 						</div>
 					</div>
 				</div>
@@ -58,5 +65,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/admin/syscfg.jsx" type="text/babel"></script>
 </body>
 </html>

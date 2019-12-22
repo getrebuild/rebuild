@@ -80,6 +80,10 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 			props.put("db.url", dbUrl);
 		}
 
+		// MUST NOT BE NULL
+        setIfEmpty(props, ConfigurableItem.CacheHost, "127.0.0.1");
+        setIfEmpty(props, ConfigurableItem.CachePort, "16379");
+
 		propsHold = (Properties) props.clone();
 
         if (propsHold.getProperty("db.url").contains("jdbc:h2:")) {
@@ -106,6 +110,17 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
             }
         }
         return new Properties();
+    }
+
+    /**
+     * @param props
+     * @param item
+     * @param defaultValue
+     */
+    private void setIfEmpty(Properties props, ConfigurableItem item, String defaultValue) {
+        if (StringUtils.isBlank(props.getProperty(item.name()))) {
+            props.put(item.name(), defaultValue);
+        }
     }
 
 	/**

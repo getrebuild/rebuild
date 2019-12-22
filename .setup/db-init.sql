@@ -1,1 +1,0 @@
--- The file has been moved to `src/main/resources/scripts/db-init.sql`

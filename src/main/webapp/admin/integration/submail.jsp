@@ -19,66 +19,65 @@
 			<div class="row">
 				<div class="col-md-9 col-12">
 					<div class="card">
-						<div class="card-header card-header-divider"><a class="cl-base" href="https://www.mysubmail.com/?utm_source=getrebuild.com" target="_blank" rel="noopener noreferrer">赛邮 SUBMAIL</a></div>
+						<div class="card-header card-header-divider">
+                            赛邮 SUBMAIL
+                            <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> 修改</a>
+                        </div>
 						<div class="card-body">
 							<h5>邮件服务</h5>
-							<c:choose>
-								<c:when test="${mailAccount != null}">
-									<table class="table">
-									<tbody>
-										<tr>
-											<td width="40%">APPID</td>
-											<td>${mailAccount[0]}</td>
-										</tr>
-										<tr>
-											<td>APPKEY</td>
-											<td>${mailAccount[1]}</td>
-										</tr>
-										<tr>
-											<td>发件人地址</td>
-											<td>${mailAccount[2]}</td>
-										</tr>
-										<tr>
-											<td>发件人名称</td>
-											<td>${mailAccount[3]}</td>
-										</tr>
-									</tbody>
-									</table>
-								</c:when>
-								<c:otherwise>
-									<div class="alert alert-danger alert-icon mt-6 mb-6">
-										<div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
-										<div class="message">邮件账号未配置，邮件相关功能不可用</div>
-									</div>
-								</c:otherwise>
-							</c:choose>
+                            <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td width="40%">APPID</td>
+                                    <td data-id="MailUser">${mailAccount == null ? "未配置" : mailAccount[0]}</td>
+                                </tr>
+                                <tr>
+                                    <td>APPKEY</td>
+                                    <td data-id="MailPassword">${mailAccount == null ? "未配置" : mailAccount[1]}</td>
+                                </tr>
+                                <tr>
+                                    <td>发件人地址</td>
+                                    <td data-id="MailAddr">${mailAccount == null ? "未配置" : mailAccount[2]}</td>
+                                </tr>
+                                <tr>
+                                    <td>发件人名称</td>
+                                    <td data-id="MailName">${mailAccount == null ? "未配置" : mailAccount[3]}</td>
+                                </tr>
+                            </tbody>
+                            </table>
+                            <c:if test="${mailAccount == null}">
+                            <div class="alert alert-danger alert-icon mt-6 mb-6">
+                                <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
+                                <div class="message">邮件账号未配置，邮件相关功能不可用</div>
+                            </div>
+                            </c:if>
 							<h5>短信服务</h5>
-							<c:choose>
-								<c:when test="${smsAccount != null}">
-									<table class="table">
-									<tbody>
-										<tr>
-											<td width="40%">APPID</td>
-											<td>${smsAccount[0]}</td>
-										</tr>
-										<tr>
-											<td>APPKEY</td>
-											<td>${smsAccount[1]}</td>
-										</tr>
-										<tr>
-											<td>短信签名</td>
-											<td>${smsAccount[2]}</td>
-										</tr>
-									</tbody>
-									</table>
-								</c:when>
-								<c:otherwise>
-									<div class="alert alert-danger alert-icon mt-6">
-										<div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
-										<div class="message">短信账号未配置，短信相关功能不可用</div>
-									</div>
-								</c:otherwise>
-							</c:choose>
+                            <table class="table">
+                            <tbody>
+                                <tr>
+                                    <td width="40%">APPID</td>
+                                    <td data-id="SmsUser">${smsAccount == null ? "未配置" : smsAccount[0]}</td>
+                                </tr>
+                                <tr>
+                                    <td>APPKEY</td>
+                                    <td data-id="SmsPassword">${smsAccount == null ? "未配置" : smsAccount[1]}</td>
+                                </tr>
+                                <tr>
+                                    <td>短信签名</td>
+                                    <td data-id="SmsSign">${smsAccount == null ? "未配置" : smsAccount[2]}</td>
+                                </tr>
+                            </tbody>
+                            </table>
+                            <c:if test="${smsAccount == null}">
+                            <div class="alert alert-danger alert-icon mt-6">
+                                <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
+                                <div class="message">短信账号未配置，短信相关功能不可用</div>
+                            </div>
+                            </c:if>
+                            <div class="edit-footer">
+                                <button class="btn btn-link">取消</button>
+                                <button class="btn btn-primary">保存</button>
+                            </div>
 						</div>
 					</div>
 				</div>
@@ -89,5 +88,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/admin/syscfg.jsx" type="text/babel"></script>
 </body>
 </html>

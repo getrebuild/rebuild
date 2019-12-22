@@ -258,7 +258,8 @@ public class Entity2Schema extends Field2Schema {
 	private boolean schema2Database(Entity entity) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
 		Table table = new Table(entity, dialect);
-		String[] ddls = table.generateDDL(false, false);
+		String[] ddls = table.generateDDL(false, false, false);
+
 		try {
 			Application.getSQLExecutor().executeBatch(ddls);
 		} catch (Throwable ex) {

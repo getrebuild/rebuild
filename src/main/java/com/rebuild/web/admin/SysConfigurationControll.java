@@ -18,19 +18,30 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.admin;
 
-import com.rebuild.server.Application;
+import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.ThrowableUtils;
+import cn.devezhao.commons.web.ServletUtils;
+import com.alibaba.fastjson.JSONObject;
+import com.qiniu.common.QiniuException;
+import com.qiniu.storage.BucketManager;
+import com.qiniu.util.Auth;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * 系统配置
@@ -51,6 +62,29 @@ public class SysConfigurationControll extends BasePageControll {
 		}
 		return mv;
 	}
+
+    @RequestMapping(value = "systems", method = RequestMethod.POST)
+    public void postSystems(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+
+        String dHomeURL = defaultIfBlank(data, ConfigurableItem.HomeURL);
+        if (!RegexUtils.isUrl(dHomeURL)) {
+            writeFailure(response, "无效主页地址/域名");
+            return;
+        }
+        String dRecycleBinKeepingDays = defaultIfBlank(data, ConfigurableItem.RecycleBinKeepingDays);
+        if (!NumberUtils.isNumber(dRecycleBinKeepingDays)) {
+            data.put(ConfigurableItem.RecycleBinKeepingDays.name(), ConfigurableItem.RecycleBinKeepingDays.getDefaultValue());
+        }
+
+        setValues(data);
+
+        // @see ServerListener
+        request.getServletContext().setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
+        request.getServletContext().setAttribute("homeUrl", SysConfiguration.get(ConfigurableItem.HomeURL));
+
+        writeSuccess(response);
+    }
 	
 	@RequestMapping("integration/storage")
 	public ModelAndView pageIntegrationStorage() {
@@ -60,25 +94,63 @@ public class SysConfigurationControll extends BasePageControll {
 		mv.getModel().put("storageStatus", QiniuCloud.instance().available());
 		return mv;
 	}
-	
-	@RequestMapping("integration/cache")
-	public ModelAndView pageIntegrationCache() {
-		ModelAndView mv = createModelAndView("/admin/integration/cache-redis.jsp");
-		mv.getModel().put("cacheAccount", 
-				starsAccount(SysConfiguration.getCacheAccount(), 2));
-		mv.getModel().put("cacheStatus", Application.getCommonCache().isUseRedis());
-		return mv;
-	}
+
+    @RequestMapping(value = "integration/storage", method = RequestMethod.POST)
+    public void postIntegrationStorage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+
+        String dStorageURL = defaultIfBlank(data, ConfigurableItem.StorageURL);
+        String dStorageBucket = defaultIfBlank(data, ConfigurableItem.StorageBucket);
+        String dStorageApiKey = defaultIfBlank(data, ConfigurableItem.StorageApiKey);
+        String dStorageApiSecret = defaultIfBlank(data, ConfigurableItem.StorageApiSecret);
+
+        if (dStorageURL.startsWith("//")) {
+            dStorageURL = "https:" + dStorageURL;
+        }
+        if (!RegexUtils.isUrl(dStorageURL)) {
+            writeFailure(response, "无效访问域名");
+            return;
+        }
+
+        try {
+            // Test
+            Auth auth = Auth.create(dStorageApiKey, dStorageApiSecret);
+            BucketManager bucketManager = new BucketManager(auth, QiniuCloud.CONFIGURATION);
+            bucketManager.getBucketInfo(dStorageBucket);
+
+            setValues(data);
+            writeSuccess(response);
+
+        } catch (QiniuException ex) {
+            writeFailure(response, "无效配置参数 : " + ex.response.error);
+        } catch (Exception ex) {
+            writeFailure(response, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+        }
+    }
 	
 	@RequestMapping("integration/submail")
 	public ModelAndView pageIntegrationSubmail() {
 		ModelAndView mv = createModelAndView("/admin/integration/submail.jsp");
-		mv.getModel().put("smsAccount", 
+		mv.getModel().put("smsAccount",
 				starsAccount(SysConfiguration.getSmsAccount(), 1));
 		mv.getModel().put("mailAccount", 
 				starsAccount(SysConfiguration.getMailAccount(), 1));
 		return mv;
 	}
+
+    @RequestMapping(value = "integration/submail", method = RequestMethod.POST)
+    public void postIntegrationSubmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+
+        String dMailAddr = defaultIfBlank(data, ConfigurableItem.MailAddr);
+        if (!RegexUtils.isEMail(dMailAddr)) {
+            writeFailure(response, "无效发件人地址");
+            return;
+        }
+
+        setValues(data);
+        writeSuccess(response);
+    }
 
 	@RequestMapping("systems/query-authority")
 	public void queryAuthority(HttpServletResponse response) throws IOException {
@@ -94,4 +166,19 @@ public class SysConfigurationControll extends BasePageControll {
 		}
 		return account;
 	}
+
+	private String defaultIfBlank(JSONObject data, ConfigurableItem item) {
+	    return StringUtils.defaultIfBlank(data.getString(item.name()), SysConfiguration.get(item));
+    }
+
+    private void setValues(JSONObject data) {
+        for (Map.Entry<String, Object> e : data.entrySet()) {
+            try {
+                ConfigurableItem item = ConfigurableItem.valueOf(e.getKey());
+                SysConfiguration.set(item, e.getValue());
+            } catch (Exception ex) {
+                LOG.error("Invalid item : " + e.getKey() + " = " + e.getValue());
+            }
+        }
+    }
 }

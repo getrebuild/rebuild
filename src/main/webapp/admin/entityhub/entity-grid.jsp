@@ -5,16 +5,45 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>实体管理</title>
 <style type="text/css">
-.card.entity{position:relative;margin-bottom:20px}
-.card.entity:hover{background-color:rgba(255,255,255,.7)}
-.card.entity .card-body{padding:12px 20px;color:#333;}
-.card.entity .card-body .float-left{width:30px;text-align:center;}
-.card.entity .icon{font-size:32px;color:#4285f4;}
-.card.entity .badge{position:absolute;top:11px;right:11px}
-.card.entity span{margin-top:2px;display:block;}
-#entityList{margin:0 -10px}
-#entityList>div{padding-left:10px;padding-right:10px}
-.card.ph{margin-left:10px;margin-top:0}
+.card.entity {
+    position: relative;
+    margin-bottom: 20px
+}
+.card.entity:hover {
+    background-color: rgba(255, 255, 255, .7)
+}
+.card.entity .card-body {
+    padding: 12px 20px;
+    color: #333;
+}
+.card.entity .card-body .float-left {
+    width: 30px;
+    text-align: center;
+}
+.card.entity .icon {
+    font-size: 32px;
+    color: #4285f4;
+}
+.card.entity .badge {
+    position: absolute;
+    top: 11px;
+    right: 11px
+}
+.card.entity span {
+    margin-top: 2px;
+    display: block;
+}
+#entityList {
+    margin: 0 -10px
+}
+#entityList > div {
+    padding-left: 10px;
+    padding-right: 10px
+}
+.card.ph {
+    margin-left: 10px;
+    margin-top: 0
+}
 </style>
 </head>
 <body>
@@ -26,7 +55,7 @@
 		<jsp:param value="entities" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
-		<div class="main-content container-fluid">
+		<div class="main-content container-fluid" style="padding-bottom:5px">
 			<div class="row" id="entityList">
 				<div class="card ph">
 					<div class="card-body">
