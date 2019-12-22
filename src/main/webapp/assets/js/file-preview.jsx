@@ -8,6 +8,8 @@ const TYPE_VIDEOS = ['.mp4', '.webm']
 // 点击遮罩关闭预览
 const hideOnClick = false
 
+const _SAFARI = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent)
+
 // eslint-disable-next-line no-unused-vars
 class RbPreview extends React.Component {
 
@@ -46,7 +48,7 @@ class RbPreview extends React.Component {
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }}>
+        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }} ref={(c) => this._previewBody = c}>
           {previewContent}
         </div>
       </div>
@@ -122,8 +124,9 @@ class RbPreview extends React.Component {
       }
     }
 
-    let that = this
+    const that = this
     $(document).unbind('keyup').keyup(function (event) { if (event.keyCode === 27) that.hide() })
+    if (_SAFARI) $(this._previewBody).find('>div').height($(window).height() - 60)
   }
 
   componentWillUnmount() {

@@ -32,7 +32,6 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
-import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
 import com.rebuild.server.service.CommonService;
@@ -72,7 +71,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.7.0";
+	public static final String VER = "1.8.0-dev";
 	
 	/** Logging for Global
 	 */
@@ -192,8 +191,7 @@ public final class Application {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");
-			Installer.checkInstall();
-
+			
 			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
 			new Application(ctx).init(at);
@@ -215,7 +213,6 @@ public final class Application {
 	 * 
 	 * @return
 	 */
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean serversReady() {
 		return serversReady;
 	}

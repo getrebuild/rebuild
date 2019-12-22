@@ -18,18 +18,25 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.setup;
 
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,16 +52,16 @@ import java.sql.SQLException;
  */
 @Controller
 @RequestMapping("/setup/")
-public class InstallControll extends BasePageControll {
+public class InstallControll extends BasePageControll implements InstallState {
 
     @RequestMapping("install")
     public ModelAndView pageIndex(HttpServletResponse response) throws IOException {
-        if (Application.serversReady()) {
+        if (Application.serversReady() && !Application.devMode()) {
             response.sendError(404);
             return null;
         }
 
-        ModelAndView mv = createModelAndView("/setup/install.jsp");
+        ModelAndView mv = new ModelAndView("/setup/install.jsp");
         mv.getModel().put("defaultDataDirectory", SysConfiguration.getFileOfData(null).getAbsolutePath().replace("\\", "/"));
         mv.getModel().put("defaultAppName", SysConfiguration.get(ConfigurableItem.AppName));
         mv.getModel().put("defaultHomeURL", SysConfiguration.get(ConfigurableItem.HomeURL));
@@ -64,8 +71,9 @@ public class InstallControll extends BasePageControll {
     @RequestMapping("test-connection")
     public void testConnection(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONObject dbProps = (JSONObject) ServletUtils.getRequestJson(request);
+        JSONObject props = JSONUtils.toJSONObject("databaseProps", dbProps);
 
-        try (Connection conn = new Installer(JSONUtils.toJSONObject("databaseProps", dbProps)).getConnection(null)) {
+        try (Connection conn = new Installer(props).getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
             String msg = String.format("连接成功 : %s %s", dmd.getDatabaseProductName(), dmd.getDatabaseProductVersion());
             writeSuccess(response, msg);
@@ -103,6 +111,25 @@ public class InstallControll extends BasePageControll {
             writeFailure(response);
         } else {
             writeSuccess(response, file.getAbsolutePath());
+        }
+    }
+
+    @RequestMapping("test-cache")
+    public void testCache(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject cacheProps = (JSONObject) ServletUtils.getRequestJson(request);
+
+        JedisPool pool = new JedisPool(new JedisPoolConfig(),
+                StringUtils.defaultIfBlank(cacheProps.getString("CacheHost"), "127.0.0.1"),
+                ObjectUtils.toInt(cacheProps.getString("CachePort"), 6379),
+                3000,
+                StringUtils.defaultIfBlank(cacheProps.getString("CachePassword"), null));
+        try (Jedis client = pool.getResource()) {
+            String info = client.info("server");
+            if (info.length() > 80) info = info.substring(0, 80) + "...";
+            pool.destroy();
+            writeSuccess(response, "连接成功 : " + info);
+        } catch (Exception ex) {
+            writeFailure(response, "连接失败 : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
     }
 

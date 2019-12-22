@@ -2,10 +2,13 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable no-unused-vars */
 
+const PAGE_SIZE = 40
+
 // ~ 文件列表
 class FilesList extends React.Component {
   state = { ...this.props }
   __lastEntry = 1
+  __pageNo = 1
 
   render() {
     return <div className="file-list">
@@ -27,6 +30,9 @@ class FilesList extends React.Component {
           <div className="info">{item.uploadBy[1]}</div>
         </div>
       })}
+      {this.state.currentLen >= PAGE_SIZE && <div className="text-center mt-3 mb-3">
+        <a href="#mores" onClick={(e) => { this.loadData(null, this.__pageNo + 1); e.preventDefault() }}>显示更多</a>
+      </div>}
       {(this.state.files && this.state.files.length === 0) && <div className="list-nodata pt-8 pb-8">
         <i className="zmdi zmdi-folder-outline"></i>
         <p>暂无相关文件</p>
@@ -48,10 +54,14 @@ class FilesList extends React.Component {
   }
 
   componentDidMount = () => this.loadData()
-  loadData(entry) {
+  loadData(entry, pageNo) {
     this.__lastEntry = entry = entry || this.__lastEntry
-    $.get(`${rb.baseUrl}/files/list-file?entry=${entry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}`, (res) => {
-      this.setState({ files: res.data || [] })
+    this.__pageNo = pageNo || 1
+    $.get(`${rb.baseUrl}/files/list-file?entry=${entry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`, (res) => {
+      let _current = res.data || []
+      let _files = this.__pageNo === 1 ? [] : this.state.files
+      _files = [].concat(_files, _current)
+      this.setState({ files: _files, currentLen: _current.length })
     })
   }
 

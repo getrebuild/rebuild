@@ -27,7 +27,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.TransactionManual;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,7 +70,7 @@ public class RecycleRestore {
     /**
      * 恢复数据
      *
-     * @param cascade 级联恢复
+     * @param cascade 恢复关联删除的数据
      * @return
      */
     public int restore(boolean cascade) {
@@ -84,9 +86,9 @@ public class RecycleRestore {
 
         final List<ID> recycleIds = new ArrayList<>();
 
-        final List<Record> willRestores = new ArrayList<>(toRecord(JSON.parseObject((String) main[0]), (ID) main[1]));
+        final List<Record> willRestores = new ArrayList<>(conver2Record(JSON.parseObject((String) main[0]), (ID) main[1]));
         if (willRestores.isEmpty()) {
-            throw new RebuildException("记录的所属实体不存在");
+            throw new RebuildException("记录实体已经不存在");
         }
         recycleIds.add((ID) main[2]);
 
@@ -96,7 +98,7 @@ public class RecycleRestore {
                     .setParameter(1, main[1])
                     .array();
             for (Object[] o : array) {
-                List<Record> records = toRecord(JSON.parseObject((String) o[0]), (ID) o[1]);
+                List<Record> records = conver2Record(JSON.parseObject((String) o[0]), (ID) o[1]);
                 if (!records.isEmpty()) {
                     willRestores.addAll(records);
                     recycleIds.add((ID) o[2]);
@@ -114,13 +116,12 @@ public class RecycleRestore {
                 String primaryName = r.getEntity().getPrimaryField().getName();
                 ID primaryId = (ID) r.removeValue(primaryName);
                 PM.saveInternal(r, primaryId);
+                restoreAttachment(PM, primaryId);
 
-                // 非明细才计数
-                if (r.getEntity().getMasterEntity() == null) {
-                    restored++;
-                }
+                restored++;
             }
 
+            // 从回收站删除
             PM.delete(recycleIds.toArray(new ID[0]));
 
             TransactionManual.commit(status);
@@ -133,11 +134,13 @@ public class RecycleRestore {
     }
 
     /**
+     * 转换成 Record 对象，返回多条是可能存在明细
+     *
      * @param content
      * @param recordId
      * @return
      */
-    private List<Record> toRecord(JSONObject content, ID recordId) {
+    private List<Record> conver2Record(JSONObject content, ID recordId) {
         if (!MetadataHelper.containsEntity(recordId.getEntityCode())) {
             return Collections.emptyList();
         }
@@ -161,5 +164,22 @@ public class RecycleRestore {
             }
         }
         return records;
+    }
+
+    /**
+     * @param PM
+     * @param recordId
+     * @see com.rebuild.server.service.base.AttachmentAwareObserver#onDelete(OperatingContext)
+     */
+    private void restoreAttachment(PersistManagerImpl PM, ID recordId) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select attachmentId from Attachment where relatedRecord = ?")
+                .setParameter(1, recordId)
+                .array();
+        for (Object[] o : array) {
+            Record u = EntityHelper.forUpdate((ID) o[0], null, false);
+            u.setBoolean(EntityHelper.IsDeleted, false);
+            PM.update(u);
+        }
     }
 }
