@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
+import cn.devezhao.commons.ThrowableUtils;
 import com.rebuild.server.Application;
 import org.apache.commons.io.IOUtils;
 import org.springframework.cache.CacheManager;
@@ -127,7 +128,8 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 			IOUtils.closeQuietly(jedis);
 			return true;
 		} catch (Exception ex) {
-			Application.LOG.warn("Acquisition J/Redis failed : " + ex.getLocalizedMessage() + " !!! Using backup ehcache for " + getClass());
+			Application.LOG.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
+                    + " !!! Using backup ehcache for " + getClass());
 		}
 		return false;
 	}

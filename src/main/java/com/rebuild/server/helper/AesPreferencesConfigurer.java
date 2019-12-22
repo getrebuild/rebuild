@@ -19,7 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.setup.InstallAfter;
+import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.server.helper.setup.SetupException;
 import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
@@ -35,7 +35,7 @@ import java.util.Properties;
  * @author Zhao Fangfang
  * @since 1.0, 2013-7-7
  */
-public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer implements InstallAfter {
+public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer implements InstallState {
 
 	private Properties propsHold = null;
 
@@ -43,6 +43,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 	protected void loadProperties(Properties props) throws IOException {
 		super.loadProperties(props);
 		this.afterLoad(props);
+		setNullValue(StringUtils.EMPTY);
 	}
 
     /**
@@ -78,7 +79,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 			dbUrl = dbUrl.replace("3306", "4653");
 			props.put("db.url", dbUrl);
 		}
-		
+
 		propsHold = (Properties) props.clone();
 
         if (propsHold.getProperty("db.url").contains("jdbc:h2:")) {
@@ -93,10 +94,9 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
      * 从安装文件加载配置
      *
      * @return
+     * @see #INSTALL_FILE
      */
 	private Properties fromInstallFile() {
-        if (Application.devMode()) return new Properties();  // for dev
-
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
         if (file.exists()) {
             try {

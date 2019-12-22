@@ -24,6 +24,7 @@ import cn.devezhao.commons.sql.builder.UpdateBuilder;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
+import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
@@ -55,7 +56,7 @@ import java.util.Properties;
  * @author devezhao
  * @since 2019/11/25
  */
-public class Installer implements InstallAfter {
+public class Installer implements InstallState {
 
     private static final Log LOG = LogFactory.getLog(Installer.class);
 
@@ -73,32 +74,35 @@ public class Installer implements InstallAfter {
 
     /**
      * 执行安装
+     *
+     * @throws Exception
      */
-    public void install() {
+    public void install() throws Exception {
         this.installDatabase();
         this.installAdmin();
 
         // Save install state (file)
         File dest = SysConfiguration.getFileOfData(INSTALL_FILE);
-        Properties dbProps = buildConnectionProps(null);
-        String passwd = (String) dbProps.remove("db.passwd");
-        if (StringUtils.isNotBlank(passwd)) {
-            dbProps.put("db.passwd.aes", AES.encrypt(passwd));
-        }
-        // redis
-        JSONObject cacheProps = installProps.getJSONObject("cacheProps");
+        Properties installProps = buildConnectionProps(null);
+        // Redis
+        JSONObject cacheProps = this.installProps.getJSONObject("cacheProps");
         if (cacheProps != null && !cacheProps.isEmpty()) {
-            passwd = cacheProps.getString("CachePassword");
-            if (StringUtils.isNotBlank(passwd)) {
-                cacheProps.put("CachePassword.aes", AES.encrypt(passwd));
-            }
-            dbProps.putAll(cacheProps);
+            installProps.put(ConfigurableItem.CacheHost.name(), cacheProps.getString(ConfigurableItem.CacheHost.name()));
+            installProps.put(ConfigurableItem.CachePort.name(), cacheProps.getString(ConfigurableItem.CachePort.name()));
+            installProps.put(ConfigurableItem.CachePassword.name(), cacheProps.getString(ConfigurableItem.CachePassword.name()));
         }
+        // 加密
+        String dbPasswd = (String) installProps.remove("db.passwd");
+        installProps.put("db.passwd.aes",
+                StringUtils.isBlank(dbPasswd) ? StringUtils.EMPTY : AES.encrypt(dbPasswd));
+        String cachePasswd = (String) installProps.remove(ConfigurableItem.CachePassword.name());
+        installProps.put(ConfigurableItem.CachePassword.name() + ".aes",
+                StringUtils.isBlank(cachePasswd) ? StringUtils.EMPTY : AES.encrypt(cachePasswd));
 
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
-                dbProps.store(os, "INSTALL FILE FOR REBUILD. DON'T DELETE OR MODIFY IT!!!");
+                installProps.store(os, "INSTALL FILE FOR REBUILD. DON'T DELETE OR MODIFY IT!!!");
                 LOG.warn("Stored install file : " + dest);
             }
 
@@ -106,8 +110,14 @@ public class Installer implements InstallAfter {
             throw new SetupException(e);
         }
 
-        // init again
-        new ServerListener().contextInitialized(null);
+        // initialize
+        try {
+            new ServerListener().contextInitialized(null);
+        } catch (Exception ex) {
+            // If error
+            FileUtils.deleteQuietly(dest);
+            throw ex;
+        }
 
         // Gen SN
         Lisence.SN();

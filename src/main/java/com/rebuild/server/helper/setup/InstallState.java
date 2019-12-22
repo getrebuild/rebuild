@@ -19,16 +19,17 @@ package com.rebuild.server.helper.setup;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SysConfiguration;
+
 import java.io.File;
 
 /**
- * 标记接口。
- * 此接口用于标示系统在未完成安装时子类不能随意调用（直接或间接）Application 中的关于 SPRING 相关的方法，调用前应该判断安装状态。
+ * 安装状态。
+ * 此接口主要用于警示子类在未安装时不能随意调用（直接或间接）Application 中关于 SPRING 的相关方法，调用前应该判断安装状态。
  *
  * @author devezhao
  * @since 2019/12/17
  */
-public interface InstallAfter {
+public interface InstallState {
 
     /**
      * 状态文件位置 ～/.rebuild/.rebuild

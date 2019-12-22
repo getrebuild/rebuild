@@ -19,12 +19,13 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web.setup;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.setup.InstallAfter;
+import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -51,7 +52,7 @@ import java.sql.SQLException;
  */
 @Controller
 @RequestMapping("/setup/")
-public class InstallControll extends BasePageControll implements InstallAfter {
+public class InstallControll extends BasePageControll implements InstallState {
 
     @RequestMapping("install")
     public ModelAndView pageIndex(HttpServletResponse response) throws IOException {
@@ -123,11 +124,12 @@ public class InstallControll extends BasePageControll implements InstallAfter {
                 3000,
                 StringUtils.defaultIfBlank(cacheProps.getString("CachePassword"), null));
         try (Jedis client = pool.getResource()) {
-            String info = client.info();
+            String info = client.info("server");
+            if (info.length() > 80) info = info.substring(0, 80) + "...";
             pool.destroy();
             writeSuccess(response, "连接成功 : " + info);
         } catch (Exception ex) {
-            writeFailure(response, "连接失败 : " + ex.getLocalizedMessage());
+            writeFailure(response, "连接失败 : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
     }
 

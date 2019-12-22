@@ -39,7 +39,6 @@ class Setup extends React.Component {
       cacheProps: this.state.cacheProps || {},
       adminProps: this.state.adminProps || {},
     }
-
     this.setState({ installState: 10 })
     $.post(`${rb.baseUrl}/setup/install-rebuild`, JSON.stringify(data), (res) => {
       this.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
@@ -63,7 +62,7 @@ class RbWelcome extends React.Component {
         <li>
           <a onClick={this._quick}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="可能存在问题" className="text-danger">实验功能</u></p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="本功能为实验功能，可能存在问题" className="text-danger">实验功能</u></p>
           </a>
         </li>
       </ul>
@@ -110,9 +109,10 @@ class DatabaseConf extends React.Component {
           </div>
         </div>
         <div className="form-group row">
-          <div className="col-sm-3 col-form-label text-sm-right">用户名</div>
+          <div className="col-sm-3 col-form-label text-sm-right">用户</div>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" name="dbUser" value={this.state.dbUser || ''} onChange={this.handleValue} placeholder="rebuild" />
+            <div className="form-text">请赋予用户除管理员权限以外的所有权限</div>
           </div>
         </div>
         <div className="form-group row">
@@ -122,6 +122,7 @@ class DatabaseConf extends React.Component {
           </div>
         </div>
       </form>
+      <div className="progress"><div className="progress-bar" style={{ width: '25%' }}></div></div>
       <div className="splash-footer">
         {this.state.testMessage && <div className={`alert ${this.state.testState ? 'alert-success' : 'alert-danger'} alert-icon alert-icon-border text-left alert-sm`}>
           <div className="icon"><span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span></div>
@@ -162,7 +163,7 @@ class DatabaseConf extends React.Component {
 
   _testConnection = (call) => {
     if (this.state.inTest) return
-    let ps = this._buildProps()
+    let ps = this._buildProps(true)
     if (!ps) return
 
     this.setState({ inTest: true })
@@ -190,7 +191,7 @@ class CacheConf extends DatabaseConf {
         <div className="form-group row">
           <div className="col-sm-3 col-form-label text-sm-right">缓存类型</div>
           <div className="col-sm-7">
-            <select className="form-control form-control-sm" name="cacheType" onChange={this.handleValue}>
+            <select className="form-control form-control-sm" name="cacheType" onChange={this.handleValue} defaultValue={this.props.cacheType}>
               <option value="ehcache">EHCACHE (内建)</option>
               <option value="redis">REDIS</option>
             </select>
@@ -213,11 +214,12 @@ class CacheConf extends DatabaseConf {
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">密码</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="CachePassword" value={this.state.CachePassword || ''} onChange={this.handleValue} placeholder="(选填)" />
+              <input type="text" className="form-control form-control-sm" name="CachePassword" value={this.state.CachePassword || ''} onChange={this.handleValue} placeholder="(无密码请留空)" />
             </div>
           </div>
         </React.Fragment>}
       </form>
+      <div className="progress"><div className="progress-bar" style={{ width: '50%' }}></div></div>
       <div className="splash-footer">
         {this.state.testMessage && <div className={`alert ${this.state.testState ? 'alert-success' : 'alert-danger'} alert-icon alert-icon-border text-left alert-sm`}>
           <div className="icon"><span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span></div>
@@ -241,6 +243,7 @@ class CacheConf extends DatabaseConf {
   _buildProps(check) {
     if (this.state.cacheType !== 'redis') return {}
     let ps = {
+      cacheType: 'redis',
       CacheHost: this.state.CacheHost || '127.0.0.1',
       CachePort: this.state.CachePort || 6379,
       CachePassword: this.state.CachePassword || ''
@@ -251,7 +254,7 @@ class CacheConf extends DatabaseConf {
 
   _testConnection = (call) => {
     if (this.state.inTest) return
-    let ps = this._buildProps()
+    let ps = this._buildProps(true)
     if (!ps) return
 
     this.setState({ inTest: true })
@@ -295,6 +298,7 @@ class AdminConf extends DatabaseConf {
           </div>
         </div>
       </form>
+      <div className="progress"><div className="progress-bar" style={{ width: '75%' }}></div></div>
       <div className="splash-footer">
         {this.props.$$$parent.state.installType === 1 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>设置缓存</button>}
         {this.props.$$$parent.state.installType === 99 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>选择安装模式</button>}
