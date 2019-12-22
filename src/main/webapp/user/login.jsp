@@ -118,6 +118,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/feeds/announcement.jsx" type="text/babel"></script>
 <script>
 useLiveWallpaper = <%=SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)%>
 </script>
@@ -176,6 +177,5 @@ $(document).ready(function() {
 	}
 })
 </script>
-<script src="${baseUrl}/assets/js/feeds/announcement.jsx" type="text/babel"></script>
 </body>
 </html>
