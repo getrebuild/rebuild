@@ -56,7 +56,7 @@ public class InstallControll extends BasePageControll implements InstallState {
 
     @RequestMapping("install")
     public ModelAndView pageIndex(HttpServletResponse response) throws IOException {
-        if (Application.serversReady()) {
+        if (Application.serversReady() && !Application.devMode()) {
             response.sendError(404);
             return null;
         }

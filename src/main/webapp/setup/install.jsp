@@ -64,7 +64,9 @@
 					</div>
 				</div>
 				<div class="copyright">
-                    &copy; 2020 REBUILD (<%=Application.VER%>)
+                    &copy; 2020 REBUILD
+                    &nbsp;·&nbsp;
+                    版本 <%=Application.VER%>
                     &nbsp;·&nbsp;
                     <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">安装手册</a>
                 </div>
