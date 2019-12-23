@@ -39,7 +39,11 @@ public class RBStore {
 	
 	private static final Log LOG = LogFactory.getLog(RBStore.class);
 
-	public static final String DATA_REPO = "https://raw.githubusercontent.com/getrebuild/rebuild-datas/master/";
+    /**
+     * RB 仓库地址。
+     * 源地址：https://raw.githubusercontent.com/getrebuild/rebuild-datas/master/
+     */
+	public static final String DATA_REPO = "https://cdn.jsdelivr.net/gh/getrebuild/rebuild-datas/";
 
 	/**
 	 * for Classification
@@ -79,7 +83,7 @@ public class RBStore {
 			CommonsUtils.readBinary(fileUrl, tmp);
 			String t2str = FileUtils.readFileToString(tmp, "utf-8");
 			d = (JSON) JSON.parse(t2str);
-			tmp.delete();
+			FileUtils.deleteQuietly(tmp);
 		} catch (Exception e) {
 			LOG.error("Fetch failure from URL : " + fileUrl, e);
 		}
