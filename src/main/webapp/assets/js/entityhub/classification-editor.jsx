@@ -155,9 +155,9 @@ class LevelBox extends React.Component {
       return
     }
 
-    let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?data_id=${wpc.id}&name=${name}`
+    let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?data_id=${wpc.id}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
-    else url += `&parent=${this.parentId}&level=${this.props.level}`
+    else url += `&name=${name}&parent=${this.parentId}&level=${this.props.level}`
     let isUnhide = null
     if (this.state.itemHide && this.state.itemUnhide) {
       url += '&hide=false'
