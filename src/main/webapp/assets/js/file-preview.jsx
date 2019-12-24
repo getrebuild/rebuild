@@ -124,7 +124,7 @@ class RbPreview extends React.Component {
 
     const that = this
     $(document).unbind('keyup').keyup(function (event) { if (event.keyCode === 27) that.hide() })
-    $(this._previewBody).find('>div').height($(window).height() - 60)
+    $(this._previewBody).find('>div:not(.unsupports)').height($(window).height() - 60)
   }
 
   componentWillUnmount() {
