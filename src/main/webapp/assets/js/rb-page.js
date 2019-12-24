@@ -4,14 +4,13 @@ $(function () {
   var t = $('.rb-scroller')
   t.perfectScrollbar()
 
-  var isIE = /msie|trident/gi.test(navigator.userAgent)
   $(window).resize(function () {
     $setTimeout(function () {
-      if (isIE) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+      if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
       t.perfectScrollbar('update')
     }, 500, 'rb-scroller-update')
   })
-  if (isIE) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+  if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
 
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()
