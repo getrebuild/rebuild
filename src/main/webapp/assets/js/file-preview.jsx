@@ -46,7 +46,7 @@ class RbPreview extends React.Component {
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }}>
+        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }} ref={(c) => this._previewBody = c}>
           {previewContent}
         </div>
       </div>
@@ -122,8 +122,9 @@ class RbPreview extends React.Component {
       }
     }
 
-    let that = this
+    const that = this
     $(document).unbind('keyup').keyup(function (event) { if (event.keyCode === 27) that.hide() })
+    $(this._previewBody).find('>div').height($(window).height() - 60)
   }
 
   componentWillUnmount() {

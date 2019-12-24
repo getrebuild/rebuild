@@ -40,7 +40,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 <script src="${baseUrl}/assets/lib/jquery.min.js"></script>
 <script>
 if (self != top) $('.btn-secondary').remove()
-if (location.href.indexOf('unsupported-browser') > -1) $('#error').text('<%=Languages.lang("UnsupportIE10Tip")%>')
+if (location.href.indexOf('unsupported-browser') > -1) $('#error').html('<%=Languages.lang("UnsupportIE10Tip")%>')
 </script>
 </body>
 </html>

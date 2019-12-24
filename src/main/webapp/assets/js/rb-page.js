@@ -3,16 +3,15 @@
 $(function () {
   var t = $('.rb-scroller')
   t.perfectScrollbar()
+
+  var isIE = /msie|trident/gi.test(navigator.userAgent)
   $(window).resize(function () {
     $setTimeout(function () {
-      if (window.lessIE11) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+      if (isIE) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
       t.perfectScrollbar('update')
     }, 500, 'rb-scroller-update')
   })
-  if (window.lessIE11) {
-    $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
-    $('html').addClass('ie10')
-  }
+  if (isIE) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
 
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()

@@ -9,7 +9,7 @@
 <script src="${baseUrl}/assets/lib/qiniu.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/select2.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
-<script src="${baseUrl}/assets/lib/react/babel.js?v=7.6.4"></script>
+<script src="${baseUrl}/assets/lib/react/babel.js?v=6.26.0"></script>
 <script src="${baseUrl}/assets/lib/react/react.development.js?v=16.10.2"></script>
 <script src="${baseUrl}/assets/lib/react/react-dom.development.js?v=16.10.2"></script>
 <script src="${baseUrl}/language/bundle?v=1.7.0"></script>

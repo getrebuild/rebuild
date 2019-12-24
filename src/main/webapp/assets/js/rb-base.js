@@ -311,7 +311,7 @@ var $same = function (a, b) {
  */
 var $empty = function (a) {
   if (a === undefined || a === null || a === '') return true
-  let type = $.type(a)
+  var type = $.type(a)
   if (type === 'array' && a.length === 0) return true
   else if (type === 'object' && Object.keys(a).length === 0) return true
   else return false

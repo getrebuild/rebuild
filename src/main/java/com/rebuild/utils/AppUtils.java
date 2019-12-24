@@ -151,15 +151,15 @@ public class AppUtils {
 	}
 	
 	/**
-	 * 是否低于 IE11
-	 * 
+	 * 是否 IE，不包括 EDGE。前端无法通过 <!--[if IE]> ... <![endif]--> 判断，因为 IE10 开始就不识别了
+	 * https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/hh801214(v=vs.85)?redirectedfrom=MSDN
+	 *
 	 * @param request
 	 * @return
 	 */
-	public static boolean isLessIE11(HttpServletRequest request) {
-		String UA = request.getHeader("user-agent").toUpperCase();
-		return UA.contains("MSIE") &&
-				(UA.contains("MSIE 6") || UA.contains("MSIE 7") || UA.contains("MSIE 8") || UA.contains("MSIE 9") || UA.contains("MSIE 10"));
+	public static boolean isIE(HttpServletRequest request) {
+		String UA = request.getHeader("user-agent").toLowerCase();
+		return UA.contains("msie") || UA.contains("trident");
 	}
 
 	/**
