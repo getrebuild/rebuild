@@ -28,7 +28,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 				<div class="error-number mb-0"><i class="zmdi zmdi-alert-circle text-primary"></i></div>
 				<div class="error-description" id="error"><%=errorMsg%></div>
 				<div class="error-goback-button">
-					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home"><%=Languages.lang("ReturnHome")%></a>
+					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home" id="goHome"><%=Languages.lang("ReturnHome")%></a>
 					<div class="mt-4">
 						<a href="https://getrebuild.com/report-issue?title=error-40x" target="_blank"><%=Languages.lang("ReportIssue")%></a>
 					</div>
@@ -37,10 +37,9 @@ if (ServletUtils.isAjaxRequest(request)) {
 		</div>
 	</div>
 </div>
-<script src="${baseUrl}/assets/lib/jquery.min.js"></script>
 <script>
-if (self != top) $('.btn-secondary').remove()
-if (location.href.indexOf('unsupported-browser') > -1) $('#error').text('<%=Languages.lang("UnsupportIE10Tip")%>')
+if (self != top) { var btn = document.getElementById('goHome'); btn.parentNode.removeChild(btn) }
+if (location.href.indexOf('unsupported-browser') > -1) document.getElementById('error').innerHTML = '<%=Languages.lang("UnsupportIE10Tip")%>'
 </script>
 </body>
 </html>

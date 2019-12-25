@@ -210,7 +210,7 @@ class AdvFilter extends React.Component {
   }
 }
 
-const OP_TYPE = { LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '...天前', BFM: '...月前', AFD: '...天后', AFM: '...月后', RED: '最近...天', REM: '最近...月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门', YTA: '昨天', TDA: '今天', TTA: '明天' }
+const OP_TYPE = { LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '...天前', BFM: '...月前', AFD: '...天后', AFM: '...月后', RED: '最近...天', REM: '最近...月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门', YTA: '昨天', TDA: '今天', TTA: '明天', GE: '大于等于', LE: '小于等于' }
 const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA']
 const PICKLIST_CACHE = {}
@@ -260,7 +260,7 @@ class FilterItem extends React.Component {
     const fieldType = this.state.type
     let op = ['LK', 'NLK', 'EQ', 'NEQ']
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
-      op = ['GT', 'LT', 'BW', 'EQ']
+      op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
       op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {

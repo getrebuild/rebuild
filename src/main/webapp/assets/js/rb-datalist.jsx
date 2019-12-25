@@ -344,8 +344,15 @@ const CellRenders = {
     this.__renders[type] = func
   },
 
-  clickView(v) {
+  clickView(v, e) {
     RbViewModal.create({ id: v.id, entity: v.entity })
+    e && $stopEvent(e)
+    return false
+  },
+
+  clickPreview(v, idx, e) {
+    RbPreview.create(v, idx)
+    e && $stopEvent(e)
     return false
   },
 
@@ -370,7 +377,7 @@ const CellRenders = {
 
 CellRenders.addRender('$NAME$', function (v, s, k) {
   return <td key={k}><div style={s}>
-    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)} className="column-main">{v.text}</a>
+    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)} className="column-main">{v.text}</a>
   </div></td>
 })
 
@@ -382,7 +389,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
         if (idx > 2) return null
         let imgUrl = rb.baseUrl + '/filex/img/' + item
         let imgName = $fileCutName(item)
-        return <a key={'k-' + item} title={imgName} onClick={() => RbPreview.create(v, idx)}><img alt="图片" src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+        return <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}><img alt="图片" src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
       })}</div></td>
 })
 
@@ -394,7 +401,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
         {v.map((item, idx) => {
           if (idx > 0) return null
           let fileName = $fileCutName(item)
-          return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={() => RbPreview.create(item)}>{fileName}</a></li>
+          return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>{fileName}</a></li>
         })}
       </ul>
     </div></td>
@@ -402,22 +409,22 @@ CellRenders.addRender('FILE', function (v, s, k) {
 
 CellRenders.addRender('REFERENCE', function (v, s, k) {
   return <td key={k}><div style={s}>
-    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={() => CellRenders.clickView(v)}>{v.text}</a>
+    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)}>{v.text}</a>
   </div></td>
 })
 
 CellRenders.addRender('URL', function (v, s, k) {
   return <td key={k}><div style={s}>
-    <a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer">{v}</a>
+    <a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>{v}</a>
   </div></td>
 })
 
 CellRenders.addRender('EMAIL', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url">{v}</a></div></td>
+  return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
 })
 
 CellRenders.addRender('PHONE', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'tel:' + v} className="column-url">{v}</a></div></td>
+  return <td key={k}><div style={s}><a href={'tel:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
 })
 
 const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }

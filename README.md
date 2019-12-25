@@ -1,4 +1,3 @@
-[![codebeat](https://codebeat.co/badges/fbd559f6-30bb-42e7-bd0f-2568c637f104)](https://codebeat.co/projects/github-com-getrebuild-rebuild-master)
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
 [![Build Status](https://travis-ci.org/getrebuild/rebuild.svg?branch=master)](https://travis-ci.org/getrebuild/rebuild)

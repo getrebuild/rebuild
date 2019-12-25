@@ -123,7 +123,7 @@ public class ClassificationService extends ConfigurationService implements Admin
 		ID parent = record.getID("parent");
 		if (parent == null && record.getPrimary() != null) {
 			Object[] o = Application.createQueryNoFilter(
-					"select parent.fullName from ClassificationData where itemId = ?")
+					"select parent from ClassificationData where itemId = ?")
 					.setParameter(1, record.getPrimary())
 					.unique();
 			parent = o == null ? null : (ID) o[0];
