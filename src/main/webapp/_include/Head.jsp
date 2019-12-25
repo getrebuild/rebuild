@@ -29,10 +29,7 @@ if (currentUser != null) {
 <meta name="rb.isAdminUser" content="true">
 <meta name="rb.isAdminVerified" content="<%=AppUtils.isAdminVerified(request)%>">
 <%}}%>
-<%if (AppUtils.isLessIE11(request)){%>
-<script>window.lessIE11 = true</script>
+<%if (AppUtils.isIE(request)) {%>
 <script src="${baseUrl}/assets/lib/react/polyfill.min.js?v=7.6.0"></script>
-<!--[if lt IE 10]>
-<script>location.href='${baseUrl}/error/unsupported-browser'</script>
-<![endif]-->
+<!--[if lt IE 10]><script>location.href='${baseUrl}/error/unsupported-browser'</script><![endif]-->
 <%}%>

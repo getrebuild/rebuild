@@ -32,7 +32,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 					<pre><%=StringEscapeUtils.escapeHtml(errorMsg)%></pre>
 				</div>
 				<div class="error-goback-button">
-					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home"><%=Languages.lang("ReturnHome")%></a>
+					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home" id="goHome"><%=Languages.lang("ReturnHome")%></a>
 					<a class="btn btn-xl btn-space btn-primary" href="javascript:;" onclick="location.reload()"><%=Languages.lang("Retry")%></a>
 					<div class="mt-4">
 						<a href="https://getrebuild.com/report-issue?title=error-500" target="_blank"><%=Languages.lang("ReportIssue")%></a>
@@ -42,9 +42,8 @@ if (ServletUtils.isAjaxRequest(request)) {
 		</div>
 	</div>
 </div>
-<script src="${baseUrl}/assets/lib/jquery.min.js"></script>
 <script>
-if (self != top) $('.btn-secondary').remove()
+if (self != top) { var btn = document.getElementById('goHome'); btn.parentNode.removeChild(btn) }
 </script>
 </body>
 </html>

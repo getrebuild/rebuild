@@ -253,9 +253,13 @@ public class ReferenceSearch extends BaseControll {
 			}
 
 			String label;
-			if (nameValue == null || StringUtils.isBlank(nameValue.toString()) || nameField == null) {
-				label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
-			} else {
+			if (nameField == null) {
+                if (nameValue == null || StringUtils.isBlank(nameValue.toString())) {
+                    label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
+                } else {
+                    label = nameValue.toString();
+                }
+            } else {
 				label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField, true);
 			}
 			

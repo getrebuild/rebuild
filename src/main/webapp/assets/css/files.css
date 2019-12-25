@@ -1,7 +1,6 @@
 .file-header {
-  position: sticky;
-  top: 61px;
   z-index: 1;
+  overflow: hidden;
 }
 
 .file-header .file-path {

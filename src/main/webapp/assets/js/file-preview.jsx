@@ -46,7 +46,7 @@ class RbPreview extends React.Component {
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }}>
+        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }} ref={(c) => this._previewBody = c}>
           {previewContent}
         </div>
       </div>
@@ -55,7 +55,7 @@ class RbPreview extends React.Component {
 
   renderImgs() {
     return (<React.Fragment>
-      <div className="img-zoom">
+      <div className="img-zoom fp-content">
         {!this.state.imgRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
         <img className={!this.state.imgRendered ? 'hide' : ''}
           src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
@@ -71,7 +71,7 @@ class RbPreview extends React.Component {
   }
 
   renderDoc() {
-    return (<div className="container">
+    return (<div className="container fp-content">
       <div className="iframe" onClick={this.__stopEvent}>
         {!this.state.docRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
         <iframe className={!this.state.docRendered ? 'hide' : ''}
@@ -82,7 +82,7 @@ class RbPreview extends React.Component {
   }
 
   renderAudio() {
-    return (<div className="container">
+    return (<div className="container fp-content">
       <div className="audio must-center" onClick={this.__stopEvent}>
         <audio src={this.__buildAbsoluteUrl()} controls>您的浏览器不支持此功能</audio>
       </div>
@@ -90,7 +90,7 @@ class RbPreview extends React.Component {
   }
 
   renderVideo() {
-    return (<div className="container">
+    return (<div className="container fp-content">
       <div className="video must-center" onClick={this.__stopEvent}>
         <video src={this.__buildAbsoluteUrl()} height="500" controls>您的浏览器不支持此功能</video>
       </div>
@@ -122,8 +122,9 @@ class RbPreview extends React.Component {
       }
     }
 
-    let that = this
+    const that = this
     $(document).unbind('keyup').keyup(function (event) { if (event.keyCode === 27) that.hide() })
+    $(this._previewBody).find('>div.fp-content').height($(window).height() - 60)
   }
 
   componentWillUnmount() {
@@ -166,7 +167,7 @@ class RbPreview extends React.Component {
     if (ci + 1 >= this.props.urls.length) ci = -1
     this.setState({ currentIndex: ci + 1, imgRendered: false })
   }
-  __stopEvent = (e) => e.stopPropagation()
+  __stopEvent = (e) => e && e.stopPropagation()
 
   hide = () => {
     if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
