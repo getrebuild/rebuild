@@ -43,7 +43,8 @@
 						<li class="breadcrumb-item active">全部附件</li>
 					</ol>
 				</div>
-				<div class="file-operator row">
+				<div class="file-operator">
+					<div class="row">
 					<div class="col-lg-6 col-12">
 						<div class="input-group input-search">
 							<input class="form-control" type="text" placeholder="搜索 ..." maxlength="40">
@@ -59,6 +60,7 @@
 							</div>
 						</div>
 					</div>
+				</div>
 				</div>
 			</div>
 			<div class="file-viewport">
