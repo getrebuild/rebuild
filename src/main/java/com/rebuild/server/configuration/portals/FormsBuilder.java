@@ -228,7 +228,7 @@ public class FormsBuilder extends FormsManager {
 
 			boolean triggersReadonly = autoReadonlyByTriggers.contains(fieldName);
 			// 不可更新字段
-			if ((data != null && !fieldMeta.isUpdatable()) || triggersReadonly) {
+			if (!fieldMeta.isUpdatable() || triggersReadonly) {
 				el.put("readonly", true);
 			}
 
