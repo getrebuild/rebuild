@@ -28,6 +28,7 @@ import com.qiniu.util.Auth;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.Lisence;
 import com.rebuild.server.helper.QiniuCloud;
+import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.web.BasePageControll;
@@ -150,6 +151,48 @@ public class SysConfigurationControll extends BasePageControll {
 
         setValues(data);
         writeSuccess(response);
+    }
+
+    @RequestMapping(value = "integration/submail/test", method = RequestMethod.POST)
+    public void testSubmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+	    String type = getParameterNotNull(request, "type");
+	    String receiver = getParameterNotNull(request, "receiver");
+
+	    String sent = null;
+	    if ("SMS".equalsIgnoreCase(type)) {
+	        if (!RegexUtils.isCNMobile(receiver)) {
+                writeFailure(response, "无效接收手机");
+                return;
+            }
+
+	        String[] specAccount = new String[] {
+                    data.getString("SmsUser"), data.getString("SmsPassword"),
+                    data.getString("SmsSign")
+            };
+	        if (specAccount[1].contains("**********")) specAccount[1] = SysConfiguration.get(ConfigurableItem.SmsPassword);
+
+            sent = SMSender.sendSMS(receiver, "收到此消息说明你的短信服务配置正确", specAccount);
+        } else if ("EMAIL".equalsIgnoreCase(type)) {
+            if (!RegexUtils.isEMail(receiver)) {
+                writeFailure(response, "无效接收邮箱");
+                return;
+            }
+
+            String[] specAccount = new String[] {
+                    data.getString("MailUser"), data.getString("MailPassword"),
+                    data.getString("MailAddr"), data.getString("MailName")
+            };
+            if (specAccount[1].contains("**********")) specAccount[1] = SysConfiguration.get(ConfigurableItem.MailPassword);
+
+            sent = SMSender.sendMail(receiver, "测试邮件", "收到此消息说明你的邮件服务配置正确", true, specAccount);
+        }
+
+	    if (sent != null) {
+	        writeSuccess(response, sent);
+        } else {
+            writeFailure(response, "测试发送失败，请检查你的配置");
+        }
     }
 
 	@RequestMapping("systems/query-authority")
