@@ -43,7 +43,8 @@
 						<li class="breadcrumb-item active">全部文档</li>
 					</ol>
 				</div>
-				<div class="file-operator row">
+				<div class="file-operator">
+					<div class="row">
 					<div class="col-lg-6 col-12">
 						<div class="input-group input-search">
 							<input class="form-control" type="text" placeholder="搜索 ..." maxlength="40">
@@ -68,6 +69,7 @@
 								<a class="dropdown-item" data-sort="older">最早上传</a>
 							</div>
 						</div>
+					</div>
 					</div>
 				</div>
 			</div>
