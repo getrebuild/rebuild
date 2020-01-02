@@ -3117,6 +3117,14 @@ a.icon-link>.zmdi {
     display: block;
 }
 
+.syscfg .show-on-edit {
+    display: none;
+}
+
+.syscfg.edit .show-on-edit {
+    display: table-row
+}
+
 .announcement-wrapper>div {
     margin: 0;
     border-radius: 0;
