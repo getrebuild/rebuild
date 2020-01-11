@@ -65,7 +65,8 @@ public class StateManager {
         final String cKey = "STATECLASS-" + stateClass;
         JSONArray options = (JSONArray) Application.getCommonCache().getx(cKey);
         if (options != null) {
-            return options;
+            // 使用副本
+            return JSON.parseArray(options.toJSONString());
         }
 
         Class<?> state = StateHelper.getSatetClass(stateClass);
