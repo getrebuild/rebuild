@@ -1858,8 +1858,6 @@ form.dropzone {
     cursor: default;
 }
 
-form.dropzone:hover {}
-
 form.dropzone .icon {
     background-color: #e6e6e6;
     border-radius: 50%;

@@ -64,7 +64,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
               <div className="col-5">
                 <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
-                  <div className="form-control-plaintext FORMULA" onClick={() => renderRbcomp(<FormulaCalc fields={this.state.sourceFields} />)}>计算公式</div>
+                  <div className="form-control-plaintext formula" ref={(c) => this._$formula = c} onClick={this.showFormula}></div>
                   <p>计算公式</p>
                 </div>
                 <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
@@ -167,6 +167,11 @@ class ContentFieldAggregation extends ActionContentSpec {
     return '[' + field.toUpperCase() + ']'
   }
 
+  showFormula = () => {
+    renderRbcomp(<FormulaCalc fields={this.state.sourceFields}
+      call={(flags) => $(this._$formula).text(flags)} />)
+  }
+
   addItem() {
     let tf = $(this._targetField).val()
     let sf = $(this._sourceField).val()
@@ -232,32 +237,53 @@ class FormulaCalc extends RbAlert {
   }
 
   renderContent() {
-    return (
-      <div className="row formula-calc">
+    return <div className="formula-calc">
+      <div className="form-control-plaintext formula mb-2" ref={(c) => this._$formula = c}></div>
+      <div className="row">
         <div className="col-6">
-          <ul className="list-unstyled fields">
-            {this.props.fields.map((item) => {
-              return <li key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item[1]}</a></li>
-            })}
-          </ul>
+          <div className="fields rb-scroller" ref={(c) => this._$fields = c}>
+            <ul className="list-unstyled mb-0">
+              {this.props.fields.map((item) => {
+                return <li key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item[1]}</a></li>
+              })}
+            </ul>
+          </div>
         </div>
-        <div className="col-6">
-          <ul className="list-unstyled numbers">
-            {['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0].map((item) => {
+        <div className="col-6 pl-0">
+          <ul className="list-unstyled numbers mb-0">
+            {['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', '回退', '清空'].map((item) => {
               return <li className="list-inline-item" key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item}</a></li>
             })}
+            <li className="list-inline-item"><a onClick={() => this.confirm()} className="confirm">确定</a></li>
           </ul>
         </div>
       </div>
-    )
+    </div>
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._$fields).perfectScrollbar()
   }
 
   handleInput(v) {
-    console.log(v)
+    if (typeof v === 'object') {
+      $(`<i data-flag="${v[0]}">{${v[1]}}</i>`).appendTo(this._$formula)
+    } else if (v === '回退') {
+      $(this._$formula).find('i:last').remove()
+    } else if (v === '清空') {
+      $(this._$formula).empty()
+    } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
+      $(`<i class="flag" data-flag="${v}">${v}</em>`).appendTo(this._$formula)
+    } else {
+      $(`<i data-flag="${v}">${v}</i>`).appendTo(this._$formula)
+    }
   }
 
-  confirm = () => {
-    typeof this.props.call === 'function' && this.props.call(this.state || {})
+  confirm() {
+    let flags = []
+    $(this._$formula).find('i').each((item) => flags.push(item))
+    typeof this.props.call === 'function' && this.props.call(flags)
     this.hide()
   }
 }
