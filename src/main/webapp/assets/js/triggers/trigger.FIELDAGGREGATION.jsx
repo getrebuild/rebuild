@@ -1,11 +1,13 @@
-const CALC_MODES = { 'SUM': '求和', 'COuNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小' }
+const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
 
 // ~~ 数据聚合
 // eslint-disable-next-line no-undef
 class ContentFieldAggregation extends ActionContentSpec {
+
   constructor(props) {
     super(props)
   }
+
   render() {
     return <div className="field-aggregation">
       <form className="simple">
@@ -30,13 +32,13 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="items">
               {(!this.state.items || this.state.items.length === 0) ? null : this.state.items.map((item) => {
                 return (<div key={'item-' + item.targetField}><div className="row">
-                  <div className="col-5"><span className="badge badge-warning">{this.__getFieldLabel(this.state.targetFields, item.targetField)}</span></div>
+                  <div className="col-5"><span className="badge badge-warning">{this.getFieldLabel(this.state.targetFields, item.targetField)}</span></div>
                   <div className="col-2">
                     <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
                     <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
                   </div>
                   <div className="col-5">
-                    <span className="badge badge-warning">{this.__getFieldLabel(this.state.sourceFields, item.sourceField)}</span>
+                    <span className="badge badge-warning">{this.getFieldLabel(this.state.sourceFields, item.sourceField)}</span>
                     <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
                   </div>
                 </div></div>)
@@ -61,12 +63,18 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <p>聚合方式</p>
               </div>
               <div className="col-5">
-                <select className="form-control form-control-sm" ref={(c) => this._sourceField = c}>
-                  {(this.state.sourceFields || []).map((item) => {
-                    return <option key={'sf-' + item[0]} value={item[0]}>{item[1]}</option>
-                  })}
-                </select>
-                <p>源字段</p>
+                <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
+                  <div className="form-control-plaintext FORMULA" onClick={() => renderRbcomp(<FormulaCalc fields={this.state.sourceFields} />)}>计算公式</div>
+                  <p>计算公式</p>
+                </div>
+                <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
+                  <select className="form-control form-control-sm" ref={(c) => this._sourceField = c}>
+                    {(this.state.sourceFields || []).map((item) => {
+                      return <option key={'sf-' + item[0]} value={item[0]}>{item[1]}</option>
+                    })}
+                  </select>
+                  <p>源字段</p>
+                </div>
               </div>
             </div>
             <div className="mt-1">
@@ -101,9 +109,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         let s2te = $(this._targetEntity).select2({ placeholder: '选择聚合目标实体' })
-          .on('change', () => {
-            this.__changeTargetEntity()
-          })
+          .on('change', () => this.changeTargetEntity())
         s2te.trigger('change')
 
         if (this.props.content && this.props.content.targetEntity) {
@@ -123,7 +129,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     }
   }
 
-  __changeTargetEntity() {
+  changeTargetEntity() {
     // 清空现有规则
     this.setState({ items: [] })
 
@@ -138,6 +144,7 @@ class ContentFieldAggregation extends ActionContentSpec {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           let s2sf = $(this._sourceField).select2({ placeholder: '选择源字段' })
           let s2cm = $(this._calcMode).select2({ placeholder: '选择聚合方式' })
+            .on('change', (e) => this.setState({ calcMode: e.target.value }))
           let s2tf = $(this._targetField).select2({ placeholder: '选择目标字段' })
           this.__select2.push(s2sf)
           this.__select2.push(s2cm)
@@ -150,7 +157,8 @@ class ContentFieldAggregation extends ActionContentSpec {
       }
     })
   }
-  __getFieldLabel(list, field) {
+
+  getFieldLabel(list, field) {
     for (let i = 0; i < list.length; i++) {
       if (list[i][0] === field) {
         return list[i][1]
@@ -179,6 +187,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       this.setState({ items: items })
     }
   }
+
   delItem(targetField) {
     let items = (this.state.items || []).filter((item) => {
       return item.targetField !== targetField
@@ -206,10 +215,50 @@ class ContentFieldAggregation extends ActionContentSpec {
       filter={that._advFilter__data}
       confirm={that._saveAdvFilter} />, null, function () { that._advFilter = this })
   }
+
   _saveAdvFilter = (filter) => {
     this._advFilter__data = filter
     let num = filter && filter.items ? filter.items.length : 0
     this.setState({ dataFilterItems: num })
+  }
+}
+
+// ~公式计算器
+class FormulaCalc extends RbAlert {
+
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  renderContent() {
+    return (
+      <div className="row formula-calc">
+        <div className="col-6">
+          <ul className="list-unstyled fields">
+            {this.props.fields.map((item) => {
+              return <li key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item[1]}</a></li>
+            })}
+          </ul>
+        </div>
+        <div className="col-6">
+          <ul className="list-unstyled numbers">
+            {['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0].map((item) => {
+              return <li className="list-inline-item" key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item}</a></li>
+            })}
+          </ul>
+        </div>
+      </div>
+    )
+  }
+
+  handleInput(v) {
+    console.log(v)
+  }
+
+  confirm = () => {
+    typeof this.props.call === 'function' && this.props.call(this.state || {})
+    this.hide()
   }
 }
 

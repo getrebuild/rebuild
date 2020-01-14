@@ -108,6 +108,52 @@
   color: #222;
 }
 
+.field-aggregation .form-control-plaintext.FORMULA {
+  border: 1px dotted #4c8bf5 !important;
+  border-radius: 2px;
+  background-color: #fff;
+  padding: 9px 10px;
+  height: 37px !important;
+  cursor: pointer;
+}
+
+.formula-calc ul li {
+  width: 23%;
+  display: inline-block;
+  font-size: 0;
+  padding: 0;
+  margin: 1% !important;
+}
+
+.formula-calc ul li>a {
+  display: inline-block;
+  width: 100%;
+  padding: 5px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #eee;
+  border-radius: 2px;
+  font-size: 1rem;
+}
+
+.formula-calc ul li>a:hover {
+  background-color: #ccc;
+}
+
+.formula-calc ul.fields li {
+  width: 100%;
+}
+
+.formula-calc ul.fields li>a {
+  font-weight: normal;
+  text-align: left;
+  padding-left: 10px;
+}
+
+.field-aggregation .form-control-plaintext.FORMULA:hover {
+  opacity: .8;
+}
+
 .auto-assign .select2-selection__rendered,
 .auto-share .select2-selection__rendered {
   display: block !important;

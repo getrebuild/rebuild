@@ -54,6 +54,11 @@ public class FieldAggregation implements TriggerAction {
 	
 	private static final Log LOG = LogFactory.getLog(FieldAggregation.class);
 
+	/**
+	 * 归集到自己
+	 */
+	public static final String SOURCE_SELF = "$SELF$";
+
 	// 此触发器可能产生连锁反应
 	// 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
 	private static final ThreadLocal<Integer> CALL_CHAIN_DEPTH = new ThreadLocal<>();

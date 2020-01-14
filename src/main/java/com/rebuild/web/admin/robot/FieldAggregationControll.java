@@ -21,6 +21,7 @@ package com.rebuild.web.admin.robot;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.business.trigger.impl.FieldAggregation;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
@@ -36,9 +37,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -53,7 +52,6 @@ public class FieldAggregationControll extends BaseControll {
 		Entity sourceEntity = MetadataHelper.getEntity(getParameterNotNull(request, "source"));
 		
 		List<String[]> entities = new ArrayList<>();
-		Map<String, Integer> hasMany = new HashMap<>();
 		for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
 			if (MetadataHelper.isApprovalField(refField.getName())) {
 				continue;
@@ -62,27 +60,11 @@ public class FieldAggregationControll extends BaseControll {
 			Entity refEntity = refField.getReferenceEntity();
 			String entityLabel = EasyMeta.getLabel(refEntity) + " (" + EasyMeta.getLabel(refField) + ")";
 			entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
-			
-			Integer many = hasMany.get(refEntity.getName());
-			if (many == null) {
-				many = 0;
-			}
-			hasMany.put(refEntity.getName(), many + 1);
 		}
-		
-		// 会出现同实体中多个字段引用同一实体的情况
-		// 只有一个引用则不显示字段名称
-		for (Map.Entry<String, Integer> e : hasMany.entrySet()) {
-			if (e.getValue() == 1) {
-				String entityName = e.getKey();
-				for (String[] item : entities) {
-					if (entityName.equals(item[0])) {
-						item[1] = EasyMeta.getLabel(MetadataHelper.getEntity(entityName));
-					}
-				}
-			}
-		}
-		
+
+		// 可归集到自己（通过主键字段）
+		entities.add(new String[] { sourceEntity.getName(), EasyMeta.getLabel(sourceEntity) + " (源实体)", FieldAggregation.SOURCE_SELF});
+
 		writeSuccess(response, entities);
 	}
 	
