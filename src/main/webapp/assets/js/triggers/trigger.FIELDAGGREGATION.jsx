@@ -69,7 +69,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               <div className="col-5">
                 <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
                   <div className="form-control-plaintext formula" ref={(c) => this._$formula = c} onClick={this.showFormula}></div>
-                  <p>计算公式</p>
+                  <p>计算公式 (源字段)</p>
                 </div>
                 <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
                   <select className="form-control form-control-sm" ref={(c) => this._sourceField = c}>
@@ -174,7 +174,12 @@ class ContentFieldAggregation extends ActionContentSpec {
   textFormula(formula) {
     const fs = this.state.sourceFields
     for (let i = 0; i < fs.length; i++) {
-      formula = formula.replace(new RegExp(fs[i][0], 'ig'), fs[i][1])
+      const field = fs[i]
+      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
+      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
+    }
+    for (let k in CALC_MODES) {
+      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
     }
     return formula.toUpperCase()
   }
@@ -293,23 +298,42 @@ class FormulaCalc extends RbAlert {
 
   handleInput(v) {
     if (v === '回退') {
-      $(this._$formula).find('i:last').remove()
+      $(this._$formula).find('.v:last').remove()
     } else if (v === '清空') {
       $(this._$formula).empty()
     } else if (typeof v === 'object') {
-      $(`<i class="field" data-v="{${v[0]}}">{${v[1]}}</i>`).appendTo(this._$formula)
+      const $field = $(`<span class="v field"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
+      const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
+      $(['', 'SUM', 'COUNT', 'AVG', 'MAX', 'MIN']).each(function () {
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || '无'}</a>`).appendTo($menu)
+        $a.click(function () { FormulaCalc._changeCalcMode(this) })
+      })
+      $field.appendTo(this._$formula)
     } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
-      $(`<i class="oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
+      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
     } else {
-      $(`<i class="num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
+      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
     }
   }
 
   confirm() {
     let vvv = []
-    $(this._$formula).find('i').each(function () { vvv.push($(this).data('v')) })
+    $(this._$formula).find('i').each(function () {
+      const $this = $(this)
+      const v = $this.data('v')
+      if ($this.attr('data-mode')) vvv.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
+      else vvv.push(v)
+    })
     typeof this.props.call === 'function' && this.props.call(vvv.join(''))
     this.hide()
+  }
+
+  static _changeCalcMode(el) {
+    el = $(el)
+    const $field = el.parent().prev()
+    const mode = el.data('mode')
+    const modeText = mode ? ` (${CALC_MODES[mode]})` : ''
+    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
   }
 }
 

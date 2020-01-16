@@ -138,7 +138,8 @@ public class FieldAggregation implements TriggerAction {
 				continue;
 			}
 
-			Object evalValue = new FormulaEvaluator(item, sourceEntity, followSourceField, dataFilterSql).eval(targetRecordId);
+			Object evalValue = new AggregationEvaluator(item, sourceEntity, followSourceField, dataFilterSql)
+                    .eval(targetRecordId);
 			if (evalValue == null) {
 				continue;
 			}

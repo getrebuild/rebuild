@@ -33,7 +33,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,7 +47,7 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2020/1/16
  */
-public class FormulaEvaluator {
+public class AggregationEvaluator {
 
     private static final Log LOG = LogFactory.getLog(FieldAggregation.class);
 
@@ -67,7 +70,7 @@ public class FormulaEvaluator {
      * @param followSourceField
      * @param filterSql
      */
-    protected FormulaEvaluator(JSONObject item, Entity sourceEntity, String followSourceField, String filterSql) {
+    protected AggregationEvaluator(JSONObject item, Entity sourceEntity, String followSourceField, String filterSql) {
         this.sourceEntity = sourceEntity;
         this.item = item;
         this.followSourceField = followSourceField;
@@ -95,12 +98,14 @@ public class FormulaEvaluator {
         if (filterSql != null) {
             sql += " and " + filterSql;
         }
-        // 最近一条
+        // `赋值`使用最近一条
         if (direct) {
             sql += " order by " + (sourceEntity.containsField(EntityHelper.ModifiedOn) ? EntityHelper.ModifiedOn : EntityHelper.CreatedOn) + " desc";
         }
 
-        Object[] o = Application.createQueryNoFilter(sql).setParameter(1, triggerRecord).unique();
+        Object[] o = Application.createQueryNoFilter(sql)
+                .setParameter(1, triggerRecord)
+                .unique();
         return o == null || o[0] == null ? 0 : o[0];
     }
 
@@ -112,24 +117,36 @@ public class FormulaEvaluator {
         String formula = item.getString("sourceFormula");
         Matcher m = FIELD_PATT.matcher(formula);
 
-        Set<String> fields = new HashSet<>();
+        final List<String[]> fields = new ArrayList<>();
         while (m.find()) {
-            String fieldName = m.group(1);
-            if (MetadataHelper.getLastJoinField(sourceEntity, fieldName) != null) {
-                fields.add(fieldName);
+            String[] fieldAndFunc = m.group(1).split("\\$\\$\\$\\$");
+            if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) != null) {
+                fields.add(fieldAndFunc);
             }
         }
         if (fields.isEmpty()) {
             return null;
         }
 
-        String sql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(fields.iterator(), ","), sourceEntity.getName(), followSourceField);
+        StringBuilder sql = new StringBuilder("select ");
+        for (String[] field : fields) {
+            if (field.length == 2) {
+                sql.append(String.format("%s(%s)", field[1], field[0]));
+            } else {
+                sql.append(field[0]);
+            }
+            sql.append(',');
+        }
+        sql.deleteCharAt(sql.length() - 1)
+                .append(" from ").append(sourceEntity.getName())
+                .append(" where ").append(followSourceField).append(" = ?");
         if (filterSql != null) {
-            sql += " and " + filterSql;
+            sql.append(" and ").append(filterSql);
         }
 
-        Record o = Application.createQueryNoFilter(sql).setParameter(1, triggerRecord).record();
+        Object[] o = Application.createQueryNoFilter(sql.toString())
+                .setParameter(1, triggerRecord)
+                .unique();
         if (o == null) {
             return null;
         }
@@ -137,9 +154,11 @@ public class FormulaEvaluator {
         String newFormual = formula.toUpperCase()
                 .replace("×", "*")
                 .replace("÷", "/");
-        for (String field : fields) {
-            Object v = o.getObjectValue(field);
-            newFormual = newFormual.replace("{" + field.toUpperCase() + "}", v == null ? "0" : v.toString());
+        for (int i = 0; i < fields.size(); i++) {
+            String[] field = fields.get(i);
+            Object v = o[i] == null ? "0" : o[i];
+            String replace = "{" + StringUtils.join(field, "$$$$") + "}";
+            newFormual = newFormual.replace(replace.toUpperCase(), v.toString());
         }
 
         try {
