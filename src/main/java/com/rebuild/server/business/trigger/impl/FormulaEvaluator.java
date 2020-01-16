@@ -27,6 +27,7 @@ import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,14 +52,14 @@ public class FormulaEvaluator {
 
     private static AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
     static {
-        // 强制浮点数运算
+        // 强制使用 BigDecimal/BigInteger 运算
         AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
     }
 
-    private Entity sourceEntity;
-    private JSONObject item;
-    private String followSourceField;
-    private String filterSql;
+    final private Entity sourceEntity;
+    final private JSONObject item;
+    final private String followSourceField;
+    final private String filterSql;
 
     /**
      * @param item
@@ -84,15 +85,19 @@ public class FormulaEvaluator {
         }
 
         String sourceField = item.getString("sourceField");
-        if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)) {
+        if (MetadataHelper.getLastJoinField(sourceEntity, sourceField) == null) {
             return null;
         }
 
-        // 直接利用 SQL 函数计算结果
-        String sql = String.format("select %s(%s) from %s where %s = ?",
-                calcMode, sourceField, sourceEntity.getName(), followSourceField);
+        boolean direct = calcMode.equalsIgnoreCase("DIRECT");
+        String funcAndField = direct ? sourceField : String.format("%s(%s)", calcMode, sourceField);
+        String sql = String.format("select %s from %s where %s = ?", funcAndField, sourceEntity.getName(), followSourceField);
         if (filterSql != null) {
             sql += " and " + filterSql;
+        }
+        // 最近一条
+        if (direct) {
+            sql += " order by " + (sourceEntity.containsField(EntityHelper.ModifiedOn) ? EntityHelper.ModifiedOn : EntityHelper.CreatedOn) + " desc";
         }
 
         Object[] o = Application.createQueryNoFilter(sql).setParameter(1, triggerRecord).unique();
@@ -110,7 +115,7 @@ public class FormulaEvaluator {
         Set<String> fields = new HashSet<>();
         while (m.find()) {
             String fieldName = m.group(1);
-            if (MetadataHelper.checkAndWarnField(sourceEntity, fieldName)) {
+            if (MetadataHelper.getLastJoinField(sourceEntity, fieldName) != null) {
                 fields.add(fieldName);
             }
         }

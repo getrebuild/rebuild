@@ -1,4 +1,4 @@
-const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
+const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'DIRECT': '赋值', 'FORMULA': '计算公式' }
 
 // ~~ 数据聚合
 // eslint-disable-next-line no-undef

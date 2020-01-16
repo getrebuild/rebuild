@@ -76,17 +76,27 @@ public class FieldAggregationControll extends BaseControll {
 		
 		List<String[]> sourceFields = new ArrayList<>();
 		List<String[]> targetFields = new ArrayList<>();
+
 		for (Field field : MetadataSorter.sortFields(sourceEntity.getFields(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
 			sourceFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
 		}
+		// 关联实体
+		for (Field fieldRef : MetadataSorter.sortFields(sourceEntity.getFields(), DisplayType.REFERENCE)) {
+			for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
+				sourceFields.add(new String[] {
+						fieldRef.getName() + "." + field.getName(),
+						EasyMeta.getLabel(fieldRef) + "." + EasyMeta.getLabel(field) });
+			}
+		}
+
 		if (targetEntity != null) {
 			for (Field field : MetadataSorter.sortFields(targetEntity.getFields(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
 				targetFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
 			}
 		}
 
-		boolean hadApproval = RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
-		
+		boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
+
 		JSON data = JSONUtils.toJSONObject(
 				new String[] { "source", "target", "hadApproval" },
 				new Object[] {

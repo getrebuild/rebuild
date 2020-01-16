@@ -131,7 +131,7 @@
 .formula-calc ul li>a {
   display: inline-block;
   width: 100%;
-  padding: 5px;
+  padding: 6px 5px;
   font-weight: bold;
   text-align: center;
   background-color: #eee;
@@ -149,7 +149,7 @@
 }
 
 .formula-calc .fields {
-  max-height: 175px;
+  max-height: 186px;
 }
 
 .formula-calc .fields ul li {
