@@ -90,21 +90,33 @@
   font-weight: normal;
   font-size: 1rem;
   padding: 3px 10px;
+  white-space: normal;
+  text-align: left;
 }
 
 .field-aggregation .items>div .col-2>.zmdi {
   margin-top: 6px;
 }
 
-.field-aggregation .items>div .col-5>a.del {
-  float: right;
-  font-size: 1.2rem;
-  padding: 3px 10px;
-  color: #999;
-  font-weight: bold;
+.field-aggregation .items .del-wrap {
+  position: relative;
 }
 
-.field-aggregation .items>div .col-5>a.del:hover {
+.field-aggregation .items .del-wrap .badge {
+  margin-right: 20px;
+}
+
+.field-aggregation .items .del-wrap a.del {
+  position: absolute;
+  display: inline-block;
+  font-size: 1.2rem;
+  padding: 3px 6px;
+  color: #999;
+  font-weight: bold;
+  right: 15px;
+}
+
+.field-aggregation .items .del-wrap a.del:hover {
   color: #222;
 }
 
@@ -169,7 +181,7 @@
   font-style: normal;
 }
 
-.form-control-plaintext.formula>i.flag {
+.form-control-plaintext.formula>i.oper {
   padding: 0 4px;
 }
 

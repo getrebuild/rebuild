@@ -57,7 +57,7 @@ public class FieldAggregation implements TriggerAction {
 	/**
 	 * 归集到自己
 	 */
-	public static final String SOURCE_SELF = "$SELF$";
+	public static final String SOURCE_SELF = "$PRIMARY$";
 
 	// 此触发器可能产生连锁反应
 	// 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
@@ -72,8 +72,9 @@ public class FieldAggregation implements TriggerAction {
 	
 	private Entity sourceEntity;
 	private Entity targetEntity;
-	
+
 	private String followSourceField;
+	// 触发记录
 	private ID targetRecordId;
 
 	public FieldAggregation(ActionContext context) {
@@ -121,9 +122,9 @@ public class FieldAggregation implements TriggerAction {
 
 		// 聚合数据过滤
         JSONObject dataFilter = ((JSONObject) context.getActionContent()).getJSONObject("dataFilter");
-		String dataFilterWhere = null;
+		String dataFilterSql = null;
 		if (dataFilter != null && !dataFilter.isEmpty()) {
-            dataFilterWhere = new AdvFilterParser(dataFilter).toSqlWhere();
+            dataFilterSql = new AdvFilterParser(dataFilter).toSqlWhere();
         }
 
 		// 更新目标
@@ -132,31 +133,21 @@ public class FieldAggregation implements TriggerAction {
 		JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
-			String sourceField = item.getString("sourceField");
 			String targetField = item.getString("targetField");
-			if (!MetadataHelper.checkAndWarnField(sourceEntity, sourceField)
-					|| !MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
+			if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
 				continue;
 			}
 
-			// 直接利用 SQL 函数计算结果
-			String calcMode = item.getString("calcMode");
-			String calcField = "COUNT".equalsIgnoreCase(calcMode) ? sourceEntity.getPrimaryField().getName() : sourceField;
-			
-			String sql = String.format("select %s(%s) from %s where %s = ?", 
-					calcMode, calcField, sourceEntity.getName(), followSourceField);
-            if (dataFilterWhere != null) {
-                sql += " and " + dataFilterWhere;
-            }
-
-			Object[] result = Application.createQueryNoFilter(sql).setParameter(1, targetRecordId).unique();
-			double calcValue = result == null || result[0] == null ? 0d : ObjectUtils.toDouble(result[0]);
+			Object evalValue = new FormulaEvaluator(item, sourceEntity, followSourceField, dataFilterSql).eval(targetRecordId);
+			if (evalValue == null) {
+				continue;
+			}
 			
 			DisplayType dt = EasyMeta.getDisplayType(targetEntity.getField(targetField));
 			if (dt == DisplayType.NUMBER) {
-				targetRecord.setInt(targetField, (int) calcValue);
+				targetRecord.setLong(targetField, ObjectUtils.toLong(evalValue));
 			} else if (dt == DisplayType.DECIMAL) {
-				targetRecord.setDouble(targetField, calcValue);
+				targetRecord.setDouble(targetField, ObjectUtils.toDouble(evalValue));
 			}
 		}
 		
@@ -185,17 +176,24 @@ public class FieldAggregation implements TriggerAction {
 
 		this.sourceEntity = context.getSourceEntity();
 		this.targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
-		this.followSourceField = targetFieldEntity[0];
-		if (!sourceEntity.containsField(followSourceField)) {
-			return;
-		}
 
-		// 找到主记录
-		Object[] o = Application.getQueryFactory().uniqueNoFilter(
-				context.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.OwningUser);
-		// o[1] 为空说明记录不存在
-		if (o != null && o[0] != null && o[1] != null) {
-			this.targetRecordId = (ID) o[0];
+		// 自己
+		if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
+			this.followSourceField = sourceEntity.getPrimaryField().getName();
+			this.targetRecordId = context.getSourceRecord();
+		} else {
+			this.followSourceField = targetFieldEntity[0];
+			if (!sourceEntity.containsField(followSourceField)) {
+				return;
+			}
+
+			// 找到主记录
+			Object[] o = Application.getQueryFactory().uniqueNoFilter(
+					context.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.OwningUser);
+			// o[1] 为空说明记录不存在
+			if (o != null && o[0] != null && o[1] != null) {
+				this.targetRecordId = (ID) o[0];
+			}
 		}
 	}
 

@@ -31,17 +31,21 @@ class ContentFieldAggregation extends ActionContentSpec {
           <div className="col-md-12 col-lg-9">
             <div className="items">
               {(!this.state.items || this.state.items.length === 0) ? null : this.state.items.map((item) => {
-                return (<div key={'item-' + item.targetField}><div className="row">
-                  <div className="col-5"><span className="badge badge-warning">{this.getFieldLabel(this.state.targetFields, item.targetField)}</span></div>
-                  <div className="col-2">
-                    <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                    <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
+                return <div key={'item-' + item.targetField}>
+                  <div className="row">
+                    <div className="col-5"><span className="badge badge-warning">{this.textFieldLabel(this.state.targetFields, item.targetField)}</span></div>
+                    <div className="col-2">
+                      <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                      <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
+                    </div>
+                    <div className="col-5 del-wrap">
+                      <span className="badge badge-warning">
+                        {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : this.textFieldLabel(this.state.sourceFields, item.sourceField)}
+                      </span>
+                      <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
+                    </div>
                   </div>
-                  <div className="col-5">
-                    <span className="badge badge-warning">{this.getFieldLabel(this.state.sourceFields, item.sourceField)}</span>
-                    <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
-                  </div>
-                </div></div>)
+                </div>
               })}
             </div>
             <div className="row">
@@ -158,25 +162,45 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
   }
 
-  getFieldLabel(list, field) {
-    for (let i = 0; i < list.length; i++) {
-      if (list[i][0] === field) {
-        return list[i][1]
+  textFieldLabel(fields, field) {
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i][0] === field) {
+        return fields[i][1]
       }
     }
     return '[' + field.toUpperCase() + ']'
   }
 
+  textFormula(formula) {
+    const fs = this.state.sourceFields
+    for (let i = 0; i < fs.length; i++) {
+      formula = formula.replace(new RegExp(fs[i][0], 'ig'), fs[i][1])
+    }
+    return formula.toUpperCase()
+  }
+
   showFormula = () => {
-    renderRbcomp(<FormulaCalc fields={this.state.sourceFields}
-      call={(flags) => $(this._$formula).text(flags)} />)
+    renderRbcomp(<FormulaCalc fields={this.state.sourceFields} call={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
   }
 
   addItem() {
-    let tf = $(this._targetField).val()
-    let sf = $(this._sourceField).val()
-    if (!tf) { RbHighbar.create('请选择目标字段'); return false }
-    if (!sf) { RbHighbar.create('请选择源字段'); return false }
+    const tf = $(this._targetField).val()
+    const calc = $(this._calcMode).val()
+    const sf = calc === 'FORMULA' ? null : $(this._sourceField).val()
+    const formula = calc === 'FORMULA' ? $(this._$formula).attr('data-v') : null
+    if (!tf) {
+      RbHighbar.create('请选择目标字段')
+      return false
+    }
+    if (calc === 'FORMULA') {
+      if (!formula) {
+        RbHighbar.create('请填写计算公式')
+        return false
+      }
+    } else if (!sf) {
+      RbHighbar.create('请选择源字段')
+      return false
+    }
 
     let items = this.state.items || []
     $(items).each(function () {
@@ -188,7 +212,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
 
     if (items) {
-      items.push({ sourceField: sf, calcMode: $(this._calcMode).val(), targetField: tf })
+      items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
       this.setState({ items: items })
     }
   }
@@ -229,6 +253,7 @@ class ContentFieldAggregation extends ActionContentSpec {
 }
 
 // ~公式计算器
+const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', '回退', '清空']
 class FormulaCalc extends RbAlert {
 
   constructor(props) {
@@ -251,7 +276,7 @@ class FormulaCalc extends RbAlert {
         </div>
         <div className="col-6 pl-0">
           <ul className="list-unstyled numbers mb-0">
-            {['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', '回退', '清空'].map((item) => {
+            {INPUT_KEYS.map((item) => {
               return <li className="list-inline-item" key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item}</a></li>
             })}
             <li className="list-inline-item"><a onClick={() => this.confirm()} className="confirm">确定</a></li>
@@ -267,23 +292,23 @@ class FormulaCalc extends RbAlert {
   }
 
   handleInput(v) {
-    if (typeof v === 'object') {
-      $(`<i data-flag="${v[0]}">{${v[1]}}</i>`).appendTo(this._$formula)
-    } else if (v === '回退') {
+    if (v === '回退') {
       $(this._$formula).find('i:last').remove()
     } else if (v === '清空') {
       $(this._$formula).empty()
+    } else if (typeof v === 'object') {
+      $(`<i class="field" data-v="{${v[0]}}">{${v[1]}}</i>`).appendTo(this._$formula)
     } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
-      $(`<i class="flag" data-flag="${v}">${v}</em>`).appendTo(this._$formula)
+      $(`<i class="oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
     } else {
-      $(`<i data-flag="${v}">${v}</i>`).appendTo(this._$formula)
+      $(`<i class="num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
     }
   }
 
   confirm() {
-    let flags = []
-    $(this._$formula).find('i').each((item) => flags.push(item))
-    typeof this.props.call === 'function' && this.props.call(flags)
+    let vvv = []
+    $(this._$formula).find('i').each(function () { vvv.push($(this).data('v')) })
+    typeof this.props.call === 'function' && this.props.call(vvv.join(''))
     this.hide()
   }
 }
