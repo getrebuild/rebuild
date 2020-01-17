@@ -60,8 +60,8 @@ public class RebuildApiManager implements ConfigManager<String> {
     }
 
     @Override
-    public void clean(String cacheKey) {
-        final String cKey = "RebuildApiManager-" + cacheKey;
+    public void clean(String appid) {
+        final String cKey = "RebuildApiManager-" + appid;
         Application.getCommonCache().evict(cKey);
     }
 }

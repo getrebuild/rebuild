@@ -30,10 +30,8 @@
   margin-bottom: 10px;
 }
 
-@media (min-width:1280px) {
-  .timeline.spare .timeline-item {
-    padding-left: 190px;
-  }
+.timeline.spare .timeline-item {
+  padding-left: 190px;
 }
 
 .timeline.spare .timeline-item.last {
