@@ -28,6 +28,7 @@ import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.DataSpecificationException;
@@ -39,6 +40,7 @@ import org.apache.commons.logging.LogFactory;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 标准 Record 解析
@@ -120,18 +122,22 @@ public class ExtRecordCreator extends JsonRecordCreator {
         List<String> notAllowed = new ArrayList<>();
         // 新建
         if (isNew) {
+			// 自动只读字段可以忽略非空检查
+			final Set<String> roFieldsByTrigger = RobotTriggerManager.instance.getAutoReadonlyFields(record.getEntity().getName());
+
             for (Field field : entity.getFields()) {
-                if (MetadataHelper.isSystemField(field)) {
+                if (MetadataHelper.isSystemField(field) || roFieldsByTrigger.contains(field.getName())) {
                     continue;
                 }
-                EasyMeta easy = EasyMeta.valueOf(field);
-                if (easy.getDisplayType() == DisplayType.SERIES) {
+
+                final EasyMeta easyField = EasyMeta.valueOf(field);
+                if (easyField.getDisplayType() == DisplayType.SERIES) {
                     continue;
                 }
 
                 Object hasVal = record.getObjectValue(field.getName());
                 if ((hasVal == null || NullValue.is(hasVal)) && !field.isNullable()) {
-                    notAllowed.add(easy.getLabel());
+                    notAllowed.add(easyField.getLabel());
                 }
             }
 
@@ -149,10 +155,10 @@ public class ExtRecordCreator extends JsonRecordCreator {
                     continue;
                 }
 
-                EasyMeta easy = EasyMeta.valueOf(field);
-                if (!easy.isUpdatable()) {
+                final EasyMeta easyField = EasyMeta.valueOf(field);
+                if (!easyField.isUpdatable()) {
                     if (strictMode) {
-                        notAllowed.add(easy.getLabel());
+                        notAllowed.add(easyField.getLabel());
                     } else {
                         record.removeValue(fieldName);
                         LOG.warn("Remove non-updatable field : " + fieldName);
