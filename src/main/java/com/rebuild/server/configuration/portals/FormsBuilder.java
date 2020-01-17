@@ -198,7 +198,7 @@ public class FormsBuilder extends FormsManager {
 		}
 
 		// 自动只读字段
-		final Set<String> autoReadonlyByTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
+		final Set<String> roFieldsByTrigger = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
 		
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -226,9 +226,10 @@ public class FormsBuilder extends FormsManager {
 			el.put("nullable", fieldMeta.isNullable());
 			el.put("readonly", false);
 
-			boolean triggersReadonly = autoReadonlyByTriggers.contains(fieldName);
+			final boolean roByTrigger = roFieldsByTrigger.contains(fieldName);
+
 			// 不可更新字段
-			if ((data != null && !fieldMeta.isUpdatable()) || triggersReadonly) {
+			if ((data != null && !fieldMeta.isUpdatable()) || roByTrigger) {
 				el.put("readonly", true);
 			}
 
@@ -310,7 +311,7 @@ public class FormsBuilder extends FormsManager {
 					el.put("value", "自动值 (自动编号)");
 				} else if (dt == DisplayType.BOOL) {
 					el.put("value", BoolEditor.FALSE);
-				} else if (triggersReadonly) {
+				} else if (roByTrigger) {
 					el.put("value", "自动值 (触发器)");
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);

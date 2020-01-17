@@ -322,5 +322,10 @@
             <artifactId>h2</artifactId>
             <version>1.4.200</version>
         </dependency>
+		<dependency>
+			<groupId>com.googlecode.aviator</groupId>
+			<artifactId>aviator</artifactId>
+			<version>4.2.9</version>
+		</dependency>
 	</dependencies>
 </project>

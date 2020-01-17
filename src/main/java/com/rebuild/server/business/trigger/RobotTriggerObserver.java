@@ -78,6 +78,10 @@ public class RobotTriggerObserver extends OperatingObserver {
         if (cleanSource) {
             setTriggerSource(context);
         }
+        // 自己触发自己，避免无限执行
+        else if (getTriggerSource().getAnyRecord().getPrimary().equals(context.getAnyRecord().getPrimary())) {
+            return;
+        }
 
         final ID currentUser = Application.getCurrentUser();
         try {

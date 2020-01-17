@@ -1,11 +1,13 @@
-const CALC_MODES = { 'SUM': '求和', 'COuNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小' }
+const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'DIRECT': '赋值', 'FORMULA': '计算公式' }
 
 // ~~ 数据聚合
 // eslint-disable-next-line no-undef
 class ContentFieldAggregation extends ActionContentSpec {
+
   constructor(props) {
     super(props)
   }
+
   render() {
     return <div className="field-aggregation">
       <form className="simple">
@@ -29,17 +31,21 @@ class ContentFieldAggregation extends ActionContentSpec {
           <div className="col-md-12 col-lg-9">
             <div className="items">
               {(!this.state.items || this.state.items.length === 0) ? null : this.state.items.map((item) => {
-                return (<div key={'item-' + item.targetField}><div className="row">
-                  <div className="col-5"><span className="badge badge-warning">{this.__getFieldLabel(this.state.targetFields, item.targetField)}</span></div>
-                  <div className="col-2">
-                    <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                    <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
+                return <div key={'item-' + item.targetField}>
+                  <div className="row">
+                    <div className="col-5"><span className="badge badge-warning">{this.textFieldLabel(this.state.targetFields, item.targetField)}</span></div>
+                    <div className="col-2">
+                      <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                      <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
+                    </div>
+                    <div className="col-5 del-wrap">
+                      <span className="badge badge-warning">
+                        {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : this.textFieldLabel(this.state.sourceFields, item.sourceField)}
+                      </span>
+                      <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
+                    </div>
                   </div>
-                  <div className="col-5">
-                    <span className="badge badge-warning">{this.__getFieldLabel(this.state.sourceFields, item.sourceField)}</span>
-                    <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
-                  </div>
-                </div></div>)
+                </div>
               })}
             </div>
             <div className="row">
@@ -61,12 +67,18 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <p>聚合方式</p>
               </div>
               <div className="col-5">
-                <select className="form-control form-control-sm" ref={(c) => this._sourceField = c}>
-                  {(this.state.sourceFields || []).map((item) => {
-                    return <option key={'sf-' + item[0]} value={item[0]}>{item[1]}</option>
-                  })}
-                </select>
-                <p>源字段</p>
+                <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
+                  <div className="form-control-plaintext formula" ref={(c) => this._$formula = c} onClick={this.showFormula}></div>
+                  <p>计算公式 (源字段)</p>
+                </div>
+                <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
+                  <select className="form-control form-control-sm" ref={(c) => this._sourceField = c}>
+                    {(this.state.sourceFields || []).map((item) => {
+                      return <option key={'sf-' + item[0]} value={item[0]}>{item[1]}</option>
+                    })}
+                  </select>
+                  <p>源字段</p>
+                </div>
               </div>
             </div>
             <div className="mt-1">
@@ -101,9 +113,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         let s2te = $(this._targetEntity).select2({ placeholder: '选择聚合目标实体' })
-          .on('change', () => {
-            this.__changeTargetEntity()
-          })
+          .on('change', () => this.changeTargetEntity())
         s2te.trigger('change')
 
         if (this.props.content && this.props.content.targetEntity) {
@@ -123,7 +133,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     }
   }
 
-  __changeTargetEntity() {
+  changeTargetEntity() {
     // 清空现有规则
     this.setState({ items: [] })
 
@@ -138,6 +148,7 @@ class ContentFieldAggregation extends ActionContentSpec {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           let s2sf = $(this._sourceField).select2({ placeholder: '选择源字段' })
           let s2cm = $(this._calcMode).select2({ placeholder: '选择聚合方式' })
+            .on('change', (e) => this.setState({ calcMode: e.target.value }))
           let s2tf = $(this._targetField).select2({ placeholder: '选择目标字段' })
           this.__select2.push(s2sf)
           this.__select2.push(s2cm)
@@ -150,20 +161,51 @@ class ContentFieldAggregation extends ActionContentSpec {
       }
     })
   }
-  __getFieldLabel(list, field) {
-    for (let i = 0; i < list.length; i++) {
-      if (list[i][0] === field) {
-        return list[i][1]
+
+  textFieldLabel(fields, field) {
+    for (let i = 0; i < fields.length; i++) {
+      if (fields[i][0] === field) {
+        return fields[i][1]
       }
     }
     return '[' + field.toUpperCase() + ']'
   }
 
+  textFormula(formula) {
+    const fs = this.state.sourceFields
+    for (let i = 0; i < fs.length; i++) {
+      const field = fs[i]
+      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
+      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
+    }
+    for (let k in CALC_MODES) {
+      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
+    }
+    return formula.toUpperCase()
+  }
+
+  showFormula = () => {
+    renderRbcomp(<FormulaCalc fields={this.state.sourceFields} call={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
+  }
+
   addItem() {
-    let tf = $(this._targetField).val()
-    let sf = $(this._sourceField).val()
-    if (!tf) { RbHighbar.create('请选择目标字段'); return false }
-    if (!sf) { RbHighbar.create('请选择源字段'); return false }
+    const tf = $(this._targetField).val()
+    const calc = $(this._calcMode).val()
+    const sf = calc === 'FORMULA' ? null : $(this._sourceField).val()
+    const formula = calc === 'FORMULA' ? $(this._$formula).attr('data-v') : null
+    if (!tf) {
+      RbHighbar.create('请选择目标字段')
+      return false
+    }
+    if (calc === 'FORMULA') {
+      if (!formula) {
+        RbHighbar.create('请填写计算公式')
+        return false
+      }
+    } else if (!sf) {
+      RbHighbar.create('请选择源字段')
+      return false
+    }
 
     let items = this.state.items || []
     $(items).each(function () {
@@ -175,10 +217,11 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
 
     if (items) {
-      items.push({ sourceField: sf, calcMode: $(this._calcMode).val(), targetField: tf })
+      items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
       this.setState({ items: items })
     }
   }
+
   delItem(targetField) {
     let items = (this.state.items || []).filter((item) => {
       return item.targetField !== targetField
@@ -206,10 +249,91 @@ class ContentFieldAggregation extends ActionContentSpec {
       filter={that._advFilter__data}
       confirm={that._saveAdvFilter} />, null, function () { that._advFilter = this })
   }
+
   _saveAdvFilter = (filter) => {
     this._advFilter__data = filter
     let num = filter && filter.items ? filter.items.length : 0
     this.setState({ dataFilterItems: num })
+  }
+}
+
+// ~公式计算器
+const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', '回退', '清空']
+class FormulaCalc extends RbAlert {
+
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  renderContent() {
+    return <div className="formula-calc">
+      <div className="form-control-plaintext formula mb-2" ref={(c) => this._$formula = c}></div>
+      <div className="row">
+        <div className="col-6">
+          <div className="fields rb-scroller" ref={(c) => this._$fields = c}>
+            <ul className="list-unstyled mb-0">
+              {this.props.fields.map((item) => {
+                return <li key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item[1]}</a></li>
+              })}
+            </ul>
+          </div>
+        </div>
+        <div className="col-6 pl-0">
+          <ul className="list-unstyled numbers mb-0">
+            {INPUT_KEYS.map((item) => {
+              return <li className="list-inline-item" key={`flag-${item}`}><a onClick={() => this.handleInput(item)}>{item}</a></li>
+            })}
+            <li className="list-inline-item"><a onClick={() => this.confirm()} className="confirm">确定</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._$fields).perfectScrollbar()
+  }
+
+  handleInput(v) {
+    if (v === '回退') {
+      $(this._$formula).find('.v:last').remove()
+    } else if (v === '清空') {
+      $(this._$formula).empty()
+    } else if (typeof v === 'object') {
+      const $field = $(`<span class="v field"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
+      const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
+      $(['', 'SUM', 'COUNT', 'AVG', 'MAX', 'MIN']).each(function () {
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || '无'}</a>`).appendTo($menu)
+        $a.click(function () { FormulaCalc._changeCalcMode(this) })
+      })
+      $field.appendTo(this._$formula)
+    } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
+      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
+    } else {
+      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
+    }
+  }
+
+  confirm() {
+    let vvv = []
+    $(this._$formula).find('i').each(function () {
+      const $this = $(this)
+      const v = $this.data('v')
+      if ($this.attr('data-mode')) vvv.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
+      else vvv.push(v)
+    })
+    typeof this.props.call === 'function' && this.props.call(vvv.join(''))
+    this.hide()
+  }
+
+  static _changeCalcMode(el) {
+    el = $(el)
+    const $field = el.parent().prev()
+    const mode = el.data('mode')
+    const modeText = mode ? ` (${CALC_MODES[mode]})` : ''
+    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
   }
 }
 

@@ -104,6 +104,18 @@ public class CommonsUtils {
 		return false;
 	}
 
+	/**
+	 * @param text
+	 * @param maxLength
+	 * @return
+	 */
+	public static String maxstr(String text, int maxLength) {
+		if (text.length() > maxLength) {
+			return text.substring(0, maxLength);
+		}
+		return text;
+	}
+
 	private static OkHttpClient okHttpClient = null;
 	/**
 	 * @return
