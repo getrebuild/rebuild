@@ -33,7 +33,13 @@ $(function () {
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified) $('.admin-settings a i').addClass('text-danger')
+    else if (rb.isAdminVerified) {
+      // $('.admin-settings a').popover({
+      //   html: true,
+      //   placement: 'bottom',
+      //   content: '你已启用管理员访问功能。如果不再需要，请 <a href="###">取消访问</a>'
+      // }).popover('show')
+    }
   } else {
     $('.admin-show').remove()
   }

@@ -30,6 +30,7 @@ import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -43,6 +44,8 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 通用工具类
@@ -222,6 +225,7 @@ public class CommonsUtils {
 
 		try (InputStream is = new FileInputStream(excel)) {
 			try (BufferedInputStream bis = new BufferedInputStream(is)) {
+				// noinspection rawtypes
 				EasyExcel.read(bis, null, new AnalysisEventListener() {
 					@Override
 					public void invokeHeadMap(Map headMap, AnalysisContext context) {
@@ -269,5 +273,25 @@ public class CommonsUtils {
 			return text;
 		}
 		return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+	}
+
+	/**
+	 * ZIP 压缩（不支持目录压缩）
+	 *
+	 * @param file
+	 * @param dest
+	 */
+	public static void zip(File file, File dest) throws IOException {
+		try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(dest)))) {
+			zos.putNextEntry(new ZipEntry(file.getName()));
+
+			try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
+				byte[] chunk = new byte[1024];
+				int count;
+				while((count = bis.read(chunk)) != -1) {
+					zos.write(chunk, 0, count);
+				}
+			}
+		}
 	}
 }

@@ -63,9 +63,10 @@ class DataList extends React.Component {
     }
     let q = {
       entity: 'RecycleBin',
+      equation: 'AND',
       items: qs
     }
-    this._List.search(JSON.stringify(q), true)
+    this._List.search(JSON.stringify(q))
   }
 
   restore() {

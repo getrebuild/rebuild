@@ -226,8 +226,8 @@ public class AdvFilterParser {
 			}
 		} else if (dt == DisplayType.MULTISELECT) {
 			// 多选的包含/不包含要按位计算
-			if (op.equalsIgnoreCase(ParserTokens.IN) || op.equalsIgnoreCase(ParserTokens.NIN)) {
-				op = op.equalsIgnoreCase(ParserTokens.IN) ? ParserTokens.BAND : ParserTokens.NBAND;
+			if (ParserTokens.IN.equalsIgnoreCase(op) || ParserTokens.NIN.equalsIgnoreCase(op)) {
+				op = ParserTokens.IN.equalsIgnoreCase(op) ? ParserTokens.BAND : ParserTokens.NBAND;
 
 				long maskValue = 0;
 				for (String s : value.split("\\|")) {
@@ -274,7 +274,7 @@ public class AdvFilterParser {
 				if (refe == EntityHelper.User) {
 					sb.insert(sb.indexOf(" "), ".deptId");
 				} else if (refe == EntityHelper.Department) {
-					// Nothings
+					// NOOP
 				} else {
 					value = null;
 				}
@@ -295,7 +295,7 @@ public class AdvFilterParser {
 		}
 
 		// 快速搜索的占位符 {1}
-		if (value.matches("\\{\\d+\\}")) {
+		if (value.matches("\\{\\d+}")) {
 			if (values == null || values.isEmpty()) {
 				return null;
 			}

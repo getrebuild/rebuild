@@ -77,6 +77,10 @@ public class SysConfigurationControll extends BasePageControll {
         if (!NumberUtils.isNumber(dRecycleBinKeepingDays)) {
             data.put(ConfigurableItem.RecycleBinKeepingDays.name(), ConfigurableItem.RecycleBinKeepingDays.getDefaultValue());
         }
+        String dDBBackupsKeepingDays = defaultIfBlank(data, ConfigurableItem.DBBackupsKeepingDays);
+        if (!NumberUtils.isNumber(dDBBackupsKeepingDays)) {
+            data.put(ConfigurableItem.DBBackupsKeepingDays.name(), ConfigurableItem.DBBackupsKeepingDays.getDefaultValue());
+        }
 
         setValues(data);
 

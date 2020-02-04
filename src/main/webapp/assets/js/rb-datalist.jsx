@@ -179,7 +179,7 @@ class RbList extends React.Component {
     $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => RbList.renderAfter())
-        if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total })
+        if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -234,7 +234,7 @@ class RbList extends React.Component {
       else $tr.removeClass('active')
     }
     // this.setState({ checkedChanged: true })
-    this.componentDidUpdate()  // perform
+    this.componentDidUpdate()  // for perform
   }
 
   sortField(field, e) {
@@ -273,9 +273,38 @@ class RbList extends React.Component {
    */
   setAdvFilter(id) {
     this.advFilter = id
+    this.pageNo = 1
     this.fetchList(this.__buildQuick())
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
+  }
+
+  /**
+   * 搜索
+   */
+  search(filter, fromAdv) {
+    const afHold = this.advFilter
+    if (fromAdv === true) this.advFilter = null
+    this.pageNo = 1
+    this.fetchList(filter)
+
+    // No keep last filter
+    if (fromAdv === true) {
+      this.advFilter = afHold
+      this.lastFilter = null
+    }
+  }
+
+  // Alias `fetchList`
+  reload = () => this.fetchList()
+
+  // @el - search element
+  searchQuick = (el) => this.search(this.__buildQuick(el))
+  __buildQuick(el) {
+    el = $(el || '.input-search>input')
+    const q = el.val()
+    if (!q && !this.lastFilter) return null
+    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
   }
 
   /**
@@ -292,7 +321,7 @@ class RbList extends React.Component {
   }
 
   /**
-   * 获取最后查询记录熟虑
+   * 获取最后查询记录总数
    */
   getLastQueryTotal() {
     return this._pagination ? this._pagination.state.rowsTotal : 0
@@ -303,32 +332,6 @@ class RbList extends React.Component {
    */
   getLastQueryData() {
     return JSON.parse(JSON.stringify(this.__lastQueryEntry))  // Use clone
-  }
-
-  /**
-   * 搜索
-   */
-  search(filter, fromAdv) {
-    const afHold = this.advFilter
-    if (fromAdv === true) this.advFilter = null
-    this.fetchList(filter)
-
-    // No keep last filter
-    if (fromAdv === true) {
-      this.advFilter = afHold
-      this.lastFilter = null
-    }
-  }
-
-  reload = () => this.fetchList()
-
-  // @el - search element
-  searchQuick = (el) => this.search(this.__buildQuick(el))
-  __buildQuick(el) {
-    el = $(el || '.input-search>input')
-    const q = el.val()
-    if (!q && !this.lastFilter) return null
-    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
   }
 
   // 渲染完成后回调
@@ -510,7 +513,7 @@ class RbListPagination extends React.Component {
   }
   setPageSize = (e) => {
     let s = e.target.value
-    this.setState({ pageSize: s }, () => {
+    this.setState({ pageSize: s, pageNo: 1 }, () => {
       this.props.$$$parent.setPage(1, s)
     })
   }
