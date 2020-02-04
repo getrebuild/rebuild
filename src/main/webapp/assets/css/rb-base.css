@@ -5541,7 +5541,7 @@ input[type=submit].btn-block {
 
 .page-link .icon {
     font-size: 1.5rem;
-    margin-top: -3px;
+    transform: translateY(2px);
 }
 
 .pagination-sm .page-link .icon {

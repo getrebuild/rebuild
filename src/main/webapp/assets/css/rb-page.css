@@ -155,6 +155,8 @@ body {
     font-weight: normal;
     color: #777;
     font-size: 12px;
+    text-transform: uppercase;
+    line-height: 1.2 !important;
 }
 
 a.badge.text-id {
