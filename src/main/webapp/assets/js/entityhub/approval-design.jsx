@@ -1,15 +1,24 @@
 /* eslint-disable react/prop-types */
 var wpc = window.__PageConfig
+let fieldsCache
 let activeNode
+let donotCloseSidebar
+
 $(document).ready(() => {
   if (!wpc || !wpc.configId) return
   // eslint-disable-next-line no-console
   if (rb.env === 'dev') console.log(wpc.flowDefinition)
 
+  // 备用
+  $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${wpc.applyEntity}`, (res) => fieldsCache = res.data)
+
   if (wpc.flowDefinition) wpc.flowDefinition = JSON.parse(wpc.flowDefinition)
   renderRbcomp(<RbFlowCanvas />, 'rbflow')
+
   $(document.body).click(function (e) {
+    if (donotCloseSidebar) return
     if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
+
     $(this).removeClass('open-right-sidebar')
     if (activeNode) {
       activeNode.setState({ active: false })
@@ -17,7 +26,7 @@ $(document).ready(() => {
     }
   })
 
-  $addResizeHandler(() => $('#rbflow').css('min-height', $(window).height() - 225))()
+  $addResizeHandler(() => $('#rbflow').css('min-height', $(window).height() - 217))()
 })
 
 // 画布准备完毕
@@ -445,14 +454,16 @@ class StartNodeConfig extends RbFormHandler {
 
 // 审批人
 class ApproverNodeConfig extends StartNodeConfig {
+
   constructor(props) {
     super(props)
     this.state.signMode = props.signMode || 'OR'
     this.state.users = (props.users || ['SPEC'])[0]
     if (!this.state.users || this.state.users.length === 20) this.state.users = 'SPEC'
   }
+
   render() {
-    return (<div>
+    return <div>
       <div className="header">
         <input type="text" placeholder="审批人" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
@@ -492,23 +503,75 @@ class ApproverNodeConfig extends StartNodeConfig {
             <span className="custom-control-label">或签（一名审批人同意或拒绝）</span>
           </label>
         </div>
+        <div className="form-group mt-4">
+          <label className="text-bold">可修改字段</label>
+          <div>
+            <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
+              <tbody ref={(c) => this._editableFields = c}>
+                {(this.state.editableFields || []).map((item) => {
+                  return <tr key={`field-${item.field}`}>
+                    <td>{this.__fieldLabel(item.field)}</td>
+                    <td width="100">
+                      <label className="custom-control custom-control-sm custom-checkbox">
+                        <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull} data-field={item.field} />
+                        <span className="custom-control-label">必填</span>
+                      </label>
+                    </td>
+                    <td width="40"><a className="close" title="移除" onClick={() => this.removeEditableField(item.field)}>&times;</a></td>
+                  </tr>
+                })}
+              </tbody>
+            </table>
+            <button className="btn btn-secondary btn-sm" onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
+              <i className="icon zmdi zmdi-plus up-1" /> 选择字段
+              </button>
+          </div>
+        </div>
       </div>
       {this.renderButton()}
-    </div>)
+    </div>
   }
+
   save = () => {
-    let d = {
+    let editableFields = []
+    $(this._editableFields).find('input').each(function () {
+      let $this = $(this)
+      editableFields.push({ field: $this.data('field'), notNull: $this.prop('checked') })
+    })
+    console.log(editableFields)
+
+    const d = {
       nodeName: this.state.nodeName,
       users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users],
       signMode: this.state.signMode,
-      selfSelecting: this.state.selfSelecting
+      selfSelecting: this.state.selfSelecting,
+      editableFields: editableFields
     }
     if (d.users.length === 0 && !d.selfSelecting) {
       RbHighbar.create('请选择审批人或允许自选')
       return
     }
+
     typeof this.props.call && this.props.call(d)
     this.cancel()
+  }
+
+  setEditableFields(fs) {
+    fs = fs.map((item) => {
+      return { field: item, notNull: false }
+    })
+    this.setState({ editableFields: fs })
+  }
+  removeEditableField(field) {
+    let fs = []
+    this.state.editableFields.forEach((item) => {
+      if (item.field !== field) fs.push(item)
+    })
+    this.setState({ editableFields: fs })
+  }
+  __fieldLabel(name) {
+    let field = fieldsCache.find((x) => x.name === name)
+    return field ? field.label : `[${name.toUpperCase()}]`
   }
 }
 
@@ -649,13 +712,11 @@ class RbFlowCanvas extends NodeGroupSpec {
   }
 }
 
-
 class DlgCopy extends RbFormHandler {
-  constructor(props) {
-    super(props)
-  }
+  state = { ...this.props }
+
   render() {
-    return (<RbModal title="另存为" ref={(c) => this._dlg = c} disposeOnHide={true}>
+    return <RbModal title="另存为" ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">新流程名称</label>
@@ -677,12 +738,14 @@ class DlgCopy extends RbFormHandler {
           </div>
         </div>
       </div>
-    </RbModal>)
+    </RbModal>
   }
+
   save = () => {
-    let approvalName = this.state.name
+    const approvalName = this.state.name
     if (!approvalName) { RbHighbar.create('请输入新流程名称'); return }
-    let _btns = $(this._btns).find('.btn').button('loading')
+
+    const _btns = $(this._btns).find('.btn').button('loading')
     $.post(`${rb.baseUrl}/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
       if (res.error_code === 0) {
         RbHighbar.success('另存为成功')
@@ -690,5 +753,45 @@ class DlgCopy extends RbFormHandler {
       } else RbHighbar.error(res.error_msg)
       _btns.button('reset')
     })
+  }
+}
+
+class DlgFields extends RbModalHandler {
+
+  constructor(props) {
+    super(props)
+    donotCloseSidebar = true
+    this._selected = (props.selected || []).map((item) => {
+      return item.field
+    })
+  }
+
+  render() {
+    return <RbModal title="选择可修改字段" ref={(c) => this._dlg = c} disposeOnHide={true} onHide={() => donotCloseSidebar = false}>
+      <div className="row p-1" ref={(c) => this._fields = c}>
+        {fieldsCache.map((item) => {
+          return <div className="col-3" key={`field-${item.name}`}>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
+              <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={item.name} defaultChecked={item.updatable && this._selected.includes(item.name)} />
+              <span className="custom-control-label">{item.label}</span>
+            </label>
+          </div>
+        })}
+      </div>
+      <div className="dialog-footer">
+        <button className="btn btn-primary" type="button" onClick={this.confirm}>确定</button>
+        <button className="btn btn-secondary" type="button" onClick={this.hide}>取消</button>
+      </div>
+    </RbModal>
+  }
+
+  confirm = () => {
+    let selected = []
+    $(this._fields).find('input:checked').each(function () {
+      selected.push(this.value)
+    })
+
+    typeof this.props.call === 'function' && this.props.call(selected)
+    this.hide()
   }
 }

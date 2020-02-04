@@ -675,3 +675,11 @@
 .rbflow-design .box-scale.preview .node-wrap:first-child {
 	margin-bottom: -15px;
 }
+
+.fields-table .custom-control {
+	padding-left: 1.9377rem !important;
+}
+
+.fields-table tbody {
+	border-bottom: 1px solid #dee2e6;
+}

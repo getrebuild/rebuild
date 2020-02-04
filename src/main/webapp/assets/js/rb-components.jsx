@@ -1,14 +1,13 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
+
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
+  state = { ...this.props }
+
   render() {
-    let inFrame = !this.props.children
-    return (<div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} ref={(c) => this._rbmodal = c}>
+    const inFrame = !this.props.children
+    return <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} ref={(c) => this._rbmodal = c}>
       <div className="modal-dialog" style={{ maxWidth: (this.props.width || 680) + 'px' }}>
         <div className="modal-content">
           <div className="modal-header modal-header-colored">
@@ -21,17 +20,18 @@ class RbModal extends React.Component {
           </div>
         </div>
       </div>
-    </div>)
+    </div>
   }
 
   componentDidMount() {
-    let root = $(this._rbmodal).modal({ show: true, backdrop: this.props.backdrop === false ? false : 'static', keyboard: false }).on('hidden.bs.modal', () => {
-      $keepModalOpen()
-      if (this.props.disposeOnHide === true) {
-        root.modal('dispose')
-        $unmount(root.parent())
-      }
-    })
+    const root = $(this._rbmodal).modal({ show: true, backdrop: this.props.backdrop === false ? false : 'static', keyboard: false })
+      .on('hidden.bs.modal', () => {
+        $keepModalOpen()
+        if (this.props.disposeOnHide === true) {
+          root.modal('dispose')
+          $unmount(root.parent())
+        }
+      })
   }
 
   show() {
@@ -46,7 +46,8 @@ class RbModal extends React.Component {
 
   resize() {
     if (this.props.children) return
-    let root = $(this._rbmodal)
+
+    const root = $(this._rbmodal)
     $setTimeout(() => {
       let iframe = root.find('iframe')
       let height = iframe.contents().find('.main-content').outerHeight()
@@ -98,33 +99,29 @@ class RbModal extends React.Component {
 
 // ~~ Modal 处理器
 class RbModalHandler extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
+  state = { ...this.props }
+
   show = (state, call) => {
-    let callback = () => {
-      // eslint-disable-next-line react/no-string-refs
-      let dlg = this._dlg || this.refs['dlg']
+    const callback = () => {
+      const dlg = this._dlg || this.refs['dlg']
       if (dlg) dlg.show()
       typeof call === 'function' && call(this)
     }
     if (state && $.type(state) === 'object') this.setState(state, callback)
     else callback()
   }
+
   hide = (e) => {
     if (e && e.target && $(e.target).attr('disabled')) return
-    // eslint-disable-next-line react/no-string-refs
-    let dlg = this._dlg || this.refs['dlg']
+    const dlg = this._dlg || this.refs['dlg']
     if (dlg) dlg.hide()
   }
 }
 
-// ~~ Form 处理器
+// ~~ Modal of Form 处理器
 class RbFormHandler extends RbModalHandler {
-  constructor(props) {
-    super(props)
-  }
+  state = { ...this.props }
+
   handleChange = (e, call) => {
     let target = e.target
     let id = target.dataset.id || target.name
@@ -135,17 +132,18 @@ class RbFormHandler extends RbModalHandler {
     this.setState(s, call)
     this.handleChangeAfter(id, val)
   }
-  handleChangeAfter(name, value) {
-  }
+  handleChangeAfter(name, value) {/* NOOP */ }
+
   componentWillUnmount() {
-    // Auto destroy select2
-    let ss = this.__select2
+    // destroy select2
+    const ss = this.__select2
     if (ss) {
       if ($.type(ss) === 'array') $(ss).each(function () { this.select2('destroy') })
       else ss.select2('destroy')
       this.__select2 = null
     }
   }
+
   disabled(d) {
     if (!this._btns) return
     if (d === true) $(this._btns).find('.btn').button('loading')
@@ -156,6 +154,7 @@ class RbFormHandler extends RbModalHandler {
 // ~~ 提示框
 class RbAlert extends React.Component {
   state = { ...this.props, disable: false }
+
   render() {
     let style = {}
     if (this.props.width) style.maxWidth = ~~this.props.width
@@ -495,11 +494,11 @@ const renderRbcomp = function (jsx, target, call) {
     if (!container) {
       if (!target.startsWith('react-comps-')) throw 'No element found : ' + target
       else target = $('<div id="' + target + '"></div>').appendTo(document.body)[0]
+    } else {
+      target = container
     }
-    else target = container
-  } else {
-    // Element object
-    if (target instanceof $) target = target[0]
+  } else if (target instanceof $) {
+    target = target[0]
   }
   ReactDOM.render(jsx, target, call)
 }
