@@ -171,7 +171,6 @@ class RbList extends React.Component {
       reload: this.pageNo === 1
     }
     this.__lastQueryEntry = query
-    console.log(JSON.stringify(query))
 
     let loadingTimer = setTimeout(() => {
       this.setState({ inLoad: true })
