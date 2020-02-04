@@ -69,6 +69,7 @@ class DataList extends React.Component {
     if (n && $regex.isId(n)) qs.push({ field: 'recordId', op: 'EQ', value: n })
     let q = {
       entity: 'RevisionHistory',
+      equation: 'AND',
       items: qs
     }
     this._List.search(JSON.stringify(q))
