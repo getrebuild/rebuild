@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-var wpc = window.__PageConfig
+const wpc = window.__PageConfig
 let fieldsCache
 let activeNode
 let donotCloseSidebar
