@@ -109,7 +109,7 @@ class NodeGroupSpec extends React.Component {
     let nodes = (this.state.nodes || []).map((item) => {
       let props = { ...item, key: 'kn-' + item.nodeId, $$$parent: this }
       if (item.type === 'condition') return <ConditionNode {...props} />
-      else return <Node {...props} />
+      else return <SimpleNode {...props} />
     })
     return nodes
   }
@@ -167,7 +167,7 @@ class NodeGroupSpec extends React.Component {
 // 画布:节点 1:N
 
 // 一般节点
-class Node extends NodeSpec {
+class SimpleNode extends NodeSpec {
 
   constructor(props) {
     super(props)
@@ -702,7 +702,7 @@ class RbFlowCanvas extends NodeGroupSpec {
         <a className="zoom-out" onClick={() => this.zoom(-10)}><i className="zmdi zmdi-minus" /></a>
       </div>
       <div className={'box-scale' + (wpc.preview ? ' preview' : '')} style={this.state.zoomStyle}>
-        <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
+        <SimpleNode type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
         {this.renderNodes()}
         <div className="end-node">
           <div className="end-node-circle"></div>
