@@ -116,6 +116,6 @@ window.__PageConfig = {
 	referenceEntity: '${referenceEntity}'
 }
 </script>
-<script type="text/babel" src="${baseUrl}/assets/js/entityhub/auto-fillin.jsx"></script>
+<script src="${baseUrl}/assets/js/entityhub/auto-fillin.jsx" type="text/babel"></script>
 </body>
 </html>

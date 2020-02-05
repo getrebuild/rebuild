@@ -69,6 +69,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel" src="${baseUrl}/assets/js/entityhub/entity-new.jsx"></script>
+<script src="${baseUrl}/assets/js/entityhub/entity-new.jsx" type="text/babel"></script>
 </body>
 </html>

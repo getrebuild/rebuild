@@ -16,7 +16,6 @@ html.admin .admin-show.row {
 html,
 body {
     min-width: 340px;
-    overflow: auto;
 }
 
 /* 1280 */

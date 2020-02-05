@@ -1,14 +1,16 @@
 /* eslint-disable react/jsx-no-target-blank */
 $(document).ready(function () {
-  $('.J_add').click(() => { renderRbcomp(<ReporEdit />) })
+  $('.J_add').click(() => renderRbcomp(<ReporEdit />))
   renderRbcomp(<ReportList />, 'dataList')
 })
 
 class ReportList extends ConfigList {
+
   constructor(props) {
     super(props)
     this.requestUrl = `${rb.baseUrl}/admin/datas/data-reports/list`
   }
+
   render() {
     return <React.Fragment>
       {(this.state.data || []).map((item) => {
@@ -30,6 +32,7 @@ class ReportList extends ConfigList {
   handleEdit(item) {
     renderRbcomp(<ReporEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
+
   handleDelete(id) {
     let handle = super.handleDelete
     RbAlert.create('确认删除此报表模板？', {
@@ -44,10 +47,12 @@ class ReportList extends ConfigList {
 }
 
 class ReporEdit extends ConfigFormDlg {
+
   constructor(props) {
     super(props)
     this.subtitle = '报表模板'
   }
+
   renderFrom() {
     return <React.Fragment>
       <div className="form-group row">
@@ -100,6 +105,7 @@ class ReporEdit extends ConfigFormDlg {
       }
     </React.Fragment>
   }
+
   componentDidMount() {
     super.componentDidMount()
     setTimeout(() => {
@@ -127,8 +133,8 @@ class ReporEdit extends ConfigFormDlg {
 
   // 检查模板
   checkTemplate() {
-    let file = this.__lastFile
-    let entity = this.__select2.val()
+    const file = this.__lastFile
+    const entity = this.__select2.val()
     if (!file || !entity) return
 
     $.get(`${rb.baseUrl}/admin/datas/data-reports/check-template?file=${file}&entity=${entity}`, (res) => {

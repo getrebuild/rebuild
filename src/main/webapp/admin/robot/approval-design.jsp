@@ -69,6 +69,7 @@ window.__PageConfig = {
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/admin/config-comps.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/entityhub/approval-design.jsx" type="text/babel"></script>
 </body>
 </html>

@@ -44,10 +44,12 @@ class ApprovalList extends ConfigList {
 }
 
 class ApprovalEdit extends ConfigFormDlg {
+
   constructor(props) {
     super(props)
     this.subtitle = '审批流程'
   }
+
   renderFrom() {
     return <React.Fragment>
       <div className="form-group row">
@@ -78,6 +80,7 @@ class ApprovalEdit extends ConfigFormDlg {
       }
     </React.Fragment>
   }
+
   componentDidMount() {
     super.componentDidMount()
     if (this.props.id) $(this._tooltip).tooltip()

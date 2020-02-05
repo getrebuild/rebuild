@@ -72,7 +72,7 @@
 }
 
 #config-side .form {
-	margin: 20px;
+	padding: 20px;
 	appearance: none;
 }
 
@@ -543,7 +543,6 @@
 .rbflow-design .add-node-btn>button:hover,
 .rbflow-design .add-branch:hover,
 .rbflow-design .auto-judge:hover {
-	opacity: 0.95;
 	cursor: pointer;
 	box-shadow: 0 3px 4px 0 rgba(0, 0, 0, .1);
 }
@@ -680,6 +679,10 @@
 	padding-left: 1.9377rem !important;
 }
 
+.fields-table td {
+	border-color: #eee;
+}
+
 .fields-table tbody {
-	border-bottom: 1px solid #dee2e6;
+	border-bottom: 1px solid #eee;
 }

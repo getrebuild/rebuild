@@ -40,6 +40,7 @@ class TriggerList extends ConfigList {
   handleEdit(item) {
     renderRbcomp(<TriggerEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
+
   handleDelete(id) {
     let handle = super.handleDelete
     RbAlert.create('确认删除此触发器吗？', {
@@ -54,10 +55,12 @@ class TriggerList extends ConfigList {
 }
 
 class TriggerEdit extends ConfigFormDlg {
+
   constructor(props) {
     super(props)
     this.subtitle = '触发器'
   }
+
   renderFrom() {
     return <React.Fragment>
       {!this.props.id && <React.Fragment>
