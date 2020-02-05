@@ -420,7 +420,8 @@ public class GeneralEntityService extends ObservableService  {
 				return false;
 			}
 
-			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+			if (state == ApprovalState.APPROVED
+					|| (state == ApprovalState.PROCESSING && !ApprovalStepService.inAddedMode())) {
 				String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 				if (RobotTriggerObserver.getTriggerSource() != null) {

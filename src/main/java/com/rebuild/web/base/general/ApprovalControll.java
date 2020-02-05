@@ -20,6 +20,7 @@ package com.rebuild.web.base.general;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -29,10 +30,12 @@ import com.rebuild.server.business.approval.ApprovalHelper;
 import com.rebuild.server.business.approval.ApprovalProcessor;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.approval.FlowNodeGroup;
+import com.rebuild.server.business.approval.FormBuilder;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -121,7 +124,7 @@ public class ApprovalControll extends BasePageControll {
 		
 		ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, approvalId);
 		FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
-		
+
 		JSONArray approverList = new JSONArray();
 		for (ID o : nextNodes.getApproveUsers(user, recordId, null)) {
 			approverList.add(new Object[] { o, UserHelper.getName(o) });
@@ -138,6 +141,13 @@ public class ApprovalControll extends BasePageControll {
 		data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
 		data.put("isLastStep", nextNodes.isLastStep());
 		data.put("signMode", nextNodes.getSignMode());
+
+		// 可修改字段
+		JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
+		if (editableFields != null && !editableFields.isEmpty()) {
+			data.put("aform", new FormBuilder(recordId, user).build(editableFields));
+		}
+
 		writeSuccess(response, data);
 	}
 	
@@ -175,10 +185,22 @@ public class ApprovalControll extends BasePageControll {
 		JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
 		JSONObject selectUsers = post.getJSONObject("selectUsers");
 		String remark = post.getString("remark");
-		
+
+		// 可编辑字段
+		JSONObject aformData = post.getJSONObject("aformData");
+		Record addedRecord = null;
+		if (aformData != null) {
+			try {
+				addedRecord = EntityHelper.parse(aformData, getRequestUser(request));
+			} catch (DataSpecificationException know) {
+				writeFailure(response, know.getLocalizedMessage());
+				return;
+			}
+		}
+
 		try {
 			new ApprovalProcessor(recordId)
-					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers);
+					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord);
 			writeSuccess(response);
 		} catch (ApprovalException ex) {
 			writeFailure(response, ex.getMessage());
