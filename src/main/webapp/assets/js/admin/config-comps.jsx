@@ -44,7 +44,11 @@ class ConfigFormDlg extends RbFormHandler {
 
 // 列表 TABLE
 class ConfigList extends React.Component {
-  state = { ...this.props }
+
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
 
   componentDidMount() {
     this.loadData()

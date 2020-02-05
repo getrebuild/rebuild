@@ -2,18 +2,8 @@
 rebuild - Building your business-systems freely.
 Copyright (C) 2020 devezhao <zhaofang123@gmail.com>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+For more information, please see <https://getrebuild.com>
 */
 
 package com.rebuild.server.business.approval;
@@ -50,8 +40,7 @@ public class FormBuilder {
      */
     public JSONArray build(JSONArray elements) {
         Record data = FormsBuilder.instance.findRecord(record, user, elements);
-        FormsBuilder.instance.buildModelElements(
-                elements, MetadataHelper.getEntity(record.getEntityCode()), data, user, false);
+        FormsBuilder.instance.buildModelElements(elements, data.getEntity(), data, user, false);
         return elements;
     }
 }
