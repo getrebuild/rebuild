@@ -112,6 +112,7 @@ class RbModalHandler extends React.Component {
 
   show = (state, call) => {
     const callback = () => {
+      // eslint-disable-next-line react/no-string-refs
       const dlg = this._dlg || this.refs['dlg']
       if (dlg) dlg.show()
       typeof call === 'function' && call(this)
@@ -122,6 +123,7 @@ class RbModalHandler extends React.Component {
 
   hide = (e) => {
     if (e && e.target && $(e.target).attr('disabled')) return
+    // eslint-disable-next-line react/no-string-refs
     const dlg = this._dlg || this.refs['dlg']
     if (dlg) dlg.hide()
   }

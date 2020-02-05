@@ -1133,6 +1133,7 @@ var detectElementExt = function (item) {
 // 获取选项型字段显示值
 const __findOptionText = function (options, value) {
   if ((options || []).length === 0 || !value) return null
+  // eslint-disable-next-line eqeqeq
   const o = options.find((x) => x.id == value)
   return o ? (o.text || `[${value.toUpperCase()}]`) : `[${value.toUpperCase()}]`
 }

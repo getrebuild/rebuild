@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
 
@@ -274,6 +275,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       <label>可补充数据 (驳回时无需填写)</label>
       <EditableForm $$$parent={fake} ref={(c) => this._rbform = c}>
         {this.state.aform.map((item) => {
+          // eslint-disable-next-line no-undef
           return detectElement(item)
         })}
       </EditableForm>
@@ -308,6 +310,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 }
 
+// eslint-disable-next-line no-undef
 class EditableForm extends RbForm {
   constructor(props) {
     super(props)
@@ -396,7 +399,7 @@ class ApprovalStepViewer extends React.Component {
     let clazz = 'joint0'
     if (s[0].signMode === 'OR') clazz = 'joint or'
     else if (s[0].signMode === 'AND') clazz = 'joint'
-    return <div key={k} className={clazz}>{sss}</div>
+    return <div key={kp} className={clazz}>{sss}</div>
   }
 
   __formatTime(time) {

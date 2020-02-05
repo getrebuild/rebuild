@@ -4,6 +4,7 @@ $(document).ready(function () {
 })
 
 class AppList extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props, secretShows: [] }
@@ -40,7 +41,7 @@ class AppList extends React.Component {
 
   showSecret(s) {
     event.preventDefault()
-    let shows = this.state.secretShows
+    const shows = this.state.secretShows
     shows.push(s)
     this.setState({ secretShows: shows })
   }
@@ -61,12 +62,14 @@ class AppList extends React.Component {
 }
 
 class DlgEdit extends RbFormHandler {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
   }
+
   render() {
-    return (<RbModal title="添加 API 秘钥管理" ref={(c) => this._dlg = c}>
+    return <RbModal title="添加 API 秘钥管理" ref={(c) => this._dlg = c}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">绑定用户</label>
@@ -81,13 +84,15 @@ class DlgEdit extends RbFormHandler {
           </div>
         </div>
       </div>
-    </RbModal>)
+    </RbModal>
   }
+
   componentDidMount() {
     this._select2 = $initUserSelect2(this._user)
   }
+
   save = () => {
-    let bindUser = this._select2.val()
+    const bindUser = this._select2.val()
     this.disabled(true)
     $.post(`${rb.baseUrl}/admin/apis-manager/app-create?bind=${bindUser || ''}`, (res) => {
       if (res.error_code === 0) {
