@@ -103,9 +103,9 @@ public class ApprovalStepService extends BaseService {
 	 * @param stepRecord
 	 * @param signMode
 	 * @param cc
-	 * @param nextApprovers
-	 * @param nextNode
-	 * @param addedData
+	 * @param nextApprovers 驳回时无需
+	 * @param nextNode 驳回时无需
+	 * @param addedData 驳回时无需
 	 */
 	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData) {
 		if (addedData != null) {

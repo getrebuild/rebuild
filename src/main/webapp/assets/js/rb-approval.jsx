@@ -294,8 +294,12 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       aformData.metadata = { id: this.props.id }
     }
 
-    const selectUsers = this.getSelectUsers()
-    if (!selectUsers) return
+    let selectUsers
+    if (state === 10) {
+      selectUsers = this.getSelectUsers()
+      if (!selectUsers) return
+    }
+
     const data = { remark: this.state.remark || '', selectUsers: selectUsers, aformData: aformData }
 
     this.disabled(true)
