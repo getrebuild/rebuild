@@ -167,16 +167,14 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		Set<ID> nextApprovers = null;
 		String nextNode = null;
 
-		if (state == ApprovalState.APPROVED) {
-			if (!nextNodes.isLastStep()) {
-				nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
-				if (nextApprovers.isEmpty()) {
-					throw new ApprovalException("无下一步审批人可用，请联系管理员配置");
-				}
-
-				FlowNode nextApprovalNode = nextNodes.getApprovalNode();
-				nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
+		if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
+			nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
+			if (nextApprovers.isEmpty()) {
+				throw new ApprovalException("无下一步审批人可用，请联系管理员配置");
 			}
+
+			FlowNode nextApprovalNode = nextNodes.getApprovalNode();
+			nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
 		}
 
 		FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
