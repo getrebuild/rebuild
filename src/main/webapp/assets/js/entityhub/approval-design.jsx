@@ -51,7 +51,11 @@ const AddNodeButton = function (props) {
 
 // 节点规范
 class NodeSpec extends React.Component {
-  state = { ...this.props }
+
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
 
   componentDidMount() {
     this.props.$$$parent.onRef(this)
