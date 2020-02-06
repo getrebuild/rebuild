@@ -370,3 +370,7 @@ body {
 	width: 0 !important;
 	height: 0 !important;
 }
+
+.rbview-form .img-field .img-upload.img-thumbnail {
+	background-color: transparent;
+}

@@ -1062,26 +1062,33 @@ class RbFormDivider extends React.Component {
   }
 
   render() {
-    // TODO 编辑页暂无分割线
-    if (!this.props.onView) return null
-
     return <div className="form-line hover" ref={(c) => this._element = c}>
       <fieldset>{this.props.label && <legend onClick={this.toggle}>{this.props.label}</legend>}</fieldset>
     </div>
   }
 
   toggle = () => {
-    let $next = $(this._element).parent()
-    while (($next = $next.next()).length > 0) {
-      if ($next.find('>.form-line').length > 0) break
-      $next.toggleClass('hide')
+    if (this.props.onView) {
+      let $next = $(this._element).parent()
+      while (($next = $next.next()).length > 0) {
+        if ($next.find('>.form-line').length > 0) break
+        $next.toggleClass('hide')
+      }
+    } else {
+      let $next = $(this._element)
+      while (($next = $next.next()).length > 0) {
+        if ($next.hasClass('form-line') || $next.hasClass('footer')) break
+        $next.toggleClass('hide')
+      }
     }
   }
 }
 
+const TYPE_DIVIDER = '$DIVIDER$'
+
 // 确定元素类型
 const detectElement = function (item) {
-  if (!item.key) item.key = 'field-' + (item.field === '$DIVIDER$' ? $random() : item.field)
+  if (!item.key) item.key = 'field-' + (item.field === TYPE_DIVIDER ? $random() : item.field)
 
   // 扩展组件
   const extElement = detectElementExt(item)
@@ -1119,7 +1126,7 @@ const detectElement = function (item) {
     return <RbFormBool {...item} />
   } else if (item.type === 'STATE') {
     return <RbFormState {...item} />
-  } else if (item.field === '$LINE$' || item.field === '$DIVIDER$') {
+  } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {
     return <RbFormUnsupportted {...item} />

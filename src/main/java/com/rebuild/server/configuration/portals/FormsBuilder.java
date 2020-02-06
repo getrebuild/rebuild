@@ -281,12 +281,7 @@ public class FormsBuilder extends FormsManager {
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
 			JSONObject el = (JSONObject) iter.next();
 			String fieldName = el.getString("field");
-
 			if (DIVIDER_LINE.equalsIgnoreCase(fieldName)) {
-				// 分割线表单页暂不支持
-				if (!viewMode) {
-					iter.remove();
-				}
 				continue;
 			}
 			// 已删除字段

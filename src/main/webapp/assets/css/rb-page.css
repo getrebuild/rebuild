@@ -859,10 +859,6 @@ a {
     opacity: 0.8;
 }
 
-.img-field .img-upload.img-thumbnail {
-    background-color: transparent;
-}
-
 .file-field .file-select {
     margin-top: 1px;
 }
@@ -3188,4 +3184,16 @@ a.icon-link>.zmdi {
     height: 26px;
     line-height: 1;
     font-size: 0;
+}
+
+.protips {
+    color: #999;
+    text-align: center;
+}
+
+.protips::before {
+    content: '\f1f6';
+    font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+    font-size: 1.1rem;
+    margin-right: 6px;
 }

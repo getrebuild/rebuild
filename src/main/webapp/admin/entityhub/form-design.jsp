@@ -59,7 +59,7 @@
                		<ul class="nav nav-tabs nav-tabs-classic">
 						<li class="nav-item"><a class="nav-link active" href="#form-design">表单/视图布局</a></li>
 					</ul>
-	                <div class="tab-content">
+	                <div class="tab-content mb-5">
 						<div class="tab-pane active">
 							<div class="form-preview view-preview dd-list">
 								<div class="nodata">点击右侧字段添加到布局</div>
@@ -68,6 +68,7 @@
 						</div>
 					</div>
 				</div>
+				<p class="protips">新建/编辑页暂不支持双列布局</p>
 			</div>
 		</div>
 	</div>
