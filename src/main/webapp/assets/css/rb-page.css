@@ -114,6 +114,10 @@ body {
     min-width: 28px;
 }
 
+.pagination.pagination-rounded .page-link>.icon {
+    margin-top: -5px;
+}
+
 .text-disabled {
     color: #aaa;
     font-style: italic;
