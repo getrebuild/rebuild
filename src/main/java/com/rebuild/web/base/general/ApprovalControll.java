@@ -189,7 +189,8 @@ public class ApprovalControll extends BasePageControll {
 		// 可编辑字段
 		JSONObject aformData = post.getJSONObject("aformData");
 		Record addedRecord = null;
-		if (aformData != null) {
+		// 没有或无更新
+		if (aformData != null && aformData.size() > 1) {
 			try {
 				addedRecord = EntityHelper.parse(aformData, getRequestUser(request));
 			} catch (DataSpecificationException know) {

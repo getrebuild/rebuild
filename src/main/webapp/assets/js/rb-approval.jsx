@@ -252,7 +252,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         {this.state.aform && this._renderEditableForm()}
         <div className="form-group">
           <label>批注</label>
-          <textarea className="form-control form-control-sm row2x" name="remark" placeholder="输入批注 (可选)" value={this.state.remark || ''} onChange={this.handleChange} />
+          <textarea className="form-control form-control-sm row2x" name="remark" placeholder="输入批注 (可选)" value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
         </div>
         {this.renderUsers()}
         <div className="dialog-footer" ref={(c) => this._btns = c}>
@@ -272,7 +272,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       state: { id: this.props.id, __formModel: {} }
     }
     return <div className="form-group">
-      <label>可补充数据 (驳回时无需填写)</label>
+      <label>信息完善 (驳回时无需填写)</label>
       <EditableForm $$$parent={fake} ref={(c) => this._rbform = c}>
         {this.state.aform.map((item) => {
           // eslint-disable-next-line no-undef
@@ -310,6 +310,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   }
 }
 
+// @see rb-forms.jsx
 // eslint-disable-next-line no-undef
 class EditableForm extends RbForm {
   constructor(props) {

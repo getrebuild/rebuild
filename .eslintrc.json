@@ -21,7 +21,8 @@
     },
     "settings": {
         "react": {
-            "version": "16.10.2"
+            "pragma": "React",
+            "version": "detect"
         }
     },
     "globals": {

@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.configuration.portals.FormsBuilder;
-import com.rebuild.server.metadata.MetadataHelper;
 
 /**
  * 审批可修改字段表单
