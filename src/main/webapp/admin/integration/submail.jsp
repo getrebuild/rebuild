@@ -103,7 +103,10 @@ $(document).ready(() => {
     $('.J_test-sms').click(() => renderRbcomp(<TestSend type="sms" />))
 })
 class TestSend extends RbAlert {
-    state = { ...this.props }
+    constructor(props) {
+        super(props)
+        this.state = { ...props }
+    }
     renderContent() {
         const typeName = this.props.type === 'email' ? '邮箱' : '手机'
         return (
@@ -113,12 +116,12 @@ class TestSend extends RbAlert {
                     <input type="text" className="form-control form-control-sm" placeholder={typeName} ref={(c) => this._input = c} />
                 </div>
                 <div className="form-group mb-1">
-                    <button type="button" className="btn btn-space btn-primary" onClick={this.confirm} ref={(c) => this._btn = c} >发送</button>
+                    <button type="button" className="btn btn-space btn-primary" onClick={()=>this.confirm()} ref={(c) => this._btn = c} >发送</button>
                 </div>
             </form>
         )
     }
-    confirm = () => {
+    confirm() {
         let receiver = $(this._input).val()
         if (!receiver) return
 
