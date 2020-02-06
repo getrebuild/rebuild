@@ -21,25 +21,31 @@ package com.rebuild.server.business.approval;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.service.bizz.UserHelper;
+import org.springframework.util.Assert;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * 1个审批节点+N个抄送节点
+ *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/07/11
+ * @see FlowNode
  */
 public class FlowNodeGroup {
 	
 	private Set<FlowNode> nodes = new HashSet<>();
 	
 	protected FlowNodeGroup() {
+		super();
 	}
 	
 	/**
 	 * @param node
 	 */
 	public void addNode(FlowNode node) {
+		Assert.isNull(getApprovalNode(), "Cannot add multiple approved nodes");
 		nodes.add(node);
 	}
 	
@@ -59,12 +65,8 @@ public class FlowNodeGroup {
 	 * @return
 	 */
 	public boolean allowSelfSelectingApprover() {
-		for (FlowNode node : nodes) {
-			if (node.getType().equals(FlowNode.TYPE_APPROVER) && node.allowSelfSelecting()) {
-				return true;
-			}
-		}
-		return false;
+		FlowNode node = getApprovalNode();
+		return node != null && node.allowSelfSelecting();
 	}
 	
 	/**
@@ -95,12 +97,12 @@ public class FlowNodeGroup {
 	 */
 	public Set<ID> getApproveUsers(ID operator, ID recordId, JSONObject selectUsers) {
 		Set<ID> users = new HashSet<>();
-		for (FlowNode node : nodes) {
-			if (FlowNode.TYPE_APPROVER.equals(node.getType())) {
-				users.addAll(node.getSpecUsers(operator, recordId));
-			}
+
+		FlowNode node = getApprovalNode();
+		if (node != null) {
+			users.addAll(node.getSpecUsers(operator, recordId));
 		}
-		
+
 		if (selectUsers != null) {
 			users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectApprovers"), recordId));
 		}
@@ -114,12 +116,7 @@ public class FlowNodeGroup {
 	 */
 	public boolean isLastStep() {
 		// TODO 对审批最后一步加强判断
-		for (FlowNode node : nodes) {
-			if (node.getType().equals(FlowNode.TYPE_APPROVER)) {
-				return false;
-			}
-		}
-		return true;
+		return getApprovalNode() == null;
 	}
 	
 	/**
@@ -130,6 +127,8 @@ public class FlowNodeGroup {
 	}
 	
 	/**
+	 * 获取审批节点
+	 *
 	 * @return
 	 */
 	public FlowNode getApprovalNode() {

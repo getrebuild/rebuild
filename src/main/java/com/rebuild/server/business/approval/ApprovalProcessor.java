@@ -124,6 +124,20 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers) throws ApprovalException {
+		approve(approver, state, remark, selectNextUsers, null);
+	}
+
+	/**
+	 * 审批
+	 *
+	 * @param approver
+	 * @param state
+	 * @param remark
+	 * @param selectNextUsers
+	 * @param addedData
+	 * @throws ApprovalException
+	 */
+	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData) throws ApprovalException {
 		Integer currentState = (Integer) Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState)[0];
 		if (currentState != ApprovalState.PROCESSING.getState()) {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.APPROVED.getState() ? "审批完成" : "驳回审批"));
@@ -152,19 +166,20 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
 		Set<ID> nextApprovers = null;
 		String nextNode = null;
-		if (!nextNodes.isLastStep()) {
+
+		if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
 			nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
 			if (nextApprovers.isEmpty()) {
 				throw new ApprovalException("无下一步审批人可用，请联系管理员配置");
 			}
-			
+
 			FlowNode nextApprovalNode = nextNodes.getApprovalNode();
 			nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
 		}
-		
+
 		FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
 		Application.getBean(ApprovalStepService.class)
-				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode);
+				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData);
 	}
 
 	/**
@@ -181,6 +196,13 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		}
 
 		Application.getBean(ApprovalStepService.class).txCancel(this.record, (ID) state[1], getCurrentNodeId());
+	}
+
+	/**
+	 * @return
+	 */
+	public FlowNode getCurrentNode() {
+		return getFlowParser().getNode(getCurrentNodeId());
 	}
 
 	/**

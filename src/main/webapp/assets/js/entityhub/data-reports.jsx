@@ -1,14 +1,17 @@
 /* eslint-disable react/jsx-no-target-blank */
+
 $(document).ready(function () {
-  $('.J_add').click(() => { renderRbcomp(<ReporEdit />) })
+  $('.J_add').click(() => renderRbcomp(<ReporEdit />))
   renderRbcomp(<ReportList />, 'dataList')
 })
 
 class ReportList extends ConfigList {
+
   constructor(props) {
     super(props)
     this.requestUrl = `${rb.baseUrl}/admin/datas/data-reports/list`
   }
+
   render() {
     return <React.Fragment>
       {(this.state.data || []).map((item) => {
@@ -30,8 +33,9 @@ class ReportList extends ConfigList {
   handleEdit(item) {
     renderRbcomp(<ReporEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
+
   handleDelete(id) {
-    let handle = super.handleDelete
+    const handle = super.handleDelete
     RbAlert.create('确认删除此报表模板？', {
       type: 'danger',
       confirmText: '删除',
@@ -44,10 +48,12 @@ class ReportList extends ConfigList {
 }
 
 class ReporEdit extends ConfigFormDlg {
+
   constructor(props) {
     super(props)
     this.subtitle = '报表模板'
   }
+
   renderFrom() {
     return <React.Fragment>
       <div className="form-group row">
@@ -56,37 +62,36 @@ class ReporEdit extends ConfigFormDlg {
           <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
         </div>
       </div>
-      {!this.props.id &&
-        <React.Fragment>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">选择应用实体</label>
-            <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => this._entity = c}>
-                {(this.state.entities || []).map((item) => {
-                  return <option key={'e-' + item.name} value={item.name}>{item.label}</option>
-                })}
-              </select>
-            </div>
+      {!this.props.id && <React.Fragment>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">选择应用实体</label>
+          <div className="col-sm-7">
+            <select className="form-control form-control-sm" ref={(c) => this._entity = c}>
+              {(this.state.entities || []).map((item) => {
+                return <option key={'e-' + item.name} value={item.name}>{item.label}</option>
+              })}
+            </select>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">模板文件</label>
-            <div className="col-sm-9">
-              <div className="float-left">
-                <div className="file-select">
-                  <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="5000000" ref={(c) => this.__upload = c} />
-                  <label htmlFor="upload-input" className="btn-secondary"><i className="zmdi zmdi-upload"></i><span>选择文件</span></label>
-                </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right">模板文件</label>
+          <div className="col-sm-9">
+            <div className="float-left">
+              <div className="file-select">
+                <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="5000000" ref={(c) => this.__upload = c} />
+                <label htmlFor="upload-input" className="btn-secondary"><i className="zmdi zmdi-upload"></i><span>选择文件</span></label>
               </div>
-              <div className="float-left ml-2" style={{ paddingTop: 8 }}>
-                {this.state.uploadFileName && <div className="text-bold">{this.state.uploadFileName}</div>}
-              </div>
-              <div className="clearfix"></div>
-              {(this.state.invalidVars || []).length > 0 && <div className="text-danger">
-                存在无效字段 {'${'}{this.state.invalidVars.join('} ${')}{'}'}，建议修改
-              </div>}
             </div>
+            <div className="float-left ml-2" style={{ paddingTop: 8 }}>
+              {this.state.uploadFileName && <div className="text-bold">{this.state.uploadFileName}</div>}
+            </div>
+            <div className="clearfix"></div>
+            {(this.state.invalidVars || []).length > 0 && <div className="text-danger">
+              存在无效字段 {'${'}{this.state.invalidVars.join('} ${')}{'}'}，建议修改
+            </div>}
           </div>
-        </React.Fragment>
+        </div>
+      </React.Fragment>
       }
       {this.props.id &&
         <div className="form-group row">
@@ -100,6 +105,7 @@ class ReporEdit extends ConfigFormDlg {
       }
     </React.Fragment>
   }
+
   componentDidMount() {
     super.componentDidMount()
     setTimeout(() => {
@@ -127,8 +133,8 @@ class ReporEdit extends ConfigFormDlg {
 
   // 检查模板
   checkTemplate() {
-    let file = this.__lastFile
-    let entity = this.__select2.val()
+    const file = this.__lastFile
+    const entity = this.__select2.val()
     if (!file || !entity) return
 
     $.get(`${rb.baseUrl}/admin/datas/data-reports/check-template?file=${file}&entity=${entity}`, (res) => {

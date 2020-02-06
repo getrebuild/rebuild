@@ -58,6 +58,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script type="text/babel" src="${baseUrl}/assets/js/admin/apis-manager.jsx"></script>
+<script src="${baseUrl}/assets/js/admin/apis-manager.jsx" type="text/babel"></script>
 </body>
 </html>

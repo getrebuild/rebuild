@@ -84,7 +84,7 @@ public class FieldAggregationTest extends TestSupportWithUser {
 
         JSONObject configUseMAX = JSON.parseObject("{ targetField:'totalAmount', calcMode:'MAX', sourceField:'totalAmount' }");
         new AggregationEvaluator(
-                configUseMAX, sourceEntity, "releatedAccount", "(2=2)")
+                configUseMAX, sourceEntity, "relatedAccount", "(2=2)")
                 .eval(ID.newId(sourceEntity.getEntityCode()));
     }
 }
