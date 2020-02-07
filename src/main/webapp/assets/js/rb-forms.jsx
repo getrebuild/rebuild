@@ -328,7 +328,9 @@ class RbFormElement extends React.Component {
   renderElement() {
     const value = arguments.length > 0 ? arguments[0] : this.state.value
     return <input ref={(c) => this._fieldValue = c} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={value || ''}
-      onChange={this.handleChange} onBlur={this.checkValue} readOnly={this.props.readonly} maxLength="255" />
+      onChange={this.handleChange}
+      onBlur={this.props.readonly ? null : this.checkValue}
+      readOnly={this.props.readonly} maxLength="255" />
   }
 
   // 渲染视图
@@ -503,9 +505,10 @@ class RbFormNumber extends RbFormText {
   renderElement() {
     let value = arguments.length > 0 ? arguments[0] : this.state.value
     if (value) value = (value + '').replace(/,/g, '')  // 移除千分为位
-    return <input ref={(c) => this._fieldValue = c} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`}
-      title={this.state.hasError} type="text" value={value || ''}
-      onChange={this.handleChange} onBlur={this.checkValue} readOnly={this.props.readonly} maxLength="30" />
+    return <input ref={(c) => this._fieldValue = c} className={`form-control form-control-sm ${this.state.hasError ? 'is-invalid' : ''}`} title={this.state.hasError} type="text" value={value || ''}
+      onChange={this.handleChange}
+      onBlur={this.props.readonly ? null : this.checkValue}
+      readOnly={this.props.readonly} maxLength="30" />
   }
 }
 
@@ -531,9 +534,10 @@ class RbFormTextarea extends RbFormElement {
   }
 
   renderElement() {
-    return <textarea ref={(c) => this._fieldValue = c} className={`form-control form-control-sm row3x ${(this.state.hasError ? 'is-invalid' : '')}`}
-      title={this.state.hasError} value={this.state.value || ''}
-      onChange={this.handleChange} onBlur={this.checkValue} readOnly={this.props.readonly} maxLength="3000" />
+    return <textarea ref={(c) => this._fieldValue = c} className={`form-control form-control-sm row3x ${(this.state.hasError ? 'is-invalid' : '')}`} title={this.state.hasError} value={this.state.value || ''}
+      onChange={this.handleChange}
+      onBlur={this.props.readonly ? null : this.checkValue}
+      readOnly={this.props.readonly} maxLength="3000" />
   }
 
   renderViewElement() {

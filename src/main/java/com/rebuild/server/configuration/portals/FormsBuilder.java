@@ -196,10 +196,10 @@ public class FormsBuilder extends FormsManager {
 		}
 
 		// 触发器自动只读
-		Set<String> roFieldsByTrigger = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
+		Set<String> roViaTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
 		for (Object o : elements) {
 			JSONObject field = (JSONObject) o;
-			if (roFieldsByTrigger.contains(field.getString("field"))) {
+			if (roViaTriggers.contains(field.getString("field"))) {
 				field.put("readonly", true);
 			}
 		}
@@ -295,10 +295,10 @@ public class FormsBuilder extends FormsManager {
 			el.put("label", easyField.getLabel());
 			el.put("type", dt.name());
 
-			// 自动只读的
-			final boolean readonly = el.getBooleanValue("readonly");
+			// 触发器自动只读
+			final boolean roViaTriggers = el.getBooleanValue("readonly");
 			// 不可更新字段
-			if ((data != null && !fieldMeta.isUpdatable()) || readonly) {
+			if ((data != null && !fieldMeta.isUpdatable()) || roViaTriggers) {
 				el.put("readonly", true);
 			} else {
 				el.put("readonly", false);
@@ -384,20 +384,12 @@ public class FormsBuilder extends FormsManager {
 							el.put("value", ApprovalState.DRAFT.getState());
 							break;
 					}
-
-
 				}
 
 				if (dt == DisplayType.SERIES) {
 					el.put("value", "自动值 (自动编号)");
 				} else if (dt == DisplayType.BOOL) {
 					el.put("value", BoolEditor.FALSE);
-				} else if (readonly) {
-					if (dt == DisplayType.REFERENCE) {
-						el.put("value", FieldValueWrapper.wrapMixValue(null,"自动值 (触发器)"));
-					} else {
-						el.put("value", "自动值 (触发器)");
-					}
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
 					if (defVal != null) {
@@ -405,6 +397,17 @@ public class FormsBuilder extends FormsManager {
 							defVal = defVal.substring(0, dateLength);
 						}
 						el.put("value", defVal);
+					}
+				}
+
+				if (roViaTriggers && el.get("value") == null) {
+					if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
+						el.put("value", FieldValueWrapper.wrapMixValue(null,"自动值 (触发器)"));
+					} else if (dt == DisplayType.TEXT || dt == DisplayType.NTEXT
+							|| dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE
+							|| dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
+							|| dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
+						el.put("value", "自动值 (触发器)");
 					}
 				}
 			}
