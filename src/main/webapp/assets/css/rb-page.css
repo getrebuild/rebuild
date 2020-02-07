@@ -3107,6 +3107,10 @@ a.icon-link>.zmdi {
     font-size: 12px;
 }
 
+.syscfg .table td .form-control {
+    max-width: 400px;
+}
+
 .syscfg .card {
     margin-bottom: 0;
 }

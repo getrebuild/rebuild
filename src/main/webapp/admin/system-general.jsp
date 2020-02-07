@@ -43,7 +43,7 @@
 						<tbody>
 							<tr>
 								<td width="40%">名称</td>
-								<td data-id="AppName">${appName}</td>
+								<td>${appName}</td>
 							</tr>
 							<tr>
 								<td>LOGO</td>

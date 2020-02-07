@@ -182,16 +182,17 @@ public class NavManager extends BaseLayoutManager {
 		}
 
 		StringBuilder navHtml = new StringBuilder()
-				.append(String.format("<li class='%s'><a href='%s'%s><i class='icon zmdi zmdi-%s'></i><span>%s</span></a>",
+				.append(String.format("<li class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
 						navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
 						subNavs == null ? navUrl : "###",
-						isUrlType ? " target='_blank' rel='noopener noreferrer'" : StringUtils.EMPTY,
-						navIcon, navText));
+						isUrlType ? "_blank" : "_self",
+						navIcon,
+						navText));
 		if (subNavs != null) {
 			StringBuilder subHtml = new StringBuilder()
-					.append("<ul class='sub-menu'><li class='title'>")
+					.append("<ul class=\"sub-menu\"><li class=\"title\">")
 					.append(navText)
-					.append("</li><li class='nav-items'><div class='content'><ul class='sub-menu-ul'>");
+					.append("</li><li class=\"nav-items\"><div class=\"content\"><ul class=\"sub-menu-ul\">");
 
 			for (Object o : subNavs) {
 				JSONObject subNav = (JSONObject) o;
