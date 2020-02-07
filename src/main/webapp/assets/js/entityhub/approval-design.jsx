@@ -619,7 +619,7 @@ class ApproverNodeConfig extends StartNodeConfig {
   }
 
   __fieldLabel(name) {
-    const field = fieldsCache.find((x) => x.name === name)
+    const field = fieldsCache.find((x) => { return x.name === name })
     return field ? field.label : `[${name.toUpperCase()}]`
   }
 }

@@ -115,7 +115,7 @@ public class MetadataGetting extends BaseControll {
 	private void putFields(
             List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField, String fromType) {
 	    Field parentField = null;
-	    Entity useEntity = null;
+	    Entity useEntity;
 	    if (entityOrField instanceof Field) {
             parentField = (Field) entityOrField;
             useEntity = parentField.getReferenceEntity();

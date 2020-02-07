@@ -21,6 +21,7 @@ package com.rebuild.server.business.trigger;
 import com.rebuild.server.business.trigger.impl.AutoAssign;
 import com.rebuild.server.business.trigger.impl.AutoShare;
 import com.rebuild.server.business.trigger.impl.FieldAggregation;
+import com.rebuild.server.business.trigger.impl.FieldFillinback;
 import com.rebuild.server.business.trigger.impl.SendNotification;
 import org.springframework.cglib.core.ReflectUtils;
 
@@ -35,10 +36,10 @@ import java.lang.reflect.Constructor;
 public enum ActionType {
 	
 	FIELDAGGREGATION("数据聚合", FieldAggregation.class),
-	SENDNOTIFICATION("发送通知 (内部消息)", SendNotification.class),
-
+	FIELDFILLINBACK("数据回填", FieldFillinback.class),
 	AUTOSHARE("自动共享", AutoShare.class),
 	AUTOASSIGN("自动分派", AutoAssign.class),
+	SENDNOTIFICATION("发送通知", SendNotification.class),
 
 	;
 	

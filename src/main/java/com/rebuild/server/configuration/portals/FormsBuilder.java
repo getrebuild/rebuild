@@ -195,7 +195,7 @@ public class FormsBuilder extends FormsManager {
 			}
 		}
 
-		// 自动只读字段
+		// 触发器自动只读
 		Set<String> roFieldsByTrigger = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
 		for (Object o : elements) {
 			JSONObject field = (JSONObject) o;
@@ -204,7 +204,7 @@ public class FormsBuilder extends FormsManager {
 			}
 		}
 
-		buildModelElements(elements, entityMeta, data, user, viewMode);
+		buildModelElements(elements, entityMeta, data, user);
 
 		if (elements.isEmpty()) {
 			return formatModelError("此表单布局尚未配置，请配置后使用");
@@ -271,9 +271,8 @@ public class FormsBuilder extends FormsManager {
 	 * @param entity
 	 * @param data
 	 * @param user
-	 * @param viewMode
 	 */
-	public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user, boolean viewMode) {
+	public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
 
@@ -296,7 +295,7 @@ public class FormsBuilder extends FormsManager {
 			el.put("label", easyField.getLabel());
 			el.put("type", dt.name());
 
-			// 触发器自动只读的
+			// 自动只读的
 			final boolean readonly = el.getBooleanValue("readonly");
 			// 不可更新字段
 			if ((data != null && !fieldMeta.isUpdatable()) || readonly) {
@@ -385,6 +384,8 @@ public class FormsBuilder extends FormsManager {
 							el.put("value", ApprovalState.DRAFT.getState());
 							break;
 					}
+
+
 				}
 
 				if (dt == DisplayType.SERIES) {
@@ -392,7 +393,11 @@ public class FormsBuilder extends FormsManager {
 				} else if (dt == DisplayType.BOOL) {
 					el.put("value", BoolEditor.FALSE);
 				} else if (readonly) {
-					el.put("value", "自动值 (触发器)");
+					if (dt == DisplayType.REFERENCE) {
+						el.put("value", FieldValueWrapper.wrapMixValue(null,"自动值 (触发器)"));
+					} else {
+						el.put("value", "自动值 (触发器)");
+					}
 				} else {
 					String defVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
 					if (defVal != null) {

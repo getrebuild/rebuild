@@ -39,7 +39,7 @@ public class FormBuilder {
      */
     public JSONArray build(JSONArray elements) {
         Record data = FormsBuilder.instance.findRecord(record, user, elements);
-        FormsBuilder.instance.buildModelElements(elements, data.getEntity(), data, user, false);
+        FormsBuilder.instance.buildModelElements(elements, data.getEntity(), data, user);
         return elements;
     }
 }

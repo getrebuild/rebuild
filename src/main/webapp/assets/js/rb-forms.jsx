@@ -1141,7 +1141,7 @@ var detectElementExt = function (item) {
 const __findOptionText = function (options, value) {
   if ((options || []).length === 0 || !value) return null
   // eslint-disable-next-line eqeqeq
-  const o = options.find((x) => x.id == value)
+  const o = options.find((x) => { return x.id == value })
   return o ? (o.text || `[${value.toUpperCase()}]`) : `[${value.toUpperCase()}]`
 }
 
