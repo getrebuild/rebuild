@@ -75,7 +75,9 @@ public class FieldFillinbackControll extends BaseControll {
         if (targetEntity != null) {
             for (Field field : MetadataSorter.sortFields(targetEntity.getFields())) {
                 EasyMeta easyField = EasyMeta.valueOf(field);
-                if (easyField.getDisplayType() == DisplayType.SERIES || easyField.isBuiltin()) {
+                DisplayType dt = easyField.getDisplayType();
+                if (dt == DisplayType.SERIES || dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST
+                        || easyField.isBuiltin()) {
                     continue;
                 }
                 targetFields.add(FieldAggregationControll.buildField(field, true));
