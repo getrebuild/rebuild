@@ -67,7 +67,7 @@ span.badge {
 				<li class="nav-item"><a href="../${fieldName}" class="nav-link">字段信息</a></li>
 				<li class="nav-item"><a href="./auto-fillin" class="nav-link active">表单回填配置</a></li>
 			</ul>
-			<div class="card mb-0">
+			<div class="card">
 				<div class="card-body">
 					<div class="dataTables_wrapper container-fluid">
 						<div class="row rb-datatable-header pl-0 pr-0">
@@ -105,6 +105,7 @@ span.badge {
 					</div>
 				</div>
 			</div>
+			<p class="protips">通过 <a href="${baseUrl}/admin/robot/triggers">触发器 (数据回填)</a> 可以实现更加复杂的回填规则</p>
 		</div>
 	</div>
 </div>

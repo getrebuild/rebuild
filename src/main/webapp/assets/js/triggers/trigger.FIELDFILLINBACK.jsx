@@ -163,8 +163,7 @@ class ContentFieldFillinback extends ActionContentSpec {
 
     let tFields = []
     $(this.__targetFieldsCache).each(function () {
-      if (source[2] === 'FILE' && this[2] !== 'FILE') return
-      if (source[2] === 'IMAGE' && this[2] !== 'IMAGE') return
+      if ((source[2] === 'FILE' && this[2] !== 'FILE') || (source[2] === 'IMAGE' && this[2] !== 'IMAGE')) return
       if (source[2] === this[2] || canFillinByType.includes(this[2])) {
         if (source[2] === 'REFERENCE' || source[2] === 'STATE') {
           if (source[3] === this[3]) tFields.push(this)

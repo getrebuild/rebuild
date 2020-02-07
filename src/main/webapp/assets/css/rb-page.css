@@ -3193,6 +3193,11 @@ a.icon-link>.zmdi {
 .protips {
     color: #999;
     text-align: center;
+    margin-bottom: 0;
+}
+
+.protips+.protips {
+    margin-top: 12px;
 }
 
 .protips::before {

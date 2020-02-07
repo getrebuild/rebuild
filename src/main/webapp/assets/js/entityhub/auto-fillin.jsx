@@ -8,24 +8,24 @@ $(document).ready(() => {
 
 const loadRules = () => {
   $.get('../auto-fillin-list?field=' + wpc.fieldName, (res) => {
-    let tbody = $('#dataList tbody').empty()
+    const tbody = $('#dataList tbody').empty()
     $(res.data).each(function () {
       let tr = $('<tr></tr>').appendTo(tbody)
       $('<td><div>' + this.targetFieldLabel + '</div></td>').appendTo(tr)
       $('<td>' + this.sourceFieldLabel + '</div></td>').appendTo(tr)
-      let extc = this.extConfig
+      const extc = this.extConfig
       let extcLabel = []
       if (extc.whenCreate) extcLabel.push('新建时')
       if (extc.whenUpdate) extcLabel.push('更新时')
       if (extc.fillinForce) extcLabel.push('强制回填')
       $('<td>' + extcLabel.join(', ') + '</div></td>').appendTo(tr)
-      let act = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr)
+      const act = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr)
       act.find('a:eq(0)').click(() => {
         renderRbcomp(<DlgRuleEdit {...bProps} {...extc} id={this.id} sourceField={this.sourceField} targetField={this.targetField} />)
       })
-      let configId = this.id
+      const configId = this.id
       act.find('a:eq(1)').click(() => {
-        RbAlert.create('确认删除此配置项？', {
+        RbAlert.create('确认删除此回填规则？', {
           type: 'danger',
           confirm: function () {
             this.disabled(true)
@@ -39,6 +39,7 @@ const loadRules = () => {
         })
       })
     })
+
     $('#dataList').parent().removeClass('rb-loading-active')
     if (res.data.length === 0) $('.list-nodata').removeClass('hide')
     else $('.list-nodata').addClass('hide')
@@ -53,7 +54,7 @@ class DlgRuleEdit extends RbFormHandler {
   }
 
   render() {
-    return (<RbModal title="回填规则" ref={(c) => this._dlg = c} disposeOnHide={true}>
+    return <RbModal title="回填规则" ref={(c) => this._dlg = c} disposeOnHide={true}>
       <div className="form">
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">源字段</label>
@@ -100,10 +101,11 @@ class DlgRuleEdit extends RbFormHandler {
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
+            <a className="btn btn-link" onClick={this.hide}>取消</a>
           </div>
         </div>
       </div>
-    </RbModal>)
+    </RbModal>
   }
 
   componentDidMount() {
@@ -111,7 +113,7 @@ class DlgRuleEdit extends RbFormHandler {
     // #1
     $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
       this.__targetFieldsCache = res.data
-      let s2target = $(this._targetField).select2({
+      const s2target = $(this._targetField).select2({
         placeholder: '选择字段',
         allowClear: false
       })
@@ -121,17 +123,15 @@ class DlgRuleEdit extends RbFormHandler {
       $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${this.props.sourceEntity}`, (res) => {
         this.__sourceFieldsCache = res.data
         this.setState({ sourceFields: res.data }, () => {
-          let s2source = $(this._sourceField).select2({
+          const s2source = $(this._sourceField).select2({
             placeholder: '选择字段',
             allowClear: false
-          }).on('change', (e) => {
-            this.__renderTargetFields(e.target.value)
-          })
+          }).on('change', (e) => this.__renderTargetFields(e.target.value))
           this.__select2.push(s2source)
 
           if (this.props.sourceField) {
             s2source.val(this.props.sourceField).trigger('change')
-            setTimeout(() => { s2target.val(this.props.targetField).trigger('change') }, 100)
+            setTimeout(() => s2target.val(this.props.targetField).trigger('change'), 100)
           } else {
             s2source.trigger('change')
           }
@@ -145,14 +145,7 @@ class DlgRuleEdit extends RbFormHandler {
     })
   }
   __renderTargetFields(s) {
-    let source = null
-    $(this.__sourceFieldsCache).each(function () {
-      if (s === this.name) {
-        source = this
-        return false
-      }
-    })
-
+    const source = this.__sourceFieldsCache.find((x) => { return s === x.name })
     let canFillinByType = CAN_FILLIN_MAPPINGS[source.type] || []
     canFillinByType.push('TEXT')
     canFillinByType.push('NTEXT')
@@ -160,13 +153,14 @@ class DlgRuleEdit extends RbFormHandler {
     // 显示兼容的目标字段
     let tFields = []
     $(this.__targetFieldsCache).each(function () {
-      if (!this.creatable || this.name === wpc.fieldName) return
-      if (source.type === 'FILE' && this.type !== 'FILE') return
-      if (source.type === 'IMAGE' && this.type !== 'IMAGE') return
+      if (!this.creatable || this.name === wpc.fieldName
+        || this.type === 'SERIES' || this.type === 'MULTISELECT' || this.type === 'PICKLIST'
+        || (source.type === 'FILE' && this.type !== 'FILE')
+        || (source.type === 'IMAGE' && this.type !== 'IMAGE')) return
       if (source.type === this.type || canFillinByType.includes(this.type)) {
-        if (source.type === 'REFERENCE') {  // reference field
-          if (source.ref && source.ref[0] === this.ref[0]) tFields.push(this)
-        } else if (source.type === 'STATE') {  // state field
+        if (source.type === 'REFERENCE') {
+          if (source.ref && this.ref && source.ref[0] === this.ref[0]) tFields.push(this)
+        } else if (source.type === 'STATE') {
           if (source.stateClass && source.stateClass === this.stateClass) tFields.push(this)
         } else {
           tFields.push(this)
@@ -190,13 +184,13 @@ class DlgRuleEdit extends RbFormHandler {
     _data.extConfig = { whenCreate: this.state.whenCreate, whenUpdate: this.state.whenUpdate, fillinForce: this.state.fillinForce }
     if (this.props.id) _data.id = this.props.id
 
-    let _btns = $(this._btns).find('.btn').button('loading')
+    this.disabled(true)
     $.post('../auto-fillin-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         this.hide()
         loadRules()
       } else RbHighbar.create(res.error_msg)
-      _btns.button('reset')
+      this.disabled()
     })
   }
 }
