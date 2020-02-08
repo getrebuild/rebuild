@@ -3107,6 +3107,10 @@ a.icon-link>.zmdi {
     font-size: 12px;
 }
 
+.syscfg .table td .form-control {
+    max-width: 400px;
+}
+
 .syscfg .card {
     margin-bottom: 0;
 }
@@ -3189,6 +3193,11 @@ a.icon-link>.zmdi {
 .protips {
     color: #999;
     text-align: center;
+    margin-bottom: 0;
+}
+
+.protips+.protips {
+    margin-top: 12px;
 }
 
 .protips::before {

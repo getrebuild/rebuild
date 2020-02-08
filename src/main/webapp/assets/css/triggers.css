@@ -22,7 +22,7 @@
   box-shadow: 0 0 0 #fff;
 }
 
-.timeline.spare form.simple .form-group:first-child {
+.timeline-content>form.simple>.form-group:first-child {
   padding-top: 26px;
 }
 
@@ -49,7 +49,7 @@
 }
 
 #react-content>div {
-  max-width: 881px;
+  max-width: 1000px;
 }
 
 .field-aggregation p {
@@ -63,7 +63,8 @@
   position: relative;
 }
 
-.field-aggregation .col-2>.zmdi {
+.field-aggregation .col-2>.zmdi,
+.field-writeback .col-5>.zmdi {
   position: absolute;
   left: -5px;
   color: #4c8bf5;
@@ -79,15 +80,7 @@
 }
 
 .field-aggregation .items>div {
-  padding: 5px 0;
-}
-
-.field-aggregation .items>div+div {
-  border-top: 1px dotted rgba(255, 255, 255, 0.7);
-}
-
-.field-aggregation .items>div:hover {
-  background-color: rgba(255, 255, 255, 0.7);
+  padding: 3px 0;
 }
 
 .field-aggregation .items>div .badge {
@@ -106,6 +99,10 @@
   position: relative;
 }
 
+.field-aggregation .items .del-wrap .zmdi-forward {
+  margin-top: 6px;
+}
+
 .field-aggregation .items .del-wrap .badge {
   margin-right: 20px;
 }
@@ -118,10 +115,16 @@
   color: #999;
   font-weight: bold;
   right: 15px;
+  display: none;
+  top: 2px
 }
 
 .field-aggregation .items .del-wrap a.del:hover {
   color: #222;
+}
+
+.field-aggregation .items>div:hover a.del {
+  display: inline-block;
 }
 
 .formula-calc ul li {

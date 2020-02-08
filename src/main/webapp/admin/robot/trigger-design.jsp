@@ -143,6 +143,7 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/triggers/trigger-design.jsx" type="text/babel"></script>
 <c:if test="${actionType == 'FIELDAGGREGATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.FIELDAGGREGATION.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'FIELDWRITEBACK'}"><script src="${baseUrl}/assets/js/triggers/trigger.FIELDWRITEBACK.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'SENDNOTIFICATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.SENDNOTIFICATION.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'AUTOASSIGN'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOASSIGN.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'AUTOSHARE'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOSHARE.jsx" type="text/babel"></script></c:if>

@@ -26,7 +26,6 @@ import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -88,15 +87,11 @@ public class AggregationEvaluator {
             return null;
         }
 
-        boolean direct = calcMode.equalsIgnoreCase("DIRECT");
-        String funcAndField = direct ? sourceField : String.format("%s(%s)", calcMode, sourceField);
-        String sql = String.format("select %s from %s where %s = ?", funcAndField, sourceEntity.getName(), followSourceField);
+        String funcAndField = String.format("%s(%s)", calcMode, sourceField);
+        String sql = String.format("select %s from %s where %s = ?",
+                funcAndField, sourceEntity.getName(), followSourceField);
         if (filterSql != null) {
             sql += " and " + filterSql;
-        }
-        // `赋值`使用最近一条
-        if (direct) {
-            sql += " order by " + (sourceEntity.containsField(EntityHelper.ModifiedOn) ? EntityHelper.ModifiedOn : EntityHelper.CreatedOn) + " desc";
         }
 
         Object[] o = Application.createQueryNoFilter(sql)
