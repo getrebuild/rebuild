@@ -55,7 +55,7 @@ public class SendNotificationTest extends TestSupportWithUser {
         triggerConfig.setString("belongEntity", "TestAllFields");
         triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
         triggerConfig.setString("actionType", ActionType.SENDNOTIFICATION.name());
-        String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION' }", SIMPLE_USER);
+        String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION {createdBy} {3782732}' }", SIMPLE_USER);
         triggerConfig.setString("actionContent", content);
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
@@ -82,7 +82,7 @@ public class SendNotificationTest extends TestSupportWithUser {
 
     @Test
     public void formatMessage() {
-        String msg = "你好哈哈哈{TestAllFieldsName} 肩痛 {createdBy}";
+        String msg = "你好哈哈哈{TestAllFieldsName} 肩痛 {createdBy} {4324fewfe}";
         msg = new SendNotification(null).formatMessage(msg, ID.valueOf("995-0170251908360005"));
         System.out.println(msg);
     }
