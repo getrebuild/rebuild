@@ -3154,7 +3154,6 @@ a.icon-link>.zmdi {
 
 .announcement-wrapper>div:hover {
     cursor: pointer;
-    color: #eee;
 }
 
 .announcement-wrapper>div+div {
@@ -3173,6 +3172,19 @@ a.icon-link>.zmdi {
     display: block;
     padding-left: 15px;
     margin: 0;
+}
+
+.announcement-wrapper>div:hover p {
+    opacity: .8;
+}
+
+.announcement-wrapper>div p>a {
+    color: #fff;
+}
+
+.announcement-wrapper>div p>a:hover,
+.announcement-contents a:hover {
+    text-decoration: underline;
 }
 
 .announcement-contents {

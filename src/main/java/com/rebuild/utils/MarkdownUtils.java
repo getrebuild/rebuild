@@ -27,7 +27,7 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
 import java.util.Collections;
 
 /**
- * MD 解析工具
+ * MD 转换工具
  * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/16
@@ -48,7 +48,6 @@ public class MarkdownUtils {
 	 */
 	public static String parse(String md) {
 		Node document = PARSER.parse(md);
-		String html = RENDERER.render(document);
-		return html;
+		return RENDERER.render(document);
 	}
 }
