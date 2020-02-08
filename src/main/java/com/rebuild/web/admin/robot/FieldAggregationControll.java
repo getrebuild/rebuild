@@ -51,6 +51,7 @@ public class FieldAggregationControll extends BaseControll {
 	@RequestMapping("field-aggregation-entities")
 	public void getTargetEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Entity sourceEntity = MetadataHelper.getEntity(getParameterNotNull(request, "source"));
+		boolean self = getBoolParameter(request, "self", true);
 		
 		List<String[]> entities = new ArrayList<>();
 		for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
@@ -64,7 +65,9 @@ public class FieldAggregationControll extends BaseControll {
 		}
 
 		// 可归集到自己（通过主键字段）
-		entities.add(new String[] { sourceEntity.getName(), EasyMeta.getLabel(sourceEntity), FieldAggregation.SOURCE_SELF});
+        if (self) {
+    		entities.add(new String[] { sourceEntity.getName(), EasyMeta.getLabel(sourceEntity), FieldAggregation.SOURCE_SELF});
+        }
 
 		writeSuccess(response, entities);
 	}

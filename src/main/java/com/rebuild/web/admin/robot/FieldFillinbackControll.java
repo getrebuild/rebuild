@@ -76,8 +76,7 @@ public class FieldFillinbackControll extends BaseControll {
             for (Field field : MetadataSorter.sortFields(targetEntity.getFields())) {
                 EasyMeta easyField = EasyMeta.valueOf(field);
                 DisplayType dt = easyField.getDisplayType();
-                if (dt == DisplayType.SERIES || dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST
-                        || easyField.isBuiltin()) {
+                if (dt == DisplayType.SERIES || dt == DisplayType.MULTISELECT || easyField.isBuiltin()) {
                     continue;
                 }
                 targetFields.add(FieldAggregationControll.buildField(field, true));
@@ -85,6 +84,7 @@ public class FieldFillinbackControll extends BaseControll {
         }
 
         // 审批流程启用
+        @SuppressWarnings("DuplicatedCode")
         boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
 
         JSON data = JSONUtils.toJSONObject(

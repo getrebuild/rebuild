@@ -22,14 +22,13 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.NullValue;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.business.trigger.impl.CompatibleValueConversion;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -101,7 +100,7 @@ public class AutoFillinManager implements ConfigManager<Field> {
 			}
 			
 			// NOTE 忽略空值
-			if (value == null || StringUtils.isBlank(value.toString())) {
+			if (value == null || NullValue.is(value) || StringUtils.isBlank(value.toString())) {
 				continue;
 			}
 			
@@ -119,40 +118,10 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	 * @param target
 	 * @param value
 	 * @return
+     * @see CompatibleValueConversion
 	 */
 	protected Object conversionCompatibleValue(Field source, Field target, Object value) {
-		DisplayType sourceType = EasyMeta.getDisplayType(source);
-		DisplayType targetType = EasyMeta.getDisplayType(target);
-		boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
-		EasyMeta sourceField = EasyMeta.valueOf(source);
-
-		Object compatibleValue = null;
-		if (sourceType == DisplayType.REFERENCE) {
-		    String idLabel = FieldValueWrapper.getLabelNotry((ID) value);
-			if (is2Text) {
-				compatibleValue = idLabel;
-			} else {
-				compatibleValue = FieldValueWrapper.wrapMixValue((ID) value, idLabel);
-			}
-		} else if (sourceType == DisplayType.CLASSIFICATION) {
-		    compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField, is2Text);
-		} else if (sourceType == DisplayType.PICKLIST || sourceType == DisplayType.STATE) {
-			if (is2Text) {
-				compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField);
-			} else {
-				compatibleValue = value;
-			}
-		} else if (sourceType == DisplayType.DATETIME && targetType == DisplayType.DATE) {
-			String datetime = FieldValueWrapper.instance.wrapDatetime(value, sourceField);
-			compatibleValue = datetime.split(" ")[0];
-		} else if (sourceType == DisplayType.DATE && targetType == DisplayType.DATETIME) {
-			String date = FieldValueWrapper.instance.wrapDate(value, sourceField);
-			compatibleValue = date + " 00:00:00";
-		} else {
-			compatibleValue = FieldValueWrapper.instance.wrapFieldValue(value, sourceField);
-		}
-
-		return compatibleValue;
+	    return new CompatibleValueConversion(source, target).conversion(value, true);
 	}
 	
 	/**

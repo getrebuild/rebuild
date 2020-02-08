@@ -1,4 +1,4 @@
-const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'DIRECT': '赋值', 'FORMULA': '计算公式' }
+const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
 
 // ~~ 数据聚合
 // eslint-disable-next-line no-undef
@@ -119,9 +119,7 @@ class ContentFieldAggregation extends ActionContentSpec {
 
         if (content && content.targetEntity) {
           s2te.val(content.targetEntity)
-          if (rb.env !== 'dev') {
-            s2te.attr('disabled', true)
-          }
+          if (rb.env !== 'dev') s2te.attr('disabled', true)
         }
         s2te.trigger('change')
         this.__select2.push(s2te)
@@ -135,12 +133,11 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   changeTargetEntity() {
+    const te = ($(this._targetEntity).val() || '').split('.')[1]
+    if (!te) return
     // 清空现有规则
     this.setState({ items: [] })
 
-    let te = $(this._targetEntity).val()
-    if (!te) return
-    te = te.split('.')[1]
     $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.setState({ hadApproval: res.data.hadApproval })
 
