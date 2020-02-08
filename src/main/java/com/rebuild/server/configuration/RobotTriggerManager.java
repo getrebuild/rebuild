@@ -119,7 +119,7 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 	 * @param record
 	 * @return
 	 */
-	public boolean isFiltered(JSONObject whenFilter, ID record) {
+	private boolean isFiltered(JSONObject whenFilter, ID record) {
 		if (whenFilter == null || whenFilter.isEmpty()) {
 			return false;
 		}

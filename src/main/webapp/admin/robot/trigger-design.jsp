@@ -105,7 +105,7 @@
 								<label class="col-12 col-lg-3 col-form-label text-lg-right">执行优先级</label>
 								<div class="col-12 col-lg-9">
 									<input type="number" class="form-control form-control-sm" id="priority" value="${priority}" data-o="${priority}" style="max-width:200px" />
-									<p class="form-text mb-0">优先级高的会被先执行</p>
+									<p class="form-text mb-0">优先级高（数字大）的会被先执行</p>
 								</div>
 							</div>
 						</form>
