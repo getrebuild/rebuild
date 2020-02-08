@@ -64,7 +64,7 @@
 }
 
 .field-aggregation .col-2>.zmdi,
-.field-fillinback .col-5>.zmdi {
+.field-writeback .col-5>.zmdi {
   position: absolute;
   left: -5px;
   color: #4c8bf5;

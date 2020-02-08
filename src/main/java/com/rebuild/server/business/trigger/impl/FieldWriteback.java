@@ -15,9 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionType;
-import com.rebuild.server.business.trigger.TriggerException;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.OperatingContext;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -84,10 +82,5 @@ public class FieldWriteback extends FieldAggregation {
                 record.setObjectValue(targetField.getName(), newValue);
             }
         }
-    }
-
-    @Override
-    public void prepare(OperatingContext operatingContext) throws TriggerException {
-        super.prepare(operatingContext);
     }
 }

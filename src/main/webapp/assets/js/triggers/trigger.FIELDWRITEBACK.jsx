@@ -9,7 +9,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   }
 
   render() {
-    return <div className="field-aggregation field-fillinback">
+    return <div className="field-aggregation field-writeback">
       <form className="simple">
         <div className="form-group row">
           <label className="col-md-12 col-lg-3 col-form-label text-lg-right">回填目标实体</label>
@@ -118,7 +118,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     // 清空现有规则
     this.setState({ items: [] })
 
-    $.get(`${rb.baseUrl}/admin/robot/trigger/field-fillinback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+    $.get(`${rb.baseUrl}/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.setState({ hadApproval: res.data.hadApproval })
       this.__targetFieldsCache = res.data.target
 

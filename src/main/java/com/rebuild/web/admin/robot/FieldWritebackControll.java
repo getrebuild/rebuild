@@ -36,9 +36,9 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/admin/robot/trigger/")
-public class FieldFillinbackControll extends BaseControll {
+public class FieldWritebackControll extends BaseControll {
 
-    @RequestMapping("field-fillinback-fields")
+    @RequestMapping("field-writeback-fields")
     public void getTargetField(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Entity sourceEntity = MetadataHelper.getEntity(getParameterNotNull(request, "source"));
         String target = getParameter(request, "target");
