@@ -29,6 +29,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.impl.CompatibleValueConversion;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -56,6 +57,11 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	 * @return
 	 */
 	public JSONArray getFillinValue(Field field, ID source) {
+	    // @see field-edit.jsp 内建字段无配置
+	    if (EasyMeta.valueOf(field).isBuiltin()) {
+	        return JSONUtils.EMPTY_ARRAY;
+        }
+
 		final List<ConfigEntry> config = getConfig(field);
 		if (config.isEmpty()) {
 			return JSONUtils.EMPTY_ARRAY;

@@ -31,18 +31,18 @@ import java.util.Map;
  *
  * @see com.rebuild.server.configuration.AutoFillinManager
  */
-public class FieldFillinback extends FieldAggregation {
+public class FieldWriteback extends FieldAggregation {
 
     /**
      * @param context
      */
-    public FieldFillinback(ActionContext context) {
+    public FieldWriteback(ActionContext context) {
         super(context, Boolean.TRUE, 5);
     }
 
     @Override
     public ActionType getType() {
-        return ActionType.FIELDFILLINBACK;
+        return ActionType.FIELDWRITEBACK;
     }
 
     @Override

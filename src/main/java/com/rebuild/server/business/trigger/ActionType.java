@@ -21,7 +21,7 @@ package com.rebuild.server.business.trigger;
 import com.rebuild.server.business.trigger.impl.AutoAssign;
 import com.rebuild.server.business.trigger.impl.AutoShare;
 import com.rebuild.server.business.trigger.impl.FieldAggregation;
-import com.rebuild.server.business.trigger.impl.FieldFillinback;
+import com.rebuild.server.business.trigger.impl.FieldWriteback;
 import com.rebuild.server.business.trigger.impl.SendNotification;
 import org.springframework.cglib.core.ReflectUtils;
 
@@ -36,10 +36,10 @@ import java.lang.reflect.Constructor;
 public enum ActionType {
 	
 	FIELDAGGREGATION("数据聚合", FieldAggregation.class),
-	FIELDFILLINBACK("数据回填", FieldFillinback.class),
+    FIELDWRITEBACK("数据回写", FieldWriteback.class),
+	SENDNOTIFICATION("发送通知", SendNotification.class),
 	AUTOSHARE("自动共享", AutoShare.class),
 	AUTOASSIGN("自动分派", AutoAssign.class),
-	SENDNOTIFICATION("发送通知", SendNotification.class),
 
 	;
 	
@@ -71,7 +71,7 @@ public enum ActionType {
 	 * @throws NoSuchMethodException
 	 */
 	public TriggerAction newInstance(ActionContext context) throws NoSuchMethodException {
-		Constructor c = getActionClazz().getConstructor(ActionContext.class);
+		Constructor<? extends TriggerAction> c = getActionClazz().getConstructor(ActionContext.class);
 		return (TriggerAction) ReflectUtils.newInstance(c, new Object[] { context });
 	}
 }

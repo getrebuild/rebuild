@@ -36,10 +36,6 @@ class RbFormAvatar extends RbFormElement {
       })
     }
   }
-
-  // Not implemented
-  setValue() { }
-  getValue() { }
 }
 
 // eslint-disable-next-line no-unused-vars

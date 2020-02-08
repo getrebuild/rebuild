@@ -197,7 +197,7 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
         Object[][] array = Application.createQueryNoFilter(
                 "select actionContent from RobotTriggerConfig where (actionType = ? or actionType = ?) and isDisabled = 'F'")
                 .setParameter(1, ActionType.FIELDAGGREGATION.name())
-                .setParameter(2, ActionType.FIELDFILLINBACK.name())
+                .setParameter(2, ActionType.FIELDWRITEBACK.name())
                 .array();
 
         CaseInsensitiveMap<String, Set<String>> fieldsMap = new CaseInsensitiveMap<>();

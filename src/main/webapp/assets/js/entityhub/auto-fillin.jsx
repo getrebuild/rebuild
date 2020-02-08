@@ -156,7 +156,9 @@ class DlgRuleEdit extends RbFormHandler {
       if (!this.creatable || this.name === wpc.fieldName
         || this.type === 'SERIES' || this.type === 'MULTISELECT' || this.type === 'PICKLIST'
         || (source.type === 'FILE' && this.type !== 'FILE')
-        || (source.type === 'IMAGE' && this.type !== 'IMAGE')) return
+        || (source.type === 'IMAGE' && this.type !== 'IMAGE')
+        || (source.type === 'AVATAR' && this.type !== 'AVATAR')) return
+
       if (source.type === this.type || canFillinByType.includes(this.type)) {
         if (source.type === 'REFERENCE') {
           if (source.ref && this.ref && source.ref[0] === this.ref[0]) tFields.push(this)

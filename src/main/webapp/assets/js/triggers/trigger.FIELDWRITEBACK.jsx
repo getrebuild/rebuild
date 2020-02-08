@@ -2,7 +2,7 @@
 
 // ~~ 数据回填
 // eslint-disable-next-line no-undef
-class ContentFieldFillinback extends ActionContentSpec {
+class ContentFieldWriteback extends ActionContentSpec {
 
   constructor(props) {
     super(props)
@@ -216,5 +216,5 @@ const CAN_FILLIN_MAPPINGS = {
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
   // eslint-disable-next-line no-undef
-  renderRbcomp(<ContentFieldFillinback {...props} />, 'react-content', function () { contentComp = this })
+  renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () { contentComp = this })
 }
