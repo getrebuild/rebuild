@@ -38,7 +38,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 外部URL跳转
+ * 外部URL监测跳转
  * 
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
