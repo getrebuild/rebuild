@@ -91,7 +91,7 @@ public class MessageBuilder {
     /**
      * Matchs @ID
      */
-    public static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");
+    public static final Pattern AT_PATTERN = Pattern.compile("(@[0-9a-zA-Z\\-]{20})");
 
     /**
      * 格式化消息
