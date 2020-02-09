@@ -1,9 +1,8 @@
-let UNICON_NAME = 'texture'
+const UNICON_NAME = 'texture'
 let shareTo
+
 $(document).ready(function () {
-  $('.J_add-menu').click(function () {
-    render_item({}, true)
-  })
+  $('.J_add-menu').click(() => render_item({}, true))
 
   $.get(rb.baseUrl + '/commons/metadata/entities', function (res) {
     $(res.data).each(function () {
@@ -13,14 +12,14 @@ $(document).ready(function () {
 
   $('.J_menuEntity').change(function () {
     if (item_current_isNew === true) {
-      let icon = $('.J_menuEntity option:selected').data('icon')
+      const icon = $('.J_menuEntity option:selected').data('icon')
       $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + icon)
-      let name = $('.J_menuEntity option:selected').text()
+      const name = $('.J_menuEntity option:selected').text()
       $('.J_menuName').val(name)
     }
   })
   $('.J_menuIcon').click(function () {
-    let url = rb.baseUrl + '/p/commons/search-icon'
+    const url = rb.baseUrl + '/p/commons/search-icon'
     parent.clickIcon = function (s) {
       $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
       parent.RbModal.hide(url)
@@ -28,9 +27,9 @@ $(document).ready(function () {
     parent.RbModal.create(url, '选择图标')
   })
   $('.J_menuConfirm').click(function () {
-    let name = $val('.J_menuName')
+    const name = $val('.J_menuName')
     if (!name) { RbHighbar.create('请输入菜单名称'); return }
-    let type = $('.J_menuType.active').attr('href').substr(1)
+    const type = $('.J_menuType.active').attr('href').substr(1)
     let value
     if (type === 'ENTITY') {
       value = $val('.J_menuEntity')
@@ -39,10 +38,13 @@ $(document).ready(function () {
       value = $val('.J_menuUrl')
       if (!value) {
         RbHighbar.create('请输入 URL'); return
-      } else if (!!value && !$regex.isUrl(value)) { RbHighbar.create('请输入有效的 URL'); return }
+      } else if (!!value && !$regex.isUrl(value)) {
+        RbHighbar.create('请输入有效的 URL')
+        return
+      }
     }
-    let icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
 
+    const icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
     render_item({ id: item_currentid, text: name, type: type, value: value, icon: icon })
 
     item_currentid = null
@@ -55,7 +57,7 @@ $(document).ready(function () {
   $('.J_save').click(function () {
     let navs = []
     $('.J_config>.dd-item').each(function () {
-      let item = build_item($(this), navs)
+      const item = build_item($(this), navs)
       if (item) navs.push(item)
     })
     if (navs.length === 0) {
@@ -63,8 +65,8 @@ $(document).ready(function () {
       return
     }
 
-    let btn = $(this).button('loading')
-    let shareToData = shareTo ? shareTo.getData() : {}
+    const btn = $(this).button('loading')
+    const shareToData = shareTo ? shareTo.getData() : {}
     $.post(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid}&configName=${$encode(shareToData.configName || '')}&shareTo=${shareToData.shareTo}`, JSON.stringify(navs), function (res) {
       btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
@@ -76,9 +78,9 @@ $(document).ready(function () {
     if (res.data) {
       cfgid = res.data.id
       $(res.data.config).each(function () {
-        let item = render_item(this)
+        const item = render_item(this)
         if (this.sub) {
-          let subUl = $('<ul></ul>').appendTo(item)
+          const subUl = $('<ul></ul>').appendTo(item)
           $(this.sub).each(function () {
             render_item(this, false, subUl)
           })
@@ -87,22 +89,16 @@ $(document).ready(function () {
       })
     }
 
-    let _data = res.data || {}
+    const _current = res.data || {}
     if (rb.isAdminUser) {
       $.get(`${rb.baseUrl}/app/settings/nav-settings/alist`, (res) => {
-        let configName = null
-        $(res.data).each(function () {
-          if (this[0] === _data.id) {
-            configName = this[1]
-            return false
-          }
-        })
+        const config = res.data.find((x) => { return x[0] === _current.id })
         // eslint-disable-next-line react/jsx-no-undef
-        renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={configName} shareTo={_data.shareTo} id={_data.id} />, 'shareTo', function () { shareTo = this })
+        renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={config ? config[1] : ''} shareTo={_current.shareTo} id={_current.id} />,
+          'shareTo', function () { shareTo = this })
       })
     }
   })
-
 })
 
 const add_sortable = function (el) {
@@ -114,7 +110,7 @@ const add_sortable = function (el) {
 }
 
 const build_item = function (item) {
-  let data = {
+  const data = {
     text: $.trim(item.find('.dd3-content').eq(0).text()),
     type: item.attr('attr-type'),
     value: item.attr('attr-value'),
@@ -122,7 +118,7 @@ const build_item = function (item) {
   }
   if (!data.value) return null
 
-  let subNavs = item.find('ul>li')
+  const subNavs = item.find('ul>li')
   if (subNavs.length > 0) {
     data.sub = []
     subNavs.each(function () {
@@ -132,6 +128,7 @@ const build_item = function (item) {
   }
   return data
 }
+
 let item_currentid
 let item_current_isNew
 let item_randomid = new Date().getTime()
@@ -144,7 +141,7 @@ const render_item = function (data, isNew, append2) {
   let item = $('.J_config').find('li[attr-id=\'' + data.id + '\']')
   if (item.length === 0) {
     item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo(append2)
-    let action = $('<div class="dd3-action"><a class="J_addsub" title="添加子菜单"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
+    const action = $('<div class="dd3-action"><a class="J_addsub" title="添加子菜单"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
     action.find('a.J_del').off('click').click(function () {
       item.remove()
       fixParents()
@@ -163,7 +160,7 @@ const render_item = function (data, isNew, append2) {
     }
   }
 
-  let content3 = item.find('.dd3-content').eq(0)
+  const content3 = item.find('.dd3-content').eq(0)
   content3.find('.zmdi').attr('class', 'zmdi zmdi-' + data.icon)
   content3.find('span').text(data.text)
   item.attr({
