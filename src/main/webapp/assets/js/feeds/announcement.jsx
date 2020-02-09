@@ -7,9 +7,9 @@ const converEmoji = function (text) {
   const es = text.match(/\[(.+?)\]/g)
   if (!es) return text
   es.forEach((e) => {
-    let img = EMOJIS[e.substr(1, e.length - 2)]
-    if (img) {
-      img = `<img class="emoji" src="${rb.baseUrl}/assets/img/emoji/${img}"/>`
+    const key = e.substr(1, e.length - 2)
+    if (EMOJIS[key]) {
+      const img = `<img class="emoji" src="${rb.baseUrl}/assets/img/emoji/${EMOJIS[key]}" alt="${key}" />`
       text = text.replace(e, img)
     }
   })
@@ -61,7 +61,7 @@ var $showAnnouncement = function () {
       </div>
     })
     renderRbcomp(<React.Fragment>{as}</React.Fragment>, $('.announcement-wrapper'), function () {
-      $(this).find('p>a').click((e) => e.stopPropagation())
+      $(this).find('p>a[href]').click((e) => e.stopPropagation())
     })
   })
 }

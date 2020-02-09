@@ -122,6 +122,7 @@ class FeedsList extends React.Component {
 
   _cleanSpecFilter = (e) => {
     e.preventDefault()
+    location.hash = 'none'
     this.setState({ specFilter: null }, () => this.fetchFeeds())
   }
 
