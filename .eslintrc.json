@@ -1,3 +1,4 @@
+// Use ESLint in locally : `npm install eslint babel-eslint eslint-plugin-react --save-dev`
 {
     "env": {
         "browser": true,
@@ -93,6 +94,8 @@
         "$empty": true
     },
     "rules": {
+        "strict": 0,
+        "no-redeclare": 0,
         "indent": [2, 2],
         "linebreak-style": [0, "unix"],
         "quotes": [2, "single"],
