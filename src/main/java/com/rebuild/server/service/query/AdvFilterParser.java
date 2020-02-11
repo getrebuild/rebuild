@@ -200,16 +200,16 @@ public class AdvFilterParser {
 		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
 		if (dt == DisplayType.CLASSIFICATION) {
 			field = "&" + field;
-		} else if (hasNameFlag || dt == DisplayType.REFERENCE) {
-			if (dt != DisplayType.REFERENCE) {
-				LOG.warn("Non reference-field '" + field + "' in '" + rootEntity.getName() + "'");
-				return null;
-			} else {
-				// 转化为名称字段
-				fieldMeta = fieldMeta.getReferenceEntity().getNameField();
-				dt = EasyMeta.getDisplayType(fieldMeta);
-				field += "." + fieldMeta.getName();
-			}
+        } else if (hasNameFlag) {
+            if (dt != DisplayType.REFERENCE) {
+                LOG.warn("Non reference-field '" + field + "' in '" + rootEntity.getName() + "'");
+                return null;
+            }
+
+            // 转化为名称字段
+            fieldMeta = fieldMeta.getReferenceEntity().getNameField();
+            dt = EasyMeta.getDisplayType(fieldMeta);
+            field += "." + fieldMeta.getName();
 		}
 
 		String op = item.getString("op");

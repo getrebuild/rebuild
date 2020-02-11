@@ -4,6 +4,7 @@
 
 const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
 const NT_SPLIT = '----'
+const NAME_FLAG = '&'
 
 // eslint-disable-next-line no-unused-vars
 class AdvFilter extends React.Component {
@@ -95,8 +96,11 @@ class AdvFilter extends React.Component {
       })
 
       if (this.__items) {
-        $(this.__items).each((idx, item) => {
+        this.__items.forEach((item) => {
+          if (item.field.substr(0, 1) === NAME_FLAG) item.field = item.field.substr(1)
           if (valideFs.includes(item.field)) this.addItem(item)
+          // eslint-disable-next-line no-console
+          else if (rb.env === 'dev') console.warn('Unkonw field : ' + JSON.stringify(item))
         })
       }
     })
@@ -128,9 +132,7 @@ class AdvFilter extends React.Component {
     if (props) itemProps = { ...itemProps, ...props }
     _items.push(<FilterItem {...itemProps} />)
 
-    this.setState({ items: _items }, () => {
-      this.renderEquation()
-    })
+    this.setState({ items: _items }, () => this.renderEquation())
   }
 
   removeItem(id) {
@@ -170,9 +172,9 @@ class AdvFilter extends React.Component {
     let filters = []
     let hasError = false
     for (let i = 0; i < this.childrenRef.length; i++) {
-      let fj = this.childrenRef[i].getFilterJson()
-      if (!fj) hasError = true
-      else filters.push(fj)
+      const item = this.childrenRef[i].getFilterJson()
+      if (!item) hasError = true
+      else filters.push(item)
     }
     if (hasError) { RbHighbar.create('部分条件设置有误，请检查'); return }
     if (filters.length === 0 && canNoFilters !== true) { RbHighbar.create('请至少添加1个条件'); return }
@@ -200,19 +202,19 @@ class AdvFilter extends React.Component {
   confirm() {
     const adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
-    else if (this.props.confirm) {
+
+    typeof this.props.confirm === 'function' &&
       this.props.confirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
-    }
-    if (this.props.inModal) this._dlg.hide()
+    this.props.inModal && this._dlg.hide()
     this.setState({ filterName: null })
   }
 
   show(state) {
-    if (this.props.inModal) this._dlg.show(state)
+    this.props.inModal && this._dlg.show(state)
   }
   hide() {
-    if (this.props.inModal) this._dlg.hide()
-    if (this.props.cancel) this.props.cancel()
+    this.props.inModal && this._dlg.hide()
+    typeof this.props.cancel === 'function' && this.props.cancel()
   }
 }
 
@@ -333,9 +335,9 @@ class FilterItem extends React.Component {
   // 引用 User/Department/Role
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
-      const fRef = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
-      if (!entity) return BIZZ_ENTITIES.includes(fRef[0])
-      else return fRef[0] === entity
+      const ref = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
+      if (!entity) return BIZZ_ENTITIES.includes(ref[0])
+      else return ref[0] === entity
     }
     return false
   }
@@ -352,7 +354,7 @@ class FilterItem extends React.Component {
 
   // 审批状态
   isApprovalState() {
-    let fieldName = this.state.field || ''
+    const fieldName = this.state.field || ''
     return fieldName === 'approvalState' || fieldName.endsWith('.approvalState')
   }
 
@@ -465,16 +467,12 @@ class FilterItem extends React.Component {
     const entity = this.props.$$$parent.props.entity
     const plKey = entity + '.' + field
     if (PICKLIST_CACHE[plKey]) {
-      this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
-        this.renderPickListAfter()
-      })
+      this.setState({ options: PICKLIST_CACHE[plKey] }, () => this.renderPickListAfter())
     } else {
       $.get(`${rb.baseUrl}/commons/metadata/field-options?entity=${entity}&field=${field}`, (res) => {
         if (res.error_code === 0) {
           PICKLIST_CACHE[plKey] = res.data
-          this.setState({ options: PICKLIST_CACHE[plKey] }, () => {
-            this.renderPickListAfter()
-          })
+          this.setState({ options: PICKLIST_CACHE[plKey] }, () => this.renderPickListAfter())
         } else {
           RbHighbar.error(res.error_msg)
         }
@@ -491,7 +489,7 @@ class FilterItem extends React.Component {
 
     // Load
     if (this.props.value && this.loadedPickList === false) {
-      let val = this.props.value.split('|')
+      const val = this.props.value.split('|')
       s2val.val(val).trigger('change')
       this.loadedPickList = true
     }
@@ -514,7 +512,7 @@ class FilterItem extends React.Component {
         url: rb.baseUrl + '/commons/search/search',
         delay: 300,
         data: function (params) {
-          let query = {
+          const query = {
             entity: entity,
             qfields: entity === 'User' ? 'loginName,fullName,email,quickCode' : 'name,quickCode',
             q: params.term
@@ -522,12 +520,12 @@ class FilterItem extends React.Component {
           return query
         },
         processResults: function (data) {
-          let rs = data.data.map((item) => { return item })
+          const rs = data.data.map((item) => { return item })
           return { results: rs }
         }
       }
     }).on('change.select2', function () {
-      let val = s2val.val()
+      const val = s2val.val()
       that.setState({ value: val.join('|') })
     })
     this.__select2_BizzSearch = s2val
@@ -599,8 +597,8 @@ class FilterItem extends React.Component {
   // 布尔
 
   renderBool() {
-    let that = this
-    let s2val = $(this._filterVal).select2({
+    const that = this
+    const s2val = $(this._filterVal).select2({
       allowClear: false
     }).on('change.select2', function () {
       that.setState({ value: s2val.val() })
@@ -643,6 +641,12 @@ class FilterItem extends React.Component {
     let item = { index: s.index, field: s.field, op: s.op }
     if (s.value) item.value = s.value
     if (s.value2) item.value2 = s.value2
+    // 引用字段查询名称字段
+    const isRef = REFMETA_CACHE[this.$$$entity + '.' + s.field]
+    if (isRef && !BIZZ_ENTITIES.includes(isRef[0])
+      && (s.op === 'LK' || s.op === 'NLK' || s.op === 'EQ' || s.op === 'NEQ')) {
+      item.field = NAME_FLAG + item.field
+    }
     this.setState({ hasError: false })
     return item
   }

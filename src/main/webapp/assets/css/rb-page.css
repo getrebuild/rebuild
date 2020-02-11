@@ -3218,3 +3218,8 @@ a.icon-link>.zmdi {
     font-size: 1.1rem;
     margin-right: 6px;
 }
+
+.popover {
+    border-radius: 2px;
+    border-width: 0;
+}
