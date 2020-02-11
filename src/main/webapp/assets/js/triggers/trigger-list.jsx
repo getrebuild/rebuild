@@ -145,7 +145,7 @@ class TriggerEdit extends ConfigFormDlg {
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
     } else {
-      post = { actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
+      post = { ...post, actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
       if (!post.actionType || !post.belongEntity) {
         RbHighbar.create('请选择源触发实体')
         return

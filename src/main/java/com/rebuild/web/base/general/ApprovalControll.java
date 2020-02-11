@@ -145,7 +145,10 @@ public class ApprovalControll extends BasePageControll {
 		// 可修改字段
 		JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
 		if (editableFields != null && !editableFields.isEmpty()) {
-			data.put("aform", new FormBuilder(recordId, user).build(editableFields));
+			JSONArray aform = new FormBuilder(recordId, user).build(editableFields);
+			if (aform != null && !aform.isEmpty()) {
+				data.put("aform", aform);
+			}
 		}
 
 		writeSuccess(response, data);
