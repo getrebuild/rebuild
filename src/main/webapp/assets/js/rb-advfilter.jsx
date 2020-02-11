@@ -1,9 +1,10 @@
+/* eslint-disable react/prop-types */
+
 // ~~ 高级过滤器
 
 const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
 const NT_SPLIT = '----'
 
-/* eslint-disable react/prop-types */
 // eslint-disable-next-line no-unused-vars
 class AdvFilter extends React.Component {
   constructor(props) {
@@ -20,6 +21,7 @@ class AdvFilter extends React.Component {
     this.state = { ...props, ...ext }
     this.childrenRef = []
   }
+
   render() {
     let operBtns = (
       <div className="item">
@@ -34,7 +36,7 @@ class AdvFilter extends React.Component {
         </div>)
     }
 
-    let advFilter = (
+    const advFilter = (
       <div className={'adv-filter-wrap ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
         <div className="adv-filter">
           <div className="filter-items" onKeyPress={this.searchByKey}>
@@ -77,6 +79,7 @@ class AdvFilter extends React.Component {
     if (this.props.inModal) return <RbModal ref={(c) => this._dlg = c} title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filterName}>{advFilter}</RbModal>
     else return advFilter
   }
+
   componentDidMount() {
     $.get(rb.baseUrl + '/commons/metadata/fields?deep=2&from=SEARCH&entity=' + this.props.entity, (res) => {
       let valideFs = []
@@ -85,8 +88,7 @@ class AdvFilter extends React.Component {
         if (item.type === 'REFERENCE') {
           REFMETA_CACHE[this.props.entity + '.' + item.name] = item.ref
           // Use `NameField` type
-          // if (!BIZZ_ENTITIES.includes(item.ref[0])) item.type = item.ref[1]
-          if ('approvalId' === item.name) item.type = item.ref[1]
+          if (!BIZZ_ENTITIES.includes(item.ref[0])) item.type = item.ref[1]
         }
         if (item.type === 'DATETIME') item.type = 'DATE'
         return item
@@ -99,9 +101,11 @@ class AdvFilter extends React.Component {
       }
     })
   }
+
   onRef = (child) => {
     this.childrenRef.push(child)
   }
+
   handleChange = (e) => {
     const val = e.target.value
     const id = e.target.dataset.id
@@ -128,6 +132,7 @@ class AdvFilter extends React.Component {
       this.renderEquation()
     })
   }
+
   removeItem(id) {
     let _items = []
     this.state.items.forEach((item) => {
@@ -186,13 +191,14 @@ class AdvFilter extends React.Component {
     if (this.props.fromList !== true || e.which !== 13) return  // Not [enter]
     this.searchNow()
   }
+
   searchNow = () => {
-    let adv = this.toFilterJson(true)
+    const adv = this.toFilterJson(true)
     if (!!adv && window.RbListPage) RbListPage._RbList.search(adv, true)
   }
 
   confirm() {
-    let adv = this.toFilterJson(this.props.canNoFilters)
+    const adv = this.toFilterJson(this.props.canNoFilters)
     if (!adv) return
     else if (this.props.confirm) {
       this.props.confirm(adv, this.state.filterName, this._shareTo ? this._shareTo.getData().shareTo : null)
@@ -219,6 +225,7 @@ const INPUTVALS_HOLD = {}  // 输入值保持
 
 // 过滤项
 class FilterItem extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
@@ -277,7 +284,9 @@ class FilterItem extends React.Component {
       } else if (this.isBizzField('Role')) {
         op = ['IN', 'NIN']
       } else {
-        op = []
+        // 引用字段在引用实体修改了名称字段后可能存在问题
+        // 例如原名称字段为日期，其设置的过滤条件也是日期相关的，修改成文本后可能出错
+        // op = []
       }
     } else if (fieldType === 'BOOL') {
       op = ['EQ']
@@ -330,6 +339,7 @@ class FilterItem extends React.Component {
     }
     return false
   }
+
   // 数字值
   isNumberValue() {
     if (this.state.type === 'NUMBER' || this.state.type === 'DECIMAL') {
@@ -339,6 +349,7 @@ class FilterItem extends React.Component {
     }
     return false
   }
+
   // 审批状态
   isApprovalState() {
     let fieldName = this.state.field || ''
@@ -352,17 +363,13 @@ class FilterItem extends React.Component {
     const s2field = $(this._filterField).select2({
       allowClear: false
     }).on('change', function (e) {
-      let ft = e.target.value.split(NT_SPLIT)
-      that.setState({ field: ft[0], type: ft[1] }, function () {
-        s2op.val(that.__op[0]).trigger('change')
-      })
+      const ft = e.target.value.split(NT_SPLIT)
+      that.setState({ field: ft[0], type: ft[1] }, () => s2op.val(that.__op[0]).trigger('change'))
     })
     const s2op = $(this._filterOp).select2({
       allowClear: false
     }).on('change', function (e) {
-      that.setState({ op: e.target.value }, function () {
-        that._componentDidUpdate()
-      })
+      that.setState({ op: e.target.value }, () => that._componentDidUpdate())
     })
     this.__select2 = [s2field, s2op]
 
@@ -376,7 +383,7 @@ class FilterItem extends React.Component {
         }
       })
       s2field.val(field).trigger('change')
-      setTimeout(() => { s2op.val(that.props.op).trigger('change') }, 100)
+      setTimeout(() => s2op.val(that.props.op).trigger('change'), 100)
     } else {
       s2field.trigger('change')
     }
@@ -405,8 +412,8 @@ class FilterItem extends React.Component {
     }
 
     if (this.isBizzField()) {
-      let fRef = REFMETA_CACHE[this.$$$entity + '.' + state.field]
-      this.renderBizzSearch(fRef[0])
+      const ref = REFMETA_CACHE[this.$$$entity + '.' + state.field]
+      this.renderBizzSearch(ref[0])
     } else if (lastType === 'REFERENCE') {
       this.removeBizzSearch()
     }
@@ -432,7 +439,7 @@ class FilterItem extends React.Component {
   }
 
   valueHandle = (e) => {
-    let val = e.target.value
+    const val = e.target.value
     if (~~e.target.dataset.at === 2) this.setState({ value2: val })
     else this.setState({ value: val })
   }
@@ -475,8 +482,8 @@ class FilterItem extends React.Component {
     }
   }
   renderPickListAfter() {
-    let that = this
-    let s2val = $(this._filterVal).select2({
+    const that = this
+    const s2val = $(this._filterVal).select2({
     }).on('change.select2', function () {
       that.setState({ value: s2val.val().join('|') })
     })
@@ -500,8 +507,8 @@ class FilterItem extends React.Component {
   // 用户/部门
 
   renderBizzSearch(entity) {
-    let that = this
-    let s2val = $(this._filterVal).select2({
+    const that = this
+    const s2val = $(this._filterVal).select2({
       minimumInputLength: 1,
       ajax: {
         url: rb.baseUrl + '/commons/search/search',
@@ -529,7 +536,7 @@ class FilterItem extends React.Component {
     if (this.props.value && this.loadedBizzSearch === false) {
       $.get(`${rb.baseUrl}/commons/search/read-labels?ids=${$encode(this.props.value)}`, (res) => {
         for (let kid in res.data) {
-          let option = new Option(res.data[kid], kid, true, true)
+          const option = new Option(res.data[kid], kid, true, true)
           s2val.append(option)
         }
       })
@@ -547,7 +554,7 @@ class FilterItem extends React.Component {
   // 日期时间
 
   renderDatepicker() {
-    let cfg = {
+    const cfg = {
       componentIcon: 'zmdi zmdi-calendar',
       navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
       format: 'yyyy-mm-dd',
@@ -561,8 +568,8 @@ class FilterItem extends React.Component {
       keyboardNavigation: false,
     }
 
-    let that = this
-    let dp1 = $(this._filterVal).datetimepicker(cfg)
+    const that = this
+    const dp1 = $(this._filterVal).datetimepicker(cfg)
     dp1.on('change.select2', function (e) {
       that.setState({ value: e.target.value }, () => {
         that.valueCheck($(that._filterVal))
@@ -571,7 +578,7 @@ class FilterItem extends React.Component {
     this.__datepicker = [dp1]
 
     if (this._filterVal2) {
-      let dp2 = $(this._filterVal2).datetimepicker(cfg)
+      const dp2 = $(this._filterVal2).datetimepicker(cfg)
       dp2.on('change.select2', function (e) {
         that.setState({ value2: e.target.value }, () => {
           that.valueCheck($(that._filterVal2))

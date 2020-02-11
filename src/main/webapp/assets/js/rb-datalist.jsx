@@ -107,7 +107,7 @@ class RbList extends React.Component {
     if (FIXED_FOOTER && $('.main-content').width() > 998) {
       $('.main-content').addClass('pb-0')
       $addResizeHandler(() => {
-        let mh = $(window).height() - 214
+        let mh = $(window).height() - 215
         if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 44  // Has tab
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')

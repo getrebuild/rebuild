@@ -104,16 +104,18 @@ public class AdvFilterParser {
 		values = values == null ? JSONUtils.EMPTY_OBJECT : values;
 
 		Map<Integer, String> indexItemSqls = new LinkedHashMap<>();
-		int noIndex = 1;
-		for (Object item : items) {
-			JSONObject jo = (JSONObject) item;
-			Integer index = jo.getInteger("index");
+		int incrIndex = 1;
+		for (Object o : items) {
+			JSONObject item = (JSONObject) o;
+			Integer index = item.getInteger("index");
 			if (index == null) {
-				index = noIndex++;
+				index = incrIndex++;
 			}
-			String itemSql = parseItem(jo, values);
+
+			String itemSql = parseItem(item, values);
 			if (itemSql != null) {
 				indexItemSqls.put(index, itemSql.trim());
+				this.includeFields.add(item.getString("field"));
 			}
 		}
 		if (indexItemSqls.isEmpty()) {
@@ -176,26 +178,38 @@ public class AdvFilterParser {
     }
 
     /**
+	 * 解析查询项为 SQL
+	 *
 	 * @param item
 	 * @param values
 	 * @return
 	 */
 	private String parseItem(JSONObject item, JSONObject values) {
 		String field = item.getString("field");
-		final boolean hasNameFlag = field.startsWith("&");
+		boolean hasNameFlag = field.startsWith("&");
 		if (hasNameFlag) {
 			field = field.substring(1);
 		}
 
-		final Field fieldMeta = MetadataHelper.getLastJoinField(rootEntity, field);
+		Field fieldMeta = MetadataHelper.getLastJoinField(rootEntity, field);
 		if (fieldMeta == null) {
 			LOG.warn("Unknow field '" + field + "' in '" + rootEntity.getName() + "'");
 			return null;
 		}
 
-		final DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
-		if (dt == DisplayType.CLASSIFICATION || hasNameFlag) {
+		DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+		if (dt == DisplayType.CLASSIFICATION) {
 			field = "&" + field;
+		} else if (hasNameFlag || dt == DisplayType.REFERENCE) {
+			if (dt != DisplayType.REFERENCE) {
+				LOG.warn("Non reference-field '" + field + "' in '" + rootEntity.getName() + "'");
+				return null;
+			} else {
+				// 转化为名称字段
+				fieldMeta = fieldMeta.getReferenceEntity().getNameField();
+				dt = EasyMeta.getDisplayType(fieldMeta);
+				field += "." + fieldMeta.getName();
+			}
 		}
 
 		String op = item.getString("op");
@@ -241,8 +255,7 @@ public class AdvFilterParser {
 				.append(' ')
 				.append(ParserTokens.convetOperator(op));
 		// 无需值
-		if (op.equalsIgnoreCase(ParserTokens.NL) || op.equalsIgnoreCase(ParserTokens.NT)) {
-		    includeFields.add(field);
+		if (ParserTokens.NL.equalsIgnoreCase(op) || ParserTokens.NT.equalsIgnoreCase(op)) {
 			return sb.toString();
 		}
 
@@ -270,10 +283,10 @@ public class AdvFilterParser {
 			Department dept = UserHelper.getDepartment(currentUser);
 			if (dept != null) {
 				value = dept.getIdentity().toString();
-				int refe = fieldMeta.getReferenceEntity().getEntityCode();
-				if (refe == EntityHelper.User) {
+				int ref = fieldMeta.getReferenceEntity().getEntityCode();
+				if (ref == EntityHelper.User) {
 					sb.insert(sb.indexOf(" "), ".deptId");
-				} else if (refe == EntityHelper.Department) {
+				} else if (ref == EntityHelper.Department) {
 					// NOOP
 				} else {
 					value = null;
@@ -290,7 +303,7 @@ public class AdvFilterParser {
 		}
 
 		if (StringUtils.isBlank(value)) {
-		    LOG.warn("No search value defined");
+		    LOG.warn("No search value defined : " + item.toJSONString());
 			return null;
 		}
 
@@ -337,7 +350,6 @@ public class AdvFilterParser {
 					.append(" )");
 		}
 
-        includeFields.add(field);
 		return sb.toString();
 	}
 
@@ -426,6 +438,8 @@ public class AdvFilterParser {
 	}
 
 	/**
+	 * 快速查询
+	 *
 	 * @param qFields
 	 * @return
 	 */
