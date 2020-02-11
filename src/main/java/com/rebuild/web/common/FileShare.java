@@ -59,12 +59,8 @@ public class FileShare extends BasePageControll {
     @RequestMapping("/filex/make-share")
     public void makeShareUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String fileUrl = getParameterNotNull(request, "url");
-        if (!QiniuCloud.instance().available()) {
-            writeFailure(response, "本地存储暂不支持");
-            return;
-        }
-
         int minte = getIntParameter(request, "time", 5);
+
         String shareKey = CodecUtils.randomCode(40);
         Application.getCommonCache().put(shareKey, fileUrl, minte * 60);
 
@@ -81,7 +77,18 @@ public class FileShare extends BasePageControll {
             return null;
         }
 
-        String publicUrl = QiniuCloud.instance().url(fileUrl, 60);
+        String publicUrl;
+        if (QiniuCloud.instance().available()) {
+            publicUrl = QiniuCloud.instance().url(fileUrl, 60);
+        } else {
+            // @see FileDownloader#download
+            String e = CodecUtils.randomCode(40);
+            Application.getCommonCache().put(e, "rb", 60);
+            
+            publicUrl = "filex/access/" + fileUrl + "?e=" + e;
+            publicUrl = SysConfiguration.getHomeUrl(publicUrl);
+        }
+
         ModelAndView mv = createModelAndView("/commons/shared-file.jsp");
         mv.getModelMap().put("publicUrl", publicUrl);
         return mv;
