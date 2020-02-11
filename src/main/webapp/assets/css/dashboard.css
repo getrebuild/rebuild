@@ -32,6 +32,7 @@
     -ms-transform: rotate(0deg);
     -o-transform: rotate(0deg);
     transform: rotate(0deg);
+    right: 5px;
 }
 
 .grid-stack>.grid-stack-item>.grid-stack-item-content {
