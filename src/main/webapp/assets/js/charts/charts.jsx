@@ -1,6 +1,9 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable react/prop-types */
+
+// 图表基类
 class BaseChart extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
@@ -37,7 +40,7 @@ class BaseChart extends React.Component {
 
   loadChartData() {
     this.setState({ chartdata: null })
-    let that = this
+    const that = this
     $.post(this.buildDataUrl(), JSON.stringify(this.state.config || {}), (res) => {
       if (res.error_code === 0) that.renderChart(res.data)
       else that.renderError(res.error_msg)
@@ -50,14 +53,12 @@ class BaseChart extends React.Component {
 
   resize() {
     if (this.__echarts) {
-      $setTimeout(() => {
-        this.__echarts.resize()
-      }, 400, 'resize-chart-' + this.state.id)
+      $setTimeout(() => this.__echarts.resize(), 400, 'resize-chart-' + this.state.id)
     }
   }
 
   remove() {
-    let that = this
+    const that = this
     RbAlert.create('确认移除此图表？', {
       confirm: function () {
         if (window.gridstack) window.gridstack.removeWidget($(that._box).parent().parent())
@@ -83,8 +84,9 @@ class ChartIndex extends BaseChart {
     this.label = this.state.title
     this.state.title = null
   }
+
   renderChart(data) {
-    let chartdata = (<div className="chart index">
+    const chartdata = (<div className="chart index">
       <div className="data-item must-center text-truncate">
         <p>{data.index.label || this.label}</p>
         <strong>{data.index.data}</strong>
@@ -99,20 +101,21 @@ class ChartTable extends BaseChart {
   constructor(props) {
     super(props)
   }
+
   renderChart(data) {
     if (!data.html) { this.renderError('暂无数据'); return }
-    let chartdata = (<div className="chart ctable">
+    const chartdata = (<div className="chart ctable">
       <div dangerouslySetInnerHTML={{ __html: data.html }}></div>
     </div>)
 
-    let that = this
+    const that = this
     let colLast = null
     this.setState({ chartdata: chartdata }, () => {
-      let tb = $(that._body)
-      tb.find('.ctable').css('height', tb.height() - 20)
+      const $tb = $(that._body)
+      $tb.find('.ctable').css('height', $tb.height() - 20)
         .perfectScrollbar()
 
-      let cols = tb.find('tbody td').click(function () {
+      const cols = $tb.find('tbody td').click(function () {
         if (colLast === this) {
           $(this).toggleClass('clk')
           return
@@ -121,7 +124,7 @@ class ChartTable extends BaseChart {
         cols.removeClass('clk')
         $(this).addClass('clk')
       })
-      this.__tb = tb
+      this.__tb = $tb
     })
   }
   resize() {
@@ -172,8 +175,9 @@ class ChartLine extends BaseChart {
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.xAxis.length === 0) { this.renderError('暂无数据'); return }
-    let that = this
-    let elid = 'echarts-line-' + (this.state.id || 'id')
+
+    const that = this
+    const elid = 'echarts-line-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, () => {
       let formatter = []
       for (let i = 0; i < data.yyyAxis.length; i++) {
@@ -228,8 +232,9 @@ class ChartBar extends BaseChart {
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.xAxis.length === 0) { this.renderError('暂无数据'); return }
-    let that = this
-    let elid = 'echarts-bar-' + (this.state.id || 'id')
+
+    const that = this
+    const elid = 'echarts-bar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, () => {
       let formatter = []
       for (let i = 0; i < data.yyyAxis.length; i++) {
@@ -284,8 +289,9 @@ class ChartPie extends BaseChart {
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.data.length === 0) { this.renderError('暂无数据'); return }
-    let that = this
-    let elid = 'echarts-pie-' + (this.state.id || 'id')
+
+    const that = this
+    const elid = 'echarts-pie-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, () => {
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       let opt = {
@@ -311,8 +317,9 @@ class ChartFunnel extends BaseChart {
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.data.length === 0) { this.renderError('暂无数据'); return }
-    let that = this
-    let elid = 'echarts-funnel-' + (this.state.id || 'id')
+
+    const that = this
+    const elid = 'echarts-funnel-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart funnel" id={elid}></div>) }, () => {
       let opt = {
         series: [{
@@ -348,8 +355,9 @@ class ChartTreemap extends BaseChart {
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.data.length === 0) { this.renderError('暂无数据'); return }
-    let that = this
-    let elid = 'echarts-treemap-' + (this.state.id || 'id')
+
+    const that = this
+    const elid = 'echarts-treemap-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart treemap" id={elid}></div>) }, () => {
       let opt = {
         series: [{
@@ -399,7 +407,7 @@ class ApprovalList extends BaseChart {
     this.__lastStats = this.__lastStats || data.stats
     this.__lastStats.forEach((item) => statsTotal += item[1])
 
-    let stats = <div className="progress-wrap sticky">
+    const stats = <div className="progress-wrap sticky">
       <div className="progress">
         {this.__lastStats.map((item) => {
           let s = APPROVAL_STATES[item[0]]
@@ -450,16 +458,17 @@ class ApprovalList extends BaseChart {
     </div>
     if (data.data.length === 0) table = <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 你已完成所有审批</div>
 
-    let chartdata = <div className="chart ApprovalList">
+    const chartdata = <div className="chart ApprovalList">
       {stats}
       {table}
     </div>
     this.setState({ chartdata: chartdata }, () => {
-      let tb = $(this._body)
-      tb.find('.ApprovalList').css('height', tb.height() - 5).perfectScrollbar()
-      this.__tb = tb
+      const $tb = $(this._body)
+      $tb.find('.ApprovalList').css('height', $tb.height() - 5).perfectScrollbar()
+      this.__tb = $tb
     })
   }
+
   resize() {
     $setTimeout(() => {
       if (this.__tb) this.__tb.find('.ApprovalList').css('height', this.__tb.height() - 5)
@@ -468,10 +477,10 @@ class ApprovalList extends BaseChart {
 
   approve(record, approval) {
     event.preventDefault()
-    let that = this
+    const that = this
     if (this.__approvalForms[record]) this.__approvalForms[record].show()
     else {
-      let close = function () {
+      const close = function () {
         if (that.__approvalForms[record]) that.__approvalForms[record].hide(true)
         that.loadChartData()
       }
@@ -492,7 +501,7 @@ class ApprovalList extends BaseChart {
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id, editable) {
-  let props = { config: cfg, id: id, title: cfg.title, editable: editable !== false, type: cfg.type }
+  const props = { config: cfg, id: id, title: cfg.title, editable: editable !== false, type: cfg.type }
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
   } else if (cfg.type === 'TABLE') {
@@ -518,12 +527,14 @@ const detectChart = function (cfg, id, editable) {
 // 添加的图表会在多个仪表盘共享（本身就是一个），修改时会同步修改
 // eslint-disable-next-line no-unused-vars
 class ChartSelect extends RbModalHandler {
+
   constructor(props) {
     super(props)
     this.state = { appended: props.appended || [], tabActive: props.entity ? '#entity' : '#all' }
   }
+
   render() {
-    return (<RbModal ref={(c) => this._dlg = c} title="添加已有图表">
+    return <RbModal ref={(c) => this._dlg = c} title="添加已有图表">
       <div className="row chart-select-wrap">
         <div className="col-3">
           <div className="nav flex-column nav-pills">
@@ -555,7 +566,7 @@ class ChartSelect extends RbModalHandler {
           </div>
         </div>
       </div>
-    </RbModal>)
+    </RbModal>
   }
 
   componentDidMount = () => this.__loadCharts()
@@ -573,7 +584,7 @@ class ChartSelect extends RbModalHandler {
   }
 
   deleteChart(id) {
-    let that = this
+    const that = this
     RbAlert.create('确认删除此图表吗？', {
       type: 'danger',
       confirmText: '删除',
@@ -592,7 +603,7 @@ class ChartSelect extends RbModalHandler {
 
   switchTab = (e) => {
     e.preventDefault()
-    let t = $(e.target).attr('href')
+    const t = $(e.target).attr('href')
     this.setState({ tabActive: t }, () => this.__loadCharts())
   }
 }
