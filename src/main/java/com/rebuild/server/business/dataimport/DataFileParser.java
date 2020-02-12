@@ -41,8 +41,7 @@ public class DataFileParser {
      * @param sourceFile
      */
     public DataFileParser(File sourceFile) {
-        this.sourceFile = sourceFile;
-        this.encoding = "GBK";
+        this(sourceFile, "utf-8");
     }
 
     /**

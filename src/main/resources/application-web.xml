@@ -22,10 +22,6 @@
 	
 	<mvc:default-servlet-handler />
 	
-	<mvc:resources location="/assest/" mapping="/assest/**">
-		<mvc:cache-control cache-public="true" />
-	</mvc:resources>
-	
 	<context:component-scan base-package="com.rebuild">
 		<context:include-filter type="regex" expression=".web.*" />
 		<context:include-filter type="regex" expression=".api" />

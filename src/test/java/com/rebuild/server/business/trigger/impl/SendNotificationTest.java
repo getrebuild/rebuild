@@ -22,6 +22,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.TestSupport;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerWhen;
@@ -54,7 +55,7 @@ public class SendNotificationTest extends TestSupportWithUser {
         triggerConfig.setString("belongEntity", "TestAllFields");
         triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
         triggerConfig.setString("actionType", ActionType.SENDNOTIFICATION.name());
-        String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION' }", SIMPLE_USER);
+        String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION {createdBy} {3782732}' }", SIMPLE_USER);
         triggerConfig.setString("actionContent", content);
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
@@ -77,5 +78,12 @@ public class SendNotificationTest extends TestSupportWithUser {
 
 		// 清理
 		Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());
+    }
+
+    @Test
+    public void formatMessage() {
+        String msg = "你好哈哈哈{TestAllFieldsName} 肩痛 {createdBy} {4324fewfe}";
+        msg = new SendNotification(null).formatMessage(msg, ID.valueOf("995-0170251908360005"));
+        System.out.println(msg);
     }
 }

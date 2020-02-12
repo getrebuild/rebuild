@@ -36,12 +36,16 @@
                                     <td data-id="MailPassword">${mailAccount == null ? "未配置" : mailAccount[1]}</td>
                                 </tr>
                                 <tr>
-                                    <td>发件人地址</td>
+                                    <td>发件人地址<p>地址域名需与 SUBMAIL 中配置的域名匹配</p></td>
                                     <td data-id="MailAddr">${mailAccount == null ? "未配置" : mailAccount[2]}</td>
                                 </tr>
                                 <tr>
                                     <td>发件人名称</td>
                                     <td data-id="MailName">${mailAccount == null ? "未配置" : mailAccount[3]}</td>
+                                </tr>
+                                <tr class="show-on-edit">
+                                    <td></td>
+                                    <td><button class="btn btn-primary bordered J_test-email">发送测试</button></td>
                                 </tr>
                             </tbody>
                             </table>
@@ -66,6 +70,10 @@
                                     <td>短信签名</td>
                                     <td data-id="SmsSign">${smsAccount == null ? "未配置" : smsAccount[2]}</td>
                                 </tr>
+                                <tr class="show-on-edit">
+                                    <td></td>
+                                    <td><button class="btn btn-primary bordered J_test-sms">发送测试</button></td>
+                                </tr>
                             </tbody>
                             </table>
                             <c:if test="${smsAccount == null}">
@@ -89,5 +97,50 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/admin/syscfg.jsx" type="text/babel"></script>
+<script type="text/babel">
+$(document).ready(() => {
+    $('.J_test-email').click(() => renderRbcomp(<TestSend type="email" />) )
+    $('.J_test-sms').click(() => renderRbcomp(<TestSend type="sms" />))
+})
+class TestSend extends RbAlert {
+    constructor(props) {
+        super(props)
+        this.state = { ...props }
+    }
+    renderContent() {
+        const typeName = this.props.type === 'email' ? '邮箱' : '手机'
+        return (
+            <form style={{ maxWidth: 400, margin: '0 auto' }}>
+                <div className="form-group">
+                    <label>输入接收{typeName}</label>
+                    <input type="text" className="form-control form-control-sm" placeholder={typeName} ref={(c) => this._input = c} />
+                </div>
+                <div className="form-group mb-1">
+                    <button type="button" className="btn btn-space btn-primary" onClick={()=>this.confirm()} ref={(c) => this._btn = c} >发送</button>
+                </div>
+            </form>
+        )
+    }
+    confirm() {
+        let receiver = $(this._input).val()
+        if (!receiver) return
+
+        let conf = {}
+        $('.syscfg table td[data-id]').each(function () {
+            let $this = $(this)
+            conf[$this.data('id')] = $this.find('input').val()
+        })
+
+        $(this._btn).button('loading')
+        $.post('./submail/test?type=' + this.props.type + '&receiver=' + $encode(receiver), JSON.stringify(conf), (res) => {
+            if (res.error_code === 0) {
+                RbHighbar.success('测试发送成功')
+                // this.hide()
+            } else RbHighbar.create(res.error_msg || '测试发送失败')
+            $(this._btn).button('reset')
+        })
+    }
+}
+</script>
 </body>
 </html>

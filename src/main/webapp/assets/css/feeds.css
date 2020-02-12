@@ -204,6 +204,10 @@
   font-size: 0;
 }
 
+.rich-content>.texts>a:hover {
+  text-decoration: underline;
+}
+
 .rich-content>.related {
   margin-bottom: 6px;
   font-size: 12px;

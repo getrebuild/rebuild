@@ -105,7 +105,7 @@
 								<label class="col-12 col-lg-3 col-form-label text-lg-right">执行优先级</label>
 								<div class="col-12 col-lg-9">
 									<input type="number" class="form-control form-control-sm" id="priority" value="${priority}" data-o="${priority}" style="max-width:200px" />
-									<p class="form-text mb-0">优先级高的会被先执行</p>
+									<p class="form-text mb-0">优先级高（数字大）的会被先执行</p>
 								</div>
 							</div>
 						</form>
@@ -143,6 +143,7 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/triggers/trigger-design.jsx" type="text/babel"></script>
 <c:if test="${actionType == 'FIELDAGGREGATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.FIELDAGGREGATION.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'FIELDWRITEBACK'}"><script src="${baseUrl}/assets/js/triggers/trigger.FIELDWRITEBACK.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'SENDNOTIFICATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.SENDNOTIFICATION.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'AUTOASSIGN'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOASSIGN.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'AUTOSHARE'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOSHARE.jsx" type="text/babel"></script></c:if>

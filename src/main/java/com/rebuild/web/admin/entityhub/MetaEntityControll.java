@@ -230,11 +230,13 @@ public class MetaEntityControll extends BasePageControll {
 	}
 
 	/**
+	 * 设置实体信息
+	 *
 	 * @param mv
 	 * @param entity
 	 * @return
 	 */
-	static EasyMeta setEntityBase(ModelAndView mv, String entity) {
+	protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
 		EasyMeta entityMeta = EasyMeta.valueOf(entity);
 		mv.getModel().put("entityMetaId", entityMeta.getMetaId());
 		mv.getModel().put("entityName", entityMeta.getName());

@@ -119,13 +119,13 @@ public class FileUploader {
 	private static FileItemFactory fileItemFactory;
 	static {
 		File track = SysConfiguration.getFileOfTemp("track");
-		if (!track.exists() || !track.isDirectory()) {
-			if (!track.mkdirs()) {
-				throw new ExceptionInInitializerError("Could't mkdir track repository");
-			}
+		try {
+			FileUtils.forceMkdir(track);
+		} catch (IOException ex) {
+			throw new ExceptionInInitializerError(ex);
 		}
 		fileItemFactory = new DiskFileItemFactory(
-				DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD * 2/*20MB*/, track);
+				DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD * 5 /*50MB*/, track);
 	}
 	
 	/**

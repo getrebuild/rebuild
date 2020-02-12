@@ -33,6 +33,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
+import java.sql.DataTruncation;
 
 /**
  * 封裝一些有用的工具方法
@@ -119,6 +120,10 @@ public class AppUtils {
 	 */
 	public static String getErrorMessage(HttpServletRequest request, Throwable exception) {
 		String errorMsg = (String) request.getAttribute(ServletUtils.ERROR_MESSAGE);
+		if (exception != null && ThrowableUtils.getRootCause(exception) instanceof DataTruncation) {
+			errorMsg = "字段长度超出限制";
+		}
+
 		if (StringUtils.isNotBlank(errorMsg)) {
 			return errorMsg;
 		}

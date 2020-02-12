@@ -1,8 +1,9 @@
-/* eslint-disable eqeqeq */
 /* eslint-disable react/jsx-no-undef */
+
 // ~~ 自动共享
 // eslint-disable-next-line
 class ContentAutoShare extends ActionContentSpec {
+
   constructor(props) {
     super(props)
   }
@@ -34,8 +35,8 @@ class ContentAutoShare extends ActionContentSpec {
 
   componentDidMount() {
     $('.J_when').find('.custom-control-input').each(function () {
-      let v = ~~$(this).val()
-      if (!(v == 1 || v == 4 || v >= 128)) $(this).attr('disabled', true)
+      const v = ~~$(this).val()
+      if (!(v === 1 || v === 4 || v >= 128)) $(this).attr('disabled', true)
     })
 
     if (this.props.content && this.props.content.shareTo) {
@@ -44,7 +45,7 @@ class ContentAutoShare extends ActionContentSpec {
       })
     }
 
-    let cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
+    const cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
     $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
       this.setState({ cascadesEntity: res.data }, () => {
         this.__select2 = $(this._cascades).select2({
@@ -56,7 +57,7 @@ class ContentAutoShare extends ActionContentSpec {
   }
 
   buildContent() {
-    let _data = { shareTo: this._shareTo.getSelected(), cascades: this.__select2.val().join(',') }
+    const _data = { shareTo: this._shareTo.getSelected(), cascades: this.__select2.val().join(',') }
     if (!_data.shareTo || _data.shareTo.length === 0) { RbHighbar.create('请选择共享给谁'); return false }
     return _data
   }

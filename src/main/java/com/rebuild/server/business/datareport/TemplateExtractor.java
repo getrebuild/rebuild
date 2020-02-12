@@ -63,10 +63,10 @@ public class TemplateExtractor {
     public Set<String> extractVars(boolean matchsAny) {
         List<Cell[]> rows = CommonsUtils.readExcel(this.template);
 
-        String regex = "\\$\\{[0-9a-zA-Z\\.]+\\}";
+        String regex = "\\$\\{[0-9a-zA-Z_.]+}";
         // 能够匹配中文
         if (matchsAny) {
-            regex = "\\$\\{.+\\}";
+            regex = "\\$\\{.+}";
         }
 
         // jxls 不支持中文变量
@@ -131,7 +131,7 @@ public class TemplateExtractor {
         String[] paths = fieldPath.split("\\.");
         List<String> realPaths = new ArrayList<>();
 
-        Field lastField = null;
+        Field lastField;
         Entity father = entity;
         for (String field : paths) {
             if (father == null) {

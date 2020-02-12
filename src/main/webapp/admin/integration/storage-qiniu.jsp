@@ -20,11 +20,11 @@
 				<div class="col-md-9 col-12">
 					<div class="card">
 						<div class="card-header card-header-divider">
-                            云存储
+                            七牛云 QINIU
                             <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> 修改</a>
                         </div>
 						<div class="card-body">
-							<h5><a class="cl-base" href="https://portal.qiniu.com/signup?utm_source=getrebuild.com&code=3letk048wdsnm" target="_blank" rel="noopener noreferrer">七牛云</a></h5>
+							<h5><a class="cl-base" href="https://portal.qiniu.com/signup?utm_source=getrebuild.com&code=3letk048wdsnm" target="_blank" rel="noopener noreferrer">云存储</a></h5>
 							<table class="table">
 							<tbody>
 								<tr>
@@ -32,7 +32,7 @@
 									<td data-id="StorageURL">${storageAccount == null ? "未配置" : storageAccount[3]}</td>
 								</tr>
 								<tr>
-									<td>存储空间</td>
+									<td>存储空间<p>存储空间变更需你自行迁移原有数据</p></td>
 									<td data-id="StorageBucket">${storageAccount == null ? "未配置" : storageAccount[2]}</td>
 								</tr>
 								<tr>

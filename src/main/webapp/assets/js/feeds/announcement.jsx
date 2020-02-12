@@ -52,8 +52,7 @@ var $showAnnouncement = function () {
   $.get(`${rb.baseUrl}/commons/announcements`, (res) => {
     if (res.error_code !== 0 || !res.data || res.data.length === 0) return
     let as = res.data.map((item, idx) => {
-      return <div className="bg-primary" key={'a-' + idx} title="查看详情"
-        onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
+      return <div className="bg-warning" key={'a-' + idx} title="查看详情" onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
         <i className="icon zmdi zmdi-notifications-active" />
         <p>{item.content}</p>
       </div>

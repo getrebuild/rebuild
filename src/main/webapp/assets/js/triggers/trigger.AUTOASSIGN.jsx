@@ -1,8 +1,9 @@
-/* eslint-disable eqeqeq */
 /* eslint-disable react/jsx-no-undef */
+
 // ~~ 自动分派
 // eslint-disable-next-line
 class ContentAutoAssign extends ActionContentSpec {
+
   constructor(props) {
     super(props)
     this.state.assignRule = 1
@@ -48,8 +49,8 @@ class ContentAutoAssign extends ActionContentSpec {
 
   componentDidMount() {
     $('.J_when').find('.custom-control-input').each(function () {
-      let v = ~~$(this).val()
-      if (!(v == 1 || v == 4 || v >= 128)) $(this).attr('disabled', true)
+      const v = ~~$(this).val()
+      if (!(v === 1 || v === 4 || v >= 128)) $(this).attr('disabled', true)
     })
 
     if (this.props.content && this.props.content.assignTo) {
@@ -60,7 +61,7 @@ class ContentAutoAssign extends ActionContentSpec {
 
     if (this.props.content && this.props.content.assignRule == 2) this.setState({ assignRule: 2 })
 
-    let cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
+    const cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
     $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
       this.setState({ cascadesEntity: res.data }, () => {
         this.__select2 = $(this._cascades).select2({
@@ -78,7 +79,7 @@ class ContentAutoAssign extends ActionContentSpec {
   }
 
   buildContent() {
-    let _data = { assignTo: this._assignTo.getSelected(), assignRule: ~~this.state.assignRule, cascades: this.__select2.val().join(',') }
+    const _data = { assignTo: this._assignTo.getSelected(), assignRule: ~~this.state.assignRule, cascades: this.__select2.val().join(',') }
     if (!_data.assignTo || _data.assignTo.length === 0) { RbHighbar.create('请选择分派给谁'); return false }
     return _data
   }

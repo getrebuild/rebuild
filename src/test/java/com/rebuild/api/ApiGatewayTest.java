@@ -18,9 +18,17 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.api;
 
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.persist4j.Record;
 import com.rebuild.api.sdk.OpenApiSDK;
+import com.rebuild.server.Application;
+import com.rebuild.server.configuration.RebuildApiManager;
+import com.rebuild.server.helper.FormDataBuilder;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.TestSupportWithMVC;
+import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -39,15 +47,34 @@ public class ApiGatewayTest extends TestSupportWithMVC {
 
     @Test
     public void testSimple() throws Exception {
+        final String[] app = createApp();
+
         String apiUrl = "/gw/api/system-time?";
         Map<String, Object> bizParams = new HashMap<>();
 
-        apiUrl += new OpenApiSDK("230853250", "LA31SVGBqxUT5ncjgfDItPMP7yh9bJJ4eyCjGmG0")
-                .signMD5(bizParams);
+        apiUrl += new OpenApiSDK(app[0], app[1]).signMD5(bizParams);
         System.out.println("Request API : " + apiUrl);
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(apiUrl);
         MvcResponse resp = perform(builder, null);
         System.out.println(resp);
+    }
+
+    /**
+     * @return
+     */
+    protected static String[] createApp() {
+        String appId = (100000000 + RandomUtils.nextInt(899999999)) + "";
+        String appSecret = CodecUtils.randomCode(40);
+
+        Record record = FormDataBuilder.builder(EntityHelper.RebuildApi)
+                .add("appId", appId)
+                .add("appSecret", appSecret)
+                .add("bindUser", UserService.SYSTEM_USER)
+                .buildRecord(UserService.SYSTEM_USER);
+        Application.getCommonService().create(record, false);
+        RebuildApiManager.instance.clean(appId);
+
+        return new String[]{appId, appSecret};
     }
 }

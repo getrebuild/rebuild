@@ -22,12 +22,16 @@
   box-shadow: 0 0 0 #fff;
 }
 
-.timeline.spare form.simple .form-group:first-child {
+.timeline-content>form.simple>.form-group:first-child {
   padding-top: 26px;
 }
 
 .timeline.spare .timeline-item {
   margin-bottom: 10px;
+}
+
+.timeline.spare .timeline-item {
+  padding-left: 190px;
 }
 
 .timeline.spare .timeline-item.last {
@@ -45,7 +49,7 @@
 }
 
 #react-content>div {
-  max-width: 881px;
+  max-width: 1000px;
 }
 
 .field-aggregation p {
@@ -59,7 +63,8 @@
   position: relative;
 }
 
-.field-aggregation .col-2>.zmdi {
+.field-aggregation .col-2>.zmdi,
+.field-writeback .col-5>.zmdi {
   position: absolute;
   left: -5px;
   color: #4c8bf5;
@@ -75,37 +80,155 @@
 }
 
 .field-aggregation .items>div {
-  padding: 5px 0;
-}
-
-.field-aggregation .items>div+div {
-  border-top: 1px dotted rgba(255, 255, 255, 0.7);
-}
-
-.field-aggregation .items>div:hover {
-  background-color: rgba(255, 255, 255, 0.7);
+  padding: 3px 0;
 }
 
 .field-aggregation .items>div .badge {
   font-weight: normal;
   font-size: 1rem;
   padding: 3px 10px;
+  white-space: normal;
+  text-align: left;
 }
 
 .field-aggregation .items>div .col-2>.zmdi {
   margin-top: 6px;
 }
 
-.field-aggregation .items>div .col-5>a.del {
-  float: right;
-  font-size: 1.2rem;
-  padding: 3px 10px;
-  color: #999;
-  font-weight: bold;
+.field-aggregation .items .del-wrap {
+  position: relative;
 }
 
-.field-aggregation .items>div .col-5>a.del:hover {
+.field-aggregation .items .del-wrap .zmdi-forward {
+  margin-top: 6px;
+}
+
+.field-aggregation .items .del-wrap .badge {
+  margin-right: 20px;
+}
+
+.field-aggregation .items .del-wrap a.del {
+  position: absolute;
+  display: inline-block;
+  font-size: 1.2rem;
+  padding: 3px 6px;
+  color: #999;
+  font-weight: bold;
+  right: 15px;
+  display: none;
+  top: 2px
+}
+
+.field-aggregation .items .del-wrap a.del:hover {
   color: #222;
+}
+
+.field-aggregation .items>div:hover a.del {
+  display: inline-block;
+}
+
+.formula-calc ul li {
+  width: 23%;
+  display: inline-block;
+  font-size: 0;
+  padding: 0;
+  margin: 1% !important;
+}
+
+.formula-calc ul li>a {
+  display: inline-block;
+  width: 100%;
+  padding: 6px 5px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #eee;
+  border-radius: 2px;
+  font-size: 1rem;
+}
+
+.formula-calc ul li>a:hover {
+  background-color: #ccc;
+}
+
+.formula-calc ul li>a.confirm {
+  background-color: #4c8bf5;
+  color: #fff !important;
+}
+
+.formula-calc .fields {
+  max-height: 186px;
+}
+
+.formula-calc .fields ul li {
+  width: 100%;
+  margin: 1% 0 !important;
+}
+
+.formula-calc .fields ul li>a {
+  font-weight: normal;
+  text-align: left;
+  padding-left: 10px;
+}
+
+.formula-calc .numbers {
+  margin-right: -1.1%;
+}
+
+.form-control-plaintext.formula {
+  border: 1px dotted #4c8bf5 !important;
+  border-radius: 2px;
+  background-color: #fff;
+  padding: 8px 10px;
+  padding-top: 9px;
+  min-height: 37px !important;
+  cursor: text;
+}
+
+.form-control-plaintext.formula i {
+  font-style: normal;
+}
+
+.form-control-plaintext.formula>.oper {
+  padding: 0 4px;
+}
+
+.form-control-plaintext.formula>.field {
+  border-radius: 2px;
+  padding: 1px 2px;
+  cursor: pointer;
+}
+
+.form-control-plaintext.formula>.field:hover {
+  background-color: #4c8bf5;
+  color: #fff;
+}
+
+.form-control-plaintext.formula>.field>i::after {
+  content: '\f2f9';
+  font-family: 'Material-Design-Iconic-Font';
+  margin-left: 2px;
+  color: #4c8bf5;
+}
+
+.form-control-plaintext.formula>.field>i:hover::after {
+  color: #fff;
+}
+
+.form-control-plaintext.formula>.field .dropdown-menu {
+  min-width: 120px;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
+  border-radius: 0;
+  padding: 3px 0;
+}
+
+.form-control-plaintext.formula>.field .dropdown-menu .dropdown-item {
+  padding: 6px 14px;
+  cursor: default;
+}
+
+.form-control-plaintext.formula:empty::after {
+  content: '计算公式';
+  color: #999;
 }
 
 .auto-assign .select2-selection__rendered,

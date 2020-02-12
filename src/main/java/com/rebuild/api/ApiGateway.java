@@ -21,6 +21,7 @@ package com.rebuild.api;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -32,6 +33,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -81,6 +83,7 @@ public class ApiGateway extends Controll {
 			JSON ok = formatSuccess(data);
 			ServletUtils.writeJson(response, ok.toJSONString());
 			logRequestAsync(reuqestTime, remoteIp, apiName, context, ok);
+
 			return;
 
 		} catch (ApiInvokeException ex) {
@@ -201,17 +204,19 @@ public class ApiGateway extends Controll {
 			return;
 		}
 
-		Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
-		record.setString("appId", context.getAppId());
-		record.setString("remoteIp", remoteIp);
-		record.setString("requestUrl", apiName + " " + context.getParameterMap());
-		if (context.getPostData() != null) {
-			record.setString("requestBody", context.getPostData().toJSONString());
-		}
-		record.setString("responseBody", result.toJSONString());
-		record.setDate("requestTime", requestTime);
-		record.setDate("responseTime", CalendarUtils.now());
-		Application.getCommonService().create(record);
+		ThreadPool.exec(() -> {
+			Record record = EntityHelper.forNew(EntityHelper.RebuildApiRequest, UserService.SYSTEM_USER);
+			record.setString("appId", context.getAppId());
+			record.setString("remoteIp", remoteIp);
+			record.setString("requestUrl", CommonsUtils.maxstr(apiName + "?" + context.getParameterMap(),300));
+			if (context.getPostData() != null) {
+				record.setString("requestBody", CommonsUtils.maxstr(context.getPostData().toJSONString(), 10000));
+			}
+			record.setString("responseBody", CommonsUtils.maxstr(result.toJSONString(), 10000));
+			record.setDate("requestTime", requestTime);
+			record.setDate("responseTime", CalendarUtils.now());
+			Application.getCommonService().create(record, false);
+		});
 	}
 
 	// -- 注册 API
