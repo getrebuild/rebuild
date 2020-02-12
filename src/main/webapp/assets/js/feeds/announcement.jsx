@@ -31,7 +31,7 @@ class AnnouncementModal extends React.Component {
           <div className="modal-body">
             <div className="text-break announcement-contents" dangerouslySetInnerHTML={{ __html: contentHtml }} />
             <div>
-              <span className="float-left text-muted fs-12">由 {this.props.publishBy} 发布于 {this.props.publishOn}</span>
+              <span className="float-left text-muted">由 {this.props.publishBy} 发布于 {this.props.publishOn}</span>
               <span className="float-right"><a href={`${rb.baseUrl}/app/list-and-view?id=${this.props.id}`}>前往动态查看</a></span>
               <span className="clearfi"></span>
             </div>
