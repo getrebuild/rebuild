@@ -28,6 +28,9 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.DashboardConfigService;
 import com.rebuild.utils.JSONUtils;
 
+import java.util.Arrays;
+import java.util.Comparator;
+
 /**
  * 首页仪表盘
  * 
@@ -45,8 +48,8 @@ public class DashboardManager extends ShareToManager<ID> {
 	}
 
 	@Override
-	protected String getFieldsForConfig() {
-		return super.getFieldsForConfig() + ",title";
+	protected String getConfigFields() {
+		return super.getConfigFields() + ",title";
 	}
 
 	/**
@@ -75,7 +78,7 @@ public class DashboardManager extends ShareToManager<ID> {
 			canUses[i][2] = isSelf(user, (ID) canUses[i][2]);
 		}
 
-		sort(canUses, 4);
+		Arrays.sort(canUses, Comparator.comparing(o -> o[4].toString()));
 		return (JSON) JSON.toJSON(canUses);
 	}
 

@@ -46,8 +46,8 @@ public class AdvFilterManager extends ShareToManager<ID> {
 	}
 
 	@Override
-	protected String getFieldsForConfig() {
-		return super.getFieldsForConfig() + ",filterName";
+	protected String getConfigFields() {
+		return super.getConfigFields() + ",filterName";
 	}
 
 	/**

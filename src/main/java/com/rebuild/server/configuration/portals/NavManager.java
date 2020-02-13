@@ -35,7 +35,9 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * 导航菜单
@@ -71,6 +73,21 @@ public class NavManager extends BaseLayoutManager {
 	public JSON getNavLayoutById(ID cfgid) {
 		ConfigEntry config = getLayoutById(cfgid);
 		return config == null ? null : config.toJSON();
+	}
+
+	/**
+	 * 获取可用导航ID
+	 *
+	 * @param user
+	 * @return
+	 */
+	public ID[] getUsesNavId(ID user) {
+		Object[][] uses = getUsesConfig(user, null, TYPE_NAV);
+		List<ID> array = new ArrayList<>();
+		for (Object[] c : uses) {
+			array.add((ID) c[0]);
+		}
+		return array.toArray(new ID[0]);
 	}
 
 	// ----

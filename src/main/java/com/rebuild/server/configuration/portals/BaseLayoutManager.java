@@ -74,10 +74,20 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 
 	/**
 	 * @param user
+	 * @return
+	 */
+	public ConfigEntry getLayoutOfNav(ID user) {
+		return getLayout(user, null, TYPE_NAV);
+	}
+
+	/**
+	 * 列表页 SIDE 图表
+	 *
+	 * @param user
 	 * @param entity
 	 * @return
 	 */
-	public ConfigEntry getWidgetOfCharts(ID user, String entity) {
+	public ConfigEntry getWidgetCharts(ID user, String entity) {
 		ConfigEntry e = getLayout(user, entity, TYPE_WCHARTS);
 		if (e == null) {
             return null;
@@ -88,14 +98,6 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 		ChartManager.instance.richingCharts(charts);
 		return e.set("config", charts)
 				.set("shareTo", null);
-	}
-
-	/**
-	 * @param user
-	 * @return
-	 */
-	public ConfigEntry getLayoutOfNav(ID user) {
-		return getLayout(user, null, TYPE_NAV);
 	}
 
 	/**
@@ -132,19 +134,18 @@ public class BaseLayoutManager extends ShareToManager<ID> {
 	}
 
     /**
-     * @param cached
+     * @param uses
      * @param cfgid
      * @return
      */
-	private ConfigEntry findEntry(Object[][] cached, ID cfgid) {
-        for (Object[] c : cached) {
-            if (!c[0].equals(cfgid)) {
-                continue;
+	protected ConfigEntry findEntry(Object[][] uses, ID cfgid) {
+        for (Object[] c : uses) {
+            if (c[0].equals(cfgid)) {
+				return new ConfigEntry()
+						.set("id", c[0])
+						.set("shareTo", c[1])
+						.set("config", JSON.parse((String) c[3]));
             }
-            return new ConfigEntry()
-                    .set("id", c[0])
-                    .set("shareTo", c[1])
-                    .set("config", JSON.parse((String) c[3]));
         }
         return null;
     }

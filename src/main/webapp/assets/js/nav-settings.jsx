@@ -55,7 +55,7 @@ $(document).ready(function () {
 
   let cfgid = $urlp('id')
   $('.J_save').click(function () {
-    let navs = []
+    const navs = []
     $('.J_config>.dd-item').each(function () {
       const item = build_item($(this), navs)
       if (item) navs.push(item)
@@ -67,14 +67,16 @@ $(document).ready(function () {
 
     const btn = $(this).button('loading')
     const shareToData = shareTo ? shareTo.getData() : {}
-    $.post(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid}&configName=${$encode(shareToData.configName || '')}&shareTo=${shareToData.shareTo}`, JSON.stringify(navs), function (res) {
+    $.post(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(shareToData.configName || '')}&shareTo=${shareToData.shareTo || ''}`, JSON.stringify(navs), function (res) {
       btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
     })
   })
 
-  add_sortable('.J_config')
-  $.get(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid}`, function (res) {
+  // 加载
+
+  use_sortable('.J_config')
+  $.get(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid || ''}`, function (res) {
     if (res.data) {
       cfgid = res.data.id
       $(res.data.config).each(function () {
@@ -84,24 +86,42 @@ $(document).ready(function () {
           $(this.sub).each(function () {
             render_item(this, false, subUl)
           })
-          add_sortable(subUl)
+          use_sortable(subUl)
         }
       })
     }
 
     const _current = res.data || {}
-    if (rb.isAdminUser) {
-      $.get(`${rb.baseUrl}/app/settings/nav-settings/alist`, (res) => {
-        const config = res.data.find((x) => { return x[0] === _current.id })
-        // eslint-disable-next-line react/jsx-no-undef
-        renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={config ? config[1] : ''} shareTo={_current.shareTo} id={_current.id} />,
-          'shareTo', function () { shareTo = this })
-      })
-    }
+    $.get(`${rb.baseUrl}/app/settings/nav-settings/alist`, (res) => {
+      const cc = res.data.find((x) => { return x[0] === _current.id })
+      if (rb.isAdminUser) {
+        renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () { shareTo = this })
+      } else {
+        // overSelf = cc && cc[3] !== rb.currentUser
+        const switchBtn = (
+          <div className="float-left">
+            <div className="btn-group">
+              <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-swap-vertical icon"></i> 切换导航</button>
+              <div className="dropdown-menu">
+                {res.data.map((item) => {
+                  let name = item[1] || '未命名'
+                  if (item[3] === rb.currentUser) name = '我的导航'
+                  if (item[3] !== rb.currentUser) name += ' (共享的)'
+                  if (cc[0] === item[0]) name += ' [当前]'
+                  return <a key={`nav-${item[0]}`} className="dropdown-item" href={`?id=${item[0]}`}>{name}</a>
+                })}
+              </div>
+            </div>
+          </div>
+        )
+        renderRbcomp(switchBtn, 'shareTo')
+      }
+    })
+    // ~
   })
 })
 
-const add_sortable = function (el) {
+const use_sortable = function (el) {
   $(el).sortable({
     placeholder: 'dd-placeholder',
     handle: '>.dd3-handle',
@@ -122,7 +142,7 @@ const build_item = function (item) {
   if (subNavs.length > 0) {
     data.sub = []
     subNavs.each(function () {
-      let sub = build_item($(this))
+      const sub = build_item($(this))
       if (sub) data.sub.push(sub)
     })
   }
@@ -144,20 +164,18 @@ const render_item = function (data, isNew, append2) {
     const action = $('<div class="dd3-action"><a class="J_addsub" title="添加子菜单"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>').appendTo(item)
     action.find('a.J_del').off('click').click(function () {
       item.remove()
-      fixParents()
+      fix_parents()
     })
     action.find('a.J_addsub').off('click').click(function () {
       let subUl = item.find('ul')
       if (subUl.length === 0) {
         subUl = $('<ul></ul>').appendTo(item)
-        add_sortable(subUl)
+        use_sortable(subUl)
       }
       render_item({}, true, subUl)
-      fixParents()
+      fix_parents()
     })
-    if (!$(append2).hasClass('J_config')) {
-      action.find('a.J_addsub').remove()
-    }
+    if (!$(append2).hasClass('J_config')) action.find('a.J_addsub').remove()
   }
 
   const content3 = item.find('.dd3-content').eq(0)
@@ -187,7 +205,7 @@ const render_item = function (data, isNew, append2) {
     } else {
       $('.J_menuType').eq(0).click()
       data.value = item.attr('attr-value')  // force renew
-      let $me = $('.J_menuEntity').val(data.value)
+      const $me = $('.J_menuEntity').val(data.value)
       $me.attr('disabled', data.value === '$PARENT$')
       if (!$me.find('option:selected').text()) $me.val('').addClass('is-invalid')
       else $me.removeClass('is-invalid')
@@ -203,9 +221,9 @@ const render_item = function (data, isNew, append2) {
   return item
 }
 
-const fixParents = function () {
+const fix_parents = function () {
   $('.J_config>li').each(function () {
-    let $me = $(this)
+    const $me = $(this)
     if ($me.find('ul>li').length > 0) $me.attr({ 'attr-value': '$PARENT$' })
     else if ($me.attr('attr-value') === '$PARENT$') $me.attr({ 'attr-value': '' })
   })
