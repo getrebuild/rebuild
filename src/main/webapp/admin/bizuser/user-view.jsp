@@ -39,9 +39,10 @@
 				<div class="col-12 col-lg-6 btn-group J_mores">
 					<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 					<div class="dropdown-menu dropdown-menu-right">
-						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
 						<a class="dropdown-item J_enable"><i class="icon zmdi zmdi-check-circle"></i> 启用</a>
 						<a class="dropdown-item J_disable"><i class="icon zmdi zmdi-block"></i> 停用</a>
+						<a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> 删除</a>
+						<a class="dropdown-item J_resetpwd"><i class="icon zmdi zmdi-key"></i> 重置密码</a>
 						<div class="dropdown-divider"></div>
 						<a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> 变更部门</a>
 						<a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> 变更角色</a>

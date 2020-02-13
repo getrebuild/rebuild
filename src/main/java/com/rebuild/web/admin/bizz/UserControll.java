@@ -21,6 +21,7 @@ package com.rebuild.web.admin.bizz;
 import cn.devezhao.bizz.security.member.Role;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -42,6 +43,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -136,28 +138,38 @@ public class UserControll extends BaseEntityControll {
                         Languages.defaultBundle().lang("YourAccountActive"), content);
 			}
 		}
+
+		// 登录失效
+		if (!u.isActive()) {
+			HttpSession s = Application.getSessionStore().getSession(u.getId());
+			if (s != null) {
+				LOG.warn("Force destroy user session : " + u.getId());
+				s.invalidate();
+			}
+		}
 		
 		writeSuccess(response);
 	}
 	
 	@RequestMapping("delete-checks")
 	public void deleteChecks(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID id = getIdParameterNotNull(request, "id");
-		
+		// 用户/部门/角色
+		final ID bizz = getIdParameterNotNull(request, "id");
+
 		int hasMember = 0;
 		int hasChild = 0;
-		if (id.getEntityCode() == EntityHelper.Department) {
-			Department dept = Application.getUserStore().getDepartment(id);
+		if (bizz.getEntityCode() == EntityHelper.Department) {
+			Department dept = Application.getUserStore().getDepartment(bizz);
 			hasMember = dept.getMembers().size();
 			hasChild = dept.getChildren().size();
-		} else if (id.getEntityCode() == EntityHelper.Role) {
-			Role role = Application.getUserStore().getRole(id);
+		} else if (bizz.getEntityCode() == EntityHelper.Role) {
+			Role role = Application.getUserStore().getRole(bizz);
 			hasMember = role.getMembers().size();
-		} else if (id.getEntityCode() == EntityHelper.User) {
+		} else if (bizz.getEntityCode() == EntityHelper.User) {
 			// 仅检查是否登陆过。严谨些还应该检查是否有其他业务数据
 			Object[] hasLogin = Application.createQueryNoFilter(
 					"select count(logId) from LoginLog where user = ?")
-					.setParameter(1, id)
+					.setParameter(1, bizz)
 					.unique();
 			hasMember = ObjectUtils.toInt(hasLogin[0]);
 		}
@@ -172,6 +184,17 @@ public class UserControll extends BaseEntityControll {
 	public void userDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getIdParameterNotNull(request, "id");
 		Application.getBean(UserService.class).delete(user);
+		writeSuccess(response);
+	}
+
+	@RequestMapping( value = "user-resetpwd", method = RequestMethod.POST)
+	public void userResetpwd(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID user = getIdParameterNotNull(request, "id");
+		String newp = getParameterNotNull(request, "newp");
+
+		Record record = EntityHelper.forUpdate(user, user);
+		record.setString("password", newp);
+		Application.getBean(UserService.class).update(record);
 		writeSuccess(response);
 	}
 }

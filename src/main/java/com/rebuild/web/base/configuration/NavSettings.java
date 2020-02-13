@@ -67,7 +67,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		// 普通用户只能有一个导航
 		if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
 			ID useNav = NavManager.instance.detectUseConfig(user, null, NavManager.TYPE_NAV);
-			if (ShareToManager.isSelf(user, useNav)) {
+			if (useNav != null && ShareToManager.isSelf(user, useNav)) {
 				cfgid = useNav;
 			} else {
 				cfgid = null;
