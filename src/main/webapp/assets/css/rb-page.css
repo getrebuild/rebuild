@@ -2829,11 +2829,9 @@ form {
     height: 30px;
     line-height: 30px;
     min-height: 0;
-    width: 30px;
-    padding: 0;
-    min-width: 0;
+    min-width: 30px;
     text-align: left;
-    padding-top: 2px;
+    padding: 2px 0 0;
 }
 
 .shareTo--wrap .btn.btn-link .icon {

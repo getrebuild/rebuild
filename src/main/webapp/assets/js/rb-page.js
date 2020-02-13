@@ -39,7 +39,7 @@ $(function () {
         trigger: 'hover',
         placement: 'bottom',
         html: true,
-        content: '你已启用管理员访问功能，如不再需要请 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a>',
+        content: '当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a>',
       }).on('shown.bs.popover', function () {
         $('#' + $(this).attr('aria-describedby'))
           .on('mouseenter', () => pop.popover('show'))
@@ -222,7 +222,7 @@ var __loadMessages = function () {
 var __showNotification = function () {
   if (window.Notification) {
     if (window.Notification.permission === 'granted') {
-      var n = new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
+      new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
         tag: 'rbNotification'
       })
     } else {
