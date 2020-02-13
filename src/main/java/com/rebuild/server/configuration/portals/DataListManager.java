@@ -153,4 +153,20 @@ public class DataListManager extends BaseLayoutManager {
 				new String[] { "field", "label", "type" },
 				new Object[] { parentField + easyField.getName(), parentLabel + easyField.getLabel(), easyField.getDisplayType(false) });
 	}
+
+	/**
+	 * 获取可用列显示ID
+	 *
+	 * @param entity
+	 * @param user
+	 * @return
+	 */
+	public ID[] getUsesDataListId(String entity, ID user) {
+		Object[][] uses = getUsesConfig(user, entity, TYPE_DATALIST);
+		List<ID> array = new ArrayList<>();
+		for (Object[] c : uses) {
+			array.add((ID) c[0]);
+		}
+		return array.toArray(new ID[0]);
+	}
 }

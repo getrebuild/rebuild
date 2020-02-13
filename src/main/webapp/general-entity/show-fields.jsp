@@ -40,8 +40,8 @@ $(document).ready(function () {
 
 	let shareTo
 	let cfgid = $urlp('id')
-	$.get(baseUrl + '?id=' + cfgid, function (res) {
-		let _data = res.data || {}
+	$.get(baseUrl + '?id=' + (cfgid || ''), function (res) {
+		const _data = res.data || {}
 		$(_data.fieldList).each(function () {
 			render_unset([this.field, this.label])
 		})
@@ -50,19 +50,19 @@ $(document).ready(function () {
 		})
 		cfgid = _data.configId || ''
 
-		if (rb.isAdminUser) {
-			$.get(baseUrl + '/alist', (res) => {
-				let configName = null
-				$(res.data).each(function () {
-					if (this[0] === _data.configId) {
-						configName = this[1]
-						return false
-					}
+		$.get(baseUrl + '/alist', (res) => {
+			const cc = res.data.find((x) => { return x[0] === cfgid })
+			if (rb.isAdminUser) {
+				renderRbcomp(<Share2 title="列显示" list={res.data} configName={cc ? cc[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId}/>,
+						'shareTo', function () { shareTo = this })
+			} else {
+				const data = res.data.map((x)=>{
+					x[4] = entity
+					return x
 				})
-				// eslint-disable-next-line react/jsx-no-undef
-				renderRbcomp(<Share2 title="列显示" list={res.data} configName={configName} shareTo={_data.shareTo} entity={entity} id={_data.configId}/>, 'shareTo', function () { shareTo = this })
-			})
-		}
+				renderSwitchButton(data, '列显示', cfgid)
+			}
+		})
 	})
 
 	$('.J_save').click(function () {
@@ -71,12 +71,12 @@ $(document).ready(function () {
 			config.push({field: $(this).data('key')})
 		});
 		if (config.length == 0) {
-			RbHighbar.create('请至少设置一个显示列');
+			RbHighbar.create('请至少设置一个显示列')
 			return
 		}
 
-		let btn = $(this).button('loading')
-		let shareToData = shareTo ? shareTo.getData() : {}
+		const btn = $(this).button('loading')
+		const shareToData = shareTo ? shareTo.getData() : {}
 		$.post(baseUrl + '?id=' + cfgid + '&configName=' + $encode(shareToData.configName || '') + '&shareTo=' + shareToData.shareTo, JSON.stringify(config), function (res) {
 			if (res.error_code == 0) parent.location.reload()
 			btn.button('reset')

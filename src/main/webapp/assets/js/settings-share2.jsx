@@ -181,3 +181,27 @@ class Share2Settings extends Share2Switch {
     })
   }
 }
+
+// 普通用户切换设置
+// eslint-disable-next-line no-unused-vars
+const renderSwitchButton = (data, title, current) => {
+  if (!data || data.length === 0) return null
+  const comp = (
+    <div className="float-left">
+      <div className="btn-group">
+        <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-swap-vertical icon"></i> {`切换${title}`}</button>
+        <div className="dropdown-menu">
+          {data.map((x) => {
+            let name = x[1] || '未命名'
+            if (x[3] === rb.currentUser) name = `我的${title}`
+            else name += ' (共享的)'
+            if (current && current === x[0]) name += ' [当前]'
+            return <a key={`sw-${x[0]}`} className="dropdown-item" href={`?id=${x[0]}${x[4] ? (`&entity=${x[4]}`) : ''}`}>{name}</a>
+          })
+          }
+        </div>
+      </div>
+    </div>
+  )
+  renderRbcomp(comp, 'shareTo')
+}

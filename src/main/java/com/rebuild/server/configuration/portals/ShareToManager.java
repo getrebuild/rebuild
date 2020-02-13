@@ -90,21 +90,21 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      * @return
      */
     public ID detectUseConfig(ID user, String belongEntity, String applyType) {
-        Object[][] cached = getAllConfig(belongEntity, applyType);
-        if (cached.length == 0) {
+        final Object[][] alls = getAllConfig(belongEntity, applyType);
+        if (alls.length == 0) {
             return null;
         }
 
         // 优先使用自己的
         boolean isAdmin = UserHelper.isAdmin(user);
-        for (Object[] d : cached) {
+        for (Object[] d : alls) {
             ID createdBy = (ID) d[2];
             if (user.equals(createdBy) || (isAdmin && UserHelper.isAdmin(createdBy))) {
                 return (ID) d[0];
             }
         }
         // 其次共享的
-        for (Object[] d : cached) {
+        for (Object[] d : alls) {
             if (isShareTo((String) d[1], user)) {
                 return (ID) d[0];
             }

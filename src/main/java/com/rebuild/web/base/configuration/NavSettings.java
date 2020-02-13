@@ -64,7 +64,7 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowCustomNav), "没有权限");
 
 		ID cfgid = getIdParameter(request, "id");
-		// 普通用户只能有一个导航
+		// 普通用户只能有一个
 		if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
 			ID useNav = NavManager.instance.detectUseConfig(user, null, NavManager.TYPE_NAV);
 			if (useNav != null && ShareToManager.isSelf(user, useNav)) {
@@ -114,9 +114,9 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 		String sql = "select configId,configName,shareTo,createdBy from LayoutConfig where ";
 		if (UserHelper.isAdmin(user)) {
 			sql += String.format("applyType = '%s' and createdBy.roleId = '%s' order by configName",
-					BaseLayoutManager.TYPE_NAV, RoleService.ADMIN_ROLE);
+					NavManager.TYPE_NAV, RoleService.ADMIN_ROLE);
 		} else {
-			// 普通用户可用导航ID
+			// 普通用户可用的
 			ID[] uses = NavManager.instance.getUsesNavId(user);
 			sql += "configId in ('" + StringUtils.join(uses, "', '") + "')";
 		}

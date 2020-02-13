@@ -98,23 +98,8 @@ $(document).ready(function () {
         renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () { shareTo = this })
       } else {
         // overSelf = cc && cc[3] !== rb.currentUser
-        const switchBtn = (
-          <div className="float-left">
-            <div className="btn-group">
-              <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-swap-vertical icon"></i> 切换导航</button>
-              <div className="dropdown-menu">
-                {res.data.map((item) => {
-                  let name = item[1] || '未命名'
-                  if (item[3] === rb.currentUser) name = '我的导航'
-                  if (item[3] !== rb.currentUser) name += ' (共享的)'
-                  if (cc[0] === item[0]) name += ' [当前]'
-                  return <a key={`nav-${item[0]}`} className="dropdown-item" href={`?id=${item[0]}`}>{name}</a>
-                })}
-              </div>
-            </div>
-          </div>
-        )
-        renderRbcomp(switchBtn, 'shareTo')
+        // eslint-disable-next-line no-undef
+        renderSwitchButton(res.data, '导航菜单', cc ? cc[0] : null)
       }
     })
     // ~

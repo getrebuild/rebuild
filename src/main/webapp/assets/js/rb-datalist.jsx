@@ -1242,7 +1242,7 @@ class BatchUpdateEditor extends React.Component {
         })}
       </select>
     } else {
-      return <input className="form-control form-control-sm" placeholder={`输入${field.label}`} ref={(c) => this._value = c} key={fieldKey} />
+      return <input className="form-control form-control-sm" placeholder="新值" ref={(c) => this._value = c} key={fieldKey} maxLength="255" />
     }
   }
 
@@ -1274,7 +1274,7 @@ class BatchUpdateEditor extends React.Component {
         })
       } else {
         this.__lastSelect2 = $(this._value).select2({
-          placeholder: `选择${field.label}`
+          placeholder: '新值'
         })
       }
       this.__lastSelect2.val(null).trigger('change')
@@ -1313,7 +1313,6 @@ class BatchUpdateEditor extends React.Component {
       RbHighbar.create('修改值不能为空')
       return null
     }
-
 
     if (field.type === 'MULTISELECT') {
       let maskTotal = 0
