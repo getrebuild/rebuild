@@ -57,9 +57,7 @@ class RbFormModal extends React.Component {
           return detectElement(item)
         })}
       </RbForm>
-      that.setState({ formComponent: FORM, __formModel: res.data }, function () {
-        that.setState({ inLoad: false })
-      })
+      that.setState({ formComponent: FORM, __formModel: res.data }, () => that.setState({ inLoad: false }))
       that.__lastModified = res.data.lastModified || 0
     })
   }
@@ -112,7 +110,7 @@ class RbFormModal extends React.Component {
 
   hide(destroy) {
     $(this._rbmodal).modal('hide')
-    let state = { isDestroy: destroy === true }
+    const state = { isDestroy: destroy === true }
     if (destroy === true) state.id = null
     this.setState(state)
   }
@@ -159,7 +157,7 @@ class RbForm extends React.Component {
 
   renderFormAction() {
     const pmodel = this.props.$$$parent.state.__formModel
-    let moreActions = []
+    const moreActions = []
     if (pmodel.hadApproval) moreActions.push(<a key="Action103" className="dropdown-item" onClick={() => this.post(103)}>保存并提交</a>)
     if (pmodel.isMaster === true) moreActions.push(<a key="Action102" className="dropdown-item" onClick={() => this.post(102)}>保存并添加明细</a>)
     else if (pmodel.isSlave === true) moreActions.push(<a key="Action101" className="dropdown-item" onClick={() => this.post(101)}>保存并继续添加</a>)
@@ -233,7 +231,7 @@ class RbForm extends React.Component {
    */
   post(next) { setTimeout(() => this._post(next), 30) }
   _post(next) {
-    let _data = {}
+    const _data = {}
     for (let k in this.__FormData) {
       let err = this.__FormData[k].error
       if (err) { RbHighbar.create(err); return }
@@ -263,8 +261,11 @@ class RbForm extends React.Component {
           }
         }, 100)
       }
-      else if (res.error_code === 499) renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
-      else RbHighbar.error(res.error_msg)
+      else if (res.error_code === 499) {
+        renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
     return true
   }
@@ -674,7 +675,7 @@ class RbFormImage extends RbFormElement {
         mp.set(res.percent / 100)  // 0.x
       }, (res) => {
         mp.end()
-        let paths = this.state.value || []
+        const paths = this.state.value || []
         paths.push(res.key)
         this.handleChange({ target: { value: paths } }, true)
       })
@@ -682,7 +683,7 @@ class RbFormImage extends RbFormElement {
   }
 
   removeItem(item) {
-    let paths = this.state.value || []
+    const paths = this.state.value || []
     paths.remove(item)
     this.handleChange({ target: { value: paths } }, true)
   }
@@ -747,7 +748,7 @@ class RbFormPickList extends RbFormElement {
   constructor(props) {
     super(props)
 
-    let options = props.options
+    const options = props.options
     if (options && props.value) {  // Check value has been deleted
       let deleted = true
       $(options).each(function () {
@@ -962,7 +963,7 @@ class RbFormClassification extends RbFormElement {
   setClassificationValue(s) {
     if (!s.id) return
 
-    let data = this.__cached || {}
+    const data = this.__cached || {}
     if (data[s.id]) {
       this.__select2.val(s.id).trigger('change')
     } else if (this._fieldValue) {
@@ -1151,7 +1152,7 @@ const __findOptionText = function (options, value) {
 
 // 多选文本
 const __findMultiTexts = function (options, maskValue) {
-  let texts = []
+  const texts = []
   options.map((item) => {
     if ((maskValue & item.mask) !== 0) texts.push(item.text)
   })
@@ -1224,14 +1225,14 @@ class ClassificationSelector extends React.Component {
       $(document.body).addClass('modal-open')  // keep scroll
     })
 
-    let LN = ['一', '二', '三', '四']
+    const LN = ['一', '二', '三', '四']
     const that = this
     $(this._select).each(function (idx) {
-      let s = $(this).select2({
+      const s = $(this).select2({
         placeholder: '选择' + LN[idx] + '分类',
         allowClear: false
       }).on('change', () => {
-        let p = $(s).val()
+        const p = $(s).val()
         if (p) {
           if (s.__level < that.state.openLevel) {
             that.loadData(s.__level + 1, p)  // Load next-level
@@ -1246,11 +1247,9 @@ class ClassificationSelector extends React.Component {
 
   loadData(level, p) {
     $.get(`${rb.baseUrl}/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
-      let s = this.state.datas
+      const s = this.state.datas
       s[level] = res.data
-      this.setState({ datas: s }, () => {
-        this._select2[level].trigger('change')
-      })
+      this.setState({ datas: s }, () => this._select2[level].trigger('change'))
     })
   }
 
@@ -1260,7 +1259,7 @@ class ClassificationSelector extends React.Component {
     if (!v) {
       RbHighbar.create('选择有误')
     } else {
-      let text = []
+      const text = []
       $(this._select2).each(function () {
         text.push(this.select2('data')[0].text)
       })
