@@ -447,7 +447,7 @@ class ApprovalList extends BaseChart {
                 <span className="cell-detail-description">{item[6]}</span>
               </td>
               <td className="actions text-right">
-                {this.state.viewState === 1 && <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5])}>审批</button>}
+                {this.state.viewState === 1 && <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>审批</button>}
                 {this.state.viewState === 10 && <span className="text-success">通过</span>}
                 {this.state.viewState === 11 && <span className="text-danger">驳回</span>}
               </td>
@@ -475,7 +475,7 @@ class ApprovalList extends BaseChart {
     }, 400, 'resize-chart-' + this.state.id)
   }
 
-  approve(record, approval) {
+  approve(record, approval, entity) {
     event.preventDefault()
     const that = this
     if (this.__approvalForms[record]) this.__approvalForms[record].show()
@@ -485,7 +485,7 @@ class ApprovalList extends BaseChart {
         that.loadChartData()
       }
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} call={close} />, null, function () { that.__approvalForms[record] = this })
+      renderRbcomp(<ApprovalApproveForm id={record} approval={approval} entity={entity} call={close} />, null, function () { that.__approvalForms[record] = this })
     }
   }
 

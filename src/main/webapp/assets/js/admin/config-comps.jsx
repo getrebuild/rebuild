@@ -35,11 +35,8 @@ class ConfigFormDlg extends RbFormHandler {
     }
   }
 
-  renderFrom() {
-  }
-
-  confirm = () => {
-  }
+  renderFrom() { }
+  confirm = () => { }
 }
 
 // 列表 TABLE
@@ -53,15 +50,13 @@ class ConfigList extends React.Component {
   componentDidMount() {
     this.loadData()
     // 搜索
-    const btn = $('.input-search .btn').click(() => { this.loadData() })
-    $('.input-search .form-control').keydown((e) => { if (e.which === 13) btn.trigger('click') })
+    const btn = $('.input-search .btn').click(() => this.loadData())
+    $('.input-search .form-control').keydown((e) => e.which === 13 && btn.trigger('click'))
   }
 
   // 加载数据
   loadData(entity) {
-    if (!this.requestUrl) {
-      throw new Error('No `requestUrl` defined')
-    }
+    if (!this.requestUrl) throw new Error('No `requestUrl` defined')
 
     entity = entity || this.__entity
     this.__entity = entity
@@ -85,7 +80,7 @@ class ConfigList extends React.Component {
     if (this.__treeRendered) return
     this.__treeRendered = true
 
-    let ues = {}
+    const ues = {}
     $(this.state.data).each(function () {
       ues[this[1]] = this[2]
     })
