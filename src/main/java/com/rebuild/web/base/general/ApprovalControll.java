@@ -216,7 +216,7 @@ public class ApprovalControll extends BasePageControll {
 		ID recordId = getIdParameterNotNull(request, "record");
 
 		try {
-			new ApprovalProcessor(recordId).cancel(null);
+			new ApprovalProcessor(recordId).cancel();
 			writeSuccess(response);
 		} catch (ApprovalException ex) {
 			writeFailure(response, ex.getMessage());

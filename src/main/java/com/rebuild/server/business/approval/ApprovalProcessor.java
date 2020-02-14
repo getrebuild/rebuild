@@ -138,7 +138,11 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData) throws ApprovalException {
-		Integer currentState = (Integer) Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState)[0];
+		Object[] o = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState);
+		if (o == null) {
+			throw new NoRecordFoundException("记录不存在或无权查看:" + this.record);
+		}
+		Integer currentState = (Integer) o[0];
 		if (currentState != ApprovalState.PROCESSING.getState()) {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.APPROVED.getState() ? "审批完成" : "驳回审批"));
 		}
@@ -185,10 +189,9 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	/**
 	 * 撤销
 	 *
-	 * @param remark
 	 * @throws ApprovalException
 	 */
-	public void cancel(String remark) throws ApprovalException {
+	public void cancel() throws ApprovalException {
 		Object[] state = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState, EntityHelper.ApprovalId);
 		Integer currentState = (Integer) state[0];
 		if ((Integer) state[0] != ApprovalState.PROCESSING.getState()) {
