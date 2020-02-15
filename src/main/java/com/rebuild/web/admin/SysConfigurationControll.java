@@ -26,7 +26,7 @@ import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.Lisence;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
@@ -201,7 +201,7 @@ public class SysConfigurationControll extends BasePageControll {
 
 	@RequestMapping("systems/query-authority")
 	public void queryAuthority(HttpServletResponse response) throws IOException {
-		writeSuccess(response, Lisence.queryAuthority());
+		writeSuccess(response, License.queryAuthority());
 	}
 
 	private String[] starsAccount(String[] account, int ...index) {
