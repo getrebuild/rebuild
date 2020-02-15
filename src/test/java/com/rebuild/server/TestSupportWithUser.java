@@ -56,7 +56,7 @@ public abstract class TestSupportWithUser extends TestSupport {
      * @return
      */
     protected ID getSessionUser() {
-        return SIMPLE_USER;
+        return UserService.ADMIN_USER;
     }
 
     /**

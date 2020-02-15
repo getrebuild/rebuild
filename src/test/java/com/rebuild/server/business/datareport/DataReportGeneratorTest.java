@@ -32,11 +32,6 @@ import java.io.File;
  */
 public class DataReportGeneratorTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void testGenerator() throws Exception {
         File template = ResourceUtils.getFile("classpath:report-template.xlsx");

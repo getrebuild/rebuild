@@ -35,6 +35,11 @@ import java.util.Map;
  */
 public class FeedsHelperTest extends TestSupportWithUser {
 
+    @Override
+    protected ID getSessionUser() {
+        return SIMPLE_USER;
+    }
+
     @Test
     public void findMentions() {
         Map<String, ID> map = FeedsHelper.findMentionsMap("@RB示例用户 @没有 @RB 示例用户 @超级管理员\n你还的呵呵我复合 @ @  ");
@@ -47,7 +52,7 @@ public class FeedsHelperTest extends TestSupportWithUser {
         createComment(feedsId);
 
         int num = FeedsHelper.getNumOfComment(feedsId);
-        Assert.assertTrue(num == 1);
+        Assert.assertEquals(1, num);
         Application.getService(EntityHelper.Feeds).delete(feedsId);
 
         FeedsHelper.isMyLike(feedsId, SIMPLE_USER);
@@ -66,10 +71,10 @@ public class FeedsHelperTest extends TestSupportWithUser {
         return Application.getService(EntityHelper.Feeds).create(feeds).getPrimary();
     }
 
-    private ID createComment(ID feedsId) {
+    private void createComment(ID feedsId) {
         Record comment = EntityHelper.forNew(EntityHelper.FeedsComment, SIMPLE_USER);
         comment.setString("content", "你好，测试评论");
         comment.setID("feedsId", feedsId);
-        return Application.getService(EntityHelper.FeedsComment).create(comment).getPrimary();
+        Application.getService(EntityHelper.FeedsComment).create(comment).getPrimary();
     }
 }

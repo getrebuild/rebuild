@@ -19,16 +19,24 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.files;
 
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.EntityHelper;
 import org.junit.Test;
+
+import java.util.Arrays;
 
 /**
  * @author devezhao
  * @since 2019/11/15
  */
 public class FilesHelperTest extends TestSupportWithUser {
+
+    @Override
+    protected ID getSessionUser() {
+        return SIMPLE_USER;
+    }
 
     @Test
     public void getFolders() {
@@ -47,7 +55,7 @@ public class FilesHelperTest extends TestSupportWithUser {
         folder.setString("scope", FilesHelper.SCOPE_SELF);
         folder = Application.getService(EntityHelper.AttachmentFolder).create(folder);
 
-        System.out.println(FilesHelper.getPrivateFolders(getSessionUser()));
+        System.out.println(Arrays.toString(FilesHelper.getPrivateFolders(getSessionUser())));
         Application.getService(EntityHelper.AttachmentFolder).delete(folder.getPrimary());
     }
 }

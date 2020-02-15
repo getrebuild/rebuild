@@ -40,11 +40,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class SendNotificationTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void testExecute() throws Exception {
         // 添加配置

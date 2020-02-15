@@ -41,11 +41,6 @@ import org.junit.Test;
  */
 public class FieldAggregationTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void testExecute() throws Exception {
         addExtTestEntities(false);
@@ -79,7 +74,7 @@ public class FieldAggregationTest extends TestSupportWithUser {
 
         JSONObject configUseFormula = JSON.parseObject("{ targetField:'totalAmount', calcMode:'FORMULA', sourceFormula:'{totalAmount$$$$SUM}*1.35' }");
         new AggregationEvaluator(
-                configUseFormula, sourceEntity, "releatedAccount", null)
+                configUseFormula, sourceEntity, "relatedAccount", null)
                 .eval(ID.newId(sourceEntity.getEntityCode()));
 
         JSONObject configUseMAX = JSON.parseObject("{ targetField:'totalAmount', calcMode:'MAX', sourceField:'totalAmount' }");

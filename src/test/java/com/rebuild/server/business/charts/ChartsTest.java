@@ -32,7 +32,7 @@ import org.junit.Test;
  */
 public class ChartsTest extends TestSupportWithUser {
 
-	@Before
+    @Before
 	@Override
 	public void setUp() {
 		super.setUp();

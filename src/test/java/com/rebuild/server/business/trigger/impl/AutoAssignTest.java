@@ -36,11 +36,6 @@ import org.junit.Test;
  */
 public class AutoAssignTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void execute() throws Exception {
         addExtTestEntities(false);
