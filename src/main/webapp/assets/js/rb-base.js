@@ -45,7 +45,7 @@
       else if (xhr.status === 502) RbHighbar.error('Service unavailable')
       else {
         var error = xhr.responseText
-        if (rb.env !== 'dev' && error && error.contains('Exception : ')) error = error.split('Exception : ')[1]
+        if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
         RbHighbar.error(error)
       }
     }
