@@ -54,8 +54,8 @@ public class UsersGetting extends BaseControll {
 	
 	@RequestMapping("users")
 	public void loadUsers(HttpServletRequest request, HttpServletResponse response) {
-		String type = getParameter(request, "type", "User");
-		String q = getParameter(request, "q");
+		final String type = getParameter(request, "type", "User");
+		final String query = getParameter(request, "q");
 		
 		Member[] members;
 		if ("User".equalsIgnoreCase(type)) {
@@ -64,35 +64,41 @@ public class UsersGetting extends BaseControll {
 			members = Application.getUserStore().getAllDepartments();
 		} else if ("Role".equalsIgnoreCase(type)) {
 			members = Application.getUserStore().getAllRoles();
-		} else {
+		} else if ("Team".equalsIgnoreCase(type)) {
+            members = Application.getUserStore().getAllTeams();
+        }  else {
 			throw new IllegalParameterException("Unknow type of bizz : " + type);
 		}
+		// 排序
+		members = UserHelper.sortMembers(members);
 		
-		List<JSON> filtered = new ArrayList<>();
+		List<JSON> ret = new ArrayList<>();
 		for (Member m : members) {
 			if (m.isDisabled()) {
 				continue;
 			}
 			
 			String name = m.getName();
+			String email = null;
 			if (m instanceof User) {
-				name = ((User) m).getFullName();
 				if (!((User) m).isActive()) {
 					continue;
 				}
+				name = ((User) m).getFullName();
+				email = ((User) m).getEmail();
 			}
-			
-			if (StringUtils.isBlank(q) || (StringUtils.isNotBlank(q) && name.contains(q))) {
-				JSON item = JSONUtils.toJSONObject(new String[] { "id", "text" },
+
+			if (StringUtils.isBlank(query)
+                    || StringUtils.containsIgnoreCase(name, query)
+                    || (email != null && StringUtils.containsIgnoreCase(email, query))) {
+				JSON o = JSONUtils.toJSONObject(new String[] { "id", "text" },
 						new String[] { m.getIdentity().toString(), name });
-				filtered.add(item);
-				if (filtered.size() >= 100) {
-					break;
-				}
+				ret.add(o);
+				if (ret.size() >= 40) break;
 			}
 		}
 		
-		writeSuccess(response, filtered);
+		writeSuccess(response, ret);
 	}
 
 	/**

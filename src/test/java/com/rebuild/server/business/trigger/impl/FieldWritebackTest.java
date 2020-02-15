@@ -10,7 +10,6 @@ package com.rebuild.server.business.trigger.impl;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.business.trigger.ActionType;
@@ -26,11 +25,6 @@ import org.junit.Test;
  * @since 2020/2/7
  */
 public class FieldWritebackTest extends TestSupportWithUser {
-
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
 
     @Test
     public void testExecute() throws Exception {

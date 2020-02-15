@@ -126,7 +126,7 @@ public class FileManagerControll extends BaseControll {
         ID user = getRequestUser(request);
         ID record = getIdParameterNotNull(request, "id");
 
-        boolean OK = false;
+        boolean OK;
         if (record.getEntityCode() == EntityHelper.Feeds || record.getEntityCode() == EntityHelper.FeedsComment) {
             OK = FeedsHelper.checkReadable(record, user);
         } else {

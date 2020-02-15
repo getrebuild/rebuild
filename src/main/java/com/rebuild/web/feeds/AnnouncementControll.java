@@ -79,7 +79,7 @@ public class AnnouncementControll extends BaseControll {
                 continue;
             }
 
-            // 不在公示时间
+            // 不在展示时间
             Date timeStart = StringUtils.isBlank(options.getString("timeStart")) ? null : CalendarUtils.parse(options.getString("timeStart"));
             if (timeStart != null && timeNow < timeStart.getTime()) {
                 continue;

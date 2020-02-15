@@ -79,6 +79,7 @@
 								</div>
 								<div class="collapse" id="collapseGroup">
 									<div class="card-body">
+                                        <div class="search-member"><input type="text" placeholder="搜索团队" /></div>
 										<div class="dept-tree rb-scroller">
 										</div>
 									</div>
@@ -90,6 +91,7 @@
 								</div>
 								<div class="collapse" id="collapseUser">
 									<div class="card-body pb-3">
+                                        <div class="search-member"><input type="text" placeholder="搜索用户" /></div>
 										<div class="dept-tree rb-scroller">
 										</div>
 									</div>

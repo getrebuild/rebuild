@@ -2829,11 +2829,9 @@ form {
     height: 30px;
     line-height: 30px;
     min-height: 0;
-    width: 30px;
-    padding: 0;
-    min-width: 0;
+    min-width: 30px;
     text-align: left;
-    padding-top: 2px;
+    padding: 2px 0 0;
 }
 
 .shareTo--wrap .btn.btn-link .icon {
@@ -3154,7 +3152,6 @@ a.icon-link>.zmdi {
 
 .announcement-wrapper>div:hover {
     cursor: pointer;
-    color: #eee;
 }
 
 .announcement-wrapper>div+div {
@@ -3175,9 +3172,22 @@ a.icon-link>.zmdi {
     margin: 0;
 }
 
+.announcement-wrapper>div:hover p {
+    opacity: .8;
+}
+
+.announcement-wrapper>div p>a {
+    color: #fff;
+}
+
+.announcement-wrapper>div p>a:hover,
+.announcement-contents a:hover {
+    text-decoration: underline;
+}
+
 .announcement-contents {
     line-height: 1.7;
-    font-size: 1rem;
+    font-size: 1.1rem;
     border-bottom: 1px solid #eee;
     padding-bottom: 10px;
     margin-bottom: 10px;
@@ -3205,4 +3215,9 @@ a.icon-link>.zmdi {
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
     font-size: 1.1rem;
     margin-right: 6px;
+}
+
+.popover {
+    border-radius: 2px;
+    border-width: 0;
 }

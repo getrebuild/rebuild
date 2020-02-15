@@ -87,7 +87,7 @@ class ApprovalProcessor extends React.Component {
   approve = () => {
     const that = this
     if (this._approveForm) this._approveForm.show()
-    else renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} />, null, function () { that._approveForm = this })
+    else renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} />, null, function () { that._approveForm = this })
   }
 
   cancel = () => {
@@ -273,7 +273,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     }
     return <div className="form-group">
       <label>信息完善 (驳回时无需填写)</label>
-      <EditableForm $$$parent={fake} ref={(c) => this._rbform = c}>
+      <EditableForm $$$parent={fake} entity={this.props.entity} ref={(c) => this._rbform = c}>
         {this.state.aform.map((item) => {
           // eslint-disable-next-line no-undef
           return detectElement(item)

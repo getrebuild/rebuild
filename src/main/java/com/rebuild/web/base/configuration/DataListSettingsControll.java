@@ -37,11 +37,13 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,14 +72,21 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 	@Override
 	public void sets(@PathVariable String entity,
 					 HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
+		final ID user = getRequestUser(request);
 		Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowCustomDataList), "没有权限");
 
-		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "id");
+		// 普通用户只能有一个
 		if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
-			cfgid = null;
+			ID useList = DataListManager.instance.detectUseConfig(user, entity, DataListManager.TYPE_DATALIST);
+			if (useList != null && ShareToManager.isSelf(user, useList)) {
+				cfgid = useList;
+			} else {
+				cfgid = null;
+			}
 		}
+
+		JSON config = ServletUtils.getRequestJson(request);
 		
 		Record record;
 		if (cfgid == null) {
@@ -99,8 +108,8 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 	@Override
 	public void gets(@PathVariable String entity,
 					 HttpServletRequest request, HttpServletResponse response) {
-		ID user = getRequestUser(request);
-		Entity entityMeta = MetadataHelper.getEntity(entity);
+		final ID user = getRequestUser(request);
+		final Entity entityMeta = MetadataHelper.getEntity(entity);
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
@@ -127,7 +136,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			}
 		}
 		
-		ConfigEntry raw = null;
+		ConfigEntry raw;
 		String cfgid = request.getParameter("id");
 		if ("NEW".equalsIgnoreCase(cfgid)) {
 			raw = new ConfigEntry();
@@ -150,15 +159,25 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		writeSuccess(response, ret);
 	}
 
+	/**
+	 * @see NavSettings#getsList(HttpServletRequest, HttpServletResponse)
+	 */
 	@RequestMapping(value = "list-fields/alist", method = RequestMethod.GET)
 	public void getsList(@PathVariable String entity,
 						 HttpServletRequest request, HttpServletResponse response) {
-		Object[][] list = Application.createQueryNoFilter(
-				"select configId,configName,shareTo from LayoutConfig where belongEntity = ? and applyType = ? and createdBy.roleId = ? order by configName")
-				.setParameter(1, entity)
-				.setParameter(2, BaseLayoutManager.TYPE_DATALIST)
-				.setParameter(3, RoleService.ADMIN_ROLE)
-				.array();
+		final ID user = getRequestUser(request);
+
+		String sql = "select configId,configName,shareTo,createdBy from LayoutConfig where ";
+		if (UserHelper.isAdmin(user)) {
+			sql += String.format("belongEntity = '%s' and applyType = '%s' and createdBy.roleId = '%s' order by configName",
+					entity, DataListManager.TYPE_DATALIST, RoleService.ADMIN_ROLE);
+		} else {
+			// 普通用户可用的
+			ID[] uses = DataListManager.instance.getUsesDataListId(entity, user);
+			sql += "configId in ('" + StringUtils.join(uses, "', '") + "')";
+		}
+
+		Object[][] list = Application.createQueryNoFilter(sql).array();
 		writeSuccess(response, list);
 	}
 }

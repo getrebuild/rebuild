@@ -112,7 +112,7 @@
 							<li><a class="link" target="_blank" href="https://getrebuild.com/">技术支持</a></li>
 						</ul>
 						<div class="text-muted">
-							&copy; REBUILD 使用开源 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
+							&copy; REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
 						</div>
 					</div>
 				</div>

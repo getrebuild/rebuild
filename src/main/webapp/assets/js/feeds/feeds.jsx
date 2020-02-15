@@ -21,20 +21,19 @@ class GroupList extends React.Component {
   state = { ...this.props }
 
   render() {
-    return (<ul className="list-unstyled">
+    return <ul className="list-unstyled">
       {!this.state.list && <li className="nodata">加载中</li>}
-      {(this.state.list && this.state.list.length === 0) && <li className="nodata">暂无团队</li>}
+      {(this.state.list && this.state.list.length === 0) && <li className="nodata">暂无</li>}
       {(this.state.list || []).map((item) => {
         return <li key={'item-' + item.id} data-id={item.id} className={this.state.active === item.id ? 'active' : ''}>
           <a className="text-truncate" onClick={() => this._handleActive(item.id)}>{item.name}</a>
         </li>
       })}
     </ul>
-    )
   }
 
-  loadData() {
-    $.get(`${rb.baseUrl}/feeds/group/group-list?all=true`, (res) => this.setState({ list: res.data || [] }))
+  loadData(q) {
+    $.get(`${rb.baseUrl}/feeds/group/group-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
   }
 
   _handleActive(id) {
@@ -49,10 +48,8 @@ class GroupList extends React.Component {
 
 class UserList extends GroupList {
   state = { ...this.props }
-  loadData() {
-    $.get(`${rb.baseUrl}/feeds/group/user-list`, (res) => {
-      this.setState({ list: res.data || [] })
-    })
+  loadData(q) {
+    $.get(`${rb.baseUrl}/feeds/group/user-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
   }
 }
 
@@ -62,12 +59,12 @@ let rbUserList
 
 // 构建搜索条件
 const execFilter = function () {
-  let group = rbGroupList.val()
-  let user = rbUserList.val()
-  let key = $('.J_search-key').val()
-  let date1 = $('.J_date-begin').val()
-  let date2 = $('.J_date-end').val()
-  let type = ~~$('#collapseFeedsType li.active').data('type')
+  const group = rbGroupList.val()
+  const user = rbUserList.val()
+  const key = $('.J_search-key').val()
+  const date1 = $('.J_date-begin').val()
+  const date2 = $('.J_date-end').val()
+  const type = ~~$('#collapseFeedsType li.active').data('type')
 
   let items = []
   if (group) items.push({ field: 'scope', op: 'EQ', value: group })
@@ -81,7 +78,7 @@ const execFilter = function () {
 }
 
 $(document).ready(function () {
-  let gs = $urlp('gs', location.hash)
+  const gs = $urlp('gs', location.hash)
   if (gs) $('.search-input-gs, .J_search-key').val($decode(gs))
 
   renderRbcomp(<RbFeeds />, 'rb-feeds', function () { rbFeeds = this })
@@ -98,16 +95,24 @@ $(document).ready(function () {
     if (!rbUserListLoaded) rbUserList.loadData()
     rbUserListLoaded = true
   })
+  $('#collapseGroup .search-member>input').on('input', function () {
+    const q = $(this).val()
+    $setTimeout(() => rbGroupList.loadData(q), 300, 'headingGroup-search')
+  })
+  $('#collapseUser .search-member>input').on('input', function () {
+    const q = $(this).val()
+    $setTimeout(() => rbUserList.loadData(q), 300, 'headingUser-search')
+  })
 
   function __clear(el) {
     $setTimeout(() => {
-      let $clear = $(el).next().find('a')
+      const $clear = $(el).next().find('a')
       if ($(el).val()) $clear.addClass('show')
       else $clear.removeClass('show')
     }, 50, 'Close-Show')
   }
   $('#collapseSearch .append>a').click(function () {
-    let $i = $(this).parent().prev().val('')
+    const $i = $(this).parent().prev().val('')
     __clear($i)
     setTimeout(execFilter, 100)
   })
@@ -116,7 +121,7 @@ $(document).ready(function () {
     __clear(this)
     if (e.keyCode === 13) execFilter()
   })
-  let dpcfg = {
+  const dpcfg = {
     navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
     format: 'yyyy-mm-dd',
     minView: 2,

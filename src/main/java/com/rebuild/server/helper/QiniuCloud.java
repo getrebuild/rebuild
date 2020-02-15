@@ -160,7 +160,7 @@ public class QiniuCloud {
 	protected boolean delete(String key) {
 		Assert.notNull(auth, "云存储账户未配置");
 		BucketManager bucketManager = new BucketManager(auth, CONFIGURATION);
-		Response resp = null;
+		Response resp;
 		try {
 			resp = bucketManager.delete(this.bucketName, key);
 			if (resp.isOK()) {

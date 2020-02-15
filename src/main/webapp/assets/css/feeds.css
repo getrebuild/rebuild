@@ -204,7 +204,7 @@
   font-size: 0;
 }
 
-.rich-content>.texts>a:hover {
+.rich-content>.texts>a[href]:hover {
   text-decoration: underline;
 }
 
@@ -450,17 +450,27 @@
   display: inline-block;
 }
 
-.side-wrapper .add-group {
+.card-header .add-group {
   font-size: 15px;
   position: absolute;
   right: 14px;
   top: 3px;
   padding: 6px;
+  color: #404040;
+  opacity: 0.6;
   display: none !important;
 }
 
-#headingGroup:hover .add-group {
+.card-header:hover .add-group {
   display: block !important;
+}
+
+.card-header .add-group:hover {
+  opacity: .9;
+}
+
+.card-header .add-group+.add-group {
+  right: 40px;
 }
 
 .related-select {
@@ -550,11 +560,44 @@
 }
 
 .rich-content>.mores {
-  font-size: 12px;
+  font-size: 13px;
   margin-bottom: 6px;
   line-height: 1.6;
 }
 
 .rich-content>.mores span {
   color: #666;
+}
+
+.search-member {
+  position: relative;
+  margin-bottom: 7px;
+  margin-top: -5px;
+}
+
+.search-member input {
+  border: 0 none;
+  border-bottom: 1px solid #d5d8de;
+  width: 100%;
+  padding: 4px 10px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  outline: 0 none;
+  background-color: transparent;
+}
+
+.search-member input:focus {
+  border-color: #bababa;
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.search-member::after {
+  position: absolute;
+  content: '\f1c3';
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  right: 8px;
+  color: #bbb;
+  font-size: 1.25rem;
+  margin-top: 7px;
 }

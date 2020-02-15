@@ -19,7 +19,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.metadata.entity;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
@@ -30,11 +29,6 @@ import org.junit.Test;
  * @since 08/03/2018
  */
 public class Meta2SchemaTest extends TestSupportWithUser {
-
-	@Override
-	protected ID getSessionUser() {
-		return UserService.ADMIN_USER;
-	}
 
 	@Test
 	public void testCreateEntity() throws Exception {

@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -76,10 +77,22 @@ public class InstallControll extends BasePageControll implements InstallState {
         try (Connection conn = new Installer(props).getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
             String msg = String.format("连接成功 : %s %s", dmd.getDatabaseProductName(), dmd.getDatabaseProductVersion());
+
+            // 查询表
+            try (ResultSet rs = dmd.getTables(null, null, null, new String[] { "TABLE" })) {
+                if (rs.next()) {
+                    String hasTable = rs.getString("TABLE_NAME");
+                    if (hasTable != null) {
+                        msg += " (非空数据库，可能导致安装失败)";
+                    }
+                }
+            } catch (SQLException ignored) {
+            }
+
             writeSuccess(response, msg);
         } catch (SQLException e) {
             if (e.getLocalizedMessage().contains("Unknown database")) {
-                writeSuccess(response, "连接成功 : 数据库不存在，将自动创建");
+                writeSuccess(response, "连接成功 : 数据库不存在，系统将自动创建");
             } else {
                 writeFailure(response, "连接错误 : " + e.getLocalizedMessage());
             }

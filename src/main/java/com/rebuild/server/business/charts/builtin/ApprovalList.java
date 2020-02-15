@@ -20,6 +20,7 @@ package com.rebuild.server.business.charts.builtin;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.momentjava.Moment;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -30,6 +31,7 @@ import com.rebuild.server.business.charts.ChartData;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
@@ -101,6 +103,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 continue;
             }
 
+            Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
             ID s = ApprovalHelper.getSubmitter(recordId, (ID) o[3]);
             rearray.add(new Object[] {
                     s,
@@ -109,7 +112,8 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                     o[2],
                     label,
                     o[3],
-                    MetadataHelper.getEntityLabel(recordId)
+                    EasyMeta.getLabel(entity),
+                    entity.getName()
             });
         }
 

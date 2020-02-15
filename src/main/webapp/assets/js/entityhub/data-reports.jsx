@@ -33,7 +33,6 @@ class ReportList extends ConfigList {
   handleEdit(item) {
     renderRbcomp(<ReporEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
-
   handleDelete(id) {
     const handle = super.handleDelete
     RbAlert.create('确认删除此报表模板？', {
@@ -158,7 +157,7 @@ class ReporEdit extends ConfigFormDlg {
   }
 
   confirm = () => {
-    let post = { name: this.state['name'] }
+    const post = { name: this.state['name'] }
     if (!post.name) { RbHighbar.create('请输入报表名称'); return }
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true

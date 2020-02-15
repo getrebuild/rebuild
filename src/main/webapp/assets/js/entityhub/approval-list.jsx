@@ -1,14 +1,15 @@
-
 $(document).ready(function () {
-  $('.J_add').click(() => { renderRbcomp(<ApprovalEdit />) })
+  $('.J_add').click(() => renderRbcomp(<ApprovalEdit />))
   renderRbcomp(<ApprovalList />, 'dataList')
 })
 
 class ApprovalList extends ConfigList {
+
   constructor(props) {
     super(props)
     this.requestUrl = `${rb.baseUrl}/admin/robot/approval/list`
   }
+
   render() {
     return <React.Fragment>
       {(this.state.data || []).map((item) => {
@@ -30,7 +31,7 @@ class ApprovalList extends ConfigList {
     renderRbcomp(<ApprovalEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
   handleDelete(id) {
-    let handle = super.handleDelete
+    const handle = super.handleDelete
     RbAlert.create('若流程正在使用则不能删除，建议你将其禁用。<br>确认删除此审批流程吗？', {
       html: true,
       type: 'danger',
@@ -87,7 +88,7 @@ class ApprovalEdit extends ConfigFormDlg {
   }
 
   confirm = () => {
-    let post = { name: this.state['name'] }
+    const post = { name: this.state['name'] }
     if (!post.name) { RbHighbar.create('请输入流程名称'); return }
     if (!this.props.id) {
       post.belongEntity = this.__select2.val()

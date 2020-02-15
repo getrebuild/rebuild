@@ -22,7 +22,6 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.TestSupport;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerWhen;
@@ -40,11 +39,6 @@ import static org.junit.Assert.assertEquals;
  * @since 2019/05/29
  */
 public class SendNotificationTest extends TestSupportWithUser {
-
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
 
     @Test
     public void testExecute() throws Exception {
@@ -82,8 +76,9 @@ public class SendNotificationTest extends TestSupportWithUser {
 
     @Test
     public void formatMessage() {
+        ID test = addRecordOfTestAllFields();
         String msg = "你好哈哈哈{TestAllFieldsName} 肩痛 {createdBy} {4324fewfe}";
-        msg = new SendNotification(null).formatMessage(msg, ID.valueOf("995-0170251908360005"));
+        msg = new SendNotification(null).formatMessage(msg, test);
         System.out.println(msg);
     }
 }

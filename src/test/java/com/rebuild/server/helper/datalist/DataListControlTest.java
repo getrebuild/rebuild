@@ -37,8 +37,7 @@ public class DataListControlTest extends TestSupportWithUser {
         return SIMPLE_USER;
     }
 
-    private static JSONObject queryExpr = null;
-
+    private static JSONObject queryExpr;
     static {
         queryExpr = JSON.parseObject("{ entity:'User' }");
         JSON fields = JSON.parseArray("[ 'userId', 'loginName', 'createdOn', 'createdBy', 'createdBy.fullName', 'modifiedBy.fullName' ]");

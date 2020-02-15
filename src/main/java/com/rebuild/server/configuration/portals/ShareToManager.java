@@ -33,7 +33,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,7 +63,7 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      * Default: configId,shareTo,createdBy,config
      * @return
      */
-    protected String getFieldsForConfig() {
+    protected String getConfigFields() {
         return "configId,shareTo,createdBy,config";
     }
 
@@ -91,21 +90,21 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      * @return
      */
     public ID detectUseConfig(ID user, String belongEntity, String applyType) {
-        Object[][] cached = getAllConfig(belongEntity, applyType);
-        if (cached.length == 0) {
+        final Object[][] alls = getAllConfig(belongEntity, applyType);
+        if (alls.length == 0) {
             return null;
         }
 
         // 优先使用自己的
         boolean isAdmin = UserHelper.isAdmin(user);
-        for (Object[] d : cached) {
+        for (Object[] d : alls) {
             ID createdBy = (ID) d[2];
             if (user.equals(createdBy) || (isAdmin && UserHelper.isAdmin(createdBy))) {
                 return (ID) d[0];
             }
         }
         // 其次共享的
-        for (Object[] d : cached) {
+        for (Object[] d : alls) {
             if (isShareTo((String) d[1], user)) {
                 return (ID) d[0];
             }
@@ -142,8 +141,9 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      * @return
      */
     protected Object[][] getAllConfig(String belongEntity, String applyType) {
-        String cacheKey = formatCacheKey(belongEntity, applyType);
+        final String cacheKey = formatCacheKey(belongEntity, applyType);
         Object[][] cached = (Object[][]) Application.getCommonCache().getx(cacheKey);
+
         if (cached == null) {
             List<String> sqlWhere = new ArrayList<>();
             if (belongEntity != null) {
@@ -153,7 +153,7 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
                 sqlWhere.add(String.format("applyType = '%s'", applyType));
             }
 
-            String ql = String.format("select %s from %s where (1=1) order by modifiedOn desc", getFieldsForConfig(), getConfigEntity());
+            String ql = String.format("select %s from %s where (1=1) order by modifiedOn desc", getConfigFields(), getConfigEntity());
             if (!sqlWhere.isEmpty()) {
                 ql = ql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
             }
@@ -203,14 +203,6 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
                 StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();
     }
 
-    /**
-     * @param array
-     * @param useIndex
-     */
-    protected void sort(Object[][] array, int useIndex) {
-        Arrays.sort(array, (foo, bar) -> ObjectUtils.compare((Comparable) foo[useIndex], (Comparable) bar[useIndex]));
-    }
-
     // --
 
     /**
@@ -224,30 +216,26 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
         if (configOrUser.getEntityCode() != EntityHelper.User) {
             configOrUser = getCreatedBy(configOrUser);
         }
-        boolean s = user.equals(configOrUser);
-        if (s) {
-            return true;
-        }
-        return UserHelper.isAdmin(user) && UserHelper.isAdmin(configOrUser);
+        return user.equals(configOrUser) || (UserHelper.isAdmin(user) && UserHelper.isAdmin(configOrUser));
     }
 
     private static final Map<ID, ID> CREATEDBYs = new HashMap<>();
     /**
-     * @param configId
+     * @param cfgid
      * @return
      */
-    static ID getCreatedBy(ID configId) {
-        if (CREATEDBYs.containsKey(configId)) {
-            return CREATEDBYs.get(configId);
+    private static ID getCreatedBy(ID cfgid) {
+        if (CREATEDBYs.containsKey(cfgid)) {
+            return CREATEDBYs.get(cfgid);
         }
 
-        Entity e = MetadataHelper.getEntity(configId.getEntityCode());
+        Entity e = MetadataHelper.getEntity(cfgid.getEntityCode());
         String ql = String.format("select createdBy from %s where %s = ?", e.getName(), e.getPrimaryField().getName());
-        Object[] c = Application.createQueryNoFilter(ql).setParameter(1, configId).unique();
+        Object[] c = Application.createQueryNoFilter(ql).setParameter(1, cfgid).unique();
         if (c == null) {
-            throw new RebuildException("No config found : " + configId);
+            throw new RebuildException("No config found : " + cfgid);
         }
-        CREATEDBYs.put(configId, (ID) c[0]);
+        CREATEDBYs.put(cfgid, (ID) c[0]);
         return (ID) c[0];
     }
 }

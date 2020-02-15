@@ -35,11 +35,6 @@ import java.io.IOException;
  */
 public class ApprovalProcessorTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void testFlowGroup() throws Exception {
 		final ID recordNew = addRecordOfTestAllFields();

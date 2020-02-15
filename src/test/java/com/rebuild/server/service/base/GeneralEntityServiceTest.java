@@ -38,11 +38,6 @@ import java.util.List;
  */
 public class GeneralEntityServiceTest extends TestSupportWithUser {
 
-	@Override
-	public ID getSessionUser() {
-		return UserService.ADMIN_USER;
-	}
-
 	@Test
 	public void getServiceSpec() throws Exception {
 		ServiceSpec ies = Application.getService(EntityHelper.User);
@@ -62,7 +57,7 @@ public class GeneralEntityServiceTest extends TestSupportWithUser {
 		// 更新
 		record = EntityHelper.forUpdate(roleId, UserService.ADMIN_USER);
 		record.setString("name", "测试角色-2");
-		record = Application.getService(EntityHelper.Role).createOrUpdate(record);
+		Application.getService(EntityHelper.Role).createOrUpdate(record);
 		
 		System.out.println(Application.getUserStore().getRole(roleId).getName());
 
