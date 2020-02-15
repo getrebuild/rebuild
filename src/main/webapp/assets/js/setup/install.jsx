@@ -33,7 +33,7 @@ class Setup extends React.Component {
   }
 
   install = () => {
-    let data = {
+    const data = {
       installType: this.state.installType || 1,
       databaseProps: this.state.databaseProps || {},
       cacheProps: this.state.cacheProps || {},
@@ -45,6 +45,7 @@ class Setup extends React.Component {
     })
   }
 }
+
 
 // ~
 class RbWelcome extends React.Component {
@@ -62,7 +63,7 @@ class RbWelcome extends React.Component {
         <li>
           <a onClick={this._quick}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="本功能为实验功能，可能存在问题" className="text-danger">实验功能</u></p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="本功能为实验功能，可能存在问题">实验功能</u></p>
           </a>
         </li>
       </ul>
@@ -129,7 +130,7 @@ class DatabaseConf extends React.Component {
           <div className="message">{this.state.testMessage}</div>
         </div>
         }
-        <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>选择安装模式</button>
+        <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}><i className="zmdi zmdi-chevron-left icon" />选择安装模式</button>
         <div className="float-right">
           <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
             {this.state.inTest && <i className="zmdi icon zmdi-refresh zmdi-hc-spin" />} 测试连接
@@ -142,14 +143,13 @@ class DatabaseConf extends React.Component {
   }
 
   handleValue = (e) => {
-    let name = e.target.name
-    let value = $(e.target).attr('type') === 'checkbox' ? $(e.target).prop('checked') : e.target.value
-    let s = { [name]: value }
-    this.setState(s)
+    const name = e.target.name
+    const value = $(e.target).attr('type') === 'checkbox' ? $(e.target).prop('checked') : e.target.value
+    this.setState({ [name]: value })
   }
 
   _buildProps(check) {
-    let ps = {
+    const ps = {
       dbType: 'mysql',
       dbHost: this.state.dbHost || '127.0.0.1',
       dbPort: this.state.dbPort || 3306,
@@ -163,7 +163,7 @@ class DatabaseConf extends React.Component {
 
   _testConnection = (call) => {
     if (this.state.inTest) return
-    let ps = this._buildProps(true)
+    const ps = this._buildProps(true)
     if (!ps) return
 
     this.setState({ inTest: true })
@@ -186,7 +186,7 @@ class CacheConf extends DatabaseConf {
   state = { ...this.props }
   render() {
     return <div className="rb-systems">
-      <h3>设置缓存</h3>
+      <h3>设置缓存服务</h3>
       <form>
         <div className="form-group row">
           <div className="col-sm-3 col-form-label text-sm-right">缓存类型</div>
@@ -226,7 +226,7 @@ class CacheConf extends DatabaseConf {
           <div className="message">{this.state.testMessage}</div>
         </div>
         }
-        <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>设置数据库</button>
+        <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}><i className="zmdi zmdi-chevron-left icon" />设置数据库</button>
         <div className="float-right">
           {this.state.cacheType === 'redis' &&
             <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
@@ -242,7 +242,7 @@ class CacheConf extends DatabaseConf {
 
   _buildProps(check) {
     if (this.state.cacheType !== 'redis') return {}
-    let ps = {
+    const ps = {
       cacheType: 'redis',
       CacheHost: this.state.CacheHost || '127.0.0.1',
       CachePort: this.state.CachePort || 6379,
@@ -254,7 +254,7 @@ class CacheConf extends DatabaseConf {
 
   _testConnection = (call) => {
     if (this.state.inTest) return
-    let ps = this._buildProps(true)
+    const ps = this._buildProps(true)
     if (!ps) return
 
     this.setState({ inTest: true })
@@ -300,8 +300,8 @@ class AdminConf extends DatabaseConf {
       </form>
       <div className="progress"><div className="progress-bar" style={{ width: '75%' }}></div></div>
       <div className="splash-footer">
-        {this.props.$$$parent.state.installType === 1 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>设置缓存</button>}
-        {this.props.$$$parent.state.installType === 99 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>选择安装模式</button>}
+        {this.props.$$$parent.state.installType === 1 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}><i className="zmdi zmdi-chevron-left icon" />设置缓存服务</button>}
+        {this.props.$$$parent.state.installType === 99 && <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}><i className="zmdi zmdi-chevron-left icon" />选择安装模式</button>}
         <div className="float-right">
           <button className="btn btn-primary" onClick={this._next}>完成安装</button>
         </div>
@@ -311,7 +311,7 @@ class AdminConf extends DatabaseConf {
   }
 
   _buildProps(check) {
-    let ps = {
+    const ps = {
       adminPasswd: this.state.adminPasswd,
       adminMail: this.state.adminMail
     }
@@ -321,7 +321,7 @@ class AdminConf extends DatabaseConf {
 
   _prev = (stepNo) => this.props.$$$parent.setState({ stepNo: stepNo || 0, adminProps: this._buildProps() })
   _next = () => {
-    let ps = this._buildProps(true)
+    const ps = this._buildProps(true)
     if (!ps) return
     this.props.$$$parent.setState({ stepNo: 10, adminProps: ps }, () => this.props.$$$parent.install())
   }

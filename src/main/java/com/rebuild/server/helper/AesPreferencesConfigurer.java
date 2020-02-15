@@ -32,6 +32,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
+ * 系统参数加载/处理
+ *
  * @author Zhao Fangfang
  * @since 1.0, 2013-7-7
  */

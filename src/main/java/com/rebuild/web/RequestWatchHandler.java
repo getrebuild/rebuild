@@ -80,10 +80,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
                     response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
 		            return false;
                 }
-            } else if (!requestUrl.contains("/setup/")) {
-		        response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
-		        return false;
-            }
+            } else if (!(requestUrl.contains("/setup/") || requestUrl.contains("/language/bundle"))) {
+				response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
+				return false;
+			}
         } else {
             // for Language
             Application.getSessionStore().setLocale(AppUtils.getLocale(request));
