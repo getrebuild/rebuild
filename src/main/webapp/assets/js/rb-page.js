@@ -188,7 +188,7 @@ var __checkMessage = function () {
       if (__checkMessage__state > 0) {
         if (!window.__doctitle) window.__doctitle = document.title
         document.title = '(' + __checkMessage__state + ') ' + window.__doctitle
-        // __showNotification()
+        if (rb.env === 'dev') __showNotification()
       }
       __loadMessages__state = 0
     }
