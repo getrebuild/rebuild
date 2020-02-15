@@ -62,7 +62,7 @@
 				</ul>
 				<div class="tab-content mb-0" style="border-top:0px solid #4285f4;">
 					<div class="tab-pane active" id="priv-entity">
-						<table class="table table-priv">
+						<table class="table table-hover table-priv">
 						<thead>
 							<tr>
 								<th width="25%">业务实体</th>
@@ -100,7 +100,7 @@
 						</div>
 					</div>
 					<div class="tab-pane" id="priv-zero">
-						<table class="table table-priv">
+						<table class="table table-hover table-priv">
 						<thead>
 							<tr>
 								<th width="25%">权限项</th>
