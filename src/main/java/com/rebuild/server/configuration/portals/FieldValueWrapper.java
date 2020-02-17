@@ -323,6 +323,10 @@ public class FieldValueWrapper {
 	 * @throws NoRecordFoundException If no record found
 	 */
 	public static String getLabel(ID id, String defaultValue) throws NoRecordFoundException {
+		if (id == null) {
+			throw new NoRecordFoundException("[id] must not be null");
+		}
+		
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 
 		if (id.getEntityCode() == EntityHelper.ClassificationData) {
