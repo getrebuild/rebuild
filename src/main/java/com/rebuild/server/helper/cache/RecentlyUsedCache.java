@@ -23,6 +23,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import org.apache.commons.lang.StringUtils;
 
@@ -39,6 +40,9 @@ import java.util.Set;
  * @since 2019/04/25
  */
 public class RecentlyUsedCache {
+
+	// 最大缓存数量
+	private static final int MAXNUM_PRE_ENTITY = 50;
 	
 	final private CommonCache cacheManager;
 
@@ -78,12 +82,12 @@ public class RecentlyUsedCache {
 		if (exists == null) {
 			return ID.EMPTY_ID_ARRAY;
 		}
-		
+
 		Set<ID> missed = new HashSet<>();
 		List<ID> data = new ArrayList<>();
 		for (int i = 0; i < limit && i < exists.size(); i++) {
 			final ID raw = exists.get(i);
-			if (!Application.getSecurityManager().allowRead(user, raw)) {
+			if (!(raw.getEntityCode() == EntityHelper.ClassificationData || Application.getSecurityManager().allowRead(user, raw))) {
 				continue;
 			}
 			
@@ -126,7 +130,7 @@ public class RecentlyUsedCache {
 			exists.remove(id);
 		}
 		
-		if (exists.size() > 50) {
+		if (exists.size() > MAXNUM_PRE_ENTITY) {
 			exists.removeLast();
 		}
 		exists.addFirst(id);
@@ -149,11 +153,6 @@ public class RecentlyUsedCache {
 		cacheManager.evict(key);
 	}
 	
-	/**
-	 * @param entity
-	 * @param type
-	 * @return
-	 */
 	private String formatKey(ID user, String entity, String type) {
 		return String.format("RSR.%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
 	}

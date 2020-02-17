@@ -324,8 +324,22 @@ public class FieldValueWrapper {
 	 */
 	public static String getLabel(ID id, String defaultValue) throws NoRecordFoundException {
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		Field nameField = MetadataHelper.getNameField(entity);
 
+		if (id.getEntityCode() == EntityHelper.ClassificationData) {
+			String hasValue = ClassificationManager.instance.getFullName(id);
+			if (hasValue == null) {
+				throw new NoRecordFoundException("No ClassificationData found by ID : " + id);
+			}
+			return hasValue;
+		} else if (id.getEntityCode() == EntityHelper.PickList) {
+			String hasValue = PickListManager.instance.getLabel(id);
+			if (hasValue == null) {
+				throw new NoRecordFoundException("No PickList found by ID : " + id);
+			}
+			return hasValue;
+		}
+
+		Field nameField = MetadataHelper.getNameField(entity);
 		Object[] nameValue = Application.getQueryFactory().uniqueNoFilter(id, nameField.getName());
 		if (nameValue == null) {
             throw new NoRecordFoundException("No record found by ID : " + id);

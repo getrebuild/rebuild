@@ -126,7 +126,7 @@ public class ReferenceSearch extends BaseControll {
 		if (referenceEntity.containsField(EntityHelper.ModifiedOn)) {
 			sql += " order by modifiedOn desc";
 		}
-		
+
 		List<Object> result = resultSearch(sql, metaEntity, referenceNameField);
 		writeSuccess(response, result);
 	}
@@ -248,12 +248,15 @@ public class ReferenceSearch extends BaseControll {
 	 * 封装查询结果
 	 * 
 	 * @param sql
-	 * @param entity
+	 * @param entity 不指定则使用无权限查询
 	 * @param nameField
 	 * @return
 	 */
 	private List<Object> resultSearch(String sql, Entity entity, Field nameField) {
-		Object[][] array = Application.createQuery(sql).setLimit(10).array();
+		Object[][] array = (entity == null ? Application.createQueryNoFilter(sql) : Application.createQuery(sql))
+				.setLimit(10)
+				.array();
+
 		List<Object> result = new ArrayList<>();
 		for (Object[] o : array) {
 			final ID recordId = (ID) o[0];

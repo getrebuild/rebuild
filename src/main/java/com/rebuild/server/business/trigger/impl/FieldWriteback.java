@@ -58,6 +58,10 @@ public class FieldWriteback extends FieldAggregation {
             t2sMap.put(targetField, sourceField);
         }
 
+        if (t2sMap.isEmpty()) {
+            return;
+        }
+
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(t2sMap.values(), ","), sourceEntity.getName(), followSourceField);
 
