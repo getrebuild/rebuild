@@ -19,7 +19,7 @@ class RbViewForm extends React.Component {
     $.get(`${rb.baseUrl}/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
       // 有错误
       if (res.error_code > 0 || !!res.data.error) {
-        let err = res.data.error || res.error_msg
+        const err = res.data.error || res.error_msg
         this.renderViewError(err)
         return
       }
@@ -145,7 +145,7 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    let reportUrl = `${rb.baseUrl}/app/${this.props.entity}/reports/export?report=${item.id}&record=${this.props.id}`
+                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/reports/export?report=${item.id}&record=${this.props.id}`
                     return <li key={'r-' + item.id}><a target="_blank" href={reportUrl} className="text-truncate">{item.name}<i className="zmdi zmdi-download"></i></a></li>
                   })}
                 </ul>
@@ -245,7 +245,11 @@ const RbViewPage = {
     $('.J_delete').click(function () {
       if ($(this).attr('disabled')) return
       const needEntity = (wpc.type === $pgt.SlaveList || wpc.type === $pgt.SlaveView) ? null : entity[0]
-      renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => that.hide(true)} />)
+      renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => {
+        // 刷新主视图
+        parent && parent.RbViewModal && parent.RbViewModal.holderMain() && parent.RbViewModal.holderMain(true)
+        that.hide(true)
+      }} />)
     })
     $('.J_edit').click(() => RbFormModal.create({ id: id, title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] }))
     $('.J_assign').click(() => DlgAssign.create({ entity: entity[0], ids: [id] }))
@@ -278,23 +282,23 @@ const RbViewPage = {
         const v = res.data[k]
         if (!v || v === undefined) return
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => { this.clickViewUser(v[0]) }} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $('.J_owningUser')[0])
         } else if (k === 'sharingList') {
           const list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           const _this = this
           $(v).each(function () {
             const $v = this
             const item = $('<li class="list-inline-item"></li>').appendTo(list)
-            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} onClick={() => { _this.clickViewUser($v[0]) }} />, item[0])
+            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} onClick={() => _this.clickViewUser($v[0])} />, item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {
             const item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
             if (v.length === 0) renderRbcomp(<UserShow name="添加共享" icon="zmdi zmdi-plus" onClick={() => { $('.J_share').trigger('click') }} />, item_op)
-            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.create(this.__id) }} />, item_op)
+            else renderRbcomp(<UserShow name="管理共享用户" icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, item_op)
           } else if (v.length > 0) {
             const item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => { DlgShareManager.create(this.__id, false) }} />, item_op)
+            renderRbcomp(<UserShow name="查看共享用户" icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, item_op)
           } else {
             $('.J_sharingList').parent().remove()
           }
@@ -326,7 +330,7 @@ const RbViewPage = {
     // for Admin
     if (rb.isAdminUser) {
       $('.J_view-addons').click(function () {
-        let type = $(this).data('type')
+        const type = $(this).data('type')
         RbModal.create(`${rb.baseUrl}/p/admin/entityhub/view-addons?entity=${that.__entity[0]}&type=${type}`, '配置' + (type === 'TAB' ? '显示项' : '新建项'))
       })
     }
