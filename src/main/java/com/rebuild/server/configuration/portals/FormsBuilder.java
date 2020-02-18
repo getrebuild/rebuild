@@ -386,6 +386,8 @@ public class FormsBuilder extends FormsManager {
 						case EntityHelper.ApprovalState:
 							el.put("value", ApprovalState.DRAFT.getState());
 							break;
+						default:
+							break;
 					}
 				}
 
