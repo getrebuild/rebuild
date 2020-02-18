@@ -152,7 +152,7 @@ public class AppUtils {
 		
 		errorMsg = StringUtils.defaultIfBlank(
 		        ex.getLocalizedMessage(), Languages.lang("ErrorUnknow"));
-		return ex.getClass().getSimpleName() + " : " + errorMsg;
+		return ex.getClass().getSimpleName() + ": " + errorMsg;
 	}
 	
 	/**

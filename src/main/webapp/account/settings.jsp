@@ -55,7 +55,7 @@
 .avatar > label input {
 	display: none;
 }
-.form-group.row {
+form .form-group.row {
     margin-left: 5px;
     margin-right: 5px;
     padding: 8px 0;
@@ -182,7 +182,7 @@
                             <table class="table table-fixed">
                                 <thead>
                                     <tr>
-                                        <th width="50">#</th>
+                                        <th width="50"></th>
                                         <th>登录时间</th>
                                         <th>客户端</th>
                                         <th>IP地址</th>

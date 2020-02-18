@@ -20,7 +20,7 @@ package com.rebuild.server.helper.setup;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.Lisence;
+import com.rebuild.server.helper.License;
 import org.junit.Test;
 
 import java.sql.Connection;
@@ -61,6 +61,6 @@ public class InstallerTest {
 
     @Test
     public void testLisence() throws Exception {
-        Lisence.queryAuthority();
+        License.queryAuthority();
     }
 }

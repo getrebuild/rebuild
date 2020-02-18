@@ -75,7 +75,8 @@ public class ApprovalList extends ChartData implements BuiltinChart {
     @Override
     public JSON build() {
         final int viewState = ObjectUtils.toInt(getExtraParams().get("state"), ApprovalState.DRAFT.getState());
-        final String baseWhere = "where isCanceled = 'F' and isWaiting = 'F' and approver = ? and approvalId <> '' and approvalId is not null and ";
+        final String baseWhere = "where isCanceled = 'F' and isWaiting = 'F' and approver = ?" +
+                " and approvalId <> '' and recordId <> '' and ";
 
         Object[][] array = Application.createQueryNoFilter(
                 "select createdBy,modifiedOn,recordId,approvalId from RobotApprovalStep " +

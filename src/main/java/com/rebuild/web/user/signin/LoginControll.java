@@ -31,7 +31,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.Lisence;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.VCode;
@@ -316,7 +316,7 @@ public class LoginControll extends BasePageControll {
             return;
         }
 
-        JSON ret = Lisence.rbApi("api/misc/bgimg");
+        JSON ret = License.siteApi("api/misc/bgimg");
         if (ret == null) {
             writeFailure(response);
         } else {

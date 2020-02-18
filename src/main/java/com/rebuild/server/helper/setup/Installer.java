@@ -25,7 +25,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.Lisence;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.JedisCacheTemplate;
@@ -120,7 +120,7 @@ public class Installer implements InstallState {
         }
 
         // Gen SN
-        Lisence.SN();
+        License.SN();
 
         // Clean cached
         if (Application.getCommonCache().isUseRedis()) {

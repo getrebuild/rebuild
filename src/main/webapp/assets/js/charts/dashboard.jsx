@@ -94,7 +94,10 @@ const dlgShow = (t, props) => {
   props = props || {}
   props.dashid = props.dashid || dashid
   if (dlgRefs[t]) dlgRefs[t].show()
-  else if (t === 'DlgAddChart') renderRbcomp(<DlgAddChart {...props} />, null, function () { dlgRefs[t] = this })
+  else if (t === 'DlgAddChart') {
+    if (dash_editable) renderRbcomp(<DlgAddChart {...props} />, null, function () { dlgRefs[t] = this })
+    else RbHighbar.create('你无权添加图标到此仪表盘')
+  }
   else if (t === 'DlgDashAdd') renderRbcomp(<DlgDashAdd {...props} />, null, function () { dlgRefs[t] = this })
   else if (t === 'DlgDashSettings') renderRbcomp(<DlgDashSettings {...props} />, null, function () { dlgRefs[t] = this })
   else if (t === 'DashSelect') renderRbcomp(<DashSelect {...props} />, null, function () { dlgRefs[t] = this })

@@ -259,6 +259,9 @@ public class FormsBuilder extends FormsManager {
 			String sql = String.format("select %s from %s where %s = ?",
 					Objects.requireNonNull(stm).getName(), entity.getName(), entity.getPrimaryField().getName());
 			Object[] o = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
+			if (o == null) {
+				return null;
+			}
 			masterRecordId = (ID) o[0];
 		}
 		return RobotApprovalManager.instance.hadApproval(masterEntity, masterRecordId);
