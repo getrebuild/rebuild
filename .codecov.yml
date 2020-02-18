@@ -16,4 +16,4 @@ ignore:
   - "src/test/.*"
   - "src/main/webapp/.*"
   - "src/main/java/com/rebuild/web/.*"
-  - "*/*Exception.java"
+  - ".*/.*Exception.java"
