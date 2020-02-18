@@ -20,6 +20,7 @@ package com.rebuild.server;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -54,10 +55,10 @@ public class MiscTest {
 	
 	@Test
 	public void testEquation() throws Exception {
-		final String equation = "((1 OR 2) AND (2    OR 3)  )";
+		final String equation = "((1 OR 2) AND (2  OR 3)  )";
 		
 		String clear = equation.toUpperCase();
-		clear = clear.replaceAll("[\\(|\\)|AND|OR|1-9| ]", "");
-		System.out.println(clear);
+		clear = clear.replaceAll("[(|)|AND|OR|1-9| ]", "");
+        Assert.assertEquals(0, clear.length());
 	}
 }

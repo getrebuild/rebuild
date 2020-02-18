@@ -21,6 +21,8 @@ package com.rebuild.server.business.trigger.impl;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.business.trigger.ActionType;
@@ -39,18 +41,11 @@ import org.junit.Test;
  */
 public class FieldAggregationTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void testExecute() throws Exception {
         addExtTestEntities(false);
 
         // 添加配置
-        Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = 'SalesOrderItem999'");
-
         Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
         triggerConfig.setString("belongEntity", "SalesOrderItem999");
         triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
@@ -70,5 +65,21 @@ public class FieldAggregationTest extends TestSupportWithUser {
 
 		// 清理
 		Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());
+    }
+
+    @Test
+    public void testEvaluator() throws Exception {
+        addExtTestEntities(false);
+        Entity sourceEntity = MetadataHelper.getEntity("SalesOrder999");
+
+        JSONObject configUseFormula = JSON.parseObject("{ targetField:'totalAmount', calcMode:'FORMULA', sourceFormula:'{totalAmount$$$$SUM}*1.35' }");
+        new AggregationEvaluator(
+                configUseFormula, sourceEntity, "relatedAccount", null)
+                .eval(ID.newId(sourceEntity.getEntityCode()));
+
+        JSONObject configUseMAX = JSON.parseObject("{ targetField:'totalAmount', calcMode:'MAX', sourceField:'totalAmount' }");
+        new AggregationEvaluator(
+                configUseMAX, sourceEntity, "relatedAccount", "(2=2)")
+                .eval(ID.newId(sourceEntity.getEntityCode()));
     }
 }

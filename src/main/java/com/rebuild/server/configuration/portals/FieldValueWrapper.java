@@ -86,7 +86,7 @@ public class FieldValueWrapper {
         value = wrapFieldValue(value, field);
         if (unpackMix && value != null) {
             DisplayType dt = field.getDisplayType();
-            if (dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE) {
+            if (value instanceof JSON && (dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE)) {
                 return ((JSONObject) value).getString("text");
             } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
                 return value.toString();
@@ -195,11 +195,14 @@ public class FieldValueWrapper {
      * @see #wrapMixValue(ID, String)
 	 */
 	public JSON wrapReference(Object value, EasyMeta field) {
-        String text = ((ID) value).getLabel();
+	    Object text = ((ID) value).getLabelRaw();
 	    if (text == null) {
-	        text = getLabelNotry((ID) value);
+            text = getLabelNotry((ID) value);
+        } else {
+	        Field nameField = ((Field) field.getBaseMeta()).getReferenceEntity().getNameField();
+	        text = instance.wrapFieldValue(text, nameField, true);
         }
-	    return wrapMixValue((ID) value, text);
+	    return wrapMixValue((ID) value, text == null ? null : text.toString());
 	}
 	
 	/**
@@ -320,9 +323,27 @@ public class FieldValueWrapper {
 	 * @throws NoRecordFoundException If no record found
 	 */
 	public static String getLabel(ID id, String defaultValue) throws NoRecordFoundException {
+		if (id == null) {
+			throw new NoRecordFoundException("[id] must not be null");
+		}
+		
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		Field nameField = MetadataHelper.getNameField(entity);
 
+		if (id.getEntityCode() == EntityHelper.ClassificationData) {
+			String hasValue = ClassificationManager.instance.getFullName(id);
+			if (hasValue == null) {
+				throw new NoRecordFoundException("No ClassificationData found by ID : " + id);
+			}
+			return hasValue;
+		} else if (id.getEntityCode() == EntityHelper.PickList) {
+			String hasValue = PickListManager.instance.getLabel(id);
+			if (hasValue == null) {
+				throw new NoRecordFoundException("No PickList found by ID : " + id);
+			}
+			return hasValue;
+		}
+
+		Field nameField = MetadataHelper.getNameField(entity);
 		Object[] nameValue = Application.getQueryFactory().uniqueNoFilter(id, nameField.getName());
 		if (nameValue == null) {
             throw new NoRecordFoundException("No record found by ID : " + id);
@@ -354,7 +375,7 @@ public class FieldValueWrapper {
 	 */
 	public static String getLabelNotry(ID id) {
 		try {
-			return FieldValueWrapper.getLabel(id);
+			return getLabel(id);
 		} catch (MetadataException | NoRecordFoundException ex) {
 			return MISS_REF_PLACE;
 		}

@@ -115,6 +115,16 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 		all.addAll(ONLINE_USERS.values());
 		return all;
 	}
+
+	/**
+	 * 用户会话
+	 *
+	 * @param user
+	 * @return
+	 */
+	public HttpSession getSession(ID user) {
+		return ONLINE_USERS.get(user);
+	}
 	
 	/**
 	 * @param request

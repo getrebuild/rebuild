@@ -16,7 +16,6 @@ html.admin .admin-show.row {
 html,
 body {
     min-width: 340px;
-    overflow: auto;
 }
 
 /* 1280 */
@@ -84,8 +83,8 @@ body {
     border-color: transparent;
     border-style: solid;
     border-width: 5px 0 5px 5px;
-    border-left-color: #eee;
-    margin-top: 5px;
+    border-left-color: #ddd;
+    margin-top: 4px;
     margin-right: -10px;
 }
 
@@ -113,6 +112,10 @@ body {
 
 .pagination.pagination-sm .page-link {
     min-width: 28px;
+}
+
+.pagination.pagination-rounded .page-link>.icon {
+    margin-top: -5px;
 }
 
 .text-disabled {
@@ -155,6 +158,8 @@ body {
     font-weight: normal;
     color: #777;
     font-size: 12px;
+    text-transform: uppercase;
+    line-height: 1.2 !important;
 }
 
 a.badge.text-id {
@@ -1210,12 +1215,15 @@ i.split.ui-draggable-dragging {
 }
 
 .column-files ul>li>a {
-    color: #777;
+    color: #666 !important;
     cursor: pointer;
+    text-decoration: none !important;
+    border-bottom: 1px dotted #777;
 }
 
 .column-files ul>li>a:hover {
-    text-decoration: underline !important
+    color: #404040 !important;
+    border-bottom: 1px solid #0d5bdd;
 }
 
 .column-checkbox {
@@ -1858,8 +1866,6 @@ form.dropzone {
     cursor: default;
 }
 
-form.dropzone:hover {}
-
 form.dropzone .icon {
     background-color: #e6e6e6;
     border-radius: 50%;
@@ -2474,6 +2480,15 @@ form {
     text-align: center;
 }
 
+.form.approval-form .rbform {
+    background-color: #f5f5f5;
+    border-radius: 3px;
+    padding: 12px 0;
+}
+
+.form.approval-form .rbform .form-group.row {
+    padding: 6px 0;
+}
 
 .notification-page {
     padding: 0 10px;
@@ -2603,6 +2618,7 @@ form {
     max-width: 120px;
     display: inline-block;
     font-size: 12px;
+    margin: 1px 0;
 }
 
 .search-models a+a {
@@ -2814,11 +2830,9 @@ form {
     height: 30px;
     line-height: 30px;
     min-height: 0;
-    width: 30px;
-    padding: 0;
-    min-width: 0;
+    min-width: 30px;
     text-align: left;
-    padding-top: 2px;
+    padding: 2px 0 0;
 }
 
 .shareTo--wrap .btn.btn-link .icon {
@@ -3090,4 +3104,121 @@ a.icon-link>.zmdi {
     color: #999;
     font-weight: normal;
     font-size: 12px;
+}
+
+.syscfg .table td .form-control {
+    max-width: 400px;
+}
+
+.syscfg .card {
+    margin-bottom: 0;
+}
+
+.syscfg .card .card-header-divider>a {
+    font-size: 1rem;
+    margin-top: 4px;
+    display: none;
+}
+
+.syscfg .card:hover .card-header-divider>a {
+    display: inline-block;
+}
+
+.syscfg .edit-footer {
+    background-color: #eee;
+    padding: 10px;
+    text-align: right;
+    display: none;
+}
+
+.syscfg.edit .edit-footer {
+    display: block;
+}
+
+.syscfg .show-on-edit {
+    display: none;
+}
+
+.syscfg.edit .show-on-edit {
+    display: table-row
+}
+
+.announcement-wrapper>div {
+    margin: 0;
+    border-radius: 0;
+    color: #fff;
+    padding: 15px 25px;
+    font-size: 1rem;
+}
+
+.announcement-wrapper>div:hover {
+    cursor: pointer;
+}
+
+.announcement-wrapper>div+div {
+    margin-top: 1px;
+}
+
+.announcement-wrapper>div .icon {
+    float: left;
+    font-size: 1.65rem;
+}
+
+.announcement-wrapper>div p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    padding-left: 15px;
+    margin: 0;
+}
+
+.announcement-wrapper>div:hover p {
+    opacity: .8;
+}
+
+.announcement-wrapper>div p>a {
+    color: #fff;
+}
+
+.announcement-wrapper>div p>a:hover,
+.announcement-contents a:hover {
+    text-decoration: underline;
+}
+
+.announcement-contents {
+    line-height: 1.7;
+    font-size: 1.1rem;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.announcement-contents img.emoji {
+    width: 26px;
+    height: 26px;
+    line-height: 1;
+    font-size: 0;
+}
+
+.protips {
+    color: #999;
+    text-align: center;
+    margin-bottom: 0;
+}
+
+.protips+.protips {
+    margin-top: 12px;
+}
+
+.protips::before {
+    content: '\f1f6';
+    font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+    font-size: 1.1rem;
+    margin-right: 6px;
+}
+
+.popover {
+    border-radius: 2px;
+    border-width: 0;
 }

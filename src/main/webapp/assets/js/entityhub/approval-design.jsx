@@ -1,15 +1,24 @@
 /* eslint-disable react/prop-types */
 var wpc = window.__PageConfig
+let fieldsCache
 let activeNode
+let donotCloseSidebar
+
 $(document).ready(() => {
   if (!wpc || !wpc.configId) return
   // eslint-disable-next-line no-console
   if (rb.env === 'dev') console.log(wpc.flowDefinition)
 
+  // 备用
+  $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${wpc.applyEntity}`, (res) => fieldsCache = res.data)
+
   if (wpc.flowDefinition) wpc.flowDefinition = JSON.parse(wpc.flowDefinition)
   renderRbcomp(<RbFlowCanvas />, 'rbflow')
+
   $(document.body).click(function (e) {
+    if (donotCloseSidebar) return
     if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
+
     $(this).removeClass('open-right-sidebar')
     if (activeNode) {
       activeNode.setState({ active: false })
@@ -17,7 +26,7 @@ $(document).ready(() => {
     }
   })
 
-  $addResizeHandler(() => $('#rbflow').css('min-height', $(window).height() - 225))()
+  $addResizeHandler(() => $('#rbflow').css('min-height', $(window).height() - 217))()
 })
 
 // 画布准备完毕
@@ -42,20 +51,25 @@ const AddNodeButton = function (props) {
 
 // 节点规范
 class NodeSpec extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
   }
+
   componentDidMount() {
     this.props.$$$parent.onRef(this)
   }
+
   addNodeQuick = (type) => {
     this.props.$$$parent.addNode(type, this.props.nodeId)
   }
+
   removeNodeQuick = () => {
     this.props.$$$parent.removeNode(this.props.nodeId)
     this.props.$$$parent.onRef(this, true)
   }
+
   openConfig = () => {
     if (wpc.preview) return
     let that = this
@@ -71,6 +85,7 @@ class NodeSpec extends React.Component {
     this.setState({ active: true })
     activeNode = this
   }
+
   serialize() {
     // 检查节点是否有必填设置
     if (this.nodeType === 'approver' || this.nodeType === 'cc') {
@@ -84,25 +99,30 @@ class NodeSpec extends React.Component {
     return { type: this.props.type, nodeId: this.props.nodeId, data: this.state.data }
   }
 }
+
 // 节点组规范
 class NodeGroupSpec extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props, nodes: props.nodes || [] }
     this.__nodeRefs = {}
   }
+
   renderNodes() {
     let nodes = (this.state.nodes || []).map((item) => {
       let props = { ...item, key: 'kn-' + item.nodeId, $$$parent: this }
       if (item.type === 'condition') return <ConditionNode {...props} />
-      else return <Node {...props} />
+      else return <SimpleNode {...props} />
     })
     return nodes
   }
+
   onRef = (nodeRef, remove) => {
     let nodeId = nodeRef.props.nodeId
     this.__nodeRefs[nodeId] = (remove ? null : nodeRef)
   }
+
   addNode = (type, depsNodeId, call) => {
     let n = { type: type, nodeId: $random(type === 'condition' ? 'COND' : 'NODE') }
     let nodes = []
@@ -128,6 +148,7 @@ class NodeGroupSpec extends React.Component {
       }
     })
   }
+
   removeNode = (nodeId) => {
     let nodes = []
     this.state.nodes.forEach((item) => {
@@ -135,6 +156,7 @@ class NodeGroupSpec extends React.Component {
     })
     this.setState({ nodes: nodes })
   }
+
   serialize() {
     let ns = []
     for (let i = 0; i < this.state.nodes.length; i++) {
@@ -149,20 +171,22 @@ class NodeGroupSpec extends React.Component {
 // 画布:节点 1:N
 
 // 一般节点
-class Node extends NodeSpec {
+class SimpleNode extends NodeSpec {
+
   constructor(props) {
     super(props)
     this.nodeType = props.type || 'approver'
   }
+
   render() {
-    let NT = NTs[this.nodeType]
-    let data = this.state.data || {}
+    const NT = NTs[this.nodeType]
+    const data = this.state.data || {}
     let users = NT[2]
     if (data.users && data.users.length > 0) users = UTs[data.users[0]] || ('指定用户(' + data.users.length + ')')
     if (data.selfSelecting && !users.contains('自选')) users += '/允许自选'
     if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
 
-    return (<div className="node-wrap">
+    return <div className="node-wrap">
       <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={rb.env === 'dev' ? this.props.nodeId : null}>
         <div className="title">
           <span>{data.nodeName || NT[1]}</span>
@@ -174,20 +198,22 @@ class Node extends NodeSpec {
         </div>
       </div>
       <AddNodeButton addNodeCall={this.addNodeQuick} />
-    </div>)
+    </div>
   }
 }
 
 // 条件节点
 class ConditionNode extends NodeSpec {
+
   constructor(props) {
     super(props)
     this.state.branches = props.branches || [{ nodeId: $random('COND') }, { nodeId: $random('COND') }]
     this.__branchRefs = []
   }
+
   render() {
-    let bLen = this.state.branches.length - 1
-    return (bLen >= 0 && <div className="branch-wrap">
+    const bLen = this.state.branches.length - 1
+    return bLen >= 0 && <div className="branch-wrap">
       <div className="branch-box-wrap">
         <div className="branch-box">
           <button className="add-branch" onClick={this.addBranch}>添加分支</button>
@@ -197,17 +223,20 @@ class ConditionNode extends NodeSpec {
         </div>
         <AddNodeButton addNodeCall={this.addNodeQuick} />
       </div>
-    </div>)
+    </div>
   }
+
   onRef = (branchRef, remove) => {
     let nodeId = branchRef.props.nodeId
     this.__branchRefs[nodeId] = (remove ? null : branchRef)
   }
+
   addBranch = () => {
     let bs = this.state.branches
     bs.push({ nodeId: $random('COND') })
     this.setState({ branches: bs })
   }
+
   removeBranch = (nodeId, e) => {
     if (e) {
       e.stopPropagation()
@@ -223,6 +252,7 @@ class ConditionNode extends NodeSpec {
       }
     })
   }
+
   serialize() {
     let holdANode = null
     let bs = []
@@ -233,6 +263,7 @@ class ConditionNode extends NodeSpec {
       if (!s) return false
       bs.push(s)
     }
+
     // 至少两个分支
     if (bs.length < 2) {
       RbHighbar.create('请至少设置两个并列条件分支')
@@ -245,13 +276,16 @@ class ConditionNode extends NodeSpec {
 
 // 条件节点序列
 class ConditionBranch extends NodeGroupSpec {
+
   constructor(props) {
     super(props)
   }
+
   render() {
-    let data = this.state.data || {}
-    let filters = data.filter ? data.filter.items.length : 0
-    return (<div className="col-box">
+    const data = this.state.data || {}
+    const filters = data.filter ? data.filter.items.length : 0
+
+    return <div className="col-box">
       {this.state.isFirst && <div className="top-left-cover-line"></div>}
       {this.state.isFirst && <div className="bottom-left-cover-line"></div>}
       <div className="condition-node">
@@ -274,34 +308,39 @@ class ConditionBranch extends NodeGroupSpec {
       {this.renderNodes()}
       {this.state.isLast && <div className="top-right-cover-line"></div>}
       {this.state.isLast && <div className="bottom-right-cover-line"></div>}
-    </div>)
+    </div>
   }
+
   componentDidMount() {
     this.props.$$$parent.onRef(this)
   }
   UNSAFE_componentWillReceiveProps(props) {
     this.setState({ ...props, nodes: this.state.nodes })
   }
+
   addNode(type, depsNodeId) {
     super.addNode(type, depsNodeId || 'COND')
   }
+
   removeNode(nodeId) {
     super.removeNode(nodeId)
     this.props.$$$parent.onRef(this, true)
   }
+
   openConfig = () => {
     if (wpc.preview) return
-    let that = this
-    let call = function (d) {
+    const that = this
+    const call = function (d) {
       that.setState({ data: d, active: false })
     }
-    let props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
+    const props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
     renderRbcomp(<ConditionBranchConfig key={'kcbc-' + this.props.nodeId} {...props} isLast={this.state.isLast} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
     this.setState({ active: true })
     activeNode = this
   }
+
   serialize() {
     let s = super.serialize()
     if (!s || s.nodes.length === 0) {
@@ -318,56 +357,60 @@ class ConditionBranch extends NodeGroupSpec {
 
 // 添加节点
 class DlgAddNode extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { call: props.call || function (t) { alert(t) } }
   }
+
   render() {
-    return (
-      <div className="modal add-node" tabIndex="-1" ref={(c) => this._dlg = c}>
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
-            </div>
-            <div className="modal-body">
-              <div className="row">
-                <div className="col-4">
-                  <a className="approver" onClick={() => this.state.call('approver')}>
-                    <div><i className="zmdi zmdi-account"></i></div>
-                    <p>审批人</p>
-                  </a>
-                </div>
-                <div className="col-4">
-                  <a className="cc" onClick={() => this.state.call('cc')}>
-                    <div><i className="zmdi zmdi-mail-send"></i></div>
-                    <p>抄送人</p>
-                  </a>
-                </div>
-                <div className="col-4">
-                  <a className="condition" onClick={() => this.state.call('condition')}>
-                    <div><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i></div>
-                    <p>条件分支</p>
-                  </a>
-                </div>
+    return <div className="modal add-node" tabIndex="-1" ref={(c) => this._dlg = c}>
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header pb-0">
+            <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+          </div>
+          <div className="modal-body">
+            <div className="row">
+              <div className="col-4">
+                <a className="approver" onClick={() => this.state.call('approver')}>
+                  <div><i className="zmdi zmdi-account"></i></div>
+                  <p>审批人</p>
+                </a>
+              </div>
+              <div className="col-4">
+                <a className="cc" onClick={() => this.state.call('cc')}>
+                  <div><i className="zmdi zmdi-mail-send"></i></div>
+                  <p>抄送人</p>
+                </a>
+              </div>
+              <div className="col-4">
+                <a className="condition" onClick={() => this.state.call('condition')}>
+                  <div><i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i></div>
+                  <p>条件分支</p>
+                </a>
               </div>
             </div>
           </div>
         </div>
       </div>
-    )
+    </div>
   }
+
   componentDidMount() {
     this.show()
   }
+
   hide() {
     $(this._dlg).modal('hide')
   }
+
   show(call) {
     $(this._dlg).modal({ show: true, keyboard: true })
     if (call) this.setState({ call: call })
   }
 }
+
 let __DlgAddNode
 const showDlgAddNode = function (call) {
   if (__DlgAddNode) __DlgAddNode.show(call)
@@ -379,6 +422,7 @@ const hideDlgAddNode = function () {
 
 // 发起人
 class StartNodeConfig extends RbFormHandler {
+
   constructor(props) {
     super(props)
     this.state.users = (props.users || ['OWNS'])[0]
@@ -387,8 +431,9 @@ class StartNodeConfig extends RbFormHandler {
     if (props.selfSelecting === false) this.state.selfSelecting = false
     else this.state.selfSelecting = true
   }
+
   render() {
-    return (<div>
+    return <div>
       <div className="header"><h5>发起人</h5></div>
       <div className="form">
         <div className="form-group mb-0">
@@ -411,14 +456,16 @@ class StartNodeConfig extends RbFormHandler {
         </div>}
       </div>
       {this.renderButton()}
-    </div>)
+    </div>
   }
+
   renderButton() {
     return <div className="footer">
       <button type="button" className="btn btn-primary" onClick={this.save}>确定</button>
       <button type="button" className="btn btn-secondary" onClick={this.cancel}>取消</button>
     </div>
   }
+
   componentDidMount() {
     if (this.state.users === 'SPEC' && this.props.users) {
       $.post(`${rb.baseUrl}/commons/search/user-selector?entity=`, JSON.stringify(this.props.users), (res) => {
@@ -426,6 +473,7 @@ class StartNodeConfig extends RbFormHandler {
       })
     }
   }
+
   save = () => {
     let d = {
       nodeName: this.state.nodeName,
@@ -438,6 +486,7 @@ class StartNodeConfig extends RbFormHandler {
     typeof this.props.call && this.props.call(d)
     this.cancel()
   }
+
   cancel = () => {
     $(document.body).removeClass('open-right-sidebar')
   }
@@ -445,18 +494,20 @@ class StartNodeConfig extends RbFormHandler {
 
 // 审批人
 class ApproverNodeConfig extends StartNodeConfig {
+
   constructor(props) {
     super(props)
     this.state.signMode = props.signMode || 'OR'
     this.state.users = (props.users || ['SPEC'])[0]
     if (!this.state.users || this.state.users.length === 20) this.state.users = 'SPEC'
   }
+
   render() {
-    return (<div>
+    return <div>
       <div className="header">
         <input type="text" placeholder="审批人" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
-      <div className="form">
+      <div className="form rb-scroller">
         <div className="form-group mb-0">
           <label className="text-bold">由谁审批</label>
           <label className="custom-control custom-control-sm custom-radio mb-2">
@@ -492,33 +543,96 @@ class ApproverNodeConfig extends StartNodeConfig {
             <span className="custom-control-label">或签（一名审批人同意或拒绝）</span>
           </label>
         </div>
+        <div className="form-group mt-4">
+          <label className="text-bold">可修改字段</label>
+          <div>
+            <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
+              <tbody ref={(c) => this._editableFields = c}>
+                {(this.state.editableFields || []).map((item) => {
+                  return <tr key={`field-${item.field}`}>
+                    <td>{this.__fieldLabel(item.field)}</td>
+                    <td width="100">
+                      <label className="custom-control custom-control-sm custom-checkbox">
+                        <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull} data-field={item.field} />
+                        <span className="custom-control-label">必填</span>
+                      </label>
+                    </td>
+                    <td width="40"><a className="close" title="移除" onClick={() => this.removeEditableField(item.field)}>&times;</a></td>
+                  </tr>
+                })}
+              </tbody>
+            </table>
+            <div className="pb-2">
+              <button className="btn btn-secondary btn-sm" onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
+                <i className="icon zmdi zmdi-plus up-1" /> 选择字段
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
       {this.renderButton()}
-    </div>)
+    </div>
   }
+
+  componentDidMount() {
+    super.componentDidMount()
+    const h = $('#config-side').height() - 120
+    $('#config-side .rb-scroller').height(h).perfectScrollbar()
+  }
+
   save = () => {
-    let d = {
+    let editableFields = []
+    $(this._editableFields).find('input').each(function () {
+      let $this = $(this)
+      editableFields.push({ field: $this.data('field'), notNull: $this.prop('checked') })
+    })
+
+    const d = {
       nodeName: this.state.nodeName,
       users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users],
       signMode: this.state.signMode,
-      selfSelecting: this.state.selfSelecting
+      selfSelecting: this.state.selfSelecting,
+      editableFields: editableFields
     }
     if (d.users.length === 0 && !d.selfSelecting) {
       RbHighbar.create('请选择审批人或允许自选')
       return
     }
+
     typeof this.props.call && this.props.call(d)
     this.cancel()
+  }
+
+  setEditableFields(fs) {
+    fs = fs.map((item) => {
+      return { field: item, notNull: false }
+    })
+    this.setState({ editableFields: fs })
+  }
+
+  removeEditableField(field) {
+    let fs = []
+    this.state.editableFields.forEach((item) => {
+      if (item.field !== field) fs.push(item)
+    })
+    this.setState({ editableFields: fs })
+  }
+
+  __fieldLabel(name) {
+    const field = fieldsCache.find((x) => { return x.name === name })
+    return field ? field.label : `[${name.toUpperCase()}]`
   }
 }
 
 // 抄送人
 class CCNodeConfig extends StartNodeConfig {
+
   constructor(props) {
     super(props)
   }
+
   render() {
-    return (<div>
+    return <div>
       <div className="header">
         <input type="text" placeholder="抄送人" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
@@ -535,10 +649,11 @@ class CCNodeConfig extends StartNodeConfig {
         </div>
       </div>
       {this.renderButton()}
-    </div>)
+    </div>
   }
+
   save = () => {
-    let d = {
+    const d = {
       nodeName: this.state.nodeName,
       users: this._users.getSelected(),
       selfSelecting: this.state.selfSelecting
@@ -554,20 +669,23 @@ class CCNodeConfig extends StartNodeConfig {
 
 // 条件
 class ConditionBranchConfig extends StartNodeConfig {
+
   constructor(props) {
     super(props)
   }
+
   render() {
-    return (<div>
+    return <div>
       <div className="header">
         <input type="text" placeholder="分支条件" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
       {this.state.isLast && <div className="alert alert-warning">该条件分支将作为最终分支匹配其他条件</div>}
       <AdvFilter filter={this.state.filter} entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
-    </div>)
+    </div>
   }
+
   save = (filter) => {
-    let d = { nodeName: this.state.nodeName, filter: filter }
+    const d = { nodeName: this.state.nodeName, filter: filter }
     typeof this.props.call && this.props.call(d)
     this.cancel()
   }
@@ -575,26 +693,29 @@ class ConditionBranchConfig extends StartNodeConfig {
 
 // 画布
 class RbFlowCanvas extends NodeGroupSpec {
+
   constructor(props) {
     super(props)
   }
+
   render() {
-    return (<div>
+    return <div>
       <div className="zoom">
         <a className="zoom-in" onClick={() => this.zoom(10)}><i className="zmdi zmdi-plus" /></a>
         {this.state.zoomValue || 100}%
         <a className="zoom-out" onClick={() => this.zoom(-10)}><i className="zmdi zmdi-minus" /></a>
       </div>
       <div className={'box-scale' + (wpc.preview ? ' preview' : '')} style={this.state.zoomStyle}>
-        <Node type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
+        <SimpleNode type="start" $$$parent={this} nodeId="ROOT" ref={(c) => this._root = c} />
         {this.renderNodes()}
         <div className="end-node">
           <div className="end-node-circle"></div>
           <div className="end-node-text">流程结束</div>
         </div>
       </div>
-    </div>)
+    </div>
   }
+
   componentDidMount() {
     if (wpc.flowDefinition) {
       let flowNodes = wpc.flowDefinition.nodes
@@ -610,13 +731,13 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    let _btn = $('.J_save').click(() => {
-      let s = this.serialize()
+    const btns = $('.J_save').click(() => {
+      const s = this.serialize()
       if (!s) return
       let _data = { flowDefinition: s }
       _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
 
-      _btn.button('loading')
+      btns.button('loading')
       $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
         if (res.error_code === 0) {
           RbAlert.create('保存并发布成功', {
@@ -627,68 +748,105 @@ class RbFlowCanvas extends NodeGroupSpec {
             confirm: () => location.reload()
           })
         } else RbHighbar.error(res.error_msg)
-        _btn.button('reset')
+        btns.button('reset')
       })
     })
 
-    $('.J_copy').click(() => {
-      renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled={true} />)
-    })
+    $('.J_copy').click(() => renderRbcomp(<DlgCopy father={wpc.configId} name={wpc.name + '(2)'} isDisabled={true} />))
   }
+
   zoom(v) {
     let zv = (this.state.zoomValue || 100) + v
     if (zv < 20) zv = 20
     else if (zv > 200) zv = 200
     this.setState({ zoomValue: zv, zoomStyle: { transform: `scale(${zv / 100})` } })
   }
+
   serialize() {
-    let ns = super.serialize()
+    const ns = super.serialize()
     if (!ns) return false
     ns.nodes.insert(0, this._root.serialize())
     return ns
   }
 }
 
+class DlgFields extends RbModalHandler {
 
-class DlgCopy extends RbFormHandler {
   constructor(props) {
     super(props)
+    donotCloseSidebar = true
+    this._selected = (props.selected || []).map((item) => {
+      return item.field
+    })
   }
+
   render() {
-    return (<RbModal title="另存为" ref={(c) => this._dlg = c} disposeOnHide={true}>
-      <div className="form">
-        <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">新流程名称</label>
-          <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
-          </div>
-        </div>
-        <div className="form-group row">
-          <div className="col-sm-7 offset-sm-3">
-            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-              <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
-              <span className="custom-control-label">同时禁用当前流程</span>
+    return <RbModal title="选择可修改字段" ref={(c) => this._dlg = c} disposeOnHide={true} onHide={() => donotCloseSidebar = false}>
+      <div className="row p-1" ref={(c) => this._fields = c}>
+        {fieldsCache.map((item) => {
+          return <div className="col-3" key={`field-${item.name}`}>
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
+              <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={item.name} defaultChecked={item.updatable && this._selected.includes(item.name)} />
+              <span className="custom-control-label">{item.label}</span>
             </label>
           </div>
-        </div>
-        <div className="form-group row footer">
-          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
-            <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
-          </div>
+        })}
+      </div>
+      <div className="dialog-footer">
+        <button className="btn btn-primary" type="button" onClick={this.confirm}>确定</button>
+        <button className="btn btn-secondary" type="button" onClick={this.hide}>取消</button>
+      </div>
+    </RbModal>
+  }
+
+  confirm = () => {
+    let selected = []
+    $(this._fields).find('input:checked').each(function () {
+      selected.push(this.value)
+    })
+
+    typeof this.props.call === 'function' && this.props.call(selected)
+    this.hide()
+  }
+}
+
+class DlgCopy extends ConfigFormDlg {
+
+  constructor(props) {
+    super(props)
+    this.title = '另存为'
+  }
+
+  renderFrom() {
+    return <React.Fragment>
+      <div className="form-group row">
+        <label className="col-sm-3 col-form-label text-sm-right">新流程名称</label>
+        <div className="col-sm-7">
+          <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
         </div>
       </div>
-    </RbModal>)
+      <div className="form-group row">
+        <div className="col-sm-7 offset-sm-3">
+          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+            <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+            <span className="custom-control-label">同时禁用当前流程</span>
+          </label>
+        </div>
+      </div>
+    </React.Fragment>
   }
-  save = () => {
-    let approvalName = this.state.name
+
+  confirm = () => {
+    const approvalName = this.state.name
     if (!approvalName) { RbHighbar.create('请输入新流程名称'); return }
-    let _btns = $(this._btns).find('.btn').button('loading')
+
+    this.disabled(true)
     $.post(`${rb.baseUrl}/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
       if (res.error_code === 0) {
         RbHighbar.success('另存为成功')
         setTimeout(() => location.replace('./' + res.data.approvalId), 500)
       } else RbHighbar.error(res.error_msg)
-      _btns.button('reset')
+      this.disabled()
     })
   }
 }

@@ -31,11 +31,10 @@ import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.dataimport.DataImporter;
+import com.rebuild.server.business.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.server.business.recyclebin.RecycleStore;
 import com.rebuild.server.business.series.SeriesGeneratorFactory;
 import com.rebuild.server.business.trigger.RobotTriggerObserver;
-import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.DefaultValueHelper;
@@ -134,7 +133,7 @@ public class GeneralEntityService extends ObservableService  {
 		final ID currentUser = Application.getCurrentUser();
 
 		RecycleStore recycleBin = null;
-		if (SysConfiguration.getInt(ConfigurableItem.RecycleBinKeepingDays) > 0) {
+		if (RecycleBinCleanerJob.getKeepingDays() > 0) {
 			recycleBin = new RecycleStore(currentUser);
 		}
 
@@ -421,7 +420,8 @@ public class GeneralEntityService extends ObservableService  {
 				return false;
 			}
 
-			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+			if (state == ApprovalState.APPROVED
+					|| (state == ApprovalState.PROCESSING && !ApprovalStepService.inAddedMode())) {
 				String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 				if (RobotTriggerObserver.getTriggerSource() != null) {

@@ -20,6 +20,7 @@ package com.rebuild.web.common;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BaseControll;
@@ -38,7 +39,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 文件下载/查看
@@ -84,10 +85,22 @@ public class FileDownloader extends BaseControll {
 		response.sendRedirect(privateUrl);
 	}
 	
-	@RequestMapping(value = "download/**", method = RequestMethod.GET)
+	@RequestMapping(value = { "download/**", "access/**" }, method = RequestMethod.GET)
 	public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
-		filePath = filePath.split("/filex/download/")[1];
+
+		// 共享查看
+		if (request.getRequestURI().contains("/filex/access/")) {
+            String e = getParameter(request, "e");
+            if (StringUtils.isBlank(e) || Application.getCommonCache().get(e) == null) {
+                response.sendError(403, "文件已过期");
+                return;
+            }
+
+            filePath = filePath.split("/filex/access/")[1];
+        } else {
+            filePath = filePath.split("/filex/download/")[1];
+        }
 
 		boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
 		String fileName = QiniuCloud.parseFileName(filePath);
@@ -108,7 +121,7 @@ public class FileDownloader extends BaseControll {
 	// --
 
 	/**
-	 * 文件下载
+	 * 本地文件下载
 	 *
 	 * @param filePath
 	 * @param temp
@@ -123,7 +136,7 @@ public class FileDownloader extends BaseControll {
 	}
 
 	/**
-	 * 文件下载
+	 * 本地文件下载
 	 *
 	 * @param file
 	 * @param response
@@ -177,12 +190,8 @@ public class FileDownloader extends BaseControll {
         String UA = request.getHeader("user-agent").toUpperCase();
 		if (UA.contains("FIREFOX") || UA.contains("SAFARI")) {
 			attname = CodecUtils.urlDecode(attname);
-			try {
-				attname = new String(attname.getBytes("utf-8"), "iso-8859-1");
-			} catch (UnsupportedEncodingException ignored) {
-				// NOOP
-			}
-		}
+            attname = new String(attname.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+        }
 		setDownloadHeaders(response, attname);
 	}
 }

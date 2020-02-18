@@ -26,10 +26,14 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SMSender;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.VCode;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.metadata.EntityHelper;
@@ -119,7 +123,7 @@ public class LoginControll extends BasePageControll {
 				LOG.error("Can't decode User from alt : " + alt, ex);
 			}
 			
-			if (altUser != null && Application.getUserStore().exists(altUser)) {
+			if (altUser != null && Application.getUserStore().existsUser(altUser)) {
 				loginSuccessed(request, response, altUser, true);
 				
 				String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
@@ -304,4 +308,19 @@ public class LoginControll extends BasePageControll {
 			Application.getSessionStore().clean();
 		}
 	}
+
+    @RequestMapping("live-wallpaper")
+    public void getLiveWallpaper(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    if (!SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)) {
+            writeFailure(response);
+            return;
+        }
+
+        JSON ret = License.siteApi("api/misc/bgimg");
+        if (ret == null) {
+            writeFailure(response);
+        } else {
+            writeSuccess(response, ((JSONObject) ret).getString("url"));
+        }
+    }
 }

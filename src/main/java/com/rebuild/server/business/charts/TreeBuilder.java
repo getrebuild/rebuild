@@ -66,6 +66,10 @@ public class TreeBuilder {
 		
 		for (Object[] o : rows) {
 			double value = (double) o[lastIndex];
+			// 排除0，因为0在树图中本就不显示
+			if (value <= 0d) {
+				continue;
+			}
 
 			String name = (String) o[0];
 			Item L1 = thereAll.get(name);
@@ -85,7 +89,7 @@ public class TreeBuilder {
 				}
 			}
 			
-			Item L3 = null;
+			Item L3;
 			if (lastIndex > 2) {
 				name = name + NAME_SPEA + o[2];
 				L3 = thereAll.get(name);
@@ -102,7 +106,8 @@ public class TreeBuilder {
 		}
 		return treeJson;
 	}
-	
+
+	// 单项
 	private class Item {
 		private Item parent;
 		private List<TreeBuilder.Item> children = new ArrayList<>();
@@ -123,9 +128,8 @@ public class TreeBuilder {
 		
 		protected String getName() {
 			return name;
-//			String[] names = name.split(NAME_SPEA);
-//			return names[names.length - 1];
 		}
+
 		protected double getValue() {
 			if (this.children.isEmpty()) {
 				return value;

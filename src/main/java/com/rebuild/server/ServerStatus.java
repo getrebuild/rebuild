@@ -127,7 +127,7 @@ public final class ServerStatus {
 			if (!test.exists()) {
 				return Status.error(name, "Couldn't create file in temp Directory");
 			} else {
-				test.delete();
+			    FileUtils.deleteQuietly(test);
 			}
 			
 		} catch (Exception ex) {

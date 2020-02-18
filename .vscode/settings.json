@@ -14,7 +14,9 @@
     "editor.fontSize": 12,
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
-    "eslint.autoFixOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.eslint": true
+    },
     "eslint.options": {
         "configFile": "./.eslintrc.json"
     },
@@ -27,5 +29,3 @@
     "workbench.editor.enablePreview": false,
     "java.configuration.updateBuildConfiguration": "disabled"
 }
-// node and eslint(-g)
-// Plugins: Beautify and ESLint

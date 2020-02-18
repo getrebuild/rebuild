@@ -15,6 +15,7 @@
 		<jsp:param value="nav_entity-Feeds" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
+		<div class="announcement-wrapper"></div>
 		<div class="main-content container container-smart">
 			<div class="row">
 				<div class="col-lg-8 col-12">
@@ -65,6 +66,7 @@
 											<ul class="list-unstyled">
 												<li data-type="1"><a>动态</a></li>
 												<li data-type="2"><a>跟进</a></li>
+												<li data-type="3"><a>公告</a></li>
 											</ul>
 										</div>
 									</div>
@@ -77,6 +79,7 @@
 								</div>
 								<div class="collapse" id="collapseGroup">
 									<div class="card-body">
+                                        <div class="search-member"><input type="text" placeholder="搜索团队" /></div>
 										<div class="dept-tree rb-scroller">
 										</div>
 									</div>
@@ -88,6 +91,7 @@
 								</div>
 								<div class="collapse" id="collapseUser">
 									<div class="card-body pb-3">
+                                        <div class="search-member"><input type="text" placeholder="搜索用户" /></div>
 										<div class="dept-tree rb-scroller">
 										</div>
 									</div>
@@ -102,6 +106,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/lib/jquery.textarea.js"></script>
+<script src="${baseUrl}/assets/js/feeds/announcement.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds-post.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/feeds/feeds.jsx" type="text/babel"></script>

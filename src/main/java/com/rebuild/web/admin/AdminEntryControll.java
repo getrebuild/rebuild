@@ -83,6 +83,13 @@ public class AdminEntryControll extends BasePageControll {
 		}
 	}
 
+    @RequestMapping("/user/admin-cancel")
+    public void adminCancel(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        ServletUtils.setSessionAttribute(request, KEY_VERIFIED, null);
+        writeSuccess(response);
+    }
+
 	// ----
 	
 	private static final String KEY_VERIFIED = WebUtils.KEY_PREFIX + "-AdminVerified";
@@ -95,18 +102,12 @@ public class AdminEntryControll extends BasePageControll {
 		return verified != null;
 	}
 
-	/**
-	 * @param request
-	 */
-	public static void cleanAdminVerified(HttpServletRequest request) {
-		ServletUtils.setSessionAttribute(request, KEY_VERIFIED, null);
-	}
-
 	// ---- CLI
 
-	@RequestMapping("/admin/cli/{command}")
+	@SuppressWarnings("rawtypes")
+    @RequestMapping("/admin/cli/{command}")
 	public void adminCLI(@PathVariable String command,
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+                         HttpServletResponse response) throws IOException {
 		// 清缓存
 		if ("CLEANCACHE".equals(command)) {
 			if (Application.getCommonCache().isUseRedis()) {

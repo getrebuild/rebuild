@@ -94,7 +94,10 @@ const dlgShow = (t, props) => {
   props = props || {}
   props.dashid = props.dashid || dashid
   if (dlgRefs[t]) dlgRefs[t].show()
-  else if (t === 'DlgAddChart') renderRbcomp(<DlgAddChart {...props} />, null, function () { dlgRefs[t] = this })
+  else if (t === 'DlgAddChart') {
+    if (dash_editable) renderRbcomp(<DlgAddChart {...props} />, null, function () { dlgRefs[t] = this })
+    else RbHighbar.create('你无权添加图标到此仪表盘')
+  }
   else if (t === 'DlgDashAdd') renderRbcomp(<DlgDashAdd {...props} />, null, function () { dlgRefs[t] = this })
   else if (t === 'DlgDashSettings') renderRbcomp(<DlgDashSettings {...props} />, null, function () { dlgRefs[t] = this })
   else if (t === 'DashSelect') renderRbcomp(<DashSelect {...props} />, null, function () { dlgRefs[t] = this })
@@ -228,15 +231,14 @@ class DlgDashSettings extends RbFormHandler {
             <input className="form-control form-control-sm" value={this.state.title || ''} placeholder="默认仪表盘" data-id="title" onChange={this.handleChange} maxLength="40" />
           </div>
         </div>
-        {rb.isAdminUser !== true ? null :
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right"></label>
-            <div className="col-sm-7">
-              <div className="shareTo--wrap">
-                <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />
-              </div>
+        {rb.isAdminUser && <div className="form-group row">
+          <label className="col-sm-3 col-form-label text-sm-right"></label>
+          <div className="col-sm-7">
+            <div className="shareTo--wrap">
+              <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />
             </div>
           </div>
+        </div>
         }
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3">

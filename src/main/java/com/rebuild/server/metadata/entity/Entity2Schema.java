@@ -157,15 +157,15 @@ public class Entity2Schema extends Field2Schema {
 		} catch (Throwable ex) {
 		    LOG.error(null, ex);
 			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
-			return null;
+            throw new ModifiyMetadataException("元数据初始化失败 : " + ex.getLocalizedMessage());
 		}
 		
 		boolean schemaReady = schema2Database(tempEntity);
 		if (!schemaReady) {
 			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
-			return null;
+            throw new ModifiyMetadataException("无法创建表到数据库");
 		}
-		
+
 		Application.getMetadataFactory().refresh(false);
 		return entityName;
 	}

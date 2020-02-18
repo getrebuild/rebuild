@@ -56,9 +56,14 @@ public class EntityHelper {
 		if (metadata == null) {
 			throw new FieldValueException("无效实体数据格式(1): " + data.toJSONString());
 		}
+
 		String entityName = metadata.getString("entity");
 		if (StringUtils.isBlank(entityName)) {
-			throw new FieldValueException("无效实体数据格式(2): " + data.toJSONString());
+			String id = metadata.getString("id");
+			if (!ID.isId(id)) {
+				throw new FieldValueException("无效实体数据格式(2): " + data.toJSONString());
+			}
+			entityName = MetadataHelper.getEntityName(ID.valueOf(id));
 		}
 
 		ExtRecordCreator creator = new ExtRecordCreator(MetadataHelper.getEntity(entityName), data, user);
@@ -136,8 +141,6 @@ public class EntityHelper {
 	
 	public static final String AutoId = "autoId";
 	public static final String QuickCode = "quickCode";
-	@SuppressWarnings("DeprecatedIsStillUsed")
-	@Deprecated
 	public static final String IsDeleted = "isDeleted";
 
 	public static final String ApprovalId = "approvalId";

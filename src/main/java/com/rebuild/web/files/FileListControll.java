@@ -46,7 +46,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,7 +61,7 @@ public class FileListControll extends BasePageControll {
     private static final String CK_LASTPATH = "rb.lastFilesPath";
 
     @RequestMapping({ "home", "attachment", "docs" })
-    public ModelAndView pageIndex(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView pageIndex(HttpServletRequest request, HttpServletResponse response) {
         String path = request.getRequestURI();
         if (path.contains("/files/docs")) {
             path = "docs";
@@ -81,7 +80,7 @@ public class FileListControll extends BasePageControll {
     }
 
     @RequestMapping("list-file")
-    public void listFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void listFile(HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 100);
@@ -130,7 +129,7 @@ public class FileListControll extends BasePageControll {
             }
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1)";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1) and (isDeleted = ?)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("older".equals(sort)) {
             sql += " order by createdOn asc";
@@ -138,6 +137,7 @@ public class FileListControll extends BasePageControll {
             sql += " order by modifiedOn desc";
         }
         Object[][] array = Application.createQueryNoFilter(sql)
+                .setParameter(1, false)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
@@ -165,7 +165,7 @@ public class FileListControll extends BasePageControll {
 
     // 文档目录
     @RequestMapping("list-folder")
-    public void listFolder(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void listFolder(HttpServletRequest request, HttpServletResponse response) {
         ID user = getRequestUser(request);
         JSONArray folders = FilesHelper.getFolders(user);
         writeSuccess(response, folders);
@@ -173,7 +173,7 @@ public class FileListControll extends BasePageControll {
 
     // 附件实体
     @RequestMapping("list-entity")
-    public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void listEntity(HttpServletRequest request, HttpServletResponse response) {
         ID user = getRequestUser(request);
 
         JSONArray ret = new JSONArray();

@@ -37,11 +37,6 @@ import org.junit.Test;
  */
 public class AutoShareTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void execute() throws Exception {
         addExtTestEntities(false);

@@ -71,7 +71,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.7.2";
+	public static final String VER = "1.8.0";
 	
 	/** Logging for Global
 	 */

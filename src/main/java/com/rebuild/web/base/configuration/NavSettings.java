@@ -28,10 +28,12 @@ import com.rebuild.server.configuration.portals.NavManager;
 import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.PortalsConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,15 +60,22 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.POST)
 	public void sets(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
+		final ID user = getRequestUser(request);
 		Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowCustomNav), "没有权限");
 
-		JSON config = ServletUtils.getRequestJson(request);
 		ID cfgid = getIdParameter(request, "id");
+		// 普通用户只能有一个
 		if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
-			cfgid = null;
+			ID useNav = NavManager.instance.detectUseConfig(user, null, NavManager.TYPE_NAV);
+			if (useNav != null && ShareToManager.isSelf(user, useNav)) {
+				cfgid = useNav;
+			} else {
+				cfgid = null;
+			}
 		}
-		
+
+		JSON config = ServletUtils.getRequestJson(request);
+
 		Record record;
 		if (cfgid == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
@@ -85,8 +94,10 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 	
 	@RequestMapping(value = "nav-settings", method = RequestMethod.GET)
 	public void gets(HttpServletRequest request, HttpServletResponse response) {
-		ID user = getRequestUser(request);
-		String cfgid = request.getParameter("id");
+		final ID user = getRequestUser(request);
+		final String cfgid = request.getParameter("id");
+
+		// 管理员新建
 		if ("NEW".equalsIgnoreCase(cfgid)) {
 			writeSuccess(response);
 		} else if (ID.isId(cfgid)) {
@@ -98,11 +109,19 @@ public class NavSettings extends BaseControll implements PortalsConfiguration {
 
 	@RequestMapping(value = "nav-settings/alist", method = RequestMethod.GET)
 	public void getsList(HttpServletRequest request, HttpServletResponse response) {
-		Object[][] list = Application.createQueryNoFilter(
-				"select configId,configName,shareTo from LayoutConfig where applyType = ? and createdBy.roleId = ? order by configName")
-				.setParameter(1, BaseLayoutManager.TYPE_NAV)
-				.setParameter(2, RoleService.ADMIN_ROLE)
-				.array();
+		final ID user = getRequestUser(request);
+
+		String sql = "select configId,configName,shareTo,createdBy from LayoutConfig where ";
+		if (UserHelper.isAdmin(user)) {
+			sql += String.format("applyType = '%s' and createdBy.roleId = '%s' order by configName",
+					NavManager.TYPE_NAV, RoleService.ADMIN_ROLE);
+		} else {
+			// 普通用户可用的
+			ID[] uses = NavManager.instance.getUsesNavId(user);
+			sql += "configId in ('" + StringUtils.join(uses, "', '") + "')";
+		}
+
+		Object[][] list = Application.createQueryNoFilter(sql).array();
 		writeSuccess(response, list);
 	}
 }

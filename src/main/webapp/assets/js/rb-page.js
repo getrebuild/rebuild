@@ -29,11 +29,23 @@ $(function () {
     setTimeout(__globalSearch, 200)
   }
 
-  if (rb.isAdminUser === true) {
+  if (rb.isAdminUser) {
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified === true) $('.admin-settings a i').addClass('text-danger')
+    else if (rb.isAdminVerified) {
+      $('.admin-settings a>.icon').addClass('text-danger')
+      const pop = $('.admin-settings a').popover({
+        trigger: 'hover',
+        placement: 'bottom',
+        html: true,
+        content: '当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a>',
+      }).on('shown.bs.popover', function () {
+        $('#' + $(this).attr('aria-describedby'))
+          .on('mouseenter', () => pop.popover('show'))
+          .on('mouseleave', () => pop.popover('hide'))
+      })
+    }
   } else {
     $('.admin-show').remove()
   }
@@ -68,6 +80,18 @@ var $addResizeHandler = function (call) {
     if (rb.env === 'dev') console.log('Calls ' + __RESIZE_CALLS.length + ' handlers of resize ...')
     __RESIZE_CALLS.forEach(function (call) { call() })
   }
+}
+
+// 取消管理员访问
+var __cancelAdmin = function () {
+  $.post(rb.baseUrl + '/user/admin-cancel', (res) => {
+    if (res.error_code === 0) {
+      // location.reload()
+      $('.admin-settings a>.icon').removeClass('text-danger')
+      $('.admin-settings a').popover('dispose')
+      rb.isAdminVerified = false
+    }
+  })
 }
 
 // MainNav
@@ -164,7 +188,7 @@ var __checkMessage = function () {
       if (__checkMessage__state > 0) {
         if (!window.__doctitle) window.__doctitle = document.title
         document.title = '(' + __checkMessage__state + ') ' + window.__doctitle
-        // __showNotification()
+        if (rb.env === 'dev') __showNotification()
       }
       __loadMessages__state = 0
     }
@@ -198,7 +222,7 @@ var __loadMessages = function () {
 var __showNotification = function () {
   if (window.Notification) {
     if (window.Notification.permission === 'granted') {
-      var n = new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
+      new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
         tag: 'rbNotification'
       })
     } else {

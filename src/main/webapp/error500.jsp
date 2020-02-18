@@ -43,7 +43,16 @@ if (ServletUtils.isAjaxRequest(request)) {
 	</div>
 </div>
 <script>
-if (self != top) { var btn = document.getElementById('goHome'); btn.parentNode.removeChild(btn) }
+if (self != top) {
+	var btn = document.getElementById('goHome')
+	btn.parentNode.removeChild(btn)
+	if (location.href.indexOf('/view/') > -1 && parent.RbViewModal) {
+		try {
+			var viewid = location.href.split('/view/')[1].split('?')[0]
+			parent.RbViewModal.holder(viewid).hideLoading()
+		} catch (e) { }
+	}
+}
 </script>
 </body>
 </html>

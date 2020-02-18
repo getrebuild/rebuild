@@ -92,7 +92,7 @@ public class LoginToken extends BaseApi {
      * @return
      */
     public static String checkUser(String user, String password) {
-        if (!Application.getUserStore().exists(user)) {
+        if (!Application.getUserStore().existsUser(user)) {
             return Languages.lang("InputWrong", "UsernameOrPassword");
         }
 

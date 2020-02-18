@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-/* global autosize */
+/* global autosize, EMOJIS */
 
 // ~ 动态发布
 // eslint-disable-next-line no-unused-vars
@@ -7,18 +7,24 @@ class FeedsPost extends React.Component {
   state = { ...this.props, type: 1 }
 
   render() {
+    const activeType = this.state.type
+    const activeClass = 'text-primary text-bold'
     return <div className="feeds-post">
-      <ul className="list-unstyled list-inline mb-1 pl-1">
+      <ul className="list-unstyled list-inline mb-1 pl-1" ref={(c) => this._activeType = c}>
         <li className="list-inline-item">
-          <a onClick={() => this.setState({ type: 1 })} className={`${this.state.type === 1 && 'text-primary'}`}>动态</a>
+          <a onClick={() => this.setState({ type: 1 })} className={`${activeType === 1 ? activeClass : ''}`}>动态</a>
         </li>
         <li className="list-inline-item">
-          <a onClick={() => this.setState({ type: 2 })} className={`${this.state.type === 2 && 'text-primary'}`}>跟进</a>
+          <a onClick={() => this.setState({ type: 2 })} className={`${activeType === 2 ? activeClass : ''}`}>跟进</a>
         </li>
+        {rb.isAdminUser && <li className="list-inline-item">
+          <a onClick={() => this.setState({ type: 3 })} className={`${activeType === 3 ? activeClass : ''}`}>公告</a>
+        </li>
+        }
       </ul>
-      <div className="arrow_box" style={{ marginLeft: this.state.type === 2 ? 53 : 8 }}></div>
+      <div className="arrow_box" ref={(c) => this._activeArrow = c}></div>
       <div>
-        <FeedsEditor ref={(c) => this._editor = c} type={this.state.type} />
+        <FeedsEditor ref={(c) => this._editor = c} type={activeType} />
       </div>
       <div className="mt-3">
         <div className="float-right">
@@ -37,6 +43,13 @@ class FeedsPost extends React.Component {
         <div className="clearfix"></div>
       </div>
     </div>
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.type !== this.state.type) {
+      let pos = $(this._activeType).find('.text-primary').position()
+      $(this._activeArrow).css('margin-left', pos.left - 31)
+    }
   }
 
   componentDidMount = () => $('#rb-feeds').attr('class', '')
@@ -61,12 +74,15 @@ class FeedsPost extends React.Component {
 
   _post = () => {
     let _data = this._editor.vals()
+    if (!_data) return
     if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
+
     _data.scope = this.state.scope
     if (_data.scope === 'GROUP') {
       if (!this.__group) { RbHighbar.create('请选择团队'); return }
       _data.scope = this.__group.id
     }
+
     _data.type = this.state.type
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
@@ -107,7 +123,7 @@ class FeedsEditor extends React.Component {
     }
 
     return (<React.Fragment>
-      <div className={`rich-editor ${this.state.focus && 'active'}`}>
+      <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
         <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder} maxLength="2000"
           onFocus={() => this.setState({ focus: true })}
           onBlur={() => this.setState({ focus: false })}
@@ -135,7 +151,8 @@ class FeedsEditor extends React.Component {
           </ul>
         </div>
       </div>
-      {this.state.type === 2 && <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.props.related} />}
+      {this.state.type === 2 && <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.state.related} />}
+      {this.state.type === 3 && <AnnouncementOptions ref={(c) => this._announcementOptions = c} initValue={this.state.contentMore} />}
       {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && <div className="attachment">
         <div className="img-field">
           {(this.state.images || []).map((item) => {
@@ -239,6 +256,10 @@ class FeedsEditor extends React.Component {
       attachments: this.state.files
     }
     if (this.state.type === 2 && this._selectRelated) vals.relatedRecord = this._selectRelated.val()
+    else if (this.state.type === 3 && this._announcementOptions) {
+      vals.contentMore = this._announcementOptions.val()
+      if (!vals.contentMore) return
+    }
     return vals
   }
   focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
@@ -246,6 +267,7 @@ class FeedsEditor extends React.Component {
     $(this._editor).val('')
     autosize.update(this._editor)
     if (this._selectRelated) this._selectRelated.reset()
+    if (this._announcementOptions) this._announcementOptions.reset()
     this.setState({ files: null, images: null })
   }
 }
@@ -330,8 +352,8 @@ class SelectRelated extends React.Component {
 
         // 编辑时
         if (this.props.initValue) {
-          $(this._entity).val(this.props.initValue[4]).trigger('change')
-          let option = new Option(this.props.initValue[1], this.props.initValue[0], true, true)
+          $(this._entity).val(this.props.initValue.entity).trigger('change')
+          let option = new Option(this.props.initValue.text, this.props.initValue.id, true, true)
           $(this._record).append(option)
         }
       })
@@ -367,19 +389,97 @@ class SelectRelated extends React.Component {
   reset = () => $(this._record).val(null).trigger('change')
 }
 
-const EMOJIS = { '赞': 'fs_zan.png', '握手': 'fs_woshou.png', '耶': 'fs_ye.png', '抱拳': 'fs_baoquan.png', 'OK': 'fs_ok.png', '拍手': 'fs_paishou.png', '拜托': 'fs_baituo.png', '差评': 'fs_chaping.png', '微笑': 'fs_weixiao.png', '撇嘴': 'fs_piezui.png', '花痴': 'fs_huachi.png', '发呆': 'fs_fadai.png', '得意': 'fs_deyi.png', '大哭': 'fs_daku.png', '害羞': 'fs_haixiu.png', '闭嘴': 'fs_bizui.png', '睡着': 'fs_shuizhao.png', '敬礼': 'fs_jingli.png', '崇拜': 'fs_chongbai.png', '抱抱': 'fs_baobao.png', '忍住不哭': 'fs_renzhubuku.png', '尴尬': 'fs_ganga.png', '发怒': 'fs_fanu.png', '调皮': 'fs_tiaopi.png', '开心': 'fs_kaixin.png', '惊讶': 'fs_jingya.png', '呵呵': 'fs_hehe.png', '思考': 'fs_sikao.png', '哭笑不得': 'fs_kuxiaobude.png', '抓狂': 'fs_zhuakuang.png', '呕吐': 'fs_outu.png', '偷笑': 'fs_touxiao.png', '笑哭了': 'fs_xiaokule.png', '白眼': 'fs_baiyan.png', '傲慢': 'fs_aoman.png', '饥饿': 'fs_jie.png', '困': 'fs_kun.png', '吓': 'fs_xia.png', '流汗': 'fs_liuhan.png', '憨笑': 'fs_hanxiao.png', '悠闲': 'fs_youxian.png', '奋斗': 'fs_fendou.png', '咒骂': 'fs_zhouma.png', '疑问': 'fs_yiwen.png', '嘘': 'fs_xu.png', '晕': 'fs_yun.png', '惊恐': 'fs_jingkong.png', '衰': 'fs_shuai.png', '骷髅': 'fs_kulou.png', '敲打': 'fs_qiaoda.png', '再见': 'fs_zaijian.png', '无语': 'fs_wuyu.png', '抠鼻': 'fs_koubi.png', '鼓掌': 'fs_guzhang.png', '糗大了': 'fs_qiudale.png', '猥琐的笑': 'fs_weisuodexiao.png', '哼': 'fs_heng.png', '不爽': 'fs_bushuang.png', '打哈欠': 'fs_dahaqian.png', '鄙视': 'fs_bishi.png', '委屈': 'fs_weiqu.png', '安慰': 'fs_anwei.png', '坏笑': 'fs_huaixiao.png', '亲亲': 'fs_qinqin.png', '冷汗': 'fs_lenghan.png', '可怜': 'fs_kelian.png', '生病': 'fs_shengbing.png', '愉快': 'fs_yukuai.png', '幸灾乐祸': 'fs_xingzailehuo.png', '大便': 'fs_dabian.png', '干杯': 'fs_ganbei.png', '钱': 'fs_qian.png' }
-// eslint-disable-next-line no-unused-vars
-const converEmoji = function (text) {
-  let es = text.match(/\[(.+?)\]/g)
-  if (!es) return text
-  es.forEach((e) => {
-    let img = EMOJIS[e.substr(1, e.length - 2)]
-    if (img) {
-      img = `<img class="emoji" src="${rb.baseUrl}/assets/img/emoji/${img}"/>`
-      text = text.replace(e, img)
+// 公告选项
+class AnnouncementOptions extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return <div className="announcement-options">
+      <dl className="row mb-1">
+        <dt className="col-12 col-lg-3">同时展示在</dt>
+        <dd className="col-12 col-lg-9 mb-0" ref={(c) => this._showWhere = c}>
+          <label className="custom-control custom-checkbox custom-control-inline">
+            <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
+            <span className="custom-control-label">动态页</span>
+          </label>
+          <label className="custom-control custom-checkbox custom-control-inline">
+            <input className="custom-control-input" name="showOn" type="checkbox" value={2} disabled={this.props.readonly} />
+            <span className="custom-control-label">首页</span>
+          </label>
+          <label className="custom-control custom-checkbox custom-control-inline">
+            <input className="custom-control-input" name="showOn" type="checkbox" value={4} disabled={this.props.readonly} />
+            <span className="custom-control-label">登录页 <i className="zmdi zmdi-help zicon down-3" data-toggle="tooltip" title="选择登录页展示请注意不要发布敏感信息" /></span>
+          </label>
+        </dd>
+      </dl>
+      <dl className="row">
+        <dt className="col-12 col-lg-3 pt-2">展示时间</dt>
+        <dd className="col-12 col-lg-9" ref={(c) => this._showTime = c}>
+          <div className="input-group">
+            <input type="text" className="form-control form-control-sm" placeholder="现在" />
+            <div className="input-group-prepend input-group-append">
+              <span className="input-group-text">至</span>
+            </div>
+            <input type="text" className="form-control form-control-sm" placeholder="选择结束时间" />
+          </div>
+        </dd>
+      </dl>
+    </div>
+  }
+
+  componentDidMount() {
+    $(this._showTime).find('.form-control').datetimepicker({
+      componentIcon: 'zmdi zmdi-calendar',
+      navIcons: {
+        rightIcon: 'zmdi zmdi-chevron-right',
+        leftIcon: 'zmdi zmdi-chevron-left'
+      },
+      format: 'yyyy-mm-dd hh:ii:ss',
+      minView: 0,
+      weekStart: 1,
+      autoclose: true,
+      language: 'zh',
+      showMeridian: false,
+      keyboardNavigation: false,
+      minuteStep: 5
+    })
+
+    $(this._showWhere).find('.zicon').tooltip()
+
+    const initValue = this.props.initValue
+    if (initValue) {
+      $(this._showTime).find('.form-control:eq(0)').val(initValue.timeStart || '')
+      $(this._showTime).find('.form-control:eq(1)').val(initValue.timeEnd || '')
+      $(this._showWhere).find('input').each(function () {
+        if ((~~$(this).val() & initValue.showWhere) !== 0) $(this).prop('checked', true)
+      })
     }
-  })
-  return text.replace(/\n/g, '<br />')
+  }
+  componentWillUnmount() {
+    $(this._showTime).find('.form-control').datetimepicker('remove')
+  }
+
+  val() {
+    let where = 0
+    $(this._showWhere).find('input:checked').each(function () { where += ~~$(this).val() })
+
+    let timeStart = $(this._showTime).find('.form-control:eq(0)').val()
+    let timeEnd = $(this._showTime).find('.form-control:eq(1)').val()
+    if (where > 0 && !timeEnd) {
+      RbHighbar.create('请选择结束时间')
+      return
+    }
+
+    return {
+      timeStart: timeStart || null,
+      timeEnd: timeEnd,
+      showWhere: where
+    }
+  }
+  reset() {
+    $(this._showTime).find('.form-control').val('')
+    $(this._showWhere).find('input').prop('checked', false)
+  }
 }
 
 // ~~ 编辑动态
@@ -395,7 +495,8 @@ class FeedsEditDlg extends RbModalHandler {
       type: this.props.type,
       images: this.props.images,
       files: this.props.attachments,
-      related: this.props.related
+      related: this.props.related,
+      contentMore: this.props.contentMore
     }
     return <RbModal ref={(c) => this._dlg = c} title="编辑动态" disposeOnHide={true}>
       <div className="m-1"><FeedsEditor ref={(c) => this._editor = c} {..._data} /></div>

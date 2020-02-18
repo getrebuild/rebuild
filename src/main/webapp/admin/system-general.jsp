@@ -7,11 +7,17 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>通用配置</title>
 <style type="text/css">
-.syscfg a.img-thumbnail{display:inline-block;padding:0.3rem 0;background-color:#fff;line-height:1;font-size:0;cursor:default;}
-.syscfg a.img-thumbnail .logo-img{transform: scale(0.8);}
-.syscfg h5{background-color:#eee;margin:0;padding:10px;}
-.syscfg .table td{padding:10px;}
-.syscfg .table td p{margin:0;color:#999;font-weight:normal;font-size:12px;}
+.syscfg a.img-thumbnail {
+    display: inline-block;
+    padding: 0.3rem 0;
+    background-color: #fff;
+    line-height: 1;
+    font-size: 0;
+    cursor: default;
+}
+.syscfg a.img-thumbnail .logo-img {
+    transform: scale(0.8);
+}
 </style>
 </head>
 <body>
@@ -27,7 +33,10 @@
 		<div class="row">
 			<div class="col-lg-9 col-12">
 				<div class="card">
-					<div class="card-header card-header-divider">通用配置</div>
+					<div class="card-header card-header-divider">
+                        通用配置
+                        <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> 修改</a>
+                    </div>
 					<div class="card-body">
 						<h5>通用</h5>
 						<table class="table">
@@ -45,15 +54,15 @@
 							</tr>
 							<tr>
 								<td>主页地址/域名<p>基础 URL 所有链接将以此作为前缀</p></td>
-								<td><a href="${HomeURL}" class="link" target="_blank">${HomeURL}</a></td>
+								<td data-id="HomeURL">${HomeURL}</td>
 							</tr>
 							<tr>
 								<td>公开注册</td>
-								<td>${OpenSignUp ? "是" : "否"}</td>
+								<td data-id="OpenSignUp" data-options="true:是;false:否">${OpenSignUp ? "是" : "否"}</td>
 							</tr>
 							<tr>
 								<td>登录页每日一图</td>
-								<td>${LiveWallpaper ? "是" : "否"}</td>
+								<td data-id="LiveWallpaper" data-options="true:是;false:否">${LiveWallpaper ? "是" : "否"}</td>
 							</tr>
 						</tbody>
 						</table>
@@ -62,7 +71,7 @@
 						<tbody>
 							<tr>
 								<td width="40%">登录密码安全策略</td>
-								<td>
+								<td data-id="PasswordPolicy" data-options="1:低;2:中;3:高">
 								<c:choose>
 									<c:when test="${PasswordPolicy >= 3}">高 (最低8位，必须同时包含数字、字母、特殊字符)</c:when>
 									<c:when test="${PasswordPolicy == 2}">中 (最低6位，必须同时包含数字、字母)</c:when>
@@ -71,11 +80,23 @@
 								</td>
 							</tr>
 							<tr>
-								<td>回收站数据保留时间</td>
-								<td>${RecycleBinKeepingDays}天</td>
+								<td>回收站数据保留天数</td>
+								<td data-id="RecycleBinKeepingDays">${RecycleBinKeepingDays}</td>
+							</tr>
+							<tr>
+								<td>数据库备份<p>每日0点备份到数据目录，请预留足够磁盘空间</p></td>
+								<td data-id="DBBackupsEnable" data-options="true:是;false:否">${DBBackupsEnable ? "是" : "否"}</td>
+							</tr>
+							<tr>
+								<td>数据库备份保留天数</td>
+								<td data-id="DBBackupsKeepingDays">${DBBackupsKeepingDays}</td>
 							</tr>
 						</tbody>
 						</table>
+                        <div class="edit-footer">
+                            <button class="btn btn-link">取消</button>
+                            <button class="btn btn-primary">保存</button>
+                        </div>
 					</div>
 				</div>
 			</div>
@@ -91,7 +112,7 @@
 							<li><a class="link" target="_blank" href="https://getrebuild.com/">技术支持</a></li>
 						</ul>
 						<div class="text-muted">
-							&copy; REBUILD 使用开源 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
+							&copy; REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
 						</div>
 					</div>
 				</div>
@@ -101,6 +122,7 @@
 </div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/admin/syscfg.jsx" type="text/babel"></script>
 <script>
 $(document).ready(function () {
 	$.get('systems/query-authority', function (res) { $('#authType').text(res.data.authType) })

@@ -24,7 +24,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
-import com.rebuild.server.helper.setup.InstallAfter;
+import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +42,7 @@ import java.io.IOException;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-24
  */
-public class RequestWatchHandler extends HandlerInterceptorAdapter implements InstallAfter {
+public class RequestWatchHandler extends HandlerInterceptorAdapter implements InstallState {
 
 	private static final Log LOG = LogFactory.getLog(RequestWatchHandler.class);
 	
@@ -80,10 +80,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
                     response.sendRedirect(ServerListener.getContextPath() + "/gw/server-status?s=" + CodecUtils.urlEncode(requestUrl));
 		            return false;
                 }
-            } else if (!requestUrl.contains("/setup/")) {
-		        response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
-		        return false;
-            }
+            } else if (!(requestUrl.contains("/setup/") || requestUrl.contains("/language/bundle"))) {
+				response.sendRedirect(ServerListener.getContextPath() + "/setup/install");
+				return false;
+			}
         } else {
             // for Language
             Application.getSessionStore().setLocale(AppUtils.getLocale(request));
@@ -210,7 +210,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 		reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
 		return reqUrl.startsWith("/gw/") || reqUrl.startsWith("/assets/") || reqUrl.startsWith("/error/")
                 || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/")
-				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/");
+				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/")
+				|| reqUrl.startsWith("/commons/announcements")
+                || reqUrl.startsWith("/commons/url-safe")
+                || reqUrl.startsWith("/filex/access/");
 	}
 
     /**

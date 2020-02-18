@@ -38,7 +38,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 外部URL跳转
+ * 外部URL监测跳转
  * 
  * @author zhaofang123@gmail.com
  * @since 09/20/2018
@@ -49,6 +49,8 @@ public class UrlSafe extends BasePageControll {
 	@RequestMapping(value="/commons/url-safe", method=RequestMethod.GET)
 	public ModelAndView safeRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String url = getParameterNotNull(request, "url");
+		if (!url.startsWith("http")) url = "http://" + url;
+
 		if (isTrusted(url)) {
 			response.sendRedirect(url);
 			return null;
@@ -72,6 +74,7 @@ public class UrlSafe extends BasePageControll {
             return true;
         }
 
+        // 首次
         if (TRUSTED_URLS.isEmpty()) {
             TRUSTED_URLS.add(".getrebuild.com");
 

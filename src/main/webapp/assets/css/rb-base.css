@@ -5541,7 +5541,7 @@ input[type=submit].btn-block {
 
 .page-link .icon {
     font-size: 1.5rem;
-    margin-top: -3px;
+    transform: translateY(2px);
 }
 
 .pagination-sm .page-link .icon {
@@ -21471,7 +21471,9 @@ fieldset[disabled] .btn-color.btn-evernote:hover {
 .alert .message {
     display: table-cell;
     padding: 1.385rem 2.1542rem 1.385rem .231rem;
-    border-left-width: 0
+    border-left-width: 0;
+    word-break: break-all;
+    word-wrap: break-word;
 }
 
 @media (max-width:575.98px) {

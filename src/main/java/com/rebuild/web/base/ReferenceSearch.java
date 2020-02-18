@@ -29,6 +29,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.JSONUtils;
@@ -98,12 +99,23 @@ public class ReferenceSearch extends BaseControll {
 		
 		// 搜索字符
 		Set<String> searchFields = new HashSet<>();
-		searchFields.add(referenceNameField.getName());
+		DisplayType referenceNameFieldType = EasyMeta.getDisplayType(referenceNameField);
+		if (!(referenceNameFieldType == DisplayType.DATETIME || referenceNameFieldType == DisplayType.DATE
+				|| referenceNameFieldType == DisplayType.NUMBER || referenceNameFieldType == DisplayType.DECIMAL
+				|| referenceNameFieldType == DisplayType.ID)) {
+			searchFields.add(referenceNameField.getName());
+		}
 		if (referenceEntity.containsField(EntityHelper.QuickCode) && StringUtils.isAlphanumericSpace(q)) {
 			searchFields.add(EntityHelper.QuickCode);
 		}
 		for (Field seriesField : MetadataSorter.sortFields(referenceEntity, DisplayType.SERIES)) {
 			searchFields.add(seriesField.getName());
+		}
+
+		if (searchFields.isEmpty()) {
+			LOG.warn("No fields of search found : " + referenceEntity);
+			writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+			return;
 		}
 
 		String like = " like '%" + q + "%'";
@@ -114,7 +126,7 @@ public class ReferenceSearch extends BaseControll {
 		if (referenceEntity.containsField(EntityHelper.ModifiedOn)) {
 			sql += " order by modifiedOn desc";
 		}
-		
+
 		List<Object> result = resultSearch(sql, metaEntity, referenceNameField);
 		writeSuccess(response, result);
 	}
@@ -236,12 +248,15 @@ public class ReferenceSearch extends BaseControll {
 	 * 封装查询结果
 	 * 
 	 * @param sql
-	 * @param entity
+	 * @param entity 不指定则使用无权限查询
 	 * @param nameField
 	 * @return
 	 */
 	private List<Object> resultSearch(String sql, Entity entity, Field nameField) {
-		Object[][] array = Application.createQuery(sql).setLimit(10).array();
+		Object[][] array = (entity == null ? Application.createQueryNoFilter(sql) : Application.createQuery(sql))
+				.setLimit(10)
+				.array();
+
 		List<Object> result = new ArrayList<>();
 		for (Object[] o : array) {
 			final ID recordId = (ID) o[0];
@@ -262,7 +277,10 @@ public class ReferenceSearch extends BaseControll {
             } else {
 				label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField, true);
 			}
-			
+
+			if (StringUtils.isBlank(label)) {
+				label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
+			}
 			result.add(FieldValueWrapper.wrapMixValue(recordId, label));
 		}
 		return result;

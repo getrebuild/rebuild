@@ -20,6 +20,7 @@
 		<%@ include file="/_include/spinner.jsp"%>
 	</div>
 	<div class="rb-content">
+		<div class="announcement-wrapper"></div>
 		<div class="main-content container-fluid p-0">
 			<div class="tools-bar">
 				<div class="row">
@@ -56,8 +57,10 @@
 <script src="${baseUrl}/assets/lib/charts/gridstack.all.js"></script>
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-approval.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/charts/dashboard.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/settings-share2.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/feeds/announcement.jsx" type="text/babel"></script>
 </body>
 </html>

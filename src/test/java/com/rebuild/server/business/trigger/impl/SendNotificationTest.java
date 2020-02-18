@@ -40,11 +40,6 @@ import static org.junit.Assert.assertEquals;
  */
 public class SendNotificationTest extends TestSupportWithUser {
 
-    @Override
-    protected ID getSessionUser() {
-        return UserService.ADMIN_USER;
-    }
-
     @Test
     public void testExecute() throws Exception {
         // 添加配置
@@ -54,7 +49,7 @@ public class SendNotificationTest extends TestSupportWithUser {
         triggerConfig.setString("belongEntity", "TestAllFields");
         triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
         triggerConfig.setString("actionType", ActionType.SENDNOTIFICATION.name());
-        String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION' }", SIMPLE_USER);
+        String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION {createdBy} {3782732}' }", SIMPLE_USER);
         triggerConfig.setString("actionContent", content);
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
@@ -77,5 +72,13 @@ public class SendNotificationTest extends TestSupportWithUser {
 
 		// 清理
 		Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());
+    }
+
+    @Test
+    public void formatMessage() {
+        ID test = addRecordOfTestAllFields();
+        String msg = "你好哈哈哈{TestAllFieldsName} 肩痛 {createdBy} {4324fewfe}";
+        msg = new SendNotification(null).formatMessage(msg, test);
+        System.out.println(msg);
     }
 }

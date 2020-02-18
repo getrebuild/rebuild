@@ -32,7 +32,7 @@ import java.util.UUID;
  * @author ZHAO
  * @since 2019-08-23
  */
-public final class Lisence {
+public final class License {
 
     /**
      * 授权码/SN
@@ -43,7 +43,7 @@ public final class Lisence {
         String SN = SysConfiguration.get(ConfigurableItem.SN, true);
         if (SN == null) {
             SN = String.format("ZR%s%s-%s",
-                    "107",
+                    "108",
                     StringUtils.leftPad(Locale.getDefault().getCountry(), 3, "0"),
                     UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase());
             SysConfiguration.set(ConfigurableItem.SN, SN);
@@ -57,14 +57,33 @@ public final class Lisence {
      * @return
      */
     public static JSON queryAuthority() {
-        String queryUrl = "https://getrebuild.com/authority/query?k=IjkMHgq94T7s7WkP&sn=" + SN();
+        JSON result = siteApi("authority/query");
+        if (result == null) {
+            result = JSONUtils.toJSONObject(
+                    new String[]{ "sn", "authType" },
+                    new String[]{ SN(), "开源社区版" });
+        }
+        return result;
+    }
+
+    /**
+     * 调用 RB 官方服务 API
+     *
+     * @param api
+     * @return
+     */
+    public static JSON siteApi(String api) {
+        String apiUrl = "https://getrebuild.com/" + api;
+        apiUrl += api.contains("\\?") ? "&" : "?";
+        apiUrl += "k=IjkMHgq94T7s7WkP&sn=" + SN();
+
         try {
-            String result = CommonsUtils.get(queryUrl);
+            String result = CommonsUtils.get(apiUrl);
             if (StringUtils.isNotBlank(result) && JSONUtils.wellFormat(result)) {
                 return JSON.parseObject(result);
             }
         } catch (Exception ignored) {
         }
-        return JSONUtils.toJSONObject(new String[]{"sn", "authType"}, new String[]{SN(), "开源社区版"});
+        return null;
     }
 }

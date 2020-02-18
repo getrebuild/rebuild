@@ -20,6 +20,7 @@
     </div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
+<script src="${baseUrl}/assets/js/admin/config-comps.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/entityhub/approval-design.jsx" type="text/babel"></script>
 <script>
 window.__PageConfig = {
@@ -27,21 +28,21 @@ window.__PageConfig = {
 }
 </script>
 <script type="text/babel">
-__RESIZE_CALLS = null
+__RESIZE_CALLS = null  // No need
 $(document).ready(function() {
     const ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(window.__PageConfig.id) : null
     if (ph) $('.J_close').click(() => ph.hide())
     else $('.J_close').remove()
 
 	$.get(rb.baseUrl + '/app/entity/approval/flow-definition?id=' + window.__PageConfig.id, function(res) {
+		ph && ph.hideLoading()
 		if (res.error_code !== 0) {
 			RbHighbar.error(res.error_msg)
 			return
 		}
+		// @see `wpc` in approval-design.jsx
 		wpc = { ...res.data, preview: true }
-		renderRbcomp(<RbFlowCanvas />, 'rbflow', function() {
-            ph && ph.hideLoading()
-		})
+		renderRbcomp(<RbFlowCanvas />, 'rbflow')
 	})
 })
 </script>

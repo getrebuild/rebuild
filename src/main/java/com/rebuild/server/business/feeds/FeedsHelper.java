@@ -19,17 +19,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.feeds;
 
 import cn.devezhao.bizz.security.member.Team;
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.notification.MessageBuilder;
+import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author devezhao
@@ -162,5 +167,38 @@ public class FeedsHelper {
             return team.isMember(user);
         }
         return false;
+    }
+
+    /**
+     * URL 提取
+     */
+    public static final Pattern URL_PATTERN = Pattern.compile("((www|https?:\\/\\/)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]{5,300})");
+
+    /**
+     * 格式化动态内容
+     *
+     * @param content
+     * @return
+     */
+    public static String formatContent(String content) {
+        Matcher urlMatcher = URL_PATTERN.matcher(content);
+        while (urlMatcher.find()) {
+            String url = urlMatcher.group();
+            String safeUrl = AppUtils.getContextPath() + "/commons/url-safe?url=" + CodecUtils.urlEncode(url);
+            content = content.replace(url,
+                    String.format("<a href=\"%s\" target=\"_blank\">%s</a>", safeUrl, url));
+        }
+
+        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);
+        while (atMatcher.find()) {
+            String at = atMatcher.group();
+            ID user = ID.valueOf(at.substring(1));
+            if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().existsUser(user)) {
+                String fullName = Application.getUserStore().getUser(user).getFullName();
+                content = content.replace(at, String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
+            }
+        }
+
+        return content;
     }
 }

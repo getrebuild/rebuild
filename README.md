@@ -2,8 +2,8 @@
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
 [![Build Status](https://travis-ci.org/getrebuild/rebuild.svg?branch=master)](https://travis-ci.org/getrebuild/rebuild)
 [![Crowdin](https://badges.crowdin.net/rebuild/localized.svg)](https://crowdin.com/project/rebuild)
-[![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE)
-[![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL)
+[![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/license/LICENSE.txt)
+[![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](https://getrebuild.com/license/COMMERCIAL.txt)
 
 
 ## 快速开始
@@ -29,6 +29,6 @@ REBUILD is a true production-grade project that fully considers security, robust
 
 ## 注意 NOTICE
 
-REBUILD 使用 [开源 GPL-3.0](https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE) 和 [商用](https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL) 双重授权许可，您应当认真阅读许可内容。使用 REBUILD 即表示您完全同意许可内容/条款。感谢支持！
+REBUILD 使用 [开源 GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，您应当认真阅读许可内容。使用 REBUILD 即表示您完全同意许可内容/条款。感谢支持！
 
-REBUILD uses the [open source GPL-3.0](https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE) and [commercial](https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL) dual license agreements, and you should read the contents of the agreement carefully. By using REBUILD, you fully agree to the Licensed Content/Terms. Thanks for the support!
+REBUILD uses the [open source GPL-3.0](https://getrebuild.com/license/LICENSE.txt) and [commercial](https://getrebuild.com/license/COMMERCIAL.txt) dual license agreements, and you should read the contents of the agreement carefully. By using REBUILD, you fully agree to the Licensed Content/Terms. Thanks for the support!

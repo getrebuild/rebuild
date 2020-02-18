@@ -31,11 +31,6 @@ import org.junit.Test;
  */
 public class BulkOperatorTest extends TestSupportWithUser {
 
-	@Override
-	public ID getSessionUser() {
-		return UserService.ADMIN_USER;
-	}
-
 	@Test
 	public void share() throws Exception {
 		// 测试记录

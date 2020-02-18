@@ -77,7 +77,12 @@ public enum ConfigurableItem {
 	/**
 	 * 默认语言
 	 */
-	DefaultLanguage("zh-CN")
+	DefaultLanguage("zh-CN"),
+
+	// 数据库备份
+	DBBackupsEnable(true),
+	// 数据备份保留时间
+	DBBackupsKeepingDays(30)
 
 	;
 	

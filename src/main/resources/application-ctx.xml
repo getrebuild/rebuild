@@ -76,10 +76,9 @@
 			</bean>
 		</property>
 	</bean>
-	<bean name="jedisPool" class="redis.clients.jedis.JedisPool">
+	<bean name="jedisPool" class="redis.clients.jedis.JedisPool" destroy-method="destroy">
 		<constructor-arg index="0">
-			<bean class="redis.clients.jedis.JedisPoolConfig">
-			</bean>
+			<bean class="redis.clients.jedis.JedisPoolConfig" />
 		</constructor-arg>
 		<constructor-arg index="1" value="${CacheHost}" />
 		<constructor-arg index="2" value="${CachePort}" />

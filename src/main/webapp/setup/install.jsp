@@ -1,30 +1,30 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="com.rebuild.server.Application"%>
 <!DOCTYPE html>
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<title>REBUILD 安装程序</title>
 <style type="text/css">
 .splash-container.rb-install {
 	max-width: 680px;
 }
 .splash-footer {
-	border-top: 1px solid #eee;
-	margin-top: 10px;
 	padding-top: 20px;
 	padding-bottom: 15px;
 	text-align: left;
 }
 .splash-footer .btn.btn-link {
-    color: #555;
+	color: #555;
 }
 .splash-container .card .card-header {
-    padding: 30px 0;
+	padding: 30px 0;
 }
 .card-body h3 {
-    text-align: center;
-    color: #666;
-    margin: 30px 0;
-    padding: 0;
+	text-align: center;
+	color: #666;
+	margin: 30px 0;
+	padding: 0;
 }
 .rb-welcome li>a {
 	display: block;
@@ -44,8 +44,13 @@
 	font-size: 48px;
 	color: #999;
 }
+.card-body .progress {
+	border-radius: 0;
+	height: 2px;
+	margin-top: 20px;
+	background-color: #eee;
+}
 </style>
-<title>REBUILD 安装程序</title>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper">
@@ -59,15 +64,17 @@
 					</div>
 				</div>
 				<div class="copyright">
-                    &copy; 2019 REBUILD
-                    &nbsp;·&nbsp;
-                    <a href="https://getrebuild.com/docs/admin/install" target="_blank">安装指南</a>
-                </div>
+					&copy; 2020 REBUILD &nbsp;·&nbsp; 版本 <%=Application.VER%> &nbsp;·&nbsp; <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">安装手册</a>
+					<div class="mt-1">
+						REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，安装即表示你已阅读并同意许可内容
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
 </div>
-<%@ include file="/_include/Foot.jsp"%><script>
+<%@ include file="/_include/Foot.jsp"%>
+<script>
 window.__PageConfig = {
 	defaultDataDirectory: '${defaultDataDirectory}',
 	defaultAppName: '${defaultAppName}',

@@ -1,12 +1,11 @@
-
 $(document).ready(function () {
-  $('.J_add').click(() => { renderRbcomp(<TriggerEdit />) })
+  $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
 })
 
 const WHENS = { 1: '新建', 4: '更新', 2: '删除', 16: '分派', 32: '共享', 64: '取消共享', 128: '审核通过', 256: '撤回重审' }
 const formatWhen = function (maskVal) {
-  let as = []
+  const as = []
   for (let k in WHENS) {
     // eslint-disable-next-line eqeqeq
     if ((maskVal & k) != 0) as.push(WHENS[k])
@@ -15,10 +14,12 @@ const formatWhen = function (maskVal) {
 }
 
 class TriggerList extends ConfigList {
+
   constructor(props) {
     super(props)
     this.requestUrl = `${rb.baseUrl}/admin/robot/trigger/list`
   }
+
   render() {
     return <React.Fragment>
       {(this.state.data || []).map((item) => {
@@ -41,7 +42,7 @@ class TriggerList extends ConfigList {
     renderRbcomp(<TriggerEdit id={item[0]} name={item[3]} isDisabled={item[4]} />)
   }
   handleDelete(id) {
-    let handle = super.handleDelete
+    const handle = super.handleDelete
     RbAlert.create('确认删除此触发器吗？', {
       type: 'danger',
       confirmText: '删除',
@@ -54,10 +55,12 @@ class TriggerList extends ConfigList {
 }
 
 class TriggerEdit extends ConfigFormDlg {
+
   constructor(props) {
     super(props)
     this.subtitle = '触发器'
   }
+
   renderFrom() {
     return <React.Fragment>
       {!this.props.id && <React.Fragment>
@@ -104,12 +107,12 @@ class TriggerEdit extends ConfigFormDlg {
 
   componentDidMount() {
     if (this.props.id) return
+
     this.__select2 = []
     // #1
     $.get(`${rb.baseUrl}/admin/robot/trigger/available-actions`, (res) => {
-      let s2ot = null
       this.setState({ actions: res.data }, () => {
-        s2ot = $(this._actionType).select2({
+        const s2ot = $(this._actionType).select2({
           placeholder: '选择触发类型',
           allowClear: false
         }).on('change', () => {
@@ -118,7 +121,7 @@ class TriggerEdit extends ConfigFormDlg {
         this.__select2.push(s2ot)
 
         // #2
-        let s2se = $(this._sourceEntity).select2({
+        const s2se = $(this._sourceEntity).select2({
           placeholder: '选择源实体',
           allowClear: false
         })
@@ -128,6 +131,7 @@ class TriggerEdit extends ConfigFormDlg {
       })
     })
   }
+
   __getEntitiesByAction(type) {
     $.get(`${rb.baseUrl}/admin/robot/trigger/available-entities?action=${type}`, (res) => {
       this.setState({ sourceEntities: res.data })
@@ -139,7 +143,7 @@ class TriggerEdit extends ConfigFormDlg {
     if (this.props.id) {
       post.isDisabled = this.state.isDisabled === true
     } else {
-      post = { actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
+      post = { ...post, actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
       if (!post.actionType || !post.belongEntity) {
         RbHighbar.create('请选择源触发实体')
         return

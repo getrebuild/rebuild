@@ -20,8 +20,9 @@ package com.rebuild.server.business.charts;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.TestSupport;
+import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.service.bizz.UserService;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -29,7 +30,14 @@ import org.junit.Test;
  * @author devezhao
  * @since 01/04/2019
  */
-public class ChartsTest extends TestSupport {
+public class ChartsTest extends TestSupportWithUser {
+
+    @Before
+	@Override
+	public void setUp() {
+		super.setUp();
+		this.addRecordOfTestAllFields();
+	}
 
 	@Test
 	public void testTable() throws Exception {

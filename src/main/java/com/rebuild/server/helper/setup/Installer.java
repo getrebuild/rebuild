@@ -20,18 +20,15 @@ package com.rebuild.server.helper.setup;
 
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.sql.SqlBuilder;
-import cn.devezhao.commons.sql.builder.InsertBuilder;
 import cn.devezhao.commons.sql.builder.UpdateBuilder;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.Lisence;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.JedisCacheTemplate;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.AES;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -59,7 +56,7 @@ import java.util.Properties;
  * @author devezhao
  * @since 2019/11/25
  */
-public class Installer implements InstallAfter {
+public class Installer implements InstallState {
 
     private static final Log LOG = LogFactory.getLog(Installer.class);
 
@@ -77,20 +74,35 @@ public class Installer implements InstallAfter {
 
     /**
      * 执行安装
+     *
+     * @throws Exception
      */
-    public void install() {
+    public void install() throws Exception {
         this.installDatabase();
-        this.installSystem();
         this.installAdmin();
 
-        // Save install state
+        // Save install state (file)
         File dest = SysConfiguration.getFileOfData(INSTALL_FILE);
-        Properties dbProps = buildConnectionProps(null);
-        dbProps.put("db.passwd.aes", AES.encrypt((String) dbProps.remove("db.passwd")));
+        Properties installProps = buildConnectionProps(null);
+        // Redis
+        JSONObject cacheProps = this.installProps.getJSONObject("cacheProps");
+        if (cacheProps != null && !cacheProps.isEmpty()) {
+            installProps.put(ConfigurableItem.CacheHost.name(), cacheProps.getString(ConfigurableItem.CacheHost.name()));
+            installProps.put(ConfigurableItem.CachePort.name(), cacheProps.getString(ConfigurableItem.CachePort.name()));
+            installProps.put(ConfigurableItem.CachePassword.name(), cacheProps.getString(ConfigurableItem.CachePassword.name()));
+        }
+        // 加密
+        String dbPasswd = (String) installProps.remove("db.passwd");
+        installProps.put("db.passwd.aes",
+                StringUtils.isBlank(dbPasswd) ? StringUtils.EMPTY : AES.encrypt(dbPasswd));
+        String cachePasswd = (String) installProps.remove(ConfigurableItem.CachePassword.name());
+        installProps.put(ConfigurableItem.CachePassword.name() + ".aes",
+                StringUtils.isBlank(cachePasswd) ? StringUtils.EMPTY : AES.encrypt(cachePasswd));
+
         try {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
-                dbProps.store(os, "INSTALL FILE FOR REBUILD. DON'T DELETE OR MODIFY IT!!!");
+                installProps.store(os, "INSTALL FILE FOR REBUILD. DON'T DELETE OR MODIFY IT!!!");
                 LOG.warn("Stored install file : " + dest);
             }
 
@@ -98,11 +110,17 @@ public class Installer implements InstallAfter {
             throw new SetupException(e);
         }
 
-        // init again
-        new ServerListener().contextInitialized(null);
+        // initialize
+        try {
+            new ServerListener().contextInitialized(null);
+        } catch (Exception ex) {
+            // If error
+            FileUtils.deleteQuietly(dest);
+            throw ex;
+        }
 
         // Gen SN
-        Lisence.SN();
+        License.SN();
 
         // Clean cached
         if (Application.getCommonCache().isUseRedis()) {
@@ -225,7 +243,8 @@ public class Installer implements InstallAfter {
             String L2 = L.toString().trim();
 
             // NOTE double 字段也不支持
-            boolean H2Unsupported = quickMode && L2.startsWith("fulltext");
+            boolean H2Unsupported = quickMode
+                    && (L2.startsWith("fulltext ") || L2.startsWith("unique ") || L2.startsWith("index "));
 
             // Ignore comments and line of blank
             if (StringUtils.isEmpty(L2) || L2.startsWith("--") || H2Unsupported) {
@@ -248,20 +267,6 @@ public class Installer implements InstallAfter {
             }
         }
         return SQLS.toArray(new String[0]);
-    }
-
-    /**
-     * 系统参数
-     */
-    protected void installSystem() {
-        JSONObject systemProps = installProps.getJSONObject("systemProps");
-        if (systemProps == null || systemProps.isEmpty()) {
-            return;
-        }
-
-        insertSystemProp(ConfigurableItem.DataDirectory, systemProps.getString("dataDirectory"));
-        insertSystemProp(ConfigurableItem.AppName, systemProps.getString("appName"));
-        insertSystemProp(ConfigurableItem.HomeURL, systemProps.getString("homeUrl"));
     }
 
     /**
@@ -291,18 +296,9 @@ public class Installer implements InstallAfter {
         executeSql(ub.toSql());
     }
 
-    private void insertSystemProp(ConfigurableItem item, String value) {
-        if (StringUtils.isBlank(value)) {
-            return;
-        }
-
-        InsertBuilder ib = SqlBuilder.buildInsert("system_config")
-                .addColumn("CONFIG_ID", ID.newId(EntityHelper.SystemConfig))
-                .addColumn("ITEM", item.name())
-                .addColumn("VALUE", value);
-        executeSql(ib.toSql());
-    }
-
+    /**
+     * @param sql
+     */
     private void executeSql(String sql) {
         try (Connection conn = getConnection(null)) {
             try (Statement stmt = conn.createStatement()) {

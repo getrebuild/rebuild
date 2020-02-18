@@ -27,6 +27,7 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -49,26 +50,38 @@ public class FeedsGroupControll extends BaseControll {
 
     @RequestMapping("group-list")
     public void groupList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
+        final String query = getParameter(request, "q");
         Set<Team> teams = Application.getUserStore().getUser(user).getOwningTeams();
 
         JSONArray ret = new JSONArray();
         for (Team t : teams) {
-            JSONObject o = JSONUtils.toJSONObject(
-                    new String[] { "id", "name" }, new Object[] { t.getIdentity(), t.getName() });
-            ret.add(o);
+            if (StringUtils.isBlank(query)
+                    || StringUtils.containsIgnoreCase(t.getName(), query)) {
+                JSONObject o = JSONUtils.toJSONObject(
+                        new String[] { "id", "name" }, new Object[] { t.getIdentity(), t.getName() });
+                ret.add(o);
+                if (ret.size() >= 20) break;
+            }
         }
         writeSuccess(response, ret);
     }
 
     @RequestMapping("user-list")
     public void userList(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String query = getParameter(request, "q");
+
         JSONArray ret = new JSONArray();
         for (User u : UserHelper.sortUsers()) {
-            JSONObject o = JSONUtils.toJSONObject(
-                    new String[] { "id", "name" },
-                    new Object[] { u.getId(), u.getFullName() });
-            ret.add(o);
+            if (StringUtils.isBlank(query)
+                    || StringUtils.containsIgnoreCase(u.getFullName(), query)
+                    || (u.getEmail() != null && StringUtils.containsIgnoreCase(u.getEmail(), query))) {
+                JSONObject o = JSONUtils.toJSONObject(
+                        new String[] { "id", "name" },
+                        new Object[] { u.getId(), u.getFullName() });
+                ret.add(o);
+                if (ret.size() >= 20) break;
+            }
         }
         writeSuccess(response, ret);
     }

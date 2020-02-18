@@ -98,15 +98,25 @@ public class ApprovalStepService extends BaseService {
 		String cKey = "ApprovalSubmitter" + recordId + approvalId;
 		Application.getCommonCache().evict(cKey);
 	}
-	
+
 	/**
 	 * @param stepRecord
 	 * @param signMode
 	 * @param cc
-	 * @param nextApprovers
-	 * @param nextNode
+	 * @param nextApprovers 驳回时无需
+	 * @param nextNode 驳回时无需
+	 * @param addedData 驳回时无需
 	 */
-	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode) {
+	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData) {
+		if (addedData != null) {
+			IN_ADDED.set(true);
+			try {
+				Application.getService(addedData.getEntity().getEntityCode()).update(addedData);
+			} finally {
+				IN_ADDED.remove();
+			}
+		}
+
 		super.update(stepRecord);
 		final ID stepRecordId = stepRecord.getPrimary();
 		
@@ -339,5 +349,17 @@ public class ApprovalStepService extends BaseService {
 		submitter = (ID) firstStep[0];
 		Application.getCommonCache().putx(cKey, submitter);
 		return submitter;
+	}
+
+	// --
+
+	private static final ThreadLocal<Boolean> IN_ADDED = new ThreadLocal<>();
+	/**
+	 * 可编辑字段模式
+	 *
+	 * @return
+	 */
+	public static boolean inAddedMode() {
+		return IN_ADDED.get() != null && IN_ADDED.get();
 	}
 }

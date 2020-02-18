@@ -136,7 +136,7 @@ public class FlowNode {
 		if (userDefs == null || userDefs.isEmpty()) {
 			return Collections.emptySet();
 		}
-		
+
 		String userType = userDefs.getString(0);
 		if (USER_SELF.equalsIgnoreCase(userType)) {
 			Set<ID> users = new HashSet<>();
@@ -171,7 +171,27 @@ public class FlowNode {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj.hashCode() == this.hashCode();
+		if (obj == null) return false;
+		return obj instanceof FlowNode && obj.hashCode() == this.hashCode();
+	}
+
+	/**
+	 * 节点可编辑字段
+	 *
+	 * @return
+	 */
+	public JSONArray getEditableFields() {
+		JSONArray editableFields = dataMap == null ? null : dataMap.getJSONArray("editableFields");
+		if (editableFields == null) {
+			return null;
+		}
+
+		editableFields = (JSONArray) JSONUtils.clone(editableFields);
+		for (Object o : editableFields) {
+			JSONObject field = (JSONObject) o;
+			field.put("nullable", !((Boolean) field.remove("notNull")));
+		}
+		return editableFields;
 	}
 
 	// --

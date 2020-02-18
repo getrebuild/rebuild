@@ -63,6 +63,7 @@
 <div class="rb-wrapper rb-login">
 	<div class="rb-bgimg"></div>
 	<div class="rb-content">
+		<div class="announcement-wrapper"></div>
 		<div class="main-content container-fluid">
 			<div class="splash-container mb-0">
 				<div class="card card-border-color card-border-color-primary">
@@ -108,8 +109,8 @@
 				</div>
 				<div class="splash-footer">
 					<div class="copyright">
-						<span>&copy; 2019 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-						<div class="fs-12">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+						<span>&copy; 2020 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
+						<div class="fs-12 dev-show">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
 					</div>
 				</div>
 			</div>
@@ -117,9 +118,7 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script>
-useLiveWallpaper = <%=SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)%>
-</script>
+<script src="${baseUrl}/assets/js/feeds/announcement.jsx" type="text/babel"></script>
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
@@ -159,20 +158,15 @@ $(document).ready(function() {
 		})
 	})
 
-	if (useLiveWallpaper) {
-		$.get('https://getrebuild.com/api/misc/bgimg?k=IjkMHgq94T7s7WkP', (res) => {
-			if (!res.url) return
-			let bgimg = new Image()
-			bgimg.src = res.url
-			bgimg.onload = function() {
-				$('.rb-bgimg').animate({ opacity: 0 })
-				setTimeout(() => {
-					$('.rb-bgimg').css('background-image', 'url(' + res.url + ')').animate({ opacity: 1 })
-				}, 400)
-				if (res.copyright) $('.rb-bgimg').attr('alt', res.copyright + ' (' + res.source + ')')
-			}
-		}).fail(function () { /* NOOP */ })
-	}
+    $.get('live-wallpaper', (res) => {
+        if (res.error_code != 0 || !res.data) return
+        let bgimg = new Image()
+        bgimg.src = res.data
+        bgimg.onload = function() {
+            $('.rb-bgimg').animate({ opacity: 0 })
+            setTimeout(() => $('.rb-bgimg').css('background-image', 'url(' + res.data + ')').animate({ opacity: 1 }), 400)
+        }
+    })
 })
 </script>
 </body>

@@ -3,7 +3,7 @@
 /* global converEmoji, FeedsEditor */
 
 const FeedsSorts = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
-const FeedsTypes = { 1: '动态', 2: '跟进' }
+const FeedsTypes = { 1: '动态', 2: '跟进', 3: '公告' }
 
 // ~ 动态列表
 // eslint-disable-next-line no-unused-vars
@@ -16,7 +16,7 @@ class FeedsList extends React.Component {
   }
 
   render() {
-    return (<div>
+    return <div>
       {this.state.specFilter && <div className="alert alert-warning alert-icon alert-sm alert-icon-border mt-3">
         <div className="icon"><i className="zmdi zmdi-info-outline"></i></div>
         <div className="message">当前显示指定动态，点击 <a href="#no-gs" onClick={this._cleanSpecFilter}>查看全部</a></div>
@@ -44,7 +44,7 @@ class FeedsList extends React.Component {
       <div className="feeds-list">
         {(this.state.data && this.state.data.length === 0) && <div className="list-nodata pt-8 pb-8">
           <i className="zmdi zmdi-chart-donut"></i>
-          <p>暂无相关动态</p>
+          <p>暂无相关动态{this.state.tabType === 11 && <React.Fragment><br />即使管理员也不能查看他人的私密动态</React.Fragment>}</p>
         </div>
         }
         {(this.state.data || []).map((item) => {
@@ -97,7 +97,7 @@ class FeedsList extends React.Component {
         })}
       </div>
       <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={40} />
-    </div>)
+    </div>
   }
 
   componentDidMount = () => this.props.fetchNow && this.fetchFeeds()
@@ -114,7 +114,7 @@ class FeedsList extends React.Component {
     }
 
     $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
-      let _data = res.data || { data: [], total: 0 }
+      const _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
     })
@@ -122,14 +122,16 @@ class FeedsList extends React.Component {
 
   _cleanSpecFilter = (e) => {
     e.preventDefault()
+    location.hash = 'none'
     this.setState({ specFilter: null }, () => this.fetchFeeds())
   }
 
   _switchTab(t) {
     this.setState({ tabType: t, pageNo: 1 }, () => this.fetchFeeds())
   }
+
   _sortFeeds = (e) => {
-    let s = e.target.dataset.sort
+    const s = e.target.dataset.sort
     $storage.set('Feeds-sort', s)
     this.setState({ sort: s, pageNo: 1 }, () => this.fetchFeeds())
   }
@@ -151,7 +153,7 @@ class FeedsList extends React.Component {
   _handleLike = (id) => _handleLike(id, this)
   _handleDelete(id) {
     event.preventDefault()
-    let that = this
+    const that = this
     RbAlert.create('确认删除该动态？', {
       type: 'danger',
       confirmText: '删除',
@@ -179,7 +181,7 @@ class FeedsComments extends React.Component {
   state = { ...this.props, pageNo: 1 }
 
   render() {
-    return (<div className="comments">
+    return <div className="comments">
       <div className="comment-reply">
         <div onClick={() => this._commentState(true)} className={`reply-mask ${this.state.openComment && 'hide'}`}>添加评论</div>
         <span className={`${!this.state.openComment && 'hide'}`}>
@@ -243,13 +245,13 @@ class FeedsComments extends React.Component {
         })}
       </div>
       <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={20} comment={true} />
-    </div>)
+    </div>
   }
 
   componentDidMount = () => this._fetchComments()
   _fetchComments() {
     $.get(`${rb.baseUrl}/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
-      let _data = res.data || {}
+      const _data = res.data || {}
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
     })
@@ -262,7 +264,7 @@ class FeedsComments extends React.Component {
     _data.feedsId = this.props.feeds
     _data.metadata = { entity: 'FeedsComment' }
 
-    let btn = $(this._btn).button('loading')
+    const btn = $(this._btn).button('loading')
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
@@ -273,9 +275,7 @@ class FeedsComments extends React.Component {
   }
 
   _commentState = (state) => {
-    this.setState({ openComment: state }, () => {
-      if (this.state.openComment) this._editor.focus()
-    })
+    this.setState({ openComment: state }, () => this.state.openComment && this._editor.focus())
   }
 
   _toggleReply = (id, state) => {
@@ -295,7 +295,7 @@ class FeedsComments extends React.Component {
   _handleLike = (id) => _handleLike(id, this)
   _handleDelete = (id) => {
     event.preventDefault()
-    let that = this
+    const that = this
     RbAlert.create('确认删除该评论？', {
       type: 'danger',
       confirmText: '删除',
@@ -331,7 +331,7 @@ class Pagination extends React.Component {
 
     this.__pageTotal = Math.ceil(this.state.rowsTotal / this.state.pageSize)
     if (this.__pageTotal <= 0) this.__pageTotal = 1
-    let pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
+    const pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
 
     return <div className="feeds-pages">
       <div className="float-left">
@@ -373,12 +373,21 @@ function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
   const contentHtml = converEmoji(e.content.replace(/\n/g, '<br>'))
   return <div className="rich-content">
-    <div className="texts"
+    <div className="texts text-break"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
-    {e.related && <div className="related">
-      <span className="text-muted"><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} - </span>
-      <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`}>{e.related.text}</a>
+    {e.related && <div className="mores">
+      <div>
+        <span><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} : </span>
+        <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`} title="查看相关记录">{e.related.text}</a>
+      </div>
+    </div>
+    }
+    {e.type === 3 && <div className="mores">
+      {e.contentMore.showWhere > 0
+        && <div><span>展示位置 : </span> {__findMaskTexts(e.contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
+      {(e.contentMore.timeStart || e.contentMore.timeEnd)
+        && <div><span>展示时间 : </span> {e.contentMore.timeStart || ''} 至 {e.contentMore.timeEnd}</div>}
     </div>
     }
     {(e.images || []).length > 0 && <div className="img-field">
@@ -401,6 +410,15 @@ function __renderRichContent(e) {
     </div>
     }
   </div>
+}
+
+const ANN_OPTIONS = [[1, '动态页'], [2, '首页'], [4, '登录页']]
+function __findMaskTexts(mask, options) {
+  let texts = []
+  options.forEach((item) => {
+    if ((item[0] & mask) !== 0) texts.push(item[1])
+  })
+  return texts
 }
 
 // 点赞

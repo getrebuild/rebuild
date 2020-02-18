@@ -29,11 +29,9 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.feeds.FeedsScope;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -50,7 +48,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 /**
  * 列表相关
@@ -120,7 +117,7 @@ public class FeedsListControll extends BasePageControll {
             }
         }
 
-        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord from Feeds where " + sqlWhere;
+        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore from Feeds where " + sqlWhere;
         if ("older".equalsIgnoreCase(sort)) {
             sql += " order by createdOn asc";
         } else if ("modified".equalsIgnoreCase(sort)) {
@@ -155,6 +152,11 @@ public class FeedsListControll extends BasePageControll {
                 mixValue.put("icon", entity.getIcon());
                 mixValue.put("entityLabel", entity.getLabel());
                 item.put("related", mixValue);
+            }
+
+            // 更多内容
+            if (o[10] != null) {
+                item.put("contentMore", JSON.parse((String) o[10]));
             }
 
             list.add(item);
@@ -211,7 +213,7 @@ public class FeedsListControll extends BasePageControll {
         item.put("createdOn", CalendarUtils.getUTCDateTimeFormat().format(o[2]));
         item.put("createdOnFN", Moment.moment((Date) o[2]).fromNow());
         item.put("modifedOn", CalendarUtils.getUTCDateTimeFormat().format(o[3]));
-        item.put("content", formatContent((String) o[4]));
+        item.put("content", FeedsHelper.formatContent((String) o[4]));
         if (o[5] != null) {
             item.put("images", JSON.parse((String) o[5]));
         }
@@ -225,22 +227,5 @@ public class FeedsListControll extends BasePageControll {
             item.put("myLike", FeedsHelper.isMyLike((ID) o[0], user));
         }
         return item;
-    }
-
-    /**
-     * @param content
-     * @return
-     */
-    private String formatContent(String content) {
-        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);
-        while (atMatcher.find()) {
-            String at = atMatcher.group();
-            ID user = ID.valueOf(at.substring(1));
-            if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().exists(user)) {
-                String fullName = Application.getUserStore().getUser(user).getFullName();
-                content = content.replace(at, String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
-            }
-        }
-        return content;
     }
 }

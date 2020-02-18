@@ -79,7 +79,7 @@ public class WidgetControll extends BaseControll implements PortalsConfiguration
     public void gets(@PathVariable String entity,
                      HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID user = getRequestUser(request);
-        ConfigEntry config = BaseLayoutManager.instance.getWidgetOfCharts(user, entity);
+        ConfigEntry config = BaseLayoutManager.instance.getWidgetCharts(user, entity);
         writeSuccess(response, config == null ? null : config.toJSON());
     }
 }

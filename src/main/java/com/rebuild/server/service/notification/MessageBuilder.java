@@ -91,7 +91,7 @@ public class MessageBuilder {
     /**
      * Matchs @ID
      */
-    public static final Pattern AT_PATTERN = Pattern.compile("(\\@[0-9a-z\\-]{20})");
+    public static final Pattern AT_PATTERN = Pattern.compile("(@[0-9a-zA-Z\\-]{20})");
 
     /**
      * 格式化消息
@@ -139,7 +139,7 @@ public class MessageBuilder {
 
 		final ID id = ID.valueOf(atid);
 		if (id.getEntityCode() == EntityHelper.User) {
-			if (Application.getUserStore().exists(id)) {
+			if (Application.getUserStore().existsUser(id)) {
 				return Application.getUserStore().getUser(id).getFullName();
 			} else {
 				return "[无效用户]";

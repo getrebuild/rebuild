@@ -1,24 +1,25 @@
 /* eslint-disable no-unused-vars */
+
 // 表单 DLG
 class ConfigFormDlg extends RbFormHandler {
+
   constructor(props) {
     super(props)
   }
 
   render() {
-    return (
-      <RbModal title={(this.props.id ? '修改' : '添加') + (this.subtitle || '')} ref={(c) => this._dlg = c} disposeOnHide={true}>
-        <div className="form">
-          {this.renderFrom()}
-          <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
-              <button className="btn btn-primary" type="button" onClick={this.confirm}>确定</button>
-              <a className="btn btn-link" onClick={this.hide}>取消</a>
-            </div>
+    const title = this.title || ((this.props.id ? '修改' : '添加') + (this.subtitle || ''))
+    return <RbModal title={title} ref={(c) => this._dlg = c} disposeOnHide={true}>
+      <div className="form">
+        {this.renderFrom()}
+        <div className="form-group row footer">
+          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
+            <button className="btn btn-primary" type="button" onClick={this.confirm}>确定</button>
+            <a className="btn btn-link" onClick={this.hide}>取消</a>
           </div>
         </div>
-      </RbModal>
-    )
+      </div>
+    </RbModal>
   }
 
   componentDidMount() {
@@ -34,14 +35,13 @@ class ConfigFormDlg extends RbFormHandler {
     }
   }
 
-  renderFrom() {
-  }
-  confirm = () => {
-  }
+  renderFrom() { }
+  confirm = () => { }
 }
 
 // 列表 TABLE
 class ConfigList extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
@@ -50,19 +50,17 @@ class ConfigList extends React.Component {
   componentDidMount() {
     this.loadData()
     // 搜索
-    const btn = $('.input-search .btn').click(() => { this.loadData() })
-    $('.input-search .form-control').keydown((e) => { if (e.which === 13) btn.trigger('click') })
+    const btn = $('.input-search .btn').click(() => this.loadData())
+    $('.input-search .form-control').keydown((e) => e.which === 13 && btn.trigger('click'))
   }
 
   // 加载数据
   loadData(entity) {
-    if (!this.requestUrl) {
-      throw new Error('No `requestUrl` defined')
-    }
+    if (!this.requestUrl) throw new Error('No `requestUrl` defined')
 
     entity = entity || this.__entity
     this.__entity = entity
-    let q = $('.input-search input').val()
+    const q = $('.input-search input').val()
 
     $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(q)}`, (res) => {
       this.setState({ data: res.data || [] }, () => {
@@ -91,7 +89,7 @@ class ConfigList extends React.Component {
       $(`<li data-entity="${k}"><a class="text-truncate">${ues[k]}</a></li>`).appendTo(dest)
     }
 
-    let that = this
+    const that = this
     dest.find('li').click(function () {
       dest.find('li').removeClass('active')
       $(this).addClass('active')

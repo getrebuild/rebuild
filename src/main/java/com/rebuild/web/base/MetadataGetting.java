@@ -81,8 +81,8 @@ public class MetadataGetting extends BaseControll {
 		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
 		String fromType = getParameter(request, "from");
 		
-		List<Map<String, Object>> list = new ArrayList<>();
-		putFields(list, entityMeta, appendRefFields, fromType);
+		List<Map<String, Object>> fsList = new ArrayList<>();
+		putFields(fsList, entityMeta, appendRefFields, fromType);
 
 		// 追加二级引用字段
 		if (appendRefFields) {
@@ -92,18 +92,16 @@ public class MetadataGetting extends BaseControll {
 				}
 
 				int entityCode = field.getReferenceEntity().getEntityCode();
-				if (!MetadataHelper.isBizzEntity(entityCode)) {
-					list.add(buildField(field));
+                if (MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig) {
+                    continue;
+                }
 
-					// 引用实体字段
-					if (entityCode != EntityHelper.RobotApprovalConfig) {
-    					putFields(list, field, false, fromType);
-                    }
-				}
+                fsList.add(buildField(field));
+                putFields(fsList, field, false, fromType);
 			}
 		}
 
-		writeSuccess(response, list);
+		writeSuccess(response, fsList);
 	}
 
     /**
@@ -115,7 +113,7 @@ public class MetadataGetting extends BaseControll {
 	private void putFields(
             List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField, String fromType) {
 	    Field parentField = null;
-	    Entity useEntity = null;
+	    Entity useEntity;
 	    if (entityOrField instanceof Field) {
             parentField = (Field) entityOrField;
             useEntity = parentField.getReferenceEntity();
@@ -129,13 +127,12 @@ public class MetadataGetting extends BaseControll {
 			}
 
 			Map<String, Object> map = buildField(field);
+
 			// 引用字段处理
 			if (EasyMeta.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {
+                boolean isApprovalId = field.getName().equalsIgnoreCase(EntityHelper.ApprovalId);
 				boolean isBizz = MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode());
-				boolean isApprovalId = field.getName().equalsIgnoreCase(EntityHelper.ApprovalId);
-				if (isApprovalId) {
-				    continue;
-                } else if (!isBizz) {
+                if (!(isApprovalId || isBizz)) {
 				    continue;
                 }
 			}

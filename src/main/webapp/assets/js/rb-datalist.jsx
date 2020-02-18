@@ -21,7 +21,7 @@ class RbList extends React.Component {
     const sort = ($storage.get(this.__sortFieldKey) || ':').split(':')
     const fields = props.config.fields
     for (let i = 0; i < fields.length; i++) {
-      let cw = $storage.get(this.__columnWidthKey + fields[i].field)
+      const cw = $storage.get(this.__columnWidthKey + fields[i].field)
       if (!!cw && ~~cw >= COLUMN_MIN_WIDTH) fields[i].width = ~~cw
       if (sort[0] === fields[i].field) fields[i].sort = sort[1]
     }
@@ -58,7 +58,7 @@ class RbList extends React.Component {
                     const cWidth = item.width || that.__defaultColumnWidth
                     const styles = { width: cWidth + 'px' }
                     return <th key={'column-' + item.field} style={styles} className={`unselect ${item.unsort ? '' : 'sortable'}`} data-field={item.field}
-                      onClick={!item.unsort && this.sortField.bind(this, item.field)} >
+                      onClick={item.unsort ? null : this.sortField.bind(this, item.field)}>
                       <div style={styles}>
                         <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
                         <i className={'zmdi ' + (item.sort || '')} />
@@ -107,8 +107,8 @@ class RbList extends React.Component {
     if (FIXED_FOOTER && $('.main-content').width() > 998) {
       $('.main-content').addClass('pb-0')
       $addResizeHandler(() => {
-        let mh = $(window).height() - 214
-        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 42  // Has tab
+        let mh = $(window).height() - 215
+        if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 44  // Has tab
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
@@ -120,11 +120,11 @@ class RbList extends React.Component {
       axis: 'x',
       helper: 'clone',
       stop: function (event, ui) {
-        let field = $(event.target).parents('th').data('field')
+        const field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 0
         if (left < COLUMN_MIN_WIDTH) left = COLUMN_MIN_WIDTH
         else if (left > COLUMN_MAX_WIDTH) left = COLUMN_MAX_WIDTH
-        let fields = that.state.fields
+        const fields = that.state.fields
         for (let i = 0; i < fields.length; i++) {
           if (fields[i].field === field) {
             fields[i].width = left
@@ -151,7 +151,7 @@ class RbList extends React.Component {
   }
 
   fetchList(filter) {
-    let fields = []
+    const fields = []
     let field_sort = null
     this.state.fields.forEach(function (item) {
       fields.push(item.field)
@@ -179,7 +179,7 @@ class RbList extends React.Component {
     $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => RbList.renderAfter())
-        if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total })
+        if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -201,7 +201,7 @@ class RbList extends React.Component {
     if (cellVal === '$NOPRIVILEGES$') {
       return <td key={cellKey}><div className="column-nopriv" title="你无权读取此项数据">[无权限]</div></td>
     } else {
-      let width = this.state.fields[index].width || this.__defaultColumnWidth
+      const width = this.state.fields[index].width || this.__defaultColumnWidth
       let type = field.type
       if (field.field === this.props.config.nameField) {
         cellVal = lastPrimary
@@ -234,11 +234,11 @@ class RbList extends React.Component {
       else $tr.removeClass('active')
     }
     // this.setState({ checkedChanged: true })
-    this.componentDidUpdate()  // perform
+    this.componentDidUpdate()  // for perform
   }
 
   sortField(field, e) {
-    let fields = this.state.fields
+    const fields = this.state.fields
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {
         if (fields[i].sort === 'sort-asc') fields[i].sort = 'sort-desc'
@@ -273,18 +273,47 @@ class RbList extends React.Component {
    */
   setAdvFilter(id) {
     this.advFilter = id
+    this.pageNo = 1
     this.fetchList(this.__buildQuick())
     if (id) $storage.set(this.__defaultFilterKey, id)
     else $storage.remove(this.__defaultFilterKey)
   }
 
   /**
+   * 搜索
+   */
+  search(filter, fromAdv) {
+    const afHold = this.advFilter
+    if (fromAdv === true) this.advFilter = null
+    this.pageNo = 1
+    this.fetchList(filter)
+
+    // No keep last filter
+    if (fromAdv === true) {
+      this.advFilter = afHold
+      this.lastFilter = null
+    }
+  }
+
+  // Alias `fetchList`
+  reload = () => this.fetchList()
+
+  // @el - search element
+  searchQuick = (el) => this.search(this.__buildQuick(el))
+  __buildQuick(el) {
+    el = $(el || '.input-search>input')
+    const q = el.val()
+    if (!q && !this.lastFilter) return null
+    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
+  }
+
+  /**
    * 获取选中 ID[]
    */
   getSelectedIds(noWarn) {
-    let selected = []
+    const selected = []
     $(this._rblistBody).find('>tr .custom-control-input').each(function () {
-      let $this = $(this)
+      const $this = $(this)
       if ($this.prop('checked')) selected.push($this.parents('tr').data('id'))
     })
     if (selected.length === 0 && noWarn !== true) RbHighbar.create('未选中任何记录')
@@ -292,7 +321,7 @@ class RbList extends React.Component {
   }
 
   /**
-   * 获取最后查询记录熟虑
+   * 获取最后查询记录总数
    */
   getLastQueryTotal() {
     return this._pagination ? this._pagination.state.rowsTotal : 0
@@ -303,32 +332,6 @@ class RbList extends React.Component {
    */
   getLastQueryData() {
     return JSON.parse(JSON.stringify(this.__lastQueryEntry))  // Use clone
-  }
-
-  /**
-   * 搜索
-   */
-  search(filter, fromAdv) {
-    const afHold = this.advFilter
-    if (fromAdv === true) this.advFilter = null
-    this.fetchList(filter)
-
-    // No keep last filter
-    if (fromAdv === true) {
-      this.advFilter = afHold
-      this.lastFilter = null
-    }
-  }
-
-  reload = () => this.fetchList()
-
-  // @el - search element
-  searchQuick = (el) => this.search(this.__buildQuick(el))
-  __buildQuick(el) {
-    el = $(el || '.input-search>input')
-    const q = el.val()
-    if (!q && !this.lastFilter) return null
-    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
   }
 
   // 渲染完成后回调
@@ -357,7 +360,7 @@ const CellRenders = {
   },
 
   render(value, type, width, key) {
-    let style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
+    const style = { width: (width || COLUMN_MIN_WIDTH) + 'px' }
     if (!value) return this.renderSimple(value, style, key)
     else return (this.__renders[type] || this.renderSimple)(value, style, key)
   },
@@ -387,8 +390,8 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
     <div style={s} className="column-imgs" title={'共 ' + v.length + ' 个图片'}>
       {v.map((item, idx) => {
         if (idx > 2) return null
-        let imgUrl = rb.baseUrl + '/filex/img/' + item
-        let imgName = $fileCutName(item)
+        const imgUrl = rb.baseUrl + '/filex/img/' + item
+        const imgName = $fileCutName(item)
         return <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}><img alt="图片" src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
       })}</div></td>
 })
@@ -400,7 +403,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
       <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
         {v.map((item, idx) => {
           if (idx > 0) return null
-          let fileName = $fileCutName(item)
+          const fileName = $fileCutName(item)
           return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>{fileName}</a></li>
         })}
       </ul>
@@ -430,7 +433,7 @@ CellRenders.addRender('PHONE', function (v, s, k) {
 const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
-    let badge = APPROVAL_STATE_CLAZZs[v]
+    const badge = APPROVAL_STATE_CLAZZs[v]
     return <td key={k} className="td-min column-state"><div style={s}><span className={badge ? 'badge badge-' + badge : ''}>{v}</span></div></td>
   } else return CellRenders.renderSimple(v, s, k)
 })
@@ -462,7 +465,7 @@ class RbListPagination extends React.Component {
   render() {
     this.__pageTotal = Math.ceil(this.state.rowsTotal / this.state.pageSize)
     if (this.__pageTotal <= 0) this.__pageTotal = 1
-    let pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
+    const pages = this.__pageTotal <= 1 ? [1] : $pages(this.__pageTotal, this.state.pageNo)
 
     return (
       <div className="row rb-datatable-footer">
@@ -509,8 +512,8 @@ class RbListPagination extends React.Component {
     })
   }
   setPageSize = (e) => {
-    let s = e.target.value
-    this.setState({ pageSize: s }, () => {
+    const s = e.target.value
+    this.setState({ pageSize: s, pageNo: 1 }, () => {
       this.props.$$$parent.setPage(1, s)
     })
   }
@@ -532,23 +535,23 @@ const RbListPage = {
 
     $('.J_new').click(() => RbFormModal.create({ title: `新建${entity[1]}`, entity: entity[0], icon: entity[2] }))
     $('.J_edit').click(() => {
-      let ids = this._RbList.getSelectedIds()
+      const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         RbFormModal.create({ id: ids[0], title: `编辑${entity[1]}`, entity: entity[0], icon: entity[2] })
       }
     })
     $('.J_delete').click(() => {
       if ($('.J_delete').attr('disabled')) return
-      let ids = this._RbList.getSelectedIds()
+      const ids = this._RbList.getSelectedIds()
       if (ids.length < 1) return
-      let deleteAfter = function () {
+      const deleteAfter = function () {
         that._RbList.reload()
       }
       const needEntity = (wpc.type === $pgt.SlaveList || wpc.type === $pgt.SlaveView) ? null : entity[0]
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_view').click(() => {
-      let ids = this._RbList.getSelectedIds()
+      const ids = this._RbList.getSelectedIds()
       if (ids.length >= 1) {
         location.hash = '!/View/' + entity[0] + '/' + ids[0]
         RbViewModal.create({ id: ids[0], entity: entity[0] })
@@ -556,17 +559,17 @@ const RbListPage = {
     })
     $('.J_assign').click(() => {
       if ($('.J_assign').attr('disabled')) return
-      let ids = this._RbList.getSelectedIds()
+      const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgAssign.create({ entity: entity[0], ids: ids })
     })
     $('.J_share').click(() => {
       if ($('.J_share').attr('disabled')) return
-      let ids = this._RbList.getSelectedIds()
+      const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgShare.create({ entity: entity[0], ids: ids })
     })
     $('.J_unshare').click(() => {
       if ($('.J_unshare').attr('disabled')) return
-      let ids = this._RbList.getSelectedIds()
+      const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
     $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
@@ -608,7 +611,7 @@ const AdvFilters = {
       this.showAdvFilter(null, this.current)
       this.current = null
     })
-    let $all = $('.adv-search .dropdown-item:eq(0)')  // All
+    const $all = $('.adv-search .dropdown-item:eq(0)')
     $all.click(() => this.__effectFilter($all, 'aside'))
 
     this.loadFilters()
@@ -621,16 +624,16 @@ const AdvFilters = {
     $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function (res) {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
-      let $menu = $('.adv-search .dropdown-menu')
+      const $menu = $('.adv-search .dropdown-menu')
       $(res.data).each(function () {
         const _data = this
-        let item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo($menu)
+        const item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo($menu)
         item.click(() => that.__effectFilter(item, 'aside'))
         if (dFilter === _data.id) dFilterItem = item
 
         // 可修改
         if (_data.editable) {
-          let action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
+          const action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
           action.find('a:eq(0)').click(function () {
             that.showAdvFilter(_data.id)
             $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
@@ -661,7 +664,7 @@ const AdvFilters = {
 
       // ASIDE
       if ($('#asideFilters').length > 0) {
-        let ghost = $('.adv-search .dropdown-menu').clone()
+        const ghost = $('.adv-search .dropdown-menu').clone()
         ghost.removeAttr('class')
         ghost.removeAttr('style')
         ghost.removeAttr('data-ps-id')
@@ -683,7 +686,7 @@ const AdvFilters = {
     this.current = item.data('id')
     $('.adv-search .J_name').text(item.find('>a').text())
     if (rel === 'aside') {
-      let current_id = this.current
+      const current_id = this.current
       $('#asideFilters .dropdown-item').removeClass('active').each(function () {
         if ($(this).data('id') === current_id) {
           $(this).addClass('active')
@@ -699,9 +702,10 @@ const AdvFilters = {
   showAdvFilter(id, copyId) {
     const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
     if (!id) {
-      if (this.__customAdv) this.__customAdv.show()
-      else {
-        let that = this
+      if (this.__customAdv) {
+        this.__customAdv.show()
+      } else {
+        const that = this
         if (copyId) {
           this.__getFilter(copyId, (res) => {
             renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () { that.__customAdv = this })
@@ -737,7 +741,7 @@ const AdvFilters = {
 
 // init
 $(document).ready(() => {
-  let gs = $urlp('gs', location.hash)
+  const gs = $urlp('gs', location.hash)
   if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
   if (wpc.entity) {
     RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
@@ -749,6 +753,7 @@ $(document).ready(() => {
 
 // ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
@@ -781,26 +786,24 @@ class RbViewModal extends React.Component {
       that.setState({ inLoad: true, isHide: true })
       if (!$keepModalOpen()) location.hash = '!/View/'
 
-      // SubView
+      // SubView 子视图不保持
       if (that.state.disposeOnHide === true) {
         $root.modal('dispose')
         that.setState({ isDestroy: true }, () => {
           RbViewModal.holder(that.state.id, 'DISPOSE')
           $unmount(rootWrap)
-          // 刷新主实体窗口
-          // 打开的子View窗口数据发生了变化（如删除/更新）
         })
       }
 
     }).on('shown.bs.modal', function () {
       mc.css('margin-right', 0)
       if (that.__urlChanged === false) {
-        let cw = mc.find('iframe')[0].contentWindow
+        const cw = mc.find('iframe')[0].contentWindow
         if (cw.RbViewPage && cw.RbViewPage._RbViewForm) cw.RbViewPage._RbViewForm.showAgain(that)
         this.__urlChanged = true
       }
 
-      let mcs = $('body>.modal-backdrop.show')
+      const mcs = $('body>.modal-backdrop.show')
       if (mcs.length > 1) {
         mcs.addClass('o')
         mcs.eq(0).removeClass('o')
@@ -850,13 +853,16 @@ class RbViewModal extends React.Component {
       if (this.__HOLDER) {
         this.__HOLDER.show(viewUrl)
         this.__HOLDERs[props.id] = this.__HOLDER
-      } else renderRbcomp(<RbViewModal url={viewUrl} />, null, function () {
-        that.__HOLDER = this
-        that.__HOLDERs[props.id] = this
-      })
+      } else {
+        renderRbcomp(<RbViewModal url={viewUrl} />, null, function () {
+          that.__HOLDER = this
+          that.__HOLDERs[props.id] = this
+        })
+      }
     }
   }
   /**
+   * 获取视图
    * @param {*} id 
    * @param {*} action [DISPOSE|HIDE|LOADING]
    */
@@ -865,6 +871,16 @@ class RbViewModal extends React.Component {
     if (action === 'HIDE') this.__HOLDERs[id] && this.__HOLDERs[id].hide()
     if (action === 'LOADING') this.__HOLDERs[id] && this.__HOLDERs[id].showLoading()
     else return this.__HOLDERs[id]
+  }
+  /**
+   * 主视图
+   */
+  static holderMain(reload) {
+    if (reload && this.__HOLDER) {
+      this.__HOLDER.showLoading()
+      this.__HOLDER._iframe.contentWindow.location.reload()
+    }
+    return this.__HOLDER
   }
 }
 
@@ -905,7 +921,7 @@ const ChartsWidget = {
   },
 
   renderChart: function (chart, append) {
-    let $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
+    const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
     // eslint-disable-next-line no-undef
     renderRbcomp(detectChart(chart, chart.chart), $w, function () {
       if (append) ChartsWidget.saveWidget()
@@ -921,7 +937,7 @@ const ChartsWidget = {
   },
 
   saveWidget: function () {
-    let charts = this.__currentCharts(true)
+    const charts = this.__currentCharts(true)
     $.post(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
       ChartsWidget.__config.id = res.data
       $('.page-aside .tab-content').perfectScrollbar('update')
@@ -929,9 +945,9 @@ const ChartsWidget = {
   },
 
   __currentCharts: function (o) {
-    let charts = []
+    const charts = []
     $('.charts-wrap>div').each((function () {
-      let id = $(this).attr('id').substr(6)
+      const id = $(this).attr('id').substr(6)
       if (o) charts.push({ chart: id })
       else charts.push(id)
     }))
@@ -954,7 +970,7 @@ $(document).ready(() => {
   // ASIDE
   if ($('#asideFilters, #asideWidgets').length > 0) {
     $('.side-toggle').click(() => {
-      let el = $('.rb-aside').toggleClass('rb-aside-collapsed')
+      const el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', el.hasClass('rb-aside-collapsed'), { expires: 180 })
     })
     // 默认不展开（由后台处理，避免页面闪动）
@@ -1015,7 +1031,7 @@ class BatchOperator extends RbFormHandler {
   }
 
   getQueryData() {
-    let qd = this.props.listRef.getLastQueryData()
+    const qd = this.props.listRef.getLastQueryData()
     if (~~this.state.dataRange === 1) qd._selected = this.props.listRef.getSelectedIds(true).join('|')
     return qd
   }
@@ -1038,8 +1054,7 @@ class DataExport extends BatchOperator {
     $.post(`${rb.baseUrl}/app/${this.props.entity}/data-export/submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        let url = `${rb.baseUrl}/filex/download/${res.data}?temp=yes`
-        window.open(url)
+        window.open(`${rb.baseUrl}/filex/download/${res.data}?temp=yes`)
       } else {
         this.disabled(false)
         RbHighbar.error(res.error_msg)
@@ -1092,30 +1107,27 @@ class BatchUpdate extends BatchOperator {
   }
 
   _fieldLabel(fieldName) {
-    let field = this.state.fields.find((item) => { return fieldName === item.name })
+    const field = this.state.fields.find((item) => { return fieldName === item.name })
     return field ? field.label : `[${fieldName}.toUpperCase()]`
   }
 
   addItem = () => {
-    let item = this._editor.buildItem()
+    const item = this._editor.buildItem()
     if (!item) return
 
-    let contents = this.state.updateContents || []
-    $(contents).each(function () {
-      if (item.field === this.field) {
-        RbHighbar.create('修改字段已经存在')
-        item = null
-        return false
-      }
-    })
-    if (!item) return
+    const contents = this.state.updateContents || []
+    const found = contents.find((x) => { return item.field === x.field })
+    if (found) {
+      RbHighbar.create('修改字段已经存在')
+      return
+    }
 
     contents.push(item)
     this.setState({ updateContents: contents })
   }
 
   removeItem(fieldName) {
-    let contents = []
+    const contents = []
     this.state.updateContents.forEach((item) => {
       if (fieldName !== item.field) contents.push(item)
     })
@@ -1124,18 +1136,18 @@ class BatchUpdate extends BatchOperator {
 
   confirm = () => {
     if (!this.state.updateContents || this.state.updateContents.length === 0) { RbHighbar.create('请添加修改内容'); return }
-    let _data = { queryData: this.getQueryData(), updateContents: this.state.updateContents }
+    const _data = { queryData: this.getQueryData(), updateContents: this.state.updateContents }
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
-    let that = this
+    const that = this
     RbAlert.create('请再次确认修改数据范围和修改内容。开始修改吗？', {
       confirm: function () {
         this.hide()
         that.disabled(true)
         $.post(`${rb.baseUrl}/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            let mp = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
+            const mp = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
             that.__checkState(res.data, mp)
           } else {
             that.disabled(false)
@@ -1155,7 +1167,7 @@ class BatchUpdate extends BatchOperator {
           return
         }
 
-        let cp = res.data.progress
+        const cp = res.data.progress
         if (cp >= 1) {
           mp && mp.end()
           $(this._btns).find('.btn-primary').text('修改成功')
@@ -1179,22 +1191,22 @@ class BatchUpdateEditor extends React.Component {
   state = { ...this.props, selectOp: 'SET' }
 
   componentDidMount() {
-    let fieldS2 = $(this._field).select2({
+    const field2s = $(this._field).select2({
       allowClear: false
     }).on('change', () => {
-      this.setState({ selectField: fieldS2.val() })
+      this.setState({ selectField: field2s.val() })
     })
-    let opS2 = $(this._op).select2({
+    const op2s = $(this._op).select2({
       allowClear: false
     }).on('change', () => {
-      this.setState({ selectOp: opS2.val() })
+      this.setState({ selectOp: op2s.val() })
     })
-    fieldS2.trigger('change')
-    this.__select2 = [fieldS2, opS2]
+    field2s.trigger('change')
+    this.__select2 = [field2s, op2s]
   }
 
   componentWillUnmount() {
-    this.__select2.forEach((item) => { item.select2('destroy') })
+    this.__select2.forEach((item) => item.select2('destroy'))
     this.__select2 = null
     this.__destroyLastValueComp()
   }
@@ -1239,7 +1251,7 @@ class BatchUpdateEditor extends React.Component {
         })}
       </select>
     } else {
-      return <input className="form-control form-control-sm" placeholder={`输入${field.label}`} ref={(c) => this._value = c} key={fieldKey} />
+      return <input className="form-control form-control-sm" placeholder="新值" ref={(c) => this._value = c} key={fieldKey} maxLength="255" />
     }
   }
 
@@ -1271,7 +1283,7 @@ class BatchUpdateEditor extends React.Component {
         })
       } else {
         this.__lastSelect2 = $(this._value).select2({
-          placeholder: `选择${field.label}`
+          placeholder: '新值'
         })
       }
       this.__lastSelect2.val(null).trigger('change')
@@ -1294,7 +1306,7 @@ class BatchUpdateEditor extends React.Component {
   }
 
   buildItem() {
-    let item = { field: this.state.selectField, op: this.state.selectOp }
+    const item = { field: this.state.selectField, op: this.state.selectOp }
     const field = this.props.fields.find((item) => { return this.state.selectField === item.name })
     if (item.op === 'NULL') {
       if (!field.nullable) {
@@ -1310,7 +1322,6 @@ class BatchUpdateEditor extends React.Component {
       RbHighbar.create('修改值不能为空')
       return null
     }
-
 
     if (field.type === 'MULTISELECT') {
       let maskTotal = 0
@@ -1342,7 +1353,7 @@ class BatchUpdateEditor extends React.Component {
     }
 
     if (this._value.tagName === 'SELECT') {
-      let texts = $(this._value).select2('data').map((o) => { return o.text })
+      const texts = $(this._value).select2('data').map((o) => { return o.text })
       item.text = texts.join(', ')
       $(this._value).val(null).trigger('change')
     } else {

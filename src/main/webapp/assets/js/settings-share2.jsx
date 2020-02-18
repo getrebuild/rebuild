@@ -1,13 +1,15 @@
 /* eslint-disable react/prop-types */
+
 class _ChangeHandler extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
   }
 
   handleChange = (e) => {
-    let target = e.target
-    let val = target.type === 'checkbox' ? target.checked : target.value
+    const target = e.target
+    const val = target.type === 'checkbox' ? target.checked : target.value
     let s = {}
     s[target.name] = val
     this.setState(s)
@@ -20,6 +22,7 @@ const SHARE_SELF = 'SELF'
 // ~~ 共享组件
 // eslint-disable-next-line no-unused-vars
 class Share2 extends _ChangeHandler {
+
   constructor(props) {
     super(props)
     if (props.shareTo && props.shareTo !== SHARE_SELF) this.state.shared = true
@@ -50,18 +53,19 @@ class Share2 extends _ChangeHandler {
   }
 
   showSwitch = () => {
-    let that = this
+    const that = this
     if (that.__switch) that.__switch.show()
     else renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} entity={this.props.entity} id={this.props.id} />, null, function () { that.__switch = this })
   }
 
   showSettings = () => {
     event.preventDefault()
-    let that = this
+    const that = this
     if (that.__settings) that.__settings.show()
     else renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} noName={this.props.noSwitch} />, null, function () { that.__settings = this })
     return false
   }
+
   showSettingsCall = (data) => {
     this.setState({ ...data, shared: true })
   }
@@ -76,6 +80,7 @@ class Share2 extends _ChangeHandler {
 
 // ~~ 多配置切换
 class Share2Switch extends _ChangeHandler {
+
   constructor(props) {
     super(props)
   }
@@ -96,7 +101,7 @@ class Share2Switch extends _ChangeHandler {
   }
 
   renderContent() {
-    let list = this.props.list || []
+    const list = this.props.list || []
     return <div className="rb-scroller" ref={s => this._scrollbar = s}>
       <ul className="list-unstyled nav-list">
         {list.map((item) => {
@@ -119,6 +124,7 @@ class Share2Switch extends _ChangeHandler {
 
 // ~~ 配置共享
 class Share2Settings extends Share2Switch {
+
   constructor(props) {
     super(props)
   }
@@ -153,19 +159,20 @@ class Share2Settings extends Share2Switch {
   }
 
   getData() {
-    let s = this._selector.getSelected()
+    const s = this._selector.getSelected()
     return {
       configName: this.state.configName,
       shareTo: s.length > 0 ? s.join(',') : SHARE_ALL
     }
   }
+
   checkData = () => {
     this.hide()
     typeof this.props.call === 'function' && this.props.call(this.getData())
   }
 
   delete = () => {
-    let id = this.props.id
+    const id = this.props.id
     RbAlert.create('确认删除此配置？', {
       confirm: function () {
         this.disabled(true)
@@ -173,4 +180,28 @@ class Share2Settings extends Share2Switch {
       }
     })
   }
+}
+
+// 普通用户切换设置
+// eslint-disable-next-line no-unused-vars
+const renderSwitchButton = (data, title, current) => {
+  if (!data || data.length === 0) return null
+  const comp = (
+    <div className="float-left">
+      <div className="btn-group">
+        <button type="button" className="btn btn-link" data-toggle="dropdown"><i className="zmdi zmdi-swap-vertical icon"></i> {`切换${title}`}</button>
+        <div className="dropdown-menu">
+          {data.map((x) => {
+            let name = x[1] || '未命名'
+            if (x[3] === rb.currentUser) name = `我的${title}`
+            else name += ' (共享的)'
+            if (current && current === x[0]) name += ' [当前]'
+            return <a key={`sw-${x[0]}`} className="dropdown-item" href={`?id=${x[0]}${x[4] ? (`&entity=${x[4]}`) : ''}`}>{name}</a>
+          })
+          }
+        </div>
+      </div>
+    </div>
+  )
+  renderRbcomp(comp, 'shareTo')
 }

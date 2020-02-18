@@ -19,15 +19,15 @@
 <style type="text/css">
 .block{max-width:1000px;padding:0 14px;margin:30px auto 0;}
 .error{background-color:#ea4335;color:#fff;padding:18px 0;}
-.error a{color:#fff;text-decoration:underline;}
+.error a{color:#fff}
 </style>
 </head>
 <body>
-<% if (!ServerStatus.isStatusOK()) { %>
+<% if (!ServerStatus.isStatusOK() || !Application.serversReady()) { %>
 <div class="error">
 <div class="block mt-0">
 	<h2 class="mt-0">系统故障</h2>
-	<div>部分服务未能正常启动，请通过快速检查列表排除故障，故障排除后重启服务。你也可以获取 <a href="https://getrebuild.com/">技术支持</a></div>
+	<div>服务未能正常启动，请通过快速检查列表排除故障，故障排除后请重启服务。你也可以 <a href="https://getrebuild.com/report-issue?title=boot-error" target="_blank">报告此问题</a></div>
 </div>
 </div>
 <% } %>
@@ -35,9 +35,13 @@
 	<h5 class="text-bold">快速检查</h5>
 	<table class="table table-bordered table-sm table-hover">
 	<tbody>
+        <tr>
+            <th width="30%">Master Service</th>
+            <td class="text-danger"><%=Application.serversReady() ? "<span class='text-success'>OK<span>" : "启动失败"%></td>
+        </tr>
 		<% for (Status s : ServerStatus.getLastStatus()) { %>
 		<tr>
-			<th width="30%"><%=s.name%></th>
+			<th><%=s.name%></th>
 			<td class="text-danger"><%=s.success ? "<span class='text-success'>OK<span>" : ("ERROR : " + s.error)%></td>
 		</tr>
 		<% } %>
@@ -92,7 +96,7 @@
 <% } %>
 <div class="block">
 	<div class="text-muted">
-		&copy; 2019 <a href="https://getrebuild.com/?utm_source=rebuild">REBUILD</a>
+		&copy; 2020 <a href="https://getrebuild.com/?utm_source=rebuild">REBUILD</a>
 		<% if (AppUtils.getRequestUser(request) != null) { %>
 		&nbsp;·&nbsp;
 		<a href="server-status.json">Status Api</a>

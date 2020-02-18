@@ -63,9 +63,10 @@ class DataList extends React.Component {
     }
     let q = {
       entity: 'RecycleBin',
+      equation: 'AND',
       items: qs
     }
-    this._List.search(JSON.stringify(q), true)
+    this._List.search(JSON.stringify(q))
   }
 
   restore() {
@@ -74,7 +75,7 @@ class DataList extends React.Component {
 
     const that = this
     let cont = `<div class="text-bold mb-2">是否恢复选中的 ${ids.length} 条记录？</div>`
-    cont += '<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"> 同时恢复级联删除的记录</span></label>'
+    cont += '<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2"><input class="custom-control-input" type="checkbox"><span class="custom-control-label"> 同时恢复关联删除的记录 (如有)</span></label>'
     RbAlert.create(cont, {
       html: true,
       confirm: function () {

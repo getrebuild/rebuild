@@ -64,7 +64,8 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
      * @param record
      */
     public ReportGenerator(ID reportId, ID record) {
-        this(DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(record.getEntityCode()), reportId), record);
+        this(DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(record.getEntityCode()),
+                reportId), record);
     }
 
     /**

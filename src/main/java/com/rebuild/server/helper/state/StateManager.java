@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.state;
 
 import cn.devezhao.persist4j.Field;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -65,7 +66,8 @@ public class StateManager {
         final String cKey = "STATECLASS-" + stateClass;
         JSONArray options = (JSONArray) Application.getCommonCache().getx(cKey);
         if (options != null) {
-            return options;
+            // 使用副本
+            return JSON.parseArray(options.toJSONString());
         }
 
         Class<?> state = StateHelper.getSatetClass(stateClass);

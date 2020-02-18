@@ -103,7 +103,7 @@ public class MaxBackupIndexDailyRollingFileAppender extends DailyRollingFileAppe
 	/**
 	 * Sort max > min
 	 */
-	static class CompratorByLastModified implements Comparator<File> {
+	public static class CompratorByLastModified implements Comparator<File> {
 		@Override
 		public int compare(File a, File b) {
 			long d = a.lastModified() - b.lastModified();

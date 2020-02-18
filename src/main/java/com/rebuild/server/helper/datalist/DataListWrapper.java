@@ -133,7 +133,7 @@ public class DataListWrapper {
                             nameValue = StringUtils.EMPTY;
                         }
                     }
-                    ((ID) value).setLabel(nameValue.toString());
+                    ((ID) value).setLabel(nameValue);
                 }
 
                 row[colIndex] = wrapFieldValue(value, field);

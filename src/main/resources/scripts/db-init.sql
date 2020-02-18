@@ -315,14 +315,15 @@ create table if not exists `attachment` (
   `FILE_TYPE`          varchar(20),
   `FILE_SIZE`          int(11) default '0' comment 'in bytes',
   `IN_FOLDER`          char(20),
+  `IS_DELETED`         char(1) default 'F' comment '标记删除',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   primary key  (`ATTACHMENT_ID`),
-  index IX0_attachment (`BELONG_ENTITY`, `BELONG_FIELD`, `FILE_PATH`),
-  index IX1_attachment (`RELATED_RECORD`),
-  index IX2_attachment (`IN_FOLDER`, `CREATED_ON`)
+  index IX0_attachment (`BELONG_ENTITY`, `BELONG_FIELD`, `FILE_PATH`, `IS_DELETED`),
+  index IX1_attachment (`IN_FOLDER`, `CREATED_ON`, `FILE_PATH`),
+  index IX2_attachment (`RELATED_RECORD`)
 )Engine=InnoDB;
 
 -- ************ Entity [AttachmentFolder] DDL ************
@@ -498,6 +499,7 @@ create table if not exists `feeds` (
   `FEEDS_ID`           char(20) not null,
   `TYPE`               smallint(6) not null default '1' comment '类型',
   `CONTENT`            text(3000) not null comment '内容',
+  `CONTENT_MORE`       text(3000) comment '不同类型的扩展内容, JSON格式KV',
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
@@ -588,4 +590,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  VALUES ('021-9000000000000001', 'DBVer', 18);
+  VALUES ('021-9000000000000001', 'DBVer', 20);

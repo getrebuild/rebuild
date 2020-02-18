@@ -30,6 +30,7 @@ import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
 import com.rebuild.server.RebuildException;
 import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,8 +50,12 @@ import java.util.UUID;
 public class QiniuCloud {
 
 	private static final Log LOG = LogFactory.getLog(QiniuCloud.class);
-	
-	private final Configuration CONFIGURATION = new Configuration(Region.autoRegion());
+
+    /**
+     * 默认配置
+     */
+	public static final Configuration CONFIGURATION = new Configuration(Region.autoRegion());
+
 	private final UploadManager UPLOAD_MANAGER = new UploadManager(CONFIGURATION);
 	
 	private Auth auth;
@@ -70,7 +75,6 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public boolean available() {
-//		return false;  // TEST
 		return this.auth != null;
 	}
 	
@@ -111,7 +115,7 @@ public class QiniuCloud {
 		try {
 			return upload(tmp);
 		} finally {
-			tmp.delete();
+            FileUtils.deleteQuietly(tmp);
 		}
 	}
 	
@@ -156,7 +160,7 @@ public class QiniuCloud {
 	protected boolean delete(String key) {
 		Assert.notNull(auth, "云存储账户未配置");
 		BucketManager bucketManager = new BucketManager(auth, CONFIGURATION);
-		Response resp = null;
+		Response resp;
 		try {
 			resp = bucketManager.delete(this.bucketName, key);
 			if (resp.isOK()) {

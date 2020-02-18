@@ -26,6 +26,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.datareport.ReportGenerator;
 import com.rebuild.server.business.datareport.TemplateExtractor;
 import com.rebuild.server.configuration.DataReportManager;
+import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
@@ -114,12 +115,18 @@ public class DataReportControll extends BasePageControll {
                 entity.getPrimaryField().getName(), entity.getName());
         Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
-            response.sendError(400, "无法预览。未找到可用记录");
+            response.sendError(400, "无法预览。未找到可供预览的记录");
             return;
         }
 
-        File template = DataReportManager.instance.getTemplateFile(entity, reportId);
-        File file = new ReportGenerator(template, (ID) random[0]).generate();
+        File file;
+        try {
+            File template = DataReportManager.instance.getTemplateFile(entity, reportId);
+            file = new ReportGenerator(template, (ID) random[0]).generate();
+        } catch (ConfigurationException ex) {
+            response.sendError(400, "无法预览。报表模板不存在");
+            return;
+        }
 
         FileDownloader.setDownloadHeaders(request, response, file.getName());
         FileDownloader.writeLocalFile(file, response);

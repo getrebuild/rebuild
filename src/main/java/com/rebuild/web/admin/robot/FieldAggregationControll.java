@@ -21,7 +21,9 @@ package com.rebuild.web.admin.robot;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.server.business.trigger.impl.FieldAggregation;
 import com.rebuild.server.configuration.RobotApprovalManager;
+import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -36,9 +38,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -51,9 +51,9 @@ public class FieldAggregationControll extends BaseControll {
 	@RequestMapping("field-aggregation-entities")
 	public void getTargetEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		Entity sourceEntity = MetadataHelper.getEntity(getParameterNotNull(request, "source"));
+		boolean self = getBoolParameter(request, "self", true);
 		
 		List<String[]> entities = new ArrayList<>();
-		Map<String, Integer> hasMany = new HashMap<>();
 		for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
 			if (MetadataHelper.isApprovalField(refField.getName())) {
 				continue;
@@ -62,27 +62,13 @@ public class FieldAggregationControll extends BaseControll {
 			Entity refEntity = refField.getReferenceEntity();
 			String entityLabel = EasyMeta.getLabel(refEntity) + " (" + EasyMeta.getLabel(refField) + ")";
 			entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
-			
-			Integer many = hasMany.get(refEntity.getName());
-			if (many == null) {
-				many = 0;
-			}
-			hasMany.put(refEntity.getName(), many + 1);
 		}
-		
-		// 会出现同实体中多个字段引用同一实体的情况
-		// 只有一个引用则不显示字段名称
-		for (Map.Entry<String, Integer> e : hasMany.entrySet()) {
-			if (e.getValue() == 1) {
-				String entityName = e.getKey();
-				for (String[] item : entities) {
-					if (entityName.equals(item[0])) {
-						item[1] = EasyMeta.getLabel(MetadataHelper.getEntity(entityName));
-					}
-				}
-			}
-		}
-		
+
+		// 可归集到自己（通过主键字段）
+        if (self) {
+    		entities.add(new String[] { sourceEntity.getName(), EasyMeta.getLabel(sourceEntity), FieldAggregation.SOURCE_SELF});
+        }
+
 		writeSuccess(response, entities);
 	}
 	
@@ -91,20 +77,43 @@ public class FieldAggregationControll extends BaseControll {
 		Entity sourceEntity = MetadataHelper.getEntity(getParameterNotNull(request, "source"));
 		String target = getParameter(request, "target");
 		Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
-		
+
+		final DisplayType[] allowTypes = new DisplayType[] { DisplayType.NUMBER, DisplayType.DECIMAL };
+
 		List<String[]> sourceFields = new ArrayList<>();
 		List<String[]> targetFields = new ArrayList<>();
-		for (Field field : MetadataSorter.sortFields(sourceEntity.getFields(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
-			sourceFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
+
+		// 源字段
+
+		for (Field field : MetadataSorter.sortFields(sourceEntity.getFields(), allowTypes)) {
+			sourceFields.add(buildField(field, false));
 		}
-		if (targetEntity != null) {
-			for (Field field : MetadataSorter.sortFields(targetEntity.getFields(), DisplayType.NUMBER, DisplayType.DECIMAL)) {
-				targetFields.add(new String[] { field.getName(), EasyMeta.getLabel(field) });
+		// 关联实体
+		for (Field fieldRef : MetadataSorter.sortFields(sourceEntity.getFields(), DisplayType.REFERENCE)) {
+			String fieldRefName = fieldRef.getName() + ".";
+			String fieldRefLabel = EasyMeta.getLabel(fieldRef) + ".";
+			for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity(), allowTypes)) {
+				String[] build = buildField(field, false);
+				build[0] = fieldRefName + build[0];
+				build[1] = fieldRefLabel + build[1];
+				sourceFields.add(build);
 			}
 		}
 
-		boolean hadApproval = RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
-		
+		// 目标字段
+
+		if (targetEntity != null) {
+			for (Field field : MetadataSorter.sortFields(targetEntity.getFields(), allowTypes)) {
+				if (EasyMeta.valueOf(field).isBuiltin()) {
+					continue;
+				}
+				targetFields.add(buildField(field, false));
+			}
+		}
+
+		// 审批流程启用
+		boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
+
 		JSON data = JSONUtils.toJSONObject(
 				new String[] { "source", "target", "hadApproval" },
 				new Object[] {
@@ -112,5 +121,29 @@ public class FieldAggregationControll extends BaseControll {
 						targetFields.toArray(new String[targetFields.size()][]),
 						hadApproval});
 		writeSuccess(response, data);
+	}
+
+	/**
+	 * @param field
+	 * @return
+	 * @see com.rebuild.web.base.MetadataGetting#buildField(Field)
+	 */
+	protected static String[] buildField(Field field, boolean includesType) {
+		EasyMeta easyField = EasyMeta.valueOf(field);
+		if (!includesType) {
+			return new String[] { field.getName(), easyField.getLabel() };
+		}
+
+		DisplayType dt = easyField.getDisplayType();
+		String typeExt = null;
+		if (dt == DisplayType.REFERENCE) {
+			typeExt = field.getReferenceEntity().getName();
+		} else if (dt == DisplayType.STATE) {
+			typeExt = StateHelper.getSatetClass(field).getName();
+		} else if (dt == DisplayType.ID) {
+			dt = DisplayType.REFERENCE;
+			typeExt = field.getOwnEntity().getName();
+		}
+		return new String[] { field.getName(), easyField.getLabel(), dt.name(), typeExt };
 	}
 }

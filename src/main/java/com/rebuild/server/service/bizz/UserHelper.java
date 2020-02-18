@@ -186,6 +186,7 @@ public class UserHelper {
 		if (ms == null || ms.isEmpty()) {
 			return new Member[0];
 		}
+        // noinspection SuspiciousToArrayCall
         return ms.toArray(new Member[0]);
 	}
 	
@@ -244,9 +245,10 @@ public class UserHelper {
 			if (bizz.getEntityCode() == EntityHelper.User) {
 				users.add(bizz);
 			} else if (bizz.getEntityCode() == EntityHelper.Department || bizz.getEntityCode() == EntityHelper.Role) {
-				Member[] ms = UserHelper.getMembers(bizz);
+				Member[] ms = getMembers(bizz);
 				for (Member m : ms) {
-					users.add((ID) m.getIdentity());
+				    if (m.getIdentity().equals(UserService.SYSTEM_USER)) continue;
+				    users.add((ID) m.getIdentity());
 				}
 			}
 		}
@@ -366,7 +368,26 @@ public class UserHelper {
             users = list.toArray(new User[0]);
         }
 
-        Arrays.sort(users, Comparator.comparing(User::getFullName));
+        sortMembers(users);
         return users;
+    }
+
+    /**
+     * 成员排序
+     *
+     * @param members
+     * @return
+     */
+    public static Member[] sortMembers(Member[] members) {
+        if (members == null || members.length == 0) {
+            return new Member[0];
+        }
+
+        if (members[0] instanceof User) {
+            Arrays.sort(members, Comparator.comparing(o -> ((User) o).getFullName()));
+        } else {
+            Arrays.sort(members, Comparator.comparing(Member::getName));
+        }
+        return members;
     }
 }

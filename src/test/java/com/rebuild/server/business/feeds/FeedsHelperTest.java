@@ -23,6 +23,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,6 +34,11 @@ import java.util.Map;
  * @since 2019/11/7
  */
 public class FeedsHelperTest extends TestSupportWithUser {
+
+    @Override
+    protected ID getSessionUser() {
+        return SIMPLE_USER;
+    }
 
     @Test
     public void findMentions() {
@@ -46,12 +52,17 @@ public class FeedsHelperTest extends TestSupportWithUser {
         createComment(feedsId);
 
         int num = FeedsHelper.getNumOfComment(feedsId);
-        Assert.assertTrue(num == 1);
+        Assert.assertEquals(1, num);
         Application.getService(EntityHelper.Feeds).delete(feedsId);
 
         FeedsHelper.isMyLike(feedsId, SIMPLE_USER);
         FeedsHelper.getNumOfLike(feedsId);
         FeedsHelper.checkReadable(feedsId, SIMPLE_USER);
+    }
+
+    @Test
+    public void formatContent() {
+        FeedsHelper.formatContent("123 @" + UserService.ADMIN_USER);
     }
 
     private ID createFeeds() {
@@ -60,10 +71,10 @@ public class FeedsHelperTest extends TestSupportWithUser {
         return Application.getService(EntityHelper.Feeds).create(feeds).getPrimary();
     }
 
-    private ID createComment(ID feedsId) {
+    private void createComment(ID feedsId) {
         Record comment = EntityHelper.forNew(EntityHelper.FeedsComment, SIMPLE_USER);
         comment.setString("content", "你好，测试评论");
         comment.setID("feedsId", feedsId);
-        return Application.getService(EntityHelper.FeedsComment).create(comment).getPrimary();
+        Application.getService(EntityHelper.FeedsComment).create(comment).getPrimary();
     }
 }
