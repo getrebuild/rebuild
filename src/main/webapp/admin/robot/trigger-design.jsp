@@ -68,9 +68,9 @@
 											<input class="custom-control-input" type="checkbox" value="128">
 											<span class="custom-control-label"> 审批通过时</span>
 										</label>
-										<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
+										<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 											<input class="custom-control-input" type="checkbox" value="256">
-											<span class="custom-control-label"> 撤回重审时 <i class="zmdi zmdi-help zicon down-1" title="审批通过后管理员可以撤回" data-toggle="tooltip"></i></span>
+											<span class="custom-control-label"> 审批撤销时 <i class="zmdi zmdi-help zicon down-1" title="审批通过后管理员可以撤销重审" data-toggle="tooltip"></i></span>
 										</label>
 									</div>
 								</div>

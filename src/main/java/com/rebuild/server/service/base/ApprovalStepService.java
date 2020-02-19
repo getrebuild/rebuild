@@ -254,9 +254,16 @@ public class ApprovalStepService extends BaseService {
 		step.setString("prevNode", currentNode);
 		super.create(step);
 
-		Record main = EntityHelper.forUpdate(recordId, opUser);
+		final Record main = EntityHelper.forUpdate(recordId, opUser);
 		main.setInt(EntityHelper.ApprovalState, useState.getState());
 		super.update(main);
+
+		// 触发器
+		if (isRevoke) {
+			Record before = main.clone();
+			before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
+			new RobotTriggerManual().onRevoked(OperatingContext.create(opUser, BizzPermission.UPDATE, before, main));
+		}
 	}
 
 	/**
