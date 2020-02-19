@@ -20,6 +20,7 @@ package com.rebuild.server.business.approval;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.base.ApprovalStepService;
 import org.springframework.util.Assert;
@@ -54,11 +55,16 @@ public class ApprovalHelper {
     }
 
     /**
-     * @param record
-     * @return returns [ApprovalId, ApprovalName, ApprovalState]
+     * @param recordId
+     * @return Returns [ApprovalId, ApprovalName, ApprovalState, ApprovalStepNode]
+     * @throws NoRecordFoundException
      */
-    public static Object[] getApprovalStates(ID record) {
-        return Application.getQueryFactory().uniqueNoFilter(record,
-                EntityHelper.ApprovalId, EntityHelper.ApprovalId + ".name", EntityHelper.ApprovalState);
+    public static Object[] getApprovalState(ID recordId) throws NoRecordFoundException {
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
+                EntityHelper.ApprovalId, EntityHelper.ApprovalId + ".name", EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode);
+        if (o == null) {
+            throw new NoRecordFoundException("记录不存在或你无权查看");
+        }
+        return o;
     }
 }

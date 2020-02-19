@@ -105,7 +105,7 @@ public class ApprovalControll extends BasePageControll {
 				}
 			}
 
-			// 审批中提交人可撤销
+			// 审批中提交人可撤回
 			if (stateVal == ApprovalState.PROCESSING.getState()) {
 				ID submitter = ApprovalHelper.getSubmitter(recordId);
 				if (user.equals(submitter)) {
@@ -214,9 +214,19 @@ public class ApprovalControll extends BasePageControll {
 	@RequestMapping("cancel")
 	public void doCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID recordId = getIdParameterNotNull(request, "record");
-
 		try {
 			new ApprovalProcessor(recordId).cancel();
+			writeSuccess(response);
+		} catch (ApprovalException ex) {
+			writeFailure(response, ex.getMessage());
+		}
+	}
+
+	@RequestMapping("revoke")
+	public void doRevoke(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		ID recordId = getIdParameterNotNull(request, "record");
+		try {
+			new ApprovalProcessor(recordId).revoke();
 			writeSuccess(response);
 		} catch (ApprovalException ex) {
 			writeFailure(response, ex.getMessage());

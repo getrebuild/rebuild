@@ -36,7 +36,7 @@ import com.rebuild.server.service.notification.MessageBuilder;
 import java.util.Set;
 
 /**
- * 审批流程。
+ * 审批流程。此类所有方法不应直接调用，而是通过 ApprovalProcessor
  *
  * isWaiting - 因为会签的关系还不能进入下一步审批，因此需要等待。待会签完毕，此值将更新为 true
  * isCanceled - 是否作废。例如或签中，一人同意其他即作废
@@ -201,15 +201,14 @@ public class ApprovalStepService extends BaseService {
 		// 最终状态
 		if (goNextNode && (nextApprovers == null || nextNode == null)) {
 			// 审批通过
-			Record main = EntityHelper.forUpdate(recordId, approver, false);
+			final Record main = EntityHelper.forUpdate(recordId, approver, false);
 			main.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
 			super.update(main);
 
 			// 触发器
-			Record after = main;
-			Record before = after.clone();
+			Record before = main.clone();
 			before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-			new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, after));
+			new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, main));
 
 			return;
 		}
@@ -235,27 +234,31 @@ public class ApprovalStepService extends BaseService {
 	}
 
 	/**
+	 * 撤回/撤销（针对审批完成的）
+	 *
 	 * @param recordId
 	 * @param approvalId
 	 * @param currentNode
+	 * @param isRevoke
 	 */
-	public void txCancel(ID recordId, ID approvalId, String currentNode) {
-		final ID canceller = Application.getCurrentUser();
+	public void txCancel(ID recordId, ID approvalId, String currentNode, boolean isRevoke) {
+		final ID opUser = Application.getCurrentUser();
+		final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
 
-		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, canceller);
+		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
 		step.setID("recordId", recordId);
 		step.setID("approvalId", approvalId);
-		step.setID("approver", canceller);
-		step.setInt("state", ApprovalState.CANCELED.getState());
-		step.setString("node", FlowNode.NODE_CANCELED);
+		step.setID("approver", opUser);
+		step.setInt("state", useState.getState());
+		step.setString("node", isRevoke ? FlowNode.NODE_REVOKED : FlowNode.NODE_CANCELED);
 		step.setString("prevNode", currentNode);
 		super.create(step);
 
-		Record main = EntityHelper.forUpdate(recordId, canceller);
-		main.setInt(EntityHelper.ApprovalState, ApprovalState.CANCELED.getState());
+		Record main = EntityHelper.forUpdate(recordId, opUser);
+		main.setInt(EntityHelper.ApprovalState, useState.getState());
 		super.update(main);
 	}
-	
+
 	/**
 	 * @param recordId
 	 * @param approvalId

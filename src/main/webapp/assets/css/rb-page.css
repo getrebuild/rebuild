@@ -2422,7 +2422,8 @@ form {
     background-color: #ea3f30;
 }
 
-.timeline.approved-steps .timeline-item.state12:before {
+.timeline.approved-steps .timeline-item.state12:before,
+.timeline.approved-steps .timeline-item.state13:before {
     border-color: #f7b904;
     background-color: #f7b904;
 }
@@ -2473,9 +2474,9 @@ form {
     color: #777;
     border-radius: 50px;
     padding: 2px 6px;
-    width: 40px;
+    width: 50px;
     font-size: 12px;
-    margin-left: -52px;
+    margin-left: -57px;
     margin-top: 8px;
     text-align: center;
 }
