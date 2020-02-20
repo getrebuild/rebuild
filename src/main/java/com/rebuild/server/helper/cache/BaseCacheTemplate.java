@@ -21,26 +21,31 @@ package com.rebuild.server.helper.cache;
 import cn.devezhao.commons.ThrowableUtils;
 import com.rebuild.server.Application;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.cache.CacheManager;
+import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.Serializable;
 
 /**
- * 
+ * 缓存模板
+ *
  * @author devezhao
  * @since 01/02/2019
  */
 public abstract class BaseCacheTemplate<V extends Serializable> implements CacheTemplate<V> {
 
 	/**
-	 * 默认缓存时间（90d）
+	 * 默认缓存时间（90天）
 	 */
-	public static final int DEF_CACHE_DAYS = 60 * 60 * 24 * 90;
+	private static final int TS_DEFAULT = 60 * 60 * 24 * 90;
 
 	final private CacheTemplate<V> delegate;
 	final private boolean useRedis;
+
+	final private String keyPrefix;
 
 	/**
 	 * @param jedisPool
@@ -50,60 +55,50 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 	protected BaseCacheTemplate(JedisPool jedisPool, CacheManager backup, String keyPrefix) {
 		this.useRedis = testJedisPool(jedisPool);
 		if (this.useRedis) {
-			this.delegate = new JedisCacheTemplate<>(jedisPool, keyPrefix);
+			this.delegate = new JedisCacheDriver<>(jedisPool);
 		} else {
-			this.delegate = new EhcacheTemplate<>(backup, keyPrefix);
+			this.delegate = new EhcacheDriver<>(backup);
 		}
+
+		String fix = StringUtils.defaultIfBlank(System.getProperty("cache.keyprefix"), "RB.");
+		this.keyPrefix = fix + StringUtils.defaultIfBlank(keyPrefix, StringUtils.EMPTY);
 	}
 	
-	/**
-	 * @param jedisPool
-	 * @param backup The ehcache for backup
-	 */
-	protected BaseCacheTemplate(JedisPool jedisPool, CacheManager backup) {
-		this(jedisPool, backup, null);
-	}
-
 	@Override
 	public String get(String key) {
-		return delegate.get(key);
+		return delegate.get(unityKey(key));
 	}
 
 	@Override
 	public void put(String key, String value) {
-		put(key, value, DEF_CACHE_DAYS);
+		this.put(key, value, TS_DEFAULT);
 	}
 
 	@Override
 	public void put(String key, String value, int seconds) {
-		delegate.put(key, value, seconds);
+		delegate.put(unityKey(key), value, seconds);
 	}
 
 	@Override
 	public V getx(String key) {
-		return delegate.getx(key);
+		return delegate.getx(unityKey(key));
 	}
 
 	@Override
 	public void putx(String key, V value) {
-		putx(key, value, DEF_CACHE_DAYS);
+		this.putx(key, value, TS_DEFAULT);
 	}
 
 	@Override
 	public void putx(String key, V value, int seconds) {
-		delegate.putx(key, value, seconds);
+		delegate.putx(unityKey(key), value, seconds);
 	}
 
 	@Override
 	public void evict(String key) {
-		delegate.evict(key);
+		delegate.evict(unityKey(key));
 	}
-	
-	@Override
-	public String getKeyPrefix() {
-		return delegate.getKeyPrefix();
-	}
-	
+
 	/**
 	 * @return
 	 */
@@ -118,10 +113,6 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 		return useRedis;
 	}
 	
-	/**
-	 * @param jedisPool
-	 * @return
-	 */
 	private boolean testJedisPool(JedisPool jedisPool) {
 		try {
 			Jedis jedis = jedisPool.getResource();
@@ -132,5 +123,10 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
                     + " !!! Using backup ehcache for " + getClass());
 		}
 		return false;
+	}
+
+	private String unityKey(String key) {
+		Assert.isTrue(StringUtils.isNotBlank(key), "[key] not be null");
+		return (keyPrefix + key).toLowerCase();
 	}
 }

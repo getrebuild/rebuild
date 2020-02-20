@@ -29,7 +29,7 @@ import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.server.helper.cache.EhcacheTemplate;
+import com.rebuild.server.helper.cache.EhcacheDriver;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
@@ -153,7 +153,7 @@ public final class Application {
 			addShutdownHook(new Thread("ehcache-persistent") {
 				@Override
 				public void run() {
-					((EhcacheTemplate<?>) ccache.getCacheTemplate()).shutdown();
+					((EhcacheDriver<?>) ccache.getCacheTemplate()).shutdown();
 				}
 			});
 		}

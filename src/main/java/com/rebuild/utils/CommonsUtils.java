@@ -22,12 +22,14 @@ import cn.devezhao.commons.excel.Cell;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -143,6 +145,7 @@ public class CommonsUtils {
 	public static String get(String url) throws IOException {
 		Request request = new Request.Builder()
 				.url(url)
+				.header("user-agent",  String.format("RB/%s (%s/%s)", Application.VER, SystemUtils.OS_NAME, SystemUtils.JAVA_SPECIFICATION_VERSION))
 				.build();
 
 		try (Response response = getHttpClient().newCall(request).execute()) {

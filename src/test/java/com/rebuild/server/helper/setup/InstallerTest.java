@@ -60,7 +60,7 @@ public class InstallerTest {
     }
 
     @Test
-    public void testLisence() throws Exception {
+    public void testLicense() throws Exception {
         License.queryAuthority();
     }
 }

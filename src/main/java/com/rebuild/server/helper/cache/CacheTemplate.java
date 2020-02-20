@@ -39,6 +39,4 @@ public interface CacheTemplate<V extends Serializable> {
 	void putx(String key, V value, int seconds);
 	
 	void evict(String key);
-	
-	String getKeyPrefix();
 }

@@ -24,8 +24,8 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.EhcacheTemplate;
-import com.rebuild.server.helper.cache.JedisCacheTemplate;
+import com.rebuild.server.helper.cache.EhcacheDriver;
+import com.rebuild.server.helper.cache.JedisCacheDriver;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.RequestWatchHandler;
@@ -111,11 +111,11 @@ public class AdminEntryControll extends BasePageControll {
 		// 清缓存
 		if ("CLEANCACHE".equals(command)) {
 			if (Application.getCommonCache().isUseRedis()) {
-				try (Jedis jedis = ((JedisCacheTemplate) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
+				try (Jedis jedis = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
 					jedis.flushAll();
 				}
 			} else {
-				((EhcacheTemplate) Application.getCommonCache().getCacheTemplate()).cache().clear();
+				((EhcacheDriver) Application.getCommonCache().getCacheTemplate()).cache().clear();
 			}
 			ServletUtils.write(response, "command:CLEANCACHE");
 		}

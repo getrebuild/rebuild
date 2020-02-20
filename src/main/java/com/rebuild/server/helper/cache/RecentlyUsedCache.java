@@ -26,7 +26,10 @@ import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.cache.CacheManager;
+import redis.clients.jedis.JedisPool;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -34,20 +37,18 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 最近使用的数据（引用搜索）
+ * 最近使用的数据（引用型字段搜索）
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/25
  */
-public class RecentlyUsedCache {
+public class RecentlyUsedCache extends BaseCacheTemplate<Serializable> {
 
 	// 最大缓存数量
 	private static final int MAXNUM_PRE_ENTITY = 50;
 	
-	final private CommonCache cacheManager;
-
-	protected RecentlyUsedCache(CommonCache commonCache) {
-		this.cacheManager = commonCache;
+	protected RecentlyUsedCache(JedisPool jedisPool, CacheManager cacheManager) {
+		super(jedisPool, cacheManager, "RS.");
 	}
 	
 	/**
@@ -76,9 +77,9 @@ public class RecentlyUsedCache {
 			return ID.EMPTY_ID_ARRAY;
 		}
 		
-		String key = formatKey(user, entity, type);
+		final String key = formatKey(user, entity, type);
 		@SuppressWarnings("unchecked")
-		LinkedList<ID> exists = (LinkedList<ID>) cacheManager.getx(key);
+		LinkedList<ID> exists = (LinkedList<ID>) getx(key);
 		if (exists == null) {
 			return ID.EMPTY_ID_ARRAY;
 		}
@@ -103,7 +104,7 @@ public class RecentlyUsedCache {
 		
 		if (!missed.isEmpty()) {
 			exists.removeAll(missed);
-			cacheManager.putx(key, exists);
+			putx(key, exists);
 		}
 		
 		return data.toArray(new ID[0]);
@@ -121,9 +122,9 @@ public class RecentlyUsedCache {
 			return;
 		}
 		
-		String key = formatKey(user, MetadataHelper.getEntityName(id), type);
+		final String key = formatKey(user, MetadataHelper.getEntityName(id), type);
 		@SuppressWarnings("unchecked")
-		LinkedList<ID> exists = (LinkedList<ID>) cacheManager.getx(key);
+		LinkedList<ID> exists = (LinkedList<ID>) getx(key);
 		if (exists == null) {
 			exists = new LinkedList<>();
 		} else {
@@ -134,7 +135,7 @@ public class RecentlyUsedCache {
 			exists.removeLast();
 		}
 		exists.addFirst(id);
-		cacheManager.putx(key, exists);
+		putx(key, exists);
 	}
 	
 	/**
@@ -145,16 +146,11 @@ public class RecentlyUsedCache {
 	 * @param type
 	 */
 	public void clean(ID user, String entity, String type) {
-		if (!isEnabled()) {
-			return;
-		}
-		
-		String key = formatKey(user, entity, type);
-		cacheManager.evict(key);
+		evict(formatKey(user, entity, type));
 	}
 	
 	private String formatKey(ID user, String entity, String type) {
-		return String.format("RSR.%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
+		return String.format("%s-%s-%s", user, entity, StringUtils.defaultIfBlank(type, StringUtils.EMPTY));
 	}
 	
 	private boolean isEnabled() {
