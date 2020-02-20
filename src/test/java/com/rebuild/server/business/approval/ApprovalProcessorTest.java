@@ -57,13 +57,16 @@ public class ApprovalProcessorTest extends TestSupportWithUser {
         processor.submit(null);
 
         // 审批
-        processor.approve(UserService.ADMIN_USER, ApprovalState.REJECTED, null, null);
+        processor.approve(UserService.ADMIN_USER, ApprovalState.APPROVED, null, null);
 
         // 当前节点
         System.out.println("CurrentStep : " + processor.getCurrentStep());
 
-        // 已审批
+        // 已审批节点
         System.out.println("WorkedSteps : " + processor.getWorkedSteps());
+
+        // 撤回
+        processor.cancel();
 
         Application.getBean(RobotApprovalConfigService.class).delete(approvalId);
     }

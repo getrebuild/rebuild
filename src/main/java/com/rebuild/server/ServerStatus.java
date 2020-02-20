@@ -60,6 +60,7 @@ public final class ServerStatus {
 			return Collections.unmodifiableList(LAST_STATUS);
 		}
 	}
+
 	/**
 	 * 服务是否正常
 	 * 
@@ -100,11 +101,12 @@ public final class ServerStatus {
 	 */
 	protected static Status checkDatabase() {
 		String name = "Database";
+		AesPreferencesConfigurer configurer = Application.getBean(AesPreferencesConfigurer.class);
 		try {
 			Connection c = DriverManager.getConnection(
-					Application.getBean(AesPreferencesConfigurer.class).getItem("db.url"), 
-					Application.getBean(AesPreferencesConfigurer.class).getItem("db.user"),
-					Application.getBean(AesPreferencesConfigurer.class).getItem("db.passwd"));
+					configurer.getItem("db.url"),
+					configurer.getItem("db.user"),
+					configurer.getItem("db.passwd"));
 			SqlHelper.close(c);
 		} catch (Exception ex) {
 			return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());

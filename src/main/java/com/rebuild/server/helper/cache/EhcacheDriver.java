@@ -25,29 +25,26 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
-import org.springframework.util.Assert;
 
 import java.io.Serializable;
 
 /**
- * Ehcache
+ * ehcache
  * 
  * @author devezhao
  * @since 01/02/2019
  */
-public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V> {
+public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
 
 	private CacheManager ehcacheManager;
-	private String keyPrefix;
-	
-	protected EhcacheTemplate(CacheManager ehcacheManager, String keyPrefix) {
+
+	protected EhcacheDriver(CacheManager ehcacheManager) {
 		this.ehcacheManager = ehcacheManager;
-		this.keyPrefix = keyPrefix == null ? "" : keyPrefix;
 	}
 	
 	@Override
 	public String get(String key) {
-		ValueWrapper w = cache().get(unityKey(key));
+		ValueWrapper w = cache().get(key);
 		return w == null ? null : (String) w.get();
 	}
 
@@ -58,7 +55,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 
 	@Override
 	public void put(String key, String value, int seconds) {
-		Element el = new Element(unityKey(key), value);
+		Element el = new Element(key, value);
 		if (seconds > -1) {
 			el.setTimeToLive(seconds);
 		}
@@ -68,7 +65,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 	@SuppressWarnings("unchecked")
 	@Override
 	public V getx(String key) {
-		ValueWrapper w = cache().get(unityKey(key));
+		ValueWrapper w = cache().get(key);
 		return w == null ? null : (V) w.get();
 	}
 
@@ -79,7 +76,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 
 	@Override
 	public void putx(String key, V value, int seconds) {
-		Element el = new Element(unityKey(key), value);
+		Element el = new Element(key, value);
 		if (seconds > -1) {
 			el.setTimeToLive(seconds);
 		}
@@ -88,8 +85,7 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 
 	@Override
 	public void evict(String key) {
-		String ckey = unityKey(key);
-		cache().evict(ckey);
+		cache().evict(key);
 	}
 	
 	/**
@@ -97,20 +93,6 @@ public class EhcacheTemplate<V extends Serializable> implements CacheTemplate<V>
 	 */
 	public Cache cache() {
 		return ehcacheManager.getCache("rebuild");
-	}
-	
-	@Override
-	public String getKeyPrefix() {
-		return keyPrefix;
-	}
-
-	/**
-	 * @param key
-	 * @return
-	 */
-	protected String unityKey(String key) {
-		Assert.notNull(key, "[key] not be null");
-		return (getKeyPrefix() + key).toLowerCase();
 	}
 	
 	/**

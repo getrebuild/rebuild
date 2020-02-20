@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,20 +36,42 @@ import java.util.UUID;
  */
 public final class License {
 
+    private static final String OSA_KEY = "IjkMHgq94T7s7WkP";
+
     /**
      * 授权码/SN
      *
      * @return
      */
     public static String SN() {
-        String SN = SysConfiguration.get(ConfigurableItem.SN, true);
+        String SN = SysConfiguration.get(ConfigurableItem.SN, false);
+        if (SN == null) {
+            SN = SysConfiguration.get(ConfigurableItem.SN, true);
+        }
+
+        if (SN == null) {
+            try {
+                String result = CommonsUtils.get(
+                        String.format("https://getrebuild.com/api/authority/new?k=%s&ver=%s", OSA_KEY, Application.VER));
+                if (JSONUtils.wellFormat(result)) {
+                    JSONObject data = JSON.parseObject(result);
+                    SN = data.getString("sn");
+                }
+            } catch (Exception ignored) {
+                // UNCATCHABLE
+            }
+        }
+
         if (SN == null) {
             SN = String.format("ZR%s%s-%s",
-                    "108",
+                    "109",
                     StringUtils.leftPad(Locale.getDefault().getCountry(), 3, "0"),
                     UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase());
-            SysConfiguration.set(ConfigurableItem.SN, SN);
+            if (Application.serversReady()) {
+                SysConfiguration.set(ConfigurableItem.SN, SN);
+            }
         }
+
         return SN;
     }
 
@@ -57,11 +81,11 @@ public final class License {
      * @return
      */
     public static JSON queryAuthority() {
-        JSON result = siteApi("authority/query");
+        JSON result = siteApi("api/authority/query");
         if (result == null) {
             result = JSONUtils.toJSONObject(
-                    new String[]{ "sn", "authType" },
-                    new String[]{ SN(), "开源社区版" });
+                    new String[]{ "sn", "authType", "autoObject", "authExpires" },
+                    new String[]{ SN(), "开源社区版", "GitHub", "无" });
         }
         return result;
     }
@@ -74,12 +98,11 @@ public final class License {
      */
     public static JSON siteApi(String api) {
         String apiUrl = "https://getrebuild.com/" + api;
-        apiUrl += api.contains("\\?") ? "&" : "?";
-        apiUrl += "k=IjkMHgq94T7s7WkP&sn=" + SN();
+        apiUrl += (api.contains("\\?") ? "&" : "?") + "k=" + OSA_KEY + "&sn=" + SN();
 
         try {
             String result = CommonsUtils.get(apiUrl);
-            if (StringUtils.isNotBlank(result) && JSONUtils.wellFormat(result)) {
+            if (JSONUtils.wellFormat(result)) {
                 return JSON.parseObject(result);
             }
         } catch (Exception ignored) {

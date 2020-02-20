@@ -98,8 +98,8 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 continue;
             }
 
-            Object[] states = ApprovalHelper.getApprovalStates(recordId);
-            if ((Integer) states[2] == ApprovalState.CANCELED.getState()) {
+            final Object[] state = ApprovalHelper.getApprovalState(recordId);
+            if ((Integer) state[2] == ApprovalState.CANCELED.getState()) {
                 deleted++;
                 continue;
             }

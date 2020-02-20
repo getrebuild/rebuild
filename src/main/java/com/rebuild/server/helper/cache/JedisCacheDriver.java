@@ -20,7 +20,6 @@ package com.rebuild.server.helper.cache;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SerializationUtils;
-import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -32,14 +31,12 @@ import java.io.Serializable;
  * @author devezhao
  * @since 01/02/2019
  */
-public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate<V> {
+public class JedisCacheDriver<V extends Serializable> implements CacheTemplate<V> {
 
 	private JedisPool jedisPool;
-	private String keyPrefix;
 
-	protected JedisCacheTemplate(JedisPool jedisPool, String keyPrefix) {
+	protected JedisCacheDriver(JedisPool jedisPool) {
 		this.jedisPool = jedisPool;
-		this.keyPrefix = keyPrefix == null ? "" : keyPrefix;
 	}
 
 	@Override
@@ -48,7 +45,6 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		try {
 			jedis = jedisPool.getResource();
 
-            key = unityKey(key);
 			return jedis.get(key);
 		} finally {
 			IOUtils.closeQuietly(jedis);
@@ -66,7 +62,6 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		try {
 			jedis = jedisPool.getResource();
 
-            key = unityKey(key);
 			jedis.set(key, value);
 			if (seconds > 0) {
 				jedis.expire(key, seconds);
@@ -83,7 +78,6 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		try {
 			jedis = jedisPool.getResource();
 
-            key = unityKey(key);
 			byte[] bs = jedis.get(key.getBytes());
 			if (bs == null || bs.length == 0) {
 				return null;
@@ -108,7 +102,7 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		try {
 			jedis = jedisPool.getResource();
 
-			byte[] bkey = unityKey(key).getBytes();
+			byte[] bkey = key.getBytes();
 			jedis.set(bkey, SerializationUtils.serialize(value));
 			if (seconds > 0) {
 				jedis.expire(bkey, seconds);
@@ -124,16 +118,10 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 		try {
 			jedis = jedisPool.getResource();
 
-            key = unityKey(key);
 			jedis.del(key);
 		} finally {
 			IOUtils.closeQuietly(jedis);
 		}
-	}
-	
-	@Override
-	public String getKeyPrefix() {
-		return keyPrefix;
 	}
 
 	/**
@@ -141,14 +129,5 @@ public class JedisCacheTemplate<V extends Serializable> implements CacheTemplate
 	 */
 	public JedisPool getJedisPool() {
 		return jedisPool;
-	}
-
-	/**
-	 * @param key
-	 * @return
-	 */
-	protected String unityKey(String key) {
-		Assert.notNull(key, "[key] not be null");
-		return (getKeyPrefix() + key).toUpperCase();
 	}
 }

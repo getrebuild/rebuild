@@ -19,6 +19,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.business.approval;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -29,7 +30,6 @@ import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.helper.SetUser;
-import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.ApprovalStepService;
@@ -56,6 +56,9 @@ import java.util.Set;
 public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 
 	private  static final Log LOG = LogFactory.getLog(ApprovalProcessor.class);
+
+	// 最大撤销次数
+	private static final int MAX_REVOKED = 3;
 
 	final private ID record;
 
@@ -88,7 +91,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public boolean submit(JSONObject selectNextUsers) throws ApprovalException {
-		Integer currentState = (Integer) Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState)[0];
+		final int currentState = (int) ApprovalHelper.getApprovalState(this.record)[2];
 		if (currentState == ApprovalState.PROCESSING.getState() || currentState == ApprovalState.APPROVED.getState()) {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.PROCESSING.getState() ? "提交审批" : "审批完成"));
 		}
@@ -138,15 +141,11 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData) throws ApprovalException {
-		Object[] o = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState);
-		if (o == null) {
-			throw new NoRecordFoundException("审批记录不存在或你无权查看");
-		}
-		Integer currentState = (Integer) o[0];
+		final int currentState = (int) ApprovalHelper.getApprovalState(this.record)[2];
 		if (currentState != ApprovalState.PROCESSING.getState()) {
 			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.APPROVED.getState() ? "审批完成" : "驳回审批"));
 		}
-		
+
 		final Object[] stepApprover = Application.createQueryNoFilter(
 				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
@@ -187,18 +186,40 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	}
 
 	/**
-	 * 撤销
+	 * 撤回
 	 *
 	 * @throws ApprovalException
 	 */
 	public void cancel() throws ApprovalException {
-		Object[] state = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalState, EntityHelper.ApprovalId);
-		Integer currentState = (Integer) state[0];
-		if ((Integer) state[0] != ApprovalState.PROCESSING.getState()) {
-			throw new ApprovalException("已" + ApprovalState.valueOf(currentState).getName() + "审批不能撤销");
+		final Object[] state = ApprovalHelper.getApprovalState(this.record);
+		int currentState = (int) state[2];
+		if (currentState != ApprovalState.PROCESSING.getState()) {
+			throw new ApprovalException("已" + ApprovalState.valueOf(currentState).getName() + "审批不能撤回");
+		}
+		Application.getBean(ApprovalStepService.class).txCancel(this.record, (ID) state[0], getCurrentNodeId(), false);
+	}
+
+	/**
+	 * 撤回
+	 *
+	 * @throws ApprovalException
+	 */
+	public void revoke() throws ApprovalException {
+		final Object[] state = ApprovalHelper.getApprovalState(this.record);
+		if ((int) state[2] != ApprovalState.APPROVED.getState()) {
+			throw new ApprovalException("未完成审批无需撤销");
 		}
 
-		Application.getBean(ApprovalStepService.class).txCancel(this.record, (ID) state[1], getCurrentNodeId());
+		Object[] count = Application.createQueryNoFilter(
+				"select count(stepId) from RobotApprovalStep where recordId = ? and state = ?")
+				.setParameter(1, this.record)
+				.setParameter(2, ApprovalState.REVOKED.getState())
+				.unique();
+		if (ObjectUtils.toInt(count[0]) >= MAX_REVOKED) {
+			throw new ApprovalException("记录撤销次数已达 " + MAX_REVOKED + " 次，不能再次撤销");
+		}
+
+		Application.getBean(ApprovalStepService.class).txCancel(this.record, (ID) state[0], getCurrentNodeId(), true);
 	}
 
 	/**
@@ -282,24 +303,19 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		}
 		return nodes;
 	}
-	
+
 	/**
 	 * 获取当前审批节点 ID
 	 *
 	 * @return
 	 */
 	private String getCurrentNodeId() {
-		Object[] stepNode = Application.getQueryFactory()
-				.unique(this.record, EntityHelper.ApprovalStepNode, EntityHelper.ApprovalState);
-		if (stepNode == null) {
-			throw new NoRecordFoundException("记录不存在或无权查看:" + this.record);
+		final Object[] state = ApprovalHelper.getApprovalState(this.record);
+		String currentNode = (String) state[3];
+		if (StringUtils.isBlank(currentNode) || (int) state[2] >= ApprovalState.REJECTED.getState()) {
+			currentNode = FlowNode.NODE_ROOT;
 		}
-
-		String cNode = (String) stepNode[0];
-		if (StringUtils.isBlank(cNode) || (Integer) stepNode[1] >= ApprovalState.REJECTED.getState()) {
-			cNode = "ROOT";
-		}
-		return cNode;
+		return currentNode;
 	}
 	
 	/**
@@ -316,27 +332,27 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		flowParser = new FlowParser(flowDefinition.getJSON("flowDefinition"));
 		return flowParser;
 	}
-	
+
 	/**
 	 * 获取当前审批步骤
 	 * 
 	 * @return returns [S, S]
 	 */
 	public JSONArray getCurrentStep() {
-		Object[] currentNode = Application.getQueryFactory().unique(this.record, EntityHelper.ApprovalStepNode);
+		final String currentNode = (String) ApprovalHelper.getApprovalState(this.record)[3];
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
 				+ " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
 				.setParameter(2, this.approval)
-				.setParameter(3, currentNode[0])
+				.setParameter(3, currentNode)
 				.array();
-		
-		JSONArray state = new JSONArray();
+
+		JSONArray steps = new JSONArray();
 		for (Object[] o : array) {
-			state.add(this.formatStep(o, null));
+			steps.add(this.formatStep(o, null));
 		}
-		return state;
+		return steps;
 	}
 	
 	/**
@@ -345,8 +361,8 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
-		final Object[] states = ApprovalHelper.getApprovalStates(this.record);
-		this.approval = (ID) states[0];
+		final Object[] state = ApprovalHelper.getApprovalState(this.record);
+		this.approval = (ID) state[0];
 
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
@@ -375,10 +391,11 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		JSONArray steps = new JSONArray();
 		JSONObject submitter = JSONUtils.toJSONObject(
 				new String[] { "submitter", "submitterName", "createdOn", "approvalId", "approvalName", "approvalState" },
-				new Object[] { firstStep[5], UserHelper.getName((ID) firstStep[5]), CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
-						states[0], states[1], states[2] });
+				new Object[] { firstStep[5],
+						UserHelper.getName((ID) firstStep[5]),
+						CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
+						state[0], state[1], state[2] });
 		steps.add(submitter);
-
 
 		String next = FlowNode.NODE_ROOT;
 		while (next != null) {
@@ -401,17 +418,19 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 			} catch (ApprovalException | ConfigurationException ignored) {
 			}
 
-			JSONArray state = new JSONArray();
+			JSONArray s = new JSONArray();
 			for (Object[] o : group) {
-				state.add(formatStep(o, signMode));
+				s.add(formatStep(o, signMode));
 			}
-			steps.add(state);
+			steps.add(s);
 		}
 		return steps;
 	}
 
 	/**
 	 * @param step
+	 * @param signMode
+	 * @return
 	 */
 	private JSONObject formatStep(Object[] step, String signMode) {
 		ID approver = (ID) step[0];
@@ -420,7 +439,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 				new Object[] {
 						approver, UserHelper.getName(approver),
 						step[1], step[2],
-						step[3] != null ? CalendarUtils.getUTCDateTimeFormat().format(step[3]) : null,
+						step[3] == null ? null: CalendarUtils.getUTCDateTimeFormat().format(step[3]),
 						CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
 	}
 }

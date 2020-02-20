@@ -43,7 +43,7 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 	final private PersistManagerFactory aPMFactory;
 	
 	protected RecordOwningCache(JedisPool jedisPool, CacheManager cacheManager, PersistManagerFactory aPMFactory) {
-		super(jedisPool, cacheManager, "rb.ou.");
+		super(jedisPool, cacheManager, "OU.");
 		this.aPMFactory = aPMFactory;
 	}
 	

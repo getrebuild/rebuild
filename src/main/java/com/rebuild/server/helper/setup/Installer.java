@@ -27,8 +27,8 @@ import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.cache.EhcacheTemplate;
-import com.rebuild.server.helper.cache.JedisCacheTemplate;
+import com.rebuild.server.helper.cache.EhcacheDriver;
+import com.rebuild.server.helper.cache.JedisCacheDriver;
 import com.rebuild.utils.AES;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -124,11 +124,11 @@ public class Installer implements InstallState {
 
         // Clean cached
         if (Application.getCommonCache().isUseRedis()) {
-            try (Jedis jedis = ((JedisCacheTemplate) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
+            try (Jedis jedis = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
                 jedis.flushAll();
             }
         } else {
-            ((EhcacheTemplate) Application.getCommonCache().getCacheTemplate()).cache().clear();
+            ((EhcacheDriver) Application.getCommonCache().getCacheTemplate()).cache().clear();
         }
     }
 
