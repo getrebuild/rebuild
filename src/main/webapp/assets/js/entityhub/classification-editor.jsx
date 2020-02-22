@@ -263,28 +263,40 @@ var saveOpenLevel = function () {
   }, 500, 'saveOpenLevel')
 }
 
+// 导入
 class DlgImports extends RbModalHandler {
+
   constructor(props) {
     super(props)
   }
+
   render() {
     return <RbModal title="导入分类数据" ref={(c) => this._dlg = c}>
-      {this.state.indexes ? <div className="rbs-indexes">{this.state.indexes.map((item) => {
-        return (<div key={'data-' + item.file}>
-          <div className="float-left">
-            <h5>{item.name}</h5>
-            <div className="text-muted">
-              数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
-              {item.updated && (' · ' + item.updated)}
+      {this.state.indexes ? <div>
+        <div className="rbs-indexes">
+          {this.state.indexes.map((item) => {
+            return <div key={'data-' + item.file}>
+              <div className="float-left">
+                <h5>{item.name}</h5>
+                <div className="text-muted">
+                  数据来源 <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
+                  {item.updated && (' · ' + item.updated)}
+                </div>
+              </div>
+              <div className="float-right pt-1">
+                <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
+              </div>
+              <div className="clearfix"></div>
             </div>
-          </div>
-          <div className="float-right pt-1">
-            <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
-          </div>
-          <div className="clearfix"></div>
-        </div>)
-      })}</div>
-        : <RbSpinner fully={true} />}
+
+          })}
+        </div>
+        <div className="mt-2 mr-2 text-right">
+          <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">提交数据到 RB 仓库</a>
+        </div>
+      </div>
+        : <RbSpinner fully={true} />
+      }
     </RbModal>
   }
   componentDidMount() {
@@ -295,10 +307,10 @@ class DlgImports extends RbModalHandler {
   }
 
   imports = (e) => {
-    let file = e.currentTarget.dataset.file
-    let name = e.currentTarget.dataset.name
-    let url = `${rb.baseUrl}/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
-    let that = this
+    const file = e.currentTarget.dataset.file
+    const name = e.currentTarget.dataset.name
+    const url = `${rb.baseUrl}/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
+    const that = this
     RbAlert.create(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据已被使用则不建议导入。确认导入吗？`, {
       html: true,
       confirm: function () {
@@ -322,14 +334,14 @@ class DlgImports extends RbModalHandler {
           return
         }
 
-        let cp = res.data.progress
+        const cp = res.data.progress
         if (cp >= 1) {
           RbHighbar.success('导入完成')
           this.__mpro.end()
-          setTimeout(() => { location.reload() }, 1500)
+          setTimeout(() => location.reload(), 1500)
         } else {
           this.__mpro.set(cp)
-          setTimeout(() => { this.__checkState(taskid) }, 1000)
+          setTimeout(() => this.__checkState(taskid), 1000)
         }
       }
     })
