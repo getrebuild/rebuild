@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #21 QuickCode for ClassificationData
+alter table `classification_data`
+  add column `QUICK_CODE` varchar(70) default '';
+
 -- #20 Attachment delete mark
 alter table `attachment`
   add column `IS_DELETED` char(1) default 'F' comment '标记删除';

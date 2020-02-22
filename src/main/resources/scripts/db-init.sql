@@ -254,13 +254,14 @@ create table if not exists `classification_data` (
   `CODE`               varchar(50),
   `LEVEL`              smallint(6) default '0',
   `IS_HIDE`            char(1) default 'F',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `QUICK_CODE`         varchar(70),
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   primary key  (`ITEM_ID`),
   index IX0_classification_data (`DATA_ID`, `PARENT`),
-  index IX1_classification_data (`DATA_ID`, `FULL_NAME`)
+  index IX1_classification_data (`DATA_ID`, `FULL_NAME`, `QUICK_CODE`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShareAccess] DDL ************
@@ -590,4 +591,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  VALUES ('021-9000000000000001', 'DBVer', 20);
+  VALUES ('021-9000000000000001', 'DBVer', 21);
