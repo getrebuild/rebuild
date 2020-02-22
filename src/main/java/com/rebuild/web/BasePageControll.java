@@ -19,6 +19,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.web;
 
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.language.LanguageBundle;
 import com.rebuild.server.helper.language.Languages;
 import org.springframework.web.servlet.ModelAndView;
@@ -42,6 +44,11 @@ public abstract class BasePageControll extends BaseControll {
 		String locale = Application.getSessionStore().getLocale();
 		LanguageBundle bundle = Languages.instance.getBundle(locale);
 		mv.getModel().put("bundle", bundle);
+
+		// 其他参数
+		mv.getModel().put("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));
+		mv.getModel().put("markWatermark", SysConfiguration.getBool(ConfigurableItem.MarkWatermark));
+
 		return mv;
 	}
 }

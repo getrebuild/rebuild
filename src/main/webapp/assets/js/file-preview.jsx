@@ -40,7 +40,7 @@ class RbPreview extends React.Component {
         <div className="preview-header">
           <div className="float-left"><h5>{fileName}</h5></div>
           <div className="float-right">
-            <a onClick={this.share} title="分享"><i className="zmdi zmdi-share fs-17"></i></a>
+            {rb.fileSharable && <a onClick={this.share} title="分享"><i className="zmdi zmdi-share fs-17"></i></a>}
             <a title="下载" target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
             {!this.props.unclose && <a title="关闭 (ESC)" onClick={this.hide}><i className="zmdi zmdi-close"></i></a>}
           </div>

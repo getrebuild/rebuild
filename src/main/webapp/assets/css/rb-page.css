@@ -3223,3 +3223,13 @@ a.icon-link>.zmdi {
     border-radius: 2px;
     border-width: 0;
 }
+
+#wm_div_id {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+    z-index: 1099;
+}

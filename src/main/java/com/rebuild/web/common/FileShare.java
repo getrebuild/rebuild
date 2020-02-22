@@ -20,11 +20,13 @@ package com.rebuild.web.common;
 
 import cn.devezhao.commons.CodecUtils;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -42,22 +44,19 @@ import java.io.IOException;
 @Controller
 public class FileShare extends BasePageControll {
 
-    // Make public url
+    // URL of public
     @RequestMapping("/filex/make-url")
     public void makeUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String fileUrl = getParameterNotNull(request, "url");
-        if (!QiniuCloud.instance().available()) {
-            writeFailure(response, "本地存储暂不支持");
-            return;
-        }
-
-        String publicUrl = QiniuCloud.instance().url(fileUrl);
+        String publicUrl = genPublicUrl(fileUrl);
         writeSuccess(response, JSONUtils.toJSONObject("publicUrl", publicUrl));
     }
 
-    // Make shared URL
+    // URL of share
     @RequestMapping("/filex/make-share")
     public void makeShareUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Assert.isTrue(SysConfiguration.getBool(ConfigurableItem.FileSharable), "不允许分享文件");
+
         String fileUrl = getParameterNotNull(request, "url");
         int minte = getIntParameter(request, "time", 5);
 
@@ -71,12 +70,26 @@ public class FileShare extends BasePageControll {
     @RequestMapping("/s/{shareKey}")
     public ModelAndView makeShareUrl(@PathVariable String shareKey,
                                      HttpServletResponse response) throws IOException {
+        Assert.isTrue(SysConfiguration.getBool(ConfigurableItem.FileSharable), "不允许分享文件");
+
         String fileUrl = Application.getCommonCache().get(shareKey);
         if (fileUrl == null) {
             response.sendError(403, "文件已过期");
             return null;
         }
 
+        String publicUrl = genPublicUrl(fileUrl);
+        ModelAndView mv = createModelAndView("/commons/shared-file.jsp");
+        mv.getModelMap().put("publicUrl", publicUrl);
+        return mv;
+    }
+
+    /**
+     * @param fileUrl
+     * @return
+     * @see FileDownloader#download(HttpServletRequest, HttpServletResponse)
+     */
+    private String genPublicUrl(String fileUrl) {
         String publicUrl;
         if (QiniuCloud.instance().available()) {
             publicUrl = QiniuCloud.instance().url(fileUrl, 60);
@@ -84,13 +97,10 @@ public class FileShare extends BasePageControll {
             // @see FileDownloader#download
             String e = CodecUtils.randomCode(40);
             Application.getCommonCache().put(e, "rb", 60);
-            
+
             publicUrl = "filex/access/" + fileUrl + "?e=" + e;
             publicUrl = SysConfiguration.getHomeUrl(publicUrl);
         }
-
-        ModelAndView mv = createModelAndView("/commons/shared-file.jsp");
-        mv.getModelMap().put("publicUrl", publicUrl);
-        return mv;
+        return publicUrl;
     }
 }
