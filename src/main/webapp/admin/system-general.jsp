@@ -71,7 +71,7 @@
 						<tbody>
 							<tr>
 								<td width="40%">登录密码安全策略</td>
-								<td data-id="PasswordPolicy" data-options="1:低;2:中;3:高">
+								<td data-id="PasswordPolicy" data-options="1:低;2:中;3:高" data-value="${PasswordPolicy}">
 								<c:choose>
 									<c:when test="${PasswordPolicy >= 3}">高 (最低8位，必须同时包含数字、字母、特殊字符)</c:when>
 									<c:when test="${PasswordPolicy == 2}">中 (最低6位，必须同时包含数字、字母)</c:when>

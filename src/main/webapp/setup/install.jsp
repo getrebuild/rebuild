@@ -64,9 +64,11 @@
 					</div>
 				</div>
 				<div class="copyright">
-					&copy; 2020 REBUILD &nbsp;·&nbsp; 版本 <%=Application.VER%> &nbsp;·&nbsp; <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">安装手册</a>
-					<div class="mt-1">
-						REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，安装即表示你已阅读并同意许可内容
+					&copy; 2020 REBUILD (<%=Application.VER%>) &nbsp;·&nbsp; <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">安装手册</a>
+					<div class="mt-1 license">
+                        REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，安装即表示你已阅读并同意许可内容。
+                        <br>
+                        REBUILD 受《世界版权公约》和《中华人民共和国著作权法》保护（版权证书：软著登字第4520578号）。
 					</div>
 				</div>
 			</div>

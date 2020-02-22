@@ -238,8 +238,9 @@ public class ReferenceSearch extends BaseControll {
 
         int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
 
-		String sql = "select itemId,fullName from ClassificationData where dataId = '%s' and level = %d and fullName like '%%%s%%' order by fullName";
-        sql = String.format(sql, useClassification.toLiteral(), openLevel, q);
+		String sql = "select itemId,fullName from ClassificationData" +
+                " where dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%') order by fullName";
+        sql = String.format(sql, useClassification.toLiteral(), openLevel, q, q);
 		List<Object> result = resultSearch(sql, null, null);
 		writeSuccess(response, result);
 	}

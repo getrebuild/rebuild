@@ -170,8 +170,9 @@
 		<field name="code" type="string" max-length="50" />
 		<field name="level" type="small-int" default-value="0" updatable="false" />
 		<field name="isHide" type="bool" default-value="F" />
+        <field name="quickCode" type="string" max-length="70" />
 		<index field-list="dataId,parent" />
-		<index field-list="dataId,fullName" />
+		<index field-list="dataId,fullName,quickCode" />
 	</entity>
 
 	<entity name="ShareAccess" type-code="020" description="记录共享">

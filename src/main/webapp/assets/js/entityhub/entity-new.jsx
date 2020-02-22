@@ -61,7 +61,7 @@ class MetaschemaList extends React.Component {
           <div className="float-left">
             <h5>{item.name}</h5>
             <div className="text-muted">
-              数据来源 <a target="_blank" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
+              数据来源 <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
               {item.updated && (' · ' + item.updated)}
             </div>
           </div>
