@@ -1,9 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2020 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
-For more information, please see <https://getrebuild.com>
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.utils;
