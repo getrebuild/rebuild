@@ -37,16 +37,22 @@ public class PerHourJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-        // 数据库备份
         if (hour == 0 && SysConfiguration.getBool((ConfigurableItem.DBBackupsEnable))) {
-            try {
-                new DatabaseBackup().backup();
-            } catch (Exception e) {
-                LOG.error("Executing [DatabaseBackup] failed : " + e);
-            }
+            doDatabaseBackup();
         }
 
         // others here
 
+    }
+
+    /**
+     * 数据库备份
+     */
+    protected void doDatabaseBackup() {
+        try {
+            new DatabaseBackup().backup();
+        } catch (Exception e) {
+            LOG.error("Executing [DatabaseBackup] failed : " + e);
+        }
     }
 }
