@@ -159,6 +159,10 @@
   margin-bottom: 0;
 }
 
+.feeds-list>div.focus {
+  outline: 2px solid #fbbc05;
+}
+
 .feeds-list .feeds {
   display: flex;
 }

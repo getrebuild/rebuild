@@ -25,7 +25,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.files.FilesHelper;
-import com.rebuild.server.business.recyclebin.RecycleBinCleanerJob;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -149,13 +150,13 @@ public class AttachmentAwareObserver extends OperatingObserver {
 			return;
 		}
 
-		// 回收站开启
-		boolean recycleEnable = RecycleBinCleanerJob.getKeepingDays() > 0;
+		// 回收站开启，不物理删除附件
+		final boolean rbEnable = SysConfiguration.getInt(ConfigurableItem.RecycleBinKeepingDays) > 0;
 
 		List<Record> updateWill = new ArrayList<>();
 		List<ID> deleteWill = new ArrayList<>();
 		for (Object[] o : array) {
-			if (recycleEnable) {
+			if (rbEnable) {
 				Record u = EntityHelper.forUpdate((ID) o[0], null, false);
 				u.setBoolean(EntityHelper.IsDeleted, true);
 				updateWill.add(u);

@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="cn.devezhao.persist4j.engine.ID"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <meta charset="utf-8">
@@ -20,6 +21,7 @@
 <meta name="rb.baseUrl" content="${baseUrl}">
 <meta name="rb.appName" content="${appName}">
 <meta name="rb.storageUrl" content="${storageUrl}">
+<meta name="rb.fileSharable" content="${fileSharable}">
 <%
 ID currentUser = AppUtils.getRequestUser(request);
 if (currentUser != null) {
@@ -33,3 +35,4 @@ if (currentUser != null) {
 <script src="${baseUrl}/assets/lib/react/polyfill.min.js?v=7.6.0"></script>
 <!--[if lt IE 10]><script>location.href='${baseUrl}/error/unsupported-browser'</script><![endif]-->
 <%}%>
+<c:if test="${markWatermark}"><script src="${baseUrl}/assets/lib/watermark.js?v=2.3.2"></script></c:if>

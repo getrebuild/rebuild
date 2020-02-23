@@ -1,9 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2020 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
-For more information, please see <https://getrebuild.com>
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service;
@@ -37,16 +36,22 @@ public class PerHourJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-        // 数据库备份
         if (hour == 0 && SysConfiguration.getBool((ConfigurableItem.DBBackupsEnable))) {
-            try {
-                new DatabaseBackup().backup();
-            } catch (Exception e) {
-                LOG.error("Executing [DatabaseBackup] failed : " + e);
-            }
+            doDatabaseBackup();
         }
 
         // others here
 
+    }
+
+    /**
+     * 数据库备份
+     */
+    protected void doDatabaseBackup() {
+        try {
+            new DatabaseBackup().backup();
+        } catch (Exception e) {
+            LOG.error("Executing [DatabaseBackup] failed : " + e);
+        }
     }
 }

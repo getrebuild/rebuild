@@ -29,7 +29,7 @@
 				<property name="jobClass" value="com.rebuild.server.business.recyclebin.RecycleBinCleanerJob" />
 			</bean>
 		</property>
-		<property name="cronExpression" value="0 5 0 * * ?" />
+		<property name="cronExpression" value="0 0 4 * * ?" />
 	</bean>
 
 	<bean id="perHourJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">

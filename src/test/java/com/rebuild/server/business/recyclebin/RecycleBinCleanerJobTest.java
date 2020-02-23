@@ -5,19 +5,19 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.server.helper.setup;
+package com.rebuild.server.business.recyclebin;
 
 import com.rebuild.server.TestSupport;
 import org.junit.Test;
 
 /**
  * @author devezhao
- * @since 02/04/2020
+ * @since 2020/2/23
  */
-public class DatabaseBackupTest extends TestSupport {
+public class RecycleBinCleanerJobTest extends TestSupport {
 
     @Test
-    public void backup() throws Exception {
-        new DatabaseBackup().backup();
+    public void executeInternal() throws Exception {
+        new RecycleBinCleanerJob().executeInternal(null);
     }
 }

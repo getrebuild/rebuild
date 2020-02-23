@@ -968,6 +968,7 @@ a {
     text-align: center;
     z-index: 1099;
     background: transparent;
+    pointer-events: none;
 }
 
 .rbhighbar.faster {
@@ -981,6 +982,7 @@ a {
     max-width: 80%;
     min-width: 421px;
     text-align: left;
+    pointer-events: auto;
 }
 
 @media (max-width:440px) {
@@ -2692,6 +2694,16 @@ form {
     border: 0;
     margin: 0;
     padding: 0;
+}
+
+.preview-modal .preview-body .iframe.text {
+    overflow: auto;
+}
+
+.preview-modal .preview-body .iframe.text>pre {
+    font-family: Roboto, San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "Hiragina Sans GB", "WenQuanYi Micro Hei", 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+    font-size: 1rem;
+    background-color: #fff;
 }
 
 @media (max-width:768px) {

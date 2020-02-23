@@ -406,7 +406,8 @@ class UserSelector extends React.Component {
 
   componentDidMount() {
     $(document.body).click((e) => {
-      if (e.target && (e.target.matches('div.user-selector') || $(e.target).parents('div.user-selector').length > 0)) return
+      const $target = $(e.target)
+      if (e.target && ($target.hasClass('user-selector') || $target.parents('div.user-selector').length > 0)) return
       if (this.__isUnmounted) return
       this.setState({ dropdownOpen: false })
     })

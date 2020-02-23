@@ -66,11 +66,11 @@
 							</tr>
 						</tbody>
 						</table>
-						<h5>安全性</h5>
+						<h5>系统安全</h5>
 						<table class="table">
 						<tbody>
 							<tr>
-								<td width="40%">登录密码安全策略</td>
+								<td width="40%">登录密码等级</td>
 								<td data-id="PasswordPolicy" data-options="1:低;2:中;3:高" data-value="${PasswordPolicy}">
 								<c:choose>
 									<c:when test="${PasswordPolicy >= 3}">高 (最低8位，必须同时包含数字、字母、特殊字符)</c:when>
@@ -78,6 +78,18 @@
 									<c:otherwise>低 (最低6位，无字符类型限制)</c:otherwise>
 								</c:choose>
 								</td>
+							</tr>
+							<tr>
+								<td>允许分享文件</td>
+								<td data-id="FileSharable" data-options="true:是;false:否">${FileSharable ? "是" : "否"}</td>
+							</tr>
+                            <tr>
+								<td>显示页面水印</td>
+								<td data-id="MarkWatermark" data-options="true:是;false:否">${MarkWatermark ? "是" : "否"}</td>
+							</tr>
+							<tr>
+								<td>变更历史数据保留天数</td>
+								<td data-id="RevisionHistoryKeepingDays">${RevisionHistoryKeepingDays}</td>
 							</tr>
 							<tr>
 								<td>回收站数据保留天数</td>
@@ -112,7 +124,7 @@
 							<li><a class="link" target="_blank" href="https://getrebuild.com/">技术支持</a></li>
 						</ul>
 						<div class="text-muted">
-							&copy; REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
+                            REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，安装/使用即表示你已阅读并同意许可内容。
 						</div>
 					</div>
 				</div>

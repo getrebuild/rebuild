@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-// Page initial
+// PAGE INITIAL
 $(function () {
   var t = $('.rb-scroller')
   t.perfectScrollbar()
@@ -35,15 +35,15 @@ $(function () {
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
     else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      const pop = $('.admin-settings a').popover({
+      var pop = $('.admin-settings a').popover({
         trigger: 'hover',
         placement: 'bottom',
         html: true,
         content: '当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a>',
       }).on('shown.bs.popover', function () {
         $('#' + $(this).attr('aria-describedby'))
-          .on('mouseenter', () => pop.popover('show'))
-          .on('mouseleave', () => pop.popover('hide'))
+          .on('mouseenter', function () { pop.popover('show') })
+          .on('mouseleave', function () { pop.popover('hide') })
       })
     }
   } else {
@@ -84,7 +84,7 @@ var $addResizeHandler = function (call) {
 
 // 取消管理员访问
 var __cancelAdmin = function () {
-  $.post(rb.baseUrl + '/user/admin-cancel', (res) => {
+  $.post(rb.baseUrl + '/user/admin-cancel', function (res) {
     if (res.error_code === 0) {
       // location.reload()
       $('.admin-settings a>.icon').removeClass('text-danger')

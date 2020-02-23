@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.feeds;
@@ -118,6 +107,16 @@ public class FeedsListControll extends BasePageControll {
         }
 
         String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore from Feeds where " + sqlWhere;
+
+        // 焦点动态
+        ID foucs = getIdParameter(request, "foucs");
+        Object[] foucsFeed = null;
+        if (foucs != null) {
+            foucsFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
+                    .setParameter(1, foucs)
+                    .unique();
+        }
+
         if ("older".equalsIgnoreCase(sort)) {
             sql += " order by createdOn asc";
         } else if ("modified".equalsIgnoreCase(sort)) {
@@ -129,6 +128,16 @@ public class FeedsListControll extends BasePageControll {
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
+
+        if (foucsFeed != null) {
+            List<Object[]> newArray = new ArrayList<>();
+            newArray.add(foucsFeed);
+            for (Object[] o : array) {
+                if (foucsFeed[0].equals(o[0])) continue;
+                newArray.add(o);
+            }
+            array = newArray.toArray(new Object[0][]);
+        }
 
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {

@@ -46,43 +46,35 @@ public enum ConfigurableItem {
 	// 短信
 	SmsUser, SmsPassword, SmsSign(AppName),
 
-	/**
-	 * 开放注册
-	 */
-	OpenSignUp(false),
-	/**
-	 * 数据目录
-	 */
+	// 数据目录
 	DataDirectory,
-	/**
-	 * 数据库版本
-	 */
+	// 数据库版本
 	DBVer(0L),
-	/**
-	 * 启用最近搜素缓存
-	 */
-	EnableRecentlyUsed(true),
-	/**
-	 * 登录背景图
-	 */
-	LiveWallpaper(true),
-	/**
-	 * 回收站数据保留天数（0为禁用回收站）
-	 */
-	RecycleBinKeepingDays(30),
-	/**
-	 * 密码策略，1-3
-	 */
-	PasswordPolicy(1),
-	/**
-	 * 默认语言
-	 */
+	// 默认语言
 	DefaultLanguage("zh-CN"),
 
-	// 数据库备份
+	// 启用最近搜素
+	EnableRecentlyUsed(true),
+
+	// 开放注册
+	OpenSignUp(false),
+	// 登录背景图
+	LiveWallpaper(true),
+	// 启用文件分享
+	FileSharable(true),
+	// 启用页面水印
+	MarkWatermark(false),
+	// 密码策略，1-3
+	PasswordPolicy(1),
+
+	// 变更历史数据保留天数（0为禁用）
+	RevisionHistoryKeepingDays(180),
+	// 回收站数据保留天数（0为禁用）
+	RecycleBinKeepingDays(180),
+    // 启用数据库备份
 	DBBackupsEnable(true),
-	// 数据备份保留时间
-	DBBackupsKeepingDays(30)
+    // 数据备份保留时间
+	DBBackupsKeepingDays(30),
 
 	;
 	
@@ -97,7 +89,7 @@ public enum ConfigurableItem {
 	
 	/**
 	 * 默认值
-	 * s
+	 *
 	 * @return
 	 */
 	public Object getDefaultValue() {

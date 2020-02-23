@@ -1,9 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page import="com.rebuild.server.Application"%>
-<%@ page import="com.rebuild.server.ServerListener"%>
-<%@ page import="com.rebuild.server.helper.ConfigurableItem" %>
-<%@ page import="com.rebuild.server.helper.SysConfiguration" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -18,12 +14,14 @@
 	max-width: 100%;
 	cursor: pointer;
 }
-.splash-footer * {
+.splash-footer *,
+.copyright,
+.copyright * {
 	color: rgba(255, 255, 255, 0.88) !important;
-	line-height: 1.5;
+    text-shadow: 1px 1px 1px #222;
 }
-.splash-footer a:hover {
-	text-decoration: underline;
+.copyright .link {
+    text-decoration: underline;
 }
 .rb-bgimg {
 	position: fixed;
@@ -65,7 +63,7 @@
 	<div class="rb-content">
 		<div class="announcement-wrapper"></div>
 		<div class="main-content container-fluid">
-			<div class="splash-container mb-0">
+			<div class="splash-container mb-1">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
@@ -109,11 +107,13 @@
 				</div>
 				<div class="splash-footer">
 					<div class="copyright">
-						<span>&copy; 2020 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-						<div class="fs-12 dev-show">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+						&copy; 2020 <a href="https://getrebuild.com/" target="_blank">REBUILD</a>
 					</div>
 				</div>
 			</div>
+            <div class="dev-show text-center copyright">
+                REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，安装/使用即表示你已阅读并同意许可内容。
+            </div>
 		</div>
 	</div>
 </div>

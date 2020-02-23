@@ -72,6 +72,23 @@
     if (rb.env === 'dev') $('html').addClass('dev')
     $(document.body).addClass('rb-animate')
   }, 1000)
+
+  // 安全水印
+  if (window.watermark && self === top) {
+    window.watermark.init({
+      watermark_txt: [rb.currentUser, rb.appName, new Date().toLocaleString()],
+      watermark_angle: 30,
+      watermark_width: 200,
+      watermark_font: 'arial',
+      watermark_fontsize: '15px',
+      watermark_parent_width: $(window).width(),
+      watermark_parent_height: $(window).height(),
+      monitor: false
+    })
+    // eslint-disable-next-line no-debugger
+    if (rb.env === 'production') setInterval(function () { debugger }, 100)
+  }
+
 })(jQuery)
 
 // extends Array

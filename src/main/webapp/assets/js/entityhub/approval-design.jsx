@@ -17,7 +17,8 @@ $(document).ready(() => {
 
   $(document.body).click(function (e) {
     if (donotCloseSidebar) return
-    if (e.target && (e.target.matches('div.rb-right-sidebar') || $(e.target).parents('div.rb-right-sidebar').length > 0)) return
+    const $target = $(e.target)
+    if (e.target && ($target.hasClass('rb-right-sidebar') || $target.parents('div.rb-right-sidebar').length > 0)) return
 
     $(this).removeClass('open-right-sidebar')
     if (activeNode) {
