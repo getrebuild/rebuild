@@ -150,6 +150,7 @@
         mask_div.style.display = "block";
         mask_div.style['-ms-user-select'] = "none";
         mask_div.style.cursor = "default";
+        mask_div.style.textTransform = "uppercase";
         shadowRoot.appendChild(mask_div);
       }
     }

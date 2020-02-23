@@ -118,6 +118,17 @@ public class FeedsListControll extends BasePageControll {
         }
 
         String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore from Feeds where " + sqlWhere;
+
+        // 焦点动态
+        ID foucs = getIdParameter(request, "foucs");
+        Object[] foucsFeed = null;
+        if (foucs != null) {
+            foucsFeed = Application.createQueryNoFilter(sql + " and feedsId = ?")
+                    .setParameter(1, foucs)
+                    .unique();
+            pageSize--;
+        }
+
         if ("older".equalsIgnoreCase(sort)) {
             sql += " order by createdOn asc";
         } else if ("modified".equalsIgnoreCase(sort)) {
@@ -129,6 +140,16 @@ public class FeedsListControll extends BasePageControll {
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
+
+        if (foucsFeed != null) {
+            List<Object[]> newArray = new ArrayList<>();
+            newArray.add(foucsFeed);
+            for (Object[] o : array) {
+                if (foucsFeed[0].equals(o[0])) continue;
+                newArray.add(o);
+            }
+            array = newArray.toArray(new Object[0][]);
+        }
 
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {

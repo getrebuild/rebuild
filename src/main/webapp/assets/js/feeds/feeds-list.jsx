@@ -17,10 +17,6 @@ class FeedsList extends React.Component {
 
   render() {
     return <div>
-      {this.state.specFilter && <div className="alert alert-warning alert-icon alert-sm alert-icon-border mt-3">
-        <div className="icon"><i className="zmdi zmdi-info-outline"></i></div>
-        <div className="message">当前显示指定动态，点击 <a href="#no-gs" onClick={this._cleanSpecFilter}>查看全部</a></div>
-      </div>}
       <div className="types-bar">
         <ul className="nav nav-tabs">
           <li className="nav-item"><a onClick={() => this._switchTab(0)} className={`nav-link ${this.state.tabType === 0 && 'active'}`}>全部</a></li>
@@ -50,7 +46,7 @@ class FeedsList extends React.Component {
         {(this.state.data || []).map((item) => {
           if (item.deleted) return null
           let id = `feeds-${item.id}`
-          return <div key={id} id={id}>
+          return <div key={id} id={id} className={`${item.id === this.state.focusFeed ? 'focus' : ''}`}>
             <div className="feeds">
               <div className="user">
                 <a className="user-show">
@@ -107,23 +103,13 @@ class FeedsList extends React.Component {
    */
   fetchFeeds(filter) {
     this.__lastFilter = filter = filter || this.__lastFilter
-    if (this.state.specFilter) {
-      filter = JSON.parse(JSON.stringify(filter))  // Use clone
-      if (!filter.items) filter.items = []
-      filter.items.push(this.state.specFilter)
-    }
-
-    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
+    const s = this.state
+    // s.focusFeed 首次加载有效
+    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort}&type=${s.tabType}&foucs=${s.data ? null : s.focusFeed}`, JSON.stringify(filter), (res) => {
       const _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
     })
-  }
-
-  _cleanSpecFilter = (e) => {
-    e.preventDefault()
-    location.hash = 'none'
-    this.setState({ specFilter: null }, () => this.fetchFeeds())
   }
 
   _switchTab(t) {
