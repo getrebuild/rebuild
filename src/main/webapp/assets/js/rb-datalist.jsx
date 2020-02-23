@@ -222,10 +222,11 @@ class RbList extends React.Component {
 
   // 单选
   clickRow(e, unhold) {
-    if (e.target.matches('span.custom-control-label')) return
-    if (e.target.matches('input.custom-control-input') && unhold) return
+    const $target = $(e.target)
+    if ($target.hasClass('custom-control-label')) return
+    if ($target.hasClass('custom-control-input') && unhold) return
 
-    const $tr = $(e.target).parents('tr')
+    const $tr = $target.parents('tr')
     if (unhold) {
       this.toggleRows({ target: { checked: false } }, true)
       $tr.addClass('active').find('.custom-control-input').prop('checked', true)

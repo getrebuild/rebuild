@@ -86,7 +86,7 @@
       monitor: false
     })
     // eslint-disable-next-line no-debugger
-    // setInterval(function () { debugger }, 100)
+    if (rb.env === 'production') setInterval(function () { debugger }, 100)
   }
 
 })(jQuery)
