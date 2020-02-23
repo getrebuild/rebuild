@@ -24,8 +24,11 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.RobotTriggerObserver;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.bizz.UserService;
@@ -38,7 +41,17 @@ import com.rebuild.utils.JSONUtils;
  * @since 10/31/2018
  */
 public class RevisionHistoryObserver extends OperatingObserver {
-	
+
+	@Override
+	protected void updateByAction(OperatingContext ctx) {
+		// 激活
+		if (SysConfiguration.getInt(ConfigurableItem.RevisionHistoryKeepingDays) > 0) {
+			super.updateByAction(ctx);
+		} else if (ctx.getAction() != ObservableService.DELETE_BEFORE) {
+			LOG.warn("RevisionHistory inactivated : " + ctx.getAnyRecord().getPrimary() + " by " + ctx.getOperator());
+		}
+	}
+
 	@Override
 	public void onCreate(OperatingContext context) {
         Record revision = newRevision(context, false);

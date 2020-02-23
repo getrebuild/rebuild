@@ -76,7 +76,7 @@
     if (!otdiv) {
       otdiv = document.createElement('div');
       otdiv.id = defaultSettings.watermark_id;
-      otdiv.setAttribute('style', 'pointer-events: none !important; display: block !important');
+      otdiv.setAttribute('style', 'pointer-events:none;display:block;position:fixed;width:100%;height:100%;top:0;left:0;overflow:hidden;z-index:9999;');
       if (typeof otdiv.attachShadow === 'function') {
         shadowRoot = otdiv.attachShadow({ mode: 'open' });
       } else {

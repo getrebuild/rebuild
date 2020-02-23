@@ -2,11 +2,13 @@
 // ~~ 图片/文档预览
 
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
+const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
 const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.webm']
+
 // 点击遮罩关闭预览
-const hideOnClick = false
+const HIDE_ONCLICK = false
 
 // eslint-disable-next-line no-unused-vars
 class RbPreview extends React.Component {
@@ -17,13 +19,14 @@ class RbPreview extends React.Component {
   }
 
   render() {
-    let currentUrl = this.props.urls[this.state.currentIndex]
-    let fileName = $fileCutName(currentUrl)
-    let downloadUrl = this.__buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
+    const currentUrl = this.props.urls[this.state.currentIndex]
+    const fileName = $fileCutName(currentUrl)
+    const downloadUrl = this.__buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
 
     let previewContent = null
     if (this.__isImg(fileName)) previewContent = this.renderImgs()
     else if (this.__isDoc(fileName)) previewContent = this.renderDoc()
+    else if (this.__isText(fileName)) previewContent = this.renderText()
     else if (this.__isAudio(fileName)) previewContent = this.renderAudio()
     else if (this.__isVideo(fileName)) previewContent = this.renderVideo()
 
@@ -46,7 +49,7 @@ class RbPreview extends React.Component {
           </div>
           <div className="clearfix"></div>
         </div>
-        <div className="preview-body" onClick={hideOnClick ? this.hide : () => { /*NOOP*/ }} ref={(c) => this._previewBody = c}>
+        <div className="preview-body" onClick={HIDE_ONCLICK ? this.hide : () => { /*NOOP*/ }} ref={(c) => this._previewBody = c}>
           {previewContent}
         </div>
       </div>
@@ -54,12 +57,13 @@ class RbPreview extends React.Component {
   }
 
   renderImgs() {
-    return (<React.Fragment>
+    return <React.Fragment>
       <div className="img-zoom fp-content">
         {!this.state.imgRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
         <img className={!this.state.imgRendered ? 'hide' : ''}
-          src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
-          onLoad={() => this.setState({ imgRendered: true })} alt="图片" />
+          src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')} alt="Loading"
+          onLoad={() => this.setState({ imgRendered: true })}
+          onError={() => RbHighbar.error('无法加载图片')} />
       </div>
       {this.props.urls.length > 1 && <div className="oper-box" onClick={this.__stopEvent}>
         <a className="arrow float-left" onClick={this.__previmg}><i className="zmdi zmdi-chevron-left" /></a>
@@ -67,34 +71,42 @@ class RbPreview extends React.Component {
         <a className="arrow float-right" onClick={this.__nextimg}><i className="zmdi zmdi-chevron-right" /></a>
       </div>
       }
-    </React.Fragment>)
+    </React.Fragment>
   }
 
   renderDoc() {
-    return (<div className="container fp-content">
+    return <div className="container fp-content">
       <div className="iframe" onClick={this.__stopEvent}>
         {!this.state.docRendered && <div className="must-center"><RbSpinner fully={true} /></div>}
         <iframe className={!this.state.docRendered ? 'hide' : ''}
           src={this.state.previewUrl || ''}
           onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
       </div>
-    </div>)
+    </div>
+  }
+
+  renderText() {
+    return <div className="container fp-content">
+      <div className="iframe text" onClick={this.__stopEvent}>
+        {this.state.previewText ? <pre>{this.state.previewText}</pre> : <div className="must-center"><RbSpinner fully={true} /></div>}
+      </div>
+    </div>
   }
 
   renderAudio() {
-    return (<div className="container fp-content">
+    return <div className="container fp-content">
       <div className="audio must-center" onClick={this.__stopEvent}>
         <audio src={this.__buildAbsoluteUrl()} controls>您的浏览器不支持此功能</audio>
       </div>
-    </div>)
+    </div>
   }
 
   renderVideo() {
-    return (<div className="container fp-content">
+    return <div className="container fp-content">
       <div className="video must-center" onClick={this.__stopEvent}>
         <video src={this.__buildAbsoluteUrl()} height="500" controls>您的浏览器不支持此功能</video>
       </div>
-    </div>)
+    </div>
   }
 
   componentDidMount() {
@@ -102,13 +114,12 @@ class RbPreview extends React.Component {
     if (!this.__modalOpen) $(document.body).addClass('modal-open')
     this.setState({ inLoad: false })
 
-    let currentUrl = this.props.urls[this.state.currentIndex]
-    let fileName = $fileCutName(currentUrl)
+    const currentUrl = this.props.urls[this.state.currentIndex]
+    const fileName = $fileCutName(currentUrl)
     if (this.__isDoc(fileName)) {
-      let that = this
-      var setPreviewUrl = function (url) {
-        let previewUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(url)}`
-        if (fileName.toLowerCase().endsWith('.pdf')) previewUrl = url
+      const that = this
+      const setPreviewUrl = function (url) {
+        const previewUrl = fileName.toLowerCase().endsWith('.pdf') ? url : `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(url)}`
         that.setState({ previewUrl: previewUrl, errorMsg: null })
       }
 
@@ -120,11 +131,24 @@ class RbPreview extends React.Component {
           else setPreviewUrl(res.data.publicUrl)
         })
       }
+    } else if (this.__isText(fileName)) {
+      const textUrl = (currentUrl.startsWith('http://') || currentUrl.startsWith('https://')) ? currentUrl : `${rb.baseUrl}/filex/download/${currentUrl}`
+      $.ajax({
+        url: textUrl,
+        type: 'GET',
+        dataType: 'text',
+        success: function (res) {
+          that.setState({ previewText: res })
+        }
+      })
     }
 
     const that = this
     $(document).unbind('keyup').keyup(function (event) { if (event.keyCode === 27) that.hide() })
-    $(this._previewBody).find('>div.fp-content').height($(window).height() - 60)
+    $(that._previewBody).find('>div.fp-content').height($(window).height() - 60)
+    $addResizeHandler(function () {
+      $(that._previewBody).find('>div.fp-content').height($(window).height() - 60)
+    })
   }
 
   componentWillUnmount() {
@@ -147,6 +171,7 @@ class RbPreview extends React.Component {
   __isDoc(url) { return this.__isType(url, TYPE_DOCS) }
   __isAudio(url) { return this.__isType(url, TYPE_AUDIOS) }
   __isVideo(url) { return this.__isType(url, TYPE_VIDEOS) }
+  __isText(url) { return this.__isType(url, TYPE_TEXTS) }
   __isType(url, types) {
     url = url.toLowerCase()
     for (let i = 0; i < types.length; i++) {
@@ -174,14 +199,14 @@ class RbPreview extends React.Component {
   }
 
   share = () => {
-    let currentUrl = this.props.urls[this.state.currentIndex]
+    const currentUrl = this.props.urls[this.state.currentIndex]
     renderRbcomp(<FileShare file={currentUrl} />)
   }
 
   /**
-   * @param {*} urls string or array of URL
-   * @param {*} index 
-   */
+     * @param {*} urls string or array of URL
+     * @param {*} index 
+     */
   static create(urls, index) {
     if (!urls) return
     if (typeof urls === 'string') urls = [urls]
@@ -224,8 +249,8 @@ class FileShare extends RbModalHandler {
     $(this._dlg._rbmodal).css({ zIndex: 1099 })
     this.changTime()
 
-    let that = this
-    let initCopy = function () {
+    const that = this
+    const initCopy = function () {
       // eslint-disable-next-line no-undef
       new ClipboardJS(that._btn, {
         text: function () { return that.state.shareUrl }
@@ -241,7 +266,7 @@ class FileShare extends RbModalHandler {
   }
 
   changTime = (e) => {
-    let t = e ? ~~e.target.dataset.time : 5
+    const t = e ? ~~e.target.dataset.time : 5
     if (this.state.time === t) return
     this.setState({ time: t }, () => {
       $.get(`${rb.baseUrl}/filex/make-share?url=${$encode(this.props.file)}&time=${t}`, (res) => {

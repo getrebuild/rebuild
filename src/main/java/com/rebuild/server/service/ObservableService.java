@@ -40,9 +40,11 @@ import java.util.Observable;
  * @see OperatingObserver
  */
 public abstract class ObservableService extends Observable implements EntityService {
-	
-	// 删除前触发的动作
-	protected static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
+
+	/**
+	 * 删除前触发的动作
+	 */
+	public static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
 	
 	final protected ServiceSpec delegate;
 	

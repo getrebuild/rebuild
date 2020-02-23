@@ -73,13 +73,18 @@ public class SysConfigurationControll extends BasePageControll {
             writeFailure(response, "无效主页地址/域名");
             return;
         }
-        String dRecycleBinKeepingDays = defaultIfBlank(data, ConfigurableItem.RecycleBinKeepingDays);
-        if (!NumberUtils.isNumber(dRecycleBinKeepingDays)) {
-            data.put(ConfigurableItem.RecycleBinKeepingDays.name(), ConfigurableItem.RecycleBinKeepingDays.getDefaultValue());
-        }
-        String dDBBackupsKeepingDays = defaultIfBlank(data, ConfigurableItem.DBBackupsKeepingDays);
-        if (!NumberUtils.isNumber(dDBBackupsKeepingDays)) {
-            data.put(ConfigurableItem.DBBackupsKeepingDays.name(), ConfigurableItem.DBBackupsKeepingDays.getDefaultValue());
+
+        // 验证数字参数
+        ConfigurableItem[] validNumbers = new ConfigurableItem[] {
+                ConfigurableItem.RecycleBinKeepingDays,
+                ConfigurableItem.RevisionHistoryKeepingDays,
+                ConfigurableItem.DBBackupsKeepingDays
+        };
+        for (ConfigurableItem item : validNumbers) {
+            String number = defaultIfBlank(data, item);
+            if (!NumberUtils.isNumber(number)) {
+                data.put(item.name(), item.getDefaultValue());
+            }
         }
 
         setValues(data);

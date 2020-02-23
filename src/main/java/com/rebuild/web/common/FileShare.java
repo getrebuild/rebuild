@@ -70,11 +70,10 @@ public class FileShare extends BasePageControll {
     @RequestMapping("/s/{shareKey}")
     public ModelAndView makeShareUrl(@PathVariable String shareKey,
                                      HttpServletResponse response) throws IOException {
-        Assert.isTrue(SysConfiguration.getBool(ConfigurableItem.FileSharable), "不允许分享文件");
-
-        String fileUrl = Application.getCommonCache().get(shareKey);
-        if (fileUrl == null) {
-            response.sendError(403, "文件已过期");
+        String fileUrl;
+        if (!SysConfiguration.getBool(ConfigurableItem.FileSharable)
+                || (fileUrl = Application.getCommonCache().get(shareKey)) == null) {
+            response.sendError(403, "分享的文件已过期");
             return null;
         }
 
