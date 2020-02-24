@@ -32,7 +32,11 @@ import java.util.Set;
  */
 public class TemplateExtractor {
 
+    // 明细字段
+    protected static final String SLAVE_PREFIX = ".";
+
     private File template;
+    // Use easyexcel
     private boolean isV2;
 
     /**
@@ -50,11 +54,23 @@ public class TemplateExtractor {
      * @return
      */
     public Map<String, String> transformVars(Entity entity) {
-        Set<String> vars = extractVars(false);
+        Set<String> vars = extractVars(true);
 
+        Entity slaveEntity = entity.getSlaveEntity();
         Map<String, String> map = new HashMap<>();
         for (String field : vars) {
-            if (MetadataHelper.getLastJoinField(entity, field) != null) {
+
+            // 明细实体的字段
+            if (slaveEntity != null && field.startsWith(SLAVE_PREFIX)) {
+                String slaveField = field.substring(1);
+                if (MetadataHelper.getLastJoinField(slaveEntity, slaveField) != null) {
+                    map.put(field, slaveField);
+                } else {
+                    String realField = transformRealField(slaveEntity, slaveField);
+                    map.put(field, realField);
+                }
+
+            } else if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 map.put(field, field);
             } else {
                 String realField = transformRealField(entity, field);
@@ -65,7 +81,7 @@ public class TemplateExtractor {
     }
 
     /**
-     * 提取变量
+     * 提取变量 {xxx}
      *
      * @param matchsAny
      * @return

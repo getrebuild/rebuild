@@ -8,22 +8,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.business.datareport;
 
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
-import com.rebuild.server.configuration.DataReportManager;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 import org.jxls.common.Context;
 import org.jxls.util.JxlsHelper;
+import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,7 +28,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -48,23 +42,15 @@ import java.util.Map;
 public class ReportGenerator extends SetUser<ReportGenerator> {
 
     private File template;
-    private ID record;
-
-    /**
-     * @param reportId
-     * @param record
-     */
-    public ReportGenerator(ID reportId, ID record) {
-        this(DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(record.getEntityCode()), reportId), record);
-    }
+    private ID recordId;
 
     /**
      * @param template
-     * @param record
+     * @param recordId
      */
-    public ReportGenerator(File template, ID record) {
+    public ReportGenerator(File template, ID recordId) {
         this.template = template;
-        this.record = record;
+        this.recordId = recordId;
     }
 
     /**
@@ -93,7 +79,7 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
      * @return
      */
     protected Map<String, Object> getDataContext() {
-        Entity entity = MetadataHelper.getEntity(this.record.getEntityCode());
+        Entity entity = MetadataHelper.getEntity(this.recordId.getEntityCode());
 
         TemplateExtractor templateExtractor = new TemplateExtractor(this.template, false);
         final Map<String, String> varsMap = templateExtractor.transformVars(entity);
@@ -115,36 +101,12 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(validFields, ","), entity.getName(), entity.getPrimaryField().getName());
 
-        Query query = Application.getQueryFactory().createQuery(sql, this.getUser());
-        Record record = query.setParameter(1, this.record).record();
+        Record record = Application.createQuery(sql, this.getUser())
+                .setParameter(1, this.recordId)
+                .record();
 
-        for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
-            String name = iter.next();
-            Field field = MetadataHelper.getLastJoinField(entity, name);
-            EasyMeta easyMeta = EasyMeta.valueOf(field);
-            DisplayType dt = easyMeta.getDisplayType();
-            if (dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
-    				|| dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
-            	data.put(name, "[暂不支持" + dt.getDisplayName() + "]");
-            	continue;
-    		}
-
-            String varName = name;
-            for (Map.Entry<String, String> e : varsMap.entrySet()) {
-                if (name.equalsIgnoreCase(e.getValue())) {
-                    varName = e.getKey();
-                    break;
-                }
-            }
-
-            Object fieldValue = record.getObjectValue(name);
-            if (fieldValue == null) {
-                data.put(varName, StringUtils.EMPTY);
-            } else {
-                fieldValue = FieldValueWrapper.instance.wrapFieldValue(fieldValue, easyMeta, true);
-                data.put(varName, fieldValue);
-            }
-        }
+        Assert.notNull(record, "No record found : " + this.recordId);
+        data.putAll(new EasyExcelGenerator().buildData(record, varsMap));
         return data;
     }
 }

@@ -32,6 +32,19 @@ public class TemplateExtractorTest extends TestSupport {
     }
 
     @Test
+    public void testTransformVars() throws Exception {
+        File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
+
+        Entity test = MetadataHelper.getEntity(TEST_ENTITY);
+        System.out.println(new TemplateExtractor(template, true).transformVars(test));
+
+        if (MetadataHelper.containsEntity("SalesOrder999")) {
+            Entity SalesOrder999 = MetadataHelper.getEntity("SalesOrder999");
+            System.out.println(new TemplateExtractor(template, true).transformVars(SalesOrder999));
+        }
+    }
+
+    @Test
     public void testGetRealField() throws Exception {
         Entity test = MetadataHelper.getEntity(TEST_ENTITY);
 

@@ -31,4 +31,18 @@ public class DataReportGeneratorTest extends TestSupportWithUser {
         File file = generator.generate();
         System.out.println(file);
     }
+
+    @Test
+    public void testGeneratorV2() throws Exception {
+        File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
+        ID record = ID.valueOf("997-017048e97a7900e1");  // SalesOrder999
+
+        EasyExcelGenerator generator = new EasyExcelGenerator(template, record);
+        try {
+            File file = generator.setUser(UserService.ADMIN_USER).generate();
+            System.out.println("Report : " + file);
+        } catch (IllegalArgumentException ignored) {
+            // No record found in CI env
+        }
+    }
 }
