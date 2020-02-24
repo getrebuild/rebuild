@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.datareport;
@@ -44,48 +33,14 @@ import java.util.Set;
 public class TemplateExtractor {
 
     private File template;
-    private List<Cell> varsList;
+    private boolean isV2;
 
     /**
      * @param template
      */
-    public TemplateExtractor(File template) {
+    public TemplateExtractor(File template, boolean isV2) {
         this.template = template;
-        this.varsList = new ArrayList<>();
-    }
-
-    /**
-     * 提取变量
-     *
-     * @param matchsAny
-     * @return
-     */
-    public Set<String> extractVars(boolean matchsAny) {
-        List<Cell[]> rows = CommonsUtils.readExcel(this.template);
-
-        String regex = "\\$\\{[0-9a-zA-Z_.]+}";
-        // 能够匹配中文
-        if (matchsAny) {
-            regex = "\\$\\{.+}";
-        }
-
-        // jxls 不支持中文变量
-        // 思路是将中文变量替换成英文后保存
-
-        Set<String> vars = new HashSet<>();
-        int rowNum = 0;
-        for (Cell[] row : rows) {
-            for (Cell cell : row) {
-                if (!cell.isEmpty() && cell.asString().matches(regex)) {
-                    String varValue = cell.asString();
-                    varValue = varValue.substring(2, varValue.length() - 1);  // remove `${}`
-                    vars.add(varValue);
-                    varsList.add(new Cell(varValue, cell.getRowNo(), cell.getColumnNo()));
-                }
-            }
-            rowNum++;
-        }
-        return vars;
+        this.isV2 = isV2;
     }
 
     /**
@@ -102,22 +57,40 @@ public class TemplateExtractor {
             if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 map.put(field, field);
             } else {
-                String realField = getRealField(entity, field);
-                map.put(field, realField);  // Maybe null
+                String realField = transformRealField(entity, field);
+                map.put(field, realField);
             }
         }
         return map;
     }
 
     /**
-     * TODO 支持中文变量转换
+     * 提取变量
      *
-     * @param entity
-     * @param dest
+     * @param matchsAny
      * @return
      */
-    public Map<String, String> transformVarsAndSaveAs(Entity entity, File dest) {
-        throw new UnsupportedOperationException();
+    protected Set<String> extractVars(boolean matchsAny) {
+        List<Cell[]> rows = CommonsUtils.readExcel(this.template);
+
+        String regex = "\\{[0-9a-zA-Z_.]+}";
+        // 能够匹配中文
+        if (matchsAny) {
+            regex = "\\{.+}";
+        }
+        if (!this.isV2) regex = "\\$" + regex;  // jxls
+
+        Set<String> vars = new HashSet<>();
+        for (Cell[] row : rows) {
+            for (Cell cell : row) {
+                if (!cell.isEmpty() && cell.asString().matches(regex)) {
+                    String varValue = cell.asString();
+                    varValue = varValue.substring(this.isV2 ? 1 : 2, varValue.length() - 1);  // remove `${}` or `{}`
+                    vars.add(varValue);
+                }
+            }
+        }
+        return vars;
     }
 
     /**
@@ -127,7 +100,7 @@ public class TemplateExtractor {
      * @param fieldPath
      * @return
      */
-    protected String getRealField(Entity entity, String fieldPath) {
+    protected String transformRealField(Entity entity, String fieldPath) {
         String[] paths = fieldPath.split("\\.");
         List<String> realPaths = new ArrayList<>();
 
@@ -138,7 +111,7 @@ public class TemplateExtractor {
                 return null;
             }
 
-            lastField = getFieldByLabel(father, field);
+            lastField = findFieldByLabel(father, field);
             if (lastField == null) {
                 return null;
             }
@@ -154,12 +127,7 @@ public class TemplateExtractor {
         return StringUtils.join(realPaths, ".");
     }
 
-    /**
-     * @param entity
-     * @param fieldLabel
-     * @return
-     */
-    private Field getFieldByLabel(Entity entity, String fieldLabel) {
+    private Field findFieldByLabel(Entity entity, String fieldLabel) {
         for (Field field : entity.getFields()) {
             if (EasyMeta.getLabel(field).equalsIgnoreCase(fieldLabel)) {
                 return field;

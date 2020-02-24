@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 /* eslint-disable react/jsx-no-target-blank */
 
 $(document).ready(function () {
@@ -86,7 +93,7 @@ class ReporEdit extends ConfigFormDlg {
             </div>
             <div className="clearfix"></div>
             {(this.state.invalidVars || []).length > 0 && <div className="text-danger">
-              存在无效字段 {'${'}{this.state.invalidVars.join('} ${')}{'}'}，建议修改
+              存在无效字段 {`{${this.state.invalidVars.join('} {')}}`} 建议修改
             </div>}
           </div>
         </div>

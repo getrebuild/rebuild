@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.datareport;
@@ -49,11 +38,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 报表生成
+ * 报表生成 jxls
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/08/13
+ * @deprecated Use {@link EasyExcelGenerator}
  */
+@Deprecated
 public class ReportGenerator extends SetUser<ReportGenerator> {
 
     private File template;
@@ -64,8 +55,7 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
      * @param record
      */
     public ReportGenerator(ID reportId, ID record) {
-        this(DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(record.getEntityCode()),
-                reportId), record);
+        this(DataReportManager.instance.getTemplateFile(MetadataHelper.getEntity(record.getEntityCode()), reportId), record);
     }
 
     /**
@@ -97,7 +87,6 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
         return dest;
     }
 
-
     /**
      * 从模板中读取变量并查询数据
      *
@@ -106,7 +95,7 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
     protected Map<String, Object> getDataContext() {
         Entity entity = MetadataHelper.getEntity(this.record.getEntityCode());
 
-        TemplateExtractor templateExtractor = new TemplateExtractor(this.template);
+        TemplateExtractor templateExtractor = new TemplateExtractor(this.template, false);
         final Map<String, String> varsMap = templateExtractor.transformVars(entity);
 
         final Map<String, Object> data = new HashMap<>();
