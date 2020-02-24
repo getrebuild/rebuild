@@ -4,6 +4,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/admin/approval">
 <title>审批流程</title>
 </head>
 <body>
@@ -57,7 +58,7 @@
 									</thead>
 									<tbody id="dataList"></tbody>
 								</table>
-								<%@ include file="/_include/spinner.jsp"%>
+								<%@ include file="/_include/Spinner.jsp"%>
 								<div class="list-nodata hide"><span class="zmdi zmdi-assignment-check"></span><p>暂无审批流程</p></div>
 							</div>
 						</div>

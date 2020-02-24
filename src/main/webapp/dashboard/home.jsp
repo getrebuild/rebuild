@@ -17,7 +17,7 @@
 		<jsp:param value="dashboard-home" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-loading rb-loading-active must-center J_dash-load">
-		<%@ include file="/_include/spinner.jsp"%>
+		<%@ include file="/_include/Spinner.jsp"%>
 	</div>
 	<div class="rb-content">
 		<div class="announcement-wrapper"></div>

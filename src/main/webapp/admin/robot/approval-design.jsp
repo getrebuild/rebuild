@@ -41,7 +41,7 @@
 						<div class="step-content p-0">
 							<div data-step="2" class="step-pane active">
 								<div class="rbflow-design rb-loading rb-loading-active" id="rbflow">
-									<%@ include file="/_include/spinner.jsp"%>
+									<%@ include file="/_include/Spinner.jsp"%>
 								</div>
 							</div>
 						</div>

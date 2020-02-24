@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 .dev-show,
 .admin-show,
 .bosskey-show {
@@ -298,6 +305,14 @@ a.btn {
 
 .rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
     color: rgba(255, 255, 255, .6)
+}
+
+.rb-wrapper .rb-icons-nav .page-help {
+    display: none;
+}
+
+.rb-wrapper.rb-color-header .rb-icons-nav .page-help {
+    display: block;
 }
 
 .logo-img {
@@ -946,7 +961,6 @@ a {
     line-height: 1.41;
     margin-top: 6px;
     margin-bottom: -5px;
-    cursor: default;
 }
 
 .rbform .type-IMAGE .form-text,

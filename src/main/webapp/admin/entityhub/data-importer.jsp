@@ -3,6 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/admin/data-import">
 <title>数据导入</title>
 <style type="text/css">
 .fuelux .wizard .step-content {

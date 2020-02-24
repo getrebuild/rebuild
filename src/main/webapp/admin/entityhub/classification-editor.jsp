@@ -27,7 +27,7 @@
 		<div class="main-content container-fluid" style="padding-top:3px">
 			<div class="card mb-0">
 				<div class="card-body rb-loading rb-loading-active" id="boxes">
-					<%@ include file="/_include/spinner.jsp"%>
+					<%@ include file="/_include/Spinner.jsp"%>
 				</div>
 			</div>
 		</div>

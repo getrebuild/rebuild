@@ -97,7 +97,7 @@ span.badge {
 										</thead>
 										<tbody></tbody>
 									</table>
-									<%@ include file="/_include/spinner.jsp"%>
+									<%@ include file="/_include/Spinner.jsp"%>
 									<div class="list-nodata hide"><span class="zmdi zmdi-info-outline"></span><p>暂无配置</p></div>
 								</div>
 							</div>

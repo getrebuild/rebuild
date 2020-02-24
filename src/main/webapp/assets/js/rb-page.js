@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 /* eslint-disable no-unused-vars */
 // PAGE INITIAL
 $(function () {
@@ -67,6 +74,11 @@ $(function () {
   $(window).on('resize', function () {
     $setTimeout(function () { $addResizeHandler()() }, 120, 'resize-window')
   })
+
+  // Help link in page
+  var helpLink = $('meta[name="page-help"]').attr('content')
+  if (helpLink) $('.page-help>a').attr('href', helpLink)
+
 })
 // @t - trigger times
 var command_exec = function (t) { }

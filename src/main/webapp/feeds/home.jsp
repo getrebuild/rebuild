@@ -20,7 +20,7 @@
 			<div class="row">
 				<div class="col-lg-8 col-12">
                     <div class="rb-loading rb-loading-active" id="rb-feeds">
-                        <%@ include file="/_include/spinner.jsp"%>
+                        <%@ include file="/_include/Spinner.jsp"%>
                     </div>
 				</div>
 				<div class="col-lg-4 col-12 side-wrapper-parent pl-lg-0">
