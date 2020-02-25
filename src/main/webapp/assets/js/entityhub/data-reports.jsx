@@ -148,7 +148,7 @@ class ReporEdit extends ConfigFormDlg {
     $.get(`${rb.baseUrl}/admin/datas/data-reports/check-template?file=${file}&entity=${entity}`, (res) => {
       $mp.end()
       if (res.error_code === 0) {
-        let fileName = $fileCutName(file)
+        const fileName = $fileCutName(file)
         this.setState({
           templateFile: file,
           uploadFileName: fileName,

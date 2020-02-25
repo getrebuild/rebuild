@@ -323,9 +323,9 @@ var $createUploader = function (input, next, complete, error) {
           error: function (err) {
             var msg = (err.message || err.error || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
-              RbHighbar.error('请上传图片')
+              RbHighbar.create('请上传图片')
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.error('超出文件大小限制 (100M)')
+              RbHighbar.create('超出文件大小限制 (100M)')
             } else {
               RbHighbar.error('上传失败: ' + msg)
             }
