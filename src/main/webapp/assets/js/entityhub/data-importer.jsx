@@ -1,5 +1,11 @@
-let fields_cached
-let ientry = {
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+const ientry = {
   file: null,
   entity: null,
   repeat_opt: 1,
@@ -7,12 +13,14 @@ let ientry = {
   owning_user: null,
   fields_mapping: null
 }
+let fields_cached
 let import_inprogress = false
 let import_taskid
+
 $(document).ready(() => {
   init_upload()
 
-  let fileds_render = (entity) => {
+  const fileds_render = (entity) => {
     if (!entity) return
     let el = $('#repeatFields').empty()
     $.get(`${rb.baseUrl}/admin/datas/data-importer/import-fields?entity=${entity}`, (res) => {
@@ -32,12 +40,13 @@ $(document).ready(() => {
       ientry.entity = entity
     })
   }
+
   $.get(`${rb.baseUrl}/commons/metadata/entities?slave=true`, (res) => {
     $(res.data).each(function () {
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#toEntity')
     })
 
-    let entityS2 = $('#toEntity').select2({
+    const entityS2 = $('#toEntity').select2({
       allowClear: false
     }).on('change', function () {
       fileds_render($(this).val())
@@ -60,7 +69,7 @@ $(document).ready(() => {
       url: rb.baseUrl + '/commons/search/search',
       delay: 300,
       data: function (params) {
-        let query = {
+        const query = {
           entity: 'User',
           qfields: 'loginName,fullName,email,quickCode',
           q: params.term
@@ -68,7 +77,7 @@ $(document).ready(() => {
         return query
       },
       processResults: function (data) {
-        let rs = data.data.map((item) => { return item })
+        const rs = data.data.map((item) => { return item })
         return { results: rs }
       }
     }
@@ -98,9 +107,13 @@ const init_upload = () => {
     postUrl: rb.baseUrl + '/filex/upload?temp=yes',
     onSelectError: function (field, error) {
       if (error === 'ErrorType') RbHighbar.create('请上传 Excel/CSV 文件')
-      else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 20M')
+      else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 50M')
+    },
+    onClientLoad: function () {
+      $mp.start()
     },
     onSuccess: function (d) {
+      $mp.end()
       d = JSON.parse(d.currentTarget.response)
       if (d.error_code === 0) {
         ientry.file = d.data
@@ -135,11 +148,12 @@ const step_mapping = () => {
   if (!ientry.file) { RbHighbar.create('请上传数据文件'); return }
   if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { RbHighbar.create('请选择重复判断字段'); return }
 
-  let btn = $('.J_step1-btn').button('loading')
+  const $btn = $('.J_step1-btn').button('loading')
   $.get(`${rb.baseUrl}/admin/datas/data-importer/check-file?file=${$encode(ientry.file)}`, (res) => {
-    btn.button('reset')
+    $btn.button('reset')
     if (res.error_code > 0) { RbHighbar.create(res.error_msg); return }
-    let _data = res.data
+
+    const _data = res.data
     if (_data.preview.length < 2 || _data.preview[0].length === 0) { RbHighbar.create('上传的文件无有效数据'); return }
 
     render_fieldsMapping(_data.preview[0], fields_cached)
@@ -151,9 +165,9 @@ const step_mapping = () => {
 const step_import = () => {
   let fm = {}
   $('#fieldsMapping tbody>tr').each(function () {
-    let _this = $(this)
-    let col = _this.data('col')
-    let field = _this.find('select').val()
+    const _this = $(this)
+    const col = _this.data('col')
+    const field = _this.find('select').val()
     if (field) fm[field] = col
   })
   $(fields_cached).each((idx, item) => {
@@ -202,7 +216,7 @@ const import_state = (taskid, inLoad) => {
       return
     }
 
-    let _data = res.data
+    const _data = res.data
     $('.J_import_time').text(sec_to_time(~~_data.elapsedTime / 1000))
 
     if (_data.isCompleted === true) {
@@ -240,8 +254,8 @@ const import_cancel = () => {
 
 // 渲染字段映射
 const render_fieldsMapping = (columns, fields) => {
-  let fields_map = {}
-  let fields_select = $('<select><option value="">无</option></select>')
+  const fields_map = {}
+  const fields_select = $('<select><option value="">无</option></select>')
   $(fields).each((idx, item) => {
     let canNull = item.nullable === false ? ' [必填]' : ''
     if (item.defaultValue) canNull = ''
@@ -249,22 +263,22 @@ const render_fieldsMapping = (columns, fields) => {
     fields_map[item.name] = item
   })
 
-  let tbody = $('#fieldsMapping tbody').empty()
+  const $tbody = $('#fieldsMapping tbody').empty()
   $(columns).each(function (idx, item) {
-    let tr = $('<tr data-col="' + idx + '"></tr>').appendTo(tbody)
+    const $tr = $('<tr data-col="' + idx + '"></tr>').appendTo($tbody)
     $('<td><em>#' + (idx + 1) + '</em> ' + item + '<i class="zmdi zmdi-arrow-right"></i></td>').appendTo(tr)
-    let td = $('<td></td>').appendTo(tr)
-    fields_select.clone().appendTo(td)
-    $('<td class="pl-3"></td>').appendTo(tr)
+    const $td = $('<td></td>').appendTo($tr)
+    fields_select.clone().appendTo($td)
+    $('<td class="pl-3"></td>').appendTo($tr)
   })
   $('#fieldsMapping tbody select').select2({
     placeholder: '无'
   }).on('change', function () {
-    let val = $(this).val()
-    let toel = $(this).parents('td').next()
+    const val = $(this).val()
+    const toel = $(this).parents('td').next()
     if (val) {
       toel.parent().addClass('table-active')
-      let meta = fields_map[val]
+      const meta = fields_map[val]
       if (meta.defaultValue) toel.text('默认 : ' + meta.defaultValue)
       else toel.text('')
     } else {
@@ -274,7 +288,7 @@ const render_fieldsMapping = (columns, fields) => {
   })
 }
 
-var sec_to_time = function (s) {
+const sec_to_time = function (s) {
   if (!s || s <= 0) return '00:00:00'
   let hh = Math.floor(s / 3600)
   let mm = Math.floor(s / 60) % 60

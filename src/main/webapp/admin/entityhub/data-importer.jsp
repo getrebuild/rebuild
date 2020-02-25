@@ -82,12 +82,12 @@
 											<div class="col-md-12 col-xl-6 col-lg-8">
 												<div class="float-left">
 													<div class="file-select">
-														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="20971520">
+														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="52428800">
 														<label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
 													</div>
 												</div>
-												<div class="float-left ml-2 pt-1">
-													<div class="text-bold text-italic J_upload-input"></div>
+												<div class="float-left ml-2" style="padding-top:8px">
+													<u class="text-bold J_upload-input"></u>
 												</div>
 												<div class="clearfix"></div>
 								                <div class="form-text mb-0">

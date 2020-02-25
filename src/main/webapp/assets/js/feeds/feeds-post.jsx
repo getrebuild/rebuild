@@ -1,4 +1,9 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* global autosize, EMOJIS */
 
 // ~ 动态发布
@@ -195,7 +200,7 @@ class FeedsEditor extends React.Component {
 
     let mp
     $createUploader(this._imageInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       if (mp) mp.end()
@@ -204,7 +209,7 @@ class FeedsEditor extends React.Component {
       this.setState({ images: images })
     })
     $createUploader(this._fileInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       if (mp) mp.end()

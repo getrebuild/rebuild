@@ -1,8 +1,12 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable react/prop-types */
-/* global filesList */
-// 文档
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+/* global filesList */
+
+// 文档
 const __DEFAULT_ALL = 'ALL'
 let __FolderData = []
 
@@ -126,7 +130,7 @@ class FileUploadDlg extends RbFormHandler {
   componentDidMount() {
     let mp
     $createUploader(this._upload, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       if (mp) mp.end()

@@ -1,4 +1,10 @@
-/* eslint-disable react/jsx-no-target-blank */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(() => {
   let mList = <MessageList lazy={true} />
   if (window.__PageConfig && window.__PageConfig.type === 'Approval') mList = <ApprovalList />
@@ -61,7 +67,6 @@ class MessageList extends React.Component {
   }
 
   componentDidMount() {
-    // eslint-disable-next-line react/prop-types
     if (this.props.lazy !== true) this.fetchList()
     $('.read-all').click(() => this.makeRead('ALL'))
   }

@@ -1,6 +1,12 @@
-const wpc = window.__PageConfig || {}
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable react/no-string-refs */
-/* eslint-disable react/prop-types */
+
+const wpc = window.__PageConfig || {}
 
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
@@ -1148,7 +1154,7 @@ class BatchUpdate extends BatchOperator {
         that.disabled(true)
         $.post(`${rb.baseUrl}/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
-            const mp = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
+            const mp = new Mprogress({ template: 1, start: true })
             that.__checkState(res.data, mp)
           } else {
             that.disabled(false)

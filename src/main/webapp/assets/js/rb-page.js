@@ -4,8 +4,8 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-
 /* eslint-disable no-unused-vars */
+
 // PAGE INITIAL
 $(function () {
   var t = $('.rb-scroller')
@@ -492,4 +492,27 @@ var $pgt = {
   RecordList: 'RecordList',
   SlaveView: 'SlaveView',
   SlaveList: 'SlaveList'
+}
+
+// 加载状态条
+var $mp = {
+  __timer: null,
+  __mp: null,
+  // 开始
+  start: function () {
+    $mp.__timer = setTimeout(function () {
+      $mp.__mp = new Mprogress({ template: 3, start: true })
+    }, 600)
+  },
+  // 结束
+  end: function () {
+    if ($mp.__timer) {
+      clearTimeout($mp.__timer)
+      $mp.__timer = null
+    }
+    if ($mp.__mp) {
+      $mp.__mp.end()
+      $mp.__mp = null
+    }
+  }
 }

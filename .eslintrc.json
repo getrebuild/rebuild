@@ -91,9 +91,12 @@
         "$stopEvent": true,
         "$addResizeHandler": true,
         "$lang": true,
-        "$empty": true
+        "$empty": true,
+        "$mp": true
     },
     "rules": {
+        "react/jsx-no-target-blank": 0,
+        "react/prop-types": 0,
         "strict": 0,
         "no-redeclare": 0,
         "indent": [2, 2],

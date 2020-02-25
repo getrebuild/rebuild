@@ -1,5 +1,11 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable no-undef */
+
 const wpc = window.__PageConfig
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
@@ -311,12 +317,12 @@ class DlgImports extends RbModalHandler {
     const name = e.currentTarget.dataset.name
     const url = `${rb.baseUrl}/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     const that = this
-    RbAlert.create(`<strong>${name}</strong><br>请注意，导入将导致现有数据被清空。<br>如当前分类数据已被使用则不建议导入。确认导入吗？`, {
+    RbAlert.create(`<strong>${name}</strong><br>仅支持导入到空的分类数据中。开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
-        that.__mpro = new Mprogress({ template: 2, start: true, parent: '.rbmodal .modal-body' })
+        that.__mp = new Mprogress({ template: 2, start: true })
         $.post(url, (res) => {
           if (res.error_code === 0) that.__checkState(res.data)
           else RbHighbar.error(res.error_msg || '导入失败')
@@ -329,7 +335,7 @@ class DlgImports extends RbModalHandler {
     $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
-          this.__mpro.end()
+          this.__mp.end()
           RbHighbar.error(res.data.hasError)
           return
         }
@@ -337,10 +343,10 @@ class DlgImports extends RbModalHandler {
         const cp = res.data.progress
         if (cp >= 1) {
           RbHighbar.success('导入完成')
-          this.__mpro.end()
+          this.__mp.end()
           setTimeout(() => location.reload(), 1500)
         } else {
-          this.__mpro.set(cp)
+          this.__mp.set(cp)
           setTimeout(() => this.__checkState(taskid), 1000)
         }
       }

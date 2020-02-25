@@ -5,8 +5,6 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-/* eslint-disable react/jsx-no-target-blank */
-
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<ReporEdit />))
   renderRbcomp(<ReportList />, 'dataList')
@@ -62,12 +60,6 @@ class ReporEdit extends ConfigFormDlg {
 
   renderFrom() {
     return <React.Fragment>
-      <div className="form-group row">
-        <label className="col-sm-3 col-form-label text-sm-right">报表名称</label>
-        <div className="col-sm-7">
-          <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
-        </div>
-      </div>
       {!this.props.id && <React.Fragment>
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">选择应用实体</label>
@@ -79,7 +71,7 @@ class ReporEdit extends ConfigFormDlg {
             </select>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row pb-1">
           <label className="col-sm-3 col-form-label text-sm-right">模板文件</label>
           <div className="col-sm-9">
             <div className="float-left">
@@ -89,16 +81,23 @@ class ReporEdit extends ConfigFormDlg {
               </div>
             </div>
             <div className="float-left ml-2" style={{ paddingTop: 8 }}>
-              {this.state.uploadFileName && <div className="text-bold">{this.state.uploadFileName}</div>}
+              {this.state.uploadFileName && <u className="text-bold">{this.state.uploadFileName}</u>}
             </div>
             <div className="clearfix"></div>
-            {(this.state.invalidVars || []).length > 0 && <div className="text-danger">
-              存在无效字段 {`{${this.state.invalidVars.join('} {')}}`} 建议修改
-            </div>}
+            <p className="form-text mt-0 mb-1">如何编写模板文件？<a href="https://getrebuild.com/docs/admin/excel-admin" target="_blank" className="link">查看帮助</a></p>
+            {(this.state.invalidVars || []).length > 0 &&
+              <p className="form-text text-danger mt-0 mb-1">存在无效字段 {`{${this.state.invalidVars.join('} {')}}`} 建议修改</p>
+            }
           </div>
         </div>
       </React.Fragment>
       }
+      <div className="form-group row">
+        <label className="col-sm-3 col-form-label text-sm-right">报表名称</label>
+        <div className="col-sm-7">
+          <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
+        </div>
+      </div>
       {this.props.id &&
         <div className="form-group row">
           <div className="col-sm-7 offset-sm-3">
@@ -126,6 +125,9 @@ class ReporEdit extends ConfigFormDlg {
           if (error === 'ErrorType') RbHighbar.create('请上传 Excel 文件')
           else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 5M')
         },
+        onClientLoad: function () {
+          $mp.start()
+        },
         onSuccess: function (d) {
           d = JSON.parse(d.currentTarget.response)
           if (d.error_code === 0) {
@@ -144,6 +146,7 @@ class ReporEdit extends ConfigFormDlg {
     if (!file || !entity) return
 
     $.get(`${rb.baseUrl}/admin/datas/data-reports/check-template?file=${file}&entity=${entity}`, (res) => {
+      $mp.end()
       if (res.error_code === 0) {
         let fileName = $fileCutName(file)
         this.setState({
