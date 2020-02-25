@@ -1,4 +1,9 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* global autosize, EMOJIS */
 
 // ~ 动态发布
@@ -122,7 +127,7 @@ class FeedsEditor extends React.Component {
       es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
     }
 
-    return (<React.Fragment>
+    return <React.Fragment>
       <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
         <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder} maxLength="2000"
           onFocus={() => this.setState({ focus: true })}
@@ -177,10 +182,10 @@ class FeedsEditor extends React.Component {
       </div>
       }
       <span className="hide">
-        <input type="file" ref={(c) => this._fileInput = c} />
-        <input type="file" ref={(c) => this._imageInput = c} accept="image/*" />
+        <input type="file" ref={(c) => this._fileInput = c} data-maxsize="102400000" />
+        <input type="file" ref={(c) => this._imageInput = c} accept="image/*" data-maxsize="10240000" />
       </span>
-    </React.Fragment>)
+    </React.Fragment>
   }
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
@@ -194,24 +199,28 @@ class FeedsEditor extends React.Component {
     setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
 
     let mp
+    const mp_end = function () {
+      if (mp) mp.end()
+      mp = null
+    }
     $createUploader(this._imageInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
-      if (mp) mp.end()
+      mp_end()
       let images = this.state.images || []
       images.push(res.key)
       this.setState({ images: images })
-    })
+    }, () => mp_end())
     $createUploader(this._fileInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
-      if (mp) mp.end()
+      mp_end()
       let files = this.state.files || []
       files.push(res.key)
       this.setState({ files: files })
-    })
+    }, () => mp_end())
   }
   componentWillUnmount = () => this.__unmount = true
 

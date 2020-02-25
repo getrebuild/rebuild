@@ -3,6 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/admin/data-import">
 <title>数据导入</title>
 <style type="text/css">
 .fuelux .wizard .step-content {
@@ -81,12 +82,12 @@
 											<div class="col-md-12 col-xl-6 col-lg-8">
 												<div class="float-left">
 													<div class="file-select">
-														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="20971520">
+														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="102400000">
 														<label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
 													</div>
 												</div>
-												<div class="float-left ml-2 pt-1">
-													<div class="text-bold text-italic J_upload-input"></div>
+												<div class="float-left ml-2" style="padding-top:8px">
+													<u class="text-bold J_upload-input"></u>
 												</div>
 												<div class="clearfix"></div>
 								                <div class="form-text mb-0">
@@ -167,7 +168,7 @@
 											<div class="col-6"><h5 class="text-bold m-0 p-0 J_import_state">正在准备数据 ...</h5></div>
 											<div class="col-6 text-right text-muted">耗时 <span class="J_import_time">00:00:00</span></div>
 										</div>
-										<div class="progress">
+										<div class="progress"></div>
 										<div class="mt-3">
 											<button class="btn btn-danger btn-space J_step3-cancel" type="button">终止导入</button>
 											<a class="btn btn-link btn-space J_step3-logs hide" href="data-importer">继续导入</a>

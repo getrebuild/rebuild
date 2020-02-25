@@ -4,22 +4,66 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/admin/privileges">
 <title>角色权限</title>
 <style type="text/css">
-.priv{width:36px;height:18px;display:inline-block;background:url(${baseUrl}/assets/img/role/role_0.gif) no-repeat center center;}
-.priv:hover{cursor:pointer;opacity:0.8}
-.R1{background-image:url(${baseUrl}/assets/img/role/role_1.gif)}
-.R2{background-image:url(${baseUrl}/assets/img/role/role_2.gif)}
-.R3{background-image:url(${baseUrl}/assets/img/role/role_3.gif)}
-.R4{background-image:url(${baseUrl}/assets/img/role/role_4.gif)}
-.table-priv.table{table-layout:fixed;border:0 none;border-bottom:1px solid #dee2e6;}
-.table-priv.table td, .table-priv.table th{padding:9px 6px;vertical-align:middle;line-height:1}
-.table-priv.table th{border-top:0 none;font-weight:normal;color:#777}
-.table-priv.table th a:hover, .table-priv.table .name a:hover{opacity:0.8}
-.legend{border:1px solid #dee2e6;border-radius:3px;display:inline-block;padding:9px 15px;}
-.legend label{margin:0 6px;}
-.legend .priv{width:22px;float:left;}
-.legend-wrap{padding:10px 0;padding-bottom:5px;text-align:right;}
+.priv {
+	width: 36px;
+	height: 18px;
+	display: inline-block;
+	background: url(${baseUrl}/assets/img/role/role_0.gif) no-repeat center center;
+}
+.priv:hover {
+	cursor: pointer;
+	opacity: 0.8
+}
+.R1 {
+	background-image: url(${baseUrl}/assets/img/role/role_1.gif)
+}
+.R2 {
+	background-image: url(${baseUrl}/assets/img/role/role_2.gif)
+}
+.R3 {
+	background-image: url(${baseUrl}/assets/img/role/role_3.gif)
+}
+.R4 {
+	background-image: url(${baseUrl}/assets/img/role/role_4.gif)
+}
+.table-priv.table {
+	table-layout: fixed;
+	border: 0 none;
+	border-bottom: 1px solid #dee2e6;
+}
+.table-priv.table td, .table-priv.table th {
+	padding: 9px 6px;
+	vertical-align: middle;
+	line-height: 1
+}
+.table-priv.table th {
+	border-top: 0 none;
+	font-weight: normal;
+	color: #777
+}
+.table-priv.table th a:hover, .table-priv.table .name a:hover {
+	opacity: 0.8
+}
+.legend {
+	border: 1px solid #dee2e6;
+	border-radius: 3px;
+	display: inline-block;
+	padding: 9px 15px;
+}
+.legend label {
+	margin: 0 6px;
+}
+.legend .priv {
+	width: 22px;
+	float: left;
+}
+.legend-wrap {
+	padding: 10px 0 5px;
+	text-align: right;
+}
 </style>
 </head>
 <body>

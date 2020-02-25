@@ -3,6 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/admin/auditing">
 <title>回收站</title>
 </head>
 <body>
@@ -39,7 +40,7 @@
                         </div>
                     </div>
                     <div id="react-list" class="rb-loading rb-loading-active data-list">
-                        <%@ include file="/_include/spinner.jsp"%>
+                        <%@ include file="/_include/Spinner.jsp"%>
                     </div>
                 </div>
             </div>

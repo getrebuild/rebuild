@@ -1,8 +1,12 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable react/prop-types */
-/* global filesList */
-// 文档
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+/* global filesList */
+
+// 文档
 const __DEFAULT_ALL = 'ALL'
 let __FolderData = []
 
@@ -100,16 +104,16 @@ class FileUploadDlg extends RbFormHandler {
             <div className="file-field files">
               {(this.state.files || []).map((item) => {
                 let fileName = $fileCutName(item)
-                return (<div key={'file-' + item} className="img-thumbnail" title={fileName}>
+                return <div key={'file-' + item} className="img-thumbnail" title={fileName}>
                   <i className="file-icon" data-type={$fileExtName(fileName)} />
                   <span>{fileName}</span>
                   <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
-                </div>)
+                </div>
               })}
             </div>
             <label className="upload-box">
               点击选择或拖动文件至此
-              <input type="file" ref={(c) => this._upload = c} className="hide" />
+              <input type="file" ref={(c) => this._upload = c} className="hide" data-maxsize="102400000" />
             </label>
           </div>
         </div>
@@ -126,13 +130,16 @@ class FileUploadDlg extends RbFormHandler {
   componentDidMount() {
     let mp
     $createUploader(this._upload, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       if (mp) mp.end()
       let files = this.state.files || []
       files.push(res.key)
       this.setState({ files: files })
+    }, () => {
+      if (mp) mp.end()
+      mp = null
     })
 
     // 拖拽上传

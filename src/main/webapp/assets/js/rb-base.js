@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 /* eslint-disable no-unused-vars */
 /*! https://github.com/carhartl/jquery-cookie */
 // eslint-disable-next-line
@@ -87,6 +94,7 @@
     })
     // eslint-disable-next-line no-debugger
     if (rb.env === 'production') setInterval(function () { debugger }, 100)
+    if (!(location.protocol === 'http:' || location.protocol === 'https:')) location.href = 'https://getrebuild.com/'
   }
 
 })(jQuery)

@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(function () {
   let sbtn = $('.btn-primary').click(function () {
     let entityLabel = $val('#entityLabel'),
@@ -91,9 +98,9 @@ class MetaschemaList extends React.Component {
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
-        let mpro = new Mprogress({ template: 3, start: true })
+        $mp.start()
         $.post(url, (res) => {
-          mpro.end()
+          $mp.end()
           if (res.error_code === 0) {
             RbHighbar.success('导入完成')
             setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)

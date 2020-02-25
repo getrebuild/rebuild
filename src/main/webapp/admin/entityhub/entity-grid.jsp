@@ -3,6 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity">
 <title>实体管理</title>
 <style type="text/css">
 .card.entity {

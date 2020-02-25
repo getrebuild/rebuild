@@ -4,6 +4,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/admin/triggers">
 <title>触发器</title>
 </head>
 <body>
@@ -58,7 +59,7 @@
 									</thead>
 									<tbody id="dataList"></tbody>
 								</table>
-								<%@ include file="/_include/spinner.jsp"%>
+								<%@ include file="/_include/Spinner.jsp"%>
 								<div class="list-nodata hide"><span class="zmdi zmdi-rotate-cw"></span><p>暂无触发器</p></div>
 							</div>
 						</div>

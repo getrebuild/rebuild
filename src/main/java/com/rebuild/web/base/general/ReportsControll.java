@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.base.general;
@@ -24,15 +13,21 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.rebuild.server.business.datareport.ReportGenerator;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.dataimport.DataExporter;
+import com.rebuild.server.business.datareport.EasyExcelGenerator;
 import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FormsBuilder;
+import com.rebuild.server.helper.datalist.BatchOperatorQuery;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -52,6 +47,8 @@ import java.io.IOException;
 @RequestMapping("/app/{entity}/")
 public class ReportsControll extends BasePageControll {
 
+    // 打印视图
+
     @RequestMapping("print")
     public ModelAndView printPreview(@PathVariable String entity, HttpServletRequest request) {
         ID user = getRequestUser(request);
@@ -67,6 +64,8 @@ public class ReportsControll extends BasePageControll {
         return mv;
     }
 
+    // 报表
+
     @RequestMapping("reports/available")
     public void availableReports(@PathVariable String entity, HttpServletResponse response) {
         Entity entityMeta = MetadataHelper.getEntity(entity);
@@ -80,7 +79,7 @@ public class ReportsControll extends BasePageControll {
         ID reportId = getIdParameterNotNull(request, "report");
         ID recordId = getIdParameterNotNull(request, "record");
 
-        File report = new ReportGenerator(reportId, recordId).generate();
+        File report = new EasyExcelGenerator(reportId, recordId).generate();
 
         if (ServletUtils.isAjaxRequest(request)) {
             writeSuccess(response, JSONUtils.toJSONObject("file", report.getName()));
@@ -92,6 +91,26 @@ public class ReportsControll extends BasePageControll {
 
             FileDownloader.setDownloadHeaders(request, response, attname);
             FileDownloader.writeLocalFile(report, response);
+        }
+    }
+
+    // 列表导出
+
+    @RequestMapping("data-export/submit")
+    public void export(@PathVariable String entity,
+                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowDataExport), "没有权限");
+
+        int dataRange = getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED);
+        JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
+        queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS, false);
+
+        try {
+            File file = new DataExporter(queryData).setUser(user).export();
+            writeSuccess(response, file.getName());
+        } catch (Exception ex) {
+            writeFailure(response, ex.getLocalizedMessage());
         }
     }
 }

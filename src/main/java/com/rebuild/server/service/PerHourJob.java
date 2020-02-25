@@ -10,6 +10,7 @@ package com.rebuild.server.service;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.DatabaseBackup;
+import com.rebuild.utils.FileFilterByLastModified;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.DisallowConcurrentExecution;
@@ -39,8 +40,11 @@ public class PerHourJob extends QuartzJobBean {
         if (hour == 0 && SysConfiguration.getBool((ConfigurableItem.DBBackupsEnable))) {
             doDatabaseBackup();
         }
+        else if (hour == 1) {
+            doCleanTempFiles();
+        }
 
-        // others here
+        // DO OTHERS HERE ...
 
     }
 
@@ -53,5 +57,12 @@ public class PerHourJob extends QuartzJobBean {
         } catch (Exception e) {
             LOG.error("Executing [DatabaseBackup] failed : " + e);
         }
+    }
+
+    /**
+     * 清理临时目录
+     */
+    protected void doCleanTempFiles() {
+        FileFilterByLastModified.deletes(SysConfiguration.getFileOfTemp(null), 7);
     }
 }
