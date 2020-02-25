@@ -82,7 +82,7 @@
 											<div class="col-md-12 col-xl-6 col-lg-8">
 												<div class="float-left">
 													<div class="file-select">
-														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="52428800">
+														<input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="102400000">
 														<label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>选择文件</span></label>
 													</div>
 												</div>
@@ -168,7 +168,7 @@
 											<div class="col-6"><h5 class="text-bold m-0 p-0 J_import_state">正在准备数据 ...</h5></div>
 											<div class="col-6 text-right text-muted">耗时 <span class="J_import_time">00:00:00</span></div>
 										</div>
-										<div class="progress">
+										<div class="progress"></div>
 										<div class="mt-3">
 											<button class="btn btn-danger btn-space J_step3-cancel" type="button">终止导入</button>
 											<a class="btn btn-link btn-space J_step3-logs hide" href="data-importer">继续导入</a>

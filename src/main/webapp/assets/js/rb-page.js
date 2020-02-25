@@ -312,9 +312,8 @@ var $createUploader = function (input, next, complete, error) {
     input.on('change', function () {
       var file = this.files[0]
       if (!file) return
-      var putExtra = imgOnly ? {
-        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp']
-      } : null
+
+      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
       $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
@@ -322,16 +321,16 @@ var $createUploader = function (input, next, complete, error) {
             typeof next === 'function' && next({ percent: res.total.percent })
           },
           error: function (err) {
-            var msg = (err.message || 'UnknowError').toUpperCase()
+            var msg = (err.message || err.error || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
-              RbHighbar.create('请上传图片')
-              return false
+              RbHighbar.error('请上传图片')
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create('超出文件大小限制 (20M)')
-              return false
+              RbHighbar.error('超出文件大小限制 (100M)')
+            } else {
+              RbHighbar.error('上传失败: ' + msg)
             }
-            if (error) error({ error: msg })
-            else RbHighbar.error('上传失败: ' + msg)
+            typeof error === 'function' && error()
+            return false
           },
           complete: function (res) {
             $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
@@ -355,9 +354,7 @@ var $createUploader = function (input, next, complete, error) {
       },
       onClientLoad: function (e, file) { },
       onClientProgress: function (e, file) {
-        typeof next === 'function' && next({
-          percent: e.loaded * 100 / e.total
-        })
+        typeof next === 'function' && next({ percent: e.loaded * 100 / e.total })
       },
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
@@ -365,15 +362,13 @@ var $createUploader = function (input, next, complete, error) {
           $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
           complete({ key: e.data })
         } else {
-          var msg = e.error_msg || '上传失败，请稍后重试'
-          if (error) error({ error: msg })
-          else RbHighbar.error(msg)
+          RbHighbar.error('上传失败，请稍后重试')
+          typeof error === 'function' && error()
         }
       },
       onClientError: function (e, file) {
-        var msg = '上传失败，请稍后重试'
-        if (error) error({ error: msg })
-        else RbHighbar.error(msg)
+        RbHighbar.error('网络错误，请稍后重试')
+        typeof error === 'function' && error()
       }
     })
   }

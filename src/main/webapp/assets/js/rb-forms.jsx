@@ -646,7 +646,7 @@ class RbFormImage extends RbFormElement {
         </span>
       })}
       {showUpload && <span title={`上传图片。需要 ${this.__minUpload}~${this.__maxUpload} 个`}>
-        <input ref={(c) => this._fieldValue__input = c} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
+        <input ref={(c) => this._fieldValue__input = c} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" data-maxsize="10240000" />
         <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload"><span className="zmdi zmdi-image-alt"></span></label>
       </span>
       }
@@ -675,13 +675,16 @@ class RbFormImage extends RbFormElement {
     } else {
       let mp
       $createUploader(this._fieldValue__input, (res) => {
-        if (!mp) mp = new Mprogress({ template: 2, start: true })
+        if (!mp) mp = new Mprogress({ template: 1, start: true })
         mp.set(res.percent / 100)  // 0.x
       }, (res) => {
         mp.end()
         const paths = this.state.value || []
         paths.push(res.key)
         this.handleChange({ target: { value: paths } }, true)
+      }, () => {
+        if (mp) mp.end()
+        mp = null
       })
     }
   }
@@ -720,7 +723,7 @@ class RbFormFile extends RbFormImage {
         </div>
       })}
       {showUpload && <div className="file-select">
-        <input type="file" className="inputfile" ref={(c) => this._fieldValue__input = c} id={`${this.props.field}-input`} />
+        <input type="file" className="inputfile" ref={(c) => this._fieldValue__input = c} id={`${this.props.field}-input`} data-maxsize="102400000" />
         <label htmlFor={`${this.props.field}-input`} title={`上传文件。需要 ${this.__minUpload}~${this.__maxUpload} 个`} className="btn-secondary">
           <i className="zmdi zmdi-upload"></i>
           <span>上传文件</span>

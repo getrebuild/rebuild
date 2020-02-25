@@ -107,7 +107,7 @@ const init_upload = () => {
     postUrl: rb.baseUrl + '/filex/upload?temp=yes',
     onSelectError: function (field, error) {
       if (error === 'ErrorType') RbHighbar.create('请上传 Excel/CSV 文件')
-      else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 50M')
+      else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 100M')
     },
     onClientLoad: function () {
       $mp.start()

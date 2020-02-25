@@ -322,7 +322,7 @@ class DlgImports extends RbModalHandler {
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
-        that.__mp = new Mprogress({ template: 2, start: true })
+        that.__mp = new Mprogress({ template: 1, start: true })
         $.post(url, (res) => {
           if (res.error_code === 0) that.__checkState(res.data)
           else RbHighbar.error(res.error_msg || '导入失败')
