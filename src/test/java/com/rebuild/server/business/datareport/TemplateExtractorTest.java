@@ -26,7 +26,7 @@ public class TemplateExtractorTest extends TestSupport {
     @Test
     public void testExtractVars() throws Exception {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
-        Set<String> vars = new TemplateExtractor(template, true).extractVars(true);
+        Set<String> vars = new TemplateExtractor(template, true).extractVars();
         System.out.println(vars);
         Assert.assertTrue(vars.size() >= 7);
     }

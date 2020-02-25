@@ -45,6 +45,8 @@ public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
     private File template;
     private ID recordId;
 
+    private boolean hasMaster = false;
+
     protected EasyExcelGenerator() { }
 
     /**
@@ -77,9 +79,12 @@ public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
             return  null;
         }
 
-        Iterator<Map<String, Object>> iter = datas.iterator();
-        Map<String, Object> master = iter.next();
-        iter.remove();
+        Map<String, Object> master = null;
+        if (this.hasMaster) {
+            Iterator<Map<String, Object>> iter = datas.iterator();
+            master = iter.next();
+            iter.remove();
+        }
 
         ExcelWriter excelWriter = null;
         FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
@@ -87,12 +92,15 @@ public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
             excelWriter = EasyExcel.write(dest).withTemplate(template).build();
             WriteSheet writeSheet = EasyExcel.writerSheet().build();
 
-            for (Map<String, Object> c : datas) {
-                excelWriter.fill(c, fillConfig, writeSheet);
+            // 明细记录
+            if (!datas.isEmpty()) {
+                excelWriter.fill(datas, fillConfig, writeSheet);
             }
 
-            // 最后写主记录
-            excelWriter.fill(master, writeSheet);
+            // 主记录
+            if (master != null) {
+                excelWriter.fill(master, writeSheet);
+            }
 
         } finally {
             if (excelWriter != null) {
@@ -103,7 +111,7 @@ public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
     }
 
     /**
-     * @return
+     * @return 第一个为主记录（若有）
      */
     protected List<Map<String, Object>> buildData() {
         Entity entity = MetadataHelper.getEntity(this.recordId.getEntityCode());
@@ -127,30 +135,34 @@ public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
                 fieldsOfMaster.add(validField);
             }
         }
+
         if (fieldsOfMaster.isEmpty() && fieldsOfSlave.isEmpty()) {
             return Collections.emptyList();
         }
 
+        final List<Map<String, Object>> datas = new ArrayList<>();
         final String baseSql = "select %s from %s where %s = ?";
 
-        String sql = String.format(baseSql,
-                StringUtils.join(fieldsOfMaster, ","), entity.getName(), entity.getPrimaryField().getName());
-        Record record = Application.createQuery(sql, this.getUser())
-                .setParameter(1, this.recordId)
-                .record();
+        if (!fieldsOfMaster.isEmpty()) {
+            String sql = String.format(baseSql,
+                    StringUtils.join(fieldsOfMaster, ","), entity.getName(), entity.getPrimaryField().getName());
+            Record record = Application.createQuery(sql, this.getUser())
+                    .setParameter(1, this.recordId)
+                    .record();
+            Assert.notNull(record, "No record found : " + this.recordId);
 
-        Assert.notNull(record, "No record found : " + this.recordId);
-        Map<String, Object> data = buildData(record, varsMap);
-
-        List<Map<String, Object>> datas = new ArrayList<>();
-        datas.add(data);
-
+            Map<String, Object> data = buildData(record, varsMap, false);
+            datas.add(data);
+            this.hasMaster = true;
+        }
+        
         // 无明细
         if (fieldsOfSlave.isEmpty()) {
             return datas;
         }
 
-        sql = String.format(baseSql, StringUtils.join(fieldsOfSlave, ","),
+        String sql = String.format(baseSql + " order by modifiedOn desc",
+                StringUtils.join(fieldsOfSlave, ","),
                 entity.getSlaveEntity().getName(),
                 MetadataHelper.getSlaveToMasterField(entity.getSlaveEntity()).getName());
         List<Record> list = Application.createQuery(sql, this.getUser())
@@ -158,7 +170,7 @@ public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
                 .list();
 
         for (Record c : list) {
-            datas.add(buildData(c, varsMap));
+            datas.add(buildData(c, varsMap, true));
         }
         return datas;
     }
@@ -166,11 +178,26 @@ public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
     /**
      * @param record
      * @param varsMap
+     * @param isSlave
      * @return
      */
-    protected Map<String, Object> buildData(Record record, Map<String, String> varsMap) {
+    protected Map<String, Object> buildData(Record record, Map<String, String> varsMap, boolean isSlave) {
         final Entity entity = record.getEntity();
+
         final Map<String, Object> data = new HashMap<>();
+        // 无效字段填充
+        for (Map.Entry<String, String> e : varsMap.entrySet()) {
+            if (e.getValue() == null) {
+                String varName = e.getKey();
+                if (isSlave) {
+                    if (varName.startsWith(TemplateExtractor.SLAVE_PREFIX)) {
+                        data.put(varName.substring(1), "[无效字段]");
+                    }
+                } else {
+                    data.put(varName, "[无效字段]");
+                }
+            }
+        }
 
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             final String fieldName = iter.next();

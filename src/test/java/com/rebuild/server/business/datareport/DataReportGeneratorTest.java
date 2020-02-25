@@ -33,13 +33,23 @@ public class DataReportGeneratorTest extends TestSupportWithUser {
     }
 
     @Test
+    public void testGeneratorV2Simple() throws Exception {
+        File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
+        ID record = addRecordOfTestAllFields();
+
+        File file = new EasyExcelGenerator(template, record).setUser(UserService.ADMIN_USER).generate();
+        System.out.println("Report : " + file);
+    }
+
+    @Test
     public void testGeneratorV2() throws Exception {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
-        ID record = ID.valueOf("997-017048e97a7900e1");  // SalesOrder999
+        ID record = ID.valueOf("997-017048e97a7900e1");   // SalesOrder999
+        record = ID.valueOf("997-016eb12b29b9000d");  // SalesOrder999
 
-        EasyExcelGenerator generator = new EasyExcelGenerator(template, record);
+        // 主记录+明细记录
         try {
-            File file = generator.setUser(UserService.ADMIN_USER).generate();
+            File file = new EasyExcelGenerator(template, record).setUser(UserService.ADMIN_USER).generate();
             System.out.println("Report : " + file);
         } catch (IllegalArgumentException ignored) {
             // No record found in CI env

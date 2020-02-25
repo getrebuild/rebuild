@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 模板处理
@@ -34,6 +36,11 @@ public class TemplateExtractor {
 
     // 明细字段
     protected static final String SLAVE_PREFIX = ".";
+
+    // ${xxx}
+    private static final Pattern PATT_V1 = Pattern.compile("\\$\\{(.*?)}");
+    // {xxx}
+    private static final Pattern PATT_V2 = Pattern.compile("\\{(.*?)}");
 
     private File template;
     // Use easyexcel
@@ -54,7 +61,7 @@ public class TemplateExtractor {
      * @return
      */
     public Map<String, String> transformVars(Entity entity) {
-        Set<String> vars = extractVars(true);
+        final Set<String> vars = extractVars();
 
         Entity slaveEntity = entity.getSlaveEntity();
         Map<String, String> map = new HashMap<>();
@@ -62,6 +69,7 @@ public class TemplateExtractor {
 
             // 明细实体的字段
             if (slaveEntity != null && field.startsWith(SLAVE_PREFIX)) {
+
                 String slaveField = field.substring(1);
                 if (MetadataHelper.getLastJoinField(slaveEntity, slaveField) != null) {
                     map.put(field, slaveField);
@@ -81,28 +89,25 @@ public class TemplateExtractor {
     }
 
     /**
-     * 提取变量 {xxx}
+     * 提取变量
      *
-     * @param matchsAny
      * @return
      */
-    protected Set<String> extractVars(boolean matchsAny) {
+    protected Set<String> extractVars() {
         List<Cell[]> rows = CommonsUtils.readExcel(this.template);
-
-        String regex = "\\{[0-9a-zA-Z_.]+}";
-        // 能够匹配中文
-        if (matchsAny) {
-            regex = "\\{.+}";
-        }
-        if (!this.isV2) regex = "\\$" + regex;  // jxls
 
         Set<String> vars = new HashSet<>();
         for (Cell[] row : rows) {
             for (Cell cell : row) {
-                if (!cell.isEmpty() && cell.asString().matches(regex)) {
-                    String varValue = cell.asString();
-                    varValue = varValue.substring(this.isV2 ? 1 : 2, varValue.length() - 1);  // remove `${}` or `{}`
-                    vars.add(varValue);
+                if (cell.isEmpty()) {
+                    continue;
+                }
+
+                String cellText = cell.asString();
+                Matcher matcher = (this.isV2 ? PATT_V2 : PATT_V1).matcher(cellText);
+                while (matcher.find()) {
+                    String varName = matcher.group(1);
+                    vars.add(varName);
                 }
             }
         }

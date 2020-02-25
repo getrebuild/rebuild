@@ -13,15 +13,21 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.business.dataimport.DataExporter;
 import com.rebuild.server.business.datareport.EasyExcelGenerator;
 import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.configuration.portals.FormsBuilder;
+import com.rebuild.server.helper.datalist.BatchOperatorQuery;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -41,6 +47,8 @@ import java.io.IOException;
 @RequestMapping("/app/{entity}/")
 public class ReportsControll extends BasePageControll {
 
+    // 打印视图
+
     @RequestMapping("print")
     public ModelAndView printPreview(@PathVariable String entity, HttpServletRequest request) {
         ID user = getRequestUser(request);
@@ -55,6 +63,8 @@ public class ReportsControll extends BasePageControll {
         mv.getModel().put("printUser", UserHelper.getName(user));
         return mv;
     }
+
+    // 报表
 
     @RequestMapping("reports/available")
     public void availableReports(@PathVariable String entity, HttpServletResponse response) {
@@ -81,6 +91,26 @@ public class ReportsControll extends BasePageControll {
 
             FileDownloader.setDownloadHeaders(request, response, attname);
             FileDownloader.writeLocalFile(report, response);
+        }
+    }
+
+    // 列表导出
+
+    @RequestMapping("data-export/submit")
+    public void export(@PathVariable String entity,
+                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowDataExport), "没有权限");
+
+        int dataRange = getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED);
+        JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);
+        queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS, false);
+
+        try {
+            File file = new DataExporter(queryData).setUser(user).export();
+            writeSuccess(response, file.getName());
+        } catch (Exception ex) {
+            writeFailure(response, ex.getLocalizedMessage());
         }
     }
 }

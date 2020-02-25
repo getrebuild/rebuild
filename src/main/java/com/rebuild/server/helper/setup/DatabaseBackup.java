@@ -117,6 +117,7 @@ public class DatabaseBackup {
         }
         LOG.info("Backup succeeded : " + dest + " (" + FileUtils.byteCountToDisplaySize(dest.length()) + ")");
 
+        // 清理
         deleteOldBackups(backups, SysConfiguration.getInt(ConfigurableItem.DBBackupsKeepingDays));
 
         return dest;
@@ -136,6 +137,7 @@ public class DatabaseBackup {
             return;
         }
 
+        // 注意此时是保留最近N份
         Arrays.sort(backupFiles, new MaxBackupIndexDailyRollingFileAppender.CompratorByLastModified());
         for (int i = maxKeep; i < backupFiles.length;  i++) {
             File file = backupFiles[i];

@@ -106,7 +106,7 @@ public class ReportGenerator extends SetUser<ReportGenerator> {
                 .record();
 
         Assert.notNull(record, "No record found : " + this.recordId);
-        data.putAll(new EasyExcelGenerator().buildData(record, varsMap));
+        data.putAll(new EasyExcelGenerator().buildData(record, varsMap, true));
         return data;
     }
 }

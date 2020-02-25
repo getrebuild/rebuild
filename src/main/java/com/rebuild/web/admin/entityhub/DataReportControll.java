@@ -116,7 +116,7 @@ public class DataReportControll extends BasePageControll {
             File template = DataReportManager.instance.getTemplateFile(entity, reportId);
             file = new EasyExcelGenerator(template, (ID) random[0]).generate();
         } catch (ConfigurationException ex) {
-            response.sendError(400, "无法预览。报表模板不存在");
+            response.sendError(400, "无法预览。报表模板文件不存在");
             return;
         }
 
