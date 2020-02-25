@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.utils;
@@ -28,6 +17,7 @@ import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
@@ -285,16 +275,41 @@ public class CommonsUtils {
 	 * @param dest
 	 */
 	public static void zip(File file, File dest) throws IOException {
-		try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(dest)))) {
-			zos.putNextEntry(new ZipEntry(file.getName()));
+        FileOutputStream fos = null;
+        BufferedOutputStream bos = null;
+        ZipOutputStream zos = null;
 
-			try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file))) {
-				byte[] chunk = new byte[1024];
-				int count;
-				while((count = bis.read(chunk)) != -1) {
-					zos.write(chunk, 0, count);
-				}
-			}
-		}
+        try {
+            fos = new FileOutputStream(dest);
+            bos = new BufferedOutputStream(fos);
+            zos = new ZipOutputStream(bos);
+
+            zos.putNextEntry(new ZipEntry(file.getName()));
+
+            FileInputStream fis = null;
+            BufferedInputStream bis = null;
+
+            try {
+                fis = new FileInputStream(file);
+                bis = new BufferedInputStream(fis);
+
+                byte[] chunk = new byte[1024];
+                int count;
+                while((count = bis.read(chunk)) != -1) {
+                    zos.write(chunk, 0, count);
+                }
+
+                zos.finish();
+
+            } finally {
+                IOUtils.closeQuietly(bis);
+                IOUtils.closeQuietly(fis);
+            }
+
+        } finally {
+            IOUtils.closeQuietly(zos);
+            IOUtils.closeQuietly(bos);
+            IOUtils.closeQuietly(fos);
+        }
 	}
 }

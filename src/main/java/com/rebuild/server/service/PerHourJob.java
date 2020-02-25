@@ -10,7 +10,7 @@ package com.rebuild.server.service;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.DatabaseBackup;
-import org.apache.commons.io.FileUtils;
+import com.rebuild.utils.FileFilterByLastModified;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.DisallowConcurrentExecution;
@@ -19,7 +19,6 @@ import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
-import java.io.File;
 import java.util.Calendar;
 
 /**
@@ -64,15 +63,6 @@ public class PerHourJob extends QuartzJobBean {
      * 清理临时目录
      */
     protected void doCleanTempFiles() {
-        File[] temps = SysConfiguration.getFileOfTemp("/").listFiles();
-        if (temps == null) {
-            return;
-        }
-
-        for (File t : temps) {
-            if (t.isFile()) {
-                FileUtils.deleteQuietly(t);
-            }
-        }
+        FileFilterByLastModified.deletes(SysConfiguration.getFileOfTemp(null), 7);
     }
 }
