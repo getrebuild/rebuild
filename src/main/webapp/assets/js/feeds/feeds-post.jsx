@@ -204,7 +204,7 @@ class FeedsEditor extends React.Component {
       mp = null
     }
     $createUploader(this._imageInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       mp_end()
@@ -213,7 +213,7 @@ class FeedsEditor extends React.Component {
       this.setState({ images: images })
     }, () => mp_end())
     $createUploader(this._fileInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      if (!mp) mp = new Mprogress({ template: 2, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       mp_end()
