@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.metadata.entity;
@@ -33,6 +22,7 @@ import com.hankcs.hanlp.HanLP;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.helper.BlackList;
+import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -167,10 +157,29 @@ public class Field2Schema {
 	 * @param fields
 	 * @return
 	 */
-	protected boolean schema2Database(Entity entity, Field[] fields) {
+	public boolean schema2Database(Entity entity, Field[] fields) {
 		Dialect dialect = Application.getPersistManagerFactory().getDialect();
-		Table table = new Table(entity, dialect);
-		StringBuilder ddl = new StringBuilder("alter table `" + entity.getPhysicalName() + "`");
+		final Table table = new Table(entity, dialect);
+		final String alterSql = "alter table `" + entity.getPhysicalName() + "`";
+
+		// H2 只能一个个字段的加
+		if (Installer.isUseH2() && fields.length > 1) {
+			for (Field field : fields) {
+				StringBuilder ddl = new StringBuilder(alterSql).append(" add column ");
+				table.generateFieldDDL(field, ddl);
+
+				try {
+					Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() }, 10 * 60);
+				} catch (Throwable ex) {
+					LOG.error("DDL ERROR : \n" + ddl, ex);
+					return false;
+				}
+			}
+
+			return true;
+		}
+
+		StringBuilder ddl = new StringBuilder(alterSql);
 		for (Field field : fields) {
 			ddl.append("\n  add column ");
 			table.generateFieldDDL(field, ddl);

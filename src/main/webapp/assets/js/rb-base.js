@@ -53,6 +53,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
       else {
         var error = xhr.responseText
         if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
+        if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
         RbHighbar.error(error)
       }
     }

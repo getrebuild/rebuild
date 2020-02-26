@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.rbstore;
@@ -21,8 +10,6 @@ package com.rebuild.server.business.rbstore;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.util.support.Table;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -36,12 +23,11 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.metadata.entity.ModifiyMetadataException;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.configuration.AdvFilterService;
 import com.rebuild.server.service.configuration.LayoutConfigService;
 import com.rebuild.server.service.configuration.PickListService;
 import com.rebuild.utils.JSONUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,8 +42,6 @@ import java.util.Map;
  * @see MetaSchemaGenerator
  */
 public class MetaschemaImporter extends HeavyTask<String> {
-	
-	private static final Log LOG = LogFactory.getLog(MetaschemaImporter.class);
 	
 	final private String fileUrl;
 	private JSONObject remoteData;
@@ -182,41 +166,27 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		Entity entity = MetadataHelper.getEntity(entityName);
 		this.setCompleted((int) (this.getCompleted() * 1.5));
 		
-		// to DB
-		Dialect dialect = Application.getPersistManagerFactory().getDialect();
-		Table table = new Table(entity, dialect);
-		StringBuilder ddl = new StringBuilder("alter table `" + entity.getPhysicalName() + "`");
-		
 		JSONArray fields = schemaEntity.getJSONArray("fields");
-		for (Object field : fields) {
-			try {
+		try {
+			List<Field> fieldsList = new ArrayList<>();
+			for (Object field : fields) {
 				Field unsafe = performField((JSONObject) field, entity);
-				
-				ddl.append("\n  add column ");
-				table.generateFieldDDL(unsafe, ddl);
-				ddl.append(",");
-				
-			} catch (Exception ex) {
-				entity2Schema.dropEntity(entity, true);
-				
-				if (ex instanceof ModifiyMetadataException) {
-					throw ex;
-				} else {
-					throw new ModifiyMetadataException(ex);
-				}
+				fieldsList.add(unsafe);
+			}
+
+			// 同步字段到数据库
+			new Field2Schema(UserService.ADMIN_USER).schema2Database(entity, fieldsList.toArray(new Field[0]));
+
+		} catch (Exception ex) {
+			entity2Schema.dropEntity(entity, true);
+
+			if (ex instanceof ModifiyMetadataException) {
+				throw ex;
+			} else {
+				throw new ModifiyMetadataException(ex);
 			}
 		}
-		
-		ddl.deleteCharAt(ddl.length() - 1);
-		try {
-			Application.getSQLExecutor().executeBatch(new String[] { ddl.toString() });
-		} catch (Exception ex) {
-			LOG.error("DDL ERROR : \n" + ddl, ex);
-			entity2Schema.dropEntity(entity, true);
-			
-			throw new ModifiyMetadataException(ex);
-		}
-		
+
 		String nameField = schemaEntity.getString("nameField");
 		if (nameField != null) {
 			EasyMeta easyMeta = EasyMeta.valueOf(entity);
@@ -224,6 +194,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 			updateNameField.setString("nameField", nameField);
 			Application.getCommonService().update(updateNameField);
 		}
+
+		// 布局
 		
 		JSONObject layouts = schemaEntity.getJSONObject("layouts");
 		if (layouts != null) {
@@ -231,6 +203,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				performLayout(entityName, e.getKey(), (JSON) e.getValue());
 			}
 		}
+
+		// 高级查询
 		
 		JSONObject filters = schemaEntity.getJSONObject("filters");
 		if (filters != null) {
@@ -255,7 +229,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 				schemaField.getBooleanValue("nullable"),
 				true,
 				schemaField.getBooleanValue("updatable"),
-				schemaField.containsKey("repeatable") ? schemaField.getBooleanValue("repeatable") : true,
+				!schemaField.containsKey("repeatable") || schemaField.getBooleanValue("repeatable"),
 				schemaField.getString("comments"),
 				schemaField.getString("refEntity"),
 				null, 
