@@ -345,9 +345,11 @@
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<field name="relatedRecord" type="any-reference" description="相关业务记录" cascade="ignore" />
+		<field name="scheduleTime" type="timestamp" description="日程时间" />
 		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$TeamID" />
 		<index field-list="createdOn,scope,type,createdBy" />
 		<index field-list="relatedRecord" />
+		<index field-list="createdBy,scheduleTime" />
 		<index field-list="content" type="fulltext" />
 	</entity>
 

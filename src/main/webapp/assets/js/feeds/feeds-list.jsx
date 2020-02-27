@@ -374,9 +374,9 @@ function __renderRichContent(e) {
           <div><span>发送提醒 : </span> {__findMaskTexts(contentMore.scheduleRemind, REM_OPTIONS).join('、')}</div>}
       </div>
       }
-      {e.related && <div>
-        <span><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} : </span>
-        <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`} title="查看相关记录">{e.related.text}</a>
+      {e.relatedRecord && <div>
+        <span><i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} /> {e.relatedRecord.entityLabel} : </span>
+        <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title="查看相关记录">{e.relatedRecord.text}</a>
       </div>
       }
       {e.type === 3 && <div>

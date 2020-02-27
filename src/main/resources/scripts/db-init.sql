@@ -504,15 +504,17 @@ create table if not exists `feeds` (
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
+  `SCHEDULE_TIME`      timestamp null default null comment '日程时间',
   `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`FEEDS_ID`),
   index IX0_feeds (`CREATED_ON`, `SCOPE`, `TYPE`, `CREATED_BY`),
   index IX1_feeds (`RELATED_RECORD`),
-  fulltext index FIX2_feeds (`CONTENT`)
+  index IX2_feeds (`CREATED_BY`, `SCHEDULE_TIME`),
+  fulltext index FIX3_feeds (`CONTENT`)
 )Engine=InnoDB;
 
 -- ************ Entity [FeedsComment] DDL ************
@@ -591,4 +593,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  VALUES ('021-9000000000000001', 'DBVer', 21);
+  VALUES ('021-9000000000000001', 'DBVer', 22);

@@ -55,7 +55,7 @@ class FeedsPost extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.type !== this.state.type) {
-      let pos = $(this._activeType).find('.text-primary').position()
+      const pos = $(this._activeType).find('.text-primary').position()
       $(this._activeArrow).css('margin-left', pos.left - 31)
     }
   }
@@ -115,7 +115,7 @@ class UserSelectorExt extends UserSelector {
   clickItem(e) {
     const id = e.target.dataset.id
     const name = $(e.target).text()
-    this.props.call && this.props.call(id, name)
+    typeof this.props.call === 'function' && this.props.call(id, name)
   }
 }
 
@@ -163,7 +163,7 @@ class FeedsEditor extends React.Component {
         <ScheduleOptions ref={(c) => this._scheduleOptions = c} initValue={this.state.contentMore} />
       }
       {(this.state.type === 2 || this.state.type === 4) &&
-        <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.state.related} />
+        <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.state.relatedRecord} />
       }
       {this.state.type === 3 &&
         <AnnouncementOptions ref={(c) => this._announcementOptions = c} initValue={this.state.contentMore} />
@@ -284,6 +284,7 @@ class FeedsEditor extends React.Component {
     if (this.state.type === 4 && this._scheduleOptions) {
       vals.contentMore = this._scheduleOptions.val()
       if (!vals.contentMore) return
+      vals.scheduleTime = vals.contentMore.scheduleTime + ':00'
     }
     return vals
   }
@@ -587,7 +588,7 @@ class FeedsEditDlg extends RbModalHandler {
       type: this.props.type,
       images: this.props.images,
       files: this.props.attachments,
-      related: this.props.related,
+      relatedRecord: this.props.relatedRecord,
       contentMore: this.props.contentMore
     }
     return <RbModal ref={(c) => this._dlg = c} title="编辑动态" disposeOnHide={true}>
@@ -604,7 +605,7 @@ class FeedsEditDlg extends RbModalHandler {
     if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
-    let btns = $(this._btns).find('.btn').button('loading')
+    const btns = $(this._btns).find('.btn').button('loading')
     $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
       btns.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
