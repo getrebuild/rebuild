@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 .container-smart .rb-loading {
   height: 100%;
   background-color: #fff;
@@ -541,26 +548,44 @@
   margin-left: -7px;
 }
 
-.announcement-options {
+.feed-options {
   margin-top: 10px;
   border-radius: 2px;
   padding-top: 18px;
+  padding-right: 10px;
   border: 1px solid #eee;
 }
 
-.announcement-options dt {
+.feed-options dt {
   color: #777;
   font-weight: normal;
   text-align: right;
   padding-top: 6px;
 }
 
-.announcement-options .input-group {
-  max-width: 430px;
+.feed-options .form-control {
+  max-width: 200px;
 }
 
-.announcement-options .input-group-prepend {
+.feed-options .input-group-prepend {
   height: 37px;
+}
+
+.feed-options+.feed-options {
+  margin-top: -20px;
+  border-top: 0 none;
+  background-color: #fff;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.feed-options.related .related-record {
+  width: 295px;
+}
+
+/* in edit */
+.modal-body .feed-options.related .related-record {
+  width: 250px;
 }
 
 .rich-content>.mores {

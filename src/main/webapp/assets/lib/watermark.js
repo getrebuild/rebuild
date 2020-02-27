@@ -171,7 +171,7 @@
       wmMinotorInterval = setInterval(function () {
         var check = document.getElementById(defaultSettings.watermark_id)
         if (times++ >= 60 || !check || check.getAttribute('style') !== ss || shadowRoot.childNodes.length < cs) loadMark(settings)
-      }, 1000)
+      }, 2000)
     }
   };
 

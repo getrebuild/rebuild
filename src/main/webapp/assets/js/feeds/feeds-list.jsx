@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global converEmoji, FeedsEditor */
 
 const FeedsSorts = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
-const FeedsTypes = { 1: '动态', 2: '跟进', 3: '公告' }
+const FeedsTypes = { 1: '动态', 2: '跟进', 3: '公告', 4: '日程' }
 
 // ~ 动态列表
 // eslint-disable-next-line no-unused-vars
@@ -49,7 +49,7 @@ class FeedsList extends React.Component {
         }
         {(this.state.data || []).map((item) => {
           if (item.deleted) return null
-          let id = `feeds-${item.id}`
+          const id = `feeds-${item.id}`
           return <div key={id} id={id} className={`${item.id === this.state.focusFeed ? 'focus' : ''}`}>
             <div className="feeds">
               <div className="user">
@@ -128,7 +128,7 @@ class FeedsList extends React.Component {
 
   _toggleComment(feeds) {
     event.preventDefault()
-    let _data = this.state.data
+    const _data = this.state.data
     _data.forEach((item) => {
       if (feeds === item.id) {
         item.shownComments = !item.shownComments
@@ -152,7 +152,7 @@ class FeedsList extends React.Component {
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#feeds-${id}`).animate({ opacity: 0 }, 600, () => {
-            let _data = that.state.data
+            const _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
           })
@@ -185,7 +185,7 @@ class FeedsComments extends React.Component {
       <div className="feeds-list comment-list">
         {(this.state.data || []).map((item) => {
           if (item.deleted) return null
-          let id = `comment-${item.id}`
+          const id = `comment-${item.id}`
           return <div key={id} id={id}>
             <div className="feeds">
               <div className="user">
@@ -249,7 +249,7 @@ class FeedsComments extends React.Component {
 
   _post = (whichEditor) => {
     if (!whichEditor) whichEditor = this._editor
-    let _data = whichEditor.vals()
+    const _data = whichEditor.vals()
     if (!_data.content) { RbHighbar.create('请输入评论内容'); return }
     _data.feedsId = this.props.feeds
     _data.metadata = { entity: 'FeedsComment' }
@@ -270,7 +270,7 @@ class FeedsComments extends React.Component {
 
   _toggleReply = (id, state) => {
     event.preventDefault()
-    let _data = this.state.data
+    const _data = this.state.data
     _data.forEach((item) => {
       if (id === item.id) {
         if (state !== undefined) item.shownReply = state
@@ -294,7 +294,7 @@ class FeedsComments extends React.Component {
         $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
-            let _data = that.state.data
+            const _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
           })
@@ -362,24 +362,31 @@ class Pagination extends React.Component {
 function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
   const contentHtml = converEmoji(e.content.replace(/\n/g, '<br>'))
+  const contentMore = e.contentMore || {}
   return <div className="rich-content">
     <div className="texts text-break"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
-    {e.related && <div className="mores">
-      <div>
+    <div className="mores">
+      {e.type === 4 && <div>
+        <div><span>日程时间 : </span> {contentMore.scheduleTime}</div>
+        {contentMore.scheduleRemind > 0 &&
+          <div><span>发送提醒 : </span> {__findMaskTexts(contentMore.scheduleRemind, REM_OPTIONS).join('、')}</div>}
+      </div>
+      }
+      {e.related && <div>
         <span><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} : </span>
         <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`} title="查看相关记录">{e.related.text}</a>
       </div>
+      }
+      {e.type === 3 && <div>
+        {contentMore.showWhere > 0 &&
+          <div><span>展示位置 : </span> {__findMaskTexts(contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
+        {(contentMore.timeStart || contentMore.timeEnd) &&
+          <div><span>展示时间 : </span> {contentMore.timeStart || ''} 至 {contentMore.timeEnd}</div>}
+      </div>
+      }
     </div>
-    }
-    {e.type === 3 && <div className="mores">
-      {e.contentMore.showWhere > 0
-        && <div><span>展示位置 : </span> {__findMaskTexts(e.contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
-      {(e.contentMore.timeStart || e.contentMore.timeEnd)
-        && <div><span>展示时间 : </span> {e.contentMore.timeStart || ''} 至 {e.contentMore.timeEnd}</div>}
-    </div>
-    }
     {(e.images || []).length > 0 && <div className="img-field">
       ${e.images.map((item, idx) => {
         return (<span key={'img-' + item}>
@@ -392,10 +399,10 @@ function __renderRichContent(e) {
     }
     {(e.attachments || []).length > 0 && <div className="file-field">
       {e.attachments.map((item) => {
-        let fileName = $fileCutName(item)
-        return (<a key={'file-' + item} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
+        const fileName = $fileCutName(item)
+        return <a key={'file-' + item} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
           <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
-        </a>)
+        </a>
       })}
     </div>
     }
@@ -403,8 +410,9 @@ function __renderRichContent(e) {
 }
 
 const ANN_OPTIONS = [[1, '动态页'], [2, '首页'], [4, '登录页']]
+const REM_OPTIONS = [[1, '内部消息'], [2, '邮件']]
 function __findMaskTexts(mask, options) {
-  let texts = []
+  const texts = []
   options.forEach((item) => {
     if ((item[0] & mask) !== 0) texts.push(item[1])
   })
@@ -415,7 +423,7 @@ function __findMaskTexts(mask, options) {
 function _handleLike(id, comp) {
   event.preventDefault()
   $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
-    let _data = comp.state.data
+    const _data = comp.state.data
     _data.forEach((item) => {
       if (id === item.id) {
         item.numLike += (res.data ? 1 : -1)

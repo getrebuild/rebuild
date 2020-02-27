@@ -66,6 +66,7 @@
 											<ul class="list-unstyled">
 												<li data-type="1"><a>动态</a></li>
 												<li data-type="2"><a>跟进</a></li>
+												<li data-type="4"><a>日程</a></li>
 												<li data-type="3"><a>公告</a></li>
 											</ul>
 										</div>
