@@ -34,7 +34,7 @@ public final class SysConfiguration extends KVStorage {
 	 * @return
 	 */
 	public static File getFileOfData(String filepath) {
-	    if (filepath != null && filepath.contains("../")) {
+	    if (filepath != null && (filepath.contains("../") || filepath.contains("/backups/"))) {
 	        throw new SecurityException("Attack path detected : " + filepath);
         }
 
