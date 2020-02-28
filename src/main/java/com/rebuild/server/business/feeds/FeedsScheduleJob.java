@@ -97,10 +97,10 @@ public class FeedsScheduleJob extends QuartzJobBean {
             }
 
             if (!emails.isEmpty()) {
-                String title = "你有 " + emails.size() + " 条日程提醒";
+                String subject = "你有 " + emails.size() + " 条动态日程提醒";
                 String contents = formatContents(notifications, true);
                 contents = MarkdownUtils.parse(contents);
-                SMSender.sendMailAsync(emailAddr, title, contents);
+                SMSender.sendMailAsync(emailAddr, subject, contents);
             }
         }
     }
@@ -113,7 +113,7 @@ public class FeedsScheduleJob extends QuartzJobBean {
     private String formatContents(List<Object[]> list, boolean isMail) {
         StringBuilder sb = new StringBuilder();
         if (!isMail) {
-            sb.append("你有 ").append(list.size()).append(" 条日程提醒");
+            sb.append("你有 ").append(list.size()).append(" 条动态日程提醒");
         }
 
         for (Object[] o : list) {

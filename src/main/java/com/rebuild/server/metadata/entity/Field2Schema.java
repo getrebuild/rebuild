@@ -308,6 +308,7 @@ public class Field2Schema {
 	
 	/**
 	 * 中文 -> 拼音（仅保留字母数字）
+	 * 全英文+数字直接返回，不支持的字符会使用随机数
 	 * 
 	 * @param text
 	 * @return
@@ -330,9 +331,9 @@ public class Field2Schema {
 		identifier = HanLP.convertToPinyinString(identifier, "", false);
 		identifier = identifier.replaceAll("[^a-zA-Z0-9]", "");
 		if (StringUtils.isBlank(identifier)) {
-			throw new ModifiyMetadataException("无效名称 : " + text);
+			identifier = String.valueOf(System.currentTimeMillis() / 1000);
 		}
-		
+
 		char start = identifier.charAt(0);
 		if (!CharSet.ASCII_ALPHA.contains(start)) {
 			identifier = "rb" + identifier;
