@@ -106,7 +106,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .feeds-post>.list-unstyled a {
   display: inline-block;
-  padding: 2px 6px;
+  padding: 2px 8px;
 }
 
 .feeds-post>.list-unstyled a:hover {
@@ -597,6 +597,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .rich-content>.mores span {
   color: #666;
+}
+
+.rich-content>.mores .badge {
+  font-weight: normal;
+  padding: .07692rem .3154rem;
 }
 
 .search-member {

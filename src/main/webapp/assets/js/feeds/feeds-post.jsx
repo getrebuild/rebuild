@@ -56,7 +56,7 @@ class FeedsPost extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     if (prevState.type !== this.state.type) {
       const pos = $(this._activeType).find('.text-primary').position()
-      $(this._activeArrow).css('margin-left', pos.left - 31)
+      $(this._activeArrow).css('margin-left', pos.left - 30)
     }
   }
 
@@ -130,7 +130,11 @@ class FeedsEditor extends React.Component {
       es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
     }
 
+    // 日程已完成
+    const isFinish = this.state.type === 4 && this.props.contentMore && this.props.contentMore.finishTime
+
     return <React.Fragment>
+      {isFinish && <RbAlertBox message="此日程已完成，编辑后你需要重新将其完成" />}
       <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
         <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder} maxLength="2000"
           onFocus={() => this.setState({ focus: true })}
@@ -160,7 +164,7 @@ class FeedsEditor extends React.Component {
         </div>
       </div>
       {this.state.type === 4 &&
-        <ScheduleOptions ref={(c) => this._scheduleOptions = c} initValue={this.state.contentMore} />
+        <ScheduleOptions ref={(c) => this._scheduleOptions = c} initValue={this.state.contentMore} contentMore={this.state.contentMore} />
       }
       {(this.state.type === 2 || this.state.type === 4) &&
         <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.state.relatedRecord} />
@@ -542,7 +546,6 @@ class ScheduleOptions extends React.Component {
   }
   componentDidMount() {
     $(this._scheduleTime).find('.form-control').datetimepicker(__dpConfig)
-
     const initValue = this.props.initValue
     if (initValue) {
       $(this._scheduleTime).find('.form-control').val(initValue.scheduleTime)

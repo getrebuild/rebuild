@@ -43,12 +43,7 @@ public class FeedsSchedule  extends ChartData implements BuiltinChart {
 
     @Override
     public String getChartTitle() {
-        return "动态日程";
-    }
-
-    @Override
-    public JSONObject getChartConfig() {
-        return JSONUtils.toJSONObject(new String[]{"entity", "type"}, new String[]{"Feeds", getChartType()});
+        return "我的日程";
     }
 
     @Override
@@ -57,13 +52,19 @@ public class FeedsSchedule  extends ChartData implements BuiltinChart {
                 "select feedsId,scheduleTime,content,contentMore from Feeds" +
                         " where createdBy = ? and type = 4 and scheduleTime > ? order by scheduleTime")
                 .setParameter(1, getUser())
-                .setParameter(2, CalendarUtils.addDay(0))
+                .setParameter(2, CalendarUtils.addDay(-30))  // 忽略30天前的
                 .setLimit(200)
                 .array();
 
         final long nowTime = CalendarUtils.now().getTime();
         JSONArray list = new JSONArray();
         for (Object[] o : array) {
+            // 有完成时间表示已完成
+            JSONObject state = JSON.parseObject((String) o[3]);
+            if (state.getString("finishTime") != null) {
+                continue;
+            }
+
             final Date date = (Date) o[1];
             String scheduleTime = CalendarUtils.getUTCDateTimeFormat().format(date).substring(0, 16);
             String fromNow = Moment.moment(date).fromNow();
@@ -73,9 +74,6 @@ public class FeedsSchedule  extends ChartData implements BuiltinChart {
 
             String content = (String) o[2];
             content = MessageBuilder.formatMessage(content);
-
-            Integer state = JSON.parseObject((String) o[3]).getInteger("scheduleState");
-            if (state == null) state = 0;
 
             JSONObject item = JSONUtils.toJSONObject(
                     new String[] { "id", "scheduleTime", "scheduleLeft", "content", "state" },

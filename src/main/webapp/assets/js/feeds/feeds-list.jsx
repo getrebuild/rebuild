@@ -75,6 +75,7 @@ class FeedsList extends React.Component {
                 {item.self && <li className="list-inline-item mr-2">
                   <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
                   <div className="dropdown-menu dropdown-menu-right">
+                    {this._renderMoreMenu(item)}
                     <a className="dropdown-item" onClick={() => this._handleEdit(item)}><i className="icon zmdi zmdi-edit" /> 编辑</a>
                     <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}><i className="icon zmdi zmdi-delete" />删除</a>
                   </div>
@@ -108,11 +109,13 @@ class FeedsList extends React.Component {
   fetchFeeds(filter) {
     this.__lastFilter = filter = filter || this.__lastFilter
     const s = this.state
+    const firstFetch = !s.data
     // s.focusFeed 首次加载有效
-    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort}&type=${s.tabType}&foucs=${s.data ? null : s.focusFeed}`, JSON.stringify(filter), (res) => {
+
+    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`, JSON.stringify(filter), (res) => {
       const _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
-      this.setState({ data: _data.data })
+      this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null })
     })
   }
 
@@ -156,6 +159,33 @@ class FeedsList extends React.Component {
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
           })
+        })
+      }
+    })
+  }
+
+  // 渲染菜单
+  _renderMoreMenu(item) {
+    if (item.type === 4 && item.contentMore && !item.contentMore.finishTime) {
+      return <React.Fragment>
+        <a className="dropdown-item" onClick={() => this._handleFinish(item.id)}><i className="icon zmdi zmdi-check" /> 完成</a>
+        <div className="dropdown-divider"></div>
+      </React.Fragment>
+    }
+    return null
+  }
+
+  _handleFinish(id) {
+    const that = this
+    RbAlert.create('确认完成该日程？', {
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/feeds/post/finish-schedule?id=${id}`, (res) => {
+          if (res.error_code === 0) {
+            this.hide()
+            RbHighbar.success('日程已完成')
+            that.fetchFeeds()
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -370,8 +400,10 @@ function __renderRichContent(e) {
     <div className="mores">
       {e.type === 4 && <div>
         <div><span>日程时间 : </span> {contentMore.scheduleTime}</div>
-        {contentMore.scheduleRemind > 0 &&
-          <div><span>发送提醒 : </span> {__findMaskTexts(contentMore.scheduleRemind, REM_OPTIONS).join('、')}</div>}
+        {contentMore.finishTime && <div>
+          <span>完成时间 : </span> {contentMore.finishTime.substr(0, 16)}</div>}
+        {contentMore.scheduleRemind > 0 && <div>
+          <span>发送提醒 : </span> {__findMaskTexts(contentMore.scheduleRemind, REM_OPTIONS).join('、')}</div>}
       </div>
       }
       {e.relatedRecord && <div>

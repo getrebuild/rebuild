@@ -223,8 +223,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 	max-height: 37px;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	display: block;
 	color: #404040;
+	display: inline-block;
+	line-height: 1;
+}
+
+.chart.FeedsSchedule td>.content:hover {
+	opacity: 0.8;
 }
 
 .chart.FeedsSchedule td>.content p {

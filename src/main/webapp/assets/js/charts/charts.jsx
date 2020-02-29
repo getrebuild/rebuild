@@ -21,7 +21,7 @@ class BaseChart extends React.Component {
       :
       <div className="chart-oper">
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
-        {this.props.builtin === true ? null : <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
+        {this.props.builtin !== true && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
         <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
       </div>
 
@@ -514,7 +514,7 @@ class ApprovalList extends BaseChart {
   }
 }
 
-// ~ 动态日程
+// ~ 我的日程
 class FeedsSchedule extends BaseChart {
   constructor(props) {
     super(props)
@@ -522,7 +522,7 @@ class FeedsSchedule extends BaseChart {
 
   renderChart(data) {
     const table = (!data || data.length === 0) ?
-      <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无日程</div>
+      <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程</div>
       :
       <div>
         <table className="table table-striped table-hover">
@@ -530,17 +530,25 @@ class FeedsSchedule extends BaseChart {
             <tr>
               <th>日程内容</th>
               <th width="140">日程时间</th>
+              <th width="90"></th>
             </tr>
           </thead>
           <tbody>
             {data.map((item, idx) => {
+              // 超时
+              const timeover = item.scheduleLeft && item.scheduleLeft.substr(0, 1) === '-'
+              if (timeover) item.scheduleLeft = item.scheduleLeft.substr(1)
+
               return <tr key={'schedule-' + idx}>
                 <td>
                   <a title="查看详情" href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" className="content" dangerouslySetInnerHTML={{ __html: item.content }} />
                 </td>
                 <td className="cell-detail">
                   <div>{item.scheduleTime}</div>
-                  <span className="cell-detail-description">{item.scheduleLeft}</span>
+                  <span className={`cell-detail-description ${timeover ? 'text-warning' : ''}`}>{item.scheduleLeft}{timeover ? ' (过期)' : ''}</span>
+                </td>
+                <td className="actions text-right">
+                  <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>完成</button>
                 </td>
               </tr>
             })}
@@ -556,8 +564,6 @@ class FeedsSchedule extends BaseChart {
       $tb.find('.FeedsSchedule').css('height', $tb.height() - 13).perfectScrollbar()
       this.__tb = $tb
     })
-
-
     return table
   }
 
@@ -565,6 +571,22 @@ class FeedsSchedule extends BaseChart {
     $setTimeout(() => {
       if (this.__tb) this.__tb.find('.FeedsSchedule').css('height', this.__tb.height() - 13)
     }, 400, 'resize-chart-' + this.state.id)
+  }
+
+  handleFinish(id) {
+    const that = this
+    RbAlert.create('确认完成该日程？', {
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/feeds/post/finish-schedule?id=${id}`, (res) => {
+          if (res.error_code === 0) {
+            this.hide()
+            RbHighbar.success('日程已完成')
+            that.loadChartData()
+          } else RbHighbar.error(res.error_msg)
+        })
+      }
+    })
   }
 }
 
