@@ -2561,6 +2561,7 @@ form {
 
 .notification-list .notification .date {
     color: #8a8a8a !important;
+    margin-top: 6px !important;
 }
 
 .notification-list .notification .text a {
@@ -2586,6 +2587,10 @@ form {
 .notification-list .notification.notification-unread>.a:after {
     right: 8px;
     background-color: #4285f4 !important;
+}
+
+.notification-list .notification .text>ul {
+    padding-left: 18px;
 }
 
 .select2-sm .select2-container--default .select2-selection--single,

@@ -20,9 +20,9 @@ import java.util.regex.Pattern;
 
 /**
  * 语言包
- * 语言文件不支持 HTML（会转移），但支持部分 MD 语法：
+ * 为安全考虑语言文件不支持 HTML（会被转义），但支持部分 MD 语法：
  * - [] 换行 <br>
- * - [xxx](xxx) 链接
+ * - [TEXT](URL) 链接
  *
  * @author ZHAO
  * @since 2019/10/31

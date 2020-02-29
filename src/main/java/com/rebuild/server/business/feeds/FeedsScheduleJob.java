@@ -16,7 +16,6 @@ import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.MarkdownUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,6 +75,7 @@ public class FeedsScheduleJob extends QuartzJobBean {
             List<Object[]> notifications = new ArrayList<>();
             List<Object[]> emails = new ArrayList<>();
 
+            // 分类
             for (Object[] o : list) {
                 int reminds = JSON.parseObject((String) o[3]).getIntValue("scheduleRemind");
                 if ((reminds & 1) != 0) notifications.add(o);
@@ -85,7 +85,7 @@ public class FeedsScheduleJob extends QuartzJobBean {
             final ID toUser = (ID) list.get(0)[0];
 
             if (!notifications.isEmpty()) {
-                String contents = formatContents(notifications, false);
+                String contents = mergeContents(notifications, false);
                 Message m = MessageBuilder.createMessage(null, toUser, contents, Message.TYPE_FEEDS);
                 Application.getNotifications().send(m);
             }
@@ -98,8 +98,8 @@ public class FeedsScheduleJob extends QuartzJobBean {
 
             if (!emails.isEmpty()) {
                 String subject = "你有 " + emails.size() + " 条动态日程提醒";
-                String contents = formatContents(notifications, true);
-                contents = MarkdownUtils.parse(contents);
+                String contents = mergeContents(emails, true);
+                contents = MessageBuilder.formatMessage(contents, true);
                 SMSender.sendMailAsync(emailAddr, subject, contents);
             }
         }
@@ -110,18 +110,19 @@ public class FeedsScheduleJob extends QuartzJobBean {
      * @param isMail
      * @return
      */
-    private String formatContents(List<Object[]> list, boolean isMail) {
+    private String mergeContents(List<Object[]> list, boolean isMail) {
         StringBuilder sb = new StringBuilder();
         if (!isMail) {
             sb.append("你有 ").append(list.size()).append(" 条动态日程提醒");
         }
 
+        int nums = 0;
         for (Object[] o : list) {
-            sb.append("\n- ");
+            sb.append("\n- [");
 
             String c = (String) o[2];
-            if (c.length() > 60) {
-                c = c.substring(0, 60) + " ...";
+            if (c.length() > 100) {
+                c = c.substring(0, 100) + " ...";
             }
             sb.append(c);
 
@@ -131,8 +132,19 @@ public class FeedsScheduleJob extends QuartzJobBean {
             } else {
                 url = AppUtils.getContextPath() + url;
             }
-            sb.append(String.format(" [查看](%s)", url));
+            sb.append("](").append(url).append(")");
+
+            nums++;
+            // 最多列出 N 条
+            if (nums >= 5) {
+                break;
+            }
         }
+
+        if (list.size() > nums) {
+            sb.append("\n- 等共计 ").append(list.size()).append(" 条");
+        }
+
         return sb.toString();
     }
 }

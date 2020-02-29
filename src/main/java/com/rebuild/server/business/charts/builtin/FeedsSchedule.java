@@ -76,8 +76,8 @@ public class FeedsSchedule  extends ChartData implements BuiltinChart {
             content = MessageBuilder.formatMessage(content);
 
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[] { "id", "scheduleTime", "scheduleLeft", "content", "state" },
-                    new Object[] { o[0], scheduleTime, fromNow, content, state });
+                    new String[] { "id", "scheduleTime", "scheduleLeft", "content" },
+                    new Object[] { o[0], scheduleTime, fromNow, content });
             list.add(item);
         }
 
