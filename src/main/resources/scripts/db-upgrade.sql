@@ -4,7 +4,7 @@
 -- #22 scheduleTime for Feeds
 alter table `feeds`
   add column `SCHEDULE_TIME` timestamp null default null comment '日程时间',
-  add index IX4_feeds (`CREATED_BY`, `SCHEDULE_TIME`);
+  add index IX91_feeds (`TYPE`, `SCHEDULE_TIME`, `CREATED_BY`);
 
 -- #21 QuickCode for ClassificationData
 alter table `classification_data`

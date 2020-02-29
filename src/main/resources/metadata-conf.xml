@@ -349,7 +349,7 @@
 		<field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见, 可选值: ALL/SELF/$TeamID" />
 		<index field-list="createdOn,scope,type,createdBy" />
 		<index field-list="relatedRecord" />
-		<index field-list="createdBy,scheduleTime" />
+		<index field-list="type,scheduleTime,createdBy" />
 		<index field-list="content" type="fulltext" />
 	</entity>
 

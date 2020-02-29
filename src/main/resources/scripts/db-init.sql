@@ -513,7 +513,7 @@ create table if not exists `feeds` (
   primary key  (`FEEDS_ID`),
   index IX0_feeds (`CREATED_ON`, `SCOPE`, `TYPE`, `CREATED_BY`),
   index IX1_feeds (`RELATED_RECORD`),
-  index IX2_feeds (`CREATED_BY`, `SCHEDULE_TIME`),
+  index IX2_feeds (`TYPE`, `SCHEDULE_TIME`, `CREATED_BY`),
   fulltext index FIX3_feeds (`CONTENT`)
 )Engine=InnoDB;
 
