@@ -16,7 +16,9 @@ class RbFeeds extends React.Component {
       <FeedsList ref={(c) => this._list = c} focusFeed={s} />
     </React.Fragment>
   }
-  search = (filter) => this._list.fetchFeeds(filter)
+
+  // 搜索
+  search = (filter) => this._list.setState({ pageNo: 1 }, () => this._list.fetchFeeds(filter))
 }
 
 class GroupList extends React.Component {

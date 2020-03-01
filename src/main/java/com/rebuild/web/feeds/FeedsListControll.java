@@ -160,7 +160,7 @@ public class FeedsListControll extends BasePageControll {
                 JSONObject mixValue = FieldValueWrapper.wrapMixValue(related, nameValue);
                 mixValue.put("icon", entity.getIcon());
                 mixValue.put("entityLabel", entity.getLabel());
-                item.put("related", mixValue);
+                item.put("relatedRecord", mixValue);
             }
 
             // 更多内容

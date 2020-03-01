@@ -6,14 +6,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(function () {
-  let sbtn = $('.btn-primary').click(function () {
-    let entityLabel = $val('#entityLabel'),
+  const sbtn = $('.btn-primary').click(function () {
+    const entityLabel = $val('#entityLabel'),
       comments = $val('#comments')
     if (!entityLabel) {
       RbHighbar.create('请输入实体名称')
       return
     }
-    let _data = { label: entityLabel, comments: comments }
+
+    const _data = { label: entityLabel, comments: comments }
     // eslint-disable-next-line eqeqeq
     if ($val('#isSlave') == true) {
       _data.masterEntity = $val('#masterEntity')
@@ -22,10 +23,9 @@ $(document).ready(function () {
         return
       }
     }
-    _data = JSON.stringify(_data)
 
     sbtn.button('loading')
-    $.post(rb.baseUrl + '/admin/entity/entity-new?nameField=' + $val('#nameField'), _data, function (res) {
+    $.post(rb.baseUrl + '/admin/entity/entity-new?nameField=' + $val('#nameField'), JSON.stringify(_data), function (res) {
       if (res.error_code === 0) parent.location.href = rb.baseUrl + '/admin/entity/' + res.data + '/base'
       else RbHighbar.error(res.error_msg)
       sbtn.button('reset')
@@ -89,18 +89,19 @@ class MetaschemaList extends React.Component {
   }
 
   imports = (e) => {
-    let file = e.currentTarget.dataset.file
-    let name = e.currentTarget.dataset.name
-    let url = `${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`
-    let that = this
+    const file = e.currentTarget.dataset.file
+    const name = e.currentTarget.dataset.name
+    const that = this
+    const $mp2 = (parent && parent.$mp) ? parent.$mp : $mp
     parent.RbAlert.create(`<strong>导入 [ ${name} ]</strong><br>你可在导入后进行适当调整。开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
-        $mp.start()
-        $.post(url, (res) => {
-          $mp.end()
+
+        $mp2.start()
+        $.post(`${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`, (res) => {
+          $mp2.end()
           if (res.error_code === 0) {
             RbHighbar.success('导入完成')
             setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)

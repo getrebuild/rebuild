@@ -14,24 +14,26 @@ class BaseChart extends React.Component {
   }
 
   render() {
-    let opers = <div className="chart-oper">
-      <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
-      {this.props.builtin === true ? null : <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
-      <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
-    </div>
-    if (this.props.editable === false) {
-      opers = <div className="chart-oper">
+    const opers = this.props.editable === false ?
+      <div className="chart-oper">
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
       </div>
-    }
-
-    return (<div className={'chart-box ' + this.props.type} ref={(c) => this._box = c}>
-      <div className="chart-head">
-        <div className="chart-title text-truncate">{this.state.title}</div>
-        {opers}
+      :
+      <div className="chart-oper">
+        <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
+        {this.props.builtin !== true && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
+        <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
       </div>
-      <div ref={(c) => this._body = c} className={'chart-body rb-loading ' + (!this.state.chartdata && 'rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
-    </div>)
+
+    return (
+      <div className={'chart-box ' + this.props.type} ref={(c) => this._box = c}>
+        <div className="chart-head">
+          <div className="chart-title text-truncate">{this.state.title}</div>
+          {opers}
+        </div>
+        <div ref={(c) => this._body = c} className={'chart-body rb-loading ' + (!this.state.chartdata && 'rb-loading-active')}>{this.state.chartdata || <RbSpinner />}</div>
+      </div>
+    )
   }
 
   componentDidMount() {
@@ -90,12 +92,12 @@ class ChartIndex extends BaseChart {
   }
 
   renderChart(data) {
-    const chartdata = (<div className="chart index">
+    const chartdata = <div className="chart index">
       <div className="data-item must-center text-truncate">
         <p>{data.index.label || this.label}</p>
         <strong>{data.index.data}</strong>
       </div>
-    </div>)
+    </div>
     this.setState({ chartdata: chartdata })
   }
 }
@@ -108,9 +110,9 @@ class ChartTable extends BaseChart {
 
   renderChart(data) {
     if (!data.html) { this.renderError('暂无数据'); return }
-    const chartdata = (<div className="chart ctable">
+    const chartdata = <div className="chart ctable">
       <div dangerouslySetInnerHTML={{ __html: data.html }}></div>
-    </div>)
+    </div>
 
     const that = this
     let colLast = null
@@ -176,6 +178,7 @@ class ChartLine extends BaseChart {
   constructor(props) {
     super(props)
   }
+
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.xAxis.length === 0) { this.renderError('暂无数据'); return }
@@ -183,7 +186,7 @@ class ChartLine extends BaseChart {
     const that = this
     const elid = 'echarts-line-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, () => {
-      let formatter = []
+      const formatter = []
       for (let i = 0; i < data.yyyAxis.length; i++) {
         let yAxis = data.yyyAxis[i]
         yAxis.type = 'line'
@@ -221,7 +224,7 @@ class ChartLine extends BaseChart {
       opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
       opt.tooltip.trigger = 'axis'
 
-      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -233,6 +236,7 @@ class ChartBar extends BaseChart {
   constructor(props) {
     super(props)
   }
+
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.xAxis.length === 0) { this.renderError('暂无数据'); return }
@@ -240,9 +244,9 @@ class ChartBar extends BaseChart {
     const that = this
     const elid = 'echarts-bar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, () => {
-      let formatter = []
+      const formatter = []
       for (let i = 0; i < data.yyyAxis.length; i++) {
-        let yAxis = data.yyyAxis[i]
+        const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
         yAxis.smooth = true
         yAxis.lineStyle = { width: 3 }
@@ -278,7 +282,7 @@ class ChartBar extends BaseChart {
       opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
       opt.tooltip.trigger = 'axis'
 
-      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -290,6 +294,7 @@ class ChartPie extends BaseChart {
   constructor(props) {
     super(props)
   }
+
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.data.length === 0) { this.renderError('暂无数据'); return }
@@ -306,7 +311,7 @@ class ChartPie extends BaseChart {
       opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c} ({d}%)'
       // opt.label = { formatter: '{b} {c}' }
 
-      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -318,6 +323,7 @@ class ChartFunnel extends BaseChart {
   constructor(props) {
     super(props)
   }
+
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.data.length === 0) { this.renderError('暂无数据'); return }
@@ -344,7 +350,7 @@ class ChartFunnel extends BaseChart {
       }
       // opt.label = { formatter: '{b} {c}' }
 
-      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -356,6 +362,7 @@ class ChartTreemap extends BaseChart {
   constructor(props) {
     super(props)
   }
+
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
     if (data.data.length === 0) { this.renderError('暂无数据'); return }
@@ -388,7 +395,7 @@ class ChartTreemap extends BaseChart {
         }
       }
 
-      let c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -414,9 +421,9 @@ class ApprovalList extends BaseChart {
     const stats = <div className="progress-wrap sticky">
       <div className="progress">
         {this.__lastStats.map((item) => {
-          let s = APPROVAL_STATES[item[0]]
+          const s = APPROVAL_STATES[item[0]]
           if (!s || s[1] <= 0) return null
-          let sp = (item[1] * 100 / statsTotal).toFixed(2) + '%'
+          const sp = (item[1] * 100 / statsTotal).toFixed(2) + '%'
           return <div key={`state-${s[0]}`}
             className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] ? 'text-bold' : ''}`}
             title={`${s[1]} : ${item[1]} (${sp})`}
@@ -427,40 +434,45 @@ class ApprovalList extends BaseChart {
       <p className="m-0 mt-1 fs-11 text-muted text-right hide">审批统计</p>
     </div>
 
-    if (statsTotal === 0) { this.renderError('暂无数据'); return }
+    if (statsTotal === 0) {
+      this.renderError('暂无数据')
+      return
+    }
 
-    let table = <div>
-      <table className="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th style={{ minWidth: 150 }}>提交人</th>
-            <th style={{ minWidth: 150 }}>审批记录</th>
-            <th width="90"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.data.map((item, idx) => {
-            return <tr key={'approval-' + idx}>
-              <td className="user-avatar cell-detail user-info">
-                <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} />
-                <span>{item[1]}</span>
-                <span className="cell-detail-description">{item[2]}</span>
-              </td>
-              <td className="cell-detail">
-                <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`} target="_blank">{item[4]}</a>
-                <span className="cell-detail-description">{item[6]}</span>
-              </td>
-              <td className="actions text-right">
-                {this.state.viewState === 1 && <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>审批</button>}
-                {this.state.viewState === 10 && <span className="text-success">通过</span>}
-                {this.state.viewState === 11 && <span className="text-danger">驳回</span>}
-              </td>
+    const table = (!data.data || data.data.length === 0) ?
+      <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 你已完成所有审批</div>
+      :
+      <div>
+        <table className="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th style={{ minWidth: 150 }}>提交人</th>
+              <th style={{ minWidth: 150 }}>审批记录</th>
+              <th width="90"></th>
             </tr>
-          })}
-        </tbody>
-      </table>
-    </div>
-    if (data.data.length === 0) table = <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 你已完成所有审批</div>
+          </thead>
+          <tbody>
+            {data.data.map((item, idx) => {
+              return <tr key={'approval-' + idx}>
+                <td className="user-avatar cell-detail user-info">
+                  <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} />
+                  <span>{item[1]}</span>
+                  <span className="cell-detail-description">{item[2]}</span>
+                </td>
+                <td className="cell-detail">
+                  <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`} target="_blank">{item[4]}</a>
+                  <span className="cell-detail-description">{item[6]}</span>
+                </td>
+                <td className="actions text-right">
+                  {this.state.viewState === 1 && <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>审批</button>}
+                  {this.state.viewState === 10 && <span className="text-success">通过</span>}
+                  {this.state.viewState === 11 && <span className="text-danger">驳回</span>}
+                </td>
+              </tr>
+            })}
+          </tbody>
+        </table>
+      </div>
 
     const chartdata = <div className="chart ApprovalList">
       {stats}
@@ -502,6 +514,82 @@ class ApprovalList extends BaseChart {
   }
 }
 
+// ~ 我的日程
+class FeedsSchedule extends BaseChart {
+  constructor(props) {
+    super(props)
+  }
+
+  renderChart(data) {
+    const table = (!data || data.length === 0) ?
+      <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程</div>
+      :
+      <div>
+        <table className="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>日程内容</th>
+              <th width="140">日程时间</th>
+              <th width="90"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((item, idx) => {
+              // 超时
+              const timeover = item.scheduleLeft && item.scheduleLeft.substr(0, 1) === '-'
+              if (timeover) item.scheduleLeft = item.scheduleLeft.substr(1)
+
+              return <tr key={'schedule-' + idx}>
+                <td>
+                  <a title="查看详情" href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" className="content" dangerouslySetInnerHTML={{ __html: item.content }} />
+                </td>
+                <td className="cell-detail">
+                  <div>{item.scheduleTime}</div>
+                  <span className={`cell-detail-description ${timeover ? 'text-warning' : ''}`}>{item.scheduleLeft}{timeover ? ' (过期)' : ''}</span>
+                </td>
+                <td className="actions text-right">
+                  <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>完成</button>
+                </td>
+              </tr>
+            })}
+          </tbody>
+        </table>
+      </div>
+
+    const chartdata = <div className="chart FeedsSchedule">
+      {table}
+    </div>
+    this.setState({ chartdata: chartdata }, () => {
+      const $tb = $(this._body)
+      $tb.find('.FeedsSchedule').css('height', $tb.height() - 13).perfectScrollbar()
+      this.__tb = $tb
+    })
+    return table
+  }
+
+  resize() {
+    $setTimeout(() => {
+      if (this.__tb) this.__tb.find('.FeedsSchedule').css('height', this.__tb.height() - 13)
+    }, 400, 'resize-chart-' + this.state.id)
+  }
+
+  handleFinish(id) {
+    const that = this
+    RbAlert.create('确认完成该日程？', {
+      confirm: function () {
+        this.disabled(true)
+        $.post(`${rb.baseUrl}/feeds/post/finish-schedule?id=${id}`, (res) => {
+          if (res.error_code === 0) {
+            this.hide()
+            RbHighbar.success('日程已完成')
+            that.loadChartData()
+          } else RbHighbar.error(res.error_msg)
+        })
+      }
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id, editable) {
@@ -522,6 +610,8 @@ const detectChart = function (cfg, id, editable) {
     return <ChartTreemap {...props} />
   } else if (cfg.type === 'ApprovalList') {
     return <ApprovalList {...props} builtin={true} />
+  } else if (cfg.type === 'FeedsSchedule') {
+    return <FeedsSchedule {...props} builtin={true} />
   } else {
     return <h5>{`未知图表 [${cfg.type}]`}</h5>
   }
@@ -581,7 +671,7 @@ class ChartSelect extends RbModalHandler {
   }
 
   selectChart(item) {
-    let s = this.state.appended
+    const s = this.state.appended
     s.push(item[0])
     this.setState({ appended: s })
     typeof this.props.select === 'function' && this.props.select({ chart: item[0], title: item[1], type: item[2] })

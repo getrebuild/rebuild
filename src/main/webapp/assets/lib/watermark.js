@@ -13,14 +13,14 @@
   var defaultSettings = {
     watermark_id: 'wm_div_id',
     watermark_prefix: 'mask_div_id',
-    watermark_txt: "测试水印",
+    watermark_txt: ['WATERMARK'],
     watermark_x: 20,
     watermark_y: 20,
     watermark_rows: 0,
     watermark_cols: 0,
     watermark_x_space: 50,
     watermark_y_space: 50,
-    watermark_font: '微软雅黑',
+    watermark_font: 'arial',
     watermark_color: 'black',
     watermark_fontsize: '18px',
     watermark_alpha: 0.15,
@@ -33,13 +33,20 @@
     monitor: true,
   };
 
+  var wmMinotorInterval
+
   var loadMark = function (settings) {
     if (arguments.length === 1 && typeof arguments[0] === "object") {
       var src = arguments[0] || {};
-      for (key in src) {
+      for (var key in src) {
         if (src[key] && defaultSettings[key] && src[key] === defaultSettings[key]) continue;
         else if (src[key] || src[key] === 0) defaultSettings[key] = src[key];
       }
+    }
+
+    if (wmMinotorInterval) {
+      clearInterval(wmMinotorInterval)
+      wmMinotorInterval = null
     }
 
     var watermark_element = document.getElementById(defaultSettings.watermark_id);
@@ -126,7 +133,8 @@
           x = defaultSettings.watermark_x + (page_width - allWatermarkWidth) / 2 + (defaultSettings.watermark_width + defaultSettings.watermark_x_space) * j;
         }
         var mask_div = document.createElement('div');
-        var oText = document.createTextNode(defaultSettings.watermark_txt[Math.floor(Math.random() * defaultSettings.watermark_txt.length)] || 'REBUILD');
+        var oText = defaultSettings.watermark_txt[Math.floor(Math.random() * (defaultSettings.watermark_txt.length + 1))] || new Date().toLocaleString()
+        oText = document.createTextNode(oText);
         mask_div.appendChild(oText);
         mask_div.id = defaultSettings.watermark_prefix + i + j;
         mask_div.style.webkitTransform = "rotate(-" + defaultSettings.watermark_angle + "deg)";
@@ -157,32 +165,29 @@
 
     var minotor = settings.monitor === undefined ? defaultSettings.monitor : settings.monitor;
     if (minotor) {
-      watermarkDom.observe(watermark_hook_element, option);
-      watermarkDom.observe(document.getElementById('wm_div_id').shadowRoot, option);
+      var cs = shadowRoot.childNodes.length
+      var ss = document.getElementById(defaultSettings.watermark_id).getAttribute('style')
+      var times = 0
+      wmMinotorInterval = setInterval(function () {
+        var check = document.getElementById(defaultSettings.watermark_id)
+        if (times++ >= 60 || !check || check.getAttribute('style') !== ss || shadowRoot.childNodes.length < cs) loadMark(settings)
+      }, 2000)
     }
   };
 
   var removeMark = function () {
-    if (arguments.length === 1 && typeof arguments[0] === "object") {
-      var src = arguments[0] || {};
-      for (key in src) {
-        if (src[key] && defaultSettings[key] && src[key] === defaultSettings[key]) continue;
-        else if (src[key] || src[key] === 0) defaultSettings[key] = src[key];
-      }
-    }
-
     var watermark_element = document.getElementById(defaultSettings.watermark_id);
-    var _parentElement = watermark_element.parentNode;
-    _parentElement.removeChild(watermark_element);
+    if (watermark_element) {
+      var _parentElement = watermark_element.parentNode;
+      _parentElement.removeChild(watermark_element);
+    }
   };
 
   var globalSetting;
   watermark.init = function (settings) {
     globalSetting = settings;
     loadMark(settings);
-    window.addEventListener('onload', function () {
-      loadMark(settings);
-    });
+
     var resizeTimer
     window.addEventListener('resize', function () {
       if (resizeTimer) {
@@ -204,17 +209,8 @@
     removeMark();
   };
 
-  var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
-  if (MutationObserver) {
-    var callback = function (records) {
-      if ((globalSetting && records.length === 1) || records.length === 1 && records[0].removedNodes.length >= 1) {
-        loadMark(globalSetting);
-      }
-    };
-    new MutationObserver(callback);
-  }
-
   return watermark;
 }));
 
 // ~ https://github.com/saucxs/watermark-dom
+// ~ better by REBUILD
