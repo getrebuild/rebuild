@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.api;
@@ -30,21 +19,16 @@ import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RequestFrequencyCounter;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * 单点登录，获取登录 token
  *
  * @author devezhao
  * @since 2019/10/25
- *
- * @see com.rebuild.web.user.signin.LoginControll#userLogin(HttpServletRequest, HttpServletResponse)
  */
 public class LoginToken extends BaseApi {
 
-    // 有效期
-    private static final int TOKEN_EXPIRES = 60;
+    // Token 存储前缀
+    private static final String TOKEN_PREFIX = "RBLT.";
 
     private static final RequestFrequencyCounter COUNTER = new RequestFrequencyCounter();
 
@@ -63,10 +47,7 @@ public class LoginToken extends BaseApi {
         }
 
         User loginUser = Application.getUserStore().getUser(user);
-        String loginToken = String.format("%s,%d,%s,v1",
-                loginUser.getId(), System.currentTimeMillis(), CodecUtils.randomCode(20));
-        loginToken = CodecUtils.base64UrlEncode(loginToken);
-        Application.getCommonCache().putx(loginToken, loginUser.getId(), TOKEN_EXPIRES);
+        String loginToken = generateToken(loginUser.getId(), 60);
 
         JSON ret = JSONUtils.toJSONObject(
                 new String[] { "login_token", "login_url" },
@@ -74,14 +55,52 @@ public class LoginToken extends BaseApi {
         return formatSuccess(ret);
     }
 
+    // --
+
     /**
-     * 验证登录 token
+     * 生成并存储 Token
      *
-     * @param loginToken
+     * @param user
+     * @param expires
      * @return
      */
-    public static ID verifyToken(String loginToken) {
-        return (ID) Application.getCommonCache().getx(loginToken);
+    public static String generateToken(ID user, int expires) {
+        String token = String.format("%s,%d,%s,v1", user, System.currentTimeMillis(), CodecUtils.randomCode(20));
+        token = CodecUtils.base64UrlEncode(token);
+        Application.getCommonCache().putx(TOKEN_PREFIX + token, user, expires);
+        return token;
+    }
+
+    /**
+     * 验证 Token
+     *
+     * @param token
+     * @return
+     */
+    public static ID verifyToken(String token, boolean destroy) {
+        token = TOKEN_PREFIX + token;
+        ID user = (ID) Application.getCommonCache().getx(token);
+        if (user != null && destroy) {
+            Application.getCommonCache().evict(token);
+        }
+        return user;
+    }
+
+    /**
+     * 刷新 Token
+     *
+     * @param token
+     * @param expires
+     * @return
+     */
+    public static ID refreshToken(String token, int expires) {
+        ID user = verifyToken(token, false);
+        if (user == null) {
+            return null;
+        }
+
+        Application.getCommonCache().putx(TOKEN_PREFIX + token, user, expires);
+        return user;
     }
 
     /**

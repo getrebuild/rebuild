@@ -6,7 +6,7 @@
 <%
 final String errorMsg = AppUtils.getErrorMessage(request, exception);
 if (ServletUtils.isAjaxRequest(request)) {
-	out.print(errorMsg);
+	out.print(AppUtils.formatControllMsg(500, errorMsg));
 	return;
 }
 %>
