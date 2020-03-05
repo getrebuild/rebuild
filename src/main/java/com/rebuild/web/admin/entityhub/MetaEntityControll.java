@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin.entityhub;
@@ -35,6 +24,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.metadata.entity.Entity2Schema;
 import com.rebuild.server.service.base.QuickCodeReindexTask;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.common.FileDownloader;
@@ -97,13 +87,19 @@ public class MetaEntityControll extends BasePageControll {
 	}
 
 	@RequestMapping("entity/entity-list")
-	public void listEntity(HttpServletResponse response) throws IOException {
+	public void listEntity(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		// 有无 BIZZ 实体
+		final boolean nobizz = getBoolParameter(request, "nobizz", false);
+		// 有无明细实体
+		final boolean noslave = getBoolParameter(request, "noslave", true);
+
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Entity entity : MetadataSorter.sortEntities()) {
-			if (entity.getMasterEntity() != null) {
+			if ((noslave && entity.getMasterEntity() != null)
+					|| (nobizz && MetadataHelper.isBizzEntity(entity.getEntityCode()))) {
 				continue;
 			}
-			
+
 			EasyMeta easyMeta = new EasyMeta(entity);
 			Map<String, Object> map = new HashMap<>();
 			map.put("entityName", easyMeta.getName());
@@ -113,6 +109,9 @@ public class MetaEntityControll extends BasePageControll {
 			map.put("builtin", easyMeta.isBuiltin());
 			if (entity.getSlaveEntity() != null) {
 				map.put("slaveEntity", entity.getSlaveEntity().getName());
+			}
+			if (entity.getMasterEntity() != null) {
+				map.put("masterEntity", entity.getMasterEntity().getName());
 			}
 			ret.add(map);
 		}
@@ -240,9 +239,9 @@ public class MetaEntityControll extends BasePageControll {
 		EasyMeta entityMeta = EasyMeta.valueOf(entity);
 		mv.getModel().put("entityMetaId", entityMeta.getMetaId());
 		mv.getModel().put("entityName", entityMeta.getName());
-		mv.getModel().put("entityLabel", entityMeta.getLabel());
+		mv.getModel().put("entityLabel", CommonsUtils.escapeHtml(entityMeta.getLabel()));
 		mv.getModel().put("icon", entityMeta.getIcon());
-		mv.getModel().put("comments", entityMeta.getComments());
+		mv.getModel().put("comments", CommonsUtils.escapeHtml(entityMeta.getComments()));
 		return entityMeta;
 	}
 }

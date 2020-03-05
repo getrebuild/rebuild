@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin.entityhub;
@@ -37,6 +26,7 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
@@ -113,18 +103,18 @@ public class MetaFieldControll extends BasePageControll  {
 
 		Field fieldMeta = ((Entity) easyEntity.getBaseMeta()).getField(field);
 		EasyMeta easyField = new EasyMeta(fieldMeta);
-		
+
 		mv.getModel().put("fieldMetaId", easyField.getMetaId());
 		mv.getModel().put("fieldName", easyField.getName());
-		mv.getModel().put("fieldLabel", easyField.getLabel());
-		mv.getModel().put("fieldComments", easyField.getComments());
+		mv.getModel().put("fieldLabel", CommonsUtils.escapeHtml(easyField.getLabel()));
+		mv.getModel().put("fieldComments", CommonsUtils.escapeHtml(easyField.getComments()));
 		mv.getModel().put("fieldType", easyField.getDisplayType(false));
 		mv.getModel().put("fieldTypeLabel", easyField.getDisplayType(true));
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		mv.getModel().put("fieldRepeatable", fieldMeta.isRepeatable());
 		mv.getModel().put("fieldBuildin", easyField.isBuiltin());
-		mv.getModel().put("fieldDefaultValue", fieldMeta.getDefaultValue());
+		mv.getModel().put("fieldDefaultValue", CommonsUtils.escapeHtml(fieldMeta.getDefaultValue()));
 		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 		
 		// 字段类型相关

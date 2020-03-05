@@ -6,29 +6,27 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(function () {
-  let sbtn = $('.btn-primary').click(function () {
-    let entityLabel = $val('#entityLabel'),
+  const _btn = $('.btn-primary').click(function () {
+    const entityLabel = $val('#entityLabel'),
       comments = $val('#comments')
     if (!entityLabel) {
       RbHighbar.create('请输入实体名称')
       return
     }
-    let _data = { label: entityLabel, comments: comments }
-    // eslint-disable-next-line eqeqeq
-    if ($val('#isSlave') == true) {
+
+    const _data = { label: entityLabel, comments: comments }
+    if ($val('#isSlave')) {
       _data.masterEntity = $val('#masterEntity')
       if (!_data.masterEntity) {
         RbHighbar.create('请选择选择主实体')
         return
       }
     }
-    _data = JSON.stringify(_data)
 
-    sbtn.button('loading')
-    $.post(rb.baseUrl + '/admin/entity/entity-new?nameField=' + $val('#nameField'), _data, function (res) {
+    _btn.button('loading')
+    $.post(rb.baseUrl + '/admin/entity/entity-new?nameField=' + $val('#nameField'), JSON.stringify(_data), function (res) {
       if (res.error_code === 0) parent.location.href = rb.baseUrl + '/admin/entity/' + res.data + '/base'
       else RbHighbar.error(res.error_msg)
-      sbtn.button('reset')
     })
   })
 
@@ -38,15 +36,15 @@ $(document).ready(function () {
     parent.RbModal.resize()
     if (entitiesLoaded === false) {
       entitiesLoaded = true
-      $.get(rb.baseUrl + '/commons/metadata/entities', function (res) {
+      $.get(rb.baseUrl + '/admin/entity/entity-list?nobizz=true', function (res) {
         $(res.data).each(function () {
-          $('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#masterEntity')
+          if (!this.slaveEntity) $(`<option value="${this.entityName}">${this.entityLabel}</option>`).appendTo('#masterEntity')
         })
       })
     }
   })
 
-  $('.nav-tabs a').click(() => { parent.RbModal.resize() })
+  $('.nav-tabs a').click(() => parent.RbModal.resize())
 
   let indexLoaded = false
   $('.J_imports').click(() => {
@@ -61,6 +59,7 @@ class MetaschemaList extends React.Component {
     super(props)
     this.state = {}
   }
+
   render() {
     return <div>
       {this.state.indexes ? <div className="rbs-indexes ">{this.state.indexes.map((item) => {
@@ -81,6 +80,7 @@ class MetaschemaList extends React.Component {
         : <RbSpinner fully={true} />}
     </div>
   }
+
   componentDidMount() {
     $.get(`${rb.baseUrl}/admin/rbstore/load-index?type=metaschemas`, (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data }, () => { parent.RbModal.resize() })

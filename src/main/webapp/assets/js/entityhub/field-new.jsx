@@ -1,7 +1,14 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(function () {
   const entity = $urlp('entity')
-  let btn = $('.btn-primary').click(function () {
-    let fieldLabel = $val('#fieldLabel'),
+  const _btn = $('.btn-primary').click(function () {
+    const fieldLabel = $val('#fieldLabel'),
       type = $val('#type'),
       comments = $val('#comments'),
       refEntity = $val('#refEntity'),
@@ -22,7 +29,7 @@ $(document).ready(function () {
       return
     }
 
-    let _data = {
+    const _data = {
       entity: entity,
       label: fieldLabel,
       type: type,
@@ -31,11 +38,12 @@ $(document).ready(function () {
       refClassification: refClassification,
       stateClass: stateClass
     }
-    btn.button('loading')
+
+    _btn.button('loading')
     $.post(rb.baseUrl + '/admin/entity/field-new', JSON.stringify(_data), function (res) {
-      btn.button('reset')
+      _btn.button('reset')
       if (res.error_code === 0) {
-        if ($('#saveAndNew').prop('checked')) {
+        if ($val('#saveAndNew')) {
           RbHighbar.success('字段已添加')
           $('#fieldLabel, #comments').val('')
           $('#type').val('TEXT').trigger('change')
@@ -52,15 +60,15 @@ $(document).ready(function () {
   let classificationLoaded = false
   $('#type').change(function () {
     parent.RbModal.resize()
-    let dt = $(this).val()
+    const dt = $(this).val()
     $('.J_dt-' + dt).removeClass('hide')
 
     if (dt === 'REFERENCE') {
       if (referenceLoaded === false) {
         referenceLoaded = true
-        $.get(rb.baseUrl + '/admin/entity/entity-list', (res) => {
+        $.get(rb.baseUrl + '/admin/entity/entity-list?noslave=false', (res) => {
           $(res.data).each(function () {
-            $('<option value="' + this.entityName + '">' + this.entityLabel + '</option>').appendTo('#refEntity')
+            $(`<option value="${this.entityName}">${this.entityLabel}${this.masterEntity ? ' (明细)' : ''}</option>`).appendTo('#refEntity')
           })
           if (res.data.length === 0) $('<option value="">无可用实体</option>').appendTo('#refEntity')
         })
@@ -72,7 +80,7 @@ $(document).ready(function () {
           let hasData = false
           $(res.data).each(function () {
             if (!this[2]) {
-              $('<option value="' + this[0] + '">' + this[1] + '</option>').appendTo('#refClassification')
+              $(`<option value="${this[0]}">${this[1]}</option>`).appendTo('#refClassification')
               hasData = true
             }
           })
@@ -80,7 +88,7 @@ $(document).ready(function () {
         })
       }
     } else if (dt === 'STATE') {
-      // Nothing
+      // NOOP
     } else {
       $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     }

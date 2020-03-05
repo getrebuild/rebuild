@@ -166,29 +166,32 @@ var $urlp = function (key, qstr) {
 }
 
 /**
- * 获取元素值
- * 如有 data-o 属性：如当前值与原值（data-o）一致，则返回 undefined；如清空了值则返回 null
+ * 获取元素值。兼容旧值比较（根据 data-o 属性），如与旧值一致则返回 null
  * @param {Element/String} el 
  */
 var $val = function (el) {
   el = $(el)
   if (el.length === 0) return null
+
   var nVal = null
-  var tag = el.prop('tagName')
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
-    if (tag === 'INPUT' && el.attr('type') === 'checkbox') {
-      nVal = el.prop('checked') + ''
-    } else {
-      nVal = el.val()
-    }
+  var tagName = el.prop('tagName')
+  var isCheckbox = tagName === 'INPUT' && el.attr('type') === 'checkbox'
+  if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+    nVal = isCheckbox ? el.prop('checked') : el.val()
   } else {
     nVal = el.attr('value')
   }
 
-  var oVal = el.data('o') + ''
-  if (!oVal) return $.trim(nVal) || null
+  // 无 data-o 值
+  var oVal = el.data('o')
+  if (oVal === undefined || !(oVal + '')) {
+    return isCheckbox ? nVal : ($.trim(nVal) || null)
+  }
 
-  // eslint-disable-next-line no-constant-condition
+  if (isCheckbox) {
+    return nVal === oVal ? null : nVal
+  }
+
   if ((oVal || 666) === (nVal || 666)) return null // unmodified
   if (!!oVal && !nVal) return '' // new value is empty
   else return $.trim(nVal) || null
