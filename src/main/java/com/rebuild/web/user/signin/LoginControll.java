@@ -219,24 +219,24 @@ public class LoginControll extends BasePageControll {
 	 */
 	protected static ID createLoginLog(HttpServletRequest request, ID user) {
 		String ipAddr = ServletUtils.getRemoteAddr(request);
-		String userAgent = request.getHeader("user-agent");
-		if (userAgent != null && userAgent.startsWith(AppUtils.MOILE_UA_PREFIX)) {
-			userAgent = userAgent.toUpperCase();
+		String UA = request.getHeader("user-agent");
+		if (UA != null && UA.startsWith(AppUtils.MOILE_UA_PREFIX)) {
+			UA = UA.toUpperCase();
 		} else {
-			UserAgent ua = UserAgent.parseUserAgentString(userAgent);
+			UserAgent uas = UserAgent.parseUserAgentString(UA);
 			try {
-				userAgent = String.format("%s-%s (%s)", ua.getBrowser(),
-						ua.getBrowserVersion().getMajorVersion(), ua.getOperatingSystem());
+				UA = String.format("%s-%s (%s)",
+						uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
 			} catch (Exception ex) {
-				LOG.warn("Unknow user-agent : " + userAgent);
-				userAgent = ua.toString().toUpperCase();
+				LOG.warn("Unknow user-agent : " + UA);
+				UA = "UNKNOW";
 			}
 		}
 
 		Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
 		record.setID("user", user);
 		record.setString("ipAddr", ipAddr);
-		record.setString("userAgent", userAgent);
+		record.setString("userAgent", UA);
 		record.setDate("loginTime", CalendarUtils.now());
 		record = Application.getCommonService().create(record);
 		return record.getPrimary();

@@ -80,9 +80,9 @@ public class AppUtils {
 	 * @return
 	 */
 	protected static ID getRequestUserViaMobile(HttpServletRequest request) {
-		String userAgent = request.getHeader("user-agent");
+		String UA = request.getHeader("user-agent");
 		String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
-		if (userAgent != null && userAgent.startsWith(MOILE_UA_PREFIX)) {
+		if (UA != null && UA.startsWith(MOILE_UA_PREFIX)) {
 			return LoginToken.verifyToken(xAuthToken, false);
 		}
 		return null;
@@ -181,7 +181,7 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isIE(HttpServletRequest request) {
-		String UA = request.getHeader("user-agent").toLowerCase();
+		String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toLowerCase();
 		return UA.contains("msie") || UA.contains("trident");
 	}
 
