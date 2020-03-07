@@ -90,13 +90,26 @@ class ChartIndex extends BaseChart {
   }
 
   renderChart(data) {
-    const chartdata = (<div className="chart index">
+    const chartdata = (<div className="chart index" ref={(c) => this._chart = c}>
       <div className="data-item must-center text-truncate">
         <p>{data.index.label || this.label}</p>
         <strong>{data.index.data}</strong>
       </div>
     </div>)
-    this.setState({ chartdata: chartdata })
+    this.setState({ chartdata: chartdata }, () => this._resize())
+  }
+
+  resize() {
+    $setTimeout(() => this._resize(), 200, 'resize-chart-index')
+  }
+
+  _resize() {
+    const ch = $(this._chart).height()
+    const $text = $(this._chart).find('strong')
+    let zoom = $(this._chart).width() / $text.width() / 2
+    if (zoom < 1 || ch < 100) zoom = 1
+    if (zoom > 2.5 && ch < 200) zoom = 2.5
+    $text.css('zoom', Math.min(zoom, 4))
   }
 }
 
