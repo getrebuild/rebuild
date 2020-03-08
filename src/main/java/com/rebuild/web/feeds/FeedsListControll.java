@@ -133,7 +133,9 @@ public class FeedsListControll extends BasePageControll {
             List<Object[]> newArray = new ArrayList<>();
             newArray.add(foucsFeed);
             for (Object[] o : array) {
-                if (foucsFeed[0].equals(o[0])) continue;
+                if (foucsFeed[0].equals(o[0])) {
+                    continue;
+                }
                 newArray.add(o);
             }
             array = newArray.toArray(new Object[0][]);
