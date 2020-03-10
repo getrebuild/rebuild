@@ -284,7 +284,15 @@ var $storage = {
 }
 
 var $random__times = 0
-var $random = function (prefix) {
+var $random_charts = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+var $random = function (prefix, alphabetic, maxLength) {
+  if (alphabetic) {
+    var c = ''
+    for (var i = 0; i < (maxLength || 20); i++) {
+      c += $random_charts.charAt(Math.floor(Math.random() * $random_charts.length))
+    }
+    return (prefix || '') + c
+  }
   return (prefix || '') + new Date().getTime() + '' + ($random__times++)
 }
 

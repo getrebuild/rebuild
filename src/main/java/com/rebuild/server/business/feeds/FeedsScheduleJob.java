@@ -99,7 +99,7 @@ public class FeedsScheduleJob extends QuartzJobBean {
             if (!emails.isEmpty()) {
                 String subject = "你有 " + emails.size() + " 条动态日程提醒";
                 String contents = mergeContents(emails, true);
-                contents = MessageBuilder.formatMessage(contents, true);
+                contents = MessageBuilder.formatMessage(contents, true, false);
                 SMSender.sendMailAsync(emailAddr, subject, contents);
             }
         }

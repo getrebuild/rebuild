@@ -6,7 +6,7 @@
 <%
 final String errorMsg = AppUtils.getErrorMessage(request, exception);
 if (ServletUtils.isAjaxRequest(request)) {
-	out.print(AppUtils.formatControllMsg(500, errorMsg));
+	out.print(AppUtils.isRbMobile(request) ? AppUtils.formatControllMsg(500, errorMsg) : errorMsg);
 	return;
 }
 %>

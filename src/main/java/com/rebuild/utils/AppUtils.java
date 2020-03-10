@@ -68,21 +68,21 @@ public class AppUtils {
 		Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
 		// for Mobile
 		if (user == null) {
-			user = getRequestUserViaMobile(request);
+			user = getRequestUserViaRbMobile(request);
 		}
 		return user == null ? null : (ID) user;
 	}
 
 	/**
-	 * 获取移动端请求用户
+	 * 获取 APP 请求用户
 	 *
 	 * @param request
 	 * @return
+	 * @see #isRbMobile(HttpServletRequest)
 	 */
-	protected static ID getRequestUserViaMobile(HttpServletRequest request) {
-		String UA = request.getHeader("user-agent");
-		String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
-		if (UA != null && UA.startsWith(MOILE_UA_PREFIX)) {
+	protected static ID getRequestUserViaRbMobile(HttpServletRequest request) {
+		if (isRbMobile(request)) {
+			String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
 			return LoginToken.verifyToken(xAuthToken, false);
 		}
 		return null;
@@ -181,8 +181,19 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isIE(HttpServletRequest request) {
-		String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toLowerCase();
-		return UA.contains("msie") || UA.contains("trident");
+		String UA = request.getHeader("user-agent");
+		return UA != null && (UA.contains("msie") || UA.contains("trident"));
+	}
+
+	/**
+	 * 是否 APP
+	 *
+	 * @param request
+	 * @return
+	 */
+	public static boolean isRbMobile(HttpServletRequest request) {
+		String UA = request.getHeader("user-agent");
+		return UA != null && UA.startsWith(MOILE_UA_PREFIX);
 	}
 
 	/**

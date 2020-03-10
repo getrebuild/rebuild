@@ -18,6 +18,7 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RequestFrequencyCounter;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * 单点登录，获取登录 token
@@ -78,6 +79,10 @@ public class LoginToken extends BaseApi {
      * @return
      */
     public static ID verifyToken(String token, boolean destroy) {
+        if (StringUtils.isBlank(token)) {
+            return null;
+        }
+
         token = TOKEN_PREFIX + token;
         ID user = (ID) Application.getCommonCache().getx(token);
         if (user != null && destroy) {
