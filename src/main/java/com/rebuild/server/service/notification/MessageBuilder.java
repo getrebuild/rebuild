@@ -100,7 +100,7 @@ public class MessageBuilder {
      * @param md2html
      * @param xss
      * @return
-     * @see MarkdownUtils
+     * @see MarkdownUtils#parse(String)
      */
 	public static String formatMessage(String message, boolean md2html, boolean xss) {
 		if (xss) {

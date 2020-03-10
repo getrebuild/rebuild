@@ -88,20 +88,8 @@
 								<td data-id="MarkWatermark" data-options="true:是;false:否">${MarkWatermark ? "是" : "否"}</td>
 							</tr>
 							<tr>
-								<td>变更历史数据保留天数</td>
-								<td data-id="RevisionHistoryKeepingDays">${RevisionHistoryKeepingDays}</td>
-							</tr>
-							<tr>
-								<td>回收站数据保留天数</td>
-								<td data-id="RecycleBinKeepingDays">${RecycleBinKeepingDays}</td>
-							</tr>
-							<tr>
-								<td>数据库备份<p>每日0点备份到数据目录，请预留足够磁盘空间</p></td>
+								<td>数据库自动备份<p>每日0点备份到数据目录，请预留足够磁盘空间</p></td>
 								<td data-id="DBBackupsEnable" data-options="true:是;false:否">${DBBackupsEnable ? "是" : "否"}</td>
-							</tr>
-							<tr>
-								<td>数据库备份保留天数</td>
-								<td data-id="DBBackupsKeepingDays">${DBBackupsKeepingDays}</td>
 							</tr>
 						</tbody>
 						</table>

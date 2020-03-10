@@ -28,12 +28,12 @@
 						<div class="accordion m-0">
 							<div class="card">
 								<div class="card-header" id="headingSearch">
-									<button class="btn" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="true"><i class="icon zmdi zmdi-chevron-right"></i> 筛选</button>
+									<button class="btn" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="true"><i class="icon zmdi zmdi-chevron-right"></i> 搜索</button>
 								</div>
 								<div class="collapse show" id="collapseSearch">
 									<div class="card-body">
 										<div class="input-group input-group-sm">
-											<input type="text" class="form-control search J_search-key" placeholder="关键词" />
+											<input type="text" class="form-control search J_search-key" placeholder="关键词" title="输入关键词敲回车搜索" />
 											<span class="append">
 												<a><i class="icon zmdi zmdi-close"></i></a>
 												<i class="icon zmdi zmdi-search"></i>
@@ -66,6 +66,7 @@
 											<ul class="list-unstyled">
 												<li data-type="1"><a>动态</a></li>
 												<li data-type="2"><a>跟进</a></li>
+												<li data-type="4"><a>日程</a></li>
 												<li data-type="3"><a>公告</a></li>
 											</ul>
 										</div>

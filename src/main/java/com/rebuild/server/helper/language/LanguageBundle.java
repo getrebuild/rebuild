@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper.language;
@@ -31,6 +20,9 @@ import java.util.regex.Pattern;
 
 /**
  * 语言包
+ * 为安全考虑语言文件不支持 HTML（会被转义），但支持部分 MD 语法：
+ * - [] 换行 <br>
+ * - [TEXT](URL) 链接
  *
  * @author ZHAO
  * @since 2019/10/31
@@ -54,22 +46,43 @@ public class LanguageBundle implements JSONable {
         this.parent = parent;
     }
 
-    private static final Pattern VAR_PATTERN = Pattern.compile("\\{([0-9a-zA-Z]+)\\}");
+    private static final Pattern VARS_PATT = Pattern.compile("\\{([0-9a-zA-Z]+)}");
+    private static final Pattern LINK_PATT = Pattern.compile("\\[(.*?)\\]\\((.*?)\\)");
     /**
-     * 合并语言中的变量
+     * 合并语言中的变量，MD 转换
      *
      * @param bundle
      * @return
      */
     private JSONObject merge(JSONObject bundle) {
+        // 合并
         String bundleString = bundle.toJSONString();
-        Matcher matcher = VAR_PATTERN.matcher(bundleString);
+        Matcher matcher = VARS_PATT.matcher(bundleString);
         while (matcher.find()) {
             String var = matcher.group(1);
             String lang = bundle.getString(var);
             if (lang != null) {
                 bundleString = bundleString.replace("{" + var +"}", lang);
             }
+        }
+
+        // MD 转换
+
+        // 转义
+        bundleString = bundleString.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+
+        // 换行
+        bundleString = bundleString.replaceAll("\\[\\]", "<br/>");
+
+        // 链接
+        matcher = LINK_PATT.matcher(bundleString);
+        while (matcher.find()) {
+            String text = matcher.group(1);
+            String url = matcher.group(2);
+
+            bundleString = bundleString.replace(
+                    String.format("[%s](%s)", text, url),
+                    String.format("<a href='%s'>%s</a>", url, text));
         }
 
         this.bundleHash = EncryptUtils.toMD5Hex(bundleString);

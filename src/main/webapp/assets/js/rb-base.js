@@ -53,6 +53,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
       else {
         var error = xhr.responseText
         if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
+        if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
         RbHighbar.error(error)
       }
     }
@@ -83,17 +84,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   // 安全水印
   if (window.watermark && self === top) {
     window.watermark.init({
-      watermark_txt: [rb.currentUser, rb.appName, new Date().toLocaleString()],
+      watermark_txt: [rb.currentUser, rb.appName],
       watermark_angle: 30,
       watermark_width: 200,
       watermark_font: 'arial',
       watermark_fontsize: '15px',
       watermark_parent_width: $(window).width(),
       watermark_parent_height: $(window).height(),
-      monitor: false
+      monitor: true
     })
-    // eslint-disable-next-line no-debugger
-    if (rb.env === 'production') setInterval(function () { debugger }, 100)
     if (!(location.protocol === 'http:' || location.protocol === 'https:')) location.href = 'https://getrebuild.com/'
   }
 

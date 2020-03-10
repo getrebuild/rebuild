@@ -100,7 +100,7 @@ public class AnnouncementControll extends BaseControll {
             if (allow) {
                 JSONObject a = new JSONObject();
                 a.put("content", FeedsHelper.formatContent((String) o[0], true));
-                a.put("publishOn", CalendarUtils.getUTCDateTimeFormat().format(o[4]));
+                a.put("publishOn", CalendarUtils.getUTCDateTimeFormat().format(o[4]).substring(0, 16));
                 a.put("publishBy", UserHelper.getName((ID) o[3]));
                 a.put("id", o[5]);
                 as.add(a);

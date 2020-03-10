@@ -89,18 +89,19 @@ class MetaschemaList extends React.Component {
   }
 
   imports = (e) => {
-    let file = e.currentTarget.dataset.file
-    let name = e.currentTarget.dataset.name
-    let url = `${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`
-    let that = this
+    const file = e.currentTarget.dataset.file
+    const name = e.currentTarget.dataset.name
+    const that = this
+    const $mp2 = (parent && parent.$mp) ? parent.$mp : $mp
     parent.RbAlert.create(`<strong>导入 [ ${name} ]</strong><br>你可在导入后进行适当调整。开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
-        $mp.start()
-        $.post(url, (res) => {
-          $mp.end()
+
+        $mp2.start()
+        $.post(`${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`, (res) => {
+          $mp2.end()
           if (res.error_code === 0) {
             RbHighbar.success('导入完成')
             setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)

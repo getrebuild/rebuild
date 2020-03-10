@@ -57,7 +57,7 @@ public enum ConfigurableItem {
 	EnableRecentlyUsed(true),
 
 	// 开放注册
-	OpenSignUp(false),
+	OpenSignUp(true),
 	// 登录背景图
 	LiveWallpaper(true),
 	// 启用文件分享
@@ -72,9 +72,9 @@ public enum ConfigurableItem {
 	// 回收站数据保留天数（0为禁用）
 	RecycleBinKeepingDays(180),
     // 启用数据库备份
-	DBBackupsEnable(true),
+	DBBackupsEnable(false),
     // 数据备份保留时间
-	DBBackupsKeepingDays(30),
+	DBBackupsKeepingDays(180),
 
 	;
 	
