@@ -217,7 +217,7 @@ public class LoginControll extends BasePageControll {
 	 * @param user
 	 * @return
 	 */
-	protected static ID createLoginLog(HttpServletRequest request, ID user) {
+	public static ID createLoginLog(HttpServletRequest request, ID user) {
 		String ipAddr = ServletUtils.getRemoteAddr(request);
 		String UA = request.getHeader("user-agent");
 		if (UA != null && UA.startsWith(AppUtils.MOILE_UA_PREFIX)) {

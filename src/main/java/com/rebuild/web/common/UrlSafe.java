@@ -23,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -67,7 +69,7 @@ public class UrlSafe extends BasePageControll {
 
         // 首次
         if (TRUSTED_URLS.isEmpty()) {
-            TRUSTED_URLS.add(".getrebuild.com");
+            TRUSTED_URLS.add("getrebuild.com");
 
             try {
                 File s = ResourceUtils.getFile("classpath:trusted-url.json");
@@ -84,8 +86,14 @@ public class UrlSafe extends BasePageControll {
             }
         }
 
+        String host = url;
+        try {
+            host = new URL(url).getHost();
+        } catch (MalformedURLException ignored) {
+        }
+
         for (String trusted : TRUSTED_URLS) {
-            if (url.contains(trusted)) {
+            if (host.equals(trusted) || host.contains(trusted)) {
                 return true;
             }
         }

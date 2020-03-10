@@ -21,7 +21,6 @@ $(document).ready(function () {
       updatable: $val('#fieldUpdatable'),
       repeatable: $val('#fieldRepeatable')
     }
-    console.log(JSON.stringify(_data))
     if (_data.fieldLabel === '') {
       RbHighbar.create('请输入字段名称')
       return

@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.web.user.signin;
+package com.rebuild.web.rbmobile;
 
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -17,6 +17,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RequestFrequencyCounter;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.user.signin.LoginControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -35,6 +36,7 @@ import java.io.IOException;
  */
 @Controller
 @RequestMapping("/mobile/user/")
+@RbMobile
 public class MobileAuthControll extends BaseControll {
 
     // 有效期
