@@ -31,7 +31,7 @@ import java.io.IOException;
  * @since 2020/3/5
  *
  * @see com.rebuild.web.RequestWatchHandler
- * @see AppUtils
+ * @see AppUtils#getRequestUser(HttpServletRequest)
  */
 @Controller
 @RequestMapping("/mobile/user/")
@@ -45,7 +45,7 @@ public class MobileAuthControll extends BaseControll {
     @RequestMapping("login")
     public void mobileLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String ipAddr = ServletUtils.getRemoteAddr(request);
-        if (COUNTER.counter(ipAddr).add().seconds(60).than(3)) {
+        if (COUNTER.counter(ipAddr).add().seconds(60).than(5)) {
             writeFailure(response, "请求太频繁，请稍后重试");
             return;
         }
