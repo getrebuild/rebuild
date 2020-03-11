@@ -18,6 +18,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 
@@ -256,16 +257,15 @@ public class CommonsUtils {
 	}
 
 	/**
-	 * 只转义 &gt; &lt;
-	 *
 	 * @param text
 	 * @return
+	 * @see org.apache.commons.lang.StringEscapeUtils#escapeHtml(String)
 	 */
-	public static String escapeHtml(String text) {
-		if (StringUtils.isBlank(text)) {
-			return text;
+	public static String escapeHtml(Object text) {
+		if (text == null || StringUtils.isBlank(text.toString())) {
+			return StringUtils.EMPTY;
 		}
-		return text.replaceAll("<", "&lt;").replaceAll(">", "&gt;");
+		return StringEscapeUtils.escapeHtml(text.toString());
 	}
 
 	/**

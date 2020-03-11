@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -43,13 +43,18 @@ public class AnnouncementControll extends BaseControll {
         int fromWhere = 0;
 
         // 1=动态页 2=首页 4=登录页
-        String refererUrl = request.getHeader("Referer");
+        String refererUrl = StringUtils.defaultIfBlank(request.getHeader("Referer"), "");
         if (refererUrl.contains("/user/login")) {
             fromWhere =  4;
         } else if (refererUrl.contains("/dashboard/home")) {
             fromWhere =  2;
         } else if (refererUrl.contains("/feeds/")) {
             fromWhere =  1;
+        }
+
+        if (fromWhere == 0) {
+            writeSuccess(response);
+            return;
         }
 
         Object[][] array = Application.createQueryNoFilter(
@@ -94,7 +99,7 @@ public class AnnouncementControll extends BaseControll {
 
             if (allow) {
                 JSONObject a = new JSONObject();
-                a.put("content", FeedsHelper.formatContent((String) o[0]));
+                a.put("content", FeedsHelper.formatContent((String) o[0], true));
                 a.put("publishOn", CalendarUtils.getUTCDateTimeFormat().format(o[4]).substring(0, 16));
                 a.put("publishBy", UserHelper.getName((ID) o[3]));
                 a.put("id", o[5]);

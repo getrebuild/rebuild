@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.trigger.impl;
@@ -36,6 +25,8 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,6 +41,8 @@ import java.util.regex.Pattern;
  * @since 2019/05/25
  */
 public class SendNotification implements TriggerAction {
+
+	private static final Log LOG = LogFactory.getLog(SendNotification.class);
 
     // 内部消息
     @SuppressWarnings("unused")
@@ -89,27 +82,35 @@ public class SendNotification implements TriggerAction {
 			return;
 		}
 
+		final int type = content.getIntValue("type");
+		if (type == TYPE_MAIL && !SMSender.availableMail()) {
+			LOG.warn("Could not send because email-service is unavailable");
+		} else if (type == TYPE_SMS && !SMSender.availableSMS()) {
+			LOG.warn("Could not send because sms-service is unavailable");
+		}
+
 		String message = content.getString("content");
 		message = formatMessage(message, context.getSourceRecord());
-
-		final int type = content.getIntValue("type");
-		final String title = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
+		// for email
+		String subject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
 
 		for (ID user : toUsers) {
 		    if (type == TYPE_MAIL) {
-		        if (!SMSender.availableMail()) break;
-
-		        String emailAddr = Application.getUserStore().getUser(user).getEmail();
+				String emailAddr = Application.getUserStore().getUser(user).getEmail();
 		        if (emailAddr != null) {
-		            SMSender.sendMail(emailAddr, title, message);
+					SMSender.sendMail(emailAddr, subject, message);
                 }
 
             } else if (type == TYPE_SMS) {
-		        // TODO 发送短信（暂无手机字段）
+				String mobileAddr = Application.getUserStore().getUser(user).getMobile();
+		    	if (mobileAddr != null) {
+					SMSender.sendSMS(mobileAddr, message);
+				}
 
             } else {
     			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 	    		Application.getNotifications().send(m);
+
             }
 		}
 	}

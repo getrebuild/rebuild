@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.utils;
@@ -24,6 +13,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
+import com.rebuild.api.LoginTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.language.Languages;
@@ -42,7 +32,16 @@ import java.sql.DataTruncation;
  * @since 05/19/2018
  */
 public class AppUtils {
-	
+
+	/**
+	 * 移动端 UA
+	 */
+	public static final String MOILE_UA_PREFIX = "RB/Mobile-";
+	/**
+	 * 移动端 Token Header
+	 */
+	public static final String MOBILE_HF_AUTHTOKEN = "X-AuthToken";
+
 	/**
 	 * @return
 	 * @see Application#devMode()
@@ -60,16 +59,35 @@ public class AppUtils {
 	}
 
 	/**
-	 * 获取当前请求用户
-	 * 
+	 * 获取当前请求用户（兼容移动端）
+	 *
 	 * @param request
 	 * @return null or UserID
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
 		Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
+		// for Mobile
+		if (user == null) {
+			user = getRequestUserViaRbMobile(request);
+		}
 		return user == null ? null : (ID) user;
 	}
-	
+
+	/**
+	 * 获取 APP 请求用户
+	 *
+	 * @param request
+	 * @return
+	 * @see #isRbMobile(HttpServletRequest)
+	 */
+	protected static ID getRequestUserViaRbMobile(HttpServletRequest request) {
+		if (isRbMobile(request)) {
+			String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
+			return LoginTokenManager.verifyToken(xAuthToken, false);
+		}
+		return null;
+	}
+
 	/**
 	 * @param request
 	 * @return
@@ -163,8 +181,19 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isIE(HttpServletRequest request) {
-		String UA = request.getHeader("user-agent").toLowerCase();
-		return UA.contains("msie") || UA.contains("trident");
+		String UA = request.getHeader("user-agent");
+		return UA != null && (UA.contains("msie") || UA.contains("trident"));
+	}
+
+	/**
+	 * 是否 APP
+	 *
+	 * @param request
+	 * @return
+	 */
+	public static boolean isRbMobile(HttpServletRequest request) {
+		String UA = request.getHeader("user-agent");
+		return UA != null && UA.startsWith(MOILE_UA_PREFIX);
 	}
 
 	/**

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.configuration.portals;
@@ -29,6 +18,7 @@ import com.rebuild.server.ServerListener;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -95,16 +85,26 @@ public class NavManager extends BaseLayoutManager {
     /**
      * 默认导航
      */
-    private static final JSONArray NAVS_DEFAULT = JSON.parseArray("[" +
-            "{icon:'chart-donut', text:'动态', type:'ENTITY', value:'$FEEDS$'}," +
-            "{icon:'folder', text:'文件', type:'ENTITY', value:'$FILEMRG$'}]");
+    private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
+			new String[] { "icon", "text", "type", "value" },
+			new Object[][] {
+					new Object[] { "chart-donut", "动态", "ENTITY", NAV_FEEDS },
+					new Object[] { "folder", "文件", "ENTITY", NAV_FILEMRG }
+			});
 
 	/**
 	 * @param request
 	 * @return
 	 */
 	public JSONArray getNavForPortal(HttpServletRequest request) {
-		final ID user = AppUtils.getRequestUser(request);
+		return getNavForPortal(AppUtils.getRequestUser(request));
+	}
+
+	/**
+	 * @param user
+	 * @return
+	 */
+	public JSONArray getNavForPortal(ID user) {
 		ConfigEntry config = getLayoutOfNav(user);
 		if (config == null) {
 			return NAVS_DEFAULT;
@@ -162,7 +162,7 @@ public class NavManager extends BaseLayoutManager {
 	}
 
 	/**
-	 * 渲染導航菜單
+	 * 渲染导航菜單
 	 *
 	 * @param item
 	 * @param activeNav

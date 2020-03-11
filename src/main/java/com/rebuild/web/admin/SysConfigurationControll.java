@@ -170,7 +170,9 @@ public class SysConfigurationControll extends BasePageControll {
                     data.getString("SmsUser"), data.getString("SmsPassword"),
                     data.getString("SmsSign")
             };
-	        if (specAccount[1].contains("**********")) specAccount[1] = SysConfiguration.get(ConfigurableItem.SmsPassword);
+	        if (specAccount[1].contains("**********")) {
+                specAccount[1] = SysConfiguration.get(ConfigurableItem.SmsPassword);
+            }
 
             sent = SMSender.sendSMS(receiver, "收到此消息说明你的短信服务配置正确", specAccount);
         } else if ("EMAIL".equalsIgnoreCase(type)) {
@@ -183,7 +185,9 @@ public class SysConfigurationControll extends BasePageControll {
                     data.getString("MailUser"), data.getString("MailPassword"),
                     data.getString("MailAddr"), data.getString("MailName")
             };
-            if (specAccount[1].contains("**********")) specAccount[1] = SysConfiguration.get(ConfigurableItem.MailPassword);
+            if (specAccount[1].contains("**********")) {
+                specAccount[1] = SysConfiguration.get(ConfigurableItem.MailPassword);
+            }
 
             sent = SMSender.sendMail(receiver, "测试邮件", "收到此消息说明你的邮件服务配置正确", true, specAccount);
         }

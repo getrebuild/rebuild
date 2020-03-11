@@ -2,11 +2,11 @@
 <%@ page import="cn.devezhao.commons.web.ServletUtils"%>
 <%@ page import="com.rebuild.server.helper.language.Languages"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
-<%@ page import="org.apache.commons.lang.StringEscapeUtils" %>
+<%@ page import="com.rebuild.utils.CommonsUtils" %>
 <%
 final String errorMsg = AppUtils.getErrorMessage(request, exception);
 if (ServletUtils.isAjaxRequest(request)) {
-	out.print(errorMsg);
+	out.print(AppUtils.isRbMobile(request) ? AppUtils.formatControllMsg(500, errorMsg) : errorMsg);
 	return;
 }
 %>
@@ -29,11 +29,11 @@ if (ServletUtils.isAjaxRequest(request)) {
 				<div class="error-number mb-0"><i class="zmdi zmdi-close-circle text-danger"></i></div>
 				<div class="error-description"><%=errorMsg.split("\n")[0]%></div>
 				<div class="error-description text-left <%=AppUtils.devMode() ? "" : "hide"%> ">
-					<pre><%=StringEscapeUtils.escapeHtml(errorMsg)%></pre>
+					<pre><%=CommonsUtils.escapeHtml(errorMsg)%></pre>
 				</div>
 				<div class="error-goback-button">
 					<a class="btn btn-xl btn-space btn-secondary" href="${baseUrl}/dashboard/home" id="goHome"><%=Languages.lang("ReturnHome")%></a>
-					<a class="btn btn-xl btn-space btn-primary" href="javascript:;" onclick="location.reload()"><%=Languages.lang("Retry")%></a>
+					<a class="btn btn-xl btn-space btn-primary" href="javascript:void(0)" onclick="location.reload()"><%=Languages.lang("Retry")%></a>
 					<div class="mt-4">
 						<a href="https://getrebuild.com/report-issue?title=error-500" target="_blank"><%=Languages.lang("ReportIssue")%></a>
 					</div>

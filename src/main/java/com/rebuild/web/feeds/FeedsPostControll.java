@@ -16,7 +16,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsType;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
@@ -42,7 +41,7 @@ public class FeedsPostControll extends BaseControll {
         JSON formJson = ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse((JSONObject) formJson, user);
         String content = record.getString("content");
-        record.setString("content", CommonsUtils.escapeHtml(content));
+        record.setString("content", content);
 
         Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
         JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.user.signin;
@@ -29,6 +18,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.LoginToken;
+import com.rebuild.api.LoginTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
@@ -89,7 +79,7 @@ public class LoginControll extends BasePageControll {
 		// API 登录
 		String token = getParameter(request, "token");
 		if (StringUtils.isNotBlank(token)) {
-			ID tokenUser = LoginToken.verifyToken(token);
+			ID tokenUser = LoginTokenManager.verifyToken(token, true);
 			if (tokenUser != null) {
 				loginSuccessed(request, response, tokenUser, false);
 
@@ -214,31 +204,40 @@ public class LoginControll extends BasePageControll {
 			ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
 		}
 		
-		ID loginId = loginLog(request, user);
+		ID loginId = createLoginLog(request, user);
 		ServletUtils.setSessionAttribute(request, SK_LOGINID, loginId);
 		
 		ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
 		Application.getSessionStore().storeLoginSuccessed(request);	
 	}
-	
+
 	/**
 	 * 创建登陆日志
-	 * 
+	 *
 	 * @param request
 	 * @param user
 	 * @return
 	 */
-	private ID loginLog(HttpServletRequest request, ID user) {
+	public static ID createLoginLog(HttpServletRequest request, ID user) {
 		String ipAddr = ServletUtils.getRemoteAddr(request);
-		String userAgent = request.getHeader("user-agent");
-		UserAgent ua = UserAgent.parseUserAgentString(userAgent);
-		String uaClean = String.format("%s-%s (%s)", ua.getBrowser(),
-				ua.getBrowserVersion().getMajorVersion(), ua.getOperatingSystem());
-		
+		String UA = request.getHeader("user-agent");
+		if (UA != null && UA.startsWith(AppUtils.MOILE_UA_PREFIX)) {
+			UA = UA.toUpperCase();
+		} else {
+			UserAgent uas = UserAgent.parseUserAgentString(UA);
+			try {
+				UA = String.format("%s-%s (%s)",
+						uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
+			} catch (Exception ex) {
+				LOG.warn("Unknow user-agent : " + UA);
+				UA = "UNKNOW";
+			}
+		}
+
 		Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
 		record.setID("user", user);
 		record.setString("ipAddr", ipAddr);
-		record.setString("userAgent", uaClean);
+		record.setString("userAgent", UA);
 		record.setDate("loginTime", CalendarUtils.now());
 		record = Application.getCommonService().create(record);
 		return record.getPrimary();
@@ -254,7 +253,7 @@ public class LoginControll extends BasePageControll {
 	// --
 	
 	@RequestMapping("forgot-passwd")
-	public ModelAndView forgotPasswd(HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView forgotPasswd() {
 		return createModelAndView("/user/forgot-passwd.jsp");
 	}
 	
@@ -310,7 +309,7 @@ public class LoginControll extends BasePageControll {
 	}
 
     @RequestMapping("live-wallpaper")
-    public void getLiveWallpaper(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void getLiveWallpaper(HttpServletResponse response) throws IOException {
 	    if (!SysConfiguration.getBool(ConfigurableItem.LiveWallpaper)) {
             writeFailure(response);
             return;

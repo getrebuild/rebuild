@@ -79,6 +79,7 @@
 
     var otdiv = document.getElementById(defaultSettings.watermark_id);
     var shadowRoot = null;
+    if (window.$random) defaultSettings.watermark_id = window.$random(null, true, 40)
 
     if (!otdiv) {
       otdiv = document.createElement('div');
@@ -97,6 +98,7 @@
         watermark_hook_element.appendChild(otdiv);
       }
     } else if (otdiv.shadowRoot) {
+      otdiv.id = defaultSettings.watermark_id
       shadowRoot = otdiv.shadowRoot;
     }
 
@@ -132,11 +134,12 @@
         } else {
           x = defaultSettings.watermark_x + (page_width - allWatermarkWidth) / 2 + (defaultSettings.watermark_width + defaultSettings.watermark_x_space) * j;
         }
+
         var mask_div = document.createElement('div');
         var oText = defaultSettings.watermark_txt[Math.floor(Math.random() * (defaultSettings.watermark_txt.length + 1))] || new Date().toLocaleString()
         oText = document.createTextNode(oText);
         mask_div.appendChild(oText);
-        mask_div.id = defaultSettings.watermark_prefix + i + j;
+        // mask_div.id = defaultSettings.watermark_prefix + i + j;
         mask_div.style.webkitTransform = "rotate(-" + defaultSettings.watermark_angle + "deg)";
         mask_div.style.MozTransform = "rotate(-" + defaultSettings.watermark_angle + "deg)";
         mask_div.style.msTransform = "rotate(-" + defaultSettings.watermark_angle + "deg)";

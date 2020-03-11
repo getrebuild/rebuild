@@ -997,6 +997,7 @@ a {
     min-width: 421px;
     text-align: left;
     pointer-events: auto;
+    max-width: 680px;
 }
 
 @media (max-width:440px) {

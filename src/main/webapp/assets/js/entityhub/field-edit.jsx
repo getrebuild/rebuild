@@ -1,10 +1,18 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable react/no-string-refs */
+
 const wpc = window.__PageConfig
+
 $(document).ready(function () {
   const dt = wpc.fieldType
   const extConfigOld = wpc.extConfig
 
-  $('.J_save').click(function () {
+  const _btn = $('.J_save').click(function () {
     if (!wpc.metaId) return
     let _data = {
       fieldLabel: $val('#fieldLabel'),
@@ -13,16 +21,20 @@ $(document).ready(function () {
       updatable: $val('#fieldUpdatable'),
       repeatable: $val('#fieldRepeatable')
     }
-    if (_data.fieldLabel === '') { RbHighbar.create('请输入字段名称'); return }
-    let dv = $val('#defaultValue')
+    if (_data.fieldLabel === '') {
+      RbHighbar.create('请输入字段名称')
+      return
+    }
+
+    const dv = $val('#defaultValue')
     if (dv) {
       if (checkDefaultValue(dv, dt) === false) return
       else _data.defaultValue = dv
     } else if (dv === '') _data.defaultValue = dv
 
-    let extConfig = {}
+    const extConfig = {}
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
-      let k = $(this).attr('id')
+      const k = $(this).attr('id')
       if ('defaultValue' !== k) {
         extConfig[k] = $val(this)
       }
@@ -39,7 +51,7 @@ $(document).ready(function () {
     }
 
     _data.metadata = { entity: 'MetaField', id: wpc.metaId }
-    let _btn = $(this).button('loading')
+    _btn.button('loading')
     $.post(rb.baseUrl + '/admin/entity/field-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
         if (rb.env === 'dev') location.reload(true)
@@ -59,7 +71,7 @@ $(document).ready(function () {
 
   // 设置扩展值
   for (let k in extConfigOld) {
-    let $ext = $('#' + k)
+    const $ext = $('#' + k)
     if ($ext.length === 1) {
       if ($ext.attr('type') === 'checkbox') $ext.attr('checked', extConfigOld[k] === 'true' || extConfigOld[k] === true)
       else if ($ext.prop('tagName') === 'DIV') $ext.text(extConfigOld[k])
@@ -110,7 +122,7 @@ $(document).ready(function () {
     }
 
     $('input.bslider').slider({ value: uploadNumber }).on('change', function (e) {
-      let v = e.value.newValue
+      const v = e.value.newValue
       $setTimeout(() => {
         $('.J_minmax b').eq(0).text(v[0])
         $('.J_minmax b').eq(1).text(v[1])
@@ -145,7 +157,7 @@ $(document).ready(function () {
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) { RbHighbar.error('仅超级管理员可删除字段'); return }
 
-    let alertExt = { type: 'danger', confirmText: '删除' }
+    const alertExt = { type: 'danger', confirmText: '删除' }
     alertExt.confirm = function () {
       this.disabled(true)
       $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
@@ -189,6 +201,7 @@ class AdvDateDefaultValue extends RbFormHandler {
   constructor(props) {
     super(props)
   }
+
   render() {
     return (
       <div className="modal rbalert" ref="dlg" tabIndex="-1">
@@ -233,12 +246,13 @@ class AdvDateDefaultValue extends RbFormHandler {
       </div>
     )
   }
+
   componentDidMount() {
     $(this.refs['dlg']).modal({ show: true, keyboard: true })
   }
 
   hide = () => {
-    let root = $(this.refs['dlg'])
+    const root = $(this.refs['dlg'])
     root.modal('hide')
     setTimeout(function () {
       root.modal('dispose')
