@@ -221,7 +221,7 @@ public class LoginControll extends BasePageControll {
 	public static ID createLoginLog(HttpServletRequest request, ID user) {
 		String ipAddr = ServletUtils.getRemoteAddr(request);
 		String UA = request.getHeader("user-agent");
-		if (UA != null && UA.startsWith(AppUtils.MOILE_UA_PREFIX)) {
+		if (AppUtils.isRbMobile(request)) {
 			UA = UA.toUpperCase();
 		} else {
 			UserAgent uas = UserAgent.parseUserAgentString(UA);

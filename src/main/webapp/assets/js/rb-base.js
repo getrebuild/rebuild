@@ -89,7 +89,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
       watermark_width: 200,
       watermark_font: 'arial',
       watermark_fontsize: '15px',
-      watermark_alpha: 0.08,
+      watermark_alpha: 0.06,
       watermark_parent_width: $(window).width(),
       watermark_parent_height: $(window).height(),
       monitor: true

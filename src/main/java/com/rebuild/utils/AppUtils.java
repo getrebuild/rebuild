@@ -36,7 +36,7 @@ public class AppUtils {
 	/**
 	 * 移动端 UA
 	 */
-	public static final String MOILE_UA_PREFIX = "RB/Mobile-";
+	public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
 	/**
 	 * 移动端 Token Header
 	 */
@@ -181,8 +181,8 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isIE(HttpServletRequest request) {
-		String UA = request.getHeader("user-agent");
-		return UA != null && (UA.contains("msie") || UA.contains("trident"));
+		String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
+		return UA.contains("MSIE") || UA.contains("TRIDENT");
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class AppUtils {
 	 */
 	public static boolean isRbMobile(HttpServletRequest request) {
 		String UA = request.getHeader("user-agent");
-		return UA != null && UA.startsWith(MOILE_UA_PREFIX);
+		return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
 	}
 
 	/**
