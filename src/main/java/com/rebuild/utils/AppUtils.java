@@ -13,7 +13,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
-import com.rebuild.api.LoginToken;
+import com.rebuild.api.LoginTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.language.Languages;
@@ -83,7 +83,7 @@ public class AppUtils {
 	protected static ID getRequestUserViaRbMobile(HttpServletRequest request) {
 		if (isRbMobile(request)) {
 			String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
-			return LoginToken.verifyToken(xAuthToken, false);
+			return LoginTokenManager.verifyToken(xAuthToken, false);
 		}
 		return null;
 	}

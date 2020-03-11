@@ -18,6 +18,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.LoginToken;
+import com.rebuild.api.LoginTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
@@ -78,7 +79,7 @@ public class LoginControll extends BasePageControll {
 		// API 登录
 		String token = getParameter(request, "token");
 		if (StringUtils.isNotBlank(token)) {
-			ID tokenUser = LoginToken.verifyToken(token, true);
+			ID tokenUser = LoginTokenManager.verifyToken(token, true);
 			if (tokenUser != null) {
 				loginSuccessed(request, response, tokenUser, false);
 

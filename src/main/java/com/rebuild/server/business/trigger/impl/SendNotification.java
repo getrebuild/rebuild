@@ -25,6 +25,8 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +41,8 @@ import java.util.regex.Pattern;
  * @since 2019/05/25
  */
 public class SendNotification implements TriggerAction {
+
+	private static final Log LOG = LogFactory.getLog(SendNotification.class);
 
     // 内部消息
     @SuppressWarnings("unused")
@@ -78,29 +82,35 @@ public class SendNotification implements TriggerAction {
 			return;
 		}
 
+		final int type = content.getIntValue("type");
+		if (type == TYPE_MAIL && !SMSender.availableMail()) {
+			LOG.warn("Could not send because email-service is unavailable");
+		} else if (type == TYPE_SMS && !SMSender.availableSMS()) {
+			LOG.warn("Could not send because sms-service is unavailable");
+		}
+
 		String message = content.getString("content");
 		message = formatMessage(message, context.getSourceRecord());
-
-		final int type = content.getIntValue("type");
-		final String title = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
+		// for email
+		String subject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
 
 		for (ID user : toUsers) {
 		    if (type == TYPE_MAIL) {
-		        if (!SMSender.availableMail()) {
-                    break;
-                }
-
-		        String emailAddr = Application.getUserStore().getUser(user).getEmail();
+				String emailAddr = Application.getUserStore().getUser(user).getEmail();
 		        if (emailAddr != null) {
-		            SMSender.sendMail(emailAddr, title, message);
+					SMSender.sendMail(emailAddr, subject, message);
                 }
 
             } else if (type == TYPE_SMS) {
-		        // TODO 发送短信（暂无手机字段）
+				String mobileAddr = Application.getUserStore().getUser(user).getMobile();
+		    	if (mobileAddr != null) {
+					SMSender.sendSMS(mobileAddr, message);
+				}
 
             } else {
     			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 	    		Application.getNotifications().send(m);
+
             }
 		}
 	}

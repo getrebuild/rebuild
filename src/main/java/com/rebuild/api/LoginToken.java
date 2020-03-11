@@ -7,9 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.api;
 
-import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.EncryptUtils;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.SysConfiguration;
@@ -18,7 +16,6 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RequestFrequencyCounter;
-import org.apache.commons.lang.StringUtils;
 
 /**
  * 单点登录，获取登录 token
@@ -27,9 +24,6 @@ import org.apache.commons.lang.StringUtils;
  * @since 2019/10/25
  */
 public class LoginToken extends BaseApi {
-
-    // Token 存储前缀
-    private static final String TOKEN_PREFIX = "RBLT.";
 
     private static final RequestFrequencyCounter COUNTER = new RequestFrequencyCounter();
 
@@ -48,7 +42,7 @@ public class LoginToken extends BaseApi {
         }
 
         User loginUser = Application.getUserStore().getUser(user);
-        String loginToken = generateToken(loginUser.getId(), 60);
+        String loginToken = LoginTokenManager.generateToken(loginUser.getId(), 60);
 
         JSON ret = JSONUtils.toJSONObject(
                 new String[] { "login_token", "login_url" },
@@ -59,57 +53,7 @@ public class LoginToken extends BaseApi {
     // --
 
     /**
-     * 生成并存储 Token
-     *
-     * @param user
-     * @param expires
-     * @return
-     */
-    public static String generateToken(ID user, int expires) {
-        String token = String.format("%s,%d,%s,v1", user, System.currentTimeMillis(), CodecUtils.randomCode(20));
-        token = CodecUtils.base64UrlEncode(token);
-        Application.getCommonCache().putx(TOKEN_PREFIX + token, user, expires);
-        return token;
-    }
-
-    /**
-     * 验证 Token
-     *
-     * @param token
-     * @return
-     */
-    public static ID verifyToken(String token, boolean destroy) {
-        if (StringUtils.isBlank(token)) {
-            return null;
-        }
-
-        token = TOKEN_PREFIX + token;
-        ID user = (ID) Application.getCommonCache().getx(token);
-        if (user != null && destroy) {
-            Application.getCommonCache().evict(token);
-        }
-        return user;
-    }
-
-    /**
-     * 刷新 Token
-     *
-     * @param token
-     * @param expires
-     * @return
-     */
-    public static ID refreshToken(String token, int expires) {
-        ID user = verifyToken(token, false);
-        if (user == null) {
-            return null;
-        }
-
-        Application.getCommonCache().putx(TOKEN_PREFIX + token, user, expires);
-        return user;
-    }
-
-    /**
-     * 检查用户
+     * 检查用户登录
      *
      * @param user
      * @param password
