@@ -315,7 +315,7 @@ public class LoginControll extends BasePageControll {
             return;
         }
 
-        JSON ret = License.siteApi("api/misc/bgimg");
+        JSON ret = License.siteApi("api/misc/bgimg", true);
         if (ret == null) {
             writeFailure(response);
         } else {

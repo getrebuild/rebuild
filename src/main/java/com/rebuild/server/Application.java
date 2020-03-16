@@ -72,7 +72,10 @@ public final class Application {
 	/** Rebuild Version
 	 */
 	public static final String VER = "1.9.0-dev";
-	
+	/** Rebuild Build
+	 */
+	public static final int BUILD = 1090;
+
 	/** Logging for Global
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);

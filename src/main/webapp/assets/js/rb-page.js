@@ -37,24 +37,47 @@ $(function () {
   }
 
   if (rb.isAdminUser) {
+    var topPopover = function (el, content) {
+      var pop_timer
+      var pop = $(el).popover({
+        trigger: 'hover',
+        placement: 'bottom',
+        html: true,
+        content: content,
+      }).on('shown.bs.popover', function () {
+        $('#' + $(this).attr('aria-describedby'))
+          .on('mouseenter', function () {
+            if (pop_timer) clearTimeout(pop_timer)
+            pop_timer = setTimeout(function () { pop.popover('show') }, 10)
+          })
+          .on('mouseleave', function () {
+            if (pop_timer) clearTimeout(pop_timer)
+            pop_timer = setTimeout(function () { pop.popover('hide') }, 10)
+          })
+      })
+    }
+
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
     else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      var pop = $('.admin-settings a').popover({
-        trigger: 'hover',
-        placement: 'bottom',
-        html: true,
-        content: '当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a>',
-      }).on('shown.bs.popover', function () {
-        $('#' + $(this).attr('aria-describedby'))
-          .on('mouseenter', function () { pop.popover('show') })
-          .on('mouseleave', function () { pop.popover('hide') })
-      })
+      topPopover($('.admin-settings a'), '<div class="p-1">当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a></div>')
     }
+
+    $.get(rb.baseUrl + '/user/admin-dangers', function (res) {
+      if ((res.data || []).length > 0) {
+        $('.admin-danger').removeClass('hide')
+        var dd = []
+        $(res.data).each(function () {
+          dd.push('<div class="p-1">' + this + '</div>')
+        })
+        topPopover($('.admin-danger a'), dd.join(''))
+      }
+    })
+
   } else {
-    $('.admin-show').remove()
+    $('.admin-show, .admin-danger').remove()
   }
 
   if ($('.J_notifications-top').length > 0) {

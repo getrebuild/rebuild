@@ -21,6 +21,7 @@ package com.rebuild.server.helper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -63,10 +64,10 @@ public final class License {
         }
 
         if (SN == null) {
-            SN = String.format("ZR%s%s-%s",
-                    "109",
+            SN = String.format("ZR%d%s-%s",
+                    Application.BUILD,
                     StringUtils.leftPad(Locale.getDefault().getCountry(), 3, "0"),
-                    UUID.randomUUID().toString().replace("-", "").substring(0, 15).toUpperCase());
+                    UUID.randomUUID().toString().replace("-", "").substring(0, 14).toUpperCase());
             if (Application.serversReady()) {
                 SysConfiguration.set(ConfigurableItem.SN, SN);
             }
@@ -91,19 +92,37 @@ public final class License {
     }
 
     /**
+     * @param api
+     * @return
+     * @see #siteApi(String, boolean)
+     */
+    public static JSONObject siteApi(String api) {
+        return siteApi(api, false);
+    }
+
+    /**
      * 调用 RB 官方服务 API
      *
      * @param api
      * @return
      */
-    public static JSON siteApi(String api) {
+    public static JSONObject siteApi(String api, boolean useCache) {
         String apiUrl = "https://getrebuild.com/" + api;
         apiUrl += (api.contains("\\?") ? "&" : "?") + "k=" + OSA_KEY + "&sn=" + SN();
+
+        if (useCache) {
+            Object o = Application.getCommonCache().getx(api);
+            if (o != null) {
+                return (JSONObject) o;
+            }
+        }
 
         try {
             String result = CommonsUtils.get(apiUrl);
             if (JSONUtils.wellFormat(result)) {
-                return JSON.parseObject(result);
+                JSONObject o = JSON.parseObject(result);
+                Application.getCommonCache().putx(api, o, CommonCache.TS_HOUR);
+                return o;
             }
         } catch (Exception ignored) {
         }

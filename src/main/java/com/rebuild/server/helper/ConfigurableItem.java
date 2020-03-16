@@ -76,6 +76,9 @@ public enum ConfigurableItem {
     // 数据备份保留时间
 	DBBackupsKeepingDays(180),
 
+	// 管理员警告
+	AdminDangers(true),
+
 	;
 	
 	private Object defaultVal;
