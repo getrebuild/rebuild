@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin;
@@ -23,21 +12,24 @@ import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.EhcacheDriver;
-import com.rebuild.server.helper.cache.JedisCacheDriver;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.License;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.web.BasePageControll;
 import com.rebuild.web.RequestWatchHandler;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-import redis.clients.jedis.Jedis;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author devezhao
@@ -45,6 +37,11 @@ import java.io.IOException;
  */
 @Controller
 public class AdminEntryControll extends BasePageControll {
+
+	/**
+	 * Admin 验证标志
+	 */
+	public static final String KEY_VERIFIED = WebUtils.KEY_PREFIX + "-AdminVerified";
 
 	@RequestMapping("/user/admin-entry")
 	public ModelAndView pageAdminEntry(HttpServletRequest request, HttpServletResponse response)
@@ -90,38 +87,42 @@ public class AdminEntryControll extends BasePageControll {
         writeSuccess(response);
     }
 
-	// ----
-	
-	private static final String KEY_VERIFIED = WebUtils.KEY_PREFIX + "-AdminVerified";
-	/**
-	 * @param request
-	 * @return
-	 */
-	public static boolean isAdminVerified(HttpServletRequest request) {
-		Object verified = ServletUtils.getSessionAttribute(request, KEY_VERIFIED);
-		return verified != null;
+	@RequestMapping("/user/admin-dangers")
+	public void adminDangers(HttpServletResponse response)
+			throws IOException {
+		if (!SysConfiguration.getBool(ConfigurableItem.AdminDangers)) {
+			writeSuccess(response);
+			return;
+		}
+
+		List<String> dangers = new ArrayList<>();
+
+		JSONObject ret = License.siteApi("api/authority/check-build", true);
+		if (ret != null && ret.getIntValue("build") > Application.BUILD) {
+			String buildUpdate = String.format(
+					"有新版的 REBUILD (%s) 更新可用 <a target='_blank' href='%s' class='link'>(查看详情)</a>",
+					ret.getString("version"), ret.getString("releaseUrl"));
+			dangers.add(buildUpdate);
+		}
+
+		writeSuccess(response, dangers);
 	}
 
-	// ---- CLI
+	// -- CLI
 
-	@SuppressWarnings("rawtypes")
-    @RequestMapping("/admin/cli/{command}")
-	public void adminCLI(@PathVariable String command,
-                         HttpServletResponse response) throws IOException {
-		// 清缓存
-		if ("CLEANCACHE".equals(command)) {
-			if (Application.getCommonCache().isUseRedis()) {
-				try (Jedis jedis = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
-					jedis.flushAll();
-				}
-			} else {
-				((EhcacheDriver) Application.getCommonCache().getCacheTemplate()).cache().clear();
-			}
-			ServletUtils.write(response, "command:CLEANCACHE");
-		}
-		else {
-			response.sendRedirect("../systems");
-		}
+	@RequestMapping("/admin/cli/console")
+	public ModelAndView adminCLIConsole() throws IOException {
+		return createModelAndView("/admin/admin-cli.jsp");
 	}
 
+    @RequestMapping("/admin/cli/exec")
+	public void adminCLIExec(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String command = ServletUtils.getRequestString(request);
+		if (StringUtils.isBlank(command)) {
+			return;
+		}
+
+		String result = new AdminCli(command).exec();
+		ServletUtils.write(response, result);
+	}
 }

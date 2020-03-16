@@ -38,21 +38,31 @@ $(function () {
 
   if (rb.isAdminUser) {
     var topPopover = function (el, content) {
-      var pop_timer
+      var pop_show_timer
+      var pop_hide_timer
       var pop = $(el).popover({
-        trigger: 'hover',
+        trigger: 'manual',
         placement: 'bottom',
         html: true,
         content: content,
-      }).on('shown.bs.popover', function () {
-        $('#' + $(this).attr('aria-describedby'))
+        delay: { show: 200, hide: 0 }
+      }).on('mouseenter', function () {
+        pop_hide_timer && clearTimeout(pop_hide_timer)
+        pop_show_timer = setTimeout(function () { pop.popover('show') }, 200)
+      }).on('mouseleave', function () {
+        pop_show_timer && clearTimeout(pop_show_timer)
+        pop_hide_timer = setTimeout(function () { pop.popover('hide') }, 200)
+      }).on('shown.bs.popover', function (e) {
+        $('#' + $(this).attr('aria-describedby')).find('.popover-body')
+          .off('mouseenter')
+          .off('mouseleave')
           .on('mouseenter', function () {
-            if (pop_timer) clearTimeout(pop_timer)
-            pop_timer = setTimeout(function () { pop.popover('show') }, 10)
+            pop_hide_timer && clearTimeout(pop_hide_timer)
+            pop.popover('show')
           })
           .on('mouseleave', function () {
-            if (pop_timer) clearTimeout(pop_timer)
-            pop_timer = setTimeout(function () { pop.popover('hide') }, 10)
+            pop_show_timer && clearTimeout(pop_show_timer)
+            pop.popover('hide')
           })
       })
     }
@@ -69,9 +79,7 @@ $(function () {
       if ((res.data || []).length > 0) {
         $('.admin-danger').removeClass('hide')
         var dd = []
-        $(res.data).each(function () {
-          dd.push('<div class="p-1">' + this + '</div>')
-        })
+        $(res.data).each(function () { dd.push('<div class="p-1">' + this + '</div>') })
         topPopover($('.admin-danger a'), dd.join(''))
       }
     })
