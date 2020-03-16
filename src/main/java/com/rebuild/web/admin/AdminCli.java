@@ -26,8 +26,10 @@ import java.util.regex.Pattern;
  */
 public class AdminCli {
 
-    protected static final String C_CACHECLEAN = "cacheclean";
-    protected static final String C_SYSCFG = "syscfg";
+    // 清缓存
+    private static final String C_CACHECLEAN = "cacheclean";
+    // 系统配置
+    private static final String C_SYSCFG = "syscfg";
 
     final private String[] commands;
 
@@ -51,6 +53,10 @@ public class AdminCli {
      * @return
      */
     public String exec() {
+        if (this.commands.length == 0) {
+            return "Bad command";
+        }
+
         String result = null;
         switch (commands[0]) {
             case C_CACHECLEAN: {
