@@ -16,7 +16,7 @@ $(document).ready(() => {
   if (rb.env === 'dev') console.log(wpc.flowDefinition)
 
   // 备用
-  $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${wpc.applyEntity}`, (res) => fieldsCache = res.data)
+  $.get(`/commons/metadata/fields?entity=${wpc.applyEntity}`, (res) => fieldsCache = res.data)
 
   if (wpc.flowDefinition) wpc.flowDefinition = JSON.parse(wpc.flowDefinition)
   renderRbcomp(<RbFlowCanvas />, 'rbflow')
@@ -475,7 +475,7 @@ class StartNodeConfig extends RbFormHandler {
 
   componentDidMount() {
     if (this.state.users === 'SPEC' && this.props.users) {
-      $.post(`${rb.baseUrl}/commons/search/user-selector?entity=`, JSON.stringify(this.props.users), (res) => {
+      $.post('/commons/search/user-selector?entity=', JSON.stringify(this.props.users), (res) => {
         if (res.data.length > 0) this.setState({ selectedUsers: res.data })
       })
     }
@@ -745,7 +745,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
 
       btns.button('loading')
-      $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
+      $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
         if (res.error_code === 0) {
           RbAlert.create('保存并发布成功', {
             type: 'primary',
@@ -848,7 +848,7 @@ class DlgCopy extends ConfigFormDlg {
     if (!approvalName) { RbHighbar.create('请输入新流程名称'); return }
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
+    $.post(`/admin/robot/approval/copy?father=${this.props.father}&disabled=${this.state.isDisabled}&name=${$encode(approvalName)}`, (res) => {
       if (res.error_code === 0) {
         RbHighbar.success('另存为成功')
         setTimeout(() => location.replace('./' + res.data.approvalId), 500)

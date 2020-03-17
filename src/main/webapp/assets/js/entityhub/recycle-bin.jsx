@@ -1,6 +1,13 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 let _entities = {}
 $(document).ready(() => {
-  $.get(`${rb.baseUrl}/commons//metadata/entities?slave=true`, (res) => {
+  $.get('/commons/metadata/entities?slave=true', (res) => {
     $(res.data).each(function () {
       $(`<option value="${this.name}">${this.label}</option>`).appendTo('#belongEntity')
       _entities[this.name] = this.label
@@ -81,7 +88,7 @@ class DataList extends React.Component {
       confirm: function () {
         this.disabled(true)
         let c = $(this._dlg).find('input').prop('checked')
-        $.post(`${rb.baseUrl}/admin/audit/recycle-bin/restore?cascade=${c}&ids=${ids.join(',')}`, (res) => {
+        $.post(`/admin/audit/recycle-bin/restore?cascade=${c}&ids=${ids.join(',')}`, (res) => {
           this.hide()
           this.disabled()
           if (res.error_code === 0 && res.data.restored > 0) {

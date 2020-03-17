@@ -95,7 +95,7 @@ class FeedsPost extends React.Component {
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
     const btn = $(this._btn).button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
+    $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this._editor.reset()
@@ -217,8 +217,9 @@ class FeedsEditor extends React.Component {
       if (mp) mp.end()
       mp = null
     }
+
     $createUploader(this._imageInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 2, start: true })
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       mp_end()
@@ -226,8 +227,9 @@ class FeedsEditor extends React.Component {
       images.push(res.key)
       this.setState({ images: images })
     }, () => mp_end())
+
     $createUploader(this._fileInput, (res) => {
-      if (!mp) mp = new Mprogress({ template: 2, start: true })
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
       mp_end()
@@ -236,6 +238,7 @@ class FeedsEditor extends React.Component {
       this.setState({ files: files })
     }, () => mp_end())
   }
+
   componentWillUnmount = () => this.__unmount = true
 
   _toggleEmoji = () => {
@@ -331,7 +334,7 @@ class SelectGroup extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/feeds/group/group-list`, (res) => this.setState({ groups: res.data }))
+    $.get('/feeds/group/group-list', (res) => this.setState({ groups: res.data }))
     $(this._dlg).modal({ show: true, keyboard: true })
   }
   hide = () => $(this._dlg).modal('hide')
@@ -370,7 +373,7 @@ class SelectRelated extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/commons/metadata/entities`, (res) => {
+    $.get('/commons/metadata/entities', (res) => {
       if (!res.data || res.data.length === 0) {
         $(this._entity).attr('disabled', true)
         $(this._record).attr('disabled', true)
@@ -399,7 +402,7 @@ class SelectRelated extends React.Component {
       minimumInputLength: 0,
       maximumSelectionLength: 1,
       ajax: {
-        url: rb.baseUrl + '/commons/search/search',
+        url: '/commons/search/search',
         delay: 300,
         data: function (params) {
           search_input = params.term
@@ -609,7 +612,7 @@ class FeedsEditDlg extends RbModalHandler {
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
     const btns = $(this._btns).find('.btn').button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
+    $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       btns.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this.hide()

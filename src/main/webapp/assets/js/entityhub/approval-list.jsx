@@ -14,7 +14,7 @@ class ApprovalList extends ConfigList {
 
   constructor(props) {
     super(props)
-    this.requestUrl = `${rb.baseUrl}/admin/robot/approval/list`
+    this.requestUrl = '/admin/robot/approval/list'
   }
 
   render() {
@@ -106,7 +106,7 @@ class ApprovalEdit extends ConfigFormDlg {
     post.metadata = { entity: 'RobotApprovalConfig', id: this.props.id || null }
 
     this.disabled(true)
-    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(post), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'approval/' + res.data.id

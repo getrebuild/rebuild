@@ -1,3 +1,9 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable no-unused-vars */
 
 // 表单 DLG
@@ -24,7 +30,7 @@ class ConfigFormDlg extends RbFormHandler {
 
   componentDidMount() {
     if (this._entity) {
-      $.get(`${rb.baseUrl}/commons/metadata/entities`, (res) => {
+      $.get('/commons/metadata/entities', (res) => {
         this.setState({ entities: res.data }, () => {
           this.__select2 = $(this._entity).select2({
             placeholder: '选择实体',
@@ -99,7 +105,7 @@ class ConfigList extends React.Component {
 
   // 删除数据
   handleDelete(id) {
-    $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, (res) => {
+    $.post(`/app/entity/record-delete?id=${id}`, (res) => {
       if (res.error_code === 0) {
         RbHighbar.success('删除成功')
         setTimeout(() => location.reload(), 500)

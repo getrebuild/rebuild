@@ -56,7 +56,7 @@ class AnnouncementModal extends React.Component {
 }
 
 var $showAnnouncement = function () {
-  $.get(`${rb.baseUrl}/commons/announcements`, (res) => {
+  $.get('/commons/announcements', (res) => {
     if (res.error_code !== 0 || !res.data || res.data.length === 0) return
     const as = res.data.map((item, idx) => {
       return <div className="bg-warning" key={'a-' + idx} title="查看详情" onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>

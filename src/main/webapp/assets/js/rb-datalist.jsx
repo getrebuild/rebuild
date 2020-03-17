@@ -182,7 +182,7 @@ class RbList extends React.Component {
       this.setState({ inLoad: true })
       $('#react-list').addClass('rb-loading-active')
     }, 400)
-    $.post(`${rb.baseUrl}/app/${entity}/data-list`, JSON.stringify(query), (res) => {
+    $.post(`/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => RbList.renderAfter())
         if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
@@ -633,7 +633,7 @@ const AdvFilters = {
     const dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
     const that = this
     let dFilterItem
-    $.get(`${rb.baseUrl}/app/${this.__entity}/advfilter/list`, function (res) {
+    $.get(`/app/${this.__entity}/advfilter/list`, function (res) {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
       const $menu = $('.adv-search .dropdown-menu')
@@ -657,7 +657,7 @@ const AdvFilters = {
               confirmText: '删除',
               confirm: function () {
                 this.disabled(true)
-                $.post(`${rb.baseUrl}/app/entity/record-delete?id=${_data.id}`, (res) => {
+                $.post(`/app/entity/record-delete?id=${_data.id}`, (res) => {
                   if (res.error_code === 0) {
                     this.hide()
                     that.loadFilters()
@@ -737,7 +737,7 @@ const AdvFilters = {
   saveFilter(filter, name, shareTo) {
     if (!filter) return
     const that = AdvFilters
-    let url = `${rb.baseUrl}/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
+    let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
     if (name) url += '&name=' + $encode(name)
     if (shareTo) url += '&shareTo=' + $encode(shareTo)
     $.post(url, JSON.stringify(filter), (res) => {
@@ -747,7 +747,7 @@ const AdvFilters = {
   },
 
   __getFilter(id, call) {
-    $.get(`${rb.baseUrl}/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
+    $.get(`/app/entity/advfilter/get?id=${id}`, (res) => call(res.data))
   }
 }
 
@@ -941,7 +941,7 @@ const ChartsWidget = {
   },
 
   loadWidget: function () {
-    $.get(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts`, (res) => {
+    $.get(`/app/${wpc.entity[0]}/widget-charts`, (res) => {
       this.chartLoaded = true
       this.__config = res.data || {}
       res.data && $(res.data.config).each((idx, chart) => this.renderChart(chart))
@@ -950,7 +950,7 @@ const ChartsWidget = {
 
   saveWidget: function () {
     const charts = this.__currentCharts(true)
-    $.post(`${rb.baseUrl}/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
+    $.post(`/app/${wpc.entity[0]}/widget-charts?id=${this.__config.id || ''}`, JSON.stringify(charts), (res) => {
       ChartsWidget.__config.id = res.data
       $('.page-aside .tab-content').perfectScrollbar('update')
     })

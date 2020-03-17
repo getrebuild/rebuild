@@ -61,7 +61,7 @@ class DlgAssign extends RbModalHandler {
   }
   showCascades = () => {
     event.preventDefault()
-    $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
+    $.get('/commons/metadata/references?entity=' + this.props.entity, (res) => {
       this.setState({ cascadesShow: true, cascadesEntity: res.data }, () => {
         $(this._cascades).select2({
           multiple: true,
@@ -78,7 +78,7 @@ class DlgAssign extends RbModalHandler {
     let cass = this.state.cascadesShow === true ? $(this._cascades).val().join(',') : ''
 
     let btns = $(this._btns).find('.btn').button('loading')
-    $.post(`${rb.baseUrl}/app/entity/record-${this.types[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}`, (res) => {
+    $.post(`/app/entity/record-${this.types[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}`, (res) => {
       if (res.error_code === 0) {
         this.setState({ cascadesShow: false })
         $(this._toUser, this._cascades).val(null).trigger('change')
@@ -191,7 +191,7 @@ class DlgUnshare extends RbModalHandler {
     }
 
     let btns = $(this._btns).find('.btn').button('loading')
-    $.post(`${rb.baseUrl}/app/entity/record-unshare-batch?id=${this.state.ids.join(',')}&to=${users}`, (res) => {
+    $.post(`/app/entity/record-unshare-batch?id=${this.state.ids.join(',')}&to=${users}`, (res) => {
       if (res.error_code === 0) {
         $(this._toUser).val(null).trigger('change')
 
@@ -247,7 +247,7 @@ class DlgShareManager extends RbModalHandler {
     </RbModal>)
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/shared-list?id=${this.props.id}`, (res) => {
+    $.get(`/app/entity/shared-list?id=${this.props.id}`, (res) => {
       this.setState({ sharingList: res.data })
     })
   }
@@ -263,7 +263,7 @@ class DlgShareManager extends RbModalHandler {
     if (s.length === 0) { RbHighbar.create('请选择需要取消共享的用户'); return }
 
     let btns = $(this._btns).button('loading')
-    $.post(`${rb.baseUrl}/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
+    $.post(`/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
         if (rb.env === 'dev') RbHighbar.success('已取消 ' + res.data.unshared + ' 位用户的共享')

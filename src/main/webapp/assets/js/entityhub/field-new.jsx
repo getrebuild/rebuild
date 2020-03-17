@@ -40,7 +40,7 @@ $(document).ready(function () {
     }
 
     _btn.button('loading')
-    $.post(rb.baseUrl + '/admin/entity/field-new', JSON.stringify(_data), function (res) {
+    $.post('/admin/entity/field-new', JSON.stringify(_data), function (res) {
       _btn.button('reset')
       if (res.error_code === 0) {
         if ($val('#saveAndNew')) {
@@ -66,7 +66,7 @@ $(document).ready(function () {
     if (dt === 'REFERENCE') {
       if (referenceLoaded === false) {
         referenceLoaded = true
-        $.get(rb.baseUrl + '/admin/entity/entity-list?noslave=false', (res) => {
+        $.get('/admin/entity/entity-list?noslave=false', (res) => {
           $(res.data).each(function () {
             $(`<option value="${this.entityName}">${this.entityLabel}${this.masterEntity ? ' (明细)' : ''}</option>`).appendTo('#refEntity')
           })
@@ -76,7 +76,7 @@ $(document).ready(function () {
     } else if (dt === 'CLASSIFICATION') {
       if (classificationLoaded === false) {
         classificationLoaded = true
-        $.get(rb.baseUrl + '/admin/entityhub/classification/list', (res) => {
+        $.get('/admin/entityhub/classification/list', (res) => {
           let hasData = false
           $(res.data).each(function () {
             if (!this[2]) {

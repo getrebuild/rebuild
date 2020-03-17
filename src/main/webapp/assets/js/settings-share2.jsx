@@ -157,7 +157,7 @@ class Share2Settings extends Share2Switch {
 
     const p = this.props
     if (p.shareTo && p.shareTo.length > 10) {
-      $.post(`${rb.baseUrl}/commons/search/user-selector`, JSON.stringify(p.shareTo.split(',')), (res) => {
+      $.post('/commons/search/user-selector', JSON.stringify(p.shareTo.split(',')), (res) => {
         if (res.error_code === 0 && res.data.length > 0) this._selector.setState({ selected: res.data })
       })
     }
@@ -181,7 +181,7 @@ class Share2Settings extends Share2Switch {
     RbAlert.create('确认删除此配置？', {
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, () => parent.location.reload())
+        $.post(`/app/entity/record-delete?id=${id}`, () => parent.location.reload())
       }
     })
   }

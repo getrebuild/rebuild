@@ -1,4 +1,11 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* global RbForm */
+
 let RbForm_postAfter = RbForm.postAfter
 RbForm.postAfter = function () {
   RbForm_postAfter()
@@ -7,7 +14,7 @@ RbForm.postAfter = function () {
 
 const deleteDept = function (alert) {
   alert && alert.disabled(true)
-  $.post(`${rb.baseUrl}/admin/bizuser/dept-delete?transfer=&id=${dept_id}`, (res) => {
+  $.post(`/admin/bizuser/dept-delete?transfer=&id=${dept_id}`, (res) => {
     if (res.error_code === 0) {
       parent.location.hash = '!/View/'
       parent.location.reload()
@@ -18,7 +25,7 @@ const deleteDept = function (alert) {
 const dept_id = window.__PageConfig.recordId
 $(document).ready(function () {
   $('.J_delete').off('click').click(() => {
-    $.get(`${rb.baseUrl}/admin/bizuser/delete-checks?id=${dept_id}`, (res) => {
+    $.get(`/admin/bizuser/delete-checks?id=${dept_id}`, (res) => {
       if (res.data.hasMember === 0 && res.data.hasChild === 0) {
         RbAlert.create('此部门可以被安全的删除', '删除部门', {
           icon: 'alert-circle-o',

@@ -76,7 +76,7 @@ class MessageList extends React.Component {
       page: page || this.state.page,
       type: type || this.state.type
     }, () => {
-      $.get(`${rb.baseUrl}/notification/messages?type=${this.state.type}&pageNo=${this.state.page}`, (res) => {
+      $.get(`/notification/messages?type=${this.state.type}&pageNo=${this.state.page}`, (res) => {
         this.setState({ list: res.data || [] }, this.__loadAfter)
       })
     })
@@ -100,7 +100,7 @@ class MessageList extends React.Component {
 
   makeRead(id) {
     if (!id) return
-    $.post(`${rb.baseUrl}/notification/make-read?id=${id}`, () => {
+    $.post(`/notification/make-read?id=${id}`, () => {
       let list = (this.state.list || []).map((item) => {
         if (item[4] === id || id === 'ALL') item[3] = false
         return item
@@ -123,7 +123,7 @@ class ApprovalList extends MessageList {
     this.setState({
       page: page || this.state.page
     }, () => {
-      $.get(`${rb.baseUrl}/notification/approvals?pageNo=${this.state.page || 1}`, (res) => {
+      $.get(`/notification/approvals?pageNo=${this.state.page || 1}`, (res) => {
         this.setState({ list: res.data || [] }, this.__loadAfter)
       })
     })

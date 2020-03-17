@@ -92,7 +92,7 @@ window.__PageConfig = { isSuperAdmin: ${isSuperAdmin} }
 </script>
 <script type="text/babel">
 $(document).ready(function(){
-	$.get(rb.baseUrl + '/admin/entity/entity-list', function(res){
+	$.get('/admin/entity/entity-list', function(res){
 		$('#entityList').empty()
 		$(res.data).each(function(){ if (this.builtin == true) render_entity(this) })
 		$(res.data).each(function(){ if (this.builtin == false) render_entity(this) })

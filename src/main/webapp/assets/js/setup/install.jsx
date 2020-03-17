@@ -45,7 +45,7 @@ class Setup extends React.Component {
       adminProps: this.state.adminProps || {},
     }
     this.setState({ installState: 10 })
-    $.post(`${rb.baseUrl}/setup/install-rebuild`, JSON.stringify(data), (res) => {
+    $.post('/setup/install-rebuild', JSON.stringify(data), (res) => {
       this.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
     })
   }
@@ -184,7 +184,7 @@ class DatabaseConf extends React.Component {
     if (!ps) return
 
     this.setState({ inTest: true })
-    $.post(`${rb.baseUrl}/setup/test-connection`, JSON.stringify(ps), (res) => {
+    $.post('/setup/test-connection', JSON.stringify(ps), (res) => {
       this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
         () => typeof call === 'function' && call(ps, res))
     })
@@ -275,7 +275,7 @@ class CacheConf extends DatabaseConf {
     if (!ps) return
 
     this.setState({ inTest: true })
-    $.post(`${rb.baseUrl}/setup/test-cache`, JSON.stringify(ps), (res) => {
+    $.post('/setup/test-cache', JSON.stringify(ps), (res) => {
       this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
         () => typeof call === 'function' && call(ps, res))
     })

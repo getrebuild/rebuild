@@ -140,7 +140,7 @@ $(document).ready(function() {
 		if (vcodeState && !vcode){ RbHighbar.create($lang('InputCaptchaPls')); return }
 
 		let btn = $('.login-submit button').button('loading')
-		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
+		let url = '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
 		$.post(url, $encode(passwd), function(res) {
 			if (res.error_code == 0){
@@ -157,7 +157,7 @@ $(document).ready(function() {
 		})
 	})
 
-    $.get('live-wallpaper', (res) => {
+    $.get('/user/live-wallpaper', (res) => {
         if (res.error_code != 0 || !res.data) return
         let bgimg = new Image()
         bgimg.src = res.data

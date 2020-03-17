@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 // @see trigger.FIELDAGGREGATION.jsx auto-fillin.jsx
 
 // ~~ 数据回填
@@ -93,7 +100,7 @@ class ContentFieldWriteback extends ActionContentSpec {
 
     const content = this.props.content
     this.__select2 = []
-    $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}&self=false`, (res) => {
+    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}&self=false`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         const s2te = $(this._targetEntity).select2({ placeholder: '选择回填目标实体' })
           .on('change', () => this.changeTargetEntity())
@@ -118,7 +125,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     // 清空现有规则
     this.setState({ items: [] })
 
-    $.get(`${rb.baseUrl}/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+    $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.setState({ hadApproval: res.data.hadApproval })
       this.__targetFieldsCache = res.data.target
 

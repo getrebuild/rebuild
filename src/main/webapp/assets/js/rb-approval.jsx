@@ -90,7 +90,7 @@ class ApprovalProcessor extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/approval/state?record=${this.props.id}`, (res) => this.setState(res.data))
+    $.get(`/app/entity/approval/state?record=${this.props.id}`, (res) => this.setState(res.data))
   }
 
   submit = () => {
@@ -110,7 +110,7 @@ class ApprovalProcessor extends React.Component {
     RbAlert.create('确认撤回当前审批？', {
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
+        $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else _reload(this, '审批已撤回')
           this.disabled()
@@ -125,7 +125,7 @@ class ApprovalProcessor extends React.Component {
       type: 'warning',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
+        $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else _reload(this, '审批已撤销')
           this.disabled()
@@ -194,7 +194,7 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   getNextStep(approval) {
-    $.get(`${rb.baseUrl}/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
+    $.get(`/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
       this.setState(res.data)
     })
   }
@@ -236,7 +236,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/approval/workable?record=${this.props.id}`, (res) => {
+    $.get(`/app/entity/approval/workable?record=${this.props.id}`, (res) => {
       if (res.data && res.data.length > 0) {
         this.setState({ approvals: res.data, useApproval: res.data[0].id }, () => {
           this.getNextStep(res.data[0].id)
@@ -260,7 +260,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     if (!selectUsers) return
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
+    $.post(`/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else _reload(this, '审批已提交')
       this.disabled()
@@ -333,7 +333,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     const data = { remark: this.state.remark || '', selectUsers: selectUsers, aformData: aformData }
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
+    $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         _reload(this, '审批已' + (state === 10 ? '同意' : '驳回'))
@@ -444,7 +444,7 @@ class ApprovalStepViewer extends React.Component {
 
   componentDidMount() {
     this.show()
-    $.get(`${rb.baseUrl}/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
+    $.get(`/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
       if (!res.data || res.data.length === 0) {
         RbHighbar.create('未查询到流程详情')
         this.hide()

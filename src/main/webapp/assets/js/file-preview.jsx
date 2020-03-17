@@ -132,7 +132,7 @@ class RbPreview extends React.Component {
       if (currentUrl.startsWith('http://') || currentUrl.startsWith('https://')) {
         setPreviewUrl(currentUrl)
       } else {
-        $.get(`${rb.baseUrl}/filex/make-url?url=${currentUrl}`, (res) => {
+        $.get(`/filex/make-url?url=${currentUrl}`, (res) => {
           if (res.error_code > 0) this.setState({ errorMsg: res.error_msg })
           else setPreviewUrl(res.data.publicUrl)
         })
@@ -265,7 +265,7 @@ class FileShare extends RbModalHandler {
       })
     }
     if (!window.ClipboardJS) {
-      $.getScript(`${rb.baseUrl}/assets/lib/clipboard.min.js`, initCopy)
+      $.getScript('/assets/lib/clipboard.min.js', initCopy)
     } else {
       initCopy()
     }
@@ -275,7 +275,7 @@ class FileShare extends RbModalHandler {
     const t = e ? ~~e.target.dataset.time : 5
     if (this.state.time === t) return
     this.setState({ time: t }, () => {
-      $.get(`${rb.baseUrl}/filex/make-share?url=${$encode(this.props.file)}&time=${t}`, (res) => {
+      $.get(`/filex/make-share?url=${$encode(this.props.file)}&time=${t}`, (res) => {
         this.setState({ shareUrl: res.data.shareUrl })
       })
     })

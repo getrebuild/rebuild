@@ -56,6 +56,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
         if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
         RbHighbar.error(error)
       }
+    },
+    beforeSend: function (xhr, settings) {
+      // URL prefix
+      if (settings.url.substr(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
+      console.log(settings)
+      return settings
     }
   })
 

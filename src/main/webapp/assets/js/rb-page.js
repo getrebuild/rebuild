@@ -96,7 +96,7 @@ var $addResizeHandler = function (call) {
 
 // 取消管理员访问
 var __cancelAdmin = function () {
-  $.post(rb.baseUrl + '/user/admin-cancel', function (res) {
+  $.post('/user/admin-cancel', function (res) {
     if (res.error_code === 0) {
       // location.reload()
       $('.admin-settings a>.icon').removeClass('text-danger')
@@ -190,7 +190,7 @@ var __initNavs = function () {
 // Notification
 var __checkMessage__state = 0
 var __checkMessage = function () {
-  $.get(rb.baseUrl + '/notification/check-state', function (res) {
+  $.get('/notification/check-state', function (res) {
     if (res.error_code > 0) return
     $('.J_notifications-top .badge').text(res.data.unread)
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
@@ -216,7 +216,7 @@ var __loadMessages = function () {
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
-  $.get(rb.baseUrl + '/notification/messages?pageSize=10&preview=true', function (res) {
+  $.get('/notification/messages?pageSize=10&preview=true', function (res) {
     dest.empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)
@@ -314,7 +314,7 @@ var $createUploader = function (input, next, complete, error) {
       if (!file) return
 
       var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
-      $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
+      $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
@@ -333,7 +333,7 @@ var $createUploader = function (input, next, complete, error) {
             return false
           },
           complete: function (res) {
-            $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
+            $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
             typeof complete === 'function' && complete({ key: res.key })
           }
         })
@@ -359,7 +359,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
           complete({ key: e.data })
         } else {
           RbHighbar.error('上传失败，请稍后重试')
@@ -392,7 +392,7 @@ var $initUserSelect2 = function (el, multiple) {
     minimumInputLength: 0,
     multiple: multiple === true,
     ajax: {
-      url: rb.baseUrl + '/commons/search/search',
+      url: '/commons/search/search',
       delay: 300,
       data: function (params) {
         var query = {
@@ -424,7 +424,7 @@ var $initUserSelect2 = function (el, multiple) {
   })
   s.on('change.select2', function (e) {
     var v = e.target.value
-    if (v) $.post(rb.baseUrl + '/commons/search/recently-add?type=UDR&id=' + v)
+    if (v) $.post('/commons/search/recently-add?type=UDR&id=' + v)
   })
   return s
 }
@@ -437,7 +437,7 @@ var $initReferenceSelect2 = function (el, field) {
     minimumInputLength: 0,
     maximumSelectionLength: 1,
     ajax: {
-      url: rb.baseUrl + '/commons/search/' + (field.searchType || 'reference'),
+      url: '/commons/search/' + (field.searchType || 'reference'),
       delay: 300,
       data: function (params) {
         search_input = params.term
@@ -489,7 +489,7 @@ var $pgt = {
   SlaveList: 'SlaveList'
 }
 
-// 加载状态条
+// 加载状态条（单线程）
 var $mp = {
   __timer: null,
   __mp: null,

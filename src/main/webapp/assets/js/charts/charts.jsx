@@ -54,7 +54,7 @@ class BaseChart extends React.Component {
   }
 
   buildDataUrl() {
-    return rb.baseUrl + (this.state.id ? '/dashboard/chart-data' : '/dashboard/chart-preview') + '?id=' + (this.state.id || '')
+    return (this.state.id ? '/dashboard/chart-data' : '/dashboard/chart-preview') + '?id=' + (this.state.id || '')
   }
 
   resize() {
@@ -591,7 +591,7 @@ class FeedsSchedule extends BaseChart {
     RbAlert.create('确认完成该日程？', {
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/feeds/post/finish-schedule?id=${id}`, (res) => {
+        $.post(`/feeds/post/finish-schedule?id=${id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             RbHighbar.success('日程已完成')
@@ -678,7 +678,7 @@ class ChartSelect extends RbModalHandler {
 
   componentDidMount = () => this.__loadCharts()
   __loadCharts() {
-    $.get(`${rb.baseUrl}/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
+    $.get(`/dashboard/chart-list?type=${this.state.tabActive.substr(1)}&entity=${this.props.entity || ''}`, (res) => {
       this.setState({ chartList: res.data })
     })
   }
@@ -697,7 +697,7 @@ class ChartSelect extends RbModalHandler {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/dashboard/chart-delete?id=${id}`, (res) => {
+        $.post(`/dashboard/chart-delete?id=${id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else {
             that.__loadCharts()

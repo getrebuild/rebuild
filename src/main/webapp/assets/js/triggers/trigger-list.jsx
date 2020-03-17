@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
   renderRbcomp(<TriggerList />, 'dataList')
@@ -17,7 +24,7 @@ class TriggerList extends ConfigList {
 
   constructor(props) {
     super(props)
-    this.requestUrl = `${rb.baseUrl}/admin/robot/trigger/list`
+    this.requestUrl = '/admin/robot/trigger/list'
   }
 
   render() {
@@ -110,7 +117,7 @@ class TriggerEdit extends ConfigFormDlg {
 
     this.__select2 = []
     // #1
-    $.get(`${rb.baseUrl}/admin/robot/trigger/available-actions`, (res) => {
+    $.get('/admin/robot/trigger/available-actions', (res) => {
       this.setState({ actions: res.data }, () => {
         const s2ot = $(this._actionType).select2({
           placeholder: '选择触发类型',
@@ -133,7 +140,7 @@ class TriggerEdit extends ConfigFormDlg {
   }
 
   __getEntitiesByAction(type) {
-    $.get(`${rb.baseUrl}/admin/robot/trigger/available-entities?action=${type}`, (res) => {
+    $.get(`/admin/robot/trigger/available-entities?action=${type}`, (res) => {
       this.setState({ sourceEntities: res.data })
     })
   }
@@ -152,7 +159,7 @@ class TriggerEdit extends ConfigFormDlg {
     post.metadata = { entity: 'RobotTriggerConfig', id: this.props.id || null }
 
     this.disabled(true)
-    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(post), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'trigger/' + res.data.id

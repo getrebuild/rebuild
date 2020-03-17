@@ -14,7 +14,7 @@ class ReportList extends ConfigList {
 
   constructor(props) {
     super(props)
-    this.requestUrl = `${rb.baseUrl}/admin/datas/data-reports/list`
+    this.requestUrl = `/admin/datas/data-reports/list`
   }
 
   render() {
@@ -145,7 +145,7 @@ class ReporEdit extends ConfigFormDlg {
     const entity = this.__select2.val()
     if (!file || !entity) return
 
-    $.get(`${rb.baseUrl}/admin/datas/data-reports/check-template?file=${file}&entity=${entity}`, (res) => {
+    $.get(`/admin/datas/data-reports/check-template?file=${file}&entity=${entity}`, (res) => {
       $mp.end()
       if (res.error_code === 0) {
         const fileName = $fileCutName(file)
@@ -180,7 +180,7 @@ class ReporEdit extends ConfigFormDlg {
     post.metadata = { entity: 'DataReportConfig', id: this.props.id }
 
     this.disabled(true)
-    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(post), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) location.reload()
       else RbHighbar.error(res.error_msg)
       this.disabled()

@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(function () {
   $('.J_add').click(() => { renderRbcomp(<DlgEdit />) })
   renderRbcomp(<AppList />, 'appList')
@@ -30,7 +37,7 @@ class AppList extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/apis-manager/app-list`, (res) => {
+    $.get('/admin/apis-manager/app-list', (res) => {
       this.setState({ list: res.data || [] }, () => {
         $('.rb-loading-active').removeClass('rb-loading-active')
         $('.dataTables_info').text(`共 ${this.state.list.length} 个 API 秘钥`)
@@ -52,7 +59,7 @@ class AppList extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/admin/apis-manager/app-delete?id=${id}`, (res) => {
+        $.post(`/admin/apis-manager/app-delete?id=${id}`, (res) => {
           if (res.error_code === 0) location.reload()
           else RbHighbar.error(res.error_msg)
         })
@@ -94,7 +101,7 @@ class DlgEdit extends RbFormHandler {
   save = () => {
     const bindUser = this._select2.val()
     this.disabled(true)
-    $.post(`${rb.baseUrl}/admin/apis-manager/app-create?bind=${bindUser || ''}`, (res) => {
+    $.post(`/admin/apis-manager/app-create?bind=${bindUser || ''}`, (res) => {
       if (res.error_code === 0) {
         location.reload()
       } else RbHighbar.error(res.error_msg)

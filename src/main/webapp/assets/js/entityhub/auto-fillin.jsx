@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 const wpc = window.__PageConfig
 const bProps = { sourceEntity: wpc.referenceEntity, targetEntity: wpc.entityName, field: wpc.fieldName }
 
@@ -29,7 +36,7 @@ const loadRules = () => {
           type: 'danger',
           confirm: function () {
             this.disabled(true)
-            $.post(`${rb.baseUrl}/app/entity/record-delete?id=${configId}`, (res) => {
+            $.post(`/app/entity/record-delete?id=${configId}`, (res) => {
               if (res.error_code === 0) {
                 this.hide()
                 loadRules()
@@ -111,7 +118,7 @@ class DlgRuleEdit extends RbFormHandler {
   componentDidMount() {
     this.__select2 = []
     // #1
-    $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
+    $.get(`/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
       this.__targetFieldsCache = res.data
       const s2target = $(this._targetField).select2({
         placeholder: '选择字段',
@@ -120,7 +127,7 @@ class DlgRuleEdit extends RbFormHandler {
       this.__select2.push(s2target)
 
       // #2
-      $.get(`${rb.baseUrl}/commons/metadata/fields?entity=${this.props.sourceEntity}`, (res) => {
+      $.get(`/commons/metadata/fields?entity=${this.props.sourceEntity}`, (res) => {
         this.__sourceFieldsCache = res.data
         this.setState({ sourceFields: res.data }, () => {
           const s2source = $(this._sourceField).select2({

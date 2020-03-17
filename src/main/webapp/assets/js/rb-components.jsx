@@ -444,7 +444,7 @@ class UserSelector extends React.Component {
     const cacheKey = type + '-' + this.state.query
     this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
       if (!this.cached[cacheKey]) {
-        $.get(`${rb.baseUrl}/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
+        $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
           this.cached[cacheKey] = res.data
           this.switchTab(type)
         })

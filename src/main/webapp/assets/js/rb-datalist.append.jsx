@@ -76,7 +76,7 @@ class DataExport extends BatchOperator {
 
   confirm = () => {
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/${this.props.entity}/data-export/submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
+    $.post(`/app/${this.props.entity}/data-export/submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
         window.open(`${rb.baseUrl}/filex/download/${res.data}?temp=yes`)
@@ -99,7 +99,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/${this.props.entity}/batch-update/fields`, (res) => this.setState({ fields: res.data }))
+    $.get(`/app/${this.props.entity}/batch-update/fields`, (res) => this.setState({ fields: res.data }))
   }
 
   renderOperator() {
@@ -173,7 +173,7 @@ class BatchUpdate extends BatchOperator {
       confirm: function () {
         this.hide()
         that.disabled(true)
-        $.post(`${rb.baseUrl}/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
+        $.post(`/app/${that.props.entity}/batch-update/submit?dr=${that.state.dataRange}`, JSON.stringify(_data), (res) => {
           if (res.error_code === 0) {
             const mp = new Mprogress({ template: 1, start: true })
             that.__checkState(res.data, mp)
@@ -187,7 +187,7 @@ class BatchUpdate extends BatchOperator {
   }
 
   __checkState(taskid, mp) {
-    $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
+    $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
           mp && mp.end()

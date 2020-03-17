@@ -23,7 +23,7 @@ $(document).ready(() => {
   const fileds_render = (entity) => {
     if (!entity) return
     let el = $('#repeatFields').empty()
-    $.get(`${rb.baseUrl}/admin/datas/data-importer/import-fields?entity=${entity}`, (res) => {
+    $.get(`/admin/datas/data-importer/import-fields?entity=${entity}`, (res) => {
       $(res.data).each(function () {
         if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(el)
@@ -41,7 +41,7 @@ $(document).ready(() => {
     })
   }
 
-  $.get(`${rb.baseUrl}/commons/metadata/entities?slave=true`, (res) => {
+  $.get('/commons/metadata/entities?slave=true', (res) => {
     $(res.data).each(function () {
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#toEntity')
     })
@@ -66,7 +66,7 @@ $(document).ready(() => {
     placeholder: '默认',
     minimumInputLength: 1,
     ajax: {
-      url: rb.baseUrl + '/commons/search/search',
+      url: '/commons/search/search',
       delay: 300,
       data: function (params) {
         const query = {
@@ -127,7 +127,7 @@ const init_upload = () => {
 const check_user = () => $setTimeout(check_user0, 200, 'check_user')
 const check_user0 = () => {
   if (!ientry.entity || !ientry.owning_user) return
-  $.get(`${rb.baseUrl}/admin/datas/data-importer/check-user?user=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
+  $.get(`/admin/datas/data-importer/check-user?user=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
     let hasError = []
     if (res.data.canCreate !== true) hasError.push('新建')
     if (res.data.canUpdate !== true) hasError.push('更新')
@@ -149,7 +149,7 @@ const step_mapping = () => {
   if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) { RbHighbar.create('请选择重复判断字段'); return }
 
   const $btn = $('.J_step1-btn').button('loading')
-  $.get(`${rb.baseUrl}/admin/datas/data-importer/check-file?file=${$encode(ientry.file)}`, (res) => {
+  $.get(`/admin/datas/data-importer/check-file?file=${$encode(ientry.file)}`, (res) => {
     $btn.button('reset')
     if (res.error_code > 0) { RbHighbar.create(res.error_msg); return }
 
@@ -185,7 +185,7 @@ const step_import = () => {
   RbAlert.create('请再次确认导入选项和字段映射。开始导入吗？', {
     confirm: function () {
       this.disabled(true)
-      $.post(`${rb.baseUrl}/admin/datas/data-importer/import-submit`, JSON.stringify(ientry), (res) => {
+      $.post('/admin/datas/data-importer/import-submit', JSON.stringify(ientry), (res) => {
         if (res.error_code === 0) {
           this.hide()
           step_import_show()
@@ -204,7 +204,7 @@ const step_import_show = () => {
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
 }
 const import_state = (taskid, inLoad) => {
-  $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
+  $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
     if (res.error_code !== 0) {
       if (inLoad === true) step_upload()
       else RbHighbar.error(res.error_msg)
@@ -244,7 +244,7 @@ const import_cancel = () => {
     type: 'danger',
     confirmText: '确认终止',
     confirm: function () {
-      $.post(`${rb.baseUrl}/commons/task/cancel?taskid=${import_taskid}`, (res) => {
+      $.post(`/commons/task/cancel?taskid=${import_taskid}`, (res) => {
         if (res.error_code > 0) RbHighbar.error(res.error_msg)
       })
       this.hide()

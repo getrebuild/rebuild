@@ -34,16 +34,17 @@ class RbFormAvatar extends RbFormElement {
       // NOOP
     } else {
       let mp
-      $createUploader(this._fieldValue__input, (res) => {
-        if (!mp) mp = new Mprogress({ template: 2, start: true })
-        mp.set(res.percent / 100)  // 0.x
-      }, (res) => {
-        mp.end()
-        this.handleChange({ target: { value: res.key } }, true)
-      }, () => {
+      const mp_end = function () {
         if (mp) mp.end()
         mp = null
-      })
+      }
+      $createUploader(this._fieldValue__input, (res) => {
+        if (!mp) mp = new Mprogress({ template: 1, start: true })
+        mp.set(res.percent / 100)  // 0.x
+      }, (res) => {
+        mp_end()
+        this.handleChange({ target: { value: res.key } }, true)
+      }, () => mp_end())
     }
   }
 }
