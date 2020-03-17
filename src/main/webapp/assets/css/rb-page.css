@@ -315,6 +315,10 @@ a.btn {
     display: block;
 }
 
+.rb-color-header .dropdown .icon {
+    color: #fff !important;
+}
+
 .logo-img {
     height: 32px;
     width: 163px;

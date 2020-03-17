@@ -43,6 +43,11 @@ public class AppUtils {
 	public static final String MOBILE_HF_AUTHTOKEN = "X-AuthToken";
 
 	/**
+	 * 语言
+	 */
+	public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
+
+	/**
 	 * @return
 	 * @see Application#devMode()
 	 */
@@ -105,7 +110,8 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isAdminVerified(HttpServletRequest request) {
-		return AdminEntryControll.isAdminVerified(request);
+		Object verified = ServletUtils.getSessionAttribute(request, AdminEntryControll.KEY_VERIFIED);
+		return verified != null;
 	}
 	
 	/**
@@ -161,7 +167,9 @@ public class AppUtils {
 			Integer state = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
 			if (state != null && state == 404) {
 				return Languages.lang("Error404");
-			} else {
+			} else if (state != null && state == 403) {
+				return Languages.lang("Error403");
+			}  else {
 				return Languages.lang("ErrorUnknow");
 			}
 		} else if (ex instanceof AccessDeniedException) {
@@ -208,15 +216,17 @@ public class AppUtils {
 		return Application.getSecurityManager().allow(getRequestUser(request), entry);
 	}
 
-	public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
 	/**
+	 * 获取客户端语言
+	 *
 	 * @param request
 	 * @return
 	 */
 	public static String getLocale(HttpServletRequest request) {
 		String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
 		if (locale == null) {
-			locale = request.getLocale().toString();
+			locale = StringUtils.defaultIfBlank(
+					request.getHeader("X-Language"), request.getLocale().toString());
 		}
 		return locale;
 	}
