@@ -70,8 +70,7 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
             eventHold = null;
 
 		} catch (Throwable ex) {
-            LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"));
-			ex.printStackTrace();
+            LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"), ex);
 		}
 	}
 

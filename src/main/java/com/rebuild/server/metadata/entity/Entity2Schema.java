@@ -184,7 +184,7 @@ public class Entity2Schema extends Field2Schema {
 		}
 		
 		if (entity.getSlaveEntity() != null) {
-			throw new ModifiyMetadataException("不能删除主实体");
+			throw new ModifiyMetadataException("不能直接删除主实体，请先删除明细实体");
 		}
 		
 		if (!force) {
