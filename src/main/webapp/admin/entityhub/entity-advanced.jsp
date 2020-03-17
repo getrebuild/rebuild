@@ -47,7 +47,7 @@ a#entityIcon:hover{opacity:0.8}
 			<div class="card">
 				<div class="card-header">删除${entityLabel}实体</div>
 				<div class="card-body">
-					<p><strong>实体删除后将无法恢复，请务必谨慎操作。</strong>删除前，必须将该实体下的记录全部清空。如果这是一个主实体，则需要先将明细实体删除。</p>
+					<p><strong>实体删除后将无法恢复，请务必谨慎操作。</strong><br/>删除前，必须将该实体下的记录全部清空。如果这是一个主实体，则需要先将明细实体删除。如果此实体已被其他实体（字段）引用，则需要先删除引用字段。</p>
 					<div>
 						<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
 							<input class="custom-control-input J_drop-check" type="checkbox"><span class="custom-control-label"> 我已知晓风险</span>
