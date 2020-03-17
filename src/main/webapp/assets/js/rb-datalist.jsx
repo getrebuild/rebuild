@@ -381,12 +381,12 @@ const CellRenders = {
     if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
     else if (k.endsWith('.approvalId') && !v) v = '未提交'
     else if (k.endsWith('.approvalState') && !v) v = '草稿'
-    return <td key={k}><div style={s}>{v || ''}</div></td>
+    return <td key={k}><div style={s} title={v}>{v || ''}</div></td>
   }
 }
 
 CellRenders.addRender('$NAME$', function (v, s, k) {
-  return <td key={k}><div style={s}>
+  return <td key={k}><div style={s} title={v.text}>
     <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)} className="column-main">{v.text}</a>
   </div></td>
 })
@@ -394,7 +394,7 @@ CellRenders.addRender('$NAME$', function (v, s, k) {
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = v || []
   return <td key={k} className="td-min">
-    <div style={s} className="column-imgs" title={'共 ' + v.length + ' 个图片'}>
+    <div className="column-imgs" style={s} title={'共 ' + v.length + ' 个图片'}>
       {v.map((item, idx) => {
         if (idx > 2) return null
         const imgUrl = rb.baseUrl + '/filex/img/' + item
@@ -418,40 +418,40 @@ CellRenders.addRender('FILE', function (v, s, k) {
 })
 
 CellRenders.addRender('REFERENCE', function (v, s, k) {
-  return <td key={k}><div style={s}>
+  return <td key={k}><div style={s} title={v.text}>
     <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)}>{v.text}</a>
   </div></td>
 })
 
 CellRenders.addRender('URL', function (v, s, k) {
-  return <td key={k}><div style={s}>
+  return <td key={k}><div style={s} title={v}>
     <a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>{v}</a>
   </div></td>
 })
 
 CellRenders.addRender('EMAIL', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'mailto:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
+  return <td key={k}><div style={s} title={v}><a href={'mailto:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
 })
 
 CellRenders.addRender('PHONE', function (v, s, k) {
-  return <td key={k}><div style={s}><a href={'tel:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
+  return <td key={k}><div style={s} title={v}><a href={'tel:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
 })
 
 const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
     const badge = APPROVAL_STATE_CLAZZs[v]
-    return <td key={k} className="td-min column-state"><div style={s}><span className={badge ? 'badge badge-' + badge : ''}>{v}</span></div></td>
+    return <td key={k} className="td-min column-state"><div style={s} title={v}><span className={badge ? 'badge badge-' + badge : ''}>{v}</span></div></td>
   } else return CellRenders.renderSimple(v, s, k)
 })
 
 CellRenders.addRender('DECIMAL', function (v, s, k) {
-  if ((v + '').substr(0, 1) === '-') return <td key={k}><div style={s} className="text-danger">{v}</div></td>
+  if ((v + '').substr(0, 1) === '-') return <td key={k}><div className="text-danger" style={s} title={v}>{v}</div></td>
   else return CellRenders.renderSimple(v, s, k)
 })
 
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
-  return <td key={k} className="td-min column-multi"><div style={s}>
+  return <td key={k} className="td-min column-multi"><div style={s} title={v}>
     {v.split(' / ').map((item) => {
       return <span key={'opt-' + item} className="badge">{item}</span>
     })}
