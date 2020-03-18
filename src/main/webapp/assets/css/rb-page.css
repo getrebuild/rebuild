@@ -1094,6 +1094,12 @@ a {
     padding: 9px 10px;
 }
 
+.data-list .table thead.pin tr>th {
+    position: sticky;
+    top: 0;
+    background-color: #fff;
+}
+
 .data-list .table thead th {
     padding-top: 10px;
     padding-bottom: 8px;

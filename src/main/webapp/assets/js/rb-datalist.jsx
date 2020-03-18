@@ -112,7 +112,7 @@ class RbList extends React.Component {
     $scroller.perfectScrollbar()
 
     // enable pins
-    if ($(window).height() > 88 && $(window).width() >= 1280) {
+    if ($(window).height() > 666 && $(window).width() >= 1280) {
       $('.main-content').addClass('pb-0')
       $('.main-content .rb-datatable-header').addClass('pin')
 
@@ -122,16 +122,16 @@ class RbList extends React.Component {
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
-
-      let slLast = 0
-      $scroller.on('ps-scroll-x', () => {
-        const sl = $scroller[0].scrollLeft
-        if (sl === slLast) return
-        slLast = sl
-        if (sl > 0) $scroller.addClass('column-fixed-pin')
-        else $scroller.removeClass('column-fixed-pin')
-      })
     }
+
+    let slLast = 0
+    $scroller.on('ps-scroll-x', () => {
+      const sl = $scroller[0].scrollLeft
+      if (sl === slLast) return
+      slLast = sl
+      if (sl > 0) $scroller.addClass('column-fixed-pin')
+      else $scroller.removeClass('column-fixed-pin')
+    })
 
     const that = this
     $scroller.find('th .split').draggable({
