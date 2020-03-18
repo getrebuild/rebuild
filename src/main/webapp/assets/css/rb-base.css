@@ -25816,6 +25816,12 @@ div.table-responsive>div.dataTables_wrapper>div.row>div[class^="col-"]:last-chil
     height: 1rem;
 }
 
+.spinner-border-xl,
+.spinner-grow-xl {
+    width: 3rem;
+    height: 3rem;
+}
+
 @keyframes spinner-border {
     to {
         transform: rotate(360deg);

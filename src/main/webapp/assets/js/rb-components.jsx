@@ -339,9 +339,12 @@ function RbAlertBox(props) {
 // ~~ 加载动画
 function RbSpinner(props) {
   const spinner = <div className="rb-spinner">
-    <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-      <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
-    </svg>
+    {rb.ie
+      ? <span className="spinner-border spinner-border-xl text-primary"></span>
+      : <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+        <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
+      </svg>
+    }
   </div>
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
