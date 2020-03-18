@@ -15,7 +15,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -162,7 +161,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 			Application.getSessionStore().set(user);
 			
 			// 管理后台访问
-			if (requestUrl.contains("/admin/") && !AdminEntryControll.isAdminVerified(request)) {
+			if (requestUrl.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "请验证管理员访问权限"));
 				} else {

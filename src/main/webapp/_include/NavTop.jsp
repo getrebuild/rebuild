@@ -35,6 +35,9 @@ final User currentUser = Application.getUserStore().getUser(AppUtils.getRequestU
 			</ul>
 			<div class="page-title hide"><span>${param['pageTitle']}</span></div>
 			<ul class="nav navbar-nav float-right rb-icons-nav">
+				<li class="nav-item dropdown admin-danger hide">
+					<a class="nav-link" href="javascript:;"><i class="icon zmdi zmdi-alert-octagon text-danger"></i></a>
+				</li>
 				<li class="nav-item dropdown page-help" title="查看适用于本页的帮助">
 					<a class="nav-link" href="https://getrebuild.com/docs/" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
 				</li>

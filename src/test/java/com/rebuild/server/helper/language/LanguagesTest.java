@@ -26,9 +26,9 @@ public class LanguagesTest extends TestSupport {
         System.out.println(Languages.instance.getCurrentBundle());
         System.out.println(Languages.instance.getBundle(Locale.getDefault()));
 
-        assertEquals(Locale.US,
+        assertEquals(Locale.ENGLISH,
                 Locale.forLanguageTag(Languages.instance.getBundle(Locale.US).locale()));
-        assertEquals(Locale.JAPAN,
+        assertEquals(Locale.JAPANESE,
                 Locale.forLanguageTag(Languages.instance.getBundle(Locale.JAPAN).locale()));
     }
 
