@@ -134,11 +134,9 @@ class FileUploadDlg extends RbFormHandler {
       mp = null
     }
     $createUploader(this._upload, (res) => {
-      console.log('000', res)
       if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
-      console.log('111')
       const files = this.state.files || []
       files.push(res.key)
       this.setState({ files: files })

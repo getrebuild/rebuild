@@ -241,7 +241,6 @@ class RbList extends React.Component {
 
   _checkSelected() {
     const chkSelected = $(this._rblistBody).find('>tr .custom-control-input:checked').length
-    console.log('_checkSelected', chkSelected)
 
     // 全选/半选/全清
     const chkAll = this.state.rowsData.length
