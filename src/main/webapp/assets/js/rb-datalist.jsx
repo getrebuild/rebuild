@@ -50,12 +50,12 @@ class RbList extends React.Component {
         <div className="col-sm-12">
           <div className="rb-scroller" ref={(c) => this._rblistScroller = c}>
             <table className="table table-hover table-striped">
-              <thead ref={(c) => this._rblistHead = c}>
+              <thead>
                 <tr>
                   {this.props.uncheckbox !== true && <th className="column-checkbox">
                     <div>
                       <label className="custom-control custom-control-sm custom-checkbox">
-                        <input className="custom-control-input" type="checkbox" onChange={(e) => this.toggleRows(e)} />
+                        <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => this._checkAll = c} />
                         <span className="custom-control-label"></span>
                       </label>
                     </div>
@@ -64,7 +64,7 @@ class RbList extends React.Component {
                     const cWidth = item.width || that.__defaultColumnWidth
                     const styles = { width: cWidth + 'px' }
                     return <th key={'column-' + item.field} style={styles} className={`unselect ${item.unsort ? '' : 'sortable'}`} data-field={item.field}
-                      onClick={item.unsort ? null : this.sortField.bind(this, item.field)}>
+                      onClick={item.unsort ? null : this._sortField.bind(this, item.field)}>
                       <div style={styles}>
                         <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
                         <i className={'zmdi ' + (item.sort || '')} />
@@ -79,11 +79,11 @@ class RbList extends React.Component {
                 {this.state.rowsData.map((item) => {
                   const lastPrimary = item[lastIndex]
                   const rowKey = 'row-' + lastPrimary.id
-                  return <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this.clickRow(e, true)}>
+                  return <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
                     {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
-                          <input className="custom-control-input" type="checkbox" onChange={(e) => this.clickRow(e)} />
+                          <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
                           <span className="custom-control-label"></span>
                         </label>
                       </div>
@@ -146,16 +146,6 @@ class RbList extends React.Component {
     if (wpc.advFilter !== true) this.fetchList(this.__buildQuick())
   }
 
-  componentDidUpdate() {
-    // 按钮状态
-    const $oper = $('.dataTables_oper')
-    $oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
-    const selected = this.getSelectedIds(true).length
-    if (selected > 0) $oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
-    else $(this._rblistHead).find('.custom-control-input').prop('checked', false)
-    if (selected === 1) $oper.find('.J_view, .J_edit').attr('disabled', false)
-  }
-
   fetchList(filter) {
     const fields = []
     let field_sort = null
@@ -184,7 +174,10 @@ class RbList extends React.Component {
     }, 400)
     $.post(`/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
-        this.setState({ rowsData: res.data.data || [], inLoad: false }, () => RbList.renderAfter())
+        this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
+          RbList.renderAfter()
+          this._clearSelected()
+        })
         if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
       } else {
         RbHighbar.error(res.error_msg)
@@ -218,33 +211,69 @@ class RbList extends React.Component {
   }
 
   // 全选
-  toggleRows(e, noUpdate) {
+  _toggleRows(e, uncheck) {
     const $body = $(this._rblistBody)
-    if (e.target.checked) $body.find('>tr').addClass('active').find('.custom-control-input').prop('checked', true)
-    else $body.find('>tr').removeClass('active').find('.custom-control-input').prop('checked', false)
-    // this.setState({ checkedChanged: true })
-    if (!noUpdate) this.componentDidUpdate()  // perform
+    if (e.target.checked) {
+      $body.find('>tr').addClass('active').find('.custom-control-input').prop('checked', true)
+    } else {
+      $body.find('>tr').removeClass('active').find('.custom-control-input').prop('checked', false)
+    }
+    if (!uncheck) this._checkSelected()
   }
 
   // 单选
-  clickRow(e, unhold) {
+  _clickRow(e, unhold) {
     const $target = $(e.target)
     if ($target.hasClass('custom-control-label')) return
     if ($target.hasClass('custom-control-input') && unhold) return
 
     const $tr = $target.parents('tr')
     if (unhold) {
-      this.toggleRows({ target: { checked: false } }, true)
+      this._toggleRows({ target: { checked: false } }, true)
       $tr.addClass('active').find('.custom-control-input').prop('checked', true)
     } else {
       if (e.target.checked) $tr.addClass('active')
       else $tr.removeClass('active')
     }
-    // this.setState({ checkedChanged: true })
-    this.componentDidUpdate()  // for perform
+
+    this._checkSelected()
   }
 
-  sortField(field, e) {
+  _checkSelected() {
+    const chkSelected = $(this._rblistBody).find('>tr .custom-control-input:checked').length
+    console.log('_checkSelected', chkSelected)
+
+    // 全选/半选/全清
+    const chkAll = this.state.rowsData.length
+    if (chkSelected === 0) {
+      $(this._checkAll).prop('checked', false).parent().removeClass('indeterminate')
+    } else if (chkSelected !== chkAll) {
+      $(this._checkAll).prop('checked', false).parent().addClass('indeterminate')
+    }
+
+    if (chkSelected > 0 && chkSelected === chkAll) {
+      $(this._checkAll).prop('checked', true).parent().removeClass('indeterminate')
+    }
+
+    // 操作按钮状态
+    const $oper = $('.dataTables_oper')
+    $oper.find('.J_delete, .J_view, .J_edit, .J_assign, .J_share, .J_unshare').attr('disabled', true)
+    if (chkSelected > 0) {
+      $oper.find('.J_delete, .J_assign, .J_share, .J_unshare').attr('disabled', false)
+      if (chkSelected === 1) $oper.find('.J_view, .J_edit').attr('disabled', false)
+    }
+
+    // 分页组件
+    this._pagination && this._pagination.setState({ selectedTotal: chkSelected })
+  }
+
+  _clearSelected() {
+    $(this._checkAll).prop('checked', false)
+    this._toggleRows({ target: { checked: false } })
+  }
+
+  // 排序
+  _sortField(field, e) {
     const fields = this.state.fields
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {
@@ -319,9 +348,8 @@ class RbList extends React.Component {
    */
   getSelectedIds(noWarn) {
     const selected = []
-    $(this._rblistBody).find('>tr .custom-control-input').each(function () {
-      const $this = $(this)
-      if ($this.prop('checked')) selected.push($this.parents('tr').data('id'))
+    $(this._rblistBody).find('>tr .custom-control-input:checked').each(function () {
+      selected.push($(this).parents('tr').data('id'))
     })
     if (selected.length === 0 && noWarn !== true) RbHighbar.create('未选中任何记录')
     return selected
@@ -477,7 +505,10 @@ class RbListPagination extends React.Component {
     return (
       <div className="row rb-datatable-footer">
         <div className="col-12 col-md-4">
-          <div className="dataTables_info" key="page-rowsTotal">{this.state.rowsTotal > 0 ? `共 ${this.state.rowsTotal} 条数据` : ''}</div>
+          <div className="dataTables_info" key="page-rowsTotal">
+            {this.state.selectedTotal > 0 && <span className="mr-2">已选中 {this.state.selectedTotal} 条.</span>}
+            {this.state.rowsTotal > 0 && <span>共 {this.state.rowsTotal} 条数据</span>}
+          </div>
         </div>
         <div className="col-12 col-md-8">
           <div className="float-right paging_sizes">
