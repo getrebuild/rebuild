@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 // eslint-disable-next-line no-unused-vars
 // eslint-disable-next-line no-undef
 window.clickIcon = function (icon) {
@@ -37,7 +44,7 @@ $(document).ready(function () {
     RbModal.create(rb.baseUrl + '/p/commons/search-icon', '选择图标')
   })
 
-  $.get(rb.baseUrl + '/commons/metadata/fields?entity=' + wpc.entity, function (d) {
+  $.get('/commons/metadata/fields?entity=' + wpc.entity, function (d) {
     let rs = d.data.map((item) => {
       let canName = item.type === 'NUMBER' || item.type === 'DECIMAL' ||
         item.type === 'TEXT' || item.type === 'EMAIL' || item.type === 'URL' || item.type === 'PHONE' ||

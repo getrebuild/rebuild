@@ -34,7 +34,7 @@ class EntityTree extends React.Component {
 
   componentDidMount = () => this.loadData()
   loadData() {
-    $.get(`${rb.baseUrl}/files/list-entity`, (res) => {
+    $.get('/files/list-entity', (res) => {
       let _list = res.data || []
       _list.unshift({ id: __DEFAULT_ALL, text: '全部' })
       this.setState({ list: _list })

@@ -117,40 +117,46 @@ public final class Application {
 			return;
 		}
 
-		// 刷新配置缓存
-		for (ConfigurableItem item : ConfigurableItem.values()) {
-			SysConfiguration.get(item, true);
-		}
-
-		// 升级数据库
-		UpgradeDatabase.getInstance().upgradeQuietly();
-
-		// 自定义实体
-		LOG.info("Loading customized/business entities ...");
-		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
-
-		// 实体对应的服务类
-		SSS = new HashMap<>(16);
-		for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
-			ServiceSpec ss = e.getValue();
-			if (ss.getEntityCode() > 0) {
-				SSS.put(ss.getEntityCode(), ss);
-				LOG.info("Service specification : " + ss);
+		try {
+			// 刷新配置缓存
+			for (ConfigurableItem item : ConfigurableItem.values()) {
+				SysConfiguration.get(item, true);
 			}
-		}
 
-		// 若使用 Ehcache 则添加持久化钩子
-		final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
-		if (!ccache.isUseRedis()) {
-			addShutdownHook(new Thread("ehcache-persistent") {
-				@Override
-				public void run() {
-					((EhcacheDriver<?>) ccache.getCacheTemplate()).shutdown();
+			// 升级数据库
+			UpgradeDatabase.getInstance().upgradeQuietly();
+
+			// 自定义实体
+			LOG.info("Loading customized/business entities ...");
+			((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
+
+			// 实体对应的服务类
+			SSS = new HashMap<>(16);
+			for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
+				ServiceSpec ss = e.getValue();
+				if (ss.getEntityCode() > 0) {
+					SSS.put(ss.getEntityCode(), ss);
+					LOG.info("Service specification : " + ss);
 				}
-			});
-		}
+			}
 
-		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
+			// 若使用 Ehcache 则添加持久化钩子
+			final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
+			if (!ccache.isUseRedis()) {
+				addShutdownHook(new Thread("ehcache-persistent") {
+					@Override
+					public void run() {
+						((EhcacheDriver<?>) ccache.getCacheTemplate()).shutdown();
+					}
+				});
+			}
+
+			LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
+
+		} catch (Exception ex) {
+			serversReady = false;
+			throw ex;
+		}
 	}
 
     /**

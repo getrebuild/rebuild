@@ -1,10 +1,17 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(function () {
   $('.J_vcode-btn').click(function () {
     let email = $val('#sEmail')
     if (!email) { RbHighbar.create($lang('InputPls', 'Email')); return }
 
     let _btn = $(this).button('loading')
-    $.post(rb.baseUrl + '/user/signup-email-vcode?email=' + $encode(email), function (res) {
+    $.post('/user/signup-email-vcode?email=' + $encode(email), function (res) {
       if (res.error_code === 0) resend_countdown(true)
       else {
         RbHighbar.create(res.error_msg)
@@ -16,7 +23,7 @@ $(document).ready(function () {
   $('#sFullName').blur(function () {
     let v = $(this).val()
     if (!v || $('#sName').val()) return
-    $.get(rb.baseUrl + '/user/checkout-name?fullName=' + $encode(v), (res) => {
+    $.get('/user/checkout-name?fullName=' + $encode(v), (res) => {
       if (res.error_code === 0 && res.data) $('#sName').val(res.data)
     })
   })
@@ -33,7 +40,7 @@ $(document).ready(function () {
     let _data = { loginName: name, fullName: fullName, email: email, vcode: vcode }
 
     let _btn = $(this).button('loading')
-    $.post(rb.baseUrl + '/user/signup-confirm', JSON.stringify(_data), function (res) {
+    $.post('/user/signup-confirm', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
         _btn.text($lang('Successful', 'Signup'))
         $('.alert.hide').removeClass('hide')

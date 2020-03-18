@@ -184,19 +184,20 @@ public class Entity2Schema extends Field2Schema {
 		}
 		
 		if (entity.getSlaveEntity() != null) {
-			throw new ModifiyMetadataException("不能删除主实体");
+			throw new ModifiyMetadataException("不能直接删除主实体，请先删除明细实体");
 		}
-		
-		if (!force) {
-			for (Field whoRef : entity.getReferenceToFields(true)) {
-				if (!whoRef.getOwnEntity().equals(entity)) {
-					throw new ModifiyMetadataException("实体已被引用 (引用实体: " + EasyMeta.getLabel(whoRef.getOwnEntity()) + ")");
-				}
-			}
 
+		for (Field whoRef : entity.getReferenceToFields(true)) {
+			if (!whoRef.getOwnEntity().equals(entity)) {
+				throw new ModifiyMetadataException("实体已被其他实体引用 (引用实体: " + EasyMeta.getLabel(whoRef.getOwnEntity()) + ")");
+			}
+		}
+
+		// 有记录的强删
+		if (!force) {
 			long count;
 			if ((count = checkRecordCount(entity)) > 0) {
-				throw new ModifiyMetadataException("不能删除有数据的实体 (数量: " + count + ")");
+				throw new ModifiyMetadataException("不能删除有数据的实体 (数据量: " + count + ")");
 			}
 		}
 		

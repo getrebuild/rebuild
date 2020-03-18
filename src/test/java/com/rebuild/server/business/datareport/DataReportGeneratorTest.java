@@ -7,8 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.business.datareport;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
 import org.springframework.util.ResourceUtils;
@@ -44,15 +49,16 @@ public class DataReportGeneratorTest extends TestSupportWithUser {
     @Test
     public void testGeneratorV2() throws Exception {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
-        ID record = ID.valueOf("997-017048e97a7900e1");   // SalesOrder999
-        record = ID.valueOf("997-016eb12b29b9000d");  // SalesOrder999
+        if (!MetadataHelper.containsEntity("SalesOrder999")) {
+            return;
+        }
+
+        Entity SalesOrder999 = MetadataHelper.getEntity("SalesOrder999");
+        Record record = EntityHelper.forNew(SalesOrder999.getEntityCode(), getSessionUser());
+        record = Application.getEntityService(SalesOrder999.getEntityCode()).create(record);
 
         // 主记录+明细记录
-        try {
-            File file = new EasyExcelGenerator(template, record).setUser(UserService.ADMIN_USER).generate();
-            System.out.println("Report : " + file);
-        } catch (IllegalArgumentException ignored) {
-            // No record found in CI env
-        }
+        File file = new EasyExcelGenerator(template, record.getPrimary()).setUser(UserService.ADMIN_USER).generate();
+        System.out.println("Report : " + file);
     }
 }

@@ -15,7 +15,7 @@ $(document).ready(function () {
   if (d) $storage.set('DashDefault', d)
 
   let dash_list = null
-  $.get(rb.baseUrl + '/dashboard/dash-gets', ((res) => {
+  $.get('/dashboard/dash-gets', ((res) => {
     dash_list = res.data
     let d = dash_list[0]  // default
     if (dash_list.length > 1) {
@@ -178,7 +178,7 @@ let save_dashboard = function () {
   })
   gridstack_serialize = s
   $setTimeout(() => {
-    $.post(rb.baseUrl + '/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
+    $.post('/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
       // eslint-disable-next-line no-console
       if (rb.env === 'dev') console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
     })
@@ -209,7 +209,7 @@ class DlgAddChart extends RbFormHandler {
   }
   componentDidMount() {
     let entity_el = $(this.refs['entity'])
-    $.get(rb.baseUrl + '/commons/metadata/entities?slave=true', (res) => {
+    $.get('/commons/metadata/entities?slave=true', (res) => {
       $(res.data).each(function () {
         $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
       })
@@ -258,7 +258,7 @@ class DlgDashSettings extends RbFormHandler {
   save() {
     let _data = { shareTo: this._shareTo.getData().shareTo, title: this.state.title || '默认仪表盘' }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
-    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         $('.dash-head h4').text(_data.title)
         if (dlgRefs['DashSelect']) {
@@ -274,7 +274,7 @@ class DlgDashSettings extends RbFormHandler {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(rb.baseUrl + '/app/entity/record-delete?id=' + dashid, function (res) {
+        $.post('/app/entity/record-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
           else RbHighbar.error(res.error_msg)
@@ -321,7 +321,7 @@ class DlgDashAdd extends RbFormHandler {
     _data.metadata = { entity: 'DashboardConfig' }
     if (this.state.copy === true) _data.__copy = gridstack_serialize
 
-    $.post(rb.baseUrl + '/dashboard/dash-new', JSON.stringify(_data), (res) => {
+    $.post('/dashboard/dash-new', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         location.href = '?d=' + res.data.id
       } else RbHighbar.error(res.error_msg)

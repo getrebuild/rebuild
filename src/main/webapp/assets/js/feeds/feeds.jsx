@@ -37,7 +37,7 @@ class GroupList extends React.Component {
   }
 
   loadData(q) {
-    $.get(`${rb.baseUrl}/feeds/group/group-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
+    $.get(`/feeds/group/group-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
   }
 
   _handleActive(id) {
@@ -53,7 +53,7 @@ class GroupList extends React.Component {
 class UserList extends GroupList {
   state = { ...this.props }
   loadData(q) {
-    $.get(`${rb.baseUrl}/feeds/group/user-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
+    $.get(`/feeds/group/user-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
   }
 }
 

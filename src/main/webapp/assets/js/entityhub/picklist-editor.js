@@ -1,10 +1,17 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable no-undef */
+
 const multi = $urlp('multi') === 'true'
 const maxOptions = multi ? 20 : 40
 $(document).ready(function () {
   const query = 'entity=' + $urlp('entity') + '&field=' + $urlp('field')
 
-  $.get(`${rb.baseUrl}/admin/field/picklist-gets?isAll=true&${query}`, function (res) {
+  $.get(`/admin/field/picklist-gets?isAll=true&${query}`, function (res) {
     $(res.data).each(function () {
       if (this.hide === true) render_unset([this.id, this.text])
       else {
@@ -68,7 +75,7 @@ $(document).ready(function () {
     let $btn = $(this)
     let del_confirm = function () {
       $btn.button('loading')
-      $.post(`${rb.baseUrl}/admin/field/picklist-sets?${query}`, JSON.stringify(_data), (res) => {
+      $.post(`/admin/field/picklist-sets?${query}`, JSON.stringify(_data), (res) => {
         if (res.error_code > 0) RbHighbar.error(res.error_msg)
         else parent.location.reload()
       })

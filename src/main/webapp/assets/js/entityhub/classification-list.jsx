@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(function () {
   $('.J_add').click(() => { renderRbcomp(<DlgEdit />) })
   renderRbcomp(<GridList />, 'list')
@@ -32,7 +39,7 @@ class GridList extends React.Component {
     </div>
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/entityhub/classification/list`, (res) => {
+    $.get('/admin/entityhub/classification/list', (res) => {
       this.setState({ list: res.data })
     })
   }
@@ -45,7 +52,7 @@ class GridList extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${dataId}`, (res) => {
+        $.post(`/app/entity/record-delete?id=${dataId}`, (res) => {
           if (res.error_code === 0) {
             RbHighbar.success('分类数据已删除')
             setTimeout(() => { location.reload() }, 500)
@@ -94,7 +101,7 @@ class DlgEdit extends RbFormHandler {
     if (!this.state.name) { RbHighbar.create('请输入名称'); return }
     let _data = { name: this.state.name, isDisabled: this.state.isDisabled === true }
     _data.metadata = { entity: 'Classification', id: this.props.id || null }
-    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'classification/' + res.data.id

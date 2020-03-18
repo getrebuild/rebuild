@@ -1,10 +1,17 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 const UNICON_NAME = 'texture'
 let shareTo
 
 $(document).ready(function () {
   $('.J_add-menu').click(() => render_item({}, true))
 
-  $.get(rb.baseUrl + '/commons/metadata/entities', function (res) {
+  $.get('/commons/metadata/entities', function (res) {
     $(res.data).each(function () {
       $('<option value="' + this.name + '" data-icon="' + this.icon + '">' + this.label + '</option>').appendTo('.J_menuEntity optgroup:eq(0)')
     })
@@ -67,7 +74,7 @@ $(document).ready(function () {
 
     const btn = $(this).button('loading')
     const shareToData = shareTo ? shareTo.getData() : {}
-    $.post(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(shareToData.configName || '')}&shareTo=${shareToData.shareTo || ''}`, JSON.stringify(navs), function (res) {
+    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(shareToData.configName || '')}&shareTo=${shareToData.shareTo || ''}`, JSON.stringify(navs), function (res) {
       btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
     })
@@ -76,7 +83,7 @@ $(document).ready(function () {
   // 加载
 
   use_sortable('.J_config')
-  $.get(`${rb.baseUrl}/app/settings/nav-settings?id=${cfgid || ''}`, function (res) {
+  $.get(`/app/settings/nav-settings?id=${cfgid || ''}`, function (res) {
     if (res.data) {
       cfgid = res.data.id
       $(res.data.config).each(function () {
@@ -92,7 +99,7 @@ $(document).ready(function () {
     }
 
     const _current = res.data || {}
-    $.get(`${rb.baseUrl}/app/settings/nav-settings/alist`, (res) => {
+    $.get('/app/settings/nav-settings/alist', (res) => {
       const cc = res.data.find((x) => { return x[0] === _current.id })
       if (rb.isAdminUser) {
         renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () { shareTo = this })

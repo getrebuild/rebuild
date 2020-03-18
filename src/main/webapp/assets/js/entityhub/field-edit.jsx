@@ -52,7 +52,7 @@ $(document).ready(function () {
 
     _data.metadata = { entity: 'MetaField', id: wpc.metaId }
     _btn.button('loading')
-    $.post(rb.baseUrl + '/admin/entity/field-update', JSON.stringify(_data), function (res) {
+    $.post('/admin/entity/field-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
         if (rb.env === 'dev') location.reload(true)
         else location.href = '../fields'
@@ -80,7 +80,7 @@ $(document).ready(function () {
   }
 
   if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
-    $.get(`${rb.baseUrl}/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
+    $.get(`/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
       if (res.data.length === 0) { $('#picklist-items li').text('请添加选项'); return }
       $('#picklist-items').empty()
       $(res.data).each(function () { picklistItemRender(this) })
@@ -132,7 +132,7 @@ $(document).ready(function () {
     $('#fieldNullable').attr('disabled', true)
   }
   else if (dt === 'CLASSIFICATION') {
-    $.get(`${rb.baseUrl}/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
+    $.get(`/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
       $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}` }).text(res.data.name)
     })
   }
@@ -160,7 +160,7 @@ $(document).ready(function () {
     const alertExt = { type: 'danger', confirmText: '删除' }
     alertExt.confirm = function () {
       this.disabled(true)
-      $.post(`${rb.baseUrl}/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
+      $.post(`/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
         if (res.error_code === 0) {
           this.hide()
           RbHighbar.success('字段已删除')

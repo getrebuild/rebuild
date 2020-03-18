@@ -61,8 +61,8 @@ class FilesList extends React.Component {
   loadData(entry, pageNo) {
     this.__lastEntry = entry = entry || this.__lastEntry
     this.__pageNo = pageNo || 1
-    $.get(`${rb.baseUrl}/files/list-file?entry=${entry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`, (res) => {
-      let _current = res.data || []
+    $.get(`/files/list-file?entry=${entry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`, (res) => {
+      const _current = res.data || []
       let _files = this.__pageNo === 1 ? [] : this.state.files
       _files = [].concat(_files, _current)
       this.setState({ files: _files, currentLen: _current.length })
@@ -80,7 +80,7 @@ class FilesList extends React.Component {
 const previewFile = function (e, path, checkId) {
   $stopEvent(e)
   if (checkId) {
-    $.get(`${rb.baseUrl}/files/check-readable?id=${checkId}`, (res) => {
+    $.get(`/files/check-readable?id=${checkId}`, (res) => {
       if (res.data) RbPreview.create(path)
       else RbHighbar.error('你没有读取/查看此文件的权限')
     })
@@ -100,19 +100,19 @@ $(document).ready(() => {
     $content.perfectScrollbar('update')
   })()
 
-  let gs = $urlp('gs', location.hash)
+  const gs = $urlp('gs', location.hash)
   if (gs) {
     currentSearch = $decode(gs)
     $('.search-input-gs, .input-search input').val(currentSearch)
   }
 
   $('.J_sort .dropdown-item').click(function () {
-    let $this = $(this)
+    const $this = $(this)
     currentSort = $this.data('sort')
     $('.J_sort > .btn').find('span').text($this.text())
     filesList && filesList.loadData()
   })
-  let btn = $('.input-search .btn').click(() => {
+  const btn = $('.input-search .btn').click(() => {
     currentSearch = $('.input-search input').val()
     filesList && filesList.loadData()
   })

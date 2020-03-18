@@ -32,7 +32,7 @@
 <script type="text/babel">
 $(document).ready(function(){
 	const entity = $urlp('entity'), type = $urlp('type')
-	const _url = rb.baseUrl + '/admin/entity/' + entity + '/view-addons?type=' + type
+	const _url = '/admin/entity/' + entity + '/view-addons?type=' + type
 	
 	$.get(_url, function(res){
 		$(res.data.refs).each(function(){ render_unset(this) })

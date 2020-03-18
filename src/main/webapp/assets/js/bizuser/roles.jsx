@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 // eslint-disable-next-line no-undef
 RbForm.postAfter = function (data) {
   location.href = rb.baseUrl + '/admin/bizuser/role/' + data.id
@@ -65,7 +72,7 @@ const clickPriv = function (elements, action) {
   }
 }
 const loadRoles = function () {
-  $.get(rb.baseUrl + '/admin/bizuser/role-list', function (res) {
+  $.get('/admin/bizuser/role-list', function (res) {
     $('.dept-tree .ph-item').remove()
     $('.dept-tree ul').empty()
     $(res.data).each(function () {
@@ -85,7 +92,7 @@ const loadRoles = function () {
           confirmText: '删除',
           confirm: function () { deleteRole(_id, this) }
         }
-        $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + _id, function (res) {
+        $.get(`/admin/bizuser/delete-checks?id=${_id}`, function (res) {
           if (res.data.hasMember === 0) {
             RbAlert.create('此角色可以被安全的删除', '删除角色', { ...alertExt, icon: 'alert-circle-o' })
           } else {
@@ -98,7 +105,7 @@ const loadRoles = function () {
   })
 }
 const loadPrivileges = function () {
-  $.get(rb.baseUrl + '/admin/bizuser/privileges-list?role=' + role_id, function (res) {
+  $.get(`/admin/bizuser/privileges-list?role=${role_id}`, function (res) {
     if (res.error_code === 0) {
       $(res.data).each(function () {
         let etr = $('.table-priv tbody td.name>a[data-name="' + this.name + '"]')
@@ -141,14 +148,14 @@ const updatePrivileges = function () {
   })
 
   let _data = { entity: privEntity, zero: privZero }
-  $.post(rb.baseUrl + '/admin/bizuser/privileges-update?role=' + role_id, JSON.stringify(_data), (res) => {
+  $.post(`/admin/bizuser/privileges-update?role=${role_id}`, JSON.stringify(_data), (res) => {
     if (res.error_code === 0) location.reload()
     else RbHighbar.error(res.error_msg)
   })
 }
 const deleteRole = function (id, dlg) {
   dlg.disabled(true)
-  $.post(rb.baseUrl + '/admin/bizuser/role-delete?transfer=&id=' + id, (res) => {
+  $.post(`/admin/bizuser/role-delete?transfer=&id=${id}`, (res) => {
     if (res.error_code === 0) location.replace(rb.baseUrl + '/admin/bizuser/role-privileges')
     else RbHighbar.error(res.error_msg)
   })

@@ -25797,3 +25797,61 @@ div.table-responsive>div.dataTables_wrapper>div.row>div[class^="col-"]:last-chil
 .file-icon[data-type=png] {
     background: #f4b400;
 }
+
+/* BS v4.4 */
+
+/* https://getbootstrap.com/docs/4.4/components/spinners/ */
+
+.spinner-border,
+.spinner-grow {
+    display: inline-block;
+    width: 2rem;
+    height: 2rem;
+    vertical-align: text-bottom;
+}
+
+.spinner-border-sm,
+.spinner-grow-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+.spinner-border-xl,
+.spinner-grow-xl {
+    width: 3rem;
+    height: 3rem;
+}
+
+@keyframes spinner-border {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.spinner-border {
+    border: 3px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spinner-border .75s linear infinite;
+}
+
+.spinner-border-sm {
+    border-width: 2px;
+}
+
+@keyframes spinner-grow {
+    0% {
+        transform: scale(0);
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+.spinner-grow {
+    background-color: currentColor;
+    border-radius: 50%;
+    opacity: 0;
+    animation: spinner-grow .75s linear infinite;
+}

@@ -4,8 +4,8 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-
 /* eslint-disable no-unused-vars */
+
 /*! https://github.com/carhartl/jquery-cookie */
 // eslint-disable-next-line
 (function (factory) { if (typeof define === "function" && define.amd) { define(["jquery"], factory) } else { if (typeof exports === "object") { factory(require("jquery")) } else { factory(jQuery) } } }(function ($) { var pluses = /\+/g; function encode(s) { return config.raw ? s : encodeURIComponent(s) } function decode(s) { return config.raw ? s : decodeURIComponent(s) } function stringifyCookieValue(value) { return encode(config.json ? JSON.stringify(value) : String(value)) } function parseCookieValue(s) { if (s.indexOf('"') === 0) { s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\") } try { s = decodeURIComponent(s.replace(pluses, " ")); return config.json ? JSON.parse(s) : s } catch (e) { } } function read(s, converter) { var value = config.raw ? s : parseCookieValue(s); return $.isFunction(converter) ? converter(value) : value } var config = $.cookie = function (key, value, options) { if (value !== undefined && !$.isFunction(value)) { options = $.extend({}, config.defaults, options); if (typeof options.expires === "number") { var days = options.expires, t = options.expires = new Date(); t.setTime(+t + days * 86400000) } return (document.cookie = [encode(key), "=", stringifyCookieValue(value), options.expires ? "; expires=" + options.expires.toUTCString() : "", options.path ? "; path=" + options.path : "", options.domain ? "; domain=" + options.domain : "", options.secure ? "; secure" : ""].join("")) } var result = key ? undefined : {}; var cookies = document.cookie ? document.cookie.split("; ") : []; for (var i = 0, l = cookies.length; i < l; i++) { var parts = cookies[i].split("="); var name = decode(parts.shift()); var cookie = parts.join("="); if (key && key === name) { result = read(cookie, value); break } if (!key && (cookie = read(cookie)) !== undefined) { result[name] = cookie } } return result }; config.defaults = {}; $.removeCookie = function (key, options) { if ($.cookie(key) === undefined) { return false } $.cookie(key, "", $.extend({}, options, { expires: -1 })); return !$.cookie(key) } }));
@@ -17,24 +17,27 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.extend({
     'button': function (state) {
       return this.each(function () {
-        var el = $(this)
-        if (!(el.prop('nodeName') === 'BUTTON' || el.prop('nodeName') === 'A')) return
+        var $el = $(this)
+        if (!($el.prop('nodeName') === 'BUTTON' || $el.prop('nodeName') === 'A')) return
         if (state === 'loading') {
-          el.attr('disabled', true)
-          var loadingText = el.data('loading-text')
+          $el.attr('disabled', true)
+
+          var spinner = rb.ie ? undefined : $el.data('spinner')
+          var loadingText = $el.data('loading-text')
+          this.__textHold = $el.html()
+
+          var _this = this
           if (loadingText) {
-            var _this = this
-            this.__loadingTextTimer = setTimeout(function () {
-              _this.__textHold = el.html()
-              el.text(loadingText)
-            }, 200)
+            this.__loadingTimer = setTimeout(function () { $el.text(loadingText) }, 200)
+          } else if (spinner !== undefined) {
+            this.__loadingTimer = setTimeout(function () { $el.html('<span class="spinner-' + (spinner === 'grow' ? 'grow' : 'border') + '"></span>') }, 200)
           }
         } else if (state === 'reset') {
-          el.attr('disabled', false)
-          if (this.__loadingTextTimer) {
-            clearTimeout(this.__loadingTextTimer)
-            this.__loadingTextTimer = null
-            if (this.__textHold) el.html(this.__textHold)
+          $el.attr('disabled', false)
+          if (this.__loadingTimer) {
+            clearTimeout(this.__loadingTimer)
+            this.__loadingTimer = null
+            if (this.__textHold) $el.html(this.__textHold)
           }
         }
       })
@@ -56,6 +59,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
         if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
         RbHighbar.error(error)
       }
+    },
+    beforeSend: function (xhr, settings) {
+      // URL prefix
+      if (settings.url.substr(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
+      return settings
     }
   })
 
@@ -67,6 +75,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.select2.defaults.set('placeholder', '')
 
   window.rb = window.rb || {}
+  rb.ie = $('#ie-polyfill').length > 0
   $('meta[name^="rb."]').each(function (idx, item) {
     var k = $(item).attr('name').substr(3) // remove `rb.`
     var v = $(item).attr('content')

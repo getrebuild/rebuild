@@ -1,4 +1,11 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable react/no-string-refs */
+
 const wpc = window.__PageConfig
 let esourceFilter
 $(document).ready(() => {
@@ -71,7 +78,7 @@ $(document).ready(() => {
     _data.metadata = { entity: 'ChartConfig', id: wpc.chartId }
 
     let dash = $urlp('dashid') || ''
-    $.post(rb.baseUrl + '/dashboard/chart-save?dashid=' + dash, JSON.stringify(_data), function (res) {
+    $.post('/dashboard/chart-save?dashid=' + dash, JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
         wpc.chartConfig = cfg
         location.href = (dash ? ('home?d=' + dash) : 'home') + '#' + res.data.id

@@ -1,7 +1,15 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 const user_id = window.__PageConfig.recordId
+
 $(document).ready(function () {
   $('.J_delete').off('click').click(function () {
-    $.get(rb.baseUrl + '/admin/bizuser/delete-checks?id=' + user_id, function (res) {
+    $.get(`/admin/bizuser/delete-checks?id=${user_id}`, function (res) {
       if (res.data.hasMember === 0) {
         RbAlert.create('此用户可以被安全的删除', '删除用户', {
           icon: 'alert-circle-o',
@@ -41,7 +49,7 @@ $(document).ready(function () {
       html: true,
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/admin/bizuser/user-resetpwd?id=${user_id}&newp=${$decode(newpwd)}`, (res) => {
+        $.post(`/admin/bizuser/user-resetpwd?id=${user_id}&newp=${$decode(newpwd)}`, (res) => {
           this.disabled()
           if (res.error_code === 0) {
             RbHighbar.success('密码重置成功')
@@ -53,7 +61,7 @@ $(document).ready(function () {
   })
 
   if (rb.isAdminVerified) {
-    $.get(rb.baseUrl + '/admin/bizuser/check-user-status?id=' + user_id, (res) => {
+    $.get(`/admin/bizuser/check-user-status?id=${user_id}`, (res) => {
       if (res.error_code > 0) return
       if (res.data.system === true && rb.isAdminVerified === true) {
         $('.J_tips').removeClass('hide').find('.message p').text('系统内建超级管理员，不允许修改。此用户拥有最高级系统权限，请谨慎使用')
@@ -87,7 +95,7 @@ $(document).ready(function () {
 const toggleDisabled = function (disabled, alert) {
   alert && alert.disabled(true)
   const _data = { user: user_id, enable: !disabled }
-  $.post(rb.baseUrl + '/admin/bizuser/enable-user', JSON.stringify(_data), (res) => {
+  $.post('/admin/bizuser/enable-user', JSON.stringify(_data), (res) => {
     if (res.error_code === 0) {
       RbHighbar.success('用户已' + (disabled ? '停用' : '启用'))
       setTimeout(() => location.reload(), 500)
@@ -98,7 +106,7 @@ const toggleDisabled = function (disabled, alert) {
 // 删除用户
 const deleteUser = function (id, alert) {
   alert && alert.disabled(true)
-  $.post(rb.baseUrl + '/admin/bizuser/user-delete?id=' + id, (res) => {
+  $.post(`/admin/bizuser/user-delete?id=${id}`, (res) => {
     if (res.error_code === 0) {
       parent.location.hash = '!/View/'
       parent.location.reload()
@@ -153,7 +161,7 @@ class DlgEnableUser extends RbModalHandler {
       placeholder: '选择' + type[1],
       minimumInputLength: 1,
       ajax: {
-        url: rb.baseUrl + '/commons/search/search',
+        url: '/commons/search/search',
         delay: 300,
         data: function (params) {
           return { entity: type[0], q: params.term }
@@ -181,7 +189,7 @@ class DlgEnableUser extends RbModalHandler {
     }
 
     const btns = $(this._btns).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
+    $.post('/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         if (data.enable === true) {
           RbHighbar.success('用户已激活')

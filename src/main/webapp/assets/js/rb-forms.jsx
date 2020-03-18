@@ -48,7 +48,7 @@ class RbFormModal extends React.Component {
     const initialValue = this.state.initialValue || {}  // 默认值填充（仅新建有效）
 
     const that = this
-    $.post(`${rb.baseUrl}/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), function (res) {
+    $.post(`/app/${entity}/form-model?id=${id}`, JSON.stringify(initialValue), function (res) {
       // 包含错误
       if (res.error_code > 0 || !!res.data.error) {
         let error = res.data.error || res.error_msg
@@ -95,7 +95,7 @@ class RbFormModal extends React.Component {
 
   checkDrityData() {
     if (!this.__lastModified || !this.state.id) return
-    $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+    $.get(`/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this.__refresh()}>点击此处</a>查看最新数据</p> })
@@ -245,7 +245,7 @@ class RbForm extends React.Component {
     if (RbForm.postBefore(_data) === false) return
 
     const btns = $(this._formAction).find('.btn').button('loading')
-    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       btns.button('reset')
       if (res.error_code === 0) {
         RbHighbar.create('保存成功', 'success')
@@ -674,18 +674,19 @@ class RbFormImage extends RbFormElement {
       // NOOP
     } else {
       let mp
+      const mp_end = function () {
+        if (mp) mp.end()
+        mp = null
+      }
       $createUploader(this._fieldValue__input, (res) => {
-        if (!mp) mp = new Mprogress({ template: 2, start: true })
+        if (!mp) mp = new Mprogress({ template: 1, start: true })
         mp.set(res.percent / 100)  // 0.x
       }, (res) => {
-        mp.end()
+        mp_end()
         const paths = this.state.value || []
         paths.push(res.key)
         this.handleChange({ target: { value: paths } }, true)
-      }, () => {
-        if (mp) mp.end()
-        mp = null
-      })
+      }, () => mp_end())
     }
   }
 
@@ -869,7 +870,7 @@ class RbFormReference extends RbFormElement {
       this.__select2.on('change', function (e) {
         const v = e.target.value
         if (v) {
-          $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}`)
+          $.post(`/commons/search/recently-add?id=${v}`)
           that.triggerAutoFillin(v)
         }
         that.handleChange({ target: { value: v } }, true)
@@ -882,7 +883,7 @@ class RbFormReference extends RbFormElement {
     if (this.props.onView) return
 
     const $$$parent = this.props.$$$parent
-    $.post(`${rb.baseUrl}/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
+    $.post(`/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
       res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
     })
   }
@@ -942,7 +943,7 @@ class RbFormClassification extends RbFormElement {
 
       this.__select2.on('change', () => {
         const v = this.__select2.val()
-        if (v) $.post(`${rb.baseUrl}/commons/search/recently-add?id=${v}&type=d${this.props.classification}`)
+        if (v) $.post(`/commons/search/recently-add?id=${v}&type=d${this.props.classification}`)
         this.handleChange({ target: { value: v } }, true)
       })
     }
@@ -1253,7 +1254,7 @@ class ClassificationSelector extends React.Component {
   }
 
   loadData(level, p) {
-    $.get(`${rb.baseUrl}/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
+    $.get(`/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
       const s = this.state.datas
       s[level] = res.data
       this.setState({ datas: s }, () => this._select2[level].trigger('change'))
@@ -1336,7 +1337,7 @@ class DeleteConfirm extends RbAlert {
   enableCascade() {
     this.setState({ enableCascade: !this.state.enableCascade })
     if (!this.state.cascadesEntity) {
-      $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.entity, (res) => {
+      $.get('/commons/metadata/references?entity=' + this.props.entity, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
           this.__select2 = $(this._cascades).select2({
             placeholder: '选择关联实体 (可选)',
@@ -1354,7 +1355,7 @@ class DeleteConfirm extends RbAlert {
     const cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
     const btns = $(this._btns).find('.btn').button('loading')
-    $.post(rb.baseUrl + '/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
+    $.post('/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
       if (res.error_code === 0) {
         if (res.data.deleted === res.data.requests) RbHighbar.success('删除成功')
         else if (res.data.deleted === 0) RbHighbar.error('无法删除选中记录')

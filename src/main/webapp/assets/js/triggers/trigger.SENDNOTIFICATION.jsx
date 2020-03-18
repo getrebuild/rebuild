@@ -1,3 +1,9 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable react/jsx-no-undef */
 
 // ~~ 发送通知
@@ -53,12 +59,12 @@ class ContentSendNotification extends ActionContentSpec {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/robot/trigger/sendnotification-atypes`, (res) => this.setState({ ...res.data }))
+    $.get('/admin/robot/trigger/sendnotification-atypes', (res) => this.setState({ ...res.data }))
 
     const content = this.props.content
     if (content) {
       if (content.sendTo) {
-        $.post(`${rb.baseUrl}/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
+        $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
           if (res.error_code === 0 && res.data.length > 0) this._sendTo.setState({ selected: res.data })
         })
       }

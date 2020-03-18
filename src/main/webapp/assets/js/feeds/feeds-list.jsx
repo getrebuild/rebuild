@@ -112,7 +112,7 @@ class FeedsList extends React.Component {
     const firstFetch = !s.data
     // s.focusFeed 首次加载有效
 
-    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`, JSON.stringify(filter), (res) => {
+    $.post(`/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`, JSON.stringify(filter), (res) => {
       const _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null })
@@ -152,7 +152,7 @@ class FeedsList extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
+        $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#feeds-${id}`).animate({ opacity: 0 }, 600, () => {
             const _data = that.state.data
@@ -180,7 +180,7 @@ class FeedsList extends React.Component {
     RbAlert.create('确认完成该日程？', {
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/feeds/post/finish-schedule?id=${id}`, (res) => {
+        $.post(`/feeds/post/finish-schedule?id=${id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             RbHighbar.success('日程已完成')
@@ -270,7 +270,7 @@ class FeedsComments extends React.Component {
 
   componentDidMount = () => this._fetchComments()
   _fetchComments() {
-    $.get(`${rb.baseUrl}/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
+    $.get(`/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
       const _data = res.data || {}
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
@@ -285,7 +285,7 @@ class FeedsComments extends React.Component {
     _data.metadata = { entity: 'FeedsComment' }
 
     const btn = $(this._btn).button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
+    $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this._editor.reset()
@@ -321,7 +321,7 @@ class FeedsComments extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
+        $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
             const _data = that.state.data
@@ -421,12 +421,12 @@ function __renderRichContent(e) {
     </div>
     {(e.images || []).length > 0 && <div className="img-field">
       ${e.images.map((item, idx) => {
-        return (<span key={'img-' + item}>
-          <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
-            <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
-          </a>
-        </span>)
-      })}
+      return (<span key={'img-' + item}>
+        <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
+          <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+        </a>
+      </span>)
+    })}
     </div>
     }
     {(e.attachments || []).length > 0 && <div className="file-field">
@@ -454,7 +454,7 @@ function __findMaskTexts(mask, options) {
 // 点赞
 function _handleLike(id, comp) {
   event.preventDefault()
-  $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
+  $.post(`/feeds/post/like?id=${id}`, (res) => {
     const _data = comp.state.data
     _data.forEach((item) => {
       if (id === item.id) {

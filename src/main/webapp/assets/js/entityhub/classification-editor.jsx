@@ -115,7 +115,7 @@ class LevelBox extends React.Component {
 
   loadItems(p) {
     this.parentId = p
-    let url = `${rb.baseUrl}/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
+    let url = `/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
     $.get(url, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
@@ -161,7 +161,7 @@ class LevelBox extends React.Component {
       return
     }
 
-    let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?data_id=${wpc.id}&name=${name}`
+    let url = `/admin/entityhub/classification/save-data-item?data_id=${wpc.id}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
     else url += `&parent=${this.parentId}&level=${this.props.level}`
     let isUnhide = null
@@ -199,7 +199,7 @@ class LevelBox extends React.Component {
       type: 'danger',
       confirm: function () {
         this.disabled()
-        $.post(`${rb.baseUrl}/admin/entityhub/classification/delete-data-item?item_id=${item[0]}`, (res) => {
+        $.post(`/admin/entityhub/classification/delete-data-item?item_id=${item[0]}`, (res) => {
           this.hide()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
@@ -223,7 +223,7 @@ class LevelBox extends React.Component {
       alertExt.confirmText = '确认删除'
       alertExt.cancelText = '禁用'
       alertExt.cancel = function () {
-        let url = `${rb.baseUrl}/admin/entityhub/classification/save-data-item?item_id=${item[0]}&hide=true`
+        let url = `/admin/entityhub/classification/save-data-item?item_id=${item[0]}&hide=true`
         this.disabled()
         $.post(url, (res) => {
           this.hide()
@@ -259,7 +259,7 @@ var saveOpenLevel = function () {
 
     let data = { openLevel: level }
     data.metadata = { entity: 'Classification', id: wpc.id }
-    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(data), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         saveOpenLevel_last = level
@@ -306,7 +306,7 @@ class DlgImports extends RbModalHandler {
     </RbModal>
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/rbstore/load-index?type=classifications`, (res) => {
+    $.get('/admin/rbstore/load-index?type=classifications', (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data })
       else RbHighbar.error(res.error_msg)
     })
@@ -315,7 +315,7 @@ class DlgImports extends RbModalHandler {
   imports = (e) => {
     const file = e.currentTarget.dataset.file
     const name = e.currentTarget.dataset.name
-    const url = `${rb.baseUrl}/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
+    const url = `/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     const that = this
     RbAlert.create(`<strong>${name}</strong><br>仅支持导入到空的分类数据中。开始导入吗？`, {
       html: true,
@@ -332,7 +332,7 @@ class DlgImports extends RbModalHandler {
   }
 
   __checkState(taskid) {
-    $.get(`${rb.baseUrl}/commons/task/state?taskid=${taskid}`, (res) => {
+    $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
           this.__mp.end()

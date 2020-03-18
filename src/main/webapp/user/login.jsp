@@ -93,8 +93,8 @@
 								<a href="forgot-passwd">${bundle.lang('ForgotPassword')}</a>
 							</div>
 						</div>
-						<div class="form-group login-submit" style="margin-bottom:1.15rem">
-							<button class="btn btn-primary btn-xl" type="submit">${bundle.lang('Login')}</button>
+						<div class="form-group login-submit mb-2">
+							<button class="btn btn-primary btn-xl" type="submit" data-spinner>${bundle.lang('Login')}</button>
 							<div class="mt-4 text-center">${bundle.lang('NoAccountYet')}&nbsp;<a href="signup">${bundle.lang('SignupNow')}</a></div>
 						</div>
 						<div class="select-lang text-center mb-2">
@@ -140,7 +140,7 @@ $(document).ready(function() {
 		if (vcodeState && !vcode){ RbHighbar.create($lang('InputCaptchaPls')); return }
 
 		let btn = $('.login-submit button').button('loading')
-		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
+		let url = '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
 		$.post(url, $encode(passwd), function(res) {
 			if (res.error_code == 0){
@@ -157,7 +157,7 @@ $(document).ready(function() {
 		})
 	})
 
-    $.get('live-wallpaper', (res) => {
+    $.get('/user/live-wallpaper', (res) => {
         if (res.error_code != 0 || !res.data) return
         let bgimg = new Image()
         bgimg.src = res.data

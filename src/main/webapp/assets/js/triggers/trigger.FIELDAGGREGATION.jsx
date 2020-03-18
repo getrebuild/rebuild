@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
 
 // ~~ 数据聚合
@@ -112,7 +119,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   componentDidMount() {
     const content = this.props.content
     this.__select2 = []
-    $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
+    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         const s2te = $(this._targetEntity).select2({ placeholder: '选择聚合目标实体' })
           .on('change', () => this.changeTargetEntity())
@@ -138,7 +145,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     // 清空现有规则
     this.setState({ items: [] })
 
-    $.get(`${rb.baseUrl}/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
+    $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.setState({ hadApproval: res.data.hadApproval })
 
       if (this.state.targetFields) {

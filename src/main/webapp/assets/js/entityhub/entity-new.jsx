@@ -24,7 +24,7 @@ $(document).ready(function () {
     }
 
     _btn.button('loading')
-    $.post(rb.baseUrl + '/admin/entity/entity-new?nameField=' + $val('#nameField'), JSON.stringify(_data), function (res) {
+    $.post('/admin/entity/entity-new?nameField=' + $val('#nameField'), JSON.stringify(_data), function (res) {
       if (res.error_code === 0) parent.location.href = rb.baseUrl + '/admin/entity/' + res.data + '/base'
       else RbHighbar.error(res.error_msg)
     })
@@ -36,7 +36,7 @@ $(document).ready(function () {
     parent.RbModal.resize()
     if (entitiesLoaded === false) {
       entitiesLoaded = true
-      $.get(rb.baseUrl + '/admin/entity/entity-list?nobizz=true', function (res) {
+      $.get('/admin/entity/entity-list?nobizz=true', function (res) {
         $(res.data).each(function () {
           if (!this.slaveEntity) $(`<option value="${this.entityName}">${this.entityLabel}</option>`).appendTo('#masterEntity')
         })
@@ -82,7 +82,7 @@ class MetaschemaList extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/rbstore/load-index?type=metaschemas`, (res) => {
+    $.get('/admin/rbstore/load-index?type=metaschemas', (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data }, () => { parent.RbModal.resize() })
       else RbHighbar.error(res.error_msg)
     })
@@ -100,7 +100,7 @@ class MetaschemaList extends React.Component {
         that.setState({ inProgress: true })
 
         $mp2.start()
-        $.post(`${rb.baseUrl}/admin/metaschema/imports?file=${$encode(file)}`, (res) => {
+        $.post(`/admin/metaschema/imports?file=${$encode(file)}`, (res) => {
           $mp2.end()
           if (res.error_code === 0) {
             RbHighbar.success('导入完成')

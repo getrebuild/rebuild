@@ -21,7 +21,7 @@ class RbViewForm extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
+    $.get(`/app/${this.props.entity}/view-model?id=${this.props.id}`, (res) => {
       // 有错误
       if (res.error_code > 0 || !!res.data.error) {
         const err = res.data.error || res.error_msg
@@ -68,7 +68,7 @@ class RbViewForm extends React.Component {
   // 脏数据检查
   checkDrityData(handle) {
     if (!this.__lastModified || !this.state.id) return
-    $.get(`${rb.baseUrl}/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+    $.get(`/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           handle && handle.showLoading()
@@ -113,7 +113,7 @@ class RbViewForm extends React.Component {
     _data[fieldName] = val.value
 
     const btns = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
-    $.post(`${rb.baseUrl}/app/entity/record-save?single=true`, JSON.stringify(_data), (res) => {
+    $.post('/app/entity/record-save?single=true', JSON.stringify(_data), (res) => {
       btns.button('reset')
       if (res.error_code === 0) {
         this.setFieldUnchanged(fieldName)
@@ -163,7 +163,7 @@ class SelectReport extends React.Component {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/${this.props.entity}/reports/available`, (res) => this.setState({ reports: res.data }))
+    $.get(`/app/${this.props.entity}/reports/available`, (res) => this.setState({ reports: res.data }))
     $(this._dlg).modal({ show: true, keyboard: true })
   }
   hide = () => $(this._dlg).modal('hide')
@@ -213,7 +213,7 @@ class RelatedList extends React.Component {
     this.__pageNo = this.__pageNo || 1
     if (plus) this.__pageNo += plus
     const pageSize = 20
-    $.get(`${rb.baseUrl}/app/entity/related-list?masterId=${this.props.master}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
+    $.get(`/app/entity/related-list?masterId=${this.props.master}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
       const _data = res.data.data || []
       const _list = (this.state.list || []).concat(_data)
       this.setState({ list: _list, showMores: _data.length >= pageSize })
@@ -278,7 +278,7 @@ const RbViewPage = {
 
   // 记录元数据
   initRecordMeta() {
-    $.get(`${rb.baseUrl}/app/entity/record-meta?id=${this.__id}`, (res) => {
+    $.get(`/app/entity/record-meta?id=${this.__id}`, (res) => {
       if (res.error_code !== 0) {
         $('.view-operating').empty()
         return
@@ -345,7 +345,7 @@ const RbViewPage = {
   updateVTabs(specEntities) {
     specEntities = specEntities || this.__vtabEntities
     if (!specEntities || specEntities.length === 0) return
-    $.get(`${rb.baseUrl}/app/entity/related-counts?masterId=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
+    $.get(`/app/entity/related-counts?masterId=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in (res.data || {})) {
         if (~~res.data[k] > 0) {
           const tabNav = $('.nav-tabs a[href="#tab-' + k + '"]')
