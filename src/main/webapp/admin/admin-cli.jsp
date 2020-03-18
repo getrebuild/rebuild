@@ -51,7 +51,7 @@ $(document).ready(() => {
             $in.val('')
 
             cprint(c)
-            $.post(rb.baseUrl + '/admin/cli/exec', (c), (o) => {
+            $.post('/admin/cli/exec', (c), (o) => {
                 if (o) cprint(o, true)
             })
         }

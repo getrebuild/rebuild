@@ -75,7 +75,7 @@ $(function () {
       topPopover($('.admin-settings a'), '<div class="p-1">当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a></div>')
     }
 
-    $.get(rb.baseUrl + '/user/admin-dangers', function (res) {
+    $.get('/user/admin-dangers', function (res) {
       if ((res.data || []).length > 0) {
         $('.admin-danger').removeClass('hide')
         var dd = []
