@@ -46,12 +46,18 @@ public class SigninControllTest extends TestSupportWithMVC {
 		System.out.println(perform(builder));
 
 		builder = MockMvcRequestBuilders.get("/user/signup");
-		System.out.println(perform(builder, null, MockMvcResultMatchers.status().is4xxClientError()));
-		
+		System.out.println(perform(builder, null, MockMvcResultMatchers.status().isOk()));
+
 		builder = MockMvcRequestBuilders.get("/user/forgot-passwd");
 		System.out.println(perform(builder));
 		
 		builder = MockMvcRequestBuilders.get("/user/logout");
 		System.out.println(performRedirection(builder));
+	}
+
+	@Test
+	public void testUnLogin() throws Exception {
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get("/dashboard/home");
+		System.out.println(perform(builder, null, MockMvcResultMatchers.status().is3xxRedirection()));
 	}
 }
