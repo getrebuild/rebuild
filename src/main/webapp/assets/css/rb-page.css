@@ -1068,7 +1068,7 @@ a {
     background-color: #fff;
 }
 
-.dataTables_wrapper .rb-datatable-header.pin {
+.dataTables_wrapper .rb-datatable-header.header-fixed {
     position: sticky;
     top: 60px;
     background-color: #fff;
@@ -1094,15 +1094,10 @@ a {
     padding: 9px 10px;
 }
 
-.data-list .table thead.pin tr>th {
-    position: sticky;
-    top: 0;
-    background-color: #fff;
-}
-
 .data-list .table thead th {
     padding-top: 10px;
     padding-bottom: 8px;
+    background-color: #fff;
 }
 
 .data-list .table thead th.column-checkbox>div>.custom-control.custom-control-sm {
@@ -1319,6 +1314,22 @@ i.split.ui-draggable-dragging {
     overflow: unset !important;
 }
 
+.column-fixed::before,
+.table.table-header-fixed thead>tr>th::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    bottom: -1px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+th.column-fixed::before,
+.table.table-header-fixed thead>tr>th::before {
+    bottom: -2px;
+    border-bottom: 2px solid #dee2e6;
+}
+
 th.column-fixed {
     z-index: 1;
 }
@@ -1332,7 +1343,7 @@ th.column-fixed {
     content: '';
     pointer-events: none;
     transform: translateX(100%);
-    box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
+    box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s;
 }
 
@@ -1345,7 +1356,12 @@ th.column-fixed {
 }
 
 .data-list .table tbody tr.active td.column-fixed {
-    background-color: #dee2e6;
+    background-color: #dee2e6
+}
+
+.table.table-header-fixed thead>tr>th {
+    position: sticky;
+    top: 0;
 }
 
 .form.batch-form {
