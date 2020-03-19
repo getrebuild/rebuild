@@ -12,7 +12,7 @@
 .avatar-wrap {
 	height: 256px;
 	padding-top: 55px;
-	background-color: #eee;
+	background-color: rgb(245, 247, 249);
 	border-radius: 4px;
 	margin-bottom: 10px;
     margin-top: 10px;
@@ -23,7 +23,7 @@
 	height: 140px;
 	line-height: 1;
 	font-size: 0;
-	background-color: #ccc;
+	background-color: #eee;
 	border-radius: 50%;
 	overflow: hidden;
 	margin: 0 auto;
