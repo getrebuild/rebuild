@@ -51,7 +51,7 @@ class RbList extends React.Component {
               <thead>
                 <tr>
                   {this.props.uncheckbox !== true &&
-                    <th className="column-checkbox column-fixed">
+                    <th className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
                           <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => this._checkAll = c} />
@@ -79,20 +79,22 @@ class RbList extends React.Component {
                 {this.state.rowsData.map((item) => {
                   const lastPrimary = item[lastIndex]
                   const rowKey = 'row-' + lastPrimary.id
-                  return <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
-                    {this.props.uncheckbox !== true &&
-                      <td key={rowKey + '-checkbox'} className="column-checkbox column-fixed">
-                        <div>
-                          <label className="custom-control custom-control-sm custom-checkbox">
-                            <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
-                            <span className="custom-control-label"></span>
-                          </label>
-                        </div>
-                      </td>
-                    }
-                    {item.map((cell, index) => { return that.renderCell(cell, index, lastPrimary) })}
-                    <td className="column-empty"></td>
-                  </tr>
+                  return (
+                    <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
+                      {this.props.uncheckbox !== true &&
+                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
+                          <div>
+                            <label className="custom-control custom-control-sm custom-checkbox">
+                              <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
+                              <span className="custom-control-label"></span>
+                            </label>
+                          </div>
+                        </td>
+                      }
+                      {item.map((cell, index) => { return that.renderCell(cell, index, lastPrimary) })}
+                      <td className="column-empty"></td>
+                    </tr>
+                  )
                 })}
               </tbody>
             </table>
