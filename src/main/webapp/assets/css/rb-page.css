@@ -1068,11 +1068,11 @@ a {
     background-color: #fff;
 }
 
-.dataTables_wrapper .rb-datatable-header {
+.dataTables_wrapper .rb-datatable-header.header-fixed {
     position: sticky;
     top: 60px;
     background-color: #fff;
-    z-index: 1;
+    z-index: 2;
 }
 
 @media screen and (max-width: 767px) {
@@ -1097,6 +1097,7 @@ a {
 .data-list .table thead th {
     padding-top: 10px;
     padding-bottom: 8px;
+    background-color: #fff;
 }
 
 .data-list .table thead th.column-checkbox>div>.custom-control.custom-control-sm {
@@ -1137,9 +1138,6 @@ a {
     cursor: e-resize;
 }
 
-.data-list .table tbody tr.active td {
-    background-color: #dee2e6;
-}
 
 i.split.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
@@ -1169,6 +1167,10 @@ i.split.ui-draggable-dragging {
     border-radius: 2px;
 }
 
+.data-list .table tbody tr.active {
+    background-color: #dee2e6;
+}
+
 .data-list .table td,
 .data-list .table td>div {
     white-space: nowrap;
@@ -1195,6 +1197,16 @@ i.split.ui-draggable-dragging {
 
 .data-list .table tbody tr td.user-avatar img {
     margin-right: 0;
+}
+
+.data-list .table td div .badge {
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.data-list .table td div .badge.badge-default {
+    line-height: 1.3334;
 }
 
 .column-imgs,
@@ -1250,7 +1262,6 @@ i.split.ui-draggable-dragging {
 
 .column-checkbox {
     width: 48px;
-    padding-right: 8px !important;
 }
 
 .column-checkbox>div {
@@ -1284,16 +1295,6 @@ i.split.ui-draggable-dragging {
     cursor: help;
 }
 
-.data-list .table td div .badge {
-    font-weight: normal;
-    font-size: 12px;
-    line-height: 1.5;
-}
-
-.data-list .table td div .badge.badge-default {
-    line-height: 1.3334;
-}
-
 .column-state .badge {
     border-radius: 99px;
 }
@@ -1304,6 +1305,63 @@ i.split.ui-draggable-dragging {
 
 .column-multi .badge+.badge {
     margin-left: 1px;
+}
+
+.column-fixed {
+    position: sticky;
+    left: 0;
+    background-color: #fff;
+    overflow: unset !important;
+}
+
+.column-fixed::before,
+.table.table-header-fixed thead>tr>th::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    bottom: -1px;
+    border-bottom: 1px solid #dee2e6;
+}
+
+th.column-fixed::before,
+.table.table-header-fixed thead>tr>th::before {
+    bottom: -2px;
+    border-bottom: 2px solid #dee2e6;
+}
+
+th.column-fixed {
+    z-index: 1;
+}
+
+.rb-scroller.column-fixed-pin .column-fixed::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: -1px;
+    width: 20px;
+    content: '';
+    pointer-events: none;
+    transform: translateX(100%);
+    box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+
+.table-striped tbody tr:nth-of-type(odd) td.column-fixed {
+    background-color: #f5f5f5
+}
+
+.table-hover tbody tr:hover td.column-fixed {
+    background-color: #f0f0f0
+}
+
+.data-list .table tbody tr.active td.column-fixed {
+    background-color: #dee2e6
+}
+
+.table.table-header-fixed thead>tr>th {
+    position: sticky;
+    top: 0;
 }
 
 .form.batch-form {
@@ -3282,10 +3340,6 @@ a.icon-link>.zmdi {
     margin-left: 5px !important;
 }
 
-.custom-checkbox.indeterminate .custom-control-label::before {
-    border-color: #4285f4;
-}
-
 .custom-checkbox.custom-control-sm.indeterminate .custom-control-label::after {
     width: 8px;
     height: 8px;
@@ -3306,4 +3360,19 @@ a.icon-link>.zmdi {
     height: 8px;
     margin-top: 5px;
     margin-left: 5px;
+}
+
+/* 1280 */
+@media (max-width:1280px) {
+
+    .adv-search .btn-group,
+    .adv-search .btn-group .dropdown-menu,
+    .input-search,
+    .input-search input {
+        width: 212px;
+    }
+
+    .btn {
+        min-width: 88px;
+    }
 }

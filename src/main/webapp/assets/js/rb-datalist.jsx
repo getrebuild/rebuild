@@ -11,8 +11,6 @@ const wpc = window.__PageConfig || {}
 const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
-// 启用试图页编辑功能
-const FIXED_FOOTER = true
 
 // ~~ 数据列表
 class RbList extends React.Component {
@@ -52,14 +50,16 @@ class RbList extends React.Component {
             <table className="table table-hover table-striped">
               <thead>
                 <tr>
-                  {this.props.uncheckbox !== true && <th className="column-checkbox">
-                    <div>
-                      <label className="custom-control custom-control-sm custom-checkbox">
-                        <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => this._checkAll = c} />
-                        <span className="custom-control-label"></span>
-                      </label>
-                    </div>
-                  </th>}
+                  {this.props.uncheckbox !== true &&
+                    <th className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
+                      <div>
+                        <label className="custom-control custom-control-sm custom-checkbox">
+                          <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => this._checkAll = c} />
+                          <span className="custom-control-label"></span>
+                        </label>
+                      </div>
+                    </th>
+                  }
                   {this.state.fields.map((item) => {
                     const cWidth = item.width || that.__defaultColumnWidth
                     const styles = { width: cWidth + 'px' }
@@ -79,19 +79,22 @@ class RbList extends React.Component {
                 {this.state.rowsData.map((item) => {
                   const lastPrimary = item[lastIndex]
                   const rowKey = 'row-' + lastPrimary.id
-                  return <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
-                    {this.props.uncheckbox !== true && <td key={rowKey + '-checkbox'} className="column-checkbox">
-                      <div>
-                        <label className="custom-control custom-control-sm custom-checkbox">
-                          <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
-                          <span className="custom-control-label"></span>
-                        </label>
-                      </div>
-                    </td>
-                    }
-                    {item.map((cell, index) => { return that.renderCell(cell, index, lastPrimary) })}
-                    <td className="column-empty"></td>
-                  </tr>
+                  return (
+                    <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
+                      {this.props.uncheckbox !== true &&
+                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
+                          <div>
+                            <label className="custom-control custom-control-sm custom-checkbox">
+                              <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
+                              <span className="custom-control-label"></span>
+                            </label>
+                          </div>
+                        </td>
+                      }
+                      {item.map((cell, index) => { return that.renderCell(cell, index, lastPrimary) })}
+                      <td className="column-empty"></td>
+                    </tr>
+                  )
                 })}
               </tbody>
             </table>
@@ -110,14 +113,29 @@ class RbList extends React.Component {
     const $scroller = $(this._rblistScroller)
     $scroller.perfectScrollbar()
 
-    if (FIXED_FOOTER && $('.main-content').width() > 998) {
+    // enable pins
+    if ($(window).height() > 666 && $(window).width() >= 1280) {
       $('.main-content').addClass('pb-0')
+      $('.main-content .rb-datatable-header').addClass('header-fixed')
+      if (!rb.ie) $scroller.find('.table').addClass('table-header-fixed')
+
       $addResizeHandler(() => {
         let mh = $(window).height() - 215
         if ($('.main-content>.nav-tabs-classic').length > 0) mh -= 44  // Has tab
         $scroller.css({ maxHeight: mh })
         $scroller.perfectScrollbar('update')
       })()
+    }
+
+    if (!rb.ie) {
+      let slLast = 0
+      $scroller.on('ps-scroll-x', () => {
+        const sl = $scroller[0].scrollLeft
+        if (sl === slLast) return
+        slLast = sl
+        if (sl > 0) $scroller.addClass('column-fixed-pin')
+        else $scroller.removeClass('column-fixed-pin')
+      })
     }
 
     const that = this

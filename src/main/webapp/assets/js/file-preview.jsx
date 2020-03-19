@@ -47,7 +47,7 @@ class RbPreview extends React.Component {
     return <React.Fragment>
       <div className={`preview-modal ${this.state.inLoad ? 'hide' : ''}`} ref={(c) => this._dlg = c}>
         <div className="preview-header">
-          <div className="float-left"><h5>{fileName}</h5></div>
+          <div className="float-left"><h5 className="text-bold">{fileName}</h5></div>
           <div className="float-right">
             {rb.fileSharable && <a onClick={this.share} title="分享"><i className="zmdi zmdi-share fs-17"></i></a>}
             <a title="下载" target="_blank" rel="noopener noreferrer" href={downloadUrl}><i className="zmdi zmdi-download"></i></a>
@@ -138,7 +138,7 @@ class RbPreview extends React.Component {
         })
       }
     } else if (this.__isText(fileName)) {
-      const textUrl = (currentUrl.startsWith('http://') || currentUrl.startsWith('https://')) ? currentUrl : `${rb.baseUrl}/filex/download/${currentUrl}`
+      const textUrl = (currentUrl.startsWith('http://') || currentUrl.startsWith('https://')) ? currentUrl : `/filex/download/${currentUrl}`
       $.ajax({
         url: textUrl,
         type: 'GET',

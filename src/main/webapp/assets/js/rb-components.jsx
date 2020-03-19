@@ -17,13 +17,13 @@ class RbModal extends React.Component {
   render() {
     const inFrame = !this.props.children
     return <div className={`modal rbmodal colored-header colored-header-${this.props.colored || 'primary'}`} ref={(c) => this._rbmodal = c}>
-      <div className="modal-dialog" style={{ maxWidth: (this.props.width || 680) + 'px' }}>
+      <div className="modal-dialog" style={{ maxWidth: `${this.props.width || 680}px` }}>
         <div className="modal-content">
           <div className="modal-header modal-header-colored">
             <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
             <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
           </div>
-          <div className={'modal-body' + (inFrame ? ' iframe rb-loading' : '') + (inFrame && this.state.frameLoad !== false ? ' rb-loading-active' : '')}>
+          <div className={`modal-body ${inFrame ? 'iframe rb-loading' : ''} ${inFrame && this.state.frameLoad !== false ? 'rb-loading-active' : ''}`}>
             {this.props.children || <iframe src={this.props.url} frameBorder="0" scrolling="no" onLoad={() => this.resize()} />}
             {inFrame && <RbSpinner />}
           </div>
@@ -215,7 +215,7 @@ class RbAlert extends React.Component {
       <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
       <div className="mt-4 mb-3">
         <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>{this.props.cancelText || '取消'}</button>
-        <button disabled={this.state.disable} className={'btn btn-space btn-' + type} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
+        <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
       </div>
     </div>
   }
@@ -377,13 +377,13 @@ class UserSelector extends React.Component {
             <ul className="select2-selection__rendered">
               {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
               {(this.state.selected).map((item) => {
-                return (<li key={'s-' + item.id} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
+                return (<li key={`s-${item.id}`} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
               })}
               <li className="select2-selection__choice abtn" onClick={this.openDropdown}><a><i className="zmdi zmdi-plus"></i> 添加</a></li>
             </ul>
           </span>
         </span>
-        <span className={'dropdown-wrapper ' + (this.state.dropdownOpen === false && 'hide')}>
+        <span className={`dropdown-wrapper ${this.state.dropdownOpen === false ? 'hide' : ''}`}>
           <div className="selector-search">
             <div>
               <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
@@ -392,7 +392,7 @@ class UserSelector extends React.Component {
           <div className="tab-container m-0">
             <ul className="nav nav-tabs nav-tabs-classic">
               {this.tabTypes.map((item) => {
-                return <li className="nav-item" key={'t-' + item[0]}><a onClick={() => this.switchTab(item[0])} className={'nav-link' + (this.state.tabType === item[0] ? ' active' : '')}>{item[1]}</a></li>
+                return <li className="nav-item" key={`t-${item[0]}`}><a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a></li>
               })}
             </ul>
             <div className="tab-content">
@@ -400,7 +400,7 @@ class UserSelector extends React.Component {
                 <div className="rb-scroller" ref={(c) => this._scroller = c}>
                   <ul className="select2-results__options">
                     {noResult ? noResult : this.state.items.map((item) => {
-                      return (<li key={'o-' + item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={'zmdi' + (this.containsItem(item.id) ? ' zmdi-check' : '')}></span>{item.text}</li>)
+                      return (<li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={`zmdi ${this.containsItem(item.id) ? ' zmdi-check' : ''}`}></span>{item.text}</li>)
                     })}
                   </ul>
                 </div>
@@ -444,7 +444,7 @@ class UserSelector extends React.Component {
 
   switchTab(type) {
     type = type || this.state.tabType
-    const cacheKey = type + '-' + this.state.query
+    const cacheKey = `${type}-${this.state.query}`
     this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
       if (!this.cached[cacheKey]) {
         $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
@@ -502,10 +502,10 @@ class UserSelector extends React.Component {
 
 // ~~ 用户显示
 const UserShow = function (props) {
-  const viewUrl = props.id ? ('#!/View/User/' + props.id) : null
-  const avatarUrl = rb.baseUrl + '/account/user-avatar/' + props.id
+  const viewUrl = props.id ? `#!/View/User/${props.id}` : null
+  const avatarUrl = `${rb.baseUrl}/account/user-avatar/${props.id}`
   return <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-    <div className={'avatar' + (props.showName === true ? ' float-left' : '')}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
+    <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
     {props.showName && (<div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>{props.name}{props.deptName && <em>{props.deptName}</em>}</div>)}
   </a>
 }
@@ -522,7 +522,7 @@ const renderRbcomp = function (jsx, target, call) {
     const container = document.getElementById(target)
     if (!container) {
       if (!target.startsWith('react-comps-')) throw 'No element found : ' + target
-      else target = $('<div id="' + target + '"></div>').appendTo(document.body)[0]
+      else target = $(`<div id="${target}"></div>`).appendTo(document.body)[0]
     } else {
       target = container
     }
