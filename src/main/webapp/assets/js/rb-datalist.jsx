@@ -51,7 +51,7 @@ class RbList extends React.Component {
               <thead>
                 <tr>
                   {this.props.uncheckbox !== true &&
-                    <th className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
+                    <th className={`column-checkbox ${$.browser.msie ? '' : 'column-fixed'}`}>
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
                           <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => this._checkAll = c} />
@@ -82,7 +82,7 @@ class RbList extends React.Component {
                   return (
                     <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
                       {this.props.uncheckbox !== true &&
-                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
+                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${$.browser.msie ? '' : 'column-fixed'}`}>
                           <div>
                             <label className="custom-control custom-control-sm custom-checkbox">
                               <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
@@ -117,7 +117,7 @@ class RbList extends React.Component {
     if ($(window).height() > 666 && $(window).width() >= 1280) {
       $('.main-content').addClass('pb-0')
       $('.main-content .rb-datatable-header').addClass('header-fixed')
-      if (!rb.ie) $scroller.find('.table').addClass('table-header-fixed')
+      if (!$.browser.msie) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
         let mh = $(window).height() - 215
@@ -127,7 +127,7 @@ class RbList extends React.Component {
       })()
     }
 
-    if (!rb.ie) {
+    if (!$.browser.msie) {
       let slLast = 0
       $scroller.on('ps-scroll-x', () => {
         const sl = $scroller[0].scrollLeft

@@ -22,7 +22,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
         if (state === 'loading') {
           $el.attr('disabled', true)
 
-          var spinner = rb.ie ? undefined : $el.data('spinner')
+          var spinner = $.browser.msie ? undefined : $el.data('spinner')
           var loadingText = $el.data('loading-text')
           this.__textHold = $el.html()
 
@@ -75,7 +75,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.fn.select2.defaults.set('placeholder', '')
 
   window.rb = window.rb || {}
-  rb.ie = $('#ie-polyfill').length > 0
   $('meta[name^="rb."]').each(function (idx, item) {
     var k = $(item).attr('name').substr(3) // remove `rb.`
     var v = $(item).attr('content')
