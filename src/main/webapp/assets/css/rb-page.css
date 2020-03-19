@@ -3363,7 +3363,7 @@ a.icon-link>.zmdi {
 }
 
 /* 1280 */
-@media (min-width:1280px) {
+@media (max-width:1280px) {
 
     .adv-search .btn-group,
     .adv-search .btn-group .dropdown-menu,
