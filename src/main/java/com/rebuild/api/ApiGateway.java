@@ -74,7 +74,7 @@ public class ApiGateway extends Controll {
 		ApiContext context = null;
 		try {
 			BaseApi api = createApi(apiName);
-			context = verfiy(request.getParameterMap(), ServletUtils.getRequestString(request));
+			context = verfiy(request.getParameterMap(), ServletUtils.getRequestString(request), request);
 			if (context.getBindUser() != null) {
 				Application.getSessionStore().set(context.getBindUser());
 			}
@@ -109,10 +109,11 @@ public class ApiGateway extends Controll {
 	 *
 	 * @param parameterMap
 	 * @param post
+	 * @param request
 	 * @return
 	 * @throws IOException
 	 */
-	protected ApiContext verfiy(Map<String, String[]> parameterMap, String post) throws IOException {
+	protected ApiContext verfiy(Map<String, String[]> parameterMap, String post, HttpServletRequest request) throws IOException {
 		Map<String, String> sortedMap = new TreeMap<>();
 		for (Map.Entry<String, String[]> e : parameterMap.entrySet()) {
 			String[] vv = e.getValue();
@@ -234,11 +235,6 @@ public class ApiGateway extends Controll {
 		}
 
 		API_CLASSES.put(apiName, clazz);
-		LOG.info("New API registered : " + apiName);
-	}
-
-	static {
-		registerApi(SystemTime.class);
-		registerApi(LoginToken.class);
+		LOG.info("New API registered : " + apiName + " : " + clazz.getName());
 	}
 }

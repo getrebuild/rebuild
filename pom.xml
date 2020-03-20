@@ -116,7 +116,7 @@
 		<dependency>
 			<groupId>com.github.devezhao</groupId>
 			<artifactId>commons</artifactId>
-			<version>1.1.6</version>
+			<version>af69e4af28</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>httpclient</artifactId>

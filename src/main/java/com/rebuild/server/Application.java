@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server;
 
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
@@ -15,6 +16,8 @@ import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.query.QueryedRecord;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.api.ApiGateway;
+import com.rebuild.api.BaseApi;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
@@ -49,6 +52,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 后台类入口
@@ -138,6 +142,12 @@ public final class Application {
 					SSS.put(ss.getEntityCode(), ss);
 					LOG.info("Service specification : " + ss);
 				}
+			}
+
+			// 注册 API
+			Set<Class<?>> apiClasses = ReflectUtils.getAllSubclasses(ApiGateway.class.getPackage().getName(), BaseApi.class);
+			for (Class<?> c : apiClasses) {
+				ApiGateway.registerApi((Class<? extends BaseApi>) c);
 			}
 
 			// 若使用 Ehcache 则添加持久化钩子
