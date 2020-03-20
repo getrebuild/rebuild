@@ -51,7 +51,7 @@ class RbList extends React.Component {
               <thead>
                 <tr>
                   {this.props.uncheckbox !== true &&
-                    <th className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
+                    <th className={`column-checkbox ${$.browser.msie ? '' : 'column-fixed'}`}>
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
                           <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => this._checkAll = c} />
@@ -82,7 +82,7 @@ class RbList extends React.Component {
                   return (
                     <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
                       {this.props.uncheckbox !== true &&
-                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${rb.ie ? '' : 'column-fixed'}`}>
+                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${$.browser.msie ? '' : 'column-fixed'}`}>
                           <div>
                             <label className="custom-control custom-control-sm custom-checkbox">
                               <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
@@ -117,7 +117,7 @@ class RbList extends React.Component {
     if ($(window).height() > 666 && $(window).width() >= 1280) {
       $('.main-content').addClass('pb-0')
       $('.main-content .rb-datatable-header').addClass('header-fixed')
-      if (!rb.ie) $scroller.find('.table').addClass('table-header-fixed')
+      if (!$.browser.msie) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
         let mh = $(window).height() - 215
@@ -127,7 +127,7 @@ class RbList extends React.Component {
       })()
     }
 
-    if (!rb.ie) {
+    if (!$.browser.msie) {
       let slLast = 0
       $scroller.on('ps-scroll-x', () => {
         const sl = $scroller[0].scrollLeft
@@ -584,7 +584,7 @@ const RbListPage = {
    * @param {*} ep Privileges of this entity
    */
   init: function (config, entity, ep) {
-    renderRbcomp(<RbList config={config} />, 'react-list', function () { RbListPage._RbList = this })
+    renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () { RbListPage._RbList = this })
 
     const that = this
 
@@ -641,8 +641,8 @@ const RbListPage = {
       if (ep.C === false) $('.J_new').remove()
       if (ep.D === false) $('.J_delete').remove()
       if (ep.U === false) $('.J_edit, .J_batch').remove()
-      if (ep.A === false) $('.J_assign').remove()
-      if (ep.S === false) $('.J_share, .J_unshare').remove()
+      if (ep.A !== true) $('.J_assign').remove()
+      if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
     }
 
@@ -799,7 +799,7 @@ const AdvFilters = {
   }
 }
 
-// init
+// init: DataList
 $(document).ready(() => {
   const gs = $urlp('gs', location.hash)
   if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
@@ -810,7 +810,6 @@ $(document).ready(() => {
 })
 
 // -- for View
-
 // ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
 

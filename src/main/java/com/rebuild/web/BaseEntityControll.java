@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web;
@@ -42,6 +31,8 @@ import java.util.Map;
  */
 public abstract class BaseEntityControll extends BasePageControll {
 
+	private static final String PLAIN_ENTITY_PRIVILEGES = "{C:true,D:true,U:true,R:true}";
+
 	/**
 	 * @param page
 	 * @param entity
@@ -68,6 +59,8 @@ public abstract class BaseEntityControll extends BasePageControll {
 				actionMap.put(act.getName(), priv.allowed(act));
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
+		} else if (MetadataHelper.isPlainEntity(entityMeta.getEntityCode())) {
+			mv.getModel().put("entityPrivileges", PLAIN_ENTITY_PRIVILEGES);
 		} else {
 			mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);
 		}
@@ -103,6 +96,8 @@ public abstract class BaseEntityControll extends BasePageControll {
 				actionMap.put(act.getName(), Application.getSecurityManager().allow(user, record, act));
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
+		} else if (MetadataHelper.isPlainEntity(entity.getEntityCode())) {
+			mv.getModel().put("entityPrivileges", PLAIN_ENTITY_PRIVILEGES);
 		} else {
 			mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);
 		}
@@ -130,8 +125,8 @@ public abstract class BaseEntityControll extends BasePageControll {
 		} else {
 			into.getModel().put("masterEntity", easyMeta.getName());
 		}
-		
-		if (master != null && slave != null) {
+
+		if (master != null) {
 			into.getModel().put("masterEntity", master.getName());
 			into.getModel().put("masterEntityLabel", master.getLabel());
 			into.getModel().put("masterEntityIcon", master.getIcon());

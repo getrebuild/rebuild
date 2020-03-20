@@ -270,8 +270,8 @@ const RbViewPage = {
     if (ep) {
       if (ep.D === false) $('.J_delete').remove()
       if (ep.U === false) $('.J_edit, .J_add-slave').remove()
-      if (ep.A === false) $('.J_assign').remove()
-      if (ep.S === false) $('.J_share').remove()
+      if (ep.A !== true) $('.J_assign').remove()
+      if (ep.S !== true) $('.J_share').remove()
       that.cleanViewActionButton()
     }
   },
@@ -311,6 +311,9 @@ const RbViewPage = {
           $('<span>' + v + '</span>').appendTo('.J_' + k)
         }
       }
+
+      // PlainEntity
+      if (!res.data.owningUser) $('.view-user').remove()
     })
   },
 

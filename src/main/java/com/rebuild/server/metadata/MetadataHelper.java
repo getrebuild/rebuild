@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.metadata;
@@ -24,6 +13,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -31,7 +21,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 实体元数据
@@ -208,7 +200,6 @@ public class MetadataHelper {
 	 * @param fieldName
 	 * @return
 	 */
-	@SuppressWarnings("deprecation")
 	public static boolean isSystemField(String fieldName) {
 		return EntityHelper.AutoId.equalsIgnoreCase(fieldName)
 				|| EntityHelper.QuickCode.equalsIgnoreCase(fieldName)
@@ -395,5 +386,32 @@ public class MetadataHelper {
 			return false;
 		}
 		return checkAndWarnField(getEntity(entityName), fieldName);
+	}
+
+	private static final Set<Integer> PLAIN_ENTITIES = new HashSet<>();
+	/**
+	 * 指定实体具有和业务实体一样的特性（除权限以外（指定实体无权限字段））。
+	 *
+	 * @param entityCode
+	 * @return
+	 */
+	public static boolean isPlainEntity(int entityCode) {
+		return PLAIN_ENTITIES.contains(entityCode);
+	}
+	
+	/**
+	 * WARN: 除非你清楚的知道此方法的意义，否则不要使用
+	 *
+	 * @param entity
+	 * @see #isPlainEntity(int)
+	 */
+	public static void setPlainEntity(Entity entity) {
+		if (entity.containsField(EntityHelper.CreatedOn) && entity.containsField(EntityHelper.CreatedBy)
+				&& entity.containsField(EntityHelper.ModifiedOn) && entity.containsField(EntityHelper.ModifiedBy)) {
+			LOG.info("Set to plain entity : " + entity.getEntityCode());
+			PLAIN_ENTITIES.add(entity.getEntityCode());
+		} else {
+			throw new RebuildException("Cannot be set as a PlainEntity : " + entity);
+		}
 	}
 }
