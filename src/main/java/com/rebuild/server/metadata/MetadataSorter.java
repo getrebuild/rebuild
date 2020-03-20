@@ -69,12 +69,12 @@ public class MetadataSorter {
 		Entity[] entities = MetadataHelper.getEntities();
 		sortBaseMeta(entities);
 		for (Entity e : entities) {
-			if (EasyMeta.valueOf(e).isBuiltin() && !MetadataHelper.hasPrivilegesField(e)) {
-				if (!MetadataHelper.isPlainEntity(e.getEntityCode())) {
-					continue;
-				}
-			}
-
+            if (EasyMeta.valueOf(e).isBuiltin()
+                    && !MetadataHelper.hasPrivilegesField(e)
+                    && !MetadataHelper.isPlainEntity(e.getEntityCode())) {
+                continue;
+            }
+            
 			if (user == null) {
 				sorted.add(e);
 			} else if (Application.getSecurityManager().allowRead(user, e.getEntityCode())) {
