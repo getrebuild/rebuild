@@ -49,6 +49,10 @@ $(document).ready(() => {
         if (event.which == 13 && $in.val()) {
             const c = $in.val().trim()
             $in.val('')
+            if (c === 'clean') {
+                $('.out').empty()
+                return
+            }
 
             cprint(c)
             $.post('/admin/cli/exec', (c), (o) => {
