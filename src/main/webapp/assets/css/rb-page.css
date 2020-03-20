@@ -1138,9 +1138,9 @@ a {
     cursor: e-resize;
 }
 
-
 i.split.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
+    z-index: 2;
 }
 
 .data-list .table thead th>div>i.zmdi {
