@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.metadata;
@@ -67,38 +56,41 @@ public class MetadataSorter {
 	 * @return
 	 */
 	public static Entity[] sortEntities(ID user, boolean containsBizz) {
-		List<Entity> list = new ArrayList<>();
+		List<Entity> sorted = new ArrayList<>();
 
 		// 排序在前
 		if (containsBizz) {
-			list.add(MetadataHelper.getEntity(EntityHelper.User));
-			list.add(MetadataHelper.getEntity(EntityHelper.Department));
-			list.add(MetadataHelper.getEntity(EntityHelper.Role));
-			list.add(MetadataHelper.getEntity(EntityHelper.Team));
+			sorted.add(MetadataHelper.getEntity(EntityHelper.User));
+			sorted.add(MetadataHelper.getEntity(EntityHelper.Department));
+			sorted.add(MetadataHelper.getEntity(EntityHelper.Role));
+			sorted.add(MetadataHelper.getEntity(EntityHelper.Team));
 		}
 
 		Entity[] entities = MetadataHelper.getEntities();
 		sortBaseMeta(entities);
-		for (Entity entity : entities) {
-			if (EasyMeta.valueOf(entity).isBuiltin() && !MetadataHelper.hasPrivilegesField(entity)) {
-				continue;
+		for (Entity e : entities) {
+			if (EasyMeta.valueOf(e).isBuiltin() && !MetadataHelper.hasPrivilegesField(e)) {
+				if (!MetadataHelper.isPlainEntity(e.getEntityCode())) {
+					continue;
+				}
 			}
 
 			if (user == null) {
-				list.add(entity);
-			} else if (Application.getSecurityManager().allowRead(user, entity.getEntityCode())) {
-				list.add(entity);
+				sorted.add(e);
+			} else if (Application.getSecurityManager().allowRead(user, e.getEntityCode())) {
+				sorted.add(e);
 			}
 		}
-		return list.toArray(new Entity[0]);
+		return sorted.toArray(new Entity[0]);
 	}
 	
 	/**
 	 * 获取字段
 	 * 
 	 * @param entity
-	 * @param allowedTypes 仅返回指定的类型
+	 * @param allowedTypes
 	 * @return
+	 * @see #sortFields(Field[], DisplayType...)
 	 */
 	public static Field[] sortFields(Entity entity, DisplayType... allowedTypes) {
 		return sortFields(entity.getFields(), allowedTypes);

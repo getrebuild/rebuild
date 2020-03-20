@@ -584,7 +584,7 @@ const RbListPage = {
    * @param {*} ep Privileges of this entity
    */
   init: function (config, entity, ep) {
-    renderRbcomp(<RbList config={config} />, 'react-list', function () { RbListPage._RbList = this })
+    renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () { RbListPage._RbList = this })
 
     const that = this
 
@@ -641,8 +641,8 @@ const RbListPage = {
       if (ep.C === false) $('.J_new').remove()
       if (ep.D === false) $('.J_delete').remove()
       if (ep.U === false) $('.J_edit, .J_batch').remove()
-      if (ep.A === false) $('.J_assign').remove()
-      if (ep.S === false) $('.J_share, .J_unshare').remove()
+      if (ep.A !== true) $('.J_assign').remove()
+      if (ep.S !== true) $('.J_share, .J_unshare').remove()
       $cleanMenu('.J_action')
     }
 
@@ -799,7 +799,7 @@ const AdvFilters = {
   }
 }
 
-// init
+// init: DataList
 $(document).ready(() => {
   const gs = $urlp('gs', location.hash)
   if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
@@ -810,7 +810,6 @@ $(document).ready(() => {
 })
 
 // -- for View
-
 // ~~视图窗口（右侧滑出）
 class RbViewModal extends React.Component {
 

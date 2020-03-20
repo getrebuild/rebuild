@@ -26,6 +26,7 @@ import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.SQLExecutor;
@@ -147,6 +148,7 @@ public final class Application {
 			// 注册 API
 			Set<Class<?>> apiClasses = ReflectUtils.getAllSubclasses(ApiGateway.class.getPackage().getName(), BaseApi.class);
 			for (Class<?> c : apiClasses) {
+				// noinspection unchecked
 				ApiGateway.registerApi((Class<? extends BaseApi>) c);
 			}
 
@@ -160,6 +162,8 @@ public final class Application {
 					}
 				});
 			}
+
+			if (devMode()) MetadataHelper.setPlainEntity(MetadataHelper.getEntity("Attachment"));
 
 			LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 
