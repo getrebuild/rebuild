@@ -1140,7 +1140,7 @@ a {
 
 i.split.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
-    z-index: 3;
+    z-index: 7;
     cursor: e-resize;
 }
 
