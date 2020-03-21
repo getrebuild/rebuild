@@ -1140,7 +1140,8 @@ a {
 
 i.split.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
-    z-index: 2;
+    z-index: 3;
+    cursor: e-resize;
 }
 
 .data-list .table thead th>div>i.zmdi {
@@ -1485,7 +1486,7 @@ th.column-fixed {
 .sortable-box .dd-list .dd3-action,
 .dd-list .dd-item .dd-action {
     position: absolute;
-    right: 0;
+    right: 3px;
     top: 0;
     display: none;
 }
@@ -1494,8 +1495,9 @@ th.column-fixed {
 .sortable-box a.action {
     font-size: 12px;
     display: inline-block;
-    padding: 7px 1px;
-    margin-right: 6px;
+    padding: 7px 3px;
+    margin-right: 3px;
+    color: #666;
 }
 
 .sortable-box .dd-list .dd3-action a .zmdi {
@@ -1520,7 +1522,7 @@ th.column-fixed {
     content: '\f278';
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
     font-size: 1.6rem;
-    color: #999;
+    color: #aaa;
     float: right;
     margin-right: -20px
 }
