@@ -324,11 +324,12 @@ const RbViewPage = {
     const that = this
     that.__vtabEntities = []
     $(config).each(function () {
-      const entity = this.entity
-      const tabId = 'tab-' + entity
+      const entity = this.entity  // Entity.Field
       that.__vtabEntities.push(entity)
-      const tabNav = $('<li class="nav-item"><a class="nav-link" href="#' + tabId + '" data-toggle="tab">' + this.entityLabel + '</a></li>').appendTo('.nav-tabs')
-      const tabPane = $('<div class="tab-pane" id="' + tabId + '"></div>').appendTo('.tab-content')
+
+      const tabId = 'tab-' + entity.replace('.', '--')  // `.` is JS keyword
+      const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
+      const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
       tabNav.find('a').click(function () {
         tabPane.find('.related-list').length === 0 && renderRbcomp(<RelatedList entity={entity} master={that.__id} />, tabPane)
       })
@@ -351,7 +352,7 @@ const RbViewPage = {
     $.get(`/app/entity/related-counts?masterId=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in (res.data || {})) {
         if (~~res.data[k] > 0) {
-          const tabNav = $('.nav-tabs a[href="#tab-' + k + '"]')
+          const tabNav = $('.nav-tabs a[href="#tab-' + k.replace('.', '--') + '"]')
           if (tabNav.find('.badge').length > 0) tabNav.find('.badge').text(res.data[k])
           else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(tabNav)
         }
@@ -367,8 +368,10 @@ const RbViewPage = {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${e.icon}"></i>新建${e.entityLabel}</a>`)
       $item.click(function () {
         const iv = {}
-        iv['&' + that.__entity[0]] = that.__id
-        RbFormModal.create({ title: `新建${e.entityLabel}`, entity: e.entity, icon: e.icon, initialValue: iv })
+        const entity = e.entity.split('.')
+        if (entity.length > 1) iv[entity[1]] = that.__id
+        else iv['&' + that.__entity[0]] = that.__id
+        RbFormModal.create({ title: `新建${e.entityLabel}`, entity: entity[0], icon: e.icon, initialValue: iv })
       })
       $('.J_adds .dropdown-divider').before($item)
     })

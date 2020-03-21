@@ -77,7 +77,12 @@ class RbFormModal extends React.Component {
   show(state) {
     state = state || {}
     if (!state.id) state.id = null
-    if ((state.id !== this.state.id || state.entity !== this.state.entity) || this.state.isDestroy === true) {
+
+    // 比较初始参数决定是否可复用
+    const stateNew = [state.id, state.entity, state.initialValue]
+    const stateOld = [this.state.id, this.state.entity, this.state.initialValue]
+
+    if (this.state.isDestroy === true || JSON.stringify(stateNew) !== JSON.stringify(stateOld)) {
       state = { formComponent: null, initialValue: null, inLoad: true, ...state }
       this.setState(state, () => this.showAfter({ isDestroy: false }, true))
     } else {

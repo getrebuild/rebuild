@@ -30,27 +30,24 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
 <script type="text/babel">
-$(document).ready(function(){
-	const entity = $urlp('entity'), type = $urlp('type')
+$(document).ready(function () {
+	const entity = $urlp('entity'),
+			type = $urlp('type')
 	const _url = '/admin/entity/' + entity + '/view-addons?type=' + type
-	
-	$.get(_url, function(res){
-		$(res.data.refs).each(function(){ render_unset(this) })
-		$(res.data.config).each(function(){
-			$('.unset-list li[data-key="' + this + '"]').trigger('click')
-		})
+
+	$.get(_url, function (res) {
+		$(res.data.refs).each(function () { render_unset(this) })
+		$(res.data.config).each(function () { $('.unset-list li[data-key="' + this + '"]').trigger('click') })
 		if (!res.data.refs || res.data.refs.length == 0) $('<li class="dd-item nodata">无可用相关项</li>').appendTo('.unset-list')
 	})
-	
-	let _btn = $('.J_save').click(function(){
-		let config = []
-		$('.J_config>li').each(function(){
-			config.push($(this).data('key'))
-		})
-		
-		_btn.button('loading')
-		$.post(_url, JSON.stringify(config), function(res){
-			_btn.button('reset')
+
+	const $btn = $('.J_save').click(function () {
+		const config = []
+		$('.J_config>li').each(function () { config.push($(this).data('key')) })
+
+		$btn.button('loading')
+		$.post(_url, JSON.stringify(config), function (res) {
+			$btn.button('reset')
 			if (res.error_code == 0) parent.location.reload()
 		})
 	})
