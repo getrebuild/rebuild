@@ -15,6 +15,7 @@ class FilesList extends React.Component {
   __pageNo = 1
 
   render() {
+    const hasFiles = (this.state.files || []).length > 0
     return <div className="file-list">
       {(this.state.files || []).map((item) => {
         let checked = this.state.currentActive === item.id
@@ -34,13 +35,17 @@ class FilesList extends React.Component {
           <div className="info">{item.uploadBy[1]}</div>
         </div>
       })}
-      {this.state.currentLen >= PAGE_SIZE && <div className="text-center mt-3 mb-3">
-        <a href="#mores" onClick={(e) => { this.loadData(null, this.__pageNo + 1); e.preventDefault() }}>显示更多</a>
-      </div>}
-      {(this.state.files && this.state.files.length === 0) && <div className="list-nodata pt-8 pb-8">
-        <i className="zmdi zmdi-folder-outline"></i>
-        <p>暂无相关文件</p>
-      </div>}
+      {this.state.currentLen >= PAGE_SIZE &&
+        <div className="text-center mt-3 mb-3">
+          <a href="#mores" onClick={(e) => { this.loadData(null, this.__pageNo + 1); e.preventDefault() }}>显示更多</a>
+        </div>
+      }
+      {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE &&
+        <div className="text-center mt-3 mb-3 text-muted">没有更多了</div>
+      }
+      {this.__pageNo === 1 && !hasFiles &&
+        <div className="list-nodata pt-8 pb-8"><i className="zmdi zmdi-folder-outline"></i><p>暂无相关文件</p></div>
+      }
     </div>
   }
 
@@ -70,7 +75,7 @@ class FilesList extends React.Component {
   }
 
   getSelected() {
-    let s = this.state.currentActive
+    const s = this.state.currentActive
     if (!s) RbHighbar.create('未选中任何文件')
     else return s
   }
