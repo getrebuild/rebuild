@@ -1140,7 +1140,8 @@ a {
 
 i.split.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
-    z-index: 2;
+    z-index: 7;
+    cursor: e-resize;
 }
 
 .data-list .table thead th>div>i.zmdi {
@@ -1314,6 +1315,10 @@ i.split.ui-draggable-dragging {
     overflow: unset !important;
 }
 
+.column-fixed-2nd {
+    left: 46px;
+}
+
 .column-fixed::before,
 .table.table-header-fixed thead>tr>th::before {
     content: '';
@@ -1343,7 +1348,7 @@ th.column-fixed {
     content: '';
     pointer-events: none;
     transform: translateX(100%);
-    box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
     transition: box-shadow 0.3s;
 }
 
@@ -1485,7 +1490,7 @@ th.column-fixed {
 .sortable-box .dd-list .dd3-action,
 .dd-list .dd-item .dd-action {
     position: absolute;
-    right: 0;
+    right: 3px;
     top: 0;
     display: none;
 }
@@ -1494,8 +1499,9 @@ th.column-fixed {
 .sortable-box a.action {
     font-size: 12px;
     display: inline-block;
-    padding: 7px 1px;
-    margin-right: 6px;
+    padding: 7px 3px;
+    margin-right: 3px;
+    color: #666;
 }
 
 .sortable-box .dd-list .dd3-action a .zmdi {
@@ -1520,7 +1526,7 @@ th.column-fixed {
     content: '\f278';
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
     font-size: 1.6rem;
-    color: #999;
+    color: #aaa;
     float: right;
     margin-right: -20px
 }

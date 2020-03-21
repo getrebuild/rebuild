@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.api;
@@ -99,21 +88,24 @@ public class ApiGateway extends Controll {
 			Application.getSessionStore().clean();
 		}
 
-		JSON err = formatFailure(errorMsg == null ? "Server Internal Error" : errorMsg, errorCode);
+		JSON err = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
 		ServletUtils.writeJson(response, err.toJSONString());
-		logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
+		try {
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
+		} catch (Exception ignored) {
+		}
 	}
 
 	/**
 	 * 验证请求并构建请求上下文
 	 *
 	 * @param parameterMap
-	 * @param post
+	 * @param postData
 	 * @param request
 	 * @return
 	 * @throws IOException
 	 */
-	protected ApiContext verfiy(Map<String, String[]> parameterMap, String post, HttpServletRequest request) throws IOException {
+	protected ApiContext verfiy(Map<String, String[]> parameterMap, String postData, HttpServletRequest request) throws IOException {
 		Map<String, String> sortedMap = new TreeMap<>();
 		for (Map.Entry<String, String[]> e : parameterMap.entrySet()) {
 			String[] vv = e.getValue();
@@ -162,7 +154,7 @@ public class ApiGateway extends Controll {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid sign=" + sign);
 		}
 
-		JSON postJson = post != null ? (JSON) JSON.parse(post) : null;
+		JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
 		ID bindUser = apiConfig.getID("bindUser");
         return new ApiContext(sortedMap, postJson, appid, bindUser);
 	}
@@ -201,7 +193,7 @@ public class ApiGateway extends Controll {
 	 * @param result
 	 */
 	protected void logRequestAsync(Date requestTime, String remoteIp, String apiName, ApiContext context, JSON result) {
-		if (context == null || result == null) {
+		if (context == null || result == null || !isLogRequest()) {
 			return;
 		}
 
@@ -220,6 +212,15 @@ public class ApiGateway extends Controll {
 		});
 	}
 
+	/**
+	 * 是否记录日志
+	 *
+	 * @return
+	 */
+	protected boolean isLogRequest() {
+		return true;
+	}
+
 	// -- 注册 API
 
 	private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
@@ -231,7 +232,7 @@ public class ApiGateway extends Controll {
 		BaseApi api = (BaseApi) ReflectUtils.newInstance(clazz);
 		String apiName = api.getApiName();
 		if (API_CLASSES.containsKey(apiName)) {
-			LOG.warn("Replaced API : " + apiName);
+			LOG.error("Replaced API : " + apiName);
 		}
 
 		API_CLASSES.put(apiName, clazz);

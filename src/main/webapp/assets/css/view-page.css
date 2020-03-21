@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 html,
 body {
 	overflow: auto;
@@ -88,8 +95,8 @@ body {
 }
 
 .nav-tabs>li.nav-item a.nav-link {
-	padding: 11px 15px;
-	max-width: 120px;
+	padding: 11px 10px;
+	max-width: 130px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -124,6 +131,7 @@ body {
 	right: -4px;
 	font-size: .8462rem;
 	font-weight: normal;
+	line-height: 1.2;
 }
 
 .related-list {

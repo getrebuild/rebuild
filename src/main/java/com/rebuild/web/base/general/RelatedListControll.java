@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.base.general;
@@ -60,17 +49,19 @@ public class RelatedListControll extends BaseControll {
 	public void relatedList(HttpServletRequest request, HttpServletResponse response) {
 		ID masterId = getIdParameterNotNull(request, "masterId");
 		String related = getParameterNotNull(request, "related");
-		
-		Entity relatedEntity = MetadataHelper.getEntity(related);
-		String sql = buildMasterSql(masterId, relatedEntity, false);
-		
+
+		String sql = buildMasterSql(masterId, related, false);
+
+		String[] e = related.split("\\.");
+		Field nameField = MetadataHelper.getNameField(e[0]);
+
 		int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
 		int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
 		
 		Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
 		for (Object[] o : array) {
 		    Object nameValue = o[1];
-            nameValue = FieldValueWrapper.instance.wrapFieldValue(nameValue, MetadataHelper.getNameField(relatedEntity), true);
+            nameValue = FieldValueWrapper.instance.wrapFieldValue(nameValue, nameField, true);
 			if (nameValue == null || StringUtils.isEmpty(nameValue.toString())) {
                 nameValue = FieldValueWrapper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
 			}
@@ -87,11 +78,11 @@ public class RelatedListControll extends BaseControll {
 	@RequestMapping("related-counts")
 	public void relatedCounts(HttpServletRequest request, HttpServletResponse response) {
 		ID masterId = getIdParameterNotNull(request, "masterId");
-        String[] relates = getParameterNotNull(request, "relateds").split(",");
+        String[] relateds = getParameterNotNull(request, "relateds").split(",");
 		
 		Map<String, Integer> countMap = new HashMap<>();
-		for (String related : relates) {
-			String sql = buildMasterSql(masterId, MetadataHelper.getEntity(related), true);
+		for (String related : relateds) {
+			String sql = buildMasterSql(masterId, related, true);
 			if (sql != null) {
 				Object[] count = Application.createQuery(sql).unique();
 				countMap.put(related, ObjectUtils.toInt(count[0]));
@@ -102,27 +93,37 @@ public class RelatedListControll extends BaseControll {
 	
 	/**
 	 * @param recordOfMain
-	 * @param relatedEntity
+	 * @param relatedExpr
 	 * @param count
 	 * @return
 	 */
-	private String buildMasterSql(ID recordOfMain, Entity relatedEntity, boolean count) {
-		Entity masterEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
+	private String buildMasterSql(ID recordOfMain, String relatedExpr, boolean count) {
+		// Entity.Field
+		String[] e = relatedExpr.split("\\.");
+		Entity relatedEntity = MetadataHelper.getEntity(e[0]);
+
 		Set<String> relatedFields = new HashSet<>();
-		for (Field field : relatedEntity.getFields()) {
-			if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
-					&& ArrayUtils.contains(field.getReferenceEntities(), masterEntity)) {
-				relatedFields.add(field.getName() + " = ''{0}''");
+
+		if (e.length > 1) {
+			relatedFields.add(e[1]);
+		} else {
+			// v1.9 之前会把所有相关的查出来
+			Entity masterEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
+			for (Field field : relatedEntity.getFields()) {
+				if ((field.getType() == FieldType.REFERENCE || field.getType() == FieldType.ANY_REFERENCE)
+						&& ArrayUtils.contains(field.getReferenceEntities(), masterEntity)) {
+					relatedFields.add(field.getName());
+				}
 			}
 		}
+
 		if (relatedFields.isEmpty()) {
 			return null;
 		}
 		
-		String masterSql = "(" + StringUtils.join(relatedFields, " or ") + ")";
-		masterSql = MessageFormat.format(masterSql, recordOfMain);
-		
-		String baseSql = "select %s from " + relatedEntity.getName() + " where " + masterSql;
+		String masterWhere = "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')";
+		masterWhere = MessageFormat.format(masterWhere, recordOfMain);
+		String baseSql = "select %s from " + relatedEntity.getName() + " where " + masterWhere;
 		
 		Field primaryField = relatedEntity.getPrimaryField();
 		Field namedField = MetadataHelper.getNameField(relatedEntity);
