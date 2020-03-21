@@ -1315,6 +1315,10 @@ i.split.ui-draggable-dragging {
     overflow: unset !important;
 }
 
+.column-fixed-2nd {
+    left: 46px;
+}
+
 .column-fixed::before,
 .table.table-header-fixed thead>tr>th::before {
     content: '';
@@ -1344,7 +1348,7 @@ th.column-fixed {
     content: '';
     pointer-events: none;
     transform: translateX(100%);
-    box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.1);
+    box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
     transition: box-shadow 0.3s;
 }
 

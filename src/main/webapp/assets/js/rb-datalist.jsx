@@ -60,10 +60,11 @@ class RbList extends React.Component {
                       </div>
                     </th>
                   }
-                  {this.state.fields.map((item) => {
+                  {this.state.fields.map((item, idx) => {
                     const cWidth = item.width || that.__defaultColumnWidth
                     const styles = { width: cWidth + 'px' }
-                    return <th key={'column-' + item.field} style={styles} className={`unselect ${item.unsort ? '' : 'sortable'}`} data-field={item.field}
+                    const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && !$.browser.msie ? 'column-fixed column-fixed-2nd' : ''}`
+                    return <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field}
                       onClick={item.unsort ? null : this._sortField.bind(this, item.field)}>
                       <div style={styles}>
                         <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
@@ -215,17 +216,20 @@ class RbList extends React.Component {
     if (!field) return null
 
     const cellKey = 'row-' + lastPrimary.id + '-' + index
-    if (cellVal === '$NOPRIVILEGES$') {
-      return <td key={cellKey}><div className="column-nopriv" title="你无权读取此项数据">[无权限]</div></td>
-    } else {
-      const width = this.state.fields[index].width || this.__defaultColumnWidth
-      let type = field.type
-      if (field.field === this.props.config.nameField) {
-        cellVal = lastPrimary
-        type = '$NAME$'
-      }
-      return CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
+    const width = this.state.fields[index].width || this.__defaultColumnWidth
+    let type = field.type
+    if (field.field === this.props.config.nameField) {
+      cellVal = lastPrimary
+      type = '$NAME$'
+    } else if (cellVal === '$NOPRIVILEGES$') {
+      type = cellVal
     }
+
+    const c = CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
+    if (index === 0 && !$.browser.msie) {
+      return React.cloneElement(c, { className: 'column-fixed column-fixed-2nd' })
+    }
+    return c
   }
 
   // 全选
@@ -426,81 +430,142 @@ const CellRenders = {
     if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
     else if (k.endsWith('.approvalId') && !v) v = '未提交'
     else if (k.endsWith('.approvalState') && !v) v = '草稿'
-    return <td key={k}><div style={s} title={v}>{v || ''}</div></td>
+    return (
+      <td key={k}>
+        <div style={s} title={v}>{v || ''}</div>
+      </td>
+    )
   }
 }
 
+// 名称字段
 CellRenders.addRender('$NAME$', function (v, s, k) {
-  return <td key={k}><div style={s} title={v.text}>
-    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)} className="column-main">{v.text}</a>
-  </div></td>
+  return (
+    <td key={k}>
+      <div style={s} title={v.text}>
+        <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)} className="column-main">{v.text}</a>
+      </div>
+    </td>
+  )
+})
+
+// 无权访问字段
+CellRenders.addRender('$NOPRIVILEGES$', function (v, s, k) {
+  return (
+    <td key={k}>
+      <div style={s} className="column-nopriv" title="你无权读取此数据">[无权限]</div>
+    </td>
+  )
 })
 
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = v || []
-  return <td key={k} className="td-min">
-    <div className="column-imgs" style={s} title={'共 ' + v.length + ' 个图片'}>
-      {v.map((item, idx) => {
-        if (idx > 2) return null
-        const imgUrl = rb.baseUrl + '/filex/img/' + item
-        const imgName = $fileCutName(item)
-        return <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}><img alt="图片" src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
-      })}</div></td>
+  return (
+    <td key={k} className="td-min">
+      <div className="column-imgs" style={s} title={'共 ' + v.length + ' 个图片'}>
+        {v.map((item, idx) => {
+          if (idx > 2) return null
+          const imgUrl = rb.baseUrl + '/filex/img/' + item
+          const imgName = $fileCutName(item)
+          return <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}><img alt="图片" src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} /></a>
+        })}
+      </div>
+    </td>
+  )
 })
 
 CellRenders.addRender('FILE', function (v, s, k) {
   v = v || []
-  return <td key={k} className="td-min">
-    <div style={s} className="column-files">
-      <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
-        {v.map((item, idx) => {
-          if (idx > 0) return null
-          const fileName = $fileCutName(item)
-          return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>{fileName}</a></li>
-        })}
-      </ul>
-    </div></td>
+  return (
+    <td key={k} className="td-min">
+      <div style={s} className="column-files">
+        <ul className="list-unstyled" title={'共 ' + v.length + ' 个文件'}>
+          {v.map((item, idx) => {
+            if (idx > 0) return null
+            const fileName = $fileCutName(item)
+            return <li key={'k-' + item} className="text-truncate"><a title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>{fileName}</a></li>
+          })}
+        </ul>
+      </div>
+    </td>
+  )
 })
 
 CellRenders.addRender('REFERENCE', function (v, s, k) {
-  return <td key={k}><div style={s} title={v.text}>
-    <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)}>{v.text}</a>
-  </div></td>
+  return (
+    <td key={k}>
+      <div style={s} title={v.text}>
+        <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)}>{v.text}</a>
+      </div>
+    </td>
+  )
 })
 
 CellRenders.addRender('URL', function (v, s, k) {
-  return <td key={k}><div style={s} title={v}>
-    <a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>{v}</a>
-  </div></td>
+  return (
+    <td key={k}>
+      <div style={s} title={v}>
+        <a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>{v}</a>
+      </div>
+    </td>
+  )
 })
 
 CellRenders.addRender('EMAIL', function (v, s, k) {
-  return <td key={k}><div style={s} title={v}><a href={'mailto:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
+  return (
+    <td key={k}>
+      <div style={s} title={v}>
+        <a href={'mailto:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a>
+      </div>
+    </td>
+  )
 })
 
 CellRenders.addRender('PHONE', function (v, s, k) {
-  return <td key={k}><div style={s} title={v}><a href={'tel:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div></td>
+  return (
+    <td key={k}>
+      <div style={s} title={v}><a href={'tel:' + v} className="column-url" onClick={(e) => $stopEvent(e)}>{v}</a></div>
+    </td>
+  )
 })
 
 const APPROVAL_STATE_CLAZZs = { '审批中': 'warning', '驳回': 'danger', '通过': 'success' }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
     const badge = APPROVAL_STATE_CLAZZs[v]
-    return <td key={k} className="td-min column-state"><div style={s} title={v}><span className={badge ? 'badge badge-' + badge : ''}>{v}</span></div></td>
-  } else return CellRenders.renderSimple(v, s, k)
+    return (
+      <td key={k} className="td-min column-state">
+        <div style={s} title={v}><span className={badge ? 'badge badge-' + badge : ''}>{v}</span></div>
+      </td>
+    )
+  } else {
+    return CellRenders.renderSimple(v, s, k)
+  }
 })
 
 CellRenders.addRender('DECIMAL', function (v, s, k) {
-  if ((v + '').substr(0, 1) === '-') return <td key={k}><div className="text-danger" style={s} title={v}>{v}</div></td>
-  else return CellRenders.renderSimple(v, s, k)
+  if ((v + '').substr(0, 1) === '-') {
+    return (
+      <td key={k}>
+        <div className="text-danger" style={s} title={v}>{v}</div>
+      </td>
+    )
+  }
+  else {
+    return CellRenders.renderSimple(v, s, k)
+  }
 })
 
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
-  return <td key={k} className="td-min column-multi"><div style={s} title={v}>
-    {v.split(' / ').map((item) => {
-      return <span key={'opt-' + item} className="badge">{item}</span>
-    })}
-  </div></td>
+  return (
+    <td key={k} className="td-min column-multi">
+      <div style={s} title={v}>
+        {v.split(' / ').map((item) => {
+          return <span key={'opt-' + item} className="badge">{item}</span>
+        })}
+      </div>
+    </td>
+  )
 })
 
 // ～分页组件
