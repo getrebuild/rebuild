@@ -88,9 +88,12 @@ public class ApiGateway extends Controll {
 			Application.getSessionStore().clean();
 		}
 
-		JSON err = formatFailure(errorMsg == null ? "Server Internal Error" : errorMsg, errorCode);
+		JSON err = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
 		ServletUtils.writeJson(response, err.toJSONString());
-		logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
+		try {
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
+		} catch (Exception ignored) {
+		}
 	}
 
 	/**
@@ -229,7 +232,7 @@ public class ApiGateway extends Controll {
 		BaseApi api = (BaseApi) ReflectUtils.newInstance(clazz);
 		String apiName = api.getApiName();
 		if (API_CLASSES.containsKey(apiName)) {
-			LOG.warn("Replaced API : " + apiName);
+			LOG.error("Replaced API : " + apiName);
 		}
 
 		API_CLASSES.put(apiName, clazz);
