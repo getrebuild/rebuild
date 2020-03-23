@@ -52,6 +52,7 @@ class ContentSendNotification extends ActionContentSpec {
           <label className="col-12 col-lg-3 col-form-label text-lg-right">内容</label>
           <div className="col-12 col-lg-8">
             <textarea className="form-control form-control-sm row3x" ref={(c) => this._content = c} maxLength="600"></textarea>
+            {rb.env === 'dev' && <p className="form-text">内容支持变量，例如 <code>{'{createdOn}'}</code>（其中 createdOn 为触发实体的字段内部标识）</p>}
           </div>
         </div>
       </form>

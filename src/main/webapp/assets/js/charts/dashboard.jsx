@@ -91,7 +91,7 @@ let win_resize = function (t) {
     // let cg = $('.chart-grid')
     // if ($(window).width() >= 768) cg.height($(window).height() - 142)
     // else cg.height('auto')
-    $(rendered_charts).each((idx, item) => { item.resize() })
+    $(rendered_charts).each((idx, item) => item.resize())
   }, t || 400, 'resize-charts')
 }
 

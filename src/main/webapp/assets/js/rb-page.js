@@ -11,13 +11,10 @@ $(function () {
   var t = $('.rb-scroller')
   t.perfectScrollbar()
 
-  $(window).resize(function () {
-    $setTimeout(function () {
-      if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
-      t.perfectScrollbar('update')
-    }, 500, 'rb-scroller-update')
-  })
-  if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+  $addResizeHandler(function () {
+    if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+    t.perfectScrollbar('update')
+  })()
 
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()
