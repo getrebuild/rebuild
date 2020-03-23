@@ -384,6 +384,6 @@ body {
 	height: 0 !important;
 }
 
-.rbview-form .img-field .img-upload.img-thumbnail {
+.rbview-form .img-field .img-upload.img-thumbnail.zoom-in {
 	background-color: transparent;
 }
