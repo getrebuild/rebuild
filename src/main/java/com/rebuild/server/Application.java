@@ -123,13 +123,13 @@ public final class Application {
 		}
 
 		try {
+			// 升级数据库
+			UpgradeDatabase.getInstance().upgradeQuietly();
+
 			// 刷新配置缓存
 			for (ConfigurableItem item : ConfigurableItem.values()) {
 				SysConfiguration.get(item, true);
 			}
-
-			// 升级数据库
-			UpgradeDatabase.getInstance().upgradeQuietly();
 
 			// 自定义实体
 			LOG.info("Loading customized/business entities ...");
@@ -152,7 +152,7 @@ public final class Application {
 				ApiGateway.registerApi((Class<? extends BaseApi>) c);
 			}
 
-			// 若使用 Ehcache 则添加持久化钩子
+			// 若使用 ehcache 则添加持久化钩子
 			final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
 			if (!ccache.isUseRedis()) {
 				addShutdownHook(new Thread("ehcache-persistent") {

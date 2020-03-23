@@ -46,6 +46,7 @@ public final class License {
                 if (JSONUtils.wellFormat(result)) {
                     JSONObject data = JSON.parseObject(result);
                     SN = data.getString("sn");
+                    SysConfiguration.set(ConfigurableItem.SN, SN);
                 }
             } catch (Exception ignored) {
                 // UNCATCHABLE
