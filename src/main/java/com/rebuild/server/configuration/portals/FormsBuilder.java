@@ -516,6 +516,9 @@ public class FormsBuilder extends FormsManager {
 			inFormFields.add(((JSONObject) o).getString("field"));
 		}
 
+		// 保持在初始值中（TODO 更多保持字段）
+		Set<String> initialValKeeps = new HashSet<>();
+
 		Map<String, Object> initialValReady = new HashMap<>();
 		for (Map.Entry<String, Object> e : initialVal.entrySet()) {
 			final String field = e.getKey();
@@ -542,6 +545,7 @@ public class FormsBuilder extends FormsManager {
 				Object mixValue = inFormFields.contains(Objects.requireNonNull(stmField).getName()) ? readyReferenceValue(value) : value;
 				if (mixValue != null) {
 					initialValReady.put(stmField.getName(), mixValue);
+					initialValKeeps.add(stmField.getName());
 				}
 			}
 			else if (entity.containsField(field)) {
@@ -560,11 +564,13 @@ public class FormsBuilder extends FormsManager {
 			return;
 		}
 
+		// 已布局的移除
 		for (Object o : elements) {
 			JSONObject item = (JSONObject) o;
 			String field = item.getString("field");
 			if (initialValReady.containsKey(field)) {
-				item.put("value", initialValReady.remove(field));
+				item.put("value",
+						initialValKeeps.contains(field) ? initialValReady.get(field) : initialValReady.remove(field));
 			}
 		}
 

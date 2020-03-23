@@ -21,6 +21,7 @@ package com.rebuild.web;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.rebuild.api.Controll;
 import com.rebuild.server.helper.language.LanguageBundle;
 import com.rebuild.server.helper.language.Languages;
@@ -100,11 +101,12 @@ public abstract class BaseControll extends Controll {
 			throw new IllegalArgumentException();
 		}
 		
-		String aJsonString = null;
+		String aJsonString;
 		if (aJson instanceof String) {
 			aJsonString = (String) aJson;
 		} else {
-			aJsonString = JSON.toJSONString(aJson);
+			// fix: $ref.xxx
+			aJsonString = JSON.toJSONString(aJson, SerializerFeature.DisableCircularReferenceDetect);
 		}
 		ServletUtils.writeJson(response, aJsonString);
 	}
