@@ -136,12 +136,12 @@ class ChartTable extends BaseChart {
 
       const cols = $tb.find('tbody td').click(function () {
         if (colLast === this) {
-          $(this).toggleClass('clk')
+          $(this).toggleClass('active')
           return
         }
         colLast = this
-        cols.removeClass('clk')
-        $(this).addClass('clk')
+        cols.removeClass('active')
+        $(this).addClass('active')
       })
       this.__tb = $tb
     })
@@ -441,7 +441,7 @@ class ApprovalList extends BaseChart {
             className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] ? 'text-bold' : ''}`}
             title={`${s[1]} : ${item[1]} (${sp})`}
             style={{ width: sp }}
-            onClick={() => this._changeState(item[0])}>{s[1]}</div>
+            onClick={() => this._changeState(item[0])}>{s[1]} ({item[1]})</div>
         })}
       </div>
       <p className="m-0 mt-1 fs-11 text-muted text-right hide">审批统计</p>
@@ -535,7 +535,7 @@ class FeedsSchedule extends BaseChart {
 
   renderChart(data) {
     const table = (!data || data.length === 0) ?
-      <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程</div>
+      <div className="chart-undata must-center text-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程<br />过期超过 30 天的日程将不再显示</div>
       :
       <div>
         <table className="table table-striped table-hover">
