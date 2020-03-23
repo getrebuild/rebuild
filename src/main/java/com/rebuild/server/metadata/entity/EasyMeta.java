@@ -145,6 +145,7 @@ public class EasyMeta implements BaseMeta {
 				return true;
 			} else if (getDisplayType() == DisplayType.REFERENCE) {
 				// 明细-引用主记录的字段也是内建
+				// @see MetadataHelper#getSlaveToMasterField
 				Entity hasMaster = field.getOwnEntity().getMasterEntity();
 				return hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable();
 			}

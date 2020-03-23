@@ -297,8 +297,8 @@ public class MetadataHelper {
 			if (field.getType() != FieldType.REFERENCE) {
 				continue;
 			}
-			// 内建的那个才是，因为明细的其他字段也可能引用主实体
-			if (master.equals(field.getReferenceEntity()) && EasyMeta.valueOf(field).isBuiltin()) {
+			// 不可建的那个才是，因为明细字段也可能引用主实体
+			if (master.equals(field.getReferenceEntity()) && !field.isCreatable()) {
 				return field;
 			}
 		}

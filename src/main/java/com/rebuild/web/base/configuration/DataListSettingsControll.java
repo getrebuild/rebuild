@@ -117,12 +117,17 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 				fieldList.add(DataListManager.instance.formatField(field));
 			}
 		}
+
+		// 明细关联字段
+		final Field stmfField = entityMeta.getMasterEntity() == null ? null : MetadataHelper.getSlaveToMasterField(entityMeta);
+
 		// 引用实体的字段
 		for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
-			// 过滤所属用户/所属部门等系统字段
-			if (EasyMeta.valueOf(field).isBuiltin()) {
+			// 过滤所属用户/所属部门等系统字段（除了明细引用（主实体）字段）
+			if (EasyMeta.valueOf(field).isBuiltin() && (stmfField == null || !stmfField.equals(field))) {
 				continue;
 			}
+
 			Entity refEntity = field.getReferenceEntity();
 			// 无权限的不返回
 			if (!Application.getSecurityManager().allowRead(user, refEntity.getEntityCode())) {
