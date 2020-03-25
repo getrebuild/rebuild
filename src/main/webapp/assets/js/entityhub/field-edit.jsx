@@ -109,7 +109,7 @@ $(document).ready(function () {
       keyboardNavigation: false,
       minuteStep: 5
     })
-    $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue />))
+    $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
   }
   else if (dt === 'FILE' || dt === 'IMAGE') {
     let uploadNumber = [0, 9]
@@ -197,77 +197,60 @@ const checkDefaultValue = function (v, t) {
 }
 
 // ~~ 日期高级表达式
-class AdvDateDefaultValue extends RbFormHandler {
+class AdvDateDefaultValue extends RbAlert {
+
   constructor(props) {
     super(props)
+    this._refs = []
+    this.state.uncalc = true
   }
 
-  render() {
+  renderContent() {
     return (
-      <div className="modal rbalert" ref="dlg" tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}><span className="zmdi zmdi-close" /></button>
-            </div>
-            <div className="modal-body">
-              <div className="text-center ml-6 mr-6">
-                <h4 className="mb-4 mt-3">设置高级默认值</h4>
-                <div className="row calc-expr">
-                  <div className="col-4">
-                    <select className="form-control form-control-sm">
-                      <option>当前时间</option>
-                    </select>
-                  </div>
-                  <div className="col-4 pl-0 pr-0">
-                    <select className="form-control form-control-sm" data-id="op" onChange={this.handleChange}>
-                      <option value="">不计算</option>
-                      <option value="+D">加 X 天</option>
-                      <option value="-D">减 X 天</option>
-                      <option value="+M">加 X 月</option>
-                      <option value="-M">减 X 月</option>
-                      <option value="+Y">加 X 年</option>
-                      <option value="-Y">减 X 年</option>
-                      <option value="+H">加 X 小时</option>
-                      <option value="-H">减 X 小时</option>
-                    </select>
-                  </div>
-                  <div className="col-4">
-                    <input type="number" ref={(i) => this.input = i} className="form-control form-control-sm" data-id="num" onChange={this.handleChange} />
-                  </div>
-                </div>
-                <div className="mt-4 mb-3" ref="btns">
-                  <button className="btn btn-space btn-primary" type="button" onClick={this.confirm}>确定</button>
-                </div>
-              </div>
-            </div>
+      <form className="ml-6 mr-6">
+        <div className="form-group">
+          <label className="text-bold">设置日期公式</label>
+          <div className="input-group">
+            <select className="form-control form-control-sm" ref={(c) => this._refs[0] = c}>
+              <option value="NOW">当前日期</option>
+            </select>
+            <select className="form-control form-control-sm" ref={(c) => this._refs[1] = c}
+              onChange={(e) => this.setState({ uncalc: !e.target.value })}>
+              <option value="">不计算</option>
+              <option value="+">加上</option>
+              <option value="-">减去</option>
+            </select>
+            <input type="number" min="1" max="999999" className="form-control form-control-sm" defaultValue="1" disabled={this.state.uncalc} ref={(c) => this._refs[2] = c} />
+            <select className="form-control form-control-sm" disabled={this.state.uncalc} ref={(c) => this._refs[3] = c}>
+              <option value="D">天</option>
+              <option value="M">月</option>
+              <option value="Y">年</option>
+              {this.props.type === 'DATETIME' &&
+                <React.Fragment>
+                  <option value="H">小时</option>
+                  <option value="S">分钟</option>
+                </React.Fragment>
+              }
+            </select>
           </div>
         </div>
-      </div>
+        <div className="form-group mb-1">
+          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>确定</button>
+        </div>
+      </form>
     )
   }
 
-  componentDidMount() {
-    $(this.refs['dlg']).modal({ show: true, keyboard: true })
-  }
-
-  hide = () => {
-    const root = $(this.refs['dlg'])
-    root.modal('hide')
-    setTimeout(function () {
-      root.modal('dispose')
-      root.parent().remove()
-    }, 1000)
-  }
   confirm = () => {
     let expr = 'NOW'
-    if (this.state.op) {
-      let op = this.state.op
-      let num = this.state.num || 0
-      if (!isNaN(num) && num > 0) {
-        op = op.substr(0, 1) + ' ' + num + op.substr(1)
-        expr += ' ' + op
+    const op = $(this._refs[1]).val()
+    const num = $(this._refs[2]).val() || 1
+    if (op) {
+      if (isNaN(num)) {
+        RbHighbar.create('请输入数字')
+        return
       }
+      expr += ` ${op} ${num}${$(this._refs[3]).val()}`
     }
     $('#defaultValue').val('{' + expr + '}')
     this.hide()
