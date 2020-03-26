@@ -94,7 +94,9 @@ class RbPreview extends React.Component {
   renderText() {
     return <div className="container fp-content">
       <div className="iframe text" onClick={this.__stopEvent}>
-        {this.state.previewText ? <pre>{this.state.previewText}</pre> : <div className="must-center"><RbSpinner fully={true} /></div>}
+        {(this.state.previewText || this.state.previewText === '')
+          ? <pre>{this.state.previewText || <i className="text-muted">无内容</i>}</pre>
+          : <div className="must-center"><RbSpinner fully={true} /></div>}
       </div>
     </div>
   }
