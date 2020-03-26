@@ -36,7 +36,7 @@ import java.lang.reflect.Constructor;
 public enum ActionType {
 	
 	FIELDAGGREGATION("数据聚合", FieldAggregation.class),
-    FIELDWRITEBACK("数据回写", FieldWriteback.class),
+    FIELDWRITEBACK("数据转写", FieldWriteback.class),
 	SENDNOTIFICATION("发送通知", SendNotification.class),
 	AUTOSHARE("自动共享", AutoShare.class),
 	AUTOASSIGN("自动分派", AutoAssign.class),

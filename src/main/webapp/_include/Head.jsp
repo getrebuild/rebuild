@@ -35,4 +35,4 @@ if (currentUser != null) {
 <script id="ie-polyfill" src="${baseUrl}/assets/lib/react/polyfill.min.js?v=7.6.0"></script>
 <!--[if lt IE 10]><script>location.href='${baseUrl}/error/unsupported-browser'</script><![endif]-->
 <%}%>
-<c:if test="${markWatermark}"><script src="${baseUrl}/assets/lib/watermark.js?v=2.3.2"></script></c:if>
+<c:if test="${markWatermark}"><script src="${baseUrl}/assets/lib/watermark.js?v=2.3.2.2"></script></c:if>

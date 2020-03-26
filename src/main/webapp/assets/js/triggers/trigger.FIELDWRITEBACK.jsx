@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // @see trigger.FIELDAGGREGATION.jsx auto-fillin.jsx
 
+const EXPR_SPLIT = '#'
+
 // ~~ 数据回填
 // eslint-disable-next-line no-undef
 class ContentFieldWriteback extends ActionContentSpec {
@@ -19,7 +21,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     return <div className="field-aggregation field-writeback">
       <form className="simple">
         <div className="form-group row">
-          <label className="col-md-12 col-lg-3 col-form-label text-lg-right">回填目标实体</label>
+          <label className="col-md-12 col-lg-3 col-form-label text-lg-right">转写目标实体</label>
           <div className="col-md-12 col-lg-9">
             <div className="row">
               <div className="col-5">
@@ -35,7 +37,7 @@ class ContentFieldWriteback extends ActionContentSpec {
           </div>
         </div>
         <div className="form-group row">
-          <label className="col-md-12 col-lg-3 col-form-label text-lg-right">回填规则</label>
+          <label className="col-md-12 col-lg-3 col-form-label text-lg-right">转写规则</label>
           <div className="col-md-12 col-lg-9">
             <div className="items">
               {(!this.state.items || this.state.items.length === 0) ? null : this.state.items.map((item) => {
@@ -46,9 +48,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                     </div>
                     <div className="col-5 del-wrap">
                       <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                      <span className="badge badge-warning">
-                        {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : this.__fieldLabel(this.state.sourceFields, item.sourceField)}
-                      </span>
+                      <span className="badge badge-warning">{this.__fieldLabel(this.state.sourceFields, item.sourceField)}</span>
                       <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
                     </div>
                   </div>
@@ -73,6 +73,13 @@ class ContentFieldWriteback extends ActionContentSpec {
                 </select>
                 <p>源字段</p>
               </div>
+              {this.state.showDateExpr &&
+                <div className="col-2 pl-0" style={{ marginLeft: -13 }}>
+                  <button type="button" ref={(c) => this._btnDateExpr = c} title="日期公式" className="btn btn-secondary mw-auto" onClick={(e) => this._showDateExpr(e)}>
+                    <i className="zmdi zmdi-settings-square icon" />
+                  </button>
+                </div>
+              }
             </div>
             <div className="mt-1">
               <button type="button" className="btn btn-primary btn-sm bordered" onClick={() => this.addItem()}>添加</button>
@@ -147,9 +154,11 @@ class ContentFieldWriteback extends ActionContentSpec {
   }
 
   __fieldLabel(fields, field) {
+    const fe = field.split(EXPR_SPLIT)
+    field = fe[0]
     let found = fields.find((x) => { return x[0] === field })
     if (found) found = found[1]
-    return found || ('[' + field.toUpperCase() + ']')
+    return (found || `[${field.toUpperCase()}]`) + (fe[1] ? ` {${fe[1]}}` : '')
   }
 
   // 获取可回填字段（兼容的）
@@ -158,11 +167,14 @@ class ContentFieldWriteback extends ActionContentSpec {
     const sf = $(this._sourceField).val()
     const source = this.state.sourceFields.find((x) => { return x[0] === sf })
 
-    let canFillinByType = CAN_FILLIN_MAPPINGS[source[2]] || []
+    // 日期高级表达式
+    this.setState({ showDateExpr: source[2] === 'DATE' || source[2] === 'DATETIME' })
+
+    const canFillinByType = CAN_FILLIN_MAPPINGS[source[2]] || []
     canFillinByType.push('TEXT')
     canFillinByType.push('NTEXT')
 
-    let tFields = []
+    const tFields = []
     $(this.__targetFieldsCache).each(function () {
       if (te === this[0] + '.' + this[3]
         || (source[2] === 'FILE' && this[2] !== 'FILE')
@@ -180,6 +192,16 @@ class ContentFieldWriteback extends ActionContentSpec {
     return tFields
   }
 
+  _showDateExpr() {
+    const sf = $(this._sourceField).val()
+    const found = this.state.sourceFields.find((x) => { return x[0] === sf })
+    const $btn = $(this._btnDateExpr)
+    renderRbcomp(<AdvDateValue field={[sf, found[1], found[2]]} call={(expr) => {
+      if (expr === null) $btn.html('<i class="zmdi zmdi-settings-square icon"></i>').removeAttr('data-expr')
+      else $btn.html(`{${expr}}`).attr('data-expr', expr)
+    }} />)
+  }
+
   addItem() {
     const tf = $(this._targetField).val()
     const sf = $(this._sourceField).val()
@@ -190,7 +212,9 @@ class ContentFieldWriteback extends ActionContentSpec {
     const found = items.find((x) => { return x.targetField === tf })
     if (found) { RbHighbar.create('目标字段重复'); return false }
 
-    items.push({ targetField: tf, sourceField: sf })
+    const dateExpr = this.state.showDateExpr ? $(this._btnDateExpr).attr('data-expr') : null
+
+    items.push({ targetField: tf, sourceField: sf + (dateExpr ? `${EXPR_SPLIT}${dateExpr}` : '') })
     this.setState({ items: items })
   }
 
@@ -207,8 +231,8 @@ class ContentFieldWriteback extends ActionContentSpec {
       items: this.state.items,
       readonlyFields: $(this._readonlyFields).prop('checked')
     }
-    if (!content.targetEntity) { RbHighbar.create('请选择聚合目标实体'); return false }
-    if (content.items.length === 0) { RbHighbar.create('请至少添加 1 个聚合规则'); return false }
+    if (!content.targetEntity) { RbHighbar.create('请选择转写目标实体'); return false }
+    if (content.items.length === 0) { RbHighbar.create('请至少添加 1 个转写规则'); return false }
     return content
   }
 }
@@ -224,4 +248,66 @@ const CAN_FILLIN_MAPPINGS = {
 renderContentComp = function (props) {
   // eslint-disable-next-line no-undef
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () { contentComp = this })
+}
+
+// see: field-edit.jsx#AdvDateDefaultValue
+// ~~ 日期高级表达式
+class AdvDateValue extends RbAlert {
+
+  constructor(props) {
+    super(props)
+    this._refs = []
+  }
+
+  renderContent() {
+    return (
+      <form className="ml-6 mr-6">
+        <div className="form-group">
+          <label className="text-bold">设置日期公式</label>
+          <div className="input-group">
+            <select className="form-control form-control-sm" ref={(c) => this._refs[0] = c}>
+              <option value={this.props.field[0]}>{this.props.field[1]}</option>
+            </select>
+            <select className="form-control form-control-sm" ref={(c) => this._refs[1] = c}>
+              <option value="+">加上</option>
+              <option value="-">减去</option>
+            </select>
+            <input type="number" min="1" max="999999" className="form-control form-control-sm" defaultValue="1" ref={(c) => this._refs[2] = c} />
+            <select className="form-control form-control-sm" ref={(c) => this._refs[3] = c}>
+              <option value="D">天</option>
+              <option value="M">月</option>
+              <option value="Y">年</option>
+              {this.props.field[2] === 'DATETIME' &&
+                <React.Fragment>
+                  <option value="H">小时</option>
+                  <option value="I">分钟</option>
+                </React.Fragment>
+              }
+            </select>
+          </div>
+        </div>
+        <div className="form-group mb-1">
+          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>确定</button>
+          <button type="button" className="btn btn-space btn-secondary" onClick={this.clean}>清除</button>
+        </div>
+      </form>
+    )
+  }
+
+  confirm = () => {
+    const num = $(this._refs[2]).val() || 1
+    if (isNaN(num)) {
+      RbHighbar.create('请输入数字')
+      return
+    }
+
+    const expr = `${$(this._refs[1]).val()}${num}${$(this._refs[3]).val()}`
+    typeof this.props.call === 'function' && this.props.call(expr)
+    this.hide()
+  }
+
+  clean = () => {
+    typeof this.props.call === 'function' && this.props.call(null)
+    this.hide()
+  }
 }

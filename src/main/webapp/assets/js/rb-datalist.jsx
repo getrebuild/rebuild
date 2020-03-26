@@ -12,6 +12,9 @@ const COLUMN_MIN_WIDTH = 30
 const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
 
+// IE/Edge 不支持首/列固定
+const supportFixedColumns = !($.browser.msie || $.browser.msedge)
+
 // ~~ 数据列表
 class RbList extends React.Component {
 
@@ -51,7 +54,7 @@ class RbList extends React.Component {
               <thead>
                 <tr>
                   {this.props.uncheckbox !== true &&
-                    <th className={`column-checkbox ${$.browser.msie ? '' : 'column-fixed'}`}>
+                    <th className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
                       <div>
                         <label className="custom-control custom-control-sm custom-checkbox">
                           <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => this._checkAll = c} />
@@ -63,7 +66,7 @@ class RbList extends React.Component {
                   {this.state.fields.map((item, idx) => {
                     const cWidth = item.width || that.__defaultColumnWidth
                     const styles = { width: cWidth + 'px' }
-                    const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && !$.browser.msie ? 'column-fixed column-fixed-2nd' : ''}`
+                    const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && supportFixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                     return <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field}
                       onClick={item.unsort ? null : this._sortField.bind(this, item.field)}>
                       <div style={styles}>
@@ -83,7 +86,7 @@ class RbList extends React.Component {
                   return (
                     <tr key={rowKey} data-id={lastPrimary.id} onClick={(e) => this._clickRow(e, true)}>
                       {this.props.uncheckbox !== true &&
-                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${$.browser.msie ? '' : 'column-fixed'}`}>
+                        <td key={rowKey + '-checkbox'} className={`column-checkbox ${supportFixedColumns ? 'column-fixed' : ''}`}>
                           <div>
                             <label className="custom-control custom-control-sm custom-checkbox">
                               <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
@@ -118,7 +121,7 @@ class RbList extends React.Component {
     if ($(window).height() > 666 && $(window).width() >= 1280) {
       $('.main-content').addClass('pb-0')
       $('.main-content .rb-datatable-header').addClass('header-fixed')
-      if (!$.browser.msie) $scroller.find('.table').addClass('table-header-fixed')
+      if (supportFixedColumns) $scroller.find('.table').addClass('table-header-fixed')
 
       $addResizeHandler(() => {
         let mh = $(window).height() - 215
@@ -128,7 +131,7 @@ class RbList extends React.Component {
       })()
     }
 
-    if (!$.browser.msie) {
+    if (supportFixedColumns) {
       let slLast = 0
       $scroller.on('ps-scroll-x', () => {
         const sl = $scroller[0].scrollLeft
@@ -226,8 +229,8 @@ class RbList extends React.Component {
     }
 
     const c = CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
-    if (index === 0 && !$.browser.msie) {
-      return React.cloneElement(c, { className: 'column-fixed column-fixed-2nd' })
+    if (index === 0 && supportFixedColumns) {
+      return React.cloneElement(c, { className: `${c.props.className} column-fixed column-fixed-2nd` })
     }
     return c
   }

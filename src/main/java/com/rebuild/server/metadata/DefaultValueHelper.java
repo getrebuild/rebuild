@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.metadata;
@@ -40,7 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * 字段默认值
+ * 字段默认值处理
  *
  * @author devezhao
  * @since 2019/8/20
@@ -48,6 +37,9 @@ import java.util.regex.Pattern;
 public class DefaultValueHelper {
 
     private static final Log LOG = LogFactory.getLog(DefaultValueHelper.class);
+
+    // 日期公式 {NOW + 1D}
+    private static final Pattern EXPR_PATTERN = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDHI])}");
 
     /**
      * 获取字段默认值
@@ -68,7 +60,6 @@ public class DefaultValueHelper {
         }
     }
 
-    private static final Pattern EXPR_PATTERN = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDH])\\}");
     /**
      * 获取字段默认值，可指定表达式
      *
@@ -104,37 +95,16 @@ public class DefaultValueHelper {
         }
 
         if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-            if ("{NOW}".equals(valueExpr)) {
-                return CalendarUtils.now();
+            Date date;
+            if (valueExpr.contains("NOW")) {
+                date = parseDateExpr(valueExpr, null);
             }
-
-            Matcher exprMatcher = EXPR_PATTERN.matcher(StringUtils.remove(valueExpr, " "));
-            if (exprMatcher.matches()) {
-                String op = exprMatcher.group(1);
-                String num = exprMatcher.group(2);
-                String unit = exprMatcher.group(3);
-                int num2int = ObjectUtils.toInt(num);
-                if ("-".equals(op)) {
-                    num2int = -num2int;
-                }
-
-                Date date = null;
-                if (num2int == 0) {
-                    date = CalendarUtils.now();
-                } else if ("Y".equals(unit)) {
-                    date = CalendarUtils.add(num2int, Calendar.YEAR);
-                } else if ("M".equals(unit)) {
-                    date = CalendarUtils.add(num2int, Calendar.MONTH);
-                } else if ("D".equals(unit)) {
-                    date = CalendarUtils.add(num2int, Calendar.DAY_OF_MONTH);
-                } else if ("H".equals(unit)) {
-                    date = CalendarUtils.add(num2int, Calendar.HOUR_OF_DAY);
-                }
-                return date;
-            } else {
+            // 具体的日期值
+            else {
                 String format = "yyyy-MM-dd HH:mm:ss".substring(0, valueExpr.length());
-                return CalendarUtils.parse(valueExpr, format);
+                date = CalendarUtils.parse(valueExpr, format);
             }
+            return date;
 
         } else if (dt == DisplayType.DECIMAL) {
             return BigDecimal.valueOf(NumberUtils.toDouble(valueExpr));
@@ -144,5 +114,49 @@ public class DefaultValueHelper {
         else {
             return valueExpr;
         }
+    }
+
+    /**
+     * 解析日期表达式
+     *
+     * @param dateExpr
+     * @param base
+     * @return
+     */
+    public static Date parseDateExpr(String dateExpr, Date base) {
+        if ("{NOW}".equals(dateExpr)) {
+            return CalendarUtils.now();
+        }
+
+        Matcher m = EXPR_PATTERN.matcher(StringUtils.remove(dateExpr, " "));
+        if (m.matches()) {
+            base = base == null ? CalendarUtils.now() : base;
+
+            String op = m.group(1);
+            String num = m.group(2);
+            String unit = m.group(3);
+            int num2int = ObjectUtils.toInt(num);
+            if ("-".equals(op)) {
+                num2int = -num2int;
+            }
+
+            Date date = null;
+            if (num2int == 0) {
+                date = base;
+            } else if ("Y".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.YEAR);
+            } else if ("M".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.MONTH);
+            } else if ("D".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.DAY_OF_MONTH);
+            } else if ("H".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.HOUR_OF_DAY);
+            } else if ("I".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.MINUTE);
+            }
+            return date;
+        }
+
+        return null;
     }
 }

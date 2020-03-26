@@ -64,7 +64,7 @@
 						<div class="hide admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
 								<input class="custom-control-input" type="checkbox" data-name="noPrivileges">
-								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用权限范围内的数据"></i></span>
+								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用角色权限范围内的数据"></i></span>
 							</label>
 						</div>
 						<div class="hide J_opt-TABLE">

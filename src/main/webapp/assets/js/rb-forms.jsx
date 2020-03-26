@@ -145,7 +145,10 @@ class RbForm extends React.Component {
     this.__FormData = {}
     const iv = props.$$$parent.state.__formModel.initialValue
     if (iv) {
-      for (let k in iv) this.__FormData[k] = { value: iv[k], error: null }
+      for (let k in iv) {
+        const val = iv[k]
+        this.__FormData[k] = { value: typeof val === 'object' ? val.id : val, error: null }
+      }
     }
 
     this.isNew = !props.$$$parent.state.id
@@ -156,7 +159,7 @@ class RbForm extends React.Component {
     return <div className="rbform">
       <div className="form" ref={(c) => this._form = c}>
         {this.props.children.map((fieldComp) => {
-          let refid = 'fieldcomp-' + fieldComp.props.field
+          const refid = `fieldcomp-${fieldComp.props.field}`
           return React.cloneElement(fieldComp, { $$$parent: this, ref: refid })
         })}
         {this.renderFormAction()}
@@ -193,10 +196,10 @@ class RbForm extends React.Component {
   componentDidMount() {
     if (this.isNew) {
       this.props.children.map((child) => {
-        let val = child.props.value
+        const val = child.props.value
         if (val && child.props.readonly !== true) {
-          if (typeof val === 'object') val = val.id  // 复合型值 {id:xxx, text:xxx}
-          this.setFieldValue(child.props.field, val)
+          // 复合型值 {id:xxx, text:xxx}
+          this.setFieldValue(child.props.field, typeof val === 'object' ? val.id : val)
         }
       })
     }
@@ -242,28 +245,28 @@ class RbForm extends React.Component {
   _post(next) {
     const _data = {}
     for (let k in this.__FormData) {
-      let err = this.__FormData[k].error
+      const err = this.__FormData[k].error
       if (err) { RbHighbar.create(err); return }
       else _data[k] = this.__FormData[k].value
     }
     _data.metadata = { entity: this.state.entity, id: this.state.id }
     if (RbForm.postBefore(_data) === false) return
 
-    const btns = $(this._formAction).find('.btn').button('loading')
+    const $btns = $(this._formAction).find('.btn').button('loading')
     $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
-      btns.button('reset')
+      $btns.button('reset')
       if (res.error_code === 0) {
-        RbHighbar.create('保存成功', 'success')
+        RbHighbar.success('保存成功')
         setTimeout(() => {
           this.props.$$$parent.hide(true)
           RbForm.postAfter(res.data, next)
 
           if (next === RbForm.__NEXT_ADD) {
-            let pstate = this.props.$$$parent.state
+            const pstate = this.props.$$$parent.state
             RbFormModal.create({ title: pstate.title, entity: pstate.entity, icon: pstate.icon, initialValue: pstate.initialValue })
           } else if (next === RbForm.__NEXT_ADDSLAVE) {
-            let iv = { '$MASTER$': res.data.id }
-            let sm = this.props.$$$parent.state.__formModel.slaveMeta
+            const iv = { '$MASTER$': res.data.id }
+            const sm = this.props.$$$parent.state.__formModel.slaveMeta
             RbFormModal.create({ title: `添加${sm.entityLabel}`, entity: sm.entity, icon: sm.icon, initialValue: iv })
           } else if (next === RbForm.__NEXT_APPROVAL) {
             renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
@@ -272,7 +275,8 @@ class RbForm extends React.Component {
       }
       else if (res.error_code === 499) {
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
-      } else {
+      }
+      else {
         RbHighbar.error(res.error_msg)
       }
     })
@@ -847,9 +851,10 @@ class RbFormReference extends RbFormElement {
   componentDidMount() {
     super.componentDidMount()
 
-    // Only trigger on first times and new
-    if (this.props.$$$parent.isNew && !this.props.onView && this.props.value && this.props.value.id) {
-      setTimeout(() => this.triggerAutoFillin(this.props.value.id), 500)
+    // 新建记录时触发回填
+    const props = this.props
+    if (props.$$$parent.isNew && !props.onView && props.value && props.value.id) {
+      setTimeout(() => this.triggerAutoFillin(props.value.id), 500)
     }
   }
 

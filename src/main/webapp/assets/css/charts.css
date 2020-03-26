@@ -133,9 +133,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 	font-size: 1rem;
 }
 
-.chart.ctable .table td.clk {
+.chart.ctable .table td.active {
 	outline: 1px solid #4285f4;
 	background-color: #f5f8fd;
+}
+
+.chart.ctable .table td:first-child.active {
+	border-left: 1px solid #4285f4;
 }
 
 .chart.ctable .table th {

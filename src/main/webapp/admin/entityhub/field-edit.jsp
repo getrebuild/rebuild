@@ -246,7 +246,7 @@
 								<div class="input-group">
 									<input class="form-control form-control-sm" type="text" id="defaultValue" value="${fieldDefaultValue}" data-o="${fieldDefaultValue}" placeholder="无" autocomplete="off">
         							<div class="input-group-append hide">
-          								<button class="btn btn-primary mw-auto" title="设置高级默认值" type="button"><i class="icon zmdi zmdi-hdr-strong"></i></button>
+          								<button class="btn btn-secondary mw-auto" title="日期公式" type="button"><i class="icon zmdi zmdi-settings-square"></i></button>
 									</div>
 								</div>
 							</div>

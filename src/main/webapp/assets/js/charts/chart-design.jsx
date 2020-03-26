@@ -112,12 +112,11 @@ $(document).ready(() => {
     else if (JSON.stringify(ccfg) === JSON.stringify(wpc.chartConfig));  // Unchanged
     else return false
   }
-})
-$(window).resize(() => {
-  $setTimeout(() => {
+
+  $addResizeHandler(() => {
     $('#chart-preview').height($(window).height() - 170)
     if (render_preview_chart) render_preview_chart.resize()
-  }, 200, 'ChartPreview-resize')
+  })
 })
 
 const CTs = { SUM: '求和', AVG: '平均值', MAX: '最大值', MIN: '最小值', COUNT: '计数', Y: '按年', Q: '按季', M: '按月', D: '按日', H: '按时' }

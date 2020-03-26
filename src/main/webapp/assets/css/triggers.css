@@ -76,7 +76,10 @@
 
 .field-aggregation .items {
   margin-bottom: 9px;
-  margin-top: -1px;
+}
+
+.field-aggregation .items:empty {
+  margin-bottom: 0;
 }
 
 .field-aggregation .items>div {
