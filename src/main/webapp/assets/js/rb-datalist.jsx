@@ -68,7 +68,7 @@ class RbList extends React.Component {
                     const styles = { width: cWidth + 'px' }
                     const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && supportFixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                     return <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field}
-                      onClick={item.unsort ? null : this._sortField.bind(this, item.field)}>
+                      onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                       <div style={styles}>
                         <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
                         <i className={'zmdi ' + (item.sort || '')} />
@@ -147,6 +147,9 @@ class RbList extends React.Component {
       containment: '.rb-datatable-body',
       axis: 'x',
       helper: 'clone',
+      start: function () {
+        that.__columnResizing = true
+      },
       stop: function (event, ui) {
         const field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 0
@@ -161,6 +164,7 @@ class RbList extends React.Component {
           }
         }
         that.setState({ fields: fields }, () => $scroller.perfectScrollbar('update'))
+        setTimeout(() => that.__columnResizing = false, 100)
       }
     })
 
@@ -298,6 +302,7 @@ class RbList extends React.Component {
 
   // 排序
   _sortField(field, e) {
+    if (this.__columnResizing) return  // fix: firefox
     const fields = this.state.fields
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {
