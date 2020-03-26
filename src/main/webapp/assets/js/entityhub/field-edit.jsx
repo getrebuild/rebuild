@@ -228,7 +228,7 @@ class AdvDateDefaultValue extends RbAlert {
               {this.props.type === 'DATETIME' &&
                 <React.Fragment>
                   <option value="H">小时</option>
-                  <option value="S">分钟</option>
+                  <option value="I">分钟</option>
                 </React.Fragment>
               }
             </select>

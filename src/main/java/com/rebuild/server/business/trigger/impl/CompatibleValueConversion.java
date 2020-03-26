@@ -13,10 +13,13 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.configuration.portals.PickListManager;
+import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import java.util.Date;
 
 /**
  * 字段值兼容转换
@@ -42,18 +45,20 @@ public class CompatibleValueConversion {
 
     /**
      * @param sourceValue
+     * @param appendExpr
      * @return
      */
-    public Object conversion(Object sourceValue) {
-        return conversion(sourceValue, false);
+    public Object conversion(Object sourceValue, String appendExpr) {
+        return conversion(sourceValue, appendExpr, false);
     }
 
     /**
      * @param sourceValue
+     * @param appendExpr
      * @param mixValue
      * @return
      */
-    public Object conversion(Object sourceValue, boolean mixValue) {
+    public Object conversion(Object sourceValue, String appendExpr, boolean mixValue) {
         if (sourceValue == null || NullValue.is(sourceValue)) {
             return null;
         }
@@ -62,6 +67,14 @@ public class CompatibleValueConversion {
         final DisplayType sourceType = sourceField.getDisplayType();
         final DisplayType targetType = EasyMeta.getDisplayType(target);
         final boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+
+        // 日期公式
+        if (appendExpr != null && (sourceType == DisplayType.DATETIME || sourceType == DisplayType.DATE)) {
+            Date newDate = DefaultValueHelper.parseDateExpr("{NOW" + appendExpr + "}", (Date) sourceValue);
+            if (newDate != null) {
+                sourceValue = newDate;
+            }
+        }
 
         Object compatibleValue = sourceValue;
         if (sourceType == DisplayType.ID) {

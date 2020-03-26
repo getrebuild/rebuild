@@ -27,7 +27,7 @@
 <div class="error">
 <div class="block mt-0">
 	<h2 class="mt-0">系统故障</h2>
-	<div>服务未能正常启动，请通过快速检查列表排除故障，故障排除后请重启服务。你也可以 <a href="https://getrebuild.com/report-issue?title=boot-error" target="_blank">报告此问题</a></div>
+	<div>服务未能正常启动，请通过快速检查列表排除故障，故障排除后请重启服务。你也可以 <a href="https://getrebuild.com/report-issue?title=boot-error" target="_blank"><u>报告此问题</u></a></div>
 </div>
 </div>
 <% } %>
@@ -36,7 +36,7 @@
 	<table class="table table-bordered table-sm table-hover">
 	<tbody>
         <tr>
-            <th width="30%">Master Service</th>
+            <th width="30%">Core Service</th>
             <td class="text-danger"><%=Application.serversReady() ? "<span class='text-success'>OK<span>" : "启动失败"%></td>
         </tr>
 		<% for (Status s : ServerStatus.getLastStatus()) { %>
@@ -47,7 +47,7 @@
 		<% } %>
 		<tr>
 			<th>Memory Usage</th>
-			<% double memoryUsed[] = ServerStatus.getHeapMemoryUsed(); %>
+			<% double[] memoryUsed = ServerStatus.getHeapMemoryUsed(); %>
 			<td><%=memoryUsed[1]%>% (<%=memoryUsed[0]%>M)</td>
 		</tr>
 		<tr>

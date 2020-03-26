@@ -31,12 +31,12 @@ class RbViewForm extends React.Component {
 
       let hadApproval = res.data.hadApproval
       if (wpc.type === $pgt.SlaveView) {
-        if (hadApproval === 2) $('.J_edit,.J_delete').attr('disabled', true)
-        else if (hadApproval === 10) $('.J_edit,.J_delete').remove()
+        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: '主记录正在审批中' })
+        else if (hadApproval === 10) $('.J_edit, .J_delete').remove()
         hadApproval = null
       }
 
-      const vform = <div>
+      const VFORM = <div>
         {hadApproval && <ApprovalProcessor id={this.props.id} entity={this.props.entity} />}
         <div className="row">
           {res.data.elements.map((item) => {
@@ -45,16 +45,18 @@ class RbViewForm extends React.Component {
           })}
         </div>
       </div>
-      this.setState({ formComponent: vform }, () => this.hideLoading())
+      this.setState({ formComponent: VFORM }, () => this.hideLoading())
       this.__lastModified = res.data.lastModified || 0
     })
   }
 
   renderViewError(message) {
-    const error = <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
-      <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
-      <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
-    </div>
+    const error = (
+      <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
+        <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
+        <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
+      </div>
+    )
     this.setState({ formComponent: error }, () => this.hideLoading())
     $('.view-operating .view-action').empty()
   }
@@ -187,25 +189,26 @@ class SelectReport extends React.Component {
 class RelatedList extends React.Component {
   state = { ...this.props }
   render() {
-    const _list = this.state.list || []
-    return <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
-      {!this.state.list && <RbSpinner />}
-      {(this.state.list && this.state.list.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无相关数据</p></div>}
-      {_list.map((item) => {
-        return <div className="card" key={`rr-${item[0]}`}>
-          <div className="row">
-            <div className="col-10">
-              <a href={`#!/View/${this.props.entity}/${item[0]}`} onClick={this._handleView}>{item[1]}</a>
-            </div>
-            <div className="col-2 text-right">
-              <span className="fs-12 text-muted" title="最后修改时间">{item[2]}</span>
+    return (
+      <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
+        {!this.state.list && <RbSpinner />}
+        {(this.state.list && this.state.list.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无相关数据</p></div>}
+        {(this.state.list || []).map((item) => {
+          return <div className="card" key={`rr-${item[0]}`}>
+            <div className="row">
+              <div className="col-10">
+                <a href={`#!/View/${this.props.entity}/${item[0]}`} onClick={this._handleView}>{item[1]}</a>
+              </div>
+              <div className="col-2 text-right">
+                <span className="fs-12 text-muted" title="最后修改时间">{item[2]}</span>
+              </div>
             </div>
           </div>
-        </div>
-      })}
-      {this.state.showMores
-        && <div className="text-center load-mores"><div><button type="button" className="btn btn-secondary" onClick={() => this.loadList(1)}>加载更多</button></div></div>}
-    </div>
+        })}
+        {this.state.showMores
+          && <div className="text-center load-mores"><div><button type="button" className="btn btn-secondary" onClick={() => this.loadList(1)}>加载更多</button></div></div>}
+      </div>
+    )
   }
 
   componentDidMount = () => this.loadList()

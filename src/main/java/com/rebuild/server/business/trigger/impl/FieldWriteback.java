@@ -30,6 +30,8 @@ import java.util.Map;
  */
 public class FieldWriteback extends FieldAggregation {
 
+    private static final String EXPR_SPLIT = "#";
+
     /**
      * @param context
      */
@@ -44,12 +46,21 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     protected void buildTargetRecord(Record record, String dataFilterSql) {
+        Map<String, String> exprsMap = new HashMap<>();
+
         JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
         Map<String, String> t2sMap = new HashMap<>();
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
             String sourceField = item.getString("sourceField");
+
+            // 公式
+            if (sourceField.contains(EXPR_SPLIT)) {
+                exprsMap.put(targetField, sourceField.split(EXPR_SPLIT)[1]);
+                sourceField = sourceField.split(EXPR_SPLIT)[0];
+            }
+
             if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)
                     || MetadataHelper.getLastJoinField(sourceEntity, sourceField) == null) {
                 continue;
@@ -80,7 +91,7 @@ public class FieldWriteback extends FieldAggregation {
 
             Field sourceField = MetadataHelper.getLastJoinField(sourceEntity, e.getValue());
             Field targetField = targetEntity.getField(e.getKey());
-            Object newValue = new CompatibleValueConversion(sourceField, targetField).conversion(value);
+            Object newValue = new CompatibleValueConversion(sourceField, targetField).conversion(value, exprsMap.get(e.getKey()));
             if (newValue != null) {
                 record.setObjectValue(targetField.getName(), newValue);
             }
