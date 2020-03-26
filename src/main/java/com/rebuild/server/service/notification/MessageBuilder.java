@@ -100,7 +100,7 @@ public class MessageBuilder {
      * @param md2html
      * @param xss
      * @return
-     * @see MarkdownUtils#parse(String)
+     * @see MarkdownUtils#render(String)
      */
 	public static String formatMessage(String message, boolean md2html, boolean xss) {
 		if (xss) {
@@ -111,14 +111,14 @@ public class MessageBuilder {
 		Matcher atMatcher = AT_PATTERN.matcher(message);
 		while (atMatcher.find()) {
 			String at = atMatcher.group();
-			String atLabel = parseAtsId(at.substring(1));
+			String atLabel = parseAtId(at.substring(1));
 			if (atLabel != null && !atLabel.equals(at)) {
 				message = message.replace(at, atLabel);
 			}
 		}
 
 		if (md2html) {
-    		message = MarkdownUtils.parse(message);
+    		message = MarkdownUtils.render(message);
         }
 		return message;
 	}
@@ -127,7 +127,7 @@ public class MessageBuilder {
 	 * @param atid
 	 * @return
 	 */
-	protected static String parseAtsId(String atid) {
+	protected static String parseAtId(String atid) {
 		if (!ID.isId(atid)) {
 			return atid;
 		}
