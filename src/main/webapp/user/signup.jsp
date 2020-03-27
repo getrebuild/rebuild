@@ -4,6 +4,16 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>${bundle.lang('UserSignup')}</title>
+<style type="text/css">
+.form-group.row {
+	margin-left: -15px !important;
+	margin-right: -15px !important;
+}
+.form-group.row .btn {
+	height: 41px;
+	width: 100%;
+}
+</style>
 </head>
 <body class="rb-splash-screen">
 <div class="rb-wrapper rb-login">
@@ -23,12 +33,12 @@
 						<div class="form-group">
 							<input class="form-control" id="sEmail" type="email" placeholder="${bundle.lang('Email')}" autocomplete="off">
 						</div>
-						<div class="form-group pt-0 row">
+						<div class="form-group row pt-0">
 							<div class="col-7">
 								<input class="form-control" type="text" id="sVcode" placeholder="${bundle.lang('EmailVcode')}" autocomplete="off">
 							</div>
 							<div class="col-5 text-right pl-0">
-								<button class="btn btn-secondary J_vcode-btn" style="height:41px;width:100%" type="button">${bundle.lang('GetVcode')}</button>
+								<button class="btn btn-primary bordered J_vcode-btn" type="button">${bundle.lang('GetVcode')}</button>
 							</div>
 						</div>
 						<div class="form-group login-submit">

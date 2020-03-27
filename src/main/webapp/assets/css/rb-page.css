@@ -3396,6 +3396,14 @@ a.icon-link>.zmdi {
     }
 }
 
+.mr-zero {
+    margin-right: -15px;
+}
+
+.ml-zero {
+    margin-left: -15px;
+}
+
 /* text overflow */
 
 .aside-header .title,
