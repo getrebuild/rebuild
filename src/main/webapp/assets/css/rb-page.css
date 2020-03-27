@@ -3384,3 +3384,11 @@ a.icon-link>.zmdi {
         min-width: 88px;
     }
 }
+
+/* text overflow */
+.aside-header .title,
+.dept-tree ul li a {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
