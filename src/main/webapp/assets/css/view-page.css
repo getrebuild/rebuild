@@ -46,7 +46,8 @@ body {
 	display: inline-block;
 	margin: 0;
 	font-weight: 300;
-	font-size: 1.538rem
+	font-size: 1.538rem;
+	max-width: 80%;
 }
 
 .view-header>span>.close {

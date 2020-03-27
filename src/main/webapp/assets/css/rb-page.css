@@ -35,6 +35,7 @@ body {
     box-shadow: 0 3px .3077rem rgba(0, 0, 0, .1);
     border-width: 0;
     border-radius: 0;
+    max-width: 300px;
 }
 
 .dropdown-menu.primary>.dropdown-item:hover,
@@ -3398,7 +3399,8 @@ a.icon-link>.zmdi {
 .dept-tree ul li a,
 .nav-tabs>li.nav-item a.nav-link,
 .dropdown-item,
-.modal-header .modal-title {
+.modal-header .modal-title,
+.view-header .title {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
