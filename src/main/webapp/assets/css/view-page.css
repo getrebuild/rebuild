@@ -96,7 +96,6 @@ body {
 
 .nav-tabs>li.nav-item a.nav-link {
 	padding: 11px 10px;
-	max-width: 130px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

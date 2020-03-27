@@ -1430,6 +1430,7 @@ th.column-fixed {
 .main-content>.nav-tabs-classic>li.nav-item a.nav-link {
     padding: 11px 15px;
     min-width: 101px;
+    max-width: 245px;
 }
 
 .sortable-box-title {
@@ -3386,9 +3387,16 @@ a.icon-link>.zmdi {
 }
 
 /* text overflow */
+
 .aside-header .title,
-.dept-tree ul li a {
+.dept-tree ul li a,
+.nav-tabs>li.nav-item a.nav-link,
+.dropdown-item {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.nav-tabs>li.nav-item a.nav-link {
+    max-width: 200px;
 }
