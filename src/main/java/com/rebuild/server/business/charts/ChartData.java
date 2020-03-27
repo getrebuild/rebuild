@@ -157,7 +157,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	private Field getField(JSONObject item) {
 		String field = item.getString("field");
 		if (!getSourceEntity().containsField(field)) {
-			throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除");
+			throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除，请调整图表配置");
 		}
 		return getSourceEntity().getField(field);
 	}
