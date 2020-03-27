@@ -316,8 +316,8 @@ a.btn {
     display: block;
 }
 
-.rb-color-header .dropdown .icon {
-    color: #fff !important;
+.rb-color-header .dropdown > a > .icon {
+    color: #fff;
 }
 
 .logo-img {
