@@ -385,6 +385,11 @@ a.btn {
     color: #737373;
 }
 
+.adv-search button .indicator-primary {
+    top: 3px;
+    right: 3px;
+}
+
 .input-search .input-group-btn.plus {
     margin-right: -36px;
     margin-top: -1px;
@@ -1755,6 +1760,7 @@ th.column-fixed {
 
 .adv-search .dropdown-item div.action a:hover {
     color: #4285f4 !important;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* AdvFilter */
@@ -3391,7 +3397,8 @@ a.icon-link>.zmdi {
 .aside-header .title,
 .dept-tree ul li a,
 .nav-tabs>li.nav-item a.nav-link,
-.dropdown-item {
+.dropdown-item,
+.modal-header .modal-title {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

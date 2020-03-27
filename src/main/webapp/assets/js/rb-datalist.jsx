@@ -40,7 +40,7 @@ class RbList extends React.Component {
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
-    this.advFilter = $storage.get(this.__defaultFilterKey)
+    this.advFilterId = $storage.get(this.__defaultFilterKey)
   }
 
   render() {
@@ -188,7 +188,7 @@ class RbList extends React.Component {
       pageNo: this.pageNo,
       pageSize: this.pageSize,
       filter: this.lastFilter,
-      advFilter: this.advFilter,
+      advFilter: this.advFilterId,
       sort: field_sort,
       reload: this.pageNo === 1
     }
@@ -337,7 +337,7 @@ class RbList extends React.Component {
    * 设置高级过滤器ID
    */
   setAdvFilter(id) {
-    this.advFilter = id
+    this.advFilterId = id
     this.pageNo = 1
     this.fetchList(this.__buildQuick())
     if (id) $storage.set(this.__defaultFilterKey, id)
@@ -348,15 +348,14 @@ class RbList extends React.Component {
    * 搜索
    */
   search(filter, fromAdv) {
-    const afHold = this.advFilter
-    if (fromAdv === true) this.advFilter = null
+    // 选择的过滤条件与当前的排他
+    if (fromAdv === true) this.advFilterId = null
     this.pageNo = 1
     this.fetchList(filter)
 
-    // No keep last filter
     if (fromAdv === true) {
-      this.advFilter = afHold
-      this.lastFilter = null
+      $('.J_advfilter .indicator-primary').remove()
+      if (filter.items.length > 0) $('<i class="indicator-primary"></i>').appendTo('.J_advfilter')
     }
   }
 
@@ -392,9 +391,9 @@ class RbList extends React.Component {
   }
 
   /**
-   * 获取最后查询过滤数据
+   * 获取最后查询条件
    */
-  getLastQueryData() {
+  getLastQueryEntry() {
     return JSON.parse(JSON.stringify(this.__lastQueryEntry))  // Use clone
   }
 
