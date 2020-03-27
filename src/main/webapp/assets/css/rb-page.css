@@ -1437,6 +1437,9 @@ th.column-fixed {
     padding: 11px 15px;
     min-width: 101px;
     max-width: 245px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sortable-box-title {
@@ -3397,7 +3400,6 @@ a.icon-link>.zmdi {
 
 .aside-header .title,
 .dept-tree ul li a,
-.nav-tabs>li.nav-item a.nav-link,
 .dropdown-item,
 .modal-header .modal-title,
 .view-header .title {
