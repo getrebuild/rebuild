@@ -537,7 +537,7 @@ class ScheduleOptions extends React.Component {
         <dd className="col-12 col-lg-9 mb-0" ref={(c) => this._scheduleRemind = c}>
           <label className="custom-control custom-checkbox custom-control-inline">
             <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
-            <span className="custom-control-label">内部消息</span>
+            <span className="custom-control-label">消息通知</span>
           </label>
           <label className="custom-control custom-checkbox custom-control-inline">
             <input className="custom-control-input" name="showOn" type="checkbox" value={2} disabled={this.props.readonly} />
@@ -608,6 +608,7 @@ class FeedsEditDlg extends RbModalHandler {
 
   _post = () => {
     const _data = this._editor.vals()
+    if (!_data) return
     if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 

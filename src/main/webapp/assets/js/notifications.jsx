@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+let focusItem
 $(document).ready(() => {
   let mList = <MessageList lazy={true} />
   if (window.__PageConfig && window.__PageConfig.type === 'Approval') mList = <ApprovalList />
@@ -16,10 +17,11 @@ $(document).ready(() => {
     mList.fetchList(1, $(this).data('type'))
   })
 
-  let ntype = location.hash || '#unread'
-  ntype = $('.notification-type a[href="' + ntype + '"]')
-  if (ntype.length === 0) ntype = $('.notification-type a[href="#unread"]')
-  ntype.trigger('click')
+  const ntype = (location.hash || '#unread').split('=')
+  focusItem = ntype[1]
+  let activeNav = $('.notification-type a[href="' + ntype[0] + '"]')
+  if (ntype.length === 0) activeNav = $('.notification-type a[href="#unread"]')
+  activeNav.trigger('click')
 })
 
 // 消息列表
@@ -54,7 +56,7 @@ class MessageList extends React.Component {
     if (item[3]) clazz += ' notification-unread'
     if (append) clazz += ' append'
 
-    return <li className={clazz} key={item[4]} onClick={item[3] ? () => this.makeRead(item[4]) : null}>
+    return <li id={item[4]} className={`${clazz} ${item[4] === focusItem ? 'focus' : ''}`} key={item[4]} onClick={item[3] ? () => this.makeRead(item[4]) : null}>
       <span className="a">
         <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
         <div className="notification-info">
@@ -90,6 +92,7 @@ class MessageList extends React.Component {
         if (e && e.stopPropagation) e.stopPropagation()
       })
     setTimeout(() => $gotoSection(), 200)
+    focusItem = null
   }
 
   gotoPage(p) {

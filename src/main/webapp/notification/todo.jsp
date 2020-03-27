@@ -3,7 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>待办</title>
+<title>待办通知</title>
 <style type="text/css">
 .notification-info .badge {
     border-radius: 99px;
@@ -26,7 +26,7 @@
 			<div class="tab-container">
 				<ul class="nav nav-tabs nav-tabs-classic notification-tab">
 					<li class="nav-item">
-						<a class="nav-link" href="../notifications"><span class="icon zmdi zmdi-notifications"></span> 通知</a>
+						<a class="nav-link" href="../notifications"><span class="icon zmdi zmdi-notifications"></span> 消息</a>
 					</li>
 					<li class="nav-item">
 						<a class="nav-link active" href="todo"><span class="icon zmdi zmdi-alarm-check"></span> 待办</a>
