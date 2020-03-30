@@ -235,7 +235,7 @@ class ReducedFeedsList extends FeedsList {
   state = { ...this.props }
   render() {
     return (
-      <React.Fragment>
+      <div className={`related-list ${!this.state.data ? 'rb-loading rb-loading-active' : ''}`}>
         {!this.state.data && <RbSpinner />}
         {(this.state.data && this.state.data.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-chart-donut" /><p>暂无相关跟进</p></div>}
         <div className="feeds-list inview">
@@ -245,7 +245,7 @@ class ReducedFeedsList extends FeedsList {
         </div>
         {this.state.showMores
           && <div className="text-center load-mores"><div><button type="button" className="btn btn-secondary" onClick={() => this.fetchFeeds(this.__pageNo + 1)}>加载更多</button></div></div>}
-      </React.Fragment>
+      </div>
     )
   }
 
@@ -256,7 +256,7 @@ class ReducedFeedsList extends FeedsList {
     this.__pageNo = pageNo || 1
     const pageSize = 20
     $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&sort=&type=&foucs=&pageSize=${pageSize}`, JSON.stringify(filter), (res) => {
-      const _data = res.data.data || []
+      const _data = (res.data || {}).data || []
       const _list = (this.state.data || []).concat(_data)
       this.setState({ data: _list, showMores: _data.length >= pageSize })
     })
