@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.feeds.FeedsType;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -123,6 +124,10 @@ public class RelatedListControll extends BaseControll {
 		
 		String masterWhere = "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')";
 		masterWhere = MessageFormat.format(masterWhere, recordOfMain);
+		if (relatedEntity.getEntityCode() == EntityHelper.Feeds) {
+			masterWhere += " and type = " + FeedsType.FOLLOWUP.getMask();
+		}
+
 		String baseSql = "select %s from " + relatedEntity.getName() + " where " + masterWhere;
 		
 		Field primaryField = relatedEntity.getPrimaryField();

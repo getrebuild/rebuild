@@ -387,3 +387,35 @@ body {
 .rbview-form .img-field .img-upload.img-thumbnail.zoom-in {
 	background-color: transparent;
 }
+
+/* over Feeds */
+
+.feeds-list.inview {
+	margin-top: -13px;
+}
+
+.feeds-list.inview>div {
+	padding: 12px 1px 0;
+	position: relative;
+}
+
+.feeds-list.inview>div+div {
+	border-top: 1px solid #eee;
+}
+
+.feeds-list.inview .actions {
+	border: 0 none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+
+.feeds-list.inview .feeds>.content .rich-content {
+	font-size: 1rem;
+}
+
+.feeds-list.inview .feeds>.content .rich-content>.appends {
+	font-size: 12px;
+}

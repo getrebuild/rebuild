@@ -197,7 +197,7 @@ class RelatedList extends React.Component {
           return <div className="card" key={`rr-${item[0]}`}>
             <div className="row">
               <div className="col-10">
-                <a href={`#!/View/${this.props.entity}/${item[0]}`} onClick={this._handleView}>{item[1]}</a>
+                <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={this._handleView}>{item[1]}</a>
               </div>
               <div className="col-2 text-right">
                 <span className="fs-12 text-muted" title="最后修改时间">{item[2]}</span>
@@ -226,6 +226,57 @@ class RelatedList extends React.Component {
   _handleView = (e) => {
     e.preventDefault()
     RbViewPage.clickView(e.currentTarget)
+  }
+}
+
+// ~ 跟进列表
+// eslint-disable-next-line no-undef
+class ReducedFeedsList extends FeedsList {
+  state = { ...this.props }
+  render() {
+    return (
+      <React.Fragment>
+        {!this.state.data && <RbSpinner />}
+        {(this.state.data && this.state.data.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-chart-donut" /><p>暂无相关跟进</p></div>}
+        <div className="feeds-list inview">
+          {(this.state.data || []).map((item) => {
+            return this.renderItem({ ...item, self: false })
+          })}
+        </div>
+        {this.state.showMores
+          && <div className="text-center load-mores"><div><button type="button" className="btn btn-secondary" onClick={() => this.fetchFeeds(this.__pageNo + 1)}>加载更多</button></div></div>}
+      </React.Fragment>
+    )
+  }
+
+  fetchFeeds(pageNo) {
+    const filter = { entity: 'Feeds', equation: 'AND', items: [] }
+    filter.items.push({ field: 'type', op: 'EQ', value: 2 })
+    filter.items.push({ field: 'relatedRecord', op: 'EQ', value: wpc.recordId })
+    this.__pageNo = pageNo || 1
+    const pageSize = 20
+    $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&sort=&type=&foucs=&pageSize=${pageSize}`, JSON.stringify(filter), (res) => {
+      const _data = res.data.data || []
+      const _list = (this.state.data || []).concat(_data)
+      this.setState({ data: _list, showMores: _data.length >= pageSize })
+    })
+  }
+
+  _toggleComment(feeds) {
+    return window.open(`${rb.baseUrl}/app/list-and-view?id=${feeds}`)
+  }
+}
+
+class MixRelatedList extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    const entity = this.props.entity.split('.')[0]
+    if (entity === 'Feeds') {
+      return <ReducedFeedsList {...this.props} fetchNow={true} />
+    } else {
+      return <RelatedList {...this.props} />
+    }
   }
 }
 
@@ -334,7 +385,7 @@ const RbViewPage = {
       const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
       const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
       tabNav.find('a').click(function () {
-        tabPane.find('.related-list').length === 0 && renderRbcomp(<RelatedList entity={entity} master={that.__id} />, tabPane)
+        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} master={that.__id} />, tabPane)
       })
     })
     this.updateVTabs()

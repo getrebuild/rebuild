@@ -589,17 +589,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 250px;
 }
 
-.rich-content>.mores {
+.rich-content>.appends {
   font-size: 13px;
   margin-bottom: 6px;
   line-height: 1.6;
 }
 
-.rich-content>.mores span {
+.rich-content>.appends span {
   color: #666;
 }
 
-.rich-content>.mores .badge {
+.rich-content>.appends .badge {
   font-weight: normal;
   padding: .07692rem .3154rem;
 }

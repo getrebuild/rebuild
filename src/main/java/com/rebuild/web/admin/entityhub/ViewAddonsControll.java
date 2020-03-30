@@ -94,7 +94,10 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 			refs.add(new String[] { e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label });
 		}
 
-		// TODO 相关项显示 动态-跟进
+		// 跟进（动态）
+		if (ViewAddonsManager.TYPE_TAB.equalsIgnoreCase(applyType)) {
+			refs.add(new String[] { "Feeds.relatedRecord", "跟进" });
+		}
 
 		JSON ret = JSONUtils.toJSONObject(
 				new String[] { "config", "refs" },

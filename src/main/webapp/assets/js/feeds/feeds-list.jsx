@@ -48,57 +48,63 @@ class FeedsList extends React.Component {
         </div>
         }
         {(this.state.data || []).map((item) => {
-          if (item.deleted) return null
-          const id = `feeds-${item.id}`
-          return <div key={id} id={id} className={`${item.id === this.state.focusFeed ? 'focus' : ''}`}>
-            <div className="feeds">
-              <div className="user">
-                <a className="user-show">
-                  <div className="avatar"><img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} /></div>
-                </a>
-              </div>
-              <div className="content">
-                <div className="meta">
-                  <span className="float-right badge">{FeedsTypes[item.type] || '动态'}</span>
-                  <a>{item.createdBy[1]}</a>
-                  <p className="text-muted fs-12 m-0">
-                    <span title={item.createdOn}>{item.createdOnFN}{item.createdOn !== item.modifedOn && <span className="text-danger" title={`编辑于 ${item.modifedOn}`}> (已编辑)</span>}</span>
-                    &nbsp;&nbsp;·&nbsp;&nbsp;
-                    {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i title="团队成员可见" className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
-                  </p>
-                </div>
-                {__renderRichContent(item)}
-              </div>
-            </div>
-            <div className="actions">
-              <ul className="list-unstyled m-0">
-                {item.self && <li className="list-inline-item mr-2">
-                  <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
-                  <div className="dropdown-menu dropdown-menu-right">
-                    {this._renderMoreMenu(item)}
-                    <a className="dropdown-item" onClick={() => this._handleEdit(item)}><i className="icon zmdi zmdi-edit" /> 编辑</a>
-                    <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}><i className="icon zmdi zmdi-delete" />删除</a>
-                  </div>
-                </li>
-                }
-                <li className="list-inline-item mr-3">
-                  <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                    <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
-                  </a>
-                </li>
-                <li className="list-inline-item">
-                  <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
-                    <i className="zmdi zmdi-comment-outline"></i>评论 {item.numComments > 0 && <span>({item.numComments})</span>}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <span className={`${!item.shownComments && 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
-          </div>
+          return this.renderItem(item)
         })}
       </div>
       <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={40} />
     </div>
+  }
+
+  renderItem(item) {
+    if (item.deleted) return null
+    const id = `feeds-${item.id}`
+    return (
+      <div key={id} id={id} className={`${item.id === this.state.focusFeed ? 'focus' : ''}`}>
+        <div className="feeds">
+          <div className="user">
+            <a className="user-show">
+              <div className="avatar"><img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} /></div>
+            </a>
+          </div>
+          <div className="content">
+            <div className="meta">
+              <span className="float-right badge">{FeedsTypes[item.type] || '动态'}</span>
+              <a>{item.createdBy[1]}</a>
+              <p className="text-muted fs-12 m-0">
+                <span title={item.createdOn}>{item.createdOnFN}{item.createdOn !== item.modifedOn && <span className="text-danger" title={`编辑于 ${item.modifedOn}`}> (已编辑)</span>}</span>
+                    &nbsp;&nbsp;·&nbsp;&nbsp;
+                {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i title="团队成员可见" className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
+              </p>
+            </div>
+            {__renderRichContent(item)}
+          </div>
+        </div>
+        <div className="actions">
+          <ul className="list-unstyled m-0">
+            {item.self && <li className="list-inline-item mr-2">
+              <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
+              <div className="dropdown-menu dropdown-menu-right">
+                {this._renderMoreMenu(item)}
+                <a className="dropdown-item" onClick={() => this._handleEdit(item)}><i className="icon zmdi zmdi-edit" /> 编辑</a>
+                <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}><i className="icon zmdi zmdi-delete" />删除</a>
+              </div>
+            </li>
+            }
+            <li className="list-inline-item mr-3">
+              <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
+                <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
+              </a>
+            </li>
+            <li className="list-inline-item">
+              <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
+                <i className="zmdi zmdi-comment-outline"></i>评论 {item.numComments > 0 && <span>({item.numComments})</span>}
+              </a>
+            </li>
+          </ul>
+        </div>
+        <span className={`${!item.shownComments && 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
+      </div>
+    )
   }
 
   componentDidMount = () => this.props.fetchNow && this.fetchFeeds()
@@ -391,13 +397,13 @@ class Pagination extends React.Component {
 // 渲染动态内容
 function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
-  const contentHtml = converEmoji(e.content.replace(/\n/g, '<br>'))
+  const contentHtml = converEmoji(e.content.replace(/\n/g, '<br />'))
   const contentMore = e.contentMore || {}
   return <div className="rich-content">
     <div className="texts text-break"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
-    <div className="mores">
+    <div className="appends">
       {e.type === 4 && <div>
         <div><span>日程时间 : </span> {contentMore.scheduleTime}</div>
         {contentMore.finishTime && <div>
@@ -420,13 +426,13 @@ function __renderRichContent(e) {
       }
     </div>
     {(e.images || []).length > 0 && <div className="img-field">
-      ${e.images.map((item, idx) => {
-      return (<span key={'img-' + item}>
-        <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
-          <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
-        </a>
-      </span>)
-    })}
+      {e.images.map((item, idx) => {
+        return (<span key={'img-' + item}>
+          <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
+            <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+          </a>
+        </span>)
+      })}
     </div>
     }
     {(e.attachments || []).length > 0 && <div className="file-field">
