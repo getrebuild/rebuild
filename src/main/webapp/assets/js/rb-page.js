@@ -225,48 +225,51 @@ var __checkMessage = function () {
     else $('.J_notifications-top .indicator').addClass('hide')
 
     if (__checkMessage__state !== res.data.unread) {
+      __checkMessage__state = res.data.unread
       if (__checkMessage__state > 0) {
         if (!window.__doctitle) window.__doctitle = document.title
         document.title = '(' + __checkMessage__state + ') ' + window.__doctitle
         if (rb.env === 'dev') __showNotification()
       }
-      __loadMessages__state = 0
+      __loadMessages_state = false
     }
-    __checkMessage__state = res.data.unread
 
     setTimeout(__checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
   })
 }
-var __loadMessages__state = 0
+var __loadMessages_state = false
 var __loadMessages = function () {
-  if (__loadMessages__state === 1) return
+  if (__loadMessages_state) return
   var dest = $('.rb-notifications .content ul').empty()
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
+
   $.get('/notification/messages?pageSize=10&preview=true', function (res) {
     dest.empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)
       if (item[3] === true) o.addClass('notification-unread')
-      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread' : 'all') + '"></a>').appendTo(o)
+      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread=' : 'all=') + item[4] + '"></a>').appendTo(o)
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
       o = $('<div class="notification-info"></div>').appendTo(o)
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
       $('<span class="date">' + item[2] + '</span>').appendTo(o)
     })
-    __loadMessages__state = 1
+    __loadMessages_state = true
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">暂无消息</li>').appendTo(dest)
   })
 }
 var __showNotification = function () {
-  if (window.Notification) {
-    if (window.Notification.permission === 'granted') {
-      new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
-        tag: 'rbNotification'
+  var _Notification = window.Notification || window.mozNotification || window.webkitNotification
+  if (_Notification) {
+    if (_Notification.permission === 'granted') {
+      new _Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
+        tag: 'rbNotification',
+        icon: rb.baseUrl + '/assets/img/favicon.png',
       })
     } else {
-      window.Notification.requestPermission()
+      _Notification.requestPermission()
     }
   }
 }

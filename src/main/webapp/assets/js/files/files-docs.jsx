@@ -78,7 +78,7 @@ class FolderEditDlg extends RbFormHandler {
     this.disabled(true)
     $.post('/app/entity/record-save', JSON.stringify(_data), () => {
       this.hide()
-      this.props.call && this.props.call()
+      typeof this.props.call === 'function' && this.props.call()
     })
   }
 }
@@ -347,8 +347,9 @@ $(document).ready(() => {
           if (res.error_code === 0) {
             this.hide()
             filesList.loadData()
-          } RbHighbar.error(res.error_msg)
-
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
         })
       }
     })

@@ -12067,7 +12067,7 @@ canvas {
 }
 
 .rb-icons-nav>li.dropdown>a .indicator,
-.unread-flag {
+.indicator-primary {
     background-color: #4285f4;
     border-radius: 50%;
     display: block;

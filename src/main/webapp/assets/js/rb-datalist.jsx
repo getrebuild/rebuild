@@ -40,7 +40,7 @@ class RbList extends React.Component {
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
-    this.advFilter = $storage.get(this.__defaultFilterKey)
+    this.advFilterId = $storage.get(this.__defaultFilterKey)
   }
 
   render() {
@@ -68,7 +68,7 @@ class RbList extends React.Component {
                     const styles = { width: cWidth + 'px' }
                     const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && supportFixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                     return <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field}
-                      onClick={item.unsort ? null : this._sortField.bind(this, item.field)}>
+                      onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                       <div style={styles}>
                         <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
                         <i className={'zmdi ' + (item.sort || '')} />
@@ -147,6 +147,9 @@ class RbList extends React.Component {
       containment: '.rb-datatable-body',
       axis: 'x',
       helper: 'clone',
+      start: function () {
+        that.__columnResizing = true
+      },
       stop: function (event, ui) {
         const field = $(event.target).parents('th').data('field')
         let left = ui.position.left - 0
@@ -161,6 +164,7 @@ class RbList extends React.Component {
           }
         }
         that.setState({ fields: fields }, () => $scroller.perfectScrollbar('update'))
+        setTimeout(() => that.__columnResizing = false, 100)
       }
     })
 
@@ -184,7 +188,7 @@ class RbList extends React.Component {
       pageNo: this.pageNo,
       pageSize: this.pageSize,
       filter: this.lastFilter,
-      advFilter: this.advFilter,
+      advFilter: this.advFilterId,
       sort: field_sort,
       reload: this.pageNo === 1
     }
@@ -298,6 +302,7 @@ class RbList extends React.Component {
 
   // 排序
   _sortField(field, e) {
+    if (this.__columnResizing) return  // fix: firefox
     const fields = this.state.fields
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {
@@ -332,7 +337,7 @@ class RbList extends React.Component {
    * 设置高级过滤器ID
    */
   setAdvFilter(id) {
-    this.advFilter = id
+    this.advFilterId = id
     this.pageNo = 1
     this.fetchList(this.__buildQuick())
     if (id) $storage.set(this.__defaultFilterKey, id)
@@ -343,15 +348,14 @@ class RbList extends React.Component {
    * 搜索
    */
   search(filter, fromAdv) {
-    const afHold = this.advFilter
-    if (fromAdv === true) this.advFilter = null
+    // 选择的过滤条件与当前的排他
+    if (fromAdv === true) this.advFilterId = null
     this.pageNo = 1
     this.fetchList(filter)
 
-    // No keep last filter
     if (fromAdv === true) {
-      this.advFilter = afHold
-      this.lastFilter = null
+      $('.J_advfilter .indicator-primary').remove()
+      if (filter.items.length > 0) $('<i class="indicator-primary"></i>').appendTo('.J_advfilter')
     }
   }
 
@@ -387,9 +391,9 @@ class RbList extends React.Component {
   }
 
   /**
-   * 获取最后查询过滤数据
+   * 获取最后查询条件
    */
-  getLastQueryData() {
+  getLastQueryEntry() {
     return JSON.parse(JSON.stringify(this.__lastQueryEntry))  // Use clone
   }
 

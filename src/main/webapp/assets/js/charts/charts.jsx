@@ -535,7 +535,7 @@ class FeedsSchedule extends BaseChart {
 
   renderChart(data) {
     const table = (!data || data.length === 0) ?
-      <div className="chart-undata must-center text-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程<br />过期超过 30 天的日程将不再显示</div>
+      <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程<br />过期超过 30 天的日程将不再显示</div>
       :
       <div>
         <table className="table table-striped table-hover">

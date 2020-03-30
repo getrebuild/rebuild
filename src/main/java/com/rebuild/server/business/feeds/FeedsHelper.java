@@ -162,7 +162,7 @@ public class FeedsHelper {
     /**
      * URL 提取
      */
-    public static final Pattern URL_PATTERN = Pattern.compile("((www|https?:\\/\\/)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]{5,300})");
+    public static final Pattern URL_PATTERN = Pattern.compile("((www|https?://)[-a-zA-Z0-9+&@#/%?=~_|!:,.;]{5,300})");
 
     /**
      * 格式化动态内容
@@ -202,7 +202,8 @@ public class FeedsHelper {
             ID user = ID.valueOf(at.substring(1));
             if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().existsUser(user)) {
                 String fullName = Application.getUserStore().getUser(user).getFullName();
-                content = content.replace(at, String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
+                content = content.replace(at,
+                        String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
             }
         }
 

@@ -44,7 +44,7 @@ public class SendNotification implements TriggerAction {
 
 	private static final Log LOG = LogFactory.getLog(SendNotification.class);
 
-    // 内部消息
+    // 通知
     @SuppressWarnings("unused")
     private static final int TYPE_NOTIFICATION = 1;
     // 邮件

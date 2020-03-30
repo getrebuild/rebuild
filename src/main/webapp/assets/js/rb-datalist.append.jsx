@@ -53,7 +53,7 @@ class BatchOperator extends RbFormHandler {
   }
 
   getQueryData() {
-    const qd = this.props.listRef.getLastQueryData()
+    const qd = this.props.listRef.getLastQueryEntry()
     if (~~this.state.dataRange === 1) qd._selected = this.props.listRef.getSelectedIds(true).join('|')
     return qd
   }

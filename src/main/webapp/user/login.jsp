@@ -12,6 +12,8 @@
 .vcode-row {
 	height: 41px;
 	max-width: 100%;
+}
+.vcode-row img {
 	cursor: pointer;
 }
 .splash-footer *,
@@ -79,7 +81,7 @@
 								<input class="form-control" type="text" placeholder="${bundle.lang('InputCaptcha')}">
 							</div>
 							<div class="col-6 text-right pl-0 pr-0">
-								<img style="max-width:100%;margin-right:-15px" alt="${bundle.lang('Captcha')}" title="${bundle.lang('ClickReload')}">
+								<img class="mw-100 mr-zero" alt="${bundle.lang('Captcha')}" title="${bundle.lang('ClickReload')}">
 							</div>
 						</div>
 						<div class="form-group row login-tools">

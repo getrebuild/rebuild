@@ -46,7 +46,8 @@ body {
 	display: inline-block;
 	margin: 0;
 	font-weight: 300;
-	font-size: 1.538rem
+	font-size: 1.538rem;
+	max-width: 80%;
 }
 
 .view-header>span>.close {
@@ -96,7 +97,6 @@ body {
 
 .nav-tabs>li.nav-item a.nav-link {
 	padding: 11px 10px;
-	max-width: 130px;
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;

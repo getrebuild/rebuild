@@ -265,7 +265,8 @@ public class CommonsUtils {
 		if (text == null || StringUtils.isBlank(text.toString())) {
 			return StringUtils.EMPTY;
 		}
-		return StringEscapeUtils.escapeHtml(text.toString());
+		String escape = StringEscapeUtils.escapeHtml(text.toString());
+		return escape.replace("&gt;", ">");  // `>` for MD
 	}
 
 	/**

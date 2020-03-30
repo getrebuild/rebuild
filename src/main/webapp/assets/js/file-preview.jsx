@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // ~~ 图片/文档预览
 
 const TYPE_DOCS = ['.doc', '.docx', '.rtf', '.xls', '.xlsx', '.ppt', '.pptx', '.pdf']
-const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html']
+const TYPE_TEXTS = ['.txt', '.xml', '.json', '.md', '.yml', '.css', '.js', '.htm', '.html', '.log', '.sql']
 const TYPE_IMGS = ['.jpg', '.jpeg', '.gif', '.png', '.bmp']
 const TYPE_AUDIOS = ['.mp3', '.wav', '.ogg', '.acc']
 const TYPE_VIDEOS = ['.mp4', '.webm']
@@ -94,7 +94,9 @@ class RbPreview extends React.Component {
   renderText() {
     return <div className="container fp-content">
       <div className="iframe text" onClick={this.__stopEvent}>
-        {this.state.previewText ? <pre>{this.state.previewText}</pre> : <div className="must-center"><RbSpinner fully={true} /></div>}
+        {(this.state.previewText || this.state.previewText === '')
+          ? <pre>{this.state.previewText || <i className="text-muted">无内容</i>}</pre>
+          : <div className="must-center"><RbSpinner fully={true} /></div>}
       </div>
     </div>
   }

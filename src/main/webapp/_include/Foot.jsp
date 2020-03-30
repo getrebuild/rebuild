@@ -7,7 +7,7 @@
 <script src="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.js"></script>
 <script src="${baseUrl}/assets/lib/jquery.html5uploader.js"></script>
 <script src="${baseUrl}/assets/lib/qiniu.min.js"></script>
-<script src="${baseUrl}/assets/lib/widget/select2.min.js"></script>
+<script src="${baseUrl}/assets/lib/widget/select2.min.js?v=4.0.13"></script>
 <script src="${baseUrl}/assets/lib/jquery-ui.min.js"></script>
 <script src="${baseUrl}/assets/lib/react/babel.js?v=6.26.0"></script>
 <script src="${baseUrl}/assets/lib/react/react.development.js?v=16.10.2"></script>

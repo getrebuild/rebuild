@@ -74,17 +74,17 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 			}
 		}
 
-		// PRIVATE
+		// SPEC MYSQL PORT
 		String mysqlPort = System.getProperty("mysql.port");
 		if (StringUtils.isNotBlank(mysqlPort)) {
 			String dbUrl = props.getProperty("db.url");
-			dbUrl = dbUrl.replace("3306", "4653");
+			dbUrl = dbUrl.replace("3306", mysqlPort);
 			props.put("db.url", dbUrl);
 		}
 
 		// MUST NOT BE NULL
         setIfEmpty(props, ConfigurableItem.CacheHost, "127.0.0.1");
-        setIfEmpty(props, ConfigurableItem.CachePort, "16379");
+        setIfEmpty(props, ConfigurableItem.CachePort, "6379");
 
 		propsHold = (Properties) props.clone();
 

@@ -35,6 +35,7 @@ body {
     box-shadow: 0 3px .3077rem rgba(0, 0, 0, .1);
     border-width: 0;
     border-radius: 0;
+    max-width: 300px;
 }
 
 .dropdown-menu.primary>.dropdown-item:hover,
@@ -315,8 +316,8 @@ a.btn {
     display: block;
 }
 
-.rb-color-header .dropdown .icon {
-    color: #fff !important;
+.rb-color-header .dropdown > a > .icon {
+    color: #fff;
 }
 
 .logo-img {
@@ -383,6 +384,11 @@ a.btn {
 .adv-search button .icon {
     font-size: 1.55rem !important;
     color: #737373;
+}
+
+.adv-search button .indicator-primary {
+    top: 3px;
+    right: 3px;
 }
 
 .input-search .input-group-btn.plus {
@@ -1193,7 +1199,7 @@ i.split.ui-draggable-dragging {
 }
 
 .data-list .table tbody tr td.user-avatar {
-    padding: 6px 10px;
+    padding: 3px 10px;
 }
 
 .data-list .table tbody tr td.user-avatar img {
@@ -1430,6 +1436,10 @@ th.column-fixed {
 .main-content>.nav-tabs-classic>li.nav-item a.nav-link {
     padding: 11px 15px;
     min-width: 101px;
+    max-width: 245px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .sortable-box-title {
@@ -1754,6 +1764,7 @@ th.column-fixed {
 
 .adv-search .dropdown-item div.action a:hover {
     color: #4285f4 !important;
+    background-color: rgba(0, 0, 0, 0.05);
 }
 
 /* AdvFilter */
@@ -1922,6 +1933,8 @@ div.dataTables_wrapper div.paging_sizes select {
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
+    width: 100%;
+    text-align: center;
 }
 
 .zicon,
@@ -2663,6 +2676,11 @@ form {
     padding-left: 18px;
 }
 
+.notification-list .notification.focus {
+    outline: 2px solid #fbbc05;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .1);
+}
+
 .select2-sm .select2-container--default .select2-selection--single,
 .select2-sm .select2-container--default .select2-selection--multiple {
     min-height: 36px;
@@ -3381,4 +3399,28 @@ a.icon-link>.zmdi {
     .btn {
         min-width: 88px;
     }
+}
+
+.mr-zero {
+    margin-right: -15px;
+}
+
+.ml-zero {
+    margin-left: -15px;
+}
+
+/* text overflow */
+
+.aside-header .title,
+.dept-tree ul li a,
+.dropdown-item,
+.modal-header .modal-title,
+.view-header .title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-tabs>li.nav-item a.nav-link {
+    max-width: 200px;
 }

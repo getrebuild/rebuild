@@ -64,13 +64,14 @@ class FilesList extends React.Component {
 
   componentDidMount = () => this.loadData()
   loadData(entry, pageNo) {
-    this.__lastEntry = entry = entry || this.__lastEntry
+    this.__lastEntry = entry || this.__lastEntry
     this.__pageNo = pageNo || 1
-    $.get(`/files/list-file?entry=${entry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`, (res) => {
-      const _current = res.data || []
-      let _files = this.__pageNo === 1 ? [] : this.state.files
-      _files = [].concat(_files, _current)
-      this.setState({ files: _files, currentLen: _current.length })
+    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`
+    $.get(url, (res) => {
+      const current = res.data || []
+      let files = this.__pageNo === 1 ? [] : this.state.files
+      files = [].concat(files, current)
+      this.setState({ files: files, currentLen: current.length })
     })
   }
 

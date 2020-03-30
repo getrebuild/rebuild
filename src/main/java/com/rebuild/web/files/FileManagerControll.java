@@ -87,6 +87,7 @@ public class FileManagerControll extends BaseControll {
             willDeletes.add(fileId);
         }
         Application.getCommonService().delete(willDeletes.toArray(new ID[0]));
+
         writeSuccess(response);
     }
 
