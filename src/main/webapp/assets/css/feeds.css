@@ -584,6 +584,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 295px;
 }
 
+@media (max-width:1280px) {
+    .feed-options.related .related-record {
+        width: 245px;
+    }
+}
+
 /* in edit */
 .modal-body .feed-options.related .related-record {
   width: 250px;

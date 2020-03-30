@@ -548,11 +548,11 @@ var EMOJIS = { '赞': 'rb_zan.png', '握手': 'rb_woshou.png', '耶': 'rb_ye.png
 var converEmoji = function (text) {
   var es = text.match(/\[(.+?)\]/g)
   if (!es) return text
-  $(es).each(function (e) {
-    var key = e.substr(1, e.length - 2)
+  $(es).each(function () {
+    var key = this.substr(1, this.length - 2)
     if (EMOJIS[key]) {
       var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" />'
-      text = text.replace(e, img)
+      text = text.replace(this, img)
     }
   })
   return text
