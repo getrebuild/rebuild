@@ -26,17 +26,19 @@ create table if not exists `user` (
   `FULL_NAME`          varchar(100) comment '姓名',
   `AVATAR_URL`         varchar(200) comment '头像',
   `JOB_TITLE`          varchar(100) comment '职务',
+  `WORKPHONE`          varchar(100) comment '电话',
   `DEPT_ID`            char(20) comment '部门',
   `ROLE_ID`            char(20) comment '角色',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `QUICK_CODE`         varchar(70),
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
   primary key  (`USER_ID`),
   unique index UIX0_user (`LOGIN_NAME`),
-  unique index UIX1_user (`EMAIL`)
+  unique index UIX1_user (`EMAIL`),
+  index IX2_user (`QUICK_CODE`, `FULL_NAME`, `EMAIL`)
 )Engine=InnoDB;
 
 -- ************ Entity [Department] DDL ************
@@ -595,4 +597,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  VALUES ('021-9000000000000001', 'DBVer', 22);
+  VALUES ('021-9000000000000001', 'DBVer', 23);

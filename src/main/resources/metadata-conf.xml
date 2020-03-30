@@ -18,12 +18,14 @@
 		<field name="fullName" type="string" max-length="100" description="姓名" />
 		<field name="avatarUrl" type="string" max-length="200" description="头像" extra-attrs="{displayType:'AVATAR'}" />
 		<field name="jobTitle" type="string" max-length="100" description="职务" />
+		<field name="workphone" type="string" max-length="100" description="电话" extra-attrs="{displayType:'PHONE'}" />
 		<field name="deptId" type="reference" ref-entity="Department" updatable="false" description="部门" />
 		<field name="roleId" type="reference" ref-entity="Role" updatable="false" description="角色" />
 		<field name="isDisabled" type="bool" default-value="F" description="是否停用" />
 		<field name="quickCode" type="string" max-length="70" />
 		<index type="unique" field-list="loginName" />
 		<index type="unique" field-list="email" />
+		<index field-list="quickCode,fullName,email" />
 	</entity>
 
 	<entity name="Department" type-code="002" description="部门" name-field="name" extra-attrs="{icon:'accounts'}">
