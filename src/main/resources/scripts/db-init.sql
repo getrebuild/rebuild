@@ -1,6 +1,8 @@
--- !!! NOTICE !!!
--- IF YOU USING MYSQL 5.7 OR ABOVE, YOU SHOULD REMOVED THESE SQL_MODES IN my.cnf/my.ini FIRST.
+-- !!! MYSQL VERSION NOTICE !!!
+-- IN 5.7 OR ABOVE, YOU SHOULD REMOVED THESE SQL_MODES IN my.cnf/my.ini FIRST.
 -- ONLY_FULL_GROUP_BY
+-- IN 8.0 OR ABOVE, ONLY SUPPORTS mysql_native_password AUTHENTICATION MODE
+-- default_authentication_plugin=mysql_native_password
 
 -- #1 database/user
 -- 首次使用请移除以下注释以创建数据库和用户

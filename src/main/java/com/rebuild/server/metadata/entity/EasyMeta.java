@@ -351,7 +351,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public static String getLabel(BaseMeta meta) {
-		return meta.getDescription();
+		return StringUtils.defaultIfBlank(meta.getDescription(), meta.getName().toUpperCase());
 	}
 	
 	/**
