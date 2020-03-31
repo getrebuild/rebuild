@@ -28,8 +28,8 @@
 				<div class="data-info">
 					<h5>字段</h5>
 					<ul class="list-unstyled fields">
-						<c:forEach items="${fields}" var="e">
-						<li class="${e[2]}"><a data-type="${e[2]}" data-field="${e[0]}">${e[1]}</a></li>
+						<c:forEach items="${fields}" var="field">
+						<li class="${field[2]}"><a data-type="${field[2]}" data-field="${field[0]}" title="${field[1]}">${field[1]}</a></li>
 						</c:forEach>
 					</ul>
 				</div>

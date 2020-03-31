@@ -733,6 +733,11 @@ a {
     margin-top: .25rem !important;
 }
 
+.rbform .type-BOOL .mt-1+.form-text {
+    margin-top: -5px;
+    margin-bottom: .5rem;
+}
+
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear {
     margin-right: 20px;
 }

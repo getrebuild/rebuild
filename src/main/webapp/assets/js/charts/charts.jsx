@@ -93,7 +93,7 @@ class ChartIndex extends BaseChart {
 
   renderChart(data) {
     const chartdata = (<div className="chart index" ref={(c) => this._chart = c}>
-      <div className="data-item must-center text-truncate">
+      <div className="data-item must-center text-truncate w-auto">
         <p>{data.index.label || this.label}</p>
         <strong>{data.index.data}</strong>
       </div>
