@@ -16,7 +16,8 @@ $(document).ready(function () {
       renderRbcomp(<DlgCropper disposeOnHide={true} />, null, function () {
         __cropper = this
       })
-    }, function (res) {
+    },
+    function (res) {
       __cropper.setImg(res.key)
     })
 
@@ -25,22 +26,31 @@ $(document).ready(function () {
 
   $('.J_save').click(function () {
     const fullName = $val('#fullName')
-    const avatarUrl = $('.avatar img').attr('data-src')
-    if (!fullName && !avatarUrl) { location.reload(); return }
+    const avatarUrl = $('.avatar img').attr('data-src') || null
+    const workphone = $val('#workphone')
+    if (!fullName && !avatarUrl && workphone === null) {
+      location.reload()
+      return
+    }
+    if (workphone && !$regex.isTel(workphone)) {
+      RbHighbar.create('请输入正确的工作电话')
+      return
+    }
 
     const _data = { metadata: { entity: 'User', id: window.__PageConfig.userid } }
     if (fullName) _data.fullName = fullName
+    if (workphone || workphone === '') _data.workphone = workphone
     if (avatarUrl) _data.avatarUrl = avatarUrl
+
     $.post('/app/entity/record-save', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) location.reload()
       else RbHighbar.create(res.error_msg)
     })
   })
 
-  let logsLoad = false
   $('a.nav-link[href="#logs"]').click(() => {
-    if (logsLoad) return
-    logsLoad = true
+    if ($('#logs tbody>tr').length > 0) return
+
     $.get('/account/settings/login-logs', (res) => {
       $(res.data).each(function (idx) {
         const $tr = $('<tr></tr>').appendTo('#logs tbody')
@@ -63,6 +73,7 @@ $(document).ready(function () {
       })
     })
   })
+
 })
 
 // 修改密码
