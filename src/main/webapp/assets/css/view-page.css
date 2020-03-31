@@ -141,8 +141,33 @@ body {
 .related-list .card {
 	border: 1px solid #ebebeb;
 	box-shadow: 0 0 4px 0 rgba(0, 0, 0, .04);
-	padding: 10px 15px;
+	padding: 0;
 	margin-bottom: 9px;
+}
+
+.related-list .card:hover {
+	box-shadow: 0 0 5px 0 rgba(0, 0, 0, .1);
+}
+
+.related-list .card .header-title {
+	padding: 10px 0;
+	margin: 0;
+	cursor: default;
+	position: relative;
+}
+
+.related-list .card .header-title::after {
+	position: absolute;
+	font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+	content: '\f278';
+	color: #aaa;
+	right: 15px;
+	margin-top: 2px;
+	font-size: 1.2rem;
+}
+
+.related-list .card .header-title .col-2.text-right {
+	padding-right: 30px;
 }
 
 .view-operating>div {
@@ -386,4 +411,54 @@ body {
 
 .rbview-form .img-field .img-upload.img-thumbnail.zoom-in {
 	background-color: transparent;
+}
+
+.rbview-form.inside {
+	display: none;
+}
+
+.rbview-form.inside.active {
+	display: block;
+	border-top: 1px solid #ebebeb;
+	padding: 10px 15px;
+}
+
+.rbview-form.inside>.rb-loading {
+	height: 60px;
+}
+
+.rbview-form.inside>.alert {
+	margin: 10px auto !important;
+}
+
+/* over Feeds */
+
+.feeds-list.inview {
+	margin-top: -11px;
+}
+
+.feeds-list.inview>div {
+	padding: 12px 1px 0;
+	position: relative;
+}
+
+.feeds-list.inview>div+div {
+	border-top: 1px solid #eee;
+}
+
+.feeds-list.inview .actions {
+	border: 0 none;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+}
+
+.feeds-list.inview .feeds>.content .rich-content {
+	font-size: 1rem;
+}
+
+.feeds-list.inview .feeds>.content .rich-content>.appends {
+	font-size: 12px;
 }

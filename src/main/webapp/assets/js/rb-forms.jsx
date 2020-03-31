@@ -297,9 +297,6 @@ class RbForm extends React.Component {
   }
 }
 
-// 开启视图编辑
-const EDIT_ON_VIEW = rb.env === 'dev'
-
 // 表单元素基础类
 class RbFormElement extends React.Component {
 
@@ -320,7 +317,8 @@ class RbFormElement extends React.Component {
       colWidths[0] = 4
       if (props.isFull === true) colWidths = [2, 10]
     }
-    const editable = EDIT_ON_VIEW && props.onView && !props.readonly
+
+    const editable = props.$$$parent.onViewEditable && props.onView && !props.readonly
 
     return <div className={`form-group row type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
       <label ref={(c) => this._fieldLabel = c} className={`col-12 col-sm-${colWidths[0]} col-form-label text-sm-right ${(!props.onView && !props.nullable) ? 'required' : ''}`}>{props.label}</label>

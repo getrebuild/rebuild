@@ -92,7 +92,8 @@
         "$addResizeHandler": true,
         "$lang": true,
         "$empty": true,
-        "$mp": true
+        "$mp": true,
+        "converEmoji": true
     },
     "rules": {
         "react/jsx-no-target-blank": 0,

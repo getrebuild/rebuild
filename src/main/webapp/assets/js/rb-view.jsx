@@ -13,6 +13,8 @@ class RbViewForm extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props }
+
+    this.onViewEditable = rb.env === 'dev'
     this.__FormData = {}
   }
 
@@ -51,13 +53,7 @@ class RbViewForm extends React.Component {
   }
 
   renderViewError(message) {
-    const error = (
-      <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
-        <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
-        <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
-      </div>
-    )
-    this.setState({ formComponent: error }, () => this.hideLoading())
+    this.setState({ formComponent: __renderError(message) }, () => this.hideLoading())
     $('.view-operating .view-action').empty()
   }
 
@@ -135,6 +131,15 @@ const detectViewElement = function (item) {
   return <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>{window.detectElement(item)}</div>
 }
 
+const __renderError = (message) => {
+  return (
+    <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
+      <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
+      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>抱歉!</strong> ${message}` }}></div>
+    </div>
+  )
+}
+
 // 选择报表
 class SelectReport extends React.Component {
   state = { ...this.props }
@@ -187,7 +192,11 @@ class SelectReport extends React.Component {
 
 // ~ 相关项列表
 class RelatedList extends React.Component {
-  state = { ...this.props }
+
+  constructor(props) {
+    super(props)
+    this.state = { ...props, viewOpens: {}, viewComponents: {} }
+  }
   render() {
     return (
       <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
@@ -195,18 +204,24 @@ class RelatedList extends React.Component {
         {(this.state.list && this.state.list.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无相关数据</p></div>}
         {(this.state.list || []).map((item) => {
           return <div className="card" key={`rr-${item[0]}`}>
-            <div className="row">
+            <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
               <div className="col-10">
-                <a href={`#!/View/${this.props.entity}/${item[0]}`} onClick={this._handleView}>{item[1]}</a>
+                <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={(e) => this._handleView(e)} title="打开">{item[1]}</a>
               </div>
               <div className="col-2 text-right">
-                <span className="fs-12 text-muted" title="最后修改时间">{item[2]}</span>
+                <span className="fs-12 text-muted" title="修改时间">{item[2]}</span>
               </div>
+            </div>
+            <div className={`rbview-form inside ${this.state.viewOpens[item[0]] ? 'active' : ''}`}>
+              {this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}
             </div>
           </div>
         })}
-        {this.state.showMores
-          && <div className="text-center load-mores"><div><button type="button" className="btn btn-secondary" onClick={() => this.loadList(1)}>加载更多</button></div></div>}
+        {this.state.showMores && (
+          <div className="text-center load-mores">
+            <div><button type="button" className="btn btn-secondary" onClick={() => this.loadList(1)}>加载更多</button></div>
+          </div>
+        )}
       </div>
     )
   }
@@ -223,9 +238,91 @@ class RelatedList extends React.Component {
     })
   }
 
-  _handleView = (e) => {
+  _handleView(e) {
     e.preventDefault()
+    $stopEvent(e)
     RbViewPage.clickView(e.currentTarget)
+  }
+
+  _toggleInsideView(id) {
+    const viewOpens = this.state.viewOpens
+    viewOpens[id] = !viewOpens[id]
+    this.setState({ viewOpens: viewOpens })
+
+    // 加载视图
+    const viewComponents = this.state.viewComponents
+    if (!viewComponents[id]) {
+      $.get(`/app/${this.props.entity.split('.')[0]}/view-model?id=${id}`, (res) => {
+        if (res.error_code > 0 || !!res.data.error) {
+          const err = res.data.error || res.error_msg
+          viewComponents[id] = __renderError(err)
+        }
+        else {
+          viewComponents[id] = <div className="row">
+            {res.data.elements.map((item) => {
+              item.$$$parent = this
+              return detectViewElement(item)
+            })}
+          </div>
+        }
+        this.setState({ viewComponents: viewComponents })
+      })
+    }
+  }
+}
+
+const FeedsList = window.FeedsList || React.Component
+// ~ 跟进列表
+// eslint-disable-next-line no-undef
+class ReducedFeedsList extends FeedsList {
+  state = { ...this.props }
+  render() {
+    return (
+      <div className={`related-list ${!this.state.data ? 'rb-loading rb-loading-active' : ''}`}>
+        {!this.state.data && <RbSpinner />}
+        {(this.state.data && this.state.data.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-chart-donut" /><p>暂无相关跟进</p></div>}
+        <div className="feeds-list inview">
+          {(this.state.data || []).map((item) => {
+            return this.renderItem({ ...item, self: false })
+          })}
+        </div>
+        {this.state.showMores
+          && <div className="text-center load-mores"><div><button type="button" className="btn btn-secondary" onClick={() => this.fetchFeeds(1)}>加载更多</button></div></div>}
+      </div>
+    )
+  }
+
+  fetchFeeds(plus) {
+    const filter = { entity: 'Feeds', equation: 'AND', items: [] }
+    filter.items.push({ field: 'type', op: 'EQ', value: 2 })
+    filter.items.push({ field: 'relatedRecord', op: 'EQ', value: wpc.recordId })
+
+    this.__pageNo = this.__pageNo || 1
+    if (plus) this.__pageNo += plus
+    const pageSize = 20
+
+    $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&sort=&type=&foucs=&pageSize=${pageSize}`, JSON.stringify(filter), (res) => {
+      const _data = (res.data || {}).data || []
+      const _list = (this.state.data || []).concat(_data)
+      this.setState({ data: _list, showMores: _data.length >= pageSize })
+    })
+  }
+
+  _toggleComment(feeds) {
+    return window.open(`${rb.baseUrl}/app/list-and-view?id=${feeds}`)
+  }
+}
+
+class MixRelatedList extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    const entity = this.props.entity.split('.')[0]
+    if (entity === 'Feeds') {
+      return <ReducedFeedsList {...this.props} fetchNow={true} />
+    } else {
+      return <RelatedList {...this.props} />
+    }
   }
 }
 
@@ -334,7 +431,7 @@ const RbViewPage = {
       const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
       const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
       tabNav.find('a').click(function () {
-        tabPane.find('.related-list').length === 0 && renderRbcomp(<RelatedList entity={entity} master={that.__id} />, tabPane)
+        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} master={that.__id} />, tabPane)
       })
     })
     this.updateVTabs()

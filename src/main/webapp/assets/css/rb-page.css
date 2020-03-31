@@ -1138,13 +1138,13 @@ a {
     right: -10px;
 }
 
-.data-list .table thead th>div>i.split {
+.data-list .table thead th>div>i.dividing {
     width: 10px;
     border-right: 2px dotted #aaa;
     cursor: e-resize;
 }
 
-i.split.ui-draggable-dragging {
+i.dividing.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
     z-index: 7;
     cursor: e-resize;
@@ -1356,6 +1356,10 @@ th.column-fixed {
     transform: translateX(100%);
     box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
     transition: box-shadow 0.3s;
+}
+
+.rb-scroller.column-fixed-pin .column-fixed-2nd .dividing {
+    border-color: transparent;
 }
 
 .table-striped tbody tr:nth-of-type(odd) td.column-fixed {

@@ -72,7 +72,7 @@ class RbList extends React.Component {
                       <div style={styles}>
                         <span style={{ width: (cWidth - 8) + 'px' }}>{item.label}</span>
                         <i className={'zmdi ' + (item.sort || '')} />
-                        <i className="split" />
+                        <i className="dividing" />
                       </div>
                     </th>
                   })}
@@ -143,7 +143,7 @@ class RbList extends React.Component {
     }
 
     const that = this
-    $scroller.find('th .split').draggable({
+    $scroller.find('th .dividing').draggable({
       containment: '.rb-datatable-body',
       axis: 'x',
       helper: 'clone',
@@ -307,8 +307,11 @@ class RbList extends React.Component {
     for (let i = 0; i < fields.length; i++) {
       if (fields[i].field === field) {
         if (fields[i].sort === 'sort-asc') fields[i].sort = 'sort-desc'
+        else if (fields[i].sort === 'sort-desc') fields[i].sort = null
         else fields[i].sort = 'sort-asc'
-        $storage.set(this.__sortFieldKey, field + ':' + fields[i].sort)
+
+        if (fields[i].sort) $storage.set(this.__sortFieldKey, field + ':' + fields[i].sort)
+        else $storage.remove(this.__sortFieldKey)
       } else {
         fields[i].sort = null
       }

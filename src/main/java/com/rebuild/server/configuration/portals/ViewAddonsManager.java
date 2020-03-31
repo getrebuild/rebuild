@@ -17,10 +17,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -95,6 +97,13 @@ public class ViewAddonsManager extends BaseLayoutManager {
 					refs.add(getEntityShow(field, mfRefs, applyType));
 				}
 			}
+
+			// 动态（跟进）
+			if (TYPE_TAB.equalsIgnoreCase(applyType)) {
+				Field relatedRecordOfFeeds = MetadataHelper.getField("Feeds", "relatedRecord");
+				refs.add(getEntityShow(relatedRecordOfFeeds, Collections.emptySet(), applyType));
+			}
+
 			return refs;
 		}
 
@@ -164,6 +173,8 @@ public class ViewAddonsManager extends BaseLayoutManager {
 					? String.format("%s (%s)", EasyMeta.getLabel(field), show.getString("entityLabel"))
 					: String.format("%s (%s)", show.getString("entityLabel"), EasyMeta.getLabel(field));
 			show.put("entityLabel", entityLabel);
+		} else if (fieldEntity.getEntityCode() == EntityHelper.Feeds) {
+			show.put("entityLabel", "跟进");
 		}
 		return show;
 	}
