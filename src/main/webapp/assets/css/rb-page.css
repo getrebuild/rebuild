@@ -321,10 +321,10 @@ a.btn {
 }
 
 .logo-img {
-    height: 32px;
-    width: 163px;
+    height: 26px;
+    width: 129px;
     background: url(../img/logo.png) 0 center no-repeat;
-    background-size: auto 32px;
+    background-size: auto 26px;
     display: block;
     margin: 0 auto;
     cursor: default;
