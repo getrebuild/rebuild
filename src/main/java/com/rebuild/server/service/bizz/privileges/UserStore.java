@@ -252,7 +252,7 @@ public class UserStore {
 				.setParameter(1, userId)
 				.unique();
 		final User newUser = new User(
-				userId, (String) o[1], (String) o[2], null, (String) o[3], (String) o[4], (Boolean) o[5]);
+				userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5]);
 		final ID deptId = (ID) o[6];
 		final ID roleId = (ID) o[7];
 
@@ -496,7 +496,7 @@ public class UserStore {
 		TEAMs.remove(teamId);
 	}
 
-	private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId";
+	private static final String USER_FS = "userId,loginName,email,fullName,avatarUrl,isDisabled,deptId,roleId,workphone";
 	/**
 	 * 初始化
 	 * 
@@ -511,7 +511,7 @@ public class UserStore {
 		for (Object[] o : array) {
 			ID userId = (ID) o[0];
 			User user = new User(
-					userId, (String) o[1], (String) o[2], null, (String) o[3], (String) o[4], (Boolean) o[5]);
+					userId, (String) o[1], (String) o[2], (String) o[8], (String) o[3], (String) o[4], (Boolean) o[5]);
 			store(user);
 		}
 		LOG.info("Loaded [ " + USERs.size() + " ] users.");

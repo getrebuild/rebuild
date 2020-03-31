@@ -29,7 +29,7 @@ class ContentSendNotification extends ActionContentSpec {
               <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 2 })} checked={this.state.type === 2} />
               <span className="custom-control-label">邮件 {this.state.serviceMail === false && '(不可用)'}</span>
             </label>
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1 hide">
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
               <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 3 })} checked={this.state.type === 3} />
               <span className="custom-control-label">短信 {this.state.serviceSms === false && '(不可用)'}</span>
             </label>

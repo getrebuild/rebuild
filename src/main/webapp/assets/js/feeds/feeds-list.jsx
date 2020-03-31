@@ -448,7 +448,7 @@ function __renderRichContent(e) {
 }
 
 const ANN_OPTIONS = [[1, '动态页'], [2, '首页'], [4, '登录页']]
-const REM_OPTIONS = [[1, '消息通知'], [2, '邮件']]
+const REM_OPTIONS = [[1, '消息通知'], [2, '邮件'], [4, '短信']]
 function __findMaskTexts(mask, options) {
   const texts = []
   options.forEach((item) => {

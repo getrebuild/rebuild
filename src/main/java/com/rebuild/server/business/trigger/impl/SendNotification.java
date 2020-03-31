@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.business.trigger.impl;
 
+import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -102,9 +103,9 @@ public class SendNotification implements TriggerAction {
                 }
 
             } else if (type == TYPE_SMS) {
-				String mobileAddr = Application.getUserStore().getUser(user).getMobile();
-		    	if (mobileAddr != null) {
-					SMSender.sendSMS(mobileAddr, message);
+				String mobile = Application.getUserStore().getUser(user).getWorkphone();
+		    	if (mobile != null && RegexUtils.isCNMobile(mobile)) {
+					SMSender.sendSMS(mobile, message);
 				}
 
             } else {

@@ -22,15 +22,15 @@ public class User extends cn.devezhao.bizz.security.member.User {
 	private static final long serialVersionUID = 15823574375847575L;
 	
 	private String email;
-	private String mobile;
+	private String workphone;
 	private String fullName;
 	private String avatarUrl;
 
-	public User(ID userId, String loginName, String email, String mobile,
+	public User(ID userId, String loginName, String email, String workphone,
 				String fullName, String avatarUrl, boolean disabled) {
 		super(userId, loginName, disabled);
 		this.email = email;
-		this.mobile = mobile;
+		this.workphone = workphone;
 		this.fullName = fullName;
 		this.avatarUrl = avatarUrl;
 	}
@@ -52,8 +52,8 @@ public class User extends cn.devezhao.bizz.security.member.User {
 	/**
 	 * @return
 	 */
-	public String getMobile() {
-		return mobile;
+	public String getWorkphone() {
+		return workphone;
 	}
 
 	/**

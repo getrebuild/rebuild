@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #23 workphone for User
+alter table `user`
+  add column `WORKPHONE` varchar(100) comment '电话',
+  add index IX91_user (`QUICK_CODE`, `FULL_NAME`, `EMAIL`);
+
 -- #22 scheduleTime for Feeds
 alter table `feeds`
   add column `SCHEDULE_TIME` timestamp null default null comment '日程时间',
