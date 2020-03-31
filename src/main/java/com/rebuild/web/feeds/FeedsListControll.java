@@ -21,6 +21,7 @@ import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -51,9 +52,14 @@ public class FeedsListControll extends BasePageControll {
      * @see com.rebuild.server.business.feeds.FeedsType
      */
     @RequestMapping("/feeds/{type}")
-    public ModelAndView pageIndex(@PathVariable String type) throws IOException {
+    public ModelAndView pageIndex(@PathVariable String type, HttpServletRequest request) throws IOException {
         ModelAndView mv = createModelAndView("/feeds/home.jsp");
         mv.getModel().put("feedsType", type);
+
+        User user = Application.getUserStore().getUser(getRequestUser(request));
+        mv.getModel().put("UserEmail", user.getEmail());
+        mv.getModel().put("UserMobile", StringUtils.defaultIfBlank(user.getWorkphone(), ""));
+
         return mv;
     }
 

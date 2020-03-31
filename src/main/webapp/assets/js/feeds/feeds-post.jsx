@@ -524,7 +524,8 @@ class ScheduleOptions extends React.Component {
   state = { ...this.props }
 
   render() {
-    const email = $('.rb-user-nav .user-id').text()
+    const email = window.__USER_EMAIL
+    const mobile = window.__USER_MOBILE
     return <div className="feed-options schedule">
       <dl className="row">
         <dt className="col-12 col-lg-3 pt-2">日程时间</dt>
@@ -533,15 +534,19 @@ class ScheduleOptions extends React.Component {
         </dd>
       </dl>
       <dl className="row mb-1">
-        <dt className="col-12 col-lg-3">发送提醒</dt>
+        <dt className="col-12 col-lg-3">发送提醒给我</dt>
         <dd className="col-12 col-lg-9 mb-0" ref={(c) => this._scheduleRemind = c}>
           <label className="custom-control custom-checkbox custom-control-inline">
             <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
             <span className="custom-control-label">消息通知</span>
           </label>
-          <label className="custom-control custom-checkbox custom-control-inline">
+          <label className="custom-control custom-checkbox custom-control-inline" title={email}>
             <input className="custom-control-input" name="showOn" type="checkbox" value={2} disabled={this.props.readonly} />
-            <span className="custom-control-label">邮件{`${email ? ` (${email})` : ''}`}</span>
+            <span className="custom-control-label">邮件{!email && <span> (未设置)</span>}</span>
+          </label>
+          <label className="custom-control custom-checkbox custom-control-inline" title={mobile}>
+            <input className="custom-control-input" name="showOn" type="checkbox" value={4} disabled={this.props.readonly} />
+            <span className="custom-control-label">短信{!mobile && <span> (未设置)</span>}</span>
           </label>
         </dd>
       </dl>
