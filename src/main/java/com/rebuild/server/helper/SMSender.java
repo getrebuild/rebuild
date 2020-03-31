@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.helper;
 
-import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ThreadPool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -93,6 +93,7 @@ public class SMSender {
 			String eHTML = mailbody.html();
 			// 处理变量
 			eHTML = eHTML.replace("%TO%", to);
+			eHTML = eHTML.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
 			eHTML = eHTML.replace("%APPNAME%", SysConfiguration.get(ConfigurableItem.AppName));
 
 			params.put("html", eHTML);

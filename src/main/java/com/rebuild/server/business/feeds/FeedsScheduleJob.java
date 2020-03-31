@@ -88,7 +88,8 @@ public class FeedsScheduleJob extends QuartzJobBean {
 
             // 消息通知
             if (!notifications.isEmpty()) {
-                String contents = mergeContents(notifications, false);
+                String subject = "你有 " + notifications.size() + " 条动态日程提醒";
+                String contents = subject + mergeContents(notifications, false);
                 Message m = MessageBuilder.createMessage(null, toUser, contents, Message.TYPE_FEEDS);
                 Application.getNotifications().send(m);
             }
@@ -96,7 +97,7 @@ public class FeedsScheduleJob extends QuartzJobBean {
             // 邮件
             final String emailAddr = Application.getUserStore().getUser(toUser).getEmail();
             if (SMSender.availableMail() && RegexUtils.isEMail(emailAddr) && !emails.isEmpty()) {
-                String subject = "你有 " + emails.size() + " 条动态日程提醒，请登录系统查看";
+                String subject = "你有 " + emails.size() + " 条动态日程提醒";
                 String contents = mergeContents(emails, true);
                 contents = MessageBuilder.formatMessage(contents, true, false);
                 SMSender.sendMailAsync(emailAddr, subject, contents);
@@ -105,8 +106,8 @@ public class FeedsScheduleJob extends QuartzJobBean {
             // 短信（考虑短信字数，内容简化了）
             final String mobileAddr = Application.getUserStore().getUser(toUser).getWorkphone();
             if (SMSender.availableSMS() && RegexUtils.isCNMobile(mobileAddr) && !smss.isEmpty()) {
-                String content = String.format("你有 %d 条动态日程提醒", smss.size());
-                SMSender.sendSMSAsync(mobileAddr, content);
+                String subject = "你有 " + smss.size() + " 条动态日程提醒";
+                SMSender.sendSMSAsync(mobileAddr, subject);
             }
         }
     }
@@ -118,8 +119,6 @@ public class FeedsScheduleJob extends QuartzJobBean {
      */
     protected String mergeContents(List<Object[]> msgs, boolean fullUrl) {
         StringBuilder sb = new StringBuilder();
-        sb.append("你有 ").append(msgs.size()).append(" 条动态日程提醒");
-
         int num = 0;
         for (Object[] o : msgs) {
             sb.append("\n- [");
