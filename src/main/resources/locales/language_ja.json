@@ -72,5 +72,5 @@
   "PasswordLevel2Tip": "パスワードには数字と大文字と小文字を含める必要があります",
   "PasswordLevel3Tip": "パスワードは8文字以上で、特殊文字を含める必要があります",
   "Repeated": "{0}が繰り返されました",
-  "RightsTip": "REBUILD オープンソースの [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) と [商用](https://getrebuild.com/license/COMMERCIAL.txt) のデュアルライセンスを使用すると、インストール/使用とは、ライセンスコンテンツを読んで同意したことを意味します。"
+  "RightsTip": "[REBUILD](https://getrebuild.com/) オープンソースの [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) と [商用](https://getrebuild.com/license/COMMERCIAL.txt) のデュアルライセンスを使用すると、インストール/使用とは、ライセンスコンテンツを読んで同意したことを意味します。"
 }

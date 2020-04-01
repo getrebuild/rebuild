@@ -72,5 +72,5 @@
   "PasswordLevel2Tip": "Password must contain numbers and uppercase and lowercase letters",
   "PasswordLevel3Tip": "Password must be at least 8 characters and must contain special characters",
   "Repeated": "{0} is duplicated",
-  "RightsTip": "REBUILD is dual-licensed under [COMMERCIAL](https://getrebuild.com/license/COMMERCIAL.txt) and open source license [GPL-3.0](https://getrebuild.com/license/LICENSE.txt). Installation or use means that you have read and agreed to the license content."
+  "RightsTip": "[REBUILD](https://getrebuild.com/) is dual-licensed under [COMMERCIAL](https://getrebuild.com/license/COMMERCIAL.txt) and open source license [GPL-3.0](https://getrebuild.com/license/LICENSE.txt). Installation or use means that you have read and agreed to the license content."
 }

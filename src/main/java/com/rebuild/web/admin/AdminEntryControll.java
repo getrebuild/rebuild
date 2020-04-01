@@ -14,6 +14,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
@@ -123,6 +124,7 @@ public class AdminEntryControll extends BasePageControll {
 		}
 
 		String result = new AdminCli(command).exec();
+		ServerListener.updateGlobalContextAttributes(request.getServletContext());
 		ServletUtils.write(response, result);
 	}
 }

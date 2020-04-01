@@ -106,8 +106,8 @@
 							<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/">技术支持</a></li>
 						</ul>
-						<div class="text-muted">
-                            REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，安装/使用即表示你已阅读并同意许可内容。
+						<div class="text-muted J_copyright">
+							&copy; ${bundle.lang('RightsTip')}
 						</div>
 					</div>
 				</div>
@@ -121,6 +121,7 @@
 <script>
 $(document).ready(function () {
 	$.get('systems/query-authority', function (res) { $('#authType').text(res.data.authType) })
+	$('.J_copyright a').attr('target', '_blank')
 })
 </script>
 </body>
