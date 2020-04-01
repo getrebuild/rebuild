@@ -115,7 +115,9 @@ class RbList extends React.Component {
 
   componentDidMount() {
     const $scroller = $(this._rblistScroller)
-    $scroller.perfectScrollbar()
+    $scroller.perfectScrollbar({
+      wheelSpeed: 2
+    })
 
     // enable pins
     if ($(window).height() > 666 && $(window).width() >= 1280) {

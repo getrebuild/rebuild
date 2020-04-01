@@ -19,8 +19,8 @@
 .splash-footer *,
 .copyright,
 .copyright * {
-	color: rgba(255, 255, 255, 0.88) !important;
-    text-shadow: 1px 1px 1px #222;
+	color: rgba(255, 255, 255, 0.8) !important;
+    text-shadow: 0px 1px 1px #888;
 	max-width: 680px;
 	margin: 0 auto;
 	text-align: center;
@@ -126,7 +126,7 @@
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
 
-	$('.copyright a').attr('target', '_blank')
+	$('.copyright a').attr('target', '_blank').addClass('link')
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	})
