@@ -134,10 +134,13 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	/**
 	 * 同一实体的多个字段引用同一个实体
 	 *
+	 * @param entity
 	 * @return
 	 */
 	public static Set<Entity> hasMultiFieldsReferenceTo(Entity entity) {
 		Map<Entity, Integer> map = new HashMap<>();
+		map.put(entity, 1);  // 包括自己
+
 		for (Field field : entity.getReferenceToFields(true)) {
 			Entity e = field.getOwnEntity();
 			// 排除明细实体
