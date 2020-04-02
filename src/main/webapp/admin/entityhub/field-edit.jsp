@@ -7,90 +7,90 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>字段信息</title>
 <style type="text/css">
-	.col-form-label {
-		padding-bottom: 8px;
-	}
+.col-form-label {
+    padding-bottom: 8px;
+}
 
-	.sortable-box {
-		height: 208px;
-		max-width: 300px;
-	}
+.sortable-box {
+    height: 208px;
+    max-width: 300px;
+}
 
-	.sortable-box .dd-list {
-		height: 200px
-	}
+.sortable-box .dd-list {
+    height: 200px
+}
 
-	.sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle {
-		background-color: #fff !important;
-		color: #404040 !important;
-		border-color: #dedede !important;
-	}
+.sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle {
+    background-color: #fff !important;
+    color: #404040 !important;
+    border-color: #dedede !important;
+}
 
-	.sortable-box .no-item {
-		padding: 9px;
-		text-align: center;
-		color: #999
-	}
+.sortable-box .no-item {
+    padding: 9px;
+    text-align: center;
+    color: #999
+}
 
-	.sortable-box.autoh, .sortable-box.autoh .dd-list {
-		height: auto;
-	}
+.sortable-box.autoh, .sortable-box.autoh .dd-list {
+    height: auto;
+}
 
-	.sortable-box .default .dd-handle {
-		background-color: #dedede !important
-	}
+.sortable-box .default .dd-handle {
+    background-color: #dedede !important
+}
 
-	.sortable-box .default .dd-handle::before {
-		color: #4285f4;
-	}
+.sortable-box .default .dd-handle::before {
+    color: #4285f4;
+}
 
-	.dt-MULTISELECT .dd-handle, .dt-PICKLIST .dd-handle {
-		padding-left: 31px !important;
-	}
+.dt-MULTISELECT .dd-handle, .dt-PICKLIST .dd-handle {
+    padding-left: 31px !important;
+}
 
-	.dt-MULTISELECT .dd-handle::before, .dt-PICKLIST .dd-handle::before {
-		position: absolute;
-		font-family: 'Material-Design-Iconic-Font';
-		font-size: 20px;
-		color: #bbb;
-		left: 10px;
-		content: '\f279';
-	}
+.dt-MULTISELECT .dd-handle::before, .dt-PICKLIST .dd-handle::before {
+    position: absolute;
+    font-family: 'Material-Design-Iconic-Font';
+    font-size: 20px;
+    color: #bbb;
+    left: 10px;
+    content: '\f279';
+}
 
-	.dt-MULTISELECT .default .dd-handle::before {
-		content: '\f26a';
-	}
+.dt-MULTISELECT .default .dd-handle::before {
+    content: '\f26a';
+}
 
-	.dt-PICKLIST .dd-handle::before {
-		font-size: 18px;
-		margin-top: -1px;
-		content: '\f26c';
-	}
+.dt-PICKLIST .dd-handle::before {
+    font-size: 18px;
+    margin-top: -1px;
+    content: '\f26c';
+}
 
-	.dt-PICKLIST .default .dd-handle::before {
-		content: '\f269';
-	}
+.dt-PICKLIST .default .dd-handle::before {
+    content: '\f269';
+}
 
-	.form-text.help code {
-		cursor: help;
-		font-weight: bold;
-	}
+.form-text.help code {
+    cursor: help;
+    font-weight: bold;
+}
 
-	.calc-expr {
-		border-radius: 3px;
-		padding: 10px 0;
-		background-color: #eee
-	}
+.calc-expr {
+    border-radius: 3px;
+    padding: 10px 0;
+    background-color: #eee
+}
 
-	.calc-expr .col-4 {
-		padding-left: 10px;
-		padding-right: 10px;
-	}
+.calc-expr .col-4 {
+    padding-left: 10px;
+    padding-right: 10px;
+}
 
-	#stateClass:empty::before {
-		content: '无效状态类';
-		color: #ea4335;
-	}
+#stateClass:empty::before {
+    content: '无效状态类';
+    color: #ea4335;
+}
 </style>
 </head>
 <body>
@@ -313,13 +313,14 @@
 <script src="${baseUrl}/assets/lib/widget/bootstrap-slider.min.js"></script>
 <script>
 window.__PageConfig = {
-	metaId: '${fieldMetaId}',
-	fieldType: '${fieldType}',
-	extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
-	entityName: '${entityName}',
-	fieldName: '${fieldName}',
-	fieldBuildin: ${fieldBuildin},
-	isSuperAdmin: ${isSuperAdmin}
+    metaId: '${fieldMetaId}',
+    fieldType: '${fieldType}',
+    extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
+    entityName: '${entityName}',
+    fieldName: '${fieldName}',
+    fieldBuildin: ${fieldBuildin},
+    isSuperAdmin: ${isSuperAdmin},
+    isSlaveToMasterField: ${isSlaveToMasterField}
 }
 </script>
 <script src="${baseUrl}/assets/js/entityhub/field-edit.jsx" type="text/babel"></script>

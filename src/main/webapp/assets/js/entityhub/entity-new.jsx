@@ -102,6 +102,7 @@ class MetaschemaList extends React.Component {
         $mp2.start()
         $.post(`/admin/metaschema/imports?file=${$encode(file)}`, (res) => {
           $mp2.end()
+          that.setState({ inProgress: false })
           if (res.error_code === 0) {
             RbHighbar.success('导入完成')
             setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)

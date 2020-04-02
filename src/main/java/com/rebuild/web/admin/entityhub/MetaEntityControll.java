@@ -176,8 +176,10 @@ public class MetaEntityControll extends BasePageControll {
 		
 		if (needReindex != null) {
 			Entity entity = MetadataHelper.getEntity(needReindex);
-			QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
-			TaskExecutors.submit(reindexTask, user);
+			if (entity.containsField(EntityHelper.QuickCode)) {
+                QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
+                TaskExecutors.submit(reindexTask, user);
+            }
 		}
 		
 		writeSuccess(response);

@@ -12,7 +12,7 @@ $(document).ready(function () {
   const dt = wpc.fieldType
   const extConfigOld = wpc.extConfig
 
-  const _btn = $('.J_save').click(function () {
+  const $btn = $('.J_save').click(function () {
     if (!wpc.metaId) return
     let _data = {
       fieldLabel: $val('#fieldLabel'),
@@ -51,13 +51,12 @@ $(document).ready(function () {
     }
 
     _data.metadata = { entity: 'MetaField', id: wpc.metaId }
-    _btn.button('loading')
+    $btn.button('loading')
     $.post('/admin/entity/field-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) {
-        if (rb.env === 'dev') location.reload(true)
-        else location.href = '../fields'
+        location.href = '../fields'
       } else {
-        _btn.button('reset')
+        $btn.button('reset')
         RbHighbar.error(res.error_msg)
       }
     })
@@ -67,11 +66,11 @@ $(document).ready(function () {
   $('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') === true)
   $('#fieldRepeatable').attr('checked', $('#fieldRepeatable').data('o') === true)
 
-  $('.J_for-' + dt).removeClass('hide')
+  $(`.J_for-${dt}`).removeClass('hide')
 
   // 设置扩展值
   for (let k in extConfigOld) {
-    const $ext = $('#' + k)
+    const $ext = $(`#${k}`)
     if ($ext.length === 1) {
       if ($ext.attr('type') === 'checkbox') $ext.attr('checked', extConfigOld[k] === 'true' || extConfigOld[k] === true)
       else if ($ext.prop('tagName') === 'DIV') $ext.text(extConfigOld[k])
@@ -148,8 +147,12 @@ $(document).ready(function () {
 
   // 内建字段
   if (wpc.fieldBuildin) {
-    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
-    $('.footer .alert').removeClass('hide')
+    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable, .footer .J_action .J_del').attr('disabled', true)
+    if (wpc.isSlaveToMasterField) {
+      $('.footer .J_action').removeClass('hide')
+    } else {
+      $('.footer .alert').removeClass('hide')
+    }
   } else {
     $('.footer .J_action').removeClass('hide')
   }
@@ -175,8 +178,8 @@ $(document).ready(function () {
 
 // Render item to PickList box
 const picklistItemRender = function (data) {
-  let item = $('<li class="dd-item" data-key="' + data.id + '"><div class="dd-handle">' + data.text + '</div></li>').appendTo('#picklist-items')
-  if (data['default'] === true) item.addClass('default')
+  const $item = $(`<li class="dd-item" data-key="${data.id}"><div class="dd-handle">${data.text}</div></li>`).appendTo('#picklist-items')
+  if (data['default'] === true) $item.addClass('default')
 }
 
 // Check incorrect?
