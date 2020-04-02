@@ -316,7 +316,7 @@ a.btn {
     display: block;
 }
 
-.rb-color-header .dropdown > a > .icon {
+.rb-color-header .dropdown>a>.icon {
     color: #fff;
 }
 
@@ -1356,12 +1356,13 @@ th.column-fixed {
     right: 0;
     bottom: -1px;
     width: 20px;
-    width: 24px; /* fix: Safari */
     content: '';
     pointer-events: none;
     transform: translateX(100%);
     box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
     transition: box-shadow 0.3s;
+    /* fix: Safari */
+    width: 24px;
 }
 
 .rb-scroller.column-fixed-pin .column-fixed-2nd .dividing {
@@ -1660,12 +1661,14 @@ th.column-fixed {
     color: #4285f4;
 }
 
-.btn-primary.bordered {
+.btn-primary.bordered,
+.btn-primary.bordered[disabled] {
     background-color: #fff;
     color: #4c8bf5;
 }
 
-.btn-danger.bordered {
+.btn-danger.bordered,
+.btn-danger.bordered[disabled] {
     background-color: #fff;
     color: #ea4335;
 }
