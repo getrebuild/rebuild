@@ -1356,6 +1356,7 @@ th.column-fixed {
     right: 0;
     bottom: -1px;
     width: 20px;
+    width: 24px; /* fix: Safari */
     content: '';
     pointer-events: none;
     transform: translateX(100%);

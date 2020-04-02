@@ -236,7 +236,7 @@ class RbList extends React.Component {
 
     const c = CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
     if (index === 0 && supportFixedColumns) {
-      return React.cloneElement(c, { className: `${c.props.className} column-fixed column-fixed-2nd` })
+      return React.cloneElement(c, { className: `${c.props.className || ''} column-fixed column-fixed-2nd` })
     }
     return c
   }
