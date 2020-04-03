@@ -121,7 +121,9 @@ public class MetaFieldControll extends BasePageControll  {
 		if (((Entity) easyEntity.getBaseMeta()).getMasterEntity() != null) {
 		    Field stf = MetadataHelper.getSlaveToMasterField((Entity) easyEntity.getBaseMeta());
 		    mv.getModel().put("isSlaveToMasterField", stf.equals(fieldMeta));
-        }
+        } else {
+		    mv.getModel().put("isSlaveToMasterField", false);
+		}
 
 		// 字段类型相关
 		Type ft = fieldMeta.getType();
