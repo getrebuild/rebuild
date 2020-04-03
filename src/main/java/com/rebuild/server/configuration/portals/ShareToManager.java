@@ -96,6 +96,7 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
         }
 
         // 优先使用自己的
+        // TODO 普通用户只能使用自己的布局（若有）
         boolean isAdmin = UserHelper.isAdmin(user);
         for (Object[] d : alls) {
             ID createdBy = (ID) d[2];
