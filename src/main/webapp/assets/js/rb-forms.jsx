@@ -1392,12 +1392,11 @@ class RepeatedViewer extends RbModalHandler {
       <table className="table table-hover table-sm repeated-table">
         <thead>
           <tr>
-            <th width="40">#</th>
             {data[0].map((item, idx) => {
               if (idx === 0) return null
               return <th key={`field-${idx}`}>{item}</th>
             })}
-            <th width="50"></th>
+            <th width="30"></th>
           </tr>
         </thead>
         <tbody>
@@ -1411,13 +1410,12 @@ class RepeatedViewer extends RbModalHandler {
   }
 
   renderLine(item, idx) {
-    return <tr key={`row-${idx}`} onClick={() => this.openView(item[0])} title="查看详情">
-      <td className="text-muted">{idx}.</td>
+    return <tr key={`row-${idx}`}>
       {item.map((o, i) => {
         if (i === 0) return null
         return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">无</span>}</td>
       })}
-      <td className="actions"><a className="icon"><i className="zmdi zmdi-open-in-new" /></a></td>
+      <td className="actions"><a className="icon" onClick={() => this.openView(item[0])} title="查看详情"><i className="zmdi zmdi-open-in-new" /></a></td>
     </tr>
   }
 

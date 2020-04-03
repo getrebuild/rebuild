@@ -2932,21 +2932,25 @@ form {
 
 .repeated-table {
     margin-bottom: 0;
+    margin-top: -16px;
 }
 
 .repeated-table th {
     border-top: 0 none;
-    padding-top: 0;
     font-weight: normal !important;
-    color: #777;
-}
-
-.repeated-table tbody tr:hover {
-    cursor: pointer;
+    color: #878787;
 }
 
 .repeated-table td.actions .icon {
     font-size: 1.28rem !important;
+}
+
+.repeated-table td.actions .icon:hover {
+    color: #4c8bf5 !important;
+}
+
+.repeated-table tr:last-child td {
+    border-bottom: 1px solid #dee2e6;
 }
 
 .copyright {
