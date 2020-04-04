@@ -62,10 +62,11 @@ public class JedisCacheDriver<V extends Serializable> implements CacheTemplate<V
 		try {
 			jedis = jedisPool.getResource();
 
-			jedis.set(key, value);
 			if (seconds > 0) {
-				jedis.expire(key, seconds);
-			}
+			    jedis.setex(key, seconds, value);
+            } else {
+    			jedis.set(key, value);
+            }
 		} finally {
 			IOUtils.closeQuietly(jedis);
 		}
@@ -103,10 +104,11 @@ public class JedisCacheDriver<V extends Serializable> implements CacheTemplate<V
 			jedis = jedisPool.getResource();
 
 			byte[] bkey = key.getBytes();
-			jedis.set(bkey, SerializationUtils.serialize(value));
 			if (seconds > 0) {
-				jedis.expire(bkey, seconds);
-			}
+    			jedis.setex(bkey, seconds, SerializationUtils.serialize(value));
+            } else {
+    			jedis.set(bkey, SerializationUtils.serialize(value));
+            }
 		} finally {
 			IOUtils.closeQuietly(jedis);
 		}

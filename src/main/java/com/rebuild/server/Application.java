@@ -152,17 +152,6 @@ public final class Application {
 				ApiGateway.registerApi((Class<? extends BaseApi>) c);
 			}
 
-			// 若使用 ehcache 则添加持久化钩子
-			final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
-			if (!ccache.isUseRedis()) {
-				addShutdownHook(new Thread("ehcache-persistent") {
-					@Override
-					public void run() {
-						((EhcacheDriver<?>) ccache.getCacheTemplate()).shutdown();
-					}
-				});
-			}
-
 			if (devMode()) MetadataHelper.setPlainEntity(MetadataHelper.getEntity("Attachment"));
 
 			LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
