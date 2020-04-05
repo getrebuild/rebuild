@@ -893,8 +893,12 @@ const AdvFilters = {
     if (shareTo) url += '&shareTo=' + $encode(shareTo)
 
     $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) that.loadFilters()
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        $storage.set(RbListPage._RbList.__defaultFilterKey, res.data.id)
+        that.loadFilters()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   },
 
