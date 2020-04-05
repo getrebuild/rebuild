@@ -102,11 +102,6 @@ public class FieldAggregation implements TriggerAction {
 	}
 
     @Override
-    public boolean isUsableSourceEntity(int entityCode) {
-        return true;
-    }
-
-    @Override
 	public void execute(OperatingContext operatingContext) throws TriggerException {
 		Integer depth = TRIGGER_CHAIN_DEPTH.get();
 		if (depth == null) {

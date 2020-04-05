@@ -29,7 +29,9 @@ import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerException;
 import com.rebuild.server.helper.KVStorage;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
@@ -65,8 +67,7 @@ public class AutoAssign implements TriggerAction {
     @Override
     public boolean isUsableSourceEntity(int entityCode) {
         Entity entity = MetadataHelper.getEntity(entityCode);
-        // 明细不可用
-        return entity.getMasterEntity() == null;
+        return entity.containsField(EntityHelper.OwningUser) && entity.containsField(EntityHelper.OwningDept);
     }
 
     @Override

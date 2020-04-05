@@ -25,6 +25,7 @@ import com.rebuild.server.business.trigger.ActionFactory;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -50,14 +51,12 @@ import java.util.List;
 public class RobotTriggerControll extends BasePageControll {
 	
 	@RequestMapping("triggers")
-	public ModelAndView pageList(HttpServletRequest request) throws IOException {
-		ModelAndView mv = createModelAndView("/admin/robot/trigger-list.jsp");
-		return mv;
+	public ModelAndView pageList() throws IOException {
+        return createModelAndView("/admin/robot/trigger-list.jsp");
 	}
 	
 	@RequestMapping("trigger/{id}")
-	public ModelAndView pageEditor(@PathVariable String id, 
-			HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public ModelAndView pageEditor(@PathVariable String id, HttpServletResponse response) throws IOException {
 		ID configId = ID.valueOf(id);
 		Object[] config = Application.createQuery(
 				"select belongEntity,actionType,when,whenFilter,actionContent,priority,name from RobotTriggerConfig where configId = ?")
@@ -86,7 +85,7 @@ public class RobotTriggerControll extends BasePageControll {
 	}
 	
 	@RequestMapping("trigger/available-actions")
-	public void getAvailableActions(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void getAvailableActions(HttpServletResponse response) throws IOException {
 		ActionType[] ts = ActionFactory.getAvailableActions();
 		List<String[]> list = new ArrayList<>();
 		for (ActionType t : ts) {
@@ -101,15 +100,11 @@ public class RobotTriggerControll extends BasePageControll {
 		TriggerAction action = ActionFactory.createAction(actionType);
 		
 		List<String[]> list = new ArrayList<>();
-		for (Entity e : MetadataHelper.getEntities()) {
-			if (!MetadataHelper.hasPrivilegesField(e)) {
-				if (e.getMasterEntity() != null) {
-					// 允许明细实体
-				} else {
-					continue;
-				}
-			}
-			
+		for (Entity e : MetadataSorter.sortEntities()) {
+		    if (MetadataHelper.isBizzEntity(e.getEntityCode())) {
+		        continue;
+            }
+
 			if (action.isUsableSourceEntity(e.getEntityCode())) {
 				list.add(new String[] { e.getName(), EasyMeta.getLabel(e) });
 			}
