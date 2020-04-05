@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.dashboard;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -16,12 +15,8 @@ import com.rebuild.server.business.charts.ChartsException;
 import com.rebuild.server.business.charts.ChartsFactory;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.ChartManager;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -61,6 +56,13 @@ public class ChartDataControll extends BaseControll {
 		writeSuccess(response, data);
 	}
 
+    /**
+     * @param request
+     * @param response
+     * @throws IOException
+     *
+     * @see com.rebuild.server.helper.datalist.DefaultDataListControl
+     */
     @RequestMapping("view-chart-sources")
     public void viewChartSources(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID id = getIdParameterNotNull(request, "id");
