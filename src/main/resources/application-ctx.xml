@@ -216,6 +216,11 @@
 				<bean class="com.rebuild.server.service.base.RevisionHistoryObserver" />
 				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
 				<bean class="com.rebuild.server.business.trigger.RobotTriggerObserver" />
+                <!--
+				<bean class="com.rebuild.server.service.base.RedisQueueObserver">
+                    <property name="useTopic" value="true" />
+                </bean>
+                -->
 			</list>
 		</constructor-arg>
 	</bean>
