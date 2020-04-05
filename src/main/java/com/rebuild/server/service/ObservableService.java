@@ -108,20 +108,20 @@ public abstract class ObservableService extends Observable implements EntityServ
 	/**
 	 * 用于操作前获取原记录
 	 * 
-	 * @param example
+	 * @param base
 	 * @return
 	 */
-	protected Record record(Record example) {
-		ID primary = example.getPrimary();
+	protected Record record(Record base) {
+		ID primary = base.getPrimary();
 		Assert.notNull(primary, "Record primary not be bull");
 		
 		StringBuilder sql = new StringBuilder("select ");
-		for (Iterator<String> iter = example.getAvailableFieldIterator(); iter.hasNext(); ) {
+		for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
 			sql.append(iter.next()).append(',');
 		}
 		sql.deleteCharAt(sql.length() - 1);
-		sql.append(" from ").append(example.getEntity().getName());
-		sql.append(" where ").append(example.getEntity().getPrimaryField().getName()).append(" = ?");
+		sql.append(" from ").append(base.getEntity().getName());
+		sql.append(" where ").append(base.getEntity().getPrimaryField().getName()).append(" = ?");
 		
 		Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
 		if (current == null) {
