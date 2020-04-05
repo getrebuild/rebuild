@@ -20,9 +20,10 @@ class BaseChart extends React.Component {
       </div>
       :
       <div className="chart-oper">
-        <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
-        {this.props.builtin !== true && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
-        <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
+        {this.props.builtin !== true && <a title="查看数据" target="_blank" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
+        <a onClick={() => this.loadChartData()} title="刷新"><i className="zmdi zmdi-refresh" /></a>
+        {this.props.builtin !== true && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`} title="修改图表"><i className="zmdi zmdi-edit" /></a>}
+        <a onClick={() => this.remove()} title="移除图表"><i className="zmdi zmdi-close" /></a>
       </div>
 
     return (
@@ -51,6 +52,9 @@ class BaseChart extends React.Component {
       if (res.error_code === 0) that.renderChart(res.data)
       else that.renderError(res.error_msg)
     })
+  }
+
+  viewDataInList() {
   }
 
   buildDataUrl() {
@@ -535,7 +539,9 @@ class FeedsSchedule extends BaseChart {
 
   renderChart(data) {
     const table = (!data || data.length === 0) ?
-      <div className="chart-undata must-center"><i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程<br />过期超过 30 天的日程将不再显示</div>
+      <div className="chart-undata must-center" style={{ marginTop: -15 }}>
+        <i className="zmdi zmdi-check icon text-success"></i> 暂无待办日程<br />过期超过 30 天的日程将不再显示
+      </div>
       :
       <div>
         <table className="table table-striped table-hover">
