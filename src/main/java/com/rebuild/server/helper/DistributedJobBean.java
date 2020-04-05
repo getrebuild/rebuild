@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.utils;
+package com.rebuild.server.helper;
 
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.JedisCacheDriver;
@@ -18,7 +18,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 /**
- * 分布式环境下，避免一个 Job 多个运行。
+ * 分布式环境下（多 RB 实例），避免一个 Job 多个实例都运行。
  * 利用 redis 加锁，因此仅启用 redis 的情况下有效。
  *
  * @author ZHAO
@@ -26,20 +26,23 @@ import redis.clients.jedis.JedisPool;
  */
 public abstract class DistributedJobBean extends QuartzJobBean {
 
-    private static final Log LOG = LogFactory.getLog(DistributedJobBean.class);
+    private final Log LOG = LogFactory.getLog(this.getClass());
 
     private static final String SET_IF_NOT_EXIST = "NX";
-    private static final String SET_WITH_EXPIRE_TIME = "PX";
+    private static final String SET_WITH_EXPIRE_TIME = "EX";
+
+    private static final String LOCK_KEY = "#JOBLOCK";
+    private static final int LOCK_OFFSET_TIME = 10;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         if (Application.getCommonCache().isUseRedis()) {
             @SuppressWarnings("rawtypes")
             JedisPool pool = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool();
-            String jobKey = getClass().getName() + "#LOCK";
+            String jobKey = getClass().getName() + LOCK_KEY;
 
             try (Jedis jedis = pool.getResource()) {
-                String tryLock = jedis.set(jobKey, "TRYLOCK", SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, 15);
+                String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_OFFSET_TIME);
                 if (tryLock == null) {
                     LOG.info("The job has been executed by another instance");
                     return;

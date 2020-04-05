@@ -84,6 +84,7 @@
 		<constructor-arg index="2" value="${CachePort}" />
 		<constructor-arg index="3" value="5000" />
 		<constructor-arg index="4" value="${CachePassword}" />
+		<constructor-arg index="5" value="0" />
 	</bean>
 
 	<bean class="com.rebuild.server.helper.cache.CommonCache">
