@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -21,9 +20,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * 实体元数据
@@ -386,32 +383,5 @@ public class MetadataHelper {
 			return false;
 		}
 		return checkAndWarnField(getEntity(entityName), fieldName);
-	}
-
-	private static final Set<Integer> PLAIN_ENTITIES = new HashSet<>();
-	/**
-	 * 指定实体具有和业务实体一样的特性（除权限以外（指定实体无权限字段））。
-	 *
-	 * @param entityCode
-	 * @return
-	 */
-	public static boolean isPlainEntity(int entityCode) {
-		return PLAIN_ENTITIES.contains(entityCode);
-	}
-	
-	/**
-	 * WARN: 除非你清楚的知道此方法的意义，否则不要使用
-	 *
-	 * @param entity
-	 * @see #isPlainEntity(int)
-	 */
-	public static void setPlainEntity(Entity entity) {
-		if (entity.containsField(EntityHelper.CreatedOn) && entity.containsField(EntityHelper.CreatedBy)
-				&& entity.containsField(EntityHelper.ModifiedOn) && entity.containsField(EntityHelper.ModifiedBy)) {
-			LOG.info("Set to plain entity : " + entity.getEntityCode());
-			PLAIN_ENTITIES.add(entity.getEntityCode());
-		} else {
-			throw new RebuildException("Cannot be set as a PlainEntity : " + entity);
-		}
 	}
 }

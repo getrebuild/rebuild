@@ -59,7 +59,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 				actionMap.put(act.getName(), priv.allowed(act));
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
-		} else if (MetadataHelper.isPlainEntity(entityMeta.getEntityCode())) {
+		} else if (EasyMeta.valueOf(entityMeta).isPlainEntity()) {
 			mv.getModel().put("entityPrivileges", PLAIN_ENTITY_PRIVILEGES);
 		} else {
 			mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);
@@ -96,7 +96,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 				actionMap.put(act.getName(), Application.getSecurityManager().allow(user, record, act));
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
-		} else if (MetadataHelper.isPlainEntity(entity.getEntityCode())) {
+		} else if (EasyMeta.valueOf(entity).isPlainEntity()) {
 			mv.getModel().put("entityPrivileges", PLAIN_ENTITY_PRIVILEGES);
 		} else {
 			mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);

@@ -152,8 +152,6 @@ public final class Application {
 				ApiGateway.registerApi((Class<? extends BaseApi>) c);
 			}
 
-			if (devMode()) MetadataHelper.setPlainEntity(MetadataHelper.getEntity("Attachment"));
-
 			LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 
 		} catch (Exception ex) {

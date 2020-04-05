@@ -69,9 +69,8 @@ public class MetadataSorter {
 		Entity[] entities = MetadataHelper.getEntities();
 		sortBaseMeta(entities);
 		for (Entity e : entities) {
-            if (EasyMeta.valueOf(e).isBuiltin()
-                    && !MetadataHelper.hasPrivilegesField(e)
-                    && !MetadataHelper.isPlainEntity(e.getEntityCode())) {
+		    EasyMeta easyEntity = EasyMeta.valueOf(e);
+            if (easyEntity.isBuiltin() && !MetadataHelper.hasPrivilegesField(e) && !easyEntity.isPlainEntity()) {
                 continue;
             }
             

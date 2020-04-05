@@ -19,6 +19,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
@@ -88,8 +89,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		Entity useMaster = null;
 		if (!EntityHelper.hasPrivilegesField(entity)) {
 			// NOTE BIZZ 实体全部用户可见
-			if (MetadataHelper.isBizzEntity(entity.getEntityCode())
-					|| MetadataHelper.isPlainEntity(entity.getEntityCode())) {
+			if (MetadataHelper.isBizzEntity(entity.getEntityCode()) || EasyMeta.valueOf(entity).isPlainEntity()) {
 				return ALLOWED.evaluate(null);
 			} else if (entity.getMasterEntity() != null) {
 				useMaster = entity.getMasterEntity();
