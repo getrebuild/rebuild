@@ -18,7 +18,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.LoginToken;
-import com.rebuild.api.LoginTokenManager;
+import com.rebuild.api.AuthTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
@@ -76,10 +76,10 @@ public class LoginControll extends BasePageControll {
             return null;
         }
 
-		// API 登录
+		// 授权 Token 登录
 		String token = getParameter(request, "token");
 		if (StringUtils.isNotBlank(token)) {
-			ID tokenUser = LoginTokenManager.verifyToken(token, true);
+			ID tokenUser = AuthTokenManager.verifyToken(token, true);
 			if (tokenUser != null) {
 				loginSuccessed(request, response, tokenUser, false);
 
@@ -87,7 +87,7 @@ public class LoginControll extends BasePageControll {
 				response.sendRedirect(CodecUtils.urlDecode(nexturl));
 				return null;
 			} else {
-				// 显示验证码
+				// 立即显示验证码
 				ServletUtils.setSessionAttribute(request, NEED_VCODE, true);
 			}
 		}
