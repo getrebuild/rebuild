@@ -212,7 +212,7 @@ public class MetaEntityControll extends BasePageControll {
 		if (ServletUtils.isAjaxRequest(request)) {
 			writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));
 		} else {
-			FileDownloader.setDownloadHeaders(response, dest.getName());
+			FileDownloader.setDownloadHeaders(request, response, dest.getName());
 			FileDownloader.writeLocalFile(dest.getName(), true, response);
 		}
 	}

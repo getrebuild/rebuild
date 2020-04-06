@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.user.account;
@@ -30,14 +19,14 @@ import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseControll;
+import com.rebuild.web.common.FileDownloader;
+import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -53,12 +42,12 @@ public class UserAvatar extends BaseControll {
 	
 	@RequestMapping("/user-avatar")
 	public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		renderUserAvatat(getRequestUser(request), request, response);
+		renderUserAvatar(getRequestUser(request), request, response);
 	}
 	
 	@RequestMapping("/user-avatar/{user}")
 	public void renderAvatat(@PathVariable String user, HttpServletRequest request, HttpServletResponse response) throws IOException {
-		renderUserAvatat(user, request, response);
+		renderUserAvatar(user, request, response);
 	}
 	
 	/**
@@ -66,18 +55,23 @@ public class UserAvatar extends BaseControll {
 	 * @param response
 	 * @throws IOException
 	 */
-	protected void renderUserAvatat(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
+	protected void renderUserAvatar(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		if (user == null) {
+			response.sendError(404);
+			return;
+		}
+
 		User realUser = null;
 		if (user instanceof ID) {
 			realUser = Application.getUserStore().getUser((ID) user);
 		} if (ID.isId(user)) {
 			realUser = Application.getUserStore().getUser(ID.valueOf(user.toString()));
-		} else if (Application.getUserStore().existsName((String) user)) {
-			realUser = Application.getUserStore().getUserByName((String) user);
-		} else if (Application.getUserStore().existsEmail((String) user)) {
-			realUser = Application.getUserStore().getUserByEmail((String) user);
+		} else if (Application.getUserStore().existsName(user.toString())) {
+			realUser = Application.getUserStore().getUserByName(user.toString());
+		} else if (Application.getUserStore().existsEmail(user.toString())) {
+			realUser = Application.getUserStore().getUserByEmail(user.toString());
 		}
-		
+
 		if (realUser == null) {
 			response.sendError(404);
 			return;
@@ -98,23 +92,26 @@ public class UserAvatar extends BaseControll {
 				avatarUrl = AppUtils.getContextPath() + "/filex/img/" + avatarUrl;
 			}
 			response.sendRedirect(avatarUrl);
+
 		} else {
-			BufferedImage avatarBi = null;
+			File avatarFile;
 			try {
 			    String fullName = realUser.getFullName();
 			    if (realUser.getId().equals(UserService.SYSTEM_USER) || realUser.getId().equals(UserService.ADMIN_USER)) {
 			        fullName = "RB";
                 }
-				File avatarFile = UserHelper.generateAvatar(fullName, false);
-				avatarBi = ImageIO.read(avatarFile);
+
+				avatarFile = UserHelper.generateAvatar(fullName, false);
+
 			} catch (IOException ex) {
 				LOG.warn("Couldn't generate avatar", ex);
+
 				avatarUrl = AppUtils.getContextPath() + "/assets/img/avatar.png";
 				response.sendRedirect(avatarUrl);
 				return;
 			}
 
-			ImageIO.write(avatarBi, "png", response.getOutputStream());
+			FileDownloader.writeLocalFile(avatarFile, response);
 		}
 	}
 
@@ -144,29 +141,22 @@ public class UserAvatar extends BaseControll {
 	 */
 	private String avatarCrop(File avatar, String params) throws IOException {
 		String[] xywh = params.split(",");
-		BufferedImage bi = ImageIO.read(avatar);
 		int x = Integer.parseInt(xywh[0]);
 		int y = Integer.parseInt(xywh[1]);
 		int width = Integer.parseInt(xywh[2]);
 		int height = Integer.parseInt(xywh[3]);
 
-		if (x + width > bi.getWidth()) {
-			width = bi.getWidth() - x;
-		}
-		if (y + height > bi.getHeight()) {
-			height = bi.getHeight() - y;
-		}
-
-		bi = bi.getSubimage(Math.max(x, 0), Math.max(y, 0), width, height);
+		Thumbnails.Builder<File> builder = Thumbnails.of(avatar)
+				.sourceRegion(x, y, width, height);
 
 		String destName = System.currentTimeMillis() + avatar.getName();
-		File dest = null;
+		File dest;
 		if (QiniuCloud.instance().available()) {
 			dest = SysConfiguration.getFileOfTemp(destName);
 		} else {
 			dest = SysConfiguration.getFileOfData(destName);
 		}
-		ImageIO.write(bi, "png", dest);
+		builder.scale(1.0).toFile(dest);
 
 		if (QiniuCloud.instance().available()) {
 			destName = QiniuCloud.instance().upload(dest);
