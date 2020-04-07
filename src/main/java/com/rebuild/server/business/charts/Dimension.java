@@ -39,7 +39,7 @@ public class Dimension extends Axis {
 			} else if (getFormatCalc() == FormatCalc.M) {
 				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
 			} else if (getFormatCalc() == FormatCalc.H) {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %HH");
+				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %H时");
 			} else {
 				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
 			}
