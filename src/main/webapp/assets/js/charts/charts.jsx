@@ -20,10 +20,10 @@ class BaseChart extends React.Component {
       </div>
       :
       <div className="chart-oper">
-        {this.props.builtin !== true && <a title="查看数据" target="_blank" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
-        <a onClick={() => this.loadChartData()} title="刷新"><i className="zmdi zmdi-refresh" /></a>
-        {this.props.builtin !== true && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`} title="修改图表"><i className="zmdi zmdi-edit" /></a>}
-        <a onClick={() => this.remove()} title="移除图表"><i className="zmdi zmdi-close" /></a>
+        {this.props.builtin !== true && <a title="查看来源数据" target="_blank" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
+        <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
+        {this.props.builtin !== true && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
+        <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
       </div>
 
     return (
