@@ -205,6 +205,7 @@ class RbList extends React.Component {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           RbList.renderAfter()
           this._clearSelected()
+          $(this._rblistScroller).scrollTop(0)
         })
 
         if (res.data.total > 0) {
@@ -1065,7 +1066,7 @@ const ChartsWidget = {
 
   init: function () {
     // eslint-disable-next-line no-undef
-    ECHART_Base.grid = { left: 40, right: 20, top: 30, bottom: 20 }
+    ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
     $('.J_load-chart').click(() => { if (this.chartLoaded !== true) this.loadWidget() })
     $('.J_add-chart').click(() => this.showChartSelect())
