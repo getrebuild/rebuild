@@ -67,6 +67,12 @@
 								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用角色权限范围内的数据"></i></span>
 							</label>
 						</div>
+						<div class="hide">
+							<label class="custom-control custom-control-sm custom-checkbox mb-2">
+								<input class="custom-control-input" type="checkbox" data-name="noZero">
+								<span class="custom-control-label"> 排除空数据（数值为 0 不显示）</span>
+							</label>
+						</div>
 						<div class="hide J_opt-TABLE">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
 								<input class="custom-control-input" type="checkbox" data-name="showLineNumber">

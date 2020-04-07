@@ -71,7 +71,7 @@ $(document).ready(() => {
   })
 
   // 保存按钮
-  $('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
+  $('.rb-toggle-left-sidebar').attr('title', '保存').off('click').on('click', () => {
     const cfg = build_config()
     if (!cfg) { RbHighbar.create('当前图表无数据'); return }
     const data = {

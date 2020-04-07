@@ -43,8 +43,8 @@ import java.nio.charset.StandardCharsets;
 @Controller
 public class FileDownloader extends BaseControll {
 
-	// 图片缓存时间，分钟
-	private static final int IMG_CACHE_TIME = 60 * 24;
+	// 图片缓存时间
+	private static final int IMG_CACHE_TIME = 60 * 2;
 
 	@RequestMapping(value = "img/**", method = RequestMethod.GET)
 	public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -158,12 +158,11 @@ class ChartTable extends BaseChart {
 }
 
 // for ECharts
-const ECHART_Base = {
+const ECHART_BASE = {
   grid: { left: 60, right: 30, top: 30, bottom: 30 },
   animation: false,
   tooltip: {
     trigger: 'item',
-    formatter: '{a} <br/> {b} : {c} ({d}%)',
     textStyle: {
       fontSize: 12, lineHeight: 1.3, color: '#333'
     },
@@ -172,22 +171,30 @@ const ECHART_Base = {
     },
     backgroundColor: '#fff',
     extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
-    confine: true
+    confine: true,
+    position: 'top'
   },
   textStyle: {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif'
   }
 }
-const ECHART_AxisLabel = {
+const ECHART_AXIS_LABEL = {
   textStyle: {
     color: '#555',
     fontSize: 12,
     fontWeight: '400'
   }
 }
-const isMobile = navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i)
-const ECHART_RenderOpt = {
-  renderer: isMobile ? 'svg' : 'canvas'
+const ECHART_TOOLTIP_FORMATTER = function (i) {
+  if (!Array.isArray(i)) i = [i]  // Object > Array
+  const tooltip = [`<b>${i[0].name}</b>`]
+  i.forEach((item) => {
+    tooltip.push(`${item.marker} ${item.seriesName} : ${item.value}`)
+  })
+  return tooltip.join('<br>')
+}
+const ECHART_RENDER_OPT = {
+  renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas'
 }
 
 // 折线图
@@ -203,7 +210,6 @@ class ChartLine extends BaseChart {
     const that = this
     const elid = 'echarts-line-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, () => {
-      const formatter = []
       for (let i = 0; i < data.yyyAxis.length; i++) {
         let yAxis = data.yyyAxis[i]
         yAxis.type = 'line'
@@ -215,14 +221,14 @@ class ChartLine extends BaseChart {
         }
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
-        formatter.push('{a' + i + '} : {c' + i + '}')
       }
 
-      let opt = {
+      const opt = {
+        ...ECHART_BASE,
         xAxis: {
           type: 'category',
           data: data.xAxis,
-          axisLabel: ECHART_AxisLabel,
+          axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
             lineStyle: { color: '#ddd' }
           }
@@ -230,18 +236,17 @@ class ChartLine extends BaseChart {
         yAxis: {
           type: 'value',
           splitLine: { show: false },
-          axisLabel: ECHART_AxisLabel,
+          axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
             lineStyle: { color: '#ddd', width: 0 }
           }
         },
         series: data.yyyAxis
       }
-      opt = { ...opt, ...ECHART_Base }
-      opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
       opt.tooltip.trigger = 'axis'
+      opt.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
 
-      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -261,7 +266,6 @@ class ChartBar extends BaseChart {
     const that = this
     const elid = 'echarts-bar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, () => {
-      const formatter = []
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
@@ -273,14 +277,14 @@ class ChartBar extends BaseChart {
         }
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
-        formatter.push('{a' + i + '} : {c' + i + '}')
       }
 
-      let opt = {
+      const opt = {
+        ...ECHART_BASE,
         xAxis: {
           type: 'category',
           data: data.xAxis,
-          axisLabel: ECHART_AxisLabel,
+          axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
             lineStyle: { color: '#ddd' }
           }
@@ -288,18 +292,17 @@ class ChartBar extends BaseChart {
         yAxis: {
           type: 'value',
           splitLine: { show: false },
-          axisLabel: ECHART_AxisLabel,
+          axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
             lineStyle: { color: '#ddd', width: 0 }
           }
         },
         series: data.yyyAxis
       }
-      opt = { ...opt, ...ECHART_Base }
-      opt.tooltip.formatter = '<b>{b}</b> <br> ' + formatter.join(' <br> ')
       opt.tooltip.trigger = 'axis'
+      opt.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
 
-      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -320,15 +323,14 @@ class ChartPie extends BaseChart {
     const elid = 'echarts-pie-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, () => {
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
-      let opt = {
-        series: [data]
+      const opt = {
+        ...ECHART_BASE,
+        series: [data],
       }
-      opt = { ...opt, ...ECHART_Base }
       opt.tooltip.trigger = 'item'
-      opt.tooltip.formatter = '<b>{b}</b> <br/> {a} : {c} ({d}%)'
-      // opt.label = { formatter: '{b} {c}' }
+      opt.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
 
-      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -348,7 +350,8 @@ class ChartFunnel extends BaseChart {
     const that = this
     const elid = 'echarts-funnel-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart funnel" id={elid}></div>) }, () => {
-      let opt = {
+      const opt = {
+        ...ECHART_BASE,
         series: [{
           type: 'funnel',
           sort: 'none',
@@ -359,15 +362,13 @@ class ChartFunnel extends BaseChart {
           cursor: 'default'
         }]
       }
-      opt = { ...opt, ...ECHART_Base }
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
-        if (data.xLabel) return `<b>${i.name}</b> <br/> ${data.xLabel} : ${i.value}`
-        else return `<b>${i.name}</b> <br/> ${i.value}`
+        if (data.xLabel) return `<b>${i.name}</b> <br/> ${i.marker} ${data.xLabel} : ${i.value}`
+        else return `<b>${i.name}</b> <br/> ${i.marker} ${i.value}`
       }
-      // opt.label = { formatter: '{b} {c}' }
 
-      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
       that.__echarts = c
     })
@@ -387,7 +388,8 @@ class ChartTreemap extends BaseChart {
     const that = this
     const elid = 'echarts-treemap-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart treemap" id={elid}></div>) }, () => {
-      let opt = {
+      const opt = {
+        ...ECHART_BASE,
         series: [{
           data: data.data,
           type: 'treemap',
@@ -398,21 +400,19 @@ class ChartTreemap extends BaseChart {
           roam: false  // Disabled drag and mouse wheel
         }]
       }
-      opt = { ...opt, ...ECHART_Base }
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
-        let p = 0
-        if (i.value > 0) p = (i.value * 100 / data.xAmount).toFixed(2)
-        return `<b>${i.name.split('--------').join('<br/>')}</b> <br/> ${data.xLabel} : ${i.value} (${p}%)`
+        const p = i.value > 0 ? (i.value * 100 / data.xAmount).toFixed(2) : 0
+        return `<b>${i.name.split('--------').join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${i.value} (${p}%)`
       }
       opt.label = {
         formatter: function (i) {
-          let ns = i.name.split('--------')
+          const ns = i.name.split('--------')
           return ns[ns.length - 1]
         }
       }
 
-      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RenderOpt)
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
       that.__echarts = c
     })

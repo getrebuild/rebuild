@@ -39,6 +39,9 @@ import java.io.IOException;
 @RequestMapping("/account")
 @Controller
 public class UserAvatar extends BaseControll {
+
+	// 头像缓存时间
+	private static final int AVATAR_CACHE_TIME = 15;
 	
 	@RequestMapping("/user-avatar")
 	public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -77,8 +80,7 @@ public class UserAvatar extends BaseControll {
 			return;
 		}
 		
-		final int minutes = 15;
-		ServletUtils.addCacheHead(response, minutes);
+		ServletUtils.addCacheHead(response, AVATAR_CACHE_TIME);
 		
 		String avatarUrl = realUser.getAvatarUrl();
 		avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
@@ -87,7 +89,7 @@ public class UserAvatar extends BaseControll {
 			avatarUrl = avatarUrl + "?imageView2/2/w/" + w + "/interlace/1/q/100";
 
 			if (QiniuCloud.instance().available()) {
-				avatarUrl = QiniuCloud.instance().url(avatarUrl, minutes * 60);
+				avatarUrl = QiniuCloud.instance().url(avatarUrl, AVATAR_CACHE_TIME * 60);
 			} else {
 				avatarUrl = AppUtils.getContextPath() + "/filex/img/" + avatarUrl;
 			}
