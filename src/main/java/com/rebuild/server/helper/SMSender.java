@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
@@ -68,9 +69,11 @@ public class SMSender {
 	 * @throws ConfigurationException If mail-account unset
 	 */
 	public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
-		if (specAccount == null || specAccount.length < 4) {
-			throw new ConfigurationException("邮箱账户未配置/无效");
-		}
+        if (specAccount == null || specAccount.length < 4
+                || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
+                || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
+            throw new ConfigurationException("邮箱账户未配置/无效");
+        }
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("appid", specAccount[0]);
@@ -166,9 +169,11 @@ public class SMSender {
 	 * @throws ConfigurationException If sms-account unset
 	 */
 	public static String sendSMS(String to, String content, String[] specAccount) throws ConfigurationException {
-		if (specAccount == null || specAccount.length < 3) {
-			throw new ConfigurationException("短信账户未配置/无效");
-		}
+        if (specAccount == null || specAccount.length < 3
+                || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
+                || StringUtils.isBlank(specAccount[2])) {
+            throw new ConfigurationException("短信账户未配置/无效");
+        }
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("appid", specAccount[0]);
