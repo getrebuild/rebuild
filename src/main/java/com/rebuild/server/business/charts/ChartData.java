@@ -366,6 +366,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		if (chartOwning == null || !noPrivileges) {
 			return Application.createQuery(sql, this.getUser());
 		} else {
+		    // 管理员创建的才能使用全部数据
             return Application.createQuery(sql,
                     UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : this.getUser());
         }
