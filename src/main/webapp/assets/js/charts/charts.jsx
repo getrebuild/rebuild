@@ -14,17 +14,18 @@ class BaseChart extends React.Component {
   }
 
   render() {
-    const opers = this.props.editable === false ?
+    const opers = (
       <div className="chart-oper">
+        {!this.props.builtin && <a title="查看来源数据" target="_blank" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
+        {this.props.editable && (
+          <React.Fragment>
+            {!this.props.builtin && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
+            <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
+          </React.Fragment>
+        )}
       </div>
-      :
-      <div className="chart-oper">
-        {this.props.builtin !== true && <a title="查看来源数据" target="_blank" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
-        <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
-        {this.props.builtin !== true && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
-        <a onClick={() => this.remove()}><i className="zmdi zmdi-close" /></a>
-      </div>
+    )
 
     return (
       <div className={'chart-box ' + this.props.type} ref={(c) => this._box = c}>
@@ -112,10 +113,10 @@ class ChartIndex extends BaseChart {
   _resize() {
     const ch = $(this._chart).height()
     const $text = $(this._chart).find('strong')
-    let zoom = $(this._chart).width() / $text.width() / 2
-    if (zoom < 1 || ch < 100) zoom = 1
-    if (zoom > 2.5 && ch < 200) zoom = 2.5
-    $text.css('zoom', Math.min(zoom, 4))
+    let zoom = $(this._chart).width() / $text.width() / 3
+    if (zoom < 1 || ch < 120) zoom = 1
+    if (zoom > 2 && ch < 200) zoom = 2
+    $text.css('zoom', Math.min(zoom, 3))
   }
 }
 
@@ -126,10 +127,16 @@ class ChartTable extends BaseChart {
   }
 
   renderChart(data) {
-    if (!data.html) { this.renderError('暂无数据'); return }
-    const chartdata = <div className="chart ctable">
-      <div dangerouslySetInnerHTML={{ __html: data.html }}></div>
-    </div>
+    if (!data.html) {
+      this.renderError('暂无数据')
+      return
+    }
+
+    const chartdata = (
+      <div className="chart ctable">
+        <div dangerouslySetInnerHTML={{ __html: data.html }}></div>
+      </div>
+    )
 
     const that = this
     let colLast = null
@@ -150,6 +157,7 @@ class ChartTable extends BaseChart {
       this.__tb = $tb
     })
   }
+
   resize() {
     $setTimeout(() => {
       if (this.__tb) this.__tb.find('.ctable').css('height', this.__tb.height() - 20)
@@ -317,7 +325,10 @@ class ChartPie extends BaseChart {
 
   renderChart(data) {
     if (this.__echarts) this.__echarts.dispose()
-    if (data.data.length === 0) { this.renderError('暂无数据'); return }
+    if (data.data.length === 0) {
+      this.renderError('暂无数据')
+      return
+    }
 
     const that = this
     const elid = 'echarts-pie-' + (this.state.id || 'id')

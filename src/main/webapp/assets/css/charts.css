@@ -44,6 +44,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 	line-height: 20px;
 }
 
+.chart-box .chart-head .chart-title.ui-draggable-disabled {
+	cursor: default;
+}
+
 .chart-box .chart-head .chart-oper {
 	position: absolute;
 	right: 0;
