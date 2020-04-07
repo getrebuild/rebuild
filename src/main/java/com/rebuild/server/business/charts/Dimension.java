@@ -35,13 +35,13 @@ public class Dimension extends Axis {
 		DisplayType dt = EasyMeta.getDisplayType(getField());
 		if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
 			if (getFormatCalc() == FormatCalc.Y) {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y年");
+				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y");
 			} else if (getFormatCalc() == FormatCalc.M) {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y年%m月");
+				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
 			} else if (getFormatCalc() == FormatCalc.H) {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y年%m月%d日 %H时");
+				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %HH");
 			} else {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y年%m月%d日");
+				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
 			}
 		} else {
 			return super.getSqlName();
