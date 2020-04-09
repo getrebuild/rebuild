@@ -294,7 +294,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	 */
 	protected String wrapAxisValue(Dimension axis, Object value) {
 		if (value == null) {
-			return "空";
+			return "无";
 		}
 
 		EasyMeta axisField = EasyMeta.valueOf(axis.getField());

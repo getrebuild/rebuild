@@ -55,9 +55,6 @@ class BaseChart extends React.Component {
     })
   }
 
-  viewDataInList() {
-  }
-
   buildDataUrl() {
     return (this.state.id ? '/dashboard/chart-data' : '/dashboard/chart-preview') + '?id=' + (this.state.id || '')
   }

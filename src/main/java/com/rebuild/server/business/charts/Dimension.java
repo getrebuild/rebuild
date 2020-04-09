@@ -46,7 +46,8 @@ public class Dimension extends Axis {
 					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
 			}
 
-		} else if (dt == DisplayType.CLASSIFICATION && getFormatCalc() != null) {
+		} else if (dt == DisplayType.CLASSIFICATION
+                && getFormatCalc() != null && getFormatSort() != FormatSort.NONE) {
 			int useLevel = ClassificationManager.instance.getOpenLevel(getField()) + 1;
 			int selectLevel = Integer.parseInt(getFormatCalc().name().substring(1));
 			// Last
