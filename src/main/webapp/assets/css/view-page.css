@@ -415,11 +415,6 @@ body {
 
 .rbview-form.inside {
 	display: none;
-}
-
-.rbview-form.inside.active {
-	display: block;
-	border-top: 1px solid #ebebeb;
 	padding: 10px 15px;
 }
 
@@ -429,6 +424,18 @@ body {
 
 .rbview-form.inside>.alert {
 	margin: 10px auto !important;
+}
+
+.card.active .rbview-form.inside {
+	display: block;
+}
+
+.card.active .header-title {
+	background-color: #eee;
+}
+
+.card.active .header-title::after {
+	content: '\f273';
 }
 
 /* over Feeds */
