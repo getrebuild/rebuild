@@ -49,16 +49,13 @@ public class Dimension extends Axis {
 		} else if (dt == DisplayType.CLASSIFICATION && getFormatCalc() != null) {
 			int useLevel = ClassificationManager.instance.getOpenLevel(getField()) + 1;
 			int selectLevel = Integer.parseInt(getFormatCalc().name().substring(1));
-			if (selectLevel > useLevel) {
-				selectLevel = useLevel;
-			}
-
-			if (useLevel == selectLevel || selectLevel == 4) {
+			// Last
+			if (selectLevel >= useLevel || selectLevel == 4) {
 				return super.getSqlName();
 			}
 
 			String sqlName = super.getSqlName();
-			for (int i = 0; i < selectLevel; i++) {
+			for (int i = 0; i < useLevel - selectLevel; i++) {
 				sqlName += ".parent";
 			}
 			return sqlName;
