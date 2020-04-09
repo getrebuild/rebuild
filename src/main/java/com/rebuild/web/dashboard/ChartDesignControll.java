@@ -128,7 +128,10 @@ public class ChartDesignControll extends BaseEntityControll {
 				type = "date";
 			} else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
 				type = "num";
+			} else if (dt == DisplayType.CLASSIFICATION) {
+				type = "clazz";
 			}
+
 			dest.add(new String[] {
 					(parent == null ? "" : (parent.getName() + ".")) + easyField.getName(),
 					(parent == null ? "" : (EasyMeta.getLabel(parent) + ".")) + easyField.getLabel(),

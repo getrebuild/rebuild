@@ -29,7 +29,7 @@
 					<h5>字段</h5>
 					<ul class="list-unstyled fields">
 						<c:forEach items="${fields}" var="field">
-						<li class="${field[2]}"><a data-type="${field[2]}" data-field="${field[0]}" title="${field[1]}">${field[1]}</a></li>
+						<li class="${field[2]}"><a data-field="${field[0]}" title="${field[1]}" data-type="${field[2]}">${field[1]}</a></li>
 						</c:forEach>
 					</ul>
 				</div>
@@ -109,7 +109,7 @@
 		</div>
 	</div>
 </div>
-<script type="text/plain" id="axis-ietm">
+<script type="text/plain" id="axis-item">
 <span>
 <div class="item" data-toggle="dropdown">
 	<a><i class="zmdi zmdi-chevron-down"></i></a>
@@ -126,6 +126,10 @@
 	<li class="dropdown-item J_date" data-calc="M">按月</li>
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>
+	<li class="dropdown-item J_clazz" data-calc="L1">一级</li>
+	<li class="dropdown-item J_clazz" data-calc="L2">二级</li>
+	<li class="dropdown-item J_clazz" data-calc="L3">三级</li>
+	<li class="dropdown-item J_clazz" data-calc="L4">四级</li>
 	<li class="dropdown-divider"></li>
 	<li class="dropdown-submenu J_sort">
 		<a class="dropdown-item">排序</a>

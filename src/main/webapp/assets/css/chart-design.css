@@ -266,7 +266,8 @@ a.ui-draggable.ui-draggable-dragging {
 	content: '#';
 }
 
-.data-info .fields li.text a::before {
+.data-info .fields li.text a::before,
+.data-info .fields li.clazz a::before {
 	content: 'T';
 }
 

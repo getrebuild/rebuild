@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.business.charts;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 
@@ -34,15 +35,34 @@ public class Dimension extends Axis {
 	public String getSqlName() {
 		DisplayType dt = EasyMeta.getDisplayType(getField());
 		if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
-			if (getFormatCalc() == FormatCalc.Y) {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y");
-			} else if (getFormatCalc() == FormatCalc.M) {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
-			} else if (getFormatCalc() == FormatCalc.H) {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %H时");
-			} else {
-				return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
+			switch (getFormatCalc()) {
+				case Y:
+					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y");
+				case M:
+					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
+				case H:
+					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %H时");
+				default:
+					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
 			}
+
+		} else if (dt == DisplayType.CLASSIFICATION && getFormatCalc() != null) {
+			int useLevel = ClassificationManager.instance.getOpenLevel(getField()) + 1;
+			int selectLevel = Integer.parseInt(getFormatCalc().name().substring(1));
+			if (selectLevel > useLevel) {
+				selectLevel = useLevel;
+			}
+
+			if (useLevel == selectLevel || selectLevel == 4) {
+				return super.getSqlName();
+			}
+
+			String sqlName = super.getSqlName();
+			for (int i = 0; i < selectLevel; i++) {
+				sqlName += ".parent";
+			}
+			return sqlName;
+
 		} else {
 			return super.getSqlName();
 		}
