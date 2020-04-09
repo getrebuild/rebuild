@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* eslint-disable react/jsx-no-undef */
+/* global UserSelectorExt */
 
 // ~~ 自动分派
 // eslint-disable-next-line
@@ -28,11 +28,11 @@ class ContentAutoAssign extends ActionContentSpec {
           <label className="col-12 col-lg-3 col-form-label text-lg-right">(多人) 分派规则</label>
           <div className="col-12 col-lg-8 pt-1">
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule == 1} value="1" onChange={this.changeValue} />
+              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule === 1} value="1" onChange={this.changeValue} />
               <span className="custom-control-label">依次平均分派</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule == 2} value="2" onChange={this.changeValue} />
+              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule === 2} value="2" onChange={this.changeValue} />
               <span className="custom-control-label">随机分派</span>
             </label>
           </div>
@@ -65,7 +65,7 @@ class ContentAutoAssign extends ActionContentSpec {
       })
     }
 
-    if (this.props.content && this.props.content.assignRule == 2) this.setState({ assignRule: 2 })
+    if (this.props.content && this.props.content.assignRule === 2) this.setState({ assignRule: 2 })
 
     const cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
     $.get('/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {

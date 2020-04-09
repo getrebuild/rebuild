@@ -32,10 +32,8 @@ public interface InstallState {
      * @return
      */
     default boolean checkInstalled() {
-        if (Application.devMode()) {
-            return true;  // for dev
-        }
+        if (Application.devMode()) return true;  // for dev
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
-        return file != null && file.exists();
+        return file.exists();
     }
 }

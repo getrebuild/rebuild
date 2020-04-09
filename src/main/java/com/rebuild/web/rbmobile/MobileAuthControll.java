@@ -11,7 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.LoginToken;
-import com.rebuild.api.LoginTokenManager;
+import com.rebuild.api.AuthTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AppUtils;
@@ -40,8 +40,6 @@ import java.io.IOException;
 @RbMobile
 public class MobileAuthControll extends BaseControll {
 
-    // 有效期
-    private static final int TOKEN_EXPIRES = 60 * 60 * 12;
     // 防刷
     private static final RequestFrequencyCounter COUNTER = new RequestFrequencyCounter();
 
@@ -64,7 +62,7 @@ public class MobileAuthControll extends BaseControll {
         }
 
         User loginUser = Application.getUserStore().getUser(username);
-        String token = LoginTokenManager.generateToken(loginUser.getId(), TOKEN_EXPIRES);
+        String token = AuthTokenManager.generateToken(loginUser.getId(), AuthTokenManager.TOKEN_EXPIRES);
 
         LoginControll.createLoginLog(request, loginUser.getId());
         writeSuccess(response, buildUserData(token, loginUser));
@@ -73,7 +71,7 @@ public class MobileAuthControll extends BaseControll {
     @RequestMapping("logout")
     public void mobileLogout(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String xAuthToken = request.getHeader(AppUtils.MOBILE_HF_AUTHTOKEN);
-        ID user = LoginTokenManager.verifyToken(xAuthToken, true);
+        ID user = AuthTokenManager.verifyToken(xAuthToken, true);
 
         if (user != null) {
             // TODO 退出时间
@@ -85,7 +83,7 @@ public class MobileAuthControll extends BaseControll {
     @RequestMapping("verfiy-token")
     public void verfiyToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String xAuthToken = request.getHeader(AppUtils.MOBILE_HF_AUTHTOKEN);
-        ID user = LoginTokenManager.refreshToken(xAuthToken, TOKEN_EXPIRES);
+        ID user = AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
 
         if (user != null) {
             User loginUser = Application.getUserStore().getUser(user);

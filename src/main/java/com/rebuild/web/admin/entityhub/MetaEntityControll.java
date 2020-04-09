@@ -176,8 +176,10 @@ public class MetaEntityControll extends BasePageControll {
 		
 		if (needReindex != null) {
 			Entity entity = MetadataHelper.getEntity(needReindex);
-			QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
-			TaskExecutors.submit(reindexTask, user);
+			if (entity.containsField(EntityHelper.QuickCode)) {
+                QuickCodeReindexTask reindexTask = new QuickCodeReindexTask(entity);
+                TaskExecutors.submit(reindexTask, user);
+            }
 		}
 		
 		writeSuccess(response);
@@ -210,7 +212,7 @@ public class MetaEntityControll extends BasePageControll {
 		if (ServletUtils.isAjaxRequest(request)) {
 			writeSuccess(response, JSONUtils.toJSONObject("file", dest.getName()));
 		} else {
-			FileDownloader.setDownloadHeaders(response, dest.getName());
+			FileDownloader.setDownloadHeaders(request, response, dest.getName());
 			FileDownloader.writeLocalFile(dest.getName(), true, response);
 		}
 	}

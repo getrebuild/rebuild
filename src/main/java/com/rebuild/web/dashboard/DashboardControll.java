@@ -84,7 +84,7 @@ public class DashboardControll extends BasePageControll {
 				if (chart == null) {
 					continue;
 				}
-				// 自己的直接使用
+				// 自己的直接使用，不是自己的复制一份
 				if (ShareToManager.isSelf(user, chart.getID("createdBy"))) {
 					continue;
 				}

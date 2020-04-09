@@ -4,7 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* eslint-disable react/no-string-refs */
 
 const wpc = window.__PageConfig
 
@@ -72,7 +71,7 @@ $(document).ready(() => {
   })
 
   // 保存按钮
-  $('.rb-toggle-left-sidebar').attr('title', '完成').off('click').on('click', () => {
+  $('.rb-toggle-left-sidebar').attr('title', '保存').off('click').on('click', () => {
     const cfg = build_config()
     if (!cfg) { RbHighbar.create('当前图表无数据'); return }
     const data = {
@@ -126,72 +125,82 @@ $(document).ready(() => {
   })
 })
 
-const CTs = { SUM: '求和', AVG: '平均值', MAX: '最大值', MIN: '最小值', COUNT: '计数', Y: '按年', Q: '按季', M: '按月', D: '按日', H: '按时' }
+const CTs = {
+  SUM: '求和', AVG: '平均值', MAX: '最大值', MIN: '最小值', COUNT: '计数',
+  Y: '按年', Q: '按季', M: '按月', D: '按日', H: '按时',
+  L1: '一级', L2: '二级', L3: '三级', L4: '四级'
+}
+
 let dlgAxisProps
 // 添加维度
 const add_axis = ((target, axis) => {
-  const el = $($('#axis-ietm').html()).appendTo($(target))
-  let fName = null
-  let fLabel = null
-  let fType = null
+  const $dropdown = $($('#axis-item').html()).appendTo($(target))
+  let fieldName = null
+  let fieldLabel = null
+  let fieldType = null
   let calc = null
-  let sort = null
+  let sort = 'NONE'
 
   const isNumAxis = $(target).hasClass('J_axis-num')
-  // in-load
+  // Edit
   if (axis.field) {
-    const field = $('.fields [data-field="' + axis.field + '"]')
-    fName = axis.field
-    fLabel = field.text()
-    fType = field.data('type')
+    const field = $(`.fields [data-field="${axis.field}"]`)
+    fieldName = axis.field
+    fieldLabel = field.text()
+    fieldType = field.data('type')
     sort = axis.sort
     calc = axis.calc
-    el.attr({ 'data-label': axis.label, 'data-scale': axis.scale })
-  } else {
-    fName = axis.data('field')
-    fLabel = axis.text()
-    fType = axis.data('type')
-    sort = 'NONE'
+    $dropdown.attr({ 'data-label': axis.label, 'data-scale': axis.scale })
+  }
+  // New adds
+  else {
+    fieldName = axis.data('field')
+    fieldLabel = axis.text()
+    fieldType = axis.data('type')
     if (isNumAxis) {
-      if (fType === 'text' || fType === 'date') calc = 'COUNT'
-      else calc = 'SUM'
-    } else {
-      if (fType === 'date') calc = 'D'
+      calc = fieldType === 'num' ? 'SUM' : 'COUNT'
+    } else if (fieldType === 'date') {
+      calc = 'D'
+    } else if (fieldType === 'clazz') {
+      calc = 'L1'
     }
   }
-  el.attr({ 'data-calc': calc, 'data-sort': sort })
+  $dropdown.attr({ 'data-calc': calc, 'data-sort': sort })
 
-  fLabel = fLabel || ('[' + fName.toUpperCase() + ']')
+  fieldLabel = fieldLabel || ('[' + fieldName.toUpperCase() + ']')
 
   if (isNumAxis) {
-    if (fType === 'date' || fType === 'text') el.find('.J_date, .J_num').remove()
-    else el.find('.J_date').remove()
+    $dropdown.find('.J_date, .J_clazz').remove()
+    if (fieldType !== 'num') $dropdown.find('.J_num').remove()
   } else {
-    if (fType === 'date') el.find('.J_text, .J_num').remove()
-    else el.find('.J_text, .J_num, .J_date, .dropdown-divider').remove()
+    $dropdown.find('.J_text, .J_num').remove()
+    if (fieldType !== 'date') $dropdown.find('.J_date').remove()
+    if (fieldType !== 'clazz') $dropdown.find('.J_clazz').remove()
   }
+  if ($dropdown.find('li:eq(0)').hasClass('dropdown-divider')) $dropdown.find('.dropdown-divider').remove()
 
-  const aopts = el.find('.dropdown-menu .dropdown-item').click(function () {
+  // Click option
+  const aopts = $dropdown.find('.dropdown-menu .dropdown-item').click(function () {
     const $this = $(this)
     if ($this.hasClass('disabled') || $this.parent().hasClass('disabled')) return false
 
     const calc = $this.data('calc')
     const sort = $this.data('sort')
     if (calc) {
-      el.find('span').text(fLabel + (' (' + $this.text() + ')'))
-      el.attr('data-calc', calc)
+      $dropdown.find('span').text(fieldLabel + (' (' + $this.text() + ')'))
+      $dropdown.attr('data-calc', calc)
       aopts.each(function () { if ($(this).data('calc')) $(this).removeClass('text-primary') })
       $this.addClass('text-primary')
       render_preview()
     } else if (sort) {
-      el.attr('data-sort', sort)
+      $dropdown.attr('data-sort', sort)
       aopts.each(function () { if ($(this).data('sort')) $(this).removeClass('text-primary') })
       $this.addClass('text-primary')
       render_preview()
     } else {
-      const state = { isNumAxis: isNumAxis, label: el.attr('data-label'), scale: el.attr('data-scale') }
+      const state = { isNumAxis: isNumAxis, label: $dropdown.attr('data-label'), scale: $dropdown.attr('data-scale') }
       state.callback = (s) => {
-        el.attr({ 'data-label': s.label, 'data-scale': s.scale })
+        $dropdown.attr({ 'data-label': s.label, 'data-scale': s.scale })
         render_preview()
       }
 
@@ -199,13 +208,14 @@ const add_axis = ((target, axis) => {
       else renderRbcomp(<DlgAxisProps {...state} />, null, function () { dlgAxisProps = this })
     }
   })
-  if (calc) el.find('.dropdown-menu li[data-calc="' + calc + '"]').addClass('text-primary')
-  if (sort) el.find('.dropdown-menu li[data-sort="' + sort + '"]').addClass('text-primary')
 
-  el.attr({ 'data-type': fType, 'data-field': fName })
-  el.find('span').text(fLabel + (calc ? ` (${CTs[calc]})` : ''))
-  el.find('a.del').click(() => {
-    el.remove()
+  if (calc) $dropdown.find(`.dropdown-menu li[data-calc="${calc}"]`).addClass('text-primary')
+  if (sort) $dropdown.find(`.dropdown-menu li[data-sort="${sort}"]`).addClass('text-primary')
+
+  $dropdown.attr({ 'data-type': fieldType, 'data-field': fieldName })
+  $dropdown.find('span').text(fieldLabel + (calc ? ` (${CTs[calc]})` : ''))
+  $dropdown.find('a.del').click(() => {
+    $dropdown.remove()
     render_option()
   })
   render_option()
@@ -228,12 +238,12 @@ const render_option = (() => {
   else $('.chart-type>a[data-type="FUNNEL"]').removeClass('active')
 
   // Active
-  let select = $('.chart-type>a.select')
-  if (!select.hasClass('active')) select.removeClass('select')
-  select = $('.chart-type>a.select')
-  if (select.length === 0) select = $('.chart-type>a.active').eq(0).addClass('select')
+  let $select = $('.chart-type>a.select')
+  if (!$select.hasClass('active')) $select.removeClass('select')
+  $select = $('.chart-type>a.select')
+  if ($select.length === 0) $select = $('.chart-type>a.active').eq(0).addClass('select')
 
-  const ct = select.data('type')
+  const ct = $select.data('type')
   // Option
   $('.chart-option>div').addClass('hide')
   const ctOpt = $('.J_opt-' + ct)
@@ -312,7 +322,7 @@ const __buildAxisItem = ((item, isNum) => {
   if (isNum) {
     x.calc = item.attr('data-calc')
     x.scale = item.attr('data-scale')
-  } else if (item.data('type') === 'date') {
+  } else if (item.data('type') === 'date' || item.data('type') === 'clazz') {
     x.calc = item.attr('data-calc')
   }
   return x

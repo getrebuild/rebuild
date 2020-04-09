@@ -2,23 +2,24 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>EMail Template</title>
+    <title>EMAIL TEMPLATE</title>
 </head>
 <body>
 <div style="background-color:#f5f5f5;margin:0;font-size:0.9rem;padding:20px 30px;color:#333;font-family:Roboto,Helvetica,'Microsoft YaHei','宋体',sans-serif;line-height:1.5">
-    <div>
-        <a href="https://getrebuild.com/?utm_source=rb.mail">
-            <img src="https://getrebuild.com/img/logo.png" alt="REBUILD" style="width:132px;display:inline-block"/>
-        </a>
-    </div>
     <div style="border:1px solid #eee;padding:30px 20px;background-color:#fff;border-radius:3px;border-top:3px solid #4285f4;max-width:720px;margin:10px 0">
         <h2 class="rb-title" style="font-size:1.4rem;margin:0;font-weight:400">%TITLE%</h2>
         <div class="rb-content" style="margin-top:10px">%CONTETN%</div>
     </div>
     <div>
-        <div class="rb-footer" style="margin:0;color:#888;font-size:12px;">
-            本消息由 REBUILD 系统自动发送，请不要直接回复。<br>
-            <em>This email was sent to %TO% on %TIME%</em>
+        <div class="rb-footer" style="margin:0;color:#888;font-size:12px;max-width:760px">
+            <div style="float:left">
+                本消息由 REBUILD 系统自动发送，请不要直接回复。<br>
+                <em>This email was sent to %TO% at %TIME%</em>
+            </div>
+            <div style="float:right">
+                <a href="https://getrebuild.com/" target="_blank"><img src="https://getrebuild.com/img/logo.png" alt="REBUILD" style="width:134px;display:inline-block;margin-top:3px"/></a>
+            </div>
+            <div style="clear:both;font-size:0"></div>
         </div>
     </div>
 </div>

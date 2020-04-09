@@ -203,7 +203,7 @@ class RelatedList extends React.Component {
         {!this.state.list && <RbSpinner />}
         {(this.state.list && this.state.list.length === 0) && <div className="list-nodata"><span className="zmdi zmdi-info-outline" /><p>暂无相关数据</p></div>}
         {(this.state.list || []).map((item) => {
-          return <div className="card" key={`rr-${item[0]}`}>
+          return <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={`rr-${item[0]}`}>
             <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
               <div className="col-10">
                 <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={(e) => this._handleView(e)} title="打开">{item[1]}</a>
@@ -212,7 +212,7 @@ class RelatedList extends React.Component {
                 <span className="fs-12 text-muted" title="修改时间">{item[2]}</span>
               </div>
             </div>
-            <div className={`rbview-form inside ${this.state.viewOpens[item[0]] ? 'active' : ''}`}>
+            <div className="rbview-form inside">
               {this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}
             </div>
           </div>

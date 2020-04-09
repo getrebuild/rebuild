@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin.entityhub;
@@ -52,8 +41,7 @@ import java.io.IOException;
 public class AutoFillinControll extends BasePageControll implements PortalsConfiguration {
 	
 	@RequestMapping("{field}/auto-fillin")
-	public ModelAndView page(@PathVariable String entity, @PathVariable String field,
-			HttpServletRequest request) throws IOException {
+	public ModelAndView page(@PathVariable String entity, @PathVariable String field) throws IOException {
 		ModelAndView mv = createModelAndView("/admin/entityhub/auto-fillin.jsp");
 		EasyMeta easyMeta = MetaEntityControll.setEntityBase(mv, entity);
 		
@@ -73,7 +61,7 @@ public class AutoFillinControll extends BasePageControll implements PortalsConfi
 		JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 		final String field = data.getString("field");
 		
-		Record record = null;
+		Record record;
 		if (ID.isId(data.getString("id"))) {
 			record = EntityHelper.forUpdate(ID.valueOf(data.getString("id")), user);
 		} else {
@@ -93,11 +81,10 @@ public class AutoFillinControll extends BasePageControll implements PortalsConfi
 					.setParameter(2, field)
 					.setParameter(3, targetField)
 					.unique();
-			if (exists != null) {
-				if (record.getPrimary() == null || !exists[0].equals(record.getPrimary())) {
-					writeFailure(response, "目标字段重复");
-					return;
-				}
+			if (exists != null
+                    && (record.getPrimary() == null || !exists[0].equals(record.getPrimary()))) {
+			    writeFailure(response, "目标字段重复");
+			    return;
 			}
 			
 			record.setString("targetField", targetField);

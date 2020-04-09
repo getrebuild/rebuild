@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.charts;
@@ -116,8 +105,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	 * @return
 	 */
 	public Dimension[] getDimensions() {
-		JSONObject axis = config.getJSONObject("axis");
-		JSONArray items = axis.getJSONArray("dimension");
+		JSONArray items = config.getJSONObject("axis").getJSONArray("dimension");
 		if (items == null || items.isEmpty()) {
 			return new Dimension[0];
 		}
@@ -125,8 +113,11 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		List<Dimension> list = new ArrayList<>();
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
-			Dimension dim = new Dimension(getField(item), getFormatSort(item), getFormatCalc(item),
-					item.getString("label"));
+			Field[] validFields = getValidFields(item);
+			Dimension dim = new Dimension(
+					validFields[0], getFormatSort(item), getFormatCalc(item),
+					item.getString("label"),
+					validFields[1]);
 			list.add(dim);
 		}
 		return list.toArray(new Dimension[0]);
@@ -138,8 +129,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	 * @return
 	 */
 	public Numerical[] getNumericals() {
-		JSONObject axis = config.getJSONObject("axis");
-		JSONArray items = axis.getJSONArray("numerical");
+		JSONArray items = config.getJSONObject("axis").getJSONArray("numerical");
 		if (items == null || items.isEmpty()) {
 			return new Numerical[0];
 		}
@@ -147,21 +137,44 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		List<Numerical> list = new ArrayList<>();
 		for (Object o : items) {
 			JSONObject item = (JSONObject) o;
-			Numerical num = new Numerical(getField(item), getFormatSort(item), getFormatCalc(item),
-					item.getString("label"), item.getInteger("scale"));
+			Field[] validFields = getValidFields(item);
+			Numerical num = new Numerical(
+					validFields[0], getFormatSort(item), getFormatCalc(item),
+					item.getString("label"),
+					item.getInteger("scale"),
+					validFields[1]);
 			list.add(num);
 		}
 		return list.toArray(new Numerical[0]);
 	}
 
-	private Field getField(JSONObject item) {
-		String field = item.getString("field");
-		if (!getSourceEntity().containsField(field)) {
-			throw new ChartsException("字段 [" + field.toUpperCase() + " ] 已被删除，请调整图表配置");
+	/**
+	 * @param item
+	 * @return
+	 * @see MetadataHelper#getLastJoinField(Entity, String)
+	 */
+	private Field[] getValidFields(JSONObject item) {
+		String fieldName = item.getString("field");
+		if (MetadataHelper.getLastJoinField(getSourceEntity(), fieldName) == null) {
+			throw new ChartsException("字段 [" + fieldName.toUpperCase() + " ] 不存在，请调整图表配置");
 		}
-		return getSourceEntity().getField(field);
+
+		Field[] fields = new Field[2];
+		String[] fieldNames = fieldName.split("\\.");
+
+		if (fieldNames.length > 1) {
+			fields[1] = getSourceEntity().getField(fieldNames[0]);
+			fields[0] = fields[1].getReferenceEntity().getField(fieldNames[1]);
+		} else {
+			fields[0] = getSourceEntity().getField(fieldNames[0]);
+		}
+		return fields;
 	}
 
+	/**
+	 * @param item
+	 * @return
+	 */
 	private FormatSort getFormatSort(JSONObject item) {
 		if (StringUtils.isNotBlank(item.getString("sort"))) {
 			return FormatSort.valueOf(item.getString("sort"));
@@ -169,6 +182,10 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		return FormatSort.NONE;
 	}
 
+	/**
+	 * @param item
+	 * @return
+	 */
 	private FormatCalc getFormatCalc(JSONObject item) {
 		if (StringUtils.isNotBlank(item.getString("calc"))) {
 			return FormatCalc.valueOf(item.getString("calc"));
@@ -194,7 +211,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		}
 		
 		JSONObject filterExp = config.getJSONObject("filter");
-		if (filterExp == null) {
+		if (filterExp == null || filterExp.isEmpty()) {
 			return previewFilter + "(1=1)";
 		}
 		
@@ -349,6 +366,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		if (chartOwning == null || !noPrivileges) {
 			return Application.createQuery(sql, this.getUser());
 		} else {
+		    // 管理员创建的才能使用全部数据
             return Application.createQuery(sql,
                     UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : this.getUser());
         }

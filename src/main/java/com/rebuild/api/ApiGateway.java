@@ -62,16 +62,16 @@ public class ApiGateway extends Controll {
 
 		ApiContext context = null;
 		try {
-			BaseApi api = createApi(apiName);
-			context = verfiy(request.getParameterMap(), ServletUtils.getRequestString(request), request);
+			final BaseApi api = createApi(apiName);
+			context = verfiy(request, api);
 			if (context.getBindUser() != null) {
 				Application.getSessionStore().set(context.getBindUser());
 			}
 
 			JSON data = api.execute(context);
-			JSON ok = formatSuccess(data);
-			ServletUtils.writeJson(response, ok.toJSONString());
-			logRequestAsync(reuqestTime, remoteIp, apiName, context, ok);
+			JSON success = formatSuccess(data);
+			ServletUtils.writeJson(response, success.toJSONString());
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, success);
 
 			return;
 
@@ -99,15 +99,14 @@ public class ApiGateway extends Controll {
 	/**
 	 * 验证请求并构建请求上下文
 	 *
-	 * @param parameterMap
-	 * @param postData
 	 * @param request
+	 * @param useApi
 	 * @return
 	 * @throws IOException
 	 */
-	protected ApiContext verfiy(Map<String, String[]> parameterMap, String postData, HttpServletRequest request) throws IOException {
-		Map<String, String> sortedMap = new TreeMap<>();
-		for (Map.Entry<String, String[]> e : parameterMap.entrySet()) {
+	protected ApiContext verfiy(HttpServletRequest request, BaseApi useApi) throws IOException {
+		final Map<String, String> sortedMap = new TreeMap<>();
+		for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
 			String[] vv = e.getValue();
 			sortedMap.put(e.getKey(), vv == null || vv.length == 0 ? null : vv[0]);
 		}
@@ -115,13 +114,13 @@ public class ApiGateway extends Controll {
 		String appid = getParameterNotNull(sortedMap,"appid");
 		ConfigEntry apiConfig = RebuildApiManager.instance.getApp(appid);
 		if (apiConfig == null) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid appid=" + appid);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [appid] " + appid);
 		}
 
 		String timestamp = getParameterNotNull(sortedMap,"timestamp");
 		long systemTime = System.currentTimeMillis() / 1000;
 		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (AppUtils.devMode() ? 100 : 10)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid timestamp=" + appid);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] " + appid);
 		}
 
 		// 验证签名
@@ -147,15 +146,19 @@ public class ApiGateway extends Controll {
 		} else if ("SHA1".equals(signType)) {
 			sign2sign = EncryptUtils.toSHA1Hex(sign2.toString());
 		} else {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid sign_type=" + signType);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign_type] " + signType);
 		}
 
 		if (!sign.equals(sign2sign)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid sign=" + sign);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign] " + sign);
 		}
 
+		// 组合请求数据
+
+		String postData = ServletUtils.getRequestString(request);
 		JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
 		ID bindUser = apiConfig.getID("bindUser");
+
         return new ApiContext(sortedMap, postJson, appid, bindUser);
 	}
 

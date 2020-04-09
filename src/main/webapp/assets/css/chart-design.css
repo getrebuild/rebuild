@@ -98,8 +98,7 @@
 	min-height: 30px;
 	margin-top: -6px;
 	margin-bottom: -6px;
-	padding: 2px 0;
-	padding-bottom: 0;
+	padding: 2px 0 0;
 }
 
 .axis-target .item {
@@ -188,6 +187,9 @@
 a.ui-draggable.ui-draggable-dragging {
 	display: block;
 	padding: 4px 6px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .data-info ul li a:hover,
@@ -264,7 +266,8 @@ a.ui-draggable.ui-draggable-dragging {
 	content: '#';
 }
 
-.data-info .fields li.text a::before {
+.data-info .fields li.text a::before,
+.data-info .fields li.clazz a::before {
 	content: 'T';
 }
 
@@ -282,7 +285,6 @@ a.ui-draggable.ui-draggable-dragging {
 	height: 40px;
 	padding: 4px;
 	margin: 4px 0 4px 6px;
-	cursor: default;
 	cursor: not-allowed;
 }
 

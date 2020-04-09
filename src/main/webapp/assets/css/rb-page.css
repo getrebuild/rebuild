@@ -316,15 +316,15 @@ a.btn {
     display: block;
 }
 
-.rb-color-header .dropdown > a > .icon {
+.rb-color-header .dropdown>a>.icon {
     color: #fff;
 }
 
 .logo-img {
-    height: 32px;
-    width: 163px;
-    background: url(../img/logo.png) 0 center no-repeat;
-    background-size: auto 32px;
+    height: 27px;
+    width: 144px;
+    background: url(../img/logo.png) center center no-repeat;
+    background-size: auto 27px;
     display: block;
     margin: 0 auto;
     cursor: default;
@@ -731,6 +731,11 @@ a {
 
 .rbform .type-BOOL .mt-1 {
     margin-top: .25rem !important;
+}
+
+.rbform .type-BOOL .mt-1+.form-text {
+    margin-top: -5px;
+    margin-bottom: .5rem;
 }
 
 .rbform .select2-container--default .select2-selection--multiple .select2-selection__clear {
@@ -1356,6 +1361,8 @@ th.column-fixed {
     transform: translateX(100%);
     box-shadow: inset 10px 0 8px -8px rgba(0, 0, 0, 0.15);
     transition: box-shadow 0.3s;
+    /* fix: Safari */
+    width: 24px;
 }
 
 .rb-scroller.column-fixed-pin .column-fixed-2nd .dividing {
@@ -1654,12 +1661,14 @@ th.column-fixed {
     color: #4285f4;
 }
 
-.btn-primary.bordered {
+.btn-primary.bordered,
+.btn-primary.bordered[disabled] {
     background-color: #fff;
     color: #4c8bf5;
 }
 
-.btn-danger.bordered {
+.btn-danger.bordered,
+.btn-danger.bordered[disabled] {
     background-color: #fff;
     color: #ea4335;
 }
@@ -2031,8 +2040,8 @@ form.simple {
 }
 
 .mw-auto {
-    min-width: auto;
-    max-width: none;
+    min-width: auto !important;
+    max-width: none !important;
 }
 
 .cl-base {
@@ -2683,6 +2692,7 @@ form {
 .notification-list .notification.focus {
     outline: 2px solid #fbbc05;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .1);
+    z-index: 1;
 }
 
 .select2-sm .select2-container--default .select2-selection--single,
@@ -2923,20 +2933,25 @@ form {
 
 .repeated-table {
     margin-bottom: 0;
-}
-
-.repeated-table td,
-.repeated-table th {
-    padding: 9px 10px;
+    margin-top: -16px;
 }
 
 .repeated-table th {
     border-top: 0 none;
-    padding-top: 0;
+    font-weight: normal !important;
+    color: #878787;
 }
 
 .repeated-table td.actions .icon {
     font-size: 1.28rem !important;
+}
+
+.repeated-table td.actions .icon:hover {
+    color: #4c8bf5 !important;
+}
+
+.repeated-table tr:last-child td {
+    border-bottom: 1px solid #dee2e6;
 }
 
 .copyright {

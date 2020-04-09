@@ -65,11 +65,6 @@ public class SendNotification implements TriggerAction {
 	}
 	
 	@Override
-	public boolean isUsableSourceEntity(int entityCode) {
-		return true;
-	}
-
-	@Override
 	public void execute(OperatingContext operatingContext) {
 		final JSONObject content = (JSONObject) context.getActionContent();
 		
@@ -104,7 +99,7 @@ public class SendNotification implements TriggerAction {
 
             } else if (type == TYPE_SMS) {
 				String mobile = Application.getUserStore().getUser(user).getWorkphone();
-		    	if (mobile != null && RegexUtils.isCNMobile(mobile)) {
+		    	if (RegexUtils.isCNMobile(mobile)) {
 					SMSender.sendSMS(mobile, message);
 				}
 

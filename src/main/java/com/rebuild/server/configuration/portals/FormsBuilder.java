@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.configuration.portals;
@@ -136,11 +125,9 @@ public class FormsBuilder extends FormsManager {
 				approvalState = getHadApproval(entityMeta, null);
 				MASTERID4NEWSLAVE.set(null);
 				
-				if (approvalState != null) {
-					if (approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED) {
-						String stateType = approvalState == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
-						return formatModelError("主记录" + stateType + "，不能添加明细");
-					}
+				if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
+				    String stateType = approvalState == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+				    return formatModelError("主记录" + stateType + "，不能添加明细");
 				}
 
 				// 明细无需审批

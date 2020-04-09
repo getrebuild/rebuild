@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.trigger.impl;
@@ -29,6 +18,7 @@ import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerException;
 import com.rebuild.server.helper.KVStorage;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -51,10 +41,22 @@ public class AutoAssign implements TriggerAction {
     final protected ActionContext context;
 
     // 允许无权限分派
-    final private boolean allowNoPermissionAssign = true;
+    final private boolean allowNoPermissionAssign;
 
+    /**
+     * @param context
+     */
     public AutoAssign(ActionContext context) {
+        this(context, Boolean.TRUE);
+    }
+
+    /**
+     * @param context
+     * @param allowNoPermissionAssign
+     */
+    public AutoAssign(ActionContext context, boolean allowNoPermissionAssign) {
         this.context = context;
+        this.allowNoPermissionAssign = allowNoPermissionAssign;
     }
 
     @Override
@@ -65,8 +67,7 @@ public class AutoAssign implements TriggerAction {
     @Override
     public boolean isUsableSourceEntity(int entityCode) {
         Entity entity = MetadataHelper.getEntity(entityCode);
-        // 明细不可用
-        return entity.getMasterEntity() == null;
+        return entity.containsField(EntityHelper.OwningUser) && entity.containsField(EntityHelper.OwningDept);
     }
 
     @Override
@@ -74,12 +75,10 @@ public class AutoAssign implements TriggerAction {
         final JSONObject content = (JSONObject) context.getActionContent();
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
-        if (!allowNoPermissionAssign) {
-            if (!Application.getSecurityManager().allow(
-                    operatingContext.getOperator(), recordId, BizzPermission.ASSIGN)) {
-                LOG.warn("No privileges to assign record of target: " + recordId);
-                return;
-            }
+        if (!allowNoPermissionAssign
+                && !Application.getSecurityManager().allow(operatingContext.getOperator(), recordId, BizzPermission.ASSIGN)) {
+            LOG.warn("No privileges to assign record of target: " + recordId);
+            return;
         }
 
         JSONArray assignTo = content.getJSONArray("assignTo");

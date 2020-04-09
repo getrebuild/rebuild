@@ -19,8 +19,11 @@
 .splash-footer *,
 .copyright,
 .copyright * {
-	color: rgba(255, 255, 255, 0.88) !important;
-    text-shadow: 1px 1px 1px #222;
+	color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 0px 1px 1px #444;
+	max-width: 680px;
+	margin: 0 auto;
+	text-align: center;
 }
 .copyright.dev-show a {
     text-decoration: underline;
@@ -109,11 +112,11 @@
 				</div>
 				<div class="splash-footer">
 					<div class="copyright">
-						&copy; 2020 <a href="https://getrebuild.com/" target="_blank">REBUILD</a>
+						&copy; ${appName}
 					</div>
 				</div>
 			</div>
-			<div class="dev-show text-center copyright">${bundle.lang('RightsTip')}</div>
+			<div class="copyright">${bundle.lang('RightsTip')}</div>
 		</div>
 	</div>
 </div>
@@ -123,7 +126,7 @@
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
 
-	$('.copyright a').attr('target', '_blank')
+	$('.copyright a').attr('target', '_blank').addClass('link')
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	})

@@ -22,6 +22,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
@@ -207,7 +208,7 @@ public class SecurityManager {
 	 */
 	public boolean allow(ID user, int entity, Permission action) {
 		// CRUD and PlainEntity
-		if (action.getMask() <= BizzPermission.READ.getMask() && MetadataHelper.isPlainEntity(entity)) {
+		if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(entity).isPlainEntity()) {
 			return true;
 		}
 
@@ -255,7 +256,7 @@ public class SecurityManager {
 	 */
 	public boolean allow(ID user, ID target, Permission action) {
 		// CRUD and PlainEntity
-		if (action.getMask() <= BizzPermission.READ.getMask() && MetadataHelper.isPlainEntity(target.getEntityCode())) {
+		if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(target.getEntityCode()).isPlainEntity()) {
 			return true;
 		}
 

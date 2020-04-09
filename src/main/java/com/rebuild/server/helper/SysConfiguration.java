@@ -42,20 +42,16 @@ public final class SysConfiguration extends KVStorage {
 		File data = null;
 		if (d != null) {
 			data = new File(d);
-			if (!data.exists()) {
-			    if (!data.mkdirs()) {
-			        LOG.error("Couldn't mkdirs for data : " + data);
-                }
+			if (!data.exists() && !data.mkdirs()) {
+			    LOG.error("Couldn't mkdirs for data : " + data);
 			}
 		}
 
 		if (data == null || !data.exists()) {
 			data = FileUtils.getUserDirectory();
 			data = new File(data, ".rebuild");
-			if (!data.exists()) {
-				if (!data.mkdirs()) {
-                    LOG.error("Couldn't mkdirs for data : " + data);
-                }
+			if (!data.exists() && !data.mkdirs()) {
+			    LOG.error("Couldn't mkdirs for data : " + data);
 			}
 		}
 

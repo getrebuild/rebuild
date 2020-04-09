@@ -157,6 +157,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 		}
 		
 		ID user = AppUtils.getRequestUser(request);
+		if (user == null) {
+			user = AppUtils.getRequestUserViaRbMobile(request, true);
+		}
+
 		if (user != null) {
 			Application.getSessionStore().set(user);
 			

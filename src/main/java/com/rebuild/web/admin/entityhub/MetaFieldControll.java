@@ -116,7 +116,15 @@ public class MetaFieldControll extends BasePageControll  {
 		mv.getModel().put("fieldBuildin", easyField.isBuiltin());
 		mv.getModel().put("fieldDefaultValue", CommonsUtils.escapeHtml(fieldMeta.getDefaultValue()));
 		mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
-		
+
+		// 明细实体
+		if (((Entity) easyEntity.getBaseMeta()).getMasterEntity() != null) {
+		    Field stf = MetadataHelper.getSlaveToMasterField((Entity) easyEntity.getBaseMeta());
+		    mv.getModel().put("isSlaveToMasterField", stf.equals(fieldMeta));
+        } else {
+		    mv.getModel().put("isSlaveToMasterField", false);
+		}
+
 		// 字段类型相关
 		Type ft = fieldMeta.getType();
 		if (ft == FieldType.REFERENCE) {

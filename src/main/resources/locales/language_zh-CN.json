@@ -72,5 +72,5 @@
   "PasswordLevel2Tip": "密码必须包含数字和大小写字母",
   "PasswordLevel3Tip": "密码不能小于8位，且必须包含特殊字符",
   "Repeated": "{0}重复",
-  "RightsTip": "REBUILD 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。"
+  "RightsTip": "[REBUILD](https://getrebuild.com/) 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。"
 }

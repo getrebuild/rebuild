@@ -21,12 +21,10 @@ import com.rebuild.api.BaseApi;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.server.helper.cache.EhcacheDriver;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
-import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.CommonService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.SQLExecutor;
@@ -46,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.h2.Driver;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
@@ -152,18 +151,9 @@ public final class Application {
 				ApiGateway.registerApi((Class<? extends BaseApi>) c);
 			}
 
-			// 若使用 ehcache 则添加持久化钩子
-			final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
-			if (!ccache.isUseRedis()) {
-				addShutdownHook(new Thread("ehcache-persistent") {
-					@Override
-					public void run() {
-						((EhcacheDriver<?>) ccache.getCacheTemplate()).shutdown();
-					}
-				});
-			}
-
-			if (devMode()) MetadataHelper.setPlainEntity(MetadataHelper.getEntity("Attachment"));
+			if (APPLICATION_CTX instanceof AbstractApplicationContext) {
+                ((AbstractApplicationContext) APPLICATION_CTX).registerShutdownHook();
+            }
 
 			LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 
@@ -235,7 +225,7 @@ public final class Application {
 	 * @param hook
 	 */
 	public static void addShutdownHook(Thread hook) {
-		LOG.warn("Add shutdown hook : " + hook.getName());
+		LOG.info("Add shutdown hook : " + hook.getName());
 		Runtime.getRuntime().addShutdownHook(hook);
 	}
 	

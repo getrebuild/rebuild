@@ -261,6 +261,7 @@ var __loadMessages = function () {
   })
 }
 var __showNotification = function () {
+  if ($.cookie('rb.showNotification')) return
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
@@ -268,6 +269,7 @@ var __showNotification = function () {
         tag: 'rbNotification',
         icon: rb.baseUrl + '/assets/img/favicon.png',
       })
+      $.cookie('rb.showNotification', 1, { expires: null })  // session cookie
     } else {
       _Notification.requestPermission()
     }

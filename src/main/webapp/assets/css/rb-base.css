@@ -11486,11 +11486,11 @@ canvas {
 .rb-top-header .rb-navbar-header .navbar-brand {
     line-height: 60px;
     height: 60px;
-    width: 160px;
+    width: 180px;
     background-image: url(../img/logo.png);
     background-repeat: no-repeat;
     background-position: 20px center;
-    background-size: auto 26px;
+    background-size: auto 27px;
     padding: 0 20px;
     margin: 0;
     display: block

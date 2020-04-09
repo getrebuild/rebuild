@@ -4,7 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* eslint-disable react/no-string-refs */
 
 const wpc = window.__PageConfig || {}
 
@@ -46,6 +45,7 @@ class RbList extends React.Component {
   render() {
     const that = this
     const lastIndex = this.state.fields.length
+
     return <React.Fragment>
       <div className="row rb-datatable-body">
         <div className="col-sm-12">
@@ -115,7 +115,9 @@ class RbList extends React.Component {
 
   componentDidMount() {
     const $scroller = $(this._rblistScroller)
-    $scroller.perfectScrollbar()
+    $scroller.perfectScrollbar({
+      wheelSpeed: 2
+    })
 
     // enable pins
     if ($(window).height() > 666 && $(window).width() >= 1280) {
@@ -174,10 +176,10 @@ class RbList extends React.Component {
 
   fetchList(filter) {
     const fields = []
-    let field_sort = null
+    let fieldSort = null
     this.state.fields.forEach(function (item) {
       fields.push(item.field)
-      if (item.sort) field_sort = item.field + ':' + item.sort.replace('sort-', '')
+      if (item.sort) fieldSort = item.field + ':' + item.sort.replace('sort-', '')
     })
 
     const entity = this.props.config.entity
@@ -189,28 +191,32 @@ class RbList extends React.Component {
       pageSize: this.pageSize,
       filter: this.lastFilter,
       advFilter: this.advFilterId,
-      sort: field_sort,
+      sort: fieldSort,
       reload: this.pageNo === 1
     }
     this.__lastQueryEntry = query
 
-    let loadingTimer = setTimeout(() => {
-      this.setState({ inLoad: true })
-      $('#react-list').addClass('rb-loading-active')
+    const loadingTimer = setTimeout(() => {
+      this.setState({ inLoad: true }, () => $('#react-list').addClass('rb-loading-active'))
     }, 400)
+
     $.post(`/app/${entity}/data-list`, JSON.stringify(query), (res) => {
       if (res.error_code === 0) {
         this.setState({ rowsData: res.data.data || [], inLoad: false }, () => {
           RbList.renderAfter()
           this._clearSelected()
+          $(this._rblistScroller).scrollTop(0)
         })
-        if (res.data.total > 0) this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
+
+        if (res.data.total > 0) {
+          this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
+        }
+
       } else {
         RbHighbar.error(res.error_msg)
       }
 
       clearTimeout(loadingTimer)
-      loadingTimer = null
       $('#react-list').removeClass('rb-loading-active')
     })
   }
@@ -234,7 +240,7 @@ class RbList extends React.Component {
 
     const c = CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
     if (index === 0 && supportFixedColumns) {
-      return React.cloneElement(c, { className: `${c.props.className} column-fixed column-fixed-2nd` })
+      return React.cloneElement(c, { className: `${c.props.className || ''} column-fixed column-fixed-2nd` })
     }
     return c
   }
@@ -358,7 +364,7 @@ class RbList extends React.Component {
 
     if (fromAdv === true) {
       $('.J_advfilter .indicator-primary').remove()
-      if (filter.items.length > 0) $('<i class="indicator-primary"></i>').appendTo('.J_advfilter')
+      if (filter.items.length > 0) $('<i class="indicator-primary bg-warning"></i>').appendTo('.J_advfilter')
     }
   }
 
@@ -371,7 +377,7 @@ class RbList extends React.Component {
     el = $(el || '.input-search>input')
     const q = el.val()
     if (!q && !this.lastFilter) return null
-    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') }
+    return { entity: this.props.config.entity, type: 'QUICK', values: { 1: q }, qfields: el.data('fields') || null }
   }
 
   /**
@@ -628,19 +634,23 @@ class RbListPagination extends React.Component {
       </div>
     )
   }
+
   prev() {
     if (this.state.pageNo === 1) return
     this.goto(this.state.pageNo - 1)
   }
+
   next() {
     if (this.state.pageNo === this.__pageTotal) return
     this.goto(this.state.pageNo + 1)
   }
+
   goto(pageNo) {
     this.setState({ pageNo: pageNo }, () => {
       this.props.$$$parent.setPage(this.state.pageNo)
     })
   }
+
   setPageSize = (e) => {
     const s = e.target.value
     this.setState({ pageSize: s, pageNo: 1 }, () => {
@@ -654,12 +664,15 @@ const RbListPage = {
   _RbList: null,
 
   /**
-   * @param {*} config DataList config
-   * @param {*} entity [Name, Label, Icon]
-   * @param {*} ep Privileges of this entity
+   * @param {JSON} config DataList config
+   * @param {Object} entity [Name, Label, Icon]
+   * @param {JSON} ep Privileges of the entity
    */
   init: function (config, entity, ep) {
-    renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () { RbListPage._RbList = this })
+    renderRbcomp(
+      <RbList config={config} uncheckbox={config.uncheckbox} />,
+      'react-list',
+      function () { RbListPage._RbList = this })
 
     const that = this
 
@@ -689,7 +702,7 @@ const RbListPage = {
     })
     $('.J_columns').click(() => RbModal.create(`${rb.baseUrl}/p/general-entity/show-fields?entity=${entity[0]}`, '设置列显示'))
 
-    // 一般权限实体才有
+    // 权限实体才有
     $('.J_assign').click(() => {
       if ($('.J_assign').attr('disabled')) return
       const ids = this._RbList.getSelectedIds()
@@ -705,7 +718,8 @@ const RbListPage = {
       const ids = this._RbList.getSelectedIds()
       ids.length > 0 && DlgUnshare.create({ entity: entity[0], ids: ids })
     })
-    // In append
+
+    // in `rb-datalist.append.jsx`
     // eslint-disable-next-line react/jsx-no-undef
     $('.J_export').click(() => renderRbcomp(<DataExport listRef={RbListPage._RbList} entity={entity[0]} />))
     // eslint-disable-next-line react/jsx-no-undef
@@ -735,12 +749,14 @@ const RbListPage = {
 const AdvFilters = {
 
   /**
-   * @param {*} el 控件
-   * @param {*} entity 实体
+   * @param {Element} el 控件
+   * @param {String} entity 实体
+   * @param {ID} viaFilter 默认高级过滤 ID
    */
-  init(el, entity) {
+  init(el, entity, viaFilter) {
     this.__el = $(el)
     this.__entity = entity
+    this.__viaFilter = viaFilter
 
     this.__el.find('.J_advfilter').click(() => {
       this.showAdvFilter(null, this.current)
@@ -753,38 +769,43 @@ const AdvFilters = {
   },
 
   loadFilters() {
-    const dFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+    const lastFilter = $storage.get(RbListPage._RbList.__defaultFilterKey)
+
     const that = this
-    let dFilterItem
+    let $defaultFilter
+
     $.get(`/app/${this.__entity}/advfilter/list`, function (res) {
       $('.adv-search .J_custom').each(function () { $(this).remove() })
 
       const $menu = $('.adv-search .dropdown-menu')
       $(res.data).each(function () {
-        const _data = this
-        const item = $('<div class="dropdown-item J_custom" data-id="' + _data.id + '"><a class="text-truncate">' + _data.name + '</a></div>').appendTo($menu)
-        item.click(() => that.__effectFilter(item, 'aside'))
-        if (dFilter === _data.id) dFilterItem = item
+        const item = this
+        const $item = $(`<div class="dropdown-item J_custom" data-id="${item.id}"><a class="text-truncate">${item.name}</a></div>`).appendTo($menu)
+        $item.click(() => that.__effectFilter($item, 'aside'))
+
+        if (lastFilter === item.id) $defaultFilter = $item
 
         // 可修改
-        if (_data.editable) {
-          const action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
-          action.find('a:eq(0)').click(function () {
-            that.showAdvFilter(_data.id)
+        if (item.editable) {
+          const $action = $('<div class="action"><a title="修改"><i class="zmdi zmdi-edit"></i></a><a title="删除"><i class="zmdi zmdi-delete"></i></a></div>').appendTo($item)
+
+          $action.find('a:eq(0)').click(function () {
+            that.showAdvFilter(item.id)
             $('.adv-search .btn.dropdown-toggle').dropdown('toggle')
             return false
           })
-          action.find('a:eq(1)').click(function () {
+
+          $action.find('a:eq(1)').click(function () {
             RbAlert.create('确认删除此查询项吗？', {
               type: 'danger',
               confirmText: '删除',
               confirm: function () {
                 this.disabled(true)
-                $.post(`/app/entity/record-delete?id=${_data.id}`, (res) => {
+                $.post(`/app/entity/record-delete?id=${item.id}`, (res) => {
                   if (res.error_code === 0) {
                     this.hide()
                     that.loadFilters()
-                    if (dFilter === _data.id) {
+                    if (lastFilter === item.id) {
                       RbListPage._RbList.setAdvFilter(null)
                       $('.adv-search .J_name').text('全部数据')
                     }
@@ -799,21 +820,29 @@ const AdvFilters = {
 
       // ASIDE
       if ($('#asideFilters').length > 0) {
-        const ghost = $('.adv-search .dropdown-menu').clone()
-        ghost.removeAttr('class')
-        ghost.removeAttr('style')
-        ghost.removeAttr('data-ps-id')
-        ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
-        ghost.find('.dropdown-item').click(function () {
-          ghost.find('.dropdown-item').removeClass('active')
+        const $ghost = $('.adv-search .dropdown-menu').clone()
+        $ghost.removeAttr('class')
+        $ghost.removeAttr('style')
+        $ghost.removeAttr('data-ps-id')
+        $ghost.find('.ps-scrollbar-x-rail, .ps-scrollbar-y-rail').remove()
+        $ghost.find('.dropdown-item').click(function () {
+          $ghost.find('.dropdown-item').removeClass('active')
           $(this).addClass('active')
           that.__effectFilter($(this), 'aside')
         })
-        ghost.appendTo($('#asideFilters').empty())
+        $ghost.appendTo($('#asideFilters').empty())
       }
 
-      if (!dFilterItem) dFilterItem = $('.adv-search .dropdown-item:eq(0)')
-      dFilterItem.trigger('click')
+      // 首次使用
+      if (that.__viaFilter) {
+        RbListPage._RbList.setAdvFilter(that.__viaFilter)
+        that.__viaFilter = null
+      }
+      else {
+        if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
+        $defaultFilter.trigger('click')
+      }
+
     })
   },
 
@@ -834,15 +863,15 @@ const AdvFilters = {
     RbListPage._RbList.setAdvFilter(this.current)
   },
 
-  showAdvFilter(id, copyId) {
+  showAdvFilter(id, useCopyId) {
     const props = { entity: this.__entity, inModal: true, fromList: true, confirm: this.saveFilter }
     if (!id) {
       if (this.__customAdv) {
         this.__customAdv.show()
       } else {
         const that = this
-        if (copyId) {
-          this.__getFilter(copyId, (res) => {
+        if (useCopyId) {
+          this.__getFilter(useCopyId, (res) => {
             renderRbcomp(<AdvFilter {...props} filter={res.filter} />, null, function () { that.__customAdv = this })
           })
         } else {
@@ -863,9 +892,14 @@ const AdvFilters = {
     let url = `/app/${that.__entity}/advfilter/post?id=${that.current || ''}`
     if (name) url += '&name=' + $encode(name)
     if (shareTo) url += '&shareTo=' + $encode(shareTo)
+
     $.post(url, JSON.stringify(filter), (res) => {
-      if (res.error_code === 0) that.loadFilters()
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        $storage.set(RbListPage._RbList.__defaultFilterKey, res.data.id)
+        that.loadFilters()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   },
 
@@ -877,10 +911,12 @@ const AdvFilters = {
 // init: DataList
 $(document).ready(() => {
   const gs = $urlp('gs', location.hash)
+  const viaFilter = $urlp('via')
+
   if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
   if (wpc.entity) {
     RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-    if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0])
+    if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0], viaFilter)
   }
 })
 
@@ -1030,7 +1066,7 @@ const ChartsWidget = {
 
   init: function () {
     // eslint-disable-next-line no-undef
-    ECHART_Base.grid = { left: 40, right: 20, top: 30, bottom: 20 }
+    ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
     $('.J_load-chart').click(() => { if (this.chartLoaded !== true) this.loadWidget() })
     $('.J_add-chart').click(() => this.showChartSelect())

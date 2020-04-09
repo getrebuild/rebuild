@@ -13,7 +13,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
-import com.rebuild.api.LoginTokenManager;
+import com.rebuild.api.AuthTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.language.Languages;
@@ -34,9 +34,10 @@ import java.sql.DataTruncation;
 public class AppUtils {
 
 	/**
-	 * 移动端 UA
+	 * 移动端 UA 前缀
 	 */
 	public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
+
 	/**
 	 * 移动端 Token Header
 	 */
@@ -64,17 +65,15 @@ public class AppUtils {
 	}
 
 	/**
-	 * 获取当前请求用户（兼容移动端）
+	 * 获取当前请求用户
 	 *
 	 * @param request
 	 * @return null or UserID
+	 *
+	 * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
 		Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
-		// for Mobile
-		if (user == null) {
-			user = getRequestUserViaRbMobile(request);
-		}
 		return user == null ? null : (ID) user;
 	}
 
@@ -82,13 +81,17 @@ public class AppUtils {
 	 * 获取 APP 请求用户
 	 *
 	 * @param request
+	 * @param refreshToken 是否需要刷新 Token 有效期
 	 * @return
 	 * @see #isRbMobile(HttpServletRequest)
 	 */
-	protected static ID getRequestUserViaRbMobile(HttpServletRequest request) {
+	public static ID getRequestUserViaRbMobile(HttpServletRequest request, boolean refreshToken) {
 		if (isRbMobile(request)) {
 			String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
-			return LoginTokenManager.verifyToken(xAuthToken, false);
+			ID user = AuthTokenManager.verifyToken(xAuthToken, false);
+			if (user != null && refreshToken) {
+				AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
+			}
 		}
 		return null;
 	}

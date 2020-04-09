@@ -1388,34 +1388,34 @@ class RepeatedViewer extends RbModalHandler {
 
   render() {
     const data = this.props.data
-    return <RbModal ref={(c) => this._dlg = c} title={`存在${this.props.data.length - 1}条重复记录`} disposeOnHide={true} colored="warning">
-      <table className="table table-hover repeated-table">
+    return <RbModal ref={(c) => this._dlg = c} title={`存在 ${this.props.data.length - 1} 条重复记录`} disposeOnHide={true} colored="warning">
+      <table className="table table-hover table-sm repeated-table">
         <thead>
           <tr>
             {data[0].map((item, idx) => {
               if (idx === 0) return null
               return <th key={`field-${idx}`}>{item}</th>
             })}
-            <th width="50"></th>
+            <th width="30"></th>
           </tr>
         </thead>
         <tbody>
           {data.map((item, idx) => {
             if (idx === 0) return null
-            return this.renderOne(item, idx)
+            return this.renderLine(item, idx)
           })}
         </tbody>
       </table>
     </RbModal>
   }
 
-  renderOne(item, idx) {
+  renderLine(item, idx) {
     return <tr key={`row-${idx}`}>
       {item.map((o, i) => {
         if (i === 0) return null
         return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">无</span>}</td>
       })}
-      <td className="actions"><a className="icon" title="查看详情" onClick={() => this.openView(item[0])}><i className="zmdi zmdi-open-in-new" /></a></td>
+      <td className="actions"><a className="icon" onClick={() => this.openView(item[0])} title="查看详情"><i className="zmdi zmdi-open-in-new" /></a></td>
     </tr>
   }
 

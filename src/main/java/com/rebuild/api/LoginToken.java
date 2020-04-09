@@ -18,7 +18,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RequestFrequencyCounter;
 
 /**
- * 单点登录，获取登录 token
+ * 获取登录 Token 可用于单点登录
  *
  * @author devezhao
  * @since 2019/10/25
@@ -42,7 +42,7 @@ public class LoginToken extends BaseApi {
         }
 
         User loginUser = Application.getUserStore().getUser(user);
-        String loginToken = LoginTokenManager.generateToken(loginUser.getId(), 60);
+        String loginToken = AuthTokenManager.generateToken(loginUser.getId(), 60);
 
         JSON ret = JSONUtils.toJSONObject(
                 new String[] { "login_token", "login_url" },

@@ -13,6 +13,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.web.BaseControll;
+import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -21,8 +22,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -39,21 +42,28 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/filex/")
 @Controller
 public class FileDownloader extends BaseControll {
-	
+
+	// 图片缓存时间
+	private static final int IMG_CACHE_TIME = 60 * 2;
+
 	@RequestMapping(value = "img/**", method = RequestMethod.GET)
 	public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String filePath = request.getRequestURI();
 		filePath = filePath.split("/filex/img/")[1];
 		
-		final int minutes = 60 * 24;
-		ServletUtils.addCacheHead(response, minutes);
+		ServletUtils.addCacheHead(response, IMG_CACHE_TIME);
 
 		if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
 			response.sendRedirect(filePath);
 			return;
 		}
 
-		boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
+		final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
+		String imageView2 = request.getQueryString();
+		if (imageView2 != null && !imageView2.startsWith("imageView2")) {
+			imageView2 = null;
+		}
+
 		// Local storage || temp
 		if (!QiniuCloud.instance().available() || temp) {
 			String fileName = QiniuCloud.parseFileName(filePath);
@@ -61,17 +71,55 @@ public class FileDownloader extends BaseControll {
 			if (mimeType != null) {
 				response.setContentType(mimeType);
 			}
-			
-			writeLocalFile(filePath, temp, response);
-			return;
+
+			final int wh = imageView2 == null ? 0 : parseWidth(imageView2);
+
+			// 原图
+			if (wh <= 0 || wh >= 1000) {
+				writeLocalFile(filePath, temp, response);
+			}
+			// 粗略图
+			else {
+				filePath = CodecUtils.urlDecode(filePath);
+				File img = temp ? SysConfiguration.getFileOfTemp(filePath) : SysConfiguration.getFileOfData(filePath);
+
+				BufferedImage bi = ImageIO.read(img);
+				Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
+
+				if (bi.getWidth() > wh) {
+					builder.size(wh, wh);
+				} else {
+					builder.scale(1.0);
+				}
+
+				builder
+						.outputFormat(mimeType != null && mimeType.contains("png") ? "png" : "jpg")
+						.toOutputStream(response.getOutputStream());
+			}
 		}
-		
-		String imageView2 = request.getQueryString();
-		if (imageView2 != null && imageView2.startsWith("imageView2")) {
-			filePath += "?" + imageView2;
+		else {
+			if (imageView2 != null) {
+				filePath += "?" + imageView2;
+			}
+
+			String privateUrl = QiniuCloud.instance().url(filePath, IMG_CACHE_TIME * 60);
+			response.sendRedirect(privateUrl);
 		}
-		String privateUrl = QiniuCloud.instance().url(filePath, minutes * 60);
-		response.sendRedirect(privateUrl);
+	}
+
+	/**
+	 * 宽度参数
+	 *
+	 * @param imageView2
+	 * @return
+	 */
+	private int parseWidth(String imageView2) {
+		if (!imageView2.contains("/w/")) {
+			return 1000;
+		}
+
+		String w = imageView2.split("/w/")[1].split("/")[0];
+		return Integer.parseInt(w);
 	}
 	
 	@RequestMapping(value = { "download/**", "access/**" }, method = RequestMethod.GET)
@@ -100,7 +148,8 @@ public class FileDownloader extends BaseControll {
 		if (!QiniuCloud.instance().available() || temp) {
 			setDownloadHeaders(request, response, fileName);
 			writeLocalFile(filePath, temp, response);
-		} else {
+		}
+		else {
 			String privateUrl = QiniuCloud.instance().url(filePath);
 			privateUrl += "&attname=" + fileName;
 			response.sendRedirect(privateUrl);
@@ -157,18 +206,7 @@ public class FileDownloader extends BaseControll {
 	}
 
 	/**
-     * 设置下载 Header
-     *
-	 * @param response
-	 * @param attname
-	 */
-	public static void setDownloadHeaders(HttpServletResponse response, String attname) {
-		response.setHeader("Content-Disposition", "attachment;filename=" + attname);
-		response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-	}
-
-	/**
-	 * 设置下载 Header
+	 * 设置下载 Headers
 	 *
 	 * @param request
 	 * @param response
@@ -181,6 +219,8 @@ public class FileDownloader extends BaseControll {
 			attname = CodecUtils.urlDecode(attname);
             attname = new String(attname.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
         }
-		setDownloadHeaders(response, attname);
+
+		response.setHeader("Content-Disposition", "attachment;filename=" + attname);
+		response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 	}
 }

@@ -27,11 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -246,11 +242,12 @@ public class UserHelper {
 		return users;
 	}
 
-	private static final Color[] AB_COLORS = new Color[] {
+	private static final Color[] RB_COLORS = new Color[] {
 			new Color(66, 133,244),
 			new Color(52, 168,83),
 			new Color(251, 188,5),
-			new Color(234, 67,53)
+			new Color(234, 67,53),
+			new Color(61, 60,60)
 	};
 	/**
 	 * 生成用户头像
@@ -278,10 +275,10 @@ public class UserHelper {
 		BufferedImage bi = new BufferedImage(200, 200, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g2d = (Graphics2D) bi.getGraphics();
 
-		g2d.setColor(AB_COLORS[RandomUtils.nextInt(AB_COLORS.length)]);
+		g2d.setColor(RB_COLORS[RandomUtils.nextInt(RB_COLORS.length)]);
 		g2d.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 
-		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 		final Font font = createFont();
 		g2d.setFont(font);
 		g2d.setColor(Color.WHITE);
