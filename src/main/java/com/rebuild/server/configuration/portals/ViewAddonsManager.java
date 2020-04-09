@@ -22,7 +22,6 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -99,10 +98,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
 			}
 
 			// 动态（跟进）
-			if (TYPE_TAB.equalsIgnoreCase(applyType)) {
-				Field relatedRecordOfFeeds = MetadataHelper.getField("Feeds", "relatedRecord");
-				refs.add(getEntityShow(relatedRecordOfFeeds, Collections.emptySet(), applyType));
-			}
+//			if (TYPE_TAB.equalsIgnoreCase(applyType)) {
+//				Field relatedRecordOfFeeds = MetadataHelper.getField("Feeds", "relatedRecord");
+//				refs.add(getEntityShow(relatedRecordOfFeeds, Collections.emptySet(), applyType));
+//			}
 
 			return refs;
 		}
