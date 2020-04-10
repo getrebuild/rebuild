@@ -22,7 +22,7 @@
 				<div class="data-info">
 					<h5>数据来源</h5>
 					<ul class="list-unstyled esource">
-						<li><a><i class="zmdi zmdi-${entityIcon} icon"></i>${entityLabel}<span class="J_filter" title="设置过滤条件"><i class="zmdi zmdi-settings"></i></span></a></li>
+						<li><a><i class="zmdi zmdi-${entityIcon} icon"></i>${entityLabel}<span class="J_filter" title="设置过滤条件"><i class="zmdi zmdi-filter-list"></i></span></a></li>
 					</ul>
 				</div>
 				<div class="data-info">

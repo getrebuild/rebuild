@@ -202,6 +202,12 @@ const ECHART_RENDER_OPT = {
   renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas'
 }
 
+const shortNumber = function (num) {
+  if (num > 1000000) return (num / 1000000).toFixed(0) + 'W'
+  else if (num > 10000) return (num / 1000).toFixed(0) + 'K'
+  else return num
+}
+
 // 折线图
 class ChartLine extends BaseChart {
   constructor(props) {
@@ -216,7 +222,7 @@ class ChartLine extends BaseChart {
     const elid = 'echarts-line-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, () => {
       for (let i = 0; i < data.yyyAxis.length; i++) {
-        let yAxis = data.yyyAxis[i]
+        const yAxis = data.yyyAxis[i]
         yAxis.type = 'line'
         yAxis.smooth = true
         yAxis.lineStyle = { width: 3 }
@@ -241,7 +247,10 @@ class ChartLine extends BaseChart {
         yAxis: {
           type: 'value',
           splitLine: { show: false },
-          axisLabel: ECHART_AXIS_LABEL,
+          axisLabel: {
+            ...ECHART_AXIS_LABEL,
+            formatter: shortNumber
+          },
           axisLine: {
             lineStyle: { color: '#ddd', width: 0 }
           }
@@ -297,7 +306,10 @@ class ChartBar extends BaseChart {
         yAxis: {
           type: 'value',
           splitLine: { show: false },
-          axisLabel: ECHART_AXIS_LABEL,
+          axisLabel: {
+            ...ECHART_AXIS_LABEL,
+            formatter: shortNumber
+          },
           axisLine: {
             lineStyle: { color: '#ddd', width: 0 }
           }
@@ -405,7 +417,22 @@ class ChartTreemap extends BaseChart {
           height: '100%',
           top: window.render_preview_chart ? 0 : 15,  // In preview
           breadcrumb: { show: false },
-          roam: false  // Disabled drag and mouse wheel
+          roam: false,  // Disabled drag and mouse wheel
+          levels: [
+            {
+              itemStyle: {
+                gapWidth: 1
+              }
+            }, {
+              itemStyle: {
+                gapWidth: 0
+              }
+            }, {
+              itemStyle: {
+                gapWidth: 0
+              }
+            },
+          ]
         }]
       }
       opt.tooltip.trigger = 'item'
