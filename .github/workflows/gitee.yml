@@ -3,7 +3,7 @@ name: Gitee repos mirror
 on: [push]
 
 jobs:
-  build:
+  mirror:
     runs-on: ubuntu-latest
     steps:
     - name: Hub Mirror Action.
