@@ -47,7 +47,7 @@ public class Dimension extends Axis {
 			}
 
 		} else if (dt == DisplayType.CLASSIFICATION
-                && getFormatCalc() != null && getFormatSort() != FormatSort.NONE) {
+                && getFormatCalc() != null && getFormatCalc().name().startsWith("L")) {
 			int useLevel = ClassificationManager.instance.getOpenLevel(getField()) + 1;
 			int selectLevel = Integer.parseInt(getFormatCalc().name().substring(1));
 			// Last
