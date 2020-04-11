@@ -28,6 +28,7 @@ import cn.devezhao.persist4j.util.SqlHelper;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.cache.CommonCache;
+import com.rebuild.server.helper.setup.Installer;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -101,6 +102,10 @@ public final class ServerStatus {
 	 */
 	protected static Status checkDatabase() {
 		String name = "Database";
+		if (Installer.isUseH2()) {
+			return Status.success(name);
+		}
+
 		AesPreferencesConfigurer configurer = Application.getBean(AesPreferencesConfigurer.class);
 		try {
 			Connection c = DriverManager.getConnection(
