@@ -42,7 +42,9 @@ public interface TriggerAction {
 	 * @param entityCode
 	 * @return
 	 */
-	boolean isUsableSourceEntity(int entityCode);
+	default boolean isUsableSourceEntity(int entityCode) {
+	    return true;
+    }
 	
 	/**
 	 * 操作执行

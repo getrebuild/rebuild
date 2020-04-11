@@ -1,3 +1,9 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable react/jsx-no-undef */
 
 // ~~ 自动共享
@@ -40,13 +46,13 @@ class ContentAutoShare extends ActionContentSpec {
     })
 
     if (this.props.content && this.props.content.shareTo) {
-      $.post(`${rb.baseUrl}/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.shareTo), (res) => {
+      $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.shareTo), (res) => {
         if (res.error_code === 0 && res.data.length > 0) this._shareTo.setState({ selected: res.data })
       })
     }
 
     const cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
-    $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
+    $.get('/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
       this.setState({ cascadesEntity: res.data }, () => {
         this.__select2 = $(this._cascades).select2({
           multiple: true,

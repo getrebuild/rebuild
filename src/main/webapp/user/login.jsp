@@ -1,9 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page import="com.rebuild.server.Application"%>
-<%@ page import="com.rebuild.server.ServerListener"%>
-<%@ page import="com.rebuild.server.helper.ConfigurableItem" %>
-<%@ page import="com.rebuild.server.helper.SysConfiguration" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,14 +12,21 @@
 .vcode-row {
 	height: 41px;
 	max-width: 100%;
+}
+.vcode-row img {
 	cursor: pointer;
 }
-.splash-footer * {
-	color: rgba(255, 255, 255, 0.88) !important;
-	line-height: 1.5;
+.splash-footer *,
+.copyright,
+.copyright * {
+	color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 0px 1px 1px #444;
+	max-width: 680px;
+	margin: 0 auto;
+	text-align: center;
 }
-.splash-footer a:hover {
-	text-decoration: underline;
+.copyright.dev-show a {
+    text-decoration: underline;
 }
 .rb-bgimg {
 	position: fixed;
@@ -65,7 +68,7 @@
 	<div class="rb-content">
 		<div class="announcement-wrapper"></div>
 		<div class="main-content container-fluid">
-			<div class="splash-container mb-0">
+			<div class="splash-container mb-1">
 				<div class="card card-border-color card-border-color-primary">
 					<div class="card-header"><a class="logo-img"></a></div>
 					<div class="card-body">
@@ -81,7 +84,7 @@
 								<input class="form-control" type="text" placeholder="${bundle.lang('InputCaptcha')}">
 							</div>
 							<div class="col-6 text-right pl-0 pr-0">
-								<img style="max-width:100%;margin-right:-15px" alt="${bundle.lang('Captcha')}" title="${bundle.lang('ClickReload')}">
+								<img class="mw-100 mr-zero" alt="${bundle.lang('Captcha')}" title="${bundle.lang('ClickReload')}">
 							</div>
 						</div>
 						<div class="form-group row login-tools">
@@ -95,25 +98,25 @@
 								<a href="forgot-passwd">${bundle.lang('ForgotPassword')}</a>
 							</div>
 						</div>
-						<div class="form-group login-submit" style="margin-bottom:1.15rem">
-							<button class="btn btn-primary btn-xl" type="submit">${bundle.lang('Login')}</button>
+						<div class="form-group login-submit mb-2">
+							<button class="btn btn-primary btn-xl" type="submit" data-spinner>${bundle.lang('Login')}</button>
 							<div class="mt-4 text-center">${bundle.lang('NoAccountYet')}&nbsp;<a href="signup">${bundle.lang('SignupNow')}</a></div>
 						</div>
 						<div class="select-lang text-center mb-2">
 							<a href="?locale=zh_CN" title="中文"><img src="${baseUrl}/assets/img/flag/zh-CN.png" /></a>
-							<a href="?locale=en_US" title="English"><img src="${baseUrl}/assets/img/flag/en-US.png" /></a>
-							<a href="?locale=ja_JP" title="日本語"><img src="${baseUrl}/assets/img/flag/ja-JP.png" /></a>
+							<a href="?locale=en" title="English"><img src="${baseUrl}/assets/img/flag/en-US.png" /></a>
+							<a href="?locale=ja" title="日本語"><img src="${baseUrl}/assets/img/flag/ja-JP.png" /></a>
 						</div>
 						</form>
 					</div>
 				</div>
 				<div class="splash-footer">
 					<div class="copyright">
-						<span>&copy; 2020 <a href="https://getrebuild.com/" target="_blank">REBUILD</a></span>
-						<div class="fs-12 dev-show">Built on <%=ServerListener.getStartupTime()%> (<%=Application.VER%>)</div>
+						&copy; ${appName}
 					</div>
 				</div>
 			</div>
+			<div class="copyright">${bundle.lang('RightsTip')}</div>
 		</div>
 	</div>
 </div>
@@ -123,6 +126,7 @@
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
 
+	$('.copyright a').attr('target', '_blank').addClass('link')
 	$('.vcode-row img').click(function(){
 		$(this).attr('src', rb.baseUrl + '/user/captcha?' + $random())
 	})
@@ -141,7 +145,7 @@ $(document).ready(function() {
 		if (vcodeState && !vcode){ RbHighbar.create($lang('InputCaptchaPls')); return }
 
 		let btn = $('.login-submit button').button('loading')
-		let url = rb.baseUrl + '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
+		let url = '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
 		$.post(url, $encode(passwd), function(res) {
 			if (res.error_code == 0){
@@ -158,7 +162,7 @@ $(document).ready(function() {
 		})
 	})
 
-    $.get('live-wallpaper', (res) => {
+    $.get('/user/live-wallpaper', (res) => {
         if (res.error_code != 0 || !res.data) return
         let bgimg = new Image()
         bgimg.src = res.data

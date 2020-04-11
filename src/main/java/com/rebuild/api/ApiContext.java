@@ -22,7 +22,9 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.util.Map;
 
@@ -87,6 +89,15 @@ public class ApiContext {
 	}
 
 	/**
+	 * 获取 POST 数据
+	 *
+	 * @return
+	 */
+	public JSON getPostData() {
+		return postData == null ? JSONUtils.EMPTY_OBJECT : postData;
+	}
+
+	/**
 	 * @param name
 	 * @return
 	 * @throws ApiInvokeException
@@ -100,11 +111,58 @@ public class ApiContext {
 	}
 
 	/**
-	 * 获取 POST 数据
-	 *
+	 * @param name
 	 * @return
 	 */
-	public JSON getPostData() {
-		return postData == null ? JSONUtils.EMPTY_OBJECT : postData;
+	public String getParameter(String name) {
+		return getParameterMap().get(name);
+	}
+
+	/**
+	 * @param name
+	 * @return
+	 */
+	public ID getParameterAsId(String name) {
+		String value = getParameterMap().get(name);
+		return ID.isId(value) ? ID.valueOf(value) : null;
+	}
+
+	/**
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 */
+	public int getParameterAsInt(String name, int defaultValue) {
+		String value = getParameterMap().get(name);
+		if (NumberUtils.isNumber(value)) {
+			return NumberUtils.toInt(value);
+		}
+		return defaultValue;
+	}
+
+	/**
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 */
+	public long getParameterAsLong(String name, long defaultValue) {
+		String value = getParameterMap().get(name);
+		if (NumberUtils.isNumber(value)) {
+			return NumberUtils.toLong(value);
+		}
+		return defaultValue;
+	}
+
+	/**
+	 * @param name
+	 * @param defaultValue
+	 * @return
+	 */
+	public boolean getParameterAsBool(String name, boolean defaultValue) {
+		String value = getParameterMap().get(name);
+		if (StringUtils.isBlank(value)) {
+			return defaultValue;
+		}
+		return BooleanUtils.toBoolean(value);
 	}
 }

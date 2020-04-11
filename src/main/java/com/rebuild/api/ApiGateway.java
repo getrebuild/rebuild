@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.api;
@@ -73,16 +62,16 @@ public class ApiGateway extends Controll {
 
 		ApiContext context = null;
 		try {
-			BaseApi api = createApi(apiName);
-			context = verfiy(request.getParameterMap(), ServletUtils.getRequestString(request));
+			final BaseApi api = createApi(apiName);
+			context = verfiy(request, api);
 			if (context.getBindUser() != null) {
 				Application.getSessionStore().set(context.getBindUser());
 			}
 
 			JSON data = api.execute(context);
-			JSON ok = formatSuccess(data);
-			ServletUtils.writeJson(response, ok.toJSONString());
-			logRequestAsync(reuqestTime, remoteIp, apiName, context, ok);
+			JSON success = formatSuccess(data);
+			ServletUtils.writeJson(response, success.toJSONString());
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, success);
 
 			return;
 
@@ -99,22 +88,25 @@ public class ApiGateway extends Controll {
 			Application.getSessionStore().clean();
 		}
 
-		JSON err = formatFailure(errorMsg == null ? "Server Internal Error" : errorMsg, errorCode);
+		JSON err = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
 		ServletUtils.writeJson(response, err.toJSONString());
-		logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
+		try {
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
+		} catch (Exception ignored) {
+		}
 	}
 
 	/**
 	 * 验证请求并构建请求上下文
 	 *
-	 * @param parameterMap
-	 * @param post
+	 * @param request
+	 * @param useApi
 	 * @return
 	 * @throws IOException
 	 */
-	protected ApiContext verfiy(Map<String, String[]> parameterMap, String post) throws IOException {
-		Map<String, String> sortedMap = new TreeMap<>();
-		for (Map.Entry<String, String[]> e : parameterMap.entrySet()) {
+	protected ApiContext verfiy(HttpServletRequest request, BaseApi useApi) throws IOException {
+		final Map<String, String> sortedMap = new TreeMap<>();
+		for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
 			String[] vv = e.getValue();
 			sortedMap.put(e.getKey(), vv == null || vv.length == 0 ? null : vv[0]);
 		}
@@ -122,13 +114,13 @@ public class ApiGateway extends Controll {
 		String appid = getParameterNotNull(sortedMap,"appid");
 		ConfigEntry apiConfig = RebuildApiManager.instance.getApp(appid);
 		if (apiConfig == null) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid appid=" + appid);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [appid] " + appid);
 		}
 
 		String timestamp = getParameterNotNull(sortedMap,"timestamp");
 		long systemTime = System.currentTimeMillis() / 1000;
 		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (AppUtils.devMode() ? 100 : 10)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid timestamp=" + appid);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] " + appid);
 		}
 
 		// 验证签名
@@ -154,15 +146,19 @@ public class ApiGateway extends Controll {
 		} else if ("SHA1".equals(signType)) {
 			sign2sign = EncryptUtils.toSHA1Hex(sign2.toString());
 		} else {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid sign_type=" + signType);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign_type] " + signType);
 		}
 
 		if (!sign.equals(sign2sign)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid sign=" + sign);
+			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign] " + sign);
 		}
 
-		JSON postJson = post != null ? (JSON) JSON.parse(post) : null;
+		// 组合请求数据
+
+		String postData = ServletUtils.getRequestString(request);
+		JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
 		ID bindUser = apiConfig.getID("bindUser");
+
         return new ApiContext(sortedMap, postJson, appid, bindUser);
 	}
 
@@ -200,7 +196,7 @@ public class ApiGateway extends Controll {
 	 * @param result
 	 */
 	protected void logRequestAsync(Date requestTime, String remoteIp, String apiName, ApiContext context, JSON result) {
-		if (context == null || result == null) {
+		if (context == null || result == null || !isLogRequest()) {
 			return;
 		}
 
@@ -219,6 +215,15 @@ public class ApiGateway extends Controll {
 		});
 	}
 
+	/**
+	 * 是否记录日志
+	 *
+	 * @return
+	 */
+	protected boolean isLogRequest() {
+		return true;
+	}
+
 	// -- 注册 API
 
 	private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
@@ -230,15 +235,10 @@ public class ApiGateway extends Controll {
 		BaseApi api = (BaseApi) ReflectUtils.newInstance(clazz);
 		String apiName = api.getApiName();
 		if (API_CLASSES.containsKey(apiName)) {
-			LOG.warn("Replaced API : " + apiName);
+			LOG.error("Replaced API : " + apiName);
 		}
 
 		API_CLASSES.put(apiName, clazz);
-		LOG.info("New API registered : " + apiName);
-	}
-
-	static {
-		registerApi(SystemTime.class);
-		registerApi(LoginToken.class);
+		LOG.info("New API registered : " + apiName + " : " + clazz.getName());
 	}
 }

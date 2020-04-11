@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 .chart-box {
 	height: 100%;
 	padding: 20px 25px;
@@ -35,6 +42,10 @@
 	font-weight: bold;
 	height: 20px;
 	line-height: 20px;
+}
+
+.chart-box .chart-head .chart-title.ui-draggable-disabled {
+	cursor: default;
 }
 
 .chart-box .chart-head .chart-oper {
@@ -103,13 +114,13 @@
 }
 
 .chart.index>.data-item p {
-	font-size: 1rem;
+	font-size: 1.1rem;
 	color: #888;
 	margin-bottom: 1px;
 }
 
 .chart.index>.data-item strong {
-	font-size: 3.68rem;
+	font-size: 2.8rem;
 	font-weight: 400;
 }
 
@@ -126,9 +137,13 @@
 	font-size: 1rem;
 }
 
-.chart.ctable .table td.clk {
+.chart.ctable .table td.active {
 	outline: 1px solid #4285f4;
 	background-color: #f5f8fd;
+}
+
+.chart.ctable .table td:first-child.active {
+	border-left: 1px solid #4285f4;
 }
 
 .chart.ctable .table th {
@@ -147,13 +162,53 @@
 	font-weight: bold;
 }
 
-.chart-box.ApprovalList {
+.chart-box.ApprovalList,
+.chart-box.FeedsSchedule {
 	padding: 0;
 	padding-top: 20px;
 }
 
-.chart-box.ApprovalList .chart-head {
+.chart-box.ApprovalList .chart-head,
+.chart-box.FeedsSchedule .chart-head {
 	margin: 0 25px;
+}
+
+.chart.ApprovalList,
+.chart.FeedsSchedule {
+	position: relative;
+	width: 100%;
+	margin-top: 5px;
+}
+
+.chart.FeedsSchedule {
+	margin-top: 13px;
+}
+
+.chart.ApprovalList .table th,
+.chart.FeedsSchedule .table th {
+	border-top: 0 none;
+	padding-top: 0;
+	padding-bottom: 6px;
+	font-weight: normal;
+}
+
+.chart.ApprovalList .table td,
+.chart.FeedsSchedule .table td {
+	padding: 8px 10px;
+}
+
+.chart.ApprovalList .table tr th:first-child,
+.chart.ApprovalList .table tr td:first-child,
+.chart.FeedsSchedule .table tr th:first-child,
+.chart.FeedsSchedule .table tr td:first-child {
+	padding-left: 25px;
+}
+
+.chart.ApprovalList .table tr th:last-child,
+.chart.ApprovalList .table tr td:last-child,
+.chart.FeedsSchedule .table tr th:last-child,
+.chart.FeedsSchedule .table tr td:last-child {
+	padding-right: 23px;
 }
 
 .chart-box.ApprovalList .progress-wrap {
@@ -172,34 +227,23 @@
 	opacity: 0.8;
 }
 
-.chart.ApprovalList {
-	position: relative;
-	width: 100%;
-	margin-top: 5px;
+.chart.FeedsSchedule td>.content {
+	max-height: 37px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: #404040;
+	display: inline-block;
+	line-height: 1;
 }
 
-.chart.ApprovalList .table th {
-	border-top: 0 none;
-	padding-top: 0;
-	padding-bottom: 6px;
-	font-weight: normal;
+.chart.FeedsSchedule td>.content:hover {
+	opacity: 0.8;
 }
 
-.chart.ApprovalList .table td {
-	padding: 8px 10px;
+.chart.FeedsSchedule td>.content p {
+	margin: 0;
+	line-height: 1.5;
 }
-
-.chart.ApprovalList .table tr th:first-child,
-.chart.ApprovalList .table tr td:first-child {
-	padding-left: 25px;
-}
-
-.chart.ApprovalList .table tr th:last-child,
-.chart.ApprovalList .table tr td:last-child {
-	padding-right: 23px;
-}
-
-.chart-select-wrap {}
 
 .chart-select-wrap .nav-pills .nav-link {
 	padding: 0.7rem 1rem;

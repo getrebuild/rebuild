@@ -1,8 +1,12 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable react/prop-types */
-/* global filesList */
-// 文档
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+/* global filesList */
+
+// 文档
 const __DEFAULT_ALL = 'ALL'
 let __FolderData = []
 
@@ -72,9 +76,9 @@ class FolderEditDlg extends RbFormHandler {
     _data.metadata = { entity: 'AttachmentFolder', id: this.props.id || null }
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), () => {
+    $.post('/app/entity/record-save', JSON.stringify(_data), () => {
       this.hide()
-      this.props.call && this.props.call()
+      typeof this.props.call === 'function' && this.props.call()
     })
   }
 }
@@ -100,16 +104,16 @@ class FileUploadDlg extends RbFormHandler {
             <div className="file-field files">
               {(this.state.files || []).map((item) => {
                 let fileName = $fileCutName(item)
-                return (<div key={'file-' + item} className="img-thumbnail" title={fileName}>
+                return <div key={'file-' + item} className="img-thumbnail" title={fileName}>
                   <i className="file-icon" data-type={$fileExtName(fileName)} />
                   <span>{fileName}</span>
                   <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
-                </div>)
+                </div>
               })}
             </div>
             <label className="upload-box">
               点击选择或拖动文件至此
-              <input type="file" ref={(c) => this._upload = c} className="hide" />
+              <input type="file" ref={(c) => this._upload = c} className="hide" data-maxsize="102400000" />
             </label>
           </div>
         </div>
@@ -125,15 +129,19 @@ class FileUploadDlg extends RbFormHandler {
 
   componentDidMount() {
     let mp
+    const mp_end = function () {
+      if (mp) mp.end()
+      mp = null
+    }
     $createUploader(this._upload, (res) => {
       if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
-      if (mp) mp.end()
-      let files = this.state.files || []
+      const files = this.state.files || []
       files.push(res.key)
       this.setState({ files: files })
-    })
+      mp_end()
+    }, () => mp_end())
 
     // 拖拽上传
     const $da = $(this._dropArea)
@@ -146,10 +154,10 @@ class FileUploadDlg extends RbFormHandler {
       e.preventDefault()
       $da.find('.upload-box').addClass('active')
     })
-    let that = this
+    const that = this
     $da.on('drop', function (e) {
       e.preventDefault()
-      let files = e.originalEvent.dataTransfer.files
+      const files = e.originalEvent.dataTransfer.files
       if (!files || files.length === 0) return false
       that._upload.files = files
       $(that._upload).trigger('change')
@@ -158,7 +166,7 @@ class FileUploadDlg extends RbFormHandler {
   }
 
   _removeFile(file) {
-    let files = this.state.files
+    const files = this.state.files
     files.remove(file)
     this.setState({ files: files })
   }
@@ -166,7 +174,7 @@ class FileUploadDlg extends RbFormHandler {
   _post = () => {
     if ((this.state.files || []).length === 0) return
     this.disabled(true)
-    $.post(`${rb.baseUrl}/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.state.files), (res) => {
+    $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.state.files), (res) => {
       if (res.error_code === 0) {
         this.hide()
         this.props.call && this.props.call()
@@ -202,7 +210,7 @@ class FileMoveDlg extends RbFormHandler {
 
   _post = () => {
     this.disabled(true)
-    $.post(`${rb.baseUrl}/files/move-files?folder=${this.state.inFolder || ''}&ids=${this.props.files.join(',')}`, (res) => {
+    $.post(`/files/move-files?folder=${this.state.inFolder || ''}&ids=${this.props.files.join(',')}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
         this.props.call && this.props.call()
@@ -250,13 +258,13 @@ class FolderTree extends React.Component {
 
   _handleDelete(id) {
     event.preventDefault()
-    let that = this
+    const that = this
     RbAlert.create('目录内有文件或子目录则不允许删除。确认删除吗？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${id}`, (res) => {
+        $.post(`/app/entity/record-delete?id=${id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             that.loadData()
@@ -268,8 +276,8 @@ class FolderTree extends React.Component {
 
   componentDidMount = () => this.loadData()
   loadData() {
-    $.get(`${rb.baseUrl}/files/list-folder`, (res) => {
-      let _list = res.data || []
+    $.get('/files/list-folder', (res) => {
+      const _list = res.data || []
       _list.unshift({ id: __DEFAULT_ALL, text: '全部' })
       this.setState({ list: _list })
       __FolderData = _list
@@ -287,7 +295,7 @@ class FilesList2 extends FilesList {
       {super.renderExtras(item)}
       <span className="op">
         <a title="下载" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank"><i className="icon zmdi zmdi-download fs-15 down-2"></i></a>
-        <a title="分享" onClick={(e) => this._share(item, e)}><span><i className="icon zmdi zmdi-share fs-14 down-1"></i></span></a>
+        {rb.fileSharable && <a title="分享" onClick={(e) => this._share(item, e)}><span><i className="icon zmdi zmdi-share fs-14 down-1"></i></span></a>}
       </span>
     </React.Fragment>
   }
@@ -299,9 +307,9 @@ class FilesList2 extends FilesList {
 }
 
 const __findPaths = function (active, push) {
-  let a = active.find('>a')
+  const a = active.find('>a')
   push.unshift([a.text(), a.data('id')])
-  let li = active.parent('ul').parent('li')
+  const li = active.parent('ul').parent('li')
   if (li.length > 0) __findPaths(li, push)
 }
 
@@ -309,18 +317,14 @@ let filesNav
 let currentFolder
 
 $(document).ready(() => {
-  let clickNav = function (item) {
+  const clickNav = function (item) {
     filesList && filesList.loadData(item.id)
     currentFolder = item.id
 
-    let paths = []
+    const paths = []
     __findPaths($('#navTree li.active'), paths)
-    let ol = $('.file-path ol').empty()
+    const ol = $('.file-path ol').empty()
     $(paths).each((idx, item) => {
-      // let active = idx === paths.length - 1
-      // let li = $(`<li class="breadcrumb-item ${active ? 'active' : ''}"></li>`).appendTo(ol)
-      // if (active) li.text(item[0])
-      // else $(`<a href="#!/Folder/${item[1]}">${item[0]}</a>`).appendTo(li)
       $(`<li class="breadcrumb-item active">${item[0]}</li>`).appendTo(ol)
     })
   }
@@ -332,25 +336,26 @@ $(document).ready(() => {
   $('.J_upload-file').click(() => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
 
   $('.J_delete').click(() => {
-    let s = filesList.getSelected()
+    const s = filesList.getSelected()
     if (!s) return
     RbAlert.create('确认删除选中的文件吗？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/files/delete-files?ids=${s}`, (res) => {
+        $.post(`/files/delete-files?ids=${s}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             filesList.loadData()
-          } RbHighbar.error(res.error_msg)
-
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
         })
       }
     })
   })
   $('.J_move').click(() => {
-    let s = filesList.getSelected()
+    const s = filesList.getSelected()
     if (!s) return
     renderRbcomp(<FileMoveDlg files={[s]} call={() => filesList && filesList.loadData()} />)
   })

@@ -29,7 +29,7 @@
 				<property name="jobClass" value="com.rebuild.server.business.recyclebin.RecycleBinCleanerJob" />
 			</bean>
 		</property>
-		<property name="cronExpression" value="0 5 0 * * ?" />
+		<property name="cronExpression" value="0 0 4 * * ?" />
 	</bean>
 
 	<bean id="perHourJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
@@ -38,7 +38,16 @@
 				<property name="jobClass" value="com.rebuild.server.service.PerHourJob" />
 			</bean>
 		</property>
-		<property name="cronExpression" value="0 0 0 * * ?" />
+		<property name="cronExpression" value="0 0 * * * ?" />
+	</bean>
+
+	<bean id="feedsScheduleJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+				<property name="jobClass" value="com.rebuild.server.business.feeds.FeedsScheduleJob" />
+			</bean>
+		</property>
+		<property name="cronExpression" value="0 * * * * ?" />
 	</bean>
 
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
@@ -51,6 +60,7 @@
 				<ref bean="seriesZeroResetJob" />
 				<ref bean="recycleBinCleanerJob" />
 				<ref bean="perHourJob" />
+				<ref bean="feedsScheduleJob" />
 			</list>
 		</property>
 	</bean>

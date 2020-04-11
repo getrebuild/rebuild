@@ -8,72 +8,88 @@
 <title>字段信息</title>
 <style type="text/css">
 .col-form-label {
-	padding-bottom: 8px;
+    padding-bottom: 8px;
 }
+
 .sortable-box {
-	height: 208px;
-	max-width: 300px;
+    height: 208px;
+    max-width: 300px;
 }
+
 .sortable-box .dd-list {
-	height: 200px
+    height: 200px
 }
+
 .sortable-box .dd-list .dd-item, .sortable-box .dd-list .dd-handle {
-	background-color: #fff !important;
-	color: #404040 !important;
-	border-color: #dedede !important;
+    background-color: #fff !important;
+    color: #404040 !important;
+    border-color: #dedede !important;
 }
+
 .sortable-box .no-item {
-	padding: 9px;
-	text-align: center;
-	color: #999
+    padding: 9px;
+    text-align: center;
+    color: #999
 }
+
 .sortable-box.autoh, .sortable-box.autoh .dd-list {
-	height: auto;
+    height: auto;
 }
+
 .sortable-box .default .dd-handle {
-	background-color: #dedede !important
+    background-color: #dedede !important
 }
+
 .sortable-box .default .dd-handle::before {
-	color: #4285f4;
+    color: #4285f4;
 }
+
 .dt-MULTISELECT .dd-handle, .dt-PICKLIST .dd-handle {
-	padding-left: 31px !important;
+    padding-left: 31px !important;
 }
+
 .dt-MULTISELECT .dd-handle::before, .dt-PICKLIST .dd-handle::before {
-	position: absolute;
-	font-family: 'Material-Design-Iconic-Font';
-	font-size: 20px;
-	color: #bbb;
-	left: 10px;
-	content: '\f279';
+    position: absolute;
+    font-family: 'Material-Design-Iconic-Font';
+    font-size: 20px;
+    color: #bbb;
+    left: 10px;
+    content: '\f279';
 }
+
 .dt-MULTISELECT .default .dd-handle::before {
-	content: '\f26a';
+    content: '\f26a';
 }
+
 .dt-PICKLIST .dd-handle::before {
-	content: '\f273';
-	font-size: 17px;
-	font-weight: bold;
+    font-size: 18px;
+    margin-top: -1px;
+    content: '\f26c';
 }
+
 .dt-PICKLIST .default .dd-handle::before {
-	content: '\f26b';
+    content: '\f269';
 }
+
 .form-text.help code {
-	cursor: help;
-	font-weight: bold;
+    cursor: help;
+    font-weight: bold;
 }
+
 .calc-expr {
-	border-radius: 3px;
-	padding: 10px 0;
-	background-color: #eee
+    border-radius: 3px;
+    padding: 10px 0;
+    background-color: #eee
 }
+
 .calc-expr .col-4 {
-	padding-left: 10px;
-	padding-right: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
+
 #stateClass:empty::before {
-	content: '无效状态类';
-	color: #ea4335;
+    content: '无效状态类';
+    color: #ea4335;
 }
 </style>
 </head>
@@ -230,7 +246,7 @@
 								<div class="input-group">
 									<input class="form-control form-control-sm" type="text" id="defaultValue" value="${fieldDefaultValue}" data-o="${fieldDefaultValue}" placeholder="无" autocomplete="off">
         							<div class="input-group-append hide">
-          								<button class="btn btn-primary mw-auto" title="设置高级默认值" type="button"><i class="icon zmdi zmdi-hdr-strong"></i></button>
+          								<button class="btn btn-secondary mw-auto" title="日期公式" type="button"><i class="icon zmdi zmdi-settings-square"></i></button>
 									</div>
 								</div>
 							</div>
@@ -297,13 +313,14 @@
 <script src="${baseUrl}/assets/lib/widget/bootstrap-slider.min.js"></script>
 <script>
 window.__PageConfig = {
-	metaId: '${fieldMetaId}',
-	fieldType: '${fieldType}',
-	extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
-	entityName: '${entityName}',
-	fieldName: '${fieldName}',
-	fieldBuildin: ${fieldBuildin},
-	isSuperAdmin: ${isSuperAdmin}
+    metaId: '${fieldMetaId}',
+    fieldType: '${fieldType}',
+    extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
+    entityName: '${entityName}',
+    fieldName: '${fieldName}',
+    fieldBuildin: ${fieldBuildin},
+    isSuperAdmin: ${isSuperAdmin},
+    isSlaveToMasterField: ${isSlaveToMasterField}
 }
 </script>
 <script src="${baseUrl}/assets/js/entityhub/field-edit.jsx" type="text/babel"></script>

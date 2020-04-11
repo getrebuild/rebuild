@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.dashboard;
@@ -103,25 +92,51 @@ public class ChartDesignControll extends BaseEntityControll {
 		
 		putEntityMeta(mv, entityMeta);
 
+		// Fields
 		List<String[]> fields = new ArrayList<>();
-		for (Field field : MetadataSorter.sortFields(entityMeta)) {
-			EasyMeta easy = EasyMeta.valueOf(field);
-			DisplayType dt = easy.getDisplayType();
-			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE
-                || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT) {
+		putFields(fields, entityMeta, null);
+		for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
+			int entityCode = field.getReferenceEntity().getEntityCode();
+			if (MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig) {
 				continue;
 			}
+
+			putFields(fields, field.getReferenceEntity(), field);
+		}
+		mv.getModel().put("fields", fields);
+
+		return mv;
+	}
+
+	/**
+	 * @param dest
+	 * @param entity
+	 * @param parent
+	 * @see com.rebuild.web.base.MetadataGetting
+	 */
+	private void putFields(List<String[]> dest, Entity entity, Field parent) {
+		for (Field field : MetadataSorter.sortFields(entity)) {
+			EasyMeta easyField = EasyMeta.valueOf(field);
+			DisplayType dt = easyField.getDisplayType();
+			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE
+					|| dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT) {
+				continue;
+			}
+
 			String type = "text";
 			if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
 				type = "date";
 			} else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
 				type = "num";
+			} else if (dt == DisplayType.CLASSIFICATION) {
+				type = "clazz";
 			}
-			fields.add(new String[] { easy.getName(), easy.getLabel(), type });
+
+			dest.add(new String[] {
+					(parent == null ? "" : (parent.getName() + ".")) + easyField.getName(),
+					(parent == null ? "" : (EasyMeta.getLabel(parent) + ".")) + easyField.getLabel(),
+					type });
 		}
-		mv.getModel().put("fields", fields);
-		
-		return mv;
 	}
 	
 	@RequestMapping("/chart-preview")

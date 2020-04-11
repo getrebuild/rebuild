@@ -1,9 +1,13 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* global converEmoji, FeedsEditor */
 
 const FeedsSorts = { newer: '最近发布', older: '最早发布', modified: '最近修改' }
-const FeedsTypes = { 1: '动态', 2: '跟进', 3: '公告' }
+const FeedsTypes = { 1: '动态', 2: '跟进', 3: '公告', 4: '日程' }
 
 // ~ 动态列表
 // eslint-disable-next-line no-unused-vars
@@ -17,10 +21,6 @@ class FeedsList extends React.Component {
 
   render() {
     return <div>
-      {this.state.specFilter && <div className="alert alert-warning alert-icon alert-sm alert-icon-border mt-3">
-        <div className="icon"><i className="zmdi zmdi-info-outline"></i></div>
-        <div className="message">当前显示指定动态，点击 <a href="#no-gs" onClick={this._cleanSpecFilter}>查看全部</a></div>
-      </div>}
       <div className="types-bar">
         <ul className="nav nav-tabs">
           <li className="nav-item"><a onClick={() => this._switchTab(0)} className={`nav-link ${this.state.tabType === 0 && 'active'}`}>全部</a></li>
@@ -48,56 +48,63 @@ class FeedsList extends React.Component {
         </div>
         }
         {(this.state.data || []).map((item) => {
-          if (item.deleted) return null
-          let id = `feeds-${item.id}`
-          return <div key={id} id={id}>
-            <div className="feeds">
-              <div className="user">
-                <a className="user-show">
-                  <div className="avatar"><img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} /></div>
-                </a>
-              </div>
-              <div className="content">
-                <div className="meta">
-                  <span className="float-right badge">{FeedsTypes[item.type] || '动态'}</span>
-                  <a>{item.createdBy[1]}</a>
-                  <p className="text-muted fs-12 m-0">
-                    <span title={item.createdOn}>{item.createdOnFN}{item.createdOn !== item.modifedOn && <span className="text-danger" title={`编辑于 ${item.modifedOn}`}> (已编辑)</span>}</span>
-                    &nbsp;&nbsp;·&nbsp;&nbsp;
-                    {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i title="团队成员可见" className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
-                  </p>
-                </div>
-                {__renderRichContent(item)}
-              </div>
-            </div>
-            <div className="actions">
-              <ul className="list-unstyled m-0">
-                {item.self && <li className="list-inline-item mr-2">
-                  <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
-                  <div className="dropdown-menu dropdown-menu-right">
-                    <a className="dropdown-item" onClick={() => this._handleEdit(item)}><i className="icon zmdi zmdi-edit" /> 编辑</a>
-                    <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}><i className="icon zmdi zmdi-delete" />删除</a>
-                  </div>
-                </li>
-                }
-                <li className="list-inline-item mr-3">
-                  <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                    <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
-                  </a>
-                </li>
-                <li className="list-inline-item">
-                  <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
-                    <i className="zmdi zmdi-comment-outline"></i>评论 {item.numComments > 0 && <span>({item.numComments})</span>}
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <span className={`${!item.shownComments && 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
-          </div>
+          return this.renderItem(item)
         })}
       </div>
       <Pagination ref={(c) => this._pagination = c} call={this.gotoPage} pageSize={40} />
     </div>
+  }
+
+  renderItem(item) {
+    if (item.deleted) return null
+    const id = `feeds-${item.id}`
+    return (
+      <div key={id} id={id} className={`${item.id === this.state.focusFeed ? 'focus' : ''}`}>
+        <div className="feeds">
+          <div className="user">
+            <a className="user-show">
+              <div className="avatar"><img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} /></div>
+            </a>
+          </div>
+          <div className="content">
+            <div className="meta">
+              <span className="float-right badge">{FeedsTypes[item.type] || '动态'}</span>
+              <a>{item.createdBy[1]}</a>
+              <p className="text-muted fs-12 m-0">
+                <span title={item.createdOn}>{item.createdOnFN}{item.createdOn !== item.modifedOn && <span className="text-danger" title={`编辑于 ${item.modifedOn}`}> (已编辑)</span>}</span>
+                    &nbsp;&nbsp;·&nbsp;&nbsp;
+                {typeof item.scope === 'string' ? item.scope : <span>{item.scope[1]} <i title="团队成员可见" className="zmdi zmdi-accounts fs-14 down-1"></i></span>}
+              </p>
+            </div>
+            {__renderRichContent(item)}
+          </div>
+        </div>
+        <div className="actions">
+          <ul className="list-unstyled m-0">
+            {item.self && <li className="list-inline-item mr-2">
+              <a data-toggle="dropdown" href="#mores" className="fixed-icon" title="更多"><i className="zmdi zmdi-more"></i>&nbsp;</a>
+              <div className="dropdown-menu dropdown-menu-right">
+                {this._renderMoreMenu(item)}
+                <a className="dropdown-item" onClick={() => this._handleEdit(item)}><i className="icon zmdi zmdi-edit" /> 编辑</a>
+                <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}><i className="icon zmdi zmdi-delete" />删除</a>
+              </div>
+            </li>
+            }
+            <li className="list-inline-item mr-3">
+              <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
+                <i className="zmdi zmdi-thumb-up"></i>赞 {item.numLike > 0 && <span>({item.numLike})</span>}
+              </a>
+            </li>
+            <li className="list-inline-item">
+              <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
+                <i className="zmdi zmdi-comment-outline"></i>评论 {item.numComments > 0 && <span>({item.numComments})</span>}
+              </a>
+            </li>
+          </ul>
+        </div>
+        <span className={`${!item.shownComments && 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
+      </div>
+    )
   }
 
   componentDidMount = () => this.props.fetchNow && this.fetchFeeds()
@@ -107,23 +114,15 @@ class FeedsList extends React.Component {
    */
   fetchFeeds(filter) {
     this.__lastFilter = filter = filter || this.__lastFilter
-    if (this.state.specFilter) {
-      filter = JSON.parse(JSON.stringify(filter))  // Use clone
-      if (!filter.items) filter.items = []
-      filter.items.push(this.state.specFilter)
-    }
+    const s = this.state
+    const firstFetch = !s.data
+    // s.focusFeed 首次加载有效
 
-    $.post(`${rb.baseUrl}/feeds/feeds-list?pageNo=${this.state.pageNo}&sort=${this.state.sort}&type=${this.state.tabType}`, JSON.stringify(filter), (res) => {
+    $.post(`/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`, JSON.stringify(filter), (res) => {
       const _data = res.data || { data: [], total: 0 }
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
-      this.setState({ data: _data.data })
+      this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null })
     })
-  }
-
-  _cleanSpecFilter = (e) => {
-    e.preventDefault()
-    location.hash = 'none'
-    this.setState({ specFilter: null }, () => this.fetchFeeds())
   }
 
   _switchTab(t) {
@@ -138,7 +137,7 @@ class FeedsList extends React.Component {
 
   _toggleComment(feeds) {
     event.preventDefault()
-    let _data = this.state.data
+    const _data = this.state.data
     _data.forEach((item) => {
       if (feeds === item.id) {
         item.shownComments = !item.shownComments
@@ -159,13 +158,40 @@ class FeedsList extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
+        $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#feeds-${id}`).animate({ opacity: 0 }, 600, () => {
-            let _data = that.state.data
+            const _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
           })
+        })
+      }
+    })
+  }
+
+  // 渲染菜单
+  _renderMoreMenu(item) {
+    if (item.type === 4 && item.contentMore && !item.contentMore.finishTime) {
+      return <React.Fragment>
+        <a className="dropdown-item" onClick={() => this._handleFinish(item.id)}><i className="icon zmdi zmdi-check" /> 完成</a>
+        <div className="dropdown-divider"></div>
+      </React.Fragment>
+    }
+    return null
+  }
+
+  _handleFinish(id) {
+    const that = this
+    RbAlert.create('确认完成该日程？', {
+      confirm: function () {
+        this.disabled(true)
+        $.post(`/feeds/post/finish-schedule?id=${id}`, (res) => {
+          if (res.error_code === 0) {
+            this.hide()
+            RbHighbar.success('日程已完成')
+            that.fetchFeeds()
+          } else RbHighbar.error(res.error_msg)
         })
       }
     })
@@ -195,7 +221,7 @@ class FeedsComments extends React.Component {
       <div className="feeds-list comment-list">
         {(this.state.data || []).map((item) => {
           if (item.deleted) return null
-          let id = `comment-${item.id}`
+          const id = `comment-${item.id}`
           return <div key={id} id={id}>
             <div className="feeds">
               <div className="user">
@@ -250,7 +276,7 @@ class FeedsComments extends React.Component {
 
   componentDidMount = () => this._fetchComments()
   _fetchComments() {
-    $.get(`${rb.baseUrl}/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
+    $.get(`/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
       const _data = res.data || {}
       this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
       this.setState({ data: _data.data })
@@ -259,13 +285,13 @@ class FeedsComments extends React.Component {
 
   _post = (whichEditor) => {
     if (!whichEditor) whichEditor = this._editor
-    let _data = whichEditor.vals()
+    const _data = whichEditor.vals()
     if (!_data.content) { RbHighbar.create('请输入评论内容'); return }
     _data.feedsId = this.props.feeds
     _data.metadata = { entity: 'FeedsComment' }
 
     const btn = $(this._btn).button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
+    $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this._editor.reset()
@@ -280,7 +306,7 @@ class FeedsComments extends React.Component {
 
   _toggleReply = (id, state) => {
     event.preventDefault()
-    let _data = this.state.data
+    const _data = this.state.data
     _data.forEach((item) => {
       if (id === item.id) {
         if (state !== undefined) item.shownReply = state
@@ -301,10 +327,10 @@ class FeedsComments extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/feeds/post/delete?id=${id}`, () => {
+        $.post(`/feeds/post/delete?id=${id}`, () => {
           this.hide()
           $(`#comment-${id}`).animate({ opacity: 0 }, 600, () => {
-            let _data = that.state.data
+            const _data = that.state.data
             _data.forEach((item) => { if (id === item.id) item.deleted = true })
             that.setState({ data: _data })
           })
@@ -371,27 +397,36 @@ class Pagination extends React.Component {
 // 渲染动态内容
 function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
-  const contentHtml = converEmoji(e.content.replace(/\n/g, '<br>'))
+  const contentHtml = converEmoji(e.content.replace(/\n/g, '<br />'))
+  const contentMore = e.contentMore || {}
   return <div className="rich-content">
     <div className="texts text-break"
       dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
-    {e.related && <div className="mores">
-      <div>
-        <span><i className={`icon zmdi zmdi-${e.related.icon}`} /> {e.related.entityLabel} : </span>
-        <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.related.id}`} title="查看相关记录">{e.related.text}</a>
+    <div className="appends">
+      {e.type === 4 && <div>
+        <div><span>日程时间 : </span> {contentMore.scheduleTime}</div>
+        {contentMore.finishTime && <div>
+          <span>完成时间 : </span> {contentMore.finishTime.substr(0, 16)}</div>}
+        {contentMore.scheduleRemind > 0 && <div>
+          <span>发送提醒 : </span> {__findMaskTexts(contentMore.scheduleRemind, REM_OPTIONS).join('、')}</div>}
       </div>
+      }
+      {e.relatedRecord && <div>
+        <span><i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} /> {e.relatedRecord.entityLabel} : </span>
+        <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title="查看相关记录">{e.relatedRecord.text}</a>
+      </div>
+      }
+      {e.type === 3 && <div>
+        {contentMore.showWhere > 0 &&
+          <div><span>展示位置 : </span> {__findMaskTexts(contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
+        {(contentMore.timeStart || contentMore.timeEnd) &&
+          <div><span>展示时间 : </span> {contentMore.timeStart || ''} 至 {contentMore.timeEnd}</div>}
+      </div>
+      }
     </div>
-    }
-    {e.type === 3 && <div className="mores">
-      {e.contentMore.showWhere > 0
-        && <div><span>展示位置 : </span> {__findMaskTexts(e.contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
-      {(e.contentMore.timeStart || e.contentMore.timeEnd)
-        && <div><span>展示时间 : </span> {e.contentMore.timeStart || ''} 至 {e.contentMore.timeEnd}</div>}
-    </div>
-    }
     {(e.images || []).length > 0 && <div className="img-field">
-      ${e.images.map((item, idx) => {
+      {e.images.map((item, idx) => {
         return (<span key={'img-' + item}>
           <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
             <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
@@ -402,10 +437,10 @@ function __renderRichContent(e) {
     }
     {(e.attachments || []).length > 0 && <div className="file-field">
       {e.attachments.map((item) => {
-        let fileName = $fileCutName(item)
-        return (<a key={'file-' + item} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
+        const fileName = $fileCutName(item)
+        return <a key={'file-' + item} title={fileName} onClick={() => RbPreview.create(item)} className="img-thumbnail">
           <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
-        </a>)
+        </a>
       })}
     </div>
     }
@@ -413,8 +448,9 @@ function __renderRichContent(e) {
 }
 
 const ANN_OPTIONS = [[1, '动态页'], [2, '首页'], [4, '登录页']]
+const REM_OPTIONS = [[1, '消息通知'], [2, '邮件'], [4, '短信']]
 function __findMaskTexts(mask, options) {
-  let texts = []
+  const texts = []
   options.forEach((item) => {
     if ((item[0] & mask) !== 0) texts.push(item[1])
   })
@@ -424,8 +460,8 @@ function __findMaskTexts(mask, options) {
 // 点赞
 function _handleLike(id, comp) {
   event.preventDefault()
-  $.post(`${rb.baseUrl}/feeds/post/like?id=${id}`, (res) => {
-    let _data = comp.state.data
+  $.post(`/feeds/post/like?id=${id}`, (res) => {
+    const _data = comp.state.data
     _data.forEach((item) => {
       if (id === item.id) {
         item.numLike += (res.data ? 1 : -1)

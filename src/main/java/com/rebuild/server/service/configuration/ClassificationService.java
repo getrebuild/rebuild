@@ -26,6 +26,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.base.QuickCodeReindexTask;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.AdminGuard;
 import org.apache.commons.lang.StringUtils;
@@ -120,6 +121,7 @@ public class ClassificationService extends ConfigurationService implements Admin
 		}
 		
 		String fullName = record.getString("name");
+		String quickCode = QuickCodeReindexTask.generateQuickCode(fullName);
 		ID parent = record.getID("parent");
 		if (parent == null && record.getPrimary() != null) {
 			Object[] o = Application.createQueryNoFilter(
@@ -133,6 +135,7 @@ public class ClassificationService extends ConfigurationService implements Admin
 			fullName = ClassificationManager.instance.getFullName(parent) + "." + fullName;
 		}
 		record.setString("fullName", fullName);
+		record.setString("quickCode", quickCode);
 		return true;
 	}
 	
@@ -162,23 +165,26 @@ public class ClassificationService extends ConfigurationService implements Admin
 	 * @return
 	 */
 	protected int reindexFullNameByParent(ID parent, ID dataId) {
-		String ql = "select itemId,name,parent from ClassificationData where parent = ?";
+		String sql = "select itemId,name,parent from ClassificationData where parent = ?";
 		if (dataId != null) {
-			ql += " and dataId = '" + dataId + "'";
+			sql += " and dataId = '" + dataId + "'";
 		}
-		Object[][] children = Application.createQueryNoFilter(ql)
+		Object[][] array = Application.createQueryNoFilter(sql)
 				.setParameter(1, parent)
 				.array();
+
 		int reindex = 0;
-		for (Object[] c : children) {
+		for (Object[] c : array) {
 			ID itemId = (ID) c[0];
 			String fullName = (String) c[1];
+			String quickCode = QuickCodeReindexTask.generateQuickCode(fullName);
 			if (c[2] != null) {
 				String pfn = ClassificationManager.instance.getFullName((ID) c[2]);
 				fullName = pfn + "." + fullName;
 			}
 			Record record = EntityHelper.forUpdate(itemId, UserService.SYSTEM_USER, false);
 			record.setString("fullName", fullName);
+			record.setString("quickCode", quickCode);
 			super.update(record);
 			reindex++;
 			
@@ -186,26 +192,5 @@ public class ClassificationService extends ConfigurationService implements Admin
 			reindex += reindexFullNameByParent(itemId, dataId);
 		}
 		return reindex;
-	}
-	
-	/**
-	 * 重建指定分类 fullName。注意：此方法效率很低，数据多建议异步使用
-	 * 
-	 * @param dataId
-	 */
-	@Deprecated
-	protected void reindexFullName(ID dataId) {
-		Object[][] items = Application.createQueryNoFilter(
-				"select itemId from ClassificationData where dataId = ?")
-				.setParameter(1, dataId)
-				.array();
-		for (Object[] item : items) {
-			ID itemId = (ID) item[0];
-			cleanCache(itemId);
-			String fullName = ClassificationManager.instance.getFullName(itemId);
-			Record record = EntityHelper.forUpdate(itemId, Application.getCurrentUser());
-			record.setString("fullName", fullName);
-			super.update(record);
-		}
 	}
 }

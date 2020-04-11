@@ -41,7 +41,7 @@
 							</div>
 						</div>
 						<div id="react-list" class="rb-loading rb-loading-active data-list">
-							<%@ include file="/_include/spinner.jsp"%>
+							<%@ include file="/_include/Spinner.jsp"%>
 						</div>
 					</div>
 				</div>

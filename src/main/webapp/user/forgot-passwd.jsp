@@ -63,7 +63,7 @@ $(document).ready(function() {
 		if (!email){ RbHighbar.create($lang('InputEmailPls')); return }
 		$('.J_email').text(email)
 		let _btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/user/user-forgot-passwd?email=' + $encode(email), function(res) {
+		$.post('/user/user-forgot-passwd?email=' + $encode(email), function(res) {
 			if (res.error_code == 0){
 				$('.J_step1').hide()
 				$('.J_step2').removeClass('hide')
@@ -83,7 +83,7 @@ $(document).ready(function() {
     	
     	let _data = { email: email, vcode: vcode, newpwd: newpwd }
     	let _btn = $(this).button('loading')
-		$.post(rb.baseUrl + '/user/user-confirm-passwd', JSON.stringify(_data), function(res) {
+		$.post('/user/user-confirm-passwd', JSON.stringify(_data), function(res) {
 			if (res.error_code == 0){
 				_btn.text($lang('ActionSuccess'))
 				setTimeout(()=>{ location.href = './login' }, 1000)

@@ -27,5 +27,8 @@
     ],
     "prettier.eslintIntegration": true,
     "workbench.editor.enablePreview": false,
-    "java.configuration.updateBuildConfiguration": "disabled"
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "editor.tokenColorCustomizations": {
+        "semanticHighlighting": true
+    },
 }

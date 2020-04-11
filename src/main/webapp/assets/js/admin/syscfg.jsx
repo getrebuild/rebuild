@@ -11,23 +11,30 @@ $(document).ready(() => {
 
 let __data = {}
 const changeValue = function (e) {
-  let name = e.target.name
+  const name = e.target.name
   __data[name] = e.target.value
 }
 // 激活编辑模式
 const editMode = function () {
   $('.syscfg table td[data-id]').each(function () {
-    let $item = $(this)
-    let val = $item.text()
+    const $item = $(this)
+    const name = $item.data('id')
+    let val = ($item.text() || '').trim()
     if (val === '未配置') val = ''
-    let name = $item.data('id')
 
     let options = $item.data('options')
     if (options) {
       options = options.split(';')
-      let comp = <select name={name} className="form-control form-control-sm" onChange={changeValue}>
+
+      let currentVal = $item.data('value')
+      if (!currentVal) {
+        currentVal = options.find((x) => { return x.split(':')[1] === val })
+        if (currentVal) currentVal = currentVal.split(':')[0]
+      }
+
+      const comp = <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={currentVal}>
         {options.map((item) => {
-          let kv = item.split(':')
+          const kv = item.split(':')
           return <option value={kv[0]} key={kv[0]}>{kv[1]}</option>
         })}
       </select>
@@ -43,7 +50,7 @@ const editMode = function () {
 const post = function (data) {
   for (let k in data) {
     if (!data[k]) {
-      let field = $('td[data-id=' + k + ']').prev().text()
+      const field = $('td[data-id=' + k + ']').prev().text()
       RbHighbar.create(field + '不能为空')
       return false
     }

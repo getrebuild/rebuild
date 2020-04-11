@@ -1,20 +1,24 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable react/jsx-no-undef */
 
 class RbFeeds extends React.Component {
   state = { ...this.props }
 
   render() {
-    let s = $urlp('s', location.hash)
-    if (s && s.length === 20) s = { field: 'feedsId', op: 'eq', value: s }
-    else s = null
-
+    const s = $urlp('s', location.hash)
     return <React.Fragment>
       <FeedsPost ref={(c) => this._post = c} call={this.search} />
-      <FeedsList ref={(c) => this._list = c} specFilter={s} />
+      <FeedsList ref={(c) => this._list = c} focusFeed={s} />
     </React.Fragment>
   }
-  search = (filter) => this._list.fetchFeeds(filter)
+
+  // 搜索
+  search = (filter) => this._list.setState({ pageNo: 1 }, () => this._list.fetchFeeds(filter))
 }
 
 class GroupList extends React.Component {
@@ -33,7 +37,7 @@ class GroupList extends React.Component {
   }
 
   loadData(q) {
-    $.get(`${rb.baseUrl}/feeds/group/group-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
+    $.get(`/feeds/group/group-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
   }
 
   _handleActive(id) {
@@ -49,7 +53,7 @@ class GroupList extends React.Component {
 class UserList extends GroupList {
   state = { ...this.props }
   loadData(q) {
-    $.get(`${rb.baseUrl}/feeds/group/user-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
+    $.get(`/feeds/group/user-list?q=${$encode(q || '')}`, (res) => this.setState({ list: res.data || [] }))
   }
 }
 

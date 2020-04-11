@@ -1,33 +1,46 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable no-unused-vars */
+
 /*! https://github.com/carhartl/jquery-cookie */
 // eslint-disable-next-line
 (function (factory) { if (typeof define === "function" && define.amd) { define(["jquery"], factory) } else { if (typeof exports === "object") { factory(require("jquery")) } else { factory(jQuery) } } }(function ($) { var pluses = /\+/g; function encode(s) { return config.raw ? s : encodeURIComponent(s) } function decode(s) { return config.raw ? s : decodeURIComponent(s) } function stringifyCookieValue(value) { return encode(config.json ? JSON.stringify(value) : String(value)) } function parseCookieValue(s) { if (s.indexOf('"') === 0) { s = s.slice(1, -1).replace(/\\"/g, '"').replace(/\\\\/g, "\\") } try { s = decodeURIComponent(s.replace(pluses, " ")); return config.json ? JSON.parse(s) : s } catch (e) { } } function read(s, converter) { var value = config.raw ? s : parseCookieValue(s); return $.isFunction(converter) ? converter(value) : value } var config = $.cookie = function (key, value, options) { if (value !== undefined && !$.isFunction(value)) { options = $.extend({}, config.defaults, options); if (typeof options.expires === "number") { var days = options.expires, t = options.expires = new Date(); t.setTime(+t + days * 86400000) } return (document.cookie = [encode(key), "=", stringifyCookieValue(value), options.expires ? "; expires=" + options.expires.toUTCString() : "", options.path ? "; path=" + options.path : "", options.domain ? "; domain=" + options.domain : "", options.secure ? "; secure" : ""].join("")) } var result = key ? undefined : {}; var cookies = document.cookie ? document.cookie.split("; ") : []; for (var i = 0, l = cookies.length; i < l; i++) { var parts = cookies[i].split("="); var name = decode(parts.shift()); var cookie = parts.join("="); if (key && key === name) { result = read(cookie, value); break } if (!key && (cookie = read(cookie)) !== undefined) { result[name] = cookie } } return result }; config.defaults = {}; $.removeCookie = function (key, options) { if ($.cookie(key) === undefined) { return false } $.cookie(key, "", $.extend({}, options, { expires: -1 })); return !$.cookie(key) } }));
 /*! https://github.com/gabceb/jquery-browser-plugin */
 // eslint-disable-next-line
 !function (a) { "function" == typeof define && define.amd ? define(["jquery"], function (b) { return a(b) }) : "object" == typeof module && "object" == typeof module.exports ? module.exports = a(require("jquery")) : a(window.jQuery) }(function (a) { "use strict"; function b(a) { void 0 === a && (a = window.navigator.userAgent), a = a.toLowerCase(); var b = /(edge)\/([\w.]+)/.exec(a) || /(opr)[\/]([\w.]+)/.exec(a) || /(chrome)[ \/]([\w.]+)/.exec(a) || /(iemobile)[\/]([\w.]+)/.exec(a) || /(version)(applewebkit)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a) || /(webkit)[ \/]([\w.]+).*(version)[ \/]([\w.]+).*(safari)[ \/]([\w.]+)/.exec(a) || /(webkit)[ \/]([\w.]+)/.exec(a) || /(opera)(?:.*version|)[ \/]([\w.]+)/.exec(a) || /(msie) ([\w.]+)/.exec(a) || a.indexOf("trident") >= 0 && /(rv)(?::| )([\w.]+)/.exec(a) || a.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec(a) || [], c = /(ipad)/.exec(a) || /(ipod)/.exec(a) || /(windows phone)/.exec(a) || /(iphone)/.exec(a) || /(kindle)/.exec(a) || /(silk)/.exec(a) || /(android)/.exec(a) || /(win)/.exec(a) || /(mac)/.exec(a) || /(linux)/.exec(a) || /(cros)/.exec(a) || /(playbook)/.exec(a) || /(bb)/.exec(a) || /(blackberry)/.exec(a) || [], d = {}, e = { browser: b[5] || b[3] || b[1] || "", version: b[2] || b[4] || "0", versionNumber: b[4] || b[2] || "0", platform: c[0] || "" }; if (e.browser && (d[e.browser] = !0, d.version = e.version, d.versionNumber = parseInt(e.versionNumber, 10)), e.platform && (d[e.platform] = !0), (d.android || d.bb || d.blackberry || d.ipad || d.iphone || d.ipod || d.kindle || d.playbook || d.silk || d["windows phone"]) && (d.mobile = !0), (d.cros || d.mac || d.linux || d.win) && (d.desktop = !0), (d.chrome || d.opr || d.safari) && (d.webkit = !0), d.rv || d.iemobile) { var f = "msie"; e.browser = f, d[f] = !0 } if (d.edge) { delete d.edge; var g = "msedge"; e.browser = g, d[g] = !0 } if (d.safari && d.blackberry) { var h = "blackberry"; e.browser = h, d[h] = !0 } if (d.safari && d.playbook) { var i = "playbook"; e.browser = i, d[i] = !0 } if (d.bb) { var j = "blackberry"; e.browser = j, d[j] = !0 } if (d.opr) { var k = "opera"; e.browser = k, d[k] = !0 } if (d.safari && d.android) { var l = "android"; e.browser = l, d[l] = !0 } if (d.safari && d.kindle) { var m = "kindle"; e.browser = m, d[m] = !0 } if (d.safari && d.silk) { var n = "silk"; e.browser = n, d[n] = !0 } return d.name = e.browser, d.platform = e.platform, d } return window.jQBrowser = b(window.navigator.userAgent), window.jQBrowser.uaMatch = b, a && (a.browser = window.jQBrowser), window.jQBrowser });
+// select2 zh-CN
+// eslint-disable-next-line
+(function () { if (jQuery && jQuery.fn && jQuery.fn.select2 && jQuery.fn.select2.amd) var e = jQuery.fn.select2.amd; return e.define("select2/i18n/zh-CN", [], function () { return { errorLoading: function () { return "无法载入结果" }, inputTooLong: function (e) { var t = e.input.length - e.maximum, n = "请删除" + t + "个字符"; return n }, inputTooShort: function (e) { var t = e.minimum - e.input.length, n = "请再输入至少" + t + "个字符"; n = '输入关键词搜索'; return n }, loadingMore: function () { return "载入更多结果" }, maximumSelected: function (e) { var t = "最多只能选择" + e.maximum + "项"; return t }, noResults: function () { return "未找到结果" }, searching: function () { return "搜索中..." } } }), { define: e.define, require: e.require } })();
 // extends jQuery
 (function ($) {
   $.fn.extend({
     'button': function (state) {
       return this.each(function () {
-        var el = $(this)
-        if (!(el.prop('nodeName') === 'BUTTON' || el.prop('nodeName') === 'A')) return
+        var $el = $(this)
+        if (!($el.prop('nodeName') === 'BUTTON' || $el.prop('nodeName') === 'A')) return
         if (state === 'loading') {
-          el.attr('disabled', true)
-          var loadingText = el.data('loading-text')
+          $el.attr('disabled', true)
+
+          var spinner = $.browser.msie ? undefined : $el.data('spinner')
+          var loadingText = $el.data('loading-text')
+          this.__textHold = $el.html()
+
+          var _this = this
           if (loadingText) {
-            var _this = this
-            this.__loadingTextTimer = setTimeout(function () {
-              _this.__textHold = el.html()
-              el.text(loadingText)
-            }, 200)
+            this.__loadingTimer = setTimeout(function () { $el.text(loadingText) }, 200)
+          } else if (spinner !== undefined) {
+            this.__loadingTimer = setTimeout(function () { $el.html('<span class="spinner-' + (spinner === 'grow' ? 'grow' : 'border') + '"></span>') }, 200)
           }
         } else if (state === 'reset') {
-          el.attr('disabled', false)
-          if (this.__loadingTextTimer) {
-            clearTimeout(this.__loadingTextTimer)
-            this.__loadingTextTimer = null
-            if (this.__textHold) el.html(this.__textHold)
+          $el.attr('disabled', false)
+          if (this.__loadingTimer) {
+            clearTimeout(this.__loadingTimer)
+            this.__loadingTimer = null
+            if (this.__textHold) $el.html(this.__textHold)
           }
         }
       })
@@ -46,12 +59,18 @@
       else {
         var error = xhr.responseText
         if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
+        if (error && error.contains('Exception:')) error = error.split('Exception:')[1]
         RbHighbar.error(error)
       }
+    },
+    beforeSend: function (xhr, settings) {
+      // URL prefix
+      if (settings.url.substr(0, 1) === '/' && rb.baseUrl) settings.url = rb.baseUrl + settings.url
+      return settings
     }
   })
 
-  $.cookie.defaults = { expires: 14, path: '/' }
+  $.cookie.defaults = { expires: 14, path: '/', secure: location.protocol === 'https:' }
 
   $.fn.select2.defaults.set('width', '100%')
   $.fn.select2.defaults.set('language', 'zh-CN')
@@ -72,6 +91,23 @@
     if (rb.env === 'dev') $('html').addClass('dev')
     $(document.body).addClass('rb-animate')
   }, 1000)
+
+  // 安全水印
+  if (window.watermark && self === top) {
+    window.watermark.init({
+      watermark_txt: [rb.currentUser, rb.appName],
+      watermark_angle: 30,
+      watermark_width: 200,
+      watermark_font: 'arial',
+      watermark_fontsize: '15px',
+      watermark_alpha: 0.06,
+      watermark_parent_width: $(window).width(),
+      watermark_parent_height: $(window).height(),
+      monitor: true
+    })
+    if (!(location.protocol === 'http:' || location.protocol === 'https:')) location.href = 'https://getrebuild.com/'
+  }
+
 })(jQuery)
 
 // extends Array
@@ -141,29 +177,32 @@ var $urlp = function (key, qstr) {
 }
 
 /**
- * 获取元素值
- * 如有 data-o 属性：如当前值与原值（data-o）一致，则返回 undefined；如清空了值则返回 null
+ * 获取元素值。兼容旧值比较（根据 data-o 属性），如与旧值一致则返回 null
  * @param {Element/String} el 
  */
 var $val = function (el) {
   el = $(el)
   if (el.length === 0) return null
+
   var nVal = null
-  var tag = el.prop('tagName')
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') {
-    if (tag === 'INPUT' && el.attr('type') === 'checkbox') {
-      nVal = el.prop('checked') + ''
-    } else {
-      nVal = el.val()
-    }
+  var tagName = el.prop('tagName')
+  var isCheckbox = tagName === 'INPUT' && el.attr('type') === 'checkbox'
+  if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
+    nVal = isCheckbox ? el.prop('checked') : el.val()
   } else {
     nVal = el.attr('value')
   }
 
-  var oVal = el.data('o') + ''
-  if (!oVal) return $.trim(nVal) || null
+  // 无 data-o 值
+  var oVal = el.data('o')
+  if (oVal === undefined || !(oVal + '')) {
+    return isCheckbox ? nVal : ($.trim(nVal) || null)
+  }
 
-  // eslint-disable-next-line no-constant-condition
+  if (isCheckbox) {
+    return nVal === oVal ? null : nVal
+  }
+
   if ((oVal || 666) === (nVal || 666)) return null // unmodified
   if (!!oVal && !nVal) return '' // new value is empty
   else return $.trim(nVal) || null
@@ -257,7 +296,15 @@ var $storage = {
 }
 
 var $random__times = 0
-var $random = function (prefix) {
+var $random_charts = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+var $random = function (prefix, alphabetic, maxLength) {
+  if (alphabetic) {
+    var c = ''
+    for (var i = 0; i < (maxLength || 20); i++) {
+      c += $random_charts.charAt(Math.floor(Math.random() * $random_charts.length))
+    }
+    return (prefix || '') + c
+  }
   return (prefix || '') + new Date().getTime() + '' + ($random__times++)
 }
 

@@ -69,7 +69,7 @@
 										</thead>
 										<tbody></tbody>
 									</table>
-									<%@ include file="/_include/spinner.jsp"%>
+									<%@ include file="/_include/Spinner.jsp"%>
 								</div>
 							</div>
 						</div>

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.rbstore;
@@ -103,7 +92,8 @@ public class MetaSchemaGenerator {
 		}
 		schemaEntity.put("fields", metaFields);
 
-		// 布局相关（仅管理员）
+		// 布局相关（仅管理员的）
+
 		JSONObject putLayouts = new JSONObject();
 		Object[][] layouts = Application.createQueryNoFilter(
 				"select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
@@ -119,13 +109,14 @@ public class MetaSchemaGenerator {
 		}
 		schemaEntity.put("layouts", putLayouts);
 		
-		// 过滤器（仅管理员）
+		// 过滤器（仅管理员的）
+
+		JSONObject putFilters = new JSONObject();
 		Object[][] filters = Application.createQueryNoFilter(
 				"select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
 				.setParameter(1, entity.getName())
 				.setParameter(2, UserService.ADMIN_USER)
 				.array();
-		JSONObject putFilters = new JSONObject();
 		for (Object[] filter : filters) {
 			String name = (String) filter[0];
 			JSONObject config = JSON.parseObject((String) filter[1]);
@@ -134,7 +125,7 @@ public class MetaSchemaGenerator {
 			}
 		}
 		schemaEntity.put("filters", putFilters);
-		
+
 		return schemaEntity;
 	}
 	

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper.datalist;
@@ -24,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.AdvFilterManager;
+import com.rebuild.server.configuration.portals.ChartManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
@@ -182,28 +172,27 @@ public class QueryParser {
 		
 		// 过滤器
 		
-		StringBuilder sqlWhere = new StringBuilder("(1=1)");
+		final StringBuilder sqlWhere = new StringBuilder("(1=1)");
 		
 		// Default
 		String defaultFilter = dataListControl == null ? null : dataListControl.getDefaultFilter();
-		if (defaultFilter != null) {
+		if (StringUtils.isNotBlank(defaultFilter)) {
 			sqlWhere.append(" and (").append(defaultFilter).append(')');
 		}
-		// Adv
-		String advExpId = queryExpr.getString("advFilter");
-		if (ID.isId(advExpId)) {
-			ConfigEntry adv = AdvFilterManager.instance.getAdvFilter(ID.valueOf(advExpId));
-			if (adv != null) {
-				String where = new AdvFilterParser(entity, (JSONObject) adv.getJSON("filter")).toSqlWhere();
-				if (StringUtils.isNotBlank(where)) {
-					sqlWhere.append(" and ").append(where);
-				}
-			}
+
+		// appends AdvFilter
+		String advFilter = queryExpr.getString("advFilter");
+		if (ID.isId(advFilter)) {
+            String where = parseAdvFilter(ID.valueOf(advFilter));
+            if (StringUtils.isNotBlank(where)) {
+                sqlWhere.append(" and ").append(where);
+            }
 		}
-		// Quick
-		JSONObject quickExp = queryExpr.getJSONObject("filter");
-		if (quickExp != null) {
-			String where = new AdvFilterParser(entity, quickExp).toSqlWhere();
+
+		// appends Quick
+		JSONObject quickFilter = queryExpr.getJSONObject("filter");
+		if (quickFilter != null) {
+			String where = new AdvFilterParser(entity, quickFilter).toSqlWhere();
 			if (StringUtils.isNotBlank(where)) {
 				sqlWhere.append(" and ").append(where);
 			}
@@ -253,4 +242,26 @@ public class QueryParser {
 		String sortField = sort_s[0];
 		return sortField + ("desc".equalsIgnoreCase(sort_s[1]) ? " desc" : " asc");
 	}
+
+    /**
+     * @param filterId
+     * @return
+     */
+	private String parseAdvFilter(ID filterId) {
+	    // via Charts
+	    if (filterId.getEntityCode() == EntityHelper.ChartConfig) {
+            ConfigEntry chart = ChartManager.instance.getChart(filterId);
+            JSONObject filterExp = ((JSONObject) chart.getJSON("config")).getJSONObject("filter");
+            return new AdvFilterParser(entity, filterExp).toSqlWhere();
+        }
+
+	    // AdvFilter
+        ConfigEntry advFilter = AdvFilterManager.instance.getAdvFilter(filterId);
+        if (advFilter != null) {
+            JSONObject filterExp = (JSONObject) advFilter.getJSON("filter");
+            return new AdvFilterParser(entity, filterExp).toSqlWhere();
+        }
+
+        return null;
+    }
 }

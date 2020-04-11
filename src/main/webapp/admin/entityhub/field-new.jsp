@@ -86,6 +86,6 @@
 	</form>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entityhub/field-new.js"></script>
+<script src="${baseUrl}/assets/js/entityhub/field-new.jsx" type="text/babel"></script>
 </body>
 </html>

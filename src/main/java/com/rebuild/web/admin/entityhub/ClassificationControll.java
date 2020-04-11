@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin.entityhub;
@@ -47,13 +36,13 @@ import java.io.IOException;
 public class ClassificationControll extends BasePageControll {
 	
 	@RequestMapping("classifications")
-	public ModelAndView pageList(HttpServletRequest request) throws IOException {
+	public ModelAndView pageList() throws IOException {
 		return createModelAndView("/admin/entityhub/classification-list.jsp");
 	}
 	
 	@RequestMapping("classification/{id}")
 	public ModelAndView pageData(@PathVariable String id,
-			HttpServletRequest request, HttpServletResponse resp) throws IOException {
+                                 HttpServletResponse resp) throws IOException {
 		Object[] data = Application.createQuery(
 				"select name,openLevel from Classification where dataId = ?")
 				.setParameter(1, ID.valueOf(id))
@@ -73,7 +62,7 @@ public class ClassificationControll extends BasePageControll {
 	private static final String[] CN_NUMBER = new String[] { "一", "二", "三", "四" };
 
 	@RequestMapping("classification/list")
-	public void list(HttpServletRequest request, HttpServletResponse resp) throws IOException {
+	public void list(HttpServletResponse resp) throws IOException {
 		Object[][] array = Application.createQuery(
 				"select dataId,name,isDisabled,openLevel from Classification order by name")
 				.array();
@@ -106,7 +95,7 @@ public class ClassificationControll extends BasePageControll {
 		ID itemId = getIdParameter(request, "item_id");
 		ID dataId = getIdParameter(request, "data_id");
 		
-		Record item = null;
+		Record item;
 		if (itemId != null) {
 			item = EntityHelper.forUpdate(itemId, user);
 		} else if (dataId != null) {
@@ -152,7 +141,7 @@ public class ClassificationControll extends BasePageControll {
 		ID dataId = getIdParameterNotNull(request, "data_id");
 		ID parent = getIdParameter(request, "parent");
 		
-		Object[][] child = null;
+		Object[][] child;
 		if (parent != null) {
 			child = Application.createQuery(
 					"select itemId,name,code,isHide from ClassificationData where dataId = ? and parent = ? order by code,name")

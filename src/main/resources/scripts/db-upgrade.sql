@@ -1,6 +1,20 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #23 workphone for User
+alter table `user`
+  add column `WORKPHONE` varchar(100) comment '电话',
+  add index IX91_user (`QUICK_CODE`, `FULL_NAME`, `EMAIL`);
+
+-- #22 scheduleTime for Feeds
+alter table `feeds`
+  add column `SCHEDULE_TIME` timestamp null default null comment '日程时间',
+  add index IX91_feeds (`TYPE`, `SCHEDULE_TIME`, `CREATED_BY`);
+
+-- #21 QuickCode for ClassificationData
+alter table `classification_data`
+  add column `QUICK_CODE` varchar(70) default '';
+
 -- #20 Attachment delete mark
 alter table `attachment`
   add column `IS_DELETED` char(1) default 'F' comment '标记删除';

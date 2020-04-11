@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<ApprovalEdit />))
   renderRbcomp(<ApprovalList />, 'dataList')
@@ -7,7 +14,7 @@ class ApprovalList extends ConfigList {
 
   constructor(props) {
     super(props)
-    this.requestUrl = `${rb.baseUrl}/admin/robot/approval/list`
+    this.requestUrl = '/admin/robot/approval/list'
   }
 
   render() {
@@ -53,12 +60,6 @@ class ApprovalEdit extends ConfigFormDlg {
 
   renderFrom() {
     return <React.Fragment>
-      <div className="form-group row">
-        <label className="col-sm-3 col-form-label text-sm-right">流程名称</label>
-        <div className="col-sm-7">
-          <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
-        </div>
-      </div>
       {!this.props.id && <div className="form-group row">
         <label className="col-sm-3 col-form-label text-sm-right">选择应用实体</label>
         <div className="col-sm-7">
@@ -70,6 +71,12 @@ class ApprovalEdit extends ConfigFormDlg {
         </div>
       </div>
       }
+      <div className="form-group row">
+        <label className="col-sm-3 col-form-label text-sm-right">流程名称</label>
+        <div className="col-sm-7">
+          <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
+        </div>
+      </div>
       {this.props.id && <div className="form-group row">
         <div className="col-sm-7 offset-sm-3">
           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -99,7 +106,7 @@ class ApprovalEdit extends ConfigFormDlg {
     post.metadata = { entity: 'RobotApprovalConfig', id: this.props.id || null }
 
     this.disabled(true)
-    $.post(rb.baseUrl + '/app/entity/record-save', JSON.stringify(post), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'approval/' + res.data.id

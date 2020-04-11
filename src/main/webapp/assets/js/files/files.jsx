@@ -1,5 +1,9 @@
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable no-unused-vars */
 
 const PAGE_SIZE = 40
@@ -11,6 +15,7 @@ class FilesList extends React.Component {
   __pageNo = 1
 
   render() {
+    const hasFiles = (this.state.files || []).length > 0
     return <div className="file-list">
       {(this.state.files || []).map((item) => {
         let checked = this.state.currentActive === item.id
@@ -30,13 +35,17 @@ class FilesList extends React.Component {
           <div className="info">{item.uploadBy[1]}</div>
         </div>
       })}
-      {this.state.currentLen >= PAGE_SIZE && <div className="text-center mt-3 mb-3">
-        <a href="#mores" onClick={(e) => { this.loadData(null, this.__pageNo + 1); e.preventDefault() }}>显示更多</a>
-      </div>}
-      {(this.state.files && this.state.files.length === 0) && <div className="list-nodata pt-8 pb-8">
-        <i className="zmdi zmdi-folder-outline"></i>
-        <p>暂无相关文件</p>
-      </div>}
+      {this.state.currentLen >= PAGE_SIZE &&
+        <div className="text-center mt-3 mb-3">
+          <a href="#mores" onClick={(e) => { this.loadData(null, this.__pageNo + 1); e.preventDefault() }}>显示更多</a>
+        </div>
+      }
+      {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE &&
+        <div className="text-center mt-3 mb-3 text-muted">没有更多了</div>
+      }
+      {this.__pageNo === 1 && !hasFiles &&
+        <div className="list-nodata pt-8 pb-8"><i className="zmdi zmdi-folder-outline"></i><p>暂无相关文件</p></div>
+      }
     </div>
   }
 
@@ -55,18 +64,19 @@ class FilesList extends React.Component {
 
   componentDidMount = () => this.loadData()
   loadData(entry, pageNo) {
-    this.__lastEntry = entry = entry || this.__lastEntry
+    this.__lastEntry = entry || this.__lastEntry
     this.__pageNo = pageNo || 1
-    $.get(`${rb.baseUrl}/files/list-file?entry=${entry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`, (res) => {
-      let _current = res.data || []
-      let _files = this.__pageNo === 1 ? [] : this.state.files
-      _files = [].concat(_files, _current)
-      this.setState({ files: _files, currentLen: _current.length })
+    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`
+    $.get(url, (res) => {
+      const current = res.data || []
+      let files = this.__pageNo === 1 ? [] : this.state.files
+      files = [].concat(files, current)
+      this.setState({ files: files, currentLen: current.length })
     })
   }
 
   getSelected() {
-    let s = this.state.currentActive
+    const s = this.state.currentActive
     if (!s) RbHighbar.create('未选中任何文件')
     else return s
   }
@@ -76,7 +86,7 @@ class FilesList extends React.Component {
 const previewFile = function (e, path, checkId) {
   $stopEvent(e)
   if (checkId) {
-    $.get(`${rb.baseUrl}/files/check-readable?id=${checkId}`, (res) => {
+    $.get(`/files/check-readable?id=${checkId}`, (res) => {
       if (res.data) RbPreview.create(path)
       else RbHighbar.error('你没有读取/查看此文件的权限')
     })
@@ -96,19 +106,19 @@ $(document).ready(() => {
     $content.perfectScrollbar('update')
   })()
 
-  let gs = $urlp('gs', location.hash)
+  const gs = $urlp('gs', location.hash)
   if (gs) {
     currentSearch = $decode(gs)
     $('.search-input-gs, .input-search input').val(currentSearch)
   }
 
   $('.J_sort .dropdown-item').click(function () {
-    let $this = $(this)
+    const $this = $(this)
     currentSort = $this.data('sort')
     $('.J_sort > .btn').find('span').text($this.text())
     filesList && filesList.loadData()
   })
-  let btn = $('.input-search .btn').click(() => {
+  const btn = $('.input-search .btn').click(() => {
     currentSearch = $('.input-search input').val()
     filesList && filesList.loadData()
   })

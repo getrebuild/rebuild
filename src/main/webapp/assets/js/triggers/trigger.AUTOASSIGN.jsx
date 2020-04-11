@@ -1,4 +1,10 @@
-/* eslint-disable react/jsx-no-undef */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+/* global UserSelectorExt */
 
 // ~~ 自动分派
 // eslint-disable-next-line
@@ -22,11 +28,11 @@ class ContentAutoAssign extends ActionContentSpec {
           <label className="col-12 col-lg-3 col-form-label text-lg-right">(多人) 分派规则</label>
           <div className="col-12 col-lg-8 pt-1">
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule == 1} value="1" onChange={this.changeValue} />
+              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule === 1} value="1" onChange={this.changeValue} />
               <span className="custom-control-label">依次平均分派</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule == 2} value="2" onChange={this.changeValue} />
+              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule === 2} value="2" onChange={this.changeValue} />
               <span className="custom-control-label">随机分派</span>
             </label>
           </div>
@@ -54,15 +60,15 @@ class ContentAutoAssign extends ActionContentSpec {
     })
 
     if (this.props.content && this.props.content.assignTo) {
-      $.post(`${rb.baseUrl}/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.assignTo), (res) => {
+      $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.assignTo), (res) => {
         if (res.error_code === 0 && res.data.length > 0) this._assignTo.setState({ selected: res.data })
       })
     }
 
-    if (this.props.content && this.props.content.assignRule == 2) this.setState({ assignRule: 2 })
+    if (this.props.content && this.props.content.assignRule === 2) this.setState({ assignRule: 2 })
 
     const cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
-    $.get(rb.baseUrl + '/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
+    $.get('/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
       this.setState({ cascadesEntity: res.data }, () => {
         this.__select2 = $(this._cascades).select2({
           multiple: true,

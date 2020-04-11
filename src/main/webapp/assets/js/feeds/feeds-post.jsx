@@ -1,4 +1,9 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* global autosize, EMOJIS */
 
 // ~ 动态发布
@@ -16,6 +21,9 @@ class FeedsPost extends React.Component {
         </li>
         <li className="list-inline-item">
           <a onClick={() => this.setState({ type: 2 })} className={`${activeType === 2 ? activeClass : ''}`}>跟进</a>
+        </li>
+        <li className="list-inline-item">
+          <a onClick={() => this.setState({ type: 4 })} className={`${activeType === 4 ? activeClass : ''}`}>日程</a>
         </li>
         {rb.isAdminUser && <li className="list-inline-item">
           <a onClick={() => this.setState({ type: 3 })} className={`${activeType === 3 ? activeClass : ''}`}>公告</a>
@@ -47,20 +55,20 @@ class FeedsPost extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.type !== this.state.type) {
-      let pos = $(this._activeType).find('.text-primary').position()
-      $(this._activeArrow).css('margin-left', pos.left - 31)
+      const pos = $(this._activeType).find('.text-primary').position()
+      $(this._activeArrow).css('margin-left', pos.left - 30)
     }
   }
 
   componentDidMount = () => $('#rb-feeds').attr('class', '')
 
   _selectScope = (e) => {
-    let target = e.target
+    const target = e.target
     this.setState({ scope: target.dataset.scope }, () => {
       $(this._scopeBtn).html($(target).html())
       if (this.state.scope === 'GROUP') {
         if (this.__group) this._renderGroupScope(this.__group)
-        let that = this
+        const that = this
         if (this.__selectGroup) this.__selectGroup.show()
         else renderRbcomp(<SelectGroup call={this._renderGroupScope} />, null, function () { that.__selectGroup = this })
       }
@@ -73,7 +81,7 @@ class FeedsPost extends React.Component {
   }
 
   _post = () => {
-    let _data = this._editor.vals()
+    const _data = this._editor.vals()
     if (!_data) return
     if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
 
@@ -86,8 +94,8 @@ class FeedsPost extends React.Component {
     _data.type = this.state.type
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
-    let btn = $(this._btn).button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
+    const btn = $(this._btn).button('loading')
+    $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       btn.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this._editor.reset()
@@ -105,9 +113,9 @@ class UserSelectorExt extends UserSelector {
     $(this._scroller).perfectScrollbar()
   }
   clickItem(e) {
-    let id = e.target.dataset.id
-    let name = $(e.target).text()
-    this.props.call && this.props.call(id, name)
+    const id = e.target.dataset.id
+    const name = $(e.target).text()
+    typeof this.props.call === 'function' && this.props.call(id, name)
   }
 }
 
@@ -116,13 +124,17 @@ class FeedsEditor extends React.Component {
   state = { ...this.props }
 
   render() {
-    let es = []
+    const es = []
     for (let k in EMOJIS) {
-      let item = EMOJIS[k]
+      const item = EMOJIS[k]
       es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
     }
 
-    return (<React.Fragment>
+    // 日程已完成
+    const isFinish = this.state.type === 4 && this.props.contentMore && this.props.contentMore.finishTime
+
+    return <React.Fragment>
+      {isFinish && <RbAlertBox message="此日程已完成，编辑后你需要重新将其完成" />}
       <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
         <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder} maxLength="2000"
           onFocus={() => this.setState({ focus: true })}
@@ -151,8 +163,15 @@ class FeedsEditor extends React.Component {
           </ul>
         </div>
       </div>
-      {this.state.type === 2 && <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.state.related} />}
-      {this.state.type === 3 && <AnnouncementOptions ref={(c) => this._announcementOptions = c} initValue={this.state.contentMore} />}
+      {this.state.type === 4 &&
+        <ScheduleOptions ref={(c) => this._scheduleOptions = c} initValue={this.state.contentMore} contentMore={this.state.contentMore} />
+      }
+      {(this.state.type === 2 || this.state.type === 4) &&
+        <SelectRelated ref={(c) => this._selectRelated = c} initValue={this.state.relatedRecord} />
+      }
+      {this.state.type === 3 &&
+        <AnnouncementOptions ref={(c) => this._announcementOptions = c} initValue={this.state.contentMore} />
+      }
       {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && <div className="attachment">
         <div className="img-field">
           {(this.state.images || []).map((item) => {
@@ -166,21 +185,21 @@ class FeedsEditor extends React.Component {
         </div>
         <div className="file-field">
           {(this.state.files || []).map((item) => {
-            let fileName = $fileCutName(item)
-            return (<div key={'file-' + item} className="img-thumbnail" title={fileName}>
+            const fileName = $fileCutName(item)
+            return <div key={'file-' + item} className="img-thumbnail" title={fileName}>
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
-            </div>)
+            </div>
           })}
         </div>
       </div>
       }
       <span className="hide">
-        <input type="file" ref={(c) => this._fileInput = c} />
-        <input type="file" ref={(c) => this._imageInput = c} accept="image/*" />
+        <input type="file" ref={(c) => this._fileInput = c} data-maxsize="102400000" />
+        <input type="file" ref={(c) => this._imageInput = c} accept="image/*" data-maxsize="10240000" />
       </span>
-    </React.Fragment>)
+    </React.Fragment>
   }
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
@@ -194,25 +213,32 @@ class FeedsEditor extends React.Component {
     setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
 
     let mp
+    const mp_end = function () {
+      if (mp) mp.end()
+      mp = null
+    }
+
     $createUploader(this._imageInput, (res) => {
       if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
-      if (mp) mp.end()
-      let images = this.state.images || []
+      mp_end()
+      const images = this.state.images || []
       images.push(res.key)
       this.setState({ images: images })
-    })
+    }, () => mp_end())
+
     $createUploader(this._fileInput, (res) => {
       if (!mp) mp = new Mprogress({ template: 1, start: true })
       mp.set(res.percent / 100)
     }, (res) => {
-      if (mp) mp.end()
-      let files = this.state.files || []
+      mp_end()
+      const files = this.state.files || []
       files.push(res.key)
       this.setState({ files: files })
-    })
+    }, () => mp_end())
   }
+
   componentWillUnmount = () => this.__unmount = true
 
   _toggleEmoji = () => {
@@ -238,27 +264,34 @@ class FeedsEditor extends React.Component {
   }
 
   _removeImage(image) {
-    let images = this.state.images
+    const images = this.state.images
     images.remove(image)
     this.setState({ images: images })
   }
   _removeFile(file) {
-    let files = this.state.files
+    const files = this.state.files
     files.remove(file)
     this.setState({ files: files })
   }
 
   val() { return $(this._editor).val() }
   vals() {
-    let vals = {
+    const vals = {
       content: this.val(),
       images: this.state.images,
       attachments: this.state.files
     }
-    if (this.state.type === 2 && this._selectRelated) vals.relatedRecord = this._selectRelated.val()
-    else if (this.state.type === 3 && this._announcementOptions) {
+    if ((this.state.type === 2 || this.state.type === 4) && this._selectRelated) {
+      vals.relatedRecord = this._selectRelated.val()
+    }
+    if (this.state.type === 3 && this._announcementOptions) {
       vals.contentMore = this._announcementOptions.val()
       if (!vals.contentMore) return
+    }
+    if (this.state.type === 4 && this._scheduleOptions) {
+      vals.contentMore = this._scheduleOptions.val()
+      if (!vals.contentMore) return
+      vals.scheduleTime = vals.contentMore.scheduleTime + ':00'
     }
     return vals
   }
@@ -268,6 +301,7 @@ class FeedsEditor extends React.Component {
     autosize.update(this._editor)
     if (this._selectRelated) this._selectRelated.reset()
     if (this._announcementOptions) this._announcementOptions.reset()
+    if (this._scheduleOptions) this._scheduleOptions.reset()
     this.setState({ files: null, images: null })
   }
 }
@@ -277,32 +311,30 @@ class SelectGroup extends React.Component {
   state = { ...this.props }
 
   render() {
-    return (
-      <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}><i className="zmdi zmdi-close" /></button>
-            </div>
-            <div className="modal-body">
-              <h5 className="mt-0 text-bold">选择团队</h5>
-              {(this.state.groups && this.state.groups.length === 0) && <p className="text-muted">你未加入任何团队</p>}
-              <div>
-                <ul className="list-unstyled">
-                  {(this.state.groups || []).map((item) => {
-                    return <li key={'g-' + item.id}><a className="text-truncate" onClick={() => this._handleClick(item)}>{item.name}<i className="zmdi zmdi-check"></i></a></li>
-                  })}
-                </ul>
-              </div>
+    return <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1">
+      <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-content">
+          <div className="modal-header pb-0">
+            <button className="close" type="button" onClick={this.hide}><i className="zmdi zmdi-close" /></button>
+          </div>
+          <div className="modal-body">
+            <h5 className="mt-0 text-bold">选择团队</h5>
+            {(this.state.groups && this.state.groups.length === 0) && <p className="text-muted">你未加入任何团队</p>}
+            <div>
+              <ul className="list-unstyled">
+                {(this.state.groups || []).map((item) => {
+                  return <li key={'g-' + item.id}><a className="text-truncate" onClick={() => this._handleClick(item)}>{item.name}<i className="zmdi zmdi-check"></i></a></li>
+                })}
+              </ul>
             </div>
           </div>
         </div>
       </div>
-    )
+    </div>
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/feeds/group/group-list`, (res) => this.setState({ groups: res.data }))
+    $.get('/feeds/group/group-list', (res) => this.setState({ groups: res.data }))
     $(this._dlg).modal({ show: true, keyboard: true })
   }
   hide = () => $(this._dlg).modal('hide')
@@ -319,25 +351,29 @@ class SelectRelated extends React.Component {
   state = { ...this.props }
 
   render() {
-    return (<div className="related-select p-1">
-      <div className="row">
-        <div className="col-4 pr-0">
-          <select className="form-control form-control-sm" ref={(c) => this._entity = c}>
-            {(this.state.entities || []).length === 0 && <option>无可用实体</option>}
-            {(this.state.entities || []).map((item) => {
-              return <option key={item.name} value={item.name}>{item.label}</option>
-            })}
-          </select>
-        </div>
-        <div className="col-8 pl-1">
-          <select className="form-control form-control-sm" ref={(c) => this._record = c} />
-        </div>
-      </div>
-    </div>)
+    return <div className="feed-options related">
+      <dl className="row">
+        <dt className="col-12 col-lg-3 pt-2">相关记录</dt>
+        <dd className="col-12 col-lg-9">
+          <span className="float-left" style={{ width: 200 }}>
+            <select className="form-control form-control-sm" ref={(c) => this._entity = c}>
+              {(this.state.entities || []).length === 0 && <option>无可用实体</option>}
+              {(this.state.entities || []).map((item) => {
+                return <option key={item.name} value={item.name}>{item.label}</option>
+              })}
+            </select>
+          </span>
+          <span className="float-left pl-1 related-record">
+            <select className="form-control form-control-sm float-left" ref={(c) => this._record = c} />
+          </span>
+          <div className="clearfix"></div>
+        </dd>
+      </dl>
+    </div>
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/commons/metadata/entities`, (res) => {
+    $.get('/commons/metadata/entities', (res) => {
       if (!res.data || res.data.length === 0) {
         $(this._entity).attr('disabled', true)
         $(this._record).attr('disabled', true)
@@ -353,20 +389,20 @@ class SelectRelated extends React.Component {
         // 编辑时
         if (this.props.initValue) {
           $(this._entity).val(this.props.initValue.entity).trigger('change')
-          let option = new Option(this.props.initValue.text, this.props.initValue.id, true, true)
+          const option = new Option(this.props.initValue.text, this.props.initValue.id, true, true)
           $(this._record).append(option)
         }
       })
     })
 
-    let that = this
+    const that = this
     let search_input = null
     $(this._record).select2({
       placeholder: '选择相关记录 (可选)',
       minimumInputLength: 0,
       maximumSelectionLength: 1,
       ajax: {
-        url: rb.baseUrl + '/commons/search/search',
+        url: '/commons/search/search',
         delay: 300,
         data: function (params) {
           search_input = params.term
@@ -389,12 +425,28 @@ class SelectRelated extends React.Component {
   reset = () => $(this._record).val(null).trigger('change')
 }
 
+const __dpConfig = {
+  componentIcon: 'zmdi zmdi-calendar',
+  navIcons: {
+    rightIcon: 'zmdi zmdi-chevron-right',
+    leftIcon: 'zmdi zmdi-chevron-left'
+  },
+  format: 'yyyy-mm-dd hh:ii',
+  minView: 0,
+  weekStart: 1,
+  autoclose: true,
+  language: 'zh',
+  showMeridian: false,
+  keyboardNavigation: false,
+  minuteStep: 5
+}
+
 // 公告选项
 class AnnouncementOptions extends React.Component {
   state = { ...this.props }
 
   render() {
-    return <div className="announcement-options">
+    return <div className="feed-options announcement">
       <dl className="row mb-1">
         <dt className="col-12 col-lg-3">同时展示在</dt>
         <dd className="col-12 col-lg-9 mb-0" ref={(c) => this._showWhere = c}>
@@ -428,22 +480,7 @@ class AnnouncementOptions extends React.Component {
   }
 
   componentDidMount() {
-    $(this._showTime).find('.form-control').datetimepicker({
-      componentIcon: 'zmdi zmdi-calendar',
-      navIcons: {
-        rightIcon: 'zmdi zmdi-chevron-right',
-        leftIcon: 'zmdi zmdi-chevron-left'
-      },
-      format: 'yyyy-mm-dd hh:ii:ss',
-      minView: 0,
-      weekStart: 1,
-      autoclose: true,
-      language: 'zh',
-      showMeridian: false,
-      keyboardNavigation: false,
-      minuteStep: 5
-    })
-
+    $(this._showTime).find('.form-control').datetimepicker(__dpConfig)
     $(this._showWhere).find('.zicon').tooltip()
 
     const initValue = this.props.initValue
@@ -463,8 +500,8 @@ class AnnouncementOptions extends React.Component {
     let where = 0
     $(this._showWhere).find('input:checked').each(function () { where += ~~$(this).val() })
 
-    let timeStart = $(this._showTime).find('.form-control:eq(0)').val()
-    let timeEnd = $(this._showTime).find('.form-control:eq(1)').val()
+    const timeStart = $(this._showTime).find('.form-control:eq(0)').val()
+    const timeEnd = $(this._showTime).find('.form-control:eq(1)').val()
     if (where > 0 && !timeEnd) {
       RbHighbar.create('请选择结束时间')
       return
@@ -482,6 +519,73 @@ class AnnouncementOptions extends React.Component {
   }
 }
 
+// 日程选项
+class ScheduleOptions extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    const email = window.__USER_EMAIL
+    const mobile = window.__USER_MOBILE
+    return <div className="feed-options schedule">
+      <dl className="row">
+        <dt className="col-12 col-lg-3 pt-2">日程时间</dt>
+        <dd className="col-12 col-lg-9" ref={(c) => this._scheduleTime = c}>
+          <input type="text" className="form-control form-control-sm" placeholder="选择日程时间" />
+        </dd>
+      </dl>
+      <dl className="row mb-1">
+        <dt className="col-12 col-lg-3">发送提醒给我</dt>
+        <dd className="col-12 col-lg-9 mb-0" ref={(c) => this._scheduleRemind = c}>
+          <label className="custom-control custom-checkbox custom-control-inline">
+            <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
+            <span className="custom-control-label">消息通知</span>
+          </label>
+          <label className="custom-control custom-checkbox custom-control-inline" title={email}>
+            <input className="custom-control-input" name="showOn" type="checkbox" value={2} disabled={this.props.readonly} />
+            <span className="custom-control-label">邮件{!email && <span> (未设置)</span>}</span>
+          </label>
+          <label className="custom-control custom-checkbox custom-control-inline" title={mobile}>
+            <input className="custom-control-input" name="showOn" type="checkbox" value={4} disabled={this.props.readonly} />
+            <span className="custom-control-label">短信{!mobile && <span> (未设置)</span>}</span>
+          </label>
+        </dd>
+      </dl>
+    </div>
+  }
+  componentDidMount() {
+    $(this._scheduleTime).find('.form-control').datetimepicker(__dpConfig)
+    const initValue = this.props.initValue
+    if (initValue) {
+      $(this._scheduleTime).find('.form-control').val(initValue.scheduleTime)
+      $(this._scheduleRemind).find('input').each(function () {
+        if ((~~$(this).val() & initValue.scheduleRemind) !== 0) $(this).prop('checked', true)
+      })
+    }
+  }
+  componentWillUnmount() {
+    $(this._scheduleTime).find('.form-control').datetimepicker('remove')
+  }
+
+  val() {
+    let remind = 0
+    $(this._scheduleRemind).find('input:checked').each(function () { remind += ~~$(this).val() })
+    const time = $(this._scheduleTime).find('.form-control:eq(0)').val()
+    if (!time) {
+      RbHighbar.create('请选择日程时间')
+      return
+    }
+
+    return {
+      scheduleTime: time,
+      scheduleRemind: remind
+    }
+  }
+  reset() {
+    $(this._scheduleTime).find('.form-control').val('')
+    $(this._scheduleRemind).find('input').prop('checked', false)
+  }
+}
+
 // ~~ 编辑动态
 // eslint-disable-next-line no-unused-vars
 class FeedsEditDlg extends RbModalHandler {
@@ -495,7 +599,7 @@ class FeedsEditDlg extends RbModalHandler {
       type: this.props.type,
       images: this.props.images,
       files: this.props.attachments,
-      related: this.props.related,
+      relatedRecord: this.props.relatedRecord,
       contentMore: this.props.contentMore
     }
     return <RbModal ref={(c) => this._dlg = c} title="编辑动态" disposeOnHide={true}>
@@ -508,12 +612,13 @@ class FeedsEditDlg extends RbModalHandler {
   }
 
   _post = () => {
-    let _data = this._editor.vals()
+    const _data = this._editor.vals()
+    if (!_data) return
     if (!_data.content) { RbHighbar.create('请输入动态内容'); return }
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
-    let btns = $(this._btns).find('.btn').button('loading')
-    $.post(`${rb.baseUrl}/feeds/post/publish`, JSON.stringify(_data), (res) => {
+    const btns = $(this._btns).find('.btn').button('loading')
+    $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       btns.button('reset')
       if (res.error_msg > 0) { RbHighbar.error(res.error_msg); return }
       this.hide()

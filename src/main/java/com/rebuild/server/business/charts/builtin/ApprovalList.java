@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.charts.builtin;
@@ -23,7 +12,6 @@ import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalHelper;
 import com.rebuild.server.business.approval.ApprovalState;
@@ -33,7 +21,6 @@ import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -68,11 +55,6 @@ public class ApprovalList extends ChartData implements BuiltinChart {
     }
 
     @Override
-    public JSONObject getChartConfig() {
-        return JSONUtils.toJSONObject(new String[]{"entity", "type"}, new String[]{"User", getChartType()});
-    }
-
-    @Override
     public JSON build() {
         final int viewState = ObjectUtils.toInt(getExtraParams().get("state"), ApprovalState.DRAFT.getState());
         final String baseWhere = "where isCanceled = 'F' and isWaiting = 'F' and approver = ?" +
@@ -98,8 +80,8 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 continue;
             }
 
-            Object[] states = ApprovalHelper.getApprovalStates(recordId);
-            if ((Integer) states[2] == ApprovalState.CANCELED.getState()) {
+            final Object[] state = ApprovalHelper.getApprovalState(recordId);
+            if ((Integer) state[2] == ApprovalState.CANCELED.getState()) {
                 deleted++;
                 continue;
             }

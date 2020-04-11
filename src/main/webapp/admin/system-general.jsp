@@ -9,14 +9,9 @@
 <style type="text/css">
 .syscfg a.img-thumbnail {
     display: inline-block;
-    padding: 0.3rem 0;
+    padding: 0.4rem 0.5rem;
     background-color: #fff;
-    line-height: 1;
-    font-size: 0;
     cursor: default;
-}
-.syscfg a.img-thumbnail .logo-img {
-    transform: scale(0.8);
 }
 </style>
 </head>
@@ -47,9 +42,9 @@
 							</tr>
 							<tr>
 								<td>LOGO</td>
-								<td>
+								<td class="fs-0">
 									<a class="img-thumbnail"><i class="logo-img"></i></a>
-									<a class="img-thumbnail bg-primary"><i class="logo-img white"></i></a>
+									<a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
 								</td>
 							</tr>
 							<tr>
@@ -66,12 +61,12 @@
 							</tr>
 						</tbody>
 						</table>
-						<h5>安全性</h5>
+						<h5>系统安全</h5>
 						<table class="table">
 						<tbody>
 							<tr>
-								<td width="40%">登录密码安全策略</td>
-								<td data-id="PasswordPolicy" data-options="1:低;2:中;3:高">
+								<td width="40%">登录密码等级</td>
+								<td data-id="PasswordPolicy" data-options="1:低;2:中;3:高" data-value="${PasswordPolicy}">
 								<c:choose>
 									<c:when test="${PasswordPolicy >= 3}">高 (最低8位，必须同时包含数字、字母、特殊字符)</c:when>
 									<c:when test="${PasswordPolicy == 2}">中 (最低6位，必须同时包含数字、字母)</c:when>
@@ -80,16 +75,16 @@
 								</td>
 							</tr>
 							<tr>
-								<td>回收站数据保留天数</td>
-								<td data-id="RecycleBinKeepingDays">${RecycleBinKeepingDays}</td>
+								<td>允许分享文件</td>
+								<td data-id="FileSharable" data-options="true:是;false:否">${FileSharable ? "是" : "否"}</td>
+							</tr>
+                            <tr>
+								<td>显示页面水印</td>
+								<td data-id="MarkWatermark" data-options="true:是;false:否">${MarkWatermark ? "是" : "否"}</td>
 							</tr>
 							<tr>
-								<td>数据库备份<p>每日0点备份到数据目录，请预留足够磁盘空间</p></td>
+								<td>数据库自动备份<p>每日0点备份到数据目录，请预留足够磁盘空间</p></td>
 								<td data-id="DBBackupsEnable" data-options="true:是;false:否">${DBBackupsEnable ? "是" : "否"}</td>
-							</tr>
-							<tr>
-								<td>数据库备份保留天数</td>
-								<td data-id="DBBackupsKeepingDays">${DBBackupsKeepingDays}</td>
 							</tr>
 						</tbody>
 						</table>
@@ -111,8 +106,8 @@
 							<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/">技术支持</a></li>
 						</ul>
-						<div class="text-muted">
-							&copy; REBUILD 使用开源 <a class="link" href="https://getrebuild.com/license/LICENSE.txt" target="_blank">GPL-3.0</a> 和 <a class="link" href="https://getrebuild.com/license/COMMERCIAL.txt" target="_blank">商用</a> 双重授权许可，请遵守许可协议。
+						<div class="text-muted J_copyright">
+							&copy; ${bundle.lang('RightsTip')}
 						</div>
 					</div>
 				</div>
@@ -126,6 +121,7 @@
 <script>
 $(document).ready(function () {
 	$.get('systems/query-authority', function (res) { $('#authType').text(res.data.authType) })
+	$('.J_copyright a').attr('target', '_blank')
 })
 </script>
 </body>

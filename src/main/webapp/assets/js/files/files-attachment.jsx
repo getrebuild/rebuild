@@ -1,7 +1,13 @@
-/* eslint-disable react/prop-types */
-/* global filesList */
-// 附件
 
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+/* global filesList */
+
+// 附件
 const __DEFAULT_ALL = 1
 
 // ~ 实体树
@@ -28,7 +34,7 @@ class EntityTree extends React.Component {
 
   componentDidMount = () => this.loadData()
   loadData() {
-    $.get(`${rb.baseUrl}/files/list-entity`, (res) => {
+    $.get('/files/list-entity', (res) => {
       let _list = res.data || []
       _list.unshift({ id: __DEFAULT_ALL, text: '全部' })
       this.setState({ list: _list })

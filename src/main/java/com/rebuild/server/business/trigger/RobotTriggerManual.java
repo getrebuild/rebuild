@@ -38,11 +38,11 @@ public class RobotTriggerManual extends RobotTriggerObserver {
     }
 
     /**
-     * 撤回重审触发
+     * 审批撤销触发
      *
      * @param context
      */
-    public void onReapproval(OperatingContext context) {
-        execAction(context, TriggerWhen.REAPPROVAL);
+    public void onRevoked(OperatingContext context) {
+        execAction(context, TriggerWhen.REVOKED);
     }
 }

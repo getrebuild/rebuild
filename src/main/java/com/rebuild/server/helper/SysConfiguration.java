@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper;
@@ -41,52 +30,56 @@ public final class SysConfiguration extends KVStorage {
 	/**
 	 * 获取数据目录下的文件（或目录）
 	 * 
-	 * @param file
+	 * @param filepath
 	 * @return
 	 */
-	public static File getFileOfData(String file) {
+	public static File getFileOfData(String filepath) {
+	    if (filepath != null && (filepath.contains("../") || filepath.contains("/backups/"))) {
+	        throw new SecurityException("Attack path detected : " + filepath);
+        }
+
 		String d = get(ConfigurableItem.DataDirectory);
 		File data = null;
 		if (d != null) {
 			data = new File(d);
-			if (!data.exists()) {
-			    if (!data.mkdirs()) {
-			        LOG.error("Couldn't mkdirs for data : " + data);
-                }
+			if (!data.exists() && !data.mkdirs()) {
+			    LOG.error("Couldn't mkdirs for data : " + data);
 			}
 		}
 
 		if (data == null || !data.exists()) {
 			data = FileUtils.getUserDirectory();
 			data = new File(data, ".rebuild");
-			if (!data.exists()) {
-				if (!data.mkdirs()) {
-                    LOG.error("Couldn't mkdirs for data : " + data);
-                }
+			if (!data.exists() && !data.mkdirs()) {
+			    LOG.error("Couldn't mkdirs for data : " + data);
 			}
 		}
 
 		if (!data.exists()) {
 			data = FileUtils.getTempDirectory();
 		}
-		return file == null ? data : new File(data, file);
+		return filepath == null ? data : new File(data, filepath);
 	}
 	
 	/**
 	 * 获取临时文件（或目录）
 	 * 
-	 * @param file
+	 * @param filepath
 	 * @return
 	 * @see #getFileOfData(String)
 	 */
-	public static File getFileOfTemp(String file) {
+	public static File getFileOfTemp(String filepath) {
+        if (filepath != null && filepath.contains("../")) {
+            throw new SecurityException("Attack path detected : " + filepath);
+        }
+
 		File temp = getFileOfData("temp");
 		if (!temp.exists()) {
 			if (!temp.mkdirs()) {
 				throw new RebuildException("Couldn't mkdirs : " + temp);
 			}
 		}
-		return file == null ? temp : new File(temp, file);
+		return filepath == null ? temp : new File(temp, filepath);
 	}
 	
 	/**

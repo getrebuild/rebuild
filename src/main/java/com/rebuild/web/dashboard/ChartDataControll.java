@@ -1,28 +1,20 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.dashboard;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.business.charts.ChartData;
 import com.rebuild.server.business.charts.ChartsException;
 import com.rebuild.server.business.charts.ChartsFactory;
+import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.portals.ChartManager;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -31,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -51,7 +44,7 @@ public class ChartDataControll extends BaseControll {
 			paramMap.put(e.getKey(), StringUtils.join(e.getValue(), ","));
 		}
 
-		JSON data = null;
+		JSON data;
 		try {
 			ChartData chart = ChartsFactory.create(chartid);
 			data = chart.setExtraParams(paramMap).build();
@@ -62,4 +55,23 @@ public class ChartDataControll extends BaseControll {
 		
 		writeSuccess(response, data);
 	}
+
+    /**
+     * @param request
+     * @param response
+     * @throws IOException
+     *
+     * @see com.rebuild.server.helper.datalist.DefaultDataListControl
+     */
+    @RequestMapping("view-chart-sources")
+    public void viewChartSources(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID id = getIdParameterNotNull(request, "id");
+
+        ConfigEntry configEntry = ChartManager.instance.getChart(id);
+        JSONObject config = (JSONObject) configEntry.getJSON("config");
+        String sourceEntity = config.getString("entity");
+
+        String url = MessageFormat.format("../app/{0}/list?via={1}", sourceEntity, id);
+        response.sendRedirect(url);
+    }
 }

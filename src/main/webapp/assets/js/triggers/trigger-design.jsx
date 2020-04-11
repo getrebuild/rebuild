@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 const wpc = window.__PageConfig
 var contentComp = null
 $(document).ready(() => {
@@ -40,7 +47,7 @@ $(document).ready(() => {
     _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
 
     _btn.button('loading')
-    $.post(`${rb.baseUrl}/app/entity/record-save`, JSON.stringify(_data), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) rb.env === 'dev' ? location.reload() : location.href = '../triggers'
       else RbHighbar.error(res.error_msg)
       _btn.button('reset')
@@ -73,7 +80,7 @@ class UserSelectorExt extends UserSelector {
   componentDidMount() {
     super.componentDidMount()
     this.__fields = []
-    $.get(`${rb.baseUrl}/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
+    $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       $(res.data).each((idx, item) => {
         if (item.type === 'REFERENCE' && item.ref && BIZZ_ENTITIES.includes(item.ref[0])) {
           this.__fields.push({ id: item.name, text: item.label })

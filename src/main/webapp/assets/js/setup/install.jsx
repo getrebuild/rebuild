@@ -1,4 +1,9 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 
 const _INSTALL_STATES = {
   10: ['zmdi-settings zmdi-hc-spin', '正在完成 ...'],
@@ -40,7 +45,7 @@ class Setup extends React.Component {
       adminProps: this.state.adminProps || {},
     }
     this.setState({ installState: 10 })
-    $.post(`${rb.baseUrl}/setup/install-rebuild`, JSON.stringify(data), (res) => {
+    $.post('/setup/install-rebuild', JSON.stringify(data), (res) => {
       this.setState({ installState: res.error_code === 0 ? 11 : 12, installError: res.error_msg })
     })
   }
@@ -55,23 +60,35 @@ class RbWelcome extends React.Component {
       <h3>选择安装模式</h3>
       <ul className="list-unstyled">
         <li>
-          <a onClick={() => this.props.$$$parent.setState({ installType: 1, stepNo: 2 })}>
+          <a onClick={() => this._start(1)}>
             <h5 className="m-0 text-bold">标准安装</h5>
             <p className="m-0 mt-1 text-muted">以产品形式安装，用于真实生产环境</p>
           </a>
         </li>
         <li>
-          <a onClick={this._quick}>
+          <a onClick={() => this._start(99)}>
             <h5 className="m-0 text-bold">快速安装</h5>
-            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 <u title="本功能为实验功能，可能存在问题">实验功能</u></p>
+            <p className="m-0 mt-1 text-muted">将使用内建数据库执行安装，仅用于评估演示 (部分功能可能无法使用)</p>
           </a>
         </li>
       </ul>
     </div>
   }
 
-  // 快速安装
-  _quick = () => this.props.$$$parent.setState({ installType: 99, stepNo: 4 })
+  // 开始安装
+  _start(type) {
+    const that = this
+    RbAlert.create(`<div class="text-left">${$('.license').html()}<br>如果用于商业用途，请注意使用目的。访问 <a href="https://getrebuild.com/#pricing-plans" class="link" target="_blank">REBUILD 官网</a> 了解更多信息。</div>`, {
+      html: true,
+      type: 'warning',
+      cancelText: '不同意',
+      confirmText: '同意',
+      confirm: function () {
+        this.hide()
+        that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
+      }
+    })
+  }
 }
 
 // ~
@@ -167,7 +184,7 @@ class DatabaseConf extends React.Component {
     if (!ps) return
 
     this.setState({ inTest: true })
-    $.post(`${rb.baseUrl}/setup/test-connection`, JSON.stringify(ps), (res) => {
+    $.post('/setup/test-connection', JSON.stringify(ps), (res) => {
       this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
         () => typeof call === 'function' && call(ps, res))
     })
@@ -258,7 +275,7 @@ class CacheConf extends DatabaseConf {
     if (!ps) return
 
     this.setState({ inTest: true })
-    $.post(`${rb.baseUrl}/setup/test-cache`, JSON.stringify(ps), (res) => {
+    $.post('/setup/test-cache', JSON.stringify(ps), (res) => {
       this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
         () => typeof call === 'function' && call(ps, res))
     })

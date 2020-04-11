@@ -1,31 +1,21 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.feeds;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.business.feeds.FeedsType;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
@@ -51,7 +41,7 @@ public class FeedsPostControll extends BaseControll {
         JSON formJson = ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse((JSONObject) formJson, user);
         String content = record.getString("content");
-        record.setString("content", CommonsUtils.escapeHtml(content));
+        record.setString("content", content);
 
         Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
         JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
@@ -83,6 +73,32 @@ public class FeedsPostControll extends BaseControll {
     public void delete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID anyId = getIdParameterNotNull(request, "id");
         Application.getService(anyId.getEntityCode()).delete(anyId);
+        writeSuccess(response);
+    }
+
+    @RequestMapping("finish-schedule")
+    public void finishSchedule(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final ID user = getRequestUser(request);
+        final ID feedsId = getIdParameterNotNull(request, "id");
+
+        Object[] schedule = Application.createQueryNoFilter(
+                "select createdBy,contentMore from Feeds where feedsId = ? and type = ?")
+                .setParameter(1, feedsId)
+                .setParameter(2, FeedsType.SCHEDULE.getMask())
+                .unique();
+        if (schedule == null || !schedule[0].equals(user)) {
+            writeFailure(response, "无权操作他人日程");
+            return;
+        }
+
+        // 非结构化存储
+        JSONObject contentMore = JSON.parseObject((String) schedule[1]);
+        contentMore.put("finishTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+
+        Record record = EntityHelper.forUpdate(feedsId, user);
+        record.setString("contentMore", contentMore.toJSONString());
+        record.removeValue(EntityHelper.ModifiedOn);
+        Application.getCommonService().update(record);
         writeSuccess(response);
     }
 }

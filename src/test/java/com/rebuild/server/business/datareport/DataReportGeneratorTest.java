@@ -1,25 +1,19 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.datareport;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserService;
 import org.junit.Test;
 import org.springframework.util.ResourceUtils;
@@ -32,6 +26,7 @@ import java.io.File;
  */
 public class DataReportGeneratorTest extends TestSupportWithUser {
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testGenerator() throws Exception {
         File template = ResourceUtils.getFile("classpath:report-template.xlsx");
@@ -40,5 +35,30 @@ public class DataReportGeneratorTest extends TestSupportWithUser {
         generator.setUser(UserService.ADMIN_USER);
         File file = generator.generate();
         System.out.println(file);
+    }
+
+    @Test
+    public void testGeneratorV2Simple() throws Exception {
+        File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
+        ID record = addRecordOfTestAllFields();
+
+        File file = new EasyExcelGenerator(template, record).setUser(UserService.ADMIN_USER).generate();
+        System.out.println("Report : " + file);
+    }
+
+    @Test
+    public void testGeneratorV2() throws Exception {
+        File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
+        if (!MetadataHelper.containsEntity("SalesOrder999")) {
+            return;
+        }
+
+        Entity SalesOrder999 = MetadataHelper.getEntity("SalesOrder999");
+        Record record = EntityHelper.forNew(SalesOrder999.getEntityCode(), getSessionUser());
+        record = Application.getEntityService(SalesOrder999.getEntityCode()).create(record);
+
+        // 主记录+明细记录
+        File file = new EasyExcelGenerator(template, record.getPrimary()).setUser(UserService.ADMIN_USER).generate();
+        System.out.println("Report : " + file);
     }
 }

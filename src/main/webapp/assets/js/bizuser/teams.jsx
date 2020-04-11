@@ -1,4 +1,10 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 // ~ 添加成员
 class MemberAddDlg extends RbFormHandler {
 
@@ -29,7 +35,7 @@ class MemberAddDlg extends RbFormHandler {
     if (users.length < 1) { RbHighbar.create('请选择用户'); return }
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/admin/bizuser/team-members-add?team=${this.props.id}`, JSON.stringify(users), (res) => {
+    $.post(`/admin/bizuser/team-members-add?team=${this.props.id}`, JSON.stringify(users), (res) => {
       if (res.error_code === 0) {
         RbHighbar.success('成员已添加')
         this.hide()
@@ -65,7 +71,7 @@ class MemberList extends React.Component {
 
   componentDidMount = () => this.loadMembers()
   loadMembers() {
-    $.get(`${rb.baseUrl}/admin/bizuser/team-members?team=${this.props.id}`, (res) => this.setState({ members: res.data || [] }))
+    $.get(`/admin/bizuser/team-members?team=${this.props.id}`, (res) => this.setState({ members: res.data || [] }))
   }
 
   _removeMember(user) {
@@ -73,7 +79,7 @@ class MemberList extends React.Component {
     RbAlert.create('确认将用户移出当前团队？', {
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/admin/bizuser/team-members-del?team=${that.props.id}&user=${user}`, (res) => {
+        $.post(`/admin/bizuser/team-members-del?team=${that.props.id}&user=${user}`, (res) => {
           if (res.error_code === 0) {
             RbHighbar.success('成员已移出')
             this.hide()
@@ -98,7 +104,7 @@ $(document).ready(() => {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/record-delete?id=${teamId}`, (res) => {
+        $.post(`/app/entity/record-delete?id=${teamId}`, (res) => {
           if (res.error_code === 0) {
             parent.location.hash = '!/View/'
             parent.location.reload()

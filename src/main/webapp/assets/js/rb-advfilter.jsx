@@ -1,4 +1,9 @@
-/* eslint-disable react/prop-types */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 
 // ~~ 高级过滤器
 
@@ -82,7 +87,7 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    $.get(rb.baseUrl + '/commons/metadata/fields?deep=2&from=SEARCH&entity=' + this.props.entity, (res) => {
+    $.get('/commons/metadata/fields?deep=2&from=SEARCH&entity=' + this.props.entity, (res) => {
       let valideFs = []
       this.fields = res.data.map((item) => {
         valideFs.push(item.name)
@@ -157,7 +162,7 @@ class AdvFilter extends React.Component {
   checkEquation(e) {
     const val = e.target.value
     if (!val) return
-    $.post(rb.baseUrl + '/app/entity/advfilter/test-equation', val, (res) => {
+    $.post('/app/entity/advfilter/test-equation', val, (res) => {
       this.setState({ equationError: res.error_code !== 0 })
     })
   }
@@ -469,7 +474,7 @@ class FilterItem extends React.Component {
     if (PICKLIST_CACHE[plKey]) {
       this.setState({ options: PICKLIST_CACHE[plKey] }, () => this.renderPickListAfter())
     } else {
-      $.get(`${rb.baseUrl}/commons/metadata/field-options?entity=${entity}&field=${field}`, (res) => {
+      $.get(`/commons/metadata/field-options?entity=${entity}&field=${field}`, (res) => {
         if (res.error_code === 0) {
           PICKLIST_CACHE[plKey] = res.data
           this.setState({ options: PICKLIST_CACHE[plKey] }, () => this.renderPickListAfter())
@@ -509,7 +514,7 @@ class FilterItem extends React.Component {
     const s2val = $(this._filterVal).select2({
       minimumInputLength: 1,
       ajax: {
-        url: rb.baseUrl + '/commons/search/search',
+        url: '/commons/search/search',
         delay: 300,
         data: function (params) {
           const query = {
@@ -532,7 +537,7 @@ class FilterItem extends React.Component {
 
     // Load
     if (this.props.value && this.loadedBizzSearch === false) {
-      $.get(`${rb.baseUrl}/commons/search/read-labels?ids=${$encode(this.props.value)}`, (res) => {
+      $.get(`/commons/search/read-labels?ids=${$encode(this.props.value)}`, (res) => {
         for (let kid in res.data) {
           const option = new Option(res.data[kid], kid, true, true)
           s2val.append(option)

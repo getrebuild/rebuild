@@ -50,8 +50,7 @@
 		<servlet-name>default</servlet-name>
 		<url-pattern>/assets/*</url-pattern>
 		<url-pattern>/favicon.ico</url-pattern>
-		<url-pattern>*.html</url-pattern>
-		<url-pattern>*.txt</url-pattern>
+		<url-pattern>/robots.txt</url-pattern>
 	</servlet-mapping>
 	
 	<error-page>

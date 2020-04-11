@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin.entityhub;
@@ -23,7 +12,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.datareport.ReportGenerator;
+import com.rebuild.server.business.datareport.EasyExcelGenerator;
 import com.rebuild.server.business.datareport.TemplateExtractor;
 import com.rebuild.server.configuration.DataReportManager;
 import com.rebuild.server.helper.ConfigurationException;
@@ -48,6 +37,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Excel 报表
+ *
  * @author devezhao
  * @since 2019/8/13
  */
@@ -56,19 +47,20 @@ import java.util.Set;
 public class DataReportControll extends BasePageControll {
 
     @RequestMapping("/data-reports")
-    public ModelAndView pageDataReports(HttpServletRequest request) {
+    public ModelAndView pageDataReports() {
         return createModelAndView("/admin/entityhub/data-reports.jsp");
     }
 
     @RequestMapping("/data-reports/list")
     public void reportList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String belongEntity = getParameter(request, "entity");
+        String entity = getParameter(request, "entity");
         String q = getParameter(request, "q");
+
         String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn from DataReportConfig" +
                 " where (1=1) and (2=2)" +
                 " order by name, modifiedOn desc";
 
-        Object[][] array = queryListOfConfig(sql, belongEntity, q);
+        Object[][] array = queryListOfConfig(sql, entity, q);
         writeSuccess(response, array);
     }
 
@@ -80,9 +72,9 @@ public class DataReportControll extends BasePageControll {
         File template = SysConfiguration.getFileOfData(file);
         Entity entityMeta = MetadataHelper.getEntity(entity);
 
-        Map<String, String> vars = new TemplateExtractor(template).transformVars(entityMeta);
+        Map<String, String> vars = new TemplateExtractor(template, true).transformVars(entityMeta);
         if (vars.isEmpty()) {
-            writeFailure(response, "无效模板文件 (缺少字段)");
+            writeFailure(response, "无效模板文件 (未找到任何字段)");
             return;
         }
 
@@ -94,7 +86,7 @@ public class DataReportControll extends BasePageControll {
         }
 
         if (invalidVars.size() >= vars.size()) {
-            writeFailure(response, "无效模板文件 (无效字段)");
+            writeFailure(response, "无效模板文件 (未找到有效字段)");
             return;
         }
 
@@ -122,9 +114,9 @@ public class DataReportControll extends BasePageControll {
         File file;
         try {
             File template = DataReportManager.instance.getTemplateFile(entity, reportId);
-            file = new ReportGenerator(template, (ID) random[0]).generate();
+            file = new EasyExcelGenerator(template, (ID) random[0]).generate();
         } catch (ConfigurationException ex) {
-            response.sendError(400, "无法预览。报表模板不存在");
+            response.sendError(400, "无法预览。报表模板文件不存在");
             return;
         }
 

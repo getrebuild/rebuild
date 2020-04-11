@@ -1,16 +1,20 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable no-unused-vars */
-// Page initial
+
+// PAGE INITIAL
 $(function () {
   var t = $('.rb-scroller')
   t.perfectScrollbar()
 
-  $(window).resize(function () {
-    $setTimeout(function () {
-      if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
-      t.perfectScrollbar('update')
-    }, 500, 'rb-scroller-update')
-  })
-  if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+  $addResizeHandler(function () {
+    if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
+    t.perfectScrollbar('update')
+  })()
 
   // tooltip
   $('[data-toggle="tooltip"]').tooltip()
@@ -30,24 +34,55 @@ $(function () {
   }
 
   if (rb.isAdminUser) {
+    var topPopover = function (el, content) {
+      var pop_show_timer
+      var pop_hide_timer
+      var pop = $(el).popover({
+        trigger: 'manual',
+        placement: 'bottom',
+        html: true,
+        content: content,
+        delay: { show: 200, hide: 0 }
+      }).on('mouseenter', function () {
+        pop_hide_timer && clearTimeout(pop_hide_timer)
+        pop_show_timer = setTimeout(function () { pop.popover('show') }, 200)
+      }).on('mouseleave', function () {
+        pop_show_timer && clearTimeout(pop_show_timer)
+        pop_hide_timer = setTimeout(function () { pop.popover('hide') }, 200)
+      }).on('shown.bs.popover', function (e) {
+        $('#' + $(this).attr('aria-describedby')).find('.popover-body')
+          .off('mouseenter')
+          .off('mouseleave')
+          .on('mouseenter', function () {
+            pop_hide_timer && clearTimeout(pop_hide_timer)
+            pop.popover('show')
+          })
+          .on('mouseleave', function () {
+            pop_show_timer && clearTimeout(pop_show_timer)
+            pop.popover('hide')
+          })
+      })
+    }
+
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
     if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
     else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      const pop = $('.admin-settings a').popover({
-        trigger: 'hover',
-        placement: 'bottom',
-        html: true,
-        content: '当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a>',
-      }).on('shown.bs.popover', function () {
-        $('#' + $(this).attr('aria-describedby'))
-          .on('mouseenter', () => pop.popover('show'))
-          .on('mouseleave', () => pop.popover('hide'))
-      })
+      topPopover($('.admin-settings a'), '<div class="p-1">当前已启用管理员访问功能，如不再使用建议你 <a href="javascript:;" onclick="__cancelAdmin()">取消访问</a></div>')
     }
+
+    $.get('/user/admin-dangers', function (res) {
+      if ((res.data || []).length > 0) {
+        $('.admin-danger').removeClass('hide')
+        var dd = []
+        $(res.data).each(function () { dd.push('<div class="p-1">' + this + '</div>') })
+        topPopover($('.admin-danger a'), dd.join(''))
+      }
+    })
+
   } else {
-    $('.admin-show').remove()
+    $('.admin-show, .admin-danger').remove()
   }
 
   if ($('.J_notifications-top').length > 0) {
@@ -67,6 +102,11 @@ $(function () {
   $(window).on('resize', function () {
     $setTimeout(function () { $addResizeHandler()() }, 120, 'resize-window')
   })
+
+  // Help link in page
+  var helpLink = $('meta[name="page-help"]').attr('content')
+  if (helpLink) $('.page-help>a').attr('href', helpLink)
+
 })
 // @t - trigger times
 var command_exec = function (t) { }
@@ -84,7 +124,7 @@ var $addResizeHandler = function (call) {
 
 // 取消管理员访问
 var __cancelAdmin = function () {
-  $.post(rb.baseUrl + '/user/admin-cancel', (res) => {
+  $.post('/user/admin-cancel', function (res) {
     if (res.error_code === 0) {
       // location.reload()
       $('.admin-settings a>.icon').removeClass('text-danger')
@@ -178,55 +218,60 @@ var __initNavs = function () {
 // Notification
 var __checkMessage__state = 0
 var __checkMessage = function () {
-  $.get(rb.baseUrl + '/notification/check-state', function (res) {
+  $.get('/notification/check-state', function (res) {
     if (res.error_code > 0) return
     $('.J_notifications-top .badge').text(res.data.unread)
     if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
     else $('.J_notifications-top .indicator').addClass('hide')
 
     if (__checkMessage__state !== res.data.unread) {
+      __checkMessage__state = res.data.unread
       if (__checkMessage__state > 0) {
         if (!window.__doctitle) window.__doctitle = document.title
         document.title = '(' + __checkMessage__state + ') ' + window.__doctitle
         if (rb.env === 'dev') __showNotification()
       }
-      __loadMessages__state = 0
+      __loadMessages_state = false
     }
-    __checkMessage__state = res.data.unread
 
     setTimeout(__checkMessage, rb.env === 'dev' ? 60 * 10000 : 2000)
   })
 }
-var __loadMessages__state = 0
+var __loadMessages_state = false
 var __loadMessages = function () {
-  if (__loadMessages__state === 1) return
+  if (__loadMessages_state) return
   var dest = $('.rb-notifications .content ul').empty()
   if (dest.find('li').length === 0) {
     $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
   }
-  $.get(rb.baseUrl + '/notification/messages?pageSize=10&preview=true', function (res) {
+
+  $.get('/notification/messages?pageSize=10&preview=true', function (res) {
     dest.empty()
     $(res.data).each(function (idx, item) {
       var o = $('<li class="notification"></li>').appendTo(dest)
       if (item[3] === true) o.addClass('notification-unread')
-      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread' : 'all') + '"></a>').appendTo(o)
+      o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread=' : 'all=') + item[4] + '"></a>').appendTo(o)
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
       o = $('<div class="notification-info"></div>').appendTo(o)
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
       $('<span class="date">' + item[2] + '</span>').appendTo(o)
     })
-    __loadMessages__state = 1
+    __loadMessages_state = true
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">暂无消息</li>').appendTo(dest)
   })
 }
 var __showNotification = function () {
-  if (window.Notification) {
-    if (window.Notification.permission === 'granted') {
-      new Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
-        tag: 'rbNotification'
+  if ($.cookie('rb.showNotification')) return
+  var _Notification = window.Notification || window.mozNotification || window.webkitNotification
+  if (_Notification) {
+    if (_Notification.permission === 'granted') {
+      new _Notification('你有 ' + __checkMessage__state + ' 条未读消息', {
+        tag: 'rbNotification',
+        icon: rb.baseUrl + '/assets/img/favicon.png',
       })
+      $.cookie('rb.showNotification', 1, { expires: null })  // session cookie
     } else {
-      window.Notification.requestPermission()
+      _Notification.requestPermission()
     }
   }
 }
@@ -300,29 +345,28 @@ var $createUploader = function (input, next, complete, error) {
     input.on('change', function () {
       var file = this.files[0]
       if (!file) return
-      var putExtra = imgOnly ? {
-        mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp']
-      } : null
-      $.get(rb.baseUrl + '/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
+
+      var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
+      $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
             typeof next === 'function' && next({ percent: res.total.percent })
           },
           error: function (err) {
-            var msg = (err.message || 'UnknowError').toUpperCase()
+            var msg = (err.message || err.error || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
               RbHighbar.create('请上传图片')
-              return false
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create('超出文件大小限制 (20M)')
-              return false
+              RbHighbar.create('超出文件大小限制 (100M)')
+            } else {
+              RbHighbar.error('上传失败: ' + msg)
             }
-            if (error) error({ error: msg })
-            else RbHighbar.error('上传失败: ' + msg)
+            typeof error === 'function' && error()
+            return false
           },
           complete: function (res) {
-            $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
+            $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
             typeof complete === 'function' && complete({ key: res.key })
           }
         })
@@ -343,25 +387,21 @@ var $createUploader = function (input, next, complete, error) {
       },
       onClientLoad: function (e, file) { },
       onClientProgress: function (e, file) {
-        typeof next === 'function' && next({
-          percent: e.loaded * 100 / e.total
-        })
+        typeof next === 'function' && next({ percent: e.loaded * 100 / e.total })
       },
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          $.post(rb.baseUrl + '/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
           complete({ key: e.data })
         } else {
-          var msg = e.error_msg || '上传失败，请稍后重试'
-          if (error) error({ error: msg })
-          else RbHighbar.error(msg)
+          RbHighbar.error('上传失败，请稍后重试')
+          typeof error === 'function' && error()
         }
       },
       onClientError: function (e, file) {
-        var msg = '上传失败，请稍后重试'
-        if (error) error({ error: msg })
-        else RbHighbar.error(msg)
+        RbHighbar.error('网络错误，请稍后重试')
+        typeof error === 'function' && error()
       }
     })
   }
@@ -385,7 +425,7 @@ var $initUserSelect2 = function (el, multiple) {
     minimumInputLength: 0,
     multiple: multiple === true,
     ajax: {
-      url: rb.baseUrl + '/commons/search/search',
+      url: '/commons/search/search',
       delay: 300,
       data: function (params) {
         var query = {
@@ -417,7 +457,7 @@ var $initUserSelect2 = function (el, multiple) {
   })
   s.on('change.select2', function (e) {
     var v = e.target.value
-    if (v) $.post(rb.baseUrl + '/commons/search/recently-add?type=UDR&id=' + v)
+    if (v) $.post('/commons/search/recently-add?type=UDR&id=' + v)
   })
   return s
 }
@@ -430,7 +470,7 @@ var $initReferenceSelect2 = function (el, field) {
     minimumInputLength: 0,
     maximumSelectionLength: 1,
     ajax: {
-      url: rb.baseUrl + '/commons/search/' + (field.searchType || 'reference'),
+      url: '/commons/search/' + (field.searchType || 'reference'),
       delay: 300,
       data: function (params) {
         search_input = params.term
@@ -480,4 +520,42 @@ var $pgt = {
   RecordList: 'RecordList',
   SlaveView: 'SlaveView',
   SlaveList: 'SlaveList'
+}
+
+// 加载状态条（单线程）
+var $mp = {
+  __timer: null,
+  __mp: null,
+  // 开始
+  start: function () {
+    $mp.__timer = setTimeout(function () {
+      $mp.__mp = new Mprogress({ template: 3, start: true })
+    }, 600)
+  },
+  // 结束
+  end: function () {
+    if ($mp.__timer) {
+      clearTimeout($mp.__timer)
+      $mp.__timer = null
+    }
+    if ($mp.__mp) {
+      $mp.__mp.end()
+      $mp.__mp = null
+    }
+  }
+}
+
+var EMOJIS = { '赞': 'rb_zan.png', '握手': 'rb_woshou.png', '耶': 'rb_ye.png', '抱拳': 'rb_baoquan.png', 'OK': 'rb_ok.png', '拍手': 'rb_paishou.png', '拜托': 'rb_baituo.png', '差评': 'rb_chaping.png', '微笑': 'rb_weixiao.png', '撇嘴': 'rb_piezui.png', '花痴': 'rb_huachi.png', '发呆': 'rb_fadai.png', '得意': 'rb_deyi.png', '大哭': 'rb_daku.png', '害羞': 'rb_haixiu.png', '闭嘴': 'rb_bizui.png', '睡着': 'rb_shuizhao.png', '敬礼': 'rb_jingli.png', '崇拜': 'rb_chongbai.png', '抱抱': 'rb_baobao.png', '忍住不哭': 'rb_renzhubuku.png', '尴尬': 'rb_ganga.png', '发怒': 'rb_fanu.png', '调皮': 'rb_tiaopi.png', '开心': 'rb_kaixin.png', '惊讶': 'rb_jingya.png', '呵呵': 'rb_hehe.png', '思考': 'rb_sikao.png', '哭笑不得': 'rb_kuxiaobude.png', '抓狂': 'rb_zhuakuang.png', '呕吐': 'rb_outu.png', '偷笑': 'rb_touxiao.png', '笑哭了': 'rb_xiaokule.png', '白眼': 'rb_baiyan.png', '傲慢': 'rb_aoman.png', '饥饿': 'rb_jie.png', '困': 'rb_kun.png', '吓': 'rb_xia.png', '流汗': 'rb_liuhan.png', '憨笑': 'rb_hanxiao.png', '悠闲': 'rb_youxian.png', '奋斗': 'rb_fendou.png', '咒骂': 'rb_zhouma.png', '疑问': 'rb_yiwen.png', '嘘': 'rb_xu.png', '晕': 'rb_yun.png', '惊恐': 'rb_jingkong.png', '衰': 'rb_shuai.png', '骷髅': 'rb_kulou.png', '敲打': 'rb_qiaoda.png', '再见': 'rb_zaijian.png', '无语': 'rb_wuyu.png', '抠鼻': 'rb_koubi.png', '鼓掌': 'rb_guzhang.png', '糗大了': 'rb_qiudale.png', '猥琐的笑': 'rb_weisuodexiao.png', '哼': 'rb_heng.png', '不爽': 'rb_bushuang.png', '打哈欠': 'rb_dahaqian.png', '鄙视': 'rb_bishi.png', '委屈': 'rb_weiqu.png', '安慰': 'rb_anwei.png', '坏笑': 'rb_huaixiao.png', '亲亲': 'rb_qinqin.png', '冷汗': 'rb_lenghan.png', '可怜': 'rb_kelian.png', '生病': 'rb_shengbing.png', '愉快': 'rb_yukuai.png', '幸灾乐祸': 'rb_xingzailehuo.png', '大便': 'rb_dabian.png', '干杯': 'rb_ganbei.png', '钱': 'rb_qian.png' }
+// 转换文字 emoji 为 img 标签
+var converEmoji = function (text) {
+  var es = text.match(/\[(.+?)\]/g)
+  if (!es) return text
+  $(es).each(function () {
+    var key = this.substr(1, this.length - 2)
+    if (EMOJIS[key]) {
+      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" />'
+      text = text.replace(this, img)
+    }
+  })
+  return text
 }

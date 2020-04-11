@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 // eslint-disable-next-line no-unused-vars
 // eslint-disable-next-line no-undef
 window.clickIcon = function (icon) {
@@ -6,13 +13,14 @@ window.clickIcon = function (icon) {
 }
 
 const wpc = window.__PageConfig
+
 $(document).ready(function () {
   if (!wpc.metaId) $('.footer .alert').removeClass('hide')
   else $('.footer .J_action').removeClass('hide')
 
   $('.J_tab-' + wpc.entity + ' a').addClass('active')
 
-  let _btn = $('.J_save').click(function () {
+  const $btn = $('.J_save').click(function () {
     if (!wpc.metaId) return
     let _data = {
       entityLabel: $val('#entityLabel'),
@@ -26,7 +34,7 @@ $(document).ready(function () {
     if (Object.keys(_data).length === 0) { location.reload(); return }
 
     _data.metadata = { entity: 'MetaEntity', id: wpc.metaId }
-    _btn.button('loading')
+    $btn.button('loading')
     $.post('../entity-update', JSON.stringify(_data), function (res) {
       if (res.error_code === 0) location.reload()
       else RbHighbar.error(res.error_msg)
@@ -37,9 +45,9 @@ $(document).ready(function () {
     RbModal.create(rb.baseUrl + '/p/commons/search-icon', '选择图标')
   })
 
-  $.get(rb.baseUrl + '/commons/metadata/fields?entity=' + wpc.entity, function (d) {
-    let rs = d.data.map((item) => {
-      let canName = item.type === 'NUMBER' || item.type === 'DECIMAL' ||
+  $.get('/commons/metadata/fields?entity=' + wpc.entity, function (d) {
+    const rs = d.data.map((item) => {
+      const canName = item.type === 'NUMBER' || item.type === 'DECIMAL' ||
         item.type === 'TEXT' || item.type === 'EMAIL' || item.type === 'URL' || item.type === 'PHONE' ||
         item.type === 'SERIES' || item.type === 'PICKLIST' || item.type === 'CLASSIFICATION' ||
         item.type === 'DATE' || item.type === 'DATETIME'
@@ -47,7 +55,7 @@ $(document).ready(function () {
         id: item.name,
         text: item.label,
         disabled: canName === false,
-        title: canName === false ? '此字段（类型）不支持作为名称字段使用' : ''
+        title: canName === false ? '此字段（类型）不支持作为名称字段使用' : item.label
       }
     })
     let rsSort = []
@@ -57,12 +65,11 @@ $(document).ready(function () {
     rs.forEach((item) => {
       if (item.disabled === true) rsSort.push(item)
     })
-    rs = rsSort
 
     $('#nameField').select2({
       placeholder: '选择字段',
       allowClear: false,
-      data: rs
+      data: rsSort
     }).val(wpc.nameField).trigger('change')
   })
 })

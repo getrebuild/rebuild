@@ -45,6 +45,6 @@ public class CommonCache extends BaseCacheTemplate<Serializable> {
 	public static final int TS_WEEK = 7 * TS_DAY;
 
 	protected CommonCache(JedisPool jedisPool, CacheManager cacheManager) {
-		super(jedisPool, cacheManager, "rb.");
+		super(jedisPool, cacheManager, null);
 	}
 }

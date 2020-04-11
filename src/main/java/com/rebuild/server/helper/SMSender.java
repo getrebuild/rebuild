@@ -1,28 +1,19 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ThreadPool;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.jsoup.Jsoup;
@@ -78,9 +69,11 @@ public class SMSender {
 	 * @throws ConfigurationException If mail-account unset
 	 */
 	public static String sendMail(String to, String subject, String content, boolean useTemplate, String[] specAccount) throws ConfigurationException {
-		if (specAccount == null || specAccount.length < 4) {
-			throw new ConfigurationException("邮箱账户未配置/无效");
-		}
+        if (specAccount == null || specAccount.length < 4
+                || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
+                || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
+            throw new ConfigurationException("邮箱账户未配置/无效");
+        }
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("appid", specAccount[0]);
@@ -103,6 +96,7 @@ public class SMSender {
 			String eHTML = mailbody.html();
 			// 处理变量
 			eHTML = eHTML.replace("%TO%", to);
+			eHTML = eHTML.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
 			eHTML = eHTML.replace("%APPNAME%", SysConfiguration.get(ConfigurableItem.AppName));
 
 			params.put("html", eHTML);
@@ -175,9 +169,11 @@ public class SMSender {
 	 * @throws ConfigurationException If sms-account unset
 	 */
 	public static String sendSMS(String to, String content, String[] specAccount) throws ConfigurationException {
-		if (specAccount == null || specAccount.length < 3) {
-			throw new ConfigurationException("短信账户未配置/无效");
-		}
+        if (specAccount == null || specAccount.length < 3
+                || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
+                || StringUtils.isBlank(specAccount[2])) {
+            throw new ConfigurationException("短信账户未配置/无效");
+        }
 
 		Map<String, Object> params = new HashMap<>();
 		params.put("appid", specAccount[0]);

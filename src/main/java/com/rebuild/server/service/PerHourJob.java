@@ -1,9 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2020 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
-For more information, please see <https://getrebuild.com>
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service;
@@ -11,6 +10,7 @@ package com.rebuild.server.service;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.DatabaseBackup;
+import com.rebuild.utils.FileFilterByLastModified;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.DisallowConcurrentExecution;
@@ -37,16 +37,32 @@ public class PerHourJob extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
-        // 数据库备份
         if (hour == 0 && SysConfiguration.getBool((ConfigurableItem.DBBackupsEnable))) {
-            try {
-                new DatabaseBackup().backup();
-            } catch (Exception e) {
-                LOG.error("Executing [DatabaseBackup] failed : " + e);
-            }
+            doDatabaseBackup();
+        }
+        else if (hour == 1) {
+            doCleanTempFiles();
         }
 
-        // others here
+        // DO OTHERS HERE ...
 
+    }
+
+    /**
+     * 数据库备份
+     */
+    protected void doDatabaseBackup() {
+        try {
+            new DatabaseBackup().backup();
+        } catch (Exception e) {
+            LOG.error("Executing [DatabaseBackup] failed : " + e);
+        }
+    }
+
+    /**
+     * 清理临时目录
+     */
+    protected void doCleanTempFiles() {
+        FileFilterByLastModified.deletes(SysConfiguration.getFileOfTemp(null), 7);
     }
 }

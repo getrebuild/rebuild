@@ -4,6 +4,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/feeds.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
 <title>${entityLabel}视图</title>
 </head>
@@ -95,6 +96,7 @@ window.__PageConfig = {
 	recordId: '${id}'
 }
 </script>
+<script src="${baseUrl}/assets/js/feeds/feeds-list.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-view.jsx" type="text/babel"></script>

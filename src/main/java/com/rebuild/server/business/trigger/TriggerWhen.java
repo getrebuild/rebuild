@@ -59,9 +59,9 @@ public enum TriggerWhen {
 	 */
 	APPROVED(EntityService.UNSHARE.getMask() * 2),   // 128
 	/**
-	 * 撤回重新审批
+	 * 审批撤销
 	 */
-	REAPPROVAL(EntityService.UNSHARE.getMask() * 4)  // 256
+	REVOKED(EntityService.UNSHARE.getMask() * 4)  // 256
 
 	;
 	

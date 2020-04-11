@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.utils;
@@ -24,6 +13,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
+import com.rebuild.api.AuthTokenManager;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.language.Languages;
@@ -42,7 +32,22 @@ import java.sql.DataTruncation;
  * @since 05/19/2018
  */
 public class AppUtils {
-	
+
+	/**
+	 * 移动端 UA 前缀
+	 */
+	public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
+
+	/**
+	 * 移动端 Token Header
+	 */
+	public static final String MOBILE_HF_AUTHTOKEN = "X-AuthToken";
+
+	/**
+	 * 语言
+	 */
+	public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
+
 	/**
 	 * @return
 	 * @see Application#devMode()
@@ -61,15 +66,36 @@ public class AppUtils {
 
 	/**
 	 * 获取当前请求用户
-	 * 
+	 *
 	 * @param request
 	 * @return null or UserID
+	 *
+	 * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
 	 */
 	public static ID getRequestUser(HttpServletRequest request) {
 		Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
 		return user == null ? null : (ID) user;
 	}
-	
+
+	/**
+	 * 获取 APP 请求用户
+	 *
+	 * @param request
+	 * @param refreshToken 是否需要刷新 Token 有效期
+	 * @return
+	 * @see #isRbMobile(HttpServletRequest)
+	 */
+	public static ID getRequestUserViaRbMobile(HttpServletRequest request, boolean refreshToken) {
+		if (isRbMobile(request)) {
+			String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
+			ID user = AuthTokenManager.verifyToken(xAuthToken, false);
+			if (user != null && refreshToken) {
+				AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * @param request
 	 * @return
@@ -87,7 +113,8 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isAdminVerified(HttpServletRequest request) {
-		return AdminEntryControll.isAdminVerified(request);
+		Object verified = ServletUtils.getSessionAttribute(request, AdminEntryControll.KEY_VERIFIED);
+		return verified != null;
 	}
 	
 	/**
@@ -143,7 +170,9 @@ public class AppUtils {
 			Integer state = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
 			if (state != null && state == 404) {
 				return Languages.lang("Error404");
-			} else {
+			} else if (state != null && state == 403) {
+				return Languages.lang("Error403");
+			}  else {
 				return Languages.lang("ErrorUnknow");
 			}
 		} else if (ex instanceof AccessDeniedException) {
@@ -163,8 +192,19 @@ public class AppUtils {
 	 * @return
 	 */
 	public static boolean isIE(HttpServletRequest request) {
-		String UA = request.getHeader("user-agent").toLowerCase();
-		return UA.contains("msie") || UA.contains("trident");
+		String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
+		return UA.contains("MSIE") || UA.contains("TRIDENT");
+	}
+
+	/**
+	 * 是否 APP
+	 *
+	 * @param request
+	 * @return
+	 */
+	public static boolean isRbMobile(HttpServletRequest request) {
+		String UA = request.getHeader("user-agent");
+		return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
 	}
 
 	/**
@@ -179,15 +219,17 @@ public class AppUtils {
 		return Application.getSecurityManager().allow(getRequestUser(request), entry);
 	}
 
-	public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
 	/**
+	 * 获取客户端语言
+	 *
 	 * @param request
 	 * @return
 	 */
 	public static String getLocale(HttpServletRequest request) {
 		String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
 		if (locale == null) {
-			locale = request.getLocale().toString();
+			locale = StringUtils.defaultIfBlank(
+					request.getHeader("X-Language"), request.getLocale().toString());
 		}
 		return locale;
 	}

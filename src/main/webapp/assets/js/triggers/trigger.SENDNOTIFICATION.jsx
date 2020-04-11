@@ -1,3 +1,9 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable react/jsx-no-undef */
 
 // ~~ 发送通知
@@ -17,13 +23,13 @@ class ContentSendNotification extends ActionContentSpec {
           <div className="col-12 col-lg-8 pt-1">
             <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
               <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 1 })} checked={this.state.type === 1} />
-              <span className="custom-control-label">内部消息</span>
+              <span className="custom-control-label">消息通知</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
               <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 2 })} checked={this.state.type === 2} />
               <span className="custom-control-label">邮件 {this.state.serviceMail === false && '(不可用)'}</span>
             </label>
-            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1 hide">
+            <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
               <input className="custom-control-input" name="mtype" type="radio" onChange={() => this.setState({ type: 3 })} checked={this.state.type === 3} />
               <span className="custom-control-label">短信 {this.state.serviceSms === false && '(不可用)'}</span>
             </label>
@@ -46,6 +52,7 @@ class ContentSendNotification extends ActionContentSpec {
           <label className="col-12 col-lg-3 col-form-label text-lg-right">内容</label>
           <div className="col-12 col-lg-8">
             <textarea className="form-control form-control-sm row3x" ref={(c) => this._content = c} maxLength="600"></textarea>
+            {rb.env === 'dev' && <p className="form-text">内容支持变量，例如 <code>{'{createdOn}'}</code>（其中 createdOn 为触发实体的字段内部标识）</p>}
           </div>
         </div>
       </form>
@@ -53,12 +60,12 @@ class ContentSendNotification extends ActionContentSpec {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/robot/trigger/sendnotification-atypes`, (res) => this.setState({ ...res.data }))
+    $.get('/admin/robot/trigger/sendnotification-atypes', (res) => this.setState({ ...res.data }))
 
     const content = this.props.content
     if (content) {
       if (content.sendTo) {
-        $.post(`${rb.baseUrl}/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
+        $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.sendTo), (res) => {
           if (res.error_code === 0 && res.data.length > 0) this._sendTo.setState({ selected: res.data })
         })
       }

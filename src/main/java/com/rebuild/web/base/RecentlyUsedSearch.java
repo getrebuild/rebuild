@@ -74,7 +74,7 @@ public class RecentlyUsedSearch extends BaseControll {
 	 * @param groupName select2 分组 null 表示无分组
 	 * @return
 	 */
-	static JSONArray formatSelect2(ID[] idLabels, String groupName) {
+	protected static JSONArray formatSelect2(ID[] idLabels, String groupName) {
 		JSONArray data = new JSONArray();
 		for (ID id : idLabels) {
 			data.add(JSONUtils.toJSONObject(

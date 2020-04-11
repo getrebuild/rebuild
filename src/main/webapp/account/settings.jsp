@@ -12,7 +12,7 @@
 .avatar-wrap {
 	height: 256px;
 	padding-top: 55px;
-	background-color: #eee;
+	background-color: rgb(245, 247, 249);
 	border-radius: 4px;
 	margin-bottom: 10px;
     margin-top: 10px;
@@ -23,7 +23,7 @@
 	height: 140px;
 	line-height: 1;
 	font-size: 0;
-	background-color: #ccc;
+	background-color: #eee;
 	border-radius: 50%;
 	overflow: hidden;
 	margin: 0 auto;
@@ -137,17 +137,27 @@ form .form-group.row {
                                                         out.print("<span>" + team.getName() + "</span>");
                                                     }
                                                     %>
-                                                    <%=theUser.getOwningTeams().isEmpty() ? "<em>暂未加入任何团队</em>" : ""%>
+                                                    <%=theUser.getOwningTeams().isEmpty() ? "<em>未加入任何团队</em>" : ""%>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="form-group row">
                                             <label class="col-sm-4 col-form-label text-left">姓名</label>
                                             <div class="col-sm-8">
-                                                <input class="form-control form-control-sm" type="text" id="fullName" value="<%=theUser.getFullName()%>" data-o="<%=theUser.getFullName()%>">
+                                                <input class="form-control form-control-sm" type="text" id="fullName"
+                                                       value="<%=theUser.getFullName()%>"
+                                                       data-o="<%=theUser.getFullName()%>">
                                             </div>
                                         </div>
-                                        <div class="form-group row border-none">
+                                        <div class="form-group row">
+                                            <label class="col-sm-4 col-form-label text-left">工作电话 (手机)</label>
+                                            <div class="col-sm-8">
+                                                <input class="form-control form-control-sm" type="text" id="workphone" placeholder="未设置"
+                                                       value="<%=theUser.getWorkphone() == null ? "" : theUser.getWorkphone()%>"
+                                                       data-o="<%=theUser.getWorkphone() == null ? "" : theUser.getWorkphone()%>">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row border-none mt-3">
                                             <div class="col-sm-8 offset-sm-4">
                                                 <button class="btn btn-primary J_save" type="button">确定</button>
                                             </div>

@@ -1,6 +1,13 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 let _entities = {}
 $(document).ready(() => {
-  $.get(`${rb.baseUrl}/commons//metadata/entities?slave=true`, (res) => {
+  $.get('/commons/metadata/entities?slave=true', (res) => {
     $(res.data).each(function () {
       $(`<option value="${this.name}">${this.label}</option>`).appendTo('#belongEntity')
       _entities[this.name] = this.label
@@ -117,7 +124,7 @@ class DlgDetails extends RbAlert {
     </table>
   }
   componentDidMount() {
-    $.get(`${rb.baseUrl}/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
+    $.get(`/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
       if (res.data.length === 0) {
         RbHighbar.create('选中纪录无变更详情')
         this.hide()

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.configuration.portals;
@@ -25,12 +14,18 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 视图-相关项/新建相关
@@ -42,7 +37,13 @@ public class ViewAddonsManager extends BaseLayoutManager {
 	
 	public static final ViewAddonsManager instance = new ViewAddonsManager();
 	private ViewAddonsManager() { }
-	
+
+	/**
+	 * A实体中可能引用了两次B实体（2个引用字段都引用B），因此在设置相关项时必须包含哪个字段（Entity.Field）
+	 * 在 v1.9 之前上述场景存在问题
+	 */
+	public static final String EF_SPLIT = ".";
+
 	/**
 	 * @param entity
 	 * @param user
@@ -82,29 +83,101 @@ public class ViewAddonsManager extends BaseLayoutManager {
 		final ConfigEntry config = getLayout(user, entity, applyType);
 		final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 
+		final Entity entityMeta = MetadataHelper.getEntity(entity);
+		final Set<Entity> mfRefs = hasMultiFieldsReferenceTo(entityMeta);
+
 		// 未配置则使用全部相关项
 		if (config == null) {
 		    JSONArray refs = new JSONArray();
-			for (Field field : MetadataHelper.getEntity(entity).getReferenceToFields(true)) {
+			for (Field field : entityMeta.getReferenceToFields(true)) {
 				Entity e = field.getOwnEntity();
 				if (e.getMasterEntity() == null &&
                         Application.getSecurityManager().allow(user, e.getEntityCode(), useAction)) {
-					refs.add(EasyMeta.getEntityShow(e));
+					refs.add(getEntityShow(field, mfRefs, applyType));
 				}
 			}
+
+			// 动态（跟进）
+//			if (TYPE_TAB.equalsIgnoreCase(applyType)) {
+//				Field relatedRecordOfFeeds = MetadataHelper.getField("Feeds", "relatedRecord");
+//				refs.add(getEntityShow(relatedRecordOfFeeds, Collections.emptySet(), applyType));
+//			}
+
 			return refs;
 		}
 
 		JSONArray addons = new JSONArray();
 		for (Object o : (JSONArray) config.getJSON("config")) {
-			String e = (String) o;
-			if (MetadataHelper.containsEntity(e)) {
-				Entity entityMeta = MetadataHelper.getEntity(e);
-				if (Application.getSecurityManager().allow(user, entityMeta.getEntityCode(), useAction)) {
-					addons.add(EasyMeta.getEntityShow(entityMeta));
+			// Entity.Field (v1.9)
+			String[] e = ((String) o).split("\\.");
+			if (!MetadataHelper.containsEntity(e[0])) {
+				continue;
+			}
+
+			Entity addonEntity = MetadataHelper.getEntity(e[0]);
+			if (e.length > 1 && !MetadataHelper.checkAndWarnField(addonEntity, e[1])) {
+				continue;
+			}
+
+			if (Application.getSecurityManager().allow(user, addonEntity.getEntityCode(), useAction)) {
+				if (e.length > 1) {
+					addons.add(getEntityShow(addonEntity.getField(e[1]), mfRefs, applyType));
+				} else {
+					addons.add(EasyMeta.getEntityShow(addonEntity));
 				}
 			}
 		}
 		return addons;
+	}
+
+	/**
+	 * 同一实体的多个字段引用同一个实体
+	 *
+	 * @param entity
+	 * @return
+	 */
+	public static Set<Entity> hasMultiFieldsReferenceTo(Entity entity) {
+		Map<Entity, Integer> map = new HashMap<>();
+		map.put(entity, 1);  // 包括自己
+
+		for (Field field : entity.getReferenceToFields(true)) {
+			Entity e = field.getOwnEntity();
+			// 排除明细实体
+			if (e.getMasterEntity() == null) {
+				int t = map.getOrDefault(e, 0);
+				map.put(e, t + 1);
+			}
+		}
+
+		Set<Entity> set = new HashSet<>();
+		for (Map.Entry<Entity, Integer> e : map.entrySet()) {
+			if (e.getValue() > 1) {
+				set.add(e.getKey());
+			}
+		}
+		return set;
+	}
+
+	/**
+	 * @param field
+	 * @param mfRefs
+	 * @param applyType
+	 * @return
+	 * @see EasyMeta#getEntityShow(Entity)
+	 */
+	private JSONObject getEntityShow(Field field, Set<Entity> mfRefs, String applyType) {
+		Entity fieldEntity = field.getOwnEntity();
+		JSONObject show = (JSONObject) EasyMeta.getEntityShow(fieldEntity);
+		show.put("entity", fieldEntity.getName() + EF_SPLIT + field.getName());
+
+		if (mfRefs.contains(fieldEntity)) {
+			String entityLabel = TYPE_TAB.equalsIgnoreCase(applyType)
+					? String.format("%s (%s)", EasyMeta.getLabel(field), show.getString("entityLabel"))
+					: String.format("%s (%s)", show.getString("entityLabel"), EasyMeta.getLabel(field));
+			show.put("entityLabel", entityLabel);
+		} else if (fieldEntity.getEntityCode() == EntityHelper.Feeds) {
+			show.put("entityLabel", "跟进");
+		}
+		return show;
 	}
 }

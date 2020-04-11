@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper;
@@ -46,43 +35,38 @@ public enum ConfigurableItem {
 	// 短信
 	SmsUser, SmsPassword, SmsSign(AppName),
 
-	/**
-	 * 开放注册
-	 */
-	OpenSignUp(false),
-	/**
-	 * 数据目录
-	 */
+	// 数据目录
 	DataDirectory,
-	/**
-	 * 数据库版本
-	 */
+	// 数据库版本
 	DBVer(0L),
-	/**
-	 * 启用最近搜素缓存
-	 */
-	EnableRecentlyUsed(true),
-	/**
-	 * 登录背景图
-	 */
-	LiveWallpaper(true),
-	/**
-	 * 回收站数据保留天数（0为禁用回收站）
-	 */
-	RecycleBinKeepingDays(30),
-	/**
-	 * 密码策略，1-3
-	 */
-	PasswordPolicy(1),
-	/**
-	 * 默认语言
-	 */
+	// 默认语言
 	DefaultLanguage("zh-CN"),
 
-	// 数据库备份
-	DBBackupsEnable(true),
-	// 数据备份保留时间
-	DBBackupsKeepingDays(30)
+	// 启用最近搜素
+	EnableRecentlyUsed(true),
+
+	// 开放注册
+	OpenSignUp(true),
+	// 登录背景图
+	LiveWallpaper(true),
+	// 启用文件分享
+	FileSharable(true),
+	// 启用页面水印
+	MarkWatermark(false),
+	// 密码策略，1-3
+	PasswordPolicy(1),
+
+	// 变更历史数据保留天数（0为禁用）
+	RevisionHistoryKeepingDays(180),
+	// 回收站数据保留天数（0为禁用）
+	RecycleBinKeepingDays(180),
+    // 启用数据库备份
+	DBBackupsEnable(false),
+    // 数据备份保留时间
+	DBBackupsKeepingDays(180),
+
+	// 管理员警告
+	AdminDangers(true),
 
 	;
 	
@@ -97,7 +81,7 @@ public enum ConfigurableItem {
 	
 	/**
 	 * 默认值
-	 * s
+	 *
 	 * @return
 	 */
 	public Object getDefaultValue() {

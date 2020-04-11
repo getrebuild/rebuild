@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.common;
@@ -34,6 +23,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,7 +40,9 @@ public class UrlSafe extends BasePageControll {
 	@RequestMapping(value="/commons/url-safe", method=RequestMethod.GET)
 	public ModelAndView safeRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String url = getParameterNotNull(request, "url");
-		if (!url.startsWith("http")) url = "http://" + url;
+		if (!url.startsWith("http")) {
+            url = "http://" + url;
+        }
 
 		if (isTrusted(url)) {
 			response.sendRedirect(url);
@@ -76,7 +69,7 @@ public class UrlSafe extends BasePageControll {
 
         // 首次
         if (TRUSTED_URLS.isEmpty()) {
-            TRUSTED_URLS.add(".getrebuild.com");
+            TRUSTED_URLS.add("getrebuild.com");
 
             try {
                 File s = ResourceUtils.getFile("classpath:trusted-url.json");
@@ -93,8 +86,14 @@ public class UrlSafe extends BasePageControll {
             }
         }
 
+        String host = url;
+        try {
+            host = new URL(url).getHost();
+        } catch (MalformedURLException ignored) {
+        }
+
         for (String trusted : TRUSTED_URLS) {
-            if (url.contains(trusted)) {
+            if (host.equals(trusted) || host.contains(trusted)) {
                 return true;
             }
         }

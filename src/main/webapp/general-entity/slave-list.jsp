@@ -84,7 +84,7 @@
 							</div>
 						</div>
 						<div id="react-list" class="rb-loading rb-loading-active data-list">
-							<%@ include file="/_include/spinner.jsp"%>
+							<%@ include file="/_include/Spinner.jsp"%>
 						</div>
 					</div>
 				</div>
@@ -105,6 +105,7 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
 <script src="${baseUrl}/assets/js/charts/charts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/rb-datalist.append.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>

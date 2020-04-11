@@ -97,7 +97,7 @@ span.badge {
 										</thead>
 										<tbody></tbody>
 									</table>
-									<%@ include file="/_include/spinner.jsp"%>
+									<%@ include file="/_include/Spinner.jsp"%>
 									<div class="list-nodata hide"><span class="zmdi zmdi-info-outline"></span><p>暂无配置</p></div>
 								</div>
 							</div>
@@ -105,7 +105,7 @@ span.badge {
 					</div>
 				</div>
 			</div>
-			<p class="protips">通过 <a href="${baseUrl}/admin/robot/triggers">触发器 (数据回写)</a> 可以实现更加复杂的回填规则</p>
+			<p class="protips">通过 <a href="${baseUrl}/admin/robot/triggers">触发器 (数据转写)</a> 可以实现更加复杂的回填规则</p>
 		</div>
 	</div>
 </div>

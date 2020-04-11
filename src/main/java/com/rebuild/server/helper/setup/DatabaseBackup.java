@@ -1,9 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2020 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
-For more information, please see <https://getrebuild.com>
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper.setup;
@@ -14,7 +13,7 @@ import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.utils.MaxBackupIndexDailyRollingFileAppender;
+import com.rebuild.utils.FileFilterByLastModified;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.SystemUtils;
@@ -25,10 +24,10 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 
 /**
  * 数据库备份
+ * `mysqldump[.exe]` 命令必须在环境变量中
  *
  * @author devezhao
  * @since 2020/2/4
@@ -118,29 +117,19 @@ public class DatabaseBackup {
         }
         LOG.info("Backup succeeded : " + dest + " (" + FileUtils.byteCountToDisplaySize(dest.length()) + ")");
 
-        deleteOldBackups(backups, SysConfiguration.getInt(ConfigurableItem.DBBackupsKeepingDays));
+        // 清理
+        deleteOldBackups(backups);
 
         return dest;
     }
 
     /**
-     * @param backupDir
-     * @param maxKeep
+     * @param backups
      */
-    protected void deleteOldBackups(File backupDir, int maxKeep) {
-        if (maxKeep <= 0) {
-            return;
-        }
-
-        File[] backupFiles = backupDir.listFiles();
-        if (backupFiles == null) {
-            return;
-        }
-
-        Arrays.sort(backupFiles, new MaxBackupIndexDailyRollingFileAppender.CompratorByLastModified());
-        for (int i = maxKeep; i < backupFiles.length;  i++) {
-            File file = backupFiles[i];
-            FileUtils.deleteQuietly(file);
+    protected void deleteOldBackups(File backups) {
+        int keepDays = SysConfiguration.getInt(ConfigurableItem.DBBackupsKeepingDays);
+        if (keepDays < 9999) {
+            FileFilterByLastModified.deletes(backups, keepDays);
         }
     }
 }

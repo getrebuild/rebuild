@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.base;
@@ -24,8 +13,11 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.RobotTriggerObserver;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 import com.rebuild.server.service.bizz.UserService;
@@ -38,7 +30,22 @@ import com.rebuild.utils.JSONUtils;
  * @since 10/31/2018
  */
 public class RevisionHistoryObserver extends OperatingObserver {
-	
+
+    @Override
+    protected boolean isAsync() {
+        return true;
+    }
+
+	@Override
+	protected void updateByAction(OperatingContext ctx) {
+		// 激活
+		if (SysConfiguration.getInt(ConfigurableItem.RevisionHistoryKeepingDays) > 0) {
+			super.updateByAction(ctx);
+		} else if (ctx.getAction() != ObservableService.DELETE_BEFORE) {
+			LOG.warn("RevisionHistory inactivated : " + ctx.getAnyRecord().getPrimary() + " by " + ctx.getOperator());
+		}
+	}
+
 	@Override
 	public void onCreate(OperatingContext context) {
         Record revision = newRevision(context, false);

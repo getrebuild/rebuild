@@ -1,23 +1,13 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.utils;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.DailyRollingFileAppender;
 import org.apache.log4j.helpers.LogLog;
 import org.apache.log4j.spi.LoggingEvent;
@@ -35,16 +25,21 @@ import java.util.Comparator;
  */
 public class MaxBackupIndexDailyRollingFileAppender extends DailyRollingFileAppender {
 
-	final private long checkPeriod = 1000 * 60 * 5;  // 5 min
-	private long lastCheck = 0;
+    private long lastCheck = 0;
 	
 	// default is disabled
 	private int maxBackupIndex = -1;
 
+    /**
+     * @return
+     */
 	public int getMaxBackupIndex() {
 		return maxBackupIndex;
 	}
 
+    /**
+     * @param maxBackupIndex
+     */
 	public void setMaxBackupIndex(int maxBackupIndex) {
 		this.maxBackupIndex = maxBackupIndex;
 	}
@@ -55,7 +50,9 @@ public class MaxBackupIndexDailyRollingFileAppender extends DailyRollingFileAppe
 		
 		long n = System.currentTimeMillis();
 		if (n >= lastCheck) {
-			lastCheck = n + checkPeriod;
+            // 5 min
+            long checkPeriod = 1000 * 60 * 5;
+            lastCheck = n + checkPeriod;
 		} else {
 			return;
 		}
@@ -75,8 +72,8 @@ public class MaxBackupIndexDailyRollingFileAppender extends DailyRollingFileAppe
 		for (int i = maxBackupIndex; i < logs.length;  i++) {
 			File log = logs[i];
 			if (log.exists()) {
-				log.delete();
-				LogLog.debug("Deleted log : " + log);
+                FileUtils.deleteQuietly(log);
+				LogLog.debug("Deleted log file : " + log);
 			}
 		}
 	}
@@ -103,7 +100,7 @@ public class MaxBackupIndexDailyRollingFileAppender extends DailyRollingFileAppe
 	/**
 	 * Sort max > min
 	 */
-	public static class CompratorByLastModified implements Comparator<File> {
+	static class CompratorByLastModified implements Comparator<File> {
 		@Override
 		public int compare(File a, File b) {
 			long d = a.lastModified() - b.lastModified();

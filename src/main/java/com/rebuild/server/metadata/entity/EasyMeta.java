@@ -37,7 +37,7 @@ import org.springframework.util.Assert;
 import java.util.Set;
 
 /**
- * 元数据元素封装
+ * 元数据（Entity/Field）封装
  * 
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
@@ -45,12 +45,15 @@ import java.util.Set;
 public class EasyMeta implements BaseMeta {
 	private static final long serialVersionUID = -6463919098111506968L;
 
-	private BaseMeta baseMeta;
+	final private BaseMeta baseMeta;
 	
 	public EasyMeta(BaseMeta baseMeta) {
 		this.baseMeta = baseMeta;
 	}
-	
+
+    /**
+     * @return Returns Entity or Field
+     */
 	public BaseMeta getBaseMeta() {
 		return baseMeta;
 	}
@@ -68,7 +71,7 @@ public class EasyMeta implements BaseMeta {
 	/**
 	 * Use {@link #getLabel()}
 	 */
-	@SuppressWarnings("DeprecatedIsStillUsed")
+    @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
 	@Override
 	public String getDescription() {
@@ -76,7 +79,7 @@ public class EasyMeta implements BaseMeta {
 	}
 	
 	@Override
-	public String getExtraAttrs() {
+	public JSONObject getExtraAttrs() {
 		return baseMeta.getExtraAttrs();
 	}
 
@@ -115,7 +118,7 @@ public class EasyMeta implements BaseMeta {
 		}
 		
 		DisplayType dt;
-		String dtInExtra = getExtraAttrsJson().getString("displayType");
+		String dtInExtra = getExtraAttrs().getString("displayType");
 		if (dtInExtra != null) {
 			dt = DisplayType.valueOf(dtInExtra);
 		} else {
@@ -125,7 +128,7 @@ public class EasyMeta implements BaseMeta {
 		if (dt != null) {
 			return dt;
 		}
-		throw new RebuildException("Unsupported field type : " + this.baseMeta);
+		throw new RebuildException("Unsupported field type : " + baseMeta);
 	}
 	
 	/**
@@ -140,11 +143,12 @@ public class EasyMeta implements BaseMeta {
 		}
 		
 		if (isField()) {
-			Field field = (Field) this.baseMeta;
+			Field field = (Field) baseMeta;
 			if (MetadataHelper.isCommonsField(field)) {
 				return true;
 			} else if (getDisplayType() == DisplayType.REFERENCE) {
 				// 明细-引用主记录的字段也是内建
+				// @see MetadataHelper#getSlaveToMasterField
 				Entity hasMaster = field.getOwnEntity().getMasterEntity();
 				return hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable();
 			}
@@ -172,7 +176,7 @@ public class EasyMeta implements BaseMeta {
 		if (ext != null) {
 			return (String) ext[1];
 		}
-		return StringUtils.defaultIfBlank(getExtraAttrsJson().getString("comments"), "系统内建");
+		return StringUtils.defaultIfBlank(getExtraAttrs().getString("comments"), "系统内建");
 	}
 	
 	/**
@@ -190,7 +194,7 @@ public class EasyMeta implements BaseMeta {
 		if (StringUtils.isNotBlank(customIcon)) {
 			return customIcon;
 		}
-		return StringUtils.defaultIfBlank(getExtraAttrsJson().getString("icon"), "texture");
+		return StringUtils.defaultIfBlank(getExtraAttrs().getString("icon"), "texture");
 	}
 	
 	/**
@@ -203,7 +207,7 @@ public class EasyMeta implements BaseMeta {
         Assert.isTrue(isField(), "Field supports only");
 		Object[] ext = getMetaExt();
 		if (ext == null || StringUtils.isBlank((String) ext[3])) {
-			JSONObject extConfig = getExtraAttrsJson().getJSONObject("extConfig");
+			JSONObject extConfig = getExtraAttrs().getJSONObject("extConfig");
 			return extConfig == null ? JSONUtils.EMPTY_OBJECT : extConfig;
 		}
 		return JSON.parseObject((String) ext[3]);
@@ -241,6 +245,14 @@ public class EasyMeta implements BaseMeta {
     }
 
     /**
+     * 指定实体具有和业务实体一样的特性（除权限以外（指定实体无权限字段））。
+     * @return
+     */
+    public boolean isPlainEntity() {
+        return !isField() && getExtraAttrs().getBooleanValue("plainEntity");
+    }
+
+    /**
      * @return
      */
 	private boolean isField() {
@@ -258,14 +270,6 @@ public class EasyMeta implements BaseMeta {
 			ext = MetadataHelper.getMetadataFactory().getEntityExtmeta((Entity) baseMeta);
 		}
 		return ext;
-	}
-
-    /**
-     * @return
-     */
-	private JSONObject getExtraAttrsJson() {
-		return StringUtils.isBlank(getExtraAttrs())
-				? JSONUtils.EMPTY_OBJECT : JSON.parseObject(getExtraAttrs());
 	}
 
     /**
@@ -308,7 +312,7 @@ public class EasyMeta implements BaseMeta {
 
 	@Override
 	public String toString() {
-		return "EASY#" + this.baseMeta.toString();
+		return "EASY#" + baseMeta.toString();
 	}
 
 	// --
@@ -350,7 +354,7 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public static String getLabel(BaseMeta meta) {
-		return meta.getDescription();
+		return StringUtils.defaultIfBlank(meta.getDescription(), meta.getName().toUpperCase());
 	}
 	
 	/**

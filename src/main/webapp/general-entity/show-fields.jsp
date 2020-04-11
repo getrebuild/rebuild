@@ -36,7 +36,7 @@
 <script type="text/babel">
 $(document).ready(function () {
 	const entity = $urlp('entity')
-	const baseUrl = rb.baseUrl + '/app/' + entity + '/list-fields'
+	const baseUrl = '/app/' + entity + '/list-fields'
 
 	let shareTo
 	let cfgid = $urlp('id')

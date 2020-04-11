@@ -39,7 +39,7 @@
 							</div>
 						</div>
 						<div id="react-list" class="rb-loading rb-loading-active data-list">
-							<%@ include file="/_include/spinner.jsp"%>
+							<%@ include file="/_include/Spinner.jsp"%>
 						</div>
 					</div>
 				</div>
@@ -74,7 +74,7 @@ RbList.renderAfter = function() {
     $('.rb-datatable-body tbody>tr').each(function() {
         let ipAddr = $(this).find('td:eq(' + ipAddrIndex + ') div')
         let ip = (ipAddr.text() || '').split('(')[0].trim()
-		$.get(rb.baseUrl + '/commons/ip-location?ip=' + ip, (res) => {
+		$.get('/commons/ip-location?ip=' + ip, (res) => {
 			if (res.error_code === 0 && res.data.country !== 'N') {
 				let L = res.data.country === 'R' ? '局域网' : [res.data.region, res.data.country].join(', ')
 				ipAddr.text(ip + ' (' + L + ')')

@@ -1,6 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 /* eslint-disable no-unused-vars */
-/* eslint-disable react/jsx-no-target-blank */
-/* eslint-disable react/prop-types */
 
 // 审批流程
 class ApprovalProcessor extends React.Component {
@@ -17,6 +21,7 @@ class ApprovalProcessor extends React.Component {
       {this.state.state === 10 && this.renderStateApproved()}
       {this.state.state === 11 && this.renderStateRejected()}
       {this.state.state === 12 && this.renderStateCanceled()}
+      {this.state.state === 13 && this.renderStateRevoked()}
     </div>
   }
 
@@ -39,7 +44,7 @@ class ApprovalProcessor extends React.Component {
 
     return <div className="alert alert-warning shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
-      {this.state.canCancel && <button className="close btn btn-secondary" onClick={this.cancel}>撤销</button>}
+      {this.state.canCancel && <button className="close btn btn-secondary" onClick={this.cancel}>撤回</button>}
       {(this.state.imApprover && this.state.imApproveSatate === 1) && <button className="close btn btn-secondary" onClick={this.approve}>审批</button>}
       <div className="icon"><span className="zmdi zmdi-hourglass-alt"></span></div>
       <div className="message">{aMsg}</div>
@@ -51,6 +56,7 @@ class ApprovalProcessor extends React.Component {
 
     return <div className="alert alert-success shadow-sm">
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
+      {rb.isAdminUser && <button className="close btn btn-secondary" onClick={this.revoke}>撤销</button>}
       <div className="icon"><span className="zmdi zmdi-check"></span></div>
       <div className="message">当前记录已审批完成</div>
     </div>
@@ -70,12 +76,21 @@ class ApprovalProcessor extends React.Component {
       <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
       <button className="close btn btn-secondary" onClick={this.submit}>再次提交</button>
       <div className="icon"><span className="zmdi zmdi-rotate-left"></span></div>
+      <div className="message">审批已撤回，请在信息完善后再次提交</div>
+    </div>
+  }
+
+  renderStateRevoked() {
+    return <div className="alert alert-warning shadow-sm">
+      <button className="close btn btn-secondary" onClick={this.viewSteps}>详情</button>
+      <button className="close btn btn-secondary" onClick={this.submit}>再次提交</button>
+      <div className="icon"><span className="zmdi zmdi-rotate-left"></span></div>
       <div className="message">审批已撤销，请在信息完善后再次提交</div>
     </div>
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/approval/state?record=${this.props.id}`, (res) => this.setState(res.data))
+    $.get(`/app/entity/approval/state?record=${this.props.id}`, (res) => this.setState(res.data))
   }
 
   submit = () => {
@@ -92,10 +107,25 @@ class ApprovalProcessor extends React.Component {
 
   cancel = () => {
     const that = this
-    RbAlert.create('确认撤销当前审批？', {
+    RbAlert.create('确认撤回当前审批？', {
       confirm: function () {
         this.disabled(true)
-        $.post(`${rb.baseUrl}/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
+        $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
+          if (res.error_code > 0) RbHighbar.error(res.error_msg)
+          else _reload(this, '审批已撤回')
+          this.disabled()
+        })
+      }
+    })
+  }
+
+  revoke = () => {
+    const that = this
+    RbAlert.create('将要撤销已通过审批，每条记录仅有 3 次撤销机会。确认吗？', {
+      type: 'warning',
+      confirm: function () {
+        this.disabled(true)
+        $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
           else _reload(this, '审批已撤销')
           this.disabled()
@@ -164,7 +194,7 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 
   getNextStep(approval) {
-    $.get(`${rb.baseUrl}/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
+    $.get(`/app/entity/approval/fetch-nextstep?record=${this.props.id}&approval=${approval || this.props.approval}`, (res) => {
       this.setState(res.data)
     })
   }
@@ -206,7 +236,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
   }
 
   componentDidMount() {
-    $.get(`${rb.baseUrl}/app/entity/approval/workable?record=${this.props.id}`, (res) => {
+    $.get(`/app/entity/approval/workable?record=${this.props.id}`, (res) => {
       if (res.data && res.data.length > 0) {
         this.setState({ approvals: res.data, useApproval: res.data[0].id }, () => {
           this.getNextStep(res.data[0].id)
@@ -230,7 +260,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     if (!selectUsers) return
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
+    $.post(`/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else _reload(this, '审批已提交')
       this.disabled()
@@ -303,7 +333,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     const data = { remark: this.state.remark || '', selectUsers: selectUsers, aformData: aformData }
 
     this.disabled(true)
-    $.post(`${rb.baseUrl}/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
+    $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
       else {
         _reload(this, '审批已' + (state === 10 ? '同意' : '驳回'))
@@ -325,7 +355,7 @@ class EditableForm extends RbForm {
   }
 }
 
-const STATE_NAMES = { 10: '审批同意', 11: '驳回审批', 12: '撤销审批' }
+const STATE_NAMES = { 10: '审批同意', 11: '驳回审批', 12: '撤回审批', 13: '撤销审批 (管理员)' }
 
 // 已审批步骤查看
 class ApprovalStepViewer extends React.Component {
@@ -349,7 +379,7 @@ class ApprovalStepViewer extends React.Component {
               {(this.state.steps || []).map((item, idx) => {
                 return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx, stateLast)
               })}
-              {stateLast >= 10 && <li className="timeline-item last"><span>结束</span></li>}
+              {stateLast >= 10 && <li className="timeline-item last"><span>{stateLast === 13 ? '重审' : '结束'}</span></li>}
             </ul>
           </div>
         </div>
@@ -414,7 +444,7 @@ class ApprovalStepViewer extends React.Component {
 
   componentDidMount() {
     this.show()
-    $.get(`${rb.baseUrl}/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
+    $.get(`/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
       if (!res.data || res.data.length === 0) {
         RbHighbar.create('未查询到流程详情')
         this.hide()

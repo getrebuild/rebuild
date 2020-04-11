@@ -29,6 +29,7 @@ import com.rebuild.server.helper.datalist.DataListControl;
 import com.rebuild.server.helper.datalist.DefaultDataListControl;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseEntityControll;
 import org.springframework.http.HttpStatus;
@@ -114,13 +115,13 @@ public class GeneralDataListControll extends BaseEntityControll {
 	    String url = null;
 	    if (MetadataHelper.containsEntity(id.getEntityCode())) {
 	    	Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-	    	if (MetadataHelper.hasPrivilegesField(entity)) {
-				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), id);
-			} else if (entity.getEntityCode() == EntityHelper.Feeds) {
+	    	if (entity.getEntityCode() == EntityHelper.Feeds) {
 				url = "../feeds/home#s=" + id;
 			} else if (entity.getEntityCode() == EntityHelper.User) {
                 url = MessageFormat.format("../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), id);
-            }
+            } else if (MetadataHelper.hasPrivilegesField(entity) || EasyMeta.valueOf(id.getEntityCode()).isPlainEntity()) {
+				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), id);
+			}
 		}
 
 	    if (url != null) {

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web;
@@ -26,7 +15,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -169,11 +157,15 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 		}
 		
 		ID user = AppUtils.getRequestUser(request);
+		if (user == null) {
+			user = AppUtils.getRequestUserViaRbMobile(request, true);
+		}
+
 		if (user != null) {
 			Application.getSessionStore().set(user);
 			
 			// 管理后台访问
-			if (requestUrl.contains("/admin/") && !AdminEntryControll.isAdminVerified(request)) {
+			if (requestUrl.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "请验证管理员访问权限"));
 				} else {
@@ -184,7 +176,10 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 			
 		} else {
 			if (!inIgnoreRes(requestUrl)) {
-				LOG.warn("Unauthorized access [ " + requestUrl + " ] from [ " + StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>") + " ]");
+				LOG.warn("Unauthorized access [ " + requestUrl + " ] from "
+						+ StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>")
+						+ " , " + ServletUtils.getRemoteAddr(request));
+
 				if (ServletUtils.isAjaxRequest(request)) {
 					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));
 				} else {

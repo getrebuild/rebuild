@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 .container-smart .rb-loading {
   height: 100%;
   background-color: #fff;
@@ -99,7 +106,7 @@
 
 .feeds-post>.list-unstyled a {
   display: inline-block;
-  padding: 2px 6px;
+  padding: 2px 8px;
 }
 
 .feeds-post>.list-unstyled a:hover {
@@ -157,6 +164,11 @@
 
 .feeds-list>div:last-child {
   margin-bottom: 0;
+}
+
+.feeds-list>div.focus {
+  outline: 2px solid #fbbc05;
+  box-shadow: 0 .5rem 1rem rgba(0, 0, 0, .15);
 }
 
 .feeds-list .feeds {
@@ -537,36 +549,65 @@
   margin-left: -7px;
 }
 
-.announcement-options {
+.feed-options {
   margin-top: 10px;
   border-radius: 2px;
   padding-top: 18px;
+  padding-right: 10px;
   border: 1px solid #eee;
 }
 
-.announcement-options dt {
+.feed-options dt {
   color: #777;
   font-weight: normal;
   text-align: right;
   padding-top: 6px;
 }
 
-.announcement-options .input-group {
-  max-width: 430px;
+.feed-options .form-control {
+  max-width: 200px;
 }
 
-.announcement-options .input-group-prepend {
+.feed-options .input-group-prepend {
   height: 37px;
 }
 
-.rich-content>.mores {
+.feed-options+.feed-options {
+  margin-top: -20px;
+  border-top: 0 none;
+  background-color: #fff;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.feed-options.related .related-record {
+  width: 295px;
+}
+
+@media (max-width:1280px) {
+    .feed-options.related .related-record {
+        width: 245px;
+    }
+}
+
+/* in edit */
+.modal-body .feed-options.related .related-record {
+  width: 250px;
+}
+
+.rich-content>.appends {
   font-size: 13px;
   margin-bottom: 6px;
   line-height: 1.6;
 }
 
-.rich-content>.mores span {
+.rich-content>.appends span {
   color: #666;
+}
+
+.rich-content>.appends .badge {
+  font-weight: normal;
+  padding: .07692rem .3154rem;
 }
 
 .search-member {

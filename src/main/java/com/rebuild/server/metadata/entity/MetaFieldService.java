@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.metadata.entity;
@@ -22,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
@@ -48,11 +38,15 @@ public class MetaFieldService extends BaseService implements AdminGuard {
 				"select belongEntity,fieldName from MetaField where fieldId = ?")
 				.setParameter(1, recordId)
 				.unique();
-		final Field field = MetadataHelper.getField((String) fieldRecord[0], (String) fieldRecord[1]);
-		
+		Field field = null;
+		try {
+			field = MetadataHelper.getField((String) fieldRecord[0], (String) fieldRecord[1]);
+		} catch (MetadataException ignored) {
+		}
+
 		// 删除此字段的相关配置记录
 		// Field: belongEntity, belongField
-		String[] whoUsed = new String[] {
+		String[] whoUsed = field == null ? new String[0] : new String[] {
 				"PickList", "AutoFillinConfig"
 		};
 		int del = 0;
@@ -72,7 +66,7 @@ public class MetaFieldService extends BaseService implements AdminGuard {
 				LOG.warn("deleted configuration of field [ " + field.getOwnEntity().getName() + "." + field.getName() + " ] in [ " + who + " ] : " + usedArray.length);
 			}
 		}
-		
+
 		del += super.delete(recordId);
 		return del;
 	}

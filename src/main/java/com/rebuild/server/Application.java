@@ -1,23 +1,13 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server;
 
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
@@ -26,10 +16,11 @@ import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.query.QueryedRecord;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
+import com.rebuild.api.ApiGateway;
+import com.rebuild.api.BaseApi;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.server.helper.cache.EhcacheTemplate;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
@@ -53,6 +44,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.h2.Driver;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.ArrayList;
@@ -60,6 +52,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 后台类入口
@@ -71,8 +64,11 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.8.0";
-	
+	public static final String VER = "1.9.0";
+	/** Rebuild Build
+	 */
+	public static final int BUILD = 1090;
+
 	/** Logging for Global
 	 */
 	public static final Log LOG = LogFactory.getLog(Application.class);
@@ -125,40 +121,46 @@ public final class Application {
 			return;
 		}
 
-		// 刷新配置缓存
-		for (ConfigurableItem item : ConfigurableItem.values()) {
-			SysConfiguration.get(item, true);
-		}
+		try {
+			// 升级数据库
+			UpgradeDatabase.getInstance().upgradeQuietly();
 
-		// 升级数据库
-		UpgradeDatabase.getInstance().upgradeQuietly();
-
-		// 自定义实体
-		LOG.info("Loading customized/business entities ...");
-		((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
-
-		// 实体对应的服务类
-		SSS = new HashMap<>(16);
-		for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
-			ServiceSpec ss = e.getValue();
-			if (ss.getEntityCode() > 0) {
-				SSS.put(ss.getEntityCode(), ss);
-				LOG.info("Service specification : " + ss);
+			// 刷新配置缓存
+			for (ConfigurableItem item : ConfigurableItem.values()) {
+				SysConfiguration.get(item, true);
 			}
-		}
 
-		// 若使用 Ehcache 则添加持久化钩子
-		final CommonCache ccache = APPLICATION_CTX.getBean(CommonCache.class);
-		if (!ccache.isUseRedis()) {
-			addShutdownHook(new Thread("ehcache-persistent") {
-				@Override
-				public void run() {
-					((EhcacheTemplate<?>) ccache.getCacheTemplate()).shutdown();
+			// 自定义实体
+			LOG.info("Loading customized/business entities ...");
+			((DynamicMetadataFactory) APPLICATION_CTX.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
+
+			// 实体对应的服务类
+			SSS = new HashMap<>(16);
+			for (Map.Entry<String, ServiceSpec> e : APPLICATION_CTX.getBeansOfType(ServiceSpec.class).entrySet()) {
+				ServiceSpec ss = e.getValue();
+				if (ss.getEntityCode() > 0) {
+					SSS.put(ss.getEntityCode(), ss);
+					LOG.info("Service specification : " + ss);
 				}
-			});
-		}
+			}
 
-		LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
+			// 注册 API
+			Set<Class<?>> apiClasses = ReflectUtils.getAllSubclasses(ApiGateway.class.getPackage().getName(), BaseApi.class);
+			for (Class<?> c : apiClasses) {
+				// noinspection unchecked
+				ApiGateway.registerApi((Class<? extends BaseApi>) c);
+			}
+
+			if (APPLICATION_CTX instanceof AbstractApplicationContext) {
+                ((AbstractApplicationContext) APPLICATION_CTX).registerShutdownHook();
+            }
+
+			LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
+
+		} catch (Exception ex) {
+			serversReady = false;
+			throw ex;
+		}
 	}
 
     /**
@@ -223,7 +225,7 @@ public final class Application {
 	 * @param hook
 	 */
 	public static void addShutdownHook(Thread hook) {
-		LOG.warn("Add shutdown hook : " + hook.getName());
+		LOG.info("Add shutdown hook : " + hook.getName());
 		Runtime.getRuntime().addShutdownHook(hook);
 	}
 	

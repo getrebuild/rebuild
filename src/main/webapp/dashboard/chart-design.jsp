@@ -22,14 +22,14 @@
 				<div class="data-info">
 					<h5>数据来源</h5>
 					<ul class="list-unstyled esource">
-						<li><a><i class="zmdi zmdi-${entityIcon} icon"></i>${entityLabel}<span class="J_filter" title="设置过滤条件"><i class="zmdi zmdi-settings"></i></span></a></li>
+						<li><a><i class="zmdi zmdi-${entityIcon} icon"></i>${entityLabel}<span class="J_filter" title="设置过滤条件"><i class="zmdi zmdi-filter-list"></i></span></a></li>
 					</ul>
 				</div>
 				<div class="data-info">
 					<h5>字段</h5>
 					<ul class="list-unstyled fields">
-						<c:forEach items="${fields}" var="e">
-						<li class="${e[2]}"><a data-type="${e[2]}" data-field="${e[0]}">${e[1]}</a></li>
+						<c:forEach items="${fields}" var="field">
+						<li class="${field[2]}"><a data-field="${field[0]}" title="${field[1]}" data-type="${field[2]}">${field[1]}</a></li>
 						</c:forEach>
 					</ul>
 				</div>
@@ -64,7 +64,13 @@
 						<div class="hide admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
 								<input class="custom-control-input" type="checkbox" data-name="noPrivileges">
-								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用权限范围内的数据"></i></span>
+								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用角色权限范围内的数据"></i></span>
+							</label>
+						</div>
+						<div class="hide">
+							<label class="custom-control custom-control-sm custom-checkbox mb-2">
+								<input class="custom-control-input" type="checkbox" data-name="noZero">
+								<span class="custom-control-label"> 排除空数据（数值为 0 不显示）</span>
 							</label>
 						</div>
 						<div class="hide J_opt-TABLE">
@@ -103,7 +109,7 @@
 		</div>
 	</div>
 </div>
-<script type="text/plain" id="axis-ietm">
+<script type="text/plain" id="axis-item">
 <span>
 <div class="item" data-toggle="dropdown">
 	<a><i class="zmdi zmdi-chevron-down"></i></a>
@@ -120,6 +126,10 @@
 	<li class="dropdown-item J_date" data-calc="M">按月</li>
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>
+	<li class="dropdown-item J_clazz" data-calc="L1">一级</li>
+	<li class="dropdown-item J_clazz" data-calc="L2">二级</li>
+	<li class="dropdown-item J_clazz" data-calc="L3">三级</li>
+	<li class="dropdown-item J_clazz" data-calc="L4">四级</li>
 	<li class="dropdown-divider"></li>
 	<li class="dropdown-submenu J_sort">
 		<a class="dropdown-item">排序</a>

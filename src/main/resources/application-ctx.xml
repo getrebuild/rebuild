@@ -71,7 +71,7 @@
 	
 	<bean name="ehcacheManager" class="org.springframework.cache.ehcache.EhCacheCacheManager">
 		<property name="cacheManager">
-			<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+			<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" destroy-method="destroy">
 				<property name="configLocation" value="classpath:ehcache.xml"/>
 			</bean>
 		</property>
@@ -84,6 +84,12 @@
 		<constructor-arg index="2" value="${CachePort}" />
 		<constructor-arg index="3" value="5000" />
 		<constructor-arg index="4" value="${CachePassword}" />
+		<constructor-arg index="5" value="0" />
+	</bean>
+
+	<bean class="com.rebuild.server.helper.cache.CommonCache">
+		<constructor-arg index="0" ref="jedisPool" />
+		<constructor-arg index="1" ref="ehcacheManager" />
 	</bean>
 	
 	<bean name="recordOwningCache" class="com.rebuild.server.helper.cache.RecordOwningCache">
@@ -91,14 +97,10 @@
 		<constructor-arg index="1" ref="ehcacheManager" />
 		<constructor-arg index="2" ref="persistManagerFactory" />
 	</bean>
-	
-	<bean name="commonCache" class="com.rebuild.server.helper.cache.CommonCache">
+
+	<bean class="com.rebuild.server.helper.cache.RecentlyUsedCache">
 		<constructor-arg index="0" ref="jedisPool" />
 		<constructor-arg index="1" ref="ehcacheManager" />
-	</bean>
-	
-	<bean class="com.rebuild.server.helper.cache.RecentlyUsedCache">
-		<constructor-arg index="0" ref="commonCache" />
 	</bean>
 
 	<bean class="com.rebuild.server.service.bizz.privileges.SecurityManager">
@@ -214,6 +216,11 @@
 				<bean class="com.rebuild.server.service.base.RevisionHistoryObserver" />
 				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
 				<bean class="com.rebuild.server.business.trigger.RobotTriggerObserver" />
+                <!--
+				<bean class="com.rebuild.server.service.base.RedisQueueObserver">
+                    <property name="useTopic" value="true" />
+                </bean>
+                -->
 			</list>
 		</constructor-arg>
 	</bean>

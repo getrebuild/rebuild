@@ -1,6 +1,8 @@
--- !!! NOTICE !!!
--- IF YOU USING MYSQL 5.7 OR ABOVE, YOU SHOULD REMOVED THESE SQL_MODES IN my.cnf/my.ini FIRST.
+-- !!! MYSQL VERSION NOTICE !!!
+-- IN 5.7 OR ABOVE, YOU SHOULD REMOVED THESE SQL_MODES IN my.cnf/my.ini FIRST.
 -- ONLY_FULL_GROUP_BY
+-- IN 8.0 OR ABOVE, ONLY SUPPORTS mysql_native_password AUTHENTICATION MODE
+-- default_authentication_plugin=mysql_native_password
 
 -- #1 database/user
 -- 首次使用请移除以下注释以创建数据库和用户
@@ -24,17 +26,19 @@ create table if not exists `user` (
   `FULL_NAME`          varchar(100) comment '姓名',
   `AVATAR_URL`         varchar(200) comment '头像',
   `JOB_TITLE`          varchar(100) comment '职务',
+  `WORKPHONE`          varchar(100) comment '电话',
   `DEPT_ID`            char(20) comment '部门',
   `ROLE_ID`            char(20) comment '角色',
   `IS_DISABLED`        char(1) default 'F' comment '是否停用',
   `QUICK_CODE`         varchar(70),
-  `CREATED_BY`         char(20) not null comment '创建人',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
-  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `CREATED_BY`         char(20) not null comment '创建人',
   primary key  (`USER_ID`),
   unique index UIX0_user (`LOGIN_NAME`),
-  unique index UIX1_user (`EMAIL`)
+  unique index UIX1_user (`EMAIL`),
+  index IX2_user (`QUICK_CODE`, `FULL_NAME`, `EMAIL`)
 )Engine=InnoDB;
 
 -- ************ Entity [Department] DDL ************
@@ -254,13 +258,14 @@ create table if not exists `classification_data` (
   `CODE`               varchar(50),
   `LEVEL`              smallint(6) default '0',
   `IS_HIDE`            char(1) default 'F',
-  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `QUICK_CODE`         varchar(70),
   `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   primary key  (`ITEM_ID`),
   index IX0_classification_data (`DATA_ID`, `PARENT`),
-  index IX1_classification_data (`DATA_ID`, `FULL_NAME`)
+  index IX1_classification_data (`DATA_ID`, `FULL_NAME`, `QUICK_CODE`)
 )Engine=InnoDB;
 
 -- ************ Entity [ShareAccess] DDL ************
@@ -503,15 +508,17 @@ create table if not exists `feeds` (
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
+  `SCHEDULE_TIME`      timestamp null default null comment '日程时间',
   `SCOPE`              varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
-  `CREATED_BY`         char(20) not null comment '创建人',
   `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`FEEDS_ID`),
   index IX0_feeds (`CREATED_ON`, `SCOPE`, `TYPE`, `CREATED_BY`),
   index IX1_feeds (`RELATED_RECORD`),
-  fulltext index FIX2_feeds (`CONTENT`)
+  index IX2_feeds (`TYPE`, `SCHEDULE_TIME`, `CREATED_BY`),
+  fulltext index FIX3_feeds (`CONTENT`)
 )Engine=InnoDB;
 
 -- ************ Entity [FeedsComment] DDL ************
@@ -590,4 +597,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  VALUES ('021-9000000000000001', 'DBVer', 20);
+  VALUES ('021-9000000000000001', 'DBVer', 23);

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server;
@@ -29,6 +18,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.web.context.ContextCleanupListener;
 
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import java.util.Date;
 
@@ -56,7 +46,7 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
             throw new IllegalStateException();
         }
 
-		long at = System.currentTimeMillis();
+		final long at = System.currentTimeMillis();
 		LOG.info("Rebuild Booting (" + Application.VER + ") ...");
 
         CONTEXT_PATH = event.getServletContext().getContextPath();
@@ -75,14 +65,12 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
             new Application(ctx).init(at);
 			STARTUP_TIME = CalendarUtils.now();
 
-			event.getServletContext().setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
-			event.getServletContext().setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), ""));
+			updateGlobalContextAttributes(event.getServletContext());
 
             eventHold = null;
 
 		} catch (Throwable ex) {
-            LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"));
-			ex.printStackTrace();
+            LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"), ex);
 		}
 	}
 
@@ -95,8 +83,21 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
 	
 	// --
 
+    /**
+     * 更新全局上下文属性
+     *
+     * @param context
+     */
+    public static void updateGlobalContextAttributes(ServletContext context) {
+        context.setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
+        context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), ""));
+        context.setAttribute("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));
+        context.setAttribute("markWatermark", SysConfiguration.getBool(ConfigurableItem.MarkWatermark));
+    }
+
 	/**
-	 * WEB 相对路径
+	 * 获取 WEB 相对路径
+     *
 	 * @return
 	 */
 	public static String getContextPath() {
@@ -104,7 +105,8 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
 	}
 	
 	/**
-	 * 启动时间
+	 * 获取启动时间
+     *
 	 * @return
 	 */
 	public static Date getStartupTime() {

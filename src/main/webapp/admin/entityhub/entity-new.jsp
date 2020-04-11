@@ -4,9 +4,6 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>添加实体</title>
-<style type="text/css">
-#metaschemas,#metaschemas .rb-loading{min-height:256px}
-</style>
 </head>
 <body class="dialog">
 <div class="main-content pt-1">
@@ -64,6 +61,9 @@
 			</div>
 			<div class="tab-pane" id="IMPORTS">
 				<div id="metaschemas"></div>
+                <div class="mt-2 text-right">
+                    <a href="https://github.com/getrebuild/rebuild-datas/" class="link" target="_blank">提交数据到 RB 仓库</a>
+                </div>
 			</div>
 		</div>
 	</div>
