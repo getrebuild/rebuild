@@ -8,7 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server;
 
 import cn.devezhao.commons.CalendarUtils;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.InstallState;
 import org.apache.commons.lang.StringUtils;
@@ -90,9 +92,12 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
      */
     public static void updateGlobalContextAttributes(ServletContext context) {
         context.setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
-        context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), ""));
+        context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), StringUtils.EMPTY));
         context.setAttribute("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));
         context.setAttribute("markWatermark", SysConfiguration.getBool(ConfigurableItem.MarkWatermark));
+        final JSONObject authority = (JSONObject) License.queryAuthority();
+        context.setAttribute("LicenseType",
+				authority.getString("authType") + "/" + authority.getString("authObject"));
     }
 
 	/**

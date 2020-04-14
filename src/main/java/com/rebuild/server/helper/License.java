@@ -35,17 +35,16 @@ public final class License {
      */
     public static String SN() {
         String SN = SysConfiguration.get(ConfigurableItem.SN, false);
-        if (SN == null) {
-            SN = SysConfiguration.get(ConfigurableItem.SN, true);
+        if (SN != null) {
+            return SN;
         }
 
+        SN = SysConfiguration.get(ConfigurableItem.SN, true);
         if (SN == null) {
             try {
-                String result = CommonsUtils.get(
-                        String.format("https://getrebuild.com/api/authority/new?k=%s&ver=%s", OSA_KEY, Application.VER));
-                if (JSONUtils.wellFormat(result)) {
-                    JSONObject data = JSON.parseObject(result);
-                    SN = data.getString("sn");
+                JSONObject result = siteApi("api/authority/new?ver=" + Application.VER, false);
+                if (result != null) {
+                    SN = result.getString("sn");
                     SysConfiguration.set(ConfigurableItem.SN, SN);
                 }
             } catch (Exception ignored) {
@@ -72,22 +71,13 @@ public final class License {
      * @return
      */
     public static JSON queryAuthority() {
-        JSON result = siteApi("api/authority/query");
+        JSON result = siteApi("api/authority/query", false);
         if (result == null) {
             result = JSONUtils.toJSONObject(
-                    new String[]{ "sn", "authType", "autoObject", "authExpires" },
+                    new String[]{ "sn", "authType", "authObject", "authExpires" },
                     new String[]{ SN(), "开源社区版", "GitHub", "无" });
         }
         return result;
-    }
-
-    /**
-     * @param api
-     * @return
-     * @see #siteApi(String, boolean)
-     */
-    public static JSONObject siteApi(String api) {
-        return siteApi(api, false);
     }
 
     /**
@@ -115,6 +105,7 @@ public final class License {
                 return o;
             }
         } catch (Exception ignored) {
+            // UNCATCHABLE
         }
         return null;
     }

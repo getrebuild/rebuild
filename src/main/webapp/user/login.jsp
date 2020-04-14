@@ -116,7 +116,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="copyright">${bundle.lang('RightsTip')}</div>
+			<div class="copyright hide J_LicenseType" data-LicenseType="${LicenseType}">${bundle.lang('RightsTip')}</div>
 		</div>
 	</div>
 </div>
@@ -125,6 +125,9 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
+
+	const LT = $('.J_LicenseType').attr('data-LicenseType')
+	if (!LT || LT.includes('GitHub') || LT.includes('Gitee') || LT.includes('开源')) $('.J_LicenseType').removeClass('hide')
 
 	$('.copyright a').attr('target', '_blank').addClass('link')
 	$('.vcode-row img').click(function(){
