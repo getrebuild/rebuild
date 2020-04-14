@@ -51,14 +51,14 @@ public class AES {
 	 */
 	public static String encrypt(String input, String key) throws RebuildException {
 		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
-		byte[] crypted = null;
+		byte[] crypted;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, skey);
 			crypted = cipher.doFinal(input.getBytes());
 		} catch (Exception ex) {
-			throw new RebuildException("加密失败", ex);
+			throw new RebuildException("Encrypt error : " + input, ex);
 		}
 		return new String(Base64.encodeBase64(crypted));
 	}
@@ -67,9 +67,25 @@ public class AES {
 	 * @param input
 	 * @return
 	 * @throws RebuildException
+	 * @see #decryptQuietly(String)
 	 */
 	public static String decrypt(String input) throws RebuildException {
 		return decrypt(input, getPassKey());
+	}
+
+	/**
+	 * 解密失败则返回空（无异常抛出）
+	 *
+	 * @param input
+	 * @return
+	 */
+	public static String decryptQuietly(String input) {
+		try {
+			return decrypt(input);
+		} catch (RebuildException ex) {
+			Application.LOG.warn("Decrypt error : " + input);
+			return StringUtils.EMPTY;
+		}
 	}
 	
 	/**
@@ -80,31 +96,18 @@ public class AES {
 	 */
 	public static String decrypt(String input, String key) throws RebuildException {
 		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
-		byte[] output = null;
+		byte[] output;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, skey);
 			output = cipher.doFinal(Base64.decodeBase64(input));
 		} catch (Exception ex) {
-			throw new RebuildException("Decrypting Error", ex);
+			throw new RebuildException("Decrypt error : " + input, ex);
 		}
 		return new String(output);
 	}
-	
-	/**
-	 * @param input
-	 * @return
-	 */
-	public static String decryptNothrow(String input) {
-		try {
-			return decrypt(input);
-		} catch (RebuildException ex) {
-			Application.LOG.warn("Decrypting Error! Use input: " + input);
-			return input;
-		}
-	}
-	
+
 	/**
 	 * 通过 `-Drbpass=KEY` 指定 AES 秘钥
 	 * 
@@ -112,10 +115,9 @@ public class AES {
 	 */
 	public static String getPassKey() {
 		String key = StringUtils.defaultIfEmpty(System.getenv("rbpass"), System.getProperty("rbpass"));
-		key = StringUtils.defaultIfEmpty(key, "REBUILD2018");
-		return key;
+		return StringUtils.defaultIfEmpty(key, "REBUILD2018");
 	}
-	
+
 	// for Encrypt
 	public static void main(String[] args) {
 		System.out.println(encrypt("428115fbdc40413c43a1e977a83c8a5a"));
