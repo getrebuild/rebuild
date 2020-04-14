@@ -75,6 +75,10 @@
 					<input class="custom-control-input" type="checkbox" id="saveAndNew">
 					<span class="custom-control-label"> 继续添加下一个</span>
 				</label>
+				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
+					<input class="custom-control-input" type="checkbox" id="add2Layout" checked>
+					<span class="custom-control-label"> 追加到布局</span>
+				</label>
 			</div>
 		</div>
 		<div class="form-group row footer">

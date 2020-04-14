@@ -82,6 +82,7 @@ class RbModal extends React.Component {
     if (ext.disposeOnHide === false && !!that.__HOLDERs[url]) {
       that.__HOLDER = that.__HOLDERs[url]
       that.__HOLDER.show()
+      that.__HOLDER.resize()
     } else {
       renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />, null, function () {
         that.__HOLDER = this
