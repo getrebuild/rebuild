@@ -95,9 +95,11 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
         context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), StringUtils.EMPTY));
         context.setAttribute("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));
         context.setAttribute("markWatermark", SysConfiguration.getBool(ConfigurableItem.MarkWatermark));
+
         final JSONObject authority = (JSONObject) License.queryAuthority();
+        LOG.warn("REBUILD AUTHORITY : " + StringUtils.join(authority.values(), " | "));
         context.setAttribute("LicenseType",
-				authority.getString("authType") + "/" + authority.getString("authObject"));
+				authority.getString("authType") + " (" + authority.getString("authObject") + ")");
     }
 
 	/**

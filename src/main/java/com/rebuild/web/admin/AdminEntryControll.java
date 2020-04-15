@@ -14,7 +14,6 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
@@ -112,19 +111,18 @@ public class AdminEntryControll extends BasePageControll {
 	// -- CLI
 
 	@RequestMapping("/admin/cli/console")
-	public ModelAndView adminCLIConsole() throws IOException {
+	public ModelAndView adminCliConsole() throws IOException {
 		return createModelAndView("/admin/admin-cli.jsp");
 	}
 
     @RequestMapping("/admin/cli/exec")
-	public void adminCLIExec(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void adminCliExec(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String command = ServletUtils.getRequestString(request);
 		if (StringUtils.isBlank(command)) {
 			return;
 		}
 
 		String result = new AdminCli(command).exec();
-		ServerListener.updateGlobalContextAttributes(request.getServletContext());
 		ServletUtils.write(response, result);
 	}
 }
