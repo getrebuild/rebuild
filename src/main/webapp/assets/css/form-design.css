@@ -25,19 +25,6 @@
 	padding: 0 20px;
 }
 
-.field-head .float-right {
-	margin-top: 17px;
-}
-
-.field-head .float-right>span {
-	padding-left: 4px;
-	font-size: 12px;
-}
-
-.field-head .float-right>span+span {
-	margin-left: 10px;
-}
-
 .dd-list {
 	min-height: 200px
 }
@@ -150,7 +137,7 @@
 
 .field-list {
 	padding: 0 20px;
-	padding-bottom: 15px;
+	padding-bottom: 35px;
 }
 
 .field-list .dd-item .dd-handle {
@@ -205,4 +192,18 @@ form.field-attr label>span {
 
 .dd-list .dd-item .dd-handle:hover span>i {
 	color: #fff;
+}
+
+.field-legend {
+	position: fixed;
+	background-color: #fafafa;
+	padding: 10px;
+	bottom: 0;
+	width: 265px;
+}
+
+.field-legend>span {
+	padding-left: 4px;
+	font-size: 12px;
+	margin-left: 10px;
 }

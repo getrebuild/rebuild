@@ -16,7 +16,6 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
@@ -198,11 +197,6 @@ public class SysConfigurationControll extends BasePageControll {
             writeFailure(response, "测试发送失败，请检查你的配置");
         }
     }
-
-	@RequestMapping("systems/query-authority")
-	public void queryAuthority(HttpServletResponse response) throws IOException {
-		writeSuccess(response, License.queryAuthority());
-	}
 
 	private String[] starsAccount(String[] account, int ...index) {
 		if (account == null) {

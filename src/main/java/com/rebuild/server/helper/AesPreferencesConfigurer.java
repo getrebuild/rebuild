@@ -60,7 +60,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 			// AES decrypt if have `.aes` suffix
 			if (cleanKey.endsWith(".aes")) {
 				String val = props.getProperty(cleanKey);
-				val = AES.decryptNothrow(val);
+				val = AES.decryptQuietly(val);
 
 				props.remove(cleanKey);
 				cleanKey = cleanKey.replace(".aes", "");

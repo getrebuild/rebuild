@@ -64,7 +64,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.9.0";
+	public static final String VER = "1.10.0-dev";
 	/** Rebuild Build
 	 */
 	public static final int BUILD = 1090;
