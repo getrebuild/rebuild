@@ -92,6 +92,7 @@ public class AppUtils {
 			if (user != null && refreshToken) {
 				AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
 			}
+			return user;
 		}
 		return null;
 	}
