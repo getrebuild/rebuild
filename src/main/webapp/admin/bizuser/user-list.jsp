@@ -77,7 +77,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: $pgt.RecordList,
+	type: 'RecordList',
 	entity: ['User','${entityLabel}','${entityIcon}'],
 	privileges: ${entityPrivileges},
 	listConfig: ${DataListConfig},
