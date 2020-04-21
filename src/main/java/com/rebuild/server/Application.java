@@ -113,6 +113,7 @@ public final class Application {
 	 * @param startAt
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	synchronized
 	protected void init(long startAt) throws Exception {
 		serversReady = ServerStatus.checkAll();
@@ -147,7 +148,6 @@ public final class Application {
 			// 注册 API
 			Set<Class<?>> apiClasses = ReflectUtils.getAllSubclasses(ApiGateway.class.getPackage().getName(), BaseApi.class);
 			for (Class<?> c : apiClasses) {
-				// noinspection unchecked
 				ApiGateway.registerApi((Class<? extends BaseApi>) c);
 			}
 

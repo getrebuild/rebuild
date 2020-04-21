@@ -39,7 +39,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: $pgt.RecordView,
+	type: 'RecordView',
 	entity: ['Role','${entityLabel}','${entityIcon}'],
 	recordId: '${id}'
 }

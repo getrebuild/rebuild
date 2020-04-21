@@ -87,7 +87,6 @@
         "$countdownButton": true,
         "ChartSelect": true,
         "Share2": true,
-        "$pgt": true,
         "$stopEvent": true,
         "$addResizeHandler": true,
         "$lang": true,
