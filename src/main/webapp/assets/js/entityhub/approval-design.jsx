@@ -191,7 +191,8 @@ class SimpleNode extends NodeSpec {
     let users = NT[2]
     if (data.users && data.users.length > 0) users = UTs[data.users[0]] || ('指定用户(' + data.users.length + ')')
     if (data.selfSelecting && !users.contains('自选')) users += '/允许自选'
-    if (this.nodeType === 'approver') users += ' ' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
+    if (data.ccAutoShare) users += '/自动共享'
+    if (this.nodeType === 'approver') users += '/' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
 
     return <div className="node-wrap">
       <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={rb.env === 'dev' ? this.props.nodeId : null}>
@@ -569,7 +570,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                 })}
               </tbody>
             </table>
-            <div className="pb-2">
+            <div className="pb-4">
               <button className="btn btn-secondary btn-sm" onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
                 <i className="icon zmdi zmdi-plus up-1" /> 选择字段
               </button>
@@ -649,9 +650,13 @@ class CCNodeConfig extends StartNodeConfig {
           <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
         </div>
         <div className="form-group mb-0">
-          <label className="custom-control custom-control-sm custom-checkbox">
-            <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting} onChange={this.handleChange} />
+          <label className="custom-control custom-control-sm custom-checkbox mb-2">
+            <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting} onChange={(e) => this.handleChange(e)} />
             <span className="custom-control-label">同时允许自选</span>
+          </label>
+          <label className="custom-control custom-control-sm custom-checkbox">
+            <input className="custom-control-input" type="checkbox" name="ccAutoShare" checked={this.state.ccAutoShare} onChange={(e) => this.handleChange(e)} />
+            <span className="custom-control-label">抄送人无读取权限时自动共享</span>
           </label>
         </div>
       </div>
@@ -663,7 +668,8 @@ class CCNodeConfig extends StartNodeConfig {
     const d = {
       nodeName: this.state.nodeName,
       users: this._users.getSelected(),
-      selfSelecting: this.state.selfSelecting
+      selfSelecting: this.state.selfSelecting,
+      ccAutoShare: this.state.ccAutoShare
     }
     if (d.users.length === 0 && !d.selfSelecting) {
       RbHighbar.create('请选择抄送人或允许自选')
