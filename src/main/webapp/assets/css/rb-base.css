@@ -12229,6 +12229,7 @@ canvas {
         left: 0;
         top: 60px;
         width: 100%;
+        max-width: 100%;
         -webkit-box-shadow: none;
         box-shadow: none;
         border-width: 0
