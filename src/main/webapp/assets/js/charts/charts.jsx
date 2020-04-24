@@ -644,6 +644,28 @@ class FeedsSchedule extends BaseChart {
   }
 }
 
+// 雷达图
+class ChartRadar extends BaseChart {
+  constructor(props) {
+    super(props)
+  }
+
+  renderChart(data) {
+
+  }
+}
+
+// 散点图
+class ChartScatter extends BaseChart {
+  constructor(props) {
+    super(props)
+  }
+
+  renderChart(data) {
+
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id, editable) {
@@ -666,6 +688,10 @@ const detectChart = function (cfg, id, editable) {
     return <ApprovalList {...props} builtin={true} />
   } else if (cfg.type === 'FeedsSchedule') {
     return <FeedsSchedule {...props} builtin={true} />
+  } else if (cfg.type === 'RADAR') {
+    return <ChartRadar {...props} />
+  } else if (cfg.type === 'SCATTER') {
+    return <ChartScatter {...props} />
   } else {
     return <h5>{`未知图表 [${cfg.type}]`}</h5>
   }
