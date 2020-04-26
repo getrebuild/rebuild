@@ -33,7 +33,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-6 text-right">
+					<div class="col-sm-6 text-right d-none d-md-block">
 						<div class="btn-group" style="margin-top:7px;margin-right:3px">
 							<button type="button" class="btn btn-link pr-0 text-right J_chart-adds" data-toggle="dropdown" style="min-height:24px;line-height:24px;"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
 							<div class="dropdown-menu dropdown-menu-right">

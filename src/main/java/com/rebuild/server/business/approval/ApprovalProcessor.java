@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.approval;
@@ -32,6 +21,7 @@ import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.base.ApprovalStepService;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
@@ -102,18 +92,24 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 			return false;
 		}
 
-		Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
 		Set<ID> nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
 		if (nextApprovers.isEmpty()) {
 			LOG.warn("No any approvers special");
 			return false;
 		}
-		
+
+		Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
+		Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
+
 		Record mainRecord = EntityHelper.forUpdate(this.record, this.getUser(), false);
 		mainRecord.setID(EntityHelper.ApprovalId, this.approval);
 		mainRecord.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
 		mainRecord.setString(EntityHelper.ApprovalStepNode, nextNodes.getApprovalNode().getNodeId());
 		Application.getBean(ApprovalStepService.class).txSubmit(mainRecord, ccs, nextApprovers);
+
+		// 非主事物
+		shareIfNeed(this.record, ccs4share);
+
 		return true;
 	}
 
@@ -165,8 +161,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		
 		this.approval = (ID) stepApprover[3];
 		FlowNodeGroup nextNodes = getNextNodes((String) stepApprover[2]);
-		
-		Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
+
 		Set<ID> nextApprovers = null;
 		String nextNode = null;
 
@@ -180,9 +175,15 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 			nextNode = nextApprovalNode != null ? nextApprovalNode.getNodeId() : null;
 		}
 
+		Set<ID> ccs = nextNodes.getCcUsers(this.getUser(), this.record, selectNextUsers);
+		Set<ID> ccs4share = nextNodes.getCcUsers4Share(this.getUser(), this.record, selectNextUsers);
+
 		FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
 		Application.getBean(ApprovalStepService.class)
 				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData);
+
+		// 非主事物
+		shareIfNeed(this.record, ccs4share);
 	}
 
 	/**
@@ -441,5 +442,25 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 						step[1], step[2],
 						step[3] == null ? null: CalendarUtils.getUTCDateTimeFormat().format(step[3]),
 						CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode });
+	}
+
+	/**
+	 * CC 自动共享
+	 *
+	 * @param recordId
+	 * @param shareTo
+	 * @return
+	 */
+	private int shareIfNeed(ID recordId, Set<ID> shareTo) {
+		final EntityService es = Application.getEntityService(recordId.getEntityCode());
+
+		int shared = 0;
+		for (ID user : shareTo) {
+			if (!Application.getSecurityManager().allowRead(user, recordId)) {
+				es.share(recordId, user, null);
+				shared++;
+			}
+		}
+		return shared;
 	}
 }

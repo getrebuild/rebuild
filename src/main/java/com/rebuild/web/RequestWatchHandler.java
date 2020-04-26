@@ -174,20 +174,19 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 				return false;
 			}
 			
-		} else {
-			if (!inIgnoreRes(requestUrl)) {
-				LOG.warn("Unauthorized access [ " + requestUrl + " ] from "
-						+ StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>")
-						+ " , " + ServletUtils.getRemoteAddr(request));
+		} else if (!inIgnoreRes(requestUrl)) {
+			LOG.warn("Unauthorized access [ " + requestUrl + " ] from "
+					+ StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>")
+					+ " , " + ServletUtils.getRemoteAddr(request));
 
-				if (ServletUtils.isAjaxRequest(request)) {
-					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));
-				} else {
-					response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestUrl));
-				}
-				return false;
+			if (ServletUtils.isAjaxRequest(request)) {
+				ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));
+			} else {
+				response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestUrl));
 			}
+			return false;
 		}
+
 		return true;
 	}
 	

@@ -12,7 +12,7 @@ const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
 
 // IE/Edge 不支持首/列固定
-const supportFixedColumns = !($.browser.msie || $.browser.msedge)
+const supportFixedColumns = !($.browser.msie || $.browser.msedge) && $(window).width() > 767
 
 // ~~ 数据列表
 class RbList extends React.Component {

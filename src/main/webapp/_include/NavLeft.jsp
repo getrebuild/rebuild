@@ -10,7 +10,7 @@ final JSONArray navArray = NavManager.instance.getNavForPortal(request);
 %>
 <div class="rb-left-sidebar">
 <div class="left-sidebar-wrapper">
-	<a class="left-sidebar-toggle">IN-MIN</a>
+	<a class="left-sidebar-toggle">导航</a>
 	<div class="left-sidebar-spacer">
 		<div class="left-sidebar-scroll rb-scroller">
 			<div class="left-sidebar-content no-divider">
