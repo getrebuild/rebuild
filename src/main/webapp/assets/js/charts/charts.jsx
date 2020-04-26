@@ -208,6 +208,11 @@ const shortNumber = function (num) {
   else return num
 }
 
+const cloneOption = function (opt) {
+  opt = JSON.stringify(opt)
+  return JSON.parse(opt)
+}
+
 // 折线图
 class ChartLine extends BaseChart {
   constructor(props) {
@@ -227,8 +232,8 @@ class ChartLine extends BaseChart {
         yAxis.smooth = true
         yAxis.lineStyle = { width: 3 }
         yAxis.itemStyle = {
-          normal: { borderWidth: 1 },
-          emphasis: { borderWidth: 4 }
+          normal: { borderWidth: 2 },
+          emphasis: { borderWidth: 6 }
         }
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
@@ -651,8 +656,70 @@ class ChartRadar extends BaseChart {
   }
 
   renderChart(data) {
+    if (this.__echarts) this.__echarts.dispose()
+    if (data.indicator.length === 0) { this.renderError('暂无数据'); return }
 
+    const that = this
+    const elid = 'echarts-radar-' + (this.state.id || 'id')
+    this.setState({ chartdata: (<div className="chart radar" id={elid}></div>) }, () => {
+      const opt = {
+        ...cloneOption(ECHART_BASE),
+        radar: {
+          indicator: data.indicator,
+          name: {
+            textStyle: {
+              color: '#555', fontSize: 12
+            }
+          },
+          splitNumber: 4,
+          splitArea: {
+            areaStyle: {
+              color: ['#fff', '#fff', '#fff', '#fff', '#fff']
+            }
+          },
+          splitLine: {
+            lineStyle: {
+              color: '#ddd'
+            }
+          },
+          axisLine: {
+            lineStyle: {
+              color: '#ddd'
+            }
+          }
+        },
+        series: [{
+          type: 'radar',
+          symbol: 'circle',
+          symbolSize: 6,
+          // label: {
+          //   show: true,
+          //   formatter: '{c}'
+          // },
+          lineStyle: {
+            normal: { width: 2 },
+            emphasis: { width: 3 }
+          },
+          data: data.series
+        }]
+      }
+      opt.grid.left = 30
+      opt.tooltip.trigger = 'item'
+      opt.tooltip.formatter = function (a, b) {
+        console.log
+        const tooltip = [`<b>${a.name}</b>`]
+        a.value.forEach((item, idx) => {
+          tooltip.push(`${data.indicator[idx].name} : ${item}`)
+        })
+        return tooltip.join('<br>')
+      }
+
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
+      c.setOption(opt)
+      that.__echarts = c
+    })
   }
+
 }
 
 // 散点图
@@ -693,7 +760,7 @@ const detectChart = function (cfg, id, editable) {
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
   } else {
-    return <h5>{`未知图表 [${cfg.type}]`}</h5>
+    return <h4 className="chart-undata must-center">{`未知图表 [${cfg.type}]`}</h4>
   }
 }
 

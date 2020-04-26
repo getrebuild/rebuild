@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.charts;
@@ -22,9 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
-import org.apache.commons.lang.StringUtils;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +27,7 @@ public class LineChart extends ChartData {
 		super(config);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public JSON build() {
 		Dimension[] dims = getDimensions();
@@ -54,7 +42,6 @@ public class LineChart extends ChartData {
 			dimAxis.add(wrapAxisValue(dim1, o[0]));
 			
 			for (int i = 0; i < nums.length; i++) {
-				@SuppressWarnings("unchecked")
 				List<String> numAxis = (List<String>) numsAxis[i];
 				if (numAxis == null) {
 					numAxis = new ArrayList<>();
@@ -67,7 +54,7 @@ public class LineChart extends ChartData {
 		JSONArray yyyAxis = new JSONArray();
 		for (int i = 0; i < nums.length; i++) {
 			Numerical axis = nums[i];
-			@SuppressWarnings("unchecked")
+
 			List<String> data = (List<String>) numsAxis[i];
 			
 			JSONObject map = new JSONObject();
@@ -75,29 +62,9 @@ public class LineChart extends ChartData {
 			map.put("data", data);
 			yyyAxis.add(map);
 		}
-		
-		JSONObject ret = JSONUtils.toJSONObject(
+
+		return JSONUtils.toJSONObject(
 				new String[] { "xAxis", "yyyAxis" },
 				new Object[] { JSON.toJSON(dimAxis), JSON.toJSON(yyyAxis) });
-		return ret;
-	}
-	
-	protected String buildSql(Dimension dim, Numerical[] nums) {
-		List<String> numSqlItems = new ArrayList<>();
-		for (Numerical num : nums) {
-			numSqlItems.add(num.getSqlName());
-		}
-		
-		String sql = "select {0},{1} from {2} where {3} group by {0}";
-		sql = MessageFormat.format(sql, 
-				dim.getSqlName(),
-				StringUtils.join(numSqlItems, ", "),
-				getSourceEntity().getName(), getFilterSql());
-		
-		String sorts = getSortSql();
-		if (sorts != null) {
-			sql += " order by " + sorts;
-		}
-		return sql;
 	}
 }

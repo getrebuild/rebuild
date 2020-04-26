@@ -121,7 +121,7 @@ $(document).ready(() => {
 
   $addResizeHandler(() => {
     $('#chart-preview').height($(window).height() - 170)
-    if (render_preview_chart) render_preview_chart.resize()
+    if (render_preview_chart && render_preview_chart.resize) render_preview_chart.resize()
   })
 })
 

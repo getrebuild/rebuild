@@ -28,6 +28,7 @@ import com.rebuild.server.service.query.AdvFilterParser;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -370,5 +371,81 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
             return Application.createQuery(sql,
                     UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : this.getUser());
         }
+	}
+
+	/**
+	 * [1]D [1-9]N
+	 *
+	 * @param dim
+	 * @param nums
+	 * @return
+	 */
+	protected String buildSql(Dimension dim, Numerical[] nums) {
+		List<String> numSqlItems = new ArrayList<>();
+		for (Numerical num : nums) {
+			numSqlItems.add(num.getSqlName());
+		}
+
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		sql = MessageFormat.format(sql,
+				dim.getSqlName(),
+				StringUtils.join(numSqlItems, ", "),
+				getSourceEntity().getName(), getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * [1-9]D [1]N
+	 *
+	 * @param dims
+	 * @param num
+	 * @return
+	 */
+	protected String buildSql(Dimension[] dims, Numerical num) {
+		List<String> dimSqlItems = new ArrayList<>();
+		for (Dimension dim : dims) {
+			dimSqlItems.add(dim.getSqlName());
+		}
+
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		sql = MessageFormat.format(sql,
+				StringUtils.join(dimSqlItems, ", "),
+				num.getSqlName(),
+				getSourceEntity().getName(),
+				getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * [1]D [1]N
+	 *
+	 * @param dim
+	 * @param num
+	 * @return
+	 */
+	protected String buildSql(Dimension dim, Numerical num) {
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		sql = MessageFormat.format(sql,
+				dim.getSqlName(),
+				num.getSqlName(),
+				getSourceEntity().getName(), getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * 添加排序 SQL
+	 *
+	 * @param sql
+	 * @return
+	 */
+	protected String appendSqlSort(String sql) {
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
+		}
+		return sql;
 	}
 }
