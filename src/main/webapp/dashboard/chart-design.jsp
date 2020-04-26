@@ -68,17 +68,15 @@
 						<div class="J_opt-UNDEF">
 							当前图表无选项
 						</div>
-						<div class="hide admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
+						<div class="hide admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
 								<input class="custom-control-input" type="checkbox" data-name="noPrivileges">
 								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用角色权限范围内的数据"></i></span>
 							</label>
-						</div>
-						<div class="hide">
-							<label class="custom-control custom-control-sm custom-checkbox mb-2">
-								<input class="custom-control-input" type="checkbox" data-name="noZero">
-								<span class="custom-control-label"> 排除空数据（数值为 0 不显示）</span>
-							</label>
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2 hide">
+                                <input class="custom-control-input" type="checkbox" data-name="noZero">
+                                <span class="custom-control-label"> 排除空数据（数值为 0 不显示）</span>
+                            </label>
 						</div>
 						<div class="hide J_opt-TABLE">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
@@ -90,6 +88,18 @@
 								<span class="custom-control-label"> 显示汇总</span>
 							</label>
 						</div>
+                        <div class="hide J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2">
+                                <input class="custom-control-input" type="checkbox" data-name="showNumerical">
+                                <span class="custom-control-label"> 在图表上显示数值</span>
+                            </label>
+                        </div>
+                        <div class="hide J_opt-LINE J_opt-BAR J_opt-SCATTER">
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2">
+                                <input class="custom-control-input" type="checkbox" data-name="showGrid">
+                                <span class="custom-control-label"> 显示网格线</span>
+                            </label>
+                        </div>
 					</div>
 				</div>
 			</div>
@@ -129,7 +139,9 @@
 	<li class="dropdown-item J_num" data-calc="MAX">最大值</li>
 	<li class="dropdown-item J_num" data-calc="MIN">最小值</li>
 	<li class="dropdown-item J_text" data-calc="COUNT">计数</li>
+	<li class="dropdown-item J_text" data-calc="COUNT2">去重计数</li>
 	<li class="dropdown-item J_date" data-calc="Y">按年</li>
+	<li class="dropdown-item J_date" data-calc="Q">按季</li>
 	<li class="dropdown-item J_date" data-calc="M">按月</li>
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>

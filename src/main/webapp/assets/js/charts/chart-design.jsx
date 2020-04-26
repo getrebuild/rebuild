@@ -198,11 +198,17 @@ const add_axis = ((target, axis) => {
       $this.addClass('text-primary')
       render_preview()
     } else {
-      const state = { isNumAxis: isNumAxis, label: $dropdown.attr('data-label'), scale: $dropdown.attr('data-scale') }
+      const state = {
+        isNumAxis: isNumAxis,
+        label: $dropdown.attr('data-label'),
+        scale: $dropdown.attr('data-scale'),
+        thousands: $dropdown.attr('data-thousands') === 'true'
+      }
       state.callback = (s) => {
-        $dropdown.attr({ 'data-label': s.label, 'data-scale': s.scale })
+        $dropdown.attr({ 'data-label': s.label, 'data-scale': s.scale, 'data-thousands': s.thousands })
         render_preview()
       }
+      console.log(JSON.stringify(state))
 
       if (dlgAxisProps) dlgAxisProps.show(state)
       else renderRbcomp(<DlgAxisProps {...state} />, null, function () { dlgAxisProps = this })
@@ -356,6 +362,12 @@ class DlgAxisProps extends RbFormHandler {
                   <option value="5">5</option>
                   <option value="6">6</option>
                 </select>
+                <div>
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-3 mb-0">
+                    <input className="custom-control-input" type="checkbox" checked={this.state.thousands || false} data-id="thousands" onChange={this.handleChange} />
+                    <span className="custom-control-label">显示千分位</span>
+                  </label>
+                </div>
               </div>
             </div>
           }
