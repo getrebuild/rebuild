@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -30,7 +30,8 @@ public class Numerical extends Axis {
 	 * @param scale
 	 * @param parentField
 	 */
-	protected Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale, Field parentField) {
+	protected Numerical(Field field, FormatSort sort, FormatCalc calc, String label, Integer scale,
+                        Field parentField) {
 		super(field, sort, calc, label, parentField);
 		if (scale != null) {
 			this.scale = scale;
@@ -40,7 +41,7 @@ public class Numerical extends Axis {
 	public int getScale() {
 		return scale;
 	}
-	
+
 	@Override
 	public String getLabel() {
 		if (FormatCalc.NONE == getFormatCalc()) {
@@ -58,8 +59,10 @@ public class Numerical extends Axis {
 		DisplayType dt = EasyMeta.getDisplayType(getField());
 		if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
 			return String.format("%s(%s)", getFormatCalc().name(), super.getSqlName());
-		} else {
-			return String.format("%s(%s)", FormatCalc.COUNT, super.getSqlName());
-		}
+		} else if (getFormatCalc() == FormatCalc.COUNT2) {
+            return String.format("%s(DISTINCT %s)", FormatCalc.COUNT, super.getSqlName());
+        } else {
+            return String.format("%s(%s)", FormatCalc.COUNT, super.getSqlName());
+        }
 	}
 }

@@ -44,8 +44,7 @@ public class TableChart extends ChartData {
 		Dimension[] dims = getDimensions();
 		Numerical[] nums = getNumericals();
 		
-		String sql = buildSql(dims, nums);
-		Object[][] dataRaw = createQuery(sql).array();
+		Object[][] dataRaw = createQuery(buildSql(dims, nums)).array();
 
 		// 行号
 		if (this.showLineNumber && dataRaw.length > 0) {
