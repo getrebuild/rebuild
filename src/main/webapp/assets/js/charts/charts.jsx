@@ -705,8 +705,7 @@ class ChartRadar extends BaseChart {
       }
       opt.grid.left = 30
       opt.tooltip.trigger = 'item'
-      opt.tooltip.formatter = function (a, b) {
-        console.log
+      opt.tooltip.formatter = function (a) {
         const tooltip = [`<b>${a.name}</b>`]
         a.value.forEach((item, idx) => {
           tooltip.push(`${data.indicator[idx].name} : ${item}`)
@@ -719,7 +718,6 @@ class ChartRadar extends BaseChart {
       that.__echarts = c
     })
   }
-
 }
 
 // 散点图
@@ -729,7 +727,64 @@ class ChartScatter extends BaseChart {
   }
 
   renderChart(data) {
+    if (this.__echarts) this.__echarts.dispose()
+    if (data.series.length === 0) { this.renderError('暂无数据'); return }
 
+    const that = this
+    const elid = 'echarts-scatter-' + (this.state.id || 'id')
+    this.setState({ chartdata: (<div className="chart scatter" id={elid}></div>) }, () => {
+
+      const axisOption = {
+        splitLine: {
+          lineStyle: { color: '#ddd', width: 0, type: 'dashed' }
+        },
+        axisLabel: {
+          ...ECHART_AXIS_LABEL,
+          formatter: shortNumber
+        },
+        axisLine: {
+          lineStyle: { color: '#ddd' }
+        },
+        scale: false
+      }
+
+      const seriesData = []
+      data.series.forEach((item) => {
+        seriesData.push({
+          ...item,
+          type: 'scatter',
+          // symbolSize: 20,
+          symbolSize: function (data) {
+            let s = Math.sqrt(~~data[0])
+            console.log(data[0] + ' > ' + s)
+            s = Math.min(s, 120)
+            s = Math.max(s, 8)
+            return s
+          },
+        })
+      })
+
+      const opt = {
+        ...cloneOption(ECHART_BASE),
+        xAxis: { ...axisOption },
+        yAxis: { ...axisOption },
+        series: seriesData
+      }
+      opt.tooltip.trigger = 'item'
+      opt.tooltip.formatter = function (a) {
+        const tooltip = []
+        if (a.value.length === 3) {
+          tooltip.push(`<b>${a.value[2]}</b>`)
+        }
+        tooltip.push(`${data.dataLabel[1]} : ${a.value[1]}`)
+        tooltip.push(`${data.dataLabel[0]} : ${a.value[0]}`)
+        return tooltip.join('<br>')
+      }
+
+      const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
+      c.setOption(opt)
+      that.__echarts = c
+    })
   }
 }
 

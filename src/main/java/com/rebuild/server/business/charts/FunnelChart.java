@@ -11,11 +11,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
-import org.apache.commons.lang.StringUtils;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 漏斗图
@@ -73,19 +68,5 @@ public class FunnelChart extends ChartData {
 			ret.put("xLabel", nums[0].getLabel());
 		}
 		return ret;
-	}
-	
-	private String buildSql(Numerical[] nums) {
-		List<String> numSqlItems = new ArrayList<>();
-		for (Numerical num : nums) {
-			numSqlItems.add(num.getSqlName());
-		}
-		
-		String sql = "select {0} from {1} where {2}";
-		sql = MessageFormat.format(sql,
-				StringUtils.join(numSqlItems, ", "),
-				getSourceEntity().getName(), getFilterSql());
-
-		return appendSqlSort(sql);
 	}
 }

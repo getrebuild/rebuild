@@ -54,7 +54,7 @@
 						<a title="漏斗图" data-type="FUNNEL" data-allow-dims="0|1" data-allow-nums="1|9"><i class="C330"></i></a>
 						<a title="树图" data-type="TREEMAP" data-allow-dims="1|3" data-allow-nums="1|1"><i class="C370"></i></a>
 						<a title="雷达图" data-type="RADAR" data-allow-dims="1|1" data-allow-nums="1|3"><i class="C290"></i></a>
-						<a title="散点图" data-type="SCATTER" data-allow-dims="0|3" data-allow-nums="1|2"><i class="C280"></i></a>
+						<a title="散点图" data-type="SCATTER" data-allow-dims="0|3" data-allow-nums="2|2"><i class="C280"></i></a>
                         <!--
 						<a title="词云" data-type="DOLOR" data-allow-dims="1|1" data-allow-nums="0|0"><i class="C340"></i></a>
 						<a title="地图" data-type="CNMAP" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C271"></i></a>

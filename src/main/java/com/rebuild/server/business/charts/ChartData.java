@@ -374,7 +374,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	}
 
 	/**
-	 * [1]D [1-9]N
+	 * 1D [1-9]N
 	 *
 	 * @param dim
 	 * @param nums
@@ -396,7 +396,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	}
 
 	/**
-	 * [1-9]D [1]N
+	 * [1-9]D 1N
 	 *
 	 * @param dims
 	 * @param num
@@ -419,7 +419,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	}
 
 	/**
-	 * [1]D [1]N
+	 * 1D 1N
 	 *
 	 * @param dim
 	 * @param num
@@ -430,6 +430,25 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		sql = MessageFormat.format(sql,
 				dim.getSqlName(),
 				num.getSqlName(),
+				getSourceEntity().getName(), getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * [1-9]N
+	 * @param nums
+	 * @return
+	 */
+	protected String buildSql(Numerical[] nums) {
+		List<String> numSqlItems = new ArrayList<>();
+		for (Numerical num : nums) {
+			numSqlItems.add(num.getSqlName());
+		}
+
+		String sql = "select {0} from {1} where {2}";
+		sql = MessageFormat.format(sql,
+				StringUtils.join(numSqlItems, ", "),
 				getSourceEntity().getName(), getFilterSql());
 
 		return appendSqlSort(sql);
