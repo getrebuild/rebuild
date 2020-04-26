@@ -698,7 +698,8 @@ class ChartRadar extends BaseChart {
           // },
           lineStyle: {
             normal: { width: 2 },
-            emphasis: { width: 3 }
+            emphasis: { width: 3 },
+            cursor: 'default',
           },
           data: data.series
         }]
@@ -745,7 +746,7 @@ class ChartScatter extends BaseChart {
         axisLine: {
           lineStyle: { color: '#ddd' }
         },
-        scale: false
+        scale: false,
       }
 
       const seriesData = []
@@ -761,6 +762,7 @@ class ChartScatter extends BaseChart {
             s = Math.max(s, 8)
             return s
           },
+          cursor: 'default'
         })
       })
 
