@@ -111,14 +111,14 @@ $(function () {
 // @t - trigger times
 var command_exec = function (t) { }
 
-var __RESIZE_CALLS = []
+var __ONRESIZE_CALLS = []
 var $addResizeHandler = function (call) {
-  (typeof call === 'function' && __RESIZE_CALLS) && __RESIZE_CALLS.push(call)
+  (typeof call === 'function' && __ONRESIZE_CALLS) && __ONRESIZE_CALLS.push(call)
   return function () {
-    if (!__RESIZE_CALLS || __RESIZE_CALLS.length === 0) return
+    if (!__ONRESIZE_CALLS || __ONRESIZE_CALLS.length === 0) return
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('Calls ' + __RESIZE_CALLS.length + ' handlers of resize ...')
-    __RESIZE_CALLS.forEach(function (call) { call() })
+    if (rb.env === 'dev') console.log('Calls ' + __ONRESIZE_CALLS.length + ' handlers of resize ...')
+    __ONRESIZE_CALLS.forEach(function (call) { call() })
   }
 }
 

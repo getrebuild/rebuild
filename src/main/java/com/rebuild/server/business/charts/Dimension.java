@@ -41,7 +41,7 @@ public class Dimension extends Axis {
 				case M:
 					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
 				case H:
-					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %H时");
+					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %HH");
 				default:
 					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
 			}

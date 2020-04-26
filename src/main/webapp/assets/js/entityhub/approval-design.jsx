@@ -188,11 +188,11 @@ class SimpleNode extends NodeSpec {
   render() {
     const NT = NTs[this.nodeType]
     const data = this.state.data || {}
-    let users = NT[2]
-    if (data.users && data.users.length > 0) users = UTs[data.users[0]] || ('指定用户(' + data.users.length + ')')
-    if (data.selfSelecting && !users.contains('自选')) users += '/允许自选'
-    if (data.ccAutoShare) users += '/自动共享'
-    if (this.nodeType === 'approver') users += '/' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
+    let descs = NT[2]
+    if (data.users && data.users.length > 0) descs = UTs[data.users[0]] || ('指定用户(' + data.users.length + ')')
+    if (data.selfSelecting && !descs.contains('自选')) descs += '/允许自选'
+    if (data.ccAutoShare) descs += '/自动共享'
+    if (this.nodeType === 'approver') descs += '/' + (data.signMode === 'AND' ? '会签' : (data.signMode === 'ALL' ? '依次审批' : '或签'))
 
     return <div className="node-wrap">
       <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={rb.env === 'dev' ? this.props.nodeId : null}>
@@ -201,7 +201,7 @@ class SimpleNode extends NodeSpec {
           {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title="移除" onClick={this.removeNodeQuick} />}
         </div>
         <div className="content" onClick={this.openConfig}>
-          <div className="text">{users}</div>
+          <div className="text">{descs}</div>
           <i className="zmdi zmdi-chevron-right arrow"></i>
         </div>
       </div>

@@ -92,7 +92,9 @@
         "$lang": true,
         "$empty": true,
         "$mp": true,
-        "converEmoji": true
+        "converEmoji": true,
+        "$throttle": true,
+        "$timechunk": true
     },
     "rules": {
         "react/jsx-no-target-blank": 0,
