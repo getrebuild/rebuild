@@ -56,6 +56,7 @@
 						<a title="雷达图" data-type="RADAR" data-allow-dims="1|1" data-allow-nums="1|3"><i class="C290"></i></a>
 						<a title="散点图" data-type="SCATTER" data-allow-dims="0|3" data-allow-nums="2|2"><i class="C280"></i></a>
                         <!--
+						<a title="对比图" data-type="BARNEGATIVE" data-allow-dims="1|1" data-allow-nums="2|2"><i class="C243"></i></a>
 						<a title="词云" data-type="DOLOR" data-allow-dims="1|1" data-allow-nums="0|0"><i class="C340"></i></a>
 						<a title="地图" data-type="CNMAP" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C271"></i></a>
 						<a title="旭日图" data-type="SUNBURST" data-allow-dims="2|3" data-allow-nums="1|1"><i class="C360"></i></a>
@@ -97,7 +98,7 @@
                         <div class="hide J_opt-LINE J_opt-BAR J_opt-SCATTER">
                             <label class="custom-control custom-control-sm custom-checkbox mb-2">
                                 <input class="custom-control-input" type="checkbox" data-name="showGrid">
-                                <span class="custom-control-label"> 显示网格线</span>
+                                <span class="custom-control-label"> 显示参考线</span>
                             </label>
                         </div>
 					</div>

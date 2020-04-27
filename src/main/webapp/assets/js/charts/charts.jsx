@@ -190,6 +190,13 @@ const ECHART_AXIS_LABEL = {
     fontWeight: '400'
   }
 }
+// Show value on chart
+const ECHART_VALUE_LABEL = {
+  show: true,
+  formatter: function (a) {
+    return formatThousands(a.data)
+  }
+}
 const ECHART_TOOLTIP_FORMATTER = function (i) {
   if (!Array.isArray(i)) i = [i]  // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
@@ -203,8 +210,8 @@ const ECHART_RENDER_OPT = {
 }
 
 const shortNumber = function (num) {
-  if (num > 1000000) return (num / 1000000).toFixed(0) + 'W'
-  else if (num > 10000) return (num / 1000).toFixed(0) + 'K'
+  if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(0) + 'W'
+  else if (num > 10000 || num < -10000) return (num / 1000).toFixed(0) + 'K'
   else return num
 }
 
@@ -233,6 +240,9 @@ class ChartLine extends BaseChart {
     const that = this
     const elid = 'echarts-line-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, () => {
+      const showGrid = data._renderOption && data._renderOption.showGrid
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'line'
@@ -242,6 +252,7 @@ class ChartLine extends BaseChart {
           normal: { borderWidth: 2 },
           emphasis: { borderWidth: 6 }
         }
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -258,13 +269,13 @@ class ChartLine extends BaseChart {
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: false },
+          splitLine: { show: showGrid, lineStyle: { color: '#ddd' } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber
           },
           axisLine: {
-            lineStyle: { color: '#ddd', width: 0 }
+            lineStyle: { color: '#ddd', width: showGrid ? 1 : 0 }
           }
         },
         series: data.yyyAxis
@@ -292,15 +303,13 @@ class ChartBar extends BaseChart {
     const that = this
     const elid = 'echarts-bar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, () => {
+      const showGrid = data._renderOption && data._renderOption.showGrid
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
-        yAxis.smooth = true
-        yAxis.lineStyle = { width: 3 }
-        yAxis.itemStyle = {
-          normal: { borderWidth: 1 },
-          emphasis: { borderWidth: 4 }
-        }
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -317,13 +326,13 @@ class ChartBar extends BaseChart {
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: false },
+          splitLine: { show: showGrid, lineStyle: { color: '#ddd' } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber
           },
           axisLine: {
-            lineStyle: { color: '#ddd', width: 0 }
+            lineStyle: { color: '#ddd', width: showGrid ? 1 : 0 }
           }
         },
         series: data.yyyAxis
