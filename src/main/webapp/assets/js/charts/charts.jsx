@@ -194,7 +194,7 @@ const ECHART_TOOLTIP_FORMATTER = function (i) {
   if (!Array.isArray(i)) i = [i]  // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
   i.forEach((item) => {
-    tooltip.push(`${item.marker} ${item.seriesName} : ${item.value}`)
+    tooltip.push(`${item.marker} ${item.seriesName} : ${formatThousands(item.value)}`)
   })
   return tooltip.join('<br>')
 }
@@ -206,6 +206,13 @@ const shortNumber = function (num) {
   if (num > 1000000) return (num / 1000000).toFixed(0) + 'W'
   else if (num > 10000) return (num / 1000).toFixed(0) + 'K'
   else return num
+}
+
+const formatThousands = function (num) {
+  if (~~num < 1000) return num
+  const nums = (num + '').split('.')
+  nums[0] = nums[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
+  return nums.join('.')
 }
 
 const cloneOption = function (opt) {
@@ -389,8 +396,8 @@ class ChartFunnel extends BaseChart {
       }
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
-        if (data.xLabel) return `<b>${i.name}</b> <br/> ${i.marker} ${data.xLabel} : ${i.value}`
-        else return `<b>${i.name}</b> <br/> ${i.marker} ${i.value}`
+        if (data.xLabel) return `<b>${i.name}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)}`
+        else return `<b>${i.name}</b> <br/> ${i.marker} ${formatThousands(i.value)}`
       }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
@@ -443,7 +450,7 @@ class ChartTreemap extends BaseChart {
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
         const p = i.value > 0 ? (i.value * 100 / data.xAmount).toFixed(2) : 0
-        return `<b>${i.name.split('--------').join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${i.value} (${p}%)`
+        return `<b>${i.name.split('--------').join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)} (${p}%)`
       }
       opt.label = {
         formatter: function (i) {
@@ -709,9 +716,9 @@ class ChartRadar extends BaseChart {
       opt.tooltip.formatter = function (a) {
         const tooltip = [`<b>${a.name}</b>`]
         a.value.forEach((item, idx) => {
-          tooltip.push(`${data.indicator[idx].name} : ${item}`)
+          tooltip.push(`${data.indicator[idx].name} : ${formatThousands(item)}`)
         })
-        return tooltip.join('<br>')
+        return tooltip.join('<br/>')
       }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
@@ -778,8 +785,8 @@ class ChartScatter extends BaseChart {
         if (a.value.length === 3) {
           tooltip.push(`<b>${a.value[2]}</b>`)
         }
-        tooltip.push(`${data.dataLabel[1]} : ${a.value[1]}`)
-        tooltip.push(`${data.dataLabel[0]} : ${a.value[0]}`)
+        tooltip.push(`${data.dataLabel[1]} : ${formatThousands(a.value[1])}`)
+        tooltip.push(`${data.dataLabel[0]} : ${formatThousands(a.value[0])}`)
         return tooltip.join('<br>')
       }
 

@@ -85,10 +85,7 @@ public class TableChart extends ChartData {
 		}
 		
 		String tableHtml = new TableBuilder(this, dataRaw).toHTML();
-
-        return JSONUtils.toJSONObject(
-                new String[] { "html" },
-                new Object[] { tableHtml });
+        return JSONUtils.toJSONObject("html", tableHtml);
 	}
 	
 	protected boolean isShowLineNumber() {
@@ -97,6 +94,18 @@ public class TableChart extends ChartData {
 
 	protected boolean isShowSums() {
 		return showSums;
+	}
+
+	protected String wrapSumValue(Axis sumAxis, Object value) {
+		if (value == null) {
+			return "0";
+		}
+
+		if (sumAxis instanceof Numerical) {
+			return wrapAxisValue((Numerical) sumAxis, value, true);
+		} else {
+			return value.toString();
+		}
 	}
 
 	private String buildSql(Dimension[] dims, Numerical[] nums) {

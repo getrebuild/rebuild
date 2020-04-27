@@ -43,7 +43,7 @@ import java.util.Set;
  * @since 12/14/2018
  */
 public abstract class ChartData extends SetUser<ChartData> implements ChartSpec {
-	
+
 	protected JSONObject config;
 
 	private boolean fromPreview = false;
@@ -265,21 +265,35 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	/**
 	 * 格式化数值
 	 * 
-	 * @param axis
+	 * @param numerical
 	 * @param value
 	 * @return
 	 */
-	protected String wrapAxisValue(Numerical axis, Object value) {
+	protected String wrapAxisValue(Numerical numerical, Object value) {
+		return wrapAxisValue(numerical, value, Boolean.FALSE);
+	}
+
+	/**
+	 * @param numerical
+	 * @param value
+	 * @param thousands 是否千分位
+	 * @return
+	 */
+	protected String wrapAxisValue(Numerical numerical, Object value, boolean thousands) {
 		if (value == null) {
 			return "0";
 		}
-		
+
 		String format = "###";
-		if (axis.getScale() > 0) {
+		if (numerical.getScale() > 0) {
 			format = "##0.";
-			format = StringUtils.rightPad(format, format.length() + axis.getScale(), "0");
+			format = StringUtils.rightPad(format, format.length() + numerical.getScale(), "0");
 		}
-		
+
+		if (thousands) {
+			format = "#," + format;
+		}
+
 		if (ID.isId(value)) {
 			value = 1;
 		}
@@ -289,16 +303,16 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	/**
 	 * 获取纬度标签
 	 * 
-	 * @param axis
+	 * @param dimension
 	 * @param value
 	 * @return
 	 */
-	protected String wrapAxisValue(Dimension axis, Object value) {
+	protected String wrapAxisValue(Dimension dimension, Object value) {
 		if (value == null) {
 			return "无";
 		}
 
-		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
+		EasyMeta axisField = EasyMeta.valueOf(dimension.getField());
 		DisplayType axisType = axisField.getDisplayType();
 
 		String label;
@@ -309,25 +323,6 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 			label = value.toString();
 		}
 		return label;
-	}
-
-	/**
-	 * 格式化汇总数值
-	 *
-	 * @param sumOfAxis
-	 * @param value
-	 * @return
-	 */
-	protected String wrapSumValue(Axis sumOfAxis, Object value) {
-		if (value == null) {
-			return "0";
-		}
-
-		if (sumOfAxis instanceof Numerical) {
-			return wrapAxisValue((Numerical) sumOfAxis, value);
-		} else {
-			return value.toString();
-		}
 	}
 	
 	/**
