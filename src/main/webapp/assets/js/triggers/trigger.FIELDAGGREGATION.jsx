@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
+const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'COUNT2': '去重计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
 
 // ~~ 数据聚合
 // eslint-disable-next-line no-undef
@@ -180,9 +180,12 @@ class ContentFieldAggregation extends ActionContentSpec {
       formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
       formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
     }
-    for (let k in CALC_MODES) {
+
+    const keys = Object.keys(CALC_MODES)
+    keys.reverse()
+    keys.forEach((k) => {
       formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
-    }
+    })
     return formula.toUpperCase()
   }
 
@@ -298,7 +301,7 @@ class FormulaCalc extends RbAlert {
     } else if (typeof v === 'object') {
       const $field = $(`<span class="v field"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
       const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
-      $(['', 'SUM', 'COUNT', 'AVG', 'MAX', 'MIN']).each(function () {
+      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
         const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || '无'}</a>`).appendTo($menu)
         $a.click(function () { FormulaCalc._changeCalcMode(this) })
       })

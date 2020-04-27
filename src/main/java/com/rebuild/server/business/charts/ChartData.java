@@ -280,7 +280,9 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	 * @return
 	 */
 	protected String wrapAxisValue(Numerical numerical, Object value, boolean thousands) {
-		if (value == null) {
+		if (value == null
+                || (value instanceof Long && (Long) value == 0L)
+                || (value instanceof Double && (Double) value == 0D)) {
 			return "0";
 		}
 
