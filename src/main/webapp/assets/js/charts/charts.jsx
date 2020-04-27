@@ -163,6 +163,9 @@ class ChartTable extends BaseChart {
 }
 
 // for ECharts
+const COLOR_AXIS = '#ddd'
+const COLOR_LABEL = '#555'
+
 const ECHART_BASE = {
   grid: { left: 60, right: 30, top: 30, bottom: 30 },
   animation: false,
@@ -172,7 +175,7 @@ const ECHART_BASE = {
       fontSize: 12, lineHeight: 1.3, color: '#333'
     },
     axisPointer: {
-      lineStyle: { color: '#ddd' }
+      lineStyle: { color: COLOR_AXIS }
     },
     backgroundColor: '#fff',
     extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
@@ -183,20 +186,22 @@ const ECHART_BASE = {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif'
   }
 }
+
 const ECHART_AXIS_LABEL = {
   textStyle: {
-    color: '#555',
+    color: COLOR_LABEL,
     fontSize: 12,
     fontWeight: '400'
   }
 }
-// Show value on chart
+
 const ECHART_VALUE_LABEL = {
   show: true,
   formatter: function (a) {
     return formatThousands(a.data)
   }
 }
+
 const ECHART_TOOLTIP_FORMATTER = function (i) {
   if (!Array.isArray(i)) i = [i]  // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
@@ -205,6 +210,7 @@ const ECHART_TOOLTIP_FORMATTER = function (i) {
   })
   return tooltip.join('<br>')
 }
+
 const ECHART_RENDER_OPT = {
   renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas'
 }
@@ -264,18 +270,18 @@ class ChartLine extends BaseChart {
           data: data.xAxis,
           axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
-            lineStyle: { color: '#ddd' }
+            lineStyle: { color: COLOR_AXIS }
           }
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: showGrid, lineStyle: { color: '#ddd' } },
+          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber
           },
           axisLine: {
-            lineStyle: { color: '#ddd', width: showGrid ? 1 : 0 }
+            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 }
           }
         },
         series: data.yyyAxis
@@ -321,18 +327,18 @@ class ChartBar extends BaseChart {
           data: data.xAxis,
           axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
-            lineStyle: { color: '#ddd' }
+            lineStyle: { color: COLOR_AXIS }
           }
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: showGrid, lineStyle: { color: '#ddd' } },
+          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber
           },
           axisLine: {
-            lineStyle: { color: '#ddd', width: showGrid ? 1 : 0 }
+            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 }
           }
         },
         series: data.yyyAxis
@@ -392,7 +398,7 @@ class ChartFunnel extends BaseChart {
     const elid = 'echarts-funnel-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart funnel" id={elid}></div>) }, () => {
       const opt = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         series: [{
           type: 'funnel',
           sort: 'none',
@@ -430,7 +436,7 @@ class ChartTreemap extends BaseChart {
     const elid = 'echarts-treemap-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart treemap" id={elid}></div>) }, () => {
       const opt = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         series: [{
           data: data.data,
           type: 'treemap',
@@ -684,7 +690,7 @@ class ChartRadar extends BaseChart {
           indicator: data.indicator,
           name: {
             textStyle: {
-              color: '#555', fontSize: 12
+              color: COLOR_LABEL, fontSize: 12
             }
           },
           splitNumber: 4,
@@ -695,12 +701,12 @@ class ChartRadar extends BaseChart {
           },
           splitLine: {
             lineStyle: {
-              color: '#ddd'
+              color: COLOR_AXIS
             }
           },
           axisLine: {
             lineStyle: {
-              color: '#ddd'
+              color: COLOR_AXIS
             }
           }
         },
@@ -753,14 +759,14 @@ class ChartScatter extends BaseChart {
 
       const axisOption = {
         splitLine: {
-          lineStyle: { color: '#ddd', width: 0, type: 'dashed' }
+          lineStyle: { color: COLOR_AXIS, width: 0, type: 'dashed' }
         },
         axisLabel: {
           ...ECHART_AXIS_LABEL,
           formatter: shortNumber
         },
         axisLine: {
-          lineStyle: { color: '#ddd' }
+          lineStyle: { color: COLOR_AXIS }
         },
         scale: false,
       }
@@ -773,7 +779,6 @@ class ChartScatter extends BaseChart {
           // symbolSize: 20,
           symbolSize: function (data) {
             let s = Math.sqrt(~~data[0])
-            console.log(data[0] + ' > ' + s)
             s = Math.min(s, 120)
             s = Math.max(s, 8)
             return s
