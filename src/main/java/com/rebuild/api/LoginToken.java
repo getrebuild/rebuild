@@ -32,7 +32,7 @@ public class LoginToken extends BaseApi {
         String password = context.getParameterNotBlank("password");
 
         if (RateLimiters.RRL_LOGIN.overLimitWhenIncremented("user:" + user)) {
-            return formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
+            return formatFailure("请求太频繁，请稍后重试", ApiInvokeException.ERR_FREQUENCY);
         }
 
         String hasError = checkUser(user, password);
