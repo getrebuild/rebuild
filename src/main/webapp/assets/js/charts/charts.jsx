@@ -369,9 +369,18 @@ class ChartPie extends BaseChart {
     const that = this
     const elid = 'echarts-pie-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
+      if (showNumerical) {
+        data.label = {
+          formatter: function (a) {
+            return `${a.data.name} ${formatThousands(a.data.value)}`
+          }
+        }
+      }
       const opt = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         series: [data],
       }
       opt.tooltip.trigger = 'item'
@@ -397,16 +406,25 @@ class ChartFunnel extends BaseChart {
     const that = this
     const elid = 'echarts-funnel-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart funnel" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       const opt = {
         ...cloneOption(ECHART_BASE),
         series: [{
           type: 'funnel',
           sort: 'none',
-          gap: 2,
+          gap: 1,
           top: 30,
           bottom: 20,
           data: data.data,
-          cursor: 'default'
+          cursor: 'default',
+          label: {
+            show: true,
+            position: 'inside',
+            formatter: function (a) {
+              return showNumerical ? `${a.data.name} ${formatThousands(a.data.value)}` : a.data.name
+            }
+          }
         }]
       }
       opt.tooltip.trigger = 'item'
@@ -423,6 +441,7 @@ class ChartFunnel extends BaseChart {
 }
 
 // 树图
+const LEVELS_SPLIT = '--------'
 class ChartTreemap extends BaseChart {
   constructor(props) {
     super(props)
@@ -435,6 +454,8 @@ class ChartTreemap extends BaseChart {
     const that = this
     const elid = 'echarts-treemap-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart treemap" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       const opt = {
         ...cloneOption(ECHART_BASE),
         series: [{
@@ -465,12 +486,12 @@ class ChartTreemap extends BaseChart {
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
         const p = i.value > 0 ? (i.value * 100 / data.xAmount).toFixed(2) : 0
-        return `<b>${i.name.split('--------').join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)} (${p}%)`
+        return `<b>${i.name.split(LEVELS_SPLIT).join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)} (${p}%)`
       }
       opt.label = {
-        formatter: function (i) {
-          const ns = i.name.split('--------')
-          return ns[ns.length - 1]
+        formatter: function (a) {
+          const ns = a.name.split(LEVELS_SPLIT)
+          return ns[ns.length - 1] + (showNumerical ? ` ${formatThousands(a.value)}` : '')
         }
       }
 
@@ -684,6 +705,8 @@ class ChartRadar extends BaseChart {
     const that = this
     const elid = 'echarts-radar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart radar" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       const opt = {
         ...cloneOption(ECHART_BASE),
         radar: {
@@ -714,10 +737,12 @@ class ChartRadar extends BaseChart {
           type: 'radar',
           symbol: 'circle',
           symbolSize: 6,
-          // label: {
-          //   show: true,
-          //   formatter: '{c}'
-          // },
+          label: {
+            show: showNumerical,
+            formatter: function (a) {
+              return formatThousands(a.value)
+            }
+          },
           lineStyle: {
             normal: { width: 2 },
             emphasis: { width: 3 },
@@ -756,10 +781,12 @@ class ChartScatter extends BaseChart {
     const that = this
     const elid = 'echarts-scatter-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart scatter" id={elid}></div>) }, () => {
+      const showGrid = data._renderOption && data._renderOption.showGrid
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
 
       const axisOption = {
         splitLine: {
-          lineStyle: { color: COLOR_AXIS, width: 0, type: 'dashed' }
+          lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0, type: 'solid' }
         },
         axisLabel: {
           ...ECHART_AXIS_LABEL,
@@ -783,7 +810,26 @@ class ChartScatter extends BaseChart {
             s = Math.max(s, 8)
             return s
           },
-          cursor: 'default'
+          // itemStyle: {
+          //   shadowBlur: 10,
+          //   shadowColor: 'rgba(120, 36, 50, 0.5)',
+          //   shadowOffsetY: 5,
+          //   color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+          //     offset: 0,
+          //     color: 'rgb(251, 118, 123)'
+          //   }, {
+          //     offset: 1,
+          //     color: 'rgb(204, 46, 72)'
+          //   }])
+          // },
+          cursor: 'default',
+          label: {
+            show: showNumerical,
+            position: 'top',
+            formatter: function (a) {
+              return a.data.length === 3 ? a.data[2] : `${a.data[0]}\n${a.data[1]}`
+            }
+          }
         })
       })
 

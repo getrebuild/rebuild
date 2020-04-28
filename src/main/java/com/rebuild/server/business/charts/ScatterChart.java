@@ -68,7 +68,7 @@ public class ScatterChart extends ChartData {
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "series", "dataLabel" },
-                new Object[] { series, dataLabel });
+                new String[] { "series", "dataLabel", "_renderOption" },
+                new Object[] { series, dataLabel, config.getJSONObject("option") });
     }
 }
