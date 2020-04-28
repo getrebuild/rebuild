@@ -23,6 +23,8 @@ import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.RateLimiters;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,7 +42,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * OpenAPI 入口
+ * OpenAPI 网关
  * 
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
@@ -50,12 +52,21 @@ public class ApiGateway extends Controll {
 
 	private static final Log LOG = LogFactory.getLog(ApiGateway.class);
 
+    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(1, 1000);
+
 	@RequestMapping("/gw/api/{apiName}")
 	public void api(@PathVariable String apiName,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		final Date reuqestTime = CalendarUtils.now();
 		final String remoteIp = ServletUtils.getRemoteAddr(request);
+
+		if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
+            JSON err = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
+            LOG.error(err.toJSONString());
+            ServletUtils.writeJson(response, err.toJSONString());
+            return;
+        }
 
 		int errorCode;
 		String errorMsg;
@@ -89,6 +100,7 @@ public class ApiGateway extends Controll {
 		}
 
 		JSON err = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
+		LOG.error(err.toJSONString());
 		ServletUtils.writeJson(response, err.toJSONString());
 		try {
 			logRequestAsync(reuqestTime, remoteIp, apiName, context, err);

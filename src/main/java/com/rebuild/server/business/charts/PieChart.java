@@ -42,7 +42,7 @@ public class PieChart extends ChartData {
 		}
 
 		return JSONUtils.toJSONObject(
-				new String[] { "data", "name" },
-				new Object[] { dataJson,  num1.getLabel() });
+				new String[] { "data", "name", "_renderOption" },
+				new Object[] { dataJson,  num1.getLabel(), config.getJSONObject("option") });
 	}
 }

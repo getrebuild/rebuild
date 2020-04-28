@@ -163,6 +163,9 @@ class ChartTable extends BaseChart {
 }
 
 // for ECharts
+const COLOR_AXIS = '#ddd'
+const COLOR_LABEL = '#555'
+
 const ECHART_BASE = {
   grid: { left: 60, right: 30, top: 30, bottom: 30 },
   animation: false,
@@ -172,7 +175,7 @@ const ECHART_BASE = {
       fontSize: 12, lineHeight: 1.3, color: '#333'
     },
     axisPointer: {
-      lineStyle: { color: '#ddd' }
+      lineStyle: { color: COLOR_AXIS }
     },
     backgroundColor: '#fff',
     extraCssText: 'border-radius:0;box-shadow:0 0 6px 0 rgba(0, 0, 0, .1), 0 8px 10px 0 rgba(170, 182, 206, .2);',
@@ -183,29 +186,46 @@ const ECHART_BASE = {
     fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif'
   }
 }
+
 const ECHART_AXIS_LABEL = {
   textStyle: {
-    color: '#555',
+    color: COLOR_LABEL,
     fontSize: 12,
     fontWeight: '400'
   }
 }
+
+const ECHART_VALUE_LABEL = {
+  show: true,
+  formatter: function (a) {
+    return formatThousands(a.data)
+  }
+}
+
 const ECHART_TOOLTIP_FORMATTER = function (i) {
   if (!Array.isArray(i)) i = [i]  // Object > Array
   const tooltip = [`<b>${i[0].name}</b>`]
   i.forEach((item) => {
-    tooltip.push(`${item.marker} ${item.seriesName} : ${item.value}`)
+    tooltip.push(`${item.marker} ${item.seriesName} : ${formatThousands(item.value)}`)
   })
   return tooltip.join('<br>')
 }
+
 const ECHART_RENDER_OPT = {
   renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas'
 }
 
 const shortNumber = function (num) {
-  if (num > 1000000) return (num / 1000000).toFixed(0) + 'W'
-  else if (num > 10000) return (num / 1000).toFixed(0) + 'K'
+  if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(0) + 'W'
+  else if (num > 10000 || num < -10000) return (num / 1000).toFixed(0) + 'K'
   else return num
+}
+
+const formatThousands = function (num) {
+  if (~~num < 1000) return num
+  const nums = (num + '').split('.')
+  nums[0] = nums[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
+  return nums.join('.')
 }
 
 const cloneOption = function (opt) {
@@ -226,6 +246,9 @@ class ChartLine extends BaseChart {
     const that = this
     const elid = 'echarts-line-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, () => {
+      const showGrid = data._renderOption && data._renderOption.showGrid
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'line'
@@ -235,6 +258,7 @@ class ChartLine extends BaseChart {
           normal: { borderWidth: 2 },
           emphasis: { borderWidth: 6 }
         }
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -246,18 +270,18 @@ class ChartLine extends BaseChart {
           data: data.xAxis,
           axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
-            lineStyle: { color: '#ddd' }
+            lineStyle: { color: COLOR_AXIS }
           }
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: false },
+          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber
           },
           axisLine: {
-            lineStyle: { color: '#ddd', width: 0 }
+            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 }
           }
         },
         series: data.yyyAxis
@@ -285,15 +309,13 @@ class ChartBar extends BaseChart {
     const that = this
     const elid = 'echarts-bar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, () => {
+      const showGrid = data._renderOption && data._renderOption.showGrid
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
         yAxis.type = 'bar'
-        yAxis.smooth = true
-        yAxis.lineStyle = { width: 3 }
-        yAxis.itemStyle = {
-          normal: { borderWidth: 1 },
-          emphasis: { borderWidth: 4 }
-        }
+        if (showNumerical) yAxis.label = ECHART_VALUE_LABEL
         yAxis.cursor = 'default'
         data.yyyAxis[i] = yAxis
       }
@@ -305,18 +327,18 @@ class ChartBar extends BaseChart {
           data: data.xAxis,
           axisLabel: ECHART_AXIS_LABEL,
           axisLine: {
-            lineStyle: { color: '#ddd' }
+            lineStyle: { color: COLOR_AXIS }
           }
         },
         yAxis: {
           type: 'value',
-          splitLine: { show: false },
+          splitLine: { show: showGrid, lineStyle: { color: COLOR_AXIS } },
           axisLabel: {
             ...ECHART_AXIS_LABEL,
             formatter: shortNumber
           },
           axisLine: {
-            lineStyle: { color: '#ddd', width: 0 }
+            lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0 }
           }
         },
         series: data.yyyAxis
@@ -347,9 +369,18 @@ class ChartPie extends BaseChart {
     const that = this
     const elid = 'echarts-pie-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
+      if (showNumerical) {
+        data.label = {
+          formatter: function (a) {
+            return `${a.data.name} ${formatThousands(a.data.value)}`
+          }
+        }
+      }
       const opt = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         series: [data],
       }
       opt.tooltip.trigger = 'item'
@@ -375,22 +406,31 @@ class ChartFunnel extends BaseChart {
     const that = this
     const elid = 'echarts-funnel-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart funnel" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       const opt = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         series: [{
           type: 'funnel',
           sort: 'none',
-          gap: 2,
+          gap: 1,
           top: 30,
           bottom: 20,
           data: data.data,
-          cursor: 'default'
+          cursor: 'default',
+          label: {
+            show: true,
+            position: 'inside',
+            formatter: function (a) {
+              return showNumerical ? `${a.data.name} ${formatThousands(a.data.value)}` : a.data.name
+            }
+          }
         }]
       }
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
-        if (data.xLabel) return `<b>${i.name}</b> <br/> ${i.marker} ${data.xLabel} : ${i.value}`
-        else return `<b>${i.name}</b> <br/> ${i.marker} ${i.value}`
+        if (data.xLabel) return `<b>${i.name}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)}`
+        else return `<b>${i.name}</b> <br/> ${i.marker} ${formatThousands(i.value)}`
       }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
@@ -401,6 +441,7 @@ class ChartFunnel extends BaseChart {
 }
 
 // 树图
+const LEVELS_SPLIT = '--------'
 class ChartTreemap extends BaseChart {
   constructor(props) {
     super(props)
@@ -413,8 +454,10 @@ class ChartTreemap extends BaseChart {
     const that = this
     const elid = 'echarts-treemap-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart treemap" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       const opt = {
-        ...ECHART_BASE,
+        ...cloneOption(ECHART_BASE),
         series: [{
           data: data.data,
           type: 'treemap',
@@ -443,12 +486,12 @@ class ChartTreemap extends BaseChart {
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = function (i) {
         const p = i.value > 0 ? (i.value * 100 / data.xAmount).toFixed(2) : 0
-        return `<b>${i.name.split('--------').join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${i.value} (${p}%)`
+        return `<b>${i.name.split(LEVELS_SPLIT).join('<br/>')}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)} (${p}%)`
       }
       opt.label = {
-        formatter: function (i) {
-          const ns = i.name.split('--------')
-          return ns[ns.length - 1]
+        formatter: function (a) {
+          const ns = a.name.split(LEVELS_SPLIT)
+          return ns[ns.length - 1] + (showNumerical ? ` ${formatThousands(a.value)}` : '')
         }
       }
 
@@ -662,13 +705,15 @@ class ChartRadar extends BaseChart {
     const that = this
     const elid = 'echarts-radar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart radar" id={elid}></div>) }, () => {
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
+
       const opt = {
         ...cloneOption(ECHART_BASE),
         radar: {
           indicator: data.indicator,
           name: {
             textStyle: {
-              color: '#555', fontSize: 12
+              color: COLOR_LABEL, fontSize: 12
             }
           },
           splitNumber: 4,
@@ -679,12 +724,12 @@ class ChartRadar extends BaseChart {
           },
           splitLine: {
             lineStyle: {
-              color: '#ddd'
+              color: COLOR_AXIS
             }
           },
           axisLine: {
             lineStyle: {
-              color: '#ddd'
+              color: COLOR_AXIS
             }
           }
         },
@@ -692,10 +737,12 @@ class ChartRadar extends BaseChart {
           type: 'radar',
           symbol: 'circle',
           symbolSize: 6,
-          // label: {
-          //   show: true,
-          //   formatter: '{c}'
-          // },
+          label: {
+            show: showNumerical,
+            formatter: function (a) {
+              return formatThousands(a.value)
+            }
+          },
           lineStyle: {
             normal: { width: 2 },
             emphasis: { width: 3 },
@@ -709,9 +756,9 @@ class ChartRadar extends BaseChart {
       opt.tooltip.formatter = function (a) {
         const tooltip = [`<b>${a.name}</b>`]
         a.value.forEach((item, idx) => {
-          tooltip.push(`${data.indicator[idx].name} : ${item}`)
+          tooltip.push(`${data.indicator[idx].name} : ${formatThousands(item)}`)
         })
-        return tooltip.join('<br>')
+        return tooltip.join('<br/>')
       }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
@@ -734,17 +781,19 @@ class ChartScatter extends BaseChart {
     const that = this
     const elid = 'echarts-scatter-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart scatter" id={elid}></div>) }, () => {
+      const showGrid = data._renderOption && data._renderOption.showGrid
+      const showNumerical = data._renderOption && data._renderOption.showNumerical
 
       const axisOption = {
         splitLine: {
-          lineStyle: { color: '#ddd', width: 0, type: 'dashed' }
+          lineStyle: { color: COLOR_AXIS, width: showGrid ? 1 : 0, type: 'solid' }
         },
         axisLabel: {
           ...ECHART_AXIS_LABEL,
           formatter: shortNumber
         },
         axisLine: {
-          lineStyle: { color: '#ddd' }
+          lineStyle: { color: COLOR_AXIS }
         },
         scale: false,
       }
@@ -757,12 +806,30 @@ class ChartScatter extends BaseChart {
           // symbolSize: 20,
           symbolSize: function (data) {
             let s = Math.sqrt(~~data[0])
-            console.log(data[0] + ' > ' + s)
             s = Math.min(s, 120)
             s = Math.max(s, 8)
             return s
           },
-          cursor: 'default'
+          // itemStyle: {
+          //   shadowBlur: 10,
+          //   shadowColor: 'rgba(120, 36, 50, 0.5)',
+          //   shadowOffsetY: 5,
+          //   color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{
+          //     offset: 0,
+          //     color: 'rgb(251, 118, 123)'
+          //   }, {
+          //     offset: 1,
+          //     color: 'rgb(204, 46, 72)'
+          //   }])
+          // },
+          cursor: 'default',
+          label: {
+            show: showNumerical,
+            position: 'top',
+            formatter: function (a) {
+              return a.data.length === 3 ? a.data[2] : `${a.data[0]}\n${a.data[1]}`
+            }
+          }
         })
       })
 
@@ -778,8 +845,8 @@ class ChartScatter extends BaseChart {
         if (a.value.length === 3) {
           tooltip.push(`<b>${a.value[2]}</b>`)
         }
-        tooltip.push(`${data.dataLabel[1]} : ${a.value[1]}`)
-        tooltip.push(`${data.dataLabel[0]} : ${a.value[0]}`)
+        tooltip.push(`${data.dataLabel[1]} : ${formatThousands(a.value[1])}`)
+        tooltip.push(`${data.dataLabel[0]} : ${formatThousands(a.value[0])}`)
         return tooltip.join('<br>')
       }
 

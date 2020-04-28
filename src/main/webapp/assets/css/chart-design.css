@@ -403,3 +403,11 @@ a.ui-draggable.ui-draggable-dragging {
 .chart-type>a.active>i.C360 {
 	background-position: -1372px -1464px;
 }
+
+.chart-type>a>i.C243 {
+	background-position: -1322px -1288px;
+}
+
+.chart-type>a.active>i.C243 {
+	background-position: -1290px -1288px;
+}

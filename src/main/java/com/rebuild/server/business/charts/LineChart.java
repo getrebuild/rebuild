@@ -64,7 +64,7 @@ public class LineChart extends ChartData {
 		}
 
 		return JSONUtils.toJSONObject(
-				new String[] { "xAxis", "yyyAxis" },
-				new Object[] { JSON.toJSON(dimAxis), JSON.toJSON(yyyAxis) });
+				new String[] { "xAxis", "yyyAxis", "_renderOption" },
+				new Object[] { JSON.toJSON(dimAxis), JSON.toJSON(yyyAxis), config.getJSONObject("option") });
 	}
 }

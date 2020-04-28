@@ -62,8 +62,8 @@ public class FunnelChart extends ChartData {
 		}
 		
 		JSONObject ret = JSONUtils.toJSONObject(
-				new String[] { "data" },
-				new Object[] { dataJson });
+				new String[] { "data", "_renderOption" },
+				new Object[] { dataJson, config.getJSONObject("option") });
 		if (nums.length >= 1 && dims.length >= 1) {
 			ret.put("xLabel", nums[0].getLabel());
 		}

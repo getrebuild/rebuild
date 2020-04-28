@@ -11,6 +11,8 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.Objects;
+
 /**
  * 轴
  * 
@@ -77,4 +79,19 @@ public class Axis {
 	public String getSqlName() {
 		return (parentField == null ? "" : (parentField.getName() + ".")) + field.getName();
 	}
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Axis axis = (Axis) o;
+        return field.equals(axis.field) &&
+                calc == axis.calc &&
+                Objects.equals(parentField, axis.parentField);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(field, calc, parentField);
+    }
 }

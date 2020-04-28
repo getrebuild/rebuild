@@ -48,7 +48,7 @@ public class AggregationEvaluator {
 
     private static final Pattern FIELD_PATT = Pattern.compile("\\{(.*?)}");
 
-    private static AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
+    private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
     static {
         // 强制使用 BigDecimal/BigInteger 运算
         AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
@@ -88,6 +88,11 @@ public class AggregationEvaluator {
         }
 
         String funcAndField = String.format("%s(%s)", calcMode, sourceField);
+        // 去重计数
+        if ("COUNT2".equalsIgnoreCase(calcMode)) {
+            funcAndField = String.format("COUNT(DISTINCT %s)", sourceField);
+        }
+
         String sql = String.format("select %s from %s where %s = ?",
                 funcAndField, sourceEntity.getName(), followSourceField);
         if (filterSql != null) {

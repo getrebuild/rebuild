@@ -47,8 +47,8 @@ public class TreemapChart extends ChartData {
 		TreeBuilder builder = new TreeBuilder(dataRaw, this);
 
         return JSONUtils.toJSONObject(
-                new String[] { "data", "xLabel", "xAmount" },
-                new Object[] { builder.toJSON(), num1.getLabel(), xAmount });
+                new String[] { "data", "xLabel", "xAmount", "_renderOption" },
+                new Object[] { builder.toJSON(), num1.getLabel(), xAmount, config.getJSONObject("option") });
 	}
 	
 	@Override

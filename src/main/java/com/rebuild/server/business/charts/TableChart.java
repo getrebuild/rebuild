@@ -44,8 +44,7 @@ public class TableChart extends ChartData {
 		Dimension[] dims = getDimensions();
 		Numerical[] nums = getNumericals();
 		
-		String sql = buildSql(dims, nums);
-		Object[][] dataRaw = createQuery(sql).array();
+		Object[][] dataRaw = createQuery(buildSql(dims, nums)).array();
 
 		// 行号
 		if (this.showLineNumber && dataRaw.length > 0) {
@@ -86,10 +85,7 @@ public class TableChart extends ChartData {
 		}
 		
 		String tableHtml = new TableBuilder(this, dataRaw).toHTML();
-
-        return JSONUtils.toJSONObject(
-                new String[] { "html" },
-                new Object[] { tableHtml });
+        return JSONUtils.toJSONObject("html", tableHtml);
 	}
 	
 	protected boolean isShowLineNumber() {
@@ -98,6 +94,18 @@ public class TableChart extends ChartData {
 
 	protected boolean isShowSums() {
 		return showSums;
+	}
+
+	protected String wrapSumValue(Axis sumAxis, Object value) {
+	    if (ChartsHelper.isZero(value)) {
+            return ChartsHelper.VALUE_ZERO;
+		}
+
+		if (sumAxis instanceof Numerical) {
+			return wrapAxisValue((Numerical) sumAxis, value, true);
+		} else {
+			return value.toString();
+		}
 	}
 
 	private String buildSql(Dimension[] dims, Numerical[] nums) {

@@ -70,13 +70,18 @@ public class TableBuilder {
 
 			for (int i = 0; i < row.length; i++) {
 				Axis axis = axes.get(i);
-				TD td = null;
+				TD td;
 				if (axis == LN_REF) {
 					td = new TD(row[i] + "", "th");
 				} else {
-					String text = isLast == 0
-							? chart.wrapSumValue(axis, row[i])
-							: chart.wrapAxisValue(axis, row[i]);
+					String text;
+					if (isLast == 0) {
+						text = chart.wrapSumValue(axis, row[i]);
+					} else if (axis instanceof Numerical) {
+						text = chart.wrapAxisValue((Numerical) axis, row[i], true);
+					} else {
+						text = chart.wrapAxisValue((Dimension) axis, row[i]);
+					}
 					td = new TD(text);
 				}
 				tds.addChild(td);
@@ -103,9 +108,8 @@ public class TableBuilder {
 		}
 		
 		String tClazz = (chart.isShowLineNumber() ? "line-number " : "") + (chart.isShowSums() ? "sums" : "");
-		String table = String.format("<table class=\"table table-bordered %s\">%s%s</table>",
+		return String.format("<table class=\"table table-bordered %s\">%s%s</table>",
 				tClazz, thead.toString(), tbody.toString());
-		return table;
 	}
 
 	// --
@@ -113,17 +117,22 @@ public class TableBuilder {
 
 	// <tbody> or <thead>
 	private static class TBODY {
+
 		private String tag = "tbody";
 		private List<TR> children = new ArrayList<>();
+
 		private TBODY() {
 		}
+
 		private TBODY(String tag) {
 			this.tag = tag;
 		}
+
 		private TBODY addChild(TR c) {
 			children.add(c);
 			return this;
 		}
+
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
@@ -136,11 +145,14 @@ public class TableBuilder {
 
 	// <tr>
 	private static class TR {
+
 		private List<TD> children = new ArrayList<>();
+
 		private TR addChild(TD c) {
 			children.add(c);
 			return this;
 		}
+
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
@@ -153,16 +165,19 @@ public class TableBuilder {
 
 	// <td> or <th>
 	private static class TD {
-		private String tag = null;
+
+		private String tag;
 		private String content;
 		private int rowspan = 1;
 		private TD(String content) {
 			this(content, null);
 		}
+
 		private TD(String content, String tag) {
 			this.content = StringUtils.defaultIfBlank(content, "");
 			this.tag = StringUtils.defaultIfBlank(tag, "td");
 		}
+
 		@Override
 		public String toString() {
 			if (rowspan == 0) {

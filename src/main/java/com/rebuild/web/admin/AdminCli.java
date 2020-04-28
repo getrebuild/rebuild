@@ -67,6 +67,9 @@ public class AdminCli {
                 result = this.execSysCfg();
                 break;
             }
+            default: {
+                // NOOP
+            }
         }
 
         return StringUtils.defaultIfBlank(result, "Unknow command : " + commands[0]);

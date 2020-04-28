@@ -64,8 +64,8 @@ public class RadarChart extends ChartData {
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "indicator", "series" },
-                new Object[] { indicator, series });
+                new String[] { "indicator", "series", "_renderOption" },
+                new Object[] { indicator, series, config.getJSONObject("option") });
     }
 
     private long calcMax(Object[] items) {

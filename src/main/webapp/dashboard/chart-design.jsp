@@ -52,10 +52,11 @@
 						<a title="柱状图" data-type="BAR" data-allow-dims="1|1" data-allow-nums="1|9"><i class="C210"></i></a>
 						<a title="饼图" data-type="PIE" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C230"></i></a>
 						<a title="漏斗图" data-type="FUNNEL" data-allow-dims="0|1" data-allow-nums="1|9"><i class="C330"></i></a>
-						<a title="树图" data-type="TREEMAP" data-allow-dims="1|3" data-allow-nums="1|1"><i class="C370"></i></a>
+						<a title="矩形树图" data-type="TREEMAP" data-allow-dims="1|3" data-allow-nums="1|1"><i class="C370"></i></a>
 						<a title="雷达图" data-type="RADAR" data-allow-dims="1|1" data-allow-nums="1|3"><i class="C290"></i></a>
 						<a title="散点图" data-type="SCATTER" data-allow-dims="0|3" data-allow-nums="2|2"><i class="C280"></i></a>
                         <!--
+						<a title="对比图" data-type="BARNEGATIVE" data-allow-dims="1|1" data-allow-nums="2|2"><i class="C243"></i></a>
 						<a title="词云" data-type="DOLOR" data-allow-dims="1|1" data-allow-nums="0|0"><i class="C340"></i></a>
 						<a title="地图" data-type="CNMAP" data-allow-dims="1|1" data-allow-nums="1|1"><i class="C271"></i></a>
 						<a title="旭日图" data-type="SUNBURST" data-allow-dims="2|3" data-allow-nums="1|1"><i class="C360"></i></a>
@@ -68,17 +69,15 @@
 						<div class="J_opt-UNDEF">
 							当前图表无选项
 						</div>
-						<div class="hide admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP">
+						<div class="hide admin-show J_opt-TABLE J_opt-INDEX J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
 								<input class="custom-control-input" type="checkbox" data-name="noPrivileges">
 								<span class="custom-control-label"> 使用全部数据 <i class="zmdi zmdi-help zicon" title="不启用则仅能使用角色权限范围内的数据"></i></span>
 							</label>
-						</div>
-						<div class="hide">
-							<label class="custom-control custom-control-sm custom-checkbox mb-2">
-								<input class="custom-control-input" type="checkbox" data-name="noZero">
-								<span class="custom-control-label"> 排除空数据（数值为 0 不显示）</span>
-							</label>
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2 hide">
+                                <input class="custom-control-input" type="checkbox" data-name="noZero">
+                                <span class="custom-control-label"> 排除空数据（数值为 0 不显示）</span>
+                            </label>
 						</div>
 						<div class="hide J_opt-TABLE">
 							<label class="custom-control custom-control-sm custom-checkbox mb-2">
@@ -90,6 +89,18 @@
 								<span class="custom-control-label"> 显示汇总</span>
 							</label>
 						</div>
+                        <div class="hide J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-TREEMAP J_opt-RADAR J_opt-SCATTER">
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2">
+                                <input class="custom-control-input" type="checkbox" data-name="showNumerical">
+                                <span class="custom-control-label"> 在图表上显示数值</span>
+                            </label>
+                        </div>
+                        <div class="hide J_opt-LINE J_opt-BAR J_opt-SCATTER">
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2">
+                                <input class="custom-control-input" type="checkbox" data-name="showGrid">
+                                <span class="custom-control-label"> 显示参考线</span>
+                            </label>
+                        </div>
 					</div>
 				</div>
 			</div>
@@ -129,7 +140,9 @@
 	<li class="dropdown-item J_num" data-calc="MAX">最大值</li>
 	<li class="dropdown-item J_num" data-calc="MIN">最小值</li>
 	<li class="dropdown-item J_text" data-calc="COUNT">计数</li>
+	<li class="dropdown-item J_text" data-calc="COUNT2">去重计数</li>
 	<li class="dropdown-item J_date" data-calc="Y">按年</li>
+	<li class="dropdown-item J_date" data-calc="Q">按季</li>
 	<li class="dropdown-item J_date" data-calc="M">按月</li>
 	<li class="dropdown-item J_date" data-calc="D">按日</li>
 	<li class="dropdown-item J_date" data-calc="H">按时</li>
