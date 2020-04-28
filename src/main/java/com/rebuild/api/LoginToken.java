@@ -15,7 +15,8 @@ import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.RequestFrequencyCounter;
+import com.rebuild.utils.RateLimiters;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 
 /**
  * 获取登录 Token 可用于单点登录
@@ -25,14 +26,12 @@ import com.rebuild.utils.RequestFrequencyCounter;
  */
 public class LoginToken extends BaseApi {
 
-    private static final RequestFrequencyCounter COUNTER = new RequestFrequencyCounter();
-
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
         String user = context.getParameterNotBlank("user");
         String password = context.getParameterNotBlank("password");
 
-        if (COUNTER.counter(user).add().seconds(30).than(3)) {
+        if (RateLimiters.RRL_LOGIN.overLimitWhenIncremented("user:" + user)) {
             return formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
         }
 

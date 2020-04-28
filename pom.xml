@@ -332,5 +332,10 @@
 			<artifactId>thumbnailator</artifactId>
 			<version>0.4.11</version>
 		</dependency>
+        <dependency>
+            <groupId>es.moki.ratelimitj</groupId>
+            <artifactId>ratelimitj-inmemory</artifactId>
+            <version>0.6.0</version>
+        </dependency>
 	</dependencies>
 </project>

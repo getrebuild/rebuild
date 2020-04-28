@@ -15,6 +15,8 @@ import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.RateLimiters;
+import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,11 +39,17 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 	// 设置页面无缓存
 	// 如果使用了第三方缓存策略（如 nginx），可以将此值设为 false
 	private boolean noCache = true;
-	
+
+    /**
+     * @param noCache
+     */
 	public void setNoCache(boolean noCache) {
 		this.noCache = noCache;
 	}
-	
+
+    /**
+     * @return
+     */
 	public boolean isNoCache() {
 		return noCache;
 	}

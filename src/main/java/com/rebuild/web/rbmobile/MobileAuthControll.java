@@ -10,13 +10,13 @@ package com.rebuild.web.rbmobile;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.api.LoginToken;
 import com.rebuild.api.AuthTokenManager;
+import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.RequestFrequencyCounter;
+import com.rebuild.utils.RateLimiters;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.user.signin.LoginControll;
 import org.springframework.stereotype.Controller;
@@ -33,20 +33,18 @@ import java.io.IOException;
  * @since 2020/3/5
  *
  * @see com.rebuild.web.RequestWatchHandler
- * @see AppUtils#getRequestUser(HttpServletRequest)
+ * @see AppUtils#getRequestUserViaRbMobile(HttpServletRequest, boolean)
  */
 @Controller
 @RequestMapping("/mobile/user/")
 @RbMobile
 public class MobileAuthControll extends BaseControll {
 
-    // 防刷
-    private static final RequestFrequencyCounter COUNTER = new RequestFrequencyCounter();
-
     @RequestMapping("login")
     public void mobileLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String ipAddr = ServletUtils.getRemoteAddr(request);
-        if (COUNTER.counter(ipAddr).add().seconds(60).than(5)) {
+
+        if (RateLimiters.RRL_LOGIN.overLimitWhenIncremented("ip:" + ipAddr)) {
             writeFailure(response, "请求太频繁，请稍后重试");
             return;
         }
