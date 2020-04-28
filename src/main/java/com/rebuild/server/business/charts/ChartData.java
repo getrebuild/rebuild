@@ -237,7 +237,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 				sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
 			}
 		}
-		// 优先维度排序
+		// NOTE 优先维度排序
 		if (!sorts.isEmpty()) {
 			return String.join(", ", sorts);
 		}
@@ -250,20 +250,9 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		}
 		return sorts.isEmpty() ? null : String.join(", ", sorts);
 	}
-	
+
 	/**
-	 * @param axis
-	 * @param value
-	 * @return
-	 */
-	protected String wrapAxisValue(Axis axis, Object value) {
-		return axis instanceof Numerical
-				? wrapAxisValue((Numerical) axis, value)
-				: wrapAxisValue((Dimension) axis, value);
-	}
-	
-	/**
-	 * 格式化数值
+	 * 格式化数值（无千分位）
 	 * 
 	 * @param numerical
 	 * @param value
@@ -280,10 +269,8 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	 * @return
 	 */
 	protected String wrapAxisValue(Numerical numerical, Object value, boolean thousands) {
-		if (value == null
-                || (value instanceof Long && (Long) value == 0L)
-                || (value instanceof Double && (Double) value == 0D)) {
-			return "0";
+		if (ChartsHelper.isZero(value)) {
+			return ChartsHelper.VALUE_ZERO;
 		}
 
 		String format = "###";
@@ -311,7 +298,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	 */
 	protected String wrapAxisValue(Dimension dimension, Object value) {
 		if (value == null) {
-			return "无";
+			return ChartsHelper.VALUE_NONE;
 		}
 
 		EasyMeta axisField = EasyMeta.valueOf(dimension.getField());

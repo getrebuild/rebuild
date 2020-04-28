@@ -80,7 +80,7 @@ public class TableBuilder {
 					} else if (axis instanceof Numerical) {
 						text = chart.wrapAxisValue((Numerical) axis, row[i], true);
 					} else {
-						text =  chart.wrapAxisValue(axis, row[i]);
+						text = chart.wrapAxisValue((Dimension) axis, row[i]);
 					}
 					td = new TD(text);
 				}

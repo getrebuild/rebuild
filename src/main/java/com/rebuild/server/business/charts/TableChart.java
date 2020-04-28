@@ -97,8 +97,8 @@ public class TableChart extends ChartData {
 	}
 
 	protected String wrapSumValue(Axis sumAxis, Object value) {
-		if (value == null) {
-			return "0";
+	    if (ChartsHelper.isZero(value)) {
+            return ChartsHelper.VALUE_ZERO;
 		}
 
 		if (sumAxis instanceof Numerical) {

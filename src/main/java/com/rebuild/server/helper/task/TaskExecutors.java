@@ -43,7 +43,9 @@ import java.util.concurrent.TimeUnit;
 public class TaskExecutors extends QuartzJobBean {
 
 	private static final int MAX_TASK = Runtime.getRuntime().availableProcessors() / 2;
+
 	private static final int MAX_QUEUE = MAX_TASK * 10;
+
 	private static final ExecutorService EXECS = new ThreadPoolExecutor(
 			MAX_TASK, MAX_TASK, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(MAX_QUEUE));
 	
