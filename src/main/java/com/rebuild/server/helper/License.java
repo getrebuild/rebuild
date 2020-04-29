@@ -41,13 +41,15 @@ public final class License {
 
         if (SN == null) {
             try {
-                String result = CommonsUtils.get(
-                        String.format("https://getrebuild.com/api/authority/new?k=%s&ver=%s", OSA_KEY, Application.VER));
+                String apiUrl = String.format("https://getrebuild.com/api/authority/new?ver=%s&k=%s", Application.VER, OSA_KEY);
+                String result = CommonsUtils.get(apiUrl);
+
                 if (JSONUtils.wellFormat(result)) {
-                    JSONObject data = JSON.parseObject(result);
-                    SN = data.getString("sn");
+                    JSONObject o = JSON.parseObject(result);
+                    SN = o.getString("sn");
                     SysConfiguration.set(ConfigurableItem.SN, SN);
                 }
+
             } catch (Exception ignored) {
                 // UNCATCHABLE
             }

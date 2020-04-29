@@ -18,10 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -33,7 +34,9 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 2017-1-2
  */
 public class AES {
-	
+
+	private static final Log LOG = LogFactory.getLog(AES.class);
+
 	/**
 	 * @param input
 	 * @return
@@ -51,14 +54,14 @@ public class AES {
 	 */
 	public static String encrypt(String input, String key) throws RebuildException {
 		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
-		byte[] crypted = null;
+		byte[] crypted;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.ENCRYPT_MODE, skey);
 			crypted = cipher.doFinal(input.getBytes());
 		} catch (Exception ex) {
-			throw new RebuildException("加密失败", ex);
+			throw new RebuildException("Encrypting error : " + input, ex);
 		}
 		return new String(Base64.encodeBase64(crypted));
 	}
@@ -80,14 +83,14 @@ public class AES {
 	 */
 	public static String decrypt(String input, String key) throws RebuildException {
 		key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
-		byte[] output = null;
+		byte[] output;
 		try {
 			SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
 			Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
 			cipher.init(Cipher.DECRYPT_MODE, skey);
 			output = cipher.doFinal(Base64.decodeBase64(input));
 		} catch (Exception ex) {
-			throw new RebuildException("Decrypting Error", ex);
+			throw new RebuildException("Decrypting error : " + input, ex);
 		}
 		return new String(output);
 	}
@@ -100,8 +103,8 @@ public class AES {
 		try {
 			return decrypt(input);
 		} catch (RebuildException ex) {
-			Application.LOG.warn("Decrypting Error! Use input: " + input);
-			return input;
+			LOG.warn("Decrypting error (Use blank input) : " + input);
+			return StringUtils.EMPTY;
 		}
 	}
 	

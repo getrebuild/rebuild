@@ -18,17 +18,22 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper;
 
-import com.rebuild.server.Application;
 import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.server.helper.setup.SetupException;
 import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
+import org.springframework.util.Assert;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 /**
@@ -39,12 +44,18 @@ import java.util.Properties;
  */
 public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer implements InstallState {
 
-	private Properties propsHold = null;
+	private static final Log LOG = LogFactory.getLog(AesPreferencesConfigurer.class);
+
+	private static Properties propsHold = null;
 
 	@Override
 	protected void loadProperties(Properties props) throws IOException {
 		super.loadProperties(props);
+
+		props.putAll(fromInstallFile());
 		this.afterLoad(props);
+		LOG.info("Application properties : " + props);
+
 		setNullValue(StringUtils.EMPTY);
 	}
 
@@ -52,8 +63,6 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
      * @param props
      */
 	private void afterLoad(Properties props) {
-        props.putAll(fromInstallFile());
-
 		final Object[] keys = props.keySet().toArray(new Object[0]);
 		for (Object key : keys) {
 			String cleanKey = key.toString();
@@ -87,13 +96,6 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
         setIfEmpty(props, ConfigurableItem.CachePort, "6379");
 
 		propsHold = (Properties) props.clone();
-
-        if (propsHold.getProperty("db.url").contains("jdbc:h2:")) {
-            Application.LOG.warn("Using QuickMode with H2 database!");
-        }
-		if (Application.devMode()) {
-			Application.LOG.info("System properties : " + propsHold);
-		}
 	}
 
     /**
@@ -125,13 +127,29 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
         }
     }
 
+    // --
+
+	/**
+	 * @throws IOException
+	 */
+	public static void initApplicationProperties() throws IOException {
+		if (propsHold != null) return;
+		File file = ResourceUtils.getFile("classpath:application.properties");
+		try (InputStream is = new FileInputStream(file)) {
+			Properties props = new Properties();
+			props.load(is);
+			new AesPreferencesConfigurer().afterLoad(props);
+		}
+	}
+
 	/**
 	 * 获取配置项
 	 * 
 	 * @param name
 	 * @return
 	 */
-	public String getItem(String name) {
+	public static String getItem(String name) {
+		Assert.notNull(propsHold, "Rebuild unstarted");
 		return StringUtils.defaultIfBlank(propsHold.getProperty(name), null);
 	}
 }

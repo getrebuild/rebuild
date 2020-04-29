@@ -22,7 +22,7 @@ import java.io.File;
 public interface InstallState {
 
     /**
-     * 状态文件位置 ～/.rebuild/.rebuild
+     * 安装文件位置 ～/.rebuild/.rebuild
      */
     String INSTALL_FILE = ".rebuild";
 
