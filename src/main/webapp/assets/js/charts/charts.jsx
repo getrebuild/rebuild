@@ -16,7 +16,7 @@ class BaseChart extends React.Component {
   render() {
     const opers = (
       <div className="chart-oper">
-        {!this.props.builtin && <a title="查看来源数据" target="_blank" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
+        {!this.props.builtin && <a title="查看来源数据" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
         {this.props.editable && (
           <React.Fragment>
@@ -560,7 +560,7 @@ class ApprovalList extends BaseChart {
                   <span className="cell-detail-description">{item[2]}</span>
                 </td>
                 <td className="cell-detail">
-                  <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`} target="_blank">{item[4]}</a>
+                  <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
                   <span className="cell-detail-description">{item[6]}</span>
                 </td>
                 <td className="actions text-right">
@@ -643,7 +643,7 @@ class FeedsSchedule extends BaseChart {
 
               return <tr key={'schedule-' + idx}>
                 <td>
-                  <a title="查看详情" href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" className="content" dangerouslySetInnerHTML={{ __html: item.content }} />
+                  <a title="查看详情" href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content" dangerouslySetInnerHTML={{ __html: item.content }} />
                 </td>
                 <td className="cell-detail">
                   <div>{item.scheduleTime}</div>

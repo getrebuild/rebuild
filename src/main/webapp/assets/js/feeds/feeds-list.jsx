@@ -414,7 +414,7 @@ function __renderRichContent(e) {
       }
       {e.relatedRecord && <div>
         <span><i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} /> {e.relatedRecord.entityLabel} : </span>
-        <a target="_blank" href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title="查看相关记录">{e.relatedRecord.text}</a>
+        <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title="查看相关记录">{e.relatedRecord.text}</a>
       </div>
       }
       {e.type === 3 && <div>
