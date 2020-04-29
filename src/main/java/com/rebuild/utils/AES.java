@@ -18,10 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.utils;
 
-import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
@@ -33,7 +34,9 @@ import javax.crypto.spec.SecretKeySpec;
  * @since 2017-1-2
  */
 public class AES {
-	
+
+	private static final Log LOG = LogFactory.getLog(AES.class);
+
 	/**
 	 * @param input
 	 * @return
@@ -58,7 +61,7 @@ public class AES {
 			cipher.init(Cipher.ENCRYPT_MODE, skey);
 			crypted = cipher.doFinal(input.getBytes());
 		} catch (Exception ex) {
-			throw new RebuildException("Encrypt error : " + input, ex);
+			throw new RebuildException("Encrypting error : " + input, ex);
 		}
 		return new String(Base64.encodeBase64(crypted));
 	}
@@ -103,11 +106,24 @@ public class AES {
 			cipher.init(Cipher.DECRYPT_MODE, skey);
 			output = cipher.doFinal(Base64.decodeBase64(input));
 		} catch (Exception ex) {
-			throw new RebuildException("Decrypt error : " + input, ex);
+			throw new RebuildException("Decrypting error : " + input, ex);
 		}
 		return new String(output);
 	}
-
+	
+	/**
+	 * @param input
+	 * @return
+	 */
+	public static String decryptNothrow(String input) {
+		try {
+			return decrypt(input);
+		} catch (RebuildException ex) {
+			LOG.warn("Decrypting error (Use blank input) : " + input);
+			return StringUtils.EMPTY;
+		}
+	}
+	
 	/**
 	 * 通过 `-Drbpass=KEY` 指定 AES 秘钥
 	 * 

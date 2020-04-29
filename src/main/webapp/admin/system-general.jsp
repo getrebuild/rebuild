@@ -83,7 +83,7 @@
 								<td data-id="MarkWatermark" data-options="true:是;false:否">${MarkWatermark ? "是" : "否"}</td>
 							</tr>
 							<tr>
-								<td>数据库自动备份<p>每日0点备份到数据目录，请预留足够磁盘空间</p></td>
+								<td>数据库自动备份<p>每日 0 点备份到数据目录，请预留足够磁盘空间</p></td>
 								<td data-id="DBBackupsEnable" data-options="true:是;false:否">${DBBackupsEnable ? "是" : "否"}</td>
 							</tr>
 						</tbody>

@@ -9,6 +9,7 @@ package com.rebuild.server;
 
 import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
@@ -56,6 +57,8 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
         event.getServletContext().setAttribute("baseUrl", CONTEXT_PATH);
 
 		try {
+			AesPreferencesConfigurer.initApplicationProperties();
+
             if (!checkInstalled()) {
                 eventHold = event;
                 LOG.warn(Application.formatFailure("REBUILD IS WAITING FOR INSTALL ..."));

@@ -307,7 +307,7 @@ public class Installer implements InstallState {
      * @return
      */
     public static boolean isUseH2() {
-        String dbUrl = Application.getBean(AesPreferencesConfigurer.class).getItem("db.url");
+        String dbUrl = AesPreferencesConfigurer.getItem("db.url");
         return dbUrl.startsWith("jdbc:h2:");
     }
 }
