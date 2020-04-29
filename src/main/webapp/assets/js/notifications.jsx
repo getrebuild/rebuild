@@ -41,9 +41,13 @@ class MessageList extends React.Component {
       {(this.state.page > 1 || msglist.length >= this.state.pageSize) &&
         <div className="notification-page">
           <ul className="pagination pagination-rounded mb-0">
-            <li className={`page-item ${this.state.page < 2 ? 'disabled' : ''}`}><a onClick={() => this.gotoPage(-1)} className="page-link"><i className="icon zmdi zmdi-chevron-left" /></a></li>
+            <li className={`page-item ${this.state.page < 2 ? 'disabled' : ''}`}>
+              <a onClick={() => this.gotoPage(-1)} className="page-link"><i className="icon zmdi zmdi-chevron-left" /></a>
+            </li>
             <li className="page-no"><span>{this.state.page}</span></li>
-            <li className={`page-item ${msglist.length < this.state.pageSize ? 'disabled' : ''}`}><a onClick={() => this.gotoPage(1)} className="page-link"><i className="icon zmdi zmdi-chevron-right" /></a></li>
+            <li className={`page-item ${msglist.length < this.state.pageSize ? 'disabled' : ''}`}>
+              <a onClick={() => this.gotoPage(1)} className="page-link"><i className="icon zmdi zmdi-chevron-right" /></a>
+            </li>
           </ul>
         </div>}
     </div>
@@ -63,7 +67,8 @@ class MessageList extends React.Component {
           <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
           <div className="date">{item[2]}</div>
         </div>
-        {append && <a title="查看相关记录" target="_blank" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
+        {append
+          && <a title="查看相关记录" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
       </span>
     </li>
   }
@@ -79,20 +84,12 @@ class MessageList extends React.Component {
       type: type || this.state.type
     }, () => {
       $.get(`/notification/messages?type=${this.state.type}&pageNo=${this.state.page}`, (res) => {
-        this.setState({ list: res.data || [] }, this.__loadAfter)
+        this.setState({ list: res.data || [] }, () => {
+          if (focusItem) setTimeout(() => $gotoSection($('.notification.focus').offset().top - 66), 200)
+          focusItem = null
+        })
       })
     })
-  }
-
-  __loadAfter = () => {
-    $(this._list).find('.notification-info a')
-      .attr('target', '_blank')
-      .addClass('link')
-      .click('click', (e) => {
-        if (e && e.stopPropagation) e.stopPropagation()
-      })
-    setTimeout(() => $gotoSection(), 200)
-    focusItem = null
   }
 
   gotoPage(p) {
@@ -127,7 +124,7 @@ class ApprovalList extends MessageList {
       page: page || this.state.page
     }, () => {
       $.get(`/notification/approvals?pageNo=${this.state.page || 1}`, (res) => {
-        this.setState({ list: res.data || [] }, this.__loadAfter)
+        this.setState({ list: res.data || [] })
       })
     })
   }
