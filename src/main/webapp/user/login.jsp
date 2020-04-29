@@ -102,7 +102,7 @@
 							<button class="btn btn-primary btn-xl" type="submit" data-spinner>${bundle.lang('Login')}</button>
 							<div class="mt-4 text-center">${bundle.lang('NoAccountYet')}&nbsp;<a href="signup">${bundle.lang('SignupNow')}</a></div>
 						</div>
-						<div class="select-lang text-center mb-2">
+						<div class="select-lang text-center mb-2 dev-show">
 							<a href="?locale=zh_CN" title="中文"><img src="${baseUrl}/assets/img/flag/zh-CN.png" /></a>
 							<a href="?locale=en" title="English"><img src="${baseUrl}/assets/img/flag/en-US.png" /></a>
 							<a href="?locale=ja" title="日本語"><img src="${baseUrl}/assets/img/flag/ja-JP.png" /></a>

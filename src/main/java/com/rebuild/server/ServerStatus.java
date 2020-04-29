@@ -106,12 +106,11 @@ public final class ServerStatus {
 			return Status.success(name);
 		}
 
-		AesPreferencesConfigurer configurer = Application.getBean(AesPreferencesConfigurer.class);
 		try {
 			Connection c = DriverManager.getConnection(
-					configurer.getItem("db.url"),
-					configurer.getItem("db.user"),
-					configurer.getItem("db.passwd"));
+					AesPreferencesConfigurer.getItem("db.url"),
+					AesPreferencesConfigurer.getItem("db.user"),
+					AesPreferencesConfigurer.getItem("db.passwd"));
 			SqlHelper.close(c);
 		} catch (Exception ex) {
 			return Status.error(name, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
