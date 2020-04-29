@@ -18,6 +18,7 @@ import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.api.ApiGateway;
 import com.rebuild.api.BaseApi;
+import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
@@ -193,7 +194,8 @@ public final class Application {
 		if (APPLICATION_CTX == null) {
 			debugMode = true;
 			LOG.info("Rebuild Booting in DEBUG mode ...");
-			
+
+			AesPreferencesConfigurer.initApplicationProperties();
 			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
 			new Application(ctx).init(at);
