@@ -48,7 +48,7 @@ public class RadarChart extends ChartData {
 
             indicator.add(JSONUtils.toJSONObject(
                     new String[] { "name", "max" },
-                    new Object[] { item[0], calcMax(item) }));
+                    new Object[] { wrapAxisValue(dim1, item[0]), calcMax(item) }));
 
             for (int j = 0; j < nums.length; j++) {
                 Object[] data = seriesRotate.get(nums[j]);
