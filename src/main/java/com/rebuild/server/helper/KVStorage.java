@@ -21,7 +21,6 @@ package com.rebuild.server.helper;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.lang.StringUtils;
@@ -88,37 +87,38 @@ public class KVStorage {
      * @return
      */
     protected static String getValue(final String key, boolean reload, Object defaultValue) {
-        if (!Application.serversReady()) {
-            return defaultValue == null ? null : defaultValue.toString();
+        String value = null;
+        if (Application.serversReady()) {
+            value = Application.getCommonCache().get(key);
+            if (value != null && !reload) {
+                return value;
+            }
+
+            // 1. 首先从数据库
+            Object[] fromDb = Application.createQueryNoFilter(
+                    "select value from SystemConfig where item = ?")
+                    .setParameter(1, key)
+                    .unique();
+            value = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
         }
 
-        String cached = Application.getCommonCache().get(key);
-        if (cached != null && !reload) {
-            return cached;
-        }
-
-        // 1. 首先从数据库
-        Object[] fromDb = Application.createQueryNoFilter(
-                "select value from SystemConfig where item = ?")
-                .setParameter(1, key)
-                .unique();
-        cached = fromDb == null ? null : StringUtils.defaultIfBlank((String) fromDb[0], null);
-
-        // 2. 从配置文件加载
-        if (cached == null) {
-            cached = Application.getBean(AesPreferencesConfigurer.class).getItem(key);
+        // 2. 从配置文件/命令行加载
+        if (value == null) {
+            value = AesPreferencesConfigurer.getItem(key);
         }
 
         // 3. 默认值
-        if (cached == null && defaultValue != null) {
-            cached = defaultValue.toString();
+        if (value == null && defaultValue != null) {
+            value = defaultValue.toString();
         }
 
-        if (cached == null) {
-            Application.getCommonCache().evict(key);
-        } else {
-            Application.getCommonCache().put(key, cached);
+        if (Application.serversReady()) {
+            if (value == null) {
+                Application.getCommonCache().evict(key);
+            } else {
+                Application.getCommonCache().put(key, value);
+            }
         }
-        return cached;
+        return value;
     }
 }

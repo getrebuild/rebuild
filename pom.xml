@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.rebuild</groupId>
@@ -11,12 +9,12 @@
 	<description>Building your business-systems free!</description>
 	<url>https://getrebuild.com/</url>
 
-    <developers>
-        <developer>
-            <name>devezhao</name>
-            <email>zhaofang123@gmail.com</email>
-        </developer>
-    </developers>
+	<developers>
+		<developer>
+			<name>devezhao</name>
+			<email>zhaofang123@gmail.com</email>
+		</developer>
+	</developers>
 
 	<licenses>
 		<license>
@@ -158,11 +156,11 @@
 			<version>2.3.3</version>
 			<scope>provided</scope>
 		</dependency>
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>jstl</artifactId>
-            <version>1.2</version>
-        </dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
@@ -317,11 +315,11 @@
 			<artifactId>poi-ooxml</artifactId>
 			<version>4.1.0</version>
 		</dependency>
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>1.4.200</version>
-        </dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<version>1.4.200</version>
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.aviator</groupId>
 			<artifactId>aviator</artifactId>
@@ -332,10 +330,10 @@
 			<artifactId>thumbnailator</artifactId>
 			<version>0.4.11</version>
 		</dependency>
-        <dependency>
-            <groupId>es.moki.ratelimitj</groupId>
-            <artifactId>ratelimitj-inmemory</artifactId>
-            <version>0.6.0</version>
-        </dependency>
+		<dependency>
+			<groupId>es.moki.ratelimitj</groupId>
+			<artifactId>ratelimitj-inmemory</artifactId>
+			<version>0.6.0</version>
+		</dependency>
 	</dependencies>
 </project>

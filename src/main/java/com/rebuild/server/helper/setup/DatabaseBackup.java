@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.helper.setup;
 
 import cn.devezhao.commons.CalendarUtils;
-import com.rebuild.server.Application;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
@@ -41,9 +40,9 @@ public class DatabaseBackup {
      * @throws IOException
      */
     public File backup() throws IOException {
-        String url = Application.getBean(AesPreferencesConfigurer.class).getItem("db.url");
-        String user = Application.getBean(AesPreferencesConfigurer.class).getItem("db.user");
-        String passwd = Application.getBean(AesPreferencesConfigurer.class).getItem("db.passwd");
+        String url = AesPreferencesConfigurer.getItem("db.url");
+        String user = AesPreferencesConfigurer.getItem("db.user");
+        String passwd = AesPreferencesConfigurer.getItem("db.passwd");
 
         url = url.split("\\?")[0].split("//")[1];
         String host = url.split(":")[0];

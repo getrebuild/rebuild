@@ -42,11 +42,15 @@ public final class License {
         SN = SysConfiguration.get(ConfigurableItem.SN, true);
         if (SN == null) {
             try {
-                JSONObject result = siteApi("api/authority/new?ver=" + Application.VER, false);
-                if (result != null) {
-                    SN = result.getString("sn");
+                String apiUrl = String.format("https://getrebuild.com/api/authority/new?ver=%s&k=%s", Application.VER, OSA_KEY);
+                String result = CommonsUtils.get(apiUrl);
+
+                if (JSONUtils.wellFormat(result)) {
+                    JSONObject o = JSON.parseObject(result);
+                    SN = o.getString("sn");
                     SysConfiguration.set(ConfigurableItem.SN, SN);
                 }
+
             } catch (Exception ignored) {
                 // UNCATCHABLE
             }
