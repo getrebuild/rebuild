@@ -288,7 +288,10 @@
 							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<div class="J_action hide">
 									<button class="btn btn-primary btn-space J_save" type="button" data-loading-text="请稍后">保存</button>
-									<button class="btn btn-danger bordered btn-space J_del" type="button" data-loading-text="请稍后"><i class="zmdi zmdi-delete icon"></i> 删除</button>
+									<button class="btn btn-danger bordered btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> 删除</button>
+									<c:if test="${fieldType == 'SERIES'}">
+										<button class="btn btn-secondary btn-space J_series-reindex" type="button" data-loading-text="请稍后">补充编号</button>
+									</c:if>
 								</div>
 								<div class="alert alert-warning alert-icon hide mb-0">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>

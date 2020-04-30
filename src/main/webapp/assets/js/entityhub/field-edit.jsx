@@ -84,11 +84,24 @@ $(document).ready(function () {
       $(res.data).each(function () { picklistItemRender(this) })
       if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
     })
-    $('.J_picklist-edit').click(() => RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
+    $('.J_picklist-edit').click(() =>
+      RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
   }
   else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
     $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
+
+    $('.J_series-reindex').click(() => {
+      RbAlert.create('此操作将为空字段补充编号（空字段过多耗时会较长）。是否继续？', {
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+            this.hide()
+            RbHighbar.success('编号已补充')
+          })
+        }
+      })
+    })
   }
   else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
