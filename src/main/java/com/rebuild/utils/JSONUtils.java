@@ -103,8 +103,7 @@ public class JSONUtils {
      * @return
      */
     public static JSON clone(JSON json) {
-        String tostr = json.toJSONString();
-        return (JSON) JSON.parse(tostr);
+        return (JSON) JSON.parse(json.toJSONString());
     }
 
     /**
@@ -124,6 +123,6 @@ public class JSONUtils {
             return false;
         }
         text = text.trim();
-        return (text.startsWith("{") && text.endsWith("}")) || text.startsWith("[") && text.endsWith("]");
+        return (text.startsWith("{") && text.endsWith("}")) || (text.startsWith("[") && text.endsWith("]"));
     }
 }
