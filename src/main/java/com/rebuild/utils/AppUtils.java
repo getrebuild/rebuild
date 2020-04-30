@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.Controll;
 import com.rebuild.api.AuthTokenManager;
 import com.rebuild.server.Application;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
@@ -147,11 +148,16 @@ public class AppUtils {
 	 * @return
 	 */
 	public static String getErrorMessage(HttpServletRequest request, Throwable exception) {
-		String errorMsg = (String) request.getAttribute(ServletUtils.ERROR_MESSAGE);
-		if (exception != null && ThrowableUtils.getRootCause(exception) instanceof DataTruncation) {
-			errorMsg = "字段长度超出限制";
-		}
+	    if (exception != null) {
+	        Throwable root = ThrowableUtils.getRootCause(exception);
+            if (root instanceof DataTruncation) {
+                return "字段长度超出限制";
+            } else if (!RebuildException.class.isAssignableFrom(root.getClass())) {
+                return "系统繁忙，请稍后重试";
+            }
+        }
 
+		String errorMsg = (String) request.getAttribute(ServletUtils.ERROR_MESSAGE);
 		if (StringUtils.isNotBlank(errorMsg)) {
 			return errorMsg;
 		}

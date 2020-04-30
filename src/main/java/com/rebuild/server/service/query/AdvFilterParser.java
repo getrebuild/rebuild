@@ -115,7 +115,7 @@ public class AdvFilterParser {
 			return null;
 		}
 
-		if (validEquation(equation) == null) {
+		if ((equation = validEquation(equation)) == null) {
 			throw new FilterParseException("无效高级表达式 : " + equation);
 		}
 
@@ -482,15 +482,21 @@ public class AdvFilterParser {
 	 * @param equation
 	 * @return null 表示无效
 	 */
-	public static String validEquation(final String equation) {
+	public static String validEquation(String equation) {
 		if (StringUtils.isBlank(equation)) {
 			return "OR";
 		}
-		if ("OR".contentEquals(equation) || "AND".equalsIgnoreCase(equation)) {
+		if ("OR".equalsIgnoreCase(equation) || "AND".equalsIgnoreCase(equation)) {
 			return equation;
 		}
 
-		String clearEquation = equation.toUpperCase().replace("  ", "").trim();
+		String clearEquation = equation.toUpperCase()
+                .replace("OR", " OR ")
+                .replace("AND", " AND ")
+                .replaceAll("\\s+", " ")
+                .trim();
+        equation = clearEquation;
+
 		if (clearEquation.startsWith("AND") || clearEquation.startsWith("OR")
 				|| clearEquation.endsWith("AND") || clearEquation.endsWith("OR")) {
 			return null;
@@ -518,7 +524,7 @@ public class AdvFilterParser {
 		}
 
 		// 去除 AND OR 0-9 及空格
-		clearEquation = clearEquation.replaceAll("[AND|OR|0-9| ]", "");
+		clearEquation = clearEquation.replaceAll("[AND|OR|0-9|\\s]", "");
 		// 括弧成对出现
 		for (int i = 0; i < 20; i++) {
 			clearEquation = clearEquation.replace("()", "");
