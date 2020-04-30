@@ -74,8 +74,8 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 
 		// SPEC MYSQL PORT
 		String mysqlPort = System.getProperty("mysql.port");
-		if (StringUtils.isNotBlank(mysqlPort)) {
-			String dbUrl = props.getProperty("db.url");
+		String dbUrl = props.getProperty("db.url");
+		if (StringUtils.isNotBlank(mysqlPort) && StringUtils.isNotBlank(dbUrl)) {
 			dbUrl = dbUrl.replace("3306", mysqlPort);
 			props.put("db.url", dbUrl);
 		}
