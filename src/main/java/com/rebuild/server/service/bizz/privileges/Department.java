@@ -41,21 +41,6 @@ public class Department extends BusinessUnit {
 	}
 	
 	/**
-	 * 是否下级部门
-	 * 
-	 * @param child
-	 * @return
-	 */
-	public boolean isChildren(ID child) {
-		for (BusinessUnit dept : getChildren()) {
-			if (dept.getIdentity().equals(child)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
 	 * 是否子部门（所有）
 	 * 
 	 * @param child
@@ -84,8 +69,26 @@ public class Department extends BusinessUnit {
 		}
 		return Collections.unmodifiableSet(children);
 	}
-	
-	protected void cleanMember() {
+
+	/**
+	 * 是否下级部门
+	 *
+	 * @param child
+	 * @return
+	 */
+	public boolean isChild(ID child) {
+		for (BusinessUnit dept : getChildren()) {
+			if (dept.getIdentity().equals(child)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 清空成员
+	 */
+	protected void cleanMembers() {
 		for (Principal u : allMembers) {
 			removeMember(u);
 		}

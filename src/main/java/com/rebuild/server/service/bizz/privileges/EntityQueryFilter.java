@@ -21,6 +21,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -80,7 +81,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 
 	@Override
 	public String evaluate(Entity entity) {
-		if (!user.isActive()) {
+		if (user == null || !user.isActive()) {
 			return DENIED.evaluate(null);
 		} else if (user.isAdmin()) {
 			return ALLOWED.evaluate(null);
@@ -115,6 +116,8 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		Field toMasterField = null;
 		if (useMaster != null) {
 			toMasterField = MetadataHelper.getSlaveToMasterField(entity);
+			Assert.notNull(toMasterField, "No STM field found : " + entity);
+
 			ownFormat = toMasterField.getName() + "." + ownFormat;
 		}
 		

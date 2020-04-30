@@ -36,7 +36,7 @@
 	<table class="table table-bordered table-sm table-hover">
 	<tbody>
         <tr>
-            <th width="30%">Core Service</th>
+            <th width="30%">REBUILD Service</th>
             <td class="text-danger"><%=Application.serversReady() ? "<span class='text-success'>OK<span>" : "启动失败"%></td>
         </tr>
 		<% for (Status s : ServerStatus.getLastStatus()) { %>
