@@ -2081,19 +2081,21 @@ form {
 }
 
 .rbs-indexes>div {
-    padding: 15px 15px 13px;
+    padding: 10px 15px;
+    padding-top: 13px;
     border-radius: 3px;
     background-color: #eee;
 }
 
 .rbs-indexes>div+div {
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 .rbs-indexes>div h5 {
     font-size: 1rem;
     font-weight: bold;
-    margin: 0 0 6px;
+    margin: 0 !important;
+    margin-bottom: 3px !important;
 }
 
 .rbs-indexes>div .text-muted,

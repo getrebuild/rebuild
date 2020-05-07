@@ -184,7 +184,19 @@ public class Entity2Schema extends Field2Schema {
 		}
 		
 		if (entity.getSlaveEntity() != null) {
-			throw new ModifiyMetadataException("不能直接删除主实体，请先删除明细实体");
+			if (force) {
+				boolean dropSlave = this.dropEntity(entity.getSlaveEntity(), true);
+				if (dropSlave) {
+					entity = MetadataHelper.getEntity(entity.getEntityCode());
+					easyMeta = EasyMeta.valueOf(entity);
+
+				} else {
+					throw new ModifiyMetadataException("不能直接删除主实体，请先删除明细实体");
+				}
+
+			} else {
+				throw new ModifiyMetadataException("不能直接删除主实体，请先删除明细实体");
+			}
 		}
 
 		for (Field whoRef : entity.getReferenceToFields(true)) {
