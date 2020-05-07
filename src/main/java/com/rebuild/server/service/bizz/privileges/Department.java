@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.bizz.privileges;
@@ -41,7 +30,7 @@ public class Department extends BusinessUnit {
 	}
 	
 	/**
-	 * 是否子部门（所有）
+	 * 是否子部门（含所有子级）
 	 * 
 	 * @param child
 	 * @return
@@ -56,6 +45,21 @@ public class Department extends BusinessUnit {
 		}
 		return false;
 	}
+
+    /**
+     * 是否下级部门
+     *
+     * @param child
+     * @return
+     */
+    public boolean isChildren(ID child) {
+        for (BusinessUnit dept : getChildren()) {
+            if (dept.getIdentity().equals(child)) {
+                return true;
+            }
+        }
+        return false;
+    }
 	
 	/**
 	 * 获取子部门（包括所有子级）
@@ -68,29 +72,5 @@ public class Department extends BusinessUnit {
 			children.addAll(((Department) child).getAllChildren());
 		}
 		return Collections.unmodifiableSet(children);
-	}
-
-	/**
-	 * 是否下级部门
-	 *
-	 * @param child
-	 * @return
-	 */
-	public boolean isChild(ID child) {
-		for (BusinessUnit dept : getChildren()) {
-			if (dept.getIdentity().equals(child)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * 清空成员
-	 */
-	protected void cleanMembers() {
-		for (Principal u : allMembers) {
-			removeMember(u);
-		}
 	}
 }
