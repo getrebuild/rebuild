@@ -116,8 +116,8 @@ class DlgDetails extends RbAlert {
         {this.state.data.map((item) => {
           return <tr key={`fk-${item.field}`}>
             <td>{item.field}</td>
-            <td><div>{item.before || <span className="text-muted">空值</span>}</div></td>
-            <td><div>{item.after || <span className="text-muted">空值</span>}</div></td>
+            <td><div>{item.before || <span className="text-muted">空</span>}</div></td>
+            <td><div>{item.after || <span className="text-muted">空</span>}</div></td>
           </tr>
         })}
       </tbody>

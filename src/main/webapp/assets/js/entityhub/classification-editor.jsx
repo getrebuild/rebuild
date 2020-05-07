@@ -289,7 +289,7 @@ class DlgImports extends RbModalHandler {
                   {item.updated && (' · ' + item.updated)}
                 </div>
               </div>
-              <div className="float-right pt-1">
+              <div className="float-right">
                 <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
               </div>
               <div className="clearfix"></div>

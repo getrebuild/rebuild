@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server;
@@ -43,14 +32,17 @@ import java.net.URL;
  * @author devezhao
  * @since 01/03/2019
  */
-@SuppressWarnings({"SameParameterValue", "ConstantConditions"})
 public class TestSupport {
 	
 	protected static final Log LOG = LogFactory.getLog(TestSupport.class);
 	
 	// 测试专用实体
 	protected static final String TEST_ENTITY = "TestAllFields";
-	
+
+    protected static final String Account = "Account999";
+    protected static final String SalesOrder = "SalesOrder999";
+    protected static final String SalesOrderItem = "SalesOrderItem999";
+
 	// 示例用户
 	protected static final ID SIMPLE_USER = ID.valueOf("001-9000000000000001");
 	// 示例部门
@@ -132,14 +124,7 @@ public class TestSupport {
 	 * @see Entity2Schema
 	 */
 	protected void addExtTestEntities(boolean dropExists) throws Exception {
-		final String SalesOrderItem = "SalesOrderItem999";
-		final String SalesOrder = "SalesOrder999";
-		final String Account = "Account999";
-		
 		if (dropExists) {
-			if (MetadataHelper.containsEntity(SalesOrderItem)) {
-				new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(SalesOrderItem), true);	
-			}
 			if (MetadataHelper.containsEntity(SalesOrder)) {
 				new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(SalesOrder), true);	
 			}
@@ -165,7 +150,7 @@ public class TestSupport {
 			String content = FileUtils.readFileToString(new File(url.toURI()));
 
 			MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(content));
-			if (this instanceof  TestSupportWithUser) {
+			if (this instanceof TestSupportWithUser) {
 				TaskExecutors.exec(importer);
 			} else {
 				TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));

@@ -391,6 +391,7 @@ class RbFormElement extends React.Component {
     this.setState({ editMode: mode }, () => {
       if (this.state.editMode) {
         this.onEditModeChanged()
+        this._fieldValue && this._fieldValue.focus()
       } else {
         let newValue = arguments.length > 1 ? arguments[1]  // use `newValue`
           : (this.state.newValue === undefined ? this.props.value : this.state.newValue)

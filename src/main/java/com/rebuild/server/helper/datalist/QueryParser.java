@@ -218,10 +218,8 @@ public class QueryParser {
 		this.sql = fullSql.toString();
 		this.countSql = new StringBuilder("select ")
 				.append("count(").append(pkName).append(')')
-				.append(" from ")
-				.append(entity.getName())
-                .append(" where ")
-				.append(sqlWhere)
+				.append(" from ").append(entity.getName())
+                .append(" where ").append(sqlWhere)
 				.toString();
 
 		int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);

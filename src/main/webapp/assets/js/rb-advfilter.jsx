@@ -62,7 +62,7 @@ class AdvFilter extends React.Component {
             </div>
             {this.state.enableEquation !== true ? null :
               <div className="mb-3 equation-state">
-                <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} title={(this.state.equationError ? '高级表达式有误' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
+                <input className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')} title={(this.state.equationError ? '高级表达式有误' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
                 {this.state.equationError ? <i className="zmdi zmdi-alert-triangle text-danger"></i> : <i className="zmdi zmdi-check text-success"></i>}
               </div>
             }

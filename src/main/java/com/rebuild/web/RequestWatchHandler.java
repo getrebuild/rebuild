@@ -15,8 +15,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.RateLimiters;
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -185,7 +183,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 		} else if (!inIgnoreRes(requestUrl)) {
 			LOG.warn("Unauthorized access [ " + requestUrl + " ] from "
 					+ StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>")
-					+ " , " + ServletUtils.getRemoteAddr(request));
+					+ " via " + ServletUtils.getRemoteAddr(request));
 
 			if (ServletUtils.isAjaxRequest(request)) {
 				ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));

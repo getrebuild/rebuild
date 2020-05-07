@@ -28,7 +28,7 @@ public class UserServiceTest extends TestSupportWithUser {
     }
 
     @Test
-    public void someFlow() {
+    public void users() {
         Record record = EntityHelper.forNew(EntityHelper.User, UserService.SYSTEM_USER);
         record.setString("loginName", "testuser" + RandomUtils.nextInt(999999));
         record.setString("password", CodecUtils.randomCode(10) + "Aa1!");

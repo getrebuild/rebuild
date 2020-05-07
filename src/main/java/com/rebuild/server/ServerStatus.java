@@ -124,7 +124,7 @@ public final class ServerStatus {
 	 * @return
 	 */
 	protected static Status checkCreateFile() {
-		String name = "CreateFile";
+		String name = "Create File";
 		FileWriter fw = null;
 		try {
 			File test = new File(FileUtils.getTempDirectory(), "ServerStatus.test");

@@ -375,7 +375,7 @@ class ChartPie extends BaseChart {
       if (showNumerical) {
         data.label = {
           formatter: function (a) {
-            return `${a.data.name} ${formatThousands(a.data.value)}`
+            return `${a.data.name} (${formatThousands(a.data.value)})`
           }
         }
       }
@@ -385,6 +385,9 @@ class ChartPie extends BaseChart {
       }
       opt.tooltip.trigger = 'item'
       opt.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      opt.tooltip.formatter = function (i) {
+        return `<b>${i.data.name}</b> <br/> ${i.marker} ${i.seriesName} : ${formatThousands(i.data.value)} (${i.percent}%)`
+      }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
@@ -422,7 +425,7 @@ class ChartFunnel extends BaseChart {
             show: true,
             position: 'inside',
             formatter: function (a) {
-              return showNumerical ? `${a.data.name} ${formatThousands(a.data.value)}` : a.data.name
+              return showNumerical ? `${a.data.name} (${formatThousands(a.data.value)})` : a.data.name
             }
           }
         }]
@@ -491,7 +494,7 @@ class ChartTreemap extends BaseChart {
       opt.label = {
         formatter: function (a) {
           const ns = a.name.split(LEVELS_SPLIT)
-          return ns[ns.length - 1] + (showNumerical ? ` ${formatThousands(a.value)}` : '')
+          return ns[ns.length - 1] + (showNumerical ? ` (${formatThousands(a.value)})` : '')
         }
       }
 
@@ -827,7 +830,7 @@ class ChartScatter extends BaseChart {
             show: showNumerical,
             position: 'top',
             formatter: function (a) {
-              return a.data.length === 3 ? a.data[2] : `${a.data[0]}\n${a.data[1]}`
+              return a.data.length === 3 ? a.data[2] : `(${a.data[0]}) (${a.data[1]})`
             }
           }
         })

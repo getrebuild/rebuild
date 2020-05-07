@@ -468,7 +468,7 @@ var $initReferenceSelect2 = function (el, field) {
   return $(el).select2({
     placeholder: '选择' + field.label,
     minimumInputLength: 0,
-    maximumSelectionLength: 1,
+    maximumSelectionLength: 2,
     ajax: {
       url: '/commons/search/' + (field.searchType || 'reference'),
       delay: 300,

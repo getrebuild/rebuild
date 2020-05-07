@@ -331,9 +331,9 @@ body {
 	right: 15px;
 	top: 0;
 	color: #aaa;
-	width: 20px;
-	height: 20px;
-	margin-top: 7px;
+	width: 22px;
+	height: 22px;
+	margin-top: 6px;
 	text-align: center;
 	border-radius: 2px;
 	background-color: #f8f9fa;
@@ -345,6 +345,7 @@ body {
 	content: '\f158';
 	font-size: 14px;
 	display: inline-block;
+	margin-top: 1px;
 }
 
 .rbview-form .form-group.row.editable a.edit:hover {
