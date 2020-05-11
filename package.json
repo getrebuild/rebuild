@@ -8,6 +8,9 @@
     "type": "git",
     "url": "https://github.com/getrebuild/rebuild.git"
   },
+  "scripts": {
+    "lint": "eslint --ext .jsx,.js ./src/main/webapp/assets/js"
+  },
   "devDependencies": {
     "babel-eslint": "^10.1.0",
     "eslint": "^7.0.0",
