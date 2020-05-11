@@ -16,14 +16,17 @@ class AdvFilter extends React.Component {
   constructor(props) {
     super(props)
 
-    let ext = {}
+    const ext = { useEquation: 'OR' }
     if (props.filter) {
       if (props.filter.equation) {
-        ext.enableEquation = true
         ext.equation = props.filter.equation
+        if (props.filter.equation === 'OR') ext.useEquation = 'OR'
+        else if (props.filter.equation === 'AND') ext.useEquation = 'AND'
+        else ext.useEquation = '9999'
       }
       this.__items = props.filter.items
     }
+
     this.state = { ...props, ...ext }
     this.childrenRef = []
   }
@@ -55,12 +58,20 @@ class AdvFilter extends React.Component {
         <div className="adv-filter adv-filter-option">
           <div className="mb-1">
             <div className="item mt-1">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
-                <input className="custom-control-input" type="checkbox" checked={this.state.enableEquation === true} data-id="enableEquation" onChange={this.handleChange} />
-                <span className="custom-control-label"> 启用高级表达式</span>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                <input className="custom-control-input" type="radio" name="useEquation" value="OR" checked={this.state.useEquation === 'OR'} onChange={this.handleChange} />
+                <span className="custom-control-label"> 或关系</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                <input className="custom-control-input" type="radio" name="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
+                <span className="custom-control-label"> 且关系</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                <input className="custom-control-input" type="radio" name="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
+                <span className="custom-control-label"> 高级表达式</span>
               </label>
             </div>
-            {this.state.enableEquation !== true ? null :
+            {this.state.useEquation === '9999' &&
               <div className="mb-3 equation-state">
                 <input className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')} title={(this.state.equationError ? '高级表达式有误' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
                 {this.state.equationError ? <i className="zmdi zmdi-alert-triangle text-danger"></i> : <i className="zmdi zmdi-check text-success"></i>}
@@ -117,14 +128,10 @@ class AdvFilter extends React.Component {
 
   handleChange = (e) => {
     const val = e.target.value
-    const id = e.target.dataset.id
-    if (id === 'enableEquation') {
-      this.setState({ enableEquation: this.state.enableEquation !== true })
-    } else {
-      let state = {}
-      state[id] = val
-      this.setState({ ...state })
-    }
+    const id = e.target.dataset.id || e.target.name
+    const state = {}
+    state[id] = val
+    this.setState({ ...state })
   }
 
   addItem(props) {
@@ -168,13 +175,13 @@ class AdvFilter extends React.Component {
   }
 
   renderEquation() {
-    let exp = []
+    const exp = []
     for (let i = 1; i <= (this.state.items || []).length; i++) exp.push(i)
     this.setState({ equationDef: exp.join(' OR ') })
   }
 
   toFilterJson(canNoFilters) {
-    let filters = []
+    const filters = []
     let hasError = false
     for (let i = 0; i < this.childrenRef.length; i++) {
       const item = this.childrenRef[i].getFilterJson()
@@ -184,11 +191,14 @@ class AdvFilter extends React.Component {
     if (hasError) { RbHighbar.create('部分条件设置有误，请检查'); return }
     if (filters.length === 0 && canNoFilters !== true) { RbHighbar.create('请至少添加1个条件'); return }
 
-    let adv = { entity: this.props.entity, items: filters }
-    if (this.state.enableEquation === true) {
+    const adv = { entity: this.props.entity, items: filters }
+    if (this.state.useEquation === 'AND') {
+      adv.equation = 'AND'
+    } else if (this.state.useEquation === '9999') {
       if (this.state.equationError === true) { RbHighbar.create('高级表达式设置有误'); return }
       adv.equation = this.state.equation
     }
+
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log(JSON.stringify(adv))
     return adv
@@ -619,10 +629,10 @@ class FilterItem extends React.Component {
     }
   }
 
-
   setIndex(idx) {
     this.setState({ index: idx })
   }
+
   getFilterJson() {
     let s = this.state
     if (!s.value) {
