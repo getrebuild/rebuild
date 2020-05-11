@@ -1,0 +1,16 @@
+{
+  "name": "rebuild-eslint",
+  "version": "1.0.0",
+  "description": "rebuild js/jsx lint",
+  "author": "rebuild",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/getrebuild/rebuild.git"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.0.0",
+    "eslint-plugin-react": "^7.19.0"
+  }
+}
