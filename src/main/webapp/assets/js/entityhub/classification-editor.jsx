@@ -277,52 +277,115 @@ class DlgImports extends RbModalHandler {
   }
 
   render() {
-    return <RbModal title="导入分类数据" ref={(c) => this._dlg = c}>
-      {this.state.indexes ? <div>
-        <div className="rbs-indexes">
-          {this.state.indexes.map((item) => {
-            return <div key={'data-' + item.file}>
-              <div className="float-left">
-                <h5>{item.name}</h5>
-                <div className="text-muted">
-                  数据来源 <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
-                  {item.updated && (' · ' + item.updated)}
+    return <RbModal title="导入分类数据" ref={(c) => this._dlg = c} >
+      <div className="tab-container">
+        <ul className="nav nav-tabs">
+          <li className="nav-item"><a className="nav-link active" href="#FILE" data-toggle="tab">文件导入</a></li>
+          <li className="nav-item"><a className="nav-link" href="#RBSTORE" data-toggle="tab"><i className="icon zmdi zmdi-cloud-outline-alt"></i> 从 RB 仓库导入</a></li>
+        </ul>
+        <div className="tab-content m-0 pb-0">
+          <div className="tab-pane active" id="FILE">
+            <div className="form">
+              <div className="form-group row">
+                <label className="col-sm-3 col-form-label text-sm-right">上传文件</label>
+                <div className="col-sm-7">
+                  <div className="float-left">
+                    <div className="file-select">
+                      <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="51200000" data-temp="true" ref={(c) => this._uploadInput = c} />
+                      <label htmlFor="upload-input" className="btn-secondary"><i className="zmdi zmdi-upload"></i><span>选择文件</span></label>
+                    </div>
+                  </div>
+                  <div className="float-left ml-2 pt-1">
+                    <u className="text-bold">{$fileCutName(this.state.uploadFile || '')}</u>
+                  </div>
+                  <div className="clearfix"></div>
+                  <div className="form-text">
+                    支持 Excel 或 CSV 文件，文件格式请 <a href="https://getrebuild.com/docs/admin/classifcation" target="_blank" className="link">参考文档</a>
+                  </div>
                 </div>
               </div>
-              <div className="float-right">
-                <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
+              <div className="form-group row footer">
+                <div className="col-sm-7 offset-sm-3">
+                  <button className="btn btn-primary" type="button" onClick={() => this.import4File()} disabled={this.state.inProgress}>开始导入</button>
+                  <button className="btn btn-link" type="button" onClick={() => this._dlg.hide()} disabled={this.state.inProgress}>取消</button>
+                </div>
               </div>
-              <div className="clearfix"></div>
             </div>
-
-          })}
-        </div>
-        <div className="mt-2 mr-2 text-right">
-          <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">提交数据到 RB 仓库</a>
+          </div>
+          <div className="tab-pane" id="RBSTORE">
+            <div className="rbs-indexes">
+              {(this.state.indexes || []).map((item) => {
+                return <div key={'data-' + item.file}>
+                  <div className="float-left">
+                    <h5>{item.name}</h5>
+                    <div className="text-muted">
+                      数据来源 <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
+                      {item.updated && (' · ' + item.updated)}
+                    </div>
+                  </div>
+                  <div className="float-right">
+                    <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>导入</button>
+                  </div>
+                  <div className="clearfix"></div>
+                </div>
+              })}
+            </div>
+            <div className="mt-2 mr-2 text-right">
+              <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">提交数据到 RB 仓库</a>
+            </div>
+          </div>
         </div>
       </div>
-        : <RbSpinner fully={true} />
-      }
     </RbModal>
   }
+
   componentDidMount() {
+    // FILE
+    let uploadStart = false
+    $createUploader($(this._uploadInput),
+      () => {
+        if (!uploadStart) {
+          uploadStart = true
+          $mp.start()
+        }
+      },
+      (res) => {
+        this.setState({ uploadFile: res.key })
+        $mp.end()
+        uploadStart = false
+      })
+
+    // RBSTORE
     $.get('/admin/rbstore/load-index?type=classifications', (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data })
       else RbHighbar.error(res.error_msg)
     })
   }
 
-  imports = (e) => {
+  import4File() {
+    if (!this.state.uploadFile) {
+      RbHighbar.create('请上传文件')
+      return
+    }
+
+    this.setState({ inProgress: true })
+    const url = `/admin/entityhub/classification/imports/file?dest=${this.props.id}&file=${$encode(file)}`
+    $.post(url, (res) => {
+      if (res.error_code === 0) that.__checkState(res.data)
+      else RbHighbar.error(res.error_msg || '导入失败')
+    })
+  }
+
+  import4Rbstore = (e) => {
     const file = e.currentTarget.dataset.file
     const name = e.currentTarget.dataset.name
     const url = `/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     const that = this
-    RbAlert.create(`<strong>${name}</strong><br>仅支持导入到空的分类数据中。开始导入吗？`, {
+    RbAlert.create(`<strong>${name}</strong><br>此导入为增量导入，不会对现有数据造成影响。开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
-        that.__mp = new Mprogress({ template: 1, start: true })
         $.post(url, (res) => {
           if (res.error_code === 0) that.__checkState(res.data)
           else RbHighbar.error(res.error_msg || '导入失败')
@@ -332,6 +395,8 @@ class DlgImports extends RbModalHandler {
   }
 
   __checkState(taskid) {
+    if (!this.__mp) this.__mp = new Mprogress({ template: 1, start: true })
+
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {

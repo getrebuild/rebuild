@@ -340,7 +340,7 @@ var $fileExtName = function (fileName) {
 var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
   var imgOnly = input.attr('accept') === 'image/*'
-  var temp = input.data('temp')
+  var temp = input.data('temp')  // 临时文件
   if (window.qiniu && rb.storageUrl && !temp) {
     input.on('change', function () {
       var file = this.files[0]
@@ -378,7 +378,7 @@ var $createUploader = function (input, next, complete, error) {
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (temp || ''),
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create('请上传图片')
+          RbHighbar.create(imgOnly ? '请上传图片' : '文件格式错误')
           return false
         } else if (err === 'ErrorMaxSize') {
           RbHighbar.create('超出文件大小限制')
@@ -392,7 +392,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          if (!temp) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
           complete({ key: e.data })
         } else {
           RbHighbar.error('上传失败，请稍后重试')
