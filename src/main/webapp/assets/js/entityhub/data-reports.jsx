@@ -14,7 +14,7 @@ class ReportList extends ConfigList {
 
   constructor(props) {
     super(props)
-    this.requestUrl = `/admin/datas/data-reports/list`
+    this.requestUrl = '/admin/datas/data-reports/list'
   }
 
   render() {
