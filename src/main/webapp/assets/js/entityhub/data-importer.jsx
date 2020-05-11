@@ -107,7 +107,7 @@ const init_upload = () => {
     postUrl: rb.baseUrl + '/filex/upload?temp=yes',
     onSelectError: function (field, error) {
       if (error === 'ErrorType') RbHighbar.create('请上传 Excel/CSV 文件')
-      else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 20M')
+      else if (error === 'ErrorMaxSize') RbHighbar.create('文件不能大于 50M')
     },
     onClientLoad: function () {
       $mp.start()
@@ -266,7 +266,7 @@ const render_fieldsMapping = (columns, fields) => {
   const $tbody = $('#fieldsMapping tbody').empty()
   $(columns).each(function (idx, item) {
     const $tr = $('<tr data-col="' + idx + '"></tr>').appendTo($tbody)
-    $('<td><em>#' + (idx + 1) + '</em> ' + item + '<i class="zmdi zmdi-arrow-right"></i></td>').appendTo(tr)
+    $('<td><em>#' + (idx + 1) + '</em> ' + item + '<i class="zmdi zmdi-arrow-right"></i></td>').appendTo($tr)
     const $td = $('<td></td>').appendTo($tr)
     fields_select.clone().appendTo($td)
     $('<td class="pl-3"></td>').appendTo($tr)
