@@ -1,4 +1,9 @@
-/* Editor Page */
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 
 #boxes {
   min-height: 300px;
@@ -97,10 +102,8 @@
   display: block;
 }
 
-.modal-body .rb-loading {
-  min-height: 162px;
-}
-
-.modal-body .rbs-indexes {
-  padding: 10px .769231rem;
+.modal-body .tab-container {
+  margin-left: -5px;
+  margin-right: -5px;
+  margin-top: -15px;
 }

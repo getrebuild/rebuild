@@ -1,25 +1,16 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin.rbstore;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.business.rbstore.ClassificationFileImporter;
 import com.rebuild.server.business.rbstore.ClassificationImporter;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
@@ -27,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -34,8 +26,9 @@ import java.io.IOException;
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/08
- * 
+ *
  * @see ClassificationImporter
+ * @see ClassificationFileImporter
  */
 @Controller
 public class ClassificationImportControll extends BaseControll {
@@ -50,4 +43,16 @@ public class ClassificationImportControll extends BaseControll {
 		String taskid = TaskExecutors.submit(importer, user);
 		writeSuccess(response, taskid);
 	}
+
+    @RequestMapping("/admin/entityhub/classification/imports/file")
+    public void startsFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID user = getRequestUser(request);
+        ID dest = getIdParameterNotNull(request, "dest");
+        String filePath = getParameterNotNull(request, "file");
+
+        File file = SysConfiguration.getFileOfTemp(filePath);
+        ClassificationFileImporter importer = new ClassificationFileImporter(dest, file);
+        String taskid = TaskExecutors.submit(importer, user);
+        writeSuccess(response, taskid);
+    }
 }

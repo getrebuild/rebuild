@@ -207,7 +207,6 @@ const add_axis = ((target, axis) => {
         $dropdown.attr({ 'data-label': s.label, 'data-scale': s.scale })
         render_preview()
       }
-      console.log(JSON.stringify(state))
 
       if (dlgAxisProps) dlgAxisProps.show(state)
       else renderRbcomp(<DlgAxisProps {...state} />, null, function () { dlgAxisProps = this })

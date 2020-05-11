@@ -9,7 +9,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
-  $('.J_imports').click(() => { renderRbcomp(<DlgImports id={wpc.id} />) })
+
+  let _dlgImports
+  $('.J_imports').click(() => {
+    if (_dlgImports) _dlgImports.show()
+    else renderRbcomp(<DlgImports id={wpc.id} />, null, function () { _dlgImports = this })
+  })
   $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 312))()
 })
 
@@ -19,14 +24,18 @@ class LevelBoxes extends React.Component {
     this.state = { ...props }
     this.boxes = []
   }
+
   render() {
-    return (<div className="row level-boxes">
-      <LevelBox level={0} $$$parent={this} ref={(c) => this.boxes[0] = c} />
-      <LevelBox level={1} $$$parent={this} ref={(c) => this.boxes[1] = c} />
-      <LevelBox level={2} $$$parent={this} ref={(c) => this.boxes[2] = c} />
-      <LevelBox level={3} $$$parent={this} ref={(c) => this.boxes[3] = c} />
-    </div>)
+    return (
+      <div className="row level-boxes">
+        <LevelBox level={0} $$$parent={this} ref={(c) => this.boxes[0] = c} />
+        <LevelBox level={1} $$$parent={this} ref={(c) => this.boxes[1] = c} />
+        <LevelBox level={2} $$$parent={this} ref={(c) => this.boxes[2] = c} />
+        <LevelBox level={3} $$$parent={this} ref={(c) => this.boxes[3] = c} />
+      </div>
+    )
   }
+
   componentDidMount() {
     this.notifyToggle(wpc.openLevel + 1, true)
     $('#boxes').removeClass('rb-loading-active')
@@ -42,13 +51,15 @@ class LevelBoxes extends React.Component {
       }
     }
   }
+
   notifyItemClean(level) {
     for (let i = level + 1; i <= 3; i++) {
       this.boxes[i].clear(true)
     }
   }
+
   notifyToggle(level, c) {
-    let e = { target: { checked: c } }
+    const e = { target: { checked: c } }
     if (c === true) {
       for (let i = 1; i < level; i++) {
         this.boxes[i].turnToggle(e, true)
@@ -67,11 +78,14 @@ class LevelBox extends React.Component {
     super(props)
     this.state = { ...props, turnOn: props.level === 0 }
   }
+
   render() {
-    let forId = 'turnOn-' + this.props.level
+    const forId = 'turnOn-' + this.props.level
     return (
-      <div className={'col-md-3 ' + (this.state.turnOn === true ? '' : 'off')}>
-        <div className="float-left"><h5 className="text-bold">{LNAME[this.props.level]}级分类</h5></div>
+      <div className={`col-md-3 ${this.state.turnOn ? '' : 'off'}`}>
+        <div className="float-left">
+          <h5 className="text-bold">{LNAME[this.props.level]}级分类</h5>
+        </div>
         {this.props.level < 1 ? null :
           <div className="float-right">
             <div className="switch-button switch-button-xs">
@@ -83,20 +97,24 @@ class LevelBox extends React.Component {
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
             <input className="form-control" type="text" maxLength="50" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
-            {(this.state.itemId && this.state.itemHide) && (<label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
-              <span className="custom-control-label">启用</span>
-            </label>)}
-            <div className="input-group-append"><button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>{this.state.itemId ? '保存' : '添加'}</button></div>
+            {this.state.itemId && this.state.itemHide && (
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
+                <span className="custom-control-label">启用</span>
+              </label>
+            )}
+            <div className="input-group-append">
+              <button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>{this.state.itemId ? '保存' : '添加'}</button>
+            </div>
           </div>
         </form>
         <div className="rb-scroller mt-3">
           <ol className="dd-list unset-list">
             {(this.state.items || []).map((item) => {
-              let active = this.state.activeId === item[0]
+              const active = this.state.activeId === item[0]
               return (
-                <li className={'dd-item' + (active ? ' active' : '')} key={item[0]} onClick={() => this.clickItem(item[0])}>
-                  <div className={'dd-handle' + (item[3] ? ' text-disabled' : '')}>{item[1]}{item[3] && <small />}</div>
+                <li className={`dd-item ${active ? ' active' : ''}`} key={item[0]} onClick={() => this.clickItem(item[0])}>
+                  <div className={`dd-handle ${item[3] ? ' text-disabled' : ''}`}>{item[1]}{item[3] && <small />}</div>
                   <div className="dd-action">
                     <a><i className="zmdi zmdi-edit" title="编辑" onClick={(e) => this.editItem(item, e)}></i></a>
                     <a><i className="zmdi zmdi-delete" title="删除" onClick={(e) => this.delItem(item, e)}></i></a>
@@ -107,56 +125,52 @@ class LevelBox extends React.Component {
             })}
           </ol>
         </div>
-      </div>)
+      </div>
+    )
   }
+
   componentDidMount() {
     if (this.props.level === 0) this.loadItems()
   }
 
   loadItems(p) {
     this.parentId = p
-    let url = `/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
+    const url = `/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
     $.get(url, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
     })
   }
+
   clickItem(id) {
     this.setState({ activeId: id })
     this.props.$$$parent.notifyItemActive(this.props.level, id)
   }
 
   turnToggle = (e, stop) => {
-    let c = e.target.checked
+    const c = e.target.checked
     this.setState({ turnOn: c })
-    if (stop !== true) {
-      this.props.$$$parent.notifyToggle(this.props.level, c)
-    }
+    if (stop !== true) this.props.$$$parent.notifyToggle(this.props.level, c)
     saveOpenLevel()
   }
+
   changeVal = (e) => {
-    let s = {}
+    const s = {}
     s[e.target.dataset.id] = e.target.value
     this.setState(s)
   }
+
   saveItem = (e) => {
     e.preventDefault()
-    let name = $.trim(this.state.itemName)
+    const name = $.trim(this.state.itemName)
     if (!name) return
     if (this.props.level >= 1 && !this.parentId) {
       RbHighbar.create('请先选择上级分类项')
       return
     }
 
-    let hasRepeat = false
-    let that = this
-    $(this.state.items).each(function () {
-      if (this[1] === name && this[0] !== that.state.itemId) {
-        hasRepeat = true
-        return false
-      }
-    })
-    if (hasRepeat) {
+    const repeated = this.state.items.find((x) => { return x[1] === name && x[0] !== this.state.itemId })
+    if (repeated) {
       RbHighbar.create('存在同名分类项')
       return
     }
@@ -172,7 +186,7 @@ class LevelBox extends React.Component {
     this.setState({ inSave: true })
     $.post(url, (res) => {
       if (res.error_code === 0) {
-        let items = this.state.items || []
+        const items = this.state.items || []
         if (this.state.itemId) {
           items.forEach((i) => {
             if (i[0] === this.state.itemId) {
@@ -184,18 +198,23 @@ class LevelBox extends React.Component {
           items.insert(0, [res.data, name, null, false])
         }
         this.setState({ items: items, itemName: null, itemId: null, inSave: false })
-      } else RbHighbar.error(res.error_msg)
+
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
+
   editItem(item, e) {
     e.stopPropagation()
     this.setState({ itemName: item[1], itemId: item[0], itemHide: item[3] })
   }
+
   delItem(item, e) {
     e.stopPropagation()
-    let that = this
-    let alertMsg = '删除后其子分类也将被一并删除。如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？'
-    let alertExt = {
+
+    const that = this
+    const alertExt = {
       type: 'danger',
       confirm: function () {
         this.disabled()
@@ -205,8 +224,9 @@ class LevelBox extends React.Component {
             RbHighbar.error(res.error_msg)
             return
           }
+
           RbHighbar.success('分类项已删除')
-          let ns = []
+          const ns = []
           that.state.items.forEach((i) => {
             if (i[0] !== item[0]) ns.push(i)
           })
@@ -218,21 +238,23 @@ class LevelBox extends React.Component {
       }
     }
 
+    let alertMsg = '删除后其子分类项也将被一并删除。如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？'
     if (item[3] !== true) {
-      alertMsg = '删除后其子分类也将被一并删除。如果此分类项已被使用，建议你禁用。否则已使用了这些分类项的字段将无法显示。'
+      alertMsg = '删除后其子分类项也将被一并删除。如果此分类项已被使用，建议你禁用，否则已使用这些分类项的字段将无法显示。'
       alertExt.confirmText = '确认删除'
       alertExt.cancelText = '禁用'
       alertExt.cancel = function () {
-        let url = `/admin/entityhub/classification/save-data-item?item_id=${item[0]}&hide=true`
         this.disabled()
+        const url = `/admin/entityhub/classification/save-data-item?item_id=${item[0]}&hide=true`
         $.post(url, (res) => {
           this.hide()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
             return
           }
+
           RbHighbar.success('分类项已禁用')
-          let ns = []
+          const ns = []
           $(that.state.items || []).each(function () {
             if (this[0] === item[0]) this[3] = true
             ns.push(this)
@@ -241,6 +263,7 @@ class LevelBox extends React.Component {
         })
       }
     }
+
     RbAlert.create(alertMsg, alertExt)
   }
 
@@ -250,18 +273,18 @@ class LevelBox extends React.Component {
   }
 }
 
-var saveOpenLevel_last = wpc.openLevel
-var saveOpenLevel = function () {
+let saveOpenLevel_last = wpc.openLevel
+const saveOpenLevel = function () {
   $setTimeout(() => {
-    let level = $('.switch-button input:checkbox:checked:last').attr('id') || 't-0'
-    level = ~~level.split('-')[1]
+    const level = ~~($('.switch-button input:checkbox:checked:last').attr('id') || 't-0').split('-')[1]
     if (saveOpenLevel_last === level) return
 
-    let data = { openLevel: level }
+    const data = { openLevel: level }
     data.metadata = { entity: 'Classification', id: wpc.id }
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
-      if (res.error_code > 0) RbHighbar.error(res.error_msg)
-      else {
+      if (res.error_code > 0) {
+        RbHighbar.error(res.error_msg)
+      } else {
         saveOpenLevel_last = level
         RbHighbar.success('已启用' + LNAME[level] + '级分类')
       }
@@ -271,58 +294,122 @@ var saveOpenLevel = function () {
 
 // 导入
 class DlgImports extends RbModalHandler {
-
   constructor(props) {
     super(props)
   }
 
   render() {
-    return <RbModal title="导入分类数据" ref={(c) => this._dlg = c}>
-      {this.state.indexes ? <div>
-        <div className="rbs-indexes">
-          {this.state.indexes.map((item) => {
-            return <div key={'data-' + item.file}>
-              <div className="float-left">
-                <h5>{item.name}</h5>
-                <div className="text-muted">
-                  数据来源 <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
-                  {item.updated && (' · ' + item.updated)}
+    return (
+      <RbModal title="导入分类数据" ref={(c) => this._dlg = c} >
+        <div className="tab-container">
+          <ul className="nav nav-tabs">
+            <li className="nav-item"><a className="nav-link active" href="#FILE" data-toggle="tab">文件导入</a></li>
+            <li className="nav-item"><a className="nav-link" href="#RBSTORE" data-toggle="tab"><i className="icon zmdi zmdi-cloud-outline-alt"></i> 从 RB 仓库导入</a></li>
+          </ul>
+          <div className="tab-content m-0 pb-0">
+            <div className="tab-pane active" id="FILE">
+              <div className="form">
+                <div className="form-group row">
+                  <label className="col-sm-3 col-form-label text-sm-right">上传文件</label>
+                  <div className="col-sm-7">
+                    <div className="float-left">
+                      <div className="file-select">
+                        <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="20971520" data-temp="true" ref={(c) => this._uploadInput = c} />
+                        <label htmlFor="upload-input" className="btn-secondary"><i className="zmdi zmdi-upload"></i><span>选择文件</span></label>
+                      </div>
+                    </div>
+                    <div className="float-left ml-2 pt-1">
+                      <u className="text-bold">{$fileCutName(this.state.uploadFile || '')}</u>
+                    </div>
+                    <div className="clearfix"></div>
+                    <div className="form-text">
+                      支持 Excel 或 CSV 文件，文件格式请 <a href="https://getrebuild.com/docs/admin/classifcation" target="_blank" className="link">参考文档</a>
+                    </div>
+                  </div>
+                </div>
+                <div className="form-group row footer">
+                  <div className="col-sm-7 offset-sm-3">
+                    <button className="btn btn-primary" type="button" onClick={() => this.import4File()} disabled={this.state.inProgress}>开始导入</button>
+                    <button className="btn btn-link" type="button" onClick={() => this._dlg.hide()} disabled={this.state.inProgress}>取消</button>
+                  </div>
                 </div>
               </div>
-              <div className="float-right">
-                <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
-              </div>
-              <div className="clearfix"></div>
             </div>
-
-          })}
+            <div className="tab-pane" id="RBSTORE">
+              <div className="rbs-indexes">
+                {(this.state.indexes || []).map((item) => {
+                  return <div key={'data-' + item.file}>
+                    <div className="float-left">
+                      <h5>{item.name}</h5>
+                      <div className="text-muted">
+                        数据来源 <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>{item.author || item.source}</a>
+                        {item.updated && (' · ' + item.updated)}
+                      </div>
+                    </div>
+                    <div className="float-right">
+                      <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>导入</button>
+                    </div>
+                    <div className="clearfix"></div>
+                  </div>
+                })}
+              </div>
+              <div className="mt-2 mr-2 text-right">
+                <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">提交数据到 RB 仓库</a>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="mt-2 mr-2 text-right">
-          <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">提交数据到 RB 仓库</a>
-        </div>
-      </div>
-        : <RbSpinner fully={true} />
-      }
-    </RbModal>
+      </RbModal>
+    )
   }
+
   componentDidMount() {
+    // FILE
+    let uploadStart = false
+    $createUploader($(this._uploadInput),
+      () => {
+        if (!uploadStart) {
+          uploadStart = true
+          $mp.start()
+        }
+      },
+      (res) => {
+        this.setState({ uploadFile: res.key })
+        $mp.end()
+        uploadStart = false
+      })
+
+    // RBSTORE
     $.get('/admin/rbstore/load-index?type=classifications', (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data })
       else RbHighbar.error(res.error_msg)
     })
   }
 
-  imports = (e) => {
+  import4File() {
+    if (!this.state.uploadFile) {
+      RbHighbar.create('请上传文件')
+      return
+    }
+
+    this.setState({ inProgress: true })
+    const url = `/admin/entityhub/classification/imports/file?dest=${this.props.id}&file=${$encode(this.state.uploadFile)}`
+    $.post(url, (res) => {
+      if (res.error_code === 0) this.__checkState(res.data)
+      else RbHighbar.error(res.error_msg || '导入失败')
+    })
+  }
+
+  import4Rbstore = (e) => {
     const file = e.currentTarget.dataset.file
     const name = e.currentTarget.dataset.name
     const url = `/admin/entityhub/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     const that = this
-    RbAlert.create(`<strong>${name}</strong><br>仅支持导入到空的分类数据中。开始导入吗？`, {
+    RbAlert.create(`<strong>${name}</strong><br>此导入为增量导入，不会对现有数据造成影响。开始导入吗？`, {
       html: true,
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
-        that.__mp = new Mprogress({ template: 1, start: true })
         $.post(url, (res) => {
           if (res.error_code === 0) that.__checkState(res.data)
           else RbHighbar.error(res.error_msg || '导入失败')
@@ -332,6 +419,8 @@ class DlgImports extends RbModalHandler {
   }
 
   __checkState(taskid) {
+    if (!this.__mp) this.__mp = new Mprogress({ template: 1, start: true })
+
     $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.hasError) {
