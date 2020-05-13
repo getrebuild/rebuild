@@ -338,6 +338,15 @@
 		<index field-list="recordId,channelWith" />
 	</entity>
 
+	<entity name="SmsendLog" type-code="035" description="SM发送日志" parent="false">
+		<field name="sendId" type="primary" />
+		<field name="to" type="string" max-length="100" nullable="false" updatable="false" description="收件人" />
+		<field name="content" type="text" nullable="false" updatable="false" description="发送内容" />
+		<field name="sendTime" type="timestamp" nullable="false" updatable="false" description="发送时间" />
+		<field name="sendResult" type="string" max-length="200" description="发送结果(OK:xxx|ERR:xxx)" />
+		<index field-list="sendTime,sendResult" />
+	</entity>
+
 	<!-- 动态不涉及审计 -->
 	<entity name="Feeds" type-code="040" description="动态" name-field="content" extra-attrs="{icon:'chart-donut'}">
 		<field name="feedsId" type="primary" />

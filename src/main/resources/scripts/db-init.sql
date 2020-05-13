@@ -556,6 +556,16 @@ create table if not exists `feeds_mention` (
   index IX0_feeds_mention (`USER`, `FEEDS_ID`, `COMMENT_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [SmsendLog] DDL ************
+create table if not exists `smsend_log` (
+  `SEND_ID`            char(20) not null,
+  `TO`                 varchar(100) not null comment '收件人',
+  `CONTENT`            text(21845) not null comment '发送内容',
+  `SEND_TIME`          timestamp not null default current_timestamp comment '发送时间',
+  `SEND_RESULT`        varchar(200) comment '发送结果(OK:xxx|ERR:xxx)',
+  primary key  (`SEND_ID`),
+  index IX0_smsend_log (`SEND_TIME`, `SEND_RESULT`)
+)Engine=InnoDB;
 
 -- #3 datas
 
@@ -597,4 +607,4 @@ INSERT INTO `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version
 INSERT INTO `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  VALUES ('021-9000000000000001', 'DBVer', 23);
+  VALUES ('021-9000000000000001', 'DBVer', 24);
