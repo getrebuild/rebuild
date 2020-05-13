@@ -1,6 +1,18 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #24 SmsendLog
+-- ************ Entity [SmsendLog] DDL ************
+create table if not exists `smsend_log` (
+  `SEND_ID`            char(20) not null,
+  `TO`                 varchar(100) not null comment '收件人',
+  `CONTENT`            text(21845) not null comment '发送内容',
+  `SEND_TIME`          timestamp not null default current_timestamp comment '发送时间',
+  `SEND_RESULT`        varchar(200) comment '发送结果(OK:xxx|ERR:xxx)',
+  primary key  (`SEND_ID`),
+  index IX0_smsend_log (`SEND_TIME`, `SEND_RESULT`)
+)Engine=InnoDB;
+
 -- #23 workphone for User
 alter table `user`
   add column `WORKPHONE` varchar(100) comment '电话',

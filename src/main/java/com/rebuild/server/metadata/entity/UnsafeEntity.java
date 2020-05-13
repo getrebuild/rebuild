@@ -29,8 +29,9 @@ import cn.devezhao.persist4j.metadata.impl.EntityImpl;
 public class UnsafeEntity extends EntityImpl {
 	private static final long serialVersionUID = 2107073554299141281L;
 
-	protected UnsafeEntity(String entityName, String physicalName, String entityLabel, int typeCode, String nameField) {
-		super(entityName, physicalName, entityLabel, typeCode, nameField);
+	protected UnsafeEntity(String entityName, String physicalName, String entityLabel, int typeCode, String nameFieldName) {
+		super(entityName, physicalName, entityLabel, null,
+				Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, typeCode, nameFieldName, Boolean.TRUE);
 	}
 	
 	@Override

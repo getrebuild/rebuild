@@ -282,7 +282,7 @@ public class Field2Schema {
 		recordOfField = Application.getCommonService().create(recordOfField);
 		tempMetaId.add(recordOfField.getPrimary());
 		
-		// 此处会改变一些属性，因为并不想他们同步到数据库 SCHEMA
+		// 此处会改变一些属性，因为并不想他们同步到数据库
 		
 		boolean autoValue = EntityHelper.AutoId.equalsIgnoreCase(fieldName);
 		if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {
@@ -290,16 +290,16 @@ public class Field2Schema {
 		}
 
 		// 系统级字段非空
-        if (MetadataHelper.isCommonsField(fieldName)
-                && !(MetadataHelper.isApprovalField(fieldName) || fieldName.equalsIgnoreCase(EntityHelper.QuickCode))) {
-            nullable = false;
-        } else {
-            nullable = true;
-        }
+		if (MetadataHelper.isCommonsField(fieldName)
+				&& !(MetadataHelper.isApprovalField(fieldName) || fieldName.equalsIgnoreCase(EntityHelper.QuickCode))) {
+			nullable = false;
+		} else {
+			nullable = true;
+		}
 
-		Field unsafeField = new FieldImpl(
-				fieldName, physicalName, fieldLabel, entity, dt.getFieldType(), CascadeModel.Ignore, maxLength,
-				nullable, creatable, updatable, repeatable, DECIMAL_SCALE, defaultValue, autoValue);
+		Field unsafeField = new FieldImpl(fieldName, physicalName, fieldLabel, null,
+				creatable, updatable, Boolean.TRUE, entity, dt.getFieldType(), maxLength, CascadeModel.Ignore,
+				nullable, repeatable, autoValue, DECIMAL_SCALE, defaultValue);
 		if (entity instanceof UnsafeEntity) {
 			((UnsafeEntity) entity).addField(unsafeField);
 		}

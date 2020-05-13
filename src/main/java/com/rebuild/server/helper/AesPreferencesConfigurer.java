@@ -16,7 +16,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -138,7 +137,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 	 * @return
 	 */
 	public static String getItem(String name) {
-		Assert.notNull(propsHold, "Rebuild unstarted");
+		if (propsHold == null) return null;
 		return StringUtils.defaultIfBlank(propsHold.getProperty(name), null);
 	}
 }

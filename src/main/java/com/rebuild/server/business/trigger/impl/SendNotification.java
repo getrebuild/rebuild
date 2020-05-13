@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.business.trigger.impl;
 
 import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -123,6 +124,8 @@ public class SendNotification implements TriggerAction {
 	 * @return
 	 */
 	protected String formatMessage(String message, ID recordId) {
+		ThreadPool.waitFor(200);
+
         Map<String, String> vars = null;
 	    if (recordId != null) {
 	        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());

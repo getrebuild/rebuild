@@ -83,6 +83,33 @@ public class EasyMeta implements BaseMeta {
 		return baseMeta.getExtraAttrs();
 	}
 
+	@Override
+	public boolean isCreatable() {
+		return baseMeta.isCreatable();
+	}
+
+	@Override
+	public boolean isUpdatable() {
+    	if (isField()) {
+			if (!baseMeta.isUpdatable()) {
+				return false;
+			}
+
+			Field field = (Field) baseMeta;
+			Set<String> set = RobotTriggerManager.instance.getAutoReadonlyFields(field.getOwnEntity().getName());
+			return !set.contains(field.getName());
+		}
+
+    	return baseMeta.isUpdatable();
+	}
+
+	@Override
+	public boolean isQueryable() {
+		return baseMeta.isQueryable();
+	}
+
+	// --
+
 	/**
 	 * also #getDescription()
 	 * @return
@@ -224,24 +251,6 @@ public class EasyMeta implements BaseMeta {
      */
 	public Object getPropOfFieldExtConfig(String name) {
 	    return getFieldExtConfig().get(name);
-    }
-
-    /**
-     * 此方法除了判断元数据，还会判断其他业务规则
-     *
-     * @return
-     * @see Field#isUpdatable()
-     * @see RobotTriggerManager#getAutoReadonlyFields(String)
-     */
-    public boolean isUpdatable() {
-        Assert.isTrue(isField(), "Field supports only");
-        final Field field = (Field) baseMeta;
-        if (!field.isUpdatable()) {
-            return false;
-        }
-
-        Set<String> set = RobotTriggerManager.instance.getAutoReadonlyFields(field.getOwnEntity().getName());
-        return !set.contains(field.getName());
     }
 
     /**
