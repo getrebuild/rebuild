@@ -127,7 +127,6 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             field.addAttribute("extra-attrs", extraAttrs.toJSONString());
 		}
 
-        XmlHelper.dump((Element) rootElement.selectSingleNode("entity[@name='testallfields999']"));
         if (LOG.isDebugEnabled()) {
             XmlHelper.dump(rootElement);
 		}
