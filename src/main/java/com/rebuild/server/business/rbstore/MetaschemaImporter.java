@@ -135,7 +135,9 @@ public class MetaschemaImporter extends HeavyTask<String> {
 		}
 		
 		for (Object[] picklist : picklistHolders) {
-			Application.getBean(PickListService.class).updateBatch((Field) picklist[0], (JSONObject) picklist[1]);
+		    Field refreshField = (Field) picklist[0];
+		    refreshField = MetadataHelper.getField(refreshField.getOwnEntity().getName(), refreshField.getName());
+			Application.getBean(PickListService.class).updateBatch(refreshField, (JSONObject) picklist[1]);
 		}
 		setCompleted(100);
 

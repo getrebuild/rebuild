@@ -138,7 +138,7 @@ public class TestSupport {
 			String content = FileUtils.readFileToString(new File(url.toURI()));
 
 			MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(content));
-			if (this instanceof  TestSupportWithUser) {
+			if (this instanceof TestSupportWithUser) {
 				TaskExecutors.exec(importer);
 			} else {
 				TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));

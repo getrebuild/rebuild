@@ -86,7 +86,7 @@ public class EasyMeta implements BaseMeta {
             clone.remove("displayType");
             return clone;
         }
-        return baseMeta.getExtraAttrs();
+        return baseMeta.getExtraAttrs() == null ? JSONUtils.EMPTY_OBJECT : baseMeta.getExtraAttrs();
     }
 
 	@Override
