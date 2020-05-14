@@ -39,7 +39,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -242,9 +241,9 @@ public class FormsBuilder extends FormsManager {
 
 		ID masterRecordId = MASTERID4NEWSLAVE.get();
 		if (masterRecordId == null) {
-			Field stm = MetadataHelper.getSlaveToMasterField(entity);
+			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
 			String sql = String.format("select %s from %s where %s = ?",
-					Objects.requireNonNull(stm).getName(), entity.getName(), entity.getPrimaryField().getName());
+					stmField.getName(), entity.getName(), entity.getPrimaryField().getName());
 			Object[] o = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
 			if (o == null) {
 				return null;
@@ -529,7 +528,7 @@ public class FormsBuilder extends FormsManager {
 			// 主实体字段
 			else if (field.equals(DV_MASTER)) {
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-				Object mixValue = inFormFields.contains(Objects.requireNonNull(stmField).getName()) ? readyReferenceValue(value) : value;
+				Object mixValue = inFormFields.contains(stmField.getName()) ? readyReferenceValue(value) : value;
 				if (mixValue != null) {
 					initialValReady.put(stmField.getName(), mixValue);
 					initialValKeeps.add(stmField.getName());

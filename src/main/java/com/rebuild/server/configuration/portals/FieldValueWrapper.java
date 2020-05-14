@@ -280,21 +280,19 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	protected Object wrapSpecialField(Object value, EasyMeta field) {
-		String fieldName = field.getName().toLowerCase();
-
-		// 密码型字段返回
-		if (fieldName.contains("password") || fieldName.contains("passwd")) {
+		if (!field.isQueryable()) {
 			return "******";
 		}
 
 		// 审批
-		if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalState)) {
+		if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalState)) {
 			if (value == null) {
 				return ApprovalState.DRAFT.getName();
 			} else {
     			return ApprovalState.valueOf((Integer) value).getName();
             }
-		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId) && value == null) {
+
+		} else if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalId) && value == null) {
 		    return wrapMixValue(null, APPROVAL_UNSUBMITTED);
         }
 		

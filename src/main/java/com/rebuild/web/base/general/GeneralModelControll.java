@@ -40,7 +40,7 @@ public class GeneralModelControll extends BaseEntityControll {
 	public ModelAndView pageView(@PathVariable String entity, @PathVariable String id,
 			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
-		Entity thatEntity = MetadataHelper.getEntity(entity);
+		final Entity thatEntity = MetadataHelper.getEntity(entity);
 		
  		if (!Application.getSecurityManager().allowRead(user, thatEntity.getEntityCode())) {
  			response.sendError(403, "你没有访问此实体的权限");

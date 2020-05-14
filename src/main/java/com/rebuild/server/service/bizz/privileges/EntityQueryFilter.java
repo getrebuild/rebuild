@@ -21,7 +21,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -113,16 +112,14 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		}
 		
 		String ownFormat = "%s = '%s'";
-		Field toMasterField = null;
+		Field stmField = null;
 		if (useMaster != null) {
-			toMasterField = MetadataHelper.getSlaveToMasterField(entity);
-			Assert.notNull(toMasterField, "No STM field found : " + entity);
-
-			ownFormat = toMasterField.getName() + "." + ownFormat;
+			stmField = MetadataHelper.getSlaveToMasterField(entity);
+			ownFormat = stmField.getName() + "." + ownFormat;
 		}
 		
 		if (de == BizzDepthEntry.PRIVATE) {
-			return appendShareFilter(entity, toMasterField,
+			return appendShareFilter(entity, stmField,
 					String.format(ownFormat, EntityHelper.OwningUser, user.getIdentity()));
 		}
 		
@@ -130,7 +127,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		String deptSql = String.format(ownFormat, EntityHelper.OwningDept, dept.getIdentity());
 		
 		if (de == BizzDepthEntry.LOCAL) {
-			return appendShareFilter(entity, toMasterField, deptSql);
+			return appendShareFilter(entity, stmField, deptSql);
 		} else if (de == BizzDepthEntry.DEEPDOWN) {
 			Set<String> sqls = new HashSet<>();
 			sqls.add(deptSql);
@@ -138,7 +135,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 			for (BusinessUnit child : dept.getAllChildren()) {
 				sqls.add(String.format(ownFormat, EntityHelper.OwningDept, child.getIdentity()));
 			}
-			return appendShareFilter(entity, toMasterField, "(" + StringUtils.join(sqls, " or ") + ")");
+			return appendShareFilter(entity, stmField, "(" + StringUtils.join(sqls, " or ") + ")");
 		}
 
 		return DENIED.evaluate(null);

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.base;
@@ -62,7 +51,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Observer;
 import java.util.Set;
 
@@ -452,8 +440,8 @@ public class GeneralEntityService extends ObservableService  {
 		// 验证新建明细（相当于更新主记录）
 		Entity masterEntity = entity.getMasterEntity();
 		if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
-			Field smt = MetadataHelper.getSlaveToMasterField(entity);
-			ApprovalState state = getApprovalState(newRecord.getID(Objects.requireNonNull(smt).getName()));
+			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+			ApprovalState state = getApprovalState(newRecord.getID(stmField.getName()));
 			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
 				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 				throw new DataSpecificationException("主记录" + stateType + "，不能添加明细");
@@ -513,8 +501,8 @@ public class GeneralEntityService extends ObservableService  {
 	 * @throws NoRecordFoundException
 	 */
 	private ID getMasterId(Entity slaveEntity, ID slaveId) throws NoRecordFoundException {
-		Field stm = MetadataHelper.getSlaveToMasterField(slaveEntity);
-		Object[] o = Application.getQueryFactory().uniqueNoFilter(slaveId, Objects.requireNonNull(stm).getName());
+		Field stmField = MetadataHelper.getSlaveToMasterField(slaveEntity);
+		Object[] o = Application.getQueryFactory().uniqueNoFilter(slaveId, stmField.getName());
 		if (o == null) {
 			throw new NoRecordFoundException(slaveId);
 		}

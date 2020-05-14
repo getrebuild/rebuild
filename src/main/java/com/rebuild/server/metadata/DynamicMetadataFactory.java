@@ -72,7 +72,11 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					.addAttribute("description", (String) custom[3])
 					.addAttribute("parent", "false")
 					.addAttribute("name-field", (String) custom[7])
-					.addAttribute("master", (String) custom[8]);
+					.addAttribute("master", (String) custom[8])
+					.addAttribute("creatable", "true")
+					.addAttribute("updatable", "true")
+					.addAttribute("queryable", "true")
+					.addAttribute("deletable", "true");
 			ENTITY_EXTMETA.put(name, new Object[] { custom[4], custom[5], custom[6] });
 		}
 
@@ -93,12 +97,13 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 			field.addAttribute("name", fieldName)
 					.addAttribute("physical-name", (String) custom[2])
 					.addAttribute("description", (String) custom[3])
+					.addAttribute("max-length", String.valueOf(custom[8]))
+					.addAttribute("default-value", (String) custom[9])
 					.addAttribute("nullable", String.valueOf(custom[5]))        // true
 					.addAttribute("creatable", String.valueOf(custom[6]))       // true
 					.addAttribute("updatable", String.valueOf(custom[7]))       // true
-					.addAttribute("max-length", String.valueOf(custom[8]))
-					.addAttribute("default-value", (String) custom[9])
-					.addAttribute("repeatable", String.valueOf(custom[15]));    // true
+					.addAttribute("repeatable", String.valueOf(custom[15]))     // true
+					.addAttribute("queryable", "true");
 			if (fieldName.equals(EntityHelper.AutoId)) {
 				field.addAttribute("auto-value", "true");
 			}

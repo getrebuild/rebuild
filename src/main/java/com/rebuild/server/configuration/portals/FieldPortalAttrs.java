@@ -64,7 +64,7 @@ public class FieldPortalAttrs {
      * @return
      */
     public boolean allowDataList(Field field) {
-        return !disallowAll(field) && !isPasswd(field);
+        return !disallowAll(field) && field.isQueryable();
     }
 
     /**
@@ -72,7 +72,7 @@ public class FieldPortalAttrs {
      * @return
      */
     public boolean allowSearch(Field field) {
-        return !disallowAll(field) && !isPasswd(field);
+        return !disallowAll(field) && field.isQueryable();
     }
 
     /**
@@ -83,14 +83,5 @@ public class FieldPortalAttrs {
         String fieldName = field.getName();
         return field.getType() == FieldType.ANY_REFERENCE
                 || EntityHelper.ApprovalStepNode.equalsIgnoreCase(fieldName);
-    }
-
-    /**
-     * @param field
-     * @return
-     */
-    private boolean isPasswd(Field field) {
-        String fieldName = field.getName();
-        return fieldName.contains("password") || fieldName.contains("passwd");
     }
 }
