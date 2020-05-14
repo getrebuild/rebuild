@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.base.configuration;
@@ -119,12 +108,12 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		}
 
 		// 明细关联字段
-		final Field stmfField = entityMeta.getMasterEntity() == null ? null : MetadataHelper.getSlaveToMasterField(entityMeta);
+		final Field stmField = entityMeta.getMasterEntity() == null ? null : MetadataHelper.getSlaveToMasterField(entityMeta);
 
 		// 引用实体的字段
 		for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
 			// 过滤所属用户/所属部门等系统字段（除了明细引用（主实体）字段）
-			if (EasyMeta.valueOf(field).isBuiltin() && (stmfField == null || !stmfField.equals(field))) {
+			if (EasyMeta.valueOf(field).isBuiltin() && (stmField == null || !stmField.equals(field))) {
 				continue;
 			}
 

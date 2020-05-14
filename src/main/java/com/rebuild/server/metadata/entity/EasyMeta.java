@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.metadata.entity;
@@ -80,8 +69,25 @@ public class EasyMeta implements BaseMeta {
 	
 	@Override
 	public JSONObject getExtraAttrs() {
-		return baseMeta.getExtraAttrs();
+		return getExtraAttrs(false);
 	}
+
+    /**
+     * @param clean
+     * @return
+     */
+    public JSONObject getExtraAttrs(boolean clean) {
+        // see DynamicMetadataFactory
+        if (clean) {
+            JSONObject clone = (JSONObject) JSONUtils.clone(baseMeta.getExtraAttrs());
+            clone.remove("metaId");
+            clone.remove("comments");
+            clone.remove("icon");
+            clone.remove("displayType");
+            return clone;
+        }
+        return baseMeta.getExtraAttrs() == null ? JSONUtils.EMPTY_OBJECT : baseMeta.getExtraAttrs();
+    }
 
 	@Override
 	public boolean isCreatable() {
@@ -108,10 +114,44 @@ public class EasyMeta implements BaseMeta {
 		return baseMeta.isQueryable();
 	}
 
-	// --
+    /**
+     * 获取扩展属性
+     *
+     * @param name
+     * @return
+     */
+    public String getExtraAttr(String name) {
+        return getExtraAttrs().getString(name);
+    }
+
+    /**
+     * 系统内建字段/实体，不可更改
+     *
+     * @return
+     * @see MetadataHelper#isCommonsField(Field)
+     */
+    public boolean isBuiltin() {
+        if (this.getMetaId() == null) {
+            return true;
+        }
+
+        if (isField()) {
+            Field field = (Field) baseMeta;
+            if (MetadataHelper.isCommonsField(field)) {
+                return true;
+            } else if (getDisplayType() == DisplayType.REFERENCE) {
+                // 明细-引用主记录的字段也是内建
+                // @see MetadataHelper#getSlaveToMasterField
+                Entity hasMaster = field.getOwnEntity().getMasterEntity();
+                return hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable();
+            }
+        }
+        return false;
+    }
 
 	/**
-	 * also #getDescription()
+	 * Use #getDescription()
+     *
 	 * @return
 	 */
 	public String getLabel() {
@@ -120,77 +160,15 @@ public class EasyMeta implements BaseMeta {
 		}
 		return StringUtils.defaultIfBlank(getDescription(), getName().toUpperCase());
 	}
-	
+
 	/**
-	 * @param fullName
-	 * @return
-	 */
-	public String getDisplayType(boolean fullName) {
-		DisplayType dt = getDisplayType();
-		if (fullName) {
-			return dt.getDisplayName() + " (" + dt.name() + ")";
-		} else {
-			return dt.name();
-		}
-	}
-	
-	/**
-	 * @return
-	 */
-	public DisplayType getDisplayType() {
-        Assert.isTrue(isField(), "Field supports only");
-		Object[] ext = getMetaExt();
-		if (ext != null) {
-			return (DisplayType) ext[2];
-		}
-		
-		DisplayType dt;
-		String dtInExtra = getExtraAttrs().getString("displayType");
-		if (dtInExtra != null) {
-			dt = DisplayType.valueOf(dtInExtra);
-		} else {
-			dt = converBuiltinFieldType((Field) baseMeta);
-		}
-		
-		if (dt != null) {
-			return dt;
-		}
-		throw new RebuildException("Unsupported field type : " + baseMeta);
-	}
-	
-	/**
-	 * 系统内建字段/实体，不可更改
-	 * 
-	 * @return
-	 * @see MetadataHelper#isSystemField(Field)
-	 */
-	public boolean isBuiltin() {
-		if (this.getMetaId() == null) {
-			return true;
-		}
-		
-		if (isField()) {
-			Field field = (Field) baseMeta;
-			if (MetadataHelper.isCommonsField(field)) {
-				return true;
-			} else if (getDisplayType() == DisplayType.REFERENCE) {
-				// 明细-引用主记录的字段也是内建
-				// @see MetadataHelper#getSlaveToMasterField
-				Entity hasMaster = field.getOwnEntity().getMasterEntity();
-				return hasMaster != null && hasMaster.equals(field.getReferenceEntity()) && !field.isCreatable();
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * 保存的 ID
-	 * 
+	 * 自定义实体/字段 ID
+     *
 	 * @return
 	 */
 	public ID getMetaId() {
-		Object[] ext = getMetaExt();
-		return ext == null ? null : (ID) ext[0];
+	    String metaId = getExtraAttr("metaId");
+		return metaId == null ? null : ID.valueOf(metaId);
 	}
 	
 	/**
@@ -199,12 +177,19 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public String getComments() {
-		Object[] ext = getMetaExt();
-		if (ext != null) {
-			return (String) ext[1];
-		}
-		return StringUtils.defaultIfBlank(getExtraAttrs().getString("comments"), "系统内建");
+	    String comments = getExtraAttr("comments");
+	    if (getMetaId() != null) {
+	        return comments;
+        }
+		return StringUtils.defaultIfBlank(comments, "系统内建");
 	}
+
+    @Override
+    public String toString() {
+        return "EASY#" + baseMeta.toString();
+    }
+
+	// -- ENTITY
 	
 	/**
 	 * 实体图标
@@ -213,73 +198,55 @@ public class EasyMeta implements BaseMeta {
 	 */
 	public String getIcon() {
         Assert.isTrue(!isField(), "Entity supports only");
-		String customIcon = null;
-		Object[] ext = getMetaExt();
-		if (ext != null) {
-			customIcon = StringUtils.defaultIfBlank((String) ext[2], "texture");
-		}
-		if (StringUtils.isNotBlank(customIcon)) {
-			return customIcon;
-		}
-		return StringUtils.defaultIfBlank(getExtraAttrs().getString("icon"), "texture");
-	}
-	
-	/**
-	 * 字段扩展配置
-     *
-	 * @return
-     * @see FieldExtConfigProps
-	 */
-	public JSONObject getFieldExtConfig() {
-        Assert.isTrue(isField(), "Field supports only");
-		Object[] ext = getMetaExt();
-		if (ext == null || StringUtils.isBlank((String) ext[3])) {
-			JSONObject extConfig = getExtraAttrs().getJSONObject("extConfig");
-			return extConfig == null ? JSONUtils.EMPTY_OBJECT : extConfig;
-		}
-		return JSON.parseObject((String) ext[3]);
+		return StringUtils.defaultIfBlank(getExtraAttr("icon"), "texture");
 	}
 
     /**
-     * 字段扩展配置
+     * 指定实体具有和业务实体一样的特性（除权限以外（指定实体无权限字段））
      *
-     * @param name
-     * @return
-     *
-     * @see #getFieldExtConfig()
-     * @see FieldExtConfigProps
-     */
-	public Object getPropOfFieldExtConfig(String name) {
-	    return getFieldExtConfig().get(name);
-    }
-
-    /**
-     * 指定实体具有和业务实体一样的特性（除权限以外（指定实体无权限字段））。
      * @return
      */
     public boolean isPlainEntity() {
-        return !isField() && getExtraAttrs().getBooleanValue("plainEntity");
+        Assert.isTrue(!isField(), "Entity supports only");
+        return getExtraAttrs().getBooleanValue("plainEntity");
+    }
+
+    // -- FIELD
+
+    /**
+     * @return
+     */
+    private boolean isField() {
+        return baseMeta instanceof Field;
+    }
+
+    /**
+     * @param fullName
+     * @return
+     */
+    public String getDisplayType(boolean fullName) {
+        DisplayType dt = getDisplayType();
+        if (fullName) {
+            return dt.getDisplayName() + " (" + dt.name() + ")";
+        } else {
+            return dt.name();
+        }
     }
 
     /**
      * @return
      */
-	private boolean isField() {
-		return baseMeta instanceof Field;
-	}
+    public DisplayType getDisplayType() {
+        Assert.isTrue(isField(), "Field supports only");
 
-    /**
-     * @return
-     */
-	private Object[] getMetaExt() {
-		Object[] ext;
-		if (isField()) {
-			ext = MetadataHelper.getMetadataFactory().getFieldExtmeta((Field) baseMeta);
-		} else {
-			ext = MetadataHelper.getMetadataFactory().getEntityExtmeta((Entity) baseMeta);
-		}
-		return ext;
-	}
+        String displayType = getExtraAttr("displayType");
+        DisplayType dt = displayType != null
+                ? DisplayType.valueOf(displayType) : converBuiltinFieldType((Field) baseMeta);
+        if (dt != null) {
+            return dt;
+        }
+        throw new RebuildException("Unsupported field type : " + baseMeta);
+    }
 
     /**
      * 将字段类型转成 DisplayType
@@ -292,13 +259,14 @@ public class EasyMeta implements BaseMeta {
 		if (ft == FieldType.PRIMARY) {
 			return DisplayType.ID;
 		} else if (ft == FieldType.REFERENCE) {
-			int rec = field.getReferenceEntity().getEntityCode();
-			if (rec == EntityHelper.PickList) {
+			int typeCode = field.getReferenceEntity().getEntityCode();
+			if (typeCode == EntityHelper.PickList) {
 				return DisplayType.PICKLIST;
-			} else if (rec == EntityHelper.Classification) {
+			} else if (typeCode == EntityHelper.Classification) {
 				return DisplayType.CLASSIFICATION;
-			} 
-			return DisplayType.REFERENCE;
+			} else {
+                return DisplayType.REFERENCE;
+            }
 		} else if (ft == FieldType.ANY_REFERENCE) {
 			return DisplayType.ANYREFERENCE;
 		} else if (ft == FieldType.TIMESTAMP) {
@@ -315,23 +283,18 @@ public class EasyMeta implements BaseMeta {
 			return DisplayType.NUMBER;
 		} else if (ft == FieldType.DOUBLE || ft == FieldType.DECIMAL) {
 			return DisplayType.DECIMAL;
-		} 
+		}
 		return null;
 	}
 
-	@Override
-	public String toString() {
-		return "EASY#" + baseMeta.toString();
-	}
-
-	// --
+	// -- QUICK
 	
 	/**
-	 * @param baseMeta
+	 * @param entityOrField
 	 * @return
 	 */
-	public static EasyMeta valueOf(BaseMeta baseMeta) {
-		return new EasyMeta(baseMeta);
+	public static EasyMeta valueOf(BaseMeta entityOrField) {
+		return new EasyMeta(entityOrField);
 	}
 	
 	/**
@@ -355,15 +318,15 @@ public class EasyMeta implements BaseMeta {
 	 * @return
 	 */
 	public static DisplayType getDisplayType(Field field) {
-		return new EasyMeta(field).getDisplayType();
+		return valueOf(field).getDisplayType();
 	}
 	
 	/**
-	 * @param meta
+	 * @param entityOrField
 	 * @return
 	 */
-	public static String getLabel(BaseMeta meta) {
-		return StringUtils.defaultIfBlank(meta.getDescription(), meta.getName().toUpperCase());
+	public static String getLabel(BaseMeta entityOrField) {
+		return valueOf(entityOrField).getLabel();
 	}
 	
 	/**

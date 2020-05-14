@@ -22,6 +22,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.metadata.entity.FieldExtConfigProps;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -139,7 +140,7 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public String wrapDate(Object value, EasyMeta field) {
-		String format = field.getFieldExtConfig().getString("dateFormat");
+		String format = field.getExtraAttr(FieldExtConfigProps.DATE_DATEFORMAT);
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		return CalendarUtils.getDateFormat(format).format(value);
 	}
@@ -150,7 +151,7 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public String wrapDatetime(Object value, EasyMeta field) {
-		String format = field.getFieldExtConfig().getString("datetimeFormat");
+		String format = field.getExtraAttr(FieldExtConfigProps.DATETIME_DATEFORMAT);
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		return CalendarUtils.getDateFormat(format).format(value);
 	}
@@ -161,7 +162,7 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public String wrapNumber(Object value, EasyMeta field) {
-		String format = field.getFieldExtConfig().getString("numberFormat");
+		String format = field.getExtraAttr(FieldExtConfigProps.NUMBER_FORMAT);
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		return new DecimalFormat(format).format(value);
 	}
@@ -172,7 +173,7 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public String wrapDecimal(Object value, EasyMeta field) {
-		String format = field.getFieldExtConfig().getString("decimalFormat");
+		String format = field.getExtraAttr(FieldExtConfigProps.DECIMAL_FORMAT);
 		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
 		return new DecimalFormat(format).format(value);
 	}
@@ -187,10 +188,12 @@ public class FieldValueWrapper {
 	    Object text = ((ID) value).getLabelRaw();
 	    if (text == null) {
             text = getLabelNotry((ID) value);
+
         } else {
 	        Field nameField = ((Field) field.getBaseMeta()).getReferenceEntity().getNameField();
 	        text = instance.wrapFieldValue(text, nameField, true);
         }
+
 	    return wrapMixValue((ID) value, text == null ? null : text.toString());
 	}
 	
@@ -219,7 +222,7 @@ public class FieldValueWrapper {
      * @return
      */
     public String wrapState(Object value, EasyMeta field) {
-        String stateClass = field.getFieldExtConfig().getString("stateClass");
+        String stateClass = field.getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
         return StateHelper.valueOf(stateClass, (Integer) value).getName();
     }
 	
@@ -280,21 +283,19 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	protected Object wrapSpecialField(Object value, EasyMeta field) {
-		String fieldName = field.getName().toLowerCase();
-
-		// 密码型字段返回
-		if (fieldName.contains("password") || fieldName.contains("passwd")) {
+		if (!field.isQueryable()) {
 			return "******";
 		}
 
 		// 审批
-		if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalState)) {
+		if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalState)) {
 			if (value == null) {
 				return ApprovalState.DRAFT.getName();
 			} else {
     			return ApprovalState.valueOf((Integer) value).getName();
             }
-		} else if (fieldName.equalsIgnoreCase(EntityHelper.ApprovalId) && value == null) {
+
+		} else if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalId) && value == null) {
 		    return wrapMixValue(null, APPROVAL_UNSUBMITTED);
         }
 		

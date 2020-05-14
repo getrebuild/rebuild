@@ -93,16 +93,22 @@ public class TestSupport {
 			}
 			
 			String fieldName = dt.name().toUpperCase();
+			if (dt == DisplayType.DATE) fieldName = "DATE1";  // Black
+
 			if (dt == DisplayType.REFERENCE) {
-				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, entityName, null);
+				new Field2Schema(UserService.ADMIN_USER)
+                        .createField(testEntity, fieldName, dt, null, entityName, null);
 			} else if (dt == DisplayType.CLASSIFICATION) {
 				JSON area = JSON.parseObject("{classification:'018-0000000000000001'}");
-				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, entityName, area);
+				new Field2Schema(UserService.ADMIN_USER)
+                        .createField(testEntity, fieldName, dt, null, entityName, area);
 			} else if (dt == DisplayType.STATE) {
 				JSON area = JSON.parseObject("{stateClass:'com.rebuild.server.helper.state.HowtoState'}");
-				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, entityName, area);
+				new Field2Schema(UserService.ADMIN_USER)
+                        .createField(testEntity, fieldName, dt, null, entityName, area);
 			} else {
-				new Field2Schema(UserService.ADMIN_USER).createField(testEntity, fieldName, dt, null, null, null);
+				new Field2Schema(UserService.ADMIN_USER)
+                        .createField(testEntity, fieldName, dt, null, null, null);
 			}
 		}
 	}
@@ -138,7 +144,7 @@ public class TestSupport {
 			String content = FileUtils.readFileToString(new File(url.toURI()));
 
 			MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(content));
-			if (this instanceof  TestSupportWithUser) {
+			if (this instanceof TestSupportWithUser) {
 				TaskExecutors.exec(importer);
 			} else {
 				TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));

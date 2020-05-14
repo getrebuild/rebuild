@@ -318,7 +318,7 @@
 window.__PageConfig = {
     metaId: '${fieldMetaId}',
     fieldType: '${fieldType}',
-    extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
+    extConfig: $.parseJSON('${fieldExtConfig}'),
     entityName: '${entityName}',
     fieldName: '${fieldName}',
     fieldBuildin: ${fieldBuildin},

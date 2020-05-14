@@ -323,7 +323,7 @@ class DlgImports extends RbModalHandler {
                     </div>
                     <div className="clearfix"></div>
                     <div className="form-text">
-                      支持 Excel 或 CSV 文件，文件格式请 <a href="https://getrebuild.com/docs/admin/classifcation" target="_blank" className="link">参考文档</a>
+                      支持 Excel 或 CSV 文件，文件格式请 <a href="https://getrebuild.com/docs/admin/classifications" target="_blank" className="link">参考文档</a>
                     </div>
                   </div>
                 </div>

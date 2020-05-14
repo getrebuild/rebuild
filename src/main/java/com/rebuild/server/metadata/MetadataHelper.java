@@ -11,10 +11,10 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
@@ -33,7 +33,7 @@ public class MetadataHelper {
 	private static final Log LOG = LogFactory.getLog(MetadataHelper.class);
 
 	/**
-	 * 元数据
+	 * 元数据工厂
 	 *
 	 * @return
 	 */
@@ -42,6 +42,8 @@ public class MetadataHelper {
 	}
 
 	/**
+	 * 全部实体
+	 *
 	 * @return
 	 */
 	public static Entity[] getEntities() {
@@ -53,9 +55,6 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static boolean containsEntity(String entityName) {
-		if (StringUtils.isBlank(entityName)) {
-			return false;
-		}
 		try {
 			getEntity(entityName);
 			return true;
@@ -93,16 +92,18 @@ public class MetadataHelper {
 	/**
 	 * @param entityName
 	 * @return
+	 * @throws MetadataException If not exists
 	 */
-	public static Entity getEntity(String entityName) {
+	public static Entity getEntity(String entityName) throws MetadataException {
 		return getMetadataFactory().getEntity(entityName);
 	}
 
 	/**
 	 * @param entityCode
 	 * @return
+	 * @throws MetadataException If not exists
 	 */
-	public static Entity getEntity(int entityCode) {
+	public static Entity getEntity(int entityCode) throws MetadataException {
 		return getMetadataFactory().getEntity(entityCode);
 	}
 
@@ -117,6 +118,7 @@ public class MetadataHelper {
     /**
      * @param record
      * @return
+	 * @see EasyMeta#getLabel(BaseMeta)
      */
     public static String getEntityLabel(ID record) {
 	    return EasyMeta.getLabel(getEntity(record.getEntityCode()));
@@ -128,8 +130,7 @@ public class MetadataHelper {
 	 * @return
 	 */
 	public static Field getField(String entityName, String fieldName) {
-		Entity entity = getEntity(entityName);
-		return entity.getField(fieldName);
+		return getEntity(entityName).getField(fieldName);
 	}
 
 	/**
@@ -173,8 +174,7 @@ public class MetadataHelper {
 				continue;
 			}
 
-			Entity ref = field.getReferenceEntities()[0];
-			if (ref.getEntityCode().equals(source.getEntityCode())) {
+			if (field.getReferenceEntity().getEntityCode().equals(source.getEntityCode())) {
 				fields.add(field);
 			}
 		}
@@ -299,7 +299,7 @@ public class MetadataHelper {
 				return field;
 			}
 		}
-		return null;
+		throw new MetadataException("Bad slave entity (No STM)");
 	}
 
 	/**

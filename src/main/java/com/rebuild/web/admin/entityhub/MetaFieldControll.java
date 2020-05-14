@@ -25,6 +25,7 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.metadata.entity.Field2Schema;
+import com.rebuild.server.metadata.entity.FieldExtConfigProps;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
@@ -119,8 +120,8 @@ public class MetaFieldControll extends BasePageControll  {
 
 		// 明细实体
 		if (((Entity) easyEntity.getBaseMeta()).getMasterEntity() != null) {
-		    Field stf = MetadataHelper.getSlaveToMasterField((Entity) easyEntity.getBaseMeta());
-		    mv.getModel().put("isSlaveToMasterField", stf.equals(fieldMeta));
+		    Field stmField = MetadataHelper.getSlaveToMasterField((Entity) easyEntity.getBaseMeta());
+		    mv.getModel().put("isSlaveToMasterField", stmField.equals(fieldMeta));
         } else {
 		    mv.getModel().put("isSlaveToMasterField", false);
 		}
@@ -132,7 +133,7 @@ public class MetaFieldControll extends BasePageControll  {
 			mv.getModel().put("fieldRefentity", refentity.getName());
 			mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
 		}
-		mv.getModel().put("fieldExtConfig", easyField.getFieldExtConfig());
+		mv.getModel().put("fieldExtConfig", easyField.getExtraAttrs(true));
 		
 		return mv;
 	}
@@ -156,13 +157,13 @@ public class MetaFieldControll extends BasePageControll  {
 		JSON extConfig = null;
 		if (dt == DisplayType.CLASSIFICATION) {
 			ID dataId = ID.valueOf(refClassification);
-			extConfig = JSONUtils.toJSONObject("classification", dataId);
+			extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.CLASSIFICATION_USE, dataId);
 		} else if (dt == DisplayType.STATE) {
 		    if (!StateHelper.isStateClass(stateClass)) {
                 writeFailure(response, "无效状态类");
                 return;
             }
-            extConfig = JSONUtils.toJSONObject("stateClass", stateClass);
+            extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.STATE_STATECLASS, stateClass);
         }
 		
 		String fieldName;
