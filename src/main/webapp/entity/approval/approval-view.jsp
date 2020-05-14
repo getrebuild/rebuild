@@ -28,7 +28,7 @@ window.__PageConfig = {
 }
 </script>
 <script type="text/babel">
-__RESIZE_CALLS = null  // No need
+window.__ONRESIZE_CALLS = []
 $(document).ready(function() {
     const ph = (parent && parent.RbViewModal) ? parent.RbViewModal.holder(window.__PageConfig.id) : null
     if (ph) $('.J_close').click(() => ph.hide())
