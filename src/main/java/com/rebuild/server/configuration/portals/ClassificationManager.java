@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.configuration.portals;
@@ -24,6 +13,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.server.metadata.entity.FieldExtConfigProps;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -152,7 +142,7 @@ public class ClassificationManager implements ConfigManager<ID> {
 	 * @return
 	 */
 	public ID getUseClassification(Field field, boolean verfiy) {
-		String use = EasyMeta.valueOf(field).getFieldExtConfig().getString("classification");
+		String use = EasyMeta.valueOf(field).getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE);
 		ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
 		if (dataId == null) {
 			LOG.error("Field [ " + field + " ] unconfig classification");

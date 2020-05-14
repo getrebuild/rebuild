@@ -96,15 +96,7 @@ public class Field2Schema {
 		Application.getMetadataFactory().refresh(false);
 		return fieldName;
 	}
-	
-	/**
-	 * @param field
-	 * @return
-	 */
-    public boolean dropField(Field field) {
-		return dropField(field, false);
-	}
-	
+
 	/**
 	 * @param field
 	 * @param force
@@ -230,8 +222,7 @@ public class Field2Schema {
 		Record recordOfField = EntityHelper.forNew(EntityHelper.MetaField, user);
 		recordOfField.setString("belongEntity", entity.getName());
 		recordOfField.setString("fieldName", fieldName);
-//		String physicalName = fieldName.toUpperCase();
-		String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
+		final String physicalName = StringHelper.hyphenate(fieldName).toUpperCase();
 		recordOfField.setString("physicalName", physicalName);
 		recordOfField.setString("fieldLabel", fieldLabel);
 		recordOfField.setString("displayType", dt.name());
@@ -239,6 +230,7 @@ public class Field2Schema {
 		recordOfField.setBoolean("creatable", creatable);
 		recordOfField.setBoolean("updatable", updatable);
 		recordOfField.setBoolean("repeatable", repeatable);
+
 		if (StringUtils.isNotBlank(comments)) {
 			recordOfField.setString("comments", comments);
 		}

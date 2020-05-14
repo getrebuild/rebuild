@@ -302,7 +302,7 @@ public class FormsBuilder extends FormsManager {
 			}
 
 			// 字段扩展配置 FieldExtConfigProps
-			JSONObject fieldExt = easyField.getFieldExtConfig();
+			JSONObject fieldExt = easyField.getExtraAttrs(true);
 			for (Map.Entry<String, Object> e : fieldExt.entrySet()) {
 				el.put(e.getKey(), e.getValue());
 			}
