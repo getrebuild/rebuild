@@ -52,7 +52,7 @@ public interface TriggerAction {
 	void prepare(OperatingContext operatingContext) throws TriggerException;
 
 	/**
-	 * 异步执行。注意：异步执行会开启新事物，所以如果依赖主事物的数据，可能存在幻读
+	 * 异步执行。注意：由于异步执行可能会开启新事物，所以如果依赖主事物的数据，可能存在脏读
 	 *
 	 * @return
 	 */

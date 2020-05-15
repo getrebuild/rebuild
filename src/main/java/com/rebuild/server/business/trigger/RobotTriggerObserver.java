@@ -91,7 +91,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                 }
             }
 
-            // 异步执行。注意这会开启新事物
+            // 异步执行
             for (TriggerAction action : actions) {
                 if (!action.useAsync()) continue;
                 LOG.info("Trigger [ " + action.getType() + " ] by record : " + context.getAnyRecord().getPrimary());
