@@ -220,17 +220,7 @@ public final class Application {
     public static boolean serversReady() {
 		return serversReady;
 	}
-	
-	/**
-	 * 添加服务停止钩子
-	 * 
-	 * @param hook
-	 */
-	public static void addShutdownHook(Thread hook) {
-		LOG.info("Add shutdown hook : " + hook.getName());
-		Runtime.getRuntime().addShutdownHook(hook);
-	}
-	
+
 	/**
 	 * SPRING Context
 	 * 

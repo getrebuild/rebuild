@@ -14,6 +14,7 @@ import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.InstallState;
+import com.rebuild.server.helper.task.TaskExecutors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,8 +83,9 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 		LOG.info("Rebuild shutdown ...");
-        super.contextDestroyed(event);
+		Application.getBean(TaskExecutors.class).shutdown();
         ((ClassPathXmlApplicationContext) Application.getApplicationContext()).close();
+		super.contextDestroyed(event);
 	}
 	
 	// --

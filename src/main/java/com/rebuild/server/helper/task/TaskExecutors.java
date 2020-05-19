@@ -10,12 +10,14 @@ package com.rebuild.server.helper.task;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +34,8 @@ import java.util.concurrent.TimeUnit;
  * @see org.springframework.core.task.AsyncTaskExecutor
  */
 public class TaskExecutors extends QuartzJobBean {
+
+	private static final Log LOG = LogFactory.getLog(TaskExecutors.class);
 
 	private static final int MAX_TASK = Runtime.getRuntime().availableProcessors() / 2;
 
@@ -113,8 +117,17 @@ public class TaskExecutors extends QuartzJobBean {
 			long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
 			if (leftTime > 60 * 120) {
 				TASKS.remove(e.getKey());
-				Application.LOG.info("HeavyTask self-destroying : " + e.getKey());
+				LOG.info("HeavyTask self-destroying : " + e.getKey());
 			}
+		}
+	}
+
+	/**
+	 */
+	public void shutdown() {
+		List<Runnable> runs = EXECS.shutdownNow();
+		if (!runs.isEmpty()) {
+			LOG.warn(runs.size() + " tasks interrupted");
 		}
 	}
 }
