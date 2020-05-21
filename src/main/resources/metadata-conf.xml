@@ -44,7 +44,7 @@
 		<field name="quickCode" type="string" max-length="70" />
 	</entity>
 
-	<entity name="RolePrivileges" type-code="004" parent="false">
+	<entity name="RolePrivileges" type-code="004" parent="false" queryable="false">
 		<field name="privilegesId" type="primary" />
 		<field name="roleId" type="reference" ref-entity="Role" nullable="false" updatable="false" cascade="delete" />
 		<field name="entity" type="int" default-value="0" nullable="false" updatable="false" description="哪个实体" />
@@ -155,7 +155,7 @@
 		<field name="title" type="string" max-length="100" nullable="false" />
 	</entity>
 
-	<entity name="Classification" type-code="018" name-field="name" description="分类数据">
+	<entity name="Classification" type-code="018" name-field="name" description="分类数据" queryable="false">
 		<field name="dataId" type="primary" />
 		<field name="name" type="string" max-length="100" nullable="false" />
 		<field name="description" type="string" max-length="600" />
@@ -163,7 +163,7 @@
 		<field name="openLevel" type="small-int" default-value="0" />
 	</entity>
 
-	<entity name="ClassificationData" type-code="019" name-field="fullName" description="分类数据明细">
+	<entity name="ClassificationData" type-code="019" name-field="fullName" description="分类数据明细" queryable="false">
 		<field name="itemId" type="primary" />
 		<field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" />
 		<field name="name" type="string" max-length="100" nullable="false" />
@@ -282,7 +282,7 @@
 		<index field-list="recordId,approvalId,node,isCanceled,isWaiting" />
 	</entity>
 
-	<entity name="RebuildApi" type-code="030" description="API鉴权参数">
+	<entity name="RebuildApi" type-code="030" description="API鉴权参数" queryable="false">
 		<field name="uniqueId" type="primary" />
 		<field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
 		<field name="appSecret" type="string" max-length="60" nullable="false" description="APPSECRET" />
@@ -291,7 +291,7 @@
 		<index type="unique" field-list="appId" />
 	</entity>
 
-	<entity name="RebuildApiRequest" type-code="031" description="API调用日志" parent="false">
+	<entity name="RebuildApiRequest" type-code="031" description="API调用日志" parent="false" queryable="false">
 		<field name="requestId" type="primary" />
 		<field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID" />
 		<field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源IP" />
