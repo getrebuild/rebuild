@@ -38,8 +38,11 @@ public class FieldList extends BaseApi {
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
         String entity = context.getParameterNotBlank("entity");
-        Entity thatEntity = MetadataHelper.getEntity(entity);
+        if (!MetadataHelper.containsEntity(entity)) {
+            throw new ApiInvokeException("Unknow entity : " + entity);
+        }
 
+        Entity thatEntity = MetadataHelper.getEntity(entity);
         JSONArray array = new JSONArray();
         for (Field field : thatEntity.getFields()) {
             if (MetadataHelper.isSystemField(field) || !field.isQueryable()) {

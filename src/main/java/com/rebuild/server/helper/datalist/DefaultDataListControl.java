@@ -26,9 +26,9 @@ import com.rebuild.server.service.bizz.UserService;
  */
 public class DefaultDataListControl implements DataListControl {
 
-	private Entity entity;
-	private QueryParser queryParser;
-	private ID user;
+	final protected Entity entity;
+	final protected QueryParser queryParser;
+	final protected ID user;
 	
 	/**
 	 * @param query
@@ -72,11 +72,22 @@ public class DefaultDataListControl implements DataListControl {
 		
 		Query query = Application.getQueryFactory().createQuery(queryParser.toSql(), user);
 		int[] limits = queryParser.getSqlLimit();
-		Object[][] array = query.setLimit(limits[0], limits[1]).array();
+		Object[][] data = query.setLimit(limits[0], limits[1]).array();
 
+		return createDataListWrapper(totalRows, data, query)
+				.toJson();
+	}
+
+	/**
+	 * @param totalRows
+	 * @param data
+	 * @param query
+	 * @return
+	 */
+	protected DataListWrapper createDataListWrapper(int totalRows, Object[][] data, Query query) {
 		DataListWrapper wrapper = new DataListWrapper(
-				totalRows, array, query.getSelectItems(), query.getRootEntity());
+				totalRows, data, query.getSelectItems(), query.getRootEntity());
 		wrapper.setPrivilegesFilter(user, queryParser.getQueryJoinFields());
-		return wrapper.toJson();
+		return wrapper;
 	}
 }

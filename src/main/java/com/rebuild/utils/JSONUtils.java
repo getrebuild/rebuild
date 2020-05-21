@@ -21,6 +21,7 @@ package com.rebuild.utils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -111,7 +112,8 @@ public class JSONUtils {
      * @return
      */
     public static String prettyPrint(Object json) {
-        return JSON.toJSONString(json, true);
+        return JSON.toJSONString(json,
+                SerializerFeature.PrettyFormat, SerializerFeature.WriteMapNullValue);
     }
 
     /**
