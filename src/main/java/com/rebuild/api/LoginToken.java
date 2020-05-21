@@ -16,7 +16,6 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RateLimiters;
-import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 
 /**
  * 获取登录 Token 可用于单点登录

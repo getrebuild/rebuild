@@ -39,7 +39,7 @@ public class RateLimiters {
      * for 登陆
      */
     public static final RequestRateLimiter RRL_LOGIN = createRateLimiter(
-            new long[] { 30, RateLimiters.MINUTE, RateLimiters.HOUR },
+            new long[] { RateLimiters.MINUTE / 2, RateLimiters.MINUTE, RateLimiters.HOUR },
             new int[]  {  5, 10, 30 });
 
     /**
