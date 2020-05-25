@@ -485,7 +485,8 @@ var $initReferenceSelect2 = function (el, field) {
       inputTooShort: function () { return '输入关键词搜索' },
       searching: function () { return '搜索中...' },
       maximumSelected: function () { return '只能选择 1 项' }
-    }
+    },
+    theme: `default ${field.appendClass || ''}`
   })
 }
 

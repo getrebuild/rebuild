@@ -68,7 +68,7 @@ a#entityIcon:hover{opacity:0.8}
 			<div class="card bosskey-show">
 				<div class="card-header">导出${entityLabel}实体</div>
 				<div class="card-body">
-					<p>将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 <a class="link" href="https://github.com/getrebuild/rebuild-datas" target="_blank">元数据市场</a>。</p>
+					<p>将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 <a class="link" href="https://github.com/getrebuild/rebuild-datas" target="_blank">RB 仓库</a>。</p>
 					<div class="mb-1">
 						<a href="../entity-export?id=${entityMetaId}" target="_blank" class="btn btn-primary"><i class="zmdi zmdi-cloud-download icon"></i> 导出</a>
 					</div>

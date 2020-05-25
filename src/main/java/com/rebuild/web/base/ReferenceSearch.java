@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.base;
@@ -22,6 +11,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.FieldValueWrapper;
@@ -32,6 +23,7 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
+import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.lang.ArrayUtils;
@@ -82,13 +74,28 @@ public class ReferenceSearch extends BaseControll {
 			writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			return;
 		}
+
+		// 引用字段数据过滤仅在搜索时有效
+		// 启用数据过滤后最近搜索将不可用
+		JSONObject advFilter = null;
+		String referenceDataFilter = EasyMeta.valueOf(referenceField).getExtraAttr("referenceDataFilter");
+		if (JSONUtils.wellFormat(referenceDataFilter)) {
+			advFilter = JSON.parseObject(referenceDataFilter);
+			if (advFilter.get("items") == null || advFilter.getJSONArray("items").isEmpty()) {
+				advFilter = null;
+			}
+		}
 		
 		String q = getParameter(request, "q");
 		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
-			String type = getParameter(request, "type");
-			ID[] recently = Application.getRecentlyUsedCache().gets(user, referenceEntity.getName(), type);
-			if (recently.length == 0) {
+			ID[] recently = null;
+			if (advFilter == null) {
+				String type = getParameter(request, "type");
+				recently = Application.getRecentlyUsedCache().gets(user, referenceEntity.getName(), type);
+			}
+
+			if (recently == null || recently.length == 0) {
 				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			} else {
 				writeSuccess(response, RecentlyUsedSearch.formatSelect2(recently, null));
@@ -97,7 +104,7 @@ public class ReferenceSearch extends BaseControll {
 		}
 		q = StringEscapeUtils.escapeSql(q);
 		
-		// 搜索字符
+		// 可搜索字符
 		Set<String> searchFields = new HashSet<>();
 		DisplayType referenceNameFieldType = EasyMeta.getDisplayType(referenceNameField);
 		if (!(referenceNameFieldType == DisplayType.DATETIME || referenceNameFieldType == DisplayType.DATE
@@ -120,6 +127,12 @@ public class ReferenceSearch extends BaseControll {
 
 		String like = " like '%" + q + "%'";
 		String searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
+		if (advFilter != null) {
+			String advFilterSql = new AdvFilterParser(advFilter).toSqlWhere();
+			if (advFilterSql != null) {
+				searchWhere = "(" + searchWhere + ") and " + advFilterSql;
+			}
+		}
 
 		String sql = MessageFormat.format("select {0},{1} from {2} where ( {3} )",
 				referenceEntity.getPrimaryField().getName(), referenceNameField.getName(), referenceEntity.getName(), searchWhere);

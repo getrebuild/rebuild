@@ -1,6 +1,6 @@
 .rb-right-sidebar {
-	width: 420px;
-	right: -420px;
+	width: 480px;
+	right: -480px;
 }
 
 .rb-right-sidebar .sb-content,
@@ -45,7 +45,7 @@
 
 #config-side .header>input {
 	background-color: rgba(255, 255, 255, .6);
-	border-radius: 3px;
+	border-radius: 0;
 	padding: 0 5px;
 }
 
