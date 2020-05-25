@@ -22109,7 +22109,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 }
 
 .select2-container--default .select2-dropdown {
-    border-width: .07692rem;
+    /* border-width: .07692rem; */
     border-color: #d5d8de
 }
 

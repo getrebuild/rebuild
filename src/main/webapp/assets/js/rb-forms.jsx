@@ -863,10 +863,12 @@ class RbFormReference extends RbFormElement {
     } else {
       const entity = this.props.$$$parent.props.entity
       const field = this.props.field
+      const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: field,
         label: this.props.label,
-        entity: entity
+        entity: entity,
+        appendClass: hasDataFilter ? 'warning-data-filter' : ''
       })
 
       const val = this.state.value
