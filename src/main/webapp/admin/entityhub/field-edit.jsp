@@ -170,7 +170,16 @@
 						<div class="form-group row J_for-REFERENCE hide pt-0 pb-0">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">引用实体</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<div class="form-control-plaintext"><a href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a></div>
+								<div class="form-control-plaintext">
+									<a class="J_referenceEntity" data-refentity="${fieldRefentity}" href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a>
+								</div>
+							</div>
+						</div>
+						<div class="form-group row J_for-REFERENCE hide pt-0 pb-1">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">附加过滤条件</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
+								<a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">点击设置</a>
+								<p class="form-text mb-0 mt-0">符合过滤条件的数据才能被选择或使用</p>
 							</div>
 						</div>
 						<div class="form-group row J_for-DATE hide">
@@ -326,6 +335,7 @@ window.__PageConfig = {
     isSlaveToMasterField: ${isSlaveToMasterField}
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/entityhub/field-edit.jsx" type="text/babel"></script>
 </body>
 </html>
