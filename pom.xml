@@ -53,6 +53,53 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <!-- rbv -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/rbv/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/rbv/test/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-resource</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>add-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${project.basedir}/rbv/main/webapp</directory>
+                                    <targetPath>${project.build.directory}/rebuild</targetPath>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <!-- `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -94,7 +141,7 @@
         </plugins>
     </build>
 
-    <!-- Unpublish lib can be found on https://github.com/devezhao/ -->
+    <!-- Unpublished libs can be found on https://github.com/devezhao/ -->
     <repositories>
         <repository>
             <id>jitpack.io</id>

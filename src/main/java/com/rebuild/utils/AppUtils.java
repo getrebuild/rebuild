@@ -12,10 +12,9 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.api.Controll;
 import com.rebuild.api.AuthTokenManager;
+import com.rebuild.api.Controll;
 import com.rebuild.server.Application;
-import com.rebuild.server.RebuildException;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
@@ -140,47 +139,42 @@ public class AppUtils {
 	 * @return
 	 */
 	public static String getErrorMessage(HttpServletRequest request, Throwable exception) {
+		// 已知异常
 	    if (exception != null) {
-	        Throwable root = ThrowableUtils.getRootCause(exception);
-            if (root instanceof DataTruncation) {
+	        Throwable know = ThrowableUtils.getRootCause(exception);
+            if (know instanceof DataTruncation) {
                 return "字段长度超出限制";
-            } else if (!RebuildException.class.isAssignableFrom(root.getClass())) {
-                return "系统繁忙，请稍后重试";
-            }
+            } else if (know instanceof AccessDeniedException) {
+				return Languages.lang("Error403");
+			}
         }
 
 		String errorMsg = (String) request.getAttribute(ServletUtils.ERROR_MESSAGE);
 		if (StringUtils.isNotBlank(errorMsg)) {
 			return errorMsg;
 		}
-		
-		Throwable ex = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
-		if (ex == null) {
-			ex = (Throwable) request.getAttribute(ServletUtils.JSP_JSP_EXCEPTION);
+
+		if (exception == null) {
+			exception = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
 		}
-		if (ex == null && exception != null) {
-			ex = exception;
+		if (exception == null) {
+			exception = (Throwable) request.getAttribute(ServletUtils.JSP_JSP_EXCEPTION);
 		}
-		if (ex != null) {
-			ex = ThrowableUtils.getRootCause(ex);
-		}
-		
-		if (ex == null) {
+
+		if (exception == null) {
 			Integer state = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
 			if (state != null && state == 404) {
 				return Languages.lang("Error404");
 			} else if (state != null && state == 403) {
 				return Languages.lang("Error403");
-			}  else {
+			} else {
 				return Languages.lang("ErrorUnknow");
 			}
-		} else if (ex instanceof AccessDeniedException) {
-			return Languages.lang("Error403");
+		} else {
+			exception = ThrowableUtils.getRootCause(exception);
+			errorMsg = StringUtils.defaultIfBlank(exception.getLocalizedMessage(), Languages.lang("ErrorUnknow"));
+			return exception.getClass().getSimpleName() + ": " + errorMsg;
 		}
-		
-		errorMsg = StringUtils.defaultIfBlank(
-		        ex.getLocalizedMessage(), Languages.lang("ErrorUnknow"));
-		return ex.getClass().getSimpleName() + ": " + errorMsg;
 	}
 	
 	/**

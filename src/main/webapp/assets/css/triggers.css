@@ -241,5 +241,15 @@
 }
 
 .J_when label.custom-control {
-  min-width: 100px;
+  min-width: 110px;
+}
+
+.on-timers {
+  padding: 15px 25px;
+  border-radius: 2px;
+  border: 1px solid #eee;
+}
+
+.on-timers .input-group {
+  width: 320px;
 }
