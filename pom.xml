@@ -8,24 +8,17 @@
     <packaging>war</packaging>
     <version>1.10.0-dev</version>
     <name>rebuild</name>
-    <description>Building your business-systems free!</description>
+    <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
-
-    <developers>
-        <developer>
-            <name>devezhao</name>
-            <email>zhaofang123@gmail.com</email>
-        </developer>
-    </developers>
 
     <licenses>
         <license>
             <name>GPL-3.0</name>
-            <url>https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE</url>
+            <url>https://getrebuild.com/license/LICENSE.txt</url>
         </license>
         <license>
             <name>COMMERCIAL</name>
-            <url>https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL</url>
+            <url>https://getrebuild.com/license/COMMERCIAL.txt</url>
         </license>
     </licenses>
 
@@ -153,7 +146,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>momentjava</artifactId>
-            <version>0.1.1</version>
+            <version>91f4df2081</version>
         </dependency>
         <dependency>
             <groupId>com.github.devezhao</groupId>

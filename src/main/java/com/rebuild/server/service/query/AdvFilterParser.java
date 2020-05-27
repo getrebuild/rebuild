@@ -9,6 +9,7 @@ package com.rebuild.server.service.query;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -33,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -213,7 +215,8 @@ public class AdvFilterParser {
 
 		// 日期时间
 		if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
-			if (ParserTokens.TDA.equalsIgnoreCase(op) || ParserTokens.YTA.equalsIgnoreCase(op) || ParserTokens.TTA.equalsIgnoreCase(op)) {
+			if (ParserTokens.TDA.equalsIgnoreCase(op) || ParserTokens.YTA.equalsIgnoreCase(op)
+                    || ParserTokens.TTA.equalsIgnoreCase(op)) {
 				value = getUTCDateFormat().format(CalendarUtils.now());
 				if (ParserTokens.YTA.equalsIgnoreCase(op)) {
 					value = getUTCDateFormat().format(addDay(-1));
@@ -225,12 +228,22 @@ public class AdvFilterParser {
 					op = ParserTokens.BW;
 					valueEnd = parseValue(value, op, fieldMeta, true);
 				}
-			}
 
-			if (ParserTokens.EQ.equalsIgnoreCase(op) && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
+			} else if (ParserTokens.CUW.equalsIgnoreCase(op) || ParserTokens.CUM.equalsIgnoreCase(op)
+                    || ParserTokens.CUQ.equalsIgnoreCase(op) || ParserTokens.CUY.equalsIgnoreCase(op)) {
+			    Date date = Moment.moment().startOf(op.substring(2)).date();
+			    value = CalendarUtils.getUTCDateFormat().format(date);
+
+			    if (dt == DisplayType.DATETIME) {
+			        value += ParserTokens.ZERO_TIME;
+                }
+
+            } else if (ParserTokens.EQ.equalsIgnoreCase(op)
+                    && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
 				op = ParserTokens.BW;
 				valueEnd = parseValue(value, op, fieldMeta, true);
 			}
+
 		} else if (dt == DisplayType.MULTISELECT) {
 			// 多选的包含/不包含要按位计算
 			if (ParserTokens.IN.equalsIgnoreCase(op) || ParserTokens.NIN.equalsIgnoreCase(op)) {
@@ -254,23 +267,29 @@ public class AdvFilterParser {
 
 		sb.append(' ');
 
-		// TODO 自定义函数
+		// 自定义函数
 
         final ID currentUser = Application.getCurrentUser();
 
 		if (ParserTokens.BFD.equalsIgnoreCase(op)) {
 			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
-		} else if (ParserTokens.AFD.equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
 		} else if (ParserTokens.BFM.equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+        } else if (ParserTokens.BFY.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value) * 12)) + ParserTokens.FULL_TIME;
+        } else if (ParserTokens.AFD.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
 		} else if (ParserTokens.AFM.equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
-		} else if (ParserTokens.RED.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
+        } else if (ParserTokens.AFY.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value) * 12)) + ParserTokens.ZERO_TIME;
+        } else if (ParserTokens.RED.equalsIgnoreCase(op)) {
 			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
 		} else if (ParserTokens.REM.equalsIgnoreCase(op)) {
 			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
-		} else if (ParserTokens.SFU.equalsIgnoreCase(op)) {
+		} else if (ParserTokens.REY.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value) * 12)) + ParserTokens.FULL_TIME;
+        } else if (ParserTokens.SFU.equalsIgnoreCase(op)) {
 			value = currentUser.toLiteral();
 		} else if (ParserTokens.SFB.equalsIgnoreCase(op)) {
 			Department dept = UserHelper.getDepartment(currentUser);
