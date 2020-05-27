@@ -104,7 +104,7 @@ public class LanguagesControll extends BaseControll {
 
         String storeLocale = Application.getSessionStore().getLocale();
         if (!locale.equalsIgnoreCase(storeLocale)) {
-            if (AppUtils.devMode()) {
+            if (Application.devMode()) {
                 Languages.instance.reset();
             }
             ServletUtils.setSessionAttribute(request, SK_LOCALE, locale);

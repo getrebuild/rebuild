@@ -2,7 +2,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="cn.devezhao.persist4j.engine.ID"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
-<%@ page import="com.rebuild.server.Application" %>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="renderer" content="webkit">
@@ -17,8 +16,8 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
-<meta name="rb.commercial" content="<%=Application.rbvMode()%>">
-<meta name="rb.env" content="<%=Application.devMode() ? "dev" : "production"%>">
+<meta name="rb.commercial" content="${rbv}">
+<meta name="rb.env" content="${dev}">
 <meta name="rb.locale" content="${bundle.locale()}">
 <meta name="rb.baseUrl" content="${baseUrl}">
 <meta name="rb.appName" content="${appName}">
