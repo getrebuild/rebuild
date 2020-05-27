@@ -33,8 +33,21 @@ public abstract class DistributedJobBean extends QuartzJobBean {
     private static final String LOCK_KEY = "#JOBLOCK";
     private static final int LOCK_OFFSET_TIME = 10;
 
+    protected JobExecutionContext jobExecutionContext;
+
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+        if (isSafe()) {
+            this.jobExecutionContext = jobExecutionContext;
+            this.executeJob();
+        }
+    }
+
+    /**
+     * 是否可安全运行
+     * @return
+     */
+    protected boolean isSafe() {
         if (Application.getCommonCache().isUseRedis()) {
             JedisPool pool = Application.getCommonCache().getJedisPool();
             String jobKey = getClass().getName() + LOCK_KEY;
@@ -43,18 +56,17 @@ public abstract class DistributedJobBean extends QuartzJobBean {
                 String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_OFFSET_TIME);
                 if (tryLock == null) {
                     LOG.info("The job has been executed by another instance");
-                    return;
+                    return false;
                 }
             }
         }
-
-        this.executeInternalSafe(jobExecutionContext);
+        return true;
     }
 
     /**
-     * @param jobExecutionContext
+     * 执行 Job
      * @throws JobExecutionException
      */
-    abstract protected void executeInternalSafe(JobExecutionContext jobExecutionContext) throws JobExecutionException;
+    abstract protected void executeJob() throws JobExecutionException;
 
 }
