@@ -16,8 +16,13 @@ html.admin .admin-show {
     display: block;
 }
 
+html.admin .dev-show.row,
 html.admin .admin-show.row {
     display: flex;
+}
+
+html.commercial .commercial-hide {
+    display: none !important;
 }
 
 html,

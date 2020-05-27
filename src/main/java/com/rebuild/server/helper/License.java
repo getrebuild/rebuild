@@ -70,12 +70,22 @@ public final class License {
     }
 
     /**
+     * 是否商业授权
+     *
+     * @return
+     */
+    public static boolean isCommercial() {
+        JSONObject result = siteApi("api/authority/query", true);
+        return result != null && StringUtils.contains(result.getString("authType") , "开源");
+    }
+
+    /**
      * 查询授权信息
      *
      * @return
      */
-    public static JSON queryAuthority() {
-        JSON result = siteApi("api/authority/query", false);
+    public static JSONObject queryAuthority() {
+        JSONObject result = siteApi("api/authority/query", false);
         if (result == null) {
             result = JSONUtils.toJSONObject(
                     new String[]{ "sn", "authType", "authObject", "authExpires" },
@@ -91,9 +101,6 @@ public final class License {
      * @return
      */
     public static JSONObject siteApi(String api, boolean useCache) {
-        String apiUrl = "https://getrebuild.com/" + api;
-        apiUrl += (api.contains("\\?") ? "&" : "?") + "k=" + OSA_KEY + "&sn=" + SN();
-
         if (useCache) {
             Object o = Application.getCommonCache().getx(api);
             if (o != null) {
@@ -101,11 +108,14 @@ public final class License {
             }
         }
 
+        String apiUrl = "https://getrebuild.com/" + api;
+        apiUrl += (api.contains("\\?") ? "&" : "?") + "k=" + OSA_KEY + "&sn=" + SN();
+
         try {
             String result = CommonsUtils.get(apiUrl);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
-                Application.getCommonCache().putx(api, o, CommonCache.TS_HOUR * 2);
+                Application.getCommonCache().putx(api, o, CommonCache.TS_DAY);
                 return o;
             }
         } catch (Exception ignored) {
