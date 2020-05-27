@@ -10,7 +10,6 @@ package com.rebuild.server.service.base;
 import cn.devezhao.commons.ThreadPool;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupportWithUser;
-import com.rebuild.server.helper.cache.JedisCacheDriver;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -50,8 +49,7 @@ public class RedisQueueObserverTest extends TestSupportWithUser {
 
         @Override
         public void run() {
-            @SuppressWarnings("rawtypes")
-            JedisPool pool = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool();
+            JedisPool pool = Application.getCommonCache().getJedisPool();
 
             try (Jedis jedis = pool.getResource()) {
                 if (useTopic) {

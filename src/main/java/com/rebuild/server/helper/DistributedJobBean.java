@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.helper;
 
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.JedisCacheDriver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.JobExecutionContext;
@@ -37,8 +36,7 @@ public abstract class DistributedJobBean extends QuartzJobBean {
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         if (Application.getCommonCache().isUseRedis()) {
-            @SuppressWarnings("rawtypes")
-            JedisPool pool = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool();
+            JedisPool pool = Application.getCommonCache().getJedisPool();
             String jobKey = getClass().getName() + LOCK_KEY;
 
             try (Jedis jedis = pool.getResource()) {

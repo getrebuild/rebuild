@@ -18,6 +18,8 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
+import com.rebuild.server.Application;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import redis.clients.jedis.JedisPool;
 
@@ -29,6 +31,7 @@ import java.io.Serializable;
  * @author devezhao
  * @since 12/24/2018
  */
+@SuppressWarnings("rawtypes")
 public class CommonCache extends BaseCacheTemplate<Serializable> {
 
 	/**
@@ -46,5 +49,20 @@ public class CommonCache extends BaseCacheTemplate<Serializable> {
 
 	protected CommonCache(JedisPool jedisPool, CacheManager cacheManager) {
 		super(jedisPool, cacheManager, null);
+	}
+
+	/**
+	 * @return
+	 * @see #isUseRedis()
+	 */
+	public JedisPool getJedisPool() {
+		return ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool();
+	}
+
+	/**
+	 * @return
+	 */
+	public Cache getEhcacheCache() {
+		return ((EhcacheDriver) Application.getCommonCache().getCacheTemplate()).cache();
 	}
 }
