@@ -25,13 +25,13 @@ import redis.clients.jedis.JedisPool;
  */
 public abstract class DistributedJobBean extends QuartzJobBean {
 
-    private final Log LOG = LogFactory.getLog(this.getClass());
+    protected final Log LOG = LogFactory.getLog(getClass());
 
     private static final String SET_IF_NOT_EXIST = "NX";
     private static final String SET_WITH_EXPIRE_TIME = "EX";
 
-    private static final String LOCK_KEY = "#JOBLOCK";
-    private static final int LOCK_OFFSET_TIME = 10;
+    private static final String LOCK_KEY = "#RBJOBLOCK";
+    private static final int LOCK_TIME = 1000;
 
     protected JobExecutionContext jobExecutionContext;
 
@@ -39,21 +39,21 @@ public abstract class DistributedJobBean extends QuartzJobBean {
     protected void executeInternal(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         if (isSafe()) {
             this.jobExecutionContext = jobExecutionContext;
-            this.executeJob();
+            this.executeInternalSafe();
         }
     }
 
     /**
-     * 是否可安全运行
+     * 是否可安全运行，即并发判断
      * @return
      */
     protected boolean isSafe() {
-        if (Application.getCommonCache().isUseRedis()) {
+        if (Application.rbvMode() && Application.getCommonCache().isUseRedis()) {
             JedisPool pool = Application.getCommonCache().getJedisPool();
             String jobKey = getClass().getName() + LOCK_KEY;
 
             try (Jedis jedis = pool.getResource()) {
-                String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_OFFSET_TIME);
+                String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_TIME);
                 if (tryLock == null) {
                     LOG.info("The job has been executed by another instance");
                     return false;
@@ -67,6 +67,6 @@ public abstract class DistributedJobBean extends QuartzJobBean {
      * 执行 Job
      * @throws JobExecutionException
      */
-    abstract protected void executeJob() throws JobExecutionException;
+    abstract protected void executeInternalSafe() throws JobExecutionException;
 
 }

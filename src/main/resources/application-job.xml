@@ -73,7 +73,7 @@
 
 	<!-- Auto scan Job -->
 	<context:component-scan base-package="com.rebuild.server.business" />
-	<task:annotation-driven scheduler="rbScheduler" />
 	<task:scheduler id="rbScheduler" pool-size="5"/>
+	<task:annotation-driven scheduler="rbScheduler" />
 
 </beans>

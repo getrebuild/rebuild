@@ -33,7 +33,7 @@ import java.util.Map;
 public class FeedsScheduleJob extends DistributedJobBean {
 
     @Override
-    protected void executeJob() throws JobExecutionException {
+    protected void executeInternalSafe() throws JobExecutionException {
         Calendar time = CalendarUtils.getInstance();
         time.set(Calendar.SECOND, 0);
         time.set(Calendar.MILLISECOND, 0);
