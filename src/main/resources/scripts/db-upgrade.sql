@@ -222,7 +222,7 @@ create table if not exists `rebuild_api_request` (
   `REQUEST_TIME`       timestamp not null default current_timestamp comment '请求时间',
   `RESPONSE_TIME`      timestamp not null default current_timestamp comment '响应时间',
   primary key  (`REQUEST_ID`),
-  index IX0_rebuild_api_request (`APP_ID`, `REMOTE_IP`, `REQUEST_URL`, `REQUEST_TIME`)
+  index IX0_rebuild_api_request (`APP_ID`, `REMOTE_IP`, `REQUEST_TIME`)
 )Engine=InnoDB;
 
 -- #7 Type of Notification

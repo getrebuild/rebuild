@@ -70,7 +70,7 @@ public final class Application {
 	public static final String VER = "1.10.0-dev";
 	/** Rebuild Build
 	 */
-	public static final int BUILD = 1091;
+	public static final int BUILD = 011000;
 
 	/** Logging for Global
 	 */
