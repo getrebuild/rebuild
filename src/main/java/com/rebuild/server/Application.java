@@ -21,6 +21,7 @@ import com.rebuild.api.ApiGateway;
 import com.rebuild.api.BaseApi;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.DistributedJobBean;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
@@ -148,6 +149,9 @@ public final class Application {
 				}
 			}
 
+            // Job start
+            APPLICATION_CTX.getBeansOfType(DistributedJobBean.class);
+
 			// 注册 API
 			Set<Class<?>> apiClasses = ReflectUtils.getAllSubclasses(ApiGateway.class.getPackage().getName(), BaseApi.class);
 			for (Class<?> c : apiClasses) {
@@ -198,9 +202,8 @@ public final class Application {
 			LOG.info("Rebuild Booting in DEBUG mode ...");
 
 			AesPreferencesConfigurer.initApplicationProperties();
-			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
-			new Application(ctx).init(at);
+			new Application(ctx).init(System.currentTimeMillis());
 		}
 		return APPLICATION_CTX;
 	}
