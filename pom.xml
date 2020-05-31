@@ -46,7 +46,7 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <!-- rbv -->
+            <!-- @rbv -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -60,7 +60,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.basedir}/rbv/main/java</source>
+                                <source>${project.basedir}/@rbv/main/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -72,7 +72,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.basedir}/rbv/test/java</source>
+                                <source>${project.basedir}/@rbv/test/java</source>
                             </sources>
                         </configuration>
                     </execution>
@@ -85,7 +85,7 @@
                         <configuration>
                             <resources>
                                 <resource>
-                                    <directory>${project.basedir}/rbv/main/webapp</directory>
+                                    <directory>${project.basedir}/@rbv/main/webapp</directory>
                                     <targetPath>${project.build.directory}/rebuild</targetPath>
                                 </resource>
                             </resources>
