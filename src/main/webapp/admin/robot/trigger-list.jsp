@@ -18,7 +18,7 @@
 <div class="rb-content">
 	<aside class="page-aside">
 		<div class="rb-scroller">
-			<div class="dept-tree">
+			<div class="aside-tree">
 				<h5 class="config-title">源实体</h5>
 				<ul class="list-unstyled">
 					<li class="active"><a>所有实体</a></li>

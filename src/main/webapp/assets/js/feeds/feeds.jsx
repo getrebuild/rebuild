@@ -86,8 +86,8 @@ $(document).ready(function () {
   if (gs) $('.search-input-gs, .J_search-key').val($decode(gs))
 
   renderRbcomp(<RbFeeds />, 'rb-feeds', function () { rbFeeds = this })
-  renderRbcomp(<GroupList hasAction={true} />, $('#collapseGroup .dept-tree'), function () { rbGroupList = this })
-  renderRbcomp(<UserList />, $('#collapseUser .dept-tree'), function () { rbUserList = this })
+  renderRbcomp(<GroupList hasAction={true} />, $('#collapseGroup .aside-tree'), function () { rbGroupList = this })
+  renderRbcomp(<UserList />, $('#collapseUser .aside-tree'), function () { rbUserList = this })
 
   let rbGroupListLoaded = false,
     rbUserListLoaded = false

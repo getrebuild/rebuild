@@ -224,7 +224,7 @@ class FolderTree extends React.Component {
   state = { activeItem: __DEFAULT_ALL, ...this.props }
 
   render() {
-    return <div className="dept-tree p-0">
+    return <div className="aside-tree p-0">
       <ul className="list-unstyled">
         {(this.state.list || []).map((item) => { return this._renderItem(item) })}
       </ul>

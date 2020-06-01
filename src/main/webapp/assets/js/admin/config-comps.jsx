@@ -90,7 +90,7 @@ class ConfigList extends React.Component {
     $(this.state.data).each(function () {
       ues[this[1]] = this[2]
     })
-    const dest = $('.dept-tree ul')
+    const dest = $('.aside-tree ul')
     for (let k in ues) {
       $(`<li data-entity="${k}"><a class="text-truncate">${ues[k]}</a></li>`).appendTo(dest)
     }

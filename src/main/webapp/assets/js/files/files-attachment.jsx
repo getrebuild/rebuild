@@ -15,7 +15,7 @@ class EntityTree extends React.Component {
   state = { activeItem: 1, ...this.props }
 
   render() {
-    return <div className="dept-tree p-0">
+    return <div className="aside-tree p-0">
       <ul className="list-unstyled">
         {(this.state.list || []).map((item) => {
           return <li key={`entity-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
