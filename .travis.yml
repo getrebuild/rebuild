@@ -5,7 +5,7 @@ jdk:
   - oraclejdk8
 #  - oraclejdk9
 #  - oraclejdk11
-script: mvn cobertura:cobertura -DskipTests=false
+script: mvn clean package cobertura:cobertura -DskipTests=false
 
 services:
   - mysql
