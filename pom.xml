@@ -57,6 +57,7 @@
                             <directory>@rbv/main/webapp</directory>
                         </resource>
                     </webResources>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             <plugin>
