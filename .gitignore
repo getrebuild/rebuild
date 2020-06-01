@@ -43,3 +43,4 @@ rebuild.iml
 
 node_modules
 test.*
+.gitmodules

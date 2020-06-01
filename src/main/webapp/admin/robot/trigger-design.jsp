@@ -73,6 +73,7 @@
 											<span class="custom-control-label"> 审批撤销时 <i class="zmdi zmdi-help zicon down-1" title="审批通过后管理员可以撤销重审" data-toggle="tooltip"></i></span>
 										</label>
 									</div>
+									<c:if test="${rbv}"><jsp:include page="/admin/robot/TriggerByTimer.jsp" /></c:if>
 								</div>
 							</div>
 							<div class="form-group row">
@@ -136,6 +137,7 @@ window.__PageConfig = {
 	actionType: '${actionType}',
 	sourceEntity: '${sourceEntity}',
 	when: ${when},
+	whenTimer: '${whenTimer}',
 	whenFilter: ${whenFilter},
 	actionContent: ${actionContent}
 }

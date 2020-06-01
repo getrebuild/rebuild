@@ -10,15 +10,12 @@ package com.rebuild.server.business.series;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import com.rebuild.server.helper.DistributedJobBean;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.metadata.entity.FieldExtConfigProps;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import java.util.Calendar;
 
@@ -28,12 +25,10 @@ import java.util.Calendar;
  * @author devezhao
  * @since 12/25/2018
  */
-public class SeriesZeroResetJob extends QuartzJobBean {
-
-	private static final Log LOG = LogFactory.getLog(SeriesZeroResetJob.class);
+public class SeriesZeroResetJob extends DistributedJobBean {
 
 	@Override
-	protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+	protected void executeInternalSafe() throws JobExecutionException {
 		LOG.info("SeriesZeroResetJob running ...");
 
 		boolean isFirstDayOfYear = false;

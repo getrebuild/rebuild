@@ -20,7 +20,7 @@
 .copyright,
 .copyright * {
 	color: rgba(255, 255, 255, 0.9) !important;
-    text-shadow: 0px 1px 1px #444;
+    text-shadow: 0px 1px 1px #555;
 	max-width: 680px;
 	margin: 0 auto;
 	text-align: center;
@@ -111,12 +111,10 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<div class="copyright">
-						&copy; ${appName}
-					</div>
+					<div class="copyright">&copy; ${appName}</div>
 				</div>
 			</div>
-			<div class="copyright hide J_LicenseType" data-LicenseType="${LicenseType}">${bundle.lang('RightsTip')}</div>
+			<div class="copyright rbv-hide">${bundle.lang('RightsTip')}</div>
 		</div>
 	</div>
 </div>
@@ -125,9 +123,6 @@
 <script type="text/babel">
 $(document).ready(function() {
 	if (top != self) { parent.location.reload(); return }
-
-	const LT = $('.J_LicenseType').attr('data-LicenseType')
-	if (!LT || LT.includes('GitHub') || LT.includes('Gitee') || LT.includes('开源')) $('.J_LicenseType').removeClass('hide')
 
 	$('.copyright a').attr('target', '_blank').addClass('link')
 	$('.vcode-row img').click(function(){

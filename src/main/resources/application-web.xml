@@ -3,29 +3,25 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc"
-	xmlns:websocket="http://www.springframework.org/schema/websocket"
 	xsi:schemaLocation="
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-4.3.xsd
 		http://www.springframework.org/schema/mvc
-		http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
-		http://www.springframework.org/schema/websocket   
-		http://www.springframework.org/schema/websocket/spring-websocket.xsd" default-lazy-init="true">
+		http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd" default-lazy-init="true">
 
-	<context:annotation-config />
-	
+    <context:annotation-config />
+    <context:component-scan base-package="com.rebuild">
+        <context:include-filter type="regex" expression=".web.*" />
+        <context:include-filter type="regex" expression=".api" />
+    </context:component-scan>
+
 	<mvc:annotation-driven>
 		<mvc:path-matching suffix-pattern="false"/>
 	</mvc:annotation-driven>
 	
 	<mvc:default-servlet-handler />
-	
-	<context:component-scan base-package="com.rebuild">
-		<context:include-filter type="regex" expression=".web.*" />
-		<context:include-filter type="regex" expression=".api" />
-	</context:component-scan>
 
 	<mvc:interceptors>
 		<mvc:interceptor>

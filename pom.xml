@@ -8,24 +8,17 @@
     <packaging>war</packaging>
     <version>1.10.0-dev</version>
     <name>rebuild</name>
-    <description>Building your business-systems free!</description>
+    <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
-
-    <developers>
-        <developer>
-            <name>devezhao</name>
-            <email>zhaofang123@gmail.com</email>
-        </developer>
-    </developers>
 
     <licenses>
         <license>
             <name>GPL-3.0</name>
-            <url>https://raw.githubusercontent.com/getrebuild/rebuild/master/LICENSE</url>
+            <url>https://getrebuild.com/license/LICENSE.txt</url>
         </license>
         <license>
             <name>COMMERCIAL</name>
-            <url>https://raw.githubusercontent.com/getrebuild/rebuild/master/COMMERCIAL</url>
+            <url>https://getrebuild.com/license/COMMERCIAL.txt</url>
         </license>
     </licenses>
 
@@ -53,7 +46,53 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
-            <!-- `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
+            <!-- @rbv FOR LAB -->
+            <!--
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>3.2.3</version>
+                <configuration>
+                    <webResources>
+                        <resource>
+                            <directory>@rbv/main/webapp</directory>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+            -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/@rbv/main/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/@rbv/test/java</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Codecov : `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>cobertura-maven-plugin</artifactId>
@@ -71,7 +110,7 @@
                     <check />
                 </configuration>
             </plugin>
-            <!-- `mvn jetty:run -Drbpass=PASSKEY` Server on 18080 by jetty -->
+            <!-- Jetty run on 18080 : `mvn jetty:run -Drbpass=PASSKEY` -->
             <plugin>
                 <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
@@ -85,16 +124,10 @@
                     </httpConnector>
                 </configuration>
             </plugin>
-            <!-- `mvn clean site -Ddependency.locations.enabled=false` -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.8.2</version>
-            </plugin>
         </plugins>
     </build>
 
-    <!-- Unpublish lib can be found on https://github.com/devezhao/ -->
+    <!-- Unpublished libs can be found on https://github.com/devezhao/ -->
     <repositories>
         <repository>
             <id>jitpack.io</id>
@@ -106,7 +139,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>momentjava</artifactId>
-            <version>0.1.1</version>
+            <version>91f4df2081</version>
         </dependency>
         <dependency>
             <groupId>com.github.devezhao</groupId>

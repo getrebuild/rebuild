@@ -7,50 +7,62 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 var contentComp = null
+
 $(document).ready(() => {
   $.fn.select2.defaults.set('allowClear', false)
 
   if (wpc.when > 0) {
-    $([1, 2, 4, 16, 32, 64, 128, 256]).each(function () {
+    $([1, 2, 4, 16, 32, 64, 128, 256, 512]).each(function () {
       let mask = this
-      // eslint-disable-next-line eqeqeq
-      if ((wpc.when & mask) != 0) $('.J_when input[value=' + mask + ']').prop('checked', true)
+      if ((wpc.when & mask) !== 0) {
+        $('.J_when input[value=' + mask + ']').prop('checked', true)
+        if (mask === 512) {
+          $('.on-timers').removeClass('hide')
+          const wt = (wpc.whenTimer || 'D:1').split(':')
+          $('.J_whenTimer1').val(wt[0])
+          $('.J_whenTimer2').val(wt[1])
+        }
+      }
     })
   }
 
   let advFilter
   $('.J_whenFilter .btn').click(() => {
-    if (advFilter) advFilter.show()
-    else renderRbcomp(<AdvFilter title="附加过滤条件" inModal={true} canNoFilters={true}
-      entity={wpc.sourceEntity}
-      filter={wpc.whenFilter}
-      confirm={saveFilter} />, null, function () { advFilter = this })
+    if (advFilter) {
+      advFilter.show()
+    } else {
+      renderRbcomp(<AdvFilter title="附加过滤条件" inModal={true} canNoFilters={true}
+        entity={wpc.sourceEntity}
+        filter={wpc.whenFilter}
+        confirm={saveFilter} />, null, function () { advFilter = this })
+    }
   })
   saveFilter(wpc.whenFilter)
 
   renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
-  let _btn = $('.J_save').click(() => {
+  const $btn = $('.J_save').click(() => {
     if (!contentComp) return
 
     let when = 0
     $('.J_when input:checked').each(function () {
       when += ~~$(this).val()
     })
+    const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
 
-    let content = contentComp.buildContent()
+    const content = contentComp.buildContent()
     if (content === false) return
 
-    let _data = { when: when, whenFilter: wpc.whenFilter || null, actionContent: content }
-    let p = $val('#priority')
-    if (p) _data.priority = ~~p || 1
+    const _data = { when: when, whenTimer: whenTimer, whenFilter: wpc.whenFilter || null, actionContent: content }
+    const priority = $val('#priority')
+    if (priority) _data.priority = ~~priority || 1
     _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
 
-    _btn.button('loading')
+    $btn.button('loading')
     $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) rb.env === 'dev' ? location.reload() : location.href = '../triggers'
       else RbHighbar.error(res.error_msg)
-      _btn.button('reset')
+      $btn.button('reset')
     })
   })
 })
@@ -96,9 +108,10 @@ class UserSelectorExt extends UserSelector {
       const cacheKey = type + '-' + q
       this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
         if (!this.cached[cacheKey]) {
-          if (!q) this.cached[cacheKey] = this.__fields
-          else {
-            let fs = []
+          if (!q) {
+            this.cached[cacheKey] = this.__fields
+          } else {
+            const fs = []
             $(this.__fields).each(function () {
               if (this.text.contains(q)) fs.push(this)
             })

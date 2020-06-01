@@ -208,6 +208,12 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (!tf) { RbHighbar.create('请选择目标字段'); return false }
     if (!sf) { RbHighbar.create('请选择源字段'); return false }
 
+    // 目标字段=源字段
+    if (sf === $(this._targetEntity).val().split('.')[0] + '.' + tf) {
+      RbHighbar.create('目标字段与源字段不能为同一字段')
+      return false
+    }
+
     const items = this.state.items || []
     const found = items.find((x) => { return x.targetField === tf })
     if (found) { RbHighbar.create('目标字段重复'); return false }

@@ -9,7 +9,6 @@ package com.rebuild.server.service.base;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.JedisCacheDriver;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 import redis.clients.jedis.Jedis;
@@ -59,8 +58,7 @@ public class RedisQueueObserver extends OperatingObserver {
             data.put("recordData", ctx.getAfterRecord());
         }
 
-        @SuppressWarnings("rawtypes")
-        JedisPool pool = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool();
+        JedisPool pool = Application.getCommonCache().getJedisPool();
         try (Jedis jedis = pool.getResource()) {
             if (isUseTopic()) {
                 jedis.publish(QUEUE_NAME, data.toJSONString());

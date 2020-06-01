@@ -8,16 +8,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.service;
 
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.DistributedJobBean;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.DatabaseBackup;
 import com.rebuild.utils.FileFilterByLastModified;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.quartz.DisallowConcurrentExecution;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
-import org.springframework.scheduling.quartz.QuartzJobBean;
 
 import java.util.Calendar;
 
@@ -29,12 +26,10 @@ import java.util.Calendar;
  */
 @PersistJobDataAfterExecution
 @DisallowConcurrentExecution
-public class PerHourJob extends QuartzJobBean {
-
-    private static final Log LOG = LogFactory.getLog(PerHourJob.class);
+public class PerHourJob extends DistributedJobBean {
 
     @Override
-    protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
+    protected void executeInternalSafe() throws JobExecutionException {
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 
         if (hour == 0 && SysConfiguration.getBool((ConfigurableItem.DBBackupsEnable))) {

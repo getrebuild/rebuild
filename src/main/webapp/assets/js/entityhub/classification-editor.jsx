@@ -96,7 +96,7 @@ class LevelBox extends React.Component {
         <div className="clearfix"></div>
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
-            <input className="form-control" type="text" maxLength="50" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
+            <input className="form-control" type="text" maxLength="60" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
             {this.state.itemId && this.state.itemHide && (
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                 <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />

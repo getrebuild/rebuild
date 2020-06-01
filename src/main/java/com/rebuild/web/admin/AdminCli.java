@@ -10,8 +10,6 @@ package com.rebuild.web.admin;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.cache.EhcacheDriver;
-import com.rebuild.server.helper.cache.JedisCacheDriver;
 import org.apache.commons.lang.StringUtils;
 import redis.clients.jedis.Jedis;
 
@@ -78,14 +76,13 @@ public class AdminCli {
     /**
      * @return
      */
-    @SuppressWarnings("rawtypes")
     protected String execCacheClean() {
         if (Application.getCommonCache().isUseRedis()) {
-            try (Jedis jedis = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
+            try (Jedis jedis = Application.getCommonCache().getJedisPool().getResource()) {
                 jedis.flushAll();
             }
         } else {
-            ((EhcacheDriver) Application.getCommonCache().getCacheTemplate()).cache().clear();
+            Application.getCommonCache().getEhcacheCache().clear();
         }
         return "OK";
     }
