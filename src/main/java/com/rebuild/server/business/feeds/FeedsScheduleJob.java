@@ -12,15 +12,12 @@ import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.DistributedJobBean;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.server.helper.DistributedJobBean;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import java.util.ArrayList;
@@ -35,10 +32,8 @@ import java.util.Map;
  */
 public class FeedsScheduleJob extends DistributedJobBean {
 
-    private static final Log LOG = LogFactory.getLog(FeedsScheduleJob.class);
-
     @Override
-    protected void executeInternalSafe(JobExecutionContext context) throws JobExecutionException {
+    protected void executeInternalSafe() throws JobExecutionException {
         Calendar time = CalendarUtils.getInstance();
         time.set(Calendar.SECOND, 0);
         time.set(Calendar.MILLISECOND, 0);

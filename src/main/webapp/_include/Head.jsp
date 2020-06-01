@@ -16,7 +16,8 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
-<meta name="rb.env" content="<%=AppUtils.devMode() ? "dev" : "production"%>">
+<meta name="rb.commercial" content="${rbv}">
+<meta name="rb.env" content="${env}">
 <meta name="rb.locale" content="${bundle.locale()}">
 <meta name="rb.baseUrl" content="${baseUrl}">
 <meta name="rb.appName" content="${appName}">

@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server;
 
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -20,6 +21,8 @@ import com.rebuild.api.ApiGateway;
 import com.rebuild.api.BaseApi;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.DistributedJobBean;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecentlyUsedCache;
@@ -68,7 +71,7 @@ public final class Application {
 	public static final String VER = "1.10.0-dev";
 	/** Rebuild Build
 	 */
-	public static final int BUILD = 1091;
+	public static final int BUILD = 011000;
 
 	/** Logging for Global
 	 */
@@ -146,6 +149,9 @@ public final class Application {
 				}
 			}
 
+            // Job start
+            APPLICATION_CTX.getBeansOfType(DistributedJobBean.class);
+
 			// 注册 API
 			Set<Class<?>> apiClasses = ReflectUtils.getAllSubclasses(ApiGateway.class.getPackage().getName(), BaseApi.class);
 			for (Class<?> c : apiClasses) {
@@ -196,34 +202,38 @@ public final class Application {
 			LOG.info("Rebuild Booting in DEBUG mode ...");
 
 			AesPreferencesConfigurer.initApplicationProperties();
-			long at = System.currentTimeMillis();
 			ApplicationContext ctx = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml" });
-			new Application(ctx).init(at);
+			new Application(ctx).init(System.currentTimeMillis());
 		}
 		return APPLICATION_CTX;
 	}
 	
 	/**
 	 * 是否开发模式
-	 * 
 	 * @return
 	 */
 	public static boolean devMode() {
 		return BooleanUtils.toBoolean(System.getProperty("rbdev")) || debugMode;
 	}
+
+	/**
+	 * 是否商业授权
+	 * @return
+	 */
+	public static boolean rbvMode() {
+		return BooleanUtils.toBoolean(System.getProperty("rbv")) || License.isCommercial();
+	}
 	
 	/**
 	 * 各项服务是否正常启动
-	 * 
 	 * @return
 	 */
     public static boolean serversReady() {
 		return serversReady;
 	}
-
+	
 	/**
 	 * SPRING Context
-	 * 
 	 * @return
 	 */
 	public static ApplicationContext getApplicationContext() {
@@ -232,67 +242,123 @@ public final class Application {
 		}
 		return APPLICATION_CTX;
 	}
-	
+
+	/**
+	 * @param beanClazz
+	 * @param <T>
+	 * @return
+	 */
 	public static <T> T getBean(Class<T> beanClazz) {
 		return getApplicationContext().getBean(beanClazz);
 	}
 
+	/**
+	 * @return
+	 */
 	public static OnlineSessionStore getSessionStore() {
 		return getBean(OnlineSessionStore.class);
 	}
-	
-	public static ID getCurrentUser() {
+
+	/**
+	 * @return
+	 * @throws AccessDeniedException
+	 * @see #getUserStore()
+	 */
+	public static ID getCurrentUser() throws AccessDeniedException {
 		return getSessionStore().get();
 	}
 
+	/**
+	 * @return
+	 */
 	public static PersistManagerFactory getPersistManagerFactory() {
 		return getBean(PersistManagerFactory.class);
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public static DynamicMetadataFactory getMetadataFactory() {
 		return (DynamicMetadataFactory) getPersistManagerFactory().getMetadataFactory();
 	}
 
+	/**
+	 * @return
+	 */
 	public static UserStore getUserStore() {
 		return getBean(UserStore.class);
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public static RecordOwningCache getRecordOwningCache() {
 		return getBean(RecordOwningCache.class);
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public static RecentlyUsedCache getRecentlyUsedCache() {
 		return getBean(RecentlyUsedCache.class);
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public static CommonCache getCommonCache() {
 		return getBean(CommonCache.class);
 	}
 
+	/**
+	 * @return
+	 */
 	public static com.rebuild.server.service.bizz.privileges.SecurityManager getSecurityManager() {
 		return getBean(com.rebuild.server.service.bizz.privileges.SecurityManager.class);
 	}
 
+	/**
+	 * @return
+	 */
 	public static QueryFactory getQueryFactory() {
 		return getBean(QueryFactory.class);
 	}
-	
+
+	/**
+	 * @param ajql
+	 * @return
+	 */
 	public static Query createQuery(String ajql) {
 		return getQueryFactory().createQuery(ajql);
 	}
-	
+
+	/**
+	 * @param ajql
+	 * @param user
+	 * @return
+	 */
 	public static Query createQuery(String ajql, ID user) {
 		return getQueryFactory().createQuery(ajql, user);
 	}
-	
+
+	/**
+	 * @param ajql
+	 * @return
+	 */
 	public static Query createQueryNoFilter(String ajql) {
 		return getQueryFactory().createQueryNoFilter(ajql);
 	}
 
+	/**
+	 * @return
+	 */
 	public static SQLExecutor getSQLExecutor() {
 		return getBean(SQLExecutor.class);
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public static NotificationService getNotifications() {
 		return getBean(NotificationService.class);
 	}
@@ -311,7 +377,6 @@ public final class Application {
 	
 	/**
 	 * 业务实体服务专用
-	 *
 	 * @param entityCode
 	 * @return
 	 * @see #getGeneralEntityService()

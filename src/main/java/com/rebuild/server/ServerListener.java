@@ -96,12 +96,14 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
      * @param context
      */
     public static void updateGlobalContextAttributes(ServletContext context) {
+		context.setAttribute("env", Application.devMode() ? "dev" : "production");
+		context.setAttribute("rbv", Application.rbvMode());
         context.setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
         context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), StringUtils.EMPTY));
         context.setAttribute("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));
         context.setAttribute("markWatermark", SysConfiguration.getBool(ConfigurableItem.MarkWatermark));
 
-        final JSONObject authority = (JSONObject) License.queryAuthority();
+        final JSONObject authority = License.queryAuthority();
         LOG.warn("REBUILD AUTHORITY : " + StringUtils.join(authority.values(), " | "));
         context.setAttribute("LicenseType",
 				authority.getString("authType") + " (" + authority.getString("authObject") + ")");

@@ -14,8 +14,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.CacheManager;
 import redis.clients.jedis.JedisPool;
 
@@ -26,8 +24,6 @@ import redis.clients.jedis.JedisPool;
  * @since 10/12/2018
  */
 public class RecordOwningCache extends BaseCacheTemplate<ID> {
-
-	private static final Log LOG = LogFactory.getLog(RecordOwningCache.class);
 
 	final private PersistManagerFactory aPMFactory;
 	

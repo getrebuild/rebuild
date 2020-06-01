@@ -5,19 +5,27 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+.bosskey-show,
 .dev-show,
 .admin-show,
-.bosskey-show {
+.rbv-show {
     display: none;
 }
 
 html.dev .dev-show,
-html.admin .admin-show {
+html.admin .admin-show
+html.rbv .rbv-show {
     display: block;
 }
 
-html.admin .admin-show.row {
+html.dev .dev-show.row,
+html.admin .admin-show.row
+html.rbv .rbv-show.row {
     display: flex;
+}
+
+html.rbv .rbv-hide {
+    display: none !important;
 }
 
 html,
@@ -3444,4 +3452,16 @@ a.icon-link>.zmdi {
 
 .nav-tabs>li.nav-item a.nav-link {
     max-width: 200px;
+}
+
+.select2-container--default.warning-data-filter .select2-results::after {
+    display: block;
+    content: '当前字段已启用数据过滤';
+    background-color: #f5f5f5;
+    color: #aaa;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-style: italic;
+    border-top: 1px solid #d5d8de;
+    line-height: 1;
 }

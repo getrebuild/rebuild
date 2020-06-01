@@ -21,7 +21,6 @@ import com.rebuild.server.configuration.RebuildApiManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
@@ -131,7 +130,7 @@ public class ApiGateway extends Controll {
 
 		String timestamp = getParameterNotNull(sortedMap,"timestamp");
 		long systemTime = System.currentTimeMillis() / 1000;
-		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (AppUtils.devMode() ? 100 : 10)) {
+		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (Application.devMode() ? 100 : 10)) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] " + appid);
 		}
 

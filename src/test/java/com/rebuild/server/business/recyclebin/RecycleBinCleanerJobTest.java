@@ -18,6 +18,6 @@ public class RecycleBinCleanerJobTest extends TestSupport {
 
     @Test
     public void executeInternal() throws Exception {
-        new RecycleBinCleanerJob().executeInternal(null);
+        new RecycleBinCleanerJob().executeInternalSafe();
     }
 }

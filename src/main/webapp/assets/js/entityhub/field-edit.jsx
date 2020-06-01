@@ -6,6 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig
+const __gExtConfig = {}
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -31,12 +32,10 @@ $(document).ready(function () {
       else _data.defaultValue = dv
     } else if (dv === '') _data.defaultValue = dv
 
-    const extConfig = {}
+    const extConfig = { ...__gExtConfig }
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
-      if ('defaultValue' !== k) {
-        extConfig[k] = $val(this)
-      }
+      if ('defaultValue' !== k) extConfig[k] = $val(this)
     })
     if (!$same(extConfig, extConfigOld)) {
       _data['extConfig'] = JSON.stringify(extConfig)
@@ -77,7 +76,12 @@ $(document).ready(function () {
     }
   }
 
-  if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
+  // 特殊字段-审批
+  if (wpc.fieldName === 'approvalState' || wpc.fieldName === 'approvalId') {
+    $('.J_for-STATE, .J_for-REFERENCE').remove()
+  }
+  // 列表 & 多选
+  else if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
     $.get(`/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
       if (res.data.length === 0) { $('#picklist-items li').text('请添加选项'); return }
       $('#picklist-items').empty()
@@ -87,6 +91,7 @@ $(document).ready(function () {
     $('.J_picklist-edit').click(() =>
       RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
   }
+  // 自增
   else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
     $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
@@ -103,6 +108,7 @@ $(document).ready(function () {
       })
     })
   }
+  // 日期时间
   else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
       componentIcon: 'zmdi zmdi-calendar',
@@ -122,6 +128,7 @@ $(document).ready(function () {
     })
     $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
   }
+  // 文件 & 图片
   else if (dt === 'FILE' || dt === 'IMAGE') {
     let uploadNumber = [0, 9]
     if (extConfigOld['uploadNumber']) {
@@ -142,13 +149,15 @@ $(document).ready(function () {
     })
     $('#fieldNullable').attr('disabled', true)
   }
+  // 分类
   else if (dt === 'CLASSIFICATION') {
     $.get(`/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
       $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}` }).text(res.data.name)
     })
   }
-  else if (wpc.fieldName === 'approvalState' || wpc.fieldName === 'approvalId') {
-    $('.J_for-STATE, .J_for-REFERENCE').remove()
+  // 引用
+  else if (dt === 'REFERENCE') {
+    _handleReference()
   }
 
   // 重复值选项
@@ -270,4 +279,31 @@ class AdvDateDefaultValue extends RbAlert {
     $('#defaultValue').val('{' + expr + '}')
     this.hide()
   }
+}
+
+// 引用
+const _handleReference = function () {
+  const referenceEntity = $('.J_referenceEntity').data('refentity')
+
+  let dataFilter = (wpc.extConfig || {}).referenceDataFilter
+  const saveFilter = function (res) {
+    if (res && res.items && res.items.length > 0) {
+      $('#referenceDataFilter').text(`已设置条件 (${res.items.length})`)
+      dataFilter = res
+    } else {
+      $('#referenceDataFilter').text('点击设置')
+      dataFilter = null
+    }
+    __gExtConfig.referenceDataFilter = dataFilter
+  }
+  dataFilter && saveFilter(dataFilter)
+
+  let advFilter
+  $('#referenceDataFilter').click(() => {
+    if (advFilter) advFilter.show()
+    else renderRbcomp(<AdvFilter title="附加过滤条件" inModal={true} canNoFilters={true}
+      entity={referenceEntity}
+      filter={dataFilter}
+      confirm={saveFilter} />, null, function () { advFilter = this })
+  })
 }

@@ -19,9 +19,10 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 package com.rebuild.server.helper.cache;
 
 import cn.devezhao.commons.ThrowableUtils;
-import com.rebuild.server.Application;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
@@ -36,6 +37,8 @@ import java.io.Serializable;
  * @since 01/02/2019
  */
 public abstract class BaseCacheTemplate<V extends Serializable> implements CacheTemplate<V> {
+
+	protected static final Log LOG = LogFactory.getLog(BaseCacheTemplate.class);
 
 	/**
 	 * 默认缓存时间（90天）
@@ -119,7 +122,7 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 			IOUtils.closeQuietly(jedis);
 			return true;
 		} catch (Exception ex) {
-			Application.LOG.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
+			LOG.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
                     + " !!! Using backup ehcache for " + getClass());
 		}
 		return false;
