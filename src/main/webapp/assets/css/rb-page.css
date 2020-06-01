@@ -5,23 +5,26 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+.bosskey-show,
 .dev-show,
 .admin-show,
-.bosskey-show {
+.rbv-show {
     display: none;
 }
 
 html.dev .dev-show,
-html.admin .admin-show {
+html.admin .admin-show
+html.rbv .rbv-show {
     display: block;
 }
 
-html.admin .dev-show.row,
-html.admin .admin-show.row {
+html.dev .dev-show.row,
+html.admin .admin-show.row
+html.rbv .rbv-show.row {
     display: flex;
 }
 
-html.commercial .commercial-hide {
+html.rbv .rbv-hide {
     display: none !important;
 }
 

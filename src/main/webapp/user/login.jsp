@@ -114,7 +114,7 @@
 					<div class="copyright">&copy; ${appName}</div>
 				</div>
 			</div>
-			<div class="copyright commercial-hide">${bundle.lang('RightsTip')}</div>
+			<div class="copyright rbv-hide">${bundle.lang('RightsTip')}</div>
 		</div>
 	</div>
 </div>
