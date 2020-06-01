@@ -47,6 +47,7 @@
                 </configuration>
             </plugin>
             <!-- @rbv FOR LAB -->
+            <!--
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -57,9 +58,9 @@
                             <directory>@rbv/main/webapp</directory>
                         </resource>
                     </webResources>
-                    <skip>true</skip>
                 </configuration>
             </plugin>
+            -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
