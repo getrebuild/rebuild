@@ -10,7 +10,7 @@ const __gExtConfig = {}
 
 $(document).ready(function () {
   const dt = wpc.fieldType
-  const extConfigOld = wpc.extConfig
+  const extConfig = wpc.extConfig
 
   const $btn = $('.J_save').click(function () {
     if (!wpc.metaId) return
@@ -32,14 +32,20 @@ $(document).ready(function () {
       else _data.defaultValue = dv
     } else if (dv === '') _data.defaultValue = dv
 
-    const extConfig = { ...__gExtConfig }
+    const extConfigNew = { ...__gExtConfig }
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
-      if ('defaultValue' !== k) extConfig[k] = $val(this)
+      if (k && 'defaultValue' !== k) extConfigNew[k] = $val(this)
     })
-    if (!$same(extConfig, extConfigOld)) {
-      _data['extConfig'] = JSON.stringify(extConfig)
-      if (Object.keys(extConfig).length === 0) _data['extConfig'] = ''
+    // 单选
+    $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
+      const k = $(this).attr('name')
+      extConfigNew[k] = $val(this)
+    })
+
+    if (!$same(extConfigNew, extConfig)) {
+      _data['extConfig'] = JSON.stringify(extConfigNew)
+      if (Object.keys(extConfigNew).length === 0) _data['extConfig'] = ''
     }
 
     _data = $cleanMap(_data)
@@ -67,12 +73,15 @@ $(document).ready(function () {
   $(`.J_for-${dt}`).removeClass('hide')
 
   // 设置扩展值
-  for (let k in extConfigOld) {
-    const $ext = $(`#${k}`)
-    if ($ext.length === 1) {
-      if ($ext.attr('type') === 'checkbox') $ext.attr('checked', extConfigOld[k] === 'true' || extConfigOld[k] === true)
-      else if ($ext.prop('tagName') === 'DIV') $ext.text(extConfigOld[k])
-      else $ext.val(extConfigOld[k])
+  for (let k in extConfig) {
+    const $extControl = $(`#${k}`)
+    if ($extControl.length === 1) {
+      if ($extControl.attr('type') === 'checkbox') $extControl.attr('checked', extConfig[k] === 'true' || extConfig[k] === true)
+      else if ($extControl.prop('tagName') === 'DIV') $extControl.text(extConfig[k])
+      else $extControl.val(extConfig[k])
+
+    } else {
+      $(`.custom-control-input[name="${k}"][value="${extConfig[k]}"]`).attr('checked', true)
     }
   }
 
@@ -131,8 +140,8 @@ $(document).ready(function () {
   // 文件 & 图片
   else if (dt === 'FILE' || dt === 'IMAGE') {
     let uploadNumber = [0, 9]
-    if (extConfigOld['uploadNumber']) {
-      uploadNumber = extConfigOld['uploadNumber'].split(',')
+    if (extConfig['uploadNumber']) {
+      uploadNumber = extConfig['uploadNumber'].split(',')
       uploadNumber[0] = ~~uploadNumber[0]
       uploadNumber[1] = ~~uploadNumber[1]
       $('.J_minmax b').eq(0).text(uploadNumber[0])
@@ -151,13 +160,17 @@ $(document).ready(function () {
   }
   // 分类
   else if (dt === 'CLASSIFICATION') {
-    $.get(`/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
-      $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}` }).text(res.data.name)
+    $.get(`/admin/entityhub/classification/info?id=${extConfig.classification}`, function (res) {
+      $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfig.classification}` }).text(res.data.name)
     })
   }
   // 引用
   else if (dt === 'REFERENCE') {
     _handleReference()
+  }
+  // 条形码
+  else if (dt === 'BARCODE') {
+    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
   }
 
   // 重复值选项

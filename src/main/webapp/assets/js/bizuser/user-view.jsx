@@ -143,7 +143,7 @@ class DlgEnableUser extends RbModalHandler {
           </div>}
         <div className="form-group row footer">
           <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
-            <button className="btn btn-primary btn-space" type="button" data-loading-text="请稍后" onClick={() => this.post()}>确定</button>
+            <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>确定</button>
             <a className="btn btn-link btn-space" onClick={() => this.hide()}>取消</a>
           </div>
         </div>

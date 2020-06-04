@@ -170,6 +170,11 @@ body {
     overflow: hidden;
 }
 
+.text-none:empty::after {
+    content: '无';
+    color: #999;
+}
+
 .badge.text-id {
     font-weight: normal;
     color: #777;

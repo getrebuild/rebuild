@@ -324,63 +324,40 @@ public class CommonsUtils {
 	}
 
 	/**
+     * QR_CODE
 	 * @param content
 	 * @return
 	 */
 	public static File createQRCode(String content) {
-		return createQRCode(content, 200, 200);
+		return createBarCode(content, BarcodeFormat.QR_CODE, 200, 200);
 	}
 
 	/**
-	 * @param content
-	 * @param width
-	 * @param height
-	 * @returnc
-	 */
-	public static File createQRCode(String content, int width, int height) {
-		Map<EncodeHintType, Object> hints = new HashMap<>();
-		hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
-		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-		hints.put(EncodeHintType.MARGIN, 1);
-
-		try {
-			BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints);
-
-			String fileName = String.format("qrcode-%d-%dx%d.png", System.currentTimeMillis(), width, height);
-			File dest = SysConfiguration.getFileOfTemp(fileName);
-			MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
-			return dest;
-
-		} catch (WriterException | IOException | IllegalArgumentException ex) {
-			throw new RebuildException("Write QRCode failed : " + content, ex);
-		}
-	}
-
-	/**
+     * CODE_128
 	 * @param content
 	 * @return
 	 */
 	public static File createBarCode(String content) {
-		return createBarCode(content, 200, 80);
+		return createBarCode(content, BarcodeFormat.CODE_128, 200, 80);
 	}
 
-	/**
-	 * CODE_128
-	 * @param content
-	 * @param width
-	 * @param height
-	 * @return
-	 */
-	public static File createBarCode(String content, int width, int height) {
+    /**
+     * @param content
+     * @param format
+     * @param width
+     * @param height
+     * @return
+     */
+	public static File createBarCode(String content, BarcodeFormat format, int width, int height) {
 		Map<EncodeHintType, Object> hints = new HashMap<>();
 		hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
 		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
 		hints.put(EncodeHintType.MARGIN, 0);
 
 		try {
-			BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.CODE_128, width, height, hints);
+			BitMatrix bitMatrix = new MultiFormatWriter().encode(content, format, width, height, hints);
 
-			String fileName = String.format("barcode-%d-%dx%d.png", System.currentTimeMillis(), width, height);
+			String fileName = String.format("BarCode-%d.png", System.currentTimeMillis());
 			File dest = SysConfiguration.getFileOfTemp(fileName);
 			MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
 			return dest;

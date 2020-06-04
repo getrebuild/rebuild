@@ -35,7 +35,7 @@
                     <option value="FILE">文件</option>
                     <option value="IMAGE">图片</option>
                     <option value="AVATAR">头像</option>
-					<option value="QRCODE">二维码/条形码</option>
+					<option value="BARCODE">条形码</option>
 					<option value="BOOL">布尔 (是/否)</option>
 					<optgroup label="保留类型" class="bosskey-show">
 						<option value="STATE">状态</option>
@@ -84,7 +84,7 @@
 		</div>
 		<div class="form-group row footer">
 			<div class="col-sm-7 offset-sm-3">
-            	<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
+            	<button class="btn btn-primary" type="button">确定</button>
             	<button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">取消</button>
 			</div>
 		</div>

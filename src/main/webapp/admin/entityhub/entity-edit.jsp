@@ -105,7 +105,7 @@ a#entityIcon:hover {
 						<div class="form-group row footer">
 							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<div class="J_action hide">
-									<button class="btn btn-primary J_save" type="button" data-loading-text="请稍后">保存</button>
+									<button class="btn btn-primary J_save" type="button">保存</button>
 								</div>
 								<div class="alert alert-warning alert-icon mb-0 hide">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
