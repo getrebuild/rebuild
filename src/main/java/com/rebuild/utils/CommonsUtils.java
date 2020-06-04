@@ -11,8 +11,16 @@ import cn.devezhao.commons.excel.Cell;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
+import com.rebuild.server.helper.SysConfiguration;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -31,6 +39,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -312,5 +321,72 @@ public class CommonsUtils {
             IOUtils.closeQuietly(bos);
             IOUtils.closeQuietly(fos);
         }
+	}
+
+	/**
+	 * @param content
+	 * @return
+	 */
+	public static File createQRCode(String content) {
+		return createQRCode(content, 200, 200);
+	}
+
+	/**
+	 * @param content
+	 * @param width
+	 * @param height
+	 * @returnc
+	 */
+	public static File createQRCode(String content, int width, int height) {
+		Map<EncodeHintType, Object> hints = new HashMap<>();
+		hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+		hints.put(EncodeHintType.MARGIN, 1);
+
+		try {
+			BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, width, height, hints);
+
+			String fileName = String.format("qrcode-%d-%dx%d.png", System.currentTimeMillis(), width, height);
+			File dest = SysConfiguration.getFileOfTemp(fileName);
+			MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
+			return dest;
+
+		} catch (WriterException | IOException | IllegalArgumentException ex) {
+			throw new RebuildException("Write QRCode failed : " + content, ex);
+		}
+	}
+
+	/**
+	 * @param content
+	 * @return
+	 */
+	public static File createBarCode(String content) {
+		return createBarCode(content, 200, 80);
+	}
+
+	/**
+	 * CODE_128
+	 * @param content
+	 * @param width
+	 * @param height
+	 * @return
+	 */
+	public static File createBarCode(String content, int width, int height) {
+		Map<EncodeHintType, Object> hints = new HashMap<>();
+		hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
+		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
+		hints.put(EncodeHintType.MARGIN, 0);
+
+		try {
+			BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.CODE_128, width, height, hints);
+
+			String fileName = String.format("barcode-%d-%dx%d.png", System.currentTimeMillis(), width, height);
+			File dest = SysConfiguration.getFileOfTemp(fileName);
+			MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
+			return dest;
+
+		} catch (WriterException | IOException | IllegalArgumentException ex) {
+			throw new RebuildException("Write BarCode failed : " + content, ex);
+		}
 	}
 }

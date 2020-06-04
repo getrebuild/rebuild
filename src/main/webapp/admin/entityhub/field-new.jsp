@@ -31,10 +31,11 @@
 					<option value="PICKLIST">列表 (单选)</option>
 					<option value="MULTISELECT">多选</option>
 					<option value="CLASSIFICATION">分类</option>
+					<option value="REFERENCE">引用 (关联)</option>
                     <option value="FILE">文件</option>
                     <option value="IMAGE">图片</option>
                     <option value="AVATAR">头像</option>
-                    <option value="REFERENCE">引用 (关联)</option>
+					<option value="QRCODE">二维码/条形码</option>
 					<option value="BOOL">布尔 (是/否)</option>
 					<optgroup label="保留类型" class="bosskey-show">
 						<option value="STATE">状态</option>

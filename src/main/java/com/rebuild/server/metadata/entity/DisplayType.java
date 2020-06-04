@@ -47,6 +47,7 @@ public enum DisplayType {
 
     BOOL("布尔", FieldType.BOOL, -1),
     STATE("状态", FieldType.SMALL_INT, -1),
+    QRCODE("二维码/条形码", FieldType.TEXT, 200),
 
     // 内部用/未开放,
     ID("主键", FieldType.PRIMARY, -1),

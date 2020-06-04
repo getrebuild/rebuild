@@ -134,4 +134,16 @@ public class CommonsUtilsTest {
 	    CommonsUtils.zip(file, dest);
 	    System.out.println("Zip to : " + dest);
     }
+
+    @Test
+    public void createQRCode() {
+		System.out.println(CommonsUtils.createQRCode("123123"));
+		System.out.println(CommonsUtils.createQRCode("中文测试"));
+	}
+
+	@Test
+	public void createBarCode() {
+		System.out.println(CommonsUtils.createBarCode("fewhuifhewu434343434"));
+		System.out.println(CommonsUtils.createBarCode("中文"));
+	}
 }
