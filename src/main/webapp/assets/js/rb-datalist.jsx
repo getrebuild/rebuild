@@ -739,7 +739,7 @@ const RbListPage = {
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
     $btn.click(() => this._RbList.searchQuick())
-    $input.keydown((event) => { if (event.which === 13) $btn.trigger('click') })
+    $input.keydown((e) => e.which === 13 ? $btn.trigger('click') : true)
   },
 
   reload() { this._RbList.reload() }
