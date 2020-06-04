@@ -7,6 +7,7 @@
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.ServerStatus"%>
 <%@ page import="com.rebuild.server.ServerStatus.Status"%>
+<%@ page import="java.util.Map" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -89,6 +90,14 @@
 		<tr>
 			<th>Temp Directory</th>
 			<td><%=SysConfiguration.getFileOfTemp("/")%></td>
+		</tr>
+		<tr class="<%=request.getParameter("jvm") == null ? "hide" : ""%>">
+			<th>JVM Arguments</th>
+			<td>
+				<div style="word-break:break-all;word-wrap:break-word;">
+				<% for (Map.Entry<String, String> e : System.getenv().entrySet()) out.print(e.getKey() + "=" + e.getValue() + "<br>"); %>
+				</div>
+			</td>
 		</tr>
 	</tbody>
 	</table>
