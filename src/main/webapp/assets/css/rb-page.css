@@ -1776,6 +1776,22 @@ th.column-fixed {
     color: #999;
 }
 
+.aside-tree li>span.toggle {
+    position: absolute;
+    left: -10px;
+    height: 34px;
+    line-height: 34px;
+    width: 12px;
+    font-size: 1.45rem;
+    color: #999;
+    text-align: center;
+    cursor: default;
+}
+
+.aside-tree li>span.toggle:hover {
+    color: #4285f4;
+}
+
 .adv-search .dropdown-item div.action a {
     height: 34px;
     line-height: 34px;
