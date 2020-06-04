@@ -13,13 +13,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 html.dev .dev-show,
-html.admin .admin-show
+html.admin .admin-show,
 html.rbv .rbv-show {
     display: block;
 }
 
 html.dev .dev-show.row,
-html.admin .admin-show.row
+html.admin .admin-show.row,
 html.rbv .rbv-show.row {
     display: flex;
 }
@@ -1686,11 +1686,11 @@ th.column-fixed {
     box-shadow: 0 1px 0 rgba(0, 0, 0, .1);
 }
 
-.dept-tree {
+.aside-tree {
     padding: 25px 18px;
 }
 
-.dept-tree .config-title {
+.aside-tree .config-title {
     margin-bottom: 16px;
     margin-top: 17px;
     border-bottom: 1px solid #eee;
@@ -1698,49 +1698,49 @@ th.column-fixed {
     color: #777;
 }
 
-.dept-tree .list-unstyled {
+.aside-tree .list-unstyled {
     margin: 0
 }
 
-.dept-tree .list-unstyled ul {
+.aside-tree .list-unstyled ul {
     padding-left: 1rem;
 }
 
-.dept-tree li {
+.aside-tree li {
     position: relative;
 }
 
-.dept-tree li>a {
+.aside-tree li>a {
     display: block;
     padding: 7px 10px;
     cursor: pointer;
     color: #444;
 }
 
-.dept-tree li>a.text-disabled {
+.aside-tree li>a.text-disabled {
     color: #aaa;
 }
 
-.dept-tree li>a.text-disabled>small::after {
+.aside-tree li>a.text-disabled>small::after {
     content: '[已停用]';
 }
 
-.dept-tree>ul>li>a {
+.aside-tree>ul>li>a {
     margin-left: 0;
 }
 
-.dept-tree li>a:hover {
+.aside-tree li>a:hover {
     background-color: #eee;
     border-radius: 2px
 }
 
-.dept-tree li.active>a {
+.aside-tree li.active>a {
     color: #fff !important;
     background-color: #4285f4 !important;
     border-radius: 2px;
 }
 
-.dept-tree li>div.action,
+.aside-tree li>div.action,
 .adv-search .dropdown-item div.action {
     position: absolute;
     right: 0;
@@ -1750,7 +1750,7 @@ th.column-fixed {
 
 }
 
-.dept-tree li>div.action a,
+.aside-tree li>div.action a,
 .adv-search .dropdown-item div.action a {
     display: inline-block;
     height: 34px;
@@ -1762,18 +1762,34 @@ th.column-fixed {
     margin-left: 1px;
 }
 
-.dept-tree li>div.action a:hover {
+.aside-tree li>div.action a:hover {
     background-color: rgba(0, 0, 0, 0.2);
 }
 
-.dept-tree ul>li.active:hover>div.action,
+.aside-tree ul>li.active:hover>div.action,
 .adv-search .dropdown-item:hover div.action {
     display: block;
 }
 
-.dept-tree li.nodata {
+.aside-tree li.nodata {
     padding-left: 10px;
     color: #999;
+}
+
+.aside-tree li>span.toggle {
+    position: absolute;
+    left: -10px;
+    height: 34px;
+    line-height: 34px;
+    width: 12px;
+    font-size: 1.45rem;
+    color: #999;
+    text-align: center;
+    cursor: default;
+}
+
+.aside-tree li>span.toggle:hover {
+    color: #4285f4;
 }
 
 .adv-search .dropdown-item div.action a {
@@ -3441,7 +3457,7 @@ a.icon-link>.zmdi {
 /* text overflow */
 
 .aside-header .title,
-.dept-tree ul li a,
+.aside-tree ul li a,
 .dropdown-item,
 .modal-header .modal-title,
 .view-header .title {

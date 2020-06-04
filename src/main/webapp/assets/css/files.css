@@ -156,13 +156,13 @@
   margin-right: 0;
 }
 
-.dept-tree li>a>.icon {
+.aside-tree li>a>.icon {
   font-size: 12px;
   color: #aaa;
   margin-left: 6px;
   cursor: help;
 }
 
-.dept-tree li.active>a>.icon {
+.aside-tree li.active>a>.icon {
   color: #fff;
 }

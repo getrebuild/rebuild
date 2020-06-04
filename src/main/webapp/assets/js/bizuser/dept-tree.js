@@ -8,8 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 var loadDeptTree = function () {
   $.get('/admin/bizuser/dept-tree', function (res) {
-    $('.dept-tree').empty()
-    let root = $('<ul class="list-unstyled"></ul>').appendTo('.dept-tree')
+    $('.aside-tree').empty()
+    let root = $('<ul class="list-unstyled"></ul>').appendTo('.aside-tree')
     renderDeptTree({ id: '$ALL$', name: '所有部门' }, root).addClass('active')
     $(res.data).each(function () {
       renderDeptTree(this, root)
@@ -20,7 +20,7 @@ var loadDeptTree = function () {
 const renderDeptTree = function (dept, target) {
   let child = $(`<li data-id="${dept.id}"><a href="#dept=${dept.id}" class="text-truncate ${dept.disabled && ' text-disabled'}">${dept.name} ${dept.disabled ? '<small></small>' : ''}</a></li>`).appendTo(target)
   child.find('a').click(function () {
-    $('.dept-tree li').removeClass('active')
+    $('.aside-tree li').removeClass('active')
     child.addClass('active')
 
     let ids = [child.data('id')]

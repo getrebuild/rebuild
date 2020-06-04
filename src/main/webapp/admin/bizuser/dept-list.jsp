@@ -17,7 +17,7 @@
 	<div class="rb-content">
 		<aside class="page-aside">
 			<div class="rb-scroller">
-				<div class="dept-tree">
+				<div class="aside-tree">
 					<div class="ph-item rb">
 						<div class="ph-col-12 p-0">
 							<div class="ph-row">

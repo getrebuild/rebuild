@@ -47,7 +47,6 @@ public class SendNotification implements TriggerAction {
 	private static final Log LOG = LogFactory.getLog(SendNotification.class);
 
     // 通知
-    @SuppressWarnings("unused")
     private static final int TYPE_NOTIFICATION = 1;
     // 邮件
     private static final int TYPE_MAIL = 2;
@@ -104,7 +103,7 @@ public class SendNotification implements TriggerAction {
 					SMSender.sendSMS(mobile, message);
 				}
 
-            } else {
+            } else if (type == TYPE_NOTIFICATION) {
     			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 	    		Application.getNotifications().send(m);
 
@@ -124,44 +123,39 @@ public class SendNotification implements TriggerAction {
 	 * @return
 	 */
 	protected String formatMessage(String message, ID recordId) {
-		ThreadPool.waitFor(200);
-
-        Map<String, String> vars = null;
+        Map<String, String> fieldVars = new HashMap<>();
 	    if (recordId != null) {
 	        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-            vars = new HashMap<>();
 
             Matcher m = PATT_FIELD.matcher(message);
             while (m.find()) {
-                String field = m.group(1);
-                if (MetadataHelper.getLastJoinField(entity, field) == null) {
-                    continue;
+                String fieldName = m.group(1);
+                if (MetadataHelper.checkAndWarnField(entity, fieldName)) {
+					fieldVars.put(fieldName, null);
                 }
-                vars.put(field, null);
             }
 
-            if (!vars.isEmpty()) {
+            if (!fieldVars.isEmpty()) {
                 String sql = String.format("select %s from %s where %s = ?",
-                        StringUtils.join(vars.keySet(), ","), entity.getName(), entity.getPrimaryField().getName());
+                        StringUtils.join(fieldVars.keySet(), ","), entity.getName(), entity.getPrimaryField().getName());
 
-                Record o = Application.createQueryNoFilter(sql)
-                        .setParameter(1, recordId)
-                        .record();
+				ThreadPool.waitFor(500);
+                Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
                 if (o != null) {
-                    for (String field : vars.keySet()) {
+                    for (String field : fieldVars.keySet()) {
                         Object value = o.getObjectValue(field);
                         value = FieldValueWrapper.instance.wrapFieldValue(
                                 value, MetadataHelper.getLastJoinField(entity, field), true);
                         if (value != null) {
-                            vars.put(field, value.toString());
+                            fieldVars.put(field, value.toString());
                         }
                     }
                 }
             }
         }
-	    
-	    if (vars != null) {
-	        for (Map.Entry<String, String> e : vars.entrySet()) {
+
+	    if (!fieldVars.isEmpty()) {
+	        for (Map.Entry<String, String> e : fieldVars.entrySet()) {
 	            message = message.replaceAll(
 	                    "\\{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
             }
@@ -169,6 +163,8 @@ public class SendNotification implements TriggerAction {
         return message;
 	}
 
+	// 这里使用异步可能存在脏读问题
+	// 但考虑到具体的业务消息（短信、邮件）发送后也不能撤销、提升速度
 	@Override
 	public boolean useAsync() {
 		return true;

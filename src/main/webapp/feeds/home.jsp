@@ -62,7 +62,7 @@
 								</div>
 								<div class="collapse" id="collapseFeedsType">
 									<div class="card-body">
-										<div class="dept-tree rb-scroller">
+										<div class="aside-tree rb-scroller">
 											<ul class="list-unstyled">
 												<li data-type="1"><a>动态</a></li>
 												<li data-type="2"><a>跟进</a></li>
@@ -81,7 +81,7 @@
 								<div class="collapse" id="collapseGroup">
 									<div class="card-body">
                                         <div class="search-member"><input type="text" placeholder="搜索团队" /></div>
-										<div class="dept-tree rb-scroller">
+										<div class="aside-tree rb-scroller">
 										</div>
 									</div>
 								</div>
@@ -93,7 +93,7 @@
 								<div class="collapse" id="collapseUser">
 									<div class="card-body pb-3">
                                         <div class="search-member"><input type="text" placeholder="搜索用户" /></div>
-										<div class="dept-tree rb-scroller">
+										<div class="aside-tree rb-scroller">
 										</div>
 									</div>
 								</div>

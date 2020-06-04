@@ -18,13 +18,11 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.helper.cache;
 
-import com.rebuild.server.Application;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
-import org.springframework.cache.ehcache.EhCacheCacheManager;
 
 import java.io.Serializable;
 
@@ -93,13 +91,5 @@ public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
 	 */
 	public Cache cache() {
 		return ehcacheManager.getCache("rebuild");
-	}
-	
-	/**
-	 * 关闭 Ehcache 以便将缓存持久化到硬盘
-	 */
-	public void shutdown() {
-		Application.LOG.info("Ehcache shutdown ...");
-		((EhCacheCacheManager) ehcacheManager).getCacheManager().shutdown();
 	}
 }
