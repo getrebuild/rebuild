@@ -11,16 +11,8 @@ import cn.devezhao.commons.excel.Cell;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
-import com.google.zxing.BarcodeFormat;
-import com.google.zxing.EncodeHintType;
-import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
-import com.google.zxing.client.j2se.MatrixToImageWriter;
-import com.google.zxing.common.BitMatrix;
-import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
-import com.rebuild.server.helper.SysConfiguration;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -39,12 +31,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -57,7 +52,7 @@ import java.util.zip.ZipOutputStream;
  */
 public class CommonsUtils {
 
-	private static final Pattern PLAIN_PATTERN = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
+	private static final Pattern PATT_PLAINTEXT = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 	/**
 	 * 不含特殊字符。不允许除 数字 字母 中文 及  _ - 以外的字符，包括空格
 	 * 
@@ -65,7 +60,7 @@ public class CommonsUtils {
 	 * @return
 	 */
 	public static boolean isPlainText(String text) {
-		return !text.contains(" ") && PLAIN_PATTERN.matcher(text).matches();
+		return !text.contains(" ") && PATT_PLAINTEXT.matcher(text).matches();
 	}
 	
 	/**
@@ -323,47 +318,21 @@ public class CommonsUtils {
         }
 	}
 
+	private static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._]+)}");
 	/**
-     * QR_CODE
+	 * 提取内容中的变量 {xxx}
 	 * @param content
 	 * @return
 	 */
-	public static File createQRCode(String content) {
-		return createBarCode(content, BarcodeFormat.QR_CODE, 200, 200);
-	}
+	public static Set<String> matchsVars(String content) {
+		if (StringUtils.isBlank(content)) return Collections.emptySet();
 
-	/**
-     * CODE_128
-	 * @param content
-	 * @return
-	 */
-	public static File createBarCode(String content) {
-		return createBarCode(content, BarcodeFormat.CODE_128, 200, 80);
-	}
-
-    /**
-     * @param content
-     * @param format
-     * @param width
-     * @param height
-     * @return
-     */
-	public static File createBarCode(String content, BarcodeFormat format, int width, int height) {
-		Map<EncodeHintType, Object> hints = new HashMap<>();
-		hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
-		hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
-		hints.put(EncodeHintType.MARGIN, 0);
-
-		try {
-			BitMatrix bitMatrix = new MultiFormatWriter().encode(content, format, width, height, hints);
-
-			String fileName = String.format("BarCode-%d.png", System.currentTimeMillis());
-			File dest = SysConfiguration.getFileOfTemp(fileName);
-			MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
-			return dest;
-
-		} catch (WriterException | IOException | IllegalArgumentException ex) {
-			throw new RebuildException("Write BarCode failed : " + content, ex);
+		Set<String> vars = new HashSet<>();
+		Matcher m = PATT_VAR.matcher(content);
+		while (m.find()) {
+			String varName = m.group(1);
+			if (StringUtils.isNotBlank(varName)) vars.add(varName);
 		}
+		return vars;
 	}
 }

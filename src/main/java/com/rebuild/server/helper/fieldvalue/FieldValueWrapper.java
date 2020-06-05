@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.server.configuration.portals;
+package com.rebuild.server.helper.fieldvalue;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -16,6 +16,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.MultiSelectManager;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
@@ -35,7 +38,6 @@ import java.text.DecimalFormat;
  * @author zhaofang123@gmail.com
  * @since 09/23/2018
  */
-@SuppressWarnings("unused")
 public class FieldValueWrapper {
 
 	/**

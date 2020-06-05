@@ -22,6 +22,7 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.EntityHelper;

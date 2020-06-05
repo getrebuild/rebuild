@@ -16,8 +16,8 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalHelper;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.charts.ChartData;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
@@ -72,7 +72,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
         int deleted = 0;
         for (Object[] o : array) {
             final ID recordId = (ID) o[2];
-            String label = null;
+            String label;
             try {
                 label = FieldValueWrapper.getLabel(recordId);
             } catch (NoRecordFoundException ignored) {

@@ -8,9 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.business.trigger.impl;
 
 import cn.devezhao.commons.RegexUtils;
-import cn.devezhao.commons.ThreadPool;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -19,9 +16,8 @@ import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerException;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.SMSender;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.helper.fieldvalue.ContentWithFieldVars;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.Message;
@@ -31,12 +27,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -86,7 +78,8 @@ public class SendNotification implements TriggerAction {
 		}
 
 		String message = content.getString("content");
-		message = formatMessage(message, context.getSourceRecord());
+		message = ContentWithFieldVars.replace(message, context.getSourceRecord());
+
 		// for email
 		String subject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
 
@@ -114,53 +107,6 @@ public class SendNotification implements TriggerAction {
 	@Override
 	public void prepare(OperatingContext operatingContext) throws TriggerException {
 		// NOOP
-	}
-
-    private static final Pattern PATT_FIELD = Pattern.compile("\\{([0-9a-zA-Z._]+)}");
-	/**
-	 * @param message
-	 * @param recordId
-	 * @return
-	 */
-	protected String formatMessage(String message, ID recordId) {
-        Map<String, String> fieldVars = new HashMap<>();
-	    if (recordId != null) {
-	        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-
-            Matcher m = PATT_FIELD.matcher(message);
-            while (m.find()) {
-                String fieldName = m.group(1);
-                if (MetadataHelper.checkAndWarnField(entity, fieldName)) {
-					fieldVars.put(fieldName, null);
-                }
-            }
-
-            if (!fieldVars.isEmpty()) {
-                String sql = String.format("select %s from %s where %s = ?",
-                        StringUtils.join(fieldVars.keySet(), ","), entity.getName(), entity.getPrimaryField().getName());
-
-				ThreadPool.waitFor(500);
-                Record o = Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
-                if (o != null) {
-                    for (String field : fieldVars.keySet()) {
-                        Object value = o.getObjectValue(field);
-                        value = FieldValueWrapper.instance.wrapFieldValue(
-                                value, MetadataHelper.getLastJoinField(entity, field), true);
-                        if (value != null) {
-                            fieldVars.put(field, value.toString());
-                        }
-                    }
-                }
-            }
-        }
-
-	    if (!fieldVars.isEmpty()) {
-	        for (Map.Entry<String, String> e : fieldVars.entrySet()) {
-	            message = message.replaceAll(
-	                    "\\{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
-            }
-        }
-        return message;
 	}
 
 	// 这里使用异步可能存在脏读问题

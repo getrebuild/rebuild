@@ -9,7 +9,7 @@ package com.rebuild.server.service.notification;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.CommonsUtils;
