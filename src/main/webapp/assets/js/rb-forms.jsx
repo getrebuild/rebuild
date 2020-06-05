@@ -1069,6 +1069,24 @@ class RbFormState extends RbFormPickList {
   }
 }
 
+
+class RbFormBarcode extends RbFormElement {
+  constructor(props) {
+    super(props)
+    this._placeholder = `[${props.barcodeType === 'QRCODE' ? '二维码' : '条形码'}]`
+  }
+
+  renderElement() {
+    return <div className="form-control-plaintext barcode text-muted">{this._placeholder}</div>
+  }
+
+  renderViewElement() {
+    const pprops = this.props.$$$parent.props
+    const codeUrl = `${rb.baseUrl}/commons/barcode/generate?entity=${pprops.entity}&field=${this.props.field}&id=${pprops.id}`
+    return <div className="img-field barcode"><a className="img-thumbnail"><img src={codeUrl} alt={this._placeholder} /></a></div>
+  }
+}
+
 // 不支持/未开放的字段
 class RbFormUnsupportted extends RbFormElement {
   constructor(props) {
@@ -1150,6 +1168,8 @@ const detectElement = function (item) {
     return <RbFormBool {...item} />
   } else if (item.type === 'STATE') {
     return <RbFormState {...item} />
+  } else if (item.type === 'BARCODE') {
+    return <RbFormBarcode {...item} readonly={true} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {

@@ -902,6 +902,18 @@ a {
     opacity: 0.8;
 }
 
+.img-field.barcode {
+    margin: 0;
+}
+
+.img-field.barcode .img-thumbnail {
+    padding: 0;
+    height: 80px;
+    width: auto;
+    display: inline-block;
+    border: 0 none;
+}
+
 .file-field .file-select {
     margin-top: 1px;
 }

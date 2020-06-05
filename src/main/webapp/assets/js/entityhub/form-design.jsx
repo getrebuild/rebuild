@@ -10,7 +10,7 @@ const DIVIDER_LINE = '$DIVIDER$'
 
 $(document).ready(function () {
 
-  $.get(`../list-field?from=FORM&entity=${wpc.entityName}`, function (res) {
+  $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     const validFields = {},
       configFields = []
     $(wpc.formConfig.elements).each(function () { configFields.push(this.field) })
@@ -251,7 +251,7 @@ class DlgEditDivider extends DlgEditField {
 // 追加到布局
 // eslint-disable-next-line no-unused-vars
 const add2Layout = function (add, fieldName) {
-  $.get(`../list-field?from=FORM&entity=${wpc.entityName}`, function (res) {
+  $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     $(res.data).each(function () {
       if (this.fieldName === fieldName) {
         if (add) render_item({ ...this, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')

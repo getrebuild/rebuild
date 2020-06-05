@@ -120,10 +120,12 @@ public class DataImportControll extends BasePageControll {
 				continue;
 			}
 			EasyMeta easyMeta = new EasyMeta(field);
-			if (easyMeta.getDisplayType() == DisplayType.FILE || easyMeta.getDisplayType() == DisplayType.IMAGE) {
+			if (easyMeta.getDisplayType() == DisplayType.FILE || easyMeta.getDisplayType() == DisplayType.IMAGE
+					|| easyMeta.getDisplayType() == DisplayType.AVATAR || easyMeta.getDisplayType() == DisplayType.BARCODE
+					|| easyMeta.getDisplayType() == DisplayType.ID || easyMeta.getDisplayType() == DisplayType.ANYREFERENCE) {
 				continue;
 			}
-			
+
 			Map<String, Object> map = new HashMap<>();
 			map.put("name", fieldName);
 			map.put("label", easyMeta.getLabel());
@@ -133,7 +135,7 @@ public class DataImportControll extends BasePageControll {
 			String defaultValue = null;
 			if (EntityHelper.CreatedOn.equals(fieldName) || EntityHelper.ModifiedOn.equals(fieldName)) {
 				defaultValue = "当前时间";
-			} else if (EntityHelper.CreatedBy.equals(fieldName) || EntityHelper.ModifiedBy.equals(fieldName)  || EntityHelper.OwningUser.equals(fieldName)) {
+			} else if (EntityHelper.CreatedBy.equals(fieldName) || EntityHelper.ModifiedBy.equals(fieldName) || EntityHelper.OwningUser.equals(fieldName)) {
 				defaultValue = "当前用户";
 			}  else if (easyMeta.getDisplayType() == DisplayType.SERIES) {
 				defaultValue = "自动编号";
