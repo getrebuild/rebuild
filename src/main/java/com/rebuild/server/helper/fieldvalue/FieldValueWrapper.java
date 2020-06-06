@@ -97,9 +97,9 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public Object wrapFieldValue(Object value, EasyMeta field) {
-		Object specialVal = wrapSpecialField(value, field);
-		if (specialVal != null) {
-			return specialVal;
+		Object useSpecial = wrapSpecialField(value, field);
+		if (useSpecial != null) {
+			return useSpecial;
 		}
 
 		if (value == null || StringUtils.isBlank(value.toString())) {
@@ -131,6 +131,8 @@ public class FieldValueWrapper {
             return wrapFile(value, field);
         } else if (dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
             return value;
+        } else if (dt == DisplayType.BARCODE) {
+		    return wrapBarcode(value, field);
         } else {
 			return wrapSimple(value, field);
 		}
@@ -143,7 +145,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapDate(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.DATE_DATEFORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+        if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return CalendarUtils.getDateFormat(format).format(value);
 	}
 
@@ -154,7 +156,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapDatetime(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.DATETIME_DATEFORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+        if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return CalendarUtils.getDateFormat(format).format(value);
 	}
 	
@@ -165,7 +167,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapNumber(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.NUMBER_FORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+		if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return new DecimalFormat(format).format(value);
 	}
 
@@ -176,7 +178,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapDecimal(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.DECIMAL_FORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+        if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return new DecimalFormat(format).format(value);
 	}
 
@@ -261,6 +263,21 @@ public class FieldValueWrapper {
      */
 	public JSON wrapFile(Object value, EasyMeta field) {
 	    return JSON.parseArray(value.toString());
+    }
+
+    /**
+     * BARCODE 为动态值
+     *
+     * @param value 必须为记录ID
+     * @param field
+     * @return
+     * @see BarCodeGenerator
+     */
+    public String wrapBarcode(Object value, EasyMeta field) {
+        if (value instanceof ID) {
+            return BarCodeGenerator.getBarCodeContent((Field) field.getBaseMeta(), (ID) value);
+        }
+        return null;
     }
 	
 	/**

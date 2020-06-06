@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.common;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.helper.fieldvalue.BarCodeGenerator;
@@ -39,14 +40,17 @@ public class BarCodeGeneratorControll extends BaseControll {
             ID record = getIdParameterNotNull(request, "id");
 
             File codeImg = BarCodeGenerator.getBarCodeImage(barcodeField, record);
+
+            ServletUtils.setNoCacheHeaders(response);
             FileDownloader.writeLocalFile(codeImg, response);
+
         } catch (Exception ex) {
             LOG.error("Generate BarCode failed : " + request.getQueryString(), ex);
             response.sendRedirect(AppUtils.getContextPath() + "/assets/img/s.gif");
         }
     }
 
-    @RequestMapping({ "/commons/barcode/render-qr", "/commons/barcode/render-bar" })
+    @RequestMapping({ "/commons/barcode/render-qr", "/commons/barcode/render" })
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String content = getParameter(request, "t", "RB");
 
@@ -56,6 +60,8 @@ public class BarCodeGeneratorControll extends BaseControll {
         } else {
             codeImg = BarCodeGenerator.createBarCode(content);
         }
+
+        ServletUtils.addCacheHead(response, 120);
         FileDownloader.writeLocalFile(codeImg, response);
     }
 }

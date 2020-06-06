@@ -80,7 +80,8 @@ public class BarCodeGenerator {
      * @return
      */
     public static File createBarCode(String content) {
-        return createBarCode(content, BarcodeFormat.CODE_128, 240, 80);
+        // 条形码宽度为自适应
+        return createBarCode(content, BarcodeFormat.CODE_128, 12, 120);
     }
 
     /**
@@ -104,7 +105,9 @@ public class BarCodeGenerator {
             MatrixToImageWriter.writeToPath(bitMatrix, "png", dest.toPath());
             return dest;
 
-        } catch (WriterException | IOException | IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
+            throw ex;
+        } catch (WriterException | IOException ex) {
             throw new RebuildException("Write BarCode failed : " + content, ex);
         }
     }

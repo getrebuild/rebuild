@@ -1073,17 +1073,17 @@ class RbFormState extends RbFormPickList {
 class RbFormBarcode extends RbFormElement {
   constructor(props) {
     super(props)
-    this._placeholder = `[${props.barcodeType === 'QRCODE' ? '二维码' : '条形码'}]`
   }
 
   renderElement() {
-    return <div className="form-control-plaintext barcode text-muted">{this._placeholder}</div>
+    const placeholder = `[${this.props.barcodeType === 'QRCODE' ? '二维码' : '条形码'}]`
+    return <div className="form-control-plaintext barcode text-muted">{placeholder}</div>
   }
 
   renderViewElement() {
-    const pprops = this.props.$$$parent.props
-    const codeUrl = `${rb.baseUrl}/commons/barcode/generate?entity=${pprops.entity}&field=${this.props.field}&id=${pprops.id}`
-    return <div className="img-field barcode"><a className="img-thumbnail"><img src={codeUrl} alt={this._placeholder} /></a></div>
+    if (!this.state.value) return null
+    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(this.state.value)}`
+    return <div className="img-field barcode"><a className="img-thumbnail"><img src={codeUrl} alt={this.state.value} /></a></div>
   }
 }
 

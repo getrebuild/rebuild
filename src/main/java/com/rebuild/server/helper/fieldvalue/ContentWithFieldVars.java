@@ -63,8 +63,8 @@ public class ContentWithFieldVars {
         }
 
         for (Map.Entry<String, String> e : fieldVars.entrySet()) {
-            content = content.replaceAll(
-                    "\\{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
+            content = content.replace(
+                    "{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
         }
         return content;
     }

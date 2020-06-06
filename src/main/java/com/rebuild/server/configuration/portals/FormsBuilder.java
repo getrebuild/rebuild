@@ -438,6 +438,7 @@ public class FormsBuilder extends FormsManager {
 		} else {
 			ajql.deleteCharAt(ajql.length() - 1);
 		}
+		ajql.append(',').append(entity.getPrimaryField().getName());
 
 		ajql.append(" from ")
                 .append(entity.getName())
@@ -463,7 +464,9 @@ public class FormsBuilder extends FormsManager {
 		if (!data.hasValue(fieldName, false)) {
 			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
 				return FieldValueWrapper.wrapMixValue(null, FieldValueWrapper.APPROVAL_UNSUBMITTED);
-			}
+			} else if (field.getDisplayType() == DisplayType.BARCODE) {
+			    return FieldValueWrapper.instance.wrapBarcode(data.getPrimary(), field);
+            }
             return null;
         }
 

@@ -62,15 +62,16 @@ class PreviewTable extends React.Component {
   componentDidMount = () => $('.font-italic.hide').removeClass('hide')
 
   formatValue(item) {
-    if (item && item.type === 'BARCODE') {
+    if (item && item.type === 'AVATAR' && !item.value) {
       return (
-        <div className="img-field barcode">
-          <span className="img-thumbnail">
-            <img src={`${rb.baseUrl}/commons/barcode/generate?entity=${this.props.data.entity}&field=${item.field}&id=${wpc.record}`} />
+        <div className="img-field avatar">
+          <span className="img-thumbnail img-upload">
+            <img src={`${rb.baseUrl}/assets/img/avatar.png`} />
           </span>
         </div>
       )
     }
+
     if (!item || !item.value) return null
 
     if (item.type === 'FILE') {
@@ -107,6 +108,14 @@ class PreviewTable extends React.Component {
     } else if (item.type === 'PICKLIST' || item.type === 'STATE') {
       // eslint-disable-next-line no-undef
       return __findOptionText(item.options, item.value)
+    } else if (item.type === 'BARCODE') {
+      return (
+        <div className="img-field barcode">
+          <span className="img-thumbnail">
+            <img src={`${rb.baseUrl}/commons/barcode/render${item.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(item.value)}`} alt={item.value} />
+          </span>
+        </div>
+      )
     } else if (typeof item.value === 'object') {
       let text = item.value.text
       if (!text && item.value.id) text = `@${item.value.id.toUpperCase()}`
