@@ -16,7 +16,7 @@ class PreviewTable extends React.Component {
   }
 
   render() {
-    let rows = []
+    const rows = []
     for (let i = 0; i < this.props.data.elements.length; i++) {
       let c = this.props.data.elements[i]
       let cNext = this.props.data.elements[i + 1]
@@ -62,6 +62,15 @@ class PreviewTable extends React.Component {
   componentDidMount = () => $('.font-italic.hide').removeClass('hide')
 
   formatValue(item) {
+    if (item && item.type === 'BARCODE') {
+      return (
+        <div className="img-field barcode">
+          <span className="img-thumbnail">
+            <img src={`${rb.baseUrl}/commons/barcode/generate?entity=${this.props.data.entity}&field=${item.field}&id=${wpc.record}`} />
+          </span>
+        </div>
+      )
+    }
     if (!item || !item.value) return null
 
     if (item.type === 'FILE') {
@@ -77,11 +86,13 @@ class PreviewTable extends React.Component {
         })}
       </ul>)
     } else if (item.type === 'AVATAR') {
-      return <div className="img-field avatar">
-        <span className="img-thumbnail img-upload">
-          <img src={`${rb.baseUrl}/filex/img/${item.value}?imageView2/2/w/100/interlace/1/q/100`} />
-        </span>
-      </div>
+      return (
+        <div className="img-field avatar">
+          <span className="img-thumbnail img-upload">
+            <img src={`${rb.baseUrl}/filex/img/${item.value}?imageView2/2/w/100/interlace/1/q/100`} />
+          </span>
+        </div>
+      )
     } else if (item.type === 'NTEXT') {
       return <React.Fragment>
         {item.value.split('\n').map((line, idx) => {

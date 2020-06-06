@@ -25,6 +25,10 @@ html, body{
     max-height: 80px;
     max-width: 80px;
 }
+.table td .img-field.barcode .img-thumbnail img {
+    max-height: 100%;
+    max-width: 100%;
+}
 .table td > p {
     margin: 0;
     line-height: 1.428571;

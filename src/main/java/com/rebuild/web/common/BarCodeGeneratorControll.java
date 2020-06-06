@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.helper.fieldvalue.BarCodeGenerator;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,20 +32,18 @@ public class BarCodeGeneratorControll extends BaseControll {
 
     @RequestMapping("/commons/barcode/generate")
     public void generate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Field barcodeField = getFieldOfBarCode(request);
-        ID record = getIdParameterNotNull(request, "id");
+        try {
+            String entity = getParameterNotNull(request, "entity");
+            String field = getParameterNotNull(request, "field");
+            Field barcodeField = MetadataHelper.getField(entity, field);
+            ID record = getIdParameterNotNull(request, "id");
 
-        File codeImg = BarCodeGenerator.getBarCodeImage(barcodeField, record);
-        FileDownloader.writeLocalFile(codeImg, response);
-    }
-
-    @RequestMapping("/commons/barcode/contents")
-    public void contents(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Field barcodeField = getFieldOfBarCode(request);
-        ID record = getIdParameterNotNull(request, "id");
-
-        String codeContents = BarCodeGenerator.getBarCodeContent(barcodeField, record);
-        writeSuccess(response, codeContents);
+            File codeImg = BarCodeGenerator.getBarCodeImage(barcodeField, record);
+            FileDownloader.writeLocalFile(codeImg, response);
+        } catch (Exception ex) {
+            LOG.error("Generate BarCode failed : " + request.getQueryString(), ex);
+            response.sendRedirect(AppUtils.getContextPath() + "/assets/img/s.gif");
+        }
     }
 
     @RequestMapping({ "/commons/barcode/render-qr", "/commons/barcode/render-bar" })
@@ -58,11 +57,5 @@ public class BarCodeGeneratorControll extends BaseControll {
             codeImg = BarCodeGenerator.createBarCode(content);
         }
         FileDownloader.writeLocalFile(codeImg, response);
-    }
-
-    private Field getFieldOfBarCode(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
-        String field = getParameterNotNull(request, "field");
-        return MetadataHelper.getField(entity, field);
     }
 }

@@ -908,7 +908,7 @@ a {
 
 .img-field.barcode .img-thumbnail {
     padding: 0;
-    height: 80px;
+    max-height: 80px;
     width: auto;
     display: inline-block;
     border: 0 none;
