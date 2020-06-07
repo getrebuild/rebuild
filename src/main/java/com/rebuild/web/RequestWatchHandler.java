@@ -213,7 +213,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/")
 				|| reqUrl.startsWith("/commons/announcements")
                 || reqUrl.startsWith("/commons/url-safe")
-                || reqUrl.startsWith("/filex/access/");
+                || reqUrl.startsWith("/filex/access/")
+                || reqUrl.startsWith("/commons/barcode/render");
 	}
 
     /**
