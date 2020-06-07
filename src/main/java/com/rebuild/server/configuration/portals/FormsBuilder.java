@@ -418,7 +418,7 @@ public class FormsBuilder extends FormsManager {
 		}
 
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		StringBuilder ajql = new StringBuilder("select ");
+		StringBuilder sql = new StringBuilder("select ");
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String field = el.getString("field");
@@ -428,24 +428,23 @@ public class FormsBuilder extends FormsManager {
 
 			// REFERENCE
 			if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
-			    ajql.append('&').append(field).append(',');
+			    sql.append('&').append(field).append(',');
 			}
-			ajql.append(field).append(',');
+			sql.append(field).append(',');
 		}
-		
-		if (entity.containsField(EntityHelper.ModifiedOn)) {
-			ajql.append(EntityHelper.ModifiedOn);
-		} else {
-			ajql.deleteCharAt(ajql.length() - 1);
-		}
-		ajql.append(',').append(entity.getPrimaryField().getName());
 
-		ajql.append(" from ")
+		// Append fields
+		sql.append(entity.getPrimaryField().getName());
+		if (entity.containsField(EntityHelper.ModifiedOn)) {
+			sql.append(',').append(EntityHelper.ModifiedOn);
+		}
+
+		sql.append(" from ")
                 .append(entity.getName())
 				.append(" where ")
                 .append(entity.getPrimaryField().getName())
                 .append(" = ?");
-		return Application.getQueryFactory().createQuery(ajql.toString(), user).setParameter(1, id).record();
+		return Application.getQueryFactory().createQuery(sql.toString(), user).setParameter(1, id).record();
 	}
 
 	/**

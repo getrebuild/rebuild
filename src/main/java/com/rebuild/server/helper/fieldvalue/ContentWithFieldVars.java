@@ -31,7 +31,7 @@ public class ContentWithFieldVars {
      * @param record
      * @return
      */
-    public static String replace(String content, ID record) {
+    public static String replaceWithRecord(String content, ID record) {
         if (StringUtils.isBlank(content) || record == null) {
             return content;
         }
@@ -54,8 +54,7 @@ public class ContentWithFieldVars {
         if (o != null) {
             for (String field : fieldVars.keySet()) {
                 Object value = o.getObjectValue(field);
-                value = FieldValueWrapper.instance.wrapFieldValue(
-                        value, MetadataHelper.getLastJoinField(entity, field), true);
+                value = FieldValueWrapper.instance.wrapFieldValue(value, MetadataHelper.getLastJoinField(entity, field), true);
                 if (value != null) {
                     fieldVars.put(field, value.toString());
                 }
@@ -63,8 +62,7 @@ public class ContentWithFieldVars {
         }
 
         for (Map.Entry<String, String> e : fieldVars.entrySet()) {
-            content = content.replace(
-                    "{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
+            content = content.replace("{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
         }
         return content;
     }

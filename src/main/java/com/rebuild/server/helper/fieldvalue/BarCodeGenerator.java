@@ -45,7 +45,7 @@ public class BarCodeGenerator {
         if (StringUtils.isBlank(barcodeFormat)) {
             return "UNSET";
         }
-        return ContentWithFieldVars.replace(barcodeFormat, record);
+        return ContentWithFieldVars.replaceWithRecord(barcodeFormat, record);
     }
 
     /**

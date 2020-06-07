@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.business.trigger.impl;
 
 import cn.devezhao.commons.RegexUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -77,8 +78,11 @@ public class SendNotification implements TriggerAction {
 			LOG.warn("Could not send because sms-service is unavailable");
 		}
 
+		// 这里等待一会，因为主事物可能未完成，如果有变量可能脏读
+		ThreadPool.waitFor(3000);
+
 		String message = content.getString("content");
-		message = ContentWithFieldVars.replace(message, context.getSourceRecord());
+		message = ContentWithFieldVars.replaceWithRecord(message, context.getSourceRecord());
 
 		// for email
 		String subject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
@@ -96,7 +100,9 @@ public class SendNotification implements TriggerAction {
 					SMSender.sendSMS(mobile, message);
 				}
 
-            } else if (type == TYPE_NOTIFICATION) {
+            }
+		    // default: TYPE_NOTIFICATION
+		    else {
     			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 	    		Application.getNotifications().send(m);
 
