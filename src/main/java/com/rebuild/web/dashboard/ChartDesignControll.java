@@ -103,7 +103,7 @@ public class ChartDesignControll extends BaseEntityControll {
 
 			putFields(fields, field.getReferenceEntity(), field);
 		}
-		mv.getModel().put("fields", fields);
+		mv.getModel().put("availableFields", fields);
 
 		return mv;
 	}
@@ -119,7 +119,8 @@ public class ChartDesignControll extends BaseEntityControll {
 			EasyMeta easyField = EasyMeta.valueOf(field);
 			DisplayType dt = easyField.getDisplayType();
 			if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE
-					|| dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT) {
+					|| dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT
+					|| dt == DisplayType.BARCODE) {
 				continue;
 			}
 

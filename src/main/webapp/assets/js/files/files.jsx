@@ -118,9 +118,10 @@ $(document).ready(() => {
     $('.J_sort > .btn').find('span').text($this.text())
     filesList && filesList.loadData()
   })
-  const btn = $('.input-search .btn').click(() => {
+
+  const $btn = $('.input-search .btn').click(() => {
     currentSearch = $('.input-search input').val()
     filesList && filesList.loadData()
   })
-  $('.input-search input').keydown((event) => { if (event.which === 13) btn.trigger('click') })
+  $('.input-search input').keydown((e) => e.which === 13 ? $btn.trigger('click') : true)
 })

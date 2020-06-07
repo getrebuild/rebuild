@@ -18,7 +18,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.BaseLayoutManager;
 import com.rebuild.server.configuration.portals.DataListManager;
-import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.configuration.portals.ShareToManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -102,7 +101,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 		
 		List<Map<String, Object>> fieldList = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entityMeta)) {
-			if (FieldPortalAttrs.instance.allowDataList(field)) {
+			if (canUseField(field)) {
 				fieldList.add(DataListManager.instance.formatField(field));
 			}
 		}
@@ -124,7 +123,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 			}
 			
 			for (Field fieldOfRef : MetadataSorter.sortFields(refEntity)) {
-				if (FieldPortalAttrs.instance.allowDataList(fieldOfRef)) {
+				if (canUseField(fieldOfRef)) {
 					fieldList.add(DataListManager.instance.formatField(fieldOfRef, field));
 				}
 			}
@@ -173,5 +172,13 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 
 		Object[][] list = Application.createQueryNoFilter(sql).array();
 		writeSuccess(response, list);
+	}
+
+	/**
+	 * @param field
+	 * @return
+	 */
+	private boolean canUseField(Field field) {
+		return field.isQueryable() && EasyMeta.getDisplayType(field) != DisplayType.BARCODE;
 	}
 }

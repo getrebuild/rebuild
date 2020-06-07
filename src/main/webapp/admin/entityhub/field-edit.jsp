@@ -274,6 +274,26 @@
                                 <div class="form-control-plaintext code" id="stateClass"></div>
                             </div>
                         </div>
+                        <div class="J_for-BARCODE hide">
+                            <div class="form-group row">
+                                <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">样式</label>
+                                <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" checked><span class="custom-control-label"> 条形码 (CODE128)</span>
+                                    </label>
+                                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE"><span class="custom-control-label"> 二维码</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">编码规则</label>
+                                <div class="col-md-12 col-xl-6 col-lg-8">
+                                    <input class="form-control form-control-sm" type="text" id="barcodeFormat" value="">
+                                    <p class="form-text mb-0 help">可使用固定值或本实体字段变量及其组合，字段变量使用 <code>{}</code> 包裹</p>
+                                </div>
+                            </div>
+                        </div>
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">备注</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
@@ -296,7 +316,7 @@
 						<div class="form-group row footer">
 							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<div class="J_action hide">
-									<button class="btn btn-primary btn-space J_save" type="button" data-loading-text="请稍后">保存</button>
+									<button class="btn btn-primary btn-space J_save" type="button">保存</button>
 									<button class="btn btn-danger bordered btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> 删除</button>
 									<c:if test="${fieldType == 'SERIES'}">
 										<button class="btn btn-secondary btn-space J_series-reindex" type="button" data-loading-text="请稍后">补充编号</button>

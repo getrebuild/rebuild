@@ -15,17 +15,19 @@ class ConfigFormDlg extends RbFormHandler {
 
   render() {
     const title = this.title || ((this.props.id ? '修改' : '添加') + (this.subtitle || ''))
-    return <RbModal title={title} ref={(c) => this._dlg = c} disposeOnHide={true}>
-      <div className="form">
-        {this.renderFrom()}
-        <div className="form-group row footer">
-          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
-            <button className="btn btn-primary" type="button" onClick={this.confirm}>确定</button>
-            <a className="btn btn-link" onClick={this.hide}>取消</a>
+    return (
+      <RbModal title={title} ref={(c) => this._dlg = c} disposeOnHide={true}>
+        <div className="form">
+          {this.renderFrom()}
+          <div className="form-group row footer">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
+              <button className="btn btn-primary" type="button" onClick={this.confirm}>确定</button>
+              <a className="btn btn-link" onClick={this.hide}>取消</a>
+            </div>
           </div>
         </div>
-      </div>
-    </RbModal>
+      </RbModal>
+    )
   }
 
   componentDidMount() {
@@ -56,8 +58,8 @@ class ConfigList extends React.Component {
   componentDidMount() {
     this.loadData()
     // 搜索
-    const btn = $('.input-search .btn').click(() => this.loadData())
-    $('.input-search .form-control').keydown((e) => e.which === 13 && btn.trigger('click'))
+    const $btn = $('.input-search .btn').click(() => this.loadData())
+    $('.input-search .form-control').keydown((e) => e.which === 13 ? $btn.trigger('click') : true)
   }
 
   // 加载数据

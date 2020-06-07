@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-let _entities = {}
+const _entities = {}
 $(document).ready(() => {
   $.get('/commons/metadata/entities?slave=true', (res) => {
     $(res.data).each(function () {
@@ -34,25 +34,26 @@ class DataList extends React.Component {
   constructor(props) {
     super(props)
   }
+
   render() {
     return <RbList ref={(c) => this._List = c} config={ListConfig}></RbList>
   }
 
   componentDidMount() {
-    let select2 = $('#belongEntity').select2({
+    const select2 = $('#belongEntity').select2({
       placeholder: '选择实体',
       width: 220,
       allowClear: false
     }).val('$ALL$').trigger('change')
     select2.on('change', () => this.queryList())
 
-    let btn = $('.input-search .btn'),
-      input = $('.input-search input')
-    btn.click(() => this.queryList())
-    input.keydown((event) => { if (event.which === 13) btn.trigger('click') })
+    const $btn = $('.input-search .btn'),
+      $input = $('.input-search input')
+    $btn.click(() => this.queryList())
+    $input.keydown((e) => e.which === 13 ? $btn.trigger('click') : true)
 
     this._belongEntity = select2
-    this._recordName = input
+    this._recordName = $input
 
     $('.J_restore').click(() => this.restore())
   }
@@ -62,13 +63,13 @@ class DataList extends React.Component {
       n = this._recordName.val()
     if (e === '$ALL$') e = null
 
-    let qs = []
+    const qs = []
     if (e) qs.push({ field: 'belongEntity', op: 'EQ', value: e })
     if (n) {
       if ($regex.isId(n)) qs.push({ field: 'recordId', op: 'EQ', value: n })
       else qs.push({ field: 'recordName', op: 'LK', value: n })
     }
-    let q = {
+    const q = {
       entity: 'RecycleBin',
       equation: 'AND',
       items: qs
@@ -77,7 +78,7 @@ class DataList extends React.Component {
   }
 
   restore() {
-    let ids = this._List.getSelectedIds()
+    const ids = this._List.getSelectedIds()
     if (!ids || ids.length === 0) return
 
     const that = this

@@ -71,7 +71,7 @@ public class NotificationService extends BaseService {
 				.unique();
 		if (m != null) {
 			final String ckey = "UnreadNotification-" + m[0];
-			Application.getCommonCache().evict(ckey);	
+			Application.getCommonCache().evict(ckey);
 		}
 	}
 	

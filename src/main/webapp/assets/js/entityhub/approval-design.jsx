@@ -797,6 +797,7 @@ class DlgFields extends RbModalHandler {
     return <RbModal title="选择可修改字段" ref={(c) => this._dlg = c} disposeOnHide={true} onHide={() => donotCloseSidebar = false}>
       <div className="row p-1" ref={(c) => this._fields = c}>
         {fieldsCache.map((item) => {
+          if (item.type === 'BARCODE') return null
           return <div className="col-3" key={`field-${item.name}`}>
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
               <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={item.name} defaultChecked={item.updatable && this._selected.includes(item.name)} />

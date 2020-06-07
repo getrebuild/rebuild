@@ -98,7 +98,7 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    $.get('/commons/metadata/fields?deep=2&from=SEARCH&entity=' + this.props.entity, (res) => {
+    $.get('/commons/metadata/fields?deep=2&filter=SEARCH&entity=' + this.props.entity, (res) => {
       let valideFs = []
       this.fields = res.data.map((item) => {
         valideFs.push(item.name)

@@ -17,7 +17,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -66,14 +65,9 @@ public class MetaFieldControll extends BasePageControll  {
 	public void listField(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		String entityName = getParameter(request, "entity");
 		Entity entity = MetadataHelper.getEntity(entityName);
-		String fromType = getParameter(request, "from");
 
 		List<Map<String, Object>> ret = new ArrayList<>();
 		for (Field field : MetadataSorter.sortFields(entity)) {
-			if (!FieldPortalAttrs.instance.allowByType(field, fromType)) {
-				continue;
-			}
-
 			EasyMeta easyMeta = new EasyMeta(field);
 			Map<String, Object> map = new HashMap<>();
 			if (easyMeta.getMetaId() != null) {

@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.server.configuration.portals;
+package com.rebuild.server.helper.fieldvalue;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
@@ -16,6 +16,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalState;
+import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.MultiSelectManager;
+import com.rebuild.server.configuration.portals.PickListManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
@@ -35,7 +38,6 @@ import java.text.DecimalFormat;
  * @author zhaofang123@gmail.com
  * @since 09/23/2018
  */
-@SuppressWarnings("unused")
 public class FieldValueWrapper {
 
 	/**
@@ -95,9 +97,9 @@ public class FieldValueWrapper {
 	 * @return
 	 */
 	public Object wrapFieldValue(Object value, EasyMeta field) {
-		Object specialVal = wrapSpecialField(value, field);
-		if (specialVal != null) {
-			return specialVal;
+		Object useSpecial = wrapSpecialField(value, field);
+		if (useSpecial != null) {
+			return useSpecial;
 		}
 
 		if (value == null || StringUtils.isBlank(value.toString())) {
@@ -129,6 +131,8 @@ public class FieldValueWrapper {
             return wrapFile(value, field);
         } else if (dt == DisplayType.AVATAR || dt == DisplayType.LOCATION) {
             return value;
+        } else if (dt == DisplayType.BARCODE) {
+		    return wrapBarcode(value, field);
         } else {
 			return wrapSimple(value, field);
 		}
@@ -141,7 +145,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapDate(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.DATE_DATEFORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+        if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return CalendarUtils.getDateFormat(format).format(value);
 	}
 
@@ -152,7 +156,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapDatetime(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.DATETIME_DATEFORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+        if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return CalendarUtils.getDateFormat(format).format(value);
 	}
 	
@@ -163,7 +167,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapNumber(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.NUMBER_FORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+		if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return new DecimalFormat(format).format(value);
 	}
 
@@ -174,7 +178,7 @@ public class FieldValueWrapper {
 	 */
 	public String wrapDecimal(Object value, EasyMeta field) {
 		String format = field.getExtraAttr(FieldExtConfigProps.DECIMAL_FORMAT);
-		format = StringUtils.defaultIfEmpty(format, field.getDisplayType().getDefaultFormat());
+        if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
 		return new DecimalFormat(format).format(value);
 	}
 
@@ -259,6 +263,21 @@ public class FieldValueWrapper {
      */
 	public JSON wrapFile(Object value, EasyMeta field) {
 	    return JSON.parseArray(value.toString());
+    }
+
+    /**
+     * BARCODE 为动态值
+     *
+     * @param value 必须为记录ID
+     * @param field
+     * @return
+     * @see BarCodeGenerator
+     */
+    public String wrapBarcode(Object value, EasyMeta field) {
+        if (value != null && value instanceof ID) {
+            return BarCodeGenerator.getBarCodeContent((Field) field.getBaseMeta(), (ID) value);
+        }
+        return null;
     }
 	
 	/**
