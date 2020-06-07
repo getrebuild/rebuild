@@ -33,26 +33,24 @@ public class BarCodeGeneratorControll extends BaseControll {
 
     @RequestMapping("/commons/barcode/generate")
     public void generate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        try {
             String entity = getParameterNotNull(request, "entity");
             String field = getParameterNotNull(request, "field");
+            if (!MetadataHelper.checkAndWarnField(entity, field)) {
+                response.sendRedirect(AppUtils.getContextPath() + "/assets/img/s.gif");
+                return;
+            }
+
             Field barcodeField = MetadataHelper.getField(entity, field);
             ID record = getIdParameterNotNull(request, "id");
-
             File codeImg = BarCodeGenerator.getBarCodeImage(barcodeField, record);
 
             ServletUtils.setNoCacheHeaders(response);
             FileDownloader.writeLocalFile(codeImg, response);
-
-        } catch (Exception ex) {
-            LOG.error("Generate BarCode failed : " + request.getQueryString(), ex);
-            response.sendRedirect(AppUtils.getContextPath() + "/assets/img/s.gif");
-        }
     }
 
     @RequestMapping({ "/commons/barcode/render-qr", "/commons/barcode/render" })
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String content = getParameter(request, "t", "RB");
+        String content = getParameterNotNull(request, "t");
 
         File codeImg;
         if (request.getRequestURI().endsWith("render-qr")) {
