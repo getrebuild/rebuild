@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.helper.fieldvalue;
 
 import cn.devezhao.persist4j.Field;
+import com.google.zxing.BarcodeFormat;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.metadata.MetadataHelper;
 import org.junit.Test;
@@ -25,8 +26,8 @@ public class BarCodeGeneratorTest extends TestSupport {
     }
 
     @Test
-    public void createBarCode() {
-        System.out.println(BarCodeGenerator.createBarCode("CODE128"));
-        System.out.println(BarCodeGenerator.createQRCode("123ABC支持中文"));
+    public void saveBarCode() {
+        System.out.println(BarCodeGenerator.saveBarCode("CODE128", BarcodeFormat.CODE_128, 80));
+        System.out.println(BarCodeGenerator.saveBarCode("123ABC支持中文", BarcodeFormat.QR_CODE, 200));
     }
 }

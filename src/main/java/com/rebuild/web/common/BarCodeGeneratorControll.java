@@ -17,9 +17,10 @@ import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 /**
@@ -33,33 +34,36 @@ public class BarCodeGeneratorControll extends BaseControll {
 
     @RequestMapping("/commons/barcode/generate")
     public void generate(HttpServletRequest request, HttpServletResponse response) throws IOException {
-            String entity = getParameterNotNull(request, "entity");
-            String field = getParameterNotNull(request, "field");
-            if (!MetadataHelper.checkAndWarnField(entity, field)) {
-                response.sendRedirect(AppUtils.getContextPath() + "/assets/img/s.gif");
-                return;
-            }
+        String entity = getParameterNotNull(request, "entity");
+        String field = getParameterNotNull(request, "field");
+        if (!MetadataHelper.checkAndWarnField(entity, field)) {
+            response.sendRedirect(AppUtils.getContextPath() + "/assets/img/s.gif");
+            return;
+        }
 
-            Field barcodeField = MetadataHelper.getField(entity, field);
-            ID record = getIdParameterNotNull(request, "id");
-            File codeImg = BarCodeGenerator.getBarCodeImage(barcodeField, record);
+        Field barcodeField = MetadataHelper.getField(entity, field);
+        ID record = getIdParameterNotNull(request, "id");
 
-            ServletUtils.setNoCacheHeaders(response);
-            FileDownloader.writeLocalFile(codeImg, response);
+        ServletUtils.setNoCacheHeaders(response);
+        writeTo(BarCodeGenerator.getBarCodeImage(barcodeField, record), response);
     }
 
-    @RequestMapping({ "/commons/barcode/render-qr", "/commons/barcode/render" })
+    @RequestMapping({"/commons/barcode/render-qr", "/commons/barcode/render"})
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String content = getParameterNotNull(request, "t");
 
-        File codeImg;
-        if (request.getRequestURI().endsWith("render-qr")) {
-            codeImg = BarCodeGenerator.createQRCode(content);
-        } else {
-            codeImg = BarCodeGenerator.createBarCode(content);
-        }
+        // 4小时缓存
+        ServletUtils.addCacheHead(response, 240);
 
-        ServletUtils.addCacheHead(response, 120);
-        FileDownloader.writeLocalFile(codeImg, response);
+        if (request.getRequestURI().endsWith("render-qr")) {
+            writeTo(BarCodeGenerator.createQRCode(content), response);
+        } else {
+            writeTo(BarCodeGenerator.createBarCode(content), response);
+        }
+    }
+
+    private void writeTo(BufferedImage image, HttpServletResponse response) throws IOException {
+        response.setContentType("image/png");
+        ImageIO.write(image, "PNG", response.getOutputStream());
     }
 }

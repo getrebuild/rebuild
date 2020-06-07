@@ -226,6 +226,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 	private static boolean isSpecCache(String reqUrl) {
         reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
         return reqUrl.startsWith("/filex/img/") || reqUrl.startsWith("/account/user-avatar/")
-                || reqUrl.startsWith("/language/");
+                || reqUrl.startsWith("/language/")
+				|| reqUrl.startsWith("/commons/barcode/");
     }
 }
