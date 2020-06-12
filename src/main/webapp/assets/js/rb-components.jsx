@@ -471,7 +471,6 @@ class UserSelector extends React.Component {
 
   clickItem(e) {
     const id = e.target.dataset.id || $(e.target).parents('li').data('id')
-    console.log(id)
     let exists = false
     const ns = this.state.selected.filter((x) => {
       if (x.id === id) {
