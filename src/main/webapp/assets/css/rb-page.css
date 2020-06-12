@@ -2272,18 +2272,40 @@ form {
     cursor: default;
 }
 
+.user-selector .select2-results__option {
+    vertical-align: middle;
+    clear: both;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
 .user-selector .select2-results__option .zmdi {
     font-size: 14px;
     float: right;
-    margin-top: 2px;
+    margin-top: 5px;
     font-weight: bold;
+}
+
+.user-selector .select2-results__option img.avatar {
+    float: left;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+}
+
+.user-selector .select2-results__option span.text {
+    display: inline-block;
+    padding: 3px 0;
+}
+
+.user-selector .select2-results__option img.avatar+span.text {
+    margin-left: 6px;
 }
 
 .user-selector .dropdown-wrapper ol,
 .user-selector .dropdown-wrapper ul {
     padding-left: 0;
 }
-
 
 .user-show {
     display: inline-block;

@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
@@ -66,26 +67,24 @@ public class UsersGetting extends BaseControll {
 			if (m.isDisabled()) {
 				continue;
 			}
-			
+
 			String name = m.getName();
 			String email = null;
-			if (m instanceof User) {
-				if (!((User) m).isActive()) {
-					continue;
-				}
-				name = ((User) m).getFullName();
-				email = ((User) m).getEmail();
+
+			final User ifUser = m instanceof User ? (User) m : null;
+			if (ifUser != null) {
+				if (!ifUser.isActive()) continue;
+				name = ifUser.getFullName();
+				email = ifUser.getEmail();
 			}
 
 			if (StringUtils.isBlank(query)
                     || StringUtils.containsIgnoreCase(name, query)
                     || (email != null && StringUtils.containsIgnoreCase(email, query))) {
-				JSON o = JSONUtils.toJSONObject(new String[] { "id", "text" },
+				JSONObject o = JSONUtils.toJSONObject(new String[] { "id", "text" },
 						new String[] { m.getIdentity().toString(), name });
 				ret.add(o);
-				if (ret.size() >= 40) {
-                    break;
-                }
+				if (ret.size() >= 40) break;
 			}
 		}
 		

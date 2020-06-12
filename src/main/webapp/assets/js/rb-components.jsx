@@ -377,7 +377,7 @@ class UserSelector extends React.Component {
           <span className="select2-selection select2-selection--multiple">
             <ul className="select2-selection__rendered">
               {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
-              {(this.state.selected).map((item) => {
+              {this.state.selected.map((item) => {
                 return (<li key={`s-${item.id}`} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
               })}
               <li className="select2-selection__choice abtn" onClick={this.openDropdown}><a><i className="zmdi zmdi-plus"></i> 添加</a></li>
@@ -401,7 +401,13 @@ class UserSelector extends React.Component {
                 <div className="rb-scroller" ref={(c) => this._scroller = c}>
                   <ul className="select2-results__options">
                     {noResult ? noResult : this.state.items.map((item) => {
-                      return (<li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={`zmdi ${this.containsItem(item.id) ? ' zmdi-check' : ''}`}></span>{item.text}</li>)
+                      return (
+                        <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+                          <i className={`zmdi ${this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
+                          {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
+                          <span className="text">{item.text}</span>
+                        </li>
+                      )
                     })}
                   </ul>
                 </div>
@@ -464,17 +470,18 @@ class UserSelector extends React.Component {
   }
 
   clickItem(e) {
-    const id = e.target.dataset.id
+    const id = e.target.dataset.id || $(e.target).parents('li').data('id')
+    console.log(id)
     let exists = false
-    let ns = this.state.selected.filter((item) => {
-      if (item.id === id) {
+    const ns = this.state.selected.filter((x) => {
+      if (x.id === id) {
         exists = true
         return false
       }
       return true
     })
 
-    if (exists === false) ns.push({ id: id, text: $(e.target).text() })
+    if (!exists) ns.push({ id: id, text: $(e.target).text() })
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
 
@@ -483,15 +490,11 @@ class UserSelector extends React.Component {
   }
 
   containsItem(id) {
-    const ss = this.state.selected
-    for (let i = 0; i < ss.length; i++) {
-      if (ss[i].id === id) return true
-    }
-    return false
+    return !!this.state.selected.find((x) => { return x.id === id })
   }
 
   getSelected() {
-    let ids = []
+    const ids = []
     this.state.selected.forEach((item) => ids.push(item.id))
     return ids
   }
