@@ -3517,9 +3517,10 @@ a.icon-link>.zmdi {
     border-left: 1px solid #fbbc05;
     top: 0;
     right: 0;
-    padding-top: 3px;
+    padding-top: 2px;
     opacity: 1;
     text-shadow: none;
+    font-weight: normal;
 }
 
 .badge-border:hover .close {
