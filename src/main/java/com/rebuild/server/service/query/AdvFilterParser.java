@@ -14,11 +14,10 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -51,7 +50,7 @@ import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
  * @author devezhao
  * @since 09/29/2018
  */
-public class AdvFilterParser {
+public class AdvFilterParser extends SetUser<AdvFilterParser> {
 
 	private static final Log LOG = LogFactory.getLog(AdvFilterParser.class);
 
@@ -117,8 +116,9 @@ public class AdvFilterParser {
 			return null;
 		}
 
+		String equationHold = equation;
 		if ((equation = validEquation(equation)) == null) {
-			throw new FilterParseException("无效高级表达式 : " + equation);
+			throw new FilterParseException("无效高级表达式 : " + equationHold);
 		}
 
 		if ("OR".equalsIgnoreCase(equation)) {
@@ -269,8 +269,6 @@ public class AdvFilterParser {
 
 		// 自定义函数
 
-        final ID currentUser = Application.getCurrentUser();
-
 		if (ParserTokens.BFD.equalsIgnoreCase(op)) {
 			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
 		} else if (ParserTokens.BFM.equalsIgnoreCase(op)) {
@@ -290,9 +288,9 @@ public class AdvFilterParser {
 		} else if (ParserTokens.REY.equalsIgnoreCase(op)) {
             value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value) * 12)) + ParserTokens.FULL_TIME;
         } else if (ParserTokens.SFU.equalsIgnoreCase(op)) {
-			value = currentUser.toLiteral();
+			value = getUser().toLiteral();
 		} else if (ParserTokens.SFB.equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(currentUser);
+			Department dept = UserHelper.getDepartment(getUser());
 			if (dept != null) {
 				value = dept.getIdentity().toString();
 				int ref = fieldMeta.getReferenceEntity().getEntityCode();
@@ -305,7 +303,7 @@ public class AdvFilterParser {
 				}
 			}
 		} else if (ParserTokens.SFD.equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(currentUser);
+			Department dept = UserHelper.getDepartment(getUser());
 			if (dept != null) {
 				int refe = fieldMeta.getReferenceEntity().getEntityCode();
 				if (refe == EntityHelper.Department) {

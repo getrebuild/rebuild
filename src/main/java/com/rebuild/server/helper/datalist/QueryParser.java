@@ -182,7 +182,7 @@ public class QueryParser {
 		// appends ProtocolFilter
 		String protocolFilter = queryExpr.getString("protocolFilter");
 		if (StringUtils.isNotBlank(protocolFilter)) {
-			String where = new ProtocolFilter(protocolFilter).toSqlWhere();
+			String where = new ProtocolFilterParser(protocolFilter).toSqlWhere();
 			if (StringUtils.isNotBlank(where)) wheres.add(where);
 		}
 

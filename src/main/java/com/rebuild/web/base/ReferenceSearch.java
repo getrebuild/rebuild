@@ -15,7 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.DataListManager;
-import com.rebuild.server.helper.datalist.ProtocolFilter;
+import com.rebuild.server.helper.datalist.ProtocolFilterParser;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -79,7 +79,7 @@ public class ReferenceSearch extends BaseEntityControll {
 
 		// 引用字段数据过滤仅在搜索时有效
 		// 启用数据过滤后最近搜索将不可用
-		final String protocolFilter = new ProtocolFilter(null).parseRef(field + "." + entity);
+		final String protocolFilter = new ProtocolFilterParser(null).parseRef(field + "." + entity);
 
 		String q = getParameter(request, "q");
 		// 为空则加载最近使用的

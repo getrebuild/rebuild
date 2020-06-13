@@ -25,22 +25,22 @@ import com.rebuild.utils.JSONUtils;
  * @author devezhao
  * @since 2020/6/13
  */
-public class ProtocolFilter {
+public class ProtocolFilterParser {
 
-    final private String protocol;
+    final private String protocolExpr;
 
     /**
-     * @param protocol via:xxx ref:xxx
+     * @param protocolExpr via:xxx ref:xxx
      */
-    public ProtocolFilter(String protocol) {
-        this.protocol = protocol;
+    public ProtocolFilterParser(String protocolExpr) {
+        this.protocolExpr = protocolExpr;
     }
 
     /**
      * @return
      */
     public String toSqlWhere() {
-        String[] ps = protocol.split(":");
+        String[] ps = protocolExpr.split(":");
         switch (ps[0]) {
             case "via" : {
                 return parseVia(ps[1]);
@@ -63,6 +63,7 @@ public class ProtocolFilter {
         // via Charts
         if (anyId.getEntityCode() == EntityHelper.ChartConfig) {
             ConfigEntry chart = ChartManager.instance.getChart(anyId);
+            if (chart == null) return null;
             JSONObject filterExp = ((JSONObject) chart.getJSON("config")).getJSONObject("filter");
             return new AdvFilterParser(filterExp).toSqlWhere();
         }
