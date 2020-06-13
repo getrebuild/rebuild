@@ -36,11 +36,13 @@ public enum DisplayType {
     BOOL("布尔", FieldType.BOOL, -1),
     BARCODE("条形码", FieldType.TEXT, 300),
 
-    // 内部用/未开放,
+    // 内部
+
     ID("主键", FieldType.PRIMARY, -1),
-    ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1),
     LOCATION("位置", FieldType.STRING, 70),
     STATE("状态", FieldType.SMALL_INT, -1),
+    ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1),
+    N2NREFERENCE("多引用", FieldType.REFERENCE_LIST, -1),
 
 	;
 	

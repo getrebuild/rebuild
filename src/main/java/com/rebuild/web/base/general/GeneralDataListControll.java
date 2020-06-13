@@ -50,7 +50,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			response.sendError(404);
 			return null;
 		}
-		
+
 		final Entity thatEntity = MetadataHelper.getEntity(entity);
 
 		if (!thatEntity.isQueryable()) {
@@ -62,7 +62,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			response.sendError(403, "你没有访问此实体的权限");
 			return null;
 		}
-		
+
 		ModelAndView mv;
 		if (thatEntity.getMasterEntity() != null) {
 			mv = createModelAndView("/general-entity/slave-list.jsp", entity, user);
@@ -70,7 +70,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
 		}
 		
-		JSON config = DataListManager.instance.getFieldsLayout(entity, getRequestUser(request));
+		JSON config = DataListManager.instance.getFieldsLayout(entity, user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 
 		// 列表相关权限

@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.portals.AdvFilterManager;
-import com.rebuild.server.configuration.portals.ChartManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
@@ -172,33 +171,38 @@ public class QueryParser {
 		
 		// 过滤器
 		
-		final StringBuilder sqlWhere = new StringBuilder("(1=1)");
+		List<String> wheres = new ArrayList<>();
 		
 		// Default
 		String defaultFilter = dataListControl == null ? null : dataListControl.getDefaultFilter();
 		if (StringUtils.isNotBlank(defaultFilter)) {
-			sqlWhere.append(" and (").append(defaultFilter).append(')');
+			wheres.add(defaultFilter);
+		}
+
+		// appends ProtocolFilter
+		String protocolFilter = queryExpr.getString("protocolFilter");
+		if (StringUtils.isNotBlank(protocolFilter)) {
+			String where = new ProtocolFilterParser(protocolFilter).toSqlWhere();
+			if (StringUtils.isNotBlank(where)) wheres.add(where);
 		}
 
 		// appends AdvFilter
 		String advFilter = queryExpr.getString("advFilter");
 		if (ID.isId(advFilter)) {
             String where = parseAdvFilter(ID.valueOf(advFilter));
-            if (StringUtils.isNotBlank(where)) {
-                sqlWhere.append(" and ").append(where);
-            }
+            if (StringUtils.isNotBlank(where)) wheres.add(where);
 		}
 
 		// appends Quick
 		JSONObject quickFilter = queryExpr.getJSONObject("filter");
 		if (quickFilter != null) {
 			String where = new AdvFilterParser(entity, quickFilter).toSqlWhere();
-			if (StringUtils.isNotBlank(where)) {
-				sqlWhere.append(" and ").append(where);
-			}
+			if (StringUtils.isNotBlank(where)) wheres.add(where);
 		}
+
+		final String sqlWhere = wheres.isEmpty() ? "1=1" : StringUtils.join(wheres.iterator(), " and ");
 		fullSql.append(" where ").append(sqlWhere);
-		
+
 		// 排序
 		
 		StringBuilder sqlSort = new StringBuilder(" order by ");
@@ -246,20 +250,11 @@ public class QueryParser {
      * @return
      */
 	private String parseAdvFilter(ID filterId) {
-	    // via Charts
-	    if (filterId.getEntityCode() == EntityHelper.ChartConfig) {
-            ConfigEntry chart = ChartManager.instance.getChart(filterId);
-            JSONObject filterExp = ((JSONObject) chart.getJSON("config")).getJSONObject("filter");
-            return new AdvFilterParser(entity, filterExp).toSqlWhere();
-        }
-
-	    // AdvFilter
         ConfigEntry advFilter = AdvFilterManager.instance.getAdvFilter(filterId);
         if (advFilter != null) {
             JSONObject filterExp = (JSONObject) advFilter.getJSON("filter");
             return new AdvFilterParser(entity, filterExp).toSqlWhere();
         }
-
         return null;
     }
 }

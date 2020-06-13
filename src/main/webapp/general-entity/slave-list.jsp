@@ -59,7 +59,7 @@
 											<div class="input-group-append"><button title="高级查询" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button></div>
 										</div>
 									</div>
-									<div class="input-group input-search">
+									<div class="input-group input-search float-left">
 										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>

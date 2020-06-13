@@ -587,6 +587,8 @@ div.dataTables_wrapper div.dataTables_filter {
     padding: 0 !important;
     height: 100%;
     width: 100%;
+    line-height: 1;
+    font-size: 0;
 }
 
 .modal-body.iframe iframe {
@@ -755,7 +757,7 @@ a {
     margin-right: 20px;
 }
 
-.rbform .select2-container--default .select2-selection--multiple::after,
+/* .rbform .select2-container--default .select2-selection--multiple::after,
 .type-REFERENCE .select2-container--default .select2-selection--single .select2-selection__arrow b:after {
     content: '\f1c3';
     font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
@@ -765,7 +767,7 @@ a {
     position: absolute;
     right: 8px;
     top: 9px;
-}
+} */
 
 .type-REFERENCE .select2-container--default .select2-selection--single .select2-selection__arrow b:after {
     right: 7px;
@@ -978,7 +980,7 @@ a {
 .datetime-field .clean {
     position: absolute;
     right: 45px;
-    top: 1px;
+    top: 0;
     font-size: 1rem;
     font-weight: 700;
     color: #404040;
@@ -3493,6 +3495,36 @@ a.icon-link>.zmdi {
 
 .ml-zero {
     margin-left: -15px;
+}
+
+.badge-border {
+    display: inline-block;
+    border-color: #fbbc05;
+    color: #fbbc05;
+    font-size: 1rem;
+    font-weight: normal;
+    padding: 3px 6px;
+    position: relative;
+    padding-right: 30px;
+    cursor: default;
+    overflow: hidden;
+}
+
+.badge-border .close {
+    position: absolute;
+    height: 100%;
+    width: 24px;
+    border-left: 1px solid #fbbc05;
+    top: 0;
+    right: 0;
+    padding-top: 3px;
+    opacity: 1;
+    text-shadow: none;
+}
+
+.badge-border:hover .close {
+    background-color: #fbbc05;
+    color: #fff !important;
 }
 
 /* text overflow */

@@ -71,7 +71,7 @@ public class ChartDataControll extends BaseControll {
         JSONObject config = (JSONObject) configEntry.getJSON("config");
         String sourceEntity = config.getString("entity");
 
-        String url = MessageFormat.format("../app/{0}/list?via={1}", sourceEntity, id);
+        String url = MessageFormat.format("../app/{0}/list#via={1}", sourceEntity, id);
         response.sendRedirect(url);
     }
 }

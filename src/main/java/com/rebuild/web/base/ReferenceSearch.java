@@ -12,9 +12,10 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
+import com.rebuild.server.configuration.portals.DataListManager;
+import com.rebuild.server.helper.datalist.ProtocolFilterParser;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -23,17 +24,18 @@ import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.web.BaseControll;
+import com.rebuild.web.BaseEntityControll;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -51,7 +53,7 @@ import java.util.Set;
  */
 @Controller
 @RequestMapping("/commons/search/")
-public class ReferenceSearch extends BaseControll {
+public class ReferenceSearch extends BaseEntityControll {
 	
 	// 快速搜索引用字段
 	@RequestMapping({ "reference", "quick" })
@@ -77,20 +79,13 @@ public class ReferenceSearch extends BaseControll {
 
 		// 引用字段数据过滤仅在搜索时有效
 		// 启用数据过滤后最近搜索将不可用
-		JSONObject advFilter = null;
-		String referenceDataFilter = EasyMeta.valueOf(referenceField).getExtraAttr("referenceDataFilter");
-		if (JSONUtils.wellFormat(referenceDataFilter)) {
-			advFilter = JSON.parseObject(referenceDataFilter);
-			if (advFilter.get("items") == null || advFilter.getJSONArray("items").isEmpty()) {
-				advFilter = null;
-			}
-		}
-		
+		final String protocolFilter = new ProtocolFilterParser(null).parseRef(field + "." + entity);
+
 		String q = getParameter(request, "q");
 		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
 			ID[] recently = null;
-			if (advFilter == null) {
+			if (protocolFilter == null) {
 				String type = getParameter(request, "type");
 				recently = Application.getRecentlyUsedCache().gets(user, referenceEntity.getName(), type);
 			}
@@ -127,11 +122,8 @@ public class ReferenceSearch extends BaseControll {
 
 		String like = " like '%" + q + "%'";
 		String searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
-		if (advFilter != null) {
-			String advFilterSql = new AdvFilterParser(advFilter).toSqlWhere();
-			if (advFilterSql != null) {
-				searchWhere = "(" + searchWhere + ") and " + advFilterSql;
-			}
+		if (protocolFilter != null) {
+			searchWhere = "(" + searchWhere + ") and (" + protocolFilter + ')';
 		}
 
 		String sql = MessageFormat.format("select {0},{1} from {2} where ( {3} )",
@@ -298,5 +290,36 @@ public class ReferenceSearch extends BaseControll {
 			result.add(FieldValueWrapper.wrapMixValue(recordId, label));
 		}
 		return result;
+	}
+
+	/**
+	 * @see com.rebuild.web.base.general.GeneralDataListControll#pageList(String, HttpServletRequest, HttpServletResponse)
+	 */
+	@RequestMapping("reference-search-list")
+	public ModelAndView pageListSearch(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String[] fieldAndEntity = getParameterNotNull(request,"field").split("\\.");
+		if (!MetadataHelper.checkAndWarnField(fieldAndEntity[1], fieldAndEntity[0])) {
+			response.sendError(404);
+			return null;
+		}
+
+		Entity entity = MetadataHelper.getEntity(fieldAndEntity[1]);
+		Field field = entity.getField(fieldAndEntity[0]);
+		Entity searchEntity = field.getReferenceEntity();
+
+		ModelAndView mv = createModelAndView("/general-entity/reference-search.jsp");
+		putEntityMeta(mv, searchEntity);
+
+		JSON config = DataListManager.instance.getFieldsLayout(searchEntity.getName(), getRequestUser(request));
+		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+
+		// 是否启用了字段过滤
+		String referenceDataFilter = EasyMeta.valueOf(field).getExtraAttr("referenceDataFilter");
+		if (referenceDataFilter != null && referenceDataFilter.length() > 10) {
+			mv.getModel().put("referenceFilter", "ref:" + getParameter(request, "field"));
+		} else {
+			mv.getModel().put("referenceFilter", StringUtils.EMPTY);
+		}
+		return mv;
 	}
 }
