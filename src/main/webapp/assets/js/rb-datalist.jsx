@@ -191,6 +191,7 @@ class RbList extends React.Component {
       pageSize: this.pageSize,
       filter: this.lastFilter,
       advFilter: this.advFilterId,
+      protocolFilter: wpc.protocolFilter,
       sort: fieldSort,
       reload: this.pageNo === 1
     }
@@ -751,12 +752,10 @@ const AdvFilters = {
   /**
    * @param {Element} el 控件
    * @param {String} entity 实体
-   * @param {ID} viaFilter 默认高级过滤 ID
    */
-  init(el, entity, viaFilter) {
+  init(el, entity) {
     this.__el = $(el)
     this.__entity = entity
-    this.__viaFilter = viaFilter
 
     this.__el.find('.J_advfilter').click(() => {
       this.showAdvFilter(null, this.current)
@@ -833,16 +832,8 @@ const AdvFilters = {
         $ghost.appendTo($('#asideFilters').empty())
       }
 
-      // 首次使用
-      if (that.__viaFilter) {
-        RbListPage._RbList.setAdvFilter(that.__viaFilter)
-        that.__viaFilter = null
-      }
-      else {
-        if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
-        $defaultFilter.trigger('click')
-      }
-
+      if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
+      $defaultFilter.trigger('click')
     })
   },
 
@@ -910,13 +901,22 @@ const AdvFilters = {
 
 // init: DataList
 $(document).ready(() => {
-  const gs = $urlp('gs', location.hash)
-  const viaFilter = $urlp('via')
+  const via = $urlp('via', location.hash)
+  if (via) {
+    wpc.protocolFilter = `via:${via}`
+    const $cleanVia = $('<div class="badge badge-border float-left ml-2 mt-1">当前数据已过滤<a class="close" title="查看全部数据">&times;</a></div>').appendTo('.dataTables_filter')
+    $cleanVia.find('a').click(() => {
+      wpc.protocolFilter = null
+      RbListPage.reload()
+      $cleanVia.remove()
+    })
+  }
 
+  const gs = $urlp('gs', location.hash)
   if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
   if (wpc.entity) {
     RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-    if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0], viaFilter)
+    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', wpc.entity[0])
   }
 })
 

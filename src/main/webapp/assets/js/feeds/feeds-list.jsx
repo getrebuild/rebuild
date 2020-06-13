@@ -419,9 +419,9 @@ function __renderRichContent(e) {
       }
       {e.type === 3 && <div>
         {contentMore.showWhere > 0 &&
-          <div><span>展示位置 : </span> {__findMaskTexts(contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
+          <div><span>公示位置 : </span> {__findMaskTexts(contentMore.showWhere, ANN_OPTIONS).join('、')}</div>}
         {(contentMore.timeStart || contentMore.timeEnd) &&
-          <div><span>展示时间 : </span> {contentMore.timeStart || ''} 至 {contentMore.timeEnd}</div>}
+          <div><span>公示时间 : </span> {contentMore.timeStart || ''} 至 {contentMore.timeEnd}</div>}
       </div>
       }
     </div>

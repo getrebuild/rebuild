@@ -22010,7 +22010,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
     right: 20px;
     font-size: 1.35rem;
-    top: -2px;
+    top: -1px;
     font-weight: normal;
 }
 

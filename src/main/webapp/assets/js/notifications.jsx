@@ -96,7 +96,7 @@ class MessageList extends React.Component {
     }, () => {
       $.get(`/notification/messages?type=${this.state.type}&pageNo=${this.state.page}`, (res) => {
         this.setState({ list: res.data || [] }, () => {
-          if (focusItem) setTimeout(() => $gotoSection($('.notification.focus').offset().top - 66), 200)
+          if (focusItem && $('.notification.focus').length > 0) setTimeout(() => $gotoSection($('.notification.focus').offset().top - 66), 200)
           focusItem = null
         })
       })

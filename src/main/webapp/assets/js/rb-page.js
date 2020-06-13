@@ -484,7 +484,8 @@ var $initReferenceSelect2 = function (el, field) {
       noResults: function () { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
       inputTooShort: function () { return '输入关键词搜索' },
       searching: function () { return '搜索中...' },
-      maximumSelected: function () { return '只能选择 1 项' }
+      maximumSelected: function () { return '只能选择 1 项' },
+      removeAllItems: function () { return '清除' }
     },
     theme: `default ${field.appendClass || ''}`
   })

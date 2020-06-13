@@ -53,7 +53,7 @@ public class ViewAddonsControll extends BaseControll implements PortalsConfigura
 		JSON config = ServletUtils.getRequestJson(request);
 		
 		ID configId = ViewAddonsManager.instance.detectUseConfig(user, entity, applyType);
-		Record record = null;
+		Record record;
 		if (configId == null) {
 			record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
 			record.setString("belongEntity", entity);

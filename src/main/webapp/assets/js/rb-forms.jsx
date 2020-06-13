@@ -20,13 +20,15 @@ class RbFormModal extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
-              {this.state.icon && (<span className={'icon zmdi zmdi-' + this.state.icon} />)}
+              {this.state.icon
+                && <span className={'icon zmdi zmdi-' + this.state.icon} />}
               <h3 className="modal-title">{this.state.title || '新建'}</h3>
-              {rb.isAdminUser ? <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a> : null}
+              {rb.isAdminUser
+                && <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>}
               <button className="close md-close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close"></span></button>
             </div>
             <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
-              {this.state.alertMessage && (<div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>)}
+              {this.state.alertMessage && <div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>}
               {this.state.formComponent}
               {this.state.inLoad && <RbSpinner />}
             </div>
@@ -67,10 +69,12 @@ class RbFormModal extends React.Component {
   }
 
   renderFromError(message) {
-    const error = <div className="alert alert-danger alert-icon mt-5 w-75 mlr-auto">
-      <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
-      <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
-    </div>
+    const error = (
+      <div className="alert alert-danger alert-icon mt-5 w-75 mlr-auto">
+        <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
+        <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
+      </div>
+    )
     this.setState({ formComponent: error }, () => this.setState({ inLoad: false }))
   }
 
@@ -832,7 +836,15 @@ class RbFormReference extends RbFormElement {
 
   renderElement() {
     if (this.props.readonly) return super.renderElement(this.props.value ? this.props.value.text : null)
-    return <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" />
+    // return <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" />
+    return (
+      <div className="input-group datetime-field">
+        <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" />
+        <div className="input-group-append">
+          <button className="btn btn-secondary" type="button" onClick={this.showSearch}><i className="icon zmdi zmdi-search" /></button>
+        </div>
+      </div>
+    )
   }
 
   renderViewElement() {
@@ -910,6 +922,24 @@ class RbFormReference extends RbFormElement {
       this.__select2.append(o)
       this.handleChange({ target: { value: val.id } }, true)
     } else this.__select2.val(null).trigger('change')
+  }
+
+  showSearch = () => {
+    const that = this
+    referenceSearch__call = function (selected) {
+      selected = selected[0]
+      $.get(`/commons/search/read-labels?ids=${selected}`, (res) => {
+        const o = new Option(res.data[selected], selected, true, true)
+        that.__select2.append(o).trigger('change')
+      })
+      that.__searcher.hide()
+    }
+
+    if (this.__searcher) this.__searcher.show()
+    else {
+      const searchUrl = `${rb.baseUrl}/commons/search/reference-search-list?field=${this.props.field}.${this.props.$$$parent.props.entity}`
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={`查询${this.props.label}`} />, function () { that.__searcher = this })
+    }
   }
 }
 
@@ -1314,6 +1344,34 @@ class ClassificationSelector extends React.Component {
   hide(dispose) {
     $(this._dlg).modal('hide')
     if (dispose === true) $unmount($(this._dlg).parent())
+  }
+}
+
+// see `reference-search.jsp`
+// eslint-disable-next-line no-unused-vars
+var referenceSearch__call = function (selected) {/* NOOP */ }
+class ReferenceSearcher extends RbModal {
+
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
+        <div className="modal-dialog" style={{ maxWidth: 1220 }}>
+          <div className="modal-content" style={{ maxWidth: 1220 }}>
+            <div className="modal-header modal-header-colored">
+              <h3 className="modal-title">{this.props.title || '查询'}</h3>
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body iframe">
+              <iframe src={this.props.url} frameBorder="0" style={{ height: 600, maxHeight: '100%' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 }
 
