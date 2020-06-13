@@ -974,8 +974,9 @@ class RbFormClassification extends RbFormElement {
     if (this.__selector) this.__selector.show()
     else {
       const p = this.props
+      const that = this
       renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />,
-        null, function () { this.__selector = this })
+        null, function () { that.__selector = this })
     }
   }
 

@@ -92,7 +92,7 @@ public class BatchUpdateControll extends BaseControll {
             // 不支持的字段
             if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
                     || dt == DisplayType.LOCATION || dt == DisplayType.SERIES || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.NTEXT) {
+                    || dt == DisplayType.NTEXT || dt == DisplayType.BARCODE || dt == DisplayType.N2NREFERENCE) {
                 continue;
             }
 
