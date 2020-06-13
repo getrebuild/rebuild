@@ -928,10 +928,14 @@ class RbFormReference extends RbFormElement {
     const that = this
     referenceSearch__call = function (selected) {
       selected = selected[0]
-      $.get(`/commons/search/read-labels?ids=${selected}`, (res) => {
-        const o = new Option(res.data[selected], selected, true, true)
-        that.__select2.append(o).trigger('change')
-      })
+      if ($(that._fieldValue).find(`option[value="${selected}"]`).length > 0) {
+        that.__select2.val(selected).trigger('change')
+      } else {
+        $.get(`/commons/search/read-labels?ids=${selected}`, (res) => {
+          const o = new Option(res.data[selected], selected, true, true)
+          that.__select2.append(o).trigger('change')
+        })
+      }
       that.__searcher.hide()
     }
 
@@ -1112,7 +1116,7 @@ class RbFormBarcode extends RbFormElement {
   }
 
   renderViewElement() {
-    if (!this.state.value) return null
+    if (!this.state.value) return super.renderViewElement()
     const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(this.state.value)}`
     return <div className="img-field barcode"><a className="img-thumbnail" title={this.state.value}><img src={codeUrl} alt={this.state.value} /></a></div>
   }
@@ -1366,7 +1370,7 @@ class ReferenceSearcher extends RbModal {
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body iframe">
-              <iframe src={this.props.url} frameBorder="0" style={{ height: 600, maxHeight: '100%' }} />
+              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 430, maxHeight: '100%' }} />
             </div>
           </div>
         </div>
