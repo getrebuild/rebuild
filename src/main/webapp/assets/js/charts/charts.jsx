@@ -240,7 +240,7 @@ const shortNumber = function (num) {
 }
 
 const formatThousands = function (num) {
-  if (~~num < 1000) return num
+  if (Math.abs(~~num) < 1000) return num
   const nums = (num + '').split('.')
   nums[0] = nums[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
   return nums.join('.')
