@@ -18,6 +18,7 @@ class BaseChart extends React.Component {
       <div className="chart-oper">
         {!this.props.builtin && <a title="查看来源数据" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
+        <a onClick={() => this.toggleFullscreen()}><i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} /></a>
         {this.props.editable && (
           <React.Fragment>
             {!this.props.builtin && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
@@ -28,7 +29,7 @@ class BaseChart extends React.Component {
     )
 
     return (
-      <div className={'chart-box ' + this.props.type} ref={(c) => this._box = c}>
+      <div className={`chart-box ${this.props.type}`} ref={(c) => this._box = c}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opers}
@@ -63,6 +64,23 @@ class BaseChart extends React.Component {
     if (this.__echarts) {
       $setTimeout(() => this.__echarts.resize(), 400, 'resize-chart-' + this.state.id)
     }
+  }
+
+  toggleFullscreen() {
+    this.setState({ fullscreen: !this.state.fullscreen }, () => {
+      const $box = $(this._box).parents('.grid-stack-item')
+      const $stack = $('.chart-grid>.grid-stack')
+      const wh = $(window).height() - ($(document.body).hasClass('fullscreen') ? 80 : 140)
+      if (this.state.fullscreen) {
+        this.__chartStackHeight = $stack.height()
+        $stack.css({ height: wh, overflow: 'hidden' })
+        $box.addClass('fullscreen')
+      } else {
+        $stack.css({ height: this.__chartStackHeight, overflow: 'unset' })
+        $box.removeClass('fullscreen')
+      }
+      this.resize()
+    })
   }
 
   remove() {

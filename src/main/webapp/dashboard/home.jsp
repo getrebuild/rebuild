@@ -33,9 +33,22 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-sm-6 text-right d-none d-md-block">
-						<div class="btn-group" style="margin-top:7px;margin-right:3px">
-							<button type="button" class="btn btn-link pr-0 text-right J_chart-adds" data-toggle="dropdown" style="min-height:24px;line-height:24px;"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
+					<div class="col-sm-6 text-right d-none d-md-block dash-right">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-link pr-0 text-right J_dash-fullscreen" title="全屏模式"><i class="zmdi zmdi-fullscreen icon up-1" style="font-size:1.45rem"></i></button>
+                        </div>
+                        <div class="btn-group J_dash-refresh">
+                            <button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown"><i class="zmdi zmdi-time-countdown icon"></i> <span>自动刷新</span></button>
+                            <div class="dropdown-menu dropdown-menu-right" style="min-width:140px">
+                                <a class="dropdown-item" data-time="30">30秒</a>
+                                <a class="dropdown-item" data-time="60">1分钟</a>
+                                <a class="dropdown-item" data-time="300">5分钟</a>
+                                <a class="dropdown-item" data-time="600">10分钟</a>
+                                <a class="dropdown-item" data-time="1800">30分钟</a>
+                            </div>
+                        </div>
+						<div class="btn-group">
+							<button type="button" class="btn btn-link pr-0 text-right J_chart-adds" data-toggle="dropdown"><i class="zmdi zmdi-plus icon"></i> 添加图表</button>
 							<div class="dropdown-menu dropdown-menu-right">
 								<a class="dropdown-item J_chart-new">添加新图表</a>
 								<a class="dropdown-item J_chart-select">从已有图表中添加</a>
