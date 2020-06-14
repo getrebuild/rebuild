@@ -478,7 +478,8 @@ div.dataTables_wrapper div.dataTables_filter {
     padding-top: 5px;
 }
 
-.adv-search {
+.adv-search,
+.input-search {
     margin-right: 5px;
 }
 
