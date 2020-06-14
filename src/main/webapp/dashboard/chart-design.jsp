@@ -101,6 +101,12 @@
                                 <span class="custom-control-label"> 显示参考线</span>
                             </label>
                         </div>
+                        <div class="hide J_opt-LINE J_opt-BAR J_opt-PIE J_opt-FUNNEL J_opt-RADAR J_opt-SCATTER">
+                            <label class="custom-control custom-control-sm custom-checkbox mb-2">
+                                <input class="custom-control-input" type="checkbox" data-name="showLegend">
+                                <span class="custom-control-label"> 显示图例</span>
+                            </label>
+                        </div>
 					</div>
 				</div>
 			</div>
