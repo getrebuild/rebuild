@@ -65,7 +65,7 @@ public class ProtocolFilterParser {
             ConfigEntry chart = ChartManager.instance.getChart(anyId);
             if (chart == null) return null;
             JSONObject filterExp = ((JSONObject) chart.getJSON("config")).getJSONObject("filter");
-            return new AdvFilterParser(filterExp).toSqlWhere();
+            return filterExp == null ? null : new AdvFilterParser(filterExp).toSqlWhere();
         }
 
         return null;

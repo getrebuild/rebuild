@@ -69,18 +69,17 @@ public class UsersGetting extends BaseControll {
 			}
 
 			String name = m.getName();
-			String email = null;
 
 			final User ifUser = m instanceof User ? (User) m : null;
 			if (ifUser != null) {
-				if (!ifUser.isActive()) continue;
-				name = ifUser.getFullName();
-				email = ifUser.getEmail();
+			    if (!ifUser.isActive()) continue;
+			    name = ifUser.getFullName();
 			}
 
 			if (StringUtils.isBlank(query)
                     || StringUtils.containsIgnoreCase(name, query)
-                    || (email != null && StringUtils.containsIgnoreCase(email, query))) {
+                    || (ifUser != null && StringUtils.containsIgnoreCase(ifUser.getName(), query))
+                    || (ifUser != null && ifUser.getEmail() != null && StringUtils.containsIgnoreCase(ifUser.getEmail(), query))) {
 				JSONObject o = JSONUtils.toJSONObject(new String[] { "id", "text" },
 						new String[] { m.getIdentity().toString(), name });
 				ret.add(o);

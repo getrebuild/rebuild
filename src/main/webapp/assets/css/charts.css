@@ -69,6 +69,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box .chart-head .chart-oper a .zmdi-close {
+	font-size: 1.45rem;
+}
+
+.chart-box .chart-head .chart-oper a .zmdi-fullscreen,
+.chart-box .chart-head .chart-oper a .zmdi-fullscreen-exit {
 	font-size: 1.43rem;
 }
 
@@ -326,34 +331,70 @@ See LICENSE and COMMERCIAL in the project root for license information.
 	height: 32px;
 	display: inline-block;
 	margin-top: 7px;
-	background: url(../img/charts-sprite-1.2.svg) 0 0 no-repeat;
-	background-position: -467px -1242px;
+	background: url(../img/charts-sprite.svg?v=1.10) no-repeat -1092px -1410px;
 }
 
 .chart-list>div .chart-icon>i.TABLE {
-	background-position: -832px -1520px;
+	background-position: -1180px -1464px;
 }
 
 .chart-list>div .chart-icon>i.INDEX {
-	background-position: -813px -1238px;
+	background-position: -170px -1288px;
 }
 
 .chart-list>div .chart-icon>i.LINE {
-	background-position: -1144px -1456px;
+	background-position: -1106px -1326px;
 }
 
 .chart-list>div .chart-icon>i.BAR {
-	background-position: -64px -1520px;
+	background-position: -1501px -1406px;
 }
 
 .chart-list>div .chart-icon>i.PIE {
-	background-position: -1016px -1456px;
+	background-position: -978px -1326px;
 }
 
 .chart-list>div .chart-icon>i.FUNNEL {
-	background-position: -768px -871px;
+	background-position: -709px -387px;
 }
 
 .chart-list>div .chart-icon>i.TREEMAP {
-	background-position: -864px -1520px;
+	background-position: -1020px -1464px;
+}
+
+.chart-list>div .chart-icon>i.RADAR {
+	background-position: -362px -1288px;
+}
+
+.chart-list>div .chart-icon>i.SCATTER {
+	background-position: -650px -1288px;
+}
+
+.chart-list>div .chart-icon>i.BARNEGATIVE {
+	background-position: -1290px -1288px;
+}
+
+.chart-list>div .chart-icon>i.DOLOR {
+	background-position: -956px -1464px;
+}
+
+.chart-list>div .chart-icon>i.CNMAP {
+	background-position: -938px -1288px;
+}
+
+.chart-list>div .chart-icon>i.SUNBURST {
+	background-position: -1372px -1464px;
+}
+
+.grid-stack-item.fullscreen {
+	position: absolute;
+	top: 0 !important;
+	left: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	z-index: 99;
+}
+
+.grid-stack-item.fullscreen .ui-resizable-handle {
+	display: none !important;
 }

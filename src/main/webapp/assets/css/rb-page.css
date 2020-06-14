@@ -478,7 +478,8 @@ div.dataTables_wrapper div.dataTables_filter {
     padding-top: 5px;
 }
 
-.adv-search {
+.adv-search,
+.input-search {
     margin-right: 5px;
 }
 
@@ -2262,7 +2263,8 @@ form {
     border-top: 1px solid #f2f2f2;
 }
 
-.user-selector .select2-results__option:hover {
+.user-selector .select2-results__option:hover,
+.user-selector .select2-results__option.active {
     background-color: #4285f4;
     color: #fff;
     cursor: pointer;
@@ -3517,9 +3519,10 @@ a.icon-link>.zmdi {
     border-left: 1px solid #fbbc05;
     top: 0;
     right: 0;
-    padding-top: 3px;
+    padding-top: 2px;
     opacity: 1;
     text-shadow: none;
+    font-weight: normal;
 }
 
 .badge-border:hover .close {

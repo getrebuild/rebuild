@@ -18,6 +18,7 @@ class BaseChart extends React.Component {
       <div className="chart-oper">
         {!this.props.builtin && <a title="查看来源数据" href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}><i className="zmdi zmdi-rss" /></a>}
         <a onClick={() => this.loadChartData()}><i className="zmdi zmdi-refresh" /></a>
+        <a onClick={() => this.toggleFullscreen()}><i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} /></a>
         {this.props.editable && (
           <React.Fragment>
             {!this.props.builtin && <a className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}><i className="zmdi zmdi-edit" /></a>}
@@ -28,7 +29,7 @@ class BaseChart extends React.Component {
     )
 
     return (
-      <div className={'chart-box ' + this.props.type} ref={(c) => this._box = c}>
+      <div className={`chart-box ${this.props.type}`} ref={(c) => this._box = c}>
         <div className="chart-head">
           <div className="chart-title text-truncate">{this.state.title}</div>
           {opers}
@@ -63,6 +64,23 @@ class BaseChart extends React.Component {
     if (this.__echarts) {
       $setTimeout(() => this.__echarts.resize(), 400, 'resize-chart-' + this.state.id)
     }
+  }
+
+  toggleFullscreen() {
+    this.setState({ fullscreen: !this.state.fullscreen }, () => {
+      const $box = $(this._box).parents('.grid-stack-item')
+      const $stack = $('.chart-grid>.grid-stack')
+      const wh = $(window).height() - ($(document.body).hasClass('fullscreen') ? 80 : 140)
+      if (this.state.fullscreen) {
+        this.__chartStackHeight = $stack.height()
+        $stack.css({ height: wh, overflow: 'hidden' })
+        $box.addClass('fullscreen')
+      } else {
+        $stack.css({ height: this.__chartStackHeight, overflow: 'unset' })
+        $box.removeClass('fullscreen')
+      }
+      this.resize()
+    })
   }
 
   remove() {
@@ -215,6 +233,25 @@ const ECHART_RENDER_OPT = {
   renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas'
 }
 
+// 横排
+const ECHART_LEGEND_HOPT = {
+  type: 'plain',
+  orient: 'horizontal',
+  top: 10,
+  right: 0,
+  padding: 0,
+  textStyle: { fontSize: 12 }
+}
+// 竖排
+const ECHART_LEGEND_VOPT = {
+  type: 'scroll',
+  orient: 'vertical',
+  top: 10,
+  right: 0,
+  padding: 0,
+  textStyle: { fontSize: 12 }
+}
+
 const shortNumber = function (num) {
   if (num > 1000000 || num < -1000000) return (num / 1000000).toFixed(0) + 'W'
   else if (num > 10000 || num < -10000) return (num / 1000).toFixed(0) + 'K'
@@ -222,7 +259,7 @@ const shortNumber = function (num) {
 }
 
 const formatThousands = function (num) {
-  if (~~num < 1000) return num
+  if (Math.abs(~~num) < 1000) return num
   const nums = (num + '').split('.')
   nums[0] = nums[0].replace(/\d{1,3}(?=(\d{3})+$)/g, '$&,')
   return nums.join('.')
@@ -248,6 +285,7 @@ class ChartLine extends BaseChart {
     this.setState({ chartdata: (<div className="chart line" id={elid}></div>) }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
+      const showLegend = data._renderOption && data._renderOption.showLegend
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -288,6 +326,10 @@ class ChartLine extends BaseChart {
       }
       opt.tooltip.trigger = 'axis'
       opt.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      if (showLegend) {
+        opt.legend = ECHART_LEGEND_HOPT
+        opt.grid.top = 40
+      }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
@@ -311,6 +353,7 @@ class ChartBar extends BaseChart {
     this.setState({ chartdata: (<div className="chart bar" id={elid}></div>) }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
+      const showLegend = data._renderOption && data._renderOption.showLegend
 
       for (let i = 0; i < data.yyyAxis.length; i++) {
         const yAxis = data.yyyAxis[i]
@@ -345,6 +388,10 @@ class ChartBar extends BaseChart {
       }
       opt.tooltip.trigger = 'axis'
       opt.tooltip.formatter = ECHART_TOOLTIP_FORMATTER
+      if (showLegend) {
+        opt.legend = ECHART_LEGEND_HOPT
+        opt.grid.top = 40
+      }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
@@ -370,6 +417,7 @@ class ChartPie extends BaseChart {
     const elid = 'echarts-pie-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart pie" id={elid}></div>) }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
+      const showLegend = data._renderOption && data._renderOption.showLegend
 
       data = { ...data, type: 'pie', radius: '71%', cursor: 'default' }
       if (showNumerical) {
@@ -388,6 +436,7 @@ class ChartPie extends BaseChart {
       opt.tooltip.formatter = function (i) {
         return `<b>${i.data.name}</b> <br/> ${i.marker} ${i.seriesName} : ${formatThousands(i.data.value)} (${i.percent}%)`
       }
+      if (showLegend) opt.legend = ECHART_LEGEND_VOPT
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
@@ -410,6 +459,7 @@ class ChartFunnel extends BaseChart {
     const elid = 'echarts-funnel-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart funnel" id={elid}></div>) }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
+      const showLegend = data._renderOption && data._renderOption.showLegend
 
       const opt = {
         ...cloneOption(ECHART_BASE),
@@ -435,6 +485,7 @@ class ChartFunnel extends BaseChart {
         if (data.xLabel) return `<b>${i.name}</b> <br/> ${i.marker} ${data.xLabel} : ${formatThousands(i.value)}`
         else return `<b>${i.name}</b> <br/> ${i.marker} ${formatThousands(i.value)}`
       }
+      if (showLegend) opt.legend = ECHART_LEGEND_VOPT
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
@@ -709,6 +760,7 @@ class ChartRadar extends BaseChart {
     const elid = 'echarts-radar-' + (this.state.id || 'id')
     this.setState({ chartdata: (<div className="chart radar" id={elid}></div>) }, () => {
       const showNumerical = data._renderOption && data._renderOption.showNumerical
+      const showLegend = data._renderOption && data._renderOption.showLegend
 
       const opt = {
         ...cloneOption(ECHART_BASE),
@@ -763,6 +815,7 @@ class ChartRadar extends BaseChart {
         })
         return tooltip.join('<br/>')
       }
+      if (showLegend) opt.legend = ECHART_LEGEND_VOPT
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)
       c.setOption(opt)
@@ -786,6 +839,7 @@ class ChartScatter extends BaseChart {
     this.setState({ chartdata: (<div className="chart scatter" id={elid}></div>) }, () => {
       const showGrid = data._renderOption && data._renderOption.showGrid
       const showNumerical = data._renderOption && data._renderOption.showNumerical
+      const showLegend = data._renderOption && data._renderOption.showLegend
 
       const axisOption = {
         splitLine: {
@@ -851,6 +905,10 @@ class ChartScatter extends BaseChart {
         tooltip.push(`${data.dataLabel[1]} : ${formatThousands(a.value[1])}`)
         tooltip.push(`${data.dataLabel[0]} : ${formatThousands(a.value[0])}`)
         return tooltip.join('<br>')
+      }
+      if (showLegend) {
+        opt.legend = ECHART_LEGEND_HOPT
+        opt.grid.top = 40
       }
 
       const c = echarts.init(document.getElementById(elid), 'light', ECHART_RENDER_OPT)

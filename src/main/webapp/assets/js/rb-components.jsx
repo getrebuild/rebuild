@@ -395,11 +395,12 @@ class UserSelector extends React.Component {
         <span className={`dropdown-wrapper ${this.state.dropdownOpen === false ? 'hide' : ''}`}>
           <div className="selector-search">
             <div>
-              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
+              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''}
+                ref={(c) => this._searchInput = c} onChange={(e) => this.searchItems(e)} onKeyDown={(e) => this._keyEvent(e)} />
             </div>
           </div>
           <div className="tab-container m-0">
-            <ul className="nav nav-tabs nav-tabs-classic">
+            <ul className={`nav nav-tabs nav-tabs-classic ${this.tabTypes.length < 2 ? 'hide' : ''}`}>
               {this.tabTypes.map((item) => {
                 return <li className="nav-item" key={`t-${item[0]}`}><a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a></li>
               })}
@@ -452,7 +453,7 @@ class UserSelector extends React.Component {
 
   openDropdown = (e) => {
     this.setState({ dropdownOpen: true }, () => {
-      $(this._searchInput).focus()
+      this._searchInput.focus()
       if (!this.state.tabType) this.switchTab('User')
     })
   }
@@ -498,6 +499,29 @@ class UserSelector extends React.Component {
 
   containsItem(id) {
     return !!this.state.selected.find((x) => { return x.id === id })
+  }
+
+  _keyEvent(e) {
+    // if (e.keyCode === 40) {
+    //   const $next = this._$foucsedItem ? this._$foucsedItem.next() : $(this._scroller).find('li:eq(0)')
+    //   if ($next.length > 0) {
+    //     this._$foucsedItem && this._$foucsedItem.removeClass('active')
+    //     $next.addClass('active')
+    //     this._$foucsedItem = $next
+    //   }
+
+    // } else if (e.keyCode === 38 && this._$foucsedItem) {
+    //   const $prev = this._$foucsedItem.prev()
+    //   if ($prev && $prev.length > 0) {
+    //     this._$foucsedItem.removeClass('active')
+    //     $prev.addClass('active')
+    //     this._$foucsedItem = $prev
+    //   }
+
+    // } else if (e.keyCode === 13 && this._$foucsedItem) {
+    //   this._$foucsedItem.trigger('click')
+    //   $stopEvent(e)
+    // }
   }
 
   getSelected() {

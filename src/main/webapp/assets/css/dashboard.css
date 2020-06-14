@@ -152,3 +152,31 @@
 .shareTo--wrap .custom-control {
     margin-top: 0;
 }
+
+.dash-right .btn-group {
+    margin-top: 7px;
+    margin-right: 3px
+}
+
+.dash-right .btn-group>.btn {
+    min-height: 24px;
+    line-height: 24px;
+    min-width: 0;
+}
+
+body.fullscreen .rb-wrapper {
+    padding: 0 !important;
+}
+
+body.fullscreen .rb-wrapper>.rb-top-header,
+body.fullscreen .rb-wrapper>.rb-left-sidebar {
+    display: none !important;
+}
+
+body.fullscreen .rb-wrapper>.rb-content {
+    margin-left: 0 !important;
+}
+
+body.fullscreen .J_dash-fullscreen .zmdi-fullscreen::before {
+    content: '\f16c';
+}
