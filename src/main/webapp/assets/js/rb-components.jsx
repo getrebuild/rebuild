@@ -502,7 +502,26 @@ class UserSelector extends React.Component {
   }
 
   _keyEvent(e) {
-    // TODO
+    // if (e.keyCode === 40) {
+    //   const $next = this._$foucsedItem ? this._$foucsedItem.next() : $(this._scroller).find('li:eq(0)')
+    //   if ($next.length > 0) {
+    //     this._$foucsedItem && this._$foucsedItem.removeClass('active')
+    //     $next.addClass('active')
+    //     this._$foucsedItem = $next
+    //   }
+
+    // } else if (e.keyCode === 38 && this._$foucsedItem) {
+    //   const $prev = this._$foucsedItem.prev()
+    //   if ($prev && $prev.length > 0) {
+    //     this._$foucsedItem.removeClass('active')
+    //     $prev.addClass('active')
+    //     this._$foucsedItem = $prev
+    //   }
+
+    // } else if (e.keyCode === 13 && this._$foucsedItem) {
+    //   this._$foucsedItem.trigger('click')
+    //   $stopEvent(e)
+    // }
   }
 
   getSelected() {

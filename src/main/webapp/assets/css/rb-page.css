@@ -2263,7 +2263,8 @@ form {
     border-top: 1px solid #f2f2f2;
 }
 
-.user-selector .select2-results__option:hover {
+.user-selector .select2-results__option:hover,
+.user-selector .select2-results__option.active {
     background-color: #4285f4;
     color: #fff;
     cursor: pointer;
