@@ -84,10 +84,7 @@ public class Axis {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Axis axis = (Axis) o;
-        return field.equals(axis.field) &&
-                calc == axis.calc &&
-                Objects.equals(parentField, axis.parentField);
+        return o.hashCode() == hashCode();
     }
 
     @Override
