@@ -48,7 +48,7 @@
 							</div>
 							<div class="col-12 col-lg-7">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
+									<button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> 新建${entityLabel}</button>
 										<button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>

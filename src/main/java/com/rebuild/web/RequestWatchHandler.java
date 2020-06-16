@@ -82,7 +82,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
             // for Language
             Application.getSessionStore().setLocale(AppUtils.getLocale(request));
             // Last active
-            Application.getSessionStore().storeLastActive(request);
+			if (!(isIgnoreActive(requestUrl) || ServletUtils.isAjaxRequest(request))) {
+				Application.getSessionStore().storeLastActive(request);
+			}
         }
 
 		boolean chain = super.preHandle(request, response, handler);
@@ -217,6 +219,14 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
                 || reqUrl.startsWith("/commons/barcode/render");
 	}
 
+	/**
+	 * @param reqUrl
+	 * @return
+	 */
+	private static boolean isIgnoreActive(String reqUrl) {
+		return reqUrl.contains("/language/") || reqUrl.contains("/user-avatar");
+	}
+
     /**
      * 是否特定缓存策略
      *
@@ -229,4 +239,6 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
                 || reqUrl.startsWith("/language/")
 				|| reqUrl.startsWith("/commons/barcode/");
     }
+
+
 }
