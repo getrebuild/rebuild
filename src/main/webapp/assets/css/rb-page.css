@@ -1176,13 +1176,13 @@ a {
 .data-list .table thead th>div>i.dividing {
     width: 10px;
     border-right: 2px dotted #aaa;
-    cursor: e-resize;
+    cursor: col-resize;
 }
 
 i.dividing.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
-    z-index: 7;
-    cursor: e-resize;
+    z-index: 8;
+    cursor: col-resize;
 }
 
 .data-list .table thead th>div>i.zmdi {
