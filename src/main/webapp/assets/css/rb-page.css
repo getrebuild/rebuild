@@ -3002,26 +3002,26 @@ form {
     cursor: text;
 }
 
-.repeated-table {
+.dialog-table {
     margin-bottom: 0;
     margin-top: -16px;
 }
 
-.repeated-table th {
+.dialog-table th {
     border-top: 0 none;
     font-weight: normal !important;
     color: #878787;
 }
 
-.repeated-table td.actions .icon {
+.dialog-table td.actions .icon {
     font-size: 1.28rem !important;
 }
 
-.repeated-table td.actions .icon:hover {
+.dialog-table td.actions .icon:hover {
     color: #4c8bf5 !important;
 }
 
-.repeated-table tr:last-child td {
+.dialog-table tr:last-child td {
     border-bottom: 1px solid #dee2e6;
 }
 
