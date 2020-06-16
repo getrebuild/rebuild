@@ -129,6 +129,17 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 		Object loginUser = s.getAttribute(WebUtils.CURRENT_USER);
 		Assert.notNull(loginUser, "No login user found in session!");
 
+		if (!SysConfiguration.getBool(ConfigurableItem.MultipleSessions)) {
+			HttpSession previous = getSession((ID) loginUser);
+			if (previous != null) {
+				LOG.warn("Kill previous session : " + loginUser + " < " + previous.getId());
+				try {
+					previous.invalidate();
+				} catch (Exception ignored) {
+				}
+			}
+		}
+
 		ONLINE_SESSIONS.remove(s);
 		ONLINE_USERS.put((ID) loginUser, s);
 	}
