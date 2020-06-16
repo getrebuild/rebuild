@@ -45,7 +45,7 @@ $(document).ready(function () {
       value = $val('.J_menuUrl')
       if (!value) {
         RbHighbar.create('请输入 URL'); return
-      } else if (!!value && !$regex.isUrl(value)) {
+      } else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) {
         RbHighbar.create('请输入有效的 URL')
         return
       }
