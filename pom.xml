@@ -31,7 +31,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <skipTests>true</skipTests>
-        <spring.version>4.3.26.RELEASE</spring.version>
+        <spring.version>4.3.27.RELEASE</spring.version>
     </properties>
 
     <build>
@@ -139,7 +139,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>momentjava</artifactId>
-            <version>91f4df2081</version>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.devezhao</groupId>
@@ -149,7 +149,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>commons</artifactId>
-            <version>1.1.7</version>
+            <version>1.2.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -160,7 +160,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1beaf8f565</version>
+            <version>1.4.2</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
