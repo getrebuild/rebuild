@@ -1363,8 +1363,8 @@ class ReferenceSearcher extends RbModal {
   render() {
     return (
       <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
-        <div className="modal-dialog" style={{ maxWidth: 1220 }}>
-          <div className="modal-content" style={{ maxWidth: 1220 }}>
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || '查询'}</h3>
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>

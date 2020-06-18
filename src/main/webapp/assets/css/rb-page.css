@@ -545,6 +545,11 @@ div.dataTables_wrapper div.dataTables_filter {
     margin-left: 280px;
 }
 
+.modal-lg,
+.modal-lg .modal-content {
+    max-width: 1000px;
+}
+
 .modal-header .close+.close {
     margin-left: 6px;
 }
