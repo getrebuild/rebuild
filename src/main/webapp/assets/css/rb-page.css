@@ -1557,7 +1557,7 @@ th.column-fixed {
     display: inline-block;
     padding: 7px 3px;
     margin-right: 3px;
-    color: #666;
+    color: #a1a1a1;
 }
 
 .sortable-box .dd-list .dd3-action a .zmdi {
@@ -1566,7 +1566,7 @@ th.column-fixed {
 }
 
 .sortable-box .dd-list .dd3-action a:hover .zmdi {
-    color: #4285f4;
+    color: gray;
 }
 
 .sortable-box .dd-list .dd3-item:hover>.dd3-action,

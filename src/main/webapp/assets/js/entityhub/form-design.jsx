@@ -25,7 +25,7 @@ $(document).ready(function () {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
       } else if (!field) {
         const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] 字段已被删除</span></div></div>`).appendTo('.form-preview')
-        const $action = $('<div class="dd-action"><a>[移除]</a></div>').appendTo($item.find('.dd-handle'))
+        const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
         $action.find('a').click(function () {
           $item.remove()
           check_empty()
@@ -122,9 +122,8 @@ const render_item = function (data) {
   const action = $('<div class="dd-action"></div>').appendTo(handle)
   if (data.displayType) {
     $('<span class="ft">' + data.displayType + '</span>').appendTo(item)
-    $('<a class="rowspan" title="双列">[双]</a>').appendTo(action).click(function () { item.removeClass('w-100') })
-    $('<a class="rowspan" title="单列">[单]</a>').appendTo(action).click(function () { item.addClass('w-100') })
-    $('<a title="修改属性">[属性]</a>').appendTo(action).click(function () {
+    $('<a class="rowspan mr-1" title="单列/双列"><i class="zmdi zmdi-unfold-more"></i></a>').appendTo(action).click(function () { item.toggleClass('w-100') })
+    $('<a title="修改属性"><i class="zmdi zmdi-edit"></i></a>').appendTo(action).click(function () {
       let call = function (nv) {
         // 字段名
         if (nv.fieldLabel) item.find('.dd-handle>span').text(nv.fieldLabel)
@@ -143,7 +142,7 @@ const render_item = function (data) {
       renderRbcomp(<DlgEditField call={call} {...ov} />)
     })
 
-    $('<a>[移除]</a>').appendTo(action).click(function () {
+    $('<a><i class="zmdi zmdi-close"></i></a>').appendTo(action).click(function () {
       render_unset(data)
       item.remove()
       check_empty()
@@ -152,7 +151,7 @@ const render_item = function (data) {
 
   if (data.fieldName === DIVIDER_LINE) {
     item.addClass('divider')
-    $('<a title="修改属性">[属性]</a>').appendTo(action).click(function () {
+    $('<a title="修改属性"><i class="zmdi zmdi-edit"></i></a>').appendTo(action).click(function () {
       const call = function (nv) {
         item.find('.dd-handle span').text(nv.dividerName || '')
       }
@@ -160,7 +159,7 @@ const render_item = function (data) {
       renderRbcomp(<DlgEditDivider call={call} dividerName={ov || ''} />)
     })
 
-    $('<a>[移除]</a>').appendTo(action).click(function () {
+    $('<a><i class="zmdi zmdi-close"></i></a>').appendTo(action).click(function () {
       item.remove()
       check_empty()
     })

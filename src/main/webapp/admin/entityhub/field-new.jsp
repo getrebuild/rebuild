@@ -78,7 +78,7 @@
 				</label>
 				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
 					<input class="custom-control-input" type="checkbox" id="add2Layout" checked>
-					<span class="custom-control-label"> 追加到布局</span>
+					<span class="custom-control-label"> 追加到当前布局</span>
 				</label>
 			</div>
 		</div>
