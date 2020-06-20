@@ -545,6 +545,11 @@ div.dataTables_wrapper div.dataTables_filter {
     margin-left: 280px;
 }
 
+.modal-lg,
+.modal-lg .modal-content {
+    max-width: 1000px;
+}
+
 .modal-header .close+.close {
     margin-left: 6px;
 }
@@ -1176,13 +1181,13 @@ a {
 .data-list .table thead th>div>i.dividing {
     width: 10px;
     border-right: 2px dotted #aaa;
-    cursor: e-resize;
+    cursor: col-resize;
 }
 
 i.dividing.ui-draggable-dragging {
     border-right-color: #4285f4 !important;
-    z-index: 7;
-    cursor: e-resize;
+    z-index: 8;
+    cursor: col-resize;
 }
 
 .data-list .table thead th>div>i.zmdi {
@@ -1552,7 +1557,7 @@ th.column-fixed {
     display: inline-block;
     padding: 7px 3px;
     margin-right: 3px;
-    color: #666;
+    color: #a1a1a1;
 }
 
 .sortable-box .dd-list .dd3-action a .zmdi {
@@ -1561,7 +1566,7 @@ th.column-fixed {
 }
 
 .sortable-box .dd-list .dd3-action a:hover .zmdi {
-    color: #4285f4;
+    color: gray;
 }
 
 .sortable-box .dd-list .dd3-item:hover>.dd3-action,
@@ -3002,26 +3007,26 @@ form {
     cursor: text;
 }
 
-.repeated-table {
+.dialog-table {
     margin-bottom: 0;
     margin-top: -16px;
 }
 
-.repeated-table th {
+.dialog-table th {
     border-top: 0 none;
     font-weight: normal !important;
     color: #878787;
 }
 
-.repeated-table td.actions .icon {
+.dialog-table td.actions .icon {
     font-size: 1.28rem !important;
 }
 
-.repeated-table td.actions .icon:hover {
+.dialog-table td.actions .icon:hover {
     color: #4c8bf5 !important;
 }
 
-.repeated-table tr:last-child td {
+.dialog-table tr:last-child td {
     border-bottom: 1px solid #dee2e6;
 }
 

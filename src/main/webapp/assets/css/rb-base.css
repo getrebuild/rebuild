@@ -6469,16 +6469,6 @@ button.close {
     .modal-dialog-centered {
         min-height: calc(100% - (1.75rem * 2))
     }
-
-    .modal-sm {
-        max-width: 300px
-    }
-}
-
-@media (min-width:992px) {
-    .modal-lg {
-        max-width: 700px
-    }
 }
 
 .tooltip {

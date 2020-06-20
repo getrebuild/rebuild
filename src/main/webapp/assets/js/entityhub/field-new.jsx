@@ -65,6 +65,7 @@ $(document).ready(function () {
   $('#type').change(function () {
     parent.RbModal.resize()
 
+    $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     const dt = $(this).val()
     $('.J_dt-' + dt).removeClass('hide')
 
@@ -94,8 +95,6 @@ $(document).ready(function () {
       }
     } else if (dt === 'STATE') {
       // NOOP
-    } else {
-      $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     }
   })
 

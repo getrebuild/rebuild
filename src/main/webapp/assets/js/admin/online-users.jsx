@@ -14,35 +14,35 @@ class OnlineUserViewer extends RbModalHandler {
 
   render() {
     return <RbModal ref={(c) => this._dlg = c} title="在线用户" disposeOnHide={true}>
-      <table className="table table-hover table-sm mb-0">
+      <table className="table table-striped table-hover table-sm dialog-table">
         <thead>
           <tr>
-            <th width="30%">用户</th>
-            <th>最近活跃</th>
-            <th width="80"></th>
+            <th style={{ minWidth: 150 }}>用户</th>
+            <th style={{ minWidth: 150 }}>最近活跃</th>
+            <th width="90"></th>
           </tr>
         </thead>
         <tbody>
           {(this.state.users || []).map((item) => {
             return (
               <tr key={`user-${item.user}`}>
-                <td className="user-avatar">
+                <td className="user-avatar cell-detail user-info">
                   <img src={`${rb.baseUrl}/account/user-avatar/${item.user}`} />
-                  <span>{item.fullName}</span>
+                  <span className="pt-1">{item.fullName}</span>
                 </td>
-                <td>
+                <td className="cell-detail">
                   <a href="###" className="text-break">{item.activeUrl || '无'}</a>
-                  <p className="text-muted fs-12 m-0">{item.activeTime}</p>
+                  <span className="cell-detail-description">{item.activeTime}</span>
                 </td>
-                <td className="text-right">
-                  <button className="btn btn-danger bordered btn-sm" type="button" onClick={() => this._killSession(item.user)}>强退</button>
+                <td className="actions text-right">
+                  <button className="btn btn-danger btn-sm bordered" type="button" onClick={() => this._killSession(item.user)}>强退</button>
                 </td>
               </tr>
             )
           })}
         </tbody>
       </table>
-    </RbModal >
+    </RbModal>
   }
 
   componentDidMount() {

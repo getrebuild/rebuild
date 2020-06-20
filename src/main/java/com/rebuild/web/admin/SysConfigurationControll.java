@@ -16,6 +16,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
@@ -52,6 +53,11 @@ public class SysConfigurationControll extends BasePageControll {
 		for (ConfigurableItem item : ConfigurableItem.values()) {
 			mv.getModel().put(item.name(), SysConfiguration.get(item));
 		}
+
+        JSONObject authority = License.queryAuthority();
+		mv.getModel().put("LicenseType",
+                authority.getString("authType") + " (" + authority.getString("authObject") + ")");
+
 		return mv;
 	}
 
