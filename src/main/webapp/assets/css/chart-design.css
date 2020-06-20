@@ -143,7 +143,7 @@
 }
 
 .axis-target .dropdown-menu {
-	min-width: 120px;
+	min-width: 140px;
 	box-shadow: 0 0 6px 0 rgba(0, 0, 0, .1), 0 10px 12px 0 rgba(170, 182, 206, .36);
 	border-width: 0;
 	border-radius: 0;
@@ -155,8 +155,8 @@
 }
 
 .axis-target .dropdown-menu .dropdown-item {
+	cursor: pointer;
 	padding: 6px 14px;
-	cursor: default;
 }
 
 .axis-target.ui-droppable-active,
@@ -305,61 +305,109 @@ a.ui-draggable.ui-draggable-dragging {
 	width: 32px;
 	height: 32px;
 	display: inline-block;
-	background: url(../img/charts-sprite-1.2.svg) 0 0 no-repeat;
+	background: url(../img/charts-sprite.svg?v=1.10) 0 0 no-repeat;
 }
 
 .chart-type>a>i.C200 {
-	background-position: -896px -1520px;
+	background-position: -1244px -1464px;
 }
 
 .chart-type>a.active>i.C200 {
-	background-position: -832px -1520px;
+	background-position: -1180px -1464px;
 }
 
 .chart-type>a>i.C310 {
-	background-position: -845px -1238px;
+	background-position: -202px -1288px;
 }
 
 .chart-type>a.active>i.C310 {
-	background-position: -813px -1238px;
+	background-position: -170px -1288px;
 }
 
 .chart-type>a>i.C220 {
-	background-position: -1176px -1456px;
+	background-position: -1138px -1326px;
 }
 
 .chart-type>a.active>i.C220 {
-	background-position: -1144px -1456px;
+	background-position: -1106px -1326px;
 }
 
 .chart-type>a>i.C210 {
-	background-position: -800px -1520px;
+	background-position: -1148px -1464px;
 }
 
 .chart-type>a.active>i.C210 {
-	background-position: -64px -1520px;
+	background-position: -1501px -1406px;
 }
 
 .chart-type>a>i.C230 {
-	background-position: -1048px -1456px;
+	background-position: -1010px -1326px;
 }
 
 .chart-type>a.active>i.C230 {
-	background-position: -1016px -1456px;
+	background-position: -978px -1326px;
 }
 
 .chart-type>a>i.C330 {
-	background-position: -800px -871px;
-}
-
-.chart-type>a.active>i.C330 {
 	background-position: -768px -871px;
 }
 
+.chart-type>a.active>i.C330 {
+	background-position: -709px -387px;
+}
+
 .chart-type>a>i.C370 {
-	background-position: -1056px -1520px;
+	background-position: -1212px -1464px;
 }
 
 .chart-type>a.active>i.C370 {
-	background-position: -864px -1520px;
+	background-position: -1020px -1464px;
+}
+
+.chart-type>a>i.C290 {
+	background-position: -394px -1288px;
+}
+
+.chart-type>a.active>i.C290 {
+	background-position: -362px -1288px;
+}
+
+.chart-type>a>i.C340 {
+	background-position: -1105px -722px;
+}
+
+.chart-type>a.active>i.C340 {
+	background-position: -956px -1464px;
+}
+
+.chart-type>a>i.C280 {
+	background-position: -714px -1288px;
+}
+
+.chart-type>a.active>i.C280 {
+	background-position: -650px -1288px;
+}
+
+.chart-type>a>i.C271 {
+	background-position: -970px -1288px;
+}
+
+.chart-type>a.active>i.C271 {
+	background-position: -938px -1288px;
+}
+
+.chart-type>a>i.C360 {
+	background-position: -1330px -1326px;
+}
+
+.chart-type>a.active>i.C360 {
+	background-position: -1372px -1464px;
+}
+
+.chart-type>a>i.C243 {
+	background-position: -1322px -1288px;
+}
+
+.chart-type>a.active>i.C243 {
+	background-position: -1290px -1288px;
 }

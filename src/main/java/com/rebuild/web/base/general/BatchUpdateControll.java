@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.base.general;
@@ -103,7 +92,7 @@ public class BatchUpdateControll extends BaseControll {
             // 不支持的字段
             if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
                     || dt == DisplayType.LOCATION || dt == DisplayType.SERIES || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.NTEXT) {
+                    || dt == DisplayType.NTEXT || dt == DisplayType.BARCODE || dt == DisplayType.N2NREFERENCE) {
                 continue;
             }
 
@@ -123,18 +112,22 @@ public class BatchUpdateControll extends BaseControll {
         // 字段选项
         if (dt == DisplayType.PICKLIST) {
             map.put("options", PickListManager.instance.getPickList(field));
+
         } else if (dt == DisplayType.STATE) {
             map.put("options", StateManager.instance.getStateOptions(field));
+
         } else if (dt == DisplayType.MULTISELECT) {
             map.put("options", MultiSelectManager.instance.getSelectList(field));
+
         } else if (dt == DisplayType.BOOL) {
             JSONArray options = new JSONArray();
-            options.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { true, "是"}));
-            options.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { false, "否"}));
+            options.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { true, "是" }));
+            options.add(JSONUtils.toJSONObject(new String[] { "id", "text" }, new Object[] { false, "否" }));
             map.put("options", options);
+
         } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
             map.put(FieldExtConfigProps.NUMBER_NOTNEGATIVE,
-                    EasyMeta.valueOf(field).getPropOfFieldExtConfig(FieldExtConfigProps.NUMBER_NOTNEGATIVE));
+                    EasyMeta.valueOf(field).getExtraAttr(FieldExtConfigProps.NUMBER_NOTNEGATIVE));
         }
 
         return map;

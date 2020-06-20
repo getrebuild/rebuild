@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.charts;
@@ -55,8 +44,7 @@ public class TableChart extends ChartData {
 		Dimension[] dims = getDimensions();
 		Numerical[] nums = getNumericals();
 		
-		String sql = buildSql(dims, nums);
-		Object[][] dataRaw = createQuery(sql).array();
+		Object[][] dataRaw = createQuery(buildSql(dims, nums)).array();
 
 		// 行号
 		if (this.showLineNumber && dataRaw.length > 0) {
@@ -97,21 +85,30 @@ public class TableChart extends ChartData {
 		}
 		
 		String tableHtml = new TableBuilder(this, dataRaw).toHTML();
-
-        return JSONUtils.toJSONObject(
-                new String[] { "html" },
-                new Object[] { tableHtml });
+        return JSONUtils.toJSONObject("html", tableHtml);
 	}
 	
 	protected boolean isShowLineNumber() {
 		return showLineNumber;
 	}
-	
+
 	protected boolean isShowSums() {
 		return showSums;
 	}
-	
-	protected String buildSql(Dimension[] dims, Numerical[] nums) {
+
+	protected String wrapSumValue(Axis sumAxis, Object value) {
+	    if (ChartsHelper.isZero(value)) {
+            return ChartsHelper.VALUE_ZERO;
+		}
+
+		if (sumAxis instanceof Numerical) {
+			return wrapAxisValue((Numerical) sumAxis, value, true);
+		} else {
+			return value.toString();
+		}
+	}
+
+	private String buildSql(Dimension[] dims, Numerical[] nums) {
 		List<String> dimSqlItems = new ArrayList<>();
 		for (Dimension dim : dims) {
 			dimSqlItems.add(dim.getSqlName());
@@ -132,10 +129,6 @@ public class TableChart extends ChartData {
 				StringUtils.join(numSqlItems, ", "),
 				getSourceEntity().getName(), getFilterSql());
 		
-		String sorts = getSortSql();
-		if (sorts != null) {
-			sql += " order by " + sorts;
-		}
-		return sql;
+		return appendSqlSort(sql);
 	}
 }

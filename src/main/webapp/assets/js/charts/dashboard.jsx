@@ -8,6 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 let dashid = null
 let dash_editable = false
+
+let refresh_timeout = 0
+let refresh_timer = null
+
 $(document).ready(function () {
   win_resize(100)
 
@@ -57,6 +61,31 @@ $(document).ready(function () {
     $('.J_chart-new').click(() => dlgShow('DlgAddChart'))
     $('.J_dash-select').click(() => dlgShow('DashSelect', { dashList: dash_list }))
 
+    $('.J_dash-refresh .dropdown-item').click(function () {
+      const $this = $(this)
+      $('.J_dash-refresh .btn span').text($this.text())
+      refresh_timeout = ~~$this.data('time')
+
+      if (refresh_timer) {
+        clearInterval(refresh_timer)
+        refresh_timer = null
+      }
+
+      if (refresh_timeout > 0) {
+        refresh_timer = setInterval(() => {
+          rendered_charts.forEach((x) => x.loadChartData())
+        }, refresh_timeout * 1000)
+      }
+    })
+
+    $('.J_dash-fullscreen').click(() => {
+      const $body = $(document.body)
+      if ($body.hasClass('fullscreen')) exitFullscreen()
+      else fullScreen()
+      $body.toggleClass('fullscreen')
+      win_resize()
+    })
+
     let dlgChartSelect
     $('.J_chart-select').click(() => {
       let appended = []
@@ -89,11 +118,23 @@ let rendered_charts = []
 const win_resize = function (t) {
   if (on_resizestart === true) return
   $setTimeout(() => {
-    // let cg = $('.chart-grid')
-    // if ($(window).width() >= 768) cg.height($(window).height() - 142)
-    // else cg.height('auto')
-    $(rendered_charts).each((idx, item) => item.resize())
+    rendered_charts.forEach((x) => x.resize())
   }, t || 400, 'resize-charts')
+}
+
+function fullScreen() {
+  const element = document.documentElement
+  if (element.requestFullscreen) element.requestFullscreen()
+  else if (element.msRequestFullscreen) element.msRequestFullscreen()
+  else if (element.mozRequestFullScreen) element.mozRequestFullScreen()
+  else if (element.webkitRequestFullscreen) element.webkitRequestFullscreen()
+
+}
+function exitFullscreen() {
+  if (document.exitFullscreen) document.exitFullscreen()
+  else if (document.msExitFullscreen) document.msExitFullscreen()
+  else if (document.mozCancelFullScreen) document.mozCancelFullScreen()
+  else if (document.webkitExitFullscreen) document.webkitExitFullscreen()
 }
 
 const dlgRefs = {}

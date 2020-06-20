@@ -159,7 +159,7 @@ public class MetaSchemaGenerator {
 			schemaField.put("items", performPickList(field));
 		}
 		
-		JSONObject extConfig = easyField.getFieldExtConfig();
+		JSONObject extConfig = easyField.getExtraAttrs(true);
 		if (!extConfig.isEmpty()) {
 			schemaField.put("extConfig", extConfig);
 		}

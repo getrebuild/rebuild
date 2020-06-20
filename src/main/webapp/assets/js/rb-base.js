@@ -87,8 +87,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   })
   if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
 
+  if (rb.env === 'dev') $('html').addClass('dev')
+  if (rb.rbv) $('html').addClass('rbv')
   setTimeout(function () {
-    if (rb.env === 'dev') $('html').addClass('dev')
     $(document.body).addClass('rb-animate')
   }, 1000)
 
@@ -297,6 +298,11 @@ var $storage = {
 
 var $random__times = 0
 var $random_charts = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
+/**
+ * @param {*} prefix 
+ * @param {*} alphabetic 
+ * @param {*} maxLength 
+ */
 var $random = function (prefix, alphabetic, maxLength) {
   if (alphabetic) {
     var c = ''
@@ -401,4 +407,55 @@ var $gotoSection = function (top, target) {
   $(target || 'html').animate({
     scrollTop: top || 0
   }, 600)
+}
+
+/**
+ * @param {*} fn
+ * @param {*} interval
+ */
+var $throttle = function (fn, interval) {
+  var __self = fn,
+    timer,
+    firstTime = true
+
+  return function () {
+    var args = arguments,
+      __me = this
+
+    if (firstTime) {
+      __self.apply(__me, args)
+      return firstTime = false
+    }
+    if (timer) return false
+
+    timer = setTimeout(function () {
+      clearTimeout(timer)
+      timer = null
+      __self.apply(__me, args)
+    }, interval || 200)
+  }
+}
+
+/**
+ * @param {*} array 
+ * @param {*} fn 
+ * @param {*} count 
+ */
+var $timechunk = function (array, fn, count) {
+  var len = array.length
+  var start = function () {
+    for (var i = 0; i < Math.min(count || 1, array.length); i++) {
+      fn(array.shift())
+    }
+  }
+
+  var timer
+  return function () {
+    timer = setInterval(function () {
+      if (array.length === 0) {
+        return clearInterval(timer)
+      }
+      start()
+    }, 20)
+  }
 }

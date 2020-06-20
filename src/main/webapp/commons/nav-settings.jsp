@@ -63,7 +63,7 @@
 							<select class="form-control form-control-sm J_menuEntity">
 								<option value="">请选择关联项</option>
 								<optgroup label="业务实体"></optgroup>
-								<optgroup label="其他">
+								<optgroup label="系统内建">
 									<option value="$FEEDS$" data-icon="chart-donut">动态</option>
 									<option value="$FILEMRG$" data-icon="folder">文件</option>
 									<option value="$PARENT$" data-icon="menu">父级菜单</option>
@@ -72,6 +72,7 @@
 						</div>
 						<div class="tab-pane" id="URL">
 							<input type="text" class="form-control form-control-sm J_menuUrl" placeholder="输入 URL">
+							<div class="form-text">支持外部地址或相对地址</div>
 						</div>
 					</div>
 				</div>

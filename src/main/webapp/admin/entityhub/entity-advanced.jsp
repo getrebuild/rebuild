@@ -57,7 +57,7 @@ a#entityIcon:hover{opacity:0.8}
 						</label>
 					</div>
 					<div class="mb-1">
-						<button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled" data-loading-text="删除中"><i class="zmdi zmdi-delete icon"></i> 确认删除</button>
+						<button type="button" class="btn btn-danger J_drop-confirm" type="button" disabled="disabled" data-loading-text="删除中"><i class="zmdi zmdi-delete icon"></i> 确认删除</button>
 						<div class="alert alert-warning alert-icon hide col-sm-6 mb-0">
 							<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
 							<div class="message">系统内建实体，不允许删除</div>
@@ -68,7 +68,7 @@ a#entityIcon:hover{opacity:0.8}
 			<div class="card bosskey-show">
 				<div class="card-header">导出${entityLabel}实体</div>
 				<div class="card-body">
-					<p>将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 <a class="link" href="https://github.com/getrebuild/rebuild-datas" target="_blank">元数据市场</a>。</p>
+					<p>将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 <a class="link" href="https://github.com/getrebuild/rebuild-datas" target="_blank">RB 仓库</a>。</p>
 					<div class="mb-1">
 						<a href="../entity-export?id=${entityMetaId}" target="_blank" class="btn btn-primary"><i class="zmdi zmdi-cloud-download icon"></i> 导出</a>
 					</div>

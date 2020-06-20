@@ -25,19 +25,6 @@
 	padding: 0 20px;
 }
 
-.field-head .float-right {
-	margin-top: 17px;
-}
-
-.field-head .float-right>span {
-	padding-left: 4px;
-	font-size: 12px;
-}
-
-.field-head .float-right>span+span {
-	margin-left: 10px;
-}
-
 .dd-list {
 	min-height: 200px
 }
@@ -82,10 +69,9 @@
 
 .dd-list .dd-item .dd-action a {
 	color: #fff;
-	font-size: 12px;
+	font-size: 1.23rem;
 	font-style: normal;
 	display: inline-block;
-	padding: 0;
 	padding-left: 6px;
 	opacity: 0.8;
 }
@@ -95,15 +81,16 @@
 }
 
 .dd-list .dd-item .dd-action a+a {
-	margin-left: 1px;
+	margin-left: 4px;
 }
 
-.dd-list .dd-item .dd-action a.icon {
-	position: absolute;
+.dd-list .dd-item .dd-action a .zmdi-unfold-more {
+	font-size: 1.55rem;
+	transform: translateY(1px) rotate(90deg);
 }
 
-.dd-list .dd-item .dd-action a.icon>.zmdi {
-	font-size: 16px;
+.dd-list .dd-item.w-100 a .zmdi-unfold-more::before {
+	content: '\f311';
 }
 
 .form-preview .dd-item,
@@ -150,7 +137,7 @@
 
 .field-list {
 	padding: 0 20px;
-	padding-bottom: 15px;
+	padding-bottom: 35px;
 }
 
 .field-list .dd-item .dd-handle {
@@ -205,4 +192,18 @@ form.field-attr label>span {
 
 .dd-list .dd-item .dd-handle:hover span>i {
 	color: #fff;
+}
+
+.field-legend {
+	position: fixed;
+	background-color: #fafafa;
+	padding: 10px;
+	bottom: 0;
+	width: 265px;
+}
+
+.field-legend>span {
+	padding-left: 4px;
+	font-size: 12px;
+	margin-left: 10px;
 }

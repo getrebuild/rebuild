@@ -20,13 +20,15 @@ class RbFormModal extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
-              {this.state.icon && (<span className={'icon zmdi zmdi-' + this.state.icon} />)}
+              {this.state.icon
+                && <span className={'icon zmdi zmdi-' + this.state.icon} />}
               <h3 className="modal-title">{this.state.title || '新建'}</h3>
-              {rb.isAdminUser ? <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a> : null}
+              {rb.isAdminUser
+                && <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title="配置布局" target="_blank"><span className="zmdi zmdi-settings"></span></a>}
               <button className="close md-close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close"></span></button>
             </div>
             <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
-              {this.state.alertMessage && (<div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>)}
+              {this.state.alertMessage && <div className="alert alert-warning rbform-alert">{this.state.alertMessage}</div>}
               {this.state.formComponent}
               {this.state.inLoad && <RbSpinner />}
             </div>
@@ -67,10 +69,12 @@ class RbFormModal extends React.Component {
   }
 
   renderFromError(message) {
-    const error = <div className="alert alert-danger alert-icon mt-5 w-75 mlr-auto">
-      <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
-      <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
-    </div>
+    const error = (
+      <div className="alert alert-danger alert-icon mt-5 w-75 mlr-auto">
+        <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
+        <div className="message" dangerouslySetInnerHTML={{ __html: '<strong>抱歉!</strong> ' + message }}></div>
+      </div>
+    )
     this.setState({ formComponent: error }, () => this.setState({ inLoad: false }))
   }
 
@@ -391,6 +395,7 @@ class RbFormElement extends React.Component {
     this.setState({ editMode: mode }, () => {
       if (this.state.editMode) {
         this.onEditModeChanged()
+        this._fieldValue && this._fieldValue.focus()
       } else {
         let newValue = arguments.length > 1 ? arguments[1]  // use `newValue`
           : (this.state.newValue === undefined ? this.props.value : this.state.newValue)
@@ -831,7 +836,15 @@ class RbFormReference extends RbFormElement {
 
   renderElement() {
     if (this.props.readonly) return super.renderElement(this.props.value ? this.props.value.text : null)
-    return <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" />
+    // return <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" />
+    return (
+      <div className="input-group datetime-field">
+        <select ref={(c) => this._fieldValue = c} className="form-control form-control-sm" />
+        <div className="input-group-append">
+          <button className="btn btn-secondary" type="button" onClick={this.showSearch}><i className="icon zmdi zmdi-search" /></button>
+        </div>
+      </div>
+    )
   }
 
   renderViewElement() {
@@ -862,10 +875,12 @@ class RbFormReference extends RbFormElement {
     } else {
       const entity = this.props.$$$parent.props.entity
       const field = this.props.field
+      const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
         name: field,
         label: this.props.label,
-        entity: entity
+        entity: entity,
+        appendClass: hasDataFilter ? 'warning-data-filter' : ''
       })
 
       const val = this.state.value
@@ -907,6 +922,28 @@ class RbFormReference extends RbFormElement {
       this.__select2.append(o)
       this.handleChange({ target: { value: val.id } }, true)
     } else this.__select2.val(null).trigger('change')
+  }
+
+  showSearch = () => {
+    const that = this
+    referenceSearch__call = function (selected) {
+      selected = selected[0]
+      if ($(that._fieldValue).find(`option[value="${selected}"]`).length > 0) {
+        that.__select2.val(selected).trigger('change')
+      } else {
+        $.get(`/commons/search/read-labels?ids=${selected}`, (res) => {
+          const o = new Option(res.data[selected], selected, true, true)
+          that.__select2.append(o).trigger('change')
+        })
+      }
+      that.__searcher.hide()
+    }
+
+    if (this.__searcher) this.__searcher.show()
+    else {
+      const searchUrl = `${rb.baseUrl}/commons/search/reference-search-list?field=${this.props.field}.${this.props.$$$parent.props.entity}`
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={`查询${this.props.label}`} />, function () { that.__searcher = this })
+    }
   }
 }
 
@@ -971,8 +1008,9 @@ class RbFormClassification extends RbFormElement {
     if (this.__selector) this.__selector.show()
     else {
       const p = this.props
+      const that = this
       renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />,
-        null, function () { this.__selector = this })
+        null, function () { that.__selector = this })
     }
   }
 
@@ -1066,6 +1104,24 @@ class RbFormState extends RbFormPickList {
   }
 }
 
+
+class RbFormBarcode extends RbFormElement {
+  constructor(props) {
+    super(props)
+  }
+
+  renderElement() {
+    if (this.state.value) return this.renderViewElement()
+    else return <div className="form-control-plaintext barcode text-muted">{`自动值 (${this.props.barcodeType === 'QRCODE' ? '二维码' : '条形码'})`}</div>
+  }
+
+  renderViewElement() {
+    if (!this.state.value) return super.renderViewElement()
+    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(this.state.value)}`
+    return <div className="img-field barcode"><a className="img-thumbnail" title={this.state.value}><img src={codeUrl} alt={this.state.value} /></a></div>
+  }
+}
+
 // 不支持/未开放的字段
 class RbFormUnsupportted extends RbFormElement {
   constructor(props) {
@@ -1147,6 +1203,8 @@ const detectElement = function (item) {
     return <RbFormBool {...item} />
   } else if (item.type === 'STATE') {
     return <RbFormState {...item} />
+  } else if (item.type === 'BARCODE') {
+    return <RbFormBarcode {...item} readonly={true} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {
@@ -1293,6 +1351,34 @@ class ClassificationSelector extends React.Component {
   }
 }
 
+// see `reference-search.jsp`
+// eslint-disable-next-line no-unused-vars
+var referenceSearch__call = function (selected) {/* NOOP */ }
+class ReferenceSearcher extends RbModal {
+
+  constructor(props) {
+    super(props)
+  }
+
+  render() {
+    return (
+      <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
+            <div className="modal-header modal-header-colored">
+              <h3 className="modal-title">{this.props.title || '查询'}</h3>
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body iframe">
+              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 430, maxHeight: '100%' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
 // 删除确认
 // eslint-disable-next-line no-unused-vars
 class DeleteConfirm extends RbAlert {
@@ -1389,7 +1475,7 @@ class RepeatedViewer extends RbModalHandler {
   render() {
     const data = this.props.data
     return <RbModal ref={(c) => this._dlg = c} title={`存在 ${this.props.data.length - 1} 条重复记录`} disposeOnHide={true} colored="warning">
-      <table className="table table-hover table-sm repeated-table">
+      <table className="table table-striped table-hover table-sm dialog-table">
         <thead>
           <tr>
             {data[0].map((item, idx) => {

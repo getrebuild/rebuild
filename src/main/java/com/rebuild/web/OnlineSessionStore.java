@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web;
@@ -33,6 +22,7 @@ import com.rebuild.web.user.signin.LoginControll;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +48,13 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 	private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
 	private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
 
-	private static final ThreadLocal<String> LOCALE = new ThreadLocal<>();
+	private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current session user");
+
+	/**
+	 * 最近访问 [时间, 路径]
+	 * @see #storeLastActive(HttpServletRequest)
+	 */
+	public static final String SK_LASTACTIVE = WebUtils.KEY_PREFIX + "Session-LastActive";
 	
 	@Override
 	public void sessionCreated(HttpSessionEvent event) {
@@ -94,16 +90,7 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 			Application.getCommonService().update(logout);
 		}
 	}
-	
-	/**
-	 * 最近访问时间
-	 */
-	public static final String SK_LASTACTIVE = WebUtils.KEY_PREFIX + "Session-LastActive";
-	/**
-	 * 最近访问路径
-	 */
-	public static final String SK_LASTACCESS = WebUtils.KEY_PREFIX + "Session-LastAccess";
-	
+
 	/**
 	 * 所有会话
 	 * 
@@ -130,10 +117,10 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 	 * @param request
 	 */
 	public void storeLastActive(HttpServletRequest request) {
-		HttpSession s = request.getSession(true);
-		s.setAttribute(SK_LASTACTIVE, CalendarUtils.now());
+		HttpSession s = request.getSession();
+		s.setAttribute(SK_LASTACTIVE, new Object[] { System.currentTimeMillis(), request.getRequestURI() } );
 	}
-	
+
 	/**
 	 * @param request
 	 */
@@ -141,6 +128,17 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 		HttpSession s = request.getSession();
 		Object loginUser = s.getAttribute(WebUtils.CURRENT_USER);
 		Assert.notNull(loginUser, "No login user found in session!");
+
+		if (!SysConfiguration.getBool(ConfigurableItem.MultipleSessions)) {
+			HttpSession previous = getSession((ID) loginUser);
+			if (previous != null) {
+				LOG.warn("Kill previous session : " + loginUser + " < " + previous.getId());
+				try {
+					previous.invalidate();
+				} catch (Exception ignored) {
+				}
+			}
+		}
 
 		ONLINE_SESSIONS.remove(s);
 		ONLINE_USERS.put((ID) loginUser, s);

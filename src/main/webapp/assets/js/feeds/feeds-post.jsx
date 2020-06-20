@@ -448,7 +448,7 @@ class AnnouncementOptions extends React.Component {
   render() {
     return <div className="feed-options announcement">
       <dl className="row mb-1">
-        <dt className="col-12 col-lg-3">同时展示在</dt>
+        <dt className="col-12 col-lg-3">同时公示在</dt>
         <dd className="col-12 col-lg-9 mb-0" ref={(c) => this._showWhere = c}>
           <label className="custom-control custom-checkbox custom-control-inline">
             <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
@@ -460,12 +460,12 @@ class AnnouncementOptions extends React.Component {
           </label>
           <label className="custom-control custom-checkbox custom-control-inline">
             <input className="custom-control-input" name="showOn" type="checkbox" value={4} disabled={this.props.readonly} />
-            <span className="custom-control-label">登录页 <i className="zmdi zmdi-help zicon down-3" data-toggle="tooltip" title="选择登录页展示请注意不要发布敏感信息" /></span>
+            <span className="custom-control-label">登录页 <i className="zmdi zmdi-help zicon down-3" data-toggle="tooltip" title="选择登录页公示请注意不要发布敏感信息" /></span>
           </label>
         </dd>
       </dl>
       <dl className="row">
-        <dt className="col-12 col-lg-3 pt-2">展示时间</dt>
+        <dt className="col-12 col-lg-3 pt-2">公示时间</dt>
         <dd className="col-12 col-lg-9" ref={(c) => this._showTime = c}>
           <div className="input-group">
             <input type="text" className="form-control form-control-sm" placeholder="现在" />

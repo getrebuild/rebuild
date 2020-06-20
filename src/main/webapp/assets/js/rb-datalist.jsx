@@ -12,7 +12,7 @@ const COLUMN_MAX_WIDTH = 800
 const COLUMN_DEF_WIDTH = 130
 
 // IE/Edge 不支持首/列固定
-const supportFixedColumns = !($.browser.msie || $.browser.msedge)
+const supportFixedColumns = !($.browser.msie || $.browser.msedge) && $(window).width() > 767
 
 // ~~ 数据列表
 class RbList extends React.Component {
@@ -191,6 +191,7 @@ class RbList extends React.Component {
       pageSize: this.pageSize,
       filter: this.lastFilter,
       advFilter: this.advFilterId,
+      protocolFilter: wpc.protocolFilter,
       sort: fieldSort,
       reload: this.pageNo === 1
     }
@@ -690,7 +691,7 @@ const RbListPage = {
       const deleteAfter = function () {
         that._RbList.reload()
       }
-      const needEntity = (wpc.type === $pgt.SlaveList || wpc.type === $pgt.SlaveView) ? null : entity[0]
+      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm ids={ids} entity={needEntity} deleteAfter={deleteAfter} />)
     })
     $('.J_view').click(() => {
@@ -739,7 +740,7 @@ const RbListPage = {
     const $btn = $('.input-search .btn'),
       $input = $('.input-search input')
     $btn.click(() => this._RbList.searchQuick())
-    $input.keydown((event) => { if (event.which === 13) $btn.trigger('click') })
+    $input.keydown((e) => e.which === 13 ? $btn.trigger('click') : true)
   },
 
   reload() { this._RbList.reload() }
@@ -751,12 +752,10 @@ const AdvFilters = {
   /**
    * @param {Element} el 控件
    * @param {String} entity 实体
-   * @param {ID} viaFilter 默认高级过滤 ID
    */
-  init(el, entity, viaFilter) {
+  init(el, entity) {
     this.__el = $(el)
     this.__entity = entity
-    this.__viaFilter = viaFilter
 
     this.__el.find('.J_advfilter').click(() => {
       this.showAdvFilter(null, this.current)
@@ -833,16 +832,8 @@ const AdvFilters = {
         $ghost.appendTo($('#asideFilters').empty())
       }
 
-      // 首次使用
-      if (that.__viaFilter) {
-        RbListPage._RbList.setAdvFilter(that.__viaFilter)
-        that.__viaFilter = null
-      }
-      else {
-        if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
-        $defaultFilter.trigger('click')
-      }
-
+      if (!$defaultFilter) $defaultFilter = $('.adv-search .dropdown-item:eq(0)')
+      $defaultFilter.trigger('click')
     })
   },
 
@@ -910,13 +901,22 @@ const AdvFilters = {
 
 // init: DataList
 $(document).ready(() => {
-  const gs = $urlp('gs', location.hash)
-  const viaFilter = $urlp('via')
+  const via = $urlp('via', location.hash)
+  if (via) {
+    wpc.protocolFilter = `via:${via}`
+    const $cleanVia = $('<div class="badge badge-border float-left mt-1">当前数据已过滤<a class="close" title="查看全部数据">&times;</a></div>').appendTo('.dataTables_filter')
+    $cleanVia.find('a').click(() => {
+      wpc.protocolFilter = null
+      RbListPage.reload()
+      $cleanVia.remove()
+    })
+  }
 
+  const gs = $urlp('gs', location.hash)
   if (gs) $('.search-input-gs, .input-search>input').val($decode(gs))
   if (wpc.entity) {
     RbListPage.init(wpc.listConfig, wpc.entity, wpc.privileges)
-    if (!(wpc.advFilter === false)) AdvFilters.init('.adv-search', wpc.entity[0], viaFilter)
+    if (wpc.advFilter !== false) AdvFilters.init('.adv-search', wpc.entity[0])
   }
 })
 
@@ -1128,7 +1128,7 @@ const ChartsWidget = {
 $(document).ready(() => {
   // 自动打开 View
   let viewHash = location.hash
-  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === $pgt.RecordList || wpc.type === $pgt.SlaveList)) {
+  if (viewHash && viewHash.startsWith('#!/View/') && (wpc.type === 'RecordList' || wpc.type === 'SlaveList')) {
     viewHash = viewHash.split('/')
     if (viewHash.length === 4 && viewHash[3].length === 20) {
       setTimeout(() => {

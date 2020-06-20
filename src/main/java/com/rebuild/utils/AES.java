@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.utils;
@@ -70,9 +59,25 @@ public class AES {
 	 * @param input
 	 * @return
 	 * @throws RebuildException
+	 * @see #decryptQuietly(String)
 	 */
 	public static String decrypt(String input) throws RebuildException {
 		return decrypt(input, getPassKey());
+	}
+
+	/**
+	 * 解密失败则返回空（无异常抛出）
+	 *
+	 * @param input
+	 * @return
+	 */
+	public static String decryptQuietly(String input) {
+		try {
+			return decrypt(input);
+		} catch (RebuildException ex) {
+            LOG.debug("Decrypting error (Use blank input) : " + input);
+			return StringUtils.EMPTY;
+		}
 	}
 	
 	/**
@@ -94,20 +99,7 @@ public class AES {
 		}
 		return new String(output);
 	}
-	
-	/**
-	 * @param input
-	 * @return
-	 */
-	public static String decryptNothrow(String input) {
-		try {
-			return decrypt(input);
-		} catch (RebuildException ex) {
-			LOG.warn("Decrypting error (Use blank input) : " + input);
-			return StringUtils.EMPTY;
-		}
-	}
-	
+
 	/**
 	 * 通过 `-Drbpass=KEY` 指定 AES 秘钥
 	 * 
@@ -115,10 +107,9 @@ public class AES {
 	 */
 	public static String getPassKey() {
 		String key = StringUtils.defaultIfEmpty(System.getenv("rbpass"), System.getProperty("rbpass"));
-		key = StringUtils.defaultIfEmpty(key, "REBUILD2018");
-		return key;
+		return StringUtils.defaultIfEmpty(key, "REBUILD2018");
 	}
-	
+
 	// for Encrypt
 	public static void main(String[] args) {
 		System.out.println(encrypt("428115fbdc40413c43a1e977a83c8a5a"));

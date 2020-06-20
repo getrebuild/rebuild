@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper.cache;
@@ -25,8 +14,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.cache.CacheManager;
 import redis.clients.jedis.JedisPool;
 
@@ -37,8 +24,6 @@ import redis.clients.jedis.JedisPool;
  * @since 10/12/2018
  */
 public class RecordOwningCache extends BaseCacheTemplate<ID> {
-
-	private static final Log LOG = LogFactory.getLog(RecordOwningCache.class);
 
 	final private PersistManagerFactory aPMFactory;
 	
@@ -76,8 +61,8 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
 		String sql = "select owningUser from %s where %s = '%s'";
 		// 使用主记录
 		if (useMaster != null) {
-			Field stm = MetadataHelper.getSlaveToMasterField(entity);
-			sql = sql.replaceFirst("owningUser", stm.getName() + ".owningUser");
+			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+			sql = sql.replaceFirst("owningUser", stmField.getName() + ".owningUser");
 		}
 		sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), record.toLiteral());
 

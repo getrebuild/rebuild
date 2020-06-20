@@ -53,7 +53,7 @@
 					</div>
 					<div class="form-group row footer">
 						<div class="col-sm-7 offset-sm-3">
-							<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
+							<button class="btn btn-primary" type="button">确定</button>
 							<button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">取消</button>
 						</div>
 					</div>

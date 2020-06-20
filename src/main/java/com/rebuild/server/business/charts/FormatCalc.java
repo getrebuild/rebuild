@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -17,9 +17,11 @@ public enum FormatCalc {
 
 	// 数字字段
 	SUM("求和"), AVG("平均值"), MAX("最大数"), MIN("最小数"), COUNT("计数"),
-	
+    COUNT2("去重计数"),
+
 	// 日期字段
 	Y("年"), M("月"), D("日"), H("时"),
+    Q("季"),
 
 	// 分类字段
 	L1("一级"), L2("二级"), L3("三级"), L4("四级"),
@@ -28,7 +30,7 @@ public enum FormatCalc {
 	
 	;
 	
-	private String label;
+	private final String label;
 	
 	FormatCalc(String label) {
 		this.label = label;

@@ -125,11 +125,11 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	 * @param field
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	private List<ConfigEntry> getConfig(Field field) {
 		final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
 		Object cached = Application.getCommonCache().getx(cKey);
 		if (cached != null) {
-            //noinspection unchecked
             return (List<ConfigEntry>) cached;
 		}
 		

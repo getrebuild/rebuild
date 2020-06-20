@@ -22,6 +22,7 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
+import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.helper.state.StateManager;
 import com.rebuild.server.metadata.DefaultValueHelper;
 import com.rebuild.server.metadata.EntityHelper;
@@ -39,7 +40,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -242,9 +242,9 @@ public class FormsBuilder extends FormsManager {
 
 		ID masterRecordId = MASTERID4NEWSLAVE.get();
 		if (masterRecordId == null) {
-			Field stm = MetadataHelper.getSlaveToMasterField(entity);
+			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
 			String sql = String.format("select %s from %s where %s = ?",
-					Objects.requireNonNull(stm).getName(), entity.getName(), entity.getPrimaryField().getName());
+					stmField.getName(), entity.getName(), entity.getPrimaryField().getName());
 			Object[] o = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
 			if (o == null) {
 				return null;
@@ -303,7 +303,7 @@ public class FormsBuilder extends FormsManager {
 			}
 
 			// 字段扩展配置 FieldExtConfigProps
-			JSONObject fieldExt = easyField.getFieldExtConfig();
+			JSONObject fieldExt = easyField.getExtraAttrs(true);
 			for (Map.Entry<String, Object> e : fieldExt.entrySet()) {
 				el.put(e.getKey(), e.getValue());
 			}
@@ -418,7 +418,7 @@ public class FormsBuilder extends FormsManager {
 		}
 
 		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-		StringBuilder ajql = new StringBuilder("select ");
+		StringBuilder sql = new StringBuilder("select ");
 		for (Object element : elements) {
 			JSONObject el = (JSONObject) element;
 			String field = el.getString("field");
@@ -428,23 +428,23 @@ public class FormsBuilder extends FormsManager {
 
 			// REFERENCE
 			if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
-			    ajql.append('&').append(field).append(',');
+			    sql.append('&').append(field).append(',');
 			}
-			ajql.append(field).append(',');
-		}
-		
-		if (entity.containsField(EntityHelper.ModifiedOn)) {
-			ajql.append(EntityHelper.ModifiedOn);
-		} else {
-			ajql.deleteCharAt(ajql.length() - 1);
+			sql.append(field).append(',');
 		}
 
-		ajql.append(" from ")
+		// Append fields
+		sql.append(entity.getPrimaryField().getName());
+		if (entity.containsField(EntityHelper.ModifiedOn)) {
+			sql.append(',').append(EntityHelper.ModifiedOn);
+		}
+
+		sql.append(" from ")
                 .append(entity.getName())
 				.append(" where ")
                 .append(entity.getPrimaryField().getName())
                 .append(" = ?");
-		return Application.getQueryFactory().createQuery(ajql.toString(), user).setParameter(1, id).record();
+		return Application.getQueryFactory().createQuery(sql.toString(), user).setParameter(1, id).record();
 	}
 
 	/**
@@ -463,7 +463,9 @@ public class FormsBuilder extends FormsManager {
 		if (!data.hasValue(fieldName, false)) {
 			if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
 				return FieldValueWrapper.wrapMixValue(null, FieldValueWrapper.APPROVAL_UNSUBMITTED);
-			}
+			} else if (field.getDisplayType() == DisplayType.BARCODE) {
+			    return FieldValueWrapper.instance.wrapBarcode(data.getPrimary(), field);
+            }
             return null;
         }
 
@@ -529,7 +531,7 @@ public class FormsBuilder extends FormsManager {
 			// 主实体字段
 			else if (field.equals(DV_MASTER)) {
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-				Object mixValue = inFormFields.contains(Objects.requireNonNull(stmField).getName()) ? readyReferenceValue(value) : value;
+				Object mixValue = inFormFields.contains(stmField.getName()) ? readyReferenceValue(value) : value;
 				if (mixValue != null) {
 					initialValReady.put(stmField.getName(), mixValue);
 					initialValKeeps.add(stmField.getName());

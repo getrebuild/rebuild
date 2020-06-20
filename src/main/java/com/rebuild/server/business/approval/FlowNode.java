@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 流程节点
+ * 流程节点（包括审批、抄送）
  * 
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/07/06
@@ -113,7 +113,17 @@ public class FlowNode {
 		}
 		return false;
 	}
-	
+
+	/**
+	 * @return
+	 */
+	public boolean allowCcAutoShare() {
+		if (getDataMap().containsKey("ccAutoShare")) {
+			return getDataMap().getBooleanValue("ccAutoShare");
+		}
+		return false;
+	}
+
 	/**
 	 * 获取相关人员（提交人/审批人/抄送人）
 	 * 

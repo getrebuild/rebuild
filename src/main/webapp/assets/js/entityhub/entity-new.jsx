@@ -71,8 +71,11 @@ class MetaschemaList extends React.Component {
               {item.updated && (' · ' + item.updated)}
             </div>
           </div>
-          <div className="float-right pt-1">
-            <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.imports}>导入</button>
+          <div className="float-right">
+            {item.exists ? <button disabled className="btn btn-sm btn-primary">已存在</button>
+              :
+              <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" onClick={() => this.imports(item)}>导入</button>
+            }
           </div>
           <div className="clearfix"></div>
         </div>)
@@ -82,30 +85,38 @@ class MetaschemaList extends React.Component {
   }
 
   componentDidMount() {
-    $.get('/admin/rbstore/load-index?type=metaschemas', (res) => {
+    $.get('/admin/rbstore/load-metaschemas', (res) => {
       if (res.error_code === 0) this.setState({ indexes: res.data }, () => { parent.RbModal.resize() })
       else RbHighbar.error(res.error_msg)
     })
   }
 
-  imports = (e) => {
-    const file = e.currentTarget.dataset.file
-    const name = e.currentTarget.dataset.name
+  imports(item) {
+    let tips = `<strong>导入 [ ${item.name} ]</strong><br>`
+    if ((item.refs || []).length > 0) {
+      const refNames = []
+      this.state.indexes.forEach((bar) => {
+        if (item.refs.includes(bar.key) && !bar.exists) refNames.push(bar.name)
+      })
+      if (refNames.length > 0) tips += `导入本实体将同时导入 ${refNames.length} 个依赖实体（${refNames.join('、')}）。`
+    }
+    tips += '你可在导入后进行适当调整。开始导入吗？'
+
     const that = this
     const $mp2 = (parent && parent.$mp) ? parent.$mp : $mp
-    parent.RbAlert.create(`<strong>导入 [ ${name} ]</strong><br>你可在导入后进行适当调整。开始导入吗？`, {
+    parent.RbAlert.create(tips, {
       html: true,
       confirm: function () {
         this.hide()
         that.setState({ inProgress: true })
 
         $mp2.start()
-        $.post(`/admin/metaschema/imports?file=${$encode(file)}`, (res) => {
+        $.post(`/admin/metaschema/imports?key=${(item.key)}`, (res) => {
           $mp2.end()
           that.setState({ inProgress: false })
           if (res.error_code === 0) {
             RbHighbar.success('导入完成')
-            setTimeout(() => { parent.location.href = `../../entity/${res.data}/base` }, 1500)
+            setTimeout(() => parent.location.href = `../../entity/${res.data}/base`, 1500)
           } else RbHighbar.error(res.error_msg)
         })
       }

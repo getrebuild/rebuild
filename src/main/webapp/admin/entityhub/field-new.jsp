@@ -31,10 +31,11 @@
 					<option value="PICKLIST">列表 (单选)</option>
 					<option value="MULTISELECT">多选</option>
 					<option value="CLASSIFICATION">分类</option>
+					<option value="REFERENCE">引用 (关联)</option>
                     <option value="FILE">文件</option>
                     <option value="IMAGE">图片</option>
                     <option value="AVATAR">头像</option>
-                    <option value="REFERENCE">引用 (关联)</option>
+					<option value="BARCODE">条形码 (二维码)</option>
 					<option value="BOOL">布尔 (是/否)</option>
 					<optgroup label="保留类型" class="bosskey-show">
 						<option value="STATE">状态</option>
@@ -75,11 +76,15 @@
 					<input class="custom-control-input" type="checkbox" id="saveAndNew">
 					<span class="custom-control-label"> 继续添加下一个</span>
 				</label>
+				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
+					<input class="custom-control-input" type="checkbox" id="add2Layout" checked>
+					<span class="custom-control-label"> 追加到当前布局</span>
+				</label>
 			</div>
 		</div>
 		<div class="form-group row footer">
 			<div class="col-sm-7 offset-sm-3">
-            	<button class="btn btn-primary" type="button" data-loading-text="请稍后">确定</button>
+            	<button class="btn btn-primary" type="button">确定</button>
             	<button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">取消</button>
 			</div>
 		</div>

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.base.general;
@@ -61,13 +50,19 @@ public class GeneralDataListControll extends BaseEntityControll {
 			response.sendError(404);
 			return null;
 		}
-		
-		Entity thatEntity = MetadataHelper.getEntity(entity);
+
+		final Entity thatEntity = MetadataHelper.getEntity(entity);
+
+		if (!thatEntity.isQueryable()) {
+			response.sendError(404);
+			return null;
+		}
+
 		if (!Application.getSecurityManager().allowRead(user, thatEntity.getEntityCode())) {
 			response.sendError(403, "你没有访问此实体的权限");
 			return null;
 		}
-		
+
 		ModelAndView mv;
 		if (thatEntity.getMasterEntity() != null) {
 			mv = createModelAndView("/general-entity/slave-list.jsp", entity, user);
@@ -75,7 +70,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			mv = createModelAndView("/general-entity/record-list.jsp", entity, user);
 		}
 		
-		JSON config = DataListManager.instance.getFieldsLayout(entity, getRequestUser(request));
+		JSON config = DataListManager.instance.getFieldsLayout(entity, user);
 		mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 
 		// 列表相关权限

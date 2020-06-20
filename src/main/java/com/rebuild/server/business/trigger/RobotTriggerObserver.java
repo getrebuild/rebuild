@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.trigger;
@@ -26,8 +15,6 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
-import com.rebuild.server.service.TransactionManual;
-import org.springframework.transaction.TransactionStatus;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -85,49 +72,42 @@ public class RobotTriggerObserver extends OperatingObserver {
 
         final ID currentUser = Application.getCurrentUser();
         try {
+
             for (TriggerAction action : actions) {
+                if (action.useAsync()) continue;
+                LOG.info("Trigger [ " + action.getType() + " ] by record : " + context.getAnyRecord().getPrimary());
 
-                if (action.useAsync()) {
-                    // 异步执行
-
-                    ThreadPool.exec(() -> {
-                        Application.getSessionStore().set(currentUser);
-                        try {
-                            action.execute(context);
-                        } catch (Exception ex) {
-                            LOG.error("Failed Trigger : " + action + " << " + context, ex);
-                        } finally {
-                            Application.getSessionStore().clean();
-                        }
-                    });
-                } else if (action.useNewTransaction()) {
-                    // 手动开启一个新事物，不影响当前事物
-
-                    TransactionStatus tx = TransactionManual.newTransaction();
-                    try {
-                        action.execute(context);
-                        TransactionManual.commit(tx);
-                    } catch (Exception ex) {
-                        TransactionManual.rollback(tx);
-                        LOG.error("Failed Trigger : " + action + " << " + context, ex);
+                try {
+                    action.execute(context);
+                } catch (DataSpecificationException ex) {
+                    LOG.error("Failed triggers : " + action + " << " + context, ex);
+                    throw ex;
+                } catch (Exception ex) {
+                    LOG.error("Failed triggers : " + action + " << " + context, ex);
+                } finally {
+                    if (cleanSource) {
+                        action.clean();
                     }
-                } else {
-
-                    try {
-                        action.execute(context);
-                    } catch (DataSpecificationException ex) {
-                        LOG.error("Failed Trigger : " + action + " << " + context, ex);
-                        throw ex;
-                    } catch (Exception ex) {
-                        LOG.error("Failed Trigger : " + action + " << " + context, ex);
-                    } finally {
-                        if (cleanSource) {
-                            action.clean();
-                        }
-                    }
-
                 }
             }
+
+            // 异步执行
+            for (TriggerAction action : actions) {
+                if (!action.useAsync()) continue;
+                LOG.info("Trigger [ " + action.getType() + " ] by record : " + context.getAnyRecord().getPrimary());
+
+                ThreadPool.exec(() -> {
+                    Application.getSessionStore().set(currentUser);
+                    try {
+                        action.execute(context);
+                    } catch (Exception ex) {
+                        LOG.error("Failed triggers : " + action + " << " + context, ex);
+                    } finally {
+                        Application.getSessionStore().clean();
+                    }
+                });
+            }
+
         } finally {
             if (cleanSource) {
                 setTriggerSource(null);

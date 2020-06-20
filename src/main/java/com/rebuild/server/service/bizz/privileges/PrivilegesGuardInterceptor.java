@@ -1,24 +1,14 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.bizz.privileges;
 
 import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.Entity;
@@ -82,12 +72,12 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		
 		boolean isBulk = invocation.getMethod().getName().startsWith("bulk");
 		if (isBulk) {
-			Object first = invocation.getArguments()[0];
-			if (!(first instanceof BulkContext)) {
+			Object firstArgument = invocation.getArguments()[0];
+			if (!BulkContext.class.isAssignableFrom(firstArgument.getClass())) {
 				throw new IllegalArgumentException("First argument must be BulkContext!");
 			}
 			
-			BulkContext context = (BulkContext) first;
+			BulkContext context = (BulkContext) firstArgument;
 			Entity entity = context.getMainEntity();
 			if (!Application.getSecurityManager().allow(caller, entity.getEntityCode(), context.getAction())) {
 				LOG.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
@@ -101,14 +91,19 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		ID recordId;
 		Entity entity;
 		
-		if (idOrRecord instanceof Record) {
+		if (Record.class.isAssignableFrom(idOrRecord.getClass())) {
 			recordId = ((Record) idOrRecord).getPrimary();
 			entity = ((Record) idOrRecord).getEntity();
-		} else if (idOrRecord instanceof ID) {
+		} else if (ID.class.isAssignableFrom(idOrRecord.getClass())) {
 			recordId = (ID) idOrRecord;
 			entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		} else {
 			throw new IllegalArgumentException("First argument must be Record/ID!");
+		}
+
+		// 忽略权限检查
+		if (EasyMeta.valueOf(entity).isPlainEntity()) {
+			return;
 		}
 		
 		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
@@ -117,23 +112,21 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		if (action == BizzPermission.CREATE) {
 			// 明细实体
 			if (entity.getMasterEntity() != null) {
-				Field field = MetadataHelper.getSlaveToMasterField(entity);
-				Assert.notNull(field, "No STM field found : " + entity);
+				Assert.isTrue(Record.class.isAssignableFrom(idOrRecord.getClass()), "First argument must be Record!");
 
-				ID masterId = ((Record) idOrRecord).getID(field.getName());
+				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+				ID masterId = ((Record) idOrRecord).getID(stmField.getName());
 				if (masterId == null || !Application.getSecurityManager().allowUpdate(caller, masterId)) {
 					throw new AccessDeniedException("你没有添加明细的权限");
 				}
 				allowed = true;
+
 			} else {
 				allowed = Application.getSecurityManager().allow(caller, entity.getEntityCode(), action);
 			}
 			
 		} else {
-			if (recordId == null) {
-			    throw new IllegalArgumentException("No primary in record!");
-			}
-			
+			Assert.notNull(recordId, "No primary in record!");
 			allowed = Application.getSecurityManager().allow(caller, recordId, action);
 		}
 
@@ -186,7 +179,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		} else if (action.startsWith("unshare")) {
 		    return EntityService.UNSHARE;
 		}
-		return null;
+		throw new PrivilegesException("No matchs Permission found : " + action);
 	}
 	
 	/**

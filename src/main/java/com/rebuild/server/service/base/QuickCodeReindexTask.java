@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.base;
@@ -45,7 +34,9 @@ import java.util.List;
  * @since 12/28/2018
  */
 public class QuickCodeReindexTask extends HeavyTask<Integer> {
-	
+
+	private static final int PAGE_SIZE = 1000;
+
 	final private Entity entity;
 
 	/**
@@ -65,10 +56,11 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 		Field nameFiled = entity.getNameField();
 		String sql = String.format("select %s,%s,quickCode from %s",
 				entity.getPrimaryField().getName(), nameFiled.getName(), entity.getName());
-		int page = 1;
+
+		int pageNo = 1;
 		while (true) {
 			List<Record> records =  Application.createQueryNoFilter(sql)
-					.setLimit(1000, page * 1000 - 1000)
+					.setLimit(PAGE_SIZE, pageNo * PAGE_SIZE - PAGE_SIZE)
 					.list();
 			
 			this.setTotal(records.size() + this.getTotal() + 1);
@@ -94,18 +86,20 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 						record.setString(EntityHelper.QuickCode, quickCodeNew);
 					}
 					Application.getCommonService().update(record, false);
+					this.addSucceeded();
+
 				} finally {
 					this.addCompleted();
 				}
 			}
 			
-			if (records.size() < 1000 || this.isInterrupted()) {
+			if (records.size() < PAGE_SIZE || this.isInterrupted()) {
 				break;
 			}
 		}
-		
+
 		this.setTotal(this.getTotal() - 1);
-		return this.getTotal();
+		return this.getSucceeded();
 	}
 	
 	// --

@@ -98,4 +98,25 @@ public class ChartsTest extends TestSupportWithUser {
 				"{'entity':'testallfields','title':'无效图表','type':'abc'}");
 		ChartsFactory.create(config, UserService.ADMIN_USER);
 	}
+
+    @Test
+    public void testRadarChart() {
+        JSONObject config = JSON.parseObject(
+                "{'entity':'testallfields','title':'雷达图','type':'RADAR','axis':{'dimension':[{'field':'createdOn','sort':'NONE','label':''}],'numerical':[{'field':'createdOn','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+        ChartData radar = ChartsFactory.create(config, UserService.ADMIN_USER);
+        System.out.println(radar.build());
+    }
+
+    @Test
+    public void testScatterChart() {
+        JSONObject config = JSON.parseObject(
+                "{'entity':'testallfields','title':'散点图','type':'SCATTER','axis':{'dimension':[],'numerical':[{'field':'createdOn','sort':'NONE','label':'','calc':'COUNT'},{'field':'createdOn','sort':'NONE','label':'','calc':'COUNT'}]},'option':{}}");
+        ChartData scatter = ChartsFactory.create(config, UserService.ADMIN_USER);
+        System.out.println(scatter.build());
+
+        JSONObject dim = JSON.parseObject("{'field':'createdOn','sort':'NONE','label':''}");
+        config.getJSONObject("axis").getJSONArray("dimension").add(dim);
+        scatter = ChartsFactory.create(config, UserService.ADMIN_USER);
+        System.out.println(scatter.build());
+    }
 }

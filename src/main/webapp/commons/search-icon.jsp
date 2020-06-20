@@ -19,14 +19,14 @@
 <script src="${baseUrl}/assets/js/zmdi-icons.js"></script>
 <script type="text/babel">
 $(document).ready(function(){
-	let call = parent.clickIcon || function(icon){ console.log(icon) }
+	const call = parent && parent.clickIcon ? parent.clickIcon : function(icon){ console.log(icon) }
 	$(ZMDI_ICONS).each(function(){
 		if (ZMDI_ICONS_IGNORE.contains(this + '') == false) {
-			let a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons')
-			a.click(function(){ call($(this).data('icon')) })
+			const $a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons')
+			$a.click(function(){ call($(this).data('icon')) })
 		}
 	})
-	parent.RbModal.resize()
+	parent && parent.RbModal && parent.RbModal.resize()
 })
 </script>
 </body>

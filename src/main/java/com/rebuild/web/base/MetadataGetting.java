@@ -23,7 +23,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
-import com.rebuild.server.configuration.portals.FieldPortalAttrs;
 import com.rebuild.server.helper.state.StateHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
@@ -79,10 +78,10 @@ public class MetadataGetting extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
-		String fromType = getParameter(request, "from");
+		String filterKey = getParameter(request, "filter");
 		
 		List<Map<String, Object>> fsList = new ArrayList<>();
-		putFields(fsList, entityMeta, appendRefFields, fromType);
+		putFields(fsList, entityMeta, appendRefFields, filterKey);
 
 		// 追加二级引用字段
 		if (appendRefFields) {
@@ -97,21 +96,20 @@ public class MetadataGetting extends BaseControll {
                 }
 
                 fsList.add(buildField(field));
-                putFields(fsList, field, false, fromType);
+                putFields(fsList, field, false, filterKey);
 			}
 		}
 
 		writeSuccess(response, fsList);
 	}
 
-    /**
-     * @param dest
-     * @param entityOrField
-     * @param filterRefField
-     * @param fromType
-     */
-	private void putFields(
-            List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField, String fromType) {
+	/**
+	 * @param dest
+	 * @param entityOrField
+	 * @param filterRefField
+	 * @param filterKey
+	 */
+	private void putFields(List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField, String filterKey) {
 	    Field parentField = null;
 	    Entity useEntity;
 	    if (entityOrField instanceof Field) {
@@ -122,8 +120,10 @@ public class MetadataGetting extends BaseControll {
         }
 
 		for (Field field : MetadataSorter.sortFields(useEntity)) {
-			if (!FieldPortalAttrs.instance.allowByType(field, fromType)) {
-				continue;
+			if ("SEARCH".equalsIgnoreCase(filterKey)) {
+				if (!field.isQueryable() || EasyMeta.getDisplayType(field) == DisplayType.BARCODE) {
+					continue;
+				}
 			}
 
 			Map<String, Object> map = buildField(field);

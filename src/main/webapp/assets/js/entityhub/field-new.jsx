@@ -7,7 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(function () {
   const entity = $urlp('entity')
-  const _btn = $('.btn-primary').click(function () {
+
+  const $btn = $('.btn-primary').click(function () {
     const fieldLabel = $val('#fieldLabel'),
       type = $val('#type'),
       comments = $val('#comments'),
@@ -29,7 +30,7 @@ $(document).ready(function () {
       return
     }
 
-    const _data = {
+    const data = {
       entity: entity,
       label: fieldLabel,
       type: type,
@@ -39,16 +40,19 @@ $(document).ready(function () {
       stateClass: stateClass
     }
 
-    _btn.button('loading')
-    $.post('/admin/entity/field-new', JSON.stringify(_data), function (res) {
-      _btn.button('reset')
+    $btn.button('loading')
+    $.post('/admin/entity/field-new', JSON.stringify(data), function (res) {
+      $btn.button('reset')
       if (res.error_code === 0) {
         if ($val('#saveAndNew')) {
           RbHighbar.success('字段已添加')
           $('#fieldLabel, #comments').val('')
           $('#type').val('TEXT').trigger('change')
           $('#fieldLabel').focus()
+          // @see `field-new.jsp`
           parent && parent.loadFields && parent.loadFields()
+          // @see `form-design.jsx`
+          parent && parent.add2Layout && parent.add2Layout($val('#add2Layout'), res.data)
         } else {
           parent.location.href = `${rb.baseUrl}/admin/entity/${entity}/field/${res.data}`
         }
@@ -60,6 +64,8 @@ $(document).ready(function () {
   let classificationLoaded = false
   $('#type').change(function () {
     parent.RbModal.resize()
+
+    $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     const dt = $(this).val()
     $('.J_dt-' + dt).removeClass('hide')
 
@@ -89,8 +95,11 @@ $(document).ready(function () {
       }
     } else if (dt === 'STATE') {
       // NOOP
-    } else {
-      $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     }
   })
+
+  if ($urlp('ref') === 'form-design') {
+    $('#add2Layout').parent().removeClass('hide')
+    $('#saveAndNew').attr('checked', true).parent().addClass('hide')
+  }
 })

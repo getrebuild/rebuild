@@ -37,11 +37,17 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 	// 设置页面无缓存
 	// 如果使用了第三方缓存策略（如 nginx），可以将此值设为 false
 	private boolean noCache = true;
-	
+
+    /**
+     * @param noCache
+     */
 	public void setNoCache(boolean noCache) {
 		this.noCache = noCache;
 	}
-	
+
+    /**
+     * @return
+     */
 	public boolean isNoCache() {
 		return noCache;
 	}
@@ -76,7 +82,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
             // for Language
             Application.getSessionStore().setLocale(AppUtils.getLocale(request));
             // Last active
-            Application.getSessionStore().storeLastActive(request);
+			if (!(isIgnoreActive(requestUrl) || ServletUtils.isAjaxRequest(request))) {
+				Application.getSessionStore().storeLastActive(request);
+			}
         }
 
 		boolean chain = super.preHandle(request, response, handler);
@@ -174,20 +182,19 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 				return false;
 			}
 			
-		} else {
-			if (!inIgnoreRes(requestUrl)) {
-				LOG.warn("Unauthorized access [ " + requestUrl + " ] from "
-						+ StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>")
-						+ " , " + ServletUtils.getRemoteAddr(request));
+		} else if (!inIgnoreRes(requestUrl)) {
+			LOG.warn("Unauthorized access [ " + requestUrl + " ] from "
+					+ StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "<unknow>")
+					+ " via " + ServletUtils.getRemoteAddr(request));
 
-				if (ServletUtils.isAjaxRequest(request)) {
-					ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));
-				} else {
-					response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestUrl));
-				}
-				return false;
+			if (ServletUtils.isAjaxRequest(request)) {
+				ServletUtils.writeJson(response, AppUtils.formatControllMsg(403, "未授权访问"));
+			} else {
+				response.sendRedirect(ServerListener.getContextPath() + "/user/login?nexturl=" + CodecUtils.urlEncode(requestUrl));
 			}
+			return false;
 		}
+
 		return true;
 	}
 	
@@ -208,7 +215,16 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/")
 				|| reqUrl.startsWith("/commons/announcements")
                 || reqUrl.startsWith("/commons/url-safe")
-                || reqUrl.startsWith("/filex/access/");
+                || reqUrl.startsWith("/filex/access/")
+                || reqUrl.startsWith("/commons/barcode/render");
+	}
+
+	/**
+	 * @param reqUrl
+	 * @return
+	 */
+	private static boolean isIgnoreActive(String reqUrl) {
+		return reqUrl.contains("/language/") || reqUrl.contains("/user-avatar");
 	}
 
     /**
@@ -220,6 +236,9 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 	private static boolean isSpecCache(String reqUrl) {
         reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
         return reqUrl.startsWith("/filex/img/") || reqUrl.startsWith("/account/user-avatar/")
-                || reqUrl.startsWith("/language/");
+                || reqUrl.startsWith("/language/")
+				|| reqUrl.startsWith("/commons/barcode/");
     }
+
+
 }

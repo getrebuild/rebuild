@@ -29,6 +29,7 @@
 							</div>
 							<div class="col-12 col-md-6">
 								<div class="dataTables_oper">
+									<button class="btn btn-space btn-secondary J_view-online" type="button"><i class="icon zmdi zmdi-accounts"></i> 查看在线用户</button>
 									<div class="btn-group btn-space">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
 										<div class="dropdown-menu dropdown-menu-right">
@@ -50,7 +51,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: $pgt.RecordList,
+	type: 'RecordList',
 	entity: ['LoginLog','登陆日志','assignment-account'],
 	listConfig: ${DataListConfig},
 	advFilter: false
@@ -59,6 +60,7 @@ window.__PageConfig = {
 <script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/rb-forms.exts.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/admin/online-users.jsx" type="text/babel"></script>
 <script type="text/babel">
 RbList.renderAfter = function() {
     let ipAddrIndex = -1
@@ -82,6 +84,9 @@ RbList.renderAfter = function() {
 		})
     })
 }
+$(document).ready(() => {
+	$('.J_view-online').click(() => renderRbcomp(<OnlineUserViewer />))
+})
 </script>
 </body>
 </html>

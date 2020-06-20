@@ -61,7 +61,7 @@
 											<div class="input-group-append"><button title="高级查询" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button></div>
 										</div>
 									</div>
-									<div class="input-group input-search">
+									<div class="input-group input-search float-left">
 										<input class="form-control" type="text" placeholder="查询${entityLabel}" maxlength="40">
 										<span class="input-group-btn"><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button></span>
 									</div>
@@ -69,8 +69,8 @@
 							</div>
 							<div class="col-12 col-md-6">
 								<div class="dataTables_oper">
-									<button class="btn btn-space btn-secondary J_view" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
-									<button class="btn btn-space btn-secondary J_edit" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
+									<button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> 打开</button>
+									<button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> 编辑</button>
 									<button class="btn btn-space btn-primary J_new"><i class="icon zmdi zmdi-plus"></i> 新建</button>
 									<div class="btn-group btn-space J_action">
 										<button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">更多 <i class="icon zmdi zmdi-more-vert"></i></button>
@@ -101,7 +101,7 @@
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
-	type: $pgt.RecordList,
+	type: 'RecordList',
 	entity: ['${entityName}','${entityLabel}','${entityIcon}'],
 	privileges: ${entityPrivileges},
 	listConfig: ${DataListConfig},

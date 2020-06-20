@@ -8,8 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.business.trigger.impl;
 
 import cn.devezhao.commons.RegexUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Record;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -18,9 +17,8 @@ import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerException;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.SMSender;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.helper.fieldvalue.ContentWithFieldVars;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.Message;
@@ -30,12 +28,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -46,7 +40,6 @@ public class SendNotification implements TriggerAction {
 	private static final Log LOG = LogFactory.getLog(SendNotification.class);
 
     // 通知
-    @SuppressWarnings("unused")
     private static final int TYPE_NOTIFICATION = 1;
     // 邮件
     private static final int TYPE_MAIL = 2;
@@ -85,8 +78,12 @@ public class SendNotification implements TriggerAction {
 			LOG.warn("Could not send because sms-service is unavailable");
 		}
 
+		// 这里等待一会，因为主事物可能未完成，如果有变量可能脏读
+		ThreadPool.waitFor(3000);
+
 		String message = content.getString("content");
-		message = formatMessage(message, context.getSourceRecord());
+		message = ContentWithFieldVars.replaceWithRecord(message, context.getSourceRecord());
+
 		// for email
 		String subject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
 
@@ -103,7 +100,9 @@ public class SendNotification implements TriggerAction {
 					SMSender.sendSMS(mobile, message);
 				}
 
-            } else {
+            }
+		    // default: TYPE_NOTIFICATION
+		    else {
     			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 	    		Application.getNotifications().send(m);
 
@@ -116,56 +115,8 @@ public class SendNotification implements TriggerAction {
 		// NOOP
 	}
 
-    private static final Pattern PATT_FIELD = Pattern.compile("\\{([0-9a-zA-Z._]+)}");
-	/**
-	 * @param message
-	 * @param recordId
-	 * @return
-	 */
-	protected String formatMessage(String message, ID recordId) {
-        Map<String, String> vars = null;
-	    if (recordId != null) {
-	        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-            vars = new HashMap<>();
-
-            Matcher m = PATT_FIELD.matcher(message);
-            while (m.find()) {
-                String field = m.group(1);
-                if (MetadataHelper.getLastJoinField(entity, field) == null) {
-                    continue;
-                }
-                vars.put(field, null);
-            }
-
-            if (!vars.isEmpty()) {
-                String sql = String.format("select %s from %s where %s = ?",
-                        StringUtils.join(vars.keySet(), ","), entity.getName(), entity.getPrimaryField().getName());
-
-                Record o = Application.createQueryNoFilter(sql)
-                        .setParameter(1, recordId)
-                        .record();
-                if (o != null) {
-                    for (String field : vars.keySet()) {
-                        Object value = o.getObjectValue(field);
-                        value = FieldValueWrapper.instance.wrapFieldValue(
-                                value, MetadataHelper.getLastJoinField(entity, field), true);
-                        if (value != null) {
-                            vars.put(field, value.toString());
-                        }
-                    }
-                }
-            }
-        }
-	    
-	    if (vars != null) {
-	        for (Map.Entry<String, String> e : vars.entrySet()) {
-	            message = message.replaceAll(
-	                    "\\{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
-            }
-        }
-        return message;
-	}
-
+	// 这里使用异步可能存在脏读问题
+	// 但考虑到具体的业务消息（短信、邮件）发送后也不能撤销、提升速度
 	@Override
 	public boolean useAsync() {
 		return true;

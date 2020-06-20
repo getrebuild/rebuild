@@ -11,11 +11,6 @@ import cn.devezhao.commons.ObjectUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
-import org.apache.commons.lang.StringUtils;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 树图
@@ -52,32 +47,18 @@ public class TreemapChart extends ChartData {
 		TreeBuilder builder = new TreeBuilder(dataRaw, this);
 
         return JSONUtils.toJSONObject(
-                new String[] { "data", "xLabel", "xAmount" },
-                new Object[] { builder.toJSON(), num1.getLabel(), xAmount });
+                new String[] { "data", "xLabel", "xAmount", "_renderOption" },
+                new Object[] { builder.toJSON(), num1.getLabel(), xAmount, config.getJSONObject("option") });
 	}
 	
 	@Override
 	public Numerical[] getNumericals() {
 		Numerical[] nums = super.getNumericals();
 		if (nums.length == 0) {
-			Numerical d = new Numerical(getSourceEntity().getPrimaryField(), FormatSort.NONE, FormatCalc.COUNT, null, 0, null);
+			Numerical d = new Numerical(
+					getSourceEntity().getPrimaryField(), FormatSort.NONE, FormatCalc.COUNT, null, 0, null);
 			return new Numerical[] { d };
 		}
 		return nums;
-	}
-	
-	protected String buildSql(Dimension[] dims, Numerical num) {
-		List<String> dimSqlItems = new ArrayList<>();
-		for (Dimension dim : dims) {
-			dimSqlItems.add(dim.getSqlName());
-		}
-		
-		String sql = "select {0},{1} from {2} where {3} group by {0}";
-		sql = MessageFormat.format(sql, 
-				StringUtils.join(dimSqlItems, ", "),
-				num.getSqlName(),
-				getSourceEntity().getName(),
-				getFilterSql());
-		return sql;
 	}
 }

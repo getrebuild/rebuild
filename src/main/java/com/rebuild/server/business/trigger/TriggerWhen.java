@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.trigger;
@@ -22,7 +11,7 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import com.rebuild.server.service.EntityService;
 
 /**
- * 动作类型
+ * 触发动作定义
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
@@ -57,11 +46,15 @@ public enum TriggerWhen {
 	/**
 	 * 审批通过
 	 */
-	APPROVED(EntityService.UNSHARE.getMask() * 2),   // 128
+	APPROVED(128),
 	/**
 	 * 审批撤销
 	 */
-	REVOKED(EntityService.UNSHARE.getMask() * 4)  // 256
+	REVOKED(256),
+	/**
+	 * 定时
+	 */
+	TIMER(512),
 
 	;
 	

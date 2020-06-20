@@ -125,7 +125,7 @@ public class DataExporter extends SetUser<DataExporter> {
                 if (cellVal == null) {
                     cellVal = StringUtils.EMPTY;
                 } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
-                        || dt == DisplayType.ANYREFERENCE) {
+                        || dt == DisplayType.ANYREFERENCE || dt == DisplayType.BARCODE) {
                     cellVal = "[暂不支持" + dt.getDisplayName() + "字段]";
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位

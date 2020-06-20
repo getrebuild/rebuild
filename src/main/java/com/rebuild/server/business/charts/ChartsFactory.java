@@ -73,7 +73,11 @@ public class ChartsFactory {
 			return new FunnelChart(config).setUser(user);
 		} else if ("TREEMAP".equalsIgnoreCase(type)) {
 			return new TreemapChart(config).setUser(user);
-		} else {
+		} else if ("RADAR".equalsIgnoreCase(type)) {
+			return new RadarChart(config).setUser(user);
+        } else if ("SCATTER".equalsIgnoreCase(type)) {
+            return new ScatterChart(config).setUser(user);
+        } else {
 			for (BuiltinChart ch : getBuiltinCharts()) {
 				if (ch.getChartType().equalsIgnoreCase(type)) {
 					return ((ChartData) ch).setUser(user);

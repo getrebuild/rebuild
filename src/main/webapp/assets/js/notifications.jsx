@@ -11,8 +11,8 @@ $(document).ready(() => {
   if (window.__PageConfig && window.__PageConfig.type === 'Approval') mList = <ApprovalList />
   renderRbcomp(mList, 'message-list', function () { mList = this })
 
-  const btns = $('.notification-type>a').click(function () {
-    btns.removeClass('active')
+  const $btns = $('.notification-type>a').click(function () {
+    $btns.removeClass('active')
     $(this).addClass('active')
     mList.fetchList(1, $(this).data('type'))
   })
@@ -30,23 +30,29 @@ class MessageList extends React.Component {
 
   render() {
     const msglist = this.state.list || []
-    return <div ref={(c) => this._list = c}>
-      <div className="rb-notifications notification-list">
-        <ul className="list-unstyled">
-          {msglist.map((item) => { return this.renderItem(item) })}
-        </ul>
-        {this.state.list && msglist.length === 0 &&
-          <div className="list-nodata"><span className="zmdi zmdi-notifications"></span><p>暂无消息</p></div>}
-      </div>
-      {(this.state.page > 1 || msglist.length >= this.state.pageSize) &&
-        <div className="notification-page">
-          <ul className="pagination pagination-rounded mb-0">
-            <li className={`page-item ${this.state.page < 2 ? 'disabled' : ''}`}><a onClick={() => this.gotoPage(-1)} className="page-link"><i className="icon zmdi zmdi-chevron-left" /></a></li>
-            <li className="page-no"><span>{this.state.page}</span></li>
-            <li className={`page-item ${msglist.length < this.state.pageSize ? 'disabled' : ''}`}><a onClick={() => this.gotoPage(1)} className="page-link"><i className="icon zmdi zmdi-chevron-right" /></a></li>
+    return (
+      <div ref={(c) => this._list = c}>
+        <div className="rb-notifications notification-list">
+          <ul className="list-unstyled">
+            {msglist.map((item) => { return this.renderItem(item) })}
           </ul>
-        </div>}
-    </div>
+          {this.state.list && msglist.length === 0 &&
+            <div className="list-nodata"><span className="zmdi zmdi-notifications"></span><p>暂无消息</p></div>}
+        </div>
+        {(this.state.page > 1 || msglist.length >= this.state.pageSize) &&
+          <div className="notification-page">
+            <ul className="pagination pagination-rounded mb-0">
+              <li className={`page-item ${this.state.page < 2 ? 'disabled' : ''}`}>
+                <a onClick={() => this.gotoPage(-1)} className="page-link"><i className="icon zmdi zmdi-chevron-left" /></a>
+              </li>
+              <li className="page-no"><span>{this.state.page}</span></li>
+              <li className={`page-item ${msglist.length < this.state.pageSize ? 'disabled' : ''}`}>
+                <a onClick={() => this.gotoPage(1)} className="page-link"><i className="icon zmdi zmdi-chevron-right" /></a>
+              </li>
+            </ul>
+          </div>}
+      </div>
+    )
   }
 
   renderItem(item) {
@@ -63,14 +69,24 @@ class MessageList extends React.Component {
           <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
           <div className="date">{item[2]}</div>
         </div>
-        {append && <a title="查看相关记录" target="_blank" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
+        {append
+          && <a title="查看相关记录" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
       </span>
     </li>
   }
 
   componentDidMount() {
     if (this.props.lazy !== true) this.fetchList()
-    $('.read-all').click(() => this.makeRead('ALL'))
+
+    const that = this
+    $('.read-all').click(() => {
+      RbAlert.create('确认已读全部消息？', {
+        confirm: function () {
+          this.hide()
+          that.makeRead('ALL')
+        }
+      })
+    })
   }
 
   fetchList(page, type) {
@@ -79,20 +95,12 @@ class MessageList extends React.Component {
       type: type || this.state.type
     }, () => {
       $.get(`/notification/messages?type=${this.state.type}&pageNo=${this.state.page}`, (res) => {
-        this.setState({ list: res.data || [] }, this.__loadAfter)
+        this.setState({ list: res.data || [] }, () => {
+          if (focusItem && $('.notification.focus').length > 0) setTimeout(() => $gotoSection($('.notification.focus').offset().top - 66), 200)
+          focusItem = null
+        })
       })
     })
-  }
-
-  __loadAfter = () => {
-    $(this._list).find('.notification-info a')
-      .attr('target', '_blank')
-      .addClass('link')
-      .click('click', (e) => {
-        if (e && e.stopPropagation) e.stopPropagation()
-      })
-    setTimeout(() => $gotoSection(), 200)
-    focusItem = null
   }
 
   gotoPage(p) {
@@ -127,7 +135,7 @@ class ApprovalList extends MessageList {
       page: page || this.state.page
     }, () => {
       $.get(`/notification/approvals?pageNo=${this.state.page || 1}`, (res) => {
-        this.setState({ list: res.data || [] }, this.__loadAfter)
+        this.setState({ list: res.data || [] })
       })
     })
   }

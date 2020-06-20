@@ -58,7 +58,7 @@ class FilesList extends React.Component {
   renderExtras(item) {
     return <React.Fragment >
       <span>{item.fileSize}</span>
-      {item.relatedRecord && <span><a target="_blank" title="点击查看相关记录" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>{item.relatedRecord[1]}</a></span>}
+      {item.relatedRecord && <span><a title="点击查看相关记录" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>{item.relatedRecord[1]}</a></span>}
     </React.Fragment>
   }
 
@@ -118,9 +118,10 @@ $(document).ready(() => {
     $('.J_sort > .btn').find('span').text($this.text())
     filesList && filesList.loadData()
   })
-  const btn = $('.input-search .btn').click(() => {
+
+  const $btn = $('.input-search .btn').click(() => {
     currentSearch = $('.input-search input').val()
     filesList && filesList.loadData()
   })
-  $('.input-search input').keydown((event) => { if (event.which === 13) btn.trigger('click') })
+  $('.input-search input').keydown((e) => e.which === 13 ? $btn.trigger('click') : true)
 })

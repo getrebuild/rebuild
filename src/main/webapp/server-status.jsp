@@ -7,6 +7,7 @@
 <%@ page import="com.rebuild.server.Application"%>
 <%@ page import="com.rebuild.server.ServerStatus"%>
 <%@ page import="com.rebuild.server.ServerStatus.Status"%>
+<%@ page import="java.util.Map" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -36,7 +37,7 @@
 	<table class="table table-bordered table-sm table-hover">
 	<tbody>
         <tr>
-            <th width="30%">Core Service</th>
+            <th width="30%">REBUILD Service</th>
             <td class="text-danger"><%=Application.serversReady() ? "<span class='text-success'>OK<span>" : "启动失败"%></td>
         </tr>
 		<% for (Status s : ServerStatus.getLastStatus()) { %>
@@ -89,6 +90,14 @@
 		<tr>
 			<th>Temp Directory</th>
 			<td><%=SysConfiguration.getFileOfTemp("/")%></td>
+		</tr>
+		<tr class="<%=request.getParameter("jvm") == null ? "hide" : ""%>">
+			<th>JVM Arguments</th>
+			<td>
+				<div style="word-break:break-all;word-wrap:break-word;">
+				<% for (Map.Entry<String, String> e : System.getenv().entrySet()) out.print(e.getKey() + "=" + e.getValue() + "<br>"); %>
+				</div>
+			</td>
 		</tr>
 	</tbody>
 	</table>

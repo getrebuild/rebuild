@@ -40,13 +40,19 @@
         	<div class="rb-content">
 	        	<div class="field-head">
 		        	<h4 class="float-left">字段列表</h4>
-		        	<div class="float-right"><span class="not-nullable">必填</span><span class="readonly">只读</span></div>
+					<div class="float-right">
+						<a class="btn btn-link btn-sm p-0 J_new-field" style="margin-top:10px;">+ 添加新字段</a>
+					</div>
 				</div>
 	        	<div class="rb-scroller">
 	        		<div class="field-list dd-list">
 						<div class="nodata">全部字段已布局</div>
 					</div>
 	        	</div>
+				<div class="field-legend">
+					<span class="not-nullable">必填</span>
+					<span class="readonly">只读</span>
+				</div>
         	</div>
         </div>
 		<div class="main-content container-fluid">
@@ -77,7 +83,8 @@
 <script>
 window.__PageConfig = {
 	formConfig: ${FormConfig} || [],
-	entityName: '${entityName}'
+	entityName: '${entityName}',
+	isSuperAdmin: ${isSuperAdmin}
 }
 </script>
 <script src="${baseUrl}/assets/js/entityhub/form-design.jsx" type="text/babel"></script>

@@ -16,8 +16,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
 import com.rebuild.server.helper.SetUser;
+import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -28,6 +28,7 @@ import com.rebuild.server.service.query.AdvFilterParser;
 import org.apache.commons.lang.StringUtils;
 
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,7 +43,7 @@ import java.util.Set;
  * @since 12/14/2018
  */
 public abstract class ChartData extends SetUser<ChartData> implements ChartSpec {
-	
+
 	protected JSONObject config;
 
 	private boolean fromPreview = false;
@@ -236,7 +237,7 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 				sorts.add(dim.getSqlName() + " " + fs.toString().toLowerCase());
 			}
 		}
-		// 优先维度排序
+		// NOTE 优先维度排序
 		if (!sorts.isEmpty()) {
 			return String.join(", ", sorts);
 		}
@@ -249,36 +250,39 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 		}
 		return sorts.isEmpty() ? null : String.join(", ", sorts);
 	}
-	
+
 	/**
-	 * @param axis
-	 * @param value
-	 * @return
-	 */
-	protected String wrapAxisValue(Axis axis, Object value) {
-		return axis instanceof Numerical
-				? wrapAxisValue((Numerical) axis, value)
-				: wrapAxisValue((Dimension) axis, value);
-	}
-	
-	/**
-	 * 格式化数值
+	 * 格式化数值（无千分位）
 	 * 
-	 * @param axis
+	 * @param numerical
 	 * @param value
 	 * @return
 	 */
-	protected String wrapAxisValue(Numerical axis, Object value) {
-		if (value == null) {
-			return "0";
+	protected String wrapAxisValue(Numerical numerical, Object value) {
+		return wrapAxisValue(numerical, value, Boolean.FALSE);
+	}
+
+	/**
+	 * @param numerical
+	 * @param value
+	 * @param thousands 是否千分位
+	 * @return
+	 */
+	protected String wrapAxisValue(Numerical numerical, Object value, boolean thousands) {
+		if (ChartsHelper.isZero(value)) {
+			return ChartsHelper.VALUE_ZERO;
 		}
-		
+
 		String format = "###";
-		if (axis.getScale() > 0) {
+		if (numerical.getScale() > 0) {
 			format = "##0.";
-			format = StringUtils.rightPad(format, format.length() + axis.getScale(), "0");
+			format = StringUtils.rightPad(format, format.length() + numerical.getScale(), "0");
 		}
-		
+
+		if (thousands) {
+			format = "#," + format;
+		}
+
 		if (ID.isId(value)) {
 			value = 1;
 		}
@@ -288,16 +292,16 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 	/**
 	 * 获取纬度标签
 	 * 
-	 * @param axis
+	 * @param dimension
 	 * @param value
 	 * @return
 	 */
-	protected String wrapAxisValue(Dimension axis, Object value) {
+	protected String wrapAxisValue(Dimension dimension, Object value) {
 		if (value == null) {
-			return "无";
+			return ChartsHelper.VALUE_NONE;
 		}
 
-		EasyMeta axisField = EasyMeta.valueOf(axis.getField());
+		EasyMeta axisField = EasyMeta.valueOf(dimension.getField());
 		DisplayType axisType = axisField.getDisplayType();
 
 		String label;
@@ -308,25 +312,6 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
 			label = value.toString();
 		}
 		return label;
-	}
-
-	/**
-	 * 格式化汇总数值
-	 *
-	 * @param sumOfAxis
-	 * @param value
-	 * @return
-	 */
-	protected String wrapSumValue(Axis sumOfAxis, Object value) {
-		if (value == null) {
-			return "0";
-		}
-
-		if (sumOfAxis instanceof Numerical) {
-			return wrapAxisValue((Numerical) sumOfAxis, value);
-		} else {
-			return value.toString();
-		}
 	}
 	
 	/**
@@ -370,5 +355,100 @@ public abstract class ChartData extends SetUser<ChartData> implements ChartSpec 
             return Application.createQuery(sql,
                     UserHelper.isAdmin(chartOwning) ? UserService.SYSTEM_USER : this.getUser());
         }
+	}
+
+	/**
+	 * 1D [1-9]N
+	 *
+	 * @param dim
+	 * @param nums
+	 * @return
+	 */
+	protected String buildSql(Dimension dim, Numerical[] nums) {
+		List<String> numSqlItems = new ArrayList<>();
+		for (Numerical num : nums) {
+			numSqlItems.add(num.getSqlName());
+		}
+
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		sql = MessageFormat.format(sql,
+				dim.getSqlName(),
+				StringUtils.join(numSqlItems, ", "),
+				getSourceEntity().getName(), getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * [1-9]D 1N
+	 *
+	 * @param dims
+	 * @param num
+	 * @return
+	 */
+	protected String buildSql(Dimension[] dims, Numerical num) {
+		List<String> dimSqlItems = new ArrayList<>();
+		for (Dimension dim : dims) {
+			dimSqlItems.add(dim.getSqlName());
+		}
+
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		sql = MessageFormat.format(sql,
+				StringUtils.join(dimSqlItems, ", "),
+				num.getSqlName(),
+				getSourceEntity().getName(),
+				getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * 1D 1N
+	 *
+	 * @param dim
+	 * @param num
+	 * @return
+	 */
+	protected String buildSql(Dimension dim, Numerical num) {
+		String sql = "select {0},{1} from {2} where {3} group by {0}";
+		sql = MessageFormat.format(sql,
+				dim.getSqlName(),
+				num.getSqlName(),
+				getSourceEntity().getName(), getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * [1-9]N
+	 * @param nums
+	 * @return
+	 */
+	protected String buildSql(Numerical[] nums) {
+		List<String> numSqlItems = new ArrayList<>();
+		for (Numerical num : nums) {
+			numSqlItems.add(num.getSqlName());
+		}
+
+		String sql = "select {0} from {1} where {2}";
+		sql = MessageFormat.format(sql,
+				StringUtils.join(numSqlItems, ", "),
+				getSourceEntity().getName(), getFilterSql());
+
+		return appendSqlSort(sql);
+	}
+
+	/**
+	 * 添加排序 SQL
+	 *
+	 * @param sql
+	 * @return
+	 */
+	protected String appendSqlSort(String sql) {
+		String sorts = getSortSql();
+		if (sorts != null) {
+			sql += " order by " + sorts;
+		}
+		return sql;
 	}
 }

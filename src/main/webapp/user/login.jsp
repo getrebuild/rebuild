@@ -20,7 +20,7 @@
 .copyright,
 .copyright * {
 	color: rgba(255, 255, 255, 0.9) !important;
-    text-shadow: 0px 1px 1px #444;
+    text-shadow: 0px 1px 1px #555;
 	max-width: 680px;
 	margin: 0 auto;
 	text-align: center;
@@ -111,12 +111,10 @@
 					</div>
 				</div>
 				<div class="splash-footer">
-					<div class="copyright">
-						&copy; ${appName}
-					</div>
+					<div class="copyright">&copy; ${appName}</div>
 				</div>
 			</div>
-			<div class="copyright">${bundle.lang('RightsTip')}</div>
+			<div class="copyright rbv-hide">${bundle.lang('RightsTip')}</div>
 		</div>
 	</div>
 </div>

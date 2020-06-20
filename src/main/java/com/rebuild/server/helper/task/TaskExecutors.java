@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper.task;
@@ -21,12 +10,14 @@ package com.rebuild.server.helper.task;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -39,11 +30,17 @@ import java.util.concurrent.TimeUnit;
  * 
  * @author devezhao
  * @since 09/29/2018
+ * @see org.springframework.core.task.SyncTaskExecutor
+ * @see org.springframework.core.task.AsyncTaskExecutor
  */
 public class TaskExecutors extends QuartzJobBean {
 
+	private static final Log LOG = LogFactory.getLog(TaskExecutors.class);
+
 	private static final int MAX_TASK = Runtime.getRuntime().availableProcessors() / 2;
+
 	private static final int MAX_QUEUE = MAX_TASK * 10;
+
 	private static final ExecutorService EXECS = new ThreadPoolExecutor(
 			MAX_TASK, MAX_TASK, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(MAX_QUEUE));
 	
@@ -120,8 +117,17 @@ public class TaskExecutors extends QuartzJobBean {
 			long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
 			if (leftTime > 60 * 120) {
 				TASKS.remove(e.getKey());
-				Application.LOG.info("HeavyTask self-destroying : " + e.getKey());
+				LOG.info("HeavyTask self-destroying : " + e.getKey());
 			}
+		}
+	}
+
+	/**
+	 */
+	public void shutdown() {
+		List<Runnable> runs = EXECS.shutdownNow();
+		if (!runs.isEmpty()) {
+			LOG.warn(runs.size() + " tasks interrupted");
 		}
 	}
 }

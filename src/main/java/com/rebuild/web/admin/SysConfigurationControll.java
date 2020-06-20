@@ -53,6 +53,11 @@ public class SysConfigurationControll extends BasePageControll {
 		for (ConfigurableItem item : ConfigurableItem.values()) {
 			mv.getModel().put(item.name(), SysConfiguration.get(item));
 		}
+
+        JSONObject authority = License.queryAuthority();
+		mv.getModel().put("LicenseType",
+                authority.getString("authType") + " (" + authority.getString("authObject") + ")");
+
 		return mv;
 	}
 
@@ -198,11 +203,6 @@ public class SysConfigurationControll extends BasePageControll {
             writeFailure(response, "测试发送失败，请检查你的配置");
         }
     }
-
-	@RequestMapping("systems/query-authority")
-	public void queryAuthority(HttpServletResponse response) throws IOException {
-		writeSuccess(response, License.queryAuthority());
-	}
 
 	private String[] starsAccount(String[] account, int ...index) {
 		if (account == null) {

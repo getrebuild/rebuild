@@ -14,7 +14,8 @@ class RbViewForm extends React.Component {
     super(props)
     this.state = { ...props }
 
-    this.onViewEditable = rb.env === 'dev'
+    // this.onViewEditable = rb.env === 'dev'
+    this.onViewEditable = true
     this.__FormData = {}
   }
 
@@ -32,7 +33,7 @@ class RbViewForm extends React.Component {
       }
 
       let hadApproval = res.data.hadApproval
-      if (wpc.type === $pgt.SlaveView) {
+      if (wpc.type === 'SlaveView') {
         if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: '主记录正在审批中' })
         else if (hadApproval === 10) $('.J_edit, .J_delete').remove()
         hadApproval = null
@@ -349,7 +350,7 @@ const RbViewPage = {
 
     $('.J_delete').click(function () {
       if ($(this).attr('disabled')) return
-      const needEntity = (wpc.type === $pgt.SlaveList || wpc.type === $pgt.SlaveView) ? null : entity[0]
+      const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => {
         // 刷新主视图
         parent && parent.RbViewModal && parent.RbViewModal.holderMain() && parent.RbViewModal.holderMain(true)

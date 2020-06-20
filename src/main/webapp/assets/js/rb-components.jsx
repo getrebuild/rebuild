@@ -33,12 +33,12 @@ class RbModal extends React.Component {
   }
 
   componentDidMount() {
-    const root = $(this._rbmodal).modal({ show: true, backdrop: this.props.backdrop === false ? false : 'static', keyboard: false })
+    const $root = $(this._rbmodal).modal({ show: true, backdrop: this.props.backdrop === false ? false : 'static', keyboard: false })
       .on('hidden.bs.modal', () => {
         $keepModalOpen()
         if (this.props.disposeOnHide === true) {
-          root.modal('dispose')
-          $unmount(root.parent())
+          $root.modal('dispose')
+          $unmount($root.parent())
         }
       })
   }
@@ -56,13 +56,13 @@ class RbModal extends React.Component {
   resize() {
     if (this.props.children) return
 
-    const root = $(this._rbmodal)
+    const $root = $(this._rbmodal)
     $setTimeout(() => {
-      let iframe = root.find('iframe')
-      let height = iframe.contents().find('.main-content').outerHeight()
-      if (height === 0) height = iframe.contents().find('body').height()
+      const $iframe = $root.find('iframe')
+      let height = $iframe.contents().find('.main-content').outerHeight()
+      if (height === 0) height = $iframe.contents().find('body').height()
       // else height += 45 // .main-content's padding
-      root.find('.modal-body').height(height)
+      $root.find('.modal-body').height(height)
       this.setState({ frameLoad: false })
     }, 20, 'RbModal-resize')
   }
@@ -82,6 +82,7 @@ class RbModal extends React.Component {
     if (ext.disposeOnHide === false && !!that.__HOLDERs[url]) {
       that.__HOLDER = that.__HOLDERs[url]
       that.__HOLDER.show()
+      that.__HOLDER.resize()
     } else {
       renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />, null, function () {
         that.__HOLDER = this
@@ -147,7 +148,7 @@ class RbFormHandler extends RbModalHandler {
     const id = target.dataset.id || target.name
     if (!id) return
     const val = target.type === 'checkbox' ? target.checked : target.value
-    let s = {}
+    const s = {}
     s[id] = val
     this.setState(s, call)
     this.handleChangeAfter(id, val)
@@ -156,10 +157,9 @@ class RbFormHandler extends RbModalHandler {
 
   componentWillUnmount() {
     // destroy select2
-    const ss = this.__select2
-    if (ss) {
-      if ($.type(ss) === 'array') $(ss).each(function () { this.select2('destroy') })
-      else ss.select2('destroy')
+    if (this.__select2) {
+      if ($.type(this.__select2) === 'array') $(this.__select2).each(function () { this.select2('destroy') })
+      else this.__select2.select2('destroy')
       this.__select2 = null
     }
   }
@@ -180,21 +180,22 @@ class RbAlert extends React.Component {
   }
 
   render() {
-    let style = {}
-    if (this.props.width) style.maxWidth = ~~this.props.width
-
-    return <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex={this.state.tabIndex || -1}>
-      <div className="modal-dialog modal-dialog-centered" style={style}>
-        <div className="modal-content">
-          <div className="modal-header pb-0">
-            <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
-          </div>
-          <div className="modal-body">
-            {this.renderContent()}
+    const styles = {}
+    if (this.props.width) styles.maxWidth = ~~this.props.width
+    return (
+      <div className="modal rbalert" ref={(c) => this._dlg = c} tabIndex={this.state.tabIndex || -1}>
+        <div className="modal-dialog modal-dialog-centered" style={styles}>
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
+            </div>
+            <div className="modal-body">
+              {this.renderContent()}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    )
   }
 
   renderContent() {
@@ -209,21 +210,23 @@ class RbAlert extends React.Component {
     const cancel = (this.props.cancel || this.hide).bind(this)
     const confirm = (this.props.confirm || this.hide).bind(this)
 
-    return <div className="text-center ml-6 mr-6">
-      <div className={`text-${type}`}><i className={`modal-main-icon zmdi zmdi-${icon}`} /></div>
-      {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
-      <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
-      <div className="mt-4 mb-3">
-        <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>{this.props.cancelText || '取消'}</button>
-        <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
+    return (
+      <div className="text-center ml-6 mr-6">
+        <div className={`text-${type}`}><i className={`modal-main-icon zmdi zmdi-${icon}`} /></div>
+        {this.props.title && <h4 className="mb-2 mt-3">{this.props.title}</h4>}
+        <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
+        <div className="mt-4 mb-3">
+          <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>{this.props.cancelText || '取消'}</button>
+          <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={confirm}>{this.props.confirmText || '确定'}</button>
+        </div>
       </div>
-    </div>
+    )
   }
 
   componentDidMount() {
-    const root = $(this._dlg).modal({ show: true, keyboard: true }).on('hidden.bs.modal', () => {
-      root.modal('dispose')
-      $unmount(root.parent())
+    const $root = $(this._dlg).modal({ show: true, keyboard: true }).on('hidden.bs.modal', () => {
+      $root.modal('dispose')
+      $unmount($root.parent())
     })
   }
 
@@ -252,7 +255,7 @@ class RbAlert extends React.Component {
     }
 
     ext = ext || {}
-    let props = { ...ext, title: titleOrExt }
+    const props = { ...ext, title: titleOrExt }
     if (ext.html === true) props.htmlMessage = message
     else props.message = message
     renderRbcomp(<RbAlert {...props} />, null, ext.call)
@@ -274,13 +277,15 @@ class RbHighbar extends React.Component {
       ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
       : <div className="message pl-0">{this.props.message}</div>
 
-    return <div ref={(c) => this._rbhighbar = c} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
-      <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')} mb-0`}>
-        <button className="close" type="button" onClick={this.close}><i className="zmdi zmdi-close" /></button>
-        <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
-        {content}
+    return (
+      <div ref={(c) => this._rbhighbar = c} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
+        <div className={`alert alert-dismissible alert-${(this.props.type || 'warning')} mb-0`}>
+          <button className="close" type="button" onClick={this.close}><i className="zmdi zmdi-close" /></button>
+          <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
+          {content}
+        </div>
       </div>
-    </div>
+    )
   }
 
   componentDidMount() {
@@ -327,25 +332,29 @@ function RbAlertBox(props) {
   const type = (props || {}).type || 'warning'
   const icon = type === 'success' ? 'check' : (type === 'danger' ? 'close-circle-o' : 'info-outline')
 
-  return <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
-    <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
-    <div className="message">
-      <a className="close" data-dismiss="alert"><i className="zmdi zmdi-close" /></a>
-      <p>{props.message || 'INMESSAGE'}</p>
+  return (
+    <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
+      <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
+      <div className="message">
+        <a className="close" data-dismiss="alert"><i className="zmdi zmdi-close" /></a>
+        <p>{props.message || 'INMESSAGE'}</p>
+      </div>
     </div>
-  </div>
+  )
 }
 
 // ~~ 加载动画
 function RbSpinner(props) {
-  const spinner = <div className="rb-spinner">
-    {$.browser.msie
-      ? <span className="spinner-border spinner-border-xl text-primary"></span>
-      : <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
-        <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
-      </svg>
-    }
-  </div>
+  const spinner = (
+    <div className="rb-spinner">
+      {$.browser.msie
+        ? <span className="spinner-border spinner-border-xl text-primary"></span>
+        : <svg width="40px" height="40px" viewBox="0 0 66 66" xmlns="http://www.w3.org/2000/svg">
+          <circle fill="none" strokeWidth="4" strokeLinecap="round" cx="33" cy="33" r="30" className="circle" />
+        </svg>
+      }
+    </div>
+  )
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
 }
@@ -376,7 +385,7 @@ class UserSelector extends React.Component {
           <span className="select2-selection select2-selection--multiple">
             <ul className="select2-selection__rendered">
               {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
-              {(this.state.selected).map((item) => {
+              {this.state.selected.map((item) => {
                 return (<li key={`s-${item.id}`} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
               })}
               <li className="select2-selection__choice abtn" onClick={this.openDropdown}><a><i className="zmdi zmdi-plus"></i> 添加</a></li>
@@ -386,11 +395,12 @@ class UserSelector extends React.Component {
         <span className={`dropdown-wrapper ${this.state.dropdownOpen === false ? 'hide' : ''}`}>
           <div className="selector-search">
             <div>
-              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} onChange={(e) => this.searchItems(e)} />
+              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''}
+                ref={(c) => this._searchInput = c} onChange={(e) => this.searchItems(e)} onKeyDown={(e) => this._keyEvent(e)} />
             </div>
           </div>
           <div className="tab-container m-0">
-            <ul className="nav nav-tabs nav-tabs-classic">
+            <ul className={`nav nav-tabs nav-tabs-classic ${this.tabTypes.length < 2 ? 'hide' : ''}`}>
               {this.tabTypes.map((item) => {
                 return <li className="nav-item" key={`t-${item[0]}`}><a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a></li>
               })}
@@ -400,7 +410,13 @@ class UserSelector extends React.Component {
                 <div className="rb-scroller" ref={(c) => this._scroller = c}>
                   <ul className="select2-results__options">
                     {noResult ? noResult : this.state.items.map((item) => {
-                      return (<li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}><span className={`zmdi ${this.containsItem(item.id) ? ' zmdi-check' : ''}`}></span>{item.text}</li>)
+                      return (
+                        <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+                          <i className={`zmdi ${this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
+                          {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
+                          <span className="text">{item.text}</span>
+                        </li>
+                      )
                     })}
                   </ul>
                 </div>
@@ -437,7 +453,7 @@ class UserSelector extends React.Component {
 
   openDropdown = (e) => {
     this.setState({ dropdownOpen: true }, () => {
-      $(this._searchInput).focus()
+      this._searchInput.focus()
       if (!this.state.tabType) this.switchTab('User')
     })
   }
@@ -463,17 +479,17 @@ class UserSelector extends React.Component {
   }
 
   clickItem(e) {
-    const id = e.target.dataset.id
+    const id = e.target.dataset.id || $(e.target).parents('li').data('id')
     let exists = false
-    let ns = this.state.selected.filter((item) => {
-      if (item.id === id) {
+    const ns = this.state.selected.filter((x) => {
+      if (x.id === id) {
         exists = true
         return false
       }
       return true
     })
 
-    if (exists === false) ns.push({ id: id, text: $(e.target).text() })
+    if (!exists) ns.push({ id: id, text: $(e.target).text() })
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
 
@@ -482,15 +498,34 @@ class UserSelector extends React.Component {
   }
 
   containsItem(id) {
-    const ss = this.state.selected
-    for (let i = 0; i < ss.length; i++) {
-      if (ss[i].id === id) return true
-    }
-    return false
+    return !!this.state.selected.find((x) => { return x.id === id })
+  }
+
+  _keyEvent(e) {
+    // if (e.keyCode === 40) {
+    //   const $next = this._$foucsedItem ? this._$foucsedItem.next() : $(this._scroller).find('li:eq(0)')
+    //   if ($next.length > 0) {
+    //     this._$foucsedItem && this._$foucsedItem.removeClass('active')
+    //     $next.addClass('active')
+    //     this._$foucsedItem = $next
+    //   }
+
+    // } else if (e.keyCode === 38 && this._$foucsedItem) {
+    //   const $prev = this._$foucsedItem.prev()
+    //   if ($prev && $prev.length > 0) {
+    //     this._$foucsedItem.removeClass('active')
+    //     $prev.addClass('active')
+    //     this._$foucsedItem = $prev
+    //   }
+
+    // } else if (e.keyCode === 13 && this._$foucsedItem) {
+    //   this._$foucsedItem.trigger('click')
+    //   $stopEvent(e)
+    // }
   }
 
   getSelected() {
-    let ids = []
+    const ids = []
     this.state.selected.forEach((item) => ids.push(item.id))
     return ids
   }
@@ -504,19 +539,26 @@ class UserSelector extends React.Component {
 const UserShow = function (props) {
   const viewUrl = props.id ? `#!/View/User/${props.id}` : null
   const avatarUrl = `${rb.baseUrl}/account/user-avatar/${props.id}`
-  return <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-    <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
-    {props.showName && (<div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>{props.name}{props.deptName && <em>{props.deptName}</em>}</div>)}
-  </a>
+  return (
+    <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
+      <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
+      {props.showName && (<div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>{props.name}{props.deptName && <em>{props.deptName}</em>}</div>)}
+    </a>
+  )
 }
 
 /**
  * JSX 组件渲染
  * @param {*} jsx 
- * @param {*} target id or object of element
+ * @param {*} target id or object of element (or function of callback)
  * @param {*} call callback
  */
 const renderRbcomp = function (jsx, target, call) {
+  if (typeof target === 'function') {
+    call = target
+    target = null
+  }
+
   target = target || $random('react-comps-')
   if ($.type(target) === 'string') { // element id
     const container = document.getElementById(target)

@@ -121,12 +121,12 @@ $(document).ready(() => {
 
   $addResizeHandler(() => {
     $('#chart-preview').height($(window).height() - 170)
-    if (render_preview_chart) render_preview_chart.resize()
+    if (render_preview_chart && render_preview_chart.resize) render_preview_chart.resize()
   })
 })
 
 const CTs = {
-  SUM: '求和', AVG: '平均值', MAX: '最大值', MIN: '最小值', COUNT: '计数',
+  SUM: '求和', AVG: '平均值', MAX: '最大值', MIN: '最小值', COUNT: '计数', COUNT2: '去重计数',
   Y: '按年', Q: '按季', M: '按月', D: '按日', H: '按时',
   L1: '一级', L2: '二级', L3: '三级', L4: '四级'
 }
@@ -198,7 +198,11 @@ const add_axis = ((target, axis) => {
       $this.addClass('text-primary')
       render_preview()
     } else {
-      const state = { isNumAxis: isNumAxis, label: $dropdown.attr('data-label'), scale: $dropdown.attr('data-scale') }
+      const state = {
+        isNumAxis: isNumAxis,
+        label: $dropdown.attr('data-label'),
+        scale: $dropdown.attr('data-scale'),
+      }
       state.callback = (s) => {
         $dropdown.attr({ 'data-label': s.label, 'data-scale': s.scale })
         render_preview()

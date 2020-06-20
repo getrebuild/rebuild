@@ -17,8 +17,6 @@ import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.helper.cache.EhcacheDriver;
-import com.rebuild.server.helper.cache.JedisCacheDriver;
 import com.rebuild.utils.AES;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -114,11 +112,11 @@ public class Installer implements InstallState {
 
         // Clean cached
         if (Application.getCommonCache().isUseRedis()) {
-            try (Jedis jedis = ((JedisCacheDriver) Application.getCommonCache().getCacheTemplate()).getJedisPool().getResource()) {
+            try (Jedis jedis = Application.getCommonCache().getJedisPool().getResource()) {
                 jedis.flushAll();
             }
         } else {
-            ((EhcacheDriver) Application.getCommonCache().getCacheTemplate()).cache().clear();
+            Application.getCommonCache().getEhcacheCache().clear();
         }
     }
 
@@ -308,6 +306,6 @@ public class Installer implements InstallState {
      */
     public static boolean isUseH2() {
         String dbUrl = AesPreferencesConfigurer.getItem("db.url");
-        return dbUrl.startsWith("jdbc:h2:");
+        return dbUrl != null && dbUrl.startsWith("jdbc:h2:");
     }
 }

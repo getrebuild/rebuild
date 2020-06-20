@@ -9,8 +9,10 @@ const wpc = window.__PageConfig
 const DIVIDER_LINE = '$DIVIDER$'
 
 $(document).ready(function () {
-  $.get(`../list-field?from=FORM&entity=${wpc.entityName}`, function (res) {
-    const validFields = {}, configFields = []
+
+  $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
+    const validFields = {},
+      configFields = []
     $(wpc.formConfig.elements).each(function () { configFields.push(this.field) })
     $(res.data).each(function () {
       validFields[this.fieldName] = this
@@ -22,10 +24,10 @@ $(document).ready(function () {
       if (this.field === DIVIDER_LINE) {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
       } else if (!field) {
-        const item = $('<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[' + this.field.toUpperCase() + '] 字段已被删除</span></div></div>').appendTo('.form-preview')
-        const action = $('<div class="dd-action"><a>[移除]</a></div>').appendTo(item.find('.dd-handle'))
-        action.find('a').click(function () {
-          item.remove()
+        const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] 字段已被删除</span></div></div>`).appendTo('.form-preview')
+        const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
+        $action.find('a').click(function () {
+          $item.remove()
           check_empty()
         })
       } else {
@@ -46,8 +48,19 @@ $(document).ready(function () {
     render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', isFull: true }, '.form-preview')
   })
 
+  const _handleSave = function (elements) {
+    const data = { belongEntity: wpc.entityName, applyType: 'FORM', config: JSON.stringify(elements) }
+    data.metadata = { entity: 'LayoutConfig', id: wpc.formConfig.id || null }
+
+    $('.J_save').button('loading')
+    $.post('form-update', JSON.stringify(data), function (res) {
+      if (res.error_code === 0) location.reload()
+      else RbHighbar.error(res.error_msg)
+    })
+  }
+
   $('.J_save').click(function () {
-    const elements = []
+    const formElements = []
     $('.form-preview .J_field').each(function () {
       const $this = $(this)
       if (!$this.data('field')) return
@@ -62,23 +75,38 @@ $(document).ready(function () {
         item.__newLabel = $this.find('span').text()
         if (item.__newLabel === $this.data('label')) delete item.__newLabel
       }
-      elements.push(item)
+      formElements.push(item)
     })
-    if (elements.length === 0) { RbHighbar.create('请至少布局1个字段'); return }
+    if (formElements.length === 0) {
+      RbHighbar.create('请至少布局 1 个字段')
+      return
+    }
 
-    const _data = { belongEntity: wpc.entityName, applyType: 'FORM', config: JSON.stringify(elements) }
-    _data.metadata = { entity: 'LayoutConfig', id: wpc.formConfig.id || null }
-
-    $(this).button('loading')
-    $.post('form-update', JSON.stringify(_data), function (res) {
-      if (res.error_code === 0) location.reload()
-      else RbHighbar.error(res.error_msg)
-    })
+    if ($('.field-list .not-nullable').length > 0) {
+      RbAlert.create('有必填字段未被布局，这可能导致新建记录失败。是否仍要保存？', {
+        type: 'warning',
+        confirmText: '保存',
+        confirm: function () {
+          this.hide()
+          _handleSave(formElements)
+        }
+      })
+    } else {
+      _handleSave(formElements)
+    }
   })
 
   $addResizeHandler(() => {
     $setTimeout(() => $('.field-aside .rb-scroller').height($(window).height() - 123), 200, 'FeildAslide-resize')
   })()
+
+  $('.J_new-field').click(() => {
+    if (wpc.isSuperAdmin) {
+      RbModal.create(`${rb.baseUrl}/admin/p/entityhub/field-new?entity=${wpc.entityName}&ref=form-design`, '添加字段')
+    } else {
+      RbHighbar.error('仅超级管理员可添加字段')
+    }
+  })
 })
 
 const render_item = function (data) {
@@ -94,9 +122,8 @@ const render_item = function (data) {
   const action = $('<div class="dd-action"></div>').appendTo(handle)
   if (data.displayType) {
     $('<span class="ft">' + data.displayType + '</span>').appendTo(item)
-    $('<a class="rowspan" title="双列">[双]</a>').appendTo(action).click(function () { item.removeClass('w-100') })
-    $('<a class="rowspan" title="单列">[单]</a>').appendTo(action).click(function () { item.addClass('w-100') })
-    $('<a title="修改属性">[属性]</a>').appendTo(action).click(function () {
+    $('<a class="rowspan mr-1" title="单列/双列"><i class="zmdi zmdi-unfold-more"></i></a>').appendTo(action).click(function () { item.toggleClass('w-100') })
+    $('<a title="修改属性"><i class="zmdi zmdi-edit"></i></a>').appendTo(action).click(function () {
       let call = function (nv) {
         // 字段名
         if (nv.fieldLabel) item.find('.dd-handle>span').text(nv.fieldLabel)
@@ -115,7 +142,7 @@ const render_item = function (data) {
       renderRbcomp(<DlgEditField call={call} {...ov} />)
     })
 
-    $('<a>[移除]</a>').appendTo(action).click(function () {
+    $('<a><i class="zmdi zmdi-close"></i></a>').appendTo(action).click(function () {
       render_unset(data)
       item.remove()
       check_empty()
@@ -124,7 +151,7 @@ const render_item = function (data) {
 
   if (data.fieldName === DIVIDER_LINE) {
     item.addClass('divider')
-    $('<a title="修改属性">[属性]</a>').appendTo(action).click(function () {
+    $('<a title="修改属性"><i class="zmdi zmdi-edit"></i></a>').appendTo(action).click(function () {
       const call = function (nv) {
         item.find('.dd-handle span').text(nv.dividerName || '')
       }
@@ -132,7 +159,7 @@ const render_item = function (data) {
       renderRbcomp(<DlgEditDivider call={call} dividerName={ov || ''} />)
     })
 
-    $('<a>[移除]</a>').appendTo(action).click(function () {
+    $('<a><i class="zmdi zmdi-close"></i></a>').appendTo(action).click(function () {
       item.remove()
       check_empty()
     })
@@ -218,4 +245,20 @@ class DlgEditDivider extends DlgEditField {
       </form>
     )
   }
+}
+
+// 追加到布局
+// eslint-disable-next-line no-unused-vars
+const add2Layout = function (add, fieldName) {
+  $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
+    $(res.data).each(function () {
+      if (this.fieldName === fieldName) {
+        if (add) render_item({ ...this, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
+        else render_unset(this, '.field-list')
+        return false
+      }
+    })
+  })
+
+  RbModal.hide()
 }

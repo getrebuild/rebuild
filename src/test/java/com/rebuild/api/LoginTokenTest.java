@@ -25,6 +25,7 @@ import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author devezhao
@@ -41,19 +42,23 @@ public class LoginTokenTest extends TestSupport {
 
         JSONObject ret = (JSONObject) new LoginToken().execute(apiContext);
         System.out.println(ret);
-        Assert.assertTrue(ret.get("error_code") != null);
+        Assert.assertNotNull(ret.get("error_code"));
     }
 
     @Test
-    public void frequency() {
+    public void frequency() throws Exception {
         Map<String, String> reqParams = new HashMap<>();
         reqParams.put("user", "rebuild");
         reqParams.put("password", "wrongpassword");
         ApiContext apiContext = new ApiContext(reqParams, null);
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 30; i++) {
             JSONObject ret = (JSONObject) new LoginToken().execute(apiContext);
-            System.out.println(ret);
+            if (i == 20) {
+                System.out.println("Waiting 30s ...");
+                Thread.sleep(30 * 1000);
+            }
+            System.out.println("#" + i + " " + ret);
         }
     }
 }

@@ -1,23 +1,13 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.trigger.impl;
 
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -45,40 +35,35 @@ public class SendNotificationTest extends TestSupportWithUser {
         // 添加配置
         Application.getSQLExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = 'TestAllFields'");
 
+        final ID toUser = SIMPLE_USER;
+        final Entity entity = MetadataHelper.getEntity(TEST_ENTITY);
+
         Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
         triggerConfig.setString("belongEntity", "TestAllFields");
         triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue() + TriggerWhen.DELETE.getMaskValue());
         triggerConfig.setString("actionType", ActionType.SENDNOTIFICATION.name());
-        String content = String.format("{ sendTo:['%s'], content:'SENDNOTIFICATION {createdBy} {3782732}' }", SIMPLE_USER);
+        String content = String.format("{ typy:1, sendTo:['%s'], content:'SENDNOTIFICATION {createdBy} {3782732}' }", toUser);
         triggerConfig.setString("actionContent", content);
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
-
-        Entity test = MetadataHelper.getEntity("TestAllFields");
-        RobotTriggerManager.instance.clean(test);
+        RobotTriggerManager.instance.clean(entity);
 
         // 当前未读消息
-        int unread = Application.getNotifications().getUnreadMessage(SIMPLE_USER);
+        int unread = Application.getNotifications().getUnreadMessage(toUser);
 
         // 保存/删除会发送两条消息
-        Application.getSessionStore().set(UserService.ADMIN_USER);
-        Record record = EntityHelper.forNew(test.getEntityCode(), UserService.ADMIN_USER);
+        Record record = EntityHelper.forNew(entity.getEntityCode(), getSessionUser());
         record.setString("TestAllFieldsName", "SENDNOTIFICATION");
-        record = Application.getEntityService(test.getEntityCode()).create(record);
-        Application.getEntityService(test.getEntityCode()).delete(record.getPrimary());
+        // Create
+        record = Application.getEntityService(entity.getEntityCode()).create(record);
+        // Delete
+        Application.getEntityService(entity.getEntityCode()).delete(record.getPrimary());
 
         // 比对消息数
-        int unread2 = Application.getNotifications().getUnreadMessage(SIMPLE_USER);
-        assertEquals(unread, unread2 - 2);
+        ThreadPool.waitFor(4000);
+        int unreadCheck = Application.getNotifications().getUnreadMessage(toUser);
+        assertEquals(unread, unreadCheck - 2);
 
 		// 清理
 		Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());
-    }
-
-    @Test
-    public void formatMessage() {
-        ID test = addRecordOfTestAllFields();
-        String msg = "你好哈哈哈{TestAllFieldsName} 肩痛 {createdBy} {4324fewfe}";
-        msg = new SendNotification(null).formatMessage(msg, test);
-        System.out.println(msg);
     }
 }

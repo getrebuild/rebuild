@@ -111,14 +111,14 @@ $(function () {
 // @t - trigger times
 var command_exec = function (t) { }
 
-var __RESIZE_CALLS = []
+var __ONRESIZE_CALLS = []
 var $addResizeHandler = function (call) {
-  (typeof call === 'function' && __RESIZE_CALLS) && __RESIZE_CALLS.push(call)
+  (typeof call === 'function' && __ONRESIZE_CALLS) && __ONRESIZE_CALLS.push(call)
   return function () {
-    if (!__RESIZE_CALLS || __RESIZE_CALLS.length === 0) return
+    if (!__ONRESIZE_CALLS || __ONRESIZE_CALLS.length === 0) return
     // eslint-disable-next-line no-console
-    if (rb.env === 'dev') console.log('Calls ' + __RESIZE_CALLS.length + ' handlers of resize ...')
-    __RESIZE_CALLS.forEach(function (call) { call() })
+    if (rb.env === 'dev') console.log('Calls ' + __ONRESIZE_CALLS.length + ' handlers of resize ...')
+    __ONRESIZE_CALLS.forEach(function (call) { call() })
   }
 }
 
@@ -340,7 +340,7 @@ var $fileExtName = function (fileName) {
 var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
   var imgOnly = input.attr('accept') === 'image/*'
-  var temp = input.data('temp')
+  var temp = input.data('temp')  // 临时文件
   if (window.qiniu && rb.storageUrl && !temp) {
     input.on('change', function () {
       var file = this.files[0]
@@ -378,7 +378,7 @@ var $createUploader = function (input, next, complete, error) {
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (temp || ''),
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create('请上传图片')
+          RbHighbar.create(imgOnly ? '请上传图片' : '文件格式错误')
           return false
         } else if (err === 'ErrorMaxSize') {
           RbHighbar.create('超出文件大小限制')
@@ -392,7 +392,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          if (!temp) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
           complete({ key: e.data })
         } else {
           RbHighbar.error('上传失败，请稍后重试')
@@ -468,7 +468,7 @@ var $initReferenceSelect2 = function (el, field) {
   return $(el).select2({
     placeholder: '选择' + field.label,
     minimumInputLength: 0,
-    maximumSelectionLength: 1,
+    maximumSelectionLength: 2,
     ajax: {
       url: '/commons/search/' + (field.searchType || 'reference'),
       delay: 300,
@@ -484,8 +484,10 @@ var $initReferenceSelect2 = function (el, field) {
       noResults: function () { return (search_input || '').length > 0 ? '未找到结果' : '输入关键词搜索' },
       inputTooShort: function () { return '输入关键词搜索' },
       searching: function () { return '搜索中...' },
-      maximumSelected: function () { return '只能选择 1 项' }
-    }
+      maximumSelected: function () { return '只能选择 1 项' },
+      removeAllItems: function () { return '清除' }
+    },
+    theme: `default ${field.appendClass || ''}`
   })
 }
 
@@ -512,14 +514,6 @@ var $countdownButton = function (btn, seconds) {
       btn.text(text + ' (' + seconds + ')')
     }
   }, 1000)
-}
-
-// 页面类型
-var $pgt = {
-  RecordView: 'RecordView',
-  RecordList: 'RecordList',
-  SlaveView: 'SlaveView',
-  SlaveList: 'SlaveList'
 }
 
 // 加载状态条（单线程）

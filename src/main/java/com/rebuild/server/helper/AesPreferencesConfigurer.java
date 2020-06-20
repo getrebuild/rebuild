@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper;
@@ -27,7 +16,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.support.PropertiesLoaderUtils;
-import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -69,7 +57,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 			// AES decrypt if have `.aes` suffix
 			if (cleanKey.endsWith(".aes")) {
 				String val = props.getProperty(cleanKey);
-				val = AES.decryptNothrow(val);
+				val = AES.decryptQuietly(val);
 
 				props.remove(cleanKey);
 				cleanKey = cleanKey.replace(".aes", "");
@@ -85,8 +73,8 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 
 		// SPEC MYSQL PORT
 		String mysqlPort = System.getProperty("mysql.port");
-		if (StringUtils.isNotBlank(mysqlPort)) {
-			String dbUrl = props.getProperty("db.url");
+		String dbUrl = props.getProperty("db.url");
+		if (StringUtils.isNotBlank(mysqlPort) && StringUtils.isNotBlank(dbUrl)) {
 			dbUrl = dbUrl.replace("3306", mysqlPort);
 			props.put("db.url", dbUrl);
 		}
@@ -149,7 +137,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 	 * @return
 	 */
 	public static String getItem(String name) {
-		Assert.notNull(propsHold, "Rebuild unstarted");
+		if (propsHold == null) return null;
 		return StringUtils.defaultIfBlank(propsHold.getProperty(name), null);
 	}
 }

@@ -170,7 +170,16 @@
 						<div class="form-group row J_for-REFERENCE hide pt-0 pb-0">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">引用实体</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<div class="form-control-plaintext"><a href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a></div>
+								<div class="form-control-plaintext">
+									<a class="J_referenceEntity" data-refentity="${fieldRefentity}" href="../../${fieldRefentity}/base">${fieldRefentityLabel} (${fieldRefentity})</a>
+								</div>
+							</div>
+						</div>
+						<div class="form-group row J_for-REFERENCE hide pt-0 pb-1">
+							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">附加过滤条件</label>
+							<div class="col-md-12 col-xl-6 col-lg-8">
+								<a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">点击设置</a>
+								<p class="form-text mb-0 mt-0">符合过滤条件的数据才能被选择或使用</p>
 							</div>
 						</div>
 						<div class="form-group row J_for-DATE hide">
@@ -235,7 +244,7 @@
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">分类数据</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
 								<div class="form-control-plaintext" id="useClassification">
-									<a title="查看/编辑分类数据" target="_blank" href="${baseUrl}/admin/entityhub/classifications">加载中</a>
+									<a title="查看/编辑分类数据" href="${baseUrl}/admin/entityhub/classifications">加载中</a>
 									<i class="zmdi zmdi-layers fs-14 ml-1 text-muted"></i>
 								</div>
 							</div>
@@ -265,6 +274,26 @@
                                 <div class="form-control-plaintext code" id="stateClass"></div>
                             </div>
                         </div>
+                        <div class="J_for-BARCODE hide">
+                            <div class="form-group row">
+                                <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">样式</label>
+                                <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" checked><span class="custom-control-label"> 条形码 (CODE128)</span>
+                                    </label>
+                                    <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE"><span class="custom-control-label"> 二维码</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">编码规则</label>
+                                <div class="col-md-12 col-xl-6 col-lg-8">
+                                    <input class="form-control form-control-sm" type="text" id="barcodeFormat" value="">
+                                    <p class="form-text mb-0 help">可使用固定值或本实体字段变量及其组合，字段变量使用 <code>{}</code> 包裹</p>
+                                </div>
+                            </div>
+                        </div>
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">备注</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
@@ -287,8 +316,11 @@
 						<div class="form-group row footer">
 							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
 								<div class="J_action hide">
-									<button class="btn btn-primary btn-space J_save" type="button" data-loading-text="请稍后">保存</button>
-									<button class="btn btn-danger bordered btn-space J_del" type="button" data-loading-text="请稍后"><i class="zmdi zmdi-delete icon"></i> 删除</button>
+									<button class="btn btn-primary btn-space J_save" type="button">保存</button>
+									<button class="btn btn-danger bordered btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> 删除</button>
+									<c:if test="${fieldType == 'SERIES'}">
+										<button class="btn btn-secondary btn-space J_series-reindex" type="button" data-loading-text="请稍后">补充编号</button>
+									</c:if>
 								</div>
 								<div class="alert alert-warning alert-icon hide mb-0">
 									<div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
@@ -315,7 +347,7 @@
 window.__PageConfig = {
     metaId: '${fieldMetaId}',
     fieldType: '${fieldType}',
-    extConfig: $.parseJSON('${fieldExtConfig}' || '{}'),
+    extConfig: $.parseJSON('${fieldExtConfig}'),
     entityName: '${entityName}',
     fieldName: '${fieldName}',
     fieldBuildin: ${fieldBuildin},
@@ -323,6 +355,7 @@ window.__PageConfig = {
     isSlaveToMasterField: ${isSlaveToMasterField}
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/entityhub/field-edit.jsx" type="text/babel"></script>
 </body>
 </html>

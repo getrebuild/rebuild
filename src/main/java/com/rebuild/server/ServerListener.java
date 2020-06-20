@@ -12,6 +12,7 @@ import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.InstallState;
+import com.rebuild.server.helper.task.TaskExecutors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -59,7 +60,7 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
 
             if (!checkInstalled()) {
                 eventHold = event;
-                LOG.warn(Application.formatFailure("REBUILD IS WAITING FOR INSTALL ..."));
+                LOG.warn(Application.formatBootMsg("REBUILD IS WAITING FOR INSTALL ...", null, "Install URL : http://localhost:18080/"));
                 return;
             }
 
@@ -73,15 +74,16 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
             eventHold = null;
 
 		} catch (Throwable ex) {
-            LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"), ex);
+            LOG.fatal(Application.formatBootMsg("REBUILD BOOTING FAILURE!!!"), ex);
 		}
 	}
 
 	@Override
 	public void contextDestroyed(ServletContextEvent event) {
 		LOG.info("Rebuild shutdown ...");
-        super.contextDestroyed(event);
+		Application.getBean(TaskExecutors.class).shutdown();
         ((ClassPathXmlApplicationContext) Application.getApplicationContext()).close();
+		super.contextDestroyed(event);
 	}
 	
 	// --
@@ -92,8 +94,10 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
      * @param context
      */
     public static void updateGlobalContextAttributes(ServletContext context) {
+		context.setAttribute("env", Application.devMode() ? "dev" : "production");
+		context.setAttribute("rbv", Application.rbvMode());
         context.setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
-        context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), ""));
+        context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), StringUtils.EMPTY));
         context.setAttribute("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));
         context.setAttribute("markWatermark", SysConfiguration.getBool(ConfigurableItem.MarkWatermark));
     }

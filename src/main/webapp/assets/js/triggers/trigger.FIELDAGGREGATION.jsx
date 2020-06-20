@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
+const CALC_MODES = { 'SUM': '求和', 'COUNT': '计数', 'COUNT2': '去重计数', 'AVG': '平均值', 'MAX': '最大', 'MIN': '最小', 'FORMULA': '计算公式' }
 
 // ~~ 数据聚合
 // eslint-disable-next-line no-undef
@@ -41,14 +41,14 @@ class ContentFieldAggregation extends ActionContentSpec {
               {(!this.state.items || this.state.items.length === 0) ? null : this.state.items.map((item) => {
                 return <div key={'item-' + item.targetField}>
                   <div className="row">
-                    <div className="col-5"><span className="badge badge-warning">{this.__fieldLabel(this.state.targetFields, item.targetField)}</span></div>
+                    <div className="col-5"><span className="badge badge-warning">{this._getFieldLabel(this.state.targetFields, item.targetField)}</span></div>
                     <div className="col-2">
                       <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
                       <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
                     </div>
                     <div className="col-5 del-wrap">
                       <span className="badge badge-warning">
-                        {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : this.__fieldLabel(this.state.sourceFields, item.sourceField)}
+                        {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : this._getFieldLabel(this.state.sourceFields, item.sourceField)}
                       </span>
                       <a className="del" title="移除" onClick={() => this.delItem(item.targetField)}><span className="zmdi zmdi-close"></span></a>
                     </div>
@@ -167,7 +167,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
   }
 
-  __fieldLabel(fields, field) {
+  _getFieldLabel(fields, field) {
     let found = fields.find((x) => { return x[0] === field })
     if (found) found = found[1]
     return found || ('[' + field.toUpperCase() + ']')
@@ -180,9 +180,12 @@ class ContentFieldAggregation extends ActionContentSpec {
       formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
       formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
     }
-    for (let k in CALC_MODES) {
+
+    const keys = Object.keys(CALC_MODES)
+    keys.reverse()
+    keys.forEach((k) => {
       formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
-    }
+    })
     return formula.toUpperCase()
   }
 
@@ -206,6 +209,12 @@ class ContentFieldAggregation extends ActionContentSpec {
       }
     } else if (!sf) {
       RbHighbar.create('请选择源字段')
+      return false
+    }
+
+    // 目标字段=源字段
+    if (sf === $(this._targetEntity).val().split('.')[0] + '.' + tf) {
+      RbHighbar.create('目标字段与源字段不能为同一字段')
       return false
     }
 
@@ -298,7 +307,7 @@ class FormulaCalc extends RbAlert {
     } else if (typeof v === 'object') {
       const $field = $(`<span class="v field"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
       const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
-      $(['', 'SUM', 'COUNT', 'AVG', 'MAX', 'MIN']).each(function () {
+      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
         const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || '无'}</a>`).appendTo($menu)
         $a.click(function () { FormulaCalc._changeCalcMode(this) })
       })

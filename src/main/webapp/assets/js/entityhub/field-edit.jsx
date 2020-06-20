@@ -6,10 +6,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const wpc = window.__PageConfig
+const __gExtConfig = {}
 
 $(document).ready(function () {
   const dt = wpc.fieldType
-  const extConfigOld = wpc.extConfig
+  const extConfig = wpc.extConfig
 
   const $btn = $('.J_save').click(function () {
     if (!wpc.metaId) return
@@ -31,16 +32,20 @@ $(document).ready(function () {
       else _data.defaultValue = dv
     } else if (dv === '') _data.defaultValue = dv
 
-    const extConfig = {}
+    const extConfigNew = { ...__gExtConfig }
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
-      if ('defaultValue' !== k) {
-        extConfig[k] = $val(this)
-      }
+      if (k && 'defaultValue' !== k) extConfigNew[k] = $val(this)
     })
-    if (!$same(extConfig, extConfigOld)) {
-      _data['extConfig'] = JSON.stringify(extConfig)
-      if (Object.keys(extConfig).length === 0) _data['extConfig'] = ''
+    // 单选
+    $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
+      const k = $(this).attr('name')
+      extConfigNew[k] = $val(this)
+    })
+
+    if (!$same(extConfigNew, extConfig)) {
+      _data['extConfig'] = JSON.stringify(extConfigNew)
+      if (Object.keys(extConfigNew).length === 0) _data['extConfig'] = ''
     }
 
     _data = $cleanMap(_data)
@@ -68,28 +73,51 @@ $(document).ready(function () {
   $(`.J_for-${dt}`).removeClass('hide')
 
   // 设置扩展值
-  for (let k in extConfigOld) {
-    const $ext = $(`#${k}`)
-    if ($ext.length === 1) {
-      if ($ext.attr('type') === 'checkbox') $ext.attr('checked', extConfigOld[k] === 'true' || extConfigOld[k] === true)
-      else if ($ext.prop('tagName') === 'DIV') $ext.text(extConfigOld[k])
-      else $ext.val(extConfigOld[k])
+  for (let k in extConfig) {
+    const $extControl = $(`#${k}`)
+    if ($extControl.length === 1) {
+      if ($extControl.attr('type') === 'checkbox') $extControl.attr('checked', extConfig[k] === 'true' || extConfig[k] === true)
+      else if ($extControl.prop('tagName') === 'DIV') $extControl.text(extConfig[k])
+      else $extControl.val(extConfig[k])
+
+    } else {
+      $(`.custom-control-input[name="${k}"][value="${extConfig[k]}"]`).attr('checked', true)
     }
   }
 
-  if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
+  // 特殊字段-审批
+  if (wpc.fieldName === 'approvalState' || wpc.fieldName === 'approvalId') {
+    $('.J_for-STATE, .J_for-REFERENCE').remove()
+  }
+  // 列表 & 多选
+  else if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
     $.get(`/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
       if (res.data.length === 0) { $('#picklist-items li').text('请添加选项'); return }
       $('#picklist-items').empty()
       $(res.data).each(function () { picklistItemRender(this) })
       if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
     })
-    $('.J_picklist-edit').click(() => RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
+    $('.J_picklist-edit').click(() =>
+      RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
   }
+  // 自增
   else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
     $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
+
+    $('.J_series-reindex').click(() => {
+      RbAlert.create('此操作将为空字段补充编号（空字段过多耗时会较长）。是否继续？', {
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+            this.hide()
+            RbHighbar.success('编号已补充')
+          })
+        }
+      })
+    })
   }
+  // 日期时间
   else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
       componentIcon: 'zmdi zmdi-calendar',
@@ -109,10 +137,11 @@ $(document).ready(function () {
     })
     $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
   }
+  // 文件 & 图片
   else if (dt === 'FILE' || dt === 'IMAGE') {
     let uploadNumber = [0, 9]
-    if (extConfigOld['uploadNumber']) {
-      uploadNumber = extConfigOld['uploadNumber'].split(',')
+    if (extConfig['uploadNumber']) {
+      uploadNumber = extConfig['uploadNumber'].split(',')
       uploadNumber[0] = ~~uploadNumber[0]
       uploadNumber[1] = ~~uploadNumber[1]
       $('.J_minmax b').eq(0).text(uploadNumber[0])
@@ -129,13 +158,19 @@ $(document).ready(function () {
     })
     $('#fieldNullable').attr('disabled', true)
   }
+  // 分类
   else if (dt === 'CLASSIFICATION') {
-    $.get(`/admin/entityhub/classification/info?id=${extConfigOld.classification}`, function (res) {
-      $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfigOld.classification}` }).text(res.data.name)
+    $.get(`/admin/entityhub/classification/info?id=${extConfig.classification}`, function (res) {
+      $('#useClassification a').attr({ href: `${rb.baseUrl}/admin/entityhub/classification/${extConfig.classification}` }).text(res.data.name)
     })
   }
-  else if (wpc.fieldName === 'approvalState' || wpc.fieldName === 'approvalId') {
-    $('.J_for-STATE, .J_for-REFERENCE').remove()
+  // 引用
+  else if (dt === 'REFERENCE') {
+    _handleReference()
+  }
+  // 条形码
+  else if (dt === 'BARCODE') {
+    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
   }
 
   // 重复值选项
@@ -257,4 +292,31 @@ class AdvDateDefaultValue extends RbAlert {
     $('#defaultValue').val('{' + expr + '}')
     this.hide()
   }
+}
+
+// 引用
+const _handleReference = function () {
+  const referenceEntity = $('.J_referenceEntity').data('refentity')
+
+  let dataFilter = (wpc.extConfig || {}).referenceDataFilter
+  const saveFilter = function (res) {
+    if (res && res.items && res.items.length > 0) {
+      $('#referenceDataFilter').text(`已设置条件 (${res.items.length})`)
+      dataFilter = res
+    } else {
+      $('#referenceDataFilter').text('点击设置')
+      dataFilter = null
+    }
+    __gExtConfig.referenceDataFilter = dataFilter
+  }
+  dataFilter && saveFilter(dataFilter)
+
+  let advFilter
+  $('#referenceDataFilter').click(() => {
+    if (advFilter) advFilter.show()
+    else renderRbcomp(<AdvFilter title="附加过滤条件" inModal={true} canNoFilters={true}
+      entity={referenceEntity}
+      filter={dataFilter}
+      confirm={saveFilter} />, null, function () { advFilter = this })
+  })
 }

@@ -26,7 +26,6 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserService;
-import org.springframework.util.Assert;
 
 /**
  * 实体安全/权限 管理
@@ -412,8 +411,7 @@ public class SecurityManager {
 	private ID getMasterRecordId(ID slaveId) {
 		Entity entity = MetadataHelper.getEntity(slaveId.getEntityCode());
 		Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-		Assert.isTrue(stmField != null, "Non slave entty : " + slaveId);
-
+		
 		Object[] primary = Application.getQueryFactory().uniqueNoFilter(slaveId, stmField.getName());
 		return primary == null ? null : (ID) primary[0];
 	}

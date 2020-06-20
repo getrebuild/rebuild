@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.helper.datalist;
@@ -25,7 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.FieldValueWrapper;
+import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
@@ -48,11 +37,10 @@ public class DataListWrapper {
 	 */
 	public static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
 
-	private int total;
-	private Object[][] data;
-	
-	private SelectItem[] selectFields;
-	private Entity entity;
+	final protected int total;
+	final protected Object[][] data;
+	final protected SelectItem[] selectFields;
+	final protected Entity entity;
 	
 	// for 权限验证
 	private ID user;
@@ -119,10 +107,8 @@ public class DataListWrapper {
 				Field field = fieldItem.getField();
 				if (field.equals(nameFiled) && !fieldItem.getFieldPath().contains(".")) {
 					nameValue = value;
-					if (nameValue == null) {
-                        nameValue = StringUtils.EMPTY;
-                    }
 				}
+
 				// 如果最终没能取得名称字段，则补充
 				if (field.getType() == FieldType.PRIMARY) {
 				    if (nameValue == null) {
@@ -168,7 +154,7 @@ public class DataListWrapper {
 	 * @param original
 	 * @return
 	 */
-	private boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
+	protected boolean checkHasJoinFieldPrivileges(SelectItem field, Object[] original) {
 		if (this.queryJoinFields == null || UserHelper.isAdmin(user)) {
 			return true;
 		}

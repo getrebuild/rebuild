@@ -9,9 +9,13 @@ package com.rebuild.server.helper;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ThreadPool;
+import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
+import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -34,6 +38,8 @@ import java.util.Map;
 public class SMSender {
 	
 	private static final Log LOG = LogFactory.getLog(SMSender.class);
+
+	private static final String STATUS_OK = "success";
 
 	/**
 	 * @param to
@@ -93,13 +99,14 @@ public class SMSender {
 			
 			mailbody.selectFirst(".rb-title").text(subject);
 			mailbody.selectFirst(".rb-content").html(content);
-			String eHTML = mailbody.html();
-			// 处理变量
-			eHTML = eHTML.replace("%TO%", to);
-			eHTML = eHTML.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
-			eHTML = eHTML.replace("%APPNAME%", SysConfiguration.get(ConfigurableItem.AppName));
+			String htmlContent = mailbody.html();
+			// 处理公共变量
+			htmlContent = htmlContent.replace("%TO%", to);
+			htmlContent = htmlContent.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+			htmlContent = htmlContent.replace("%APPNAME%", SysConfiguration.get(ConfigurableItem.AppName));
 
-			params.put("html", eHTML);
+			params.put("html", htmlContent);
+			content = htmlContent;
 		} else {
 			params.put("text", content);
 		}
@@ -114,17 +121,20 @@ public class SMSender {
 			return null;
 		}
 
-		if ("success".equals(rJson.getString("status"))) {
-			JSONArray returns = rJson.getJSONArray("return");
-			if (returns.isEmpty()) {
-				LOG.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
-				return null;
-			}
-			return ((JSONObject) returns.get(0)).getString("send_id");
+		final String scontent = "【" + subject + "】" + content;
+
+		JSONArray returns = rJson.getJSONArray("return");
+		if (STATUS_OK.equalsIgnoreCase(rJson.getString("status")) && !returns.isEmpty()) {
+			String sendId = ((JSONObject) returns.get(0)).getString("send_id");
+			createLog(to, scontent, sendId, null);
+			return sendId;
+
 		} else {
 			LOG.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
+
+			createLog(to, scontent, null, rJson.getString("msg"));
+			return null;
 		}
-		return null;
 	}
 	
 	/**
@@ -194,12 +204,41 @@ public class SMSender {
 			return null;
 		}
 		
-		if ("success".equals(rJson.getString("status"))) {
-			return rJson.getString("send_id");
+		if (STATUS_OK.equalsIgnoreCase(rJson.getString("status"))) {
+			String sendId = rJson.getString("send_id");
+			createLog(to, content, sendId, null);
+			return sendId;
+
 		} else {
 			LOG.error("SMS failed to send : " + to + " > " + content + "\nError : " + rJson);
+
+			createLog(to, content, null, rJson.getString("msg"));
+			return null;
 		}
-		return null;
+	}
+
+	/**
+	 * 发送日志
+	 *
+	 * @param to
+	 * @param content
+	 * @param sentid
+	 * @param error
+	 */
+	private static void createLog(String to, String content, String sentid, String error) {
+		if (!Application.serversReady()) return;
+
+		Record log = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
+		log.setString("to", to);
+		log.setString("content", CommonsUtils.maxstr(content, 10000));
+		log.setDate("sendTime", CalendarUtils.now());
+		if (sentid != null) {
+			log.setString("sendResult", sentid);
+		} else {
+			log.setString("sendResult",
+					CommonsUtils.maxstr("ERR:" + StringUtils.defaultIfBlank(error, "Unknow"), 200));
+		}
+		Application.getCommonService().create(log);
 	}
 	
 	/**

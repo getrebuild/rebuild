@@ -143,6 +143,6 @@ public class AutoAssign implements TriggerAction {
 
     @Override
     public void prepare(OperatingContext operatingContext) throws TriggerException {
-        // Nothings
+        // NOOP
     }
 }

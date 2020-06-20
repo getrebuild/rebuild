@@ -9,15 +9,15 @@ package com.rebuild.server.service.query;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
+import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
@@ -33,6 +33,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -49,7 +50,7 @@ import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
  * @author devezhao
  * @since 09/29/2018
  */
-public class AdvFilterParser {
+public class AdvFilterParser extends SetUser<AdvFilterParser> {
 
 	private static final Log LOG = LogFactory.getLog(AdvFilterParser.class);
 
@@ -115,8 +116,9 @@ public class AdvFilterParser {
 			return null;
 		}
 
-		if (validEquation(equation) == null) {
-			throw new FilterParseException("无效高级表达式 : " + equation);
+		String equationHold = equation;
+		if ((equation = validEquation(equation)) == null) {
+			throw new FilterParseException("无效高级表达式 : " + equationHold);
 		}
 
 		if ("OR".equalsIgnoreCase(equation)) {
@@ -213,7 +215,8 @@ public class AdvFilterParser {
 
 		// 日期时间
 		if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
-			if (ParserTokens.TDA.equalsIgnoreCase(op) || ParserTokens.YTA.equalsIgnoreCase(op) || ParserTokens.TTA.equalsIgnoreCase(op)) {
+			if (ParserTokens.TDA.equalsIgnoreCase(op) || ParserTokens.YTA.equalsIgnoreCase(op)
+                    || ParserTokens.TTA.equalsIgnoreCase(op)) {
 				value = getUTCDateFormat().format(CalendarUtils.now());
 				if (ParserTokens.YTA.equalsIgnoreCase(op)) {
 					value = getUTCDateFormat().format(addDay(-1));
@@ -225,12 +228,22 @@ public class AdvFilterParser {
 					op = ParserTokens.BW;
 					valueEnd = parseValue(value, op, fieldMeta, true);
 				}
-			}
 
-			if (ParserTokens.EQ.equalsIgnoreCase(op) && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
+			} else if (ParserTokens.CUW.equalsIgnoreCase(op) || ParserTokens.CUM.equalsIgnoreCase(op)
+                    || ParserTokens.CUQ.equalsIgnoreCase(op) || ParserTokens.CUY.equalsIgnoreCase(op)) {
+			    Date date = Moment.moment().startOf(op.substring(2)).date();
+			    value = CalendarUtils.getUTCDateFormat().format(date);
+
+			    if (dt == DisplayType.DATETIME) {
+			        value += ParserTokens.ZERO_TIME;
+                }
+
+            } else if (ParserTokens.EQ.equalsIgnoreCase(op)
+                    && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
 				op = ParserTokens.BW;
 				valueEnd = parseValue(value, op, fieldMeta, true);
 			}
+
 		} else if (dt == DisplayType.MULTISELECT) {
 			// 多选的包含/不包含要按位计算
 			if (ParserTokens.IN.equalsIgnoreCase(op) || ParserTokens.NIN.equalsIgnoreCase(op)) {
@@ -254,26 +267,30 @@ public class AdvFilterParser {
 
 		sb.append(' ');
 
-		// TODO 自定义函数
-
-        final ID currentUser = Application.getCurrentUser();
+		// 自定义函数
 
 		if (ParserTokens.BFD.equalsIgnoreCase(op)) {
 			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
-		} else if (ParserTokens.AFD.equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
 		} else if (ParserTokens.BFM.equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
+        } else if (ParserTokens.BFY.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value) * 12)) + ParserTokens.FULL_TIME;
+        } else if (ParserTokens.AFD.equalsIgnoreCase(op)) {
+			value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
 		} else if (ParserTokens.AFM.equalsIgnoreCase(op)) {
-			value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
-		} else if (ParserTokens.RED.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ParserTokens.ZERO_TIME;
+        } else if (ParserTokens.AFY.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value) * 12)) + ParserTokens.ZERO_TIME;
+        } else if (ParserTokens.RED.equalsIgnoreCase(op)) {
 			value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
 		} else if (ParserTokens.REM.equalsIgnoreCase(op)) {
 			value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParserTokens.FULL_TIME;
-		} else if (ParserTokens.SFU.equalsIgnoreCase(op)) {
-			value = currentUser.toLiteral();
+		} else if (ParserTokens.REY.equalsIgnoreCase(op)) {
+            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value) * 12)) + ParserTokens.FULL_TIME;
+        } else if (ParserTokens.SFU.equalsIgnoreCase(op)) {
+			value = getUser().toLiteral();
 		} else if (ParserTokens.SFB.equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(currentUser);
+			Department dept = UserHelper.getDepartment(getUser());
 			if (dept != null) {
 				value = dept.getIdentity().toString();
 				int ref = fieldMeta.getReferenceEntity().getEntityCode();
@@ -286,7 +303,7 @@ public class AdvFilterParser {
 				}
 			}
 		} else if (ParserTokens.SFD.equalsIgnoreCase(op)) {
-			Department dept = UserHelper.getDepartment(currentUser);
+			Department dept = UserHelper.getDepartment(getUser());
 			if (dept != null) {
 				int refe = fieldMeta.getReferenceEntity().getEntityCode();
 				if (refe == EntityHelper.Department) {
@@ -482,15 +499,21 @@ public class AdvFilterParser {
 	 * @param equation
 	 * @return null 表示无效
 	 */
-	public static String validEquation(final String equation) {
+	public static String validEquation(String equation) {
 		if (StringUtils.isBlank(equation)) {
 			return "OR";
 		}
-		if ("OR".contentEquals(equation) || "AND".equalsIgnoreCase(equation)) {
+		if ("OR".equalsIgnoreCase(equation) || "AND".equalsIgnoreCase(equation)) {
 			return equation;
 		}
 
-		String clearEquation = equation.toUpperCase().replace("  ", "").trim();
+		String clearEquation = equation.toUpperCase()
+                .replace("OR", " OR ")
+                .replace("AND", " AND ")
+                .replaceAll("\\s+", " ")
+                .trim();
+        equation = clearEquation;
+
 		if (clearEquation.startsWith("AND") || clearEquation.startsWith("OR")
 				|| clearEquation.endsWith("AND") || clearEquation.endsWith("OR")) {
 			return null;
@@ -518,7 +541,7 @@ public class AdvFilterParser {
 		}
 
 		// 去除 AND OR 0-9 及空格
-		clearEquation = clearEquation.replaceAll("[AND|OR|0-9| ]", "");
+		clearEquation = clearEquation.replaceAll("[AND|OR|0-9|\\s]", "");
 		// 括弧成对出现
 		for (int i = 0; i < 20; i++) {
 			clearEquation = clearEquation.replace("()", "");

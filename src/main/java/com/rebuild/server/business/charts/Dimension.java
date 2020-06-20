@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/>. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -11,6 +11,8 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
+
+import java.text.MessageFormat;
 
 /**
  * 维度-轴
@@ -38,10 +40,12 @@ public class Dimension extends Axis {
 			switch (getFormatCalc()) {
 				case Y:
 					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y");
-				case M:
+                case Q:
+                    return MessageFormat.format("CONCAT(YEAR({0}),'' Q'',QUARTER({0}))", super.getSqlName());
+                case M:
 					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m");
 				case H:
-					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %H时");
+					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d %HH");
 				default:
 					return String.format("DATE_FORMAT(%s,'%s')", super.getSqlName(), "%Y-%m-%d");
 			}
@@ -55,11 +59,11 @@ public class Dimension extends Axis {
 				return super.getSqlName();
 			}
 
-			String sqlName = super.getSqlName();
+			StringBuilder sqlName = new StringBuilder(super.getSqlName());
 			for (int i = 0; i < useLevel - selectLevel; i++) {
-				sqlName += ".parent";
+				sqlName.append(".parent");
 			}
-			return sqlName;
+			return sqlName.toString();
 
 		} else {
 			return super.getSqlName();

@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.approval;
@@ -77,6 +66,7 @@ public class FlowNodeGroup {
 	 */
 	public Set<ID> getCcUsers(ID operator, ID recordId, JSONObject selectUsers) {
 		Set<ID> users = new HashSet<>();
+		// 一般就一个，但不排除多个 CC 节点
 		for (FlowNode node : nodes) {
 			if (FlowNode.TYPE_CC.equals(node.getType())) {
 				users.addAll(node.getSpecUsers(operator, recordId));
@@ -84,6 +74,32 @@ public class FlowNodeGroup {
 		}
 		
 		if (selectUsers != null) {
+			users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId));
+		}
+		return users;
+	}
+
+	/**
+	 * @param operator
+	 * @param recordId
+	 * @param selectUsers
+	 * @return
+	 */
+	public Set<ID> getCcUsers4Share(ID operator, ID recordId, JSONObject selectUsers) {
+		Set<ID> users = new HashSet<>();
+		FlowNode firstNode = null;
+		for (FlowNode node : nodes) {
+			if (FlowNode.TYPE_CC.equals(node.getType()) && node.allowCcAutoShare()) {
+				users.addAll(node.getSpecUsers(operator, recordId));
+
+				if (firstNode != null) {
+					firstNode = node;
+				}
+			}
+		}
+
+		// 因为 CC 会合并，此处以第一个 CC 节点的设置为准
+		if (firstNode != null && selectUsers != null) {
 			users.addAll(UserHelper.parseUsers(selectUsers.getJSONArray("selectCcs"), recordId));
 		}
 		return users;

@@ -521,5 +521,12 @@
     "yourusername",
     "zlib",
     "entity",
-    "field"
+    "field",
+    "year",
+    "quarter",
+    "month",
+    "week",
+    "date",
+    "rebuild",
+    "getrebuild"
 ]

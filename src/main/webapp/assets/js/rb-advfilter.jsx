@@ -16,14 +16,17 @@ class AdvFilter extends React.Component {
   constructor(props) {
     super(props)
 
-    let ext = {}
+    const ext = { useEquation: 'OR' }
     if (props.filter) {
       if (props.filter.equation) {
-        ext.enableEquation = true
         ext.equation = props.filter.equation
+        if (props.filter.equation === 'OR') ext.useEquation = 'OR'
+        else if (props.filter.equation === 'AND') ext.useEquation = 'AND'
+        else ext.useEquation = '9999'
       }
       this.__items = props.filter.items
     }
+
     this.state = { ...props, ...ext }
     this.childrenRef = []
   }
@@ -55,14 +58,22 @@ class AdvFilter extends React.Component {
         <div className="adv-filter adv-filter-option">
           <div className="mb-1">
             <div className="item mt-1">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
-                <input className="custom-control-input" type="checkbox" checked={this.state.enableEquation === true} data-id="enableEquation" onChange={this.handleChange} />
-                <span className="custom-control-label"> 启用高级表达式</span>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                <input className="custom-control-input" type="radio" name="useEquation" value="OR" checked={this.state.useEquation === 'OR'} onChange={this.handleChange} />
+                <span className="custom-control-label"> 或关系</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                <input className="custom-control-input" type="radio" name="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
+                <span className="custom-control-label"> 且关系</span>
+              </label>
+              <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
+                <input className="custom-control-input" type="radio" name="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
+                <span className="custom-control-label"> 高级表达式</span>
               </label>
             </div>
-            {this.state.enableEquation !== true ? null :
+            {this.state.useEquation === '9999' &&
               <div className="mb-3 equation-state">
-                <input className={'form-control form-control-sm' + (this.state.equationError ? ' is-invalid' : '')} title={(this.state.equationError ? '高级表达式有误' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
+                <input className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')} title={(this.state.equationError ? '高级表达式有误' : '')} value={this.state.equation || ''} placeholder={this.state.equationDef || ''} data-id="equation" onChange={this.handleChange} onBlur={(e) => this.checkEquation(e)} />
                 {this.state.equationError ? <i className="zmdi zmdi-alert-triangle text-danger"></i> : <i className="zmdi zmdi-check text-success"></i>}
               </div>
             }
@@ -87,7 +98,7 @@ class AdvFilter extends React.Component {
   }
 
   componentDidMount() {
-    $.get('/commons/metadata/fields?deep=2&from=SEARCH&entity=' + this.props.entity, (res) => {
+    $.get('/commons/metadata/fields?deep=2&filter=SEARCH&entity=' + this.props.entity, (res) => {
       let valideFs = []
       this.fields = res.data.map((item) => {
         valideFs.push(item.name)
@@ -117,14 +128,10 @@ class AdvFilter extends React.Component {
 
   handleChange = (e) => {
     const val = e.target.value
-    const id = e.target.dataset.id
-    if (id === 'enableEquation') {
-      this.setState({ enableEquation: this.state.enableEquation !== true })
-    } else {
-      let state = {}
-      state[id] = val
-      this.setState({ ...state })
-    }
+    const id = e.target.dataset.id || e.target.name
+    const state = {}
+    state[id] = val
+    this.setState({ ...state })
   }
 
   addItem(props) {
@@ -168,13 +175,13 @@ class AdvFilter extends React.Component {
   }
 
   renderEquation() {
-    let exp = []
+    const exp = []
     for (let i = 1; i <= (this.state.items || []).length; i++) exp.push(i)
     this.setState({ equationDef: exp.join(' OR ') })
   }
 
   toFilterJson(canNoFilters) {
-    let filters = []
+    const filters = []
     let hasError = false
     for (let i = 0; i < this.childrenRef.length; i++) {
       const item = this.childrenRef[i].getFilterJson()
@@ -184,11 +191,14 @@ class AdvFilter extends React.Component {
     if (hasError) { RbHighbar.create('部分条件设置有误，请检查'); return }
     if (filters.length === 0 && canNoFilters !== true) { RbHighbar.create('请至少添加1个条件'); return }
 
-    let adv = { entity: this.props.entity, items: filters }
-    if (this.state.enableEquation === true) {
+    const adv = { entity: this.props.entity, items: filters }
+    if (this.state.useEquation === 'AND') {
+      adv.equation = 'AND'
+    } else if (this.state.useEquation === '9999') {
       if (this.state.equationError === true) { RbHighbar.create('高级表达式设置有误'); return }
       adv.equation = this.state.equation
     }
+
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log(JSON.stringify(adv))
     return adv
@@ -223,9 +233,12 @@ class AdvFilter extends React.Component {
   }
 }
 
-const OP_TYPE = { LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '...天前', BFM: '...月前', AFD: '...天后', AFM: '...月后', RED: '最近...天', REM: '最近...月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门', YTA: '昨天', TDA: '今天', TTA: '明天', GE: '大于等于', LE: '小于等于' }
-const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
-const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA']
+const OP_TYPE = {
+  LK: '包含', NLK: '不包含', IN: '包含', NIN: '不包含', EQ: '等于', NEQ: '不等于', GT: '大于', LT: '小于', BW: '区间', NL: '为空', NT: '不为空', BFD: '..天前', BFM: '..月前', AFD: '..天后', AFM: '..月后', RED: '最近..天', REM: '最近..月', SFU: '本人', SFB: '本部门', SFD: '本部门及子部门', YTA: '昨天', TDA: '今天', TTA: '明天', GE: '大于等于', LE: '小于等于',
+  CUW: '本周', CUM: '本月', CUQ: '本季度', CUY: '本年', BFY: '..年前', AFY: '..年后', REY: '最近..年',
+}
+const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'CUW', 'CUM', 'CUQ', 'CUY']
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
 const PICKLIST_CACHE = {}
 const REFMETA_CACHE = {}
 const INPUTVALS_HOLD = {}  // 输入值保持
@@ -276,7 +289,7 @@ class FilterItem extends React.Component {
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'BFD', 'BFM', 'AFD', 'AFM']
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
@@ -619,10 +632,10 @@ class FilterItem extends React.Component {
     }
   }
 
-
   setIndex(idx) {
     this.setState({ index: idx })
   }
+
   getFilterJson() {
     let s = this.state
     if (!s.value) {

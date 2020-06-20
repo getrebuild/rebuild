@@ -48,7 +48,7 @@
 								</td>
 							</tr>
 							<tr>
-								<td>主页地址/域名<p>基础 URL 所有链接将以此作为前缀</p></td>
+								<td>主页地址/域名<p>所有外部链接将以此作为前缀</p></td>
 								<td data-id="HomeURL">${HomeURL}</td>
 							</tr>
 							<tr>
@@ -100,7 +100,7 @@
 					<div class="card-header card-header-divider">关于 REBUILD</div>
 					<div class="card-body">
 						<p class="mb-1">系统版本 <a class="link" target="_blank" href="https://getrebuild.com/download?v=<%=Application.VER%>"><%=Application.VER%></a></p>
-						<p class="mb-2">许可类型 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}" id="authType">开源社区版</a></p>
+						<p class="mb-2">许可类型 <a class="link" target="_blank" href="https://getrebuild.com/authority?sn=${SN}">${LicenseType}</a></p>
 						<ul style="line-height:2">
 							<li><a class="link" target="_blank" href="${baseUrl}/gw/server-status">系统状态</a></li>
 							<li><a class="link" target="_blank" href="https://getrebuild.com/docs/">帮助文档</a></li>
@@ -120,8 +120,7 @@
 <script src="${baseUrl}/assets/js/admin/syscfg.jsx" type="text/babel"></script>
 <script>
 $(document).ready(function () {
-	$.get('systems/query-authority', function (res) { $('#authType').text(res.data.authType) })
-	$('.J_copyright a').attr('target', '_blank')
+	$('.J_copyright a').addClass('link').attr('target', '_blank')
 })
 </script>
 </body>

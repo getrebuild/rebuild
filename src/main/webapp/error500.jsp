@@ -3,6 +3,7 @@
 <%@ page import="com.rebuild.server.helper.language.Languages"%>
 <%@ page import="com.rebuild.utils.AppUtils"%>
 <%@ page import="com.rebuild.utils.CommonsUtils" %>
+<%@ page import="com.rebuild.server.Application" %>
 <%
 final String errorMsg = AppUtils.getErrorMessage(request, exception);
 if (ServletUtils.isAjaxRequest(request)) {
@@ -28,7 +29,7 @@ if (ServletUtils.isAjaxRequest(request)) {
 			<div class="error-container">
 				<div class="error-number mb-0"><i class="zmdi zmdi-close-circle text-danger"></i></div>
 				<div class="error-description"><%=errorMsg.split("\n")[0]%></div>
-				<div class="error-description text-left <%=AppUtils.devMode() ? "" : "hide"%> ">
+				<div class="error-description text-left <%=Application.devMode() ? "" : "hide"%> ">
 					<pre><%=CommonsUtils.escapeHtml(errorMsg)%></pre>
 				</div>
 				<div class="error-goback-button">
