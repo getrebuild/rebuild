@@ -74,11 +74,11 @@ public class AnnouncementControll extends BaseControll {
             }
 
             // 不在展示时间
-            Date timeStart = StringUtils.isBlank(options.getString("timeStart")) ? null : CalendarUtils.parse(options.getString("timeStart"));
+            Date timeStart = parseTime(options.getString("timeStart"));
             if (timeStart != null && timeNow < timeStart.getTime()) {
                 continue;
             }
-            Date timeEnd = StringUtils.isBlank(options.getString("timeEnd")) ? null : CalendarUtils.parse(options.getString("timeEnd"));
+            Date timeEnd = parseTime(options.getString("timeEnd"));
             if (timeEnd != null && timeNow > timeEnd.getTime()) {
                 continue;
             }
@@ -108,5 +108,10 @@ public class AnnouncementControll extends BaseControll {
         }
 
         writeSuccess(response, as);
+    }
+
+    private Date parseTime(String time) {
+        if (StringUtils.isBlank(time)) return null;
+        return CalendarUtils.parse(time + ":00");
     }
 }
