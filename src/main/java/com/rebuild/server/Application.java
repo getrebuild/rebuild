@@ -98,6 +98,8 @@ public final class Application {
 	private static boolean debugMode = false;
 	// 服务启动正常
 	private static boolean serversReady = false;
+	// RBV Module
+	private static boolean loadedRbvModule = false;
 	
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
@@ -124,6 +126,13 @@ public final class Application {
 		if (!serversReady) {
 		    LOG.fatal(formatFailure("REBUILD BOOTING FAILURE DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
 			return;
+		}
+
+		try {
+			Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").newInstance();
+			LOG.info("Loaded " + RBV);
+			loadedRbvModule = true;
+		} catch (Exception ignore) {
 		}
 
 		try {
@@ -223,7 +232,7 @@ public final class Application {
 	 * @return
 	 */
 	public static boolean rbvMode() {
-		return BooleanUtils.toBoolean(System.getProperty("rbv")) || License.isCommercial();
+		return loadedRbvModule && (BooleanUtils.toBoolean(System.getProperty("rbv")) || License.isCommercial());
 	}
 	
 	/**
