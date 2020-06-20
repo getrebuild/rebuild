@@ -69,10 +69,9 @@
 
 .dd-list .dd-item .dd-action a {
 	color: #fff;
-	font-size: 12px;
+	font-size: 1.23rem;
 	font-style: normal;
 	display: inline-block;
-	padding: 0;
 	padding-left: 6px;
 	opacity: 0.8;
 }
@@ -82,15 +81,16 @@
 }
 
 .dd-list .dd-item .dd-action a+a {
-	margin-left: 1px;
+	margin-left: 4px;
 }
 
-.dd-list .dd-item .dd-action a.icon {
-	position: absolute;
+.dd-list .dd-item .dd-action a .zmdi-unfold-more {
+	font-size: 1.55rem;
+	transform: translateY(1px) rotate(90deg);
 }
 
-.dd-list .dd-item .dd-action a.icon>.zmdi {
-	font-size: 16px;
+.dd-list .dd-item.w-100 a .zmdi-unfold-more::before {
+	content: '\f311';
 }
 
 .form-preview .dd-item,

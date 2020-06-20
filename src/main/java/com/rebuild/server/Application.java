@@ -164,6 +164,8 @@ public final class Application {
 
 			LOG.info("Rebuild Boot successful in " + (System.currentTimeMillis() - startAt) + " ms");
 
+			LOG.info("REBUILD AUTHORITY : " + StringUtils.join(License.queryAuthority().values(), " | "));
+
 		} catch (Exception ex) {
 			serversReady = false;
 			throw ex;

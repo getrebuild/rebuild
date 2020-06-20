@@ -35,7 +35,7 @@
                     <option value="FILE">文件</option>
                     <option value="IMAGE">图片</option>
                     <option value="AVATAR">头像</option>
-					<option value="BARCODE">条形码</option>
+					<option value="BARCODE">条形码 (二维码)</option>
 					<option value="BOOL">布尔 (是/否)</option>
 					<optgroup label="保留类型" class="bosskey-show">
 						<option value="STATE">状态</option>
@@ -78,7 +78,7 @@
 				</label>
 				<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
 					<input class="custom-control-input" type="checkbox" id="add2Layout" checked>
-					<span class="custom-control-label"> 追加到布局</span>
+					<span class="custom-control-label"> 追加到当前布局</span>
 				</label>
 			</div>
 		</div>

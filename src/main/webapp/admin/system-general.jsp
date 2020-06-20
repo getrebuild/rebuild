@@ -48,7 +48,7 @@
 								</td>
 							</tr>
 							<tr>
-								<td>主页地址/域名<p>基础 URL 所有链接将以此作为前缀</p></td>
+								<td>主页地址/域名<p>所有外部链接将以此作为前缀</p></td>
 								<td data-id="HomeURL">${HomeURL}</td>
 							</tr>
 							<tr>
@@ -118,5 +118,10 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/admin/syscfg.jsx" type="text/babel"></script>
+<script>
+$(document).ready(function () {
+	$('.J_copyright a').addClass('link').attr('target', '_blank')
+})
+</script>
 </body>
 </html>

@@ -1363,8 +1363,8 @@ class ReferenceSearcher extends RbModal {
   render() {
     return (
       <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => this._rbmodal = c}>
-        <div className="modal-dialog" style={{ maxWidth: 1220 }}>
-          <div className="modal-content" style={{ maxWidth: 1220 }}>
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content">
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || '查询'}</h3>
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
@@ -1475,7 +1475,7 @@ class RepeatedViewer extends RbModalHandler {
   render() {
     const data = this.props.data
     return <RbModal ref={(c) => this._dlg = c} title={`存在 ${this.props.data.length - 1} 条重复记录`} disposeOnHide={true} colored="warning">
-      <table className="table table-hover table-sm repeated-table">
+      <table className="table table-striped table-hover table-sm dialog-table">
         <thead>
           <tr>
             {data[0].map((item, idx) => {
