@@ -124,7 +124,7 @@ public final class Application {
 	protected void init(long startAt) throws Exception {
 		serversReady = ServerStatus.checkAll();
 		if (!serversReady) {
-		    LOG.fatal(formatFailure("REBUILD BOOTING FAILURE DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
+		    LOG.fatal(formatBootMsg("REBUILD BOOTING FAILURE DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
 			return;
 		}
 
@@ -182,18 +182,16 @@ public final class Application {
 	}
 
     /**
-     * 格式化重大消息
-     *
      * @param msgs
      * @return
      */
-    protected static String formatFailure(String...msgs) {
+    protected static String formatBootMsg(String...msgs) {
 		List<String> msgsList = new ArrayList<>();
 		CollectionUtils.addAll(msgsList, msgs);
 		msgsList.add("\n  Version : " + VER);
 		msgsList.add("OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH);
 		msgsList.add("Report an issue :");
-		msgsList.add("https://getrebuild.com/report-issue?title=failure");
+		msgsList.add("https://getrebuild.com/report-issue?title=boot");
 
         return "\n###################################################################\n\n  "
                 + StringUtils.join(msgsList, "\n  ") +

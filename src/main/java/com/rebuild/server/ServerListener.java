@@ -60,7 +60,7 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
 
             if (!checkInstalled()) {
                 eventHold = event;
-                LOG.warn(Application.formatFailure("REBUILD IS WAITING FOR INSTALL ..."));
+                LOG.warn(Application.formatBootMsg("REBUILD IS WAITING FOR INSTALL ...", null, "Install URL : http://localhost:18080/"));
                 return;
             }
 
@@ -74,7 +74,7 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
             eventHold = null;
 
 		} catch (Throwable ex) {
-            LOG.fatal(Application.formatFailure("REBUILD BOOTING FAILURE!!!"), ex);
+            LOG.fatal(Application.formatBootMsg("REBUILD BOOTING FAILURE!!!"), ex);
 		}
 	}
 
