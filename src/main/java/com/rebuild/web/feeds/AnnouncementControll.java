@@ -111,7 +111,7 @@ public class AnnouncementControll extends BaseControll {
     }
 
     private Date parseTime(String time) {
-        if (time == null) return null;
+        if (StringUtils.isBlank(time)) return null;
         return CalendarUtils.parse(time + ":00");
     }
 }
