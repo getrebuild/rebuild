@@ -15,10 +15,9 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.api.LoginToken;
 import com.rebuild.api.AuthTokenManager;
+import com.rebuild.api.LoginToken;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
@@ -315,11 +314,11 @@ public class LoginControll extends BasePageControll {
             return;
         }
 
-        JSON ret = License.siteApi("api/misc/bgimg", true);
+        JSONObject ret = License.siteApi("api/misc/bgimg", true);
         if (ret == null) {
             writeFailure(response);
         } else {
-            writeSuccess(response, ((JSONObject) ret).getString("url"));
+            writeSuccess(response, ret.getString("url"));
         }
     }
 }
