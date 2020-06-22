@@ -481,14 +481,19 @@ class UserSelector extends React.Component {
 
   clickItem(e) {
     const id = e.target.dataset.id || $(e.target).parents('li').data('id')
+
     let exists = false
-    const ns = this.state.selected.filter((x) => {
-      if (x.id === id) {
-        exists = true
-        return false
-      }
-      return true
-    })
+    let ns = []
+    // 单选
+    if (this.props.multiple !== false) {
+      ns = this.state.selected.filter((x) => {
+        if (x.id === id) {
+          exists = true
+          return false
+        }
+        return true
+      })
+    }
 
     if (!exists) ns.push({ id: id, text: $(e.target).text() })
     if (ns.length >= 20) {
