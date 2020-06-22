@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 用户/部门/角色获取
+ * 用户/部门/角色/团队 获取
  * 
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/25

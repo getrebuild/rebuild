@@ -2251,7 +2251,7 @@ form {
 .user-selector .nav-tabs>li.nav-item a.nav-link {
     padding: 4px 8px;
     font-size: 12px;
-    min-width: 50px;
+    min-width: 42px;
 }
 
 .user-selector .tab-content {

@@ -151,7 +151,7 @@ class FeedsEditor extends React.Component {
             <li className="list-inline-item">
               <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
               <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
-                <UserSelectorExt hideDepartment={true} hideRole={true} ref={(c) => this._UserSelector = c} call={this._selectAtUser} />
+                <UserSelectorExt hideDepartment={true} hideRole={true} hideTeam={true} ref={(c) => this._UserSelector = c} call={this._selectAtUser} />
               </span>
             </li>
             <li className="list-inline-item">
