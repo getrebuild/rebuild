@@ -1,8 +1,8 @@
 -- !!! MYSQL VERSION NOTICE !!!
--- IN 5.7 OR ABOVE, YOU SHOULD REMOVED THESE SQL_MODES IN my.cnf/my.ini FIRST.
--- ONLY_FULL_GROUP_BY
--- IN 8.0 OR ABOVE, ONLY SUPPORTS mysql_native_password AUTHENTICATION MODE
--- default_authentication_plugin=mysql_native_password
+-- IN 5.7 OR ABOVE :
+-- YOU SHOULD REMOVE `ONLY_FULL_GROUP_BY` SQL_MODES IN my.cnf/my.ini
+-- IN 8.0 OR ABOVE :
+-- ONLY SUPPORT mysql_native_password AUTHENTICATION MODE. Add `default_authentication_plugin=mysql_native_password` TO my.cnf/my.ini
 
 -- #1 database/user
 -- 首次使用请移除以下注释以创建数据库和用户
@@ -607,6 +607,6 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
   ('018-0000000000000001', '地区', NULL, 2, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   ('018-0000000000000002', '行业', NULL, 1, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
 
--- DB Version
+-- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
   values ('021-9000000000000001', 'DBVer', 25);
