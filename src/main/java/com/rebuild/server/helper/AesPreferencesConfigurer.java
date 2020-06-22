@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.helper;
 
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.setup.InstallState;
 import com.rebuild.server.helper.setup.SetupException;
 import com.rebuild.utils.AES;
@@ -42,7 +43,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 
 		props.putAll(fromInstallFile());
 		this.afterLoad(props);
-		LOG.info("Application properties : " + props);
+		if (Application.devMode()) LOG.info("Application properties : " + props);
 
 		setNullValue(StringUtils.EMPTY);
 	}

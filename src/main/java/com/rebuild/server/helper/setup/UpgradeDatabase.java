@@ -81,7 +81,7 @@ public final class UpgradeDatabase {
 	 * @return
 	 */
 	public int getDbVer() {
-		String dbVer = SysConfiguration.get(ConfigurableItem.DBVer);
+		String dbVer = SysConfiguration.get(ConfigurableItem.DBVer, true);
 		return ObjectUtils.toInt(dbVer, 0);
 	}
 	

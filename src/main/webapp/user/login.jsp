@@ -145,7 +145,7 @@ $(document).ready(function() {
 		let btn = $('.login-submit button').button('loading')
 		let url = '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
 		if (!!vcode) url += '&vcode=' + vcode
-		$.post(url, $encode(passwd), function(res) {
+		$.post(url, passwd, function(res) {
 			if (res.error_code == 0){
 				location.replace($decode($urlp('nexturl') || '../dashboard/home'))
 			} else if (res.error_msg == 'VCODE') {
