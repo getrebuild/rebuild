@@ -6,7 +6,7 @@
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
     <packaging>war</packaging>
-    <version>1.10.1</version>
+    <version>1.11.0-dev</version>
     <name>rebuild</name>
     <description>Building your business-systems freely!</description>
     <url>https://getrebuild.com/</url>
@@ -149,7 +149,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>commons</artifactId>
-            <version>1.2.0</version>
+            <version>17c5ffe9bc</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
