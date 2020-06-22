@@ -13,7 +13,6 @@ import cn.devezhao.commons.SystemUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.runtime.MemoryInformation;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
-import cn.devezhao.commons.runtime.RuntimeInformation;
 import cn.devezhao.persist4j.util.SqlHelper;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
@@ -218,7 +217,7 @@ public final class ServerStatus {
 	 * @return
 	 */
 	public static double getSystemLoad() {
-		double load = new RuntimeInformation().getProcessLoad();
-		return load < 0 ? 0 : ObjectUtils.round(load * 100, 2);
+		double load = SystemUtils.getRuntimeInformation().getSystemLoad();
+		return load < 0 ? 0 : ObjectUtils.round(load, 2);
 	}
 }

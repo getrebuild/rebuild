@@ -53,7 +53,8 @@
 		</tr>
 		<tr>
 			<th>CPU Load</th>
-			<td><%=ServerStatus.getSystemLoad() %>%</td>
+            <% double load = ServerStatus.getSystemLoad(); %>
+			<td><%=load < 0 ? "n/a" : load%></td>
 		</tr>
 	</tbody>
 	</table>
