@@ -149,7 +149,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>commons</artifactId>
-            <version>17c5ffe9bc</version>
+            <version>8c13f05184</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -167,6 +167,11 @@
             <artifactId>junit</artifactId>
             <version>4.13</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.70</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
