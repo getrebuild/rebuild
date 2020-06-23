@@ -211,7 +211,7 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 
 		reqUrl = reqUrl.replaceFirst(ServerListener.getContextPath(), "");
 		return reqUrl.startsWith("/gw/") || reqUrl.startsWith("/assets/") || reqUrl.startsWith("/error/")
-                || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/")
+                || reqUrl.startsWith("/t/") || reqUrl.startsWith("/s/") || reqUrl.startsWith("/public/")
 				|| reqUrl.startsWith("/setup/") || reqUrl.startsWith("/language/")
 				|| reqUrl.startsWith("/commons/announcements")
                 || reqUrl.startsWith("/commons/url-safe")
@@ -220,6 +220,8 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
 	}
 
 	/**
+	 * SESSION 活跃忽略
+	 *
 	 * @param reqUrl
 	 * @return
 	 */
@@ -239,6 +241,4 @@ public class RequestWatchHandler extends HandlerInterceptorAdapter implements In
                 || reqUrl.startsWith("/language/")
 				|| reqUrl.startsWith("/commons/barcode/");
     }
-
-
 }
