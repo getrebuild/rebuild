@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service;
@@ -23,6 +12,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
@@ -148,7 +138,7 @@ public class CommonService extends BaseService {
 	}
 
 	/**
-	 * 批量新建/更新、删除
+	 * 批量新建/更新、删除（同一事物）
 	 *
 	 * @param records
 	 * @param deletes
@@ -176,20 +166,22 @@ public class CommonService extends BaseService {
 	 * @throws PrivilegesException
 	 */
 	protected void tryIfWithPrivileges(Object idOrRecord) throws PrivilegesException {
-		Entity entity = null;
+		Entity entity;
 		if (idOrRecord instanceof ID) {
 			entity = MetadataHelper.getEntity(((ID) idOrRecord).getEntityCode());
-		} else {
+		} else if (idOrRecord instanceof Record) {
 			entity = ((Record) idOrRecord).getEntity();
+		} else {
+			throw new RebuildException("Invalid argument [idOrRecord] : " + idOrRecord);
 		}
 
-		// 使用主实体
+		// 验证主实体
 		if (MetadataHelper.isSlaveEntity(entity.getEntityCode())) {
 			entity = entity.getMasterEntity();
 		}
 
 		if (EntityHelper.hasPrivilegesField(entity)) {
-			throw new PrivilegesException("Has privileges of Entity cannot use this class(methods) : " + entity.getName());
+			throw new PrivilegesException("Privileges entity cannot use this class (methods) : " + entity.getName());
 		}
 	}
 }

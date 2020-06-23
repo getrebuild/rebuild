@@ -98,7 +98,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			recordId = (ID) idOrRecord;
 			entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		} else {
-			throw new IllegalArgumentException("First argument must be Record/ID!");
+			throw new IllegalArgumentException("First argument must be Record or ID : " + idOrRecord);
 		}
 
 		// 忽略权限检查

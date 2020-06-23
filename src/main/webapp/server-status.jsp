@@ -53,7 +53,8 @@
 		</tr>
 		<tr>
 			<th>CPU Load</th>
-			<td>n/a</td>
+            <% double load = ServerStatus.getSystemLoad(); %>
+			<td><%=load < 0 ? "n/a" : load%></td>
 		</tr>
 	</tbody>
 	</table>
@@ -81,7 +82,7 @@
 		</tr>
 		<tr>
 			<th>JVM</th>
-			<td><%=SystemUtils.JAVA_VERSION%> (<%=SystemUtils.JAVA_VENDOR%>)</td>
+			<td><%=SystemUtils.JAVA_VERSION%> (<%=SystemUtils.JAVA_VM_NAME%>)</td>
 		</tr>
 		<tr>
 			<th>Data Directory</th>

@@ -80,18 +80,22 @@ public class UserHelper {
 	/**
 	 * 是否激活
 	 * 
-	 * @param bizzId ID of User/Role/Department
+	 * @param bizzId ID of User/Role/Department/Team
 	 * @return
 	 */
 	public static boolean isActive(ID bizzId) {
 		try {
-			if (bizzId.getEntityCode() == EntityHelper.User) {
-				return Application.getUserStore().getUser(bizzId).isActive();
-			} else if (bizzId.getEntityCode() == EntityHelper.Department) {
-				return !Application.getUserStore().getDepartment(bizzId).isDisabled();
-			} else if (bizzId.getEntityCode() == EntityHelper.Role) {
-				return !Application.getUserStore().getRole(bizzId).isDisabled();
-			}
+            switch (bizzId.getEntityCode()) {
+                case EntityHelper.User:
+                    return Application.getUserStore().getUser(bizzId).isActive();
+                case EntityHelper.Department:
+                    return !Application.getUserStore().getDepartment(bizzId).isDisabled();
+                case EntityHelper.Role:
+                    return !Application.getUserStore().getRole(bizzId).isDisabled();
+                case EntityHelper.Team:
+                    return !Application.getUserStore().getTeam(bizzId).isDisabled();
+            }
+
 		} catch (NoMemberFoundException ex) {
 			LOG.error("No bizz found : " + bizzId);
 		}
@@ -132,18 +136,22 @@ public class UserHelper {
 	/**
 	 * 获取名称
 	 * 
-	 * @param bizzId ID of User/Role/Department
+	 * @param bizzId ID of User/Role/Department/Team
 	 * @return
 	 */
 	public static String getName(ID bizzId) {
 		try {
-			if (bizzId.getEntityCode() == EntityHelper.User) {
-				return Application.getUserStore().getUser(bizzId).getFullName();
-			} else if (bizzId.getEntityCode() == EntityHelper.Department) {
-				return Application.getUserStore().getDepartment(bizzId).getName();
-			} else if (bizzId.getEntityCode() == EntityHelper.Role) {
-				return Application.getUserStore().getRole(bizzId).getName();
-			} 
+		    switch (bizzId.getEntityCode()) {
+                case EntityHelper.User:
+                    return Application.getUserStore().getUser(bizzId).getFullName();
+                case EntityHelper.Department:
+                    return Application.getUserStore().getDepartment(bizzId).getName();
+                case EntityHelper.Role:
+                    return Application.getUserStore().getRole(bizzId).getName();
+                case EntityHelper.Team:
+                    return Application.getUserStore().getTeam(bizzId).getName();
+            }
+
 		} catch (NoMemberFoundException ex) {
 			LOG.error("No bizz found : " + bizzId);
 		}
@@ -153,17 +161,24 @@ public class UserHelper {
 	/**
 	 * 获取部门或角色下的成员
 	 * 
-	 * @param groupId ID of Role/Department
+	 * @param groupId ID of Role/Department/Team
 	 * @return
 	 */
 	public static Member[] getMembers(ID groupId) {
 		Set<Principal> ms = null;
 		try {
-			if (groupId.getEntityCode() == EntityHelper.Department) {
-				ms = Application.getUserStore().getDepartment(groupId).getMembers();
-			} else if (groupId.getEntityCode() == EntityHelper.Role) {
-				ms = Application.getUserStore().getRole(groupId).getMembers();
-			}
+            switch (groupId.getEntityCode()) {
+                case EntityHelper.Department:
+                    ms = Application.getUserStore().getDepartment(groupId).getMembers();
+                    break;
+                case EntityHelper.Role:
+                    ms = Application.getUserStore().getRole(groupId).getMembers();
+                    break;
+                case EntityHelper.Team:
+                    ms = Application.getUserStore().getTeam(groupId).getMembers();
+                    break;
+            }
+
 		} catch (NoMemberFoundException ex) {
 			LOG.error("No group found : " + groupId);
 		}
@@ -171,7 +186,6 @@ public class UserHelper {
 		if (ms == null || ms.isEmpty()) {
 			return new Member[0];
 		}
-        // noinspection SuspiciousToArrayCall
         return ms.toArray(new Member[0]);
 	}
 	
@@ -229,12 +243,10 @@ public class UserHelper {
 		for (ID bizz : bizzs) {
 			if (bizz.getEntityCode() == EntityHelper.User) {
 				users.add(bizz);
-			} else if (bizz.getEntityCode() == EntityHelper.Department || bizz.getEntityCode() == EntityHelper.Role) {
+			} else {
 				Member[] ms = getMembers(bizz);
 				for (Member m : ms) {
-				    if (m.getIdentity().equals(UserService.SYSTEM_USER)) {
-                        continue;
-                    }
+				    if (m.getIdentity().equals(UserService.SYSTEM_USER)) continue;
 				    users.add((ID) m.getIdentity());
 				}
 			}
@@ -314,7 +326,7 @@ public class UserHelper {
 	}
 
     /**
-     * 通过用户全称找用户
+     * 通过用户全称找用户（注意同名问题）
      *
      * @param fullName
      * @return

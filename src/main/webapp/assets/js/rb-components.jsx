@@ -371,6 +371,7 @@ class UserSelector extends React.Component {
     if (props.hideUser !== true) this.tabTypes.push(['User', '用户'])
     if (props.hideDepartment !== true) this.tabTypes.push(['Department', '部门'])
     if (props.hideRole !== true) this.tabTypes.push(['Role', '角色'])
+    if (props.hideTeam !== true) this.tabTypes.push(['Team', '团队'])
   }
 
   render() {
@@ -480,16 +481,25 @@ class UserSelector extends React.Component {
 
   clickItem(e) {
     const id = e.target.dataset.id || $(e.target).parents('li').data('id')
+
     let exists = false
-    const ns = this.state.selected.filter((x) => {
-      if (x.id === id) {
-        exists = true
-        return false
-      }
-      return true
-    })
+    let ns = []
+    // 单选
+    if (this.props.multiple !== false) {
+      ns = this.state.selected.filter((x) => {
+        if (x.id === id) {
+          exists = true
+          return false
+        }
+        return true
+      })
+    }
 
     if (!exists) ns.push({ id: id, text: $(e.target).text() })
+    if (ns.length >= 20) {
+      RbHighbar.create('最多选择 20 个')
+      return false
+    }
     this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
   }
 
