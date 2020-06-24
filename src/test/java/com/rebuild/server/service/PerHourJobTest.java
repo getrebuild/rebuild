@@ -25,9 +25,4 @@ public class PerHourJobTest extends TestSupport {
     public void doCleanTempFiles() {
         new PerHourJob().doCleanTempFiles();
     }
-
-    @Test
-    public void statsStorage() {
-        new PerHourJob().statsStorage();
-    }
 }

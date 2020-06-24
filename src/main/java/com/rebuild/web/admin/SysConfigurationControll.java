@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -23,7 +22,6 @@ import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.server.service.PerHourJob;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -101,9 +99,6 @@ public class SysConfigurationControll extends BasePageControll {
         writeSuccess(response);
     }
 
-    /**
-     * @see PerHourJob#statsStorage()
-     */
 	@RequestMapping("integration/storage")
 	public ModelAndView pageIntegrationStorage() {
 		ModelAndView mv = createModelAndView("/admin/integration/storage-qiniu.jsp");
@@ -112,12 +107,8 @@ public class SysConfigurationControll extends BasePageControll {
 		mv.getModel().put("storageStatus", QiniuCloud.instance().available());
 
 		// 存储大小
-		String _StorageSize = SysConfiguration.getCustomValue("_StorageSize");
-		if (_StorageSize == null) {
-            _StorageSize = new PerHourJob().statsStorage() + "";
-        }
-        _StorageSize = FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(_StorageSize));
-        mv.getModel().put("_StorageSize", _StorageSize);
+        long size = QiniuCloud.storageSize();
+        mv.getModel().put("_StorageSize", FileUtils.byteCountToDisplaySize(size));
 
 		return mv;
 	}

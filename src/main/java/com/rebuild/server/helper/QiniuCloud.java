@@ -20,7 +20,9 @@ import com.qiniu.storage.Region;
 import com.qiniu.storage.UploadManager;
 import com.qiniu.util.Auth;
 import com.qiniu.util.StringMap;
+import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
+import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -300,4 +302,26 @@ public class QiniuCloud {
 		}
 		return StringUtils.join(urlSplit, "/");
 	}
+
+    /**
+     * 存储空间大小（1小时缓存）
+     *
+     * @return
+     */
+    public static long storageSize() {
+        Long size = (Long) Application.getCommonCache().getx("_StorageSize");
+        if (size != null) {
+            return size;
+        }
+
+        if (QiniuCloud.instance().available()) {
+            size = QiniuCloud.instance().stats();
+        } else {
+            File data = SysConfiguration.getFileOfData("rb");
+            size = FileUtils.sizeOfDirectory(data);
+        }
+
+        Application.getCommonCache().putx("_StorageSize", size, CommonCache.TS_HOUR);
+        return size;
+    }
 }

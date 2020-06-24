@@ -9,16 +9,13 @@ package com.rebuild.server.service;
 
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.DistributedJobBean;
-import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.setup.DatabaseBackup;
 import com.rebuild.utils.FileFilterByLastModified;
-import org.apache.commons.io.FileUtils;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
 
-import java.io.File;
 import java.util.Calendar;
 
 /**
@@ -42,8 +39,6 @@ public class PerHourJob extends DistributedJobBean {
             doCleanTempFiles();
         }
 
-        statsStorage();
-
         // DO OTHERS HERE ...
 
     }
@@ -66,20 +61,4 @@ public class PerHourJob extends DistributedJobBean {
         FileFilterByLastModified.deletes(SysConfiguration.getFileOfTemp(null), 7);
     }
 
-    /**
-     * 存储空间大小
-     * @return
-     */
-    public long statsStorage() {
-        long size;
-        if (QiniuCloud.instance().available()) {
-            size = QiniuCloud.instance().stats();
-        } else {
-            File data = SysConfiguration.getFileOfData("rb");
-            size = FileUtils.sizeOfDirectory(data);
-        }
-
-        SysConfiguration.setCustomValue("_StorageSize", size);
-        return size;
-    }
 }
