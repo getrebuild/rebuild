@@ -8,14 +8,12 @@
 <style type="text/css">
     .row.stats .col-8 span {
         display: block;
-        height: 48px;
+        height: 40px;
         width: 100%;
+        margin-top: 4px;
     }
     .row.stats .col-4 {
         height: 48px;
-    }
-    .row.stats .col-4 strong {
-        font-size: 1.5rem;
     }
 </style>
 </head>
@@ -111,7 +109,7 @@
                                     <span></span>
                                 </div>
                                 <div class="col-4">
-                                    <strong>0</strong>
+                                    <strong class="fs-16">0</strong>
                                     <p class="text-muted m-0">短信</p>
                                 </div>
                             </div>
@@ -120,7 +118,7 @@
                                     <span></span>
                                 </div>
                                 <div class="col-4">
-                                    <strong>0</strong>
+                                    <strong class="fs-16">0</strong>
                                     <p class="text-muted m-0">邮件</p>
                                 </div>
                             </div>

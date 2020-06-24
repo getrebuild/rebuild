@@ -12,7 +12,6 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
@@ -39,6 +38,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
 
@@ -225,30 +226,35 @@ public class SysConfigurationControll extends BasePageControll {
     }
 
     @RequestMapping(value = "integration/submail/stats")
-    public void statsSubmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void statsSubmail(HttpServletResponse response) throws IOException {
 	    final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
         final String sql = "select date_format(sendTime,'%Y-%m-%d'),count(sendId) from SmsendLog" +
-                " where type = ? and sendTime > ? group by date_format(sendTime,'%Y-%m-%d') order by sendTime";
+                " where type = ? and sendTime > ? group by date_format(sendTime,'%Y-%m-%d')";
 
         Object[][] sms = Application.createQueryNoFilter(sql)
                 .setParameter(1, 1)
                 .setParameter(2, xday)
                 .array();
+        Arrays.sort(sms, Comparator.comparing(o -> o[0].toString()));
+
         Object[] smsCount = Application.createQueryNoFilter(
                 "select count(sendId) from SmsendLog where type = ?")
                 .setParameter(1, 1)
                 .unique();
 
+
         Object[][] email = Application.createQueryNoFilter(sql)
                 .setParameter(1, 2)
                 .setParameter(2, xday)
                 .array();
+        Arrays.sort(email, Comparator.comparing(o -> o[0].toString()));
+
         Object[] emailCount = Application.createQueryNoFilter(
                 "select count(sendId) from SmsendLog where type = ?")
                 .setParameter(1, 2)
                 .unique();
 
-        JSON data = JSONUtils.toJSONObject(
+        JSONObject data = JSONUtils.toJSONObject(
                 new String[] { "sms", "email", "smsCount", "emailCount" },
                 new Object[] { sms, email, smsCount, emailCount });
         writeSuccess(response, data);

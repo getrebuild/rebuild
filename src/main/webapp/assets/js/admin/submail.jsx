@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 $(document).ready(() => {
   $('.J_test-email').click(() => renderRbcomp(<TestSend type="email" />))
   $('.J_test-sms').click(() => renderRbcomp(<TestSend type="sms" />))
@@ -40,9 +47,7 @@ const _renderStats = function (data, $el) {
     yAxis: {
       show: false,
       type: 'value',
-      splitLine: { show: false },
-      label: { show: false },
-      cursor: 'default'
+      splitLine: { show: false }
     },
     series: [{
       data: series,
