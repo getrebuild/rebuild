@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #26 (v1.11)
+alter table `smsend_log`
+  add column `TYPE` smallint(6) default '0' comment '1=短信; 2=邮件';
+
 -- #25
 alter table `robot_trigger_config`
   add column `WHEN_TIMER` varchar(100) comment '定期执行';

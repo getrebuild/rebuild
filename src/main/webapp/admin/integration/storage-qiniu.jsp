@@ -59,6 +59,16 @@
 					</div>
 				</div>
 				<div class="col-lg-3 col-12">
+					<div class="card">
+						<div class="card-header card-header-divider">存储大小</div>
+						<div class="card-body">
+							<strong>${_StorageSize}</strong>
+							<c:choose>
+								<c:when test="${storageStatus}"> (七牛云)</c:when>
+								<c:otherwise> (本地存储)</c:otherwise>
+							</c:choose>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

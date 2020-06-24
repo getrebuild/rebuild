@@ -343,9 +343,10 @@
 		<field name="sendId" type="primary" />
 		<field name="to" type="string" max-length="100" nullable="false" updatable="false" description="收件人" />
 		<field name="content" type="text" nullable="false" updatable="false" description="发送内容" />
+		<field name="type" type="small-int" default-value="0" description="1=短信; 2=邮件" />
 		<field name="sendTime" type="timestamp" nullable="false" updatable="false" description="发送时间" />
-		<field name="sendResult" type="string" max-length="200" description="发送结果(OK:xxx|ERR:xxx)" />
-		<index field-list="sendTime,sendResult" />
+		<field name="sendResult" type="string" max-length="200" description="发送结果(xxx|ERR:xxx)" />
+		<index field-list="type,sendTime,sendResult" />
 	</entity>
 
 	<!-- 动态不涉及审计 -->

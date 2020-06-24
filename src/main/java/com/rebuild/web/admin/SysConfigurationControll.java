@@ -7,21 +7,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
+import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.QiniuCloud;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.server.service.PerHourJob;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.stereotype.Controller;
@@ -32,6 +39,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -91,13 +99,25 @@ public class SysConfigurationControll extends BasePageControll {
 
         writeSuccess(response);
     }
-	
+
+    /**
+     * @see PerHourJob#statsStorage()
+     */
 	@RequestMapping("integration/storage")
 	public ModelAndView pageIntegrationStorage() {
 		ModelAndView mv = createModelAndView("/admin/integration/storage-qiniu.jsp");
 		mv.getModel().put("storageAccount",
 				starsAccount(SysConfiguration.getStorageAccount(), 0, 1));
 		mv.getModel().put("storageStatus", QiniuCloud.instance().available());
+
+		// 存储大小
+		String _StorageSize = SysConfiguration.getCustomValue("_StorageSize");
+		if (_StorageSize == null) {
+            _StorageSize = new PerHourJob().statsStorage() + "";
+        }
+        _StorageSize = FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(_StorageSize));
+        mv.getModel().put("_StorageSize", _StorageSize);
+
 		return mv;
 	}
 
@@ -202,6 +222,36 @@ public class SysConfigurationControll extends BasePageControll {
         } else {
             writeFailure(response, "测试发送失败，请检查你的配置");
         }
+    }
+
+    @RequestMapping(value = "integration/submail/stats")
+    public void statsSubmail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	    final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
+        final String sql = "select date_format(sendTime,'%Y-%m-%d'),count(sendId) from SmsendLog" +
+                " where type = ? and sendTime > ? group by date_format(sendTime,'%Y-%m-%d') order by sendTime";
+
+        Object[][] sms = Application.createQueryNoFilter(sql)
+                .setParameter(1, 1)
+                .setParameter(2, xday)
+                .array();
+        Object[] smsCount = Application.createQueryNoFilter(
+                "select count(sendId) from SmsendLog where type = ?")
+                .setParameter(1, 1)
+                .unique();
+
+        Object[][] email = Application.createQueryNoFilter(sql)
+                .setParameter(1, 2)
+                .setParameter(2, xday)
+                .array();
+        Object[] emailCount = Application.createQueryNoFilter(
+                "select count(sendId) from SmsendLog where type = ?")
+                .setParameter(1, 2)
+                .unique();
+
+        JSON data = JSONUtils.toJSONObject(
+                new String[] { "sms", "email", "smsCount", "emailCount" },
+                new Object[] { sms, email, smsCount, emailCount });
+        writeSuccess(response, data);
     }
 
 	private String[] starsAccount(String[] account, int ...index) {

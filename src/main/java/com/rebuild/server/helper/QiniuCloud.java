@@ -9,7 +9,10 @@ package com.rebuild.server.helper;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
+import com.qiniu.http.Client;
 import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
@@ -47,13 +50,13 @@ public class QiniuCloud {
 
 	private final UploadManager UPLOAD_MANAGER = new UploadManager(CONFIGURATION);
 	
-	private Auth auth;
+	private Auth _auth;
 	private String bucketName;
 
 	private QiniuCloud() {
 		String[] account = SysConfiguration.getStorageAccount();
 		if (account != null) {
-			this.auth = Auth.create(account[0], account[1]);
+			this._auth = Auth.create(account[0], account[1]);
 			this.bucketName = account[2];
 		} else {
 			LOG.warn("No QiniuCloud configuration! Using local storage.");
@@ -61,12 +64,22 @@ public class QiniuCloud {
 	}
 	
 	/**
+	 * 是否可用
+	 *
 	 * @return
 	 */
 	public boolean available() {
-		return this.auth != null;
+		return this._auth != null;
 	}
-	
+
+	/**
+	 * @return
+	 */
+	public Auth getAuth() {
+		Assert.notNull(_auth, "云存储账户未配置");
+		return _auth;
+	}
+
 	/**
 	 * 文件上传
 	 * 
@@ -75,9 +88,8 @@ public class QiniuCloud {
 	 * @throws IOException
 	 */
 	public String upload(File file) throws IOException {
-		Assert.notNull(auth, "云存储账户未配置");
-		String key = formatFileKey(file.getName()); 
-		Response resp = UPLOAD_MANAGER.put(file, key, auth.uploadToken(bucketName));
+		String key = formatFileKey(file.getName());
+		Response resp = UPLOAD_MANAGER.put(file, key, getAuth().uploadToken(bucketName));
 		if (resp.isOK()) {
 			return key;
 		} else {
@@ -94,7 +106,6 @@ public class QiniuCloud {
 	 * @throws Exception
 	 */
 	public String upload(URL url) throws Exception {
-		Assert.notNull(auth, "云存储账户未配置");
 		File tmp = SysConfiguration.getFileOfTemp("download." + System.currentTimeMillis());
 		boolean success = CommonsUtils.readBinary(url.toString(), tmp);
 		if (!success) {
@@ -126,7 +137,6 @@ public class QiniuCloud {
 	 * @return
 	 */
 	public String url(String filePath, int seconds) {
-		Assert.notNull(auth, "云存储账户未配置");
 		String baseUrl = SysConfiguration.getStorageUrl() + filePath;
 		// default use HTTPS
 		if (baseUrl.startsWith("//")) {
@@ -137,7 +147,7 @@ public class QiniuCloud {
 		// Use http cache
 		seconds /= 2;
 		deadline = deadline / seconds * seconds;
-		return auth.privateDownloadUrlWithDeadline(baseUrl, deadline);
+		return getAuth().privateDownloadUrlWithDeadline(baseUrl, deadline);
 	}
 	
 	/**
@@ -147,8 +157,7 @@ public class QiniuCloud {
 	 * @return
 	 */
 	protected boolean delete(String key) {
-		Assert.notNull(auth, "云存储账户未配置");
-		BucketManager bucketManager = new BucketManager(auth, CONFIGURATION);
+		BucketManager bucketManager = new BucketManager(getAuth(), CONFIGURATION);
 		Response resp;
 		try {
 			resp = bucketManager.delete(this.bucketName, key);
@@ -170,7 +179,41 @@ public class QiniuCloud {
 	public String getUploadToken(String fileKey) {
 		// 上传策略参见 https://developer.qiniu.com/kodo/manual/1206/put-policy
 		StringMap policy = new StringMap().put("fsizeLimit", 102400000);  // 100M
-		return auth.uploadToken(bucketName, fileKey, 60 * 10, policy);
+		return getAuth().uploadToken(bucketName, fileKey, 60 * 10, policy);
+	}
+
+	/**
+	 * 获取空间大小
+	 *
+	 * @return bytes
+	 */
+	@SuppressWarnings("deprecation")
+	public long stats() {
+		String time = CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
+		String url = String.format(
+				"%s/v6/space?bucket=%s&begin=%s000000&end=%s235959&g=day", CONFIGURATION.apiHost(), bucketName, time, time);
+		StringMap headers = getAuth().authorization(url);
+
+		try {
+			Client client = new Client(CONFIGURATION);
+			Response resp = client.get(url, headers);
+			if (resp.isOK()) {
+				JSONObject map = JSON.parseObject(resp.bodyString());
+				return map.getJSONArray("datas").getLong(0);
+			}
+
+		} catch (QiniuException e) {
+			LOG.warn(null, e);
+		}
+		return -1;
+	}
+
+	private static final QiniuCloud INSTANCE = new QiniuCloud();
+	/**
+	 * @return
+	 */
+	public static QiniuCloud instance() {
+		return INSTANCE;
 	}
 	
 	// --
@@ -256,13 +299,5 @@ public class QiniuCloud {
 			urlSplit[i] = e;
 		}
 		return StringUtils.join(urlSplit, "/");
-	}
-	
-	private static final QiniuCloud INSTANCE = new QiniuCloud();
-	/**
-	 * @return
-	 */
-	public static QiniuCloud instance() {
-		return INSTANCE;
 	}
 }

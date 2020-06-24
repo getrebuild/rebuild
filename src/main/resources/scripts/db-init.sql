@@ -505,10 +505,11 @@ create table if not exists `smsend_log` (
   `SEND_ID`            char(20) not null,
   `TO`                 varchar(100) not null comment '收件人',
   `CONTENT`            text(21845) not null comment '发送内容',
+  `TYPE`               smallint(6) default '0' comment '1=短信; 2=邮件',
   `SEND_TIME`          timestamp not null default current_timestamp comment '发送时间',
-  `SEND_RESULT`        varchar(200) comment '发送结果(OK:xxx|ERR:xxx)',
+  `SEND_RESULT`        varchar(200) comment '发送结果(xxx|ERR:xxx)',
   primary key  (`SEND_ID`),
-  index IX0_smsend_log (`SEND_TIME`, `SEND_RESULT`)
+  index IX0_smsend_log (`TYPE`, `SEND_TIME`, `SEND_RESULT`)
 )Engine=InnoDB;
 
 -- ************ Entity [Feeds] DDL ************
@@ -612,4 +613,4 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 25);
+  values ('021-9000000000000001', 'DBVer', 26);
