@@ -476,8 +476,8 @@ public class SecurityManager {
 	public Filter createQueryFilter(ID user, Permission action) {
 		User theUser = theUserStore.getUser(user);
 		if (theUser.isAdmin()) {
-			return EntityQueryFilter.ALLOWED;
+			return RoleBaseQueryFilter.ALLOWED;
 		}
-		return new EntityQueryFilter(theUser, action);
+		return new RoleBaseQueryFilter(theUser, action);
 	}
 }

@@ -5,6 +5,17 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <title>短信/邮件配置</title>
+<style type="text/css">
+    .row.stats .col-8 span {
+        display: block;
+        height: 40px;
+        width: 100%;
+        margin-top: 4px;
+    }
+    .row.stats .col-4 {
+        height: 48px;
+    }
+</style>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
@@ -90,6 +101,29 @@
 					</div>
 				</div>
 				<div class="col-lg-3 col-12">
+                    <div class="card">
+                        <div class="card-header card-header-divider">发送量</div>
+                        <div class="card-body">
+                            <div class="row stats J_stats-sms">
+                                <div class="col-8">
+                                    <span></span>
+                                </div>
+                                <div class="col-4">
+                                    <strong class="fs-16">0</strong>
+                                    <p class="text-muted m-0">短信</p>
+                                </div>
+                            </div>
+                            <div class="row stats J_stats-email mt-4">
+                                <div class="col-8">
+                                    <span></span>
+                                </div>
+                                <div class="col-4">
+                                    <strong class="fs-16">0</strong>
+                                    <p class="text-muted m-0">邮件</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 				</div>
 			</div>
 		</div>
@@ -97,50 +131,7 @@
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/admin/syscfg.jsx" type="text/babel"></script>
-<script type="text/babel">
-$(document).ready(() => {
-    $('.J_test-email').click(() => renderRbcomp(<TestSend type="email" />) )
-    $('.J_test-sms').click(() => renderRbcomp(<TestSend type="sms" />))
-})
-class TestSend extends RbAlert {
-    constructor(props) {
-        super(props)
-        this.state = { ...props }
-    }
-    renderContent() {
-        const typeName = this.props.type === 'email' ? '邮箱' : '手机'
-        return (
-            <form style={{ maxWidth: 400, margin: '0 auto' }}>
-                <div className="form-group">
-                    <label>输入接收{typeName}</label>
-                    <input type="text" className="form-control form-control-sm" placeholder={typeName} ref={(c) => this._input = c} />
-                </div>
-                <div className="form-group mb-1">
-                    <button type="button" className="btn btn-space btn-primary" onClick={()=>this.confirm()} ref={(c) => this._btn = c} >发送</button>
-                </div>
-            </form>
-        )
-    }
-    confirm() {
-        let receiver = $(this._input).val()
-        if (!receiver) return
-
-        let conf = {}
-        $('.syscfg table td[data-id]').each(function () {
-            let $this = $(this)
-            conf[$this.data('id')] = $this.find('input').val()
-        })
-
-        $(this._btn).button('loading')
-        $.post('./submail/test?type=' + this.props.type + '&receiver=' + $encode(receiver), JSON.stringify(conf), (res) => {
-            if (res.error_code === 0) {
-                RbHighbar.success('测试发送成功')
-                // this.hide()
-            } else RbHighbar.create(res.error_msg || '测试发送失败')
-            $(this._btn).button('reset')
-        })
-    }
-}
-</script>
+<script src="${baseUrl}/assets/lib/charts/echarts.min.js"></script>
+<script src="${baseUrl}/assets/js/admin/submail.jsx" type="text/babel"></script>
 </body>
 </html>

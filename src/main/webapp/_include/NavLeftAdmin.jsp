@@ -9,9 +9,9 @@
 					<li class="divider">系统</li>
 					<li class="${param['activeNav'] == 'systems' ? 'active' : ''}"><a href="${baseUrl}/admin/systems"><i class="icon zmdi zmdi-settings"></i><span>通用配置</span></a></li>
 					<li class="parent">
-						<a><i class="icon zmdi zmdi-puzzle-piece"></i><span>三方服务集成</span></a>
+						<a><i class="icon zmdi zmdi-puzzle-piece"></i><span>服务集成</span></a>
 						<ul class="sub-menu">
-							<li class="title">三方服务集成</li>
+							<li class="title">服务集成</li>
 							<li class="nav-items">
 								<div class="rb-scroller">
 									<div class="content">

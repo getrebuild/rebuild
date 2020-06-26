@@ -126,13 +126,13 @@ public class SMSender {
 		JSONArray returns = rJson.getJSONArray("return");
 		if (STATUS_OK.equalsIgnoreCase(rJson.getString("status")) && !returns.isEmpty()) {
 			String sendId = ((JSONObject) returns.get(0)).getString("send_id");
-			createLog(to, scontent, sendId, null);
+			createLog(to, scontent, 2, sendId, null);
 			return sendId;
 
 		} else {
 			LOG.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
 
-			createLog(to, scontent, null, rJson.getString("msg"));
+			createLog(to, scontent, 2, null, rJson.getString("msg"));
 			return null;
 		}
 	}
@@ -206,13 +206,13 @@ public class SMSender {
 		
 		if (STATUS_OK.equalsIgnoreCase(rJson.getString("status"))) {
 			String sendId = rJson.getString("send_id");
-			createLog(to, content, sendId, null);
+			createLog(to, content, 1, sendId, null);
 			return sendId;
 
 		} else {
 			LOG.error("SMS failed to send : " + to + " > " + content + "\nError : " + rJson);
 
-			createLog(to, content, null, rJson.getString("msg"));
+			createLog(to, content, 1, null, rJson.getString("msg"));
 			return null;
 		}
 	}
@@ -222,16 +222,18 @@ public class SMSender {
 	 *
 	 * @param to
 	 * @param content
+	 * @param type 1=短信 2=邮件
 	 * @param sentid
 	 * @param error
 	 */
-	private static void createLog(String to, String content, String sentid, String error) {
+	private static void createLog(String to, String content, int type, String sentid, String error) {
 		if (!Application.serversReady()) return;
 
 		Record log = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
 		log.setString("to", to);
 		log.setString("content", CommonsUtils.maxstr(content, 10000));
 		log.setDate("sendTime", CalendarUtils.now());
+		log.setInt("type", type);
 		if (sentid != null) {
 			log.setString("sendResult", sentid);
 		} else {

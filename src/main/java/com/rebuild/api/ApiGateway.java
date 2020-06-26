@@ -29,8 +29,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,11 +52,13 @@ public class ApiGateway extends Controll {
 
 	private static final Log LOG = LogFactory.getLog(ApiGateway.class);
 
-    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(1, 1000);
+    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(1, 200);
 
-	@RequestMapping("/gw/api/{apiName}")
-	public void api(@PathVariable String apiName,
-			HttpServletRequest request, HttpServletResponse response) throws Exception {
+	@RequestMapping("/gw/api/**")
+	public void api(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String path = request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE).toString();
+		String bestMatchingPattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE).toString();
+		final String apiName = new AntPathMatcher().extractPathWithinPattern(bestMatchingPattern, path);
 
 		final Date reuqestTime = CalendarUtils.now();
 		final String remoteIp = ServletUtils.getRemoteAddr(request);

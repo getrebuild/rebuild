@@ -3,6 +3,7 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<meta name="page-help" content="https://getrebuild.com/docs/dev/how-use-apis">
 <title>API 秘钥管理</title>
 </head>
 <body>
@@ -35,7 +36,7 @@
                                                 <th width="30%">APP SECRET</th>
                                                 <th>绑定用户</th>
                                                 <th width="15%">创建时间</th>
-                                                <th>使用统计 (30日)</th>
+                                                <th>调用量 (30日)</th>
                                                 <th width="50"></th>
                                             </tr>
                                         </thead>

@@ -82,7 +82,7 @@ class DlgEdit extends RbFormHandler {
           <label className="col-sm-3 col-form-label text-sm-right">绑定用户</label>
           <div className="col-sm-7">
             <select className="form-control form-control-sm" ref={(c) => this._user = c}></select>
-            <p className="form-text mb-0">为 API 秘钥绑定一个用户，此秘钥将拥有和其一样的权限。如不绑定则拥有全部权限</p>
+            <p className="form-text mb-0">强烈建议为 API 秘钥绑定一个用户，此秘钥将拥有和其一样的权限。如不绑定则拥有全部权限</p>
           </div>
         </div>
         <div className="form-group row footer">
