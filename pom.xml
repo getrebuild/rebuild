@@ -149,7 +149,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>commons</artifactId>
-            <version>8c13f05184</version>
+            <version>868cac675e</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>

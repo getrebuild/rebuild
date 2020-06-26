@@ -175,5 +175,9 @@ public class EntityHelper {
 	public static final int FeedsComment = 41;
 	public static final int FeedsLike = 42;
 	public static final int FeedsMention = 43;
-
+	public static final int ProjectConfig = 50;
+	public static final int ProjectPlanConfig = 51;
+	public static final int ProjectTask = 52;
+	public static final int ProjectTaskRelation = 53;
+	public static final int ProjectTaskComment = 54;
 }
