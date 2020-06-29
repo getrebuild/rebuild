@@ -171,13 +171,17 @@ public class EntityHelper {
 	public static final int RecycleBin = 33;
 	public static final int RevisionHistory = 34;
 	public static final int SmsendLog = 35;
+	// 动态
 	public static final int Feeds = 40;
 	public static final int FeedsComment = 41;
 	public static final int FeedsLike = 42;
 	public static final int FeedsMention = 43;
+	// 项目
 	public static final int ProjectConfig = 50;
 	public static final int ProjectPlanConfig = 51;
 	public static final int ProjectTask = 52;
 	public static final int ProjectTaskRelation = 53;
 	public static final int ProjectTaskComment = 54;
+	public static final int ProjectTaskTag = 55;
+	public static final int ProjectTaskTagRelation = 56;
 }
