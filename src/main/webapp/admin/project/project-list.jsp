@@ -4,19 +4,19 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<title>分类数据</title>
+<title>项目管理</title>
 </head>
 <body>
 <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header">
 	<jsp:include page="/_include/NavTop.jsp">
-		<jsp:param value="分类数据" name="pageTitle"/>
+		<jsp:param value="项目管理" name="pageTitle"/>
 	</jsp:include>
 	<jsp:include page="/_include/NavLeftAdmin.jsp">
-		<jsp:param value="classifications" name="activeNav"/>
+		<jsp:param value="projects" name="activeNav"/>
 	</jsp:include>
 	<div class="rb-content">
 		<div class="page-head">
-			<div class="float-left"><div class="page-head-title">分类数据</div></div>
+			<div class="float-left"><div class="page-head-title">项目管理</div></div>
 			<div class="float-right pt-1">
 				<button class=" btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> 添加</button>
 			</div>
@@ -40,6 +40,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/entityhub/classification-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/project/project-manager.jsx" type="text/babel"></script>
 </body>
 </html>

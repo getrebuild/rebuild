@@ -577,7 +577,7 @@ create table if not exists `project_config` (
   `COMMENTS`           varchar(300) comment '备注',
   `PRINCIPAL`          char(20) comment '负责人',
   `MEMBERS`            varchar(420) default 'ALL' comment '项目成员(可选值: ALL/$MemberID)',
-  `SHOW_CONFIG`        text(21845) not null comment 'JSON格式配置',
+  `SHOW_CONFIG`        text(3000) comment '扩展配置(JSON Map)',
   primary key  (`CONFIG_ID`)
 )Engine=InnoDB;
 

@@ -10,11 +10,13 @@ package com.rebuild.server.configuration.portals;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
@@ -44,7 +46,8 @@ public class NavBuilder extends NavManager {
             new String[] { "icon", "text", "type", "value" },
             new Object[][] {
                     new Object[] { "chart-donut", "动态", "ENTITY", NAV_FEEDS },
-                    new Object[] { "folder", "文件", "ENTITY", NAV_FILEMRG }
+                    new Object[] { "city-alt", "项目", "ENTITY", NAV_PROJECT },
+                    new Object[] { "folder", "文件", "ENTITY", NAV_FILEMRG },
             });
 
     /**
@@ -85,6 +88,14 @@ public class NavBuilder extends NavManager {
                 }
             } else if (isFilterNav(nav, user)) {
                 iter.remove();
+            } else if (NAV_PROJECT.equals(nav.getString("value"))) {
+
+                JSON projects = getProjects(user);
+                if (projects == null) {
+                    iter.remove();
+                } else {
+                    nav.put("sub", projects);
+                }
             }
         }
         return navs;
@@ -103,7 +114,7 @@ public class NavBuilder extends NavManager {
             String entity = nav.getString("value");
             if (NAV_PARENT.equals(entity)) {
                 return true;
-            } else if (NAV_FEEDS.equals(entity) || NAV_FILEMRG.equals(entity)) {
+            } else if (NAV_FEEDS.equals(entity) || NAV_FILEMRG.equals(entity) || NAV_PROJECT.equals(entity)) {
                 return false;
             } else if (!MetadataHelper.containsEntity(entity)) {
                 LOG.warn("Unknow entity in nav : " + entity);
@@ -117,13 +128,37 @@ public class NavBuilder extends NavManager {
     }
 
     /**
+     * 动态获取项目菜单
+     *
+     * @param user
+     * @return
+     */
+    private JSONArray getProjects(ID user) {
+        ConfigEntry[] projects = ProjectManager.instance.getAvailable(user);
+        if (projects.length == 0) {
+            return null;
+        }
+
+        JSONArray projectNavs = new JSONArray();
+        for (ConfigEntry e : projects) {
+            String url = String.format("/project/%s/tasks", e.getID("id"));
+            projectNavs.add(JSONUtils.toJSONObject(
+                    new String[] { "type", "text", "icon", "value" },
+                    new String[] { "URL", e.getString("projectName"), null, url }));
+        }
+        return projectNavs;
+    }
+
+    // --
+
+    /**
      * 渲染导航菜單
      *
      * @param item
      * @param activeNav
      * @return
      */
-    public String renderNavItem(JSONObject item, String activeNav) {
+    public static String renderNavItem(JSONObject item, String activeNav) {
         final boolean isUrlType = "URL".equals(item.getString("type"));
         String navName = item.getString("value");
         String navUrl = item.getString("value");
@@ -158,13 +193,15 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        StringBuilder navHtml = new StringBuilder()
-                .append(String.format("<li class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
-                        navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
-                        subNavs == null ? navUrl : "###",
-                        isOutUrl ? "_blank" : "_self",
-                        navIcon,
-                        navText));
+        String navItemHtml = String.format(
+                "<li class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
+                navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
+                subNavs == null ? navUrl : "###",
+                isOutUrl ? "_blank" : "_self",
+                navIcon,
+                navText);
+        StringBuilder navHtml = new StringBuilder(navItemHtml);
+
         if (subNavs != null) {
             StringBuilder subHtml = new StringBuilder()
                     .append("<ul class=\"sub-menu\"><li class=\"title\">")

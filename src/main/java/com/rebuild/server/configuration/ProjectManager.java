@@ -27,6 +27,9 @@ import java.util.Set;
  */
 public class ProjectManager implements ConfigManager {
 
+    public static final ProjectManager instance = new ProjectManager();
+    private ProjectManager() { }
+
     /**
      * 获取指定用户可用项目
      *
