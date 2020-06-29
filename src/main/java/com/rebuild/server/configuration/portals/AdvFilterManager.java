@@ -24,7 +24,7 @@ import java.util.List;
  * @author devezhao
  * @since 09/30/2018
  */
-public class AdvFilterManager extends ShareToManager<ID> {
+public class AdvFilterManager extends ShareToManager {
 	
 	public static final AdvFilterManager instance = new AdvFilterManager();
 	private AdvFilterManager() { }
@@ -89,7 +89,7 @@ public class AdvFilterManager extends ShareToManager<ID> {
 	}
 	
 	@Override
-	public void clean(ID cacheKey) {
-		cleanWithBelongEntity(cacheKey, false);
+	public void clean(Object filterId) {
+		cleanWithBelongEntity((ID) filterId, false);
 	}
 }

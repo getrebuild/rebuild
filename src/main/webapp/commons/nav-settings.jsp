@@ -64,8 +64,9 @@
 								<option value="">请选择关联项</option>
 								<optgroup label="业务实体"></optgroup>
 								<optgroup label="系统内建">
-									<option value="$FEEDS$" data-icon="chart-donut">动态</option>
 									<option value="$FILEMRG$" data-icon="folder">文件</option>
+									<option value="$FEEDS$" data-icon="chart-donut">动态</option>
+									<option value="$PROJECT$" data-icon="city-alt">项目</option>
 									<option value="$PARENT$" data-icon="menu">父级菜单</option>
 								</optgroup>
 							</select>
