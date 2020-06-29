@@ -57,7 +57,7 @@ public class DashboardControll extends BasePageControll {
 	@RequestMapping("/dash-gets")
 	public void dashGets(HttpServletRequest request, HttpServletResponse response) throws IOException {
 		ID user = getRequestUser(request);
-		JSON dashs = DashboardManager.instance.getDashList(user);
+		JSON dashs = DashboardManager.instance.getAvailable(user);
 		writeSuccess(response, dashs);
 	}
 	

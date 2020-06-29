@@ -406,8 +406,8 @@
 		<field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="所属项目" />
 		<field name="planName" type="string" max-length="100" nullable="false" description="项目名称" />
 		<field name="comments" type="string" max-length="300" description="备注" />
-		<field name="nextPlanId" type="reference" ref-entity="ProjectPlanConfig" description="下一面板" />
-		<index field-list="projectId" />
+		<field name="seq" type="int" default-value="0" description="排序(小到大)" />
+		<index field-list="projectId,seq" />
 	</entity>
 	
 	<entity name="ProjectTask" type-code="052" description="项目任务">

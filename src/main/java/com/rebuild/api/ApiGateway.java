@@ -63,6 +63,8 @@ public class ApiGateway extends Controll {
 		final Date reuqestTime = CalendarUtils.now();
 		final String remoteIp = ServletUtils.getRemoteAddr(request);
 
+		response.setHeader("X-Powered", "RB/" + Application.VER);
+
 		if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
             JSON err = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
             LOG.error(err.toJSONString());

@@ -587,9 +587,9 @@ create table if not exists `project_plan_config` (
   `PROJECT_ID`         char(20) not null comment '所属项目',
   `PLAN_NAME`          varchar(100) not null comment '项目名称',
   `COMMENTS`           varchar(300) comment '备注',
-  `NEXT_PLAN_ID`       char(20) comment '下一面板',
+  `SEQ`                int(11) default '0' comment '排序(小到大)',
   primary key  (`CONFIG_ID`),
-  index IX0_project_plan_config (`PROJECT_ID`)
+  index IX0_project_plan_config (`PROJECT_ID`, `SEQ`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectTask] DDL ************
@@ -706,4 +706,4 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 26);
+  values ('021-9000000000000001', 'DBVer', 27);

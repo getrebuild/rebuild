@@ -47,7 +47,7 @@ public class DashboardManager extends ShareToManager {
 	 * @param user
 	 * @return
 	 */
-	public JSON getDashList(ID user) {
+	public JSON getAvailable(ID user) {
 		ID detected = detectUseConfig(user, null, null);
 		// 没有就初始化一个
 		if (detected == null) {

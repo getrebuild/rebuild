@@ -23,6 +23,7 @@ import net.sf.ehcache.Element;
 import org.springframework.cache.Cache;
 import org.springframework.cache.Cache.ValueWrapper;
 import org.springframework.cache.CacheManager;
+import org.springframework.util.Assert;
 
 import java.io.Serializable;
 
@@ -90,6 +91,8 @@ public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
 	 * @return
 	 */
 	public Cache cache() {
-		return ehcacheManager.getCache("rebuild");
+		Cache rebuild = ehcacheManager.getCache("rebuild");
+		Assert.notNull(rebuild, "No cache `rebuild` defined in ehcache.xml");
+		return rebuild;
 	}
 }
