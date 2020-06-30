@@ -141,10 +141,9 @@ public class NavBuilder extends NavManager {
 
         JSONArray projectNavs = new JSONArray();
         for (ConfigEntry e : projects) {
-            String url = String.format("/project/%s/tasks", e.getID("id"));
             projectNavs.add(JSONUtils.toJSONObject(
                     new String[] { "type", "text", "icon", "value" },
-                    new String[] { "URL", e.getString("projectName"), null, url }));
+                    new String[] { NAV_PROJECT, e.getString("projectName"), null, e.getID("id").toLiteral() }));
         }
         return projectNavs;
     }
@@ -159,7 +158,8 @@ public class NavBuilder extends NavManager {
      * @return
      */
     public static String renderNavItem(JSONObject item, String activeNav) {
-        final boolean isUrlType = "URL".equals(item.getString("type"));
+        final String navType = item.getString("type");
+        final boolean isUrlType = "URL".equals(navType);
         String navName = item.getString("value");
         String navUrl = item.getString("value");
 
@@ -171,12 +171,19 @@ public class NavBuilder extends NavManager {
             } else {
                 navUrl = ServerListener.getContextPath() + navUrl;
             }
+
         } else if (NAV_FEEDS.equals(navName)) {
             navName = "nav_entity-Feeds";
             navUrl = ServerListener.getContextPath() + "/feeds/home";
+
         } else if (NAV_FILEMRG.equals(navName)) {
             navName = "nav_entity-Attachment";
             navUrl = ServerListener.getContextPath() + "/files/home";
+
+        } else if (NAV_PROJECT.equals(navType)) {
+            navName = "nav_project-" + navName;
+            navUrl = String.format("%s/project/%s/tasks", ServerListener.getContextPath(), navUrl);
+
         } else {
             navName = "nav_entity-" + navName;
             navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";

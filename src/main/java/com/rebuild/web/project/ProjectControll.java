@@ -7,6 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.ProjectManager;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +34,23 @@ public class ProjectControll extends BasePageControll {
     @RequestMapping("{projectId}/tasks")
     public ModelAndView pageProject(@PathVariable String projectId,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return null;
+        final ID projectId2 = ID.isId(projectId) ? ID.valueOf(projectId) : null;
+        if (projectId2 == null || projectId2.getEntityCode() != EntityHelper.ProjectConfig) {
+            response.sendError(404);
+            return null;
+        }
+
+        final ConfigEntry p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
+        if (p == null) {
+            response.sendError(403);
+            return null;
+        }
+
+        ModelAndView mv = createModelAndView("/project/project-tasks.jsp");
+        mv.getModelMap().put("projectId", p.getID("id").toLiteral());
+        mv.getModelMap().put("projectName", p.getString("projectName"));
+
+        return mv;
     }
 
     @RequestMapping("settings/post")

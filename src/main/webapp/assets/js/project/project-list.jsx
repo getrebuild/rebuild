@@ -6,55 +6,61 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(function () {
-  $('.J_add').click(() => { renderRbcomp(<DlgEdit />) })
+  $('.J_add').click(() => renderRbcomp(<DlgEdit />))
   renderRbcomp(<GridList />, 'list')
 })
 
 class GridList extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = {}
   }
+
   render() {
-    return <div className="card-list row">
-      {(this.state.list || []).map((item) => {
-        return (<div key={'item-' + item[0]} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-          <div className="card">
-            <div className="card-body">
-              <a className="text-truncate" href={'classification/' + item[0]}>{item[1]}</a>
-              <p className="text-muted text-truncate">{item[3]}级分类</p>
-            </div>
-            <div className="card-footer card-footer-contrast">
-              <div className="float-left">
-                <a onClick={() => this.editItem(item)}><i className="zmdi zmdi-edit"></i></a>
-                <a onClick={() => this.deleteItem(item[0])}><i className="zmdi zmdi-delete"></i></a>
+    return (
+      <div className="card-list row">
+        {(this.state.list || []).map((item) => {
+          return (
+            <div key={`item-${item[0]}`} className="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+              <div className="card">
+                <div className="card-body">
+                  <a className="text-truncate" href={`project/${item[0]}`}>{item[1]}</a>
+                  <p><span className="badge badge-light">{item[2]}</span></p>
+                </div>
+                <div className="card-footer card-footer-contrast">
+                  <div className="float-left">
+                    <a onClick={() => this.editItem(item)}><i className="zmdi zmdi-edit"></i></a>
+                    <a onClick={() => this.deleteItem(item[0])}><i className="zmdi zmdi-delete"></i></a>
+                  </div>
+                  <div className="clearfix"></div>
+                </div>
               </div>
-              {item[2] && <div className="badge badge-warning">已禁用</div>}
-              <div className="clearfix"></div>
             </div>
-          </div>
-        </div>)
-      })}
-      {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置分类数据</div>}
-    </div>
+          )
+        })}
+        {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置项目</div>}
+      </div>
+    )
   }
+
   componentDidMount() {
-    $.get('/admin/entityhub/classification/list', (res) => {
-      this.setState({ list: res.data })
-    })
+    $.get('/admin/projects/list', (res) => this.setState({ list: res.data }))
   }
+
   editItem(item) {
-    renderRbcomp(<DlgEdit id={item[0]} name={item[1]} isDisabled={item[2]} />)
+    renderRbcomp(<DlgEdit id={item[0]} projectName={item[1]} projectCode={item[2]} />)
   }
-  deleteItem(dataId) {
-    RbAlert.create('删除前请确认此分类数据未被使用。确认删除吗？', {
+
+  deleteItem(projectId) {
+    RbAlert.create('只有空项目才能被删除。确认删除吗？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`/app/entity/record-delete?id=${dataId}`, (res) => {
+        $.post(`/app/entity/record-delete?id=${projectId}`, (res) => {
           if (res.error_code === 0) {
-            RbHighbar.success('分类数据已删除')
+            RbHighbar.success('项目已删除')
             setTimeout(() => { location.reload() }, 500)
           } else RbHighbar.error(res.error_msg)
         })
@@ -101,7 +107,7 @@ class DlgEdit extends RbFormHandler {
   save = (e) => {
     e.preventDefault()
     if (!this.state.projectName) { RbHighbar.create('请输入项目名称'); return }
-    if (this.state.projectCode && !/^[a-zA-Z]{2,6}/.test(this.state.projectCode)) { RbHighbar.create('项目 ID 无效，支持 2-6 位字母'); return }
+    if (this.state.projectCode && !/^[A-Z]{2,6}$/i.test(this.state.projectCode)) { RbHighbar.create('项目 ID 无效，支持 2-6 位字母'); return }
 
     const _data = {
       projectName: this.state.projectName,

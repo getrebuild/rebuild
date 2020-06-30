@@ -40,6 +40,6 @@
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
-<script src="${baseUrl}/assets/js/project/project-list.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/project/project-editor.jsx" type="text/babel"></script>
 </body>
 </html>

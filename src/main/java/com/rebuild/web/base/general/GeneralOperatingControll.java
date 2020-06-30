@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 记录操作
+ * 记录操作（增/改/删/分派/共享）
  * 
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
@@ -80,18 +80,23 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 
-		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
-		if (!repeated.isEmpty()) {
-			JSONObject map = new JSONObject();
-			map.put("error_code", CODE_REPEATED_VALUES);
-			map.put("error_msg", "存在重复值");
-			map.put("data", buildRepeatedData(repeated));
-			writeJSON(response, map);
-			return;
+		final ServiceSpec es = Application.getService(record.getEntity().getEntityCode());
+
+		// 业务实体才查重
+		if (EntityService.class.isAssignableFrom(es.getClass())) {
+			List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
+			if (!repeated.isEmpty()) {
+				JSONObject map = new JSONObject();
+				map.put("error_code", CODE_REPEATED_VALUES);
+				map.put("error_msg", "存在重复值");
+				map.put("data", buildRepeatedData(repeated));
+				writeJSON(response, map);
+				return;
+			}
 		}
 
 		try {
-			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
+			record = es.createOrUpdate(record);
 		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
@@ -104,27 +109,25 @@ public class GeneralOperatingControll extends BaseControll {
 		    return;
         }
 
-		// 单字段修改
-		boolean fromSingle = getBoolParameter(request, "single");
-        Map<String, Object> fieldsVal = null;
-		if (fromSingle) {
-		    fieldsVal = new HashMap<>();
-		    for (String field : record.getAvailableFields()) {
-                Field fieldMeta = record.getEntity().getField(field);
-		        if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {
-		            continue;
-                }
-
-		        Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
-		        fieldsVal.put(field, newValue);
-            }
-        }
-		
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", record.getPrimary());
-		if (fieldsVal != null) {
-		    map.putAll(fieldsVal);
-        }
+
+		// 单字段修改立即返回新值
+		boolean viaSingle = getBoolParameter(request, "single");
+		if (viaSingle) {
+			Map<String, Object> fieldsVal = new HashMap<>();
+			for (String field : record.getAvailableFields()) {
+				Field fieldMeta = record.getEntity().getField(field);
+				if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {
+					continue;
+				}
+
+				Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
+				fieldsVal.put(field, newValue);
+			}
+			map.putAll(fieldsVal);
+		}
+
 		writeSuccess(response, map);
 	}
 	

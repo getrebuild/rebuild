@@ -63,6 +63,7 @@ public class ProjectManager implements ConfigManager {
                 if (JSONUtils.wellFormat(showConfig)) {
                     e.set("showConfig", JSON.parseObject(showConfig));
                 }
+                alist.add(e);
             }
 
             cache = alist.toArray(new ConfigEntry[0]);
@@ -71,12 +72,26 @@ public class ProjectManager implements ConfigManager {
 
         List<ConfigEntry> alist = new ArrayList<>();
         for (ConfigEntry e : cache) {
-            Set<ID> members = e.get("members", Set.class);
+            Set<?> members = e.get("members", Set.class);
             if (members == null || members.contains(user)) {
                 alist.add(e.clone());
             }
         }
         return alist.toArray(new ConfigEntry[0]);
+    }
+
+    /**
+     * @param projectId
+     * @param user
+     * @return
+     */
+    public ConfigEntry getProject(ID projectId, ID user) {
+        for (ConfigEntry e : getAvailable(user)) {
+            if (e.getID("id").equals(projectId)) {
+                return e;
+            }
+        }
+        return null;
     }
 
     /**
@@ -100,6 +115,7 @@ public class ProjectManager implements ConfigManager {
                 ConfigEntry e = new ConfigEntry()
                         .set("id", o[0])
                         .set("planName", o[1]);
+                alist.add(e);
             }
 
             cache = alist.toArray(new ConfigEntry[0]);
