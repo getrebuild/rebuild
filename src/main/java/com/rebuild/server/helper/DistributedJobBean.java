@@ -55,14 +55,14 @@ public abstract class DistributedJobBean extends QuartzJobBean {
             try (Jedis jedis = pool.getResource()) {
                 String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_TIME);
                 if (tryLock == null) {
-                    LOG.info("The job has been executed by another instance : " + getClass());
+                    LOG.info("The job has been executed by another instance : " + getClass().getName());
                     return false;
                 }
             }
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.error("Job " + getClass().getName() + " can safe execute");
+            LOG.error("Job " + getClass().getName() + " can be safe execution");
         }
         return true;
     }
