@@ -529,5 +529,8 @@
     "date",
     "rebuild",
     "getrebuild",
-    "metadata"
+    "metadata",
+    "feeds",
+    "project",
+    "attachment"
 ]

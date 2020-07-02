@@ -8,9 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.project;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,27 +40,19 @@ public class ProjectControll extends BasePageControll {
             return null;
         }
 
-        final ConfigEntry p = ProjectManager.instance.getProject(projectId2);
+        final ConfigEntry p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
         ModelAndView mv = createModelAndView("/project/project-tasks.jsp");
-        mv.getModelMap().put("projectId", p.getID("id").toLiteral());
+        mv.getModelMap().put("projectId", p.getID("id"));
+        mv.getModelMap().put("projectCode", p.getString("projectCode"));
         mv.getModelMap().put("projectName", p.getString("projectName"));
 
+        final ConfigEntry[] plans = ProjectManager.instance.getPlanList(projectId2);
+        JSONArray plans2 = new JSONArray();
+        for (ConfigEntry e : plans) {
+            plans2.add(e.toJSON());
+        }
+        mv.getModelMap().put("projectPlans", plans2.toJSONString());
+
         return mv;
-    }
-
-    @RequestMapping("settings/post")
-    public void settingsPorject(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
-    @RequestMapping("settings/plan/post")
-    public void settingsPorjectPlan(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
-    @RequestMapping("settings/delete")
-    public void deletePorject(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
-
-    @RequestMapping("settings/plan/delete")
-    public void deletePorjectPlan(HttpServletRequest request, HttpServletResponse response) throws IOException {
     }
 }

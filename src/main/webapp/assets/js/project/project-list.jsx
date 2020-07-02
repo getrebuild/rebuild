@@ -39,7 +39,7 @@ class GridList extends React.Component {
             </div>
           )
         })}
-        {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置项目</div>}
+        {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置任何项目</div>}
       </div>
     )
   }
@@ -78,7 +78,7 @@ class DlgEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={`${this.props.id ? '修改' : '添加'}项目`} ref={(c) => this._dlg = c}>
+      <RbModal title={`${this.props.id ? '修改' : '添加'}项目`} ref={(c) => this._dlg = c} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">项目名称</label>
@@ -89,7 +89,7 @@ class DlgEdit extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">项目 ID</label>
             <div className="col-sm-7">
-              <input className="form-control form-control-sm " value={this.state.projectCode || ''} data-id="projectCode" onChange={this.handleChange} maxLength="6" placeholder="(可选)" />
+              <input className="form-control form-control-sm " value={this.state.projectCode || ''} data-id="projectCode" onChange={this.handleChange} maxLength="6" readOnly={!!this.props.id} />
               <div className="form-text">任务编号将以项目 ID 作为前缀，用以区别不同项目。支持 2-6 位字母</div>
             </div>
           </div>
@@ -107,11 +107,11 @@ class DlgEdit extends RbFormHandler {
   save = (e) => {
     e.preventDefault()
     if (!this.state.projectName) return RbHighbar.create('请输入项目名称')
-    if (this.state.projectCode && !/^[A-Z]{2,6}$/i.test(this.state.projectCode)) return RbHighbar.create('项目 ID 无效，支持 2-6 位字母')
+    if (!this.state.projectCode || !/^[A-Z]{2,6}$/i.test(this.state.projectCode)) return RbHighbar.create('项目 ID 无效，请输入 2-6 位字母')
 
     const _data = {
       projectName: this.state.projectName,
-      projectCode: (this.state.projectCode || '').toUpperCase(),
+      projectCode: this.state.projectCode.toUpperCase(),
     }
     _data.metadata = { entity: 'ProjectConfig', id: this.props.id || null }
 

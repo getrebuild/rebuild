@@ -28,6 +28,9 @@
 .plan-boxes.card-list .card:last-child {
 	margin-right: 20px;
 }
+.plan-boxes:empty {
+	content: '请添加任务面板';
+}
 </style>
 </head>
 <body>
@@ -62,7 +65,7 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<label class="col-12 col-lg-3 col-form-label text-lg-right">项目面板</label>
+							<label class="col-12 col-lg-3 col-form-label text-lg-right">任务面板</label>
 							<div class="col-12 col-lg-9">
 								<div class="plan-boxes card-list mb-2" id="plans">
 									<p class="text-muted" style="margin:20px">加载中...</p>

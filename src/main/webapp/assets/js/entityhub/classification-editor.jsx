@@ -100,12 +100,13 @@ class LevelBox extends React.Component {
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
             <input className="form-control" type="text" maxLength="60" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
-            {this.state.itemId && this.state.itemHide && (
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
-                <span className="custom-control-label">启用</span>
-              </label>
-            )}
+            {this.state.itemId && this.state.itemHide &&
+              (
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                  <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
+                  <span className="custom-control-label">启用</span>
+                </label>
+              )}
             <div className="input-group-append">
               <button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>{this.state.itemId ? '保存' : '添加'}</button>
             </div>
@@ -166,16 +167,10 @@ class LevelBox extends React.Component {
     e.preventDefault()
     const name = $.trim(this.state.itemName)
     if (!name) return
-    if (this.props.level >= 1 && !this.parentId) {
-      RbHighbar.create('请先选择上级分类项')
-      return
-    }
+    if (this.props.level >= 1 && !this.parentId) return RbHighbar.create('请先选择上级分类项')
 
     const repeated = this.state.items.find((x) => { return x[1] === name && x[0] !== this.state.itemId })
-    if (repeated) {
-      RbHighbar.create('存在同名分类项')
-      return
-    }
+    if (repeated) return RbHighbar.create('存在同名分类项')
 
     let url = `/admin/entityhub/classification/save-data-item?data_id=${wpc.id}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
@@ -185,6 +180,7 @@ class LevelBox extends React.Component {
       url += '&hide=false'
       isUnhide = true
     }
+
     this.setState({ inSave: true })
     $.post(url, (res) => {
       if (res.error_code === 0) {
@@ -291,6 +287,7 @@ const saveOpenLevel = function () {
         RbHighbar.success('已启用' + LNAME[level] + '级分类')
       }
     })
+
   }, 500, 'saveOpenLevel')
 }
 
@@ -302,7 +299,7 @@ class DlgImports extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title="导入分类数据" ref={(c) => this._dlg = c} >
+      <RbModal title="导入分类数据" ref={(c) => this._dlg = c}>
         <div className="tab-container">
           <ul className="nav nav-tabs">
             <li className="nav-item"><a className="nav-link active" href="#FILE" data-toggle="tab">文件导入</a></li>

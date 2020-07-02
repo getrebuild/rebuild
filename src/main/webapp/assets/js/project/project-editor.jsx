@@ -160,7 +160,7 @@ class PlanEdit extends RbFormHandler {
     }
     if (!this.props.id) {
       _data.projectId = this.props.projectId
-      _data.seq = _planList.sortVal().length + 1
+      _data.seq = _planList.sortsVal().length + 1
     }
     _data.metadata = { entity: 'ProjectPlanConfig', id: this.props.id || null }
 

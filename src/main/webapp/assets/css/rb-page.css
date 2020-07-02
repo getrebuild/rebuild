@@ -164,6 +164,7 @@ body {
 .text-break {
     word-break: break-all;
     word-wrap: break-word;
+    white-space: normal;
 }
 
 .text-overflow {
@@ -3537,6 +3538,11 @@ a.icon-link>.zmdi {
 .badge-border:hover .close {
     background-color: #fbbc05;
     color: #fff !important;
+}
+
+a.avatar.x26 img {
+    width: 26px;
+    height: 26px;
 }
 
 /* text overflow */

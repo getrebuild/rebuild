@@ -1,0 +1,140 @@
+.page-head {
+  padding-top: 12px;
+  padding-bottom: 0;
+}
+
+#plan-boxes {
+  white-space: nowrap;
+  overflow: auto;
+  margin: 0;
+  padding-bottom: 8px;
+}
+
+#plan-boxes.move {
+  cursor: move;
+}
+
+.plan-box-wrapper {
+  width: 280px;
+  margin-left: 25px;
+  display: inline-block;
+}
+
+.plan-box-wrapper:last-child {
+  margin-right: 25px;
+}
+
+.plan-box-wrapper .plan-header .plan-title {
+  font-weight: bold;
+}
+
+.plan-box-wrapper .plan-header .plan-title>small {
+  font-weight: normal;
+  font-size: 1rem;
+  color: #777;
+}
+
+.plan-box-wrapper .task-list {
+  margin-bottom: 8px;
+}
+
+.task-card {
+  background-color: #fff;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+  padding: 12px 14px;
+  padding-left: 11px;
+  border-left: 3px solid #fff;
+  cursor: pointer;
+}
+
+.task-card+.task-card {
+  margin-top: 8px;
+}
+
+.task-card:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+.task-card.content:hover,
+.task-card.content.active {
+  border-color: #4285f4;
+}
+
+.task-content-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.task-content-wrapper .task-status {
+  width: 30px;
+  overflow: hidden;
+}
+
+.task-content-wrapper .task-status .custom-control {
+  margin-left: 2px;
+}
+
+.task-content-wrapper .task-content {
+  flex: 1;
+  padding: 4px 0;
+}
+
+.task-content-wrapper .task-content .task-title {
+  color: #444;
+}
+
+.task-content-wrapper .task-content .task-time {
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
+}
+
+.task-content-wrapper .task-content .task-more {
+  margin-top: 4px;
+}
+
+.task-content-wrapper .task-content .task-more>.avatar img {
+  width: 26px;
+  height: 26px;
+}
+
+.task-content-wrapper .task-content .task-more>.badge {
+  font-weight: normal;
+  font-size: 12px;
+  background-color: #f7f7f7;
+  color: #595959;
+  border-width: 0;
+  margin-top: 4px;
+}
+
+.task-card.newbtn {
+  text-align: center;
+  font-size: 1.75rem;
+  color: #aaa;
+  padding: 1px;
+}
+
+.task-card.newbtn:hover {
+  color: #4285f4;
+}
+
+.task-card.newtask {
+  cursor: default;
+  padding-left: 13px;
+  padding-right: 16px;
+}
+
+.task-card.newtask .task-card-body textarea {
+  border: 1px solid #d5d8de;
+  resize: none;
+  -webkit-appearance: none
+}
+
+.task-card.newtask .task-card-body textarea:focus {
+  border: 1px solid #ccc;
+}
+
+.task-card.newtask .task-card-body>div+div {
+  margin-top: 12px;
+}

@@ -4,10 +4,11 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/project-tasks.css">
 <title>${projectName} · 项目</title>
 </head>
 <body>
-<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside ${asideCollapsed ? 'rb-aside-collapsed' : ''}">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="${projectName}" name="pageTitle"/>
 	</jsp:include>
@@ -35,13 +36,23 @@
 				</div>
 			</div>
 		</aside>
-		<div class="main-content container-fluid">
-            <h1>面板</h1>
+		<div class="page-head">
+			<div class="page-head-title">${projectName}</div>
+		</div>
+		<div class="main-content container-fluid p-0">
+			<div id="plan-boxes"></div>
 		</div>
 	</div>
 </div>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
+window.__PageConfig = {
+	id: '${projectId}',
+	projectCode: '${projectCode}',
+	projectName: '${projectName}',
+	projectPlans: ${projectPlans},
+}
 </script>
+<script src="${baseUrl}/assets/js/project/project-tasks.jsx" type="text/babel"></script>
 </body>
 </html>

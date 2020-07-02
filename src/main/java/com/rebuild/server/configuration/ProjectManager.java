@@ -13,6 +13,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,14 +42,20 @@ public class ProjectManager implements ConfigManager {
 
         List<ConfigEntry> alist = new ArrayList<>();
         for (ConfigEntry e : projects) {
+            ID principal = e.getID("principal");
             Set<?> members = e.get("members", Set.class);
-            if (members == null || members.contains(user)) {
+            if (members == null || members.contains(user) || user.equals(principal)) {
                 alist.add(e.clone());
             }
         }
         return alist.toArray(new ConfigEntry[0]);
     }
 
+    /**
+     * 获取全部项目
+     *
+     * @return
+     */
     private ConfigEntry[] getAllProjects() {
         final String ckey = "ProjectManager";
         ConfigEntry[] projects = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
@@ -67,7 +74,7 @@ public class ProjectManager implements ConfigManager {
                         .set("principal", o[3]);
 
                 String members = (String) o[4];
-                if (members.length() >= 20) {
+                if (StringUtils.isNotBlank(members)) {
                     Set<ID> users = UserHelper.parseUsers(Arrays.asList(members.split(",")), null);
                     e.set("members", users);
                 }
@@ -89,14 +96,18 @@ public class ProjectManager implements ConfigManager {
      * 获取指定项目
      *
      * @param projectId
+     * @param user
      * @return
+     * @throws ConfigurationException If not found
      */
-    public ConfigEntry getProject(ID projectId) {
-        for (ConfigEntry e : getAllProjects()) {
+    public ConfigEntry getProject(ID projectId, ID user) throws ConfigurationException {
+        ConfigEntry[] ee = user == null ? getAllProjects() : getAvailable(user);
+        for (ConfigEntry e : ee) {
             if (e.getID("id").equals(projectId)) {
                 return e.clone();
             }
         }
+
         throw new ConfigurationException("No project found : " + projectId);
     }
 
@@ -112,7 +123,7 @@ public class ProjectManager implements ConfigManager {
 
         if (cache == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select configId,planName from ProjectPlanConfig where projectId = ? order seq asc")
+                    "select configId,planName from ProjectPlanConfig where projectId = ? order by seq asc")
                     .setParameter(1, projectId)
                     .array();
 
