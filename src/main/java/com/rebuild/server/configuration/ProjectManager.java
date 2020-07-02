@@ -10,7 +10,7 @@ package com.rebuild.server.configuration;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
@@ -37,10 +37,23 @@ public class ProjectManager implements ConfigManager {
      * @return
      */
     public ConfigEntry[] getAvailable(ID user) {
-        final String ckey = "ProjectManager";
-        ConfigEntry[] cache = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
+        ConfigEntry[] projects = getAllProjects();
 
-        if (cache == null) {
+        List<ConfigEntry> alist = new ArrayList<>();
+        for (ConfigEntry e : projects) {
+            Set<?> members = e.get("members", Set.class);
+            if (members == null || members.contains(user)) {
+                alist.add(e.clone());
+            }
+        }
+        return alist.toArray(new ConfigEntry[0]);
+    }
+
+    private ConfigEntry[] getAllProjects() {
+        final String ckey = "ProjectManager";
+        ConfigEntry[] projects = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
+
+        if (projects == null) {
             Object[][] array = Application.createQueryNoFilter(
                     "select configId,projectCode,projectName,principal,members,showConfig from ProjectConfig")
                     .array();
@@ -66,32 +79,25 @@ public class ProjectManager implements ConfigManager {
                 alist.add(e);
             }
 
-            cache = alist.toArray(new ConfigEntry[0]);
-            Application.getCommonCache().putx(ckey, cache);
+            projects = alist.toArray(new ConfigEntry[0]);
+            Application.getCommonCache().putx(ckey, projects);
         }
-
-        List<ConfigEntry> alist = new ArrayList<>();
-        for (ConfigEntry e : cache) {
-            Set<?> members = e.get("members", Set.class);
-            if (members == null || members.contains(user)) {
-                alist.add(e.clone());
-            }
-        }
-        return alist.toArray(new ConfigEntry[0]);
+        return projects;
     }
 
     /**
+     * 获取指定项目
+     *
      * @param projectId
-     * @param user
      * @return
      */
-    public ConfigEntry getProject(ID projectId, ID user) {
-        for (ConfigEntry e : getAvailable(user)) {
+    public ConfigEntry getProject(ID projectId) {
+        for (ConfigEntry e : getAllProjects()) {
             if (e.getID("id").equals(projectId)) {
-                return e;
+                return e.clone();
             }
         }
-        return null;
+        throw new ConfigurationException("No project found : " + projectId);
     }
 
     /**
@@ -127,9 +133,8 @@ public class ProjectManager implements ConfigManager {
 
     @Override
     public void clean(Object nullOrProjectId) {
-        if (nullOrProjectId == null) {
-            Application.getCommonCache().evict("ProjectManager");
-        } else if (((ID) nullOrProjectId).getEntityCode() == EntityHelper.ProjectConfig) {
+        Application.getCommonCache().evict("ProjectManager");
+        if (nullOrProjectId != null) {
             Application.getCommonCache().evict("ProjectPlan-" + nullOrProjectId);
         }
     }

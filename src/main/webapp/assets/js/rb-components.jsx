@@ -389,7 +389,9 @@ class UserSelector extends React.Component {
               {this.state.selected.map((item) => {
                 return (<li key={`s-${item.id}`} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
               })}
-              <li className="select2-selection__choice abtn" onClick={this.openDropdown}><a><i className="zmdi zmdi-plus"></i> 添加</a></li>
+              <li className="select2-selection__choice abtn" onClick={this.openDropdown}>
+                <a><i className="zmdi zmdi-plus"></i> {this.props.multiple === false ? '选择' : '添加'}</a>
+              </li>
             </ul>
           </span>
         </span>

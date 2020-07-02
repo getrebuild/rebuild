@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.service.configuration;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
@@ -32,6 +33,22 @@ public class ProjectConfigService extends ConfigurationService implements AdminG
 
     @Override
     protected void cleanCache(ID configId) {
-        ProjectManager.instance.clean(null);
+        ProjectManager.instance.clean(configId);
+    }
+
+    /**
+     * @param project
+     * @param plans
+     */
+    public void updateProjectAndPlans(Record project, Record[] plans) {
+        super.updateRaw(project);
+        if (plans != null && plans.length > 0) {
+            for (Record plan : plans) {
+                super.updateRaw(plan);
+            }
+        }
+
+        this.cleanCache(null);
+        this.cleanCache(project.getPrimary());
     }
 }

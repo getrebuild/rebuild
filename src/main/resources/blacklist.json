@@ -528,5 +528,6 @@
     "week",
     "date",
     "rebuild",
-    "getrebuild"
+    "getrebuild",
+    "metadata"
 ]

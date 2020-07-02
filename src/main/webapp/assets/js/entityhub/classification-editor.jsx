@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* eslint-disable no-undef */
 
 const wpc = window.__PageConfig
+
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
 
@@ -15,10 +16,11 @@ $(document).ready(function () {
     if (_dlgImports) _dlgImports.show()
     else renderRbcomp(<DlgImports id={wpc.id} />, null, function () { _dlgImports = this })
   })
-  $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 312))()
+  $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 310))()
 })
 
 class LevelBoxes extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
@@ -74,6 +76,7 @@ class LevelBoxes extends React.Component {
 
 const LNAME = ['一', '二', '三', '四']
 class LevelBox extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props, turnOn: props.level === 0 }
@@ -135,8 +138,7 @@ class LevelBox extends React.Component {
 
   loadItems(p) {
     this.parentId = p
-    const url = `/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
-    $.get(url, (res) => {
+    $.get(`/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
     })

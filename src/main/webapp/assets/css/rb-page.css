@@ -2424,6 +2424,10 @@ form {
     color: #666;
 }
 
+.card-list .card-footer a.danger:hover {
+    color: #ea4335;
+}
+
 .card-list .card-footer .badge {
     float: right;
     font-weight: normal;

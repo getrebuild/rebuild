@@ -9,6 +9,7 @@ package com.rebuild.server.service.configuration;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.privileges.AdminGuard;
@@ -30,6 +31,10 @@ public class ProjectPlanConfigService extends ConfigurationService implements Ad
 
     @Override
     protected void cleanCache(ID configId) {
-        ProjectManager.instance.clean(configId);
+        Object[] p = Application.createQueryNoFilter(
+                "select projectId from ProjectPlanConfig where configId = ?")
+                .setParameter(1, configId)
+                .unique();
+        ProjectManager.instance.clean(p == null ? null : p[0]);
     }
 }

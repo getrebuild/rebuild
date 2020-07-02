@@ -35,17 +35,12 @@ public class ProjectControll extends BasePageControll {
     public ModelAndView pageProject(@PathVariable String projectId,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID projectId2 = ID.isId(projectId) ? ID.valueOf(projectId) : null;
-        if (projectId2 == null || projectId2.getEntityCode() != EntityHelper.ProjectConfig) {
+        if (projectId2 == null) {
             response.sendError(404);
             return null;
         }
 
-        final ConfigEntry p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
-        if (p == null) {
-            response.sendError(403);
-            return null;
-        }
-
+        final ConfigEntry p = ProjectManager.instance.getProject(projectId2);
         ModelAndView mv = createModelAndView("/project/project-tasks.jsp");
         mv.getModelMap().put("projectId", p.getID("id").toLiteral());
         mv.getModelMap().put("projectName", p.getString("projectName"));

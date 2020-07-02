@@ -30,8 +30,8 @@ class GridList extends React.Component {
                 </div>
                 <div className="card-footer card-footer-contrast">
                   <div className="float-left">
-                    <a onClick={() => this.editItem(item)}><i className="zmdi zmdi-edit"></i></a>
-                    <a onClick={() => this.deleteItem(item[0])}><i className="zmdi zmdi-delete"></i></a>
+                    <a onClick={() => this._handleEdit(item)}><i className="zmdi zmdi-edit"></i></a>
+                    <a onClick={() => this._handleDelete(item[0])} className="danger"><i className="zmdi zmdi-delete"></i></a>
                   </div>
                   <div className="clearfix"></div>
                 </div>
@@ -48,11 +48,11 @@ class GridList extends React.Component {
     $.get('/admin/projects/list', (res) => this.setState({ list: res.data }))
   }
 
-  editItem(item) {
+  _handleEdit(item) {
     renderRbcomp(<DlgEdit id={item[0]} projectName={item[1]} projectCode={item[2]} />)
   }
 
-  deleteItem(projectId) {
+  _handleDelete(projectId) {
     RbAlert.create('只有空项目才能被删除。确认删除吗？', {
       type: 'danger',
       confirmText: '删除',
@@ -61,7 +61,7 @@ class GridList extends React.Component {
         $.post(`/app/entity/record-delete?id=${projectId}`, (res) => {
           if (res.error_code === 0) {
             RbHighbar.success('项目已删除')
-            setTimeout(() => { location.reload() }, 500)
+            setTimeout(() => location.reload(), 500)
           } else RbHighbar.error(res.error_msg)
         })
       }
@@ -106,8 +106,8 @@ class DlgEdit extends RbFormHandler {
 
   save = (e) => {
     e.preventDefault()
-    if (!this.state.projectName) { RbHighbar.create('请输入项目名称'); return }
-    if (this.state.projectCode && !/^[A-Z]{2,6}$/i.test(this.state.projectCode)) { RbHighbar.create('项目 ID 无效，支持 2-6 位字母'); return }
+    if (!this.state.projectName) return RbHighbar.create('请输入项目名称')
+    if (this.state.projectCode && !/^[A-Z]{2,6}$/i.test(this.state.projectCode)) return RbHighbar.create('项目 ID 无效，支持 2-6 位字母')
 
     const _data = {
       projectName: this.state.projectName,
@@ -117,7 +117,8 @@ class DlgEdit extends RbFormHandler {
 
     $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        location.reload()
+        if (this.props.id) location.reload()
+        else location.href = 'project/' + res.data.id
       } else RbHighbar.error(res.error_msg)
     })
   }

@@ -24,7 +24,7 @@
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="main-content container-fluid" style="padding-top:3px">
+		<div class="main-content container-fluid pt-0">
 			<div class="card mb-0">
 				<div class="card-body rb-loading rb-loading-active" id="boxes">
 					<%@ include file="/_include/Spinner.jsp"%>
