@@ -8,17 +8,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.project;
 
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.project.ProjectTaskService;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,18 +63,30 @@ public class ProjectTaskControll extends BasePageControll {
         ID planId = getIdParameterNotNull(request, "plan");
 
         Object[][] tasks = Application.createQuery(
-                "select projectId.projectCode,taskNumber,taskId,taskName,createdOn,status,executor from ProjectTask where projectPlanId = ?")
+                "select projectId.projectCode,taskNumber,taskId,taskName,createdOn,executor,status,seq" +
+                        " from ProjectTask where projectPlanId = ? order by seq asc")
                 .setParameter(1, planId)
                 .array();
+
+        JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
-            o[1] = o[0] + "-" + o[1];
-            o[4] = Moment.moment((Date) o[4]).fromNow();
-            if (o[6] != null) {
-                o[6] = new Object[]{ o[6], UserHelper.getName((ID) o[6]) };
+            String taskNumber = o[1].toString();
+            if (StringUtils.isNotBlank((String) o[0])) taskNumber = o[0] + "-" + taskNumber;
+
+            String utcTime = CommonsUtils.formatUTCWithZone((Date) o[4]);
+
+            Object[] executor = null;
+            if (o[5] != null) {
+                executor = new Object[]{ o[5], UserHelper.getName((ID) o[5]) };
             }
+
+            JSON item = JSONUtils.toJSONObject(
+                    new String[] { "id", "taskNumber", "taskName", "createdOn", "executor", "status", "seq" },
+                    new Object[] { o[2], taskNumber, o[3], utcTime, executor, o[6], o[7] });
+            alist.add(item);
         }
 
-        JSON ret = JSONUtils.toJSONObject(new String[]{"count", "tasks"}, new Object[]{tasks.length, tasks});
+        JSON ret = JSONUtils.toJSONObject(new String[]{"count", "tasks"}, new Object[]{tasks.length, alist});
         writeSuccess(response, ret);
     }
 

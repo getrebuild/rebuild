@@ -609,13 +609,14 @@ create table if not exists `project_task` (
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `PARENT_TASK_ID`     char(20) comment '父级任务',
+  `SEQ`                int(11) default '0' comment '排序(小到大)',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`TASK_ID`),
-  index IX0_project_task (`PROJECT_ID`, `PROJECT_PLAN_ID`),
-  index IX1_project_task (`PROJECT_ID`, `TASK_NUMBER`, `TASK_NAME`, `STATUS`, `EXECUTOR`)
+  index IX0_project_task (`PROJECT_ID`, `PROJECT_PLAN_ID`, `SEQ`),
+  index IX1_project_task (`PROJECT_ID`, `TASK_NUMBER`, `TASK_NAME`, `STATUS`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectTaskRelation] DDL ************

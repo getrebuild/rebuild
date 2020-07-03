@@ -34,7 +34,7 @@ public class SchemaGen {
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
-		gen(EntityHelper.ProjectPlanConfig);
+		gen(EntityHelper.ProjectTask);
 
 		System.exit(0);
 	}

@@ -18,9 +18,11 @@ $(document).ready(() => {
     $boxes.height(wh - 128)
   })()
 
+  moment.locale('zh-cn')
+
   renderRbcomp(<PlanBoxes plans={wpc.projectPlans} />, 'plan-boxes')
 
-  dragMoveX()
+  // dragMoveX()
 })
 
 // 任务面板列表
@@ -36,6 +38,20 @@ class PlanBoxes extends React.Component {
       </React.Fragment>
     )
   }
+
+  componentDidMount() {
+    $('.J_project-load').remove()
+
+    // 拖动
+    $('.task-list').sortable({
+      connectWith: '.task-list',
+      containment: document.body,
+      helper: 'clone',
+      appendTo: '#plan-boxes',
+      zIndex: 1999,
+      items: '>.task-card',
+    }).disableSelection()
+  }
 }
 
 // 任务面板
@@ -45,39 +61,42 @@ class PlanBox extends React.Component {
   render() {
     return (
       <div className="plan-box-wrapper">
-        <div className="plan-header">
-          <h5 className="plan-title">{this.props.planName}<small> · {this.state.taskNum || 0}</small></h5>
-        </div>
-        <div className="task-list rb-scroller" ref={(c) => this._scroller = c}>
-          {(this.state.tasks || []).map((item) => {
-            return <Task data={item} key={`task-${item[2]}`} />
-          })}
-        </div>
-        {this.state.newMode ?
-          <div className="task-card newtask">
-            <div className="task-card-body">
-              <div>
-                <textarea className="form-control form-control-sm row2x" placeholder="输入标题以新建任务" ref={(c) => this._taskName = c} autoFocus></textarea>
-              </div>
-              <div>
-                <label className="mb-1">选择负责人</label>
-                <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} closeOnSelect={true} ref={(c) => this._executor = c} />
-              </div>
-              <div>
-                <label className="mb-1">选择参与人</label>
-                <UserSelector ref={(c) => this._partners = c} />
-              </div>
-              <div className="text-right">
-                <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>取消</button>
-                <button className="btn btn-primary" type="button" ref={(c) => this._btn = c} onClick={() => this._handleAddTask()}>确定</button>
+        <div className="plan-box">
+          <div className="plan-header">
+            <h5 className="plan-title">{this.props.planName}<small> · {this.state.taskNum || 0}</small></h5>
+          </div>
+          <div className="task-list rb-scroller" ref={(c) => this._scroller = c}>
+            {(this.state.tasks || []).map((item) => {
+              return <Task data={item} key={`task-${item.id}`} />
+            })}
+            {this.state.tasks && this.state.tasks.length === 0 && <div className="no-tasks">暂无任务</div>}
+          </div>
+          {this.state.newMode ?
+            <div className="task-card newtask">
+              <div className="task-card-body">
+                <div>
+                  <textarea className="form-control form-control-sm row2x" placeholder="输入标题以新建任务" ref={(c) => this._taskName = c} autoFocus></textarea>
+                </div>
+                <div>
+                  <label className="mb-1">选择负责人</label>
+                  <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} closeOnSelect={true} ref={(c) => this._executor = c} />
+                </div>
+                <div>
+                  <label className="mb-1">选择参与人</label>
+                  <UserSelector ref={(c) => this._partners = c} />
+                </div>
+                <div className="text-right">
+                  <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>取消</button>
+                  <button className="btn btn-primary" type="button" ref={(c) => this._btn = c} onClick={() => this._handleAddTask()}>确定</button>
+                </div>
               </div>
             </div>
-          </div>
-          :
-          <div className="task-card newbtn" onClick={() => this.setState({ newMode: true })}>
-            <i className="zmdi zmdi-plus"></i>
-          </div>
-        }
+            :
+            <div className="task-card newbtn" onClick={() => this.setState({ newMode: true })}>
+              <i className="zmdi zmdi-plus"></i>
+            </div>
+          }
+        </div>
       </div>
     )
   }
@@ -87,15 +106,18 @@ class PlanBox extends React.Component {
 
     const $scroller = $(this._scroller).perfectScrollbar()
     $addResizeHandler(() => {
-      $scroller.css({ 'max-height': $(window).height() - 230 })
+      $scroller.css({ 'max-height': $(window).height() - 226 })
       $scroller.perfectScrollbar('update')
     })()
   }
 
   _loadTasks() {
     $.get(`/project/tasks/list?plan=${this.props.id}`, (res) => {
-      if (res.error_code === 0) this.setState({ tasks: res.data.tasks, taskNum: res.data.count })
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        this.setState({ tasks: res.data.tasks, taskNum: res.data.count }, () => {
+          // $(this._scroller).find('.task-card').disableSelection()
+        })
+      } else RbHighbar.error(res.error_msg)
     })
   }
 
@@ -130,21 +152,25 @@ class Task extends React.Component {
   render() {
     const data = this.props.data
     return (
-      <div className="task-card content">
+      <div className="task-card content" data-id={data.id} data-seq={data.seq}>
         <div className="task-card-body">
           <div className="task-content-wrapper">
             <div className="task-status">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleStatus(e)} />
+                <input className="custom-control-input" type="checkbox" defaultChecked={data.status === 1} onChange={(e) => this._toggleStatus(e)} />
                 <span className="custom-control-label"></span>
               </label>
             </div>
             <div className="task-content">
-              <div className="task-title text-wrap">{data[3]}</div>
-              <div className="task-time">创建于 {data[4]}</div>
+              <div className="task-title text-wrap">{data.taskName}</div>
+              <div className="task-time">创建于 <span title={data.createdOn}>{moment(data.createdOn).fromNow()}</span></div>
               <div className="task-more">
-                {data[6] && <a className="avatar float-left" title={data[6][1]}><img src={`${rb.baseUrl}/account/user-avatar/${data[6][0]}`} /></a>}
-                <span className="badge float-right">{data[1]}</span>
+                {data.executor && (
+                  <a className="avatar float-left" title={data.executor[1]}>
+                    <img src={`${rb.baseUrl}/account/user-avatar/${data.executor[0]}`} />
+                  </a>
+                )}
+                <span className="badge float-right">{data.taskNumber}</span>
                 <div className="clearfix"></div>
               </div>
             </div>
@@ -182,10 +208,8 @@ function dragMoveX() {
 
   $boxes.on('mouseup', function () {
     flag = false
-    $boxes.removeClass('move')
   })
   $boxes.on('mouseout', function () {
     flag = false
-    $boxes.removeClass('move')
   })
 }

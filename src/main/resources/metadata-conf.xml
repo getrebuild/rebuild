@@ -426,8 +426,9 @@
 		<field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
 		<field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" />
-		<index field-list="projectId,projectPlanId" />
-		<index field-list="projectId,taskNumber,taskName,status,executor" />
+        <field name="seq" type="int" default-value="0" description="排序(小到大)" />
+		<index field-list="projectId,projectPlanId,seq" />
+		<index field-list="projectId,taskNumber,taskName,status" />
 	</entity>
 
 	<entity name="ProjectTaskRelation" type-code="053" description="项目任务关系" parent="false" queryable="false">

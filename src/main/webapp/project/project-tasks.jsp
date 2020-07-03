@@ -15,6 +15,9 @@
 	<jsp:include page="/_include/NavLeft.jsp">
 		<jsp:param value="nav_project-${projectId}" name="activeNav"/>
 	</jsp:include>
+    <div class="rb-loading rb-loading-active must-center J_project-load">
+        <%@ include file="/_include/Spinner.jsp"%>
+    </div>
 	<div class="rb-content">
 		<aside class="page-aside widgets">
 			<a class="side-toggle" title="展开/收缩面板"><i class="zmdi zmdi-arrow-left"></i></a>
@@ -53,6 +56,7 @@ window.__PageConfig = {
 	projectPlans: ${projectPlans},
 }
 </script>
+<script src="${baseUrl}/assets/lib/moment.min.js?v=2.27.0"></script>
 <script src="${baseUrl}/assets/js/project/project-tasks.jsx" type="text/babel"></script>
 </body>
 </html>

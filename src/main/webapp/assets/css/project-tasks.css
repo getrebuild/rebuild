@@ -8,34 +8,36 @@
   overflow: auto;
   margin: 0;
   padding-bottom: 8px;
+  padding-left: 25px;
+  display: flex;
+  cursor: default;
 }
 
-#plan-boxes.move {
-  cursor: move;
+#plan-boxes .plan-box-wrapper {
+  flex: 0 0 300px;
+  margin: 0;
 }
 
-.plan-box-wrapper {
-  width: 280px;
-  margin-left: 25px;
-  display: inline-block;
+#plan-boxes .plan-box-wrapper .plan-box {
+  width: 275px;
 }
 
-.plan-box-wrapper:last-child {
-  margin-right: 25px;
-}
-
-.plan-box-wrapper .plan-header .plan-title {
+.plan-box .plan-header .plan-title {
   font-weight: bold;
 }
 
-.plan-box-wrapper .plan-header .plan-title>small {
+.plan-box .plan-header .plan-title>small {
   font-weight: normal;
   font-size: 1rem;
   color: #777;
 }
 
-.plan-box-wrapper .task-list {
+.plan-box .task-list {
   margin-bottom: 8px;
+}
+
+.plan-box .task-list .no-tasks {
+  color: #999;
 }
 
 .task-card {
@@ -123,6 +125,7 @@
   cursor: default;
   padding-left: 13px;
   padding-right: 16px;
+  margin-bottom: 25px;
 }
 
 .task-card.newtask .task-card-body textarea {

@@ -3191,6 +3191,7 @@ form {
     display: none;
 }
 
+.rb-aside.rb-aside-collapsed .page-head,
 .rb-aside.rb-aside-collapsed .main-content {
     margin-left: 50px;
 }
