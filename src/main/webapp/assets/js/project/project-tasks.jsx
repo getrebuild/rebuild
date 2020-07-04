@@ -158,13 +158,14 @@ class PlanBox extends React.Component {
   }
 
   refresh() {
-    this.setState({ taskNum: $(this._scroller).find('.task-card').length })
+    const $scroller = $(this._scroller).perfectScrollbar('update')
+    this.setState({ taskNum: $scroller.find('.task-card').length })
   }
 
   _handleAddTask() {
     this.setState({ newMode: true }, () => {
       const $boxes = $('#plan-boxes')
-      $boxes.animate({ scrollTop: $boxes.height() - 200 }, 400)
+      $boxes.animate({ scrollTop: $boxes.height() - 100 }, 400)
     })
   }
 
@@ -215,7 +216,7 @@ class Task extends React.Component {
                 <div className="task-time">完成于 <span title={data.endTime}>{$fromNow(data.endTime)}</span></div>}
               <div className="task-more">
                 {data.executor && (
-                  <a className="avatar float-left" title={data.executor[1]}>
+                  <a className="avatar float-left" title={`负责人 ${data.executor[1]}`}>
                     <img src={`${rb.baseUrl}/account/user-avatar/${data.executor[0]}`} />
                   </a>
                 )}

@@ -7,11 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
+import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +24,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.regex.Pattern;
 
 /**
  * 项目设置
@@ -54,5 +59,42 @@ public class ProjectControll extends BasePageControll {
         mv.getModelMap().put("projectPlans", plans2.toJSONString());
 
         return mv;
+    }
+
+    // 项目 ID
+    private static final Pattern PATT_CODE = Pattern.compile("[a-zA-Z]{2,6}");
+
+    @RequestMapping("search")
+    public ModelAndView searchProject(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String gs = getParameter(request, "gs");
+        // 全局搜索
+        if (StringUtils.isNotBlank(gs)) {
+            String[] codes = gs.split("-");
+            Object[] project = null;
+            if (codes.length == 2) {
+                project = Application.createQuery(
+                        "select projectId,taskId from ProjectTask where projectId.projectCode = ? or taskNumber = ?")
+                        .setParameter(1, codes[0])
+                        .setParameter(2, ObjectUtils.toLong(codes[1]))
+                        .unique();
+            } else if (PATT_CODE.matcher(codes[0]).matches()) {
+                project = Application.createQuery(
+                        "select configId from ProjectConfig where projectCode = ?")
+                        .setParameter(1, codes[0])
+                        .unique();
+            }
+
+            if (project != null) {
+                String projectUrl = AppUtils.getContextPath() + "/project/" + project[0] + "/tasks";
+                if (project.length == 2) {
+                    projectUrl += "#!/View/ProjectTask/" + project[1];
+                }
+
+                response.sendRedirect(projectUrl);
+                return null;
+            }
+        }
+
+        return createModelAndView("/project/project-search.jsp");
     }
 }

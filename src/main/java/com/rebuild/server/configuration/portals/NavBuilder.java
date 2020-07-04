@@ -173,12 +173,16 @@ public class NavBuilder extends NavManager {
             }
 
         } else if (NAV_FEEDS.equals(navName)) {
-            navName = "nav_entity-Feeds";
+            navName = "nav_entity-FEEDS";
             navUrl = ServerListener.getContextPath() + "/feeds/home";
 
         } else if (NAV_FILEMRG.equals(navName)) {
-            navName = "nav_entity-Attachment";
+            navName = "nav_entity-ATTACHMENT";
             navUrl = ServerListener.getContextPath() + "/files/home";
+
+        } else if (NAV_PROJECT.equals(navName)) {
+            navName = "nav_entity-PROJECT";
+            navUrl = ServerListener.getContextPath() + "/project/search";
 
         } else if (NAV_PROJECT.equals(navType)) {
             navName = "nav_project-" + navName;

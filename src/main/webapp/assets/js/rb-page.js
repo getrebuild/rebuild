@@ -280,16 +280,20 @@ var __showNotification = function () {
 var __globalSearch = function () {
   $('.sidebar-elements li').each(function (idx, item) {
     if (idx > 40) return false
-    if (!$(item).hasClass('parent') && ($(item).attr('class') || '').contains('nav_entity-')) {
-      var $a = $(item).find('a')
+    var $item = $(item)
+    if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
+      var $a = $item.find('>a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
+    } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
+      var $a = $item.find('>a')
+      $('<a class="text-truncate QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo('.search-models')
     }
   })
 
   var activeModel
   var aModels = $('.search-models a').click(function () {
     var s = $('.search-input-gs').val()
-    location.href = $(this).data('url') + '#gs=' + $encode(s)
+    location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
   if (aModels.length === 0) return
   activeModel = aModels.eq(0).addClass('active')
@@ -301,7 +305,9 @@ var __globalSearch = function () {
     $('.search-models').show()
   }).on('keydown', function (e) {
     var s = $('.search-input-gs').val()
-    if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
+    if (e.keyCode === 13 && s) {
+      location.href = activeModel.data('url') + (activeModel.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
+    }
   })
 }
 
