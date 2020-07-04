@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -17,7 +18,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.project.ProjectTaskService;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +29,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -61,29 +62,14 @@ public class ProjectTaskControll extends BasePageControll {
     @RequestMapping("/project/tasks/list")
     public void taskList(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID planId = getIdParameterNotNull(request, "plan");
-
         Object[][] tasks = Application.createQuery(
-                "select projectId.projectCode,taskNumber,taskId,taskName,createdOn,executor,status,seq" +
-                        " from ProjectTask where projectPlanId = ? order by seq asc")
+                "select " + BASE_FIELDS + " from ProjectTask where projectPlanId = ? order by seq asc")
                 .setParameter(1, planId)
                 .array();
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
-            String taskNumber = o[1].toString();
-            if (StringUtils.isNotBlank((String) o[0])) taskNumber = o[0] + "-" + taskNumber;
-
-            String utcTime = CommonsUtils.formatUTCWithZone((Date) o[4]);
-
-            Object[] executor = null;
-            if (o[5] != null) {
-                executor = new Object[]{ o[5], UserHelper.getName((ID) o[5]) };
-            }
-
-            JSON item = JSONUtils.toJSONObject(
-                    new String[] { "id", "taskNumber", "taskName", "createdOn", "executor", "status", "seq" },
-                    new Object[] { o[2], taskNumber, o[3], utcTime, executor, o[6], o[7] });
-            alist.add(item);
+            alist.add(formatTask(o));
         }
 
         JSON ret = JSONUtils.toJSONObject(new String[]{"count", "tasks"}, new Object[]{tasks.length, alist});
@@ -92,5 +78,43 @@ public class ProjectTaskControll extends BasePageControll {
 
     @RequestMapping("/project/tasks/get")
     public void taskGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID taskId = getIdParameterNotNull(request, "task");
+        Object[] task = Application.createQuery(
+                "select " + BASE_FIELDS + " from ProjectTask where taskId = ?")
+                .setParameter(1, taskId)
+                .unique();
+
+        writeSuccess(response, formatTask(task));
+    }
+
+    private static final String BASE_FIELDS = "projectId.projectCode,taskNumber,taskId,taskName,createdOn,endTime,executor,status,seq";
+    /**
+     * @param o
+     * @return
+     */
+    private JSON formatTask(Object[] o) {
+        String taskNumber = o[1].toString();
+        if (StringUtils.isNotBlank((String) o[0])) taskNumber = o[0] + "-" + taskNumber;
+
+        String createdOn = formatUTCWithZone((Date) o[4]);
+        String endTime = formatUTCWithZone((Date) o[5]);
+
+        Object[] executor = o[6] == null ? null : new Object[]{ o[6], UserHelper.getName((ID) o[6]) };
+
+        return JSONUtils.toJSONObject(
+                new String[] { "id", "taskNumber", "taskName", "createdOn", "endTime", "executor", "status", "seq" },
+                new Object[] { o[2], taskNumber, o[3], createdOn, endTime, executor, o[7], o[8] });
+    }
+
+    /**
+     * @param date
+     * @return
+     */
+    private String formatUTCWithZone(Date date) {
+        if (date == null) return null;
+        int offset = CalendarUtils.getInstance().get(Calendar.ZONE_OFFSET);
+        offset = offset / 1000 / 60 / 60;  // hours
+        return CalendarUtils.getUTCDateTimeFormat().format(date)
+                + " UTC" + (offset > 0 ? "+" : "") + offset;
     }
 }

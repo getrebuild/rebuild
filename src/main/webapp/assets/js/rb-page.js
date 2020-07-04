@@ -553,3 +553,9 @@ var converEmoji = function (text) {
   })
   return text
 }
+
+// Use momentjs
+var $fromNow = function (date) {
+  if (!date || !window.moment) return
+  return moment(date.split('UTC')[0].trim()).fromNow()
+}

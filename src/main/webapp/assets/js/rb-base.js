@@ -109,6 +109,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
     if (!(location.protocol === 'http:' || location.protocol === 'https:')) location.href = 'https://getrebuild.com/'
   }
 
+  if (window.moment) window.moment.locale(rb.locale)
+
 })(jQuery)
 
 // extends Array

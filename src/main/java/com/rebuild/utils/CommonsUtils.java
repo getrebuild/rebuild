@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.excel.Cell;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.context.AnalysisContext;
@@ -32,9 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -338,15 +335,4 @@ public class CommonsUtils {
 		}
 		return vars;
 	}
-
-    /**
-     * @param date
-     * @return
-     */
-	public static String formatUTCWithZone(Date date) {
-        int offset = CalendarUtils.getInstance().get(Calendar.ZONE_OFFSET);
-        offset = offset / 1000 / 60 / 60;  // hours
-        return CalendarUtils.getUTCDateTimeFormat().format(date)
-                + " UTC" + (offset > 0 ? "+" : "") + offset;
-    }
 }

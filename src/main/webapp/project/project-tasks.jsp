@@ -47,6 +47,7 @@
 		</div>
 	</div>
 </div>
+<script src="${baseUrl}/assets/lib/moment-with-locales.min.js?v=2.27.0"></script>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
@@ -56,7 +57,6 @@ window.__PageConfig = {
 	projectPlans: ${projectPlans},
 }
 </script>
-<script src="${baseUrl}/assets/lib/moment.min.js?v=2.27.0"></script>
 <script src="${baseUrl}/assets/js/project/project-tasks.jsx" type="text/babel"></script>
 </body>
 </html>
