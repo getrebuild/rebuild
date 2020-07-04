@@ -1,7 +1,9 @@
-.page-head {
-  padding-top: 12px;
-  padding-bottom: 0;
-}
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
 
 #plan-boxes {
   white-space: nowrap;
@@ -163,4 +165,11 @@
 .task-card.status-1 .task-title,
 .task-card.status-1 .task-time {
   color: #8c8c8c;
+}
+
+/* View */
+
+.modal.rbview.task-view .modal-dialog .modal-content {
+  width: 800px;
+  margin-right: -1000px;
 }

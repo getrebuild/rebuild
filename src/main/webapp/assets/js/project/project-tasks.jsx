@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global TaskViewer */
 
 const wpc = window.__PageConfig
 
@@ -19,6 +20,14 @@ $(document).ready(() => {
   })()
 
   renderRbcomp(<PlanBoxes plans={wpc.projectPlans} />, 'plan-boxes')
+
+  let viewHash = location.hash
+  if (viewHash && viewHash.startsWith('#!/View/ProjectTask/')) {
+    viewHash = viewHash.split('/')
+    if (viewHash.length === 4 && viewHash[3].length === 20) {
+      setTimeout(() => renderRbcomp(<TaskViewer id={viewHash[3]} />), 500)
+    }
+  }
 })
 
 // 面板组件引用
@@ -200,12 +209,12 @@ class Task extends React.Component {
     const data = this.state.data
     return (
       <div className={`task-card content status-${data.status}`}
-        data-seq={data.seq} data-taskid={data.id} data-planid={this.state.planid}>
+        data-seq={data.seq} data-taskid={data.id} data-planid={this.state.planid} onClick={() => this._openView()}>
         <div className="task-card-body">
           <div className="task-content-wrapper">
             <div className="task-status">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                <input className="custom-control-input" type="checkbox" defaultChecked={data.status === 1} onChange={(e) => this._toggleStatus(e, data.id)} />
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
+                <input className="custom-control-input" type="checkbox" defaultChecked={data.status === 1} onChange={(e) => this._toggleStatus(e)} />
                 <span className="custom-control-label"></span>
               </label>
             </div>
@@ -241,10 +250,14 @@ class Task extends React.Component {
     })
   }
 
-  _toggleStatus(e, taskid) {
-    __taskPost(taskid, { status: e.currentTarget.checked ? 1 : 0 }, () => {
+  _toggleStatus(e) {
+    __taskPost(this.props.data.id, { status: e.currentTarget.checked ? 1 : 0 }, () => {
       __PlanRefs[this.props.planid].loadTasks()
     })
+  }
+
+  _openView() {
+    renderRbcomp(<TaskViewer id={this.props.data.id} />)
   }
 }
 

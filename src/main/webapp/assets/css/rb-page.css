@@ -3196,6 +3196,11 @@ form {
     margin-left: 50px;
 }
 
+.page-head.page-head-sm {
+    padding-top: 12px;
+    padding-bottom: 0;
+}
+
 .rb-animate .rb-aside .page-aside.widgets {
     transition: width .35s ease;
 }

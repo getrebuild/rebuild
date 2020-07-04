@@ -8,7 +8,7 @@
 <title>${projectName} · 项目</title>
 </head>
 <body>
-<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside">
+<div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo">
 	<jsp:include page="/_include/NavTop.jsp">
 		<jsp:param value="${projectName}" name="pageTitle"/>
 	</jsp:include>
@@ -19,27 +19,7 @@
         <%@ include file="/_include/Spinner.jsp"%>
     </div>
 	<div class="rb-content">
-		<aside class="page-aside widgets">
-			<a class="side-toggle" title="展开/收缩面板"><i class="zmdi zmdi-arrow-left"></i></a>
-			<div class="tab-container">
-				<ul class="nav nav-tabs">
-					<li class="nav-item"><a class="nav-link active" href="#asideFilters" data-toggle="tab">常用查询</a></li>
-				</ul>
-				<div class="tab-content rb-scroller">
-					<div class="tab-pane active" id="asideFilters">
-						<div class="ph-item rb">
-							<div class="ph-col-12 p-0">
-								<div class="ph-row">
-									<div class="ph-col-12 big"></div>
-									<div class="ph-col-12 big"></div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</aside>
-		<div class="page-head">
+		<div class="page-head page-head-sm">
 			<div class="page-head-title">${projectName}</div>
 		</div>
 		<div class="main-content container-fluid p-0">
@@ -58,5 +38,6 @@ window.__PageConfig = {
 }
 </script>
 <script src="${baseUrl}/assets/js/project/project-tasks.jsx" type="text/babel"></script>
+<script src="${baseUrl}/assets/js/project/task-view.jsx" type="text/babel"></script>
 </body>
 </html>
