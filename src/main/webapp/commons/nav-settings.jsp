@@ -58,7 +58,7 @@
 						<li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">关联项</a></li>
 						<li class="nav-item"><a class="nav-link J_menuType" href="#URL" data-toggle="tab">外部地址</a></li>
 					</ul>
-					<div class="tab-content m-0" style="padding:20px 0">
+					<div class="tab-content m-0 p-0 pt-3 pb-3">
 						<div class="tab-pane active" id="ENTITY">
 							<select class="form-control form-control-sm J_menuEntity">
 								<option value="">请选择关联项</option>
@@ -66,7 +66,7 @@
 								<optgroup label="系统内建">
 									<option value="$FILEMRG$" data-icon="folder">文件</option>
 									<option value="$FEEDS$" data-icon="chart-donut">动态</option>
-									<option value="$PROJECT$" data-icon="city-alt">项目</option>
+									<option value="$PROJECT$" data-icon="shape">项目</option>
 									<option value="$PARENT$" data-icon="menu">父级菜单</option>
 								</optgroup>
 							</select>
@@ -77,7 +77,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="input-group" style="margin-bottom:20px">
+				<div class="input-group mb-3">
 					<span class="input-group-prepend">
 						<span class="input-group-text J_menuIcon" title="选择图标"><i class="zmdi zmdi-texture"></i></span>
 					</span>

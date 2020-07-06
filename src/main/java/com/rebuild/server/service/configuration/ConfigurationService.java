@@ -77,6 +77,14 @@ public abstract class ConfigurationService extends BaseService {
 	 * @param record
 	 * @return
 	 */
+	protected Record createRaw(Record record) {
+		return super.create(record);
+	}
+
+	/**
+	 * @param record
+	 * @return
+	 */
 	protected Record updateRaw(Record record) {
 		return super.update(record);
 	}

@@ -143,7 +143,7 @@ public class NavBuilder extends NavManager {
         for (ConfigEntry e : projects) {
             projectNavs.add(JSONUtils.toJSONObject(
                     new String[] { "type", "text", "icon", "value" },
-                    new String[] { NAV_PROJECT, e.getString("projectName"), null, e.getID("id").toLiteral() }));
+                    new String[] { NAV_PROJECT, e.getString("projectName"), e.getString("iconName"), e.getID("id").toLiteral() }));
         }
         return projectNavs;
     }

@@ -6,7 +6,7 @@
 <%@ include file="/_include/Head.jsp"%>
 <title>项目管理</title>
 <style type="text/css">
-#principal, #members {
+#members {
 	min-height: 37px;
 }
 .plan-boxes {
@@ -27,9 +27,6 @@
 }
 .plan-boxes.card-list .card:last-child {
 	margin-right: 20px;
-}
-.plan-boxes:empty {
-	content: '请添加任务面板';
 }
 </style>
 </head>
@@ -52,23 +49,29 @@
 				<div class="card-body">
 					<form class="simple">
 						<div class="form-group row">
-							<label class="col-12 col-lg-3 col-form-label text-lg-right">项目负责人</label>
-							<div class="col-12 col-lg-9">
-								<div id="principal"></div>
+							<label class="col-12 col-lg-3 col-form-label text-lg-right">项目范围</label>
+							<div class="col-12 col-lg-9 pt-1">
+								<label class="custom-control custom-control-sm custom-radio custom-control-inline">
+									<input class="custom-control-input" type="radio" name="scope" id="scope_1" value="1" checked />
+									<span class="custom-control-label">公开 (所有人可见，仅成员可编辑)</span>
+								</label>
+								<label class="custom-control custom-control-sm custom-radio custom-control-inline">
+									<input class="custom-control-input" type="radio" name="scope" id="scope_2" value="2" />
+									<span class="custom-control-label">私有 (仅成员可见和编辑)</span>
+								</label>
 							</div>
 						</div>
-						<div class="form-group row">
+						<div class="form-group row pt-0">
 							<label class="col-12 col-lg-3 col-form-label text-lg-right">项目成员</label>
 							<div class="col-12 col-lg-9">
 								<div id="members"></div>
-								<div class="form-text">项目仅对项目成员可用，如不指定则全部用户都可用</div>
 							</div>
 						</div>
 						<div class="form-group row">
 							<label class="col-12 col-lg-3 col-form-label text-lg-right">任务面板</label>
 							<div class="col-12 col-lg-9">
 								<div class="plan-boxes card-list mb-2" id="plans">
-									<p class="text-muted" style="margin:20px">加载中...</p>
+									<p class="text-muted m-3">加载中...</p>
 								</div>
 								<button class="btn btn-secondary btn-sm J_add-plan" type="button"><i class="zmdi zmdi-plus"></i> 添加面板</button>
 							</div>
@@ -90,7 +93,7 @@
 <script>
 window.__PageConfig = {
 	id: '${projectId}',
-	principal: '${principal}',
+	scope: ${scope},
 	members: '${members}',
 }
 </script>

@@ -11,11 +11,7 @@ $(document).ready(function () {
 })
 
 class GridList extends React.Component {
-
-  constructor(props) {
-    super(props)
-    this.state = {}
-  }
+  state = { ...this.props }
 
   render() {
     return (
@@ -27,6 +23,7 @@ class GridList extends React.Component {
                 <div className="card-body">
                   <a className="text-truncate" href={`project/${item[0]}`}>{item[1]}</a>
                   <p><span className="badge badge-light">{item[2]}</span></p>
+                  {item[2] && <i className={`icon zmdi zmdi-${item[3]}`}></i>}
                 </div>
                 <div className="card-footer card-footer-contrast">
                   <div className="float-left">
@@ -39,7 +36,7 @@ class GridList extends React.Component {
             </div>
           )
         })}
-        {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">尚未配置任何项目</div>}
+        {(this.state.list && this.state.list.length === 0) && <div className="text-muted">尚未配置任何项目</div>}
       </div>
     )
   }
@@ -49,16 +46,17 @@ class GridList extends React.Component {
   }
 
   _handleEdit(item) {
-    renderRbcomp(<DlgEdit id={item[0]} projectName={item[1]} projectCode={item[2]} />)
+    renderRbcomp(<DlgEdit id={item[0]} projectName={item[1]} iconName={item[3]} />)
   }
 
   _handleDelete(projectId) {
-    RbAlert.create('只有空项目才能被删除。确认删除吗？', {
+    RbAlert.create('只有空项目（项目下无任务）才能被删除。确认吗？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/record-delete?id=${projectId}`, (res) => {
+          this.hide()
           if (res.error_code === 0) {
             RbHighbar.success('项目已删除')
             setTimeout(() => location.reload(), 500)
@@ -70,31 +68,46 @@ class GridList extends React.Component {
 }
 
 class DlgEdit extends RbFormHandler {
-
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
+  state = { ...this.props }
 
   render() {
     return (
       <RbModal title={`${this.props.id ? '修改' : '添加'}项目`} ref={(c) => this._dlg = c} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right">图标</label>
+            <div className="col-sm-7">
+              <a className="project-icon" title="选择图标" onClick={() => this._selectIcon()}><i className={`icon zmdi zmdi-${this.state.iconName || 'texture'}`}></i></a>
+            </div>
+          </div>
+          <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">项目名称</label>
             <div className="col-sm-7">
               <input className="form-control form-control-sm" value={this.state.projectName || ''} data-id="projectName" onChange={this.handleChange} maxLength="60" />
             </div>
           </div>
-          <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">项目 ID</label>
-            <div className="col-sm-7">
-              <input className="form-control form-control-sm " value={this.state.projectCode || ''} data-id="projectCode" onChange={this.handleChange} maxLength="6" readOnly={!!this.props.id} />
-              <div className="form-text">任务编号将以项目 ID 作为前缀，用以区别不同项目。支持 2-6 位字母</div>
-            </div>
-          </div>
+          {!this.props.id && (
+            <React.Fragment>
+              <div className="form-group row">
+                <label className="col-sm-3 col-form-label text-sm-right">项目 ID</label>
+                <div className="col-sm-7">
+                  <input className="form-control form-control-sm " value={this.state.projectCode || ''} data-id="projectCode" onChange={this.handleChange} maxLength="6" />
+                  <div className="form-text">任务编号将以项目 ID 作为前缀，用以区别不同项目。支持 2-6 位字母</div>
+                </div>
+              </div>
+              <div className="form-group row">
+                <label className="col-sm-3 col-form-label text-sm-right"></label>
+                <div className="col-sm-7">
+                  <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                    <input className="custom-control-input" type="checkbox" value="1" defaultChecked ref={(c) => this._useTemplate = c} />
+                    <span className="custom-control-label"> 使用默认项目模板</span>
+                  </label>
+                </div>
+              </div>
+            </React.Fragment>
+          )}
           <div className="form-group row footer">
-            <div className="col-sm-7 offset-sm-3">
+            <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
               <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
               <a className="btn btn-link" onClick={this.hide}>取消</a>
             </div>
@@ -104,22 +117,38 @@ class DlgEdit extends RbFormHandler {
     )
   }
 
-  save = (e) => {
-    e.preventDefault()
-    if (!this.state.projectName) return RbHighbar.create('请输入项目名称')
-    if (!this.state.projectCode || !/^[A-Z]{2,6}$/i.test(this.state.projectCode)) return RbHighbar.create('项目 ID 无效，请输入 2-6 位字母')
+  _selectIcon() {
+    const that = this
+    window.clickIcon = function (s) {
+      that.setState({ iconName: s })
+      RbModal.hide()
+    }
+    RbModal.create(`${rb.baseUrl}/p/commons/search-icon`, '选择图标')
+  }
 
+  save = () => {
+    if (!this.state.projectName) return RbHighbar.create('请输入项目名称')
     const _data = {
       projectName: this.state.projectName,
-      projectCode: this.state.projectCode.toUpperCase(),
+      iconName: this.state.iconName,
+    }
+
+    if (!this.props.id) {
+      if (!this.state.projectCode || !/^[a-zA-Z]{2,6}$/.test(this.state.projectCode)) return RbHighbar.create('项目 ID 无效，请输入 2-6 位字母')
+      _data.projectCode = this.state.projectCode.toUpperCase()
+      _data._useTemplate = this._useTemplate.checked ? 1 : 0
     }
     _data.metadata = { entity: 'ProjectConfig', id: this.props.id || null }
 
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    this.disabled(true)
+    $.post('/admin/projects/post', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'project/' + res.data.id
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.create(res.error_msg)
+        this.disabled()
+      }
     })
   }
 }

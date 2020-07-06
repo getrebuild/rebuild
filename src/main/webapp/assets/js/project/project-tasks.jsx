@@ -57,7 +57,7 @@ class PlanBoxes extends React.Component {
     __boxesDrag()
 
     // 拖动排序&换面板
-    $('.task-list').sortable({
+    const $tasklist = $('.task-list').sortable({
       connectWith: '.task-list',
       containment: document.body,
       helper: 'clone',
@@ -65,8 +65,17 @@ class PlanBoxes extends React.Component {
       appendTo: '#plan-boxes',
       items: '>.task-card',
       placeholder: 'task-card highlight',
+      revert: false,
       start: function (event, ui) {
         ui.placeholder.height(ui.helper.height())
+      },
+      stop: function (event, ui) {
+        // let newPlanId = ui.item.parent('.task-list').attr('data-planid')
+        // const oldPlanId = ui.item.attr('data-planid')
+        // if (newPlanId !== oldPlanId) {
+        //   $tasklist.sortable('cancel')
+        //   __PlanRefs[oldPlanId].removeTask(ui.item.attr('data-taskid'))
+        // }
       },
       update: function (event, ui) {
         const prevSeq = ~~(ui.item.prev('.task-card').attr('data-seq') || 0)
@@ -75,13 +84,17 @@ class PlanBoxes extends React.Component {
         // At last
         if (nextSeq === -1) seq = -1
 
+        const taskid = ui.item.data('taskid')
+
         let newPlanId = ui.item.parent('.task-list').attr('data-planid')
         const oldPlanId = ui.item.attr('data-planid')
         if (newPlanId === oldPlanId) {
           newPlanId = undefined
+        } else {
+          $tasklist.sortable('cancel')
+          __PlanRefs[oldPlanId].removeTask(taskid)
         }
 
-        const taskid = ui.item.data('taskid')
         __taskPost(taskid, { seq: seq, projectPlanId: newPlanId }, () => {
           __TaskRefs[taskid].refresh(newPlanId)
           if (newPlanId) {
@@ -120,12 +133,14 @@ class PlanBox extends React.Component {
                     autoFocus />
                 </div>
                 <div>
-                  <label className="mb-1">选择负责人</label>
+                  <label className="mb-1">执行人</label>
                   <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} closeOnSelect={true} ref={(c) => this._executor = c} />
                 </div>
                 <div>
-                  <label className="mb-1">选择参与人</label>
-                  <UserSelector ref={(c) => this._partners = c} />
+                  <label className="mb-1">截至时间</label>
+                  <div>
+                    <input type="text" className="form-control form-control-sm" ref={(c) => this._endTime = c} />
+                  </div>
                 </div>
                 <div className="text-right">
                   <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>取消</button>
@@ -171,10 +186,31 @@ class PlanBox extends React.Component {
     this.setState({ taskNum: $scroller.find('.task-card').length })
   }
 
+  removeTask(taskid) {
+    const ns = []
+    this.state.tasks.forEach((item) => {
+      if (item.id !== taskid) ns.push(item)
+    })
+    this.setState({ tasks: ns })
+  }
+
   _handleAddTask() {
     this.setState({ newMode: true }, () => {
       const $boxes = $('#plan-boxes')
       $boxes.animate({ scrollTop: $boxes.height() - 100 }, 400)
+
+      this.__datetimepicker = $(this._endTime).datetimepicker({
+        componentIcon: 'zmdi zmdi-calendar',
+        navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
+        format: 'yyyy-mm-dd hh:ii',
+        weekStart: 1,
+        autoclose: true,
+        language: 'zh',
+        todayHighlight: true,
+        showMeridian: false,
+        keyboardNavigation: false,
+        minuteStep: 5,
+      })
     })
   }
 
@@ -182,11 +218,12 @@ class PlanBox extends React.Component {
     const _data = {
       taskName: $val(this._taskName),
       executor: this._executor.val().join(','),
-      partners: this._partners.val().join(','),
+      endTime: this._endTime.value,
       projectId: wpc.id,
       projectPlanId: this.props.id,
       taskNumber: 0
     }
+    if (_data.endTime) _data.endTime += ':00'
     _data.metadata = { entity: 'ProjectTask' }
 
     const $btn = $(this._btn).button('loading')

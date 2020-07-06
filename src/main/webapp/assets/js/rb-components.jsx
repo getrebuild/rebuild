@@ -371,7 +371,7 @@ class UserSelector extends React.Component {
     if (props.hideUser !== true) this.tabTypes.push(['User', '用户'])
     if (props.hideDepartment !== true) this.tabTypes.push(['Department', '部门'])
     if (props.hideRole !== true) this.tabTypes.push(['Role', '角色'])
-    if (props.hideTeam !== true) this.tabTypes.push(['Team', '团队'])
+    if (props.hideTeam !== true && rb.rbv) this.tabTypes.push(['Team', '团队'])
   }
 
   render() {
@@ -481,7 +481,7 @@ class UserSelector extends React.Component {
     })
   }
 
-  clickItem(e) {
+  clickItem(e, fromRemove) {
     const id = e.target.dataset.id || $(e.target).parents('li').data('id')
 
     let exists = false
@@ -502,11 +502,11 @@ class UserSelector extends React.Component {
       RbHighbar.create('最多选择 20 个')
       return false
     }
-    this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
+    this.setState({ selected: ns, dropdownOpen: !fromRemove && this.props.closeOnSelect !== true })
   }
 
   removeItem(e) {
-    this.clickItem(e)
+    this.clickItem(e, true)
   }
 
   containsItem(id) {

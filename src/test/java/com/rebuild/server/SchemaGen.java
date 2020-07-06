@@ -27,14 +27,20 @@ public class SchemaGen {
 	private static ApplicationContext CTX;
 	private static PersistManagerFactory PMF;
 
-	private static boolean DROP_EXISTS = false;
+	private static boolean DROP_EXISTS = true;
 
 	public static void main(String[] args) {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });
 		PMF = CTX.getBean(PersistManagerFactoryImpl.class);
 		
 //		genAll();
+		gen(EntityHelper.ProjectConfig);
+		gen(EntityHelper.ProjectPlanConfig);
 		gen(EntityHelper.ProjectTask);
+		gen(EntityHelper.ProjectTaskRelation);
+		gen(EntityHelper.ProjectTaskComment);
+		gen(EntityHelper.ProjectTaskTag);
+		gen(EntityHelper.ProjectTaskTagRelation);
 
 		System.exit(0);
 	}

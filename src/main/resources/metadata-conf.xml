@@ -395,18 +395,22 @@
 		<field name="configId" type="primary" />
 		<field name="projectName" type="string" max-length="100" nullable="false" description="项目名称" />
 		<field name="projectCode" type="string" max-length="10" nullable="false" updatable="false" description="项目代号" />
+		<field name="iconName" type="string" max-length="30" description="图标ICON" />
 		<field name="comments" type="string" max-length="300" description="备注" />
-		<field name="principal" type="reference" ref-entity="User" description="负责人" />
-		<field name="members" type="string" max-length="420" default-value="ALL" description="项目成员(可选值: ALL/$MemberID)" />
-		<field name="showConfig" type="text" max-length="3000" description="扩展配置(JSON Map)" />
+		<field name="members" type="string" max-length="420" description="项目成员($MemberID)" />
+		<field name="scope" type="small-int" default-value="1" description="可见范围(1=公开 2=成员)"/>
+		<field name="extraDefinition" type="text" max-length="1000" description="扩展配置(JSON Map)" />
+		<index field-list="projectCode" type="unique" />
 	</entity>
 
 	<entity name="ProjectPlanConfig" type-code="051" description="项目面板配置" parent="false" queryable="false">
 		<field name="configId" type="primary" />
-		<field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="所属项目" />
+		<field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="所属项目" cascade="delete" />
 		<field name="planName" type="string" max-length="100" nullable="false" description="面板名称" />
 		<field name="comments" type="string" max-length="300" description="备注" />
 		<field name="seq" type="int" default-value="0" description="排序(小到大)" />
+		<field name="flowStatus" type="small-int" default-value="1" description="工作流状态" />
+		<field name="flowNexts" type="string" max-length="420" description="可转换到哪个面板" />
 		<index field-list="projectId,seq" />
 	</entity>
 	
@@ -419,11 +423,11 @@
 		<field name="executor" type="reference" ref-entity="User" description="执行人" />
 		<field name="partners" type="string" max-length="420" default-value="ALL" description="参与者(可选值: $UserID)" />
 		<field name="priority" type="small-int" default-value="1" description="优先级(0=较低 1=普通 2=紧急 3=非常紧急)" />
+		<field name="deadline" type="timestamp" description="计划截至时间" />
+		<field name="status" type="small-int" default-value="0" description="状态(0=未完成/未开始)" />
 		<field name="startTime" type="timestamp" description="开始时间" />
 		<field name="endTime" type="timestamp" description="结束时间" />
-		<field name="status" type="small-int" default-value="0" description="状态(0=未完成/未开始)" />
 		<field name="description" type="text" max-length="10000" description="详情" />
-		<field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
 		<field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" />
         <field name="seq" type="int" default-value="0" description="排序(小到大)" />
@@ -443,14 +447,13 @@
 		<field name="commentId" type="primary" />
 		<field name="taskId" type="reference" ref-entity="ProjectTask" nullable="false" updatable="false" cascade="delete" description="哪个任务" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />
-		<field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}" />
 		<field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
 		<index field-list="taskId" />
 	</entity>
 
 	<entity name="ProjectTaskTag" type-code="055" description="任务标签" parent="false" queryable="false">
 		<field name="tagId" type="primary" />
-		<field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="所属项目" />
+		<field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" cascade="delete" description="所属项目" />
 		<field name="tagName" type="string" max-length="100" nullable="false" description="标签名" />
 		<field name="color" type="string" max-length="20" description="颜色" />
 		<index field-list="projectId" />

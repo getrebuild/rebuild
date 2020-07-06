@@ -9,9 +9,11 @@ package com.rebuild.server.configuration;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.configuration.ProjectConfigService;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -40,11 +42,17 @@ public class ProjectManager implements ConfigManager {
     public ConfigEntry[] getAvailable(ID user) {
         ConfigEntry[] projects = getAllProjects();
 
+        // TODO 管理员永远可见？
+
         List<ConfigEntry> alist = new ArrayList<>();
         for (ConfigEntry e : projects) {
-            ID principal = e.getID("principal");
+            if (e.getInteger("scope") == ProjectConfigService.SCOPE_ALL) {
+                alist.add(e.clone());
+                continue;
+            }
+
             Set<?> members = e.get("members", Set.class);
-            if (members == null || members.contains(user) || user.equals(principal)) {
+            if (members != null && members.contains(user)) {
                 alist.add(e.clone());
             }
         }
@@ -62,7 +70,7 @@ public class ProjectManager implements ConfigManager {
 
         if (projects == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select configId,projectCode,projectName,principal,members,showConfig from ProjectConfig")
+                    "select configId,projectCode,projectName,iconName,scope,members,extraDefinition from ProjectConfig")
                     .array();
 
             List<ConfigEntry> alist = new ArrayList<>();
@@ -71,17 +79,22 @@ public class ProjectManager implements ConfigManager {
                         .set("id", o[0])
                         .set("projectCode", o[1])
                         .set("projectName", o[2])
-                        .set("principal", o[3]);
+                        .set("iconName", o[3])
+                        .set("scope", o[4]);
 
-                String members = (String) o[4];
-                if (StringUtils.isNotBlank(members)) {
+                String members = (String) o[5];
+                if (StringUtils.isNotBlank(members) && members.length() >= 20) {
+                    // FIXME 如果用户部门/角色/团队改变了，这里的用户缓存就会有问题
                     Set<ID> users = UserHelper.parseUsers(Arrays.asList(members.split(",")), null);
                     e.set("members", users);
                 }
 
-                String showConfig = (String) o[5];
-                if (JSONUtils.wellFormat(showConfig)) {
-                    e.set("showConfig", JSON.parseObject(showConfig));
+                String extraDefinition = (String) o[6];
+                if (JSONUtils.wellFormat(extraDefinition)) {
+                    JSONObject extraDefinitionJson = JSON.parseObject(extraDefinition);
+                    for (String name : extraDefinitionJson.keySet()) {
+                        e.set(name, extraDefinitionJson.get(name));
+                    }
                 }
                 alist.add(e);
             }
@@ -103,12 +116,11 @@ public class ProjectManager implements ConfigManager {
     public ConfigEntry getProject(ID projectId, ID user) throws ConfigurationException {
         ConfigEntry[] ee = user == null ? getAllProjects() : getAvailable(user);
         for (ConfigEntry e : ee) {
-            if (e.getID("id").equals(projectId)) {
+            if (projectId.equals(e.getID("id"))) {
                 return e.clone();
             }
         }
-
-        throw new ConfigurationException("No project found : " + projectId);
+        throw new ConfigurationException("无权访问该项目或项目已删除 (" + projectId + ")");
     }
 
     /**
@@ -123,7 +135,7 @@ public class ProjectManager implements ConfigManager {
 
         if (cache == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select configId,planName from ProjectPlanConfig where projectId = ? order by seq asc")
+                    "select configId,planName,flowStatus,flowNexts from ProjectPlanConfig where projectId = ? order by seq")
                     .setParameter(1, projectId)
                     .array();
 
@@ -131,14 +143,22 @@ public class ProjectManager implements ConfigManager {
             for (Object[] o : array) {
                 ConfigEntry e = new ConfigEntry()
                         .set("id", o[0])
-                        .set("planName", o[1]);
+                        .set("planName", o[1])
+                        .set("flowStatus", o[2]);
+
+                if (StringUtils.isNotBlank((String) o[3])) {
+                    List<ID> nexts = new ArrayList<>();
+                    for (String s : ((String) o[3]).split(",")) {
+                        nexts.add(ID.valueOf(s));
+                    }
+                    e.set("flowNexts", nexts);
+                }
                 alist.add(e);
             }
 
             cache = alist.toArray(new ConfigEntry[0]);
             Application.getCommonCache().putx(ckey, cache);
         }
-
         return cache.clone();
     }
 
