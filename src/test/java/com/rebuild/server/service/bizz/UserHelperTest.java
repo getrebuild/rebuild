@@ -18,11 +18,16 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerStatus;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.privileges.Department;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -51,5 +56,15 @@ public class UserHelperTest extends TestSupport {
 			UserHelper.generateAvatar("你好", true);
 			System.out.println(ServerStatus.getHeapMemoryUsed()[1]);
 		}
+    }
+
+    @Test
+    public void parseUsers() {
+        JSONArray userDefs = new JSONArray();
+        userDefs.add(SIMPLE_USER.toLiteral());
+        userDefs.add(SIMPLE_TEAM.toLiteral());
+	    Set<ID> users = UserHelper.parseUsers(userDefs, null, true);
+
+	    System.out.println(Arrays.toString(users.toArray(new ID[0])));
     }
 }
