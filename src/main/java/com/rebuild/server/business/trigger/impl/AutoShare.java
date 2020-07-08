@@ -68,7 +68,7 @@ public class AutoShare extends AutoAssign {
         }
 
         JSONArray shareTo = content.getJSONArray("shareTo");
-        Set<ID> toUsers = UserHelper.parseUsers(shareTo, recordId);
+        Set<ID> toUsers = UserHelper.parseUsers(shareTo, recordId, true);
         if (toUsers.isEmpty()) {
             return;
         }

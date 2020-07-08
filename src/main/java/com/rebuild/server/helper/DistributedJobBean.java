@@ -31,7 +31,7 @@ public abstract class DistributedJobBean extends QuartzJobBean {
     private static final String SET_WITH_EXPIRE_TIME = "EX";
 
     private static final String LOCK_KEY = "#RBJOBLOCK";
-    private static final int LOCK_TIME = 1000;
+    private static final int LOCK_TIME = 2;  // 2s offset
 
     protected JobExecutionContext jobExecutionContext;
 
@@ -44,7 +44,7 @@ public abstract class DistributedJobBean extends QuartzJobBean {
     }
 
     /**
-     * 是否可安全运行，即并发判断
+     * 是否可安全运行，即并发判断（分布式环境）
      * @return
      */
     protected boolean isSafe() {
@@ -55,10 +55,14 @@ public abstract class DistributedJobBean extends QuartzJobBean {
             try (Jedis jedis = pool.getResource()) {
                 String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_TIME);
                 if (tryLock == null) {
-                    LOG.info("The job has been executed by another instance");
+                    LOG.info("The job has been executed by another instance : " + getClass().getName());
                     return false;
                 }
             }
+        }
+
+        if (LOG.isDebugEnabled()) {
+            LOG.error("Job " + getClass().getName() + " can be safe execution");
         }
         return true;
     }
