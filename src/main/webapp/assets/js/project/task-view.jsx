@@ -5,37 +5,82 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// 任务视图
-// eslint-disable-next-line no-unused-vars
-class TaskViewer extends React.Component {
+const wpc = window.__PageConfig
+
+const activeTaskView = window.parent && window.parent.activeTaskView ? window.parent.activeTaskView
+  : { hide: () => window.close(), setLoadingState: () => { /* NOOP */ } }
+
+$(document).ready(() => {
+  renderRbcomp(<TaskContent id={wpc.taskId} />, 'task-contents')
+  renderRbcomp(<TaskComments id={wpc.taskId} />, 'task-comments')
+
+  $('.J_close').click(() => activeTaskView.hide())
+  $('.J_reload').click(() => {
+    activeTaskView.setLoadingState(true)
+    location.reload()
+  })
+})
+
+// 任务详情
+class TaskContent extends React.Component {
   state = { ...this.props }
 
   render() {
     return (
-      <div className="modal rbview task-view" ref={(c) => this._dlg = c}>
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-body rb-loading">
-              {this.props.id}
-            </div>
+      <div>
+        <div className="form-group row">
+          <div className="col-12">
+            <input type="text" className="form-control" name="taskName" onChange={(e) => this._handleChange(e)} />
           </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">状态</label>
+          <div className="col-12 col-sm-9">1</div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">执行者</label>
+          <div className="col-12 col-sm-9">2</div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">时间</label>
+          <div className="col-12 col-sm-9">3</div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">备注</label>
+          <div className="col-12 col-sm-9">4</div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">优先级</label>
+          <div className="col-12 col-sm-9">5</div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">标签</label>
+          <div className="col-12 col-sm-9">6</div>
         </div>
       </div>
     )
   }
 
   componentDidMount() {
-    const $dlg = $(this._dlg)
-    $dlg.on('shown.bs.modal', () => {
-      $dlg.find('.modal-content').css('margin-right', 0)
-      location.hash = '#!/View/ProjectTask/' + this.props.id
-    }).on('hidden.bs.modal', () => {
-      $dlg.find('.modal-content').css('margin-right', -1000)
-      location.hash = '#!/View/'
-    })
+    activeTaskView.setLoadingState(false)
+  }
 
-    $dlg.modal({
-      show: true
-    })
+  _handleChange(e) {
+    const name = e.target.name
+    const value = e.target.value
+    this.setState({ [name]: value })
+  }
+}
+
+// 任务评论
+class TaskComments extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (
+      <div>
+        评论区
+      </div>
+    )
   }
 }

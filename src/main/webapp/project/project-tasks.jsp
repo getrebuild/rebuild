@@ -15,13 +15,15 @@
 	<jsp:include page="/_include/NavLeft.jsp">
 		<jsp:param value="nav_project-${projectId}" name="activeNav"/>
 	</jsp:include>
+	<div class="rb-loading rb-loading-active must-center J_project-load">
+		<%@ include file="/_include/Spinner.jsp"%>
+	</div>
 	<div class="rb-content">
 		<div class="page-head page-head-sm">
 			<div class="page-head-title">${projectName}</div>
 		</div>
 		<div class="main-content container-fluid p-0">
-			<div id="plan-boxes">
-			</div>
+			<div id="plan-boxes"></div>
 		</div>
 	</div>
 </div>
@@ -36,6 +38,5 @@ window.__PageConfig = {
 }
 </script>
 <script src="${baseUrl}/assets/js/project/project-tasks.jsx" type="text/babel"></script>
-<script src="${baseUrl}/assets/js/project/task-view.jsx" type="text/babel"></script>
 </body>
 </html>

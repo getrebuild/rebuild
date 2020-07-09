@@ -44,7 +44,10 @@ public class ProjectTaskControll extends BasePageControll {
     @RequestMapping("/project/task/{taskId}")
     public ModelAndView pageTask(@PathVariable String taskId,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return null;
+        ModelAndView mv = createModelAndView("/project/task-view.jsp");
+        mv.getModelMap().put("id", taskId);
+        mv.getModelMap().put("projectIcon", "texture");
+        return mv;
     }
 
     @RequestMapping("/project/tasks/post")
@@ -87,7 +90,7 @@ public class ProjectTaskControll extends BasePageControll {
         writeSuccess(response, formatTask(task));
     }
 
-    private static final String BASE_FIELDS = "projectId.projectCode,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority";
+    private static final String BASE_FIELDS = "projectId.projectCode,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority,endTime";
     /**
      * @param o
      * @return
@@ -98,12 +101,13 @@ public class ProjectTaskControll extends BasePageControll {
 
         String createdOn = formatUTCWithZone((Date) o[4]);
         String deadline = formatUTCWithZone((Date) o[5]);
+        String endTime = formatUTCWithZone((Date) o[10]);
 
         Object[] executor = o[6] == null ? null : new Object[]{ o[6], UserHelper.getName((ID) o[6]) };
 
         return JSONUtils.toJSONObject(
-                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority" },
-                new Object[] { o[2], taskNumber, o[3], createdOn, deadline, executor, o[7], o[8], o[9] });
+                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime" },
+                new Object[] { o[2], taskNumber, o[3], createdOn, deadline, executor, o[7], o[8], o[9], endTime });
     }
 
     /**

@@ -46,8 +46,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   border-radius: 3px;
-  padding: 12px 14px;
-  padding-bottom: 8px;
+  padding: 12px 14px 8px;
   margin-bottom: 8px;
   cursor: pointer;
 }
@@ -89,12 +88,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-content .task-title {
   color: #444;
+  margin-bottom: 4px;
 }
 
 .task-content .task-time {
   font-size: 12px;
   color: #999;
-  margin-top: 3px;
 }
 
 .task-content .task-mores {
@@ -160,8 +159,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-card.status-1,
 .task-card.status-1 .task-title,
-.task-card.status-1 .task-time {
+.task-card.status-1 .task-time,
+.task-card.status-1 .custom-control-input:checked~.custom-control-label::after {
   color: #8c8c8c;
+}
+
+.task-card.status-1 .custom-control-sm .custom-control-input~.custom-control-label::before {
+  border-color: #8c8c8c;
 }
 
 .task-card.status-1 .task-card-body {
@@ -201,10 +205,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 12px;
 }
 
-
 /* View */
 
-.modal.rbview.task-view .modal-dialog .modal-content {
+.modal.rbview.task .modal-dialog .modal-content {
   width: 800px;
   margin-right: -1000px;
+}
+
+#task-contents {}
+
+#task-comments {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #eee;
+  min-height: 100px;
 }
