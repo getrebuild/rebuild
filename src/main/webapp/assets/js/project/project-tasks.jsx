@@ -9,17 +9,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 
 $(document).ready(() => {
-  $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
-  const $content = $('.page-aside .tab-content')
-  const $boxes = $('#plan-boxes')
-  $addResizeHandler(() => {
-    const wh = $(window).height()
-    $content.height(wh - 147)
-    $content.perfectScrollbar('update')
-    $boxes.height(wh - 128)
-  })()
+  // $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
+  // const $content = $('.page-aside .tab-content')
+  // const $boxes = $('#plan-boxes')
+  // $addResizeHandler(() => {
+  //   const wh = $(window).height()
+  //   $content.height(wh - 147)
+  //   $content.perfectScrollbar('update')
+  //   $boxes.height(wh - 128)
+  // })()
 
   renderRbcomp(<PlanBoxes plans={wpc.projectPlans} />, 'plan-boxes')
+  __boxesDrag()
 
   let viewHash = location.hash
   if (viewHash && viewHash.startsWith('#!/View/ProjectTask/')) {
@@ -46,18 +47,17 @@ class PlanBoxes extends React.Component {
     return (
       <React.Fragment>
         {this.props.plans.map((item) => {
-          return <PlanBox key={`plan-${item.id}`} id={item.id} planName={item.planName} />
+          return <PlanBox key={`plan-${item.id}`} id={item.id} planName={item.planName} flowStatus={item.flowStatus} flowNexts={item.flowNexts} />
         })}
       </React.Fragment>
     )
   }
 
   componentDidMount() {
-    $('.J_project-load').remove()
-    __boxesDrag()
-
+    let startState = 0
+    let index = 0
     // 拖动排序&换面板
-    const $tasklist = $('.task-list').sortable({
+    $('.task-list').sortable({
       connectWith: '.task-list',
       containment: document.body,
       helper: 'clone',
@@ -68,41 +68,60 @@ class PlanBoxes extends React.Component {
       revert: false,
       start: function (event, ui) {
         ui.placeholder.height(ui.helper.height())
-      },
-      stop: function (event, ui) {
-        // let newPlanId = ui.item.parent('.task-list').attr('data-planid')
-        // const oldPlanId = ui.item.attr('data-planid')
-        // if (newPlanId !== oldPlanId) {
-        //   $tasklist.sortable('cancel')
-        //   __PlanRefs[oldPlanId].removeTask(ui.item.attr('data-taskid'))
-        // }
+        startState = 1
       },
       update: function (event, ui) {
-        const prevSeq = ~~(ui.item.prev('.task-card').attr('data-seq') || 0)
-        const nextSeq = ~~(ui.item.next('.task-card').attr('data-seq') || -1)
-        let seq = ~~(prevSeq + (nextSeq - prevSeq) / 2)
-        // At last
-        if (nextSeq === -1) seq = -1
+        index++
+        if (startState !== 1) return
+        startState = 0
 
-        const taskid = ui.item.data('taskid')
+        const $item = ui.item
+        const $itemPrev = $item.prev('.task-card')
+        const $itemNext = $item.next('.task-card')
 
-        let newPlanId = ui.item.parent('.task-list').attr('data-planid')
-        const oldPlanId = ui.item.attr('data-planid')
-        if (newPlanId === oldPlanId) {
-          newPlanId = undefined
-        } else {
-          $tasklist.sortable('cancel')
-          __PlanRefs[oldPlanId].removeTask(taskid)
+        const planidOld = $item.attr('data-planid')
+        let planidNew = $item.parent('.task-list').attr('data-planid')
+        // Plan unchange
+        if (planidOld === planidNew) planidNew = undefined
+        console.log('Trigger ... ', index, $item.data('taskid'), planidOld + ' > ' + planidNew)
+
+        // 面板变化
+        if (planidNew) {
+          const flowNexts = wpc.projectPlans.find(item => item.id === planidOld).flowNexts
+          if (!flowNexts.includes(planidNew)) {
+            $(this).sortable('cancel')
+            RbHighbar.create('不允许流转到此面板')
+            return
+          }
         }
 
-        __taskPost(taskid, { seq: seq, projectPlanId: newPlanId }, () => {
-          __TaskRefs[taskid].refresh(newPlanId)
-          if (newPlanId) {
-            __PlanRefs[oldPlanId].refresh()
-            __PlanRefs[newPlanId].refresh()
+        const taskid = $item.data('taskid')
+        const prevTaskId = $itemPrev.attr('data-taskid')
+
+        const prevSeq = ~~($itemPrev.attr('data-seq') || 0)
+        const nextSeq = ~~($itemNext.attr('data-seq') || -1)  // At last
+        const seq = nextSeq === -1 ? -1 : ~~(prevSeq + (nextSeq - prevSeq) / 2)
+
+        // Use state of react for move
+        let $itemholder
+        if (planidNew) {
+          $itemholder = $item.clone()
+          $item.hide()
+          $item.after($itemholder)
+          $(this).sortable('cancel')
+        }
+
+        __saveTask(taskid, { seq: seq, projectPlanId: planidNew }, () => {
+          if (planidNew) {
+            const taskData = __PlanRefs[planidOld].removeTask(taskid)
+            if (taskData) __PlanRefs[planidNew].addTask(taskData, prevTaskId, $itemholder)
+            else console.error('No taskData : ', taskid)
+          } else {
+            __TaskRefs[taskid].refresh()
           }
         })
       }
+
     }).disableSelection()
   }
 }
@@ -112,6 +131,7 @@ class PlanBox extends React.Component {
   state = { ...this.props }
 
   render() {
+    const creatable = this.props.flowStatus === 1 || this.props.flowStatus === 2
     return (
       <div className="plan-box-wrapper">
         <div className="plan-box">
@@ -120,39 +140,40 @@ class PlanBox extends React.Component {
           </div>
           <div className="task-list rb-scroller" ref={(c) => this._scroller = c} data-planid={this.props.id}>
             {(this.state.tasks || []).map((item) => {
-              return <Task data={item} planid={this.props.id} key={`task-${item.id}`} />
+              return <Task data={item} planid={this.props.id} key={`task-${this.props.id}-${item.id}`} />
             })}
             {this.state.taskNum === 0 && <div className="no-tasks">暂无任务</div>}
           </div>
-          {this.state.newMode ?
-            <div className="task-card newtask">
-              <div className="task-card-body">
-                <div>
-                  <textarea className="form-control form-control-sm row2x" placeholder="输入标题以新建任务" ref={(c) => this._taskName = c}
-                    onKeyDown={(e) => e.keyCode === 13 && this._handleCreateTask()}
-                    autoFocus />
-                </div>
-                <div>
-                  <label className="mb-1">执行人</label>
-                  <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} closeOnSelect={true} ref={(c) => this._executor = c} />
-                </div>
-                <div>
-                  <label className="mb-1">截至时间</label>
+          {creatable && (
+            this.state.newMode ?
+              <div className="task-card newtask">
+                <div className="task-card-body">
                   <div>
-                    <input type="text" className="form-control form-control-sm" ref={(c) => this._endTime = c} />
+                    <textarea className="form-control form-control-sm row2x" placeholder="输入标题以新建任务" ref={(c) => this._taskName = c}
+                      onKeyDown={(e) => e.keyCode === 13 && this._handleCreateTask()}
+                      autoFocus />
+                  </div>
+                  <div>
+                    <label className="mb-1">执行人</label>
+                    <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} closeOnSelect={true} ref={(c) => this._executor = c} />
+                  </div>
+                  <div>
+                    <label className="mb-1">截至时间</label>
+                    <div>
+                      <input type="text" className="form-control form-control-sm" ref={(c) => this._deadline = c} />
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>取消</button>
+                    <button className="btn btn-primary" type="button" ref={(c) => this._btn = c} onClick={() => this._handleCreateTask()}>确定</button>
                   </div>
                 </div>
-                <div className="text-right">
-                  <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>取消</button>
-                  <button className="btn btn-primary" type="button" ref={(c) => this._btn = c} onClick={() => this._handleCreateTask()}>确定</button>
-                </div>
               </div>
-            </div>
-            :
-            <div className="task-card newbtn" onClick={() => this._handleAddTask()}>
-              <i className="zmdi zmdi-plus"></i>
-            </div>
-          }
+              :
+              <div className="task-card newbtn" onClick={() => this._handleAddTask()}>
+                <i className="zmdi zmdi-plus"></i>
+              </div>
+          )}
         </div>
       </div >
     )
@@ -164,7 +185,7 @@ class PlanBox extends React.Component {
 
     const $scroller = $(this._scroller).perfectScrollbar()
     $addResizeHandler(() => {
-      $scroller.css({ 'max-height': $(window).height() - 230 })
+      $scroller.css({ 'max-height': $(window).height() - 228 })
       $scroller.perfectScrollbar('update')
     })()
   }
@@ -173,33 +194,47 @@ class PlanBox extends React.Component {
   loadTasks() {
     $.get(`/project/tasks/list?plan=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
-        this.setState({ tasks: [], taskNum: 0 },
-          () => this.setState({ tasks: res.data.tasks, taskNum: res.data.count }))
+        this.setState({ tasks: res.data.tasks, taskNum: res.data.count })
       } else {
         RbHighbar.error(res.error_msg)
       }
     })
   }
 
-  refresh() {
-    const $scroller = $(this._scroller).perfectScrollbar('update')
-    this.setState({ taskNum: $scroller.find('.task-card').length })
+  removeTask(taskid) {
+    const taskData = this.state.tasks.find(item => item.id === taskid)
+    const ns = this.state.tasks.filter(item => item.id !== taskid)
+    this.setState({ tasks: ns, taskNum: ns.length },
+      () => $(this._scroller).perfectScrollbar('update'))
+    return taskData
   }
 
-  removeTask(taskid) {
+  addTask(taskData, prevTaskId, $itemholder) {
+    console.log('Add Task', prevTaskId, $itemholder, taskData)
     const ns = []
-    this.state.tasks.forEach((item) => {
-      if (item.id !== taskid) ns.push(item)
+    if (prevTaskId) {
+      this.state.tasks.forEach((item) => {
+        ns.push(item)
+        if (item.id === prevTaskId) ns.push(taskData)
+      })
+    } else {
+      // At top
+      ns.push(taskData)
+      this.state.tasks.forEach(item => ns.push(item))
+    }
+
+    this.setState({ tasks: ns, taskNum: ns.length }, () => {
+      $itemholder && $itemholder.remove()
+      $(this._scroller).perfectScrollbar('update')
     })
-    this.setState({ tasks: ns })
   }
 
   _handleAddTask() {
     this.setState({ newMode: true }, () => {
-      const $boxes = $('#plan-boxes')
-      $boxes.animate({ scrollTop: $boxes.height() - 100 }, 400)
+      $('html').animate({ scrollTop: 500 }, 200)
 
-      this.__datetimepicker = $(this._endTime).datetimepicker({
+      if (this.__datetimepicker) this.__datetimepicker.datetimepicker('remove')
+      this.__datetimepicker = $(this._deadline).datetimepicker({
         componentIcon: 'zmdi zmdi-calendar',
         navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
         format: 'yyyy-mm-dd hh:ii',
@@ -218,12 +253,12 @@ class PlanBox extends React.Component {
     const _data = {
       taskName: $val(this._taskName),
       executor: this._executor.val().join(','),
-      endTime: this._endTime.value,
+      deadline: this._deadline.value,
       projectId: wpc.id,
       projectPlanId: this.props.id,
       taskNumber: 0
     }
-    if (_data.endTime) _data.endTime += ':00'
+    if (_data.deadline) _data.deadline += ':00'
     _data.metadata = { entity: 'ProjectTask' }
 
     const $btn = $(this._btn).button('loading')
@@ -245,7 +280,7 @@ class Task extends React.Component {
   render() {
     const data = this.state.data
     return (
-      <div className={`task-card content status-${data.status}`}
+      <div className={`task-card content status-${data.status} priority-${data.priority}`}
         data-seq={data.seq} data-taskid={data.id} data-planid={this.state.planid} onClick={() => this._openView()}>
         <div className="task-card-body">
           <div className="task-content-wrapper">
@@ -256,11 +291,10 @@ class Task extends React.Component {
               </label>
             </div>
             <div className="task-content">
-              <div className="task-title text-wrap">{data.taskName}</div>
+              <div className="task-title text-wrap">{data.taskName}<br />{data.id}</div>
               <div className="task-time">创建于 <span title={data.createdOn}>{$fromNow(data.createdOn)}</span></div>
-              {data.endTime &&
-                <div className="task-time">完成于 <span title={data.endTime}>{$fromNow(data.endTime)}</span></div>}
-              <div className="task-more">
+              {data.deadline && <div className="task-time"><span className="badge badge-primary">截止时间 <span title={data.deadline}>{$fromNow(data.deadline)}</span></span></div>}
+              <div className="task-mores">
                 {data.executor && (
                   <a className="avatar float-left" title={`负责人 ${data.executor[1]}`}>
                     <img src={`${rb.baseUrl}/account/user-avatar/${data.executor[0]}`} />
@@ -280,15 +314,12 @@ class Task extends React.Component {
     __TaskRefs[this.props.data.id] = this
   }
 
-  refresh(newPlanId) {
-    $.get(`/project/tasks/get?task=${this.props.data.id}`, (res) => {
-      this.setState({ data: res.data })
-      if (newPlanId) this.setState({ planid: newPlanId })
-    })
+  refresh() {
+    $.get(`/project/tasks/get?task=${this.props.data.id}`, res => this.setState({ data: res.data }))
   }
 
   _toggleStatus(e) {
-    __taskPost(this.props.data.id, { status: e.currentTarget.checked ? 1 : 0 }, () => {
+    __saveTask(this.props.data.id, { status: e.currentTarget.checked ? 1 : 0 }, () => {
       __PlanRefs[this.props.planid].loadTasks()
     })
   }
@@ -299,7 +330,7 @@ class Task extends React.Component {
 }
 
 // 修改任务信息
-const __taskPost = function (id, data, call) {
+const __saveTask = function (id, data, call) {
   data.metadata = { id: id }
   $.post('/project/tasks/post', JSON.stringify(data), (res) => {
     if (res.error_code !== 0) RbHighbar.error(res.error_msg)

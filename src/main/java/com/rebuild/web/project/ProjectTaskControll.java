@@ -87,7 +87,7 @@ public class ProjectTaskControll extends BasePageControll {
         writeSuccess(response, formatTask(task));
     }
 
-    private static final String BASE_FIELDS = "projectId.projectCode,taskNumber,taskId,taskName,createdOn,endTime,executor,status,seq";
+    private static final String BASE_FIELDS = "projectId.projectCode,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority";
     /**
      * @param o
      * @return
@@ -97,13 +97,13 @@ public class ProjectTaskControll extends BasePageControll {
         if (StringUtils.isNotBlank((String) o[0])) taskNumber = o[0] + "-" + taskNumber;
 
         String createdOn = formatUTCWithZone((Date) o[4]);
-        String endTime = formatUTCWithZone((Date) o[5]);
+        String deadline = formatUTCWithZone((Date) o[5]);
 
         Object[] executor = o[6] == null ? null : new Object[]{ o[6], UserHelper.getName((ID) o[6]) };
 
         return JSONUtils.toJSONObject(
-                new String[] { "id", "taskNumber", "taskName", "createdOn", "endTime", "executor", "status", "seq" },
-                new Object[] { o[2], taskNumber, o[3], createdOn, endTime, executor, o[7], o[8] });
+                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority" },
+                new Object[] { o[2], taskNumber, o[3], createdOn, deadline, executor, o[7], o[8], o[9] });
     }
 
     /**

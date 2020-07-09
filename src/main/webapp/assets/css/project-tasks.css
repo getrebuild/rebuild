@@ -9,8 +9,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   white-space: nowrap;
   overflow: auto;
   margin: 0;
-  padding-bottom: 8px;
   padding-left: 25px;
+  padding-bottom: 15px;
   display: flex;
   cursor: default;
 }
@@ -47,25 +47,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.1);
   border-radius: 3px;
   padding: 12px 14px;
-  padding-left: 10px;
   padding-bottom: 8px;
-  border-left: 4px solid #fff;
-  cursor: pointer;
   margin-bottom: 8px;
-  transition: border .2s;
-}
-
-.task-card:hover {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
 }
 
 .task-card:last-child {
   margin-bottom: 0;
 }
 
-.task-card.content:hover,
-.task-card.content.active {
-  border-color: #4285f4;
+.task-card:hover {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  border-left: 6px solid #4285f4;
+  padding-left: 8px !important;
+  border-left-width: 6px !important;
 }
 
 .task-content-wrapper {
@@ -87,43 +82,98 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 4px 0;
 }
 
-.task-content-wrapper .task-content .task-title {
+.task-content-wrapper .task-content .badge {
+  font-weight: normal;
+  font-size: 12px;
+}
+
+.task-content .task-title {
   color: #444;
 }
 
-.task-content-wrapper .task-content .task-time {
+.task-content .task-time {
   font-size: 12px;
   color: #999;
   margin-top: 3px;
 }
 
-.task-content-wrapper .task-content .task-time+.task-time {
-  margin-top: 0;
-}
-
-.task-content-wrapper .task-content .task-more {
+.task-content .task-mores {
   margin-top: 3px;
 }
 
-.task-content-wrapper .task-content .task-more>.avatar img {
+.task-content .task-mores>.avatar img {
   width: 26px;
   height: 26px;
 }
 
-.task-content-wrapper .task-content .task-more>.badge {
-  font-weight: normal;
-  font-size: 12px;
+.task-content .task-mores>.badge {
   background-color: #f7f7f7;
   color: #595959;
   border-width: 0;
   margin-top: 4px;
 }
 
+.task-card.highlight {
+  box-shadow: none;
+  opacity: 0.6;
+  min-height: 34px;
+}
+
+.task-card.ui-sortable-helper {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.task-card.priority-0:hover {
+  border-color: #aaa;
+}
+
+.task-card.priority-1:hover {
+  border-color: #3d82f4;
+}
+
+.task-card.priority-2 {
+  border-left: 3px solid #f7b904;
+  padding-left: 11px;
+}
+
+.task-card.priority-2:hover {
+  border-color: #f7b904;
+}
+
+.task-card.priority-3 {
+  border-left: 3px solid #ea3f30;
+  padding-left: 11px;
+}
+
+.task-card.priority-3:hover {
+  border-color: #ea3f30;
+}
+
+
+.task-card.status-1:hover {
+  border-color: #fff;
+}
+
+.task-card.status-1:hover {
+  border-color: #fff !important;
+}
+
+.task-card.status-1,
+.task-card.status-1 .task-title,
+.task-card.status-1 .task-time {
+  color: #8c8c8c;
+}
+
+.task-card.status-1 .task-card-body {
+  opacity: 0.5;
+}
+
 .task-card.newbtn {
   text-align: center;
   font-size: 1.75rem;
   color: #aaa;
-  padding: 2px;
+  padding: 2px 0 !important;
+  border: 0 none !important
 }
 
 .task-card.newbtn:hover {
@@ -132,10 +182,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-card.newtask {
   cursor: default;
-  padding-left: 13px;
-  padding-right: 16px;
+  padding: 14px 16px !important;
+  border: 0 none !important;
   margin-bottom: 10px;
-  padding-bottom: 12px;
 }
 
 .task-card.newtask .task-card-body textarea {
@@ -152,20 +201,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 12px;
 }
 
-.task-card.highlight {
-  box-shadow: none;
-  opacity: 0.6;
-  min-height: 34px;
-}
-
-.task-card.status-1:hover {
-  border-color: #fff;
-}
-
-.task-card.status-1 .task-title,
-.task-card.status-1 .task-time {
-  color: #8c8c8c;
-}
 
 /* View */
 
