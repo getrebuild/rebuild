@@ -48,10 +48,11 @@ public class ProjectControll extends BasePageControll {
         final ConfigEntry p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
         ModelAndView mv = createModelAndView("/project/project-tasks.jsp");
         mv.getModelMap().put("projectId", p.getID("id"));
+        mv.getModelMap().put("iconName", p.getString("iconName"));
         mv.getModelMap().put("projectCode", p.getString("projectCode"));
         mv.getModelMap().put("projectName", p.getString("projectName"));
 
-        final ConfigEntry[] plans = ProjectManager.instance.getPlanList(projectId2);
+        final ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
         JSONArray plans2 = new JSONArray();
         for (ConfigEntry e : plans) {
             plans2.add(e.toJSON());

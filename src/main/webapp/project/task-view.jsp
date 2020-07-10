@@ -24,7 +24,7 @@
 <script>
 window.__PageConfig = {
     type: 'TaskView',
-    taskId: '${id}'
+    taskId: '${id}',
 }
 </script>
 <script src="${baseUrl}/assets/js/project/task-view.jsx" type="text/babel"></script>

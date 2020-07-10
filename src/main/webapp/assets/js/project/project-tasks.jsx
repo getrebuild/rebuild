@@ -276,9 +276,17 @@ class Task extends React.Component {
             </div>
             <div className="task-content">
               <div className="task-title text-wrap">{this.state.taskName}</div>
-              {this.state.endTime && <div className="task-time">完成于 <span title={this.state.endTime}>{$fromNow(this.state.endTime)}</span></div>}
+              {this.state.endTime
+                && <div className="task-time">完成于 <span title={this.state.endTime}>{$fromNow(this.state.endTime)}</span></div>}
               <div className="task-time">创建于 <span title={this.state.createdOn}>{$fromNow(this.state.createdOn)}</span></div>
-              {(!this.state.endTime && this.state.deadline) && <div className="task-time"><span className="badge badge-primary">截止时间 <span title={this.state.deadline}>{$fromNow(this.state.deadline)}</span></span></div>}
+              {(!this.state.endTime && this.state.deadline)
+                && (
+                  <div className="task-time">
+                    <span className={`badge badge-${this._outDeadline(this.state.deadline) ? 'danger' : 'primary'}`}>
+                      截止时间 <span title={this.state.deadline}>{$fromNow(this.state.deadline)}</span>
+                    </span>
+                  </div>
+                )}
               <div className="task-mores">
                 {this.state.executor && (
                   <a className="avatar float-left" title={`负责人 ${this.state.executor[1]}`}>
@@ -300,7 +308,7 @@ class Task extends React.Component {
   }
 
   refresh() {
-    $.get(`/project/tasks/get?task=${this.props.id}`, res => this.setState({ data: res.data }))
+    $.get(`/project/tasks/get?task=${this.props.id}`, res => this.setState({ ...res.data }))
   }
 
   _toggleStatus(e) {
@@ -309,6 +317,10 @@ class Task extends React.Component {
       this.setState({ status: status })
       __PlanRefs[this.props.planid].loadTasks()
     })
+  }
+
+  _outDeadline(date) {
+    return moment(date.split(' ')[0]).isBefore(moment())
   }
 }
 
@@ -398,5 +410,9 @@ class TaskViewModal extends React.Component {
 
   hide() {
     $(this._dlg).modal('hide')
+  }
+
+  refreshTask() {
+    __TaskRefs[this.state.taskid].refresh()
   }
 }

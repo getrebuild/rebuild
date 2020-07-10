@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.configuration;
 
+import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -124,12 +125,45 @@ public class ProjectManager implements ConfigManager {
     }
 
     /**
-     * 获取项目面板
+     * @param taskId
+     * @param user
+     * @return
+     * @throws ConfigurationException
+     * @throws PrivilegesException
+     */
+    public ConfigEntry getProjectByTask(ID taskId, ID user) throws ConfigurationException, PrivilegesException {
+        final String key = "TASK2PROJECT-" + taskId;
+        ID projectId = (ID) Application.getCommonCache().getx(key);
+
+        if (projectId == null) {
+            Object[] task = Application.createQuery("select projectId from ProjectTask where taskId = ?")
+                    .setParameter(1, taskId)
+                    .unique();
+
+            projectId = task == null ? null : (ID) task[0];
+            if (projectId != null) {
+                Application.getCommonCache().putx(key, projectId);
+            }
+        }
+
+        if (projectId == null) {
+            throw new ConfigurationException("任务不存在或已被删除 (" + taskId + ")");
+        }
+
+        try {
+            return getProject(projectId, user);
+        } catch (ConfigurationException ex) {
+            throw new PrivilegesException("无权访问该任务 (" + taskId + ")", ex);
+        }
+    }
+
+    /**
+     * 获取项目的任务面板
      *
      * @param projectId
      * @return
      */
-    public ConfigEntry[] getPlanList(ID projectId) {
+    public ConfigEntry[] getPlansOfProject(ID projectId) {
         final String ckey = "ProjectPlan-" + projectId;
         ConfigEntry[] cache = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
 
@@ -160,6 +194,19 @@ public class ProjectManager implements ConfigManager {
             Application.getCommonCache().putx(ckey, cache);
         }
         return cache.clone();
+    }
+
+    /**
+     * @param planId
+     * @param projectId
+     * @return
+     */
+    public ConfigEntry getPlanOfProject(ID planId, ID projectId) {
+        ConfigEntry[] eee = getPlansOfProject(projectId);
+        for (ConfigEntry e : eee) {
+            if (e.getID("id").equals(planId)) return e;
+        }
+        throw new ConfigurationException("无效任务面板 (" + planId + ")");
     }
 
     @Override

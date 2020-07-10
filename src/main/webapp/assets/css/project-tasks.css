@@ -212,7 +212,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: -1000px;
 }
 
-#task-contents {}
+#task-contents {
+  padding-bottom: 100px;
+}
 
 #task-comments {
   position: fixed;
@@ -221,4 +223,79 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
   background-color: #eee;
   min-height: 100px;
+}
+
+.task-form .user-selector,
+.task-form .form-control,
+.task-form .input-group {
+  max-width: 400px;
+}
+
+.task-form .task-title {
+  border: 0 none;
+  max-width: 100%;
+  height: 3rem;
+  font-size: 1.4rem;
+  padding: 6px 0;
+}
+
+.task-form .task-title:focus {
+  background-color: #f7f7f7;
+  padding: 6px;
+}
+
+.task-form .tag-value {
+  position: relative;
+  height: 26px;
+  padding: 5px 10px;
+  border: 0 none;
+  border-radius: 99px;
+  line-height: 18px;
+}
+
+.task-form a.tag-value {
+  background-color: rgba(66, 133, 244, 0.1);
+  color: #4285f4;
+}
+
+.task-form a.tag-value:hover {
+  background-color: #4285f4;
+  color: #fff;
+  transition: padding .2s;
+}
+
+.task-form .tag-value.arrow:hover {
+  padding-right: 20px;
+}
+
+.task-form .tag-value.arrow:hover::after {
+  font: normal normal normal 16px/1 'Material-Design-Iconic-Font';
+  content: '\f2f9';
+  position: absolute;
+  right: 8px;
+}
+
+.task-form a.tag-value.plaintext {
+  background-color: #f7f7f7;
+  color: #404040;
+}
+
+.task-form a.tag-value.priority-0 {
+  background-color: #aaa;
+  color: #fff;
+}
+
+.task-form a.tag-value.priority-1 {
+  background-color: #4285f4;
+  color: #fff;
+}
+
+.task-form a.tag-value.priority-2 {
+  background-color: #f7b904;
+  color: #fff;
+}
+
+.task-form a.tag-value.priority-3 {
+  background-color: #ea3f30;
+  color: #fff;
 }

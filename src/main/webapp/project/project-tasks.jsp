@@ -32,6 +32,7 @@
 <script>
 window.__PageConfig = {
 	id: '${projectId}',
+	icon: '${iconName}',
 	projectCode: '${projectCode}',
 	projectName: '${projectName}',
 	projectPlans: ${projectPlans},
