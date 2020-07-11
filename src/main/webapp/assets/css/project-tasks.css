@@ -96,16 +96,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #999;
 }
 
-.task-content .task-mores {
-  margin-top: 3px;
+.task-content .task-extras {
+  margin-top: 4px;
 }
 
-.task-content .task-mores>.avatar img {
+.task-content .task-extras>.avatar img {
   width: 26px;
   height: 26px;
 }
 
-.task-content .task-mores>.badge {
+.task-content .task-extras>.badge {
   background-color: #f7f7f7;
   color: #595959;
   border-width: 0;
@@ -212,9 +212,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: -1000px;
 }
 
-#task-contents {
-  padding-bottom: 100px;
-}
+#task-contents {}
 
 #task-comments {
   position: fixed;
@@ -231,17 +229,34 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-width: 400px;
 }
 
-.task-form .task-title {
+.task-form .task-title,
+.task-form .task-desc {
   border: 0 none;
-  max-width: 100%;
+  outline: none;
+  appearance: none;
+  width: 100%;
   height: 3rem;
   font-size: 1.4rem;
   padding: 6px 0;
+  cursor: pointer;
+  border-radius: 3px;
+  line-height: 1.6;
+  transition: padding .2s;
+  max-height: 400px;
 }
 
-.task-form .task-title:focus {
+.task-form .task-title:focus,
+.task-form .task-desc:focus {
   background-color: #f7f7f7;
-  padding: 6px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.task-form .task-desc {
+  font-size: 1rem;
+  height: 2.8rem;
+  padding-top: 8px;
+  padding-bottom: 8px;
 }
 
 .task-form .tag-value {
@@ -275,9 +290,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 8px;
 }
 
-.task-form a.tag-value.plaintext {
+.task-form a.tag-value.plaintext,
+.task-form a.tag-value.placeholder {
   background-color: #f7f7f7;
   color: #404040;
+}
+
+.task-form a.tag-value.placeholder {
+  color: #aaa;
 }
 
 .task-form a.tag-value.priority-0 {
@@ -298,4 +318,33 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-form a.tag-value.priority-3 {
   background-color: #ea3f30;
   color: #fff;
+}
+
+.task-form .mount {
+  position: absolute;
+  z-index: 999;
+  margin-top: -18px;
+  margin-left: 2px;
+}
+
+.task-form .form-control-plaintext~.mount {
+  margin-top: -16px;
+}
+
+.task-form .executor-show {
+  margin-top: 3px;
+  padding-right: 20px;
+  display: inline-block;
+}
+
+.task-form .executor-show>a.close {
+  float: none;
+  position: absolute;
+  margin-left: 8px;
+  margin-top: 5px;
+  display: none;
+}
+
+.task-form .executor-show:hover>a.close {
+  display: inline-block;
 }

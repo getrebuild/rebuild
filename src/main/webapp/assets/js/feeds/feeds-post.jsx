@@ -104,21 +104,6 @@ class FeedsPost extends React.Component {
   }
 }
 
-// 复写组件
-class UserSelectorExt extends UserSelector {
-  constructor(props) {
-    super(props)
-  }
-  componentDidMount() {
-    $(this._scroller).perfectScrollbar()
-  }
-  clickItem(e) {
-    const id = e.target.dataset.id
-    const name = $(e.target).text()
-    typeof this.props.call === 'function' && this.props.call(id, name)
-  }
-}
-
 // ~ 动态编辑框
 class FeedsEditor extends React.Component {
   state = { ...this.props }
@@ -151,7 +136,7 @@ class FeedsEditor extends React.Component {
             <li className="list-inline-item">
               <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
               <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
-                <UserSelectorExt hideDepartment={true} hideRole={true} hideTeam={true} ref={(c) => this._UserSelector = c} call={this._selectAtUser} />
+                <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} onSelectItem={this._selectAtUser} ref={(c) => this._UserSelector = c} />
               </span>
             </li>
             <li className="list-inline-item">
@@ -258,8 +243,8 @@ class FeedsEditor extends React.Component {
     $(this._editor).insertAtCursor(`[${emoji}]`)
     this.setState({ showEmoji: false })
   }
-  _selectAtUser = (id, name) => {
-    $(this._editor).insertAtCursor(`@${name} `)
+  _selectAtUser = (s) => {
+    $(this._editor).insertAtCursor(`@${s.text} `)
     this.setState({ showAtUser: false })
   }
 

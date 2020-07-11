@@ -99,7 +99,8 @@ public abstract class BaseControll extends Controll {
 			aJsonString = (String) aJson;
 		} else {
 			// fix: $ref.xxx
-			aJsonString = JSON.toJSONString(aJson, SerializerFeature.DisableCircularReferenceDetect);
+			aJsonString = JSON.toJSONString(aJson,
+					SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteMapNullValue);
 		}
 		ServletUtils.writeJson(response, aJsonString);
 	}

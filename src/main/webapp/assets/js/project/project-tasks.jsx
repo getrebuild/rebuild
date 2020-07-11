@@ -19,7 +19,7 @@ $(document).ready(() => {
   if (viewHash && viewHash.startsWith('#!/View/ProjectTask/')) {
     viewHash = viewHash.split('/')
     if (viewHash.length === 4 && viewHash[3].length === 20) {
-      setTimeout(() => __openTaskView(viewHash[3]), 500)
+      setTimeout(() => TaskViewModal.create(viewHash[3]), 500)
     }
   }
 })
@@ -265,7 +265,7 @@ class Task extends React.Component {
   render() {
     return (
       <div className={`task-card content status-${this.state.status} priority-${this.state.priority}`}
-        data-seq={this.state.seq} data-taskid={this.state.id} data-planid={this.props.planid} onClick={() => __openTaskView(this.state.id)}>
+        data-seq={this.state.seq} data-taskid={this.state.id} data-planid={this.props.planid} onClick={() => TaskViewModal.create(this.state.id)}>
         <div className="task-card-body">
           <div className="task-content-wrapper">
             <div className="task-status">
@@ -287,7 +287,7 @@ class Task extends React.Component {
                     </span>
                   </div>
                 )}
-              <div className="task-mores">
+              <div className="task-extras">
                 {this.state.executor && (
                   <a className="avatar float-left" title={`负责人 ${this.state.executor[1]}`}>
                     <img src={`${rb.baseUrl}/account/user-avatar/${this.state.executor[0]}`} />
@@ -364,11 +364,17 @@ const __boxesDrag = function () {
 
 // --
 
-// 当前视图
+// 与实体视图兼容
 // eslint-disable-next-line no-unused-vars
-var activeTaskView = null
-const __openTaskView = function (id) {
-  renderRbcomp(<TaskViewModal taskid={id} />, null, function () { activeTaskView = this })
+const RbViewModal = {
+  // 获取当前视图
+  currentHolder: () => {
+    return {
+      hideLoading: function () {
+        TaskViewModal.__HOLDER && TaskViewModal.__HOLDER.setLoadingState(false)
+      }
+    }
+  }
 }
 
 // 任务视图
@@ -414,5 +420,15 @@ class TaskViewModal extends React.Component {
 
   refreshTask() {
     __TaskRefs[this.state.taskid].refresh()
+  }
+
+  // --
+
+  static __HOLDER
+  /**
+   * @param {TaskId} id 
+   */
+  static create(id) {
+    renderRbcomp(<TaskViewModal taskid={id} />, null, function () { TaskViewModal.__HOLDER = this })
   }
 }

@@ -121,7 +121,7 @@ public class ProjectManager implements ConfigManager {
                 return e.clone();
             }
         }
-        throw new ConfigurationException("无权访问该项目或项目已删除 (" + projectId + ")");
+        throw new ConfigurationException("无权访问该项目或项目已删除");
     }
 
     /**
@@ -147,13 +147,13 @@ public class ProjectManager implements ConfigManager {
         }
 
         if (projectId == null) {
-            throw new ConfigurationException("任务不存在或已被删除 (" + taskId + ")");
+            throw new ConfigurationException("任务不存在或已被删除");
         }
 
         try {
             return getProject(projectId, user);
         } catch (ConfigurationException ex) {
-            throw new PrivilegesException("无权访问该任务 (" + taskId + ")", ex);
+            throw new PrivilegesException("无权访问该任务", ex);
         }
     }
 

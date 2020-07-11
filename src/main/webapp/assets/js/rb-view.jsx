@@ -353,7 +353,7 @@ const RbViewPage = {
       const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => {
         // 刷新主视图
-        parent && parent.RbViewModal && parent.RbViewModal.holderMain() && parent.RbViewModal.holderMain(true)
+        parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
         that.hide(true)
       }} />)
     })

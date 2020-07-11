@@ -1043,9 +1043,9 @@ class RbViewModal extends React.Component {
     else return this.__HOLDERs[id]
   }
   /**
-   * 主视图
+   * 当前激活视图
    */
-  static holderMain(reload) {
+  static currentHolder(reload) {
     if (reload && this.__HOLDER) {
       this.__HOLDER.showLoading()
       this.__HOLDER._iframe.contentWindow.location.reload()

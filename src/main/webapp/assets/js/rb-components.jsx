@@ -380,55 +380,62 @@ class UserSelector extends React.Component {
     else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
 
     // select2-container--above
-    return <div className="user-selector">
-      <span className="select2 select2-container select2-container--default select2-container--below">
-        <span className="selection">
-          <span className="select2-selection select2-selection--multiple">
-            <ul className="select2-selection__rendered">
-              {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
-              {this.state.selected.map((item) => {
-                return (<li key={`s-${item.id}`} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
-              })}
-              <li className="select2-selection__choice abtn" onClick={this.openDropdown}>
-                <a><i className="zmdi zmdi-plus"></i> {this.props.multiple === false ? '选择' : '添加'}</a>
-              </li>
-            </ul>
+    return (
+      <div className="user-selector">
+        <span className="select2 select2-container select2-container--default select2-container--below">
+          {!this.props.hideSelection && <span className="selection">
+            <span className="select2-selection select2-selection--multiple">
+              <ul className="select2-selection__rendered">
+                {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
+                {this.state.selected.map((item) => {
+                  return (
+                    <li key={`s-${item.id}`} className="select2-selection__choice">
+                      <span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}
+                    </li>
+                  )
+                })}
+                <li className="select2-selection__choice abtn" onClick={this.openDropdown}>
+                  <a><i className="zmdi zmdi-plus"></i> {this.props.multiple === false ? '选择' : '添加'}</a>
+                </li>
+              </ul>
+            </span>
           </span>
-        </span>
-        <span className={`dropdown-wrapper ${this.state.dropdownOpen === false ? 'hide' : ''}`}>
-          <div className="selector-search">
-            <div>
-              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''}
-                ref={(c) => this._searchInput = c} onChange={(e) => this.searchItems(e)} onKeyDown={(e) => this._keyEvent(e)} />
+          }
+          <span className={`dropdown-wrapper ${this.state.dropdownOpen === false ? 'hide' : ''}`}>
+            <div className="selector-search">
+              <div>
+                <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''}
+                  ref={(c) => this._searchInput = c} onChange={(e) => this.searchItems(e)} onKeyDown={(e) => this._keyEvent(e)} />
+              </div>
             </div>
-          </div>
-          <div className="tab-container m-0">
-            <ul className={`nav nav-tabs nav-tabs-classic ${this.tabTypes.length < 2 ? 'hide' : ''}`}>
-              {this.tabTypes.map((item) => {
-                return <li className="nav-item" key={`t-${item[0]}`}><a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a></li>
-              })}
-            </ul>
-            <div className="tab-content">
-              <div className="tab-pane active">
-                <div className="rb-scroller" ref={(c) => this._scroller = c}>
-                  <ul className="select2-results__options">
-                    {noResult ? noResult : this.state.items.map((item) => {
-                      return (
-                        <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
-                          <i className={`zmdi ${this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
-                          {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
-                          <span className="text">{item.text}</span>
-                        </li>
-                      )
-                    })}
-                  </ul>
+            <div className="tab-container m-0">
+              <ul className={`nav nav-tabs nav-tabs-classic ${this.tabTypes.length < 2 ? 'hide' : ''}`}>
+                {this.tabTypes.map((item) => {
+                  return <li className="nav-item" key={`t-${item[0]}`}><a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a></li>
+                })}
+              </ul>
+              <div className="tab-content">
+                <div className="tab-pane active">
+                  <div className="rb-scroller" ref={(c) => this._scroller = c}>
+                    <ul className="select2-results__options">
+                      {noResult ? noResult : this.state.items.map((item) => {
+                        return (
+                          <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+                            <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
+                            {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
+                            <span className="text">{item.text}</span>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          </span>
         </span>
-      </span>
-    </div>
+      </div>
+    )
   }
 
   componentDidMount() {
@@ -497,12 +504,17 @@ class UserSelector extends React.Component {
       })
     }
 
-    if (!exists) ns.push({ id: id, text: $(e.target).text() })
+    const selected = { id: id, text: $(e.target).text() }
+
+    if (!exists) ns.push(selected)
     if (ns.length >= 20) {
       RbHighbar.create('最多选择 20 个')
       return false
     }
-    this.setState({ selected: ns, dropdownOpen: !fromRemove && this.props.closeOnSelect !== true })
+
+    this.setState({ selected: ns, dropdownOpen: !fromRemove && this.props.closeOnSelect !== true }, () => {
+      typeof this.props.onSelectItem === 'function' && this.props.onSelectItem(selected)
+    })
   }
 
   removeItem(e) {
@@ -510,7 +522,7 @@ class UserSelector extends React.Component {
   }
 
   containsItem(id) {
-    return !!this.state.selected.find((x) => { return x.id === id })
+    return !!this.state.selected.find(x => x.id === id)
   }
 
   _keyEvent(e) {

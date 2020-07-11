@@ -20,6 +20,7 @@
     <div id="task-contents"></div>
 </div>
 <div id="task-comments"></div>
+<script src="${baseUrl}/assets/lib/moment-with-locales.min.js?v=2.27.0"></script>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {
@@ -27,6 +28,7 @@ window.__PageConfig = {
     taskId: '${id}',
 }
 </script>
+<script src="${baseUrl}/assets/lib/jquery.textarea.js"></script>
 <script src="${baseUrl}/assets/js/project/task-view.jsx" type="text/babel"></script>
 </body>
 </html>

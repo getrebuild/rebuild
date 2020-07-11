@@ -4,24 +4,26 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global autosize */
 
 const wpc = window.__PageConfig
 
-const activeTaskView = window.parent && window.parent.activeTaskView ? window.parent.activeTaskView
-  : { hide: () => window.close(), setLoadingState: () => { /* NOOP */ }, refreshTask: () => { /* NOOP */ } }
+const __TaskViewer = parent && parent.TaskViewModal ? parent.TaskViewModal.__HOLDER
+  : { hide: () => window.close() }
 
 $(document).ready(() => {
   renderRbcomp(<TaskContent id={wpc.taskId} />, 'task-contents')
-  renderRbcomp(<TaskComments id={wpc.taskId} />, 'task-comments')
+  // renderRbcomp(<TaskComments id={wpc.taskId} />, 'task-comments')
 
-  $('.J_close').click(() => activeTaskView.hide())
+  $('.J_close').click(() => parent.RbV.hide())
   $('.J_reload').click(() => {
-    activeTaskView.setLoadingState(true)
+    __TaskViewer.setLoadingState(true)
     location.reload()
   })
 })
 
 const __PRIORITIES = { 0: '较低', 1: '普通', 2: '紧急', 3: '非常紧急' }
+const __NOTNULL = ['taskName']
 
 // 任务详情
 class TaskContent extends React.Component {
@@ -30,11 +32,11 @@ class TaskContent extends React.Component {
   render() {
     const stateOfPlans = this.state.stateOfPlans || []
     return (
-      <div className="task-form">
+      <div className="rbview-form task-form">
         <div className="form-group row pt-0">
           <div className="col-12">
-            <input type="text" className="form-control task-title" name="taskName" value={this.state.taskName || ''}
-              onChange={(e) => this._handleChange(e, true)} onBlur={(e) => this._handleChange(e)} />
+            <input type="text" className="task-title" name="taskName" value={this.state.taskName || ''}
+              onChange={(e) => this._handleChange(e, true)} onBlur={(e) => this._handleChange(e)} onKeyDown={(e) => this._enterKey(e)} />
           </div>
         </div>
         <div className="form-group row">
@@ -51,27 +53,39 @@ class TaskContent extends React.Component {
           </div>
         </div>
         <div className="form-group row">
-          <label className="col-12 col-sm-3 col-form-label">执行者</label>
+          <label className="col-12 col-sm-3 col-form-label">执行人</label>
           <div className="col-12 col-sm-9">
-            <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} closeOnSelect={true} ref={(c) => this._executor = c} />
+            <React.Fragment>
+              {this.state.executor ?
+                (
+                  <div className="executor-show">
+                    <UserShow id={this.state.executor[0]} name={this.state.executor[1]} showName={true} onClick={() => this._UserSelector.openDropdown()} />
+                    <a className="close" onClick={() => this._handleChangeExecutor(null)} title="移除执行人">&times;</a>
+                  </div>
+                )
+                : <div className="form-control-plaintext"><a className="tag-value arrow placeholder" onClick={() => this._UserSelector.openDropdown()}>选择执行人</a></div>
+              }
+            </React.Fragment>
+            <div className="mount">
+              <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} closeOnSelect={true} onSelectItem={this._handleChangeExecutor} ref={(c) => this._UserSelector = c} />
+            </div>
           </div>
         </div>
         <div className="form-group row">
-          <label className="col-12 col-sm-3 col-form-label">时间</label>
+          <label className="col-12 col-sm-3 col-form-label">截至时间</label>
           <div className="col-12 col-sm-9">
-            <div className="input-group input-group-sm">
-              <input type="text" className="form-control form-control-sm" placeholder="开始时间" />
-              <div className="input-group-prepend input-group-append">
-                <span className="input-group-text">至</span>
-              </div>
-              <input type="text" className="form-control form-control-sm" placeholder="截至时间" />
+            <div className="form-control-plaintext" ref={(c) => this._dates = c}>
+              <a className={`tag-value arrow ${this.state.deadline ? 'plaintext' : 'placeholder'}`} name="deadline" title={this.state.deadline}>{$fromNow(this.state.deadline) || '选择截至时间'}</a>
             </div>
           </div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">备注</label>
           <div className="col-12 col-sm-9">
-            <textarea className="form-control form-control-sm row3x"></textarea>
+            <div >
+              <textarea className="task-desc" name="description" value={this.state.description || ''} maxLength="2000" placeholder="添加备注" ref={(c) => this._description = c}
+                onChange={(e) => this._handleChange(e, true)} onBlur={(e) => this._handleChange(e)} onKeyDown={(e) => this._enterKey(e)} />
+            </div>
           </div>
         </div>
         <div className="form-group row">
@@ -104,8 +118,26 @@ class TaskContent extends React.Component {
   }
 
   componentDidMount() {
+    __TaskViewer.setLoadingState(false)
     this.fetch()
-    activeTaskView.setLoadingState(false)
+
+    $(this._dates).find('.tag-value').datetimepicker({
+      componentIcon: 'zmdi zmdi-calendar',
+      navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
+      format: 'yyyy-mm-dd hh:ii',
+      weekStart: 1,
+      autoclose: true,
+      language: 'zh',
+      todayHighlight: true,
+      showMeridian: false,
+      keyboardNavigation: false,
+      minuteStep: 5,
+    }).on('changeDate', (e) => {
+      this._handleChange({ target: { name: e.currentTarget.name, value: moment(e.date).format('YYYY-MM-DD HH:mm:ss') } })
+    })
+
+    autosize(this._description)
+
   }
 
   fetch() {
@@ -120,33 +152,43 @@ class TaskContent extends React.Component {
   _handleChange(e, unsave) {
     const name = e.target.name
     const value = e.target.value
+    const valueOld = this.state[name]
+    if (value === valueOld) return
     this.setState({ [name]: value })
 
     if (unsave) return
+    if (!value && __NOTNULL.includes(name)) return RbHighbar.create('不允许为空')
 
     const data = {
       [name]: value,
       metadata: { id: this.props.id }
     }
     $.post('/project/tasks/post', JSON.stringify(data), (res) => {
-      if (res.error_code === 0) activeTaskView.refreshTask()
+      if (res.error_code === 0) __TaskViewer.refreshTask()
       else RbHighbar.error(res.error_msg)
     })
   }
   _handleChangePlan = (val) => this._handleChange({ target: { name: 'projectPlanId', value: val } })
   _handleChangePriority = (val) => this._handleChange({ target: { name: 'priority', value: val } })
+  _handleChangeExecutor = (val) => {
+    this._handleChange({ target: { name: 'executor', value: val ? val.id : null } })
+    this.setState({ executor: val ? [val.id, val.text] : null })
+  }
 
-}
-
-// 任务评论
-class TaskComments extends React.Component {
-  state = { ...this.props }
-
-  render() {
-    return (
-      <div>
-        评论区
-      </div>
-    )
+  _enterKey(e) {
+    if (e.keyCode === 13) e.target.blur()
   }
 }
+
+// // 任务评论
+// class TaskComments extends React.Component {
+//   state = { ...this.props }
+
+//   render() {
+//     return (
+//       <div>
+//         评论区
+//       </div>
+//     )
+//   }
+// }

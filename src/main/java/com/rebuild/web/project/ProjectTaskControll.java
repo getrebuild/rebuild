@@ -59,10 +59,10 @@ public class ProjectTaskControll extends BasePageControll {
         try {
             project = ProjectManager.instance.getProjectByTask(taskId2, getRequestUser(request));
         } catch (ConfigurationException ex) {
-            response.sendError(404);
+            response.sendError(404, ex.getLocalizedMessage());
             return null;
         } catch (PrivilegesException ex) {
-            response.sendError(403);
+            response.sendError(403, ex.getLocalizedMessage());
             return null;
         }
 
