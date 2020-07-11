@@ -128,7 +128,7 @@ class PlanBox extends React.Component {
           </div>
           <div className="task-list rb-scroller" ref={(c) => this._scroller = c} data-planid={this.props.id}>
             {(this.state.tasks || []).map((item) => {
-              return <Task key={`task-${item.id}`} planid={this.props.id} {...item} />
+              return <Task key={`task-${item.id}`} planid={this.props.id} $$$parent={this} {...item} />
             })}
             {this.state.taskNum === 0 && <div className="no-tasks">暂无任务</div>}
           </div>
@@ -169,7 +169,7 @@ class PlanBox extends React.Component {
 
   componentDidMount() {
     __PlanRefs[this.props.id] = this
-    this.loadTasks()
+    this.refreshTasks()
 
     const $scroller = $(this._scroller).perfectScrollbar()
     $addResizeHandler(() => {
@@ -179,7 +179,7 @@ class PlanBox extends React.Component {
   }
 
   // 加载任务列表
-  loadTasks() {
+  refreshTasks() {
     $.get(`/project/tasks/list?plan=${this.props.id}`, (res) => {
       if (res.error_code === 0) this.setState({ tasks: res.data.tasks, taskNum: res.data.count })
       else RbHighbar.error(res.error_msg)
@@ -220,16 +220,7 @@ class PlanBox extends React.Component {
 
       if (this.__datetimepicker) this.__datetimepicker.datetimepicker('remove')
       this.__datetimepicker = $(this._deadline).datetimepicker({
-        componentIcon: 'zmdi zmdi-calendar',
-        navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
-        format: 'yyyy-mm-dd hh:ii',
-        weekStart: 1,
-        autoclose: true,
-        language: 'zh',
-        todayHighlight: true,
-        showMeridian: false,
-        keyboardNavigation: false,
-        minuteStep: 5,
+        startDate: new Date()
       })
     })
   }
@@ -243,13 +234,14 @@ class PlanBox extends React.Component {
       projectPlanId: this.props.id,
       taskNumber: 0
     }
+    if (!_data.taskName) return RbHighbar.create('请输入任务标题')
     if (_data.deadline) _data.deadline += ':00'
     _data.metadata = { entity: 'ProjectTask' }
 
     const $btn = $(this._btn).button('loading')
     $.post('/project/tasks/post', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        this.setState({ newMode: false }, () => this.loadTasks())
+        this.setState({ newMode: false }, () => this.refreshTasks())
       } else {
         RbHighbar.error(res.error_msg)
         $btn.button('reset')
@@ -315,7 +307,7 @@ class Task extends React.Component {
     const status = e.currentTarget.checked ? 1 : 0
     __saveTask(this.props.id, { status: status }, () => {
       this.setState({ status: status })
-      __PlanRefs[this.props.planid].loadTasks()
+      __PlanRefs[this.props.planid].refreshTasks()
     })
   }
 
@@ -418,8 +410,14 @@ class TaskViewModal extends React.Component {
     $(this._dlg).modal('hide')
   }
 
-  refreshTask() {
-    __TaskRefs[this.state.taskid].refresh()
+  refreshTask(planChanged) {
+    const ref = __TaskRefs[this.state.taskid]
+    if (planChanged) {
+      ref.props.$$$parent.refreshTasks()
+      __PlanRefs[planChanged] && __PlanRefs[planChanged].refreshTasks()
+    } else {
+      ref.refresh()
+    }
   }
 
   // --

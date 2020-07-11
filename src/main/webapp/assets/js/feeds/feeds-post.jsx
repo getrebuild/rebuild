@@ -410,22 +410,6 @@ class SelectRelated extends React.Component {
   reset = () => $(this._record).val(null).trigger('change')
 }
 
-const __dpConfig = {
-  componentIcon: 'zmdi zmdi-calendar',
-  navIcons: {
-    rightIcon: 'zmdi zmdi-chevron-right',
-    leftIcon: 'zmdi zmdi-chevron-left'
-  },
-  format: 'yyyy-mm-dd hh:ii',
-  minView: 0,
-  weekStart: 1,
-  autoclose: true,
-  language: 'zh',
-  showMeridian: false,
-  keyboardNavigation: false,
-  minuteStep: 5
-}
-
 // 公告选项
 class AnnouncementOptions extends React.Component {
   state = { ...this.props }
@@ -465,7 +449,7 @@ class AnnouncementOptions extends React.Component {
   }
 
   componentDidMount() {
-    $(this._showTime).find('.form-control').datetimepicker(__dpConfig)
+    $(this._showTime).find('.form-control').datetimepicker()
     $(this._showWhere).find('.zicon').tooltip()
 
     const initValue = this.props.initValue
@@ -538,7 +522,7 @@ class ScheduleOptions extends React.Component {
     </div>
   }
   componentDidMount() {
-    $(this._scheduleTime).find('.form-control').datetimepicker(__dpConfig)
+    $(this._scheduleTime).find('.form-control').datetimepicker()
     const initValue = this.props.initValue
     if (initValue) {
       $(this._scheduleTime).find('.form-control').val(initValue.scheduleTime)

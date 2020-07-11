@@ -25,7 +25,13 @@ import org.apache.commons.lang.StringUtils;
  */
 public class ProjectConfigService extends ConfigurationService implements AdminGuard {
 
+    /**
+     * 项目范围-公开
+     */
     public static final int SCOPE_ALL = 1;
+    /**
+     * 项目范围-私有（成员）
+     */
     public static final int SCOPE_MEMBER = 2;
 
     protected ProjectConfigService(PersistManagerFactory aPMFactory) {
@@ -51,7 +57,7 @@ public class ProjectConfigService extends ConfigurationService implements AdminG
 
     @Override
     protected void cleanCache(ID configId) {
-        ProjectManager.instance.clean(configId);
+        ProjectManager.instance.clean(null);
     }
 
     /**
@@ -71,16 +77,10 @@ public class ProjectConfigService extends ConfigurationService implements AdminG
         }
 
         this.cleanCache(null);
+        this.cleanCache(project.getPrimary());
         return project;
     }
 
-    /**
-     * @param projectId
-     * @param planName
-     * @param seq
-     * @param flowStatus
-     * @return
-     */
     private ID createPlan(ID projectId, String planName, int seq, int flowStatus, ID[] flowNexts) {
         Record plan = EntityHelper.forNew(EntityHelper.ProjectPlanConfig, Application.getCurrentUser());
         plan.setID("projectId", projectId);
@@ -93,10 +93,6 @@ public class ProjectConfigService extends ConfigurationService implements AdminG
         return super.createRaw(plan).getPrimary();
     }
 
-    /**
-     * @param planId
-     * @param flowNexts
-     */
     private void updateFlowNexts(ID planId, ID[] flowNexts) {
         Record plan = EntityHelper.forUpdate(planId, Application.getCurrentUser(), false);
         plan.setString("flowNexts", StringUtils.join(flowNexts, ","));

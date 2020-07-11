@@ -479,6 +479,24 @@ div.dataTables_wrapper div.dataTables_filter {
     padding-top: 5px;
 }
 
+.datetimepicker.dropdown-menu .fa {
+    display: inline-block;
+    font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 1.615rem;
+}
+
+.datetimepicker.dropdown-menu .fa.fa-arrow-left::before {
+    content: '\f2fa';
+}
+
+.datetimepicker.dropdown-menu .fa.fa-arrow-right::before {
+    content: '\f2fb';
+}
+
 .adv-search,
 .input-search {
     margin-right: 5px;

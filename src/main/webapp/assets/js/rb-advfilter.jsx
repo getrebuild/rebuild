@@ -570,22 +570,14 @@ class FilterItem extends React.Component {
   // 日期时间
 
   renderDatepicker() {
-    const cfg = {
-      componentIcon: 'zmdi zmdi-calendar',
-      navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
+    const dpcfg = {
       format: 'yyyy-mm-dd',
       minView: 2,
       startView: 'month',
-      weekStart: 1,
-      autoclose: true,
-      language: 'zh',
-      todayHighlight: true,
-      showMeridian: false,
-      keyboardNavigation: false,
     }
 
     const that = this
-    const dp1 = $(this._filterVal).datetimepicker(cfg)
+    const dp1 = $(this._filterVal).datetimepicker(dpcfg)
     dp1.on('change.select2', function (e) {
       that.setState({ value: e.target.value }, () => {
         that.valueCheck($(that._filterVal))
@@ -594,7 +586,7 @@ class FilterItem extends React.Component {
     this.__datepicker = [dp1]
 
     if (this._filterVal2) {
-      const dp2 = $(this._filterVal2).datetimepicker(cfg)
+      const dp2 = $(this._filterVal2).datetimepicker(dpcfg)
       dp2.on('change.select2', function (e) {
         that.setState({ value2: e.target.value }, () => {
           that.valueCheck($(that._filterVal2))

@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
 
@@ -55,6 +56,13 @@ public class ProjectTaskService extends BaseService {
         }
 
         return super.update(record);
+    }
+
+    @Override
+    public int delete(ID taskId) {
+        int d = super.delete(taskId);
+        ProjectManager.instance.clean(taskId);
+        return d;
     }
 
     /**

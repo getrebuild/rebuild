@@ -259,6 +259,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-bottom: 8px;
 }
 
+.task-form .col-form-label>.icon {
+  color: #999;
+  width: 30px;
+  float: left;
+  font-size: 1.35rem;
+  margin-top: -2px;
+}
+
 .task-form .tag-value {
   position: relative;
   height: 26px;
@@ -280,20 +288,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .task-form .tag-value.arrow:hover {
-  padding-right: 20px;
+  padding-right: 22px;
 }
 
 .task-form .tag-value.arrow:hover::after {
   font: normal normal normal 16px/1 'Material-Design-Iconic-Font';
   content: '\f2f9';
   position: absolute;
-  right: 8px;
+  right: 9px;
 }
 
 .task-form a.tag-value.plaintext,
 .task-form a.tag-value.placeholder {
-  background-color: #f7f7f7;
+  background-color: #fff;
   color: #404040;
+  border: 1px solid #eee;
+  padding: 4px 10px;
 }
 
 .task-form a.tag-value.placeholder {
@@ -341,10 +351,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   float: none;
   position: absolute;
   margin-left: 8px;
-  margin-top: 5px;
+  margin-top: 4px;
   display: none;
 }
 
 .task-form .executor-show:hover>a.close {
   display: inline-block;
+}
+
+a.close-circle {
+  background-color: #eee;
+  border-radius: 99px;
+  height: 20px;
+  line-height: 20px;
+  width: 20px;
+  text-align: center;
+  text-shadow: none;
 }

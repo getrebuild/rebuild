@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.ConfigurationException;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.ProjectConfigService;
 import com.rebuild.utils.JSONUtils;
@@ -33,6 +34,10 @@ public class ProjectManager implements ConfigManager {
 
     public static final ProjectManager instance = new ProjectManager();
     private ProjectManager() { }
+
+    private static final String CKEY_PROJECTS = "ProjectManager";
+    private static final String CKEY_PLAN = "ProjectPlan-";
+    private static final String CKEY_TASK = "Task2Project-";
 
     /**
      * 获取指定用户可用项目
@@ -66,8 +71,7 @@ public class ProjectManager implements ConfigManager {
      * @return
      */
     private ConfigEntry[] getAllProjects() {
-        final String ckey = "ProjectManager";
-        ConfigEntry[] projects = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
+        ConfigEntry[] projects = (ConfigEntry[]) Application.getCommonCache().getx(CKEY_PROJECTS);
 
         if (projects == null) {
             Object[][] array = Application.createQueryNoFilter(
@@ -101,7 +105,7 @@ public class ProjectManager implements ConfigManager {
             }
 
             projects = alist.toArray(new ConfigEntry[0]);
-            Application.getCommonCache().putx(ckey, projects);
+            Application.getCommonCache().putx(CKEY_PROJECTS, projects);
         }
         return projects;
     }
@@ -132,8 +136,8 @@ public class ProjectManager implements ConfigManager {
      * @throws PrivilegesException
      */
     public ConfigEntry getProjectByTask(ID taskId, ID user) throws ConfigurationException, PrivilegesException {
-        final String key = "TASK2PROJECT-" + taskId;
-        ID projectId = (ID) Application.getCommonCache().getx(key);
+        final String ckey = CKEY_TASK + taskId;
+        ID projectId = (ID) Application.getCommonCache().getx(ckey);
 
         if (projectId == null) {
             Object[] task = Application.createQuery("select projectId from ProjectTask where taskId = ?")
@@ -142,7 +146,7 @@ public class ProjectManager implements ConfigManager {
 
             projectId = task == null ? null : (ID) task[0];
             if (projectId != null) {
-                Application.getCommonCache().putx(key, projectId);
+                Application.getCommonCache().putx(ckey, projectId);
             }
         }
 
@@ -164,7 +168,7 @@ public class ProjectManager implements ConfigManager {
      * @return
      */
     public ConfigEntry[] getPlansOfProject(ID projectId) {
-        final String ckey = "ProjectPlan-" + projectId;
+        final String ckey = CKEY_PLAN + projectId;
         ConfigEntry[] cache = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
 
         if (cache == null) {
@@ -210,10 +214,19 @@ public class ProjectManager implements ConfigManager {
     }
 
     @Override
-    public void clean(Object nullOrProjectId) {
-        Application.getCommonCache().evict("ProjectManager");
-        if (nullOrProjectId != null) {
-            Application.getCommonCache().evict("ProjectPlan-" + nullOrProjectId);
+    public void clean(Object nullOrAnyProjectId) {
+        int ec = nullOrAnyProjectId == null ? -1 : ((ID) nullOrAnyProjectId).getEntityCode();
+        // 清理项目
+        if (ec == -1) {
+            Application.getCommonCache().evict(CKEY_PROJECTS);
+        }
+        // 清理面板
+        else if (ec == EntityHelper.ProjectConfig) {
+            Application.getCommonCache().evict(CKEY_PLAN + nullOrAnyProjectId);
+        }
+        // 清理任务
+        else if (ec == EntityHelper.ProjectTask) {
+            Application.getCommonCache().evict(CKEY_TASK + nullOrAnyProjectId);
         }
     }
 }

@@ -99,6 +99,9 @@ public class ProjectTaskControll extends BasePageControll {
 
     @RequestMapping("/project/tasks/delete")
     public void taskDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        ID taskId = getIdParameterNotNull(request, "task");
+        Application.getBean(ProjectTaskService.class).delete(taskId);
+        writeSuccess(response);
     }
 
     @RequestMapping("/project/tasks/get")
@@ -116,7 +119,7 @@ public class ProjectTaskControll extends BasePageControll {
     public void taskDetail(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID taskId = getIdParameterNotNull(request, "task");
         Object[] task = Application.createQuery(
-                "select " + BASE_FIELDS + ",projectId,projectPlanId from ProjectTask where taskId = ?")
+                "select " + BASE_FIELDS + ",projectId,projectPlanId,description from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
 
@@ -138,6 +141,8 @@ public class ProjectTaskControll extends BasePageControll {
         }
         details.put("stateOfPlans", stateOfPlans);
         details.put("projectPlanId", currentPlanId);
+
+        details.put("description", task[13]);
 
         writeSuccess(response, details);
     }

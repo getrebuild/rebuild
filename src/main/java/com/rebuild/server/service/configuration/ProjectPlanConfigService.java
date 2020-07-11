@@ -52,17 +52,17 @@ public class ProjectPlanConfigService extends ConfigurationService implements Ad
                 .setParameter(1, planId)
                 .unique();
         if ((Long) count[0] > 0) {
-            throw new DataSpecificationException("任务面板下有 " + count[0] + " 个任务，无法删除");
+            throw new DataSpecificationException("面板下有 " + count[0] + " 个任务，无法删除");
         }
         return super.delete(planId);
     }
 
     @Override
     protected void cleanCache(ID configId) {
-        Object[] p = Application.createQueryNoFilter(
+        Object[] projectId = Application.createQueryNoFilter(
                 "select projectId from ProjectPlanConfig where configId = ?")
                 .setParameter(1, configId)
                 .unique();
-        ProjectManager.instance.clean(p == null ? null : p[0]);
+        ProjectManager.instance.clean(projectId == null ? null : projectId[0]);
     }
 }

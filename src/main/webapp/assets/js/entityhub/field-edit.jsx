@@ -120,20 +120,8 @@ $(document).ready(function () {
   // 日期时间
   else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
-      componentIcon: 'zmdi zmdi-calendar',
-      navIcons: {
-        rightIcon: 'zmdi zmdi-chevron-right',
-        leftIcon: 'zmdi zmdi-chevron-left'
-      },
       format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
       minView: dt === 'DATE' ? 2 : 0,
-      weekStart: 1,
-      autoclose: true,
-      language: 'zh',
-      todayHighlight: false,
-      showMeridian: false,
-      keyboardNavigation: false,
-      minuteStep: 5
     })
     $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
   }

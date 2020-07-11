@@ -126,15 +126,9 @@ $(document).ready(function () {
     if (e.keyCode === 13) execFilter()
   })
   const dpcfg = {
-    navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
     format: 'yyyy-mm-dd',
     minView: 2,
     startView: 'month',
-    weekStart: 1,
-    autoclose: true,
-    language: 'zh',
-    todayHighlight: true,
-    showMeridian: false,
     endDate: new Date()
   }
   $('.J_date-begin, .J_date-end').datetimepicker(dpcfg).on('changeDate', function () {

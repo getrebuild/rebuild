@@ -323,17 +323,8 @@ class BatchUpdateEditor extends React.Component {
 
     } else if (field.type === 'DATE' || field.type === 'DATETIME') {
       this.__lastDatetimepicker = $(this._value).datetimepicker({
-        componentIcon: 'zmdi zmdi-calendar',
-        navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
         format: field.type === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
         minView: field.type === 'DATE' ? 'month' : 0,
-        weekStart: 1,
-        autoclose: true,
-        language: 'zh',
-        todayHighlight: true,
-        showMeridian: false,
-        keyboardNavigation: false,
-        minuteStep: 5
       })
     }
   }
