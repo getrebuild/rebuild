@@ -39,7 +39,7 @@ public class PickListManager implements ConfigManager<Object> {
 
 	public static final PickListManager instance = new PickListManager();
 	protected PickListManager() { }
-	
+
 	/**
 	 * @param field
 	 * @return
@@ -119,18 +119,19 @@ public class PickListManager implements ConfigManager<Object> {
 		final String ckey = "PickListLABEL-" + itemId;
 		String cached = Application.getCommonCache().get(ckey);
 		if (cached != null) {
-			return cached;
+			return cached.equals(DELETED_ITEM) ? null : cached;
 		}
-		
+
 		Object[] o = Application.createQueryNoFilter(
 				"select text from PickList where itemId = ?")
 				.setParameter(1, itemId)
 				.unique();
-		if (o != null) {
-			cached = (String) o[0];
-		}
+		if (o != null) cached = (String) o[0];
+		// 可能已删除
+		if (cached == null) cached = DELETED_ITEM;
+
 		Application.getCommonCache().put(ckey, cached);
-		return cached;
+		return cached.equals(DELETED_ITEM) ? null : cached;
 	}
 	
 	/**

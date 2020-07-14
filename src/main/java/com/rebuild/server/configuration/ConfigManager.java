@@ -25,7 +25,12 @@ package com.rebuild.server.configuration;
  * @since 01/04/2019
  */
 public interface ConfigManager<T> {
-	
+
+	/**
+	 * 已删除项标记
+	 */
+	String DELETED_ITEM = "$$RB_DELETED$$";
+
 	/**
 	 * 清理缓存
 	 * 
