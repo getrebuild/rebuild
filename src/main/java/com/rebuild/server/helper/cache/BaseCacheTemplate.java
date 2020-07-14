@@ -79,6 +79,10 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 
 	@Override
 	public void put(String key, String value, int seconds) {
+		if (value == null) {
+			LOG.warn("Can't set `" + key + "` to null");
+			return;
+		}
 		delegate.put(unityKey(key), value, seconds);
 	}
 
@@ -94,6 +98,10 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
 
 	@Override
 	public void putx(String key, V value, int seconds) {
+		if (value == null) {
+			LOG.warn("Can't set `" + key + "` to null");
+			return;
+		}
 		delegate.putx(unityKey(key), value, seconds);
 	}
 

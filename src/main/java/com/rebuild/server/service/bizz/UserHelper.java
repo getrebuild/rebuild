@@ -27,7 +27,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,6 +43,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -190,32 +195,51 @@ public class UserHelper {
 	}
 	
 	/**
-	 * 解析用户列表
-	 * 
 	 * @param userDefs
 	 * @param record
 	 * @return
+     * @see #parseUsers(Collection, ID, boolean)
 	 */
 	public static Set<ID> parseUsers(JSONArray userDefs, ID record) {
-		if (userDefs == null) {
-			return Collections.emptySet();
-		}
-		
-		Set<String> users = new HashSet<>();
-		for (Object u : userDefs) {
-			users.add((String) u);
-		}
-		return parseUsers(users, record);
+		return parseUsers(userDefs, record, false);
 	}
-	
-	/**
-	 * 解析用户列表
-	 * 
-	 * @param userDefs
-	 * @param record
-	 * @return
-	 */
-	public static Set<ID> parseUsers(Collection<String> userDefs, ID record) {
+
+    /**
+     * @param userDefs
+     * @param record
+     * @param filterDisabled
+     * @return
+     * @see #parseUsers(Collection, ID, boolean)
+     */
+    public static Set<ID> parseUsers(JSONArray userDefs, ID record, boolean filterDisabled) {
+        if (userDefs == null) return Collections.emptySet();
+
+        Set<String> users = new HashSet<>();
+        for (Object u : userDefs) {
+            users.add((String) u);
+        }
+        return parseUsers(users, record, filterDisabled);
+    }
+
+    /**
+     * @param userDefs
+     * @param record
+     * @return
+     * @see #parseUsers(Collection, ID, boolean)
+     */
+    public static Set<ID> parseUsers(Collection<String> userDefs, ID record) {
+        return parseUsers(userDefs, record, false);
+    }
+
+    /**
+     * 解析用户列表
+     *
+     * @param userDefs
+     * @param record
+     * @param filterDisabled
+     * @return
+     */
+	public static Set<ID> parseUsers(Collection<String> userDefs, ID record, boolean filterDisabled) {
 		Entity entity = record == null ? null : MetadataHelper.getEntity(record.getEntityCode());
 		
 		Set<ID> bizzs = new HashSet<>();
@@ -251,6 +275,15 @@ public class UserHelper {
 				}
 			}
 		}
+
+		// 过滤禁用用户
+		if (filterDisabled) {
+            for (Iterator<ID> iter = users.iterator(); iter.hasNext(); ) {
+                User u = Application.getUserStore().getUser(iter.next());
+                if (!u.isActive()) iter.remove();
+            }
+        }
+
 		return users;
 	}
 

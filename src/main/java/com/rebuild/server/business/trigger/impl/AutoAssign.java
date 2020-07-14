@@ -82,7 +82,7 @@ public class AutoAssign implements TriggerAction {
         }
 
         JSONArray assignTo = content.getJSONArray("assignTo");
-        Set<ID> toUsers = UserHelper.parseUsers(assignTo, recordId);
+        Set<ID> toUsers = UserHelper.parseUsers(assignTo, recordId, true);
         if (toUsers.isEmpty()) {
             return;
         }

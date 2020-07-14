@@ -26,6 +26,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * ehcache
@@ -54,6 +55,8 @@ public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
 
 	@Override
 	public void put(String key, String value, int seconds) {
+		Objects.requireNonNull(value, "`value` not be null");
+
 		Element el = new Element(key, value);
 		if (seconds > -1) {
 			el.setTimeToLive(seconds);
@@ -75,6 +78,8 @@ public class EhcacheDriver<V extends Serializable> implements CacheTemplate<V> {
 
 	@Override
 	public void putx(String key, V value, int seconds) {
+		Objects.requireNonNull(value, "`value` not be null");
+
 		Element el = new Element(key, value);
 		if (seconds > -1) {
 			el.setTimeToLive(seconds);

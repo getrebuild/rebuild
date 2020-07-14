@@ -62,18 +62,19 @@ public class ClassificationManager implements ConfigManager {
 		final String ckey = "ClassificationNAME-" + itemId;
 		String[] cached = (String[]) Application.getCommonCache().getx(ckey);
 		if (cached != null) {
-			return cached;
+			return cached[0].equals(DELETED_ITEM) ? null : cached;
 		}
-		
+
 		Object[] o = Application.createQueryNoFilter(
 				"select name,fullName from ClassificationData where itemId = ?")
 				.setParameter(1, itemId)
 				.unique();
-		if (o != null) {
-			cached = new String[] { (String) o[0], (String) o[1] };
-			Application.getCommonCache().putx(ckey, cached);
-		}
-		return cached;
+		if (o != null) cached = new String[] { (String) o[0], (String) o[1] };
+		// 可能已删除
+		if (cached == null) cached = new String[] { DELETED_ITEM, DELETED_ITEM };
+
+		Application.getCommonCache().putx(ckey, cached);
+		return cached[0].equals(DELETED_ITEM) ? null : cached;
 	}
 	
 	/**
