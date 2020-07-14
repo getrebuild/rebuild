@@ -41,11 +41,6 @@ public class PickListManager implements ConfigManager<Object> {
 	protected PickListManager() { }
 
 	/**
-	 * 已删除项标记
-	 */
-	private static final String DELETED_ITEM = "$$DELETED$$";
-
-	/**
 	 * @param field
 	 * @return
 	 */
