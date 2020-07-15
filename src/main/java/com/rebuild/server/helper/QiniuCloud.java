@@ -23,7 +23,7 @@ import com.qiniu.util.StringMap;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
 import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.HttpUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -108,12 +108,11 @@ public class QiniuCloud {
 	 * @throws Exception
 	 */
 	public String upload(URL url) throws Exception {
-		File tmp = SysConfiguration.getFileOfTemp("download." + System.currentTimeMillis());
-		boolean success = CommonsUtils.readBinary(url.toString(), tmp);
-		if (!success) {
+		File tmp = HttpUtils.readBinary(url.toString());
+		if (tmp == null) {
 			throw new RebuildException("无法从 URL 读取文件 : " + url);
 		}
-		
+
 		try {
 			return upload(tmp);
 		} finally {

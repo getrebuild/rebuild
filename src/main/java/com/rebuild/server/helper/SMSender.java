@@ -17,6 +17,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.HttpUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,7 +115,7 @@ public class SMSender {
 
 		JSONObject rJson;
 		try {
-			String r = CommonsUtils.post("https://api.mysubmail.com/mail/send.json", params);
+			String r = HttpUtils.post("https://api.mysubmail.com/mail/send.json", params);
 			rJson = JSON.parseObject(r);
 		} catch (Exception ex) {
 			LOG.error("Mail failed to send : " + to + " > " + subject, ex);
@@ -197,7 +198,7 @@ public class SMSender {
 
 		JSONObject rJson;
 		try {
-			String r = CommonsUtils.post("https://api.mysubmail.com/message/send.json", params);
+			String r = HttpUtils.post("https://api.mysubmail.com/message/send.json", params);
 			rJson = JSON.parseObject(r);
 		} catch (Exception ex) {
 			LOG.error("SMS failed to send : " + to + " > " + content, ex);

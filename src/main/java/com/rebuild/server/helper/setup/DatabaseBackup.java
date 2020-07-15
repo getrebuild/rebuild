@@ -11,7 +11,6 @@ import cn.devezhao.commons.CalendarUtils;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.FileFilterByLastModified;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -19,10 +18,16 @@ import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * 数据库备份
@@ -106,7 +111,7 @@ public class DatabaseBackup {
 
         try {
             File zip = new File(backups, destName + ".zip");
-            CommonsUtils.zip(dest, zip);
+            zip(dest, zip);
 
             FileUtils.deleteQuietly(dest);
             dest = zip;
@@ -129,6 +134,53 @@ public class DatabaseBackup {
         int keepDays = SysConfiguration.getInt(ConfigurableItem.DBBackupsKeepingDays);
         if (keepDays < 9999) {
             FileFilterByLastModified.deletes(backups, keepDays);
+        }
+    }
+
+    // --
+
+    /**
+     * ZIP 压缩（不支持目录压缩）
+     *
+     * @param file
+     * @param dest
+     */
+    public static void zip(File file, File dest) throws IOException {
+        FileOutputStream fos = null;
+        BufferedOutputStream bos = null;
+        ZipOutputStream zos = null;
+
+        try {
+            fos = new FileOutputStream(dest);
+            bos = new BufferedOutputStream(fos);
+            zos = new ZipOutputStream(bos);
+
+            zos.putNextEntry(new ZipEntry(file.getName()));
+
+            FileInputStream fis = null;
+            BufferedInputStream bis = null;
+
+            try {
+                fis = new FileInputStream(file);
+                bis = new BufferedInputStream(fis);
+
+                byte[] chunk = new byte[1024];
+                int count;
+                while((count = bis.read(chunk)) != -1) {
+                    zos.write(chunk, 0, count);
+                }
+
+                zos.finish();
+
+            } finally {
+                IOUtils.closeQuietly(bis);
+                IOUtils.closeQuietly(fis);
+            }
+
+        } finally {
+            IOUtils.closeQuietly(zos);
+            IOUtils.closeQuietly(bos);
+            IOUtils.closeQuietly(fos);
         }
     }
 }
