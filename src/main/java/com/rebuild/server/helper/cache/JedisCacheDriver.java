@@ -24,6 +24,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 /**
  * redis
@@ -58,6 +59,8 @@ public class JedisCacheDriver<V extends Serializable> implements CacheTemplate<V
 
 	@Override
 	public void put(String key, String value, int seconds) {
+		Objects.requireNonNull(value, "`value` not be null");
+
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
@@ -99,6 +102,8 @@ public class JedisCacheDriver<V extends Serializable> implements CacheTemplate<V
 
 	@Override
 	public void putx(String key, V value, int seconds) {
+		Objects.requireNonNull(value, "`value` not be null");
+
 		Jedis jedis = null;
 		try {
 			jedis = jedisPool.getResource();
