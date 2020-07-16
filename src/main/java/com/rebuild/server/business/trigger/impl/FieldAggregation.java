@@ -130,7 +130,7 @@ public class FieldAggregation implements TriggerAction {
 
 			// 会关联触发下一触发器（如有）
 			TRIGGER_CHAIN_DEPTH.set(depth + 1);
-			Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
+			Application.getService(targetEntity.getEntityCode()).update(targetRecord);
 		}
 	}
 
@@ -189,7 +189,7 @@ public class FieldAggregation implements TriggerAction {
 
 			// 找到主记录
 			Object[] o = Application.getQueryFactory().uniqueNoFilter(
-					context.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.OwningUser);
+					context.getSourceRecord(), followSourceField, followSourceField + "." + EntityHelper.CreatedBy);
 			// o[1] 为空说明记录不存在
 			if (o != null && o[0] != null && o[1] != null) {
 				this.targetRecordId = (ID) o[0];

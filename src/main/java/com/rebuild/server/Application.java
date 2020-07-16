@@ -366,36 +366,30 @@ public final class Application {
 	}
 
 	/**
-	 * @return
-	 */
-	public static NotificationService getNotifications() {
-		return getBean(NotificationService.class);
-	}
-
-	/**
 	 * @param entityCode
 	 * @return
+     * @see #getCommonService()
 	 */
 	public static ServiceSpec getService(int entityCode) {
 		if (SSS != null && SSS.containsKey(entityCode)) {
 			return SSS.get(entityCode);
 		} else {
-			return getGeneralEntityService();
+			return getCommonService();
 		}
 	}
 	
 	/**
-	 * 业务实体服务专用
 	 * @param entityCode
 	 * @return
 	 * @see #getGeneralEntityService()
 	 */
 	public static EntityService getEntityService(int entityCode) {
-		ServiceSpec spec = getService(entityCode);
-		if (EntityService.class.isAssignableFrom(spec.getClass())) {
-			return (EntityService) spec;
-		}
-		throw new RebuildException("Non EntityService implements : " + entityCode);
+		ServiceSpec es = getService(entityCode);
+		if (EntityService.class.isAssignableFrom(es.getClass())) {
+			return (EntityService) es;
+		} else {
+		    return getGeneralEntityService();
+        }
 	}
 	
 	/**
@@ -411,4 +405,11 @@ public final class Application {
 	public static CommonService getCommonService() {
 		return getBean(CommonService.class);
 	}
+
+    /**
+     * @return
+     */
+    public static NotificationService getNotifications() {
+        return getBean(NotificationService.class);
+    }
 }
