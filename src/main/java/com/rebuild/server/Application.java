@@ -368,28 +368,26 @@ public final class Application {
 	/**
 	 * @param entityCode
 	 * @return
-     * @see #getCommonService()
+	 * @see #getGeneralEntityService()
 	 */
 	public static ServiceSpec getService(int entityCode) {
 		if (SSS != null && SSS.containsKey(entityCode)) {
 			return SSS.get(entityCode);
 		} else {
-			return getCommonService();
+			return getGeneralEntityService();
 		}
 	}
-	
+
 	/**
 	 * @param entityCode
 	 * @return
-	 * @see #getGeneralEntityService()
 	 */
 	public static EntityService getEntityService(int entityCode) {
 		ServiceSpec es = getService(entityCode);
 		if (EntityService.class.isAssignableFrom(es.getClass())) {
 			return (EntityService) es;
-		} else {
-		    return getGeneralEntityService();
-        }
+		}
+		throw new RebuildException("Non EntityService implements : " + entityCode);
 	}
 	
 	/**

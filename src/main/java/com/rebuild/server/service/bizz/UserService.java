@@ -18,6 +18,9 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.service.bizz;
 
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.PrivilegesException;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.member.User;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -71,6 +74,8 @@ public class UserService extends SystemEntityService {
      * @return
      */
     private Record create(Record record, boolean notifyUser) {
+    	checkPrivileges(BizzPermission.CREATE, null);
+
         final String passwd = record.getString("password");
         saveBefore(record);
         record = super.create(record);
@@ -84,6 +89,8 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public Record update(Record record) {
+		checkPrivileges(BizzPermission.UPDATE, record.getPrimary());
+
 		saveBefore(record);
 		Record r = super.update(record);
 		Application.getUserStore().refreshUser(record.getPrimary());
@@ -92,6 +99,8 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public int delete(ID record) {
+    	checkPrivileges(BizzPermission.DELETE, null);
+
 		super.delete(record);
 		Application.getUserStore().removeUser(record);
 		return 1;
@@ -141,6 +150,24 @@ public class UserService extends SystemEntityService {
 		}
 	}
 
+	/**
+	 * @param action
+	 * @param user
+	 */
+	private void checkPrivileges(Permission action, ID user) {
+		ID currentUser = Application.getCurrentUser();
+		if (UserHelper.isAdmin(currentUser)) return;
+
+		if (action == BizzPermission.CREATE || action == BizzPermission.DELETE) {
+			throw new PrivilegesException("无操作权限");
+		}
+		// 用户可自己改自己
+		if (action == BizzPermission.UPDATE && currentUser.equals(user)) {
+			return;
+		}
+		throw new PrivilegesException("无操作权限");
+	}
+
     /**
      * 检查密码是否符合安全策略
      *
@@ -173,7 +200,7 @@ public class UserService extends SystemEntityService {
             }
         }
 
-        if (policy >= 2 && (countUpper == 0 || countLower == 0 || countDigit == 0)) {
+        if (countUpper == 0 || countLower == 0 || countDigit == 0) {
             throw new DataSpecificationException(Languages.lang("PasswordLevel2Tip"));
         }
         if (policy >= 3 && (countSpecial == 0 || password.length() < 8)) {

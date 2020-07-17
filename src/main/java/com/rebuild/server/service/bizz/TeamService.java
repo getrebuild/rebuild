@@ -25,6 +25,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import java.util.Collection;
 
@@ -34,7 +35,7 @@ import java.util.Collection;
  * @author devezhao
  * @since 2019/11/13
  */
-public class TeamService extends SystemEntityService {
+public class TeamService extends SystemEntityService implements AdminGuard {
 
     protected TeamService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
