@@ -108,7 +108,7 @@ class TaskContent extends React.Component {
             </div>
           </div>
         </div>
-        <div className="form-group row">
+        <div className="form-group row hide">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-label" /> 标签</label>
           <div className="col-12 col-sm-9">
             <div className="form-control-plaintext tags">
@@ -123,7 +123,19 @@ class TaskContent extends React.Component {
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-attachment-alt pl-1" /> 附件</label>
           <div className="col-12 col-sm-9">
             <div className="form-control-plaintext">
-              <a className="tag-value">+ 上传</a>
+              <input type="file" className="inputfile" id="attachments" ref={(c) => this._attachments = c} data-maxsize="102400000" />
+              <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1 }}><a className="tag-value">+ 上传</a></label>
+            </div>
+            <div className="file-field attachments">
+              {(this.state.attachments || []).map((item) => {
+                const fileName = $fileCutName(item)
+                return (
+                  <a key={`file-${item}`} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create([item])}>
+                    <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
+                    <b title="删除" onClick={(e) => this._deleteAttachment(item, e)}><span className="zmdi zmdi-delete"></span></b>
+                  </a>
+                )
+              })}
             </div>
           </div>
         </div>
@@ -144,10 +156,20 @@ class TaskContent extends React.Component {
 
     autosize(this._description)
 
+    $createUploader(this._attachments,
+      () => $mp.start(),
+      (res) => {
+        $mp.end()
+        let s = (this.state.attachments || []).join(',')
+        s = s.split(',')
+        s.push(res.key)
+        console.log(s)
+        this._handleChange({ target: { name: 'attachments', value: s } })
+      })
   }
 
   fetch() {
-    $.get(`/project/tasks/detail?task=${this.props.id}`, (res) => {
+    $.get(`/project/tasks/details?task=${this.props.id}`, (res) => {
       if (res.error_code === 0) this.setState({ ...res.data })
       else RbHighbar.error(res.error_msg)
     })
@@ -178,14 +200,14 @@ class TaskContent extends React.Component {
     const name = e.target.name
     const value = e.target.value
     const valueOld = this.state[name]
-    if (value === valueOld) return
+    if ($same(value, valueOld)) return
     this.setState({ [name]: value })
 
     if (unsave) return
     if (!value && __NOTNULL.includes(name)) return RbHighbar.create('不允许为空')
 
     const data = {
-      [name]: value,
+      [name]: $.type(value) === 'array' ? value.join(',') : value,
       metadata: { id: this.props.id }
     }
     $.post('/project/tasks/post', JSON.stringify(data), (res) => {
@@ -198,6 +220,19 @@ class TaskContent extends React.Component {
   _handleChangeExecutor = (val) => {
     this._handleChange({ target: { name: 'executor', value: val ? val.id : null } })
     this.setState({ executor: val ? [val.id, val.text] : null })
+  }
+
+  _deleteAttachment(item, e) {
+    $stopEvent(e)
+    const that = this
+    RbAlert.create('确认删除此附件？', {
+      confirm: function () {
+        this.hide()
+        const s = that.state.attachments.filter(x => x !== item)
+        that._handleChange({ target: { name: 'attachments', value: s } })
+      }
+    })
+
   }
 
   _enterKey(e) {

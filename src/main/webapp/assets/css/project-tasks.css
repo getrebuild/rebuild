@@ -368,3 +368,20 @@ a.close-circle {
   text-align: center;
   text-shadow: none;
 }
+
+.file-field.attachments>.img-thumbnail {
+  width: 49.5%;
+  display: inline-block;
+}
+
+.file-field.attachments>.img-thumbnail:nth-child(even) {
+  margin-left: 1%;
+}
+
+.file-field.attachments>.img-thumbnail b {
+  top: 0;
+  right: 0;
+  left: unset;
+  width: 28px;
+  padding-top: 12px;
+}

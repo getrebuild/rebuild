@@ -115,11 +115,11 @@ public class ProjectTaskControll extends BasePageControll {
         writeSuccess(response, formatTask(task));
     }
 
-    @RequestMapping("/project/tasks/detail")
-    public void taskDetail(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @RequestMapping("/project/tasks/details")
+    public void taskDetails(HttpServletRequest request, HttpServletResponse response) throws IOException {
         ID taskId = getIdParameterNotNull(request, "task");
         Object[] task = Application.createQuery(
-                "select " + BASE_FIELDS + ",projectId,projectPlanId,description from ProjectTask where taskId = ?")
+                "select " + BASE_FIELDS + ",projectId,projectPlanId,description,attachments from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
 
@@ -143,6 +143,8 @@ public class ProjectTaskControll extends BasePageControll {
         details.put("projectPlanId", currentPlanId);
 
         details.put("description", task[13]);
+        String attachments = (String) task[14];
+        details.put("attachments", attachments != null ? attachments.split(",") : null);
 
         writeSuccess(response, details);
     }
