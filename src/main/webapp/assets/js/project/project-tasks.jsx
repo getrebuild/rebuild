@@ -55,6 +55,7 @@ class PlanBoxes extends React.Component {
       items: '>.task-card',
       placeholder: 'task-card highlight',
       revert: false,
+      delay: 200,
       start: function (event, ui) {
         ui.placeholder.height(ui.helper.height())
         startState = 1
@@ -297,6 +298,10 @@ class Task extends React.Component {
 
   componentDidMount() {
     __TaskRefs[this.props.id] = this
+  }
+
+  UNSAFE_componentWillReceiveProps(nextProps) {
+    this.setState({ ...nextProps })
   }
 
   refresh() {

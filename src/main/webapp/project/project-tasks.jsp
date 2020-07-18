@@ -20,7 +20,10 @@
 	</div>
 	<div class="rb-content">
 		<div class="page-head page-head-sm">
-			<div class="page-head-title">${projectName}</div>
+			<div class="page-head-title">
+				${projectName}
+				<a href="${baseUrl}/admin/project/${projectId}" title="配置项目" target="_blank" class="ml-2 admin-show inline"><i class="zmdi zmdi-settings zicon"></i></a>
+			</div>
 		</div>
 		<div class="main-content container-fluid p-0">
 			<div id="plan-boxes"></div>

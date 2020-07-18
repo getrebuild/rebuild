@@ -15,7 +15,7 @@ $(document).ready(() => {
   renderRbcomp(<TaskContent id={wpc.taskId} />, 'task-contents')
   // renderRbcomp(<TaskComments id={wpc.taskId} />, 'task-comments')
 
-  $('.J_close').click(() => parent.RbV.hide())
+  $('.J_close').click(() => __TaskViewer.hide())
   $('.J_reload').click(() => {
     __TaskViewer.setLoadingState(true)
     location.reload()
@@ -39,7 +39,7 @@ class TaskContent extends React.Component {
               onChange={(e) => this._handleChange(e, true)} onBlur={(e) => this._handleChange(e)} onKeyDown={(e) => this._enterKey(e)} />
           </div>
           <div className="col-2 text-right">
-            <button className="btn btn-secondary" style={{ minWidth: 0, marginTop: 2 }} data-toggle="dropdown">操作 <i className="icon zmdi zmdi-more-vert"></i></button>
+            <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">操作 <i className="icon zmdi zmdi-more-vert"></i></button>
             <div className="dropdown-menu dropdown-menu-right">
               <a className="dropdown-item text-muted" onClick={() => this._handleDelete()}>删除</a>
             </div>
@@ -52,7 +52,8 @@ class TaskContent extends React.Component {
               <a className="tag-value arrow plaintext" data-toggle="dropdown">{this.state.projectPlanId ? stateOfPlans.find(x => x.id === this.state.projectPlanId).text : null}</a>
               <div className="dropdown-menu">
                 {stateOfPlans.map((item) => {
-                  return <a key={`plan-${item.id}`} className="dropdown-item" onClick={() => this._handleChangePlan(item.id)}>{item.text}</a>
+                  const disabled = !this.state.nextStateOfPlans.includes(item.id)
+                  return <a key={`plan-${item.id}`} className="dropdown-item" disabled={disabled} data-disabled={disabled} onClick={(e) => this._handleChangePlan(item.id, e)}>{item.text}</a>
                 })}
               </div>
             </div>
@@ -156,14 +157,18 @@ class TaskContent extends React.Component {
 
     autosize(this._description)
 
+    let mp = false
     $createUploader(this._attachments,
-      () => $mp.start(),
+      () => {
+        if (!mp) {
+          $mp.start()
+          mp = true
+        }
+      },
       (res) => {
         $mp.end()
-        let s = (this.state.attachments || []).join(',')
-        s = s.split(',')
+        const s = (this.state.attachments || []).slice(0)
         s.push(res.key)
-        console.log(s)
         this._handleChange({ target: { name: 'attachments', value: s } })
       })
   }
@@ -215,7 +220,10 @@ class TaskContent extends React.Component {
       else RbHighbar.error(res.error_msg)
     })
   }
-  _handleChangePlan = (val) => this._handleChange({ target: { name: 'projectPlanId', value: val } })
+  _handleChangePlan = (val, e) => {
+    if (e.target.dataset.disabled === 'true') return
+    this._handleChange({ target: { name: 'projectPlanId', value: val } })
+  }
   _handleChangePriority = (val) => this._handleChange({ target: { name: 'priority', value: val } })
   _handleChangeExecutor = (val) => {
     this._handleChange({ target: { name: 'executor', value: val ? val.id : null } })

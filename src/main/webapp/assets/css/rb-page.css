@@ -18,6 +18,12 @@ html.rbv .rbv-show {
     display: block;
 }
 
+html.dev .dev-show.inline,
+html.admin .admin-show.inline,
+html.rbv .rbv-show.inline {
+    display: inline-block;
+}
+
 html.dev .dev-show.row,
 html.admin .admin-show.row,
 html.rbv .rbv-show.row {
