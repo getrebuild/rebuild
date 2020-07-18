@@ -60,6 +60,9 @@ public class FormsBuilder extends FormsManager {
 	// 引用记录
 	public static final String DV_REFERENCE_PREFIX = "&";
 
+	// 新建时不显示不可创建字段
+	private static final boolean HIDE_UNCREATABLE_ONNEW = true;
+
 	/**
 	 * 表单-新建
 	 * 
@@ -277,9 +280,14 @@ public class FormsBuilder extends FormsManager {
 			if (!MetadataHelper.checkAndWarnField(entity, fieldName)) {
 				iter.remove();
 				continue;
-			}
+            }
 
-			Field fieldMeta = entity.getField(fieldName);
+            final Field fieldMeta = entity.getField(fieldName);
+            if (HIDE_UNCREATABLE_ONNEW && data == null && !fieldMeta.isCreatable()) {
+                iter.remove();
+                continue;
+            }
+
 			EasyMeta easyField = new EasyMeta(fieldMeta);
 			final DisplayType dt = easyField.getDisplayType();
 			el.put("label", easyField.getLabel());
