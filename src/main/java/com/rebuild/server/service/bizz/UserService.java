@@ -74,7 +74,7 @@ public class UserService extends SystemEntityService {
      * @return
      */
     private Record create(Record record, boolean notifyUser) {
-    	checkPrivileges(BizzPermission.CREATE, null);
+    	checkAdminGuard(null, BizzPermission.CREATE);
 
         final String passwd = record.getString("password");
         saveBefore(record);
@@ -89,7 +89,7 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public Record update(Record record) {
-		checkPrivileges(BizzPermission.UPDATE, record.getPrimary());
+		checkAdminGuard(record.getPrimary(), BizzPermission.UPDATE);
 
 		saveBefore(record);
 		Record r = super.update(record);
@@ -99,7 +99,7 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public int delete(ID record) {
-    	checkPrivileges(BizzPermission.DELETE, null);
+    	checkAdminGuard(null, BizzPermission.DELETE);
 
 		super.delete(record);
 		Application.getUserStore().removeUser(record);
@@ -151,10 +151,11 @@ public class UserService extends SystemEntityService {
 	}
 
 	/**
-	 * @param action
 	 * @param user
+	 * @param action
+	 * @see com.rebuild.server.service.bizz.privileges.AdminGuard
 	 */
-	private void checkPrivileges(Permission action, ID user) {
+	private void checkAdminGuard(ID user, Permission action) {
 		ID currentUser = Application.getCurrentUser();
 		if (UserHelper.isAdmin(currentUser)) return;
 
