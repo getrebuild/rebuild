@@ -45,6 +45,9 @@ public enum ConfigurableItem {
 	// 启用最近搜素
 	EnableRecentlyUsed(true),
 
+    // 新建表单不显示不可创建字段
+    HideUncreateFieldOnNewform(false),
+
 	// 开放注册
 	OpenSignUp(true),
 	// 登录背景图

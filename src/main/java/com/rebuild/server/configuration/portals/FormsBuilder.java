@@ -21,6 +21,8 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.helper.state.StateManager;
@@ -59,9 +61,6 @@ public class FormsBuilder extends FormsManager {
 	public static final String DV_MASTER = "$MASTER$";
 	// 引用记录
 	public static final String DV_REFERENCE_PREFIX = "&";
-
-	// 新建时不显示不可创建字段
-	private static final boolean HIDE_UNCREATABLE_ONNEW = false;
 
 	/**
 	 * 表单-新建
@@ -268,6 +267,7 @@ public class FormsBuilder extends FormsManager {
 	public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
+		final boolean hideUncreate = SysConfiguration.getBool(ConfigurableItem.HideUncreateFieldOnNewform);
 
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -283,7 +283,7 @@ public class FormsBuilder extends FormsManager {
             }
 
             final Field fieldMeta = entity.getField(fieldName);
-            if (HIDE_UNCREATABLE_ONNEW && data == null && !fieldMeta.isCreatable()) {
+            if (hideUncreate && data == null && !fieldMeta.isCreatable()) {
                 iter.remove();
                 continue;
             }
