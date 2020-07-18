@@ -61,7 +61,7 @@ public class FormsBuilder extends FormsManager {
 	public static final String DV_REFERENCE_PREFIX = "&";
 
 	// 新建时不显示不可创建字段
-	private static final boolean HIDE_UNCREATABLE_ONNEW = true;
+	private static final boolean HIDE_UNCREATABLE_ONNEW = false;
 
 	/**
 	 * 表单-新建
@@ -296,11 +296,7 @@ public class FormsBuilder extends FormsManager {
 			// 触发器自动只读
 			final boolean roViaTriggers = el.getBooleanValue("readonly");
 			// 不可更新字段
-			if ((data != null && !fieldMeta.isUpdatable()) || roViaTriggers) {
-				el.put("readonly", true);
-			} else {
-				el.put("readonly", false);
-			}
+            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaTriggers);
 
 			// 优先使用指定值
 			final Boolean nullable = el.getBoolean("nullable");
