@@ -68,10 +68,10 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.10.2";
+	public static final String VER = "1.10.3";
 	/** Rebuild Build
 	 */
-	public static final int BUILD = 11002;
+	public static final int BUILD = 11003;
 
 	/** Logging for Global
 	 */
@@ -366,15 +366,9 @@ public final class Application {
 	}
 
 	/**
-	 * @return
-	 */
-	public static NotificationService getNotifications() {
-		return getBean(NotificationService.class);
-	}
-
-	/**
 	 * @param entityCode
 	 * @return
+	 * @see #getGeneralEntityService()
 	 */
 	public static ServiceSpec getService(int entityCode) {
 		if (SSS != null && SSS.containsKey(entityCode)) {
@@ -383,17 +377,15 @@ public final class Application {
 			return getGeneralEntityService();
 		}
 	}
-	
+
 	/**
-	 * 业务实体服务专用
 	 * @param entityCode
 	 * @return
-	 * @see #getGeneralEntityService()
 	 */
 	public static EntityService getEntityService(int entityCode) {
-		ServiceSpec spec = getService(entityCode);
-		if (EntityService.class.isAssignableFrom(spec.getClass())) {
-			return (EntityService) spec;
+		ServiceSpec es = getService(entityCode);
+		if (EntityService.class.isAssignableFrom(es.getClass())) {
+			return (EntityService) es;
 		}
 		throw new RebuildException("Non EntityService implements : " + entityCode);
 	}
@@ -411,4 +403,11 @@ public final class Application {
 	public static CommonService getCommonService() {
 		return getBean(CommonService.class);
 	}
+
+    /**
+     * @return
+     */
+    public static NotificationService getNotifications() {
+        return getBean(NotificationService.class);
+    }
 }

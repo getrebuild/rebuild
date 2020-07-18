@@ -411,20 +411,21 @@ public class UserStore {
 				if (oldParent.getIdentity().equals(newParent)) {
 					oldParent.addChild(newDept);
 				} else if (newParent != null) {
-					getDepartment(newParent).addChild(newDept);
-				}
-			}
-			
+                    getDepartment(newParent).addChild(newDept);
+                }
+
+			} else if (newParent != null) {
+                getDepartment(newParent).addChild(newDept);
+            }
+
 			for (BusinessUnit child : oldDept.getChildren()) {
 				oldDept.removeChild(child);
 				newDept.addChild(child);
 			}
-		} else {
-			if (newParent != null
-					&& DEPTs.get(newParent) != null /* On init's */) {
-				getDepartment(newParent).addChild(newDept);
-			}
-		}
+
+		} else if (newParent != null && DEPTs.get(newParent) != null /* init */) {
+            getDepartment(newParent).addChild(newDept);
+        }
 
 		DEPTs.put(deptId, newDept);
 	}

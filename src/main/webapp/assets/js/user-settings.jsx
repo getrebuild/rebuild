@@ -252,6 +252,6 @@ class DlgCropper extends RbModalHandler {
     const data = this.__cropper.getData()
     const xywh = [~~data.x, ~~data.y, ~~data.width, ~~data.height].join(',')
     $(this._btn).button('loading')
-    $.post(`/account/user-avatar-update?avatar=${this.state.img}&xywh=${xywh}`, () => location.reload())
+    $.post(`/account/user-avatar-update?avatar=${$encode(this.state.img)}&xywh=${xywh}`, () => location.reload())
   }
 }

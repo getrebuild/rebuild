@@ -64,7 +64,7 @@ $(document).ready(function () {
   let cfgid = $urlp('id')
   const _save = function (navs) {
     const $btn = $('.J_save').button('loading')
-    const std = shareToComp ? shareToComp.getData() : {}
+    const std = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
     $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(navs), function (res) {
       $btn.button('reset')
       if (res.error_code === 0) parent.location.reload()
@@ -116,7 +116,7 @@ $(document).ready(function () {
 
     const _current = res.data || {}
     $.get('/app/settings/nav-settings/alist', (res) => {
-      const cc = res.data.find((x) => { return x[0] === _current.id })
+      const cc = res.data.find(x => x[0] === _current.id)
       if (rb.isAdminUser) {
         renderRbcomp(<Share2 title="导航菜单" list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () { shareToComp = this })
       } else {
@@ -127,7 +127,7 @@ $(document).ready(function () {
 
       // 有自有才提示覆盖
       if (coveredMode) {
-        const haveSelf = res.data.find((x) => { return x[2] === 'SELF' })
+        const haveSelf = res.data.find(x => x[2] === 'SELF')
         coveredMode = !!haveSelf
       }
     })
