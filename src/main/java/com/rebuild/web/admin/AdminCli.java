@@ -24,9 +24,8 @@ import java.util.regex.Pattern;
  */
 public class AdminCli {
 
-    // 清缓存
-    private static final String C_CACHECLEAN = "cacheclean";
-    // 系统配置
+    private static final String C_HELP = "help";
+    private static final String C_CACHE = "cache";
     private static final String C_SYSCFG = "syscfg";
 
     final private String[] commands;
@@ -51,18 +50,20 @@ public class AdminCli {
      * @return
      */
     public String exec() {
-        if (this.commands.length == 0) {
-            return "Bad command";
-        }
+        if (this.commands.length == 0) return "Bad command";
 
         String result = null;
         switch (commands[0]) {
-            case C_CACHECLEAN: {
-                result = this.execCacheClean();
+            case C_HELP: {
+                result = this.execHelp();
+                break;
+            }
+            case C_CACHE: {
+                result = this.execCache();
                 break;
             }
             case C_SYSCFG: {
-                result = this.execSysCfg();
+                result = this.execSyscfg();
                 break;
             }
             default: {
@@ -75,25 +76,44 @@ public class AdminCli {
 
     /**
      * @return
+     * @see #C_HELP
      */
-    protected String execCacheClean() {
-        if (Application.getCommonCache().isUseRedis()) {
-            try (Jedis jedis = Application.getCommonCache().getJedisPool().getResource()) {
-                jedis.flushAll();
-            }
-        } else {
-            Application.getCommonCache().getEhcacheCache().clear();
-        }
-        return "OK";
+    protected String execHelp() {
+        return " Usage : \ncache ACTION \nsyscfg NAME VALUE";
     }
 
     /**
      * @return
+     * @see #C_CACHE
      */
-    protected String execSysCfg() {
-        if (commands.length < 3) {
-            return "Bad arguments";
+    protected String execCache() {
+        if (commands.length < 2) return "Bad arguments";
+
+        String result = "OK";
+
+        String name = commands[1];
+        if ("clean".equals(name)) {
+            if (Application.getCommonCache().isUseRedis()) {
+                try (Jedis jedis = Application.getCommonCache().getJedisPool().getResource()) {
+                    jedis.flushAll();
+                }
+            } else {
+                Application.getCommonCache().getEhcacheCache().clear();
+            }
+
+        } else {
+            result = "Bad arguments";
         }
+
+        return result;
+    }
+
+    /**
+     * @return
+     * @see #C_SYSCFG
+     */
+    protected String execSyscfg() {
+        if (commands.length < 3) return "Bad arguments";
 
         String name = commands[1];
         String value = commands[2];

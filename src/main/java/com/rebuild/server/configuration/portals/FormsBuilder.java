@@ -267,7 +267,7 @@ public class FormsBuilder extends FormsManager {
 	public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
-		final boolean hideUncreate = SysConfiguration.getBool(ConfigurableItem.HideUncreateFieldOnNewform);
+		final boolean hideUncreate = SysConfiguration.getBool(ConfigurableItem.FormHideUncreateField) && data == null;
 
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -283,7 +283,7 @@ public class FormsBuilder extends FormsManager {
             }
 
             final Field fieldMeta = entity.getField(fieldName);
-            if (hideUncreate && data == null && !fieldMeta.isCreatable()) {
+            if (hideUncreate && !fieldMeta.isCreatable()) {
                 iter.remove();
                 continue;
             }

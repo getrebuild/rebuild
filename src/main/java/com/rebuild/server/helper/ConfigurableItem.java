@@ -45,8 +45,8 @@ public enum ConfigurableItem {
 	// 启用最近搜素
 	EnableRecentlyUsed(true),
 
-    // 新建表单不显示不可创建字段
-    HideUncreateFieldOnNewform(false),
+	// 新建记录表单不显示不可创建字段
+	FormHideUncreateField(false),
 
 	// 开放注册
 	OpenSignUp(true),
@@ -73,6 +73,7 @@ public enum ConfigurableItem {
 
 	// 允许同一用户多个会话
 	MultipleSessions(true),
+
 
 	;
 	
