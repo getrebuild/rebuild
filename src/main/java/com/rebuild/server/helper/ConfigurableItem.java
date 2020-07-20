@@ -74,7 +74,6 @@ public enum ConfigurableItem {
 	// 允许同一用户多个会话
 	MultipleSessions(true),
 
-
 	;
 	
 	private Object defaultVal;
