@@ -83,7 +83,7 @@ public class RobotTriggerObserver extends OperatingObserver {
                     LOG.error("Failed triggers : " + action + " << " + context, ex);
                     throw ex;
                 } catch (Exception ex) {
-                    LOG.error("Failed triggers : " + action + " << " + context, ex);
+                    LOG.error("Failed triggers (tx ignore) : " + action + " << " + context, ex);
                 } finally {
                     if (cleanSource) {
                         action.clean();
