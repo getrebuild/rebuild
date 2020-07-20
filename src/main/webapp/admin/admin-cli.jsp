@@ -63,7 +63,7 @@ $(document).ready(() => {
     $in.focus()
 })
 const cprint = function (c, o) {
-    $('.out').prepend('<div class="' + (o ? 'o' : '') + '">' + c + '</div>')
+    $('.out').prepend('<div class="' + (o ? 'o' : '') + '">' + c.replace(/\n/g, '<br>') + '</div>')
 }
 </script>
 </body>

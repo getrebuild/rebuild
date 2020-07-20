@@ -21,6 +21,8 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.helper.state.StateManager;
@@ -265,6 +267,7 @@ public class FormsBuilder extends FormsManager {
 	public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
+		final boolean hideUncreate = SysConfiguration.getBool(ConfigurableItem.FormHideUncreateField) && data == null;
 
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -277,9 +280,14 @@ public class FormsBuilder extends FormsManager {
 			if (!MetadataHelper.checkAndWarnField(entity, fieldName)) {
 				iter.remove();
 				continue;
-			}
+            }
 
-			Field fieldMeta = entity.getField(fieldName);
+            final Field fieldMeta = entity.getField(fieldName);
+            if (hideUncreate && !fieldMeta.isCreatable()) {
+                iter.remove();
+                continue;
+            }
+
 			EasyMeta easyField = new EasyMeta(fieldMeta);
 			final DisplayType dt = easyField.getDisplayType();
 			el.put("label", easyField.getLabel());
@@ -288,11 +296,7 @@ public class FormsBuilder extends FormsManager {
 			// 触发器自动只读
 			final boolean roViaTriggers = el.getBooleanValue("readonly");
 			// 不可更新字段
-			if ((data != null && !fieldMeta.isUpdatable()) || roViaTriggers) {
-				el.put("readonly", true);
-			} else {
-				el.put("readonly", false);
-			}
+            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaTriggers);
 
 			// 优先使用指定值
 			final Boolean nullable = el.getBoolean("nullable");
