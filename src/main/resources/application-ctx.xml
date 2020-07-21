@@ -121,15 +121,19 @@
 			<tx:method name="unshare*" propagation="REQUIRED" no-rollback-for="DataSpecificationNoRollbackException" />
 			<tx:method name="bulk*"    propagation="REQUIRED" no-rollback-for="DataSpecificationNoRollbackException" />
 			<tx:method name="tx*"      propagation="REQUIRED" />
+            <tx:method name="*"        propagation="SUPPORTS" />
 		</tx:attributes>
 	</tx:advice>
 	
 	<bean name="privilegesGuard" class="com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor" />
-	
+
 	<aop:config>
-		<aop:pointcut id="servicesPoint" expression="execution(* com.rebuild.server..*Service.*(..))" />
-		<aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" />
+		<aop:pointcut id="servicesPoint"
+                      expression="execution(* com.rebuild.server..*Service.*(..))
+                      &amp;&amp; !execution(* com.rebuild.server..*Service.get*(..))
+                      &amp;&amp; !execution(* com.rebuild.server..*Service.ntx*(..))" />
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard" />
+		<aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" />
 	</aop:config>
 	
 	<bean class="com.rebuild.server.service.CommonService">

@@ -54,7 +54,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		if (!isGuardMethod(invocation)) {
 			return;
 		}
-		
+
 		final ID caller = Application.getSessionStore().get();
 		if (Application.devMode()) {
 			LOG.info("User [ " + caller + " ] calls : " + invocation.getMethod());
@@ -63,7 +63,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		Class<?> invocationClass = invocation.getThis().getClass();
 		// 验证管理员操作
 		if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
-			throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
+		    throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
 		}
 		// 仅 EntityService 或子类会验证角色权限
 		if (!EntityService.class.isAssignableFrom(invocationClass)) {
@@ -102,10 +102,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		}
 
 		// 忽略权限检查
-		if (EasyMeta.valueOf(entity).isPlainEntity()) {
-			return;
-		}
-		
+		if (EasyMeta.valueOf(entity).isPlainEntity()) return;
+
 		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 		
 		boolean allowed;
@@ -133,8 +131,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		// 无权限操作
 		if (!allowed && IN_NOPERMISSION_PASS.get() != null) {
 			allowed = true;
-			IN_NOPERMISSION_PASS.remove();
-			LOG.warn("Allow no permission(" + action.getName() + ") passed : " + recordId);
+            IN_NOPERMISSION_PASS.remove();
+			LOG.warn("Allow no permission(" + action.getName() + ") passed once : " + recordId);
 		}
 
 		if (!allowed) {

@@ -412,7 +412,7 @@ class RbFormElement extends React.Component {
     const err = this.isValueError()
     const errMsg = err ? (this.props.label + err) : null
 
-    if (this.isValueUnchanged()) {
+    if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
       if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
       else this.props.$$$parent.setFieldUnchanged(this.props.field)
     } else {
