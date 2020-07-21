@@ -111,6 +111,7 @@ public class AdminCli {
     /**
      * @return
      * @see #C_SYSCFG
+     * @see ConfigurableItem
      */
     protected String execSyscfg() {
         if (commands.length < 3) return "Bad arguments";

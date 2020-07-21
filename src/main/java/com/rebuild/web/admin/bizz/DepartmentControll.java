@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.admin.bizz;
@@ -35,7 +24,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * @author devezhao
@@ -46,7 +34,7 @@ import java.io.IOException;
 public class DepartmentControll extends BaseEntityControll {
 
 	@RequestMapping("departments")
-	public ModelAndView pageList(HttpServletRequest request) throws IOException {
+	public ModelAndView pageList(HttpServletRequest request) {
 		ID user = getRequestUser(request);
 		ModelAndView mv = createModelAndView("/admin/bizuser/dept-list.jsp", "Department", user);
 		JSON config = DataListManager.instance.getFieldsLayout("Department", user);
@@ -55,7 +43,7 @@ public class DepartmentControll extends BaseEntityControll {
 	}
 	
 	@RequestMapping( value = "dept-delete", method = RequestMethod.POST)
-	public void deptDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void deptDelete(HttpServletRequest request, HttpServletResponse response) {
 		ID dept = getIdParameterNotNull(request, "id");
 		ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新部门
 		
@@ -64,17 +52,12 @@ public class DepartmentControll extends BaseEntityControll {
 	}
 	
 	@RequestMapping("dept-tree")
-	public void deptTreeGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Object[][] rootDepts = Application.createQuery(
-				"select deptId from Department where parentDept is null")
-				.array();
-		
-		JSONArray roots = new JSONArray();
-		for (Object[] dept : rootDepts) {
-			Department root = Application.getUserStore().getDepartment((ID) dept[0]);
-			roots.add(recursiveDeptTree(root));
+	public void deptTreeGet(HttpServletResponse response) {
+		JSONArray dtree = new JSONArray();
+		for (Department root : Application.getUserStore().getTopDepartments()) {
+			dtree.add(recursiveDeptTree(root));
 		}
-		writeSuccess(response, roots);
+		writeSuccess(response, dtree);
 	}
 	
 	/**

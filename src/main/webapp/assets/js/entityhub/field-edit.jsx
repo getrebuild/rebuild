@@ -24,10 +24,8 @@ $(document).ready(function () {
       updatable: $val('#fieldUpdatable'),
       repeatable: $val('#fieldRepeatable')
     }
-    if (_data.fieldLabel === '') {
-      RbHighbar.create('请输入字段名称')
-      return
-    }
+
+    if (_data.fieldLabel === '') return RbHighbar.create('请输入字段名称')
 
     const dv = $val('#defaultValue')
     if (dv) {
@@ -57,16 +55,29 @@ $(document).ready(function () {
       return
     }
 
-    _data.metadata = { entity: 'MetaField', id: wpc.metaId }
-    $btn.button('loading')
-    $.post('/admin/entity/field-update', JSON.stringify(_data), function (res) {
-      if (res.error_code === 0) {
-        location.href = '../fields'
-      } else {
-        $btn.button('reset')
-        RbHighbar.error(res.error_msg)
-      }
-    })
+    const save = function () {
+      _data.metadata = { entity: 'MetaField', id: wpc.metaId }
+      $btn.button('loading')
+      $.post('/admin/entity/field-update', JSON.stringify(_data), function (res) {
+        if (res.error_code === 0) {
+          location.href = '../fields'
+        } else {
+          $btn.button('reset')
+          RbHighbar.error(res.error_msg)
+        }
+      })
+    }
+
+    if ($('#fieldNullable').prop('checked') === false && $('#fieldCreatable').prop('checked') === false) {
+      RbAlert.create('同时设置不允许为空和不允许创建可能导致新建记录失败。是否仍要保存？', {
+        confirm: function () {
+          this.disabled(true)
+          save()
+        }
+      })
+    } else {
+      save()
+    }
   })
 
   $('#fieldNullable').attr('checked', $('#fieldNullable').data('o') === true)
@@ -254,14 +265,14 @@ class AdvDateDefaultValue extends RbAlert {
             <select className="form-control form-control-sm" ref={(c) => this._refs[0] = c}>
               <option value="NOW">当前日期</option>
             </select>
-            <select className="form-control form-control-sm" ref={(c) => this._refs[1] = c}
+            <select className="form-control form-control-sm ml-1" ref={(c) => this._refs[1] = c}
               onChange={(e) => this.setState({ uncalc: !e.target.value })}>
               <option value="">不计算</option>
               <option value="+">加上</option>
               <option value="-">减去</option>
             </select>
-            <input type="number" min="1" max="999999" className="form-control form-control-sm" defaultValue="1" disabled={this.state.uncalc} ref={(c) => this._refs[2] = c} />
-            <select className="form-control form-control-sm" disabled={this.state.uncalc} ref={(c) => this._refs[3] = c}>
+            <input type="number" min="1" max="999999" className="form-control form-control-sm ml-1" defaultValue="1" disabled={this.state.uncalc} ref={(c) => this._refs[2] = c} />
+            <select className="form-control form-control-sm ml-1" disabled={this.state.uncalc} ref={(c) => this._refs[3] = c}>
               <option value="D">天</option>
               <option value="M">月</option>
               <option value="Y">年</option>

@@ -418,7 +418,7 @@ public class UserStore {
                 getDepartment(newParent).addChild(newDept);
             }
 
-			for (BusinessUnit child : oldDept.getChildren()) {
+			for (BusinessUnit child : oldDept.getChildren().toArray(new BusinessUnit[0])) {
 				oldDept.removeChild(child);
 				newDept.addChild(child);
 			}

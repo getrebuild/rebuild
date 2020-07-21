@@ -216,6 +216,7 @@ public class Field2Schema {
 			updatable = false;
 			repeatable = false;
 		} else if (dt == DisplayType.BARCODE) {
+			nullable = true;
             creatable = false;
             updatable = false;
         } else if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)) {

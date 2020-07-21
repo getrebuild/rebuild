@@ -80,15 +80,19 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 
-		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
-		if (!repeated.isEmpty()) {
-			JSONObject map = new JSONObject();
-			map.put("error_code", CODE_REPEATED_VALUES);
-			map.put("error_msg", "存在重复值");
-			map.put("data", buildRepeatedData(repeated));
-			writeJSON(response, map);
-			return;
-		}
+		// 业务实体检查重复值
+		if (MetadataHelper.hasPrivilegesField(record.getEntity())
+				|| EasyMeta.valueOf(record.getEntity()).isPlainEntity()) {
+            List<Record> repeated = Application.getGeneralEntityService().ntxCheckRepeated(record);
+            if (!repeated.isEmpty()) {
+                JSONObject map = new JSONObject();
+                map.put("error_code", CODE_REPEATED_VALUES);
+                map.put("error_msg", "存在重复值");
+                map.put("data", buildRepeatedData(repeated));
+                writeJSON(response, map);
+                return;
+            }
+        }
 
 		try {
 			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);

@@ -282,19 +282,19 @@ public class FormsBuilder extends FormsManager {
 				continue;
             }
 
+			// 触发器自动只读
+			final boolean roViaTriggers = el.getBooleanValue("readonly");
+
             final Field fieldMeta = entity.getField(fieldName);
-            if (hideUncreate && !fieldMeta.isCreatable()) {
+            if (hideUncreate && (!fieldMeta.isCreatable() || roViaTriggers)) {
                 iter.remove();
                 continue;
             }
 
-			EasyMeta easyField = new EasyMeta(fieldMeta);
+			final EasyMeta easyField = new EasyMeta(fieldMeta);
 			final DisplayType dt = easyField.getDisplayType();
 			el.put("label", easyField.getLabel());
 			el.put("type", dt.name());
-
-			// 触发器自动只读
-			final boolean roViaTriggers = el.getBooleanValue("readonly");
 			// 不可更新字段
             el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaTriggers);
 
