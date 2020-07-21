@@ -11,7 +11,6 @@ import cn.devezhao.bizz.security.member.BusinessUnit;
 import cn.devezhao.persist4j.engine.ID;
 
 import java.io.Serializable;
-import java.security.Principal;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,14 +32,17 @@ public class Department extends BusinessUnit {
 	 * 是否子部门（含所有子级）
 	 * 
 	 * @param child
+	 * @param recursive
 	 * @return
 	 */
-	public boolean isChildrenAll(Department child) {
+	public boolean isChildren(Department child, boolean recursive) {
+		if (!recursive) return isChildren((ID) child.getIdentity());
+
 		for (BusinessUnit dept : getChildren()) {
-			if (dept.getIdentity().equals(child)) {
+			if (dept.getIdentity().equals(child.getIdentity())) {
 				return true;
 			} else {
-				return ((Department) dept).isChildrenAll(child);
+				return ((Department) dept).isChildren(child, true);
 			}
 		}
 		return false;

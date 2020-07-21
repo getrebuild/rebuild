@@ -330,7 +330,7 @@ public class SecurityManager {
 				return true;
 			}
 			
-			allowed = accessUserDept.isChildrenAll(targetUser.getOwningDept());
+			allowed = accessUserDept.isChildren(targetUser.getOwningDept(), true);
 			if (!allowed) {
 				return allowViaShare(user, target, action);
 			}
