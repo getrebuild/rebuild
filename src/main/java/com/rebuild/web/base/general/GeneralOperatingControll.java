@@ -81,7 +81,8 @@ public class GeneralOperatingControll extends BaseControll {
 		}
 
 		// 业务实体检查重复值
-		if (MetadataHelper.hasPrivilegesField(record.getEntity())) {
+		if (MetadataHelper.hasPrivilegesField(record.getEntity())
+				|| EasyMeta.valueOf(record.getEntity()).isPlainEntity()) {
             List<Record> repeated = Application.getGeneralEntityService().ntxCheckRepeated(record);
             if (!repeated.isEmpty()) {
                 JSONObject map = new JSONObject();
