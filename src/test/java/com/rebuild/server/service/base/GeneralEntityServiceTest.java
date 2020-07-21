@@ -79,7 +79,7 @@ public class GeneralEntityServiceTest extends TestSupportWithUser {
 		Record record = EntityHelper.forNew(TEST_ENTITY, SIMPLE_USER);
 		record.setString("TESTALLFIELDSName", "123");
 
-		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
+		List<Record> repeated = Application.getGeneralEntityService().ntxCheckRepeated(record);
 		System.out.println(JSON.toJSONString(repeated));
 	}
 

@@ -531,7 +531,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * @return
 	 * @throws DataSpecificationException
 	 */
-	public List<Record> checkRepeated(Record record) throws DataSpecificationException {
+	public List<Record> ntxCheckRepeated(Record record) throws DataSpecificationException {
 		Entity entity = record.getEntity();
 		// 仅处理业务实体
 		if (!MetadataHelper.hasPrivilegesField(entity)) {

@@ -9,13 +9,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 RbForm.postAfter = function (data) {
   location.href = rb.baseUrl + '/admin/bizuser/role/' + data.id
 }
-const role_id = window.__PageConfig.recordId
-$(document).ready(function () {
-  $('.J_new-role').click(function () {
-    RbFormModal.create({ title: '新建角色', entity: 'Role', icon: 'lock' })
-  })
 
-  if (role_id) {
+const roleId = window.__PageConfig.recordId
+$(document).ready(function () {
+  $('.J_new-role').click(() => RbFormModal.create({ title: '新建角色', entity: 'Role', icon: 'lock' }))
+
+  if (roleId) {
     $('.J_save').attr('disabled', false).click(updatePrivileges)
     loadPrivileges()
   }
@@ -25,22 +24,21 @@ $(document).ready(function () {
 
   // 单个操作
   $('#priv-entity tbody .priv').click(function () {
-    let _this = $(this)
-    clickPriv(_this, _this.data('action'))
+    const $this = $(this)
+    clickPriv($this, $this.data('action'))
   })
   // 批量操作
   $('#priv-entity thead th>a').click(function () {
-    let _this = $(this)
-    let action = _this.data('action')
-    let privAll = $('#priv-entity tbody .priv[data-action="' + action + '"]')
-    clickPriv(privAll, action)
+    const action = $(this).data('action')
+    const $privCol = $('#priv-entity tbody .priv[data-action="' + action + '"]')
+    clickPriv($privCol, action)
   })
   // 批量操作
   $('#priv-entity tbody .name>a').click(function () {
-    let privAll = $(this).parent().parent().find('.priv')
-    let clz = 'R0'
-    if (privAll.eq(0).hasClass('R0')) clz = 'R4'
-    privAll.removeClass('R0 R1 R2 R3 R4').addClass(clz)
+    const $privRow = $(this).parent().parent().find('.priv')
+    const clz = ['R0']
+    if ($privRow.eq(0).hasClass('R0')) clz.push('R4')
+    $privRow.removeClass('R0 R1 R2 R3 R4').addClass(clz.join(' '))
   })
 
   // ZERO
@@ -49,15 +47,15 @@ $(document).ready(function () {
     clickPriv($(this), 'Z')
   })
   $('#priv-zero thead th>a').click(function () {
-    let privAll = $('#priv-zero tbody .priv[data-action="Z"]')
-    clickPriv(privAll, 'Z')
+    const $privZero = $('#priv-zero tbody .priv[data-action="Z"]')
+    clickPriv($privZero, 'Z')
   })
   $('#priv-zero tbody .name>a').click(function () {
-    let el = $(this).parent().next().find('i.priv')
-    clickPriv(el, 'Z')
+    const $el = $(this).parent().next().find('i.priv')
+    clickPriv($el, 'Z')
   })
-
 })
+
 const clickPriv = function (elements, action) {
   if (action === 'C' || action === 'Z') {
     if (elements.first().hasClass('R0')) elements.removeClass('R0').addClass('R4')
@@ -71,32 +69,32 @@ const clickPriv = function (elements, action) {
     elements.removeClass('R0 R1 R2 R3 R4').addClass(clz)
   }
 }
+
 const loadRoles = function () {
   $.get('/admin/bizuser/role-list', function (res) {
     $('.aside-tree .ph-item').remove()
     $('.aside-tree ul').empty()
     $(res.data).each(function () {
-      let _id = this.id
-      let item = $('<li><a class="text-truncate' + (this.disabled ? ' text-disabled' : '') + '" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + (this.disabled ? '<small></small>' : '') + '</a></li>').appendTo('.aside-tree ul')
-      let action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo(item)
-      if (role_id === this.id) item.addClass('active')
-      if (this.id === '003-0000000000000001') action.remove()
+      const _id = this.id
+      const $item = $('<li><a class="text-truncate' + (this.disabled ? ' text-disabled' : '') + '" href="' + rb.baseUrl + '/admin/bizuser/role/' + _id + '">' + this.name + (this.disabled ? '<small></small>' : '') + '</a></li>').appendTo('.aside-tree ul')
+      const $action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo($item)
+      if (roleId === _id) $item.addClass('active')
+      if (_id === '003-0000000000000001') $action.remove()
 
-      action.find('a.J_edit').click(function () {
-        RbFormModal.create({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id })
-      })
+      $action.find('a.J_edit').click(() => RbFormModal.create({ title: '编辑角色', entity: 'Role', icon: 'lock', id: _id }))
 
-      action.find('a.J_del').click(function () {
-        let alertExt = {
+      $action.find('a.J_del').click(function () {
+        const alertExt = {
           type: 'danger',
           confirmText: '删除',
           confirm: function () { deleteRole(_id, this) }
         }
+
         $.get(`/admin/bizuser/delete-checks?id=${_id}`, function (res) {
           if (res.data.hasMember === 0) {
             RbAlert.create('此角色可以被安全的删除', '删除角色', { ...alertExt, icon: 'alert-circle-o' })
           } else {
-            let msg = '有 <b>' + res.data.hasMember + '</b> 个用户使用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
+            const msg = '有 <b>' + res.data.hasMember + '</b> 个用户使用了此角色<br>删除将导致这些用户被禁用，直到你为他们指定了新的角色'
             RbAlert.create(msg, '删除角色', { ...alertExt, html: true })
           }
         })
@@ -104,15 +102,21 @@ const loadRoles = function () {
     })
   })
 }
+
 const loadPrivileges = function () {
-  $.get(`/admin/bizuser/privileges-list?role=${role_id}`, function (res) {
+  $.get(`/admin/bizuser/privileges-list?role=${roleId}`, function (res) {
     if (res.error_code === 0) {
       $(res.data).each(function () {
-        let etr = $('.table-priv tbody td.name>a[data-name="' + this.name + '"]')
-        etr = etr.parent().parent()
-        let defi = JSON.parse(this.definition)
+        let $tr = $('.table-priv tbody td.name>a[data-name="' + this.name + '"]')
+        $tr = $tr.parent().parent()
+        let defi = {}
+        try {
+          defi = JSON.parse(this.definition)
+        } catch (ignored) {
+          // NOOP
+        }
         for (let k in defi) {
-          etr.find('.priv[data-action="' + k + '"]').removeClass('R0 R1 R2 R3 R4').addClass('R' + defi[k])
+          $tr.find('.priv[data-action="' + k + '"]').removeClass('R0 R1 R2 R3 R4').addClass('R' + defi[k])
         }
       })
     } else {
@@ -121,38 +125,42 @@ const loadPrivileges = function () {
     }
   })
 }
+
 const updatePrivileges = function () {
-  let privEntity = {}
+  const privEntity = {}
   $('#priv-entity tbody>tr').each(function () {
-    let etr = $(this)
-    let name = etr.find('td.name a').data('name')
-    let definition = {}
-    etr.find('i.priv').each(function () {
-      let _this = $(this)
-      let action = _this.data('action')
+    const $tr = $(this)
+    const name = $tr.find('td.name a').data('name')
+
+    const definition = {}
+    $tr.find('i.priv').each(function () {
+      const $this = $(this)
+      const action = $this.data('action')
       let deep = 0
-      if (_this.hasClass('R1')) deep = 1
-      else if (_this.hasClass('R2')) deep = 2
-      else if (_this.hasClass('R3')) deep = 3
-      else if (_this.hasClass('R4')) deep = 4
+      if ($this.hasClass('R1')) deep = 1
+      else if ($this.hasClass('R2')) deep = 2
+      else if ($this.hasClass('R3')) deep = 3
+      else if ($this.hasClass('R4')) deep = 4
       definition[action] = deep
     })
     privEntity[name] = definition
   })
-  let privZero = {}
+
+  const privZero = {}
   $('#priv-zero tbody>tr').each(function () {
-    let etr = $(this)
-    let name = etr.find('td.name a').data('name')
-    let definition = etr.find('i.priv').hasClass('R0') ? { Z: 0 } : { Z: 4 }
+    const etr = $(this)
+    const name = etr.find('td.name a').data('name')
+    const definition = etr.find('i.priv').hasClass('R0') ? { Z: 0 } : { Z: 4 }
     privZero[name] = definition
   })
 
-  let _data = { entity: privEntity, zero: privZero }
-  $.post(`/admin/bizuser/privileges-update?role=${role_id}`, JSON.stringify(_data), (res) => {
+  const _data = { entity: privEntity, zero: privZero }
+  $.post(`/admin/bizuser/privileges-update?role=${roleId}`, JSON.stringify(_data), (res) => {
     if (res.error_code === 0) location.reload()
     else RbHighbar.error(res.error_msg)
   })
 }
+
 const deleteRole = function (id, dlg) {
   dlg.disabled(true)
   $.post(`/admin/bizuser/role-delete?transfer=&id=${id}`, (res) => {

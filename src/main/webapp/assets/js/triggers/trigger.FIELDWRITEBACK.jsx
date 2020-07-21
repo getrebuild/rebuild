@@ -274,12 +274,12 @@ class AdvDateValue extends RbAlert {
             <select className="form-control form-control-sm" ref={(c) => this._refs[0] = c}>
               <option value={this.props.field[0]}>{this.props.field[1]}</option>
             </select>
-            <select className="form-control form-control-sm" ref={(c) => this._refs[1] = c}>
+            <select className="form-control form-control-sm ml-1" ref={(c) => this._refs[1] = c}>
               <option value="+">加上</option>
               <option value="-">减去</option>
             </select>
-            <input type="number" min="1" max="999999" className="form-control form-control-sm" defaultValue="1" ref={(c) => this._refs[2] = c} />
-            <select className="form-control form-control-sm" ref={(c) => this._refs[3] = c}>
+            <input type="number" min="1" max="999999" className="form-control form-control-sm ml-1" defaultValue="1" ref={(c) => this._refs[2] = c} />
+            <select className="form-control form-control-sm ml-1" ref={(c) => this._refs[3] = c}>
               <option value="D">天</option>
               <option value="M">月</option>
               <option value="Y">年</option>
