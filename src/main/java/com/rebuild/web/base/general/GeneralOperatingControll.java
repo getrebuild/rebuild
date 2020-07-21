@@ -80,20 +80,6 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 
-		final ServiceSpec es = Application.getService(record.getEntity().getEntityCode());
-
-		// 业务实体才查重
-		if (EntityService.class.isAssignableFrom(es.getClass())) {
-			List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
-			if (!repeated.isEmpty()) {
-				JSONObject map = new JSONObject();
-				map.put("error_code", CODE_REPEATED_VALUES);
-				map.put("error_msg", "存在重复值");
-				map.put("data", buildRepeatedData(repeated));
-				writeJSON(response, map);
-				return;
-			}
-		}
 		// 业务实体检查重复值
 		if (MetadataHelper.hasPrivilegesField(record.getEntity())
 				|| EasyMeta.valueOf(record.getEntity()).isPlainEntity()) {
@@ -109,7 +95,7 @@ public class GeneralOperatingControll extends BaseControll {
         }
 
 		try {
-			record = es.createOrUpdate(record);
+			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
 		} catch (AccessDeniedException | DataSpecificationException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
