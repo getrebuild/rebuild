@@ -21,78 +21,78 @@ import com.rebuild.server.service.bizz.privileges.Department;
 
 /**
  * for Department
- * 
+ *
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
 public class DepartmentService extends SystemEntityService {
 
-	/**
-	 * 根级部门
-	 */
-	public static final ID ROOT_DEPT = ID.valueOf("002-0000000000000001");
+    /**
+     * 根级部门
+     */
+    public static final ID ROOT_DEPT = ID.valueOf("002-0000000000000001");
 
-	public DepartmentService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
-	}
+    public DepartmentService(PersistManagerFactory aPMFactory) {
+        super(aPMFactory);
+    }
 
-	@Override
-	public int getEntityCode() {
-		return EntityHelper.Department;
-	}
-	
-	@Override
-	public Record create(Record record) {
-    checkAdminGuard(BizzPermission.CREATE, null);
+    @Override
+    public int getEntityCode() {
+        return EntityHelper.Department;
+    }
 
-		record = super.create(record);
-		Application.getUserStore().refreshDepartment(record.getPrimary());
-		return record;
-	}
-	
-	@Override
-	public Record update(Record record) {
-		checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
+    @Override
+    public Record create(Record record) {
+        checkAdminGuard(BizzPermission.CREATE, null);
 
-		// 检查循环依赖
-		if (record.hasValue("parentDept", false)) {
-			ID parentDept = record.getID("parentDept");
-			Department parent = Application.getUserStore().getDepartment(parentDept);
+        record = super.create(record);
+        Application.getUserStore().refreshDepartment(record.getPrimary());
+        return record;
+    }
 
-			Department that = Application.getUserStore().getDepartment(record.getPrimary());
-			if (that.isChildren(parent, true)) {
-				throw new DataSpecificationException("子级部门不能同时作为父级部门");
-			}
-		}
+    @Override
+    public Record update(Record record) {
+        checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
 
-		record = super.update(record);
-		Application.getUserStore().refreshDepartment(record.getPrimary());
-		return record;
-	}
+        // 检查循环依赖
+        if (record.hasValue("parentDept", false)) {
+            ID parentDept = record.getID("parentDept");
+            Department parent = Application.getUserStore().getDepartment(parentDept);
 
-	@Override
-	public int delete(ID recordId) {
-		deleteAndTransfer(recordId, null);
-		return 1;
-	}
-	
-	/**
-	 * TODO 删除后转移成员到其他部门
-	 * 
-	 * @param deptId
-	 * @param transferTo
-	 */
-	public void deleteAndTransfer(ID deptId, ID transferTo) {
-    checkAdminGuard(BizzPermission.DELETE, null);
+            Department that = Application.getUserStore().getDepartment(record.getPrimary());
+            if (that.isChildren(parent, true)) {
+                throw new DataSpecificationException("子级部门不能同时作为父级部门");
+            }
+        }
 
-		Department dept = Application.getUserStore().getDepartment(deptId);
-		if (!dept.getChildren().isEmpty()) {
-			throw new DataSpecificationException("Has child department");
-		}
-		
-		super.delete(deptId);
- 		Application.getUserStore().removeDepartment(deptId, transferTo);
-	}
+        record = super.update(record);
+        Application.getUserStore().refreshDepartment(record.getPrimary());
+        return record;
+    }
+
+    @Override
+    public int delete(ID recordId) {
+        deleteAndTransfer(recordId, null);
+        return 1;
+    }
+
+    /**
+     * TODO 删除后转移成员到其他部门
+     *
+     * @param deptId
+     * @param transferTo
+     */
+    public void deleteAndTransfer(ID deptId, ID transferTo) {
+        checkAdminGuard(BizzPermission.DELETE, null);
+
+        Department dept = Application.getUserStore().getDepartment(deptId);
+        if (!dept.getChildren().isEmpty()) {
+            throw new DataSpecificationException("Has child department");
+        }
+
+        super.delete(deptId);
+        Application.getUserStore().removeDepartment(deptId, transferTo);
+    }
 
     /**
      * @param action
