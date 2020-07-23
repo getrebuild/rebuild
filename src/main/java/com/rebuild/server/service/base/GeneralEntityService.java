@@ -178,7 +178,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * @throws DataSpecificationException
 	 */
 	private int deleteInternal(ID record) throws DataSpecificationException {
-		Record delete = EntityHelper.forUpdate(record, null);
+		Record delete = EntityHelper.forUpdate(record, Application.getCurrentUser());
 		if (!checkModifications(delete, BizzPermission.DELETE)) {
 			return 0;
 		}

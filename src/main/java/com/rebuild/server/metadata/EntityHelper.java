@@ -78,6 +78,7 @@ public class EntityHelper {
 	 */
 	public static Record forUpdate(ID recordId, ID user, boolean bindCommons) {
 		Assert.notNull(recordId, "[recordId] not be bull");
+		Assert.notNull(user, "[user] not be bull");
 
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Record record = new StandardRecord(entity, user);
@@ -112,7 +113,9 @@ public class EntityHelper {
 	 * @return
 	 */
 	private static Record forNew(Entity entity, ID user) {
+		Assert.notNull(entity, "[entity] not be bull");
 		Assert.notNull(user, "[user] not be bull");
+
 		Record record = new StandardRecord(entity, user);
 		ExtRecordCreator.bindCommonsFieldsValue(record, true);
 		return record;

@@ -32,6 +32,7 @@ import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -157,7 +158,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
 		List<ID> deleteWill = new ArrayList<>();
 		for (Object[] o : array) {
 			if (rbEnable) {
-				Record u = EntityHelper.forUpdate((ID) o[0], null, false);
+				Record u = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
 				u.setBoolean(EntityHelper.IsDeleted, true);
 				updateWill.add(u);
 			} else {
