@@ -16,6 +16,8 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -57,6 +59,8 @@ public class AdvFilterManager extends ShareToManager<ID> {
 					.set("name", c[4]);
 			ces.add(e);
 		}
+
+		Collections.sort(ces, Comparator.comparing(o -> o.getString("name")));
 		return JSONUtils.toJSONArray(ces.toArray(new ConfigEntry[0]));
 	}
 

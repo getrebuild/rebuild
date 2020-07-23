@@ -78,8 +78,7 @@ public class EntityHelper {
 	 */
 	public static Record forUpdate(ID recordId, ID user, boolean bindCommons) {
 		Assert.notNull(recordId, "[recordId] not be bull");
-		Assert.notNull(recordId, "[user] not be bull");
-		
+
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Record record = new StandardRecord(entity, user);
 		record.setID(entity.getPrimaryField().getName(), recordId);
