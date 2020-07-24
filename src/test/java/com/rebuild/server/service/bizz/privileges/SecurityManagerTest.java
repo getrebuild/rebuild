@@ -35,19 +35,21 @@ import static org.junit.Assert.assertTrue;
 public class SecurityManagerTest extends TestSupport {
 
 	@Test
-	public void testEntityPrivileges() throws Exception {
+	public void testEntityPrivileges() {
 		int entity = MetadataHelper.getEntity(TEST_ENTITY).getEntityCode();
-		
+
+		Application.getSecurityManager().allowCreate(SIMPLE_USER, entity);
+		Application.getSecurityManager().allowDelete(SIMPLE_USER, entity);
+		Application.getSecurityManager().allowUpdate(SIMPLE_USER, entity);
+		Application.getSecurityManager().allowRead(SIMPLE_USER, entity);
+		Application.getSecurityManager().allowAssign(SIMPLE_USER, entity);
+		Application.getSecurityManager().allowShare(SIMPLE_USER, entity);
+		// Or
 		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.CREATE);
-		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.DELETE);
-		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.UPDATE);
-		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.READ);
-		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.ASSIGN);
-		Application.getSecurityManager().allow(SIMPLE_USER, entity, BizzPermission.SHARE);
 	}
 	
 	@Test
-	public void testZero() throws Exception {
+	public void testZeroPrivileges() {
 		Application.getSecurityManager().allow(SIMPLE_USER, ZeroEntry.AllowLogin);
 	}
 	

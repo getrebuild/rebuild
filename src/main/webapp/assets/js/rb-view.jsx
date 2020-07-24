@@ -14,8 +14,7 @@ class RbViewForm extends React.Component {
     super(props)
     this.state = { ...props }
 
-    // this.onViewEditable = rb.env === 'dev'
-    this.onViewEditable = true
+    this.onViewEditable = wpc.onViewEditable === false ? false : true
     this.__FormData = {}
   }
 

@@ -45,34 +45,34 @@ public class ApprovalStepService extends BaseService {
 	}
 	
 	/**
-	 * @param mainRecord
+	 * @param recordOfMain
 	 * @param cc
 	 * @param nextApprovers
 	 */
-	public void txSubmit(Record mainRecord, Set<ID> cc, Set<ID> nextApprovers) {
+	public void txSubmit(Record recordOfMain, Set<ID> cc, Set<ID> nextApprovers) {
 		final ID submitter = Application.getCurrentUser();
-		final ID recordId = mainRecord.getPrimary();
-		final ID approvalId = mainRecord.getID(EntityHelper.ApprovalId);
+		final ID recordId = recordOfMain.getPrimary();
+		final ID approvalId = recordOfMain.getID(EntityHelper.ApprovalId);
 		
 		// 使用新流程，作废之前的步骤
 		cancelAliveSteps(recordId, null, null, null, false);
 
-		super.update(mainRecord);
+		super.update(recordOfMain);
 		
-		String entityLabel = EasyMeta.getLabel(mainRecord.getEntity());
-		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
+		String entityLabel = EasyMeta.getLabel(recordOfMain.getEntity());
+		String approvalMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
 		
 		// 审批人
 		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, submitter);
 		step.setID("recordId", recordId);
 		step.setID("approvalId", approvalId);
-		step.setString("node", mainRecord.getString(EntityHelper.ApprovalStepNode));
+		step.setString("node", recordOfMain.getString(EntityHelper.ApprovalStepNode));
 		step.setString("prevNode", FlowNode.NODE_ROOT);
 		for (ID a : nextApprovers) {
 			Record clone = step.clone();
 			clone.setID("approver", a);
 			clone = super.create(clone);
-			Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, clone.getPrimary()));
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approvalMsg, clone.getPrimary()));
 		}
 		
 		// 抄送人
@@ -97,12 +97,13 @@ public class ApprovalStepService extends BaseService {
 	 * @param addedData 驳回时无需
 	 */
 	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData) {
+		// 审批时更新主记录
 		if (addedData != null) {
-			IN_ADDED.set(true);
+			ADDED_MODE.set(true);
 			try {
 				Application.getService(addedData.getEntity().getEntityCode()).update(addedData);
 			} finally {
-				IN_ADDED.remove();
+				ADDED_MODE.remove();
 			}
 		}
 
@@ -137,19 +138,19 @@ public class ApprovalStepService extends BaseService {
 			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
 
 			// 更新主记录
-			Record main = EntityHelper.forUpdate(recordId, approver, false);
-			main.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
-			super.update(main);
+			Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
+			recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
+			super.update(recordOfMain);
 			
-			String rejectMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
-			Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectMsg));
+			String rejectedMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg));
 			return;
 		}
 		
 		// 或签/会签
 		boolean goNextNode = true;
 		
-		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
+		String approvalMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
@@ -182,7 +183,7 @@ public class ApprovalStepService extends BaseService {
 					Record r = EntityHelper.forUpdate((ID) o[0], approver);
 					r.setBoolean("isWaiting", false);
 					super.update(r);
-					Application.getNotifications().send(MessageBuilder.createApproval(submitter, (ID) o[1], approveMsg, r.getPrimary()));
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, (ID) o[1], approvalMsg, r.getPrimary()));
 				}
 			}
 		}
@@ -190,23 +191,23 @@ public class ApprovalStepService extends BaseService {
 		// 最终状态
 		if (goNextNode && (nextApprovers == null || nextNode == null)) {
 			// 审批通过
-			final Record main = EntityHelper.forUpdate(recordId, approver, false);
-			main.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
-			super.update(main);
+			final Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
+			recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
+			super.update(recordOfMain);
 
 			// 触发器
-			Record before = main.clone();
+			Record before = recordOfMain.clone();
 			before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-			new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, main));
+			new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, recordOfMain));
 
 			return;
 		}
 		
 		// 进入下一步
 		if (goNextNode) {
-			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
-			main.setString(EntityHelper.ApprovalStepNode, nextNode);
-			super.update(main);
+			Record recordOfMain = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
+			recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
+			super.update(recordOfMain);
 		}
 		
 		// 审批人
@@ -216,7 +217,7 @@ public class ApprovalStepService extends BaseService {
 
 				// 非会签通知审批
 				if (goNextNode && created != null) {
-					Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, created));
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approvalMsg, created));
 				}
 			}
 		}
@@ -243,15 +244,15 @@ public class ApprovalStepService extends BaseService {
 		step.setString("prevNode", currentNode);
 		super.create(step);
 
-		final Record main = EntityHelper.forUpdate(recordId, opUser);
-		main.setInt(EntityHelper.ApprovalState, useState.getState());
-		super.update(main);
+		final Record recordOfMain = EntityHelper.forUpdate(recordId, opUser);
+		recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
+		super.update(recordOfMain);
 
 		// 触发器
 		if (isRevoke) {
-			Record before = main.clone();
+			Record before = recordOfMain.clone();
 			before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
-			new RobotTriggerManual().onRevoked(OperatingContext.create(opUser, BizzPermission.UPDATE, before, main));
+			new RobotTriggerManual().onRevoked(OperatingContext.create(opUser, BizzPermission.UPDATE, before, recordOfMain));
 		}
 	}
 
@@ -319,9 +320,9 @@ public class ApprovalStepService extends BaseService {
 			if (excludeStep != null && excludeStep.equals(o[0])) {
 				continue;
 			}
-			Record r = EntityHelper.forUpdate((ID) o[0], Application.getCurrentUser());
-			r.setBoolean("isCanceled", true);
-			super.update(r);
+			Record step = EntityHelper.forUpdate((ID) o[0], Application.getCurrentUser());
+			step.setBoolean("isCanceled", true);
+			super.update(step);
 		}
 	}
 	
@@ -352,13 +353,13 @@ public class ApprovalStepService extends BaseService {
 
 	// --
 
-	private static final ThreadLocal<Boolean> IN_ADDED = new ThreadLocal<>();
+	private static final ThreadLocal<Boolean> ADDED_MODE = new ThreadLocal<>();
 	/**
 	 * 可编辑字段模式
 	 *
 	 * @return
 	 */
 	public static boolean inAddedMode() {
-		return IN_ADDED.get() != null && IN_ADDED.get();
+		return ADDED_MODE.get() != null && ADDED_MODE.get();
 	}
 }

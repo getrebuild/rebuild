@@ -37,6 +37,7 @@ import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
@@ -106,7 +107,7 @@ public class GeneralEntityService extends ObservableService  {
 
 	@Override
 	public Record update(Record record) {
-		if (!checkModifications(record.getPrimary(), BizzPermission.UPDATE)) {
+		if (!checkModifications(record, BizzPermission.UPDATE)) {
 			return record;
 		}
 		return super.update(record);
@@ -177,7 +178,8 @@ public class GeneralEntityService extends ObservableService  {
 	 * @throws DataSpecificationException
 	 */
 	private int deleteInternal(ID record) throws DataSpecificationException {
-		if (!checkModifications(record, BizzPermission.DELETE)) {
+		Record delete = EntityHelper.forUpdate(record, Application.getCurrentUser());
+		if (!checkModifications(delete, BizzPermission.DELETE)) {
 			return 0;
 		}
 		return super.delete(record);
@@ -383,71 +385,69 @@ public class GeneralEntityService extends ObservableService  {
 	 * 2. false - 检查不通过，但可以忽略的错误（如删除一条不存在的记录）
 	 * 3. 抛出异常 - 不可忽略的错误
 	 *
-	 * @param recordId
-	 * @param action [UPDATE|DELDETE]
+	 * @param record
+	 * @param action [CREATE|UPDATE|DELDETE]
 	 * @return
 	 * @throws DataSpecificationException
-	 *
-	 * @see #checkModifications(Record, Permission)
 	 */
-	protected boolean checkModifications(ID recordId, Permission action) throws DataSpecificationException {
-		final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
+	protected boolean checkModifications(Record record, Permission action) throws DataSpecificationException {
+		final Entity entity = record.getEntity();
+		final Entity masterEntity = entity.getMasterEntity();
 
-		// 验证审批状态
-		// 需要检查主实体
-		Entity checkEntity = entity.getMasterEntity() != null ? entity.getMasterEntity() : entity;
-		if (checkEntity.containsField(EntityHelper.ApprovalId)) {
-			// 需要验证主记录
-			String recordType = StringUtils.EMPTY;
-			if (entity.getMasterEntity() != null) {
-				recordId = getMasterId(entity, recordId);
-				recordType = "主";
-			}
-
-			ApprovalState state;
-			try {
-				state = getApprovalState(recordId);
-			} catch (NoRecordFoundException ignored) {
-				return false;
-			}
-
-			if (state == ApprovalState.APPROVED
-					|| (state == ApprovalState.PROCESSING && !ApprovalStepService.inAddedMode())) {
-				String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
-				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
-				if (RobotTriggerObserver.getTriggerSource() != null) {
-					recordType = "关联" + recordType;
+		if (action == BizzPermission.CREATE) {
+			// 验证审批状态
+			// 仅验证新建明细（相当于更新主记录）
+			if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
+				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
+				ApprovalState state = getApprovalState(record.getID(stmField.getName()));
+				if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
+					String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+					throw new DataSpecificationException("主记录" + stateType + "，不能添加明细");
 				}
-				throw new DataSpecificationException(recordType + "记录" + stateType + "，不能" + actionType);
+			}
+
+		} else {
+			final Entity checkEntity = masterEntity != null ? masterEntity : entity;
+			ID recordId = record.getPrimary();
+
+			if (checkEntity.containsField(EntityHelper.ApprovalId)) {
+				// 需要验证主记录
+				String recordType = StringUtils.EMPTY;
+				if (masterEntity != null) {
+					recordId = getMasterId(entity, recordId);
+					recordType = "主";
+				}
+
+				ApprovalState currentState;
+				ApprovalState changeState = null;
+				try {
+					currentState = getApprovalState(recordId);
+					if (record.hasValue(EntityHelper.ApprovalState)) {
+						changeState = (ApprovalState) ApprovalState.valueOf(record.getInt(EntityHelper.ApprovalState));
+					}
+				} catch (NoRecordFoundException ignored) {
+					LOG.warn("No record found for check : " + recordId);
+					return false;
+				}
+
+				boolean rejected = false;
+				if (action == BizzPermission.DELETE) {
+					rejected = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
+				} else if (action == BizzPermission.UPDATE) {
+					rejected = (currentState == ApprovalState.APPROVED && changeState != ApprovalState.CANCELED) /* 管理员撤销 */
+							|| (currentState == ApprovalState.PROCESSING && !ApprovalStepService.inAddedMode()   /* 审批时修改 */);
+				}
+
+				if (rejected) {
+					String actionType = action == BizzPermission.UPDATE ? "修改" : "删除";
+					String stateType = currentState == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
+					if (RobotTriggerObserver.getTriggerSource() != null) {
+						recordType = "关联" + recordType;
+					}
+					throw new DataSpecificationException(recordType + "记录" + stateType + "，禁止" + actionType);
+				}
 			}
 		}
-
-		return true;
-	}
-
-	/**
-	 * 系统相关约束检查
-	 *
-	 * @param newRecord
-	 * @param action [CREATE]
-	 * @return
-	 * @throws DataSpecificationException
-	 */
-	protected boolean checkModifications(Record newRecord, Permission action) throws DataSpecificationException {
-		final Entity entity = newRecord.getEntity();
-
-		// 验证审批状态
-		// 验证新建明细（相当于更新主记录）
-		Entity masterEntity = entity.getMasterEntity();
-		if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
-			Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-			ApprovalState state = getApprovalState(newRecord.getID(stmField.getName()));
-			if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
-				String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
-				throw new DataSpecificationException("主记录" + stateType + "，不能添加明细");
-			}
-		}
-
 		return true;
 	}
 

@@ -8,12 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.business.dataimport;
 
 import cn.devezhao.persist4j.Field;
-import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.write.metadata.style.WriteCellStyle;
-import com.alibaba.excel.write.metadata.style.WriteFont;
-import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.RebuildException;
 import com.rebuild.server.helper.SetUser;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.datalist.DataListWrapper;
@@ -22,13 +19,10 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.ss.usermodel.BorderStyle;
-import org.apache.poi.ss.usermodel.FillPatternType;
-import org.apache.poi.ss.usermodel.IndexedColors;
 
-import java.io.File;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -62,7 +56,7 @@ public class DataExporter extends SetUser<DataExporter> {
      * @return
      */
     public File export() {
-        File tmp = SysConfiguration.getFileOfTemp(String.format("EXPORT-%d.xls", System.currentTimeMillis()));
+        File tmp = SysConfiguration.getFileOfTemp(String.format("EXPORT-%d.csv", System.currentTimeMillis()));
         export(tmp);
         return tmp;
     }
@@ -74,12 +68,39 @@ public class DataExporter extends SetUser<DataExporter> {
      */
     public void export(File dest) {
         DefaultDataListControl control = new DefaultDataListControl(queryData, getUser());
-        EasyExcel.write(dest)
-                .registerWriteHandler(new ColumnWidthStrategy())
-                .registerWriteHandler(this.buildStyle())
-                .sheet(EasyMeta.getLabel(control.getEntity()))
-                .head(this.buildHead(control))
-                .doWrite(this.buildData(control));
+
+        List<String> head = this.buildHead(control);
+
+        try (FileOutputStream fos = new FileOutputStream(dest, true)) {
+            try (OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+                try (BufferedWriter writer = new BufferedWriter(osw)) {
+                    writer.write("\ufeff");
+                    writer.write(mergeLine(head));
+
+                    for (List<String> row : this.buildData(control)) {
+                        writer.newLine();
+                        writer.write(mergeLine(row));
+                    }
+
+                    writer.flush();
+                }
+            }
+        } catch (IOException e) {
+            throw new RebuildException("Could't write .csv file", e);
+        }
+    }
+
+    private String mergeLine(List<String> line) {
+        StringBuilder sb = new StringBuilder();
+        boolean b = true;
+        for (String s : line) {
+            if (b) b = false;
+            else sb.append(", ");
+
+            if (s.contains(",")) sb.append("\"").append(s).append("\"");
+            else sb.append(s);
+        }
+        return sb.toString();
     }
 
     /**
@@ -88,12 +109,12 @@ public class DataExporter extends SetUser<DataExporter> {
      * @param control
      * @return
      */
-    protected List<List<String>> buildHead(DefaultDataListControl control) {
-        List<List<String>> headList = new ArrayList<>();
+    protected List<String> buildHead(DefaultDataListControl control) {
+        List<String> headList = new ArrayList<>();
         for (String field : control.getQueryParser().getQueryFields()) {
             headFields.add(MetadataHelper.getLastJoinField(control.getEntity(), field));
             String fieldLabel = EasyMeta.getLabel(control.getEntity(), field);
-            headList.add(Collections.singletonList(fieldLabel));
+            headList.add(fieldLabel);
         }
         return headList;
     }
@@ -104,15 +125,15 @@ public class DataExporter extends SetUser<DataExporter> {
      * @param control
      * @return
      */
-    protected List<List<Object>> buildData(DefaultDataListControl control) {
+    protected List<List<String>> buildData(DefaultDataListControl control) {
         JSONArray data = ((JSONObject) control.getJSONResult()).getJSONArray("data");
 
-        List<List<Object>> into = new ArrayList<>();
+        List<List<String>> into = new ArrayList<>();
         for (Object row : data) {
             JSONArray rowJson = (JSONArray) row;
 
             int cellIndex = 0;
-            List<Object> cellVals = new ArrayList<>();
+            List<String> cellVals = new ArrayList<>();
             for (Object cellVal : rowJson) {
                 // 最后添加的记录 ID
                 // 详情可见 QueryParser#doParseIfNeed (L171)
@@ -136,37 +157,10 @@ public class DataExporter extends SetUser<DataExporter> {
                 } else if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
                     cellVal = "[无权限]";
                 }
-                cellVals.add(cellVal);
+                cellVals.add(cellVal.toString());
             }
             into.add(cellVals);
         }
         return into;
-    }
-
-    /**
-     * 样式
-     *
-     * @return
-     */
-    protected HorizontalCellStyleStrategy buildStyle() {
-        WriteFont baseFont = new WriteFont();
-        baseFont.setFontHeightInPoints((short) 12);
-        baseFont.setColor(IndexedColors.BLACK.getIndex());
-
-        // 头
-        WriteCellStyle headStyle = new WriteCellStyle();
-        headStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex());
-        headStyle.setWriteFont(baseFont);
-        // 内容
-        WriteCellStyle contentStyle = new WriteCellStyle();
-        contentStyle.setFillForegroundColor(IndexedColors.WHITE.getIndex());
-        // 这里需要指定 FillPatternType 为 FillPatternType.SOLID_FOREGROUND 不然无法显示背景颜色
-        // 头默认了 FillPatternType 所以可以不指定
-        contentStyle.setFillPatternType(FillPatternType.SOLID_FOREGROUND);
-        contentStyle.setWriteFont(baseFont);
-        contentStyle.setBorderBottom(BorderStyle.THIN);
-        contentStyle.setBorderRight(BorderStyle.THIN);
-
-        return new HorizontalCellStyleStrategy(headStyle, contentStyle);
     }
 }

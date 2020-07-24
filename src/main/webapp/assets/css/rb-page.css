@@ -503,6 +503,14 @@ div.dataTables_wrapper div.dataTables_filter {
     content: '\f2fb';
 }
 
+div.dataTables_filter .filter-tips.badge {
+    float: left;
+    margin-left: 5px;
+    margin-top: 4px;
+    background-color: #fff8f2;
+    color: #a04100;
+}
+
 .adv-search,
 .input-search {
     margin-right: 5px;
@@ -2982,7 +2990,6 @@ form {
     text-align: center;
     display: inline-block;
     height: 48px;
-    line-height: 1;
     line-height: 48px;
 }
 
@@ -3545,9 +3552,8 @@ a.icon-link>.zmdi {
     color: #fbbc05;
     font-size: 1rem;
     font-weight: normal;
-    padding: 3px 6px;
     position: relative;
-    padding-right: 30px;
+    padding: 3px 30px 3px 6px;
     cursor: default;
     overflow: hidden;
 }
@@ -3559,7 +3565,7 @@ a.icon-link>.zmdi {
     border-left: 1px solid #fbbc05;
     top: 0;
     right: 0;
-    padding-top: 2px;
+    padding-top: 3px;
     opacity: 1;
     text-shadow: none;
     font-weight: normal;
