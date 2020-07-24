@@ -42,7 +42,7 @@ public class GeneralModelControll extends BaseEntityControll {
 		final ID user = getRequestUser(request);
 		final Entity thatEntity = MetadataHelper.getEntity(entity);
 		
- 		if (!Application.getSecurityManager().allowRead(user, thatEntity.getEntityCode())) {
+ 		if (!Application.getPrivilegesManager().allowRead(user, thatEntity.getEntityCode())) {
  			response.sendError(403, "你没有访问此实体的权限");
  			return null;
  		}

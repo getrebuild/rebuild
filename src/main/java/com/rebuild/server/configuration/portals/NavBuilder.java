@@ -122,7 +122,7 @@ public class NavBuilder extends NavManager {
             }
 
             Entity entityMeta = MetadataHelper.getEntity(entity);
-            return !Application.getSecurityManager().allowRead(user, entityMeta.getEntityCode());
+            return !Application.getPrivilegesManager().allowRead(user, entityMeta.getEntityCode());
         }
         return false;
     }

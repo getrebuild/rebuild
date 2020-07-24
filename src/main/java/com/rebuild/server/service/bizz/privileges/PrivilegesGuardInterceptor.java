@@ -79,7 +79,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			
 			BulkContext context = (BulkContext) firstArgument;
 			Entity entity = context.getMainEntity();
-			if (!Application.getSecurityManager().allow(caller, entity.getEntityCode(), context.getAction())) {
+			if (!Application.getPrivilegesManager().allow(caller, entity.getEntityCode(), context.getAction())) {
 				LOG.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
 				throw new AccessDeniedException(formatHumanMessage(context.getAction(), entity, null));
 			}
@@ -114,18 +114,18 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
 				ID masterId = ((Record) idOrRecord).getID(stmField.getName());
-				if (masterId == null || !Application.getSecurityManager().allowUpdate(caller, masterId)) {
+				if (masterId == null || !Application.getPrivilegesManager().allowUpdate(caller, masterId)) {
 					throw new AccessDeniedException("你没有添加明细的权限");
 				}
 				allowed = true;
 
 			} else {
-				allowed = Application.getSecurityManager().allow(caller, entity.getEntityCode(), action);
+				allowed = Application.getPrivilegesManager().allow(caller, entity.getEntityCode(), action);
 			}
 			
 		} else {
 			Assert.notNull(recordId, "No primary in record!");
-			allowed = Application.getSecurityManager().allow(caller, recordId, action);
+			allowed = Application.getPrivilegesManager().allow(caller, recordId, action);
 		}
 
 		// 无权限操作

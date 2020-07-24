@@ -107,7 +107,7 @@ public class FieldAggregation implements TriggerAction {
 		
 		// 如果当前用户对目标记录无修改权限
 		if (!allowNoPermissionUpdate
-                && !Application.getSecurityManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
+                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
 		    LOG.warn("No privileges to update record of target: " + this.targetRecordId);
 		    return;
 		}

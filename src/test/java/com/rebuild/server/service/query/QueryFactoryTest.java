@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.query;
@@ -39,7 +28,7 @@ public class QueryFactoryTest extends TestSupport {
 	@Test
 	public void testBaseQuery() throws Exception {
 		String sql = "select loginName from User";
-		Filter filter = Application.getSecurityManager().createQueryFilter(SIMPLE_USER);
+		Filter filter = Application.getPrivilegesManager().createQueryFilter(SIMPLE_USER);
 		Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
 		Assert.assertTrue(array.length > 0);
 	}
@@ -58,7 +47,7 @@ public class QueryFactoryTest extends TestSupport {
  		sql.append(" from ").append(allDT.getName());
  		System.out.println("Query : " + sql);
 		
-		Filter filter = Application.getSecurityManager().createQueryFilter(SIMPLE_USER);
+		Filter filter = Application.getPrivilegesManager().createQueryFilter(SIMPLE_USER);
 		Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 	}
 	

@@ -37,7 +37,6 @@ import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;
-import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
@@ -142,7 +141,7 @@ public class GeneralEntityService extends ObservableService  {
 			}
 
 			for (ID id : e.getValue()) {
-				if (Application.getSecurityManager().allowDelete(currentUser, id)) {
+				if (Application.getPrivilegesManager().allowDelete(currentUser, id)) {
 					if (recycleBin != null) {
 						recycleBin.add(id, record);
 					}
@@ -346,7 +345,7 @@ public class GeneralEntityService extends ObservableService  {
 			// remove last ' or '
 			sql.replace(sql.length() - 4, sql.length(), " )");
 
-			Filter filter = Application.getSecurityManager().createQueryFilter(Application.getCurrentUser(), action);
+			Filter filter = Application.getPrivilegesManager().createQueryFilter(Application.getCurrentUser(), action);
 			Object[][] array = Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 			
 			Set<ID> records = new HashSet<>();

@@ -45,7 +45,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 		putEntityMeta(mv, entityMeta);
 		
 		if (EntityHelper.hasPrivilegesField(entityMeta)) {
-			Privileges priv = Application.getSecurityManager().getPrivileges(user, entityMeta.getEntityCode());
+			Privileges priv = Application.getPrivilegesManager().getPrivileges(user, entityMeta.getEntityCode());
 			Permission[] actions = new Permission[] {
 					BizzPermission.CREATE,
 					BizzPermission.DELETE,
@@ -93,7 +93,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 			};
 			Map<String, Boolean> actionMap = new HashMap<>();
 			for (Permission act : actions) {
-				actionMap.put(act.getName(), Application.getSecurityManager().allow(user, record, act));
+				actionMap.put(act.getName(), Application.getPrivilegesManager().allow(user, record, act));
 			}
 			mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
 		} else if (EasyMeta.valueOf(entity).isPlainEntity()) {

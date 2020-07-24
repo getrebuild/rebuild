@@ -44,7 +44,7 @@ public class EntityGet extends BaseApi {
         fields = getValidFields(useEntity, fields);
 
         if (!UserHelper.isAdmin(context.getBindUser())) {
-            if (!Application.getSecurityManager().allowRead(context.getBindUser(), queryId)) {
+            if (!Application.getPrivilegesManager().allowRead(context.getBindUser(), queryId)) {
                 return formatFailure("No privileges or record not exists : " + queryId);
             }
         }

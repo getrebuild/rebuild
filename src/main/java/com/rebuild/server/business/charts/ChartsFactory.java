@@ -54,7 +54,7 @@ public class ChartsFactory {
 		}
 
 		Entity entity = MetadataHelper.getEntity(e);
-		if (user == null || !Application.getSecurityManager().allowRead(user, entity.getEntityCode())) {
+		if (user == null || !Application.getPrivilegesManager().allowRead(user, entity.getEntityCode())) {
 			throw new ChartsException("没有读取 [" + EasyMeta.getLabel(entity) + "] 的权限");
 		}
 
