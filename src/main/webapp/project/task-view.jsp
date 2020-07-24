@@ -4,6 +4,7 @@
 <head>
 <%@ include file="/_include/Head.jsp"%>
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/view-page.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/feeds.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/project-tasks.css">
 <title>任务视图</title>
 </head>
@@ -19,7 +20,7 @@
 <div class="main-content container-fluid">
     <div id="task-contents"></div>
 </div>
-<div id="task-comments"></div>
+<div id="task-comment"></div>
 <script src="${baseUrl}/assets/lib/moment-with-locales.min.js?v=2.27.0"></script>
 <%@ include file="/_include/Foot.jsp"%>
 <script>

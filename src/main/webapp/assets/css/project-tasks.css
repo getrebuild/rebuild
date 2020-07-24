@@ -5,6 +5,52 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+.tools-bar {
+  height: 44px;
+  padding: 7px 25px 0;
+}
+
+.tools-bar h4 {
+  margin: 10px 0;
+}
+
+.project-head {
+  display: inline-block;
+  padding-right: 71px;
+  position: relative;
+}
+
+.project-head .project-action {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-top: 9px;
+  padding-left: 6px;
+  display: none;
+  text-align: left;
+  width: 70px;
+}
+
+.project-head:hover .project-action {
+  display: block;
+}
+
+.project-head .project-action a {
+  padding: 3px;
+  margin-left: 3px
+}
+
+.project-right .btn-group {
+  margin-top: 7px;
+  margin-right: 3px;
+}
+
+.project-right .btn-group>.btn {
+  min-height: 24px;
+  line-height: 24px;
+  min-width: 0;
+}
+
 #plan-boxes {
   white-space: nowrap;
   overflow: auto;
@@ -26,6 +72,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .plan-box .plan-header .plan-title {
   font-weight: bold;
+  margin: 10px 0;
 }
 
 .plan-box .plan-header .plan-title>small {
@@ -188,7 +235,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   cursor: default;
   padding: 14px 16px !important;
   border: 0 none !important;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .task-card.newtask .task-card-body textarea {
@@ -212,15 +259,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: -1000px;
 }
 
-#task-contents {}
+#task-contents {
+  background-color: #fff;
+  height: 100%;
+  padding-bottom: 60px;
+}
 
 #task-comments {
+  background-color: #f5f5f5;
   position: fixed;
   bottom: 0;
   left: 0;
   width: 100%;
-  background-color: #eee;
-  min-height: 100px;
 }
 
 .task-form .user-selector,
@@ -384,4 +434,9 @@ a.close-circle {
   left: unset;
   width: 28px;
   padding-top: 12px;
+}
+
+#task-comments .comments,
+#task-comments .comments .comment-reply {
+  margin: 0;
 }

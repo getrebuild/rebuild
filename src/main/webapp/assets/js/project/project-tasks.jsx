@@ -174,7 +174,7 @@ class PlanBox extends React.Component {
 
     const $scroller = $(this._scroller).perfectScrollbar()
     $addResizeHandler(() => {
-      $scroller.css({ 'max-height': $(window).height() - 228 + (this.creatableTask ? 0 : 44) })
+      $scroller.css({ 'max-height': $(window).height() - 210 + (this.creatableTask ? 0 : 44) })
       $scroller.perfectScrollbar('update')
     })()
   }

@@ -173,7 +173,7 @@ public class ProjectTaskControll extends BasePageControll {
      * @param date
      * @return
      */
-    private String formatUTCWithZone(Date date) {
+    protected static String formatUTCWithZone(Date date) {
         if (date == null) return null;
         int offset = CalendarUtils.getInstance().get(Calendar.ZONE_OFFSET);
         offset = offset / 1000 / 60 / 60;  // hours
