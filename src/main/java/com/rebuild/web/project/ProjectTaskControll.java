@@ -22,8 +22,10 @@ import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.project.ProjectTaskService;
+import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -68,17 +70,40 @@ public class ProjectTaskControll extends BasePageControll {
 
         ModelAndView mv = createModelAndView("/project/task-view.jsp");
         mv.getModelMap().put("id", taskId2.toLiteral());
-        mv.getModelMap().put("projectIcon", project.getString("iconName"));
+        mv.getModelMap().put("projectIcon",
+                StringUtils.defaultIfBlank(project.getString("iconName"), "texture"));
         return mv;
     }
 
     @RequestMapping("/project/tasks/list")
-    public void taskList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ID planId = getIdParameterNotNull(request, "plan");
-        Object[][] tasks = Application.createQuery(
-                "select " + BASE_FIELDS + " from ProjectTask where projectPlanId = ? order by seq asc")
-                .setParameter(1, planId)
-                .array();
+    public void taskList(HttpServletRequest request, HttpServletResponse response) {
+        final ID planId = getIdParameterNotNull(request, "plan");
+
+        String querySql = "select " + BASE_FIELDS + " from ProjectTask where projectPlanId = ?";
+
+        // 关键词搜索
+        String search = getParameter(request, "search");
+        if (StringUtils.isNotBlank(search)) {
+            querySql += " and taskName like '%" + StringEscapeUtils.escapeSql(search) + "%'";
+        }
+
+        // 高级查询
+        JSON advFilter = ServletUtils.getRequestJson(request);
+        if (advFilter != null) {
+            String filterSql = new AdvFilterParser((JSONObject) advFilter).toSqlWhere();
+            if (filterSql != null) {
+                querySql += " and (" + filterSql + ")";
+            }
+        }
+
+        // 排序
+        String sort = getParameter(request, "sort");
+        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
+        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
+        else sort = "seq asc";
+        querySql += " order by " + sort;
+
+        Object[][] tasks = Application.createQuery(querySql).setParameter(1, planId).array();
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
@@ -90,7 +115,7 @@ public class ProjectTaskControll extends BasePageControll {
     }
 
     @RequestMapping("/project/tasks/post")
-    public void taskPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void taskPost(HttpServletRequest request, HttpServletResponse response) {
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse(post, getRequestUser(request));
         Application.getBean(ProjectTaskService.class).createOrUpdate(record);
@@ -98,14 +123,14 @@ public class ProjectTaskControll extends BasePageControll {
     }
 
     @RequestMapping("/project/tasks/delete")
-    public void taskDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void taskDelete(HttpServletRequest request, HttpServletResponse response) {
         ID taskId = getIdParameterNotNull(request, "task");
         Application.getBean(ProjectTaskService.class).delete(taskId);
         writeSuccess(response);
     }
 
     @RequestMapping("/project/tasks/get")
-    public void taskGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void taskGet(HttpServletRequest request, HttpServletResponse response) {
         ID taskId = getIdParameterNotNull(request, "task");
         Object[] task = Application.createQuery(
                 "select " + BASE_FIELDS + " from ProjectTask where taskId = ?")
@@ -116,7 +141,7 @@ public class ProjectTaskControll extends BasePageControll {
     }
 
     @RequestMapping("/project/tasks/details")
-    public void taskDetails(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void taskDetails(HttpServletRequest request, HttpServletResponse response) {
         ID taskId = getIdParameterNotNull(request, "task");
         Object[] task = Application.createQuery(
                 "select " + BASE_FIELDS + ",projectId,projectPlanId,description,attachments from ProjectTask where taskId = ?")
@@ -125,22 +150,24 @@ public class ProjectTaskControll extends BasePageControll {
 
         JSONObject details = formatTask(task);
 
-        // 面板（状态）
-        ID projectId = (ID) task[11];
-        ID currentPlanId = (ID) task[12];
+        // 状态面板
+        final ID projectId = (ID) task[11];
+        final ID currentPlanId = (ID) task[12];
+
         ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(projectId);
-        JSONArray stateOfPlans = new JSONArray();
+        JSONArray plansOfState = new JSONArray();
         for (ConfigEntry e : plans) {
             ID planId = e.getID("id");
-            stateOfPlans.add(JSONUtils.toJSONObject(new String[] { "id", "text" },
+            plansOfState.add(JSONUtils.toJSONObject(new String[] { "id", "text" },
                     new Object[] { planId, e.getString("planName") }));
 
             if (planId.equals(currentPlanId)) {
-                details.put("nextStateOfPlans", e.get("flowNexts", Set.class));
+                details.put("currentPlanId", currentPlanId);
+                details.put("currentPlanNexts", e.get("flowNexts", Set.class));
+                details.put("currentPlanStatus", e.getInteger("flowStatus"));
             }
         }
-        details.put("stateOfPlans", stateOfPlans);
-        details.put("projectPlanId", currentPlanId);
+        details.put("plansOfState", plansOfState);
 
         details.put("description", task[13]);
         String attachments = (String) task[14];

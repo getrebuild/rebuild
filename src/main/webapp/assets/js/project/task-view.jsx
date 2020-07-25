@@ -9,7 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 
 const __TaskViewer = parent && parent.TaskViewModal ? parent.TaskViewModal.__HOLDER
-  : { hide: () => window.close() }
+  : { hide: () => window.close(), setLoadingState: () => { } }
 
 let __TaskContent
 let __TaskComment
@@ -34,7 +34,7 @@ class TaskContent extends React.Component {
   state = { ...this.props, priority: 1 }
 
   render() {
-    const stateOfPlans = this.state.stateOfPlans || []
+    const plansOfState = this.state.plansOfState || []
     return (
       <div className="rbview-form task-form">
         <div className="form-group row pt-0">
@@ -54,13 +54,26 @@ class TaskContent extends React.Component {
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-square-o" /> 状态</label>
           <div className="col-12 col-sm-9">
             <div className="form-control-plaintext">
-              <a className="tag-value arrow plaintext" data-toggle="dropdown">{this.state.projectPlanId ? stateOfPlans.find(x => x.id === this.state.projectPlanId).text : null}</a>
-              <div className="dropdown-menu">
-                {stateOfPlans.map((item) => {
-                  const disabled = !this.state.nextStateOfPlans.includes(item.id)
-                  return <a key={`plan-${item.id}`} className="dropdown-item" disabled={disabled} data-disabled={disabled} onClick={(e) => this._handleChangePlan(item.id, e)}>{item.text}</a>
-                })}
+              <div className="float-left status-checkbox">
+                <label className="custom-control custom-checkbox custom-control-inline" title="已完成/未完成" onClick={(e) => $stopEvent(e)}>
+                  <input className="custom-control-input" type="checkbox" ref={(c) => this._status = c}
+                    disabled={this.state.currentPlanStatus === 2}
+                    onChange={(e) => this._handleChangeStatus(e)} />
+                  <span className="custom-control-label"></span>
+                </label>
               </div>
+              <div className="float-left">
+                <a className="tag-value arrow plaintext" data-toggle="dropdown">
+                  {this.state.currentPlanId ? (plansOfState.find(x => x.id === this.state.currentPlanId) || { text: '[DELETED]' }).text : ''}
+                </a>
+                <div className="dropdown-menu">
+                  {plansOfState.map((item) => {
+                    const disabled = !this.state.currentPlanNexts.includes(item.id)
+                    return <a key={`plan-${item.id}`} className="dropdown-item" disabled={disabled} data-disabled={disabled} onClick={(e) => this._handleChangePlan(item.id, e)}>{item.text}</a>
+                  })}
+                </div>
+              </div>
+              <div className="clearfix" />
             </div>
           </div>
         </div>
@@ -79,7 +92,9 @@ class TaskContent extends React.Component {
               }
             </React.Fragment>
             <div className="mount">
-              <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} closeOnSelect={true} onSelectItem={this._handleChangeExecutor} ref={(c) => this._UserSelector = c} />
+              <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} closeOnSelect={true}
+                onSelectItem={(s) => this._handleChangeExecutor(s)}
+                ref={(c) => this._UserSelector = c} />
             </div>
           </div>
         </div>
@@ -183,7 +198,8 @@ class TaskContent extends React.Component {
 
   fetch() {
     $.get(`/project/tasks/details?task=${this.props.id}`, (res) => {
-      if (res.error_code === 0) this.setState({ ...res.data })
+      if (res.error_code === 0) this.setState({ ...res.data },
+        () => $(this._status).prop('checked', this.state.status === 1))
       else RbHighbar.error(res.error_msg)
     })
   }
@@ -208,7 +224,7 @@ class TaskContent extends React.Component {
   }
 
   // 即时保存
-  _handleChange(e) {
+  _handleChange(e, call) {
     const name = e.target.name
     const value = e.target.value
     const valueOld = this.state[name]
@@ -220,8 +236,10 @@ class TaskContent extends React.Component {
       metadata: { id: this.props.id }
     }
     $.post('/project/tasks/post', JSON.stringify(data), (res) => {
-      if (res.error_code === 0) __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
-      else RbHighbar.error(res.error_msg)
+      if (res.error_code === 0) {
+        __TaskViewer.refreshTask && __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
+        typeof call === 'function' && call()
+      } else RbHighbar.error(res.error_msg)
     })
   }
 
@@ -234,14 +252,21 @@ class TaskContent extends React.Component {
       this._handleChange(e)
     }
   }
-  _handleChangePlan = (val, e) => {
-    if (e.target.dataset.disabled === 'true') return
-    this._handleChange({ target: { name: 'projectPlanId', value: val } })
+
+  _handleChangeStatus(e) {
+    this._handleChange({ target: { name: 'status', value: e.target.checked ? 1 : 0 } }, () => this.fetch())
   }
+
+  _handleChangePlan(val, e) {
+    if (e.target.dataset.disabled === 'true') return
+    this._handleChange({ target: { name: 'projectPlanId', value: val } }, () => this.fetch())
+  }
+
   _handleChangePriority = (val) => this._handleChange({ target: { name: 'priority', value: val } })
-  _handleChangeExecutor = (val) => {
-    this._handleChange({ target: { name: 'executor', value: val ? val.id : null } })
-    this.setState({ executor: val ? [val.id, val.text] : null })
+
+  _handleChangeExecutor(val) {
+    this._handleChange({ target: { name: 'executor', value: val ? val.id : null } },
+      () => this.setState({ executor: val ? [val.id, val.text] : null }))
   }
 
   _deleteAttachment(item, e) {
@@ -273,7 +298,7 @@ class TaskCommentsList extends React.Component {
   render() {
     if ((this.state.comments || []).length === 0) return null
     return (
-      <div>
+      <div className="comment-list-wrap">
         <h4>评论列表</h4>
         <div className="feeds-list comment-list">
           {this.state.comments.map((item) => {

@@ -195,7 +195,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-color: #ea3f30;
 }
 
-
 .task-card.status-1:hover {
   border-color: #fff;
 }
@@ -207,11 +206,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-card.status-1,
 .task-card.status-1 .task-title,
 .task-card.status-1 .task-time,
-.task-card.status-1 .custom-control-input:checked~.custom-control-label::after {
+.task-card.status-1 .custom-control-input:checked~.custom-control-label::after,
+.status-checkbox .custom-control-input:checked~.custom-control-label::after {
   color: #8c8c8c;
 }
 
-.task-card.status-1 .custom-control-sm .custom-control-input~.custom-control-label::before {
+.task-card.status-1 .custom-control-input~.custom-control-label::before,
+.status-checkbox .custom-control-input~.custom-control-label::before {
   border-color: #8c8c8c;
 }
 
@@ -265,7 +266,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-bottom: 60px;
 }
 
-#task-comments {
+#task-comment {
   background-color: #f5f5f5;
   position: fixed;
   bottom: 0;
@@ -352,7 +353,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-form a.tag-value.placeholder {
   background-color: #fff;
   color: #404040;
-  border: 1px solid #eee;
+  border: 1px solid #ccc;
   padding: 4px 10px;
 }
 
@@ -388,7 +389,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .task-form .form-control-plaintext~.mount {
-  margin-top: -16px;
+  margin-top: -5px;
 }
 
 .task-form .executor-show {
@@ -400,7 +401,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-form .executor-show>a.close {
   float: none;
   position: absolute;
-  margin-left: 8px;
+  margin-left: 4px;
   margin-top: 4px;
   display: none;
 }
@@ -410,7 +411,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 a.close-circle {
-  background-color: #eee;
   border-radius: 99px;
   height: 20px;
   line-height: 20px;
@@ -436,7 +436,19 @@ a.close-circle {
   padding-top: 12px;
 }
 
-#task-comments .comments,
-#task-comments .comments .comment-reply {
+#task-comment .comments,
+#task-comment .comments .comment-reply {
   margin: 0;
+}
+
+.comment-list-wrap h4 {
+  font-size: 1.4rem;
+  font-weight: normal;
+}
+
+.status-checkbox>.custom-checkbox {
+  margin: 0;
+  padding: 0;
+  margin-top: -2px;
+  margin-right: 10px;
 }

@@ -7,25 +7,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
-import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -37,10 +32,6 @@ import java.util.Date;
 @RequestMapping("/project/comments/")
 @Controller
 public class TaskCommentControll extends BaseControll {
-
-    @RequestMapping("delete")
-    public void commentDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    }
 
     @GetMapping("list")
     public void commentList(HttpServletRequest request, HttpServletResponse response) {

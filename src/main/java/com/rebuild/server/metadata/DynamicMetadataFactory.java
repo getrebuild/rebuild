@@ -113,8 +113,11 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 					|| dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
 				field.addAttribute("ref-entity", (String) c[10])
 						.addAttribute("cascade", (String) c[11]);
+			} else if (dt == DisplayType.BARCODE) {
+				field.addAttribute("queryable", "false");
 			}
 
+			// 字段扩展配置
 			JSONObject extraAttrs;
 			if (StringUtils.isBlank((String) c[14])) {
 			    extraAttrs = new JSONObject();

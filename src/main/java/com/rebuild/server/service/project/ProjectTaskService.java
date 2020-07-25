@@ -12,13 +12,17 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.configuration.ProjectPlanConfigService;
 
 /**
  * @author devezhao
  * @since 2020/7/2
+ * @see com.rebuild.server.service.configuration.ProjectConfigService
+ * @see com.rebuild.server.service.configuration.ProjectPlanConfigService
  */
 public class ProjectTaskService extends BaseService {
 
@@ -30,16 +34,28 @@ public class ProjectTaskService extends BaseService {
     }
 
     @Override
+    public int getEntityCode() {
+        return EntityHelper.ProjectTask;
+    }
+
+    @Override
     public Record create(Record record) {
         record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
+        applyFlowStatue(record);
         record.setInt("seq", getNextSeqViaMidValue(record.getID("projectPlanId")));
         return super.create(record);
     }
 
     @Override
     public Record update(Record record) {
-        if (record.hasValue("status")) {
+        // 自动完成
+        int flowStatus = applyFlowStatue(record);
+
+        if (flowStatus == ProjectPlanConfigService.FLOW_STATUS_END) {
+            record.setDate("endTime", CalendarUtils.now());
+        } else if (record.hasValue("status")) {
             int status = record.getInt("status");
+            // 处理完成时间
             if (status == 0) {
                 record.setNull("endTime");
                 record.setInt("seq", getSeqInStatus(record.getPrimary(), false));
@@ -93,11 +109,11 @@ public class ProjectTaskService extends BaseService {
 
     /**
      * @param taskId
-     * @param isMax Max or min
+     * @param desc Use max or min
      * @return
      */
     synchronized
-    private int getSeqInStatus(ID taskId, boolean isMax) {
+    private int getSeqInStatus(ID taskId, boolean desc) {
         Object[] taskStatus = Application.createQuery(
                 "select status,projectPlanId from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
@@ -105,17 +121,32 @@ public class ProjectTaskService extends BaseService {
         if (taskStatus == null) return 1;
 
         Object[] seq = Application.createQuery(
-                "select " + (isMax ? "max" : "min") + "(seq) from ProjectTask where status = ? and projectPlanId = ?")
+                "select " + (desc ? "max" : "min") + "(seq) from ProjectTask where status = ? and projectPlanId = ?")
                 .setParameter(1, taskStatus[0])
                 .setParameter(2, taskStatus[1])
                 .unique();
 
-        if (isMax) return (Integer) seq[0] + MID_VALUE;
+        if (desc) return (Integer) seq[0] + MID_VALUE;
         else return (Integer) seq[0] - MID_VALUE;
     }
 
-    @Override
-    public int getEntityCode() {
-        return EntityHelper.ProjectTask;
+    /**
+     * 自动完成
+     * @param newOrUpdate
+     */
+    private int applyFlowStatue(Record newOrUpdate) {
+        if (newOrUpdate.hasValue("projectPlanId")) {
+            ConfigEntry c = ProjectManager.instance.getPlanOfProject(
+                    newOrUpdate.getID("projectPlanId"), newOrUpdate.getID("projectId"));
+            int fs = c.getInteger("flowStatus");
+
+            if (fs == ProjectPlanConfigService.FLOW_STATUS_END) {
+                newOrUpdate.setInt("status", 1);
+            } else if (fs == ProjectPlanConfigService.FLOW_STATUS_PROCESSING) {
+                newOrUpdate.setDate("startTime", CalendarUtils.now());
+            }
+            return fs;
+        }
+        return -1;
     }
 }

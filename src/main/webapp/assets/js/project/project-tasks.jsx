@@ -7,11 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
+let __PlanBoxes
+let __AdvFilter
+
 $(document).ready(() => {
   // $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
 
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} />, 'plan-boxes', () => {
-    __boxesDrag()
+  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} />, 'plan-boxes', function () {
+    __PlanBoxes = this
+    __draggable()
     $('.J_project-load').remove()
   })
 
@@ -22,6 +26,36 @@ $(document).ready(() => {
       setTimeout(() => TaskViewModal.create(viewHash[3]), 500)
     }
   }
+
+  // 排序
+  $('.J_sorts .dropdown-item').click(function () {
+    const $this = $(this)
+    $('.J_sorts .btn span').text($this.text())
+    __PlanBoxes.setState({ sort: $this.data('sort') })
+  })
+
+  // 搜索
+  const $search = $('.J_search .input-search')
+  $('.J_search').on('show.bs.dropdown', () => {
+    setTimeout(() => $search.find('input')[0].focus(), 100)
+  })
+  $search.find('.btn').click(() => {
+    const s = $search.find('input').val()
+    __PlanBoxes.setState({ search: s })
+  })
+  $search.find('input').keydown((e) => {
+    if (e.keyCode === 13) $search.find('.btn').trigger('click')
+  })
+
+  // 高级查询
+  const onFilter = function (s) {
+    __PlanBoxes.setState({ filter: s })
+  }
+  $('.J_filter').click(() => {
+    if (__AdvFilter) __AdvFilter.show()
+    else renderRbcomp(<AdvFilter title="高级查询" entity="ProjectTask" inModal={true} canNoFilters={true} confirm={onFilter} />, null, function () { __AdvFilter = this })
+  })
+
 })
 
 // 面板组件引用
@@ -37,7 +71,9 @@ class PlanBoxes extends React.Component {
     return (
       <React.Fragment>
         {this.props.plans.map((item) => {
-          return <PlanBox key={`plan-${item.id}`} id={item.id} planName={item.planName} flowStatus={item.flowStatus} flowNexts={item.flowNexts} />
+          return <PlanBox key={`plan-${item.id}`}
+            id={item.id} planName={item.planName} flowStatus={item.flowStatus} flowNexts={item.flowNexts}
+            sort={this.state.sort} search={this.state.search} filter={this.state.filter} />
         })}
       </React.Fragment>
     )
@@ -104,7 +140,6 @@ class PlanBoxes extends React.Component {
           if (planidNew) {
             const taskData = __PlanRefs[planidOld].removeTask(taskid)
             if (taskData) __PlanRefs[planidNew].addTask(taskData, prevTaskId, $itemholder)
-            else console.error('No taskData : ', taskid)
           } else {
             __TaskRefs[taskid].refresh()
           }
@@ -113,12 +148,21 @@ class PlanBoxes extends React.Component {
 
     }).disableSelection()
   }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.sort !== this.state.sort) {
+      $('.task-list').sortable('option', 'disabled', this.state.sort !== 'seq')
+    }
+    if (this.state.search || this.state.filter) $('.J_search .indicator-primary').removeClass('hide')
+    else $('.J_search .indicator-primary').addClass('hide')
+  }
 }
 
 // 任务面板
 class PlanBox extends React.Component {
   state = { ...this.props }
-  creatableTask = this.props.flowStatus === 1 || this.props.flowStatus === 2
+  creatableTask = this.props.flowStatus === 1 || this.props.flowStatus === 3
+  performableTask = this.props.flowStatus === 1 || this.props.flowStatus === 3
 
   render() {
     return (
@@ -179,12 +223,21 @@ class PlanBox extends React.Component {
     })()
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.sort !== this.props.sort
+      || prevProps.search !== this.props.search
+      || !$same(prevProps.filter, this.props.filter)) this.refreshTasks()
+  }
+
   // 加载任务列表
-  refreshTasks() {
-    $.get(`/project/tasks/list?plan=${this.props.id}`, (res) => {
-      if (res.error_code === 0) this.setState({ tasks: res.data.tasks, taskNum: res.data.count })
-      else RbHighbar.error(res.error_msg)
-    })
+  refreshTasks(scroll2bottom) {
+    $.post(`/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}`, JSON.stringify(this.props.filter),
+      (res) => {
+        if (res.error_code === 0) this.setState({ tasks: res.data.tasks, taskNum: res.data.count }, () => {
+          if (scroll2bottom) this._scroller.scrollTop = 99999
+        })
+        else RbHighbar.error(res.error_msg)
+      })
   }
 
   removeTask(taskid) {
@@ -196,7 +249,6 @@ class PlanBox extends React.Component {
   }
 
   addTask(taskData, prevTaskId, $itemholder) {
-    console.log('Add Task', prevTaskId, $itemholder, taskData)
     const ns = []
     if (prevTaskId) {
       this.state.tasks.forEach((item) => {
@@ -211,6 +263,7 @@ class PlanBox extends React.Component {
 
     this.setState({ tasks: ns, taskNum: ns.length }, () => {
       $itemholder && $itemholder.remove()
+      __TaskRefs[taskData.id].refresh()
       $(this._scroller).perfectScrollbar('update')
     })
   }
@@ -242,7 +295,7 @@ class PlanBox extends React.Component {
     const $btn = $(this._btn).button('loading')
     $.post('/project/tasks/post', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        this.setState({ newMode: false }, () => this.refreshTasks())
+        this.setState({ newMode: false }, () => this.refreshTasks(true))
       } else {
         RbHighbar.error(res.error_msg)
         $btn.button('reset')
@@ -262,8 +315,10 @@ class Task extends React.Component {
         <div className="task-card-body">
           <div className="task-content-wrapper">
             <div className="task-status">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
-                <input className="custom-control-input" type="checkbox" defaultChecked={this.state.status === 1} onChange={(e) => this._toggleStatus(e)} />
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline" title="已完成/未完成" onClick={(e) => $stopEvent(e)}>
+                <input className="custom-control-input" type="checkbox" defaultChecked={this.state.status === 1} onChange={(e) => this._toggleStatus(e)}
+                  disabled={!this.props.$$$parent.performableTask}
+                  ref={(c) => this._status = c} />
                 <span className="custom-control-label"></span>
               </label>
             </div>
@@ -300,6 +355,12 @@ class Task extends React.Component {
     __TaskRefs[this.props.id] = this
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState && prevState.status !== this.state.status) {
+      $(this._status).prop('checked', this.state.status === 1)
+    }
+  }
+
   UNSAFE_componentWillReceiveProps(nextProps) {
     this.setState({ ...nextProps })
   }
@@ -317,7 +378,7 @@ class Task extends React.Component {
   }
 
   _outDeadline(date) {
-    return moment(date.split(' ')[0]).isBefore(moment())
+    return moment(date.substr(0, 19)).isBefore(moment())
   }
 }
 
@@ -331,7 +392,7 @@ const __saveTask = function (id, data, call) {
 }
 
 // 面板拖动
-const __boxesDrag = function () {
+const __draggable = function () {
   let flag
   let downX
   let scrollLeft

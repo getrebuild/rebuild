@@ -18,6 +18,7 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.ProjectConfigService;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -168,6 +169,8 @@ public class ProjectManager implements ConfigManager {
      * @return
      */
     public ConfigEntry[] getPlansOfProject(ID projectId) {
+        Assert.notNull(projectId, "[projectId] not be null");
+
         final String ckey = CKEY_PLAN + projectId;
         ConfigEntry[] cache = (ConfigEntry[]) Application.getCommonCache().getx(ckey);
 
@@ -206,6 +209,11 @@ public class ProjectManager implements ConfigManager {
      * @return
      */
     public ConfigEntry getPlanOfProject(ID planId, ID projectId) {
+        if (projectId == null) {
+            Object[] o = Application.getQueryFactory().uniqueNoFilter(planId, "projectId");
+            projectId = o != null ? (ID) o[0] : null;
+        }
+
         ConfigEntry[] eee = getPlansOfProject(projectId);
         for (ConfigEntry e : eee) {
             if (e.getID("id").equals(planId)) return e;

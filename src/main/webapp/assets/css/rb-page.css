@@ -398,6 +398,7 @@ a.btn {
     height: 2.6rem;
     min-height: 2.6rem;
     min-width: auto;
+    box-shadow: none !important;
 }
 
 .input-search button .icon,

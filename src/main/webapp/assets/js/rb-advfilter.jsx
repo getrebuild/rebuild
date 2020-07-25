@@ -32,18 +32,16 @@ class AdvFilter extends React.Component {
   }
 
   render() {
-    let operBtns = (
-      <div className="item">
+    const opButtons = this.props.fromList ?
+      <div className="float-right">
+        <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>保存</button>
+        <button className="btn btn-primary bordered" type="button" onClick={() => this.searchNow()}><i className="icon zmdi zmdi-search" /> 立即查询</button>
+      </div>
+      :
+      <div className="item" >
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>确定</button>
         <button className="btn btn-secondary" type="button" onClick={() => this.hide(true)}>取消</button>
-      </div>)
-    if (this.props.fromList) {
-      operBtns = (
-        <div className="float-right">
-          <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>保存</button>
-          <button className="btn btn-primary bordered" type="button" onClick={() => this.searchNow()}><i className="icon zmdi zmdi-search" /> 立即查询</button>
-        </div>)
-    }
+      </div>
 
     const advFilter = (
       <div className={'adv-filter-wrap ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
@@ -86,20 +84,21 @@ class AdvFilter extends React.Component {
                 </div>
                 {rb.isAdminUser && <Share2 ref={(c) => this._shareTo = c} noSwitch={true} shareTo={this.props.shareTo} />}
               </div>
-              {operBtns}
+              {opButtons}
               <div className="clearfix" />
             </div>
-            : (<div className="btn-footer">{operBtns}</div>)}
+            : (<div className="btn-footer">{opButtons}</div>)}
         </div>
       </div>
     )
+
     if (this.props.inModal) return <RbModal ref={(c) => this._dlg = c} title={this.props.title || '高级查询'} disposeOnHide={!!this.props.filterName}>{advFilter}</RbModal>
     else return advFilter
   }
 
   componentDidMount() {
-    $.get('/commons/metadata/fields?deep=2&filter=SEARCH&entity=' + this.props.entity, (res) => {
-      let valideFs = []
+    $.get(`/commons/metadata/fields?deep=2&ft=QUERY&entity=${this.props.entity}`, (res) => {
+      const valideFs = []
       this.fields = res.data.map((item) => {
         valideFs.push(item.name)
         if (item.type === 'REFERENCE') {
@@ -136,10 +135,10 @@ class AdvFilter extends React.Component {
 
   addItem(props) {
     if (!this.fields) return
-    let _items = this.state.items || []
+    const _items = this.state.items || []
     if (_items.length >= 9) { RbHighbar.create('最多可添加9个条件'); return }
 
-    let id = 'item-' + $random()
+    const id = 'item-' + $random()
     let itemProps = { fields: this.fields, $$$parent: this, key: 'key-' + id, id: id, onRef: this.onRef, index: _items.length + 1 }
     if (props) itemProps = { ...itemProps, ...props }
     _items.push(<FilterItem {...itemProps} />)
@@ -148,11 +147,11 @@ class AdvFilter extends React.Component {
   }
 
   removeItem(id) {
-    let _items = []
+    const _items = []
     this.state.items.forEach((item) => {
       if (item.props.id !== id) _items.push(item)
     })
-    let _children = []
+    const _children = []
     this.childrenRef.forEach((item) => {
       if (item.props.id !== id) _children.push(item)
     })
@@ -227,6 +226,7 @@ class AdvFilter extends React.Component {
   show(state) {
     this.props.inModal && this._dlg.show(state)
   }
+
   hide() {
     this.props.inModal && this._dlg.hide()
     typeof this.props.cancel === 'function' && this.props.cancel()

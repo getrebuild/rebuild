@@ -421,16 +421,16 @@
 		<field name="taskNumber" type="long" nullable="false" updatable="false" description="任务编号" />
 		<field name="taskName" type="string" max-length="300" nullable="false" description="任务名称" />
 		<field name="executor" type="reference" ref-entity="User" description="执行人" />
-		<field name="partners" type="string" max-length="420" default-value="ALL" description="参与者(可选值: $UserID)" />
-		<field name="priority" type="small-int" default-value="1" description="优先级(0=较低 1=普通 2=紧急 3=非常紧急)" />
-		<field name="deadline" type="timestamp" description="计划截至时间" />
-		<field name="status" type="small-int" default-value="0" description="状态(0=未完成/未开始)" />
+		<field name="partners" type="string" max-length="420" default-value="ALL" description="参与者(可选值: $UserID)" queryable="false" />
+		<field name="priority" type="small-int" default-value="1" description="优先级(0=较低 1=普通 2=紧急 3=非常紧急)" queryable="false" />
+		<field name="status" type="small-int" default-value="0" description="状态(0=未完成/未开始)" queryable="false" />
+		<field name="deadline" type="timestamp" description="截至时间" />
 		<field name="startTime" type="timestamp" description="开始时间" />
-		<field name="endTime" type="timestamp" description="结束时间" />
-		<field name="description" type="text" max-length="10000" description="详情" />
+		<field name="endTime" type="timestamp" description="完成时间" />
+		<field name="description" type="text" max-length="10000" description="详情" queryable="false" />
 		<field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}" />
-		<field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" />
-        <field name="seq" type="int" default-value="0" description="排序(小到大)" />
+		<field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" queryable="false" />
+        <field name="seq" type="int" default-value="0" description="排序(小到大)" queryable="false" />
 		<index field-list="projectId,projectPlanId,seq" />
 		<index field-list="projectId,taskNumber,taskName,status" />
 	</entity>

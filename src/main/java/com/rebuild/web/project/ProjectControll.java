@@ -36,6 +36,9 @@ import java.util.regex.Pattern;
 @Controller
 public class ProjectControll extends BasePageControll {
 
+    // 项目 ID
+    private static final Pattern PATT_CODE = Pattern.compile("[a-zA-Z]{2,6}");
+
     @RequestMapping("{projectId}/tasks")
     public ModelAndView pageProject(@PathVariable String projectId,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -61,9 +64,6 @@ public class ProjectControll extends BasePageControll {
 
         return mv;
     }
-
-    // 项目 ID
-    private static final Pattern PATT_CODE = Pattern.compile("[a-zA-Z]{2,6}");
 
     @RequestMapping("search")
     public ModelAndView searchProject(HttpServletRequest request, HttpServletResponse response) throws IOException {

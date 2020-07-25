@@ -31,17 +31,31 @@
 						</div>
 					</div>
 					<div class="col-sm-6 text-right d-none d-md-block project-right">
-						<div class="btn-group">
+						<div class="btn-group J_sorts">
 							<button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown"><i class="zmdi zmdi-sort-asc icon"></i> <span>排序</span></button>
 							<div class="dropdown-menu dropdown-menu-right">
-								<a class="dropdown-item" data-sort="seq">手动拖动排序</a>
-								<a class="dropdown-item" data-sort="deadline">按最近截至时间</a>
-								<a class="dropdown-item" data-sort="modifiedOn">按最近更新时间</a>
+								<a class="dropdown-item" data-sort="seq">手动拖动</a>
+								<a class="dropdown-item" data-sort="deadline">最近截至</a>
+								<a class="dropdown-item" data-sort="modifiedOn">最近更新</a>
 							</div>
 						</div>
-						<div class="btn-group">
-							<button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown"><i class="zmdi zmdi-search icon"></i> 搜索</button>
+						<div class="btn-group J_search">
+							<button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown">
+								<i class="zmdi zmdi-search icon"></i>
+								搜索
+								<i class="indicator-primary bg-warning hide" style="top:1px;right:-7px"></i>
+							</button>
 							<div class="dropdown-menu dropdown-menu-right">
+								<div class="px-4 py-2">
+									<div class="input-group input-search m-0">
+										<input class="form-control" type="text" placeholder="输入关键词搜索" maxlength="40">
+										<span class="input-group-btn">
+											<button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+										</span>
+									</div>
+								</div>
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item J_filter" href="javascript:;"><i class="icon zmdi zmdi-filter-list"></i> 高级查询</a>
 							</div>
 						</div>
 					</div>
@@ -62,6 +76,7 @@ window.__PageConfig = {
 	projectPlans: ${projectPlans},
 }
 </script>
+<script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>
 <script src="${baseUrl}/assets/js/project/project-tasks.jsx" type="text/babel"></script>
 </body>
 </html>
