@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
+import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +25,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -42,25 +44,35 @@ public class ProjectControll extends BasePageControll {
     @RequestMapping("{projectId}/tasks")
     public ModelAndView pageProject(@PathVariable String projectId,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final ID user = getRequestUser(request);
         final ID projectId2 = ID.isId(projectId) ? ID.valueOf(projectId) : null;
         if (projectId2 == null) {
             response.sendError(404);
             return null;
         }
 
-        final ConfigEntry p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
+
+        ConfigEntry p;
+        try {
+            p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
+        } catch (ConfigurationException ex) {
+            response.sendError(404, ex.getLocalizedMessage());
+            return null;
+        }
+
         ModelAndView mv = createModelAndView("/project/project-tasks.jsp");
         mv.getModelMap().put("projectId", p.getID("id"));
         mv.getModelMap().put("iconName", p.getString("iconName"));
         mv.getModelMap().put("projectCode", p.getString("projectCode"));
         mv.getModelMap().put("projectName", p.getString("projectName"));
+        mv.getModelMap().put("isMember", p.get("members", Set.class).contains(user));
 
         final ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
-        JSONArray plans2 = new JSONArray();
+        JSONArray plansList = new JSONArray();
         for (ConfigEntry e : plans) {
-            plans2.add(e.toJSON());
+            plansList.add(e.toJSON());
         }
-        mv.getModelMap().put("projectPlans", plans2.toJSONString());
+        mv.getModelMap().put("projectPlans", plansList.toJSONString());
 
         return mv;
     }

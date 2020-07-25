@@ -27,7 +27,7 @@ public class SchemaGen {
 	private static ApplicationContext CTX;
 	private static PersistManagerFactory PMF;
 
-	private static boolean DROP_EXISTS = true;
+	private static boolean DROP_EXISTS = !true;
 
 	public static void main(String[] args) {
 		CTX = new ClassPathXmlApplicationContext(new String[] { "application-ctx.xml", });

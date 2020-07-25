@@ -211,7 +211,7 @@ class TaskContent extends React.Component {
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`/project/tasks/delete?task=${that.props.id}`, (res) => {
+        $.post(`/app/entity/record-delete?id=${that.props.id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             RbHighbar.success('任务已删除')

@@ -18,6 +18,7 @@ import com.rebuild.server.ServerListener;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,15 +40,13 @@ public class NavBuilder extends NavManager {
     public static final NavBuilder instance = new NavBuilder();
     private NavBuilder() { }
 
-    /**
-     * 默认导航
-     */
+    // 默认导航
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
             new String[] { "icon", "text", "type", "value" },
             new Object[][] {
-                    new Object[] { "chart-donut", "动态", "ENTITY", NAV_FEEDS },
-                    new Object[] { "city-alt", "项目", "ENTITY", NAV_PROJECT },
-                    new Object[] { "folder", "文件", "ENTITY", NAV_FILEMRG },
+                    new Object[] { "chart-donut", "动态", "BUILTIN", NAV_FEEDS },
+                    new Object[] { "shape", "项目", "BUILTIN", NAV_PROJECT },
+                    new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG }
             });
 
     /**
@@ -134,18 +133,28 @@ public class NavBuilder extends NavManager {
      * @return
      */
     private JSONArray getProjects(ID user) {
+        JSONArray navsOfProject = new JSONArray();
+
         ConfigEntry[] projects = ProjectManager.instance.getAvailable(user);
         if (projects.length == 0) {
-            return null;
+            if (UserHelper.isAdmin(user)) {
+                JSONObject p = JSONUtils.toJSONObject(
+                        new String[] { "icon", "text", "type", "value" },
+                        new String[] { "plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add" }
+                );
+                navsOfProject.add(p);
+
+            } else {
+                return null;
+            }
         }
 
-        JSONArray projectNavs = new JSONArray();
         for (ConfigEntry e : projects) {
-            projectNavs.add(JSONUtils.toJSONObject(
+            navsOfProject.add(JSONUtils.toJSONObject(
                     new String[] { "type", "text", "icon", "value" },
-                    new String[] { NAV_PROJECT, e.getString("projectName"), e.getString("iconName"), e.getID("id").toLiteral() }));
+                    new Object[] { NAV_PROJECT, e.getString("projectName"), e.getString("iconName"), e.getID("id") }));
         }
-        return projectNavs;
+        return navsOfProject;
     }
 
     // --
@@ -187,6 +196,10 @@ public class NavBuilder extends NavManager {
         } else if (NAV_PROJECT.equals(navType)) {
             navName = "nav_project-" + navName;
             navUrl = String.format("%s/project/%s/tasks", ServerListener.getContextPath(), navUrl);
+
+        } else if (navName.startsWith(NAV_PROJECT)) {
+            navName = "nav_entity-PROJECT--add";
+            navUrl = ServerListener.getContextPath() + "/admin/projects";
 
         } else {
             navName = "nav_entity-" + navName;

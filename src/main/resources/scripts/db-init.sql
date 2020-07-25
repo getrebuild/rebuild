@@ -574,20 +574,24 @@ create table if not exists `project_config` (
   `CONFIG_ID`          char(20) not null,
   `PROJECT_NAME`       varchar(100) not null comment '项目名称',
   `PROJECT_CODE`       varchar(10) not null comment '项目代号',
+  `ICON_NAME`          varchar(30) comment '图标ICON',
   `COMMENTS`           varchar(300) comment '备注',
-  `PRINCIPAL`          char(20) comment '负责人',
-  `MEMBERS`            varchar(420) default 'ALL' comment '项目成员(可选值: ALL/$MemberID)',
-  `SHOW_CONFIG`        text(3000) comment '扩展配置(JSON Map)',
-  primary key  (`CONFIG_ID`)
+  `MEMBERS`            varchar(420) comment '项目成员($MemberID)',
+  `SCOPE`              smallint(6) default '1' comment '可见范围(1=公开 2=成员)',
+  `EXTRA_DEFINITION`   text(1000) comment '扩展配置(JSON Map)',
+  primary key  (`CONFIG_ID`),
+  unique index UIX0_project_config (`PROJECT_CODE`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectPlanConfig] DDL ************
 create table if not exists `project_plan_config` (
   `CONFIG_ID`          char(20) not null,
   `PROJECT_ID`         char(20) not null comment '所属项目',
-  `PLAN_NAME`          varchar(100) not null comment '项目名称',
+  `PLAN_NAME`          varchar(100) not null comment '面板名称',
   `COMMENTS`           varchar(300) comment '备注',
   `SEQ`                int(11) default '0' comment '排序(小到大)',
+  `FLOW_STATUS`        smallint(6) default '1' comment '工作流状态',
+  `FLOW_NEXTS`         varchar(420) comment '可转换到哪个面板',
   primary key  (`CONFIG_ID`),
   index IX0_project_plan_config (`PROJECT_ID`, `SEQ`)
 )Engine=InnoDB;
@@ -602,11 +606,11 @@ create table if not exists `project_task` (
   `EXECUTOR`           char(20) comment '执行人',
   `PARTNERS`           varchar(420) default 'ALL' comment '参与者(可选值: $UserID)',
   `PRIORITY`           smallint(6) default '1' comment '优先级(0=较低 1=普通 2=紧急 3=非常紧急)',
-  `START_TIME`         timestamp null default null comment '开始时间',
-  `END_TIME`           timestamp null default null comment '结束时间',
   `STATUS`             smallint(6) default '0' comment '状态(0=未完成/未开始)',
+  `DEADLINE`           timestamp null default null comment '截至时间',
+  `START_TIME`         timestamp null default null comment '开始时间',
+  `END_TIME`           timestamp null default null comment '完成时间',
   `DESCRIPTION`        text(10000) comment '详情',
-  `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `PARENT_TASK_ID`     char(20) comment '父级任务',
   `SEQ`                int(11) default '0' comment '排序(小到大)',
@@ -634,7 +638,6 @@ create table if not exists `project_task_comment` (
   `COMMENT_ID`         char(20) not null,
   `TASK_ID`            char(20) not null comment '哪个任务',
   `CONTENT`            text(3000) not null comment '内容',
-  `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',

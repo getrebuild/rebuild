@@ -26,7 +26,7 @@
 						<div class="project-head">
 							<h4>${projectName}</h4>
 							<div class="project-action">
-								<span class="admin-show"><a href="${baseUrl}/admin/project/${projectId}" title="项目设置" target="_blank" class="zicon"><i class="zmdi zmdi-settings"></i></a></span>
+								<span class="admin-show"><a href="${baseUrl}/admin/project/${projectId}" title="项目设置" class="zicon"><i class="zmdi zmdi-settings"></i></a></span>
 							</div>
 						</div>
 					</div>
@@ -55,7 +55,7 @@
 									</div>
 								</div>
 								<div class="dropdown-divider"></div>
-								<a class="dropdown-item J_filter" href="javascript:;"><i class="icon zmdi zmdi-filter-list"></i> 高级查询</a>
+								<a class="dropdown-item J_filter"><i class="icon zmdi zmdi-filter-list"></i> 高级查询</a>
 							</div>
 						</div>
 					</div>
@@ -74,6 +74,7 @@ window.__PageConfig = {
 	projectCode: '${projectCode}',
 	projectName: '${projectName}',
 	projectPlans: ${projectPlans},
+    isMember: ${isMember},
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-advfilter.jsx" type="text/babel"></script>

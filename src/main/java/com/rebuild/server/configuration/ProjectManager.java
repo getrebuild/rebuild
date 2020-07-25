@@ -22,6 +22,7 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -49,17 +50,12 @@ public class ProjectManager implements ConfigManager {
     public ConfigEntry[] getAvailable(ID user) {
         ConfigEntry[] projects = getAllProjects();
 
-        // TODO 管理员永远可见？
+        // TODO 管理员可见全部？
 
         List<ConfigEntry> alist = new ArrayList<>();
         for (ConfigEntry e : projects) {
-            if (e.getInteger("scope") == ProjectConfigService.SCOPE_ALL) {
-                alist.add(e.clone());
-                continue;
-            }
-
-            Set<?> members = e.get("members", Set.class);
-            if (members != null && members.contains(user)) {
+            if (e.getInteger("scope") == ProjectConfigService.SCOPE_ALL
+                    || e.get("members", Set.class).contains(user)) {
                 alist.add(e.clone());
             }
         }
@@ -86,14 +82,8 @@ public class ProjectManager implements ConfigManager {
                         .set("projectCode", o[1])
                         .set("projectName", o[2])
                         .set("iconName", o[3])
-                        .set("scope", o[4]);
-
-                String members = (String) o[5];
-                if (StringUtils.isNotBlank(members) && members.length() >= 20) {
-                    // FIXME 如果用户部门/角色/团队改变了，这里的用户缓存就会有问题
-                    Set<ID> users = UserHelper.parseUsers(Arrays.asList(members.split(",")), null);
-                    e.set("members", users);
-                }
+                        .set("scope", o[4])
+                        .set("_members", o[5]);
 
                 String extraDefinition = (String) o[6];
                 if (JSONUtils.wellFormat(extraDefinition)) {
@@ -107,6 +97,15 @@ public class ProjectManager implements ConfigManager {
 
             projects = alist.toArray(new ConfigEntry[0]);
             Application.getCommonCache().putx(CKEY_PROJECTS, projects);
+        }
+
+        for (ConfigEntry p : projects) {
+            Set<ID> members = Collections.emptySet();
+            String userDefs = p.getString("_members");
+            if (StringUtils.isNotBlank(userDefs) && userDefs.length() >= 20) {
+                members = UserHelper.parseUsers(Arrays.asList(userDefs.split(",")), null);
+            }
+            p.set("members", members);
         }
         return projects;
     }
@@ -152,13 +151,13 @@ public class ProjectManager implements ConfigManager {
         }
 
         if (projectId == null) {
-            throw new ConfigurationException("任务不存在或已被删除");
+            throw new ConfigurationException("项目任务不存在或已被删除");
         }
 
         try {
             return getProject(projectId, user);
         } catch (ConfigurationException ex) {
-            throw new PrivilegesException("无权访问该任务", ex);
+            throw new PrivilegesException("无权访问该项目任务", ex);
         }
     }
 

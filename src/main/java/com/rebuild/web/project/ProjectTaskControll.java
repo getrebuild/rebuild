@@ -10,7 +10,6 @@ package com.rebuild.web.project;
 import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -19,9 +18,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.helper.ConfigurationException;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.project.ProjectTaskService;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -112,21 +109,6 @@ public class ProjectTaskControll extends BasePageControll {
 
         JSON ret = JSONUtils.toJSONObject(new String[]{"count", "tasks"}, new Object[]{tasks.length, alist});
         writeSuccess(response, ret);
-    }
-
-    @RequestMapping("/project/tasks/post")
-    public void taskPost(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
-        Record record = EntityHelper.parse(post, getRequestUser(request));
-        Application.getBean(ProjectTaskService.class).createOrUpdate(record);
-        writeSuccess(response);
-    }
-
-    @RequestMapping("/project/tasks/delete")
-    public void taskDelete(HttpServletRequest request, HttpServletResponse response) {
-        ID taskId = getIdParameterNotNull(request, "task");
-        Application.getBean(ProjectTaskService.class).delete(taskId);
-        writeSuccess(response);
     }
 
     @RequestMapping("/project/tasks/get")

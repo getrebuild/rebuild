@@ -16,7 +16,10 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.configuration.ProjectPlanConfigService;
+
+import java.util.Set;
 
 /**
  * @author devezhao
@@ -40,6 +43,8 @@ public class ProjectTaskService extends BaseService {
 
     @Override
     public Record create(Record record) {
+        checkMember(null, record.getID("projectId"));
+
         record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
         applyFlowStatue(record);
         record.setInt("seq", getNextSeqViaMidValue(record.getID("projectPlanId")));
@@ -48,6 +53,8 @@ public class ProjectTaskService extends BaseService {
 
     @Override
     public Record update(Record record) {
+        checkMember(null, record.getPrimary());
+
         // 自动完成
         int flowStatus = applyFlowStatue(record);
 
@@ -76,6 +83,8 @@ public class ProjectTaskService extends BaseService {
 
     @Override
     public int delete(ID taskId) {
+        checkMember(null, taskId);
+
         int d = super.delete(taskId);
         ProjectManager.instance.clean(taskId);
         return d;
@@ -148,5 +157,21 @@ public class ProjectTaskService extends BaseService {
             return fs;
         }
         return -1;
+    }
+
+    /**
+     * @param user
+     * @param taskOrProject
+     * @return
+     */
+    private boolean checkMember(ID user, ID taskOrProject) {
+        if (user == null) user = Application.getCurrentUser();
+
+        ConfigEntry c = taskOrProject.getEntityCode() == EntityHelper.ProjectTask
+                ? ProjectManager.instance.getProjectByTask(taskOrProject, null)
+                : ProjectManager.instance.getProject(taskOrProject, null);
+        if (c != null && c.get("members", Set.class).contains(user)) return true;
+
+        throw new DataSpecificationException("非项目成员禁止编辑");
     }
 }

@@ -13,7 +13,7 @@ let __AdvFilter
 $(document).ready(() => {
   // $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
 
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} />, 'plan-boxes', function () {
+  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} />, 'plan-boxes', function () {
     __PlanBoxes = this
     __draggable()
     $('.J_project-load').remove()
@@ -44,7 +44,7 @@ $(document).ready(() => {
     __PlanBoxes.setState({ search: s })
   })
   $search.find('input').keydown((e) => {
-    if (e.keyCode === 13) $search.find('.btn').trigger('click')
+    e.keyCode === 13 && $search.find('.btn').trigger('click')
   })
 
   // 高级查询
@@ -71,7 +71,7 @@ class PlanBoxes extends React.Component {
     return (
       <React.Fragment>
         {this.props.plans.map((item) => {
-          return <PlanBox key={`plan-${item.id}`}
+          return <PlanBox key={`plan-${item.id}`} readonly={this.props.readonly}
             id={item.id} planName={item.planName} flowStatus={item.flowStatus} flowNexts={item.flowNexts}
             sort={this.state.sort} search={this.state.search} filter={this.state.filter} />
         })}
@@ -80,6 +80,8 @@ class PlanBoxes extends React.Component {
   }
 
   componentDidMount() {
+    if (this.props.readonly) return
+
     let startState = 0
     // 拖动排序&换面板
     $('.task-list').sortable({
@@ -161,8 +163,8 @@ class PlanBoxes extends React.Component {
 // 任务面板
 class PlanBox extends React.Component {
   state = { ...this.props }
-  creatableTask = this.props.flowStatus === 1 || this.props.flowStatus === 3
-  performableTask = this.props.flowStatus === 1 || this.props.flowStatus === 3
+  creatableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly
+  performableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly
 
   render() {
     return (
@@ -182,8 +184,15 @@ class PlanBox extends React.Component {
               <div className="task-card newtask">
                 <div className="task-card-body">
                   <div>
-                    <textarea className="form-control form-control-sm row2x" placeholder="输入标题以新建任务" ref={(c) => this._taskName = c}
-                      onKeyDown={(e) => e.keyCode === 13 && this._handleCreateTask()}
+                    <textarea className="form-control form-control-sm row2x" placeholder="输入标题以新建任务"
+                      ref={(c) => this._taskName = c}
+                      onKeyDown={(e) => {
+                        if (e.keyCode === 13) {
+                          this._handleCreateTask()
+                          $stopEvent(e)
+                          return false
+                        }
+                      }}
                       autoFocus />
                   </div>
                   <div>
@@ -293,7 +302,7 @@ class PlanBox extends React.Component {
     _data.metadata = { entity: 'ProjectTask' }
 
     const $btn = $(this._btn).button('loading')
-    $.post('/project/tasks/post', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         this.setState({ newMode: false }, () => this.refreshTasks(true))
       } else {
@@ -385,7 +394,7 @@ class Task extends React.Component {
 // 保存任务
 const __saveTask = function (id, data, call) {
   data.metadata = { id: id }
-  $.post('/project/tasks/post', JSON.stringify(data), (res) => {
+  $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
     if (res.error_code !== 0) RbHighbar.error(res.error_msg)
     else typeof call === 'function' && call()
   })
