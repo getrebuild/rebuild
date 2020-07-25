@@ -111,10 +111,7 @@ class TaskContent extends React.Component {
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-comment-more" /> 备注</label>
           <div className="col-12 col-sm-9">
-            <div >
-              <textarea className="task-desc" name="description" value={this.state.description || ''} maxLength="2000" placeholder="添加备注" ref={(c) => this._description = c}
-                onChange={(e) => this._handleChange(e, true)} onBlur={(e) => this._handleChange(e)} onKeyDown={(e) => this._enterKey(e)} />
-            </div>
+            <TaskDescription content={this.state.description} $$$parent={this} />
           </div>
         </div>
         <div className="form-group row">
@@ -175,7 +172,7 @@ class TaskContent extends React.Component {
       startDate: new Date(),
       clearBtn: true,
     }).on('changeDate', (e) => {
-      this._handleChange({ target: { name: e.currentTarget.name, value: e.date ? moment(e.date).format('YYYY-MM-DD HH:mm:ss') : null } })
+      this.handleChange({ target: { name: e.currentTarget.name, value: e.date ? moment(e.date).format('YYYY-MM-DD HH:mm:ss') : null } })
     })
 
     autosize(this._description)
@@ -192,7 +189,7 @@ class TaskContent extends React.Component {
         $mp.end()
         const s = (this.state.attachments || []).slice(0)
         s.push(res.key)
-        this._handleChange({ target: { name: 'attachments', value: s } })
+        this.handleChange({ target: { name: 'attachments', value: s } })
       })
   }
 
@@ -224,18 +221,21 @@ class TaskContent extends React.Component {
   }
 
   // 即时保存
-  _handleChange(e, call) {
+  handleChange(e, call) {
     const name = e.target.name
     const value = e.target.value
     const valueOld = this.state[name]
-    if ($same(value, valueOld)) return
+    if ($same(value, valueOld)) {
+      typeof call === 'function' && call()
+      return
+    }
     this.setState({ [name]: value })
 
     const data = {
       [name]: $.type(value) === 'array' ? value.join(',') : value,
       metadata: { id: this.props.id }
     }
-    $.post('/project/tasks/post', JSON.stringify(data), (res) => {
+    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         __TaskViewer.refreshTask && __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
         typeof call === 'function' && call()
@@ -249,23 +249,23 @@ class TaskContent extends React.Component {
       RbHighbar.create('任务标题不能为空')
       this._taskName.focus()
     } else {
-      this._handleChange(e)
+      this.handleChange(e)
     }
   }
 
   _handleChangeStatus(e) {
-    this._handleChange({ target: { name: 'status', value: e.target.checked ? 1 : 0 } }, () => this.fetch())
+    this.handleChange({ target: { name: 'status', value: e.target.checked ? 1 : 0 } }, () => this.fetch())
   }
 
   _handleChangePlan(val, e) {
     if (e.target.dataset.disabled === 'true') return
-    this._handleChange({ target: { name: 'projectPlanId', value: val } }, () => this.fetch())
+    this.handleChange({ target: { name: 'projectPlanId', value: val } }, () => this.fetch())
   }
 
-  _handleChangePriority = (val) => this._handleChange({ target: { name: 'priority', value: val } })
+  _handleChangePriority = (val) => this.handleChange({ target: { name: 'priority', value: val } })
 
   _handleChangeExecutor(val) {
-    this._handleChange({ target: { name: 'executor', value: val ? val.id : null } },
+    this.handleChange({ target: { name: 'executor', value: val ? val.id : null } },
       () => this.setState({ executor: val ? [val.id, val.text] : null }))
   }
 
@@ -276,10 +276,9 @@ class TaskContent extends React.Component {
       confirm: function () {
         this.hide()
         const s = that.state.attachments.filter(x => x !== item)
-        that._handleChange({ target: { name: 'attachments', value: s } })
+        that.handleChange({ target: { name: 'attachments', value: s } })
       }
     })
-
   }
 
   _enterKey(e) {
@@ -288,6 +287,45 @@ class TaskContent extends React.Component {
 
   refreshComments() {
     this._TaskCommentsList.fetchComments()
+  }
+}
+
+class TaskDescription extends React.Component {
+  state = { ...this.props }
+  render() {
+    if (this.state.editMode) {
+      return (
+        <div className="form-control-plaintext">
+          <TextEditor hideAttachment={true} ref={(c) => this._editor = c} />
+          <div className="mt-2 text-right" ref={(c) => this._btns = c}>
+            <button onClick={() => this.setState({ editMode: false })} className="btn btn-sm btn-link">取消</button>
+            <button className="btn btn-sm btn-primary" onClick={() => this._handleConfirm()}>确定</button>
+          </div>
+        </div>
+      )
+    } else {
+      return (
+        <div className="form-control-plaintext desc" style={{ cursor: 'pointer' }} onClick={() => this._handleEditMode()}>
+          {this.state.content
+            ? TextEditor.renderRichContent({ content: this.state.content })
+            : <div className="text-muted">点击添加</div>}
+        </div>
+      )
+    }
+  }
+
+  UNSAFE_componentWillReceiveProps(props) {
+    if (props.content !== this.state.content) this.setState({ content: props.content })
+  }
+
+  _handleEditMode() {
+    this.setState({ editMode: true }, () => this._editor.focus(this.state.content))
+  }
+
+  _handleConfirm() {
+    const val = this._editor.val()
+    this.props.$$$parent.handleChange({ target: { name: 'description', value: val } },
+      () => this.setState({ content: val, editMode: false }))
   }
 }
 
@@ -315,7 +353,7 @@ class TaskCommentsList extends React.Component {
                     <div className="meta">
                       <a>{item.createdBy[1]}</a>
                     </div>
-                    {__renderRichContent(item)}
+                    {TextEditor.renderRichContent(item)}
                     <div className="actions">
                       <div className="float-left text-muted fs-12 time">
                         <span title={item.createdOn}>{$fromNow(item.createdOn)}</span>
@@ -445,9 +483,11 @@ class TextEditor extends React.Component {
                   <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} onSelectItem={this._selectAtUser} ref={(c) => this._UserSelector = c} />
                 </span>
               </li>
-              <li className="list-inline-item">
-                <a title="附件" onClick={() => this._fileInput.click()}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
-              </li>
+              {this.props.hideAttachment ? null :
+                <li className="list-inline-item">
+                  <a title="附件" onClick={() => this._fileInput.click()}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
+                </li>
+              }
             </ul>
           </div>
         </div>
@@ -537,7 +577,10 @@ class TextEditor extends React.Component {
     }
   }
   focus(initValue) {
-    typeof initValue !== 'undefined' && $(this._editor).val(initValue)
+    if (typeof initValue !== 'undefined') {
+      setTimeout(() => autosize.update(this._editor), 100)
+      $(this._editor).val(initValue)
+    }
     $(this._editor).selectRange(9999, 9999)  // Move to last
   }
   reset() {
@@ -545,24 +588,27 @@ class TextEditor extends React.Component {
     autosize.update(this._editor)
     this.setState({ files: null, images: null })
   }
-}
 
-// 渲染动态内容
-function __renderRichContent(data) {
-  // 表情和换行不在后台转换，因为不同客户端所需的格式不同
-  const contentHtml = converEmoji(data.content.replace(/\n/g, '<br />'))
-  return <div className="rich-content">
-    <div className="texts text-break"
-      dangerouslySetInnerHTML={{ __html: contentHtml }}
-    />
-    {(data.attachments || []).length > 0 && <div className="file-field">
-      {data.attachments.map((item) => {
-        const fileName = $fileCutName(item)
-        return <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
-          <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
-        </a>
-      })}
+  /**
+   * 渲染内容
+   * @param {*} data 
+   */
+  static renderRichContent(data) {
+    // 表情和换行不在后台转换，因为不同客户端所需的格式不同
+    const contentHtml = data.content ? converEmoji(data.content.replace(/\n/g, '<br />')) : '点击添加'
+    return <div className="rich-content">
+      <div className="texts text-break"
+        dangerouslySetInnerHTML={{ __html: contentHtml }}
+      />
+      {(data.attachments || []).length > 0 && <div className="file-field">
+        {data.attachments.map((item) => {
+          const fileName = $fileCutName(item)
+          return <a key={'file-' + item} title={fileName} onClick={() => (parent || window).RbPreview.create(item)} className="img-thumbnail">
+            <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
+          </a>
+        })}
+      </div>
+      }
     </div>
-    }
-  </div >
+  }
 }

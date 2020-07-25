@@ -245,7 +245,7 @@ public class NavBuilder extends NavManager {
             Document navBody = Jsoup.parseBodyFragment(navHtml.toString());
             for (Element nav : navBody.select("." + activeNav)) {
                 nav.addClass("active");
-                if (activeNav.startsWith("nav_entity-")) {
+                if (activeNav.startsWith("nav_entity-") || activeNav.startsWith("nav_project-")) {
                     Element navParent = nav.parent();
                     if (navParent != null && navParent.hasClass("sub-menu-ul")) {
                         navParent.parent().parent().parent().parent().addClass("open active");

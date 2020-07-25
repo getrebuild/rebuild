@@ -39,8 +39,10 @@ public class TaskCommentControll extends BaseControll {
         ID taskId = getIdParameterNotNull(request, "task");
 
         Object[][] array = Application.createQueryNoFilter(
-                "select commentId,content,attachments,createdOn,createdBy,createdBy from ProjectTaskComment where taskId = ?")
+                "select commentId,content,attachments,createdOn,createdBy,createdBy" +
+                        " from ProjectTaskComment where taskId = ? order by createdOn desc")
                 .setParameter(1, taskId)
+                .setMaxResults(200)
                 .array();
 
         JSONArray ret = new JSONArray();

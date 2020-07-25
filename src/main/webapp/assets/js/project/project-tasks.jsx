@@ -12,20 +12,24 @@ let __AdvFilter
 
 $(document).ready(() => {
   // $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
+  const gs = $decode($urlp('gs', location.hash))
+  if (gs) $('.search-input-gs, .J_search .input-search input').val(gs)
 
-  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} />, 'plan-boxes', function () {
-    __PlanBoxes = this
-    __draggable()
-    $('.J_project-load').remove()
-  })
+  renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} search={gs} />, 'plan-boxes',
+    function () {
+      __PlanBoxes = this
+      __draggable()
+      $('.J_project-load').remove()
 
-  let viewHash = location.hash
-  if (viewHash && viewHash.startsWith('#!/View/ProjectTask/')) {
-    viewHash = viewHash.split('/')
-    if (viewHash.length === 4 && viewHash[3].length === 20) {
-      setTimeout(() => TaskViewModal.create(viewHash[3]), 500)
-    }
-  }
+      // 自动打开
+      let viewHash = location.hash
+      if (viewHash && viewHash.startsWith('#!/View/ProjectTask/')) {
+        viewHash = viewHash.split('/')
+        if (viewHash.length === 4 && viewHash[3].length === 20) {
+          setTimeout(() => TaskViewModal.create(viewHash[3]), 500)
+        }
+      }
+    })
 
   // 排序
   $('.J_sorts .dropdown-item').click(function () {
@@ -55,7 +59,6 @@ $(document).ready(() => {
     if (__AdvFilter) __AdvFilter.show()
     else renderRbcomp(<AdvFilter title="高级查询" entity="ProjectTask" inModal={true} canNoFilters={true} confirm={onFilter} />, null, function () { __AdvFilter = this })
   })
-
 })
 
 // 面板组件引用

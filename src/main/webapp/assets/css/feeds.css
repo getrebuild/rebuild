@@ -361,7 +361,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .comment-list .actions {
   border-top: 0 none;
   padding-top: 0;
-  margin-top: 0;
+  margin-top: -5px;
 }
 
 .comment-list .actions .time {
@@ -585,9 +585,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 @media (max-width:1280px) {
-    .feed-options.related .related-record {
-        width: 245px;
-    }
+  .feed-options.related .related-record {
+    width: 245px;
+  }
 }
 
 /* in edit */

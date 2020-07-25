@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -80,6 +81,8 @@ public class ProjectControll extends BasePageControll {
     @RequestMapping("search")
     public ModelAndView searchProject(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String gs = getParameter(request, "gs");
+        String baseUrl = AppUtils.getContextPath() + "/project/";
+
         // 全局搜索
         if (StringUtils.isNotBlank(gs)) {
             String[] codes = gs.split("-");
@@ -98,7 +101,7 @@ public class ProjectControll extends BasePageControll {
             }
 
             if (project != null) {
-                String projectUrl = AppUtils.getContextPath() + "/project/" + project[0] + "/tasks";
+                String projectUrl = baseUrl + project[0] + "/tasks";
                 if (project.length == 2) {
                     projectUrl += "#!/View/ProjectTask/" + project[1];
                 }
@@ -108,6 +111,14 @@ public class ProjectControll extends BasePageControll {
             }
         }
 
-        return createModelAndView("/project/project-search.jsp");
+        // 未找到就跳转到第一个项目
+        ConfigEntry[] ee = ProjectManager.instance.getAvailable(getRequestUser(request));
+        if (ee.length == 0) {
+            response.sendError(404, "没有可用项目");
+        } else {
+            String projectUrl = baseUrl + ee[0].getID("id") + "/tasks#gs=" + CodecUtils.urlEncode(gs);
+            response.sendRedirect(projectUrl);
+        }
+        return null;
     }
 }

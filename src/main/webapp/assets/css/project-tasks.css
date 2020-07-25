@@ -263,7 +263,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 #task-contents {
   background-color: #fff;
   height: 100%;
-  padding-bottom: 60px;
+  padding-bottom: 65px;
 }
 
 #task-comment {
@@ -441,6 +441,10 @@ a.close-circle {
   margin: 0;
 }
 
+#task-comment .comments .comment-reply {
+  padding: 15px 25px;
+}
+
 .comment-list-wrap h4 {
   font-size: 1.4rem;
   font-weight: normal;
@@ -451,4 +455,12 @@ a.close-circle {
   padding: 0;
   margin-top: -2px;
   margin-right: 10px;
+}
+
+.form-control-plaintext.desc .rich-content>.texts {
+  margin: 0;
+}
+
+.rich-editor textarea {
+  max-height: 200px;
 }
