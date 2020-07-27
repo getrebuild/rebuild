@@ -15,10 +15,12 @@ let __TaskContent
 let __TaskComment
 
 $(document).ready(() => {
-  renderRbcomp(<TaskContent id={wpc.taskId} />, 'task-contents',
+  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} />, 'task-contents',
     function () { __TaskContent = this })
-  renderRbcomp(<TaskComment id={wpc.taskId} call={() => __TaskContent.refreshComments()} />, 'task-comment',
-    function () { __TaskComment = this })
+  if (wpc.isMember) {
+    renderRbcomp(<TaskComment id={wpc.taskId} call={() => __TaskContent.refreshComments()} />, 'task-comment',
+      function () { __TaskComment = this })
+  }
 
   $('.J_close').click(() => __TaskViewer.hide())
   $('.J_reload').click(() => {
@@ -27,136 +29,60 @@ $(document).ready(() => {
   })
 })
 
-const __PRIORITIES = { 0: '较低', 1: '普通', 2: '紧急', 3: '非常紧急' }
-
-// 任务详情
-class TaskContent extends React.Component {
+// 任务表单
+class TaskForm extends React.Component {
   state = { ...this.props, priority: 1 }
 
   render() {
-    const plansOfState = this.state.plansOfState || []
     return (
       <div className="rbview-form task-form">
         <div className="form-group row pt-0">
           <div className="col-10">
-            <input type="text" className="task-title" name="taskName" defaultValue={this.state.taskName} ref={(c) => this._taskName = c}
-              onBlur={(e) => this._handleChangeTaskName(e)}
-              onKeyDown={(e) => this._enterKey(e)} />
+            <ValueTaskName taskName={this.state.taskName} $$$parent={this} />
           </div>
-          <div className="col-2 text-right">
-            <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">操作 <i className="icon zmdi zmdi-more-vert"></i></button>
-            <div className="dropdown-menu dropdown-menu-right">
-              <a className="dropdown-item text-muted" onClick={() => this._handleDelete()}>删除</a>
+          {this.props.editable &&
+            <div className="col-2 text-right">
+              <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">操作 <i className="icon zmdi zmdi-more-vert"></i></button>
+              <div className="dropdown-menu dropdown-menu-right">
+                <a className="dropdown-item text-muted" onClick={() => this._handleDelete()}>删除</a>
+              </div>
             </div>
-          </div>
+          }
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-square-o" /> 状态</label>
           <div className="col-12 col-sm-9">
-            <div className="form-control-plaintext">
-              <div className="float-left status-checkbox">
-                <label className="custom-control custom-checkbox custom-control-inline" title="已完成/未完成" onClick={(e) => $stopEvent(e)}>
-                  <input className="custom-control-input" type="checkbox" ref={(c) => this._status = c}
-                    disabled={this.state.currentPlanStatus === 2}
-                    onChange={(e) => this._handleChangeStatus(e)} />
-                  <span className="custom-control-label"></span>
-                </label>
-              </div>
-              <div className="float-left">
-                <a className="tag-value arrow plaintext" data-toggle="dropdown">
-                  {this.state.currentPlanId ? (plansOfState.find(x => x.id === this.state.currentPlanId) || { text: '[DELETED]' }).text : ''}
-                </a>
-                <div className="dropdown-menu">
-                  {plansOfState.map((item) => {
-                    const disabled = !this.state.currentPlanNexts.includes(item.id)
-                    return <a key={`plan-${item.id}`} className="dropdown-item" disabled={disabled} data-disabled={disabled} onClick={(e) => this._handleChangePlan(item.id, e)}>{item.text}</a>
-                  })}
-                </div>
-              </div>
-              <div className="clearfix" />
-            </div>
+            <ValueStatusAndPlan status={this.state.status} projectPlanId={this.state.projectPlanId} $$$parent={this} plansOfState={this.state.plansOfState} currentPlanNexts={this.state.currentPlanNexts} />
           </div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-account-o" /> 执行人</label>
           <div className="col-12 col-sm-9">
-            <React.Fragment>
-              {this.state.executor ?
-                (
-                  <div className="executor-show">
-                    <UserShow id={this.state.executor[0]} name={this.state.executor[1]} showName={true} onClick={() => this._UserSelector.openDropdown()} />
-                    <a className="close close-circle" onClick={() => this._handleChangeExecutor(null)} title="移除执行人">&times;</a>
-                  </div>
-                )
-                : <div className="form-control-plaintext"><a className="tag-value arrow placeholder" onClick={() => this._UserSelector.openDropdown()}>选择执行人</a></div>
-              }
-            </React.Fragment>
-            <div className="mount">
-              <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} closeOnSelect={true}
-                onSelectItem={(s) => this._handleChangeExecutor(s)}
-                ref={(c) => this._UserSelector = c} />
-            </div>
+            <ValueExecutor executor={this.state.executor} $$$parent={this} />
           </div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-time" /> 截至时间</label>
           <div className="col-12 col-sm-9">
-            <div className="form-control-plaintext" ref={(c) => this._dates = c}>
-              <a className={`tag-value arrow ${this.state.deadline ? 'plaintext' : 'placeholder'}`} name="deadline" title={this.state.deadline}>
-                {this.state.deadline ? `${this.state.deadline.substr(0, 16)} (${$fromNow(this.state.deadline)})` : '选择截至时间'}
-              </a>
-            </div>
+            <ValueDeadline deadline={this.state.deadline} $$$parent={this} />
           </div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-comment-more" /> 备注</label>
           <div className="col-12 col-sm-9">
-            <TaskDescription content={this.state.description} $$$parent={this} />
+            <ValueDescription description={this.state.description} $$$parent={this} />
           </div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-circle-o" /> 优先级</label>
           <div className="col-12 col-sm-9">
-            <div className="form-control-plaintext">
-              <a className={`tag-value arrow priority-${this.state.priority}`} data-toggle="dropdown">{__PRIORITIES[this.state.priority]}</a>
-              <div className="dropdown-menu">
-                <a className="dropdown-item text-muted" onClick={() => this._handleChangePriority(0)}>较低</a>
-                <a className="dropdown-item text-primary" onClick={() => this._handleChangePriority(1)}>普通</a>
-                <a className="dropdown-item text-warning" onClick={() => this._handleChangePriority(2)}>紧急</a>
-                <a className="dropdown-item text-danger" onClick={() => this._handleChangePriority(3)}>非常紧急</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="form-group row hide">
-          <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-label" /> 标签</label>
-          <div className="col-12 col-sm-9">
-            <div className="form-control-plaintext tags">
-              {(this.state.tags || []).map((item) => {
-                return <span className="tag-value" key={`tag-${item.id}`} data-id={item.id}>{item.text}</span>
-              })}
-              <a className="tag-value">+ 添加标签</a>
-            </div>
+            <ValuePriority priority={this.state.priority} $$$parent={this} />
           </div>
         </div>
         <div className="form-group row">
-          <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-attachment-alt pl-1" /> 附件</label>
+          <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45 mt-1" /> 附件</label>
           <div className="col-12 col-sm-9">
-            <div className="form-control-plaintext">
-              <input type="file" className="inputfile" id="attachments" ref={(c) => this._attachments = c} data-maxsize="102400000" />
-              <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1 }}><a className="tag-value">+ 上传</a></label>
-            </div>
-            <div className="file-field attachments">
-              {(this.state.attachments || []).map((item) => {
-                const fileName = $fileCutName(item)
-                return (
-                  <a key={`file-${item}`} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create([item])}>
-                    <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
-                    <b title="删除" onClick={(e) => this._deleteAttachment(item, e)}><span className="zmdi zmdi-delete"></span></b>
-                  </a>
-                )
-              })}
-            </div>
+            <ValueAttachments attachments={this.state.attachments} $$$parent={this} />
           </div>
         </div>
         <TaskCommentsList taskid={this.props.id} ref={c => this._TaskCommentsList = c} />
@@ -167,30 +93,6 @@ class TaskContent extends React.Component {
   componentDidMount() {
     __TaskViewer.setLoadingState(false)
     this.fetch()
-
-    $(this._dates).find('.tag-value').datetimepicker({
-      startDate: new Date(),
-      clearBtn: true,
-    }).on('changeDate', (e) => {
-      this.handleChange({ target: { name: e.currentTarget.name, value: e.date ? moment(e.date).format('YYYY-MM-DD HH:mm:ss') : null } })
-    })
-
-    autosize(this._description)
-
-    let mp = false
-    $createUploader(this._attachments,
-      () => {
-        if (!mp) {
-          $mp.start()
-          mp = true
-        }
-      },
-      (res) => {
-        $mp.end()
-        const s = (this.state.attachments || []).slice(0)
-        s.push(res.key)
-        this.handleChange({ target: { name: 'attachments', value: s } })
-      })
   }
 
   fetch() {
@@ -220,6 +122,29 @@ class TaskContent extends React.Component {
     })
   }
 
+  refreshComments() {
+    this._TaskCommentsList.fetchComments()
+  }
+}
+
+// 字段基类
+class ValueComp extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return this.props.$$$parent.props.editable ? this.renderElement() : this.renderViewElement()
+  }
+
+  renderElement() {
+    return <div />
+  }
+
+  renderViewElement() {
+    return this.renderElement()
+  }
+
+  UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
+
   // 即时保存
   handleChange(e, call) {
     const name = e.target.name
@@ -233,40 +158,304 @@ class TaskContent extends React.Component {
 
     const data = {
       [name]: $.type(value) === 'array' ? value.join(',') : value,
-      metadata: { id: this.props.id }
+      metadata: { id: this.props.$$$parent.props.id }
     }
+
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         __TaskViewer.refreshTask && __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
-        typeof call === 'function' && call()
+        typeof call === 'function' && call(true)
       } else RbHighbar.error(res.error_msg)
     })
   }
+}
 
-  _handleChangeTaskName(e) {
+// 任务标题
+class ValueTaskName extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    return this.props.$$$parent.props.editable && this.state.editMode ?
+      <input type="text" className="task-title" name="taskName" defaultValue={this.state.taskName} ref={(c) => this._taskName = c}
+        onBlur={(e) => this.handleChange(e)}
+        onKeyDown={(e) => e.keyCode === 13 && e.target.blur()}
+        disabled={!this.props.$$$parent.props.editable} />
+      :
+      this.renderViewElement()
+  }
+
+  renderViewElement() {
+    const editable = this.props.$$$parent.props.editable
+    return <div className={`task-title ${editable ? 'hover' : ''}`}
+      onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>{this.state.taskName}</div>
+  }
+
+  handleChange(e) {
     const value = e.target.value
     if (!value) {
       RbHighbar.create('任务标题不能为空')
       this._taskName.focus()
     } else {
-      this.handleChange(e)
+      super.handleChange(e, () => this.setState({ editMode: false }))
     }
+  }
+}
+
+// 状态和面板
+class ValueStatusAndPlan extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    return (
+      <div className="form-control-plaintext">
+        <div className="float-left status-checkbox">
+          <label className="custom-control custom-checkbox custom-control-inline" title="已完成/未完成" onClick={(e) => $stopEvent(e)}>
+            <input className="custom-control-input" type="checkbox" ref={(c) => this._status = c}
+              onChange={(e) => this._handleChangeStatus(e)}
+              disabled={this.state.currentPlanStatus === 2} />
+            <span className="custom-control-label"></span>
+          </label>
+        </div>
+        <div className="float-left">
+          <a className="tag-value arrow plaintext" data-toggle="dropdown">{this._PlanName()}</a>
+          <div className="dropdown-menu">
+            {(this.state.plansOfState || []).map((item) => {
+              const can = (this.state.currentPlanNexts || []).includes(item.id)
+              return <a key={`plan-${item.id}`} className={`dropdown-item ${can ? '' : 'disabled'}`} data-disabled={!can} onClick={(e) => this._handleChangePlan(e, item.id)}>{item.text}</a>
+            })}
+          </div>
+        </div>
+        <div className="clearfix" />
+      </div>
+    )
+  }
+
+  renderViewElement() {
+    return (
+      <div className="form-control-plaintext">
+        <div className="float-left status-checkbox">
+          <label className="custom-control custom-checkbox custom-control-inline" title="已完成/未完成">
+            <input className="custom-control-input" type="checkbox" defaultValue={this.state.staus > 0} disabled />
+            <span className="custom-control-label"></span>
+          </label>
+        </div>
+        <div className="float-left">
+          <span>{this._PlanName()}</span>
+        </div>
+        <div className="clearfix" />
+      </div>
+    )
+  }
+
+  _PlanName() {
+    return this.state.plansOfState ? (this.state.plansOfState.find(x => x.id === this.state.projectPlanId) || { text: '[DELETED]' }).text : '无'
   }
 
   _handleChangeStatus(e) {
-    this.handleChange({ target: { name: 'status', value: e.target.checked ? 1 : 0 } }, () => this.fetch())
+    this.handleChange({ target: { name: 'status', value: e.target.checked ? 1 : 0 } },
+      () => this.props.$$$parent.fetch())
   }
 
-  _handleChangePlan(val, e) {
+  _handleChangePlan(e, value) {
     if (e.target.dataset.disabled === 'true') return
-    this.handleChange({ target: { name: 'projectPlanId', value: val } }, () => this.fetch())
+    this.handleChange({ target: { name: 'projectPlanId', value: value } },
+      () => this.props.$$$parent.fetch())
   }
 
-  _handleChangePriority = (val) => this.handleChange({ target: { name: 'priority', value: val } })
+  // preProps, preState, spanshot
+  componentDidUpdate() {
+    console.log(this.state)
+    $(this._status).prop('checked', this.state.status > 0)
+  }
+}
 
-  _handleChangeExecutor(val) {
-    this.handleChange({ target: { name: 'executor', value: val ? val.id : null } },
-      () => this.setState({ executor: val ? [val.id, val.text] : null }))
+// 执行者
+class ValueExecutor extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    return (
+      <React.Fragment>
+        {this.state.executor ?
+          <div className="executor-show">
+            {this._renderValue(() => this._UserSelector.openDropdown())}
+            <a className="close close-circle" onClick={() => this.handleChange(null)} title="移除执行人">&times;</a>
+          </div>
+          :
+          <div className="form-control-plaintext">
+            <a className="tag-value arrow placeholder" onClick={() => this._UserSelector.openDropdown()}>选择执行人</a>
+          </div>
+        }
+        <div className="mount">
+          <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} closeOnSelect={true}
+            onSelectItem={(s) => this.handleChange(s)}
+            ref={(c) => this._UserSelector = c} />
+        </div>
+      </React.Fragment>
+    )
+  }
+
+  renderViewElement() {
+    return this._renderValue() || <div className="form-control-plaintext text-muted">无</div>
+  }
+
+  _renderValue(call) {
+    return this.state.executor && <UserShow id={this.state.executor[0]} name={this.state.executor[1]} showName
+      onClick={() => typeof call === 'function' && call()} />
+  }
+
+  handleChange(value) {
+    super.handleChange({ target: { name: 'executor', value: value ? value.id : null } },
+      () => this.setState({ executor: value ? [value.id, value.text] : null }))
+  }
+}
+
+// 截至时间
+class ValueDeadline extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    return (
+      <div className="form-control-plaintext" ref={(c) => this._deadline = c}>
+        <a className={`tag-value arrow ${this.state.deadline ? 'plaintext' : 'placeholder'}`} name="deadline" title={this.state.deadline}>
+          {this._renderValue('选择截至时间')}
+        </a>
+      </div>
+    )
+  }
+
+  renderViewElement() {
+    return this._renderValue(<div className="form-control-plaintext text-muted">无</div>)
+  }
+
+  _renderValue(defaultValue) {
+    return this.state.deadline
+      ? `${this.state.deadline.substr(0, 16)} (${$fromNow(this.state.deadline)})`
+      : defaultValue
+  }
+
+  componentDidMount() {
+    $(this._deadline).find('.tag-value').datetimepicker({
+      startDate: new Date(),
+      clearBtn: true,
+    }).on('changeDate', (e) => {
+      this.handleChange({ target: { name: 'deadline', value: e.date ? moment(e.date).format('YYYY-MM-DD HH:mm:ss') : null } })
+    })
+  }
+}
+
+// 描述
+class ValueDescription extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    if (this.state.editMode) {
+      return (
+        <div className="form-control-plaintext">
+          <TextEditor hideToolbar={true} ref={(c) => this._editor = c} />
+          <div className="mt-2 text-right">
+            <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link">取消</button>
+            <button className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>确定</button>
+          </div>
+        </div>
+      )
+    } else {
+      return (
+        <div className="form-control-plaintext desc hover" onClick={() => this._handleEditMode(true)}>
+          {this.state.description
+            ? TextEditor.renderRichContent({ content: this.state.description })
+            : <span className="text-muted">点击添加</span>}
+        </div>
+      )
+    }
+  }
+
+  renderViewElement() {
+    return (
+      <div className="form-control-plaintext desc">
+        {this.state.description
+          ? TextEditor.renderRichContent({ content: this.state.description })
+          : <span className="text-muted">无</span>}
+      </div>
+    )
+  }
+
+  _handleEditMode(editMode) {
+    this.setState({ editMode: editMode },
+      () => this.state.editMode && this._editor.focus(this.state.description))
+  }
+
+  handleChange() {
+    const value = this._editor.val()
+    super.handleChange({ target: { name: 'description', value: value } },
+      () => this.setState({ description: value, editMode: false }))
+  }
+}
+
+const __PRIORITIES = { 0: '较低', 1: '普通', 2: '紧急', 3: '非常紧急' }
+// 优先级
+class ValuePriority extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    return (
+      <div className="form-control-plaintext">
+        <a className={`tag-value arrow priority-${this.state.priority}`} data-toggle="dropdown">{__PRIORITIES[this.state.priority]}</a>
+        <div className="dropdown-menu">
+          <a className="dropdown-item text-muted" onClick={() => this.handleChange(0)}>较低</a>
+          <a className="dropdown-item text-primary" onClick={() => this.handleChange(1)}>普通</a>
+          <a className="dropdown-item text-warning" onClick={() => this.handleChange(2)}>紧急</a>
+          <a className="dropdown-item text-danger" onClick={() => this.handleChange(3)}>非常紧急</a>
+        </div>
+      </div>
+    )
+  }
+
+  renderViewElement() {
+    return <div className="form-control-plaintext">
+      <span className={`tag-value arrow priority-${this.state.priority}`} data-toggle="dropdown">{__PRIORITIES[this.state.priority]}</span>
+    </div>
+  }
+
+  handleChange(value) {
+    super.handleChange({ target: { name: 'priority', value: value } })
+  }
+}
+
+// 附件
+class ValueAttachments extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    return (
+      <React.Fragment>
+        <div className="form-control-plaintext">
+          <input type="file" className="inputfile" id="attachments" ref={(c) => this._attachments = c} data-maxsize="102400000" />
+          <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1 }}><a className="tag-value upload hover">+ 上传</a></label>
+        </div>
+        {this._renderValue(true)}
+      </React.Fragment>
+    )
+  }
+
+  renderViewElement() {
+    return this._renderValue() || <div className="form-control-plaintext text-muted">无</div>
+  }
+
+  _renderValue(del) {
+    return (this.state.attachments &&
+      <div className="file-field attachments">
+        {this.state.attachments.map((item) => {
+          const fileName = $fileCutName(item)
+          return (
+            <a key={`file-${item}`} className="img-thumbnail" title={fileName} onClick={() => (parent || window).RbPreview.create([item])}>
+              <i className="file-icon" data-type={$fileExtName(fileName)} /><span>{fileName}</span>
+              {del && <b title="删除" onClick={(e) => this._deleteAttachment(item, e)}><span className="zmdi zmdi-delete"></span></b>}
+            </a>
+          )
+        })}
+      </div>
+    )
   }
 
   _deleteAttachment(item, e) {
@@ -281,53 +470,25 @@ class TaskContent extends React.Component {
     })
   }
 
-  _enterKey(e) {
-    if (e.keyCode === 13) e.target.blur()
-  }
-
-  refreshComments() {
-    this._TaskCommentsList.fetchComments()
-  }
-}
-
-class TaskDescription extends React.Component {
-  state = { ...this.props }
-  render() {
-    if (this.state.editMode) {
-      return (
-        <div className="form-control-plaintext">
-          <TextEditor hideAttachment={true} ref={(c) => this._editor = c} />
-          <div className="mt-2 text-right" ref={(c) => this._btns = c}>
-            <button onClick={() => this.setState({ editMode: false })} className="btn btn-sm btn-link">取消</button>
-            <button className="btn btn-sm btn-primary" onClick={() => this._handleConfirm()}>确定</button>
-          </div>
-        </div>
-      )
-    } else {
-      return (
-        <div className="form-control-plaintext desc" style={{ cursor: 'pointer' }} onClick={() => this._handleEditMode()}>
-          {this.state.content
-            ? TextEditor.renderRichContent({ content: this.state.content })
-            : <div className="text-muted">点击添加</div>}
-        </div>
-      )
-    }
-  }
-
-  UNSAFE_componentWillReceiveProps(props) {
-    if (props.content !== this.state.content) this.setState({ content: props.content })
-  }
-
-  _handleEditMode() {
-    this.setState({ editMode: true }, () => this._editor.focus(this.state.content))
-  }
-
-  _handleConfirm() {
-    const val = this._editor.val()
-    this.props.$$$parent.handleChange({ target: { name: 'description', value: val } },
-      () => this.setState({ content: val, editMode: false }))
+  componentDidMount() {
+    let mp = false
+    $createUploader(this._attachments,
+      () => {
+        if (!mp) {
+          $mp.start()
+          mp = true
+        }
+      },
+      (res) => {
+        $mp.end()
+        const s = (this.state.attachments || []).slice(0)
+        s.push(res.key)
+        this.handleChange({ target: { name: 'attachments', value: s } })
+      })
   }
 }
+
+// --
 
 // 评论列表
 class TaskCommentsList extends React.Component {
@@ -465,33 +626,33 @@ class TextEditor extends React.Component {
     return (
       <React.Fragment>
         <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
-          <textarea ref={(c) => this._editor = c} placeholder={this.props.placeholder} maxLength="2000"
+          <textarea ref={(c) => this._textarea = c} placeholder={this.props.placeholder} maxLength="2000"
             onFocus={() => this.setState({ focus: true })}
             onBlur={() => this.setState({ focus: false })}
             defaultValue={this.props.initValue} />
-          <div className="action-btns">
-            <ul className="list-unstyled list-inline m-0 p-0">
-              <li className="list-inline-item">
-                <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
-                <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
-                  {this.state.renderEmoji && <div className="emoji-wrapper">{this.__es}</div>}
-                </span>
-              </li>
-              <li className="list-inline-item">
-                <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
-                <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
-                  <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} onSelectItem={this._selectAtUser} ref={(c) => this._UserSelector = c} />
-                </span>
-              </li>
-              {this.props.hideAttachment ? null :
+          {!this.props.hideToolbar &&
+            <div className="action-btns">
+              <ul className="list-unstyled list-inline m-0 p-0">
+                <li className="list-inline-item">
+                  <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
+                  <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
+                    {this.state.renderEmoji && <div className="emoji-wrapper">{this.__es}</div>}
+                  </span>
+                </li>
+                <li className="list-inline-item">
+                  <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
+                  <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
+                    <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} onSelectItem={this._selectAtUser} ref={(c) => this._UserSelector = c} />
+                  </span>
+                </li>
                 <li className="list-inline-item">
                   <a title="附件" onClick={() => this._fileInput.click()}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
                 </li>
-              }
-            </ul>
-          </div>
+              </ul>
+            </div>
+          }
         </div>
-        {(this.state.files || []).length > 0 && (
+        {(this.state.files || []).length > 0 &&
           <div className="attachment">
             <div className="file-field attachments">
               {(this.state.files || []).map((item) => {
@@ -504,23 +665,25 @@ class TextEditor extends React.Component {
               })}
             </div>
           </div>
-        )}
-        <span className="hide">
-          <input type="file" ref={(c) => this._fileInput = c} data-maxsize="102400000" />
-        </span>
+        }
+        <span className="hide"><input type="file" ref={(c) => this._fileInput = c} data-maxsize="102400000" /></span>
       </React.Fragment>
     )
   }
+
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
+  componentWillUnmount = () => this.__unmount = true
 
   componentDidMount() {
+    if (this.hideToolbar) return
+
     $(document.body).click((e) => {
       if (this.__unmount) return
       if (e.target && $(e.target).parents('li.list-inline-item').length > 0) return
       this.setState({ showEmoji: false, showAtUser: false })
     })
-    autosize(this._editor)
-    setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
+    autosize(this._textarea)
+    setTimeout(() => this.props.initValue && autosize.update(this._textarea), 200)
 
     let mp = false
     $createUploader(this._fileInput,
@@ -538,15 +701,13 @@ class TextEditor extends React.Component {
       })
   }
 
-  componentWillUnmount = () => this.__unmount = true
-
   _toggleEmoji = () => {
     this.setState({ renderEmoji: true, showEmoji: !this.state.showEmoji }, () => {
       if (this.state.showEmoji) this.setState({ showAtUser: false })
     })
   }
   _selectEmoji(emoji) {
-    $(this._editor).insertAtCursor(`[${emoji}]`)
+    $(this._textarea).insertAtCursor(`[${emoji}]`)
     this.setState({ showEmoji: false })
   }
 
@@ -559,7 +720,7 @@ class TextEditor extends React.Component {
     })
   }
   _selectAtUser = (s) => {
-    $(this._editor).insertAtCursor(`@${s.text} `)
+    $(this._textarea).insertAtCursor(`@${s.text} `)
     this.setState({ showAtUser: false })
   }
 
@@ -569,23 +730,28 @@ class TextEditor extends React.Component {
     this.setState({ files: files })
   }
 
-  val() { return $(this._editor).val() }
+  val() {
+    return $(this._textarea).val()
+  }
+
   vals() {
     return {
       content: this.val(),
       attachments: this.state.files
     }
   }
+
   focus(initValue) {
     if (typeof initValue !== 'undefined') {
-      setTimeout(() => autosize.update(this._editor), 100)
-      $(this._editor).val(initValue)
+      setTimeout(() => autosize.update(this._textarea), 100)
+      $(this._textarea).val(initValue)
     }
-    $(this._editor).selectRange(9999, 9999)  // Move to last
+    $(this._textarea).selectRange(9999, 9999)  // Move to last
   }
+
   reset() {
-    $(this._editor).val('')
-    autosize.update(this._editor)
+    $(this._textarea).val('')
+    autosize.update(this._textarea)
     this.setState({ files: null, images: null })
   }
 

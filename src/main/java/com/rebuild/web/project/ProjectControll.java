@@ -62,18 +62,18 @@ public class ProjectControll extends BasePageControll {
         }
 
         ModelAndView mv = createModelAndView("/project/project-tasks.jsp");
-        mv.getModelMap().put("projectId", p.getID("id"));
-        mv.getModelMap().put("iconName", p.getString("iconName"));
-        mv.getModelMap().put("projectCode", p.getString("projectCode"));
-        mv.getModelMap().put("projectName", p.getString("projectName"));
-        mv.getModelMap().put("isMember", p.get("members", Set.class).contains(user));
+        mv.getModel().put("projectId", p.getID("id"));
+        mv.getModel().put("iconName", p.getString("iconName"));
+        mv.getModel().put("projectCode", p.getString("projectCode"));
+        mv.getModel().put("projectName", p.getString("projectName"));
+        mv.getModel().put("isMember", p.get("members", Set.class).contains(user));
 
         final ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(projectId2);
         JSONArray plansList = new JSONArray();
         for (ConfigEntry e : plans) {
             plansList.add(e.toJSON());
         }
-        mv.getModelMap().put("projectPlans", plansList.toJSONString());
+        mv.getModel().put("projectPlans", plansList.toJSONString());
 
         return mv;
     }

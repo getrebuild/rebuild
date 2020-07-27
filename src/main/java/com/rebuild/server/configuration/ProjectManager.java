@@ -81,7 +81,7 @@ public class ProjectManager implements ConfigManager {
                         .set("id", o[0])
                         .set("projectCode", o[1])
                         .set("projectName", o[2])
-                        .set("iconName", o[3])
+                        .set("iconName", StringUtils.defaultIfBlank((String) o[3], "texture"))
                         .set("scope", o[4])
                         .set("_members", o[5]);
 
@@ -140,7 +140,8 @@ public class ProjectManager implements ConfigManager {
         ID projectId = (ID) Application.getCommonCache().getx(ckey);
 
         if (projectId == null) {
-            Object[] task = Application.createQuery("select projectId from ProjectTask where taskId = ?")
+            Object[] task = Application.createQueryNoFilter(
+                    "select projectId from ProjectTask where taskId = ?")
                     .setParameter(1, taskId)
                     .unique();
 

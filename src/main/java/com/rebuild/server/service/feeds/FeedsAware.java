@@ -122,19 +122,15 @@ public abstract class FeedsAware extends BaseService {
         }
 
         // 发送通知
-        String messageContent = String.format("@%s 在%s中提到了你",
-                record.getEditor(),
-                record.getEntity().getEntityCode() == EntityHelper.Feeds ? "动态" : "评论");
-        messageContent += "\n> " + content;
+        final String msgContent = "@" + record.getEditor() + " 在动态中提到了你 \n> " + content;
         ID related = record.getPrimary();
         if (related.getEntityCode() == EntityHelper.FeedsComment) {
             related = record.getID("feedsId");
         }
 
         for (ID to : atUsers) {
-            Message message = new Message(
-                    null, to, messageContent, related, Message.TYPE_FEEDS);
-            Application.getNotifications().send(message);
+            Application.getNotifications().send(
+                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related));
         }
     }
 

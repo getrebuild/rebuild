@@ -49,6 +49,12 @@ public class NavBuilder extends NavManager {
                     new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG }
             });
 
+    // 新建项目
+    private static final JSONObject NAV_PROJECT__ADD = JSONUtils.toJSONObject(
+            new String[] { "icon", "text", "type", "value" },
+            new String[] { "plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add" }
+    );
+
     /**
      * @param request
      * @return
@@ -133,28 +139,20 @@ public class NavBuilder extends NavManager {
      * @return
      */
     private JSONArray getProjects(ID user) {
-        JSONArray navsOfProject = new JSONArray();
-
         ConfigEntry[] projects = ProjectManager.instance.getAvailable(user);
-        if (projects.length == 0) {
-            if (UserHelper.isAdmin(user)) {
-                JSONObject p = JSONUtils.toJSONObject(
-                        new String[] { "icon", "text", "type", "value" },
-                        new String[] { "plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add" }
-                );
-                navsOfProject.add(p);
 
-            } else {
-                return null;
-            }
-        }
-
+        JSONArray navsOfProjects = new JSONArray();
         for (ConfigEntry e : projects) {
-            navsOfProject.add(JSONUtils.toJSONObject(
+            navsOfProjects.add(JSONUtils.toJSONObject(
                     new String[] { "type", "text", "icon", "value" },
                     new Object[] { NAV_PROJECT, e.getString("projectName"), e.getString("iconName"), e.getID("id") }));
         }
-        return navsOfProject;
+
+        // 管理员显示新建项目入口
+        if (UserHelper.isAdmin(user)) {
+            navsOfProjects.add(NAV_PROJECT__ADD.clone());
+        }
+        return navsOfProjects;
     }
 
     // --

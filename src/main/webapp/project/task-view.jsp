@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/project-tasks.css">
 <title>任务视图</title>
 </head>
-<body class="view-body">
+<body class="view-body ${isMember ? "" : "readonly"}">
 <div class="view-header">
     <i class="header-icon zmdi zmdi-${projectIcon}"></i>
     <h3 class="title">任务视图</h3>
@@ -27,6 +27,7 @@
 window.__PageConfig = {
     type: 'TaskView',
     taskId: '${id}',
+    isMember: ${isMember},
 }
 </script>
 <script src="${baseUrl}/assets/lib/jquery.textarea.js"></script>

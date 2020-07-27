@@ -15,7 +15,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.configuration.ProjectPlanConfigService;
 
@@ -27,7 +26,7 @@ import java.util.Set;
  * @see com.rebuild.server.service.configuration.ProjectConfigService
  * @see com.rebuild.server.service.configuration.ProjectPlanConfigService
  */
-public class ProjectTaskService extends BaseService {
+public class ProjectTaskService extends AtUserAwareService {
 
     // 中值法排序
     private static final int MID_VALUE = 1000;
@@ -48,7 +47,10 @@ public class ProjectTaskService extends BaseService {
         record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
         applyFlowStatue(record);
         record.setInt("seq", getNextSeqViaMidValue(record.getID("projectPlanId")));
-        return super.create(record);
+
+        record = super.create(record);
+        checkAtUserAndNotification(record, record.getString("description"));
+        return record;
     }
 
     @Override
@@ -78,7 +80,9 @@ public class ProjectTaskService extends BaseService {
             }
         }
 
-        return super.update(record);
+        record = super.update(record);
+        checkAtUserAndNotification(record, record.getString("description"));
+        return record;
     }
 
     @Override

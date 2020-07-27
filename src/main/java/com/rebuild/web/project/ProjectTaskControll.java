@@ -54,9 +54,11 @@ public class ProjectTaskControll extends BasePageControll {
             return null;
         }
 
-        ConfigEntry project;
+        final ID user = getRequestUser(request);
+
+        ConfigEntry p;
         try {
-            project = ProjectManager.instance.getProjectByTask(taskId2, getRequestUser(request));
+            p = ProjectManager.instance.getProjectByTask(taskId2, getRequestUser(request));
         } catch (ConfigurationException ex) {
             response.sendError(404, ex.getLocalizedMessage());
             return null;
@@ -66,9 +68,9 @@ public class ProjectTaskControll extends BasePageControll {
         }
 
         ModelAndView mv = createModelAndView("/project/task-view.jsp");
-        mv.getModelMap().put("id", taskId2.toLiteral());
-        mv.getModelMap().put("projectIcon",
-                StringUtils.defaultIfBlank(project.getString("iconName"), "texture"));
+        mv.getModel().put("id", taskId2.toLiteral());
+        mv.getModel().put("projectIcon", p.getString("iconName"));
+        mv.getModel().put("isMember", p.get("members", Set.class).contains(user));
         return mv;
     }
 
@@ -100,7 +102,9 @@ public class ProjectTaskControll extends BasePageControll {
         else sort = "seq asc";
         querySql += " order by " + sort;
 
-        Object[][] tasks = Application.createQuery(querySql).setParameter(1, planId).array();
+        Object[][] tasks = Application.createQueryNoFilter(querySql)
+                .setParameter(1, planId)
+                .array();
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
@@ -114,7 +118,7 @@ public class ProjectTaskControll extends BasePageControll {
     @RequestMapping("/project/tasks/get")
     public void taskGet(HttpServletRequest request, HttpServletResponse response) {
         ID taskId = getIdParameterNotNull(request, "task");
-        Object[] task = Application.createQuery(
+        Object[] task = Application.createQueryNoFilter(
                 "select " + BASE_FIELDS + " from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
@@ -125,7 +129,7 @@ public class ProjectTaskControll extends BasePageControll {
     @RequestMapping("/project/tasks/details")
     public void taskDetails(HttpServletRequest request, HttpServletResponse response) {
         ID taskId = getIdParameterNotNull(request, "task");
-        Object[] task = Application.createQuery(
+        Object[] task = Application.createQueryNoFilter(
                 "select " + BASE_FIELDS + ",projectId,projectPlanId,description,attachments from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
@@ -135,6 +139,7 @@ public class ProjectTaskControll extends BasePageControll {
         // 状态面板
         final ID projectId = (ID) task[11];
         final ID currentPlanId = (ID) task[12];
+        details.put("projectPlanId", currentPlanId);
 
         ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(projectId);
         JSONArray plansOfState = new JSONArray();
@@ -144,7 +149,6 @@ public class ProjectTaskControll extends BasePageControll {
                     new Object[] { planId, e.getString("planName") }));
 
             if (planId.equals(currentPlanId)) {
-                details.put("currentPlanId", currentPlanId);
                 details.put("currentPlanNexts", e.get("flowNexts", Set.class));
                 details.put("currentPlanStatus", e.getInteger("flowStatus"));
             }

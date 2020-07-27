@@ -106,12 +106,19 @@ public class GeneralDataListControll extends BaseEntityControll {
 
     @RequestMapping("list-and-view")
     public void quickPageList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-	    ID id = getIdParameterNotNull(request, "id");
+	    final ID id = getIdParameterNotNull(request, "id");
+
 	    String url = null;
 	    if (MetadataHelper.containsEntity(id.getEntityCode())) {
 	    	Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 	    	if (entity.getEntityCode() == EntityHelper.Feeds) {
 				url = "../feeds/home#s=" + id;
+			} else if (entity.getEntityCode() == EntityHelper.ProjectTask
+					|| entity.getEntityCode() == EntityHelper.ProjectTaskComment) {
+				Object[] found = findProjectAndTaskId(id);
+	    		if (found != null) {
+					url = MessageFormat.format("../project/{0}/tasks#!/View/ProjectTask/{1}", found[1], found[0]);
+				}
 			} else if (entity.getEntityCode() == EntityHelper.User) {
                 url = MessageFormat.format("../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), id);
             } else if (MetadataHelper.hasPrivilegesField(entity) || EasyMeta.valueOf(id.getEntityCode()).isPlainEntity()) {
@@ -125,4 +132,18 @@ public class GeneralDataListControll extends BaseEntityControll {
 	    	response.sendError(HttpStatus.NOT_FOUND.value());
 		}
     }
+
+    private Object[] findProjectAndTaskId(ID taskOrComment) {
+		if (taskOrComment.getEntityCode() == EntityHelper.ProjectTask) {
+			return Application.getQueryFactory().createQueryNoFilter(
+					"select taskId,projectId from ProjectTask where taskId = ?")
+					.setParameter(1, taskOrComment)
+					.unique();
+		} else {
+			return Application.getQueryFactory().createQueryNoFilter(
+					"select taskId,taskId.projectId from ProjectTaskComment where commentId = ?")
+					.setParameter(1, taskOrComment)
+					.unique();
+		}
+	}
 }

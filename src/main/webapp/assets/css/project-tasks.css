@@ -213,7 +213,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-card.status-1 .custom-control-input~.custom-control-label::before,
 .status-checkbox .custom-control-input~.custom-control-label::before {
-  border-color: #8c8c8c;
+  border-color: #ccc;
 }
 
 .task-card.status-1 .task-card-body {
@@ -256,7 +256,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* View */
 
 .modal.rbview.task .modal-dialog .modal-content {
-  width: 800px;
+  width: 888px;
   margin-right: -1000px;
 }
 
@@ -264,6 +264,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #fff;
   height: 100%;
   padding-bottom: 65px;
+}
+
+.view-body.readonly #task-contents {
+  padding-bottom: 0;
 }
 
 #task-comment {
@@ -274,48 +278,49 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
 }
 
-.task-form .user-selector,
-.task-form .form-control,
-.task-form .input-group {
-  max-width: 400px;
-}
-
-.task-form .task-title,
-.task-form .task-desc {
-  border: 0 none;
-  outline: none;
-  appearance: none;
-  width: 100%;
-  height: 3rem;
-  font-size: 1.4rem;
-  padding: 6px 0;
-  cursor: pointer;
-  border-radius: 3px;
-  line-height: 1.6;
-  transition: padding .2s;
-  max-height: 400px;
-}
-
-.task-form .task-title:focus,
-.task-form .task-desc:focus {
-  background-color: #f7f7f7;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-.task-form .task-desc {
-  font-size: 1rem;
-  height: 2.8rem;
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
 .task-form .col-form-label>.icon {
   color: #999;
   width: 30px;
   float: left;
   font-size: 1.35rem;
   margin-top: -2px;
+}
+
+.task-form .hover:hover {
+  cursor: pointer;
+  opacity: .8;
+}
+
+.task-form .user-selector,
+.task-form .form-control,
+.task-form .input-group {
+  max-width: 400px;
+}
+
+.task-form .task-title {
+  border: 0 none;
+  outline: none;
+  appearance: none;
+  width: 100%;
+  height: 2.9rem;
+  font-size: 1.4rem;
+  padding: 5px 0;
+  cursor: pointer;
+  border-radius: 3px;
+  line-height: 1.5;
+  transition: padding .2s;
+}
+
+.task-form .task-title:focus {
+  background-color: #f7f7f7;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.task-form div.task-title {
+  height: auto;
+  min-height: 2.9rem;
+  cursor: default;
 }
 
 .task-form .tag-value {
@@ -325,66 +330,61 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border: 0 none;
   border-radius: 99px;
   line-height: 18px;
-}
-
-.task-form a.tag-value {
-  background-color: rgba(66, 133, 244, 0.1);
-  color: #4285f4;
-}
-
-.task-form a.tag-value:hover {
-  background-color: #4285f4;
-  color: #fff;
   transition: padding .2s;
 }
 
-.task-form .tag-value.arrow:hover {
+.task-form a.tag-value.arrow:hover {
   padding-right: 22px;
 }
 
-.task-form .tag-value.arrow:hover::after {
+.task-form a.tag-value.arrow:hover::after {
   font: normal normal normal 16px/1 'Material-Design-Iconic-Font';
   content: '\f2f9';
   position: absolute;
   right: 9px;
 }
 
-.task-form a.tag-value.plaintext,
-.task-form a.tag-value.placeholder {
+.task-form .tag-value.plaintext,
+.task-form .tag-value.placeholder {
   background-color: #fff;
   color: #404040;
   border: 1px solid #ccc;
   padding: 4px 10px;
 }
 
-.task-form a.tag-value.placeholder {
+.task-form .tag-value.placeholder {
   color: #aaa;
 }
 
-.task-form a.tag-value.priority-0 {
+.task-form .tag-value.priority-0,
+.task-form .tag-value.priority-1,
+.task-form .tag-value.priority-2,
+.task-form .tag-value.priority-3 {
   background-color: #aaa;
-  color: #fff;
+  color: #fff !important;
 }
 
-.task-form a.tag-value.priority-1 {
+.task-form .tag-value.priority-1 {
   background-color: #4285f4;
-  color: #fff;
 }
 
-.task-form a.tag-value.priority-2 {
+.task-form .tag-value.priority-2 {
   background-color: #f7b904;
-  color: #fff;
 }
 
-.task-form a.tag-value.priority-3 {
+.task-form .tag-value.priority-3 {
   background-color: #ea3f30;
-  color: #fff;
+}
+
+.task-form .tag-value.upload {
+  background-color: rgba(66, 133, 244, 0.1);
+  color: #4285f4 !important;
 }
 
 .task-form .mount {
   position: absolute;
   z-index: 999;
-  margin-top: -18px;
+  margin-top: -10px;
   margin-left: 2px;
 }
 
@@ -408,15 +408,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-form .executor-show:hover>a.close {
   display: inline-block;
-}
-
-a.close-circle {
-  border-radius: 99px;
-  height: 20px;
-  line-height: 20px;
-  width: 20px;
-  text-align: center;
-  text-shadow: none;
 }
 
 .file-field.attachments>.img-thumbnail {

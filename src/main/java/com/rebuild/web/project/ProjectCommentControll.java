@@ -31,7 +31,7 @@ import java.util.Date;
  */
 @RequestMapping("/project/comments/")
 @Controller
-public class TaskCommentControll extends BaseControll {
+public class ProjectCommentControll extends BaseControll {
 
     @GetMapping("list")
     public void commentList(HttpServletRequest request, HttpServletResponse response) {
