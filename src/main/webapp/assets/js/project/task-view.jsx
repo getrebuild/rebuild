@@ -633,11 +633,11 @@ class TextEditor extends React.Component {
           {!this.props.hideToolbar &&
             <div className="action-btns">
               <ul className="list-unstyled list-inline m-0 p-0">
-                <li className="list-inline-item">
-                  <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
-                  <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
-                    {this.state.renderEmoji && <div className="emoji-wrapper">{this.__es}</div>}
-                  </span>
+                <li className="list-inline-item use-dropdown">
+                  <a title="表情" data-toggle="dropdown"><i className="zmdi zmdi-mood" /></a>
+                  <div className="dropdown-menu">
+                    <div className="emoji-wrapper">{this.__es}</div>
+                  </div>
                 </li>
                 <li className="list-inline-item">
                   <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
@@ -701,11 +701,6 @@ class TextEditor extends React.Component {
       })
   }
 
-  _toggleEmoji = () => {
-    this.setState({ renderEmoji: true, showEmoji: !this.state.showEmoji }, () => {
-      if (this.state.showEmoji) this.setState({ showAtUser: false })
-    })
-  }
   _selectEmoji(emoji) {
     $(this._textarea).insertAtCursor(`[${emoji}]`)
     this.setState({ showEmoji: false })

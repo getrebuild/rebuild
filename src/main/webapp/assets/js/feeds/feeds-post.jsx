@@ -106,15 +106,19 @@ class FeedsPost extends React.Component {
 
 // ~ 动态编辑框
 class FeedsEditor extends React.Component {
-  state = { ...this.props }
 
-  render() {
-    const es = []
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    this.__es = []
     for (let k in EMOJIS) {
       const item = EMOJIS[k]
-      es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
+      this.__es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
     }
+  }
 
+  render() {
     // 日程已完成
     const isFinish = this.state.type === 4 && this.props.contentMore && this.props.contentMore.finishTime
 
@@ -127,11 +131,11 @@ class FeedsEditor extends React.Component {
           defaultValue={this.props.initValue} />
         <div className="action-btns">
           <ul className="list-unstyled list-inline m-0 p-0">
-            <li className="list-inline-item">
-              <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
-              <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
-                {this.state.renderEmoji && <div className="emoji-wrapper">{es}</div>}
-              </span>
+            <li className="list-inline-item use-dropdown">
+              <a onClick={() => this.setState({ renderEmoji: true })} title="表情" data-toggle="dropdown"><i className="zmdi zmdi-mood" /></a>
+              <div className="dropdown-menu">
+                {this.state.renderEmoji && <div className="emoji-wrapper">{this.__es}</div>}
+              </div>
             </li>
             <li className="list-inline-item">
               <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
@@ -226,11 +230,11 @@ class FeedsEditor extends React.Component {
 
   componentWillUnmount = () => this.__unmount = true
 
-  _toggleEmoji = () => {
-    this.setState({ renderEmoji: true, showEmoji: !this.state.showEmoji }, () => {
-      if (this.state.showEmoji) this.setState({ showAtUser: false })
-    })
+  _selectEmoji(emoji) {
+    $(this._editor).insertAtCursor(`[${emoji}]`)
+    this.setState({ showEmoji: false })
   }
+
   _toggleAtUser = () => {
     this.setState({ showAtUser: !this.state.showAtUser }, () => {
       if (this.state.showAtUser) {
@@ -238,10 +242,6 @@ class FeedsEditor extends React.Component {
         this._UserSelector.openDropdown()
       }
     })
-  }
-  _selectEmoji(emoji) {
-    $(this._editor).insertAtCursor(`[${emoji}]`)
-    this.setState({ showEmoji: false })
   }
   _selectAtUser = (s) => {
     $(this._editor).insertAtCursor(`@${s.text} `)

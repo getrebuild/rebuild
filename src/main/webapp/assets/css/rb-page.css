@@ -3609,3 +3609,9 @@ a.avatar.x26 img {
     border-top: 1px solid #d5d8de;
     line-height: 1;
 }
+
+.use-dropdown .dropdown-menu {
+    max-width: none;
+    min-width: 0;
+    padding: 0;
+}

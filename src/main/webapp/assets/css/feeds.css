@@ -75,9 +75,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .emoji-wrapper {
   background-color: #fff;
   width: 397px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
   border: 1px solid #ebeff2;
   border-right-width: 0;
+  border-bottom-width: 0;
 }
 
 .emoji-wrapper>a {
