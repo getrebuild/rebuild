@@ -413,8 +413,8 @@
 		<field name="flowNexts" type="string" max-length="420" description="可转换到哪个面板" />
 		<index field-list="projectId,seq" />
 	</entity>
-	
-	<entity name="ProjectTask" type-code="052" description="项目任务">
+
+	<entity name="ProjectTask" type-code="052" description="任务">
 		<field name="taskId" type="primary" />
 		<field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="所属项目" />
 		<field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="所属面板" />
@@ -435,7 +435,7 @@
 		<index field-list="projectId,taskNumber,taskName,status" />
 	</entity>
 
-	<entity name="ProjectTaskRelation" type-code="053" description="项目任务关系" parent="false" queryable="false">
+	<entity name="ProjectTaskRelation" type-code="053" description="任务关系" parent="false" queryable="false">
 		<field name="relationId" type="primary" />
 		<field name="taskId" type="reference" ref-entity="ProjectTask" nullable="false" updatable="false" cascade="delete" />
 		<field name="relationTaskId" type="reference" ref-entity="ProjectTask" nullable="false" updatable="false" cascade="delete" />
@@ -443,7 +443,7 @@
 		<index field-list="taskId,relationTaskId" />
 	</entity>
 
-	<entity name="ProjectTaskComment" type-code="054" description="项目任务评论">
+	<entity name="ProjectTaskComment" type-code="054" description="任务评论">
 		<field name="commentId" type="primary" />
 		<field name="taskId" type="reference" ref-entity="ProjectTask" nullable="false" updatable="false" cascade="delete" description="哪个任务" />
 		<field name="content" type="text" nullable="false" max-length="3000" description="内容" />

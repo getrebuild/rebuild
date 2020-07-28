@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.service.project;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -15,10 +16,10 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.configuration.ProjectPlanConfigService;
-
-import java.util.Set;
+import com.rebuild.server.service.notification.Message;
+import com.rebuild.server.service.notification.MessageBuilder;
 
 /**
  * @author devezhao
@@ -26,7 +27,7 @@ import java.util.Set;
  * @see com.rebuild.server.service.configuration.ProjectConfigService
  * @see com.rebuild.server.service.configuration.ProjectPlanConfigService
  */
-public class ProjectTaskService extends AtUserAwareService {
+public class ProjectTaskService extends BaseTaskService {
 
     // 中值法排序
     private static final int MID_VALUE = 1000;
@@ -42,20 +43,28 @@ public class ProjectTaskService extends AtUserAwareService {
 
     @Override
     public Record create(Record record) {
-        checkMember(null, record.getID("projectId"));
+        final ID user = Application.getCurrentUser();
+        checkIsMember(user, record.getID("projectId"));
 
         record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
         applyFlowStatue(record);
         record.setInt("seq", getNextSeqViaMidValue(record.getID("projectPlanId")));
 
         record = super.create(record);
-        checkAtUserAndNotification(record, record.getString("description"));
+
+        if (record.hasValue("executor")) {
+            sendNotification(record.getPrimary());
+        }
+        if (record.hasValue("attachments")) {
+            awareAttachment(OperatingContext.create(user, BizzPermission.CREATE, null, record));
+        }
         return record;
     }
 
     @Override
     public Record update(Record record) {
-        checkMember(null, record.getPrimary());
+        final ID user = Application.getCurrentUser();
+        checkIsMember(user, record.getPrimary());
 
         // 自动完成
         int flowStatus = applyFlowStatue(record);
@@ -80,16 +89,33 @@ public class ProjectTaskService extends AtUserAwareService {
             }
         }
 
+        final Record beforeRecord = record.hasValue("attachments") ? getBeforeRecord(record.getPrimary()) : null;
+
         record = super.update(record);
-        checkAtUserAndNotification(record, record.getString("description"));
+
+        if (record.hasValue("executor", false)) {
+            sendNotification(record.getPrimary());
+        }
+        if (beforeRecord != null) {
+            awareAttachment(OperatingContext.create(user, BizzPermission.UPDATE, beforeRecord, record));
+        }
         return record;
     }
 
     @Override
     public int delete(ID taskId) {
-        checkMember(null, taskId);
+        final ID user = Application.getCurrentUser();
+        checkIsMember(user, taskId);
+
+        final Record beforeRecord = getBeforeRecord(taskId);
+//        ID createdBy = beforeRecord.getID(EntityHelper.CreatedBy);
+//        if (!(UserHelper.isAdmin(createdBy) || createdBy.equals(user))) {
+//            throw new PrivilegesException("不能删除他人任务");
+//        }
 
         int d = super.delete(taskId);
+
+        awareAttachment(OperatingContext.create(user, BizzPermission.DELETE, beforeRecord, null));
         ProjectManager.instance.clean(taskId);
         return d;
     }
@@ -164,18 +190,12 @@ public class ProjectTaskService extends AtUserAwareService {
     }
 
     /**
-     * @param user
-     * @param taskOrProject
-     * @return
+     * @param taskId
      */
-    private boolean checkMember(ID user, ID taskOrProject) {
-        if (user == null) user = Application.getCurrentUser();
-
-        ConfigEntry c = taskOrProject.getEntityCode() == EntityHelper.ProjectTask
-                ? ProjectManager.instance.getProjectByTask(taskOrProject, null)
-                : ProjectManager.instance.getProject(taskOrProject, null);
-        if (c != null && c.get("members", Set.class).contains(user)) return true;
-
-        throw new DataSpecificationException("非项目成员禁止编辑");
+    private void sendNotification(ID taskId) {
+        Object[] task = Application.getQueryFactory().uniqueNoFilter(taskId, "executor", "taskName");
+        String msg = "有一个新任务分派给你 \n> " + task[1];
+        Application.getNotifications().send(
+                MessageBuilder.createMessage((ID) task[0], msg, Message.TYPE_PROJECT, taskId));
     }
 }

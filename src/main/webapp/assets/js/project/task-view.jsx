@@ -105,7 +105,7 @@ class TaskForm extends React.Component {
 
   _handleDelete() {
     const that = this
-    RbAlert.create('确认删除此任务吗？', {
+    RbAlert.create('确认删除该任务？', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
@@ -157,7 +157,7 @@ class ValueComp extends React.Component {
     this.setState({ [name]: value })
 
     const data = {
-      [name]: $.type(value) === 'array' ? value.join(',') : value,
+      [name]: value,
       metadata: { id: this.props.$$$parent.props.id }
     }
 
@@ -264,7 +264,6 @@ class ValueStatusAndPlan extends ValueComp {
 
   // preProps, preState, spanshot
   componentDidUpdate() {
-    console.log(this.state)
     $(this._status).prop('checked', this.state.status > 0)
   }
 }
@@ -467,7 +466,9 @@ class ValueAttachments extends ValueComp {
   _deleteAttachment(item, e) {
     $stopEvent(e)
     const that = this
-    RbAlert.create('确认删除此附件？', {
+    RbAlert.create('确认删除该附件？', {
+      type: 'danger',
+      confirmText: '删除',
       confirm: function () {
         this.hide()
         const s = that.state.attachments.filter(x => x !== item)
@@ -560,12 +561,16 @@ class TaskCommentsList extends React.Component {
   }
 
   _handleDelete(item) {
+    const that = this
     RbAlert.create('确认删除该评论？', {
+      type: 'danger',
+      confirmText: '删除',
       confirm: function () {
         $.post(`/app/entity/record-delete?id=${item.id}`, (res) => {
+          this.hide()
           if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
-          const ss = this.state.comments.filter(x => x.id !== item.id)
-          this.setState({ comments: ss })
+          const ss = that.state.comments.filter(x => x.id !== item.id)
+          that.setState({ comments: ss })
         })
       }
     })

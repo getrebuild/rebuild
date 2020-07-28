@@ -16,12 +16,9 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.helper.datalist.DataListControl;
 import com.rebuild.server.helper.datalist.DefaultDataListControl;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseEntityControll;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +27,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.MessageFormat;
 
 /**
  * 数据列表
@@ -102,48 +98,5 @@ public class GeneralDataListControll extends BaseEntityControll {
 
 		JSON result = control.getJSONResult();
 		writeSuccess(response, result);
-	}
-
-    @RequestMapping("list-and-view")
-    public void quickPageList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-	    final ID id = getIdParameterNotNull(request, "id");
-
-	    String url = null;
-	    if (MetadataHelper.containsEntity(id.getEntityCode())) {
-	    	Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-	    	if (entity.getEntityCode() == EntityHelper.Feeds) {
-				url = "../feeds/home#s=" + id;
-			} else if (entity.getEntityCode() == EntityHelper.ProjectTask
-					|| entity.getEntityCode() == EntityHelper.ProjectTaskComment) {
-				Object[] found = findProjectAndTaskId(id);
-	    		if (found != null) {
-					url = MessageFormat.format("../project/{0}/tasks#!/View/ProjectTask/{1}", found[1], found[0]);
-				}
-			} else if (entity.getEntityCode() == EntityHelper.User) {
-                url = MessageFormat.format("../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), id);
-            } else if (MetadataHelper.hasPrivilegesField(entity) || EasyMeta.valueOf(id.getEntityCode()).isPlainEntity()) {
-				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), id);
-			}
-		}
-
-	    if (url != null) {
-	    	response.sendRedirect(url);
-		} else {
-	    	response.sendError(HttpStatus.NOT_FOUND.value());
-		}
-    }
-
-    private Object[] findProjectAndTaskId(ID taskOrComment) {
-		if (taskOrComment.getEntityCode() == EntityHelper.ProjectTask) {
-			return Application.getQueryFactory().createQueryNoFilter(
-					"select taskId,projectId from ProjectTask where taskId = ?")
-					.setParameter(1, taskOrComment)
-					.unique();
-		} else {
-			return Application.getQueryFactory().createQueryNoFilter(
-					"select taskId,taskId.projectId from ProjectTaskComment where commentId = ?")
-					.setParameter(1, taskOrComment)
-					.unique();
-		}
 	}
 }

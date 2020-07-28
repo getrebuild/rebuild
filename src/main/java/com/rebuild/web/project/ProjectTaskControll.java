@@ -157,7 +157,7 @@ public class ProjectTaskControll extends BasePageControll {
 
         details.put("description", task[13]);
         String attachments = (String) task[14];
-        details.put("attachments", attachments != null ? attachments.split(",") : null);
+        details.put("attachments", JSON.parseArray(attachments));
 
         writeSuccess(response, details);
     }

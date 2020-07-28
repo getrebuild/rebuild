@@ -106,17 +106,24 @@ public class FileListControll extends BasePageControll {
         // 附件还是文档
         if (entity > 0) {
             if (entity == EntityHelper.Feeds) {
-                sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.FeedsComment));
-            } else if (entity > 1) {
+                sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)",
+                        entity, EntityHelper.FeedsComment));
+            } else if (entity == EntityHelper.ProjectTask) {
+                sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)",
+                        entity, EntityHelper.ProjectTaskComment));
+            }  else if (entity > 1) {
                 Entity entityMeta = MetadataHelper.getEntity(entity);
                 if (entityMeta.getSlaveEntity() != null) {
-                    sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, entityMeta.getSlaveEntity().getEntityCode()));
+                    sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)",
+                            entity, entityMeta.getSlaveEntity().getEntityCode()));
                 } else {
                     sqlWhere.add("belongEntity = " + entity);
                 }
+
             } else {
                 sqlWhere.add("belongEntity > 0");
             }
+
         } else {
             sqlWhere.add("belongEntity = 0");
             if (inFolder != null) {
@@ -124,7 +131,8 @@ public class FileListControll extends BasePageControll {
             } else {
                 ID[] ps = FilesHelper.getPrivateFolders(user);
                 if (ps.length > 0) {
-                    sqlWhere.add(String.format("(inFolder is null or inFolder not in ('%s'))", StringUtils.join(ps,"','")));
+                    sqlWhere.add(String.format("(inFolder is null or inFolder not in ('%s'))",
+                            StringUtils.join(ps,"','")));
                 }
             }
         }
@@ -174,16 +182,19 @@ public class FileListControll extends BasePageControll {
     // 附件实体
     @RequestMapping("list-entity")
     public void listEntity(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
 
         JSONArray ret = new JSONArray();
         // 动态
         ret.add(toEntityJson(MetadataHelper.getEntity(EntityHelper.Feeds)));
+        // 项目
+        ret.add(JSONUtils.toJSONObject(
+                new String[] { "id", "text" },
+                new Object[] { EntityHelper.ProjectTask, "项目" }));
+
         for (Entity e : MetadataSorter.sortEntities(user)) {
             // 明细实体会合并到主实体显示
-            if (MetadataHelper.isSlaveEntity(e.getEntityCode())) {
-                continue;
-            }
+            if (MetadataHelper.isSlaveEntity(e.getEntityCode())) continue;
 
             // 有附件字段的实体才显示
             if (hasAttachmentFields(e)
