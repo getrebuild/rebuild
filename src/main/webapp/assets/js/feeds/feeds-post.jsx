@@ -147,7 +147,7 @@ class FeedsEditor extends React.Component {
               <a title="图片" onClick={() => this._imageInput.click()}><i className="zmdi zmdi-image-o" /></a>
             </li>
             <li className="list-inline-item">
-              <a title="附件" onClick={() => this._fileInput.click()} style={{ marginLeft: -3 }}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
+              <a title="附件" onClick={() => this._fileInput.click()} style={{ marginLeft: -5 }}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
             </li>
           </ul>
         </div>
