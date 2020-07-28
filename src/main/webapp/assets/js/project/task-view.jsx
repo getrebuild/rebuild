@@ -278,19 +278,22 @@ class ValueExecutor extends ValueComp {
       <React.Fragment>
         {this.state.executor ?
           <div className="executor-show">
-            {this._renderValue(() => this._UserSelector.openDropdown())}
-            <a className="close close-circle" onClick={() => this.handleChange(null)} title="移除执行人">&times;</a>
+            <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false}
+              ref={(c) => this._UserSelector = c}
+              compToggle={<span data-toggle="dropdown" style={{ height: 30, display: 'inline-block' }}>{this._renderValue()}</span>}
+              onSelectItem={(s) => this.handleChange(s)}
+            />
+            <a className="close" onClick={() => this.handleChange(null)} title="移除执行人">&times;</a>
           </div>
           :
           <div className="form-control-plaintext">
-            <a className="tag-value arrow placeholder" onClick={() => this._UserSelector.openDropdown()}>选择执行人</a>
+            <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false}
+              ref={(c) => this._UserSelector = c}
+              compToggle={<a className="tag-value arrow placeholder" data-toggle="dropdown">选择执行人</a>}
+              onSelectItem={(s) => this.handleChange(s)}
+            />
           </div>
         }
-        <div className="mount">
-          <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} closeOnSelect={true}
-            onSelectItem={(s) => this.handleChange(s)}
-            ref={(c) => this._UserSelector = c} />
-        </div>
       </React.Fragment>
     )
   }
@@ -306,7 +309,10 @@ class ValueExecutor extends ValueComp {
 
   handleChange(value) {
     super.handleChange({ target: { name: 'executor', value: value ? value.id : null } },
-      () => this.setState({ executor: value ? [value.id, value.text] : null }))
+      () => {
+        this.setState({ executor: value ? [value.id, value.text] : null })
+        !value && this._UserSelector.clearSelection()
+      })
   }
 }
 
@@ -609,6 +615,7 @@ class TaskComment extends React.Component {
 }
 
 // ~ 编辑框
+// @see feeds-post.jsx
 class TextEditor extends React.Component {
   state = { ...this.props }
 
@@ -640,13 +647,13 @@ class TextEditor extends React.Component {
                   </div>
                 </li>
                 <li className="list-inline-item">
-                  <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
-                  <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
-                    <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} onSelectItem={this._selectAtUser} ref={(c) => this._UserSelector = c} />
-                  </span>
+                  <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false}
+                    ref={(c) => this._UserSelector = c}
+                    compToggle={<a title="@用户" data-toggle="dropdown"><i className="zmdi at-text">@</i></a>}
+                    onSelectItem={this._selectAtUser} />
                 </li>
                 <li className="list-inline-item">
-                  <a title="附件" onClick={() => this._fileInput.click()}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
+                  <a title="附件" onClick={() => this._fileInput.click()} style={{ marginLeft: -5 }}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
                 </li>
               </ul>
             </div>
@@ -672,33 +679,28 @@ class TextEditor extends React.Component {
   }
 
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
-  componentWillUnmount = () => this.__unmount = true
 
   componentDidMount() {
     if (this.hideToolbar) return
 
-    $(document.body).click((e) => {
-      if (this.__unmount) return
-      if (e.target && $(e.target).parents('li.list-inline-item').length > 0) return
-      this.setState({ showEmoji: false, showAtUser: false })
-    })
-    autosize(this._textarea)
-    setTimeout(() => this.props.initValue && autosize.update(this._textarea), 200)
+    autosize(this._editor)
+    setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
 
-    let mp = false
-    $createUploader(this._fileInput,
-      () => {
-        if (!mp) {
-          $mp.start()
-          mp = true
-        }
-      },
-      (res) => {
-        $mp.end()
-        const files = this.state.files || []
-        files.push(res.key)
-        this.setState({ files: files })
-      })
+    let mp
+    const mp_end = function () {
+      if (mp) mp.end()
+      mp = null
+    }
+
+    $createUploader(this._fileInput, (res) => {
+      if (!mp) mp = new Mprogress({ template: 1, start: true })
+      mp.set(res.percent / 100)
+    }, (res) => {
+      mp_end()
+      const files = this.state.files || []
+      files.push(res.key)
+      this.setState({ files: files })
+    }, () => mp_end())
   }
 
   _selectEmoji(emoji) {
@@ -706,14 +708,6 @@ class TextEditor extends React.Component {
     this.setState({ showEmoji: false })
   }
 
-  _toggleAtUser = () => {
-    this.setState({ showAtUser: !this.state.showAtUser }, () => {
-      if (this.state.showAtUser) {
-        this.setState({ showEmoji: false })
-        this._UserSelector.openDropdown()
-      }
-    })
-  }
   _selectAtUser = (s) => {
     $(this._textarea).insertAtCursor(`@${s.text} `)
     this.setState({ showAtUser: false })

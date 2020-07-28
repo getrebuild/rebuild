@@ -16,7 +16,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border: 1px solid #eee;
   border-radius: 2px;
   line-height: 1;
-  overflow: hidden;
   margin-top: -1px;
 }
 
@@ -51,25 +50,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.rich-editor .action-btns li>a .zmdi.at-text {
+.rich-editor .action-btns li a .zmdi.at-text {
   font-weight: 600;
-  font-size: 18px;
-  transform: translateY(-1px);
+  font-size: 17px;
+  transform: translateY(-2px);
+  color: #888;
 }
 
-.mount {
-  position: absolute;
-  z-index: 999;
-  margin-top: 28px;
-  margin-left: -28px;
-}
-
-.mount .user-selector {
-  margin-top: -10px;
-}
-
-.mount .user-selector .selection {
-  display: none;
+.rich-editor .action-btns li a .zmdi.at-text:hover {
+  color: rgb(64, 64, 64);
 }
 
 .emoji-wrapper {

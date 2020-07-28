@@ -12,7 +12,7 @@ class DlgAssign extends RbModalHandler {
   constructor(props) {
     super(props)
     this.onView = !!window.RbViewPage
-    this.specs = ['assign', '分派', false]
+    this.specs = ['assign', '分派']
   }
 
   render() {
@@ -30,12 +30,12 @@ class DlgAssign extends RbModalHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{this.specs[1]}给谁</label>
             <div className="col-sm-7">
-              <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={this.specs[2]} closeOnSelect={!this.specs[2]} ref={(c) => this._UserSelector = c} />
+              {this._useUserSelector()}
             </div>
           </div>
           {this.state.cascadesShow !== true ? (
             <div className="form-group row">
-              <div className="col-sm-7 offset-sm-3"><a href="#" onClick={this.showCascades}>同时{this.specs[1]}关联记录</a></div>
+              <div className="col-sm-7 offset-sm-3"><a href="#" onClick={this._showCascade}>同时{this.specs[1]}关联记录</a></div>
             </div>
           ) : (<div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">选择关联记录</label>
@@ -58,7 +58,7 @@ class DlgAssign extends RbModalHandler {
     )
   }
 
-  showCascades = () => {
+  _showCascade = () => {
     event && event.preventDefault()
     $.get(`/commons/metadata/references?entity=${this.props.entity}`, (res) => {
       this.setState({ cascadesShow: true, cascadesEntity: res.data }, () => {
@@ -68,6 +68,10 @@ class DlgAssign extends RbModalHandler {
         }).val(null).trigger('change')
       })
     })
+  }
+
+  _useUserSelector() {
+    return <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => this._UserSelector = c} />
   }
 
   post() {
@@ -115,7 +119,11 @@ class DlgShare extends DlgAssign {
 
   constructor(props) {
     super(props)
-    this.specs = ['share', '共享', true]
+    this.specs = ['share', '共享']
+  }
+
+  _useUserSelector() {
+    return <UserSelector ref={(c) => this._UserSelector = c} />
   }
 
   // -- Usage
@@ -161,7 +169,7 @@ class DlgUnshare extends RbModalHandler {
                 </label>
               </div>
               <div className={'mb-2 ' + (this.state.whichUsers === 'ALL' ? 'hide' : '')}>
-                <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} closeOnSelect={true} ref={(c) => this._UserSelector = c} />
+                <UserSelector ref={(c) => this._UserSelector = c} />
               </div>
             </div>
           </div>

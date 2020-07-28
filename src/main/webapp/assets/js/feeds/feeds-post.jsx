@@ -138,16 +138,16 @@ class FeedsEditor extends React.Component {
               </div>
             </li>
             <li className="list-inline-item">
-              <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
-              <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
-                <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false} onSelectItem={this._selectAtUser} ref={(c) => this._UserSelector = c} />
-              </span>
+              <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false}
+                ref={(c) => this._UserSelector = c}
+                compToggle={<a title="@用户" data-toggle="dropdown"><i className="zmdi at-text">@</i></a>}
+                onSelectItem={this._selectAtUser} />
             </li>
             <li className="list-inline-item">
               <a title="图片" onClick={() => this._imageInput.click()}><i className="zmdi zmdi-image-o" /></a>
             </li>
             <li className="list-inline-item">
-              <a title="附件" onClick={() => this._fileInput.click()}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
+              <a title="附件" onClick={() => this._fileInput.click()} style={{ marginLeft: -3 }}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
             </li>
           </ul>
         </div>
@@ -164,22 +164,26 @@ class FeedsEditor extends React.Component {
       {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && <div className="attachment">
         <div className="img-field">
           {(this.state.images || []).map((item) => {
-            return (<span key={'img-' + item}>
-              <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
-                <b title="移除" onClick={() => this._removeImage(item)}><span className="zmdi zmdi-close"></span></b>
-              </a>
-            </span>)
+            return (
+              <span key={'img-' + item}>
+                <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+                  <b title="移除" onClick={() => this._removeImage(item)}><span className="zmdi zmdi-close"></span></b>
+                </a>
+              </span>
+            )
           })}
         </div>
         <div className="file-field">
           {(this.state.files || []).map((item) => {
             const fileName = $fileCutName(item)
-            return <div key={'file-' + item} className="img-thumbnail" title={fileName}>
-              <i className="file-icon" data-type={$fileExtName(fileName)} />
-              <span>{fileName}</span>
-              <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
-            </div>
+            return (
+              <div key={'file-' + item} className="img-thumbnail" title={fileName}>
+                <i className="file-icon" data-type={$fileExtName(fileName)} />
+                <span>{fileName}</span>
+                <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
+              </div>
+            )
           })}
         </div>
       </div>
@@ -190,14 +194,10 @@ class FeedsEditor extends React.Component {
       </span>
     </React.Fragment>
   }
+
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
   componentDidMount() {
-    $(document.body).click((e) => {
-      if (this.__unmount) return
-      if (e.target && $(e.target).parents('li.list-inline-item').length > 0) return
-      this.setState({ showEmoji: false, showAtUser: false })
-    })
     autosize(this._editor)
     setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
 
@@ -228,21 +228,11 @@ class FeedsEditor extends React.Component {
     }, () => mp_end())
   }
 
-  componentWillUnmount = () => this.__unmount = true
-
   _selectEmoji(emoji) {
     $(this._editor).insertAtCursor(`[${emoji}]`)
     this.setState({ showEmoji: false })
   }
 
-  _toggleAtUser = () => {
-    this.setState({ showAtUser: !this.state.showAtUser }, () => {
-      if (this.state.showAtUser) {
-        this.setState({ showEmoji: false })
-        this._UserSelector.openDropdown()
-      }
-    })
-  }
   _selectAtUser = (s) => {
     $(this._editor).insertAtCursor(`@${s.text} `)
     this.setState({ showAtUser: false })
@@ -253,13 +243,17 @@ class FeedsEditor extends React.Component {
     images.remove(image)
     this.setState({ images: images })
   }
+
   _removeFile(file) {
     const files = this.state.files
     files.remove(file)
     this.setState({ files: files })
   }
 
-  val() { return $(this._editor).val() }
+  val() {
+    return $(this._editor).val()
+  }
+
   vals() {
     const vals = {
       content: this.val(),
@@ -280,7 +274,9 @@ class FeedsEditor extends React.Component {
     }
     return vals
   }
+
   focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
+
   reset = () => {
     $(this._editor).val('')
     autosize.update(this._editor)

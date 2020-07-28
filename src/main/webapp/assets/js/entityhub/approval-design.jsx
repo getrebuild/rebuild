@@ -460,7 +460,7 @@ class StartNodeConfig extends RbFormHandler {
           </label>
         </div>
         {this.state.users === 'SPEC' && <div className="form-group">
-          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
+          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._UserSelector = c} />
         </div>}
       </div>
       {this.renderButton()}
@@ -485,7 +485,7 @@ class StartNodeConfig extends RbFormHandler {
   save = () => {
     let d = {
       nodeName: this.state.nodeName,
-      users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users]
+      users: this.state.users === 'SPEC' ? this._UserSelector.getSelected() : [this.state.users]
     }
     if (this.state.users === 'SPEC' && d.users.length === 0) {
       RbHighbar.create('请选择用户')
@@ -528,7 +528,7 @@ class ApproverNodeConfig extends StartNodeConfig {
           </label>
         </div>
         {this.state.users === 'SPEC' && <div className="form-group mb-3">
-          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
+          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._UserSelector = c} />
         </div>}
         <div className="form-group mb-0">
           <label className="custom-control custom-control-sm custom-checkbox">
@@ -585,7 +585,7 @@ class ApproverNodeConfig extends StartNodeConfig {
   componentDidMount() {
     super.componentDidMount()
     const h = $('#config-side').height() - 120
-    $('#config-side .rb-scroller').height(h).perfectScrollbar()
+    $('#config-side .form.rb-scroller').height(h).perfectScrollbar()
   }
 
   save = () => {
@@ -597,7 +597,7 @@ class ApproverNodeConfig extends StartNodeConfig {
 
     const d = {
       nodeName: this.state.nodeName,
-      users: this.state.users === 'SPEC' ? this._users.getSelected() : [this.state.users],
+      users: this.state.users === 'SPEC' ? this._UserSelector.getSelected() : [this.state.users],
       signMode: this.state.signMode,
       selfSelecting: this.state.selfSelecting,
       editableFields: editableFields
@@ -647,7 +647,7 @@ class CCNodeConfig extends StartNodeConfig {
       <div className="form">
         <div className="form-group mb-3">
           <label className="text-bold">审批结果抄送给谁</label>
-          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._users = c} />
+          <UserSelector selected={this.state.selectedUsers} ref={(c) => this._UserSelector = c} />
         </div>
         <div className="form-group mb-0">
           <label className="custom-control custom-control-sm custom-checkbox mb-2">
@@ -667,7 +667,7 @@ class CCNodeConfig extends StartNodeConfig {
   save = () => {
     const d = {
       nodeName: this.state.nodeName,
-      users: this._users.getSelected(),
+      users: this._UserSelector.getSelected(),
       selfSelecting: this.state.selfSelecting,
       ccAutoShare: this.state.ccAutoShare
     }

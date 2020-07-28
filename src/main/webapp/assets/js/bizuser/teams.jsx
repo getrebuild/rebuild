@@ -18,7 +18,7 @@ class MemberAddDlg extends RbFormHandler {
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">选择用户</label>
           <div className="col-sm-7">
-            <UserSelector ref={(c) => this._userSelector = c} hideTeam={true} />
+            <UserSelector ref={(c) => this._UserSelector = c} hideTeam={true} />
           </div>
         </div>
         <div className="form-group row footer">
@@ -31,8 +31,8 @@ class MemberAddDlg extends RbFormHandler {
   }
 
   _post = () => {
-    let users = this._userSelector.val()
-    if (users.length < 1) { RbHighbar.create('请选择用户'); return }
+    const users = this._UserSelector.val()
+    if (users.length < 1) return RbHighbar.create('请选择用户')
 
     this.disabled(true)
     $.post(`/admin/bizuser/team-members-add?team=${this.props.id}`, JSON.stringify(users), (res) => {

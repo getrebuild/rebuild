@@ -200,7 +200,9 @@ class PlanBox extends React.Component {
                   </div>
                   <div>
                     <label className="mb-1">执行人</label>
-                    <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} closeOnSelect={true} ref={(c) => this._executor = c} />
+                    <div>
+                      <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => this._executor = c} />
+                    </div>
                   </div>
                   <div>
                     <label className="mb-1">截至时间</label>

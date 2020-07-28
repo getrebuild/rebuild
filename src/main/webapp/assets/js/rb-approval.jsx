@@ -161,7 +161,7 @@ class ApprovalUsersForm extends RbFormHandler {
           })}
         </div>
         {this.state.approverSelfSelecting && <div>
-          <UserSelector ref={(c) => this._approverSelect = c} />
+          <UserSelector ref={(c) => this._approverSelector = c} />
         </div>}
       </div>}
       {ccHas && <div className="form-group">
@@ -172,7 +172,7 @@ class ApprovalUsersForm extends RbFormHandler {
           })}
         </div>
         {this.state.ccSelfSelecting && <div>
-          <UserSelector ref={(c) => this._ccSelect = c} />
+          <UserSelector ref={(c) => this._ccSelector = c} />
         </div>}
       </div>}
     </div>
@@ -180,8 +180,8 @@ class ApprovalUsersForm extends RbFormHandler {
 
   getSelectUsers() {
     const selectUsers = {
-      selectApprovers: this.state.approverSelfSelecting ? this._approverSelect.getSelected() : [],
-      selectCcs: this.state.ccSelfSelecting ? this._ccSelect.getSelected() : []
+      selectApprovers: this.state.approverSelfSelecting ? this._approverSelector.getSelected() : [],
+      selectCcs: this.state.ccSelfSelecting ? this._ccSelector.getSelected() : []
     }
 
     if (this.state.isLastStep !== true) {
