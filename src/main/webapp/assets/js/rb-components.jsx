@@ -533,7 +533,8 @@ class UserSelector extends React.Component {
   }
 
   clickItem(e) {
-    const id = e.target.dataset.id || $(e.target).parents('li').data('id')
+    const $target = $(e.currentTarget)
+    const id = $target.data('id') || $target.parents('.select2-results__option').data('id')
 
     let exists = false
     let ns = []
@@ -548,7 +549,7 @@ class UserSelector extends React.Component {
       })
     }
 
-    const selected = { id: id, text: $(e.target).text() }
+    const selected = { id: id, text: $target.text() }
 
     if (!exists) ns.push(selected)
     if (ns.length >= 20) {

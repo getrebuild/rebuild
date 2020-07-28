@@ -45,14 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.DataTruncation;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 记录操作（增/改/删/分派/共享）
@@ -141,10 +134,10 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
+		final ServiceSpec ies = Application.getService(entity.getEntityCode());
+
 		String[] cascades = parseCascades(request);
-		ServiceSpec ies = Application.getService(entity.getEntityCode());
-		
+
 		int affected;
 		try {
 			if (!EntityService.class.isAssignableFrom(ies.getClass())) {
@@ -177,11 +170,11 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
-		ID assignTo = getIdParameterNotNull(request, "to");
+		final EntityService ies = Application.getEntityService(entity.getEntityCode());
+
 		String[] cascades = parseCascades(request);
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
-		
+		ID assignTo = getIdParameterNotNull(request, "to");
+
 		int affected;
 		try {
 			// 仅一条记录
@@ -219,10 +212,10 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
+		final EntityService ies = Application.getEntityService(entity.getEntityCode());
+
 		String[] cascades = parseCascades(request);
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
-		
+
 		int affected = 0;
 		try {
 			for (ID to : toUsers) {
@@ -257,8 +250,7 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = accessIds[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
+		final EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected;
 		try {
@@ -289,19 +281,22 @@ public class GeneralOperatingControll extends BaseControll {
 		}
 		
 		// 查询共享记录ID
-		String sql = String.format(
-				"select recordId,accessId from ShareAccess where recordId in ('%s')", StringUtils.join(records, "','"));
+		String accessSql = String.format(
+				"select recordId,accessId from ShareAccess where recordId in ('%s')",
+				StringUtils.join(records, "','"));
+
 		String to = getParameterNotNull(request, "to");
+		// 非全部
 		if (!"$ALL$".equals(to)) {
 			ID[] toUsers = parseUserList(request);
 			if (toUsers.length == 0) {
 				writeFailure(response, "没有要取消共享的用户");
 				return;
 			}
-			sql += String.format(" and shareTo in ('%s')", StringUtils.join(toUsers, "','"));
+			accessSql += String.format(" and shareTo in ('%s')", StringUtils.join(toUsers, "','"));
 		}
 		
-		Object[][] accessArray = Application.createQueryNoFilter(sql).array();
+		Object[][] accessArray = Application.createQueryNoFilter(accessSql).array();
 		if (accessArray.length == 0) {
 			JSON ret = JSONUtils.toJSONObject(
 					new String[] { "unshared", "requests" },
@@ -310,24 +305,26 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 		
-		Map<ID, Set<ID>> accessMap = new HashMap<>();
+		Map<ID, Set<ID>> accessListMap = new HashMap<>();
 		for (Object[] o : accessArray) {
 			ID record = (ID) o[0];
-			Set<ID> access = accessMap.computeIfAbsent(record, k -> new HashSet<>());
+			Set<ID> access = accessListMap.computeIfAbsent(record, k -> new HashSet<>());
 			access.add((ID) o[1]);
 		}
-		
-		EntityService ies = Application.getEntityService(records[0].getEntityCode());
+
+		final EntityService ies = Application.getEntityService(records[0].getEntityCode());
 		
 		int affected = 0;
 		try {
-			for (Map.Entry<ID, Set<ID>> e : accessMap.entrySet()) {
+			for (Map.Entry<ID, Set<ID>> e : accessListMap.entrySet()) {
 				ID record = e.getKey();
-				Set<ID> access = e.getValue();
+				Set<ID> accessList = e.getValue();
 				BulkContext context = new BulkContext(
-						user, EntityService.UNSHARE, access.toArray(new ID[0]), record);
+						user, EntityService.UNSHARE, accessList.toArray(new ID[0]), record);
+				// 每条记录一个事物
 				affected += ies.bulk(context);
 			}
+
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
@@ -370,7 +367,7 @@ public class GeneralOperatingControll extends BaseControll {
 					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
 					.setParameter(1, entity.getName())
 					.setParameter(2, id)
-					.setLimit(9)  // 显示多了页面显示不出
+					.setLimit(9)  // 最多显示9个
 					.array();
 			sharingList = new ArrayList<>();
 			for (Object[] st : shareTo) {
@@ -440,7 +437,7 @@ public class GeneralOperatingControll extends BaseControll {
 				sameEntityCode = id0.getEntityCode();
 			}
 			if (sameEntityCode != id0.getEntityCode()) {
-				throw new IllegalParameterException("只能批量删除同一实体的记录");
+				throw new IllegalParameterException("只能批量处理同一实体的记录");
 			}
 			idList.add(ID.valueOf(id));
 		}
@@ -455,17 +452,20 @@ public class GeneralOperatingControll extends BaseControll {
 	 */
 	private ID[] parseUserList(HttpServletRequest request) {
 		String to = getParameterNotNull(request, "to");
-		Set<ID> toList = new HashSet<>();
-		for (String id : to.split(",")) {
-			if (ID.isId(id)) {
-				ID uid = ID.valueOf(id);
-				if (uid.getEntityCode() != EntityHelper.User) {
-					throw new IllegalParameterException("无效用户:" + uid);
-				}
-				toList.add(uid);
-			}
-		}
-		return toList.toArray(new ID[0]);
+		Set<ID> users = UserHelper.parseUsers(Arrays.asList(to.split(",")), null, true);
+		return users.toArray(new ID[0]);
+
+//		Set<ID> toList = new HashSet<>();
+//		for (String id : to.split(",")) {
+//			if (ID.isId(id)) {
+//				ID uid = ID.valueOf(id);
+//				if (uid.getEntityCode() != EntityHelper.User) {
+//					throw new IllegalParameterException("无效用户:" + uid);
+//				}
+//				toList.add(uid);
+//			}
+//		}
+//		return toList.toArray(new ID[0]);
 	}
 	
 	/**
