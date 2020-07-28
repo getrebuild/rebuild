@@ -33,6 +33,10 @@ public class ProjectConfigService extends ConfigurationService implements AdminG
      * 项目范围-私有（成员）
      */
     public static final int SCOPE_MEMBER = 2;
+    /**
+     * 模板-基础模板
+     */
+    public static final int TEMPLATE_DEFAULT = 1;
 
     protected ProjectConfigService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -68,7 +72,7 @@ public class ProjectConfigService extends ConfigurationService implements AdminG
         project = super.createRaw(project);
 
         // 使用模板
-        if (useTemplate == 1) {
+        if (useTemplate == TEMPLATE_DEFAULT) {
             ID id1 = createPlan(project.getPrimary(), "待处理", 1000, ProjectPlanConfigService.FLOW_STATUS_START, null);
             ID id2 = createPlan(project.getPrimary(), "进行中", 2000, ProjectPlanConfigService.FLOW_STATUS_PROCESSING, null);
             ID id3 = createPlan(project.getPrimary(), "已完成", 3000, ProjectPlanConfigService.FLOW_STATUS_END, new ID[] { id1, id2 });
@@ -81,6 +85,9 @@ public class ProjectConfigService extends ConfigurationService implements AdminG
         return project;
     }
 
+    /**
+     * @see ProjectPlanConfigService
+     */
     private ID createPlan(ID projectId, String planName, int seq, int flowStatus, ID[] flowNexts) {
         Record plan = EntityHelper.forNew(EntityHelper.ProjectPlanConfig, Application.getCurrentUser());
         plan.setID("projectId", projectId);
