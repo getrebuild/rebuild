@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.files.FilesHelper;
+import com.rebuild.server.business.project.ProjectHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.web.BaseControll;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -37,8 +37,7 @@ import java.util.Set;
 public class FileManagerControll extends BaseControll {
 
     @RequestMapping("post-files")
-    public void postFiles(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public void postFiles(HttpServletRequest request, HttpServletResponse response) {
         ID user = getRequestUser(request);
         ID inFolder = getIdParameter(request, "folder");
         JSONArray files = (JSONArray) ServletUtils.getRequestJson(request);
@@ -57,8 +56,7 @@ public class FileManagerControll extends BaseControll {
     }
 
     @RequestMapping("delete-files")
-    public void deleteFiles(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public void deleteFiles(HttpServletRequest request, HttpServletResponse response) {
         ID user = getRequestUser(request);
         String[] files = getParameter(request, "ids", "").split(",");
 
@@ -81,8 +79,7 @@ public class FileManagerControll extends BaseControll {
     }
 
     @RequestMapping("move-files")
-    public void moveFiles(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
+    public void moveFiles(HttpServletRequest request, HttpServletResponse response) {
         ID user = getRequestUser(request);
         ID inFolder = getIdParameter(request, "folder");
         String[] files = getParameter(request, "ids", "").split(",");
@@ -111,25 +108,26 @@ public class FileManagerControll extends BaseControll {
     }
 
     @RequestMapping("check-readable")
-    public void checkReadable(HttpServletRequest request, HttpServletResponse response)
-            throws IOException {
-        ID user = getRequestUser(request);
-        ID record = getIdParameterNotNull(request, "id");
+    public void checkReadable(HttpServletRequest request, HttpServletResponse response) {
+        final ID user = getRequestUser(request);
+        final ID record = getIdParameterNotNull(request, "id");
 
-        boolean OK;
-        if (record.getEntityCode() == EntityHelper.Feeds || record.getEntityCode() == EntityHelper.FeedsComment) {
-            OK = FeedsHelper.checkReadable(record, user);
+        int entityCode = record.getEntityCode();
+        boolean readable;
+        if (entityCode == EntityHelper.Feeds || entityCode == EntityHelper.FeedsComment) {
+            readable = FeedsHelper.checkReadable(record, user);
+        } else if (entityCode == EntityHelper.ProjectTask || entityCode == EntityHelper.ProjectTaskComment) {
+            readable = ProjectHelper.checkReadable(record, user);
         } else {
-            OK = Application.getPrivilegesManager().allowRead(user, record);
+            readable = Application.getPrivilegesManager().allowRead(user, record);
         }
-        writeSuccess(response, OK);
+
+        writeSuccess(response, readable);
     }
 
     // 是否允许操作指定文件（管理员总是允许）
     private boolean checkAllow(ID user, ID file) {
-        if (UserHelper.isAdmin(user)) {
-            return true;
-        }
+        if (UserHelper.isAdmin(user)) return true;
 
         Object[] o = Application.createQueryNoFilter(
                 "select createdBy from Attachment where attachmentId = ?")
