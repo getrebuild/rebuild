@@ -397,6 +397,7 @@
 		<field name="projectCode" type="string" max-length="10" nullable="false" updatable="false" description="项目代号" />
 		<field name="iconName" type="string" max-length="30" description="图标ICON" />
 		<field name="comments" type="string" max-length="300" description="备注" />
+		<field name="principal" type="reference" ref-entity="User" description="负责人" />
 		<field name="members" type="string" max-length="420" description="项目成员($MemberID)" />
 		<field name="scope" type="small-int" default-value="1" description="可见范围(1=公开 2=成员)"/>
 		<field name="extraDefinition" type="text" max-length="1000" description="扩展配置(JSON Map)" />

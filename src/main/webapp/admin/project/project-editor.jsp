@@ -62,6 +62,12 @@
 							</div>
 						</div>
 						<div class="form-group row pt-0">
+							<label class="col-12 col-lg-3 col-form-label text-lg-right">负责人</label>
+							<div class="col-12 col-lg-9">
+								<div id="principal"></div>
+							</div>
+						</div>
+						<div class="form-group row">
 							<label class="col-12 col-lg-3 col-form-label text-lg-right">项目成员</label>
 							<div class="col-12 col-lg-9">
 								<div id="members"></div>
@@ -94,6 +100,7 @@
 window.__PageConfig = {
 	id: '${projectId}',
 	scope: ${scope},
+	principal: '${principal}',
 	members: '${members}',
 }
 </script>

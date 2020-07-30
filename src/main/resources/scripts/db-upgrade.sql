@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #28
+alter table `project_config`
+  add column `PRINCIPAL` char(20) comment '负责人';
+
 -- #27 Project/Kanban (v1.11)
 -- ************ Entity [ProjectConfig] DDL ************
 create table if not exists `project_config` (

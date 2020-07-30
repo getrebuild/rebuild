@@ -28,6 +28,7 @@ window.__PageConfig = {
     type: 'TaskView',
     taskId: '${id}',
     isMember: ${isMember},
+    isManageable: ${isManageable},
 }
 </script>
 <script src="${baseUrl}/assets/lib/jquery.textarea.js"></script>

@@ -7,25 +7,30 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
-let _members
-let _planList
+let _Principal
+let _Members
+let _PlanList
 
 $(document).ready(() => {
-  renderRbcomp(<UserSelector />, 'members',
-    function () {
-      _members = this
-      _initUserComp(wpc.members, this)
-    })
+  renderRbcomp(<UserSelector multiple={false} />, 'principal', function () {
+    _Principal = this
+    _initUserComp(wpc.principal, _Principal)
+  })
+  renderRbcomp(<UserSelector />, 'members', function () {
+    _Members = this
+    _initUserComp(wpc.members, this)
+  })
+
   if (wpc.scope === 2) $('#scope_2').attr('checked', true)
 
-  renderRbcomp(<PlanList />, 'plans', function () { _planList = this })
+  renderRbcomp(<PlanList />, 'plans', function () { _PlanList = this })
   $('.J_add-plan').click(() =>
-    renderRbcomp(<PlanEdit projectId={wpc.id} flowNexts={_planList.getPlans()} seq={_planList.getMaxSeq() + 1000} />))
+    renderRbcomp(<PlanEdit projectId={wpc.id} flowNexts={_PlanList.getPlans()} seq={_PlanList.getMaxSeq() + 1000} />))
 
   const $btn = $('.J_save').click(() => {
     const _data = {
       scope: $('#scope_2').prop('checked') ? 2 : 1,
-      members: _members.val().join(','),
+      members: _Members.val().join(','),
       metadata: { id: wpc.id }
     }
     if (!_data.members) return RbHighbar.create('请选择项目成员')
@@ -227,7 +232,7 @@ class PlanEdit extends RbFormHandler {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success('面板已保存')
-        _planList.loadPlans()
+        _PlanList.loadPlans()
       } else {
         RbHighbar.error(res.error_msg)
         this.disabled()

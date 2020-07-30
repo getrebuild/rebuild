@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
@@ -20,6 +19,7 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.project.ProjectHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -49,29 +49,24 @@ public class ProjectTaskControll extends BasePageControll {
     @RequestMapping("/project/task/{taskId}")
     public ModelAndView pageTask(@PathVariable String taskId,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ID taskId2 = ID.isId(taskId) ? ID.valueOf(taskId) : null;
+        final ID taskId2 = ID.isId(taskId) ? ID.valueOf(taskId) : null;
         if (taskId2 == null) {
             response.sendError(404);
             return null;
         }
 
         final ID user = getRequestUser(request);
-
-        ConfigEntry p;
-        try {
-            p = ProjectManager.instance.getProjectByTask(taskId2, getRequestUser(request));
-        } catch (ConfigurationException ex) {
-            response.sendError(404, ex.getLocalizedMessage());
-            return null;
-        } catch (AccessDeniedException ex) {
-            response.sendError(403, ex.getLocalizedMessage());
-            return null;
+        if (!ProjectHelper.checkReadable(taskId2, user)) {
+            response.sendError(403, "你无权查看该任务");
         }
+
+        ConfigEntry cfg = ProjectManager.instance.getProjectByTask(taskId2, user);
 
         ModelAndView mv = createModelAndView("/project/task-view.jsp");
         mv.getModel().put("id", taskId2.toLiteral());
-        mv.getModel().put("projectIcon", p.getString("iconName"));
-        mv.getModel().put("isMember", p.get("members", Set.class).contains(user));
+        mv.getModel().put("projectIcon", cfg.getString("iconName"));
+        mv.getModel().put("isMember", cfg.get("members", Set.class).contains(user));
+        mv.getModel().put("isManageable", ProjectHelper.isManageable(taskId2, user));
         return mv;
     }
 
@@ -131,7 +126,7 @@ public class ProjectTaskControll extends BasePageControll {
     public void taskDetails(HttpServletRequest request, HttpServletResponse response) {
         ID taskId = getIdParameterNotNull(request, "task");
         Object[] task = Application.createQueryNoFilter(
-                "select " + BASE_FIELDS + ",projectId,projectPlanId,description,attachments from ProjectTask where taskId = ?")
+                "select " + BASE_FIELDS + ",projectId,description,attachments from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
 
@@ -139,15 +134,15 @@ public class ProjectTaskControll extends BasePageControll {
 
         // 状态面板
         details.put("projectId", task[11]);
-        details.put("projectPlanId", task[12]);
-        details.put("description", task[13]);
-        String attachments = (String) task[14];
+        details.put("description", task[12]);
+        String attachments = (String) task[13];
         details.put("attachments", JSON.parseArray(attachments));
 
         writeSuccess(response, details);
     }
 
-    private static final String BASE_FIELDS = "projectId.projectCode,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority,endTime";
+    private static final String BASE_FIELDS =
+            "projectId.projectCode,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority,endTime";
     /**
      * @param o
      * @return

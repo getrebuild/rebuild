@@ -72,20 +72,27 @@ public class ProjectManager implements ConfigManager {
 
         if (projects == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select configId,projectCode,projectName,iconName,scope,members,extraDefinition from ProjectConfig")
+                    "select configId,projectCode,projectName,iconName,scope,members,principal,extraDefinition from ProjectConfig")
                     .array();
 
             List<ConfigEntry> alist = new ArrayList<>();
             for (Object[] o : array) {
+                String members = (String) o[5];
+                if (o[6] != null) {
+                    members = StringUtils.isBlank(members) ? o[6].toString() : members + "," + o[6];
+                }
+
                 ConfigEntry e = new ConfigEntry()
                         .set("id", o[0])
                         .set("projectCode", o[1])
                         .set("projectName", o[2])
                         .set("iconName", StringUtils.defaultIfBlank((String) o[3], "texture"))
                         .set("scope", o[4])
-                        .set("_members", o[5]);
+                        .set("_members", members)
+                        .set("principal", o[6]);
 
-                String extraDefinition = (String) o[6];
+                // 扩展配置
+                String extraDefinition = (String) o[7];
                 if (JSONUtils.wellFormat(extraDefinition)) {
                     JSONObject extraDefinitionJson = JSON.parseObject(extraDefinition);
                     for (String name : extraDefinitionJson.keySet()) {

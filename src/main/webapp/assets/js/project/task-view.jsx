@@ -15,7 +15,7 @@ let __TaskContent
 let __TaskComment
 
 $(document).ready(() => {
-  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} />, 'task-contents',
+  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} manageable={wpc.isManageable} />, 'task-contents',
     function () { __TaskContent = this })
   if (wpc.isMember) {
     renderRbcomp(<TaskComment id={wpc.taskId} call={() => __TaskContent.refreshComments()} />, 'task-comment',
@@ -40,7 +40,7 @@ class TaskForm extends React.Component {
           <div className="col-10">
             <ValueTaskName taskName={this.state.taskName} $$$parent={this} />
           </div>
-          {this.props.editable &&
+          {(this.props.editable && this.props.manageable) &&
             <div className="col-2 text-right">
               <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">操作 <i className="icon zmdi zmdi-more-vert"></i></button>
               <div className="dropdown-menu dropdown-menu-right">

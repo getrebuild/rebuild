@@ -18,7 +18,6 @@ import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.OperatingContext;
-import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.ProjectPlanConfigService;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
@@ -107,14 +106,11 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public int delete(ID taskId) {
         final ID user = Application.getCurrentUser();
-        checkMember(user, taskId);
-
-        final Record beforeRecord = getBeforeRecord(taskId);
-
-        ID createdBy = beforeRecord.getID(EntityHelper.CreatedBy);
-        if (!(UserHelper.isAdmin(user) || user.equals(createdBy))) {
+        if (!ProjectHelper.isManageable(taskId, user)) {
             throw new PrivilegesException("不能删除他人任务");
         }
+
+        final Record beforeRecord = getBeforeRecord(taskId);
 
         int d = super.delete(taskId);
 
