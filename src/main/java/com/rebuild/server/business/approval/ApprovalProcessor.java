@@ -456,7 +456,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 
 		int shared = 0;
 		for (ID user : shareTo) {
-			if (!Application.getSecurityManager().allowRead(user, recordId)) {
+			if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
 				es.share(recordId, user, null);
 				shared++;
 			}

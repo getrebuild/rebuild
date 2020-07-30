@@ -36,7 +36,7 @@ import java.util.Set;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/27
  */
-public class RobotTriggerManager implements ConfigManager<Entity> {
+public class RobotTriggerManager implements ConfigManager {
 
 	public static final RobotTriggerManager instance = new RobotTriggerManager();
 	private RobotTriggerManager() {}
@@ -156,8 +156,8 @@ public class RobotTriggerManager implements ConfigManager<Entity> {
 	}
 	
 	@Override
-	public void clean(Entity cacheKey) {
-		final String cKey = "RobotTriggerManager-" + cacheKey.getName();
+	public void clean(Object entity) {
+		final String cKey = "RobotTriggerManager-" + ((Entity) entity).getName();
 		Application.getCommonCache().evict(cKey);
 		Application.getCommonCache().evict(CKEY_TARF);
 	}

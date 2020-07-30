@@ -11,7 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -43,7 +43,7 @@ public final class License {
         if (SN == null) {
             try {
                 String apiUrl = String.format("https://getrebuild.com/api/authority/new?ver=%s&k=%s", Application.VER, OSA_KEY);
-                String result = CommonsUtils.get(apiUrl);
+                String result = HttpUtils.get(apiUrl);
 
                 if (JSONUtils.wellFormat(result)) {
                     JSONObject o = JSON.parseObject(result);
@@ -112,7 +112,7 @@ public final class License {
         apiUrl += (api.contains("\\?") ? "&" : "?") + "k=" + OSA_KEY + "&sn=" + SN();
 
         try {
-            String result = CommonsUtils.get(apiUrl);
+            String result = HttpUtils.get(apiUrl);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
                 Application.getCommonCache().putx(api, o, CommonCache.TS_DAY);

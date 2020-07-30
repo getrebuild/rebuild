@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/28
  */
-public class ClassificationManager implements ConfigManager<ID> {
+public class ClassificationManager implements ConfigManager {
 
 	private static final Log LOG = LogFactory.getLog(ClassificationManager.class);
 	
@@ -157,11 +157,12 @@ public class ClassificationManager implements ConfigManager<ID> {
 	}
 	
 	@Override
-	public void clean(ID cacheKey) {
-		if (cacheKey.getEntityCode() == EntityHelper.ClassificationData) {
-			Application.getCommonCache().evict("ClassificationNAME-" + cacheKey);
-		} else if (cacheKey.getEntityCode() == EntityHelper.Classification) {
-			Application.getCommonCache().evict("ClassificationLEVEL-" + cacheKey);
+	public void clean(Object cid) {
+		ID id2 = (ID) cid;
+		if (id2.getEntityCode() == EntityHelper.ClassificationData) {
+			Application.getCommonCache().evict("ClassificationNAME-" + cid);
+		} else if (id2.getEntityCode() == EntityHelper.Classification) {
+			Application.getCommonCache().evict("ClassificationLEVEL-" + cid);
 		}
 	}
 }

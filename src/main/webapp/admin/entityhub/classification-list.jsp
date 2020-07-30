@@ -4,7 +4,6 @@
 <html>
 <head>
 <%@ include file="/_include/Head.jsp"%>
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/classification.css">
 <title>分类数据</title>
 </head>
 <body>

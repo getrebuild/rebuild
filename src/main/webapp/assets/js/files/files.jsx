@@ -99,7 +99,6 @@ var filesList
 
 $(document).ready(() => {
   $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
-
   const $content = $('.page-aside .tab-content')
   $addResizeHandler(() => {
     $content.height($(window).height() - 147)

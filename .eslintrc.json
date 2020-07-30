@@ -94,7 +94,9 @@
         "$mp": true,
         "converEmoji": true,
         "$throttle": true,
-        "$timechunk": true
+        "$timechunk": true,
+        "moment": true,
+        "$fromNow": true
     },
     "rules": {
         "react/jsx-no-target-blank": 0,

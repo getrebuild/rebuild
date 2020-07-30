@@ -25,7 +25,6 @@ import com.rebuild.server.helper.DistributedJobBean;
 import com.rebuild.server.helper.License;
 import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.CommonCache;
-import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
@@ -34,6 +33,7 @@ import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.GeneralEntityService;
+import com.rebuild.server.service.bizz.privileges.PrivilegesManager;
 import com.rebuild.server.service.bizz.privileges.UserStore;
 import com.rebuild.server.service.notification.NotificationService;
 import com.rebuild.server.service.query.QueryFactory;
@@ -51,12 +51,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 后台类入口
@@ -68,10 +63,10 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.10.3";
+	public static final String VER = "1.11.0-dev";
 	/** Rebuild Build
 	 */
-	public static final int BUILD = 11003;
+	public static final int BUILD = 11100;
 
 	/** Logging for Global
 	 */
@@ -308,13 +303,6 @@ public final class Application {
 	/**
 	 * @return
 	 */
-	public static RecentlyUsedCache getRecentlyUsedCache() {
-		return getBean(RecentlyUsedCache.class);
-	}
-
-	/**
-	 * @return
-	 */
 	public static CommonCache getCommonCache() {
 		return getBean(CommonCache.class);
 	}
@@ -322,8 +310,8 @@ public final class Application {
 	/**
 	 * @return
 	 */
-	public static com.rebuild.server.service.bizz.privileges.SecurityManager getSecurityManager() {
-		return getBean(com.rebuild.server.service.bizz.privileges.SecurityManager.class);
+	public static PrivilegesManager getPrivilegesManager() {
+		return getBean(PrivilegesManager.class);
 	}
 
 	/**

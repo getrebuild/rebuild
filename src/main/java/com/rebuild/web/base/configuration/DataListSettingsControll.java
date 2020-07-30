@@ -61,7 +61,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 	public void sets(@PathVariable String entity,
 					 HttpServletRequest request, HttpServletResponse response) throws IOException {
 		final ID user = getRequestUser(request);
-		Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowCustomDataList), "没有权限");
+		Assert.isTrue(Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList), "没有权限");
 
 		ID cfgid = getIdParameter(request, "id");
 		// 普通用户只能有一个
@@ -118,7 +118,7 @@ public class DataListSettingsControll extends BaseControll implements PortalsCon
 
 			Entity refEntity = field.getReferenceEntity();
 			// 无权限的不返回
-			if (!Application.getSecurityManager().allowRead(user, refEntity.getEntityCode())) {
+			if (!Application.getPrivilegesManager().allowRead(user, refEntity.getEntityCode())) {
 				continue;
 			}
 			

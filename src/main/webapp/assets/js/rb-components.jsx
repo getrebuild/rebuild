@@ -364,83 +364,120 @@ class UserSelector extends React.Component {
 
   constructor(props) {
     super(props)
-    this.state = { dropdownOpen: false, selected: props.selected || [] }
+    this.state = { selected: props.selected || [] }
 
     this.cached = {}
     this.tabTypes = []
     if (props.hideUser !== true) this.tabTypes.push(['User', '用户'])
     if (props.hideDepartment !== true) this.tabTypes.push(['Department', '部门'])
     if (props.hideRole !== true) this.tabTypes.push(['Role', '角色'])
-    if (props.hideTeam !== true) this.tabTypes.push(['Team', '团队'])
+    if (props.hideTeam !== true && rb.rbv) this.tabTypes.push(['Team', '团队'])
   }
 
   render() {
-    let noResult = null
-    if (!this.state.items) noResult = noResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
-    else if (this.state.items.length === 0) noResult = <li className="select2-results__option un-hover">未找到结果</li>
+    let inResult
+    if (!this.state.items) inResult = <li className="select2-results__option un-hover text-muted">搜索中...</li>
+    else if (this.state.items.length === 0) inResult = <li className="select2-results__option un-hover">未找到结果</li>
 
-    // select2-container--above
-    return <div className="user-selector">
-      <span className="select2 select2-container select2-container--default select2-container--below">
-        <span className="selection">
-          <span className="select2-selection select2-selection--multiple">
-            <ul className="select2-selection__rendered">
-              {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={this.clearSelection}>×</span>}
-              {this.state.selected.map((item) => {
-                return (<li key={`s-${item.id}`} className="select2-selection__choice"><span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>×</span>{item.text}</li>)
-              })}
-              <li className="select2-selection__choice abtn" onClick={this.openDropdown}><a><i className="zmdi zmdi-plus"></i> 添加</a></li>
-            </ul>
-          </span>
-        </span>
-        <span className={`dropdown-wrapper ${this.state.dropdownOpen === false ? 'hide' : ''}`}>
-          <div className="selector-search">
-            <div>
-              <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''}
-                ref={(c) => this._searchInput = c} onChange={(e) => this.searchItems(e)} onKeyDown={(e) => this._keyEvent(e)} />
-            </div>
+    const _DropdownMenu = (
+      <div className="dropdown-menu">
+        <div className="selector-search">
+          <div>
+            <input type="search" className="form-control search" placeholder="输入关键词搜索" value={this.state.query || ''} ref={(c) => this._input = c}
+              onChange={(e) => this.searchItems(e)}
+              onKeyDown={(e) => this._keyEvent(e)} />
           </div>
-          <div className="tab-container m-0">
-            <ul className={`nav nav-tabs nav-tabs-classic ${this.tabTypes.length < 2 ? 'hide' : ''}`}>
-              {this.tabTypes.map((item) => {
-                return <li className="nav-item" key={`t-${item[0]}`}><a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a></li>
-              })}
-            </ul>
-            <div className="tab-content">
-              <div className="tab-pane active">
-                <div className="rb-scroller" ref={(c) => this._scroller = c}>
-                  <ul className="select2-results__options">
-                    {noResult ? noResult : this.state.items.map((item) => {
-                      return (
-                        <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
-                          <i className={`zmdi ${this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
-                          {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
-                          <span className="text">{item.text}</span>
-                        </li>
-                      )
-                    })}
-                  </ul>
-                </div>
+        </div>
+        <div className="tab-container m-0">
+          <ul className={`nav nav-tabs nav-tabs-classic ${this.tabTypes.length < 2 ? 'hide' : ''}`}>
+            {this.tabTypes.map((item) => {
+              return (
+                <li className="nav-item" key={`t-${item[0]}`}>
+                  <a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a>
+                </li>
+              )
+            })}
+          </ul>
+          <div className="tab-content">
+            <div className="tab-pane active">
+              <div className="rb-scroller" ref={(c) => this._scroller = c}>
+                <ul className="select2-results__options">
+                  {inResult ? inResult : this.state.items.map((item) => {
+                    return (
+                      <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+                        <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
+                        {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
+                        <span className="text">{item.text}</span>
+                      </li>
+                    )
+                  })}
+                </ul>
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    )
+
+    // Mix select2 and dropdown
+    // data-reference="parent" data-offset="1,26"
+    return (
+      <span className="select2 select2-container select2-container--default user-selector">
+        <span className="selection">
+          {this.props.compToggle ?
+            <span ref={(c) => this._dropdownParent = c}>
+              {this.props.compToggle}
+              {_DropdownMenu}
+            </span>
+            :
+            <div className="select2-selection select2-selection--multiple">
+              <div className="select2-selection__rendered" ref={(c) => this._dropdownParent = c}>
+                {this.state.selected.length > 0 && <span className="select2-selection__clear" onClick={() => this.clearSelection()}>&times;</span>}
+                {this.state.selected.map((item) => {
+                  return (
+                    <span key={`s-${item.id}`} className="select2-selection__choice">
+                      <span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>&times;</span> {item.text}
+                    </span>
+                  )
+                })}
+                <span className="select2-selection__choice abtn" data-toggle="dropdown">
+                  <a><i className="zmdi zmdi-plus" /> {this.props.multiple === false ? '选择' : '添加'}</a>
+                </span>
+                {_DropdownMenu}
+              </div>
+            </div>
+          }
         </span>
       </span>
-    </div>
+    )
   }
 
   componentDidMount() {
-    $(document.body).click((e) => {
-      const $target = $(e.target)
-      if (e.target && ($target.hasClass('user-selector') || $target.parents('div.user-selector').length > 0)) return
-      if (this.__isUnmounted) return
-      this.setState({ dropdownOpen: false })
-    })
     $(this._scroller).perfectScrollbar()
+
+    const that = this
+    $(this._dropdownParent).on({
+      'show.bs.dropdown': function () {
+        if (!that.state.tabType) that.switchTab('User')
+      },
+      'shown.bs.dropdown': function () {
+        that._input && that._input.focus()
+      },
+      'hide.bs.dropdown': function (e) {
+        if (!e.clickEvent || !e.clickEvent.target) return
+        const $target = $(e.clickEvent.target)
+        if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
+          if (that.props.multiple === false) {
+            if (!($target.hasClass('select2-results__options') || $target.parents('.select2-results__options').length === 1)) return false
+          } else {
+            return false
+          }
+        }
+      }
+    })
   }
 
   componentWillUnmount() {
-    this.__isUnmounted = true
     $(this._scroller).perfectScrollbar('destroy')
   }
 
@@ -448,67 +485,22 @@ class UserSelector extends React.Component {
     this.setState({ selected: props.selected || this.state.selected })
   }
 
-  clearSelection = () => {
+  clearSelection() {
     this.setState({ selected: [] })
-  }
-
-  openDropdown = (e) => {
-    this.setState({ dropdownOpen: true }, () => {
-      this._searchInput.focus()
-      if (!this.state.tabType) this.switchTab('User')
-    })
   }
 
   switchTab(type) {
     type = type || this.state.tabType
-    const cacheKey = `${type}-${this.state.query}`
-    this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
-      if (!this.cached[cacheKey]) {
+    const ckey = `${type}-${this.state.query}`
+    this.setState({ tabType: type, items: this.cached[ckey] }, () => {
+      if (!this.cached[ckey]) {
         $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
-          this.cached[cacheKey] = res.data
+          this.cached[ckey] = res.data
           this.switchTab(type)
         })
       }
       $(this._scroller).perfectScrollbar('update')
     })
-  }
-
-  searchItems(e) {
-    this.setState({ query: e.target.value }, () => {
-      $setTimeout(() => this.switchTab(), 300, 'us-searchItems')
-    })
-  }
-
-  clickItem(e) {
-    const id = e.target.dataset.id || $(e.target).parents('li').data('id')
-
-    let exists = false
-    let ns = []
-    // 单选
-    if (this.props.multiple !== false) {
-      ns = this.state.selected.filter((x) => {
-        if (x.id === id) {
-          exists = true
-          return false
-        }
-        return true
-      })
-    }
-
-    if (!exists) ns.push({ id: id, text: $(e.target).text() })
-    if (ns.length >= 20) {
-      RbHighbar.create('最多选择 20 个')
-      return false
-    }
-    this.setState({ selected: ns, dropdownOpen: this.props.closeOnSelect !== true })
-  }
-
-  removeItem(e) {
-    this.clickItem(e)
-  }
-
-  containsItem(id) {
-    return !!this.state.selected.find((x) => { return x.id === id })
   }
 
   _keyEvent(e) {
@@ -532,6 +524,50 @@ class UserSelector extends React.Component {
     //   this._$foucsedItem.trigger('click')
     //   $stopEvent(e)
     // }
+  }
+
+  searchItems(e) {
+    this.setState({ query: e.target.value }, () => {
+      $setTimeout(() => this.switchTab(), 300, 'us-searchItems')
+    })
+  }
+
+  clickItem(e) {
+    const $target = $(e.currentTarget)
+    const id = $target.data('id') || $target.parents('.select2-results__option').data('id')
+
+    let exists = false
+    let ns = []
+    // 单选
+    if (this.props.multiple !== false) {
+      ns = this.state.selected.filter((x) => {
+        if (x.id === id) {
+          exists = true
+          return false
+        }
+        return true
+      })
+    }
+
+    const selected = { id: id, text: $target.text() }
+
+    if (!exists) ns.push(selected)
+    if (ns.length >= 20) {
+      RbHighbar.create('最多选择 20 个')
+      return false
+    }
+
+    this.setState({ selected: ns }, () => {
+      typeof this.props.onSelectItem === 'function' && this.props.onSelectItem(selected)
+    })
+  }
+
+  removeItem(e) {
+    this.clickItem(e, true)
+  }
+
+  containsItem(id) {
+    return !!this.state.selected.find(x => x.id === id)
   }
 
   getSelected() {

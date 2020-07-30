@@ -80,19 +80,20 @@ public class FeedsScheduleJob extends DistributedJobBean {
             }
 
             final ID toUser = (ID) list.get(0)[0];
+            final String subjectTemp = "你有 %d 条动态日程提醒";
 
             // 消息通知
             if (!notifications.isEmpty()) {
-                String subject = "你有 " + notifications.size() + " 条动态日程提醒";
+                String subject = String.format(subjectTemp, notifications.size());
                 String contents = subject + mergeContents(notifications, false);
-                Message m = MessageBuilder.createMessage(null, toUser, contents, Message.TYPE_FEEDS);
-                Application.getNotifications().send(m);
+                Application.getNotifications().send(
+                        MessageBuilder.createMessage(toUser, contents, Message.TYPE_FEEDS));
             }
 
             // 邮件
             final String emailAddr = Application.getUserStore().getUser(toUser).getEmail();
             if (SMSender.availableMail() && RegexUtils.isEMail(emailAddr) && !emails.isEmpty()) {
-                String subject = "你有 " + emails.size() + " 条动态日程提醒";
+                String subject = String.format(subjectTemp, emails.size());
                 String contents = mergeContents(emails, true);
                 contents = MessageBuilder.formatMessage(contents, true, false);
                 SMSender.sendMailAsync(emailAddr, subject, contents);
@@ -101,7 +102,7 @@ public class FeedsScheduleJob extends DistributedJobBean {
             // 短信（考虑短信字数，内容简化了）
             final String mobileAddr = Application.getUserStore().getUser(toUser).getWorkphone();
             if (SMSender.availableSMS() && RegexUtils.isCNMobile(mobileAddr) && !smss.isEmpty()) {
-                String subject = "你有 " + smss.size() + " 条动态日程提醒";
+                String subject = String.format(subjectTemp, smss.size());
                 SMSender.sendSMSAsync(mobileAddr, subject);
             }
         }

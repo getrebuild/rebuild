@@ -53,7 +53,7 @@ public class QueryFactory {
 	 * @return
 	 */
 	public Query createQuery(String ajql, ID user) {
-		return createQuery(ajql, Application.getSecurityManager().createQueryFilter(user));
+		return createQuery(ajql, Application.getPrivilegesManager().createQueryFilter(user));
 	}
 	
 	/**

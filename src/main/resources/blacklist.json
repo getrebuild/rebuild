@@ -528,5 +528,9 @@
     "week",
     "date",
     "rebuild",
-    "getrebuild"
+    "getrebuild",
+    "metadata",
+    "feeds",
+    "project",
+    "attachment"
 ]

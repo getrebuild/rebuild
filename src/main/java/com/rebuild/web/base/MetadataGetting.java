@@ -52,6 +52,8 @@ import java.util.Set;
 @RequestMapping("/commons/metadata/")
 public class MetadataGetting extends BaseControll {
 
+	private static final String FT_QUERY = "QUERY";
+
 	@RequestMapping("entities")
 	public void entities(HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
@@ -78,25 +80,23 @@ public class MetadataGetting extends BaseControll {
 		String entity = getParameterNotNull(request, "entity");
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		boolean appendRefFields = "2".equals(getParameter(request, "deep"));
-		String filterKey = getParameter(request, "filter");
+		String fieldType = getParameter(request, "ft");
 		
 		List<Map<String, Object>> fsList = new ArrayList<>();
-		putFields(fsList, entityMeta, appendRefFields, filterKey);
+		putFields(fsList, entityMeta, appendRefFields, fieldType);
 
 		// 追加二级引用字段
 		if (appendRefFields) {
 			for (Field field : entityMeta.getFields()) {
-				if (EasyMeta.getDisplayType(field) != DisplayType.REFERENCE) {
-					continue;
-				}
+				if (EasyMeta.getDisplayType(field) != DisplayType.REFERENCE) continue;
+				if (FT_QUERY.equalsIgnoreCase(fieldType)
+						&& (!field.isQueryable() || !field.getReferenceEntity().isQueryable())) continue;
 
-				int entityCode = field.getReferenceEntity().getEntityCode();
-                if (MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig) {
-                    continue;
-                }
+				int code = field.getReferenceEntity().getEntityCode();
+                if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) continue;
 
                 fsList.add(buildField(field));
-                putFields(fsList, field, false, filterKey);
+                putFields(fsList, field, false, fieldType);
 			}
 		}
 
@@ -107,9 +107,9 @@ public class MetadataGetting extends BaseControll {
 	 * @param dest
 	 * @param entityOrField
 	 * @param filterRefField
-	 * @param filterKey
+	 * @param fieldType
 	 */
-	private void putFields(List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField, String filterKey) {
+	private void putFields(List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField, String fieldType) {
 	    Field parentField = null;
 	    Entity useEntity;
 	    if (entityOrField instanceof Field) {
@@ -120,11 +120,7 @@ public class MetadataGetting extends BaseControll {
         }
 
 		for (Field field : MetadataSorter.sortFields(useEntity)) {
-			if ("SEARCH".equalsIgnoreCase(filterKey)) {
-				if (!field.isQueryable() || EasyMeta.getDisplayType(field) == DisplayType.BARCODE) {
-					continue;
-				}
-			}
+			if (FT_QUERY.equalsIgnoreCase(fieldType) && !field.isQueryable()) continue;
 
 			Map<String, Object> map = buildField(field);
 

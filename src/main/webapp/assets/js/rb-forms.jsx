@@ -608,18 +608,9 @@ class RbFormDateTime extends RbFormElement {
 
       const that = this
       this.__datetimepicker = $(this._fieldValue).datetimepicker({
-        componentIcon: 'zmdi zmdi-calendar',
-        navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
         format: format || 'yyyy-mm-dd hh:ii:ss',
         minView: minView,
         startView: startView,
-        weekStart: 1,
-        autoclose: true,
-        language: 'zh',
-        todayHighlight: true,
-        showMeridian: false,
-        keyboardNavigation: false,
-        minuteStep: 5,
       }).on('changeDate', function () {
         const val = $(this).val()
         that.handleChange({ target: { value: val } }, true)

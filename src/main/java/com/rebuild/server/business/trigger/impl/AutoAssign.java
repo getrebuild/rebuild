@@ -76,7 +76,7 @@ public class AutoAssign implements TriggerAction {
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
         if (!allowNoPermissionAssign
-                && !Application.getSecurityManager().allow(operatingContext.getOperator(), recordId, BizzPermission.ASSIGN)) {
+                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), recordId, BizzPermission.ASSIGN)) {
             LOG.warn("No privileges to assign record of target: " + recordId);
             return;
         }

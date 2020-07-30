@@ -103,7 +103,7 @@
 		<constructor-arg index="1" ref="ehcacheManager" />
 	</bean>
 
-	<bean class="com.rebuild.server.service.bizz.privileges.SecurityManager">
+	<bean class="com.rebuild.server.service.bizz.privileges.PrivilegesManager">
 		<constructor-arg index="0" ref="userStore" />
 		<constructor-arg index="1" ref="recordOwningCache" />
 	</bean>
@@ -209,6 +209,19 @@
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
     <bean class="com.rebuild.server.service.feeds.FeedsCommentService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+
+	<bean class="com.rebuild.server.service.configuration.ProjectConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.service.configuration.ProjectPlanConfigService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.service.project.ProjectTaskService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+	<bean class="com.rebuild.server.service.project.ProjectCommentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 

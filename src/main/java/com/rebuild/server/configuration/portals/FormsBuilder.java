@@ -135,10 +135,10 @@ public class FormsBuilder extends FormsManager {
 				// 明细无需审批
 				approvalState = null;
 				
-				if (!Application.getSecurityManager().allowUpdate(user, masterRecordId)) {
+				if (!Application.getPrivilegesManager().allowUpdate(user, masterRecordId)) {
 					return formatModelError("你没有权限向此记录添加明细");
 				}
-			} else if (!Application.getSecurityManager().allowCreate(user, entityMeta.getEntityCode())) {
+			} else if (!Application.getPrivilegesManager().allowCreate(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
 			} else {
 				approvalState = getHadApproval(entityMeta, null);
@@ -146,7 +146,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		// 查看（视图）
 		else if (viewMode) {
-			if (!Application.getSecurityManager().allowRead(user, record)) {
+			if (!Application.getPrivilegesManager().allowRead(user, record)) {
 				return formatModelError("你无权读取此记录或记录已被删除");
 			}
 			
@@ -155,7 +155,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		// 编辑
 		else {
-			if (!Application.getSecurityManager().allowUpdate(user, record)) {
+			if (!Application.getPrivilegesManager().allowUpdate(user, record)) {
 				return formatModelError("你没有编辑此记录的权限");
 			}
 			

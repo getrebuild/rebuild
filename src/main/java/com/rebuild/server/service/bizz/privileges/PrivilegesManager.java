@@ -38,7 +38,7 @@ import org.springframework.util.Assert;
  * @see BizzPermission
  * @see BizzDepthEntry
  */
-public class SecurityManager {
+public class PrivilegesManager {
 
 	final private UserStore theUserStore;
 	final private RecordOwningCache theRecordOwningCache;
@@ -47,7 +47,7 @@ public class SecurityManager {
 	 * @param us
 	 * @param roc
 	 */
-	protected SecurityManager(UserStore us, RecordOwningCache roc) {
+	protected PrivilegesManager(UserStore us, RecordOwningCache roc) {
 		this.theUserStore = us;
 		this.theRecordOwningCache = roc;
 	}

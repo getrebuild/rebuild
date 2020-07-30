@@ -62,7 +62,7 @@ public class AutoShare extends AutoAssign {
         final ID recordId = operatingContext.getAnyRecord().getPrimary();
 
         if (!allowNoPermissionShare
-                && !Application.getSecurityManager().allow(operatingContext.getOperator(), recordId, BizzPermission.SHARE)) {
+                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), recordId, BizzPermission.SHARE)) {
             LOG.warn("No privileges to share record of target: " + recordId);
             return;
         }

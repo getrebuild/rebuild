@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -58,7 +59,7 @@ public class TestSupport {
 		if ("true".equals(System.getenv("TRAVIS"))) {
 			LOG.info("TESTING in TravisCI ...");
 		}
-		
+
 		Application.debug();
 		addTestEntityIfNeed(false);
 	}
@@ -67,6 +68,14 @@ public class TestSupport {
 	public static void shutdown() {
 		Application.getSessionStore().clean();
 		LOG.warn("TESTING Shutdown ...");
+	}
+
+	/**
+	 * @return
+	 */
+	protected Entity getTestEntity() {
+		addTestEntityIfNeed(false);
+		return MetadataHelper.getEntity(TEST_ENTITY);
 	}
 
 	// 初始化测试实体
@@ -88,12 +97,10 @@ public class TestSupport {
 		Entity testEntity = MetadataHelper.getEntity(entityName);
 		
 		for (DisplayType dt : DisplayType.values()) {
-			if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE) {
-				continue;
-			}
-			
+			if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE) continue;
+
 			String fieldName = dt.name().toUpperCase();
-			if (dt == DisplayType.DATE) fieldName = "DATE1";  // Black
+			if (dt == DisplayType.DATE) fieldName = "DATE1";  // Blacklist
 
 			if (dt == DisplayType.REFERENCE) {
 				new Field2Schema(UserService.ADMIN_USER)
@@ -111,16 +118,6 @@ public class TestSupport {
                         .createField(testEntity, fieldName, dt, null, null, null);
 			}
 		}
-	}
-
-	/**
-	 * 获取测试类
-	 *
-	 * @return
-	 */
-	protected Entity getTestEntity() {
-		addTestEntityIfNeed(false);
-		return MetadataHelper.getEntity(TEST_ENTITY);
 	}
 	
 	/**
@@ -140,8 +137,8 @@ public class TestSupport {
 		}
 		
 		if (!MetadataHelper.containsEntity(Account)) {
-			URL url = TestSupport.class.getClassLoader().getResource("metaschema.Account.json");
-			String content = FileUtils.readFileToString(new File(url.toURI()));
+			String content = FileUtils.readFileToString(
+					ResourceUtils.getFile("classpath:metaschema.Account.json"));
 
 			MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(content));
 			if (this instanceof TestSupportWithUser) {
@@ -152,8 +149,8 @@ public class TestSupport {
 		}
 		
 		if (!MetadataHelper.containsEntity(SalesOrder)) {
-			URL url = TestSupport.class.getClassLoader().getResource("metaschema.SalesOrder.json");
-			String content = FileUtils.readFileToString(new File(url.toURI()));
+			String content = FileUtils.readFileToString(
+					ResourceUtils.getFile("classpath:metaschema.SalesOrder.json"));
 
 			MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(content));
 			if (this instanceof TestSupportWithUser) {

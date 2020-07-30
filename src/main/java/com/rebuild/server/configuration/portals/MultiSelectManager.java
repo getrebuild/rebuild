@@ -93,11 +93,11 @@ public class MultiSelectManager extends PickListManager {
     }
 
     @Override
-    public void clean(Object cacheKey) {
-        if (cacheKey instanceof ID) {
+    public void clean(Object idOrField) {
+        if (idOrField instanceof ID) {
             // Nothings
         } else {
-            super.clean(cacheKey);
+            super.clean(idOrField);
         }
     }
 }

@@ -4,16 +4,12 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* eslint-disable react/jsx-no-undef */
+/* global UserSelectorWithField */
 
 // ~~ 发送通知
 // eslint-disable-next-line no-undef
 class ContentSendNotification extends ActionContentSpec {
-
-  constructor(props) {
-    super(props)
-    this.state = { type: 1 }
-  }
+  state = { ...this.props, type: 1 }
 
   render() {
     return <div className="send-notification">
@@ -38,7 +34,7 @@ class ContentSendNotification extends ActionContentSpec {
         <div className="form-group row pt-1">
           <label className="col-12 col-lg-3 col-form-label text-lg-right">发送给谁</label>
           <div className="col-12 col-lg-8">
-            <UserSelectorExt ref={(c) => this._sendTo = c} />
+            <UserSelectorWithField ref={(c) => this._sendTo = c} />
           </div>
         </div>
         {this.state.type === 2 && <div className="form-group row pb-1">
@@ -78,15 +74,15 @@ class ContentSendNotification extends ActionContentSpec {
   }
 
   buildContent() {
-    const content = {
+    const _data = {
       type: this.state.type,
       sendTo: this._sendTo.getSelected(),
       title: $(this._title).val(),
       content: $(this._content).val()
     }
-    if (!content.sendTo || content.sendTo.length === 0) { RbHighbar.create('请选择发送给谁'); return false }
-    if (!content.content) { RbHighbar.create('内容不能为空'); return false }
-    return content
+    if (!_data.sendTo || _data.sendTo.length === 0) { RbHighbar.create('请选择发送给谁'); return false }
+    if (!_data.content) { RbHighbar.create('内容不能为空'); return false }
+    return _data
   }
 }
 

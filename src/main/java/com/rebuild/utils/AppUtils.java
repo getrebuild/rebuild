@@ -17,6 +17,7 @@ import com.rebuild.api.Controll;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.helper.language.Languages;
+import com.rebuild.server.service.bizz.privileges.PrivilegesManager;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.admin.AdminEntryControll;
 import org.apache.commons.lang.StringUtils;
@@ -206,10 +207,10 @@ public class AppUtils {
 	 * @param request
 	 * @param entry
 	 * @return
-	 * @see com.rebuild.server.service.bizz.privileges.SecurityManager
+	 * @see PrivilegesManager
 	 */
 	public static boolean allow(HttpServletRequest request, ZeroEntry entry) {
-		return Application.getSecurityManager().allow(getRequestUser(request), entry);
+		return Application.getPrivilegesManager().allow(getRequestUser(request), entry);
 	}
 
 	/**

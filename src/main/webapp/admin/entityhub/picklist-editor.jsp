@@ -49,7 +49,6 @@
 		<button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">取消</button>
 	</div>
 </div>
-
 <%@ include file="/_include/Foot.jsp"%>
 <script src="${baseUrl}/assets/js/sortable.js"></script>
 <script src="${baseUrl}/assets/js/entityhub/picklist-editor.js" type="text/babel"></script>

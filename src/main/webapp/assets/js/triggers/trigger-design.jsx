@@ -83,7 +83,8 @@ const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
 
 // 用户选择器
 // eslint-disable-next-line no-unused-vars
-class UserSelectorExt extends UserSelector {
+class UserSelectorWithField extends UserSelector {
+
   constructor(props) {
     super(props)
     this.tabTypes.push(['FIELDS', '使用字段'])
@@ -91,6 +92,7 @@ class UserSelectorExt extends UserSelector {
 
   componentDidMount() {
     super.componentDidMount()
+
     this.__fields = []
     $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       $(res.data).each((idx, item) => {
@@ -105,17 +107,17 @@ class UserSelectorExt extends UserSelector {
     type = type || this.state.tabType
     if (type === 'FIELDS') {
       const q = this.state.query
-      const cacheKey = type + '-' + q
-      this.setState({ tabType: type, items: this.cached[cacheKey] }, () => {
-        if (!this.cached[cacheKey]) {
+      const ckey = type + '-' + q
+      this.setState({ tabType: type, items: this.cached[ckey] }, () => {
+        if (!this.cached[ckey]) {
           if (!q) {
-            this.cached[cacheKey] = this.__fields
+            this.cached[ckey] = this.__fields
           } else {
             const fs = []
             $(this.__fields).each(function () {
               if (this.text.contains(q)) fs.push(this)
             })
-            this.cached[cacheKey] = fs
+            this.cached[ckey] = fs
           }
           this.switchTab(type)
         }

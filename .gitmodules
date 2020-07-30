@@ -1,0 +1,3 @@
+[submodule "@rbv"]
+	path = @rbv
+	url = https://github.com/getrebuild/rbv.git

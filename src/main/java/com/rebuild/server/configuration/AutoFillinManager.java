@@ -33,7 +33,7 @@ import java.util.Set;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/17
  */
-public class AutoFillinManager implements ConfigManager<Field> {
+public class AutoFillinManager implements ConfigManager {
 	
 	public static final AutoFillinManager instance = new AutoFillinManager();
 	private AutoFillinManager() { }
@@ -156,8 +156,9 @@ public class AutoFillinManager implements ConfigManager<Field> {
 	}
 	
 	@Override
-	public void clean(Field field) {
-		final String cKey = "AutoFillinManager-" + field.getOwnEntity().getName() + "." + field.getName();
+	public void clean(Object field) {
+		Field field2 = (Field) field;
+		final String cKey = "AutoFillinManager-" + field2.getOwnEntity().getName() + "." + field2.getName();
 		Application.getCommonCache().evict(cKey);
 	}
 }

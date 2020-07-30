@@ -72,6 +72,22 @@ public abstract class ConfigurationService extends BaseService {
 			throw new DataSpecificationException("无权操作他人配置");
 		}
 	}
+
+	/**
+	 * @param record
+	 * @return
+	 */
+	protected Record createRaw(Record record) {
+		return super.create(record);
+	}
+
+	/**
+	 * @param record
+	 * @return
+	 */
+	protected Record updateRaw(Record record) {
+		return super.update(record);
+	}
 	
 	/**
 	 * 清理缓存

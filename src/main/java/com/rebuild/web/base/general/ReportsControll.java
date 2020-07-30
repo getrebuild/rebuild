@@ -98,9 +98,9 @@ public class ReportsControll extends BasePageControll {
 
     @RequestMapping("data-export/submit")
     public void export(@PathVariable String entity,
-                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+                       HttpServletRequest request, HttpServletResponse response) {
         ID user = getRequestUser(request);
-        Assert.isTrue(Application.getSecurityManager().allow(user, ZeroEntry.AllowDataExport), "没有权限");
+        Assert.isTrue(Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport), "没有权限");
 
         int dataRange = getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED);
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);

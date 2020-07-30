@@ -4,16 +4,12 @@ Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reser
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global UserSelectorExt */
+/* global UserSelectorWithField */
 
 // ~~ 自动分派
 // eslint-disable-next-line
 class ContentAutoAssign extends ActionContentSpec {
-
-  constructor(props) {
-    super(props)
-    this.state.assignRule = 1
-  }
+  static = { ...this.props, assignRule: 1 }
 
   render() {
     return <div className="auto-assign">
@@ -21,18 +17,18 @@ class ContentAutoAssign extends ActionContentSpec {
         <div className="form-group row pt-1">
           <label className="col-12 col-lg-3 col-form-label text-lg-right">分派给谁</label>
           <div className="col-12 col-lg-8">
-            <UserSelectorExt ref={(c) => this._assignTo = c} />
+            <UserSelectorWithField ref={(c) => this._assignTo = c} />
           </div>
         </div>
         <div className="form-group row pb-1">
           <label className="col-12 col-lg-3 col-form-label text-lg-right">(多人) 分派规则</label>
-          <div className="col-12 col-lg-8 pt-1">
+          <div className="col-12 col-lg-8 pt-1" ref={(c) => this._assignRule = c}>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule === 1} value="1" onChange={this.changeValue} />
+              <input className="custom-control-input" name="assignRule" type="radio" value="1" onClick={(e) => this.changeValue(e)} defaultChecked />
               <span className="custom-control-label">依次平均分派</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio custom-control-inline">
-              <input className="custom-control-input" name="assignRule" type="radio" checked={this.state.assignRule === 2} value="2" onChange={this.changeValue} />
+              <input className="custom-control-input" name="assignRule" type="radio" value="2" onClick={(e) => this.changeValue(e)} />
               <span className="custom-control-label">随机分派</span>
             </label>
           </div>
@@ -59,15 +55,19 @@ class ContentAutoAssign extends ActionContentSpec {
       if (!(v === 1 || v === 4 || v >= 128)) $(this).attr('disabled', true)
     })
 
-    if (this.props.content && this.props.content.assignTo) {
-      $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(this.props.content.assignTo), (res) => {
+    const content = this.props.content || {}
+
+    if (content.assignTo) {
+      $.post(`/commons/search/user-selector?entity=${this.props.sourceEntity}`, JSON.stringify(content.assignTo), (res) => {
         if (res.error_code === 0 && res.data.length > 0) this._assignTo.setState({ selected: res.data })
       })
     }
 
-    if (this.props.content && this.props.content.assignRule === 2) this.setState({ assignRule: 2 })
+    if (content.assignRule === 2) {
+      $(this._assignRule).find('input:eq(1)').prop('checked', true)
+    }
 
-    const cascades = this.props.content && this.props.content.cascades ? this.props.content.cascades.split(',') : []
+    const cascades = content.cascades ? content.cascades.split(',') : []
     $.get('/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
       this.setState({ cascadesEntity: res.data }, () => {
         this.__select2 = $(this._cascades).select2({
@@ -79,13 +79,17 @@ class ContentAutoAssign extends ActionContentSpec {
   }
 
   changeValue = (e) => {
-    let s = {}
+    const s = {}
     s[e.target.name] = e.target.value
     this.setState(s)
   }
 
   buildContent() {
-    const _data = { assignTo: this._assignTo.getSelected(), assignRule: ~~this.state.assignRule, cascades: this.__select2.val().join(',') }
+    const _data = {
+      assignTo: this._assignTo.getSelected(),
+      assignRule: ~~this.state.assignRule,
+      cascades: this.__select2.val().join(',')
+    }
     if (!_data.assignTo || _data.assignTo.length === 0) { RbHighbar.create('请选择分派给谁'); return false }
     return _data
   }

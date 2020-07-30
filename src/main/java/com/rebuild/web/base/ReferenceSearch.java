@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.ClassificationManager;
 import com.rebuild.server.configuration.portals.DataListManager;
+import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.datalist.ProtocolFilterParser;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
@@ -87,7 +88,7 @@ public class ReferenceSearch extends BaseEntityControll {
 			ID[] recently = null;
 			if (protocolFilter == null) {
 				String type = getParameter(request, "type");
-				recently = Application.getRecentlyUsedCache().gets(user, referenceEntity.getName(), type);
+				recently = Application.getBean(RecentlyUsedCache.class).gets(user, referenceEntity.getName(), type);
 			}
 
 			if (recently == null || recently.length == 0) {
@@ -146,7 +147,7 @@ public class ReferenceSearch extends BaseEntityControll {
 		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
 			String type = getParameter(request, "type");
-			ID[] recently = Application.getRecentlyUsedCache().gets(user, entity, type);
+			ID[] recently = RecentlyUsedSearch.cache().gets(user, entity, type);
 			if (recently.length == 0) {
 				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			} else {
@@ -231,7 +232,7 @@ public class ReferenceSearch extends BaseEntityControll {
 		// 为空则加载最近使用的
 		if (StringUtils.isBlank(q)) {
 		    String type = "d" + useClassification;
-			ID[] recently = Application.getRecentlyUsedCache().gets(user, "ClassificationData", type);
+			ID[] recently = RecentlyUsedSearch.cache().gets(user, "ClassificationData", type);
 			if (recently.length == 0) {
 				writeSuccess(response, JSONUtils.EMPTY_ARRAY);
 			} else {

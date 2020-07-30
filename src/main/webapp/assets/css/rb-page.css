@@ -18,6 +18,12 @@ html.rbv .rbv-show {
     display: block;
 }
 
+html.dev .dev-show.inline,
+html.admin .admin-show.inline,
+html.rbv .rbv-show.inline {
+    display: inline-block;
+}
+
 html.dev .dev-show.row,
 html.admin .admin-show.row,
 html.rbv .rbv-show.row {
@@ -164,6 +170,7 @@ body {
 .text-break {
     word-break: break-all;
     word-wrap: break-word;
+    white-space: normal;
 }
 
 .text-overflow {
@@ -391,6 +398,7 @@ a.btn {
     height: 2.6rem;
     min-height: 2.6rem;
     min-width: auto;
+    box-shadow: none !important;
 }
 
 .input-search button .icon,
@@ -476,6 +484,24 @@ div.dataTables_wrapper div.dataTables_filter {
 
 .datetimepicker.dropdown-menu .switch {
     padding-top: 5px;
+}
+
+.datetimepicker.dropdown-menu .fa {
+    display: inline-block;
+    font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 1.615rem;
+}
+
+.datetimepicker.dropdown-menu .fa.fa-arrow-left::before {
+    content: '\f2fa';
+}
+
+.datetimepicker.dropdown-menu .fa.fa-arrow-right::before {
+    content: '\f2fb';
 }
 
 div.dataTables_filter .filter-tips.badge {
@@ -2193,6 +2219,18 @@ form {
     color: #777
 }
 
+.user-selector .dropdown-menu {
+    padding: 0;
+    margin: 0;
+    background-color: #f2f2f2;
+    width: 260px;
+}
+
+.user-selector .dropdown-menu ol,
+.user-selector .dropdown-menu ul {
+    padding-left: 0;
+}
+
 .user-selector .select2-selection {
     line-height: 1;
 }
@@ -2200,6 +2238,7 @@ form {
 .user-selector .select2-selection .select2-selection__rendered {
     padding-left: 8px;
     padding-right: 8px;
+    height: auto;
 }
 
 .user-selector .select2-selection__choice.abtn {
@@ -2229,17 +2268,6 @@ form {
 .user-selector .select2-selection__choice.abtn:active {
     background-color: #2572f2;
     box-shadow: inset 0 2px 0 #1266f1;
-}
-
-.user-selector .dropdown-wrapper {
-    position: absolute;
-    background-color: #f2f2f2;
-    z-index: 91;
-    width: 260px;
-    border-radius: 0;
-    -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
-    display: block;
 }
 
 .user-selector .selector-search {
@@ -2285,8 +2313,9 @@ form {
 
 .user-selector .select2-results__option.un-hover {
     background-color: #fff !important;
-    color: #444;
+    color: #777;
     cursor: default;
+    padding-top: 7px;
 }
 
 .user-selector .select2-results__option {
@@ -2317,11 +2346,6 @@ form {
 
 .user-selector .select2-results__option img.avatar+span.text {
     margin-left: 6px;
-}
-
-.user-selector .dropdown-wrapper ol,
-.user-selector .dropdown-wrapper ul {
-    padding-left: 0;
 }
 
 .user-show {
@@ -2430,6 +2454,10 @@ form {
 
 .card-list .card-footer a:hover {
     color: #666;
+}
+
+.card-list .card-footer a.danger:hover {
+    color: #ea4335;
 }
 
 .card-list .card-footer .badge {
@@ -3193,8 +3221,14 @@ form {
     display: none;
 }
 
+.rb-aside.rb-aside-collapsed .page-head,
 .rb-aside.rb-aside-collapsed .main-content {
     margin-left: 50px;
+}
+
+.page-head.page-head-sm {
+    padding-top: 12px;
+    padding-bottom: 0;
 }
 
 .rb-animate .rb-aside .page-aside.widgets {
@@ -3541,6 +3575,11 @@ a.icon-link>.zmdi {
     color: #fff !important;
 }
 
+a.avatar.x26 img {
+    width: 26px;
+    height: 26px;
+}
+
 /* text overflow */
 
 .aside-header .title,
@@ -3567,4 +3606,10 @@ a.icon-link>.zmdi {
     font-style: italic;
     border-top: 1px solid #d5d8de;
     line-height: 1;
+}
+
+.use-dropdown .dropdown-menu {
+    max-width: none;
+    min-width: 0;
+    padding: 0;
 }

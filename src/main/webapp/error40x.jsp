@@ -41,11 +41,10 @@ if (ServletUtils.isAjaxRequest(request)) {
 if (self != top) {
 	var btn = document.getElementById('goHome')
 	btn.parentNode.removeChild(btn)
-	if (location.href.indexOf('/view/') > -1 && parent.RbViewModal) {
+	if (parent && parent.RbViewModal) {
 		try {
-			var viewid = location.href.split('/view/')[1].split('?')[0]
-			parent.RbViewModal.holder(viewid).hideLoading()
-		} catch (e) { }
+			parent.RbViewModal.currentHolder().hideLoading()
+		} catch (ignore) {}
 	}
 }
 if (location.href.indexOf('unsupported-browser') > -1) document.getElementById('error').innerHTML = '<%=Languages.lang("UnsupportIE10Tip")%>'

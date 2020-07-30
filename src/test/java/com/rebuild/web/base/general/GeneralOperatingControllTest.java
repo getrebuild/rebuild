@@ -43,7 +43,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class GeneralOperatingControllTest extends TestSupportWithMVC {
 
-	private static ID lastSaveId = ID.newId(999);  // It's fake
+	private static ID _LastSavedId = ID.newId(999);  // It's fake
 
 	@Test
 	public void test1Save() throws Exception {
@@ -57,16 +57,14 @@ public class GeneralOperatingControllTest extends TestSupportWithMVC {
 		Assert.assertTrue(resp.isSuccess());
 		
 		String recordId = resp.getDataJSONObject().getString("id");
-		lastSaveId = ID.valueOf(recordId);
+		_LastSavedId = ID.valueOf(recordId);
+		System.out.println("New record created for operating : " + _LastSavedId);
 	}
 	
 	@Test
 	public void test2Update() throws Exception {
-		if (lastSaveId == null) {
-			return;
-		}
 		JSONObject fromJson = JSON.parseObject("{ TestAllFieldsName:'test2', metadata:{ entity:'TestAllFields', id:'' } }");
-		fromJson.getJSONObject("metadata").put("id", lastSaveId.toLiteral());
+		fromJson.getJSONObject("metadata").put("id", _LastSavedId.toLiteral());
 		
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
 				.post("/app/entity/record-save")
@@ -79,7 +77,7 @@ public class GeneralOperatingControllTest extends TestSupportWithMVC {
 	@Test
 	public void test3Assgin() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/record-assign?id=" + lastSaveId + "&to=" + UserService.SYSTEM_USER);
+				.post("/app/entity/record-assign?id=" + _LastSavedId + "&to=" + SIMPLE_USER);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());
@@ -88,7 +86,7 @@ public class GeneralOperatingControllTest extends TestSupportWithMVC {
 	@Test
 	public void test4Share() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/record-share?id=" + lastSaveId + "&to=" + UserService.SYSTEM_USER);
+				.post("/app/entity/record-share?id=" + _LastSavedId + "&to=" + SIMPLE_USER);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());
@@ -97,7 +95,7 @@ public class GeneralOperatingControllTest extends TestSupportWithMVC {
 	@Test
 	public void test5UnshareBatch() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/record-unshare-batch?id=" + lastSaveId + "&to=" + UserService.SYSTEM_USER);
+				.post("/app/entity/record-unshare-batch?id=" + _LastSavedId + "&to=" + SIMPLE_USER);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());
@@ -108,15 +106,13 @@ public class GeneralOperatingControllTest extends TestSupportWithMVC {
 		Object[] accessId = Application.createQueryNoFilter(
 				"select accessId from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
 				.setParameter(1, "TestAllFields")
-				.setParameter(2, lastSaveId)
+				.setParameter(2, _LastSavedId)
 				.setParameter(3, UserService.SYSTEM_USER)
 				.unique();
-		if (accessId == null) {
-			return;
-		}
-		
+		if (accessId == null) return;  // No shares
+
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/record-unshare?record=" + lastSaveId + "&id=" + accessId[0]);
+				.post("/app/entity/record-unshare?record=" + _LastSavedId + "&id=" + accessId[0]);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());
@@ -125,7 +121,7 @@ public class GeneralOperatingControllTest extends TestSupportWithMVC {
 	@Test
 	public void test7FetchRecordMeta() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/record-meta?id=" + lastSaveId);
+				.post("/app/entity/record-meta?id=" + _LastSavedId);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());
@@ -134,7 +130,7 @@ public class GeneralOperatingControllTest extends TestSupportWithMVC {
 	@Test
 	public void test9Delete() throws Exception {
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
-				.post("/app/entity/record-delete?id=" + lastSaveId);
+				.post("/app/entity/record-delete?id=" + _LastSavedId);
 		MvcResponse resp = perform(builder, UserService.ADMIN_USER);
 		System.out.println(resp);
 		Assert.assertTrue(resp.isSuccess());

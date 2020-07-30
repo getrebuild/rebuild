@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.ExcelUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -94,7 +94,7 @@ public class TemplateExtractor {
      * @return
      */
     protected Set<String> extractVars() {
-        List<Cell[]> rows = CommonsUtils.readExcel(this.template);
+        List<Cell[]> rows = ExcelUtils.readExcel(this.template);
 
         Set<String> vars = new HashSet<>();
         for (Cell[] row : rows) {

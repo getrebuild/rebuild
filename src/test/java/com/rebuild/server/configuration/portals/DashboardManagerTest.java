@@ -34,7 +34,7 @@ public class DashboardManagerTest extends TestSupport {
 	public void testGetList() throws Exception {
 	    try {
 	        Application.getSessionStore().set(UserService.SYSTEM_USER);
-		    JSON dashs = DashboardManager.instance.getDashList(UserService.ADMIN_USER);
+		    JSON dashs = DashboardManager.instance.getAvailable(UserService.ADMIN_USER);
 		    System.out.println(dashs.toJSONString());
         } finally {
             Application.getSessionStore().clean();

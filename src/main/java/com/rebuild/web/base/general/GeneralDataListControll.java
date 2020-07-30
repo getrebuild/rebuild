@@ -16,12 +16,9 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.portals.DataListManager;
 import com.rebuild.server.helper.datalist.DataListControl;
 import com.rebuild.server.helper.datalist.DefaultDataListControl;
-import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.privileges.ZeroEntry;
 import com.rebuild.web.BaseEntityControll;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +27,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.text.MessageFormat;
 
 /**
  * 数据列表
@@ -58,7 +54,7 @@ public class GeneralDataListControll extends BaseEntityControll {
 			return null;
 		}
 
-		if (!Application.getSecurityManager().allowRead(user, thatEntity.getEntityCode())) {
+		if (!Application.getPrivilegesManager().allowRead(user, thatEntity.getEntityCode())) {
 			response.sendError(403, "你没有访问此实体的权限");
 			return null;
 		}
@@ -75,11 +71,11 @@ public class GeneralDataListControll extends BaseEntityControll {
 
 		// 列表相关权限
 		mv.getModel().put(ZeroEntry.AllowCustomDataList.name(),
-				Application.getSecurityManager().allow(user, ZeroEntry.AllowCustomDataList));
+				Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList));
 		mv.getModel().put(ZeroEntry.AllowDataExport.name(),
-				Application.getSecurityManager().allow(user, ZeroEntry.AllowDataExport));
+				Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport));
 		mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
-				Application.getSecurityManager().allow(user, ZeroEntry.AllowBatchUpdate));
+				Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
 
 		// 展开 WIDGET 面板
 		String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
@@ -103,26 +99,4 @@ public class GeneralDataListControll extends BaseEntityControll {
 		JSON result = control.getJSONResult();
 		writeSuccess(response, result);
 	}
-
-    @RequestMapping("list-and-view")
-    public void quickPageList(HttpServletRequest request, HttpServletResponse response) throws IOException {
-	    ID id = getIdParameterNotNull(request, "id");
-	    String url = null;
-	    if (MetadataHelper.containsEntity(id.getEntityCode())) {
-	    	Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-	    	if (entity.getEntityCode() == EntityHelper.Feeds) {
-				url = "../feeds/home#s=" + id;
-			} else if (entity.getEntityCode() == EntityHelper.User) {
-                url = MessageFormat.format("../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), id);
-            } else if (MetadataHelper.hasPrivilegesField(entity) || EasyMeta.valueOf(id.getEntityCode()).isPlainEntity()) {
-				url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), id);
-			}
-		}
-
-	    if (url != null) {
-	    	response.sendRedirect(url);
-		} else {
-	    	response.sendError(HttpStatus.NOT_FOUND.value());
-		}
-    }
 }

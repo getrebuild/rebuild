@@ -53,7 +53,7 @@ public class UserStoreTest extends TestSupport {
 
 	@Test
 	public void testMemberToTeam() {
-		Application.getSessionStore().set(SIMPLE_USER);
+		Application.getSessionStore().set(UserService.SYSTEM_USER);
 		try {
 			Application.getBean(TeamService.class).createMembers(SIMPLE_TEAM, Collections.singletonList(SIMPLE_USER));
 			User user = Application.getUserStore().getUser(SIMPLE_USER);

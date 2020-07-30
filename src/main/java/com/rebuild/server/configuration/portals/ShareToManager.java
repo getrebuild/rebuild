@@ -34,7 +34,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/10/21
  */
-public abstract class ShareToManager<T> implements ConfigManager<T> {
+public abstract class ShareToManager implements ConfigManager {
 
     protected static final Log LOG = LogFactory.getLog(ShareToManager.class);
 

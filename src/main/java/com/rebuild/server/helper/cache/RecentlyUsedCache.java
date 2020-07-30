@@ -77,7 +77,7 @@ public class RecentlyUsedCache extends BaseCacheTemplate<Serializable> {
 		List<ID> data = new ArrayList<>();
 		for (int i = 0; i < limit && i < exists.size(); i++) {
 			final ID raw = exists.get(i);
-			if (!(raw.getEntityCode() == EntityHelper.ClassificationData || Application.getSecurityManager().allowRead(user, raw))) {
+			if (!(raw.getEntityCode() == EntityHelper.ClassificationData || Application.getPrivilegesManager().allowRead(user, raw))) {
 				continue;
 			}
 			
