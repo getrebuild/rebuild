@@ -52,7 +52,7 @@ class TaskForm extends React.Component {
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label"><i className="icon zmdi zmdi-square-o" /> 状态</label>
           <div className="col-12 col-sm-9">
-            <ValueStatusAndPlan status={this.state.status} projectPlanId={this.state.projectPlanId} $$$parent={this} plansOfState={this.state.plansOfState} currentPlanNexts={this.state.currentPlanNexts} />
+            <ValueStatus status={this.state.status} $$$parent={this} />
           </div>
         </div>
         <div className="form-group row">
@@ -202,63 +202,32 @@ class ValueTaskName extends ValueComp {
 }
 
 // 状态和面板
-class ValueStatusAndPlan extends ValueComp {
+class ValueStatus extends ValueComp {
   state = { ...this.props }
 
   renderElement() {
     return (
       <div className="form-control-plaintext">
-        <div className="float-left status-checkbox">
-          <label className="custom-control custom-checkbox custom-control-inline" title="已完成/未完成" onClick={(e) => $stopEvent(e)}>
+        <span className="status-checkbox">
+          <label className="custom-control custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
             <input className="custom-control-input" type="checkbox" ref={(c) => this._status = c}
               onChange={(e) => this._handleChangeStatus(e)}
-              disabled={this.state.currentPlanStatus === 2} />
-            <span className="custom-control-label"></span>
+            />
+            <span className="custom-control-label">{this.state.status > 0 ? '已完成' : '未完成'}</span>
           </label>
-        </div>
-        <div className="float-left">
-          <a className="tag-value arrow plaintext" data-toggle="dropdown">{this._PlanName()}</a>
-          <div className="dropdown-menu">
-            {(this.state.plansOfState || []).map((item) => {
-              const can = (this.state.currentPlanNexts || []).includes(item.id)
-              return <a key={`plan-${item.id}`} className={`dropdown-item ${can ? '' : 'disabled'}`} data-disabled={!can} onClick={(e) => this._handleChangePlan(e, item.id)}>{item.text}</a>
-            })}
-          </div>
-        </div>
-        <div className="clearfix" />
+        </span>
       </div>
     )
   }
 
   renderViewElement() {
     return (
-      <div className="form-control-plaintext">
-        <div className="float-left status-checkbox">
-          <label className="custom-control custom-checkbox custom-control-inline" title="已完成/未完成">
-            <input className="custom-control-input" type="checkbox" defaultValue={this.state.staus > 0} disabled />
-            <span className="custom-control-label"></span>
-          </label>
-        </div>
-        <div className="float-left">
-          <span>{this._PlanName()}</span>
-        </div>
-        <div className="clearfix" />
-      </div>
+      <div className="form-control-plaintext">{this.state.status > 0 ? '已完成' : '未完成'}</div>
     )
-  }
-
-  _PlanName() {
-    return this.state.plansOfState ? (this.state.plansOfState.find(x => x.id === this.state.projectPlanId) || { text: '[DELETED]' }).text : '无'
   }
 
   _handleChangeStatus(e) {
     this.handleChange({ target: { name: 'status', value: e.target.checked ? 1 : 0 } },
-      () => this.props.$$$parent.fetch())
-  }
-
-  _handleChangePlan(e, value) {
-    if (e.target.dataset.disabled === 'true') return
-    this.handleChange({ target: { name: 'projectPlanId', value: value } },
       () => this.props.$$$parent.fetch())
   }
 

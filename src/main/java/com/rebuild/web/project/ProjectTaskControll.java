@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.project;
 
 import cn.devezhao.bizz.privileges.PrivilegesException;
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
@@ -62,7 +63,7 @@ public class ProjectTaskControll extends BasePageControll {
         } catch (ConfigurationException ex) {
             response.sendError(404, ex.getLocalizedMessage());
             return null;
-        } catch (PrivilegesException ex) {
+        } catch (AccessDeniedException ex) {
             response.sendError(403, ex.getLocalizedMessage());
             return null;
         }
@@ -137,24 +138,8 @@ public class ProjectTaskControll extends BasePageControll {
         JSONObject details = formatTask(task);
 
         // 状态面板
-        final ID projectId = (ID) task[11];
-        final ID currentPlanId = (ID) task[12];
-        details.put("projectPlanId", currentPlanId);
-
-        ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(projectId);
-        JSONArray plansOfState = new JSONArray();
-        for (ConfigEntry e : plans) {
-            ID planId = e.getID("id");
-            plansOfState.add(JSONUtils.toJSONObject(new String[] { "id", "text" },
-                    new Object[] { planId, e.getString("planName") }));
-
-            if (planId.equals(currentPlanId)) {
-                details.put("currentPlanNexts", e.get("flowNexts", Set.class));
-                details.put("currentPlanStatus", e.getInteger("flowStatus"));
-            }
-        }
-        details.put("plansOfState", plansOfState);
-
+        details.put("projectId", task[11]);
+        details.put("projectPlanId", task[12]);
         details.put("description", task[13]);
         String attachments = (String) task[14];
         details.put("attachments", JSON.parseArray(attachments));

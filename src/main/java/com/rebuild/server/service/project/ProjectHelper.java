@@ -5,19 +5,14 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.server.business.project;
+package com.rebuild.server.service.project;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
-import cn.devezhao.bizz.security.member.Team;
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.feeds.FeedsScope;
-import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.metadata.EntityHelper;
-
-import java.awt.print.PrinterAbortException;
 
 /**
  * @author devezhao
@@ -44,7 +39,7 @@ public class ProjectHelper {
             // 能访问就有读取权限
             ProjectManager.instance.getProjectByTask(taskOrComment, user);
             return true;
-        } catch (ConfigurationException | PrivilegesException ex) {
+        } catch (ConfigurationException | AccessDeniedException ex) {
             return false;
         }
     }

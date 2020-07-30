@@ -200,21 +200,22 @@ public class FileListControll extends BasePageControll {
         writeSuccess(response, ret);
     }
 
-    private Integer[] getAllowEntities(ID user, boolean isAll) {
-        Set<Integer> allows = new HashSet<>();
+    private Integer[] getAllowEntities(ID user, boolean inQuery) {
+        List<Integer> allows = new ArrayList<>();
+
         // 动态
         allows.add(EntityHelper.Feeds);
-        if (isAll) allows.add(EntityHelper.FeedsComment);
+        if (inQuery) allows.add(EntityHelper.FeedsComment);
 
         // 项目
         if (ProjectManager.instance.getAvailable(user).length > 0) {
             allows.add(EntityHelper.ProjectTask);
-            if (isAll) allows.add(EntityHelper.ProjectTaskComment);
+            if (inQuery) allows.add(EntityHelper.ProjectTaskComment);
         }
 
         for (Entity e : MetadataSorter.sortEntities(user)) {
             // 明细实体会合并到主实体显示
-            if (!isAll && MetadataHelper.isSlaveEntity(e.getEntityCode())) continue;
+            if (!inQuery && MetadataHelper.isSlaveEntity(e.getEntityCode())) continue;
 
             // 有附件字段的实体才显示
             if (hasAttachmentFields(e)) {
@@ -228,9 +229,10 @@ public class FileListControll extends BasePageControll {
     }
 
     private JSONObject formatEntityJson(Entity entity) {
+        String label = entity.getEntityCode() == EntityHelper.ProjectTask ? "项目" : EasyMeta.getLabel(entity);
         return JSONUtils.toJSONObject(
                 new String[] { "id", "text" },
-                new Object[] { entity.getEntityCode(), EasyMeta.getLabel(entity) });
+                new Object[] { entity.getEntityCode(), label });
     }
 
     private boolean hasAttachmentFields(Entity entity) {

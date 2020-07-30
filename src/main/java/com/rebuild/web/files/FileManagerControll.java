@@ -14,9 +14,9 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.business.files.FilesHelper;
-import com.rebuild.server.business.project.ProjectHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.server.service.project.ProjectHelper;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,7 +66,7 @@ public class FileManagerControll extends BaseControll {
                 continue;
             }
             ID fileId = ID.valueOf(file);
-            if (!checkAllow(user, fileId)) {
+            if (!isAllowed(user, fileId)) {
                 writeFailure(response, "无权删除他人文件");
                 return;
             }
@@ -90,7 +90,7 @@ public class FileManagerControll extends BaseControll {
                 continue;
             }
             ID fileId = ID.valueOf(file);
-            if (!checkAllow(user, fileId)) {
+            if (!isAllowed(user, fileId)) {
                 writeFailure(response, "无权更改他人文件");
                 return;
             }
@@ -126,7 +126,7 @@ public class FileManagerControll extends BaseControll {
     }
 
     // 是否允许操作指定文件（管理员总是允许）
-    private boolean checkAllow(ID user, ID file) {
+    private boolean isAllowed(ID user, ID file) {
         if (UserHelper.isAdmin(user)) return true;
 
         Object[] o = Application.createQueryNoFilter(

@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.service.project;
 
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -20,6 +22,7 @@ import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.base.AttachmentAwareObserver;
+import com.rebuild.server.service.bizz.UserHelper;
 
 import java.text.MessageFormat;
 import java.util.Set;
@@ -41,7 +44,7 @@ public abstract class BaseTaskService extends BaseService {
      * @param taskOrProject
      * @return
      */
-    protected boolean checkIsMember(ID user, ID taskOrProject) {
+    protected boolean checkMember(ID user, ID taskOrProject) {
         if (user == null) user = Application.getCurrentUser();
 
         ConfigEntry c = taskOrProject.getEntityCode() == EntityHelper.ProjectTask

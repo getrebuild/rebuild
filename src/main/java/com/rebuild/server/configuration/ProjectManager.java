@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.configuration;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -133,9 +133,9 @@ public class ProjectManager implements ConfigManager {
      * @param user
      * @return
      * @throws ConfigurationException
-     * @throws PrivilegesException
+     * @throws AccessDeniedException
      */
-    public ConfigEntry getProjectByTask(ID taskId, ID user) throws ConfigurationException, PrivilegesException {
+    public ConfigEntry getProjectByTask(ID taskId, ID user) throws ConfigurationException, AccessDeniedException {
         final String ckey = CKEY_TASK + taskId;
         ID projectId = (ID) Application.getCommonCache().getx(ckey);
 
@@ -158,7 +158,7 @@ public class ProjectManager implements ConfigManager {
         try {
             return getProject(projectId, user);
         } catch (ConfigurationException ex) {
-            throw new PrivilegesException("无权访问该项目任务", ex);
+            throw new AccessDeniedException("无权访问该项目任务", ex);
         }
     }
 

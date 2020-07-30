@@ -88,7 +88,7 @@ const previewFile = function (e, path, checkId) {
   if (checkId) {
     $.get(`/files/check-readable?id=${checkId}`, (res) => {
       if (res.data) RbPreview.create(path)
-      else RbHighbar.error('你没有读取/查看此文件的权限')
+      else RbHighbar.error('你没有查看此文件的权限')
     })
   } else RbPreview.create(path)
 }

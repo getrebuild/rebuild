@@ -436,6 +436,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 0;
   margin-top: -2px;
   margin-right: 10px;
+  padding-left: 30px;
 }
 
 .form-control-plaintext.desc .rich-content>.texts {
