@@ -39,8 +39,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class OpenApiSDK {
 
-    private String appId;
-    private String appSecret;
+    final private String appId;
+    final private String appSecret;
 
     private OkHttpClient okHttpClient;
 
@@ -98,10 +98,11 @@ public class OpenApiSDK {
                     .append('&');
         }
 
-        String signUrl = sign.toString() + "sign=";
         sign.append(this.appId)
                 .append('.')
                 .append(this.appSecret);
+
+        String signUrl = sign.toString() + "sign=";
         if ("MD5".equals(signType)) {
             signUrl += EncryptUtils.toMD5Hex(sign.toString());
         } else if ("SHA1".equals(signType)) {

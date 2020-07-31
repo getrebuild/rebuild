@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.configuration;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
+import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -72,20 +72,27 @@ public class ProjectManager implements ConfigManager {
 
         if (projects == null) {
             Object[][] array = Application.createQueryNoFilter(
-                    "select configId,projectCode,projectName,iconName,scope,members,extraDefinition from ProjectConfig")
+                    "select configId,projectCode,projectName,iconName,scope,members,principal,extraDefinition from ProjectConfig")
                     .array();
 
             List<ConfigEntry> alist = new ArrayList<>();
             for (Object[] o : array) {
+                String members = (String) o[5];
+                if (o[6] != null) {
+                    members = StringUtils.isBlank(members) ? o[6].toString() : members + "," + o[6];
+                }
+
                 ConfigEntry e = new ConfigEntry()
                         .set("id", o[0])
                         .set("projectCode", o[1])
                         .set("projectName", o[2])
                         .set("iconName", StringUtils.defaultIfBlank((String) o[3], "texture"))
                         .set("scope", o[4])
-                        .set("_members", o[5]);
+                        .set("_members", members)
+                        .set("principal", o[6]);
 
-                String extraDefinition = (String) o[6];
+                // 扩展配置
+                String extraDefinition = (String) o[7];
                 if (JSONUtils.wellFormat(extraDefinition)) {
                     JSONObject extraDefinitionJson = JSON.parseObject(extraDefinition);
                     for (String name : extraDefinitionJson.keySet()) {
@@ -133,9 +140,9 @@ public class ProjectManager implements ConfigManager {
      * @param user
      * @return
      * @throws ConfigurationException
-     * @throws PrivilegesException
+     * @throws AccessDeniedException
      */
-    public ConfigEntry getProjectByTask(ID taskId, ID user) throws ConfigurationException, PrivilegesException {
+    public ConfigEntry getProjectByTask(ID taskId, ID user) throws ConfigurationException, AccessDeniedException {
         final String ckey = CKEY_TASK + taskId;
         ID projectId = (ID) Application.getCommonCache().getx(ckey);
 
@@ -158,7 +165,7 @@ public class ProjectManager implements ConfigManager {
         try {
             return getProject(projectId, user);
         } catch (ConfigurationException ex) {
-            throw new PrivilegesException("无权访问该项目任务", ex);
+            throw new AccessDeniedException("无权访问该项目任务", ex);
         }
     }
 

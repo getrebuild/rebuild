@@ -576,6 +576,7 @@ create table if not exists `project_config` (
   `PROJECT_CODE`       varchar(10) not null comment '项目代号',
   `ICON_NAME`          varchar(30) comment '图标ICON',
   `COMMENTS`           varchar(300) comment '备注',
+  `PRINCIPAL`          char(20) comment '负责人',
   `MEMBERS`            varchar(420) comment '项目成员($MemberID)',
   `SCOPE`              smallint(6) default '1' comment '可见范围(1=公开 2=成员)',
   `EXTRA_DEFINITION`   text(1000) comment '扩展配置(JSON Map)',
@@ -710,4 +711,4 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 27);
+  values ('021-9000000000000001', 'DBVer', 28);

@@ -43,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.sql.DataTruncation;
 import java.util.*;
 
@@ -61,9 +60,9 @@ public class GeneralOperatingControll extends BaseControll {
 	public static final int CODE_REPEATED_VALUES = 499;
 
 	@RequestMapping("record-save")
-	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		JSON formJson = ServletUtils.getRequestJson(request);
+	public void save(HttpServletRequest request, HttpServletResponse response) {
+		final ID user = getRequestUser(request);
+		final JSON formJson = ServletUtils.getRequestJson(request);
 		
 		Record record;
 		try {
@@ -96,6 +95,7 @@ public class GeneralOperatingControll extends BaseControll {
 		    if (ex.getCause() instanceof DataTruncation) {
                 writeFailure(response, "字段长度超过限制");
             } else {
+		    	LOG.error(null, ex);
                 writeFailure(response, ex.getLocalizedMessage());
             }
 		    return;
@@ -339,7 +339,7 @@ public class GeneralOperatingControll extends BaseControll {
 	@RequestMapping("record-meta")
 	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
-		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		String sql = "select createdOn,modifiedOn from %s where %s = '%s'";
 		if (EntityHelper.hasPrivilegesField(entity)) {
@@ -384,7 +384,7 @@ public class GeneralOperatingControll extends BaseControll {
 	@RequestMapping("record-lastModified")
 	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
-		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		String sql = String.format("select modifiedOn from %s where %s = '%s'",
 				entity.getName(), entity.getPrimaryField().getName(), id);
@@ -402,8 +402,8 @@ public class GeneralOperatingControll extends BaseControll {
 	
 	@RequestMapping("shared-list")
 	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) {
-		ID id = getIdParameterNotNull(request, "id");
-		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		final ID id = getIdParameterNotNull(request, "id");
+		final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		Object[][] array = Application.createQueryNoFilter(
 				"select shareTo,accessId,createdOn,createdBy from ShareAccess where belongEntity = ? and recordId = ?")
@@ -426,6 +426,7 @@ public class GeneralOperatingControll extends BaseControll {
 	 */
 	private ID[] parseIdList(HttpServletRequest request) {
 		String ids = getParameterNotNull(request, "id");
+
 		Set<ID> idList = new HashSet<>();
 		int sameEntityCode = 0;
 		for (String id : ids.split(",")) {
@@ -452,20 +453,9 @@ public class GeneralOperatingControll extends BaseControll {
 	 */
 	private ID[] parseUserList(HttpServletRequest request) {
 		String to = getParameterNotNull(request, "to");
+
 		Set<ID> users = UserHelper.parseUsers(Arrays.asList(to.split(",")), null, true);
 		return users.toArray(new ID[0]);
-
-//		Set<ID> toList = new HashSet<>();
-//		for (String id : to.split(",")) {
-//			if (ID.isId(id)) {
-//				ID uid = ID.valueOf(id);
-//				if (uid.getEntityCode() != EntityHelper.User) {
-//					throw new IllegalParameterException("无效用户:" + uid);
-//				}
-//				toList.add(uid);
-//			}
-//		}
-//		return toList.toArray(new ID[0]);
 	}
 	
 	/**

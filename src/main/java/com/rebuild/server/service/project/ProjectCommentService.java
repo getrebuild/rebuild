@@ -16,7 +16,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.OperatingContext;
-import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import org.apache.commons.lang.StringUtils;
@@ -39,7 +38,7 @@ public class ProjectCommentService extends BaseTaskService {
     @Override
     public Record create(Record record) {
         final ID user = Application.getCurrentUser();
-        checkIsMember(user, record.getID("taskId"));
+        checkInMembers(user, record.getID("taskId"));
 
         record = super.create(record);
 
@@ -56,11 +55,12 @@ public class ProjectCommentService extends BaseTaskService {
 
     @Override
     public int delete(ID commentId) {
-        final Record beforeRecord = getBeforeRecord(commentId);
-        ID createdBy = beforeRecord.getID(EntityHelper.CreatedBy);
-        if (!(UserHelper.isAdmin(createdBy) || createdBy.equals(Application.getCurrentUser()))) {
+        final ID user = Application.getCurrentUser();
+        if (!ProjectHelper.isManageable(commentId, user)) {
             throw new PrivilegesException("不能删除他人评论");
         }
+
+        final Record beforeRecord = record(commentId);
 
         int d = super.delete(commentId);
 

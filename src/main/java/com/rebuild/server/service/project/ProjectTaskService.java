@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.service.project;
 
+import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -44,7 +45,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public Record create(Record record) {
         final ID user = Application.getCurrentUser();
-        checkIsMember(user, record.getID("projectId"));
+        checkInMembers(user, record.getID("projectId"));
 
         record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
         applyFlowStatue(record);
@@ -52,10 +53,10 @@ public class ProjectTaskService extends BaseTaskService {
 
         record = super.create(record);
 
-        if (record.hasValue("executor")) {
+        if (record.hasValue("executor", false)) {
             sendNotification(record.getPrimary());
         }
-        if (record.hasValue("attachments")) {
+        if (record.hasValue("attachments", false)) {
             awareAttachment(OperatingContext.create(user, BizzPermission.CREATE, null, record));
         }
         return record;
@@ -64,7 +65,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public Record update(Record record) {
         final ID user = Application.getCurrentUser();
-        checkIsMember(user, record.getPrimary());
+        checkInMembers(user, record.getPrimary());
 
         // 自动完成
         int flowStatus = applyFlowStatue(record);
@@ -89,7 +90,7 @@ public class ProjectTaskService extends BaseTaskService {
             }
         }
 
-        final Record beforeRecord = record.hasValue("attachments") ? getBeforeRecord(record.getPrimary()) : null;
+        final Record beforeRecord = record.hasValue("attachments") ? record(record.getPrimary()) : null;
 
         record = super.update(record);
 
@@ -105,13 +106,11 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public int delete(ID taskId) {
         final ID user = Application.getCurrentUser();
-        checkIsMember(user, taskId);
+        if (!ProjectHelper.isManageable(taskId, user)) {
+            throw new PrivilegesException("不能删除他人任务");
+        }
 
-        final Record beforeRecord = getBeforeRecord(taskId);
-//        ID createdBy = beforeRecord.getID(EntityHelper.CreatedBy);
-//        if (!(UserHelper.isAdmin(createdBy) || createdBy.equals(user))) {
-//            throw new PrivilegesException("不能删除他人任务");
-//        }
+        final Record beforeRecord = record(taskId);
 
         int d = super.delete(taskId);
 

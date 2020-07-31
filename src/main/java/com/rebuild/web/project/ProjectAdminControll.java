@@ -36,7 +36,7 @@ import java.io.IOException;
 public class ProjectAdminControll extends BasePageControll {
 
     @RequestMapping("/admin/projects")
-    public ModelAndView pageList() throws IOException {
+    public ModelAndView pageList() {
         return createModelAndView("/admin/project/project-list.jsp");
     }
 
@@ -44,29 +44,25 @@ public class ProjectAdminControll extends BasePageControll {
     public ModelAndView pageEditor(@PathVariable String projectId, HttpServletResponse response) throws IOException {
         ID projectId2 = ID.isId(projectId) ? ID.valueOf(projectId) : null;
         if (projectId2 == null) {
-            response.sendError(404, "无效的项目");
+            response.sendError(404, "无效项目");
             return null;
         }
 
         Object[] p = Application.createQuery(
-                "select projectName,scope,members from ProjectConfig where configId = ?")
+                "select projectName,scope,principal,members from ProjectConfig where configId = ?")
                 .setParameter(1, projectId2)
                 .unique();
-        if (p == null) {
-            response.sendError(404, "无效的项目，可能已被管理员删除");
-            return null;
-        }
 
         ModelAndView mv = createModelAndView("/admin/project/project-editor.jsp");
         mv.getModelMap().put("projectName", p[0]);
         mv.getModelMap().put("scope", p[1]);
-        mv.getModelMap().put("members", p[2]);
-
+        mv.getModelMap().put("principal", p[2]);
+        mv.getModelMap().put("members", p[3]);
         return mv;
     }
 
     @RequestMapping("/admin/projects/list")
-    public void listProjects(HttpServletResponse resp) throws IOException {
+    public void listProjects(HttpServletResponse resp) {
         Object[][] array = Application.createQuery(
                 "select configId,projectName,projectCode,iconName from ProjectConfig order by projectName")
                 .array();
