@@ -45,7 +45,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public Record create(Record record) {
         final ID user = Application.getCurrentUser();
-        checkMember(user, record.getID("projectId"));
+        checkInMembers(user, record.getID("projectId"));
 
         record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
         applyFlowStatue(record);
@@ -65,7 +65,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public Record update(Record record) {
         final ID user = Application.getCurrentUser();
-        checkMember(user, record.getPrimary());
+        checkInMembers(user, record.getPrimary());
 
         // 自动完成
         int flowStatus = applyFlowStatue(record);
@@ -90,7 +90,7 @@ public class ProjectTaskService extends BaseTaskService {
             }
         }
 
-        final Record beforeRecord = record.hasValue("attachments") ? getBeforeRecord(record.getPrimary()) : null;
+        final Record beforeRecord = record.hasValue("attachments") ? record(record.getPrimary()) : null;
 
         record = super.update(record);
 
@@ -110,7 +110,7 @@ public class ProjectTaskService extends BaseTaskService {
             throw new PrivilegesException("不能删除他人任务");
         }
 
-        final Record beforeRecord = getBeforeRecord(taskId);
+        final Record beforeRecord = record(taskId);
 
         int d = super.delete(taskId);
 

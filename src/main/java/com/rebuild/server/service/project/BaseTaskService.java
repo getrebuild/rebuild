@@ -7,8 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.service.project;
 
-import cn.devezhao.bizz.privileges.Permission;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -22,7 +20,7 @@ import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.base.AttachmentAwareObserver;
-import com.rebuild.server.service.bizz.UserHelper;
+import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
 import java.util.Set;
@@ -44,8 +42,9 @@ public abstract class BaseTaskService extends BaseService {
      * @param taskOrProject
      * @return
      */
-    protected boolean checkMember(ID user, ID taskOrProject) {
+    protected boolean checkInMembers(ID user, ID taskOrProject) {
         if (user == null) user = Application.getCurrentUser();
+        Assert.notNull(taskOrProject, "taskOrProject");
 
         ConfigEntry c = taskOrProject.getEntityCode() == EntityHelper.ProjectTask
                 ? ProjectManager.instance.getProjectByTask(taskOrProject, null)
@@ -68,7 +67,7 @@ public abstract class BaseTaskService extends BaseService {
      * @param taskOrComment
      * @return
      */
-    protected Record getBeforeRecord(ID taskOrComment) {
+    protected Record record(ID taskOrComment) {
         Entity entity = MetadataHelper.getEntity(taskOrComment.getEntityCode());
         String sql = MessageFormat.format(
                 "select {0},attachments,createdBy from {1} where {0} = ?",

@@ -38,7 +38,7 @@ public class ProjectCommentService extends BaseTaskService {
     @Override
     public Record create(Record record) {
         final ID user = Application.getCurrentUser();
-        checkMember(user, record.getID("taskId"));
+        checkInMembers(user, record.getID("taskId"));
 
         record = super.create(record);
 
@@ -60,7 +60,7 @@ public class ProjectCommentService extends BaseTaskService {
             throw new PrivilegesException("不能删除他人评论");
         }
 
-        final Record beforeRecord = getBeforeRecord(commentId);
+        final Record beforeRecord = record(commentId);
 
         int d = super.delete(commentId);
 

@@ -14,6 +14,8 @@ import com.rebuild.server.TestSupportWithUser;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.configuration.ProjectConfigService;
+import com.rebuild.server.service.project.ProjectHelper;
+import com.rebuild.server.service.project.ProjectTaskService;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -36,21 +38,21 @@ public class ProjectManagerTest extends TestSupportWithUser {
                 "select configId from ProjectConfig where projectCode = ?")
                 .setParameter(1, USE_CODE)
                 .unique();
-        if (exists != null) {
-            pcs.delete((ID) exists[0]);
-        }
+        if (exists == null) {
+            Record pc = EntityHelper.forNew(EntityHelper.ProjectConfig, UserService.ADMIN_USER);
+            pc.setString("projectName", "TEST PROJECT");
+            pc.setString("projectCode", USE_CODE);
+            pc.setString("members", SIMPLE_USER + "," + UserService.ADMIN_USER);
 
-        Record pc = EntityHelper.forNew(EntityHelper.ProjectConfig, UserService.ADMIN_USER);
-        pc.setString("projectName", "TEST PROJECT");
-        pc.setString("projectCode", USE_CODE);
-        pc.setString("members", SIMPLE_USER + "," + UserService.ADMIN_USER);
-
-        Application.getSessionStore().set(UserService.ADMIN_USER);
-        try {
-            pc = pcs.createProject(pc, 1);
-            _LastSavedProject = pc.getPrimary();
-        } finally {
-            Application.getSessionStore().clean();
+            Application.getSessionStore().set(UserService.ADMIN_USER);
+            try {
+                pc = pcs.createProject(pc, 1);
+                _LastSavedProject = pc.getPrimary();
+            } finally {
+                Application.getSessionStore().clean();
+            }
+        } else {
+            _LastSavedProject = (ID) exists[0];
         }
     }
 
@@ -66,5 +68,24 @@ public class ProjectManagerTest extends TestSupportWithUser {
     public void testGetPlansOfProject() {
         ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(_LastSavedProject);
         Assert.assertTrue(plans.length > 0);
+    }
+
+    @Test
+    public void testCreateTask() {
+        ConfigEntry[] plans = ProjectManager.instance.getPlansOfProject(_LastSavedProject);
+
+        Record task = EntityHelper.forNew(EntityHelper.ProjectTask, SIMPLE_USER);
+        task.setID("projectId", _LastSavedProject);
+        task.setID("projectPlanId", plans[0].getID("id"));
+        task.setString("taskName", "任务" + System.currentTimeMillis());
+
+        task = Application.getBean(ProjectTaskService.class).create(task);
+        System.out.println("New task created : " + task.getPrimary());
+
+        Assert.assertTrue(ProjectHelper.checkReadable(task.getPrimary(), SIMPLE_USER));
+        Assert.assertTrue(ProjectHelper.isManageable(task.getPrimary(), SIMPLE_USER));
+
+        // DELETE
+        Application.getBean(ProjectTaskService.class).delete(task.getPrimary());
     }
 }
