@@ -37,8 +37,11 @@ public class EntityGet extends BaseApi {
 
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
-        ID queryId = context.getParameterAsId("id");
-        Entity useEntity = MetadataHelper.getEntity(queryId.getEntityCode());
+        final ID queryId = context.getParameterAsId("id");
+        final Entity useEntity = MetadataHelper.getEntity(queryId.getEntityCode());
+        if (!useEntity.isQueryable()) {
+            throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity/id : " + queryId);
+        }
 
         String[] fields = context.getParameterNotBlank("fields").split(",");
         fields = getValidFields(useEntity, fields);

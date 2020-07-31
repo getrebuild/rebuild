@@ -33,11 +33,14 @@ public class EntityUpdate extends EntityCreate {
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
         final Entity useEntity = getUseEntity(context);
+        if (!useEntity.isQueryable() || !useEntity.isUpdatable()) {
+            throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity : " + useEntity.getName());
+        }
 
         Record recordUpdate = new ExtRecordCreator(
                 useEntity, (JSONObject) context.getPostData(), context.getBindUser(), true)
                 .create();
-        recordUpdate = Application.getGeneralEntityService().update(recordUpdate);
+        recordUpdate = Application.getService(useEntity.getEntityCode()).update(recordUpdate);
 
         return formatSuccess(JSONUtils.toJSONObject("id", recordUpdate.getPrimary()));
     }

@@ -36,12 +36,11 @@ public class EntityList extends EntityGet {
 
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
-        String entity = context.getParameterNotBlank("entity");
-        if (!MetadataHelper.containsEntity(entity)) {
-            throw new ApiInvokeException("Unknow entity : " + entity);
+        final String entity = context.getParameterNotBlank("entity");
+        final Entity useEntity = MetadataHelper.getEntity(entity);
+        if (!useEntity.isQueryable()) {
+            throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity : " + entity);
         }
-
-        Entity useEntity = MetadataHelper.getEntity(entity);
 
         String[] fields = context.getParameterNotBlank("fields").split(",");
         fields = getValidFields(useEntity, fields);
@@ -49,9 +48,10 @@ public class EntityList extends EntityGet {
         int pageNo = context.getParameterAsInt("page_no", 1);
         int pageSize = context.getParameterAsInt("page_size", 40);
         String sortBy = context.getParameter("sort_by");
-        if (sortBy == null) {
+        if (StringUtils.isBlank(sortBy)) {
             sortBy = EntityHelper.ModifiedOn + ":desc";
         }
+
         if (!useEntity.containsField(sortBy.split(":")[0])) {
             throw new ApiInvokeException("Unknow field in `sort_by` : " + sortBy.split(":")[0]);
         }
