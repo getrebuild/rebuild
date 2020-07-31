@@ -271,7 +271,8 @@ class ValueExecutor extends ValueComp {
   }
 
   _renderValue(call) {
-    return this.state.executor && <UserShow id={this.state.executor[0]} name={this.state.executor[1]} showName
+    return typeof this.state.executor === 'object' && <UserShow id={this.state.executor[0]} name={this.state.executor[1]}
+      showName
       onClick={() => typeof call === 'function' && call()} />
   }
 

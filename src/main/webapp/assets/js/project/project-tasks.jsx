@@ -192,7 +192,6 @@ class PlanBox extends React.Component {
                       onKeyDown={(e) => {
                         if (e.keyCode === 13) {
                           this._handleCreateTask()
-                          $stopEvent(e)
                           return false
                         }
                       }}
@@ -300,20 +299,27 @@ class PlanBox extends React.Component {
       deadline: this._deadline.value,
       projectId: wpc.id,
       projectPlanId: this.props.id,
-      taskNumber: 0
+      taskNumber: 0,
+      metadata: { entity: 'ProjectTask' }
     }
+
     if (!_data.taskName) return RbHighbar.create('请输入任务标题')
     if (_data.deadline) _data.deadline += ':00'
-    _data.metadata = { entity: 'ProjectTask' }
 
     const $btn = $(this._btn).button('loading')
     $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        this.setState({ newMode: false }, () => this.refreshTasks(true))
+        this.refreshTasks(true)
+
+        // reset
+        this._executor.clearSelection()
+        $([this._taskName, this._deadline]).val('')
+        this._taskName.focus()
+
       } else {
         RbHighbar.error(res.error_msg)
-        $btn.button('reset')
       }
+      $btn.button('reset')
     })
   }
 }

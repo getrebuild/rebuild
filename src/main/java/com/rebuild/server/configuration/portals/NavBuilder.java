@@ -10,7 +10,6 @@ package com.rebuild.server.configuration.portals;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -70,7 +69,9 @@ public class NavBuilder extends NavManager {
     public JSONArray getNavPortal(ID user) {
         ConfigEntry config = getLayoutOfNav(user);
         if (config == null) {
-            return NAVS_DEFAULT;
+            JSONArray useDefault =  (JSONArray) NAVS_DEFAULT.clone();
+            ((JSONObject) useDefault.get(1)).put("sub", getAvailableProjects(user));
+            return useDefault;
         }
 
         // 过滤
@@ -94,13 +95,7 @@ public class NavBuilder extends NavManager {
             } else if (isFilterNav(nav, user)) {
                 iter.remove();
             } else if (NAV_PROJECT.equals(nav.getString("value"))) {
-
-                JSON projects = getProjects(user);
-                if (projects == null) {
-                    iter.remove();
-                } else {
-                    nav.put("sub", projects);
-                }
+                nav.put("sub", getAvailableProjects(user));
             }
         }
         return navs;
@@ -138,7 +133,7 @@ public class NavBuilder extends NavManager {
      * @param user
      * @return
      */
-    private JSONArray getProjects(ID user) {
+    private JSONArray getAvailableProjects(ID user) {
         ConfigEntry[] projects = ProjectManager.instance.getAvailable(user);
 
         JSONArray navsOfProjects = new JSONArray();
