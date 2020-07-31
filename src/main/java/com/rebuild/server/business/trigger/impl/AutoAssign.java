@@ -140,9 +140,4 @@ public class AutoAssign implements TriggerAction {
             KVStorage.setCustomValue(orderedAssignKey, toUser);
         }
     }
-
-    @Override
-    public void prepare(OperatingContext operatingContext) throws TriggerException {
-        // NOOP
-    }
 }

@@ -396,7 +396,7 @@ public class GeneralEntityService extends ObservableService  {
 		if (action == BizzPermission.CREATE) {
 			// 验证审批状态
 			// 仅验证新建明细（相当于更新主记录）
-			if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
+			if (masterEntity != null && MetadataHelper.hasApprovalField(record.getEntity())) {
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
 				ApprovalState state = getApprovalState(record.getID(stmField.getName()));
 				if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {

@@ -109,11 +109,6 @@ public class SendNotification implements TriggerAction {
             }
 		}
 	}
-	
-	@Override
-	public void prepare(OperatingContext operatingContext) throws TriggerException {
-		// NOOP
-	}
 
 	// 这里使用异步可能存在脏读问题
 	// 但考虑到具体的业务消息（短信、邮件）发送后也不能撤销、提升速度
