@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.base;
@@ -55,42 +44,36 @@ public class AttachmentAwareObserver extends OperatingObserver {
 	@Override
 	public void onCreate(OperatingContext context) {
 		Record record = context.getAfterRecord();
-		Field[] attFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
-		if (attFields.length == 0) {
-			return;
-		}
-		
-		List<Record> createWill = new ArrayList<>();
-		for (Field field : attFields) {
-			if (record.hasValue(field.getName())) {
+		Field[] fileFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
+		if (fileFields.length == 0) return;
+
+		List<Record> creates = new ArrayList<>();
+		for (Field field : fileFields) {
+			if (record.hasValue(field.getName(), false)) {
 				JSONArray filesJson = parseFilesJson(record.getString(field.getName()));
 				for (Object file : filesJson) {
-					Record att = createAttachment(
+					Record add = createAttachment(
 					        field, context.getAfterRecord().getPrimary(), (String) file, context.getOperator());
-					createWill.add(att);
+					creates.add(add);
 				}
 			}
 		}
-		if (createWill.isEmpty()) {
-			return;
-		}
-		
-		Application.getCommonService().createOrUpdate(createWill.toArray(new Record[0]), false);
+		if (creates.isEmpty()) return;
+
+		Application.getCommonService().createOrUpdate(creates.toArray(new Record[0]), false);
 	}
 	
 	@Override
 	public void onUpdate(OperatingContext context) {
 		Record record = context.getAfterRecord();
-		Field[] attFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
-		if (attFields.length == 0) {
-			return;
-		}
-		
+		Field[] fileFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
+		if (fileFields.length == 0) return;
+
 		Record before = context.getBeforeRecord();
 		
-		List<Record> createWill = new ArrayList<>();
-		List<ID> deleteWill = new ArrayList<>();
-		for (Field field : attFields) {
+		List<Record> creates = new ArrayList<>();
+		List<ID> deletes = new ArrayList<>();
+		for (Field field : fileFields) {
 			String fieldName = field.getName();
 			if (record.hasValue(fieldName)) {
 				JSONArray beforeFiles = parseFilesJson(before.getString(fieldName));  // 修改前
@@ -116,58 +99,52 @@ public class AttachmentAwareObserver extends OperatingObserver {
 							.setParameter(3, o)
 							.unique();
 					if (delete != null) {
-						deleteWill.add((ID) delete[0]);
+						deletes.add((ID) delete[0]);
 					}
 				}
 				
 				for (Object o : afterFiles) {
-					Record att = createAttachment(
+					Record add = createAttachment(
 					        field, context.getAfterRecord().getPrimary(), (String) o, context.getOperator());
-					createWill.add(att);
+					creates.add(add);
 				}
 			}
 		}
-		if (createWill.isEmpty() && deleteWill.isEmpty()) {
-			return;
-		}
-		
+		if (creates.isEmpty() && deletes.isEmpty()) return;
+
 		Application.getCommonService().createOrUpdateAndDelete(
-				createWill.toArray(new Record[0]), deleteWill.toArray(new ID[0]), false);
+				creates.toArray(new Record[0]), deletes.toArray(new ID[0]), false);
 	}
 	
 	@Override
 	public void onDelete(OperatingContext context) {
 		Record record = context.getBeforeRecord();
-		Field[] attFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
-		if (attFields.length == 0) {
-			return;
-		}
-		
+		Field[] fileFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.FILE, DisplayType.IMAGE);
+		if (fileFields.length == 0) return;
+
 		Object[][] array = Application.createQueryNoFilter(
 				"select attachmentId from Attachment where relatedRecord = ?")
 				.setParameter(1, record.getPrimary())
 				.array();
-		if (array.length == 0) {
-			return;
-		}
+		if (array.length == 0) return;
 
 		// 回收站开启，不物理删除附件
 		final boolean rbEnable = SysConfiguration.getInt(ConfigurableItem.RecycleBinKeepingDays) > 0;
 
-		List<Record> updateWill = new ArrayList<>();
-		List<ID> deleteWill = new ArrayList<>();
+		List<Record> updates = new ArrayList<>();
+		List<ID> deletes = new ArrayList<>();
 		for (Object[] o : array) {
 			if (rbEnable) {
-				Record u = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
-				u.setBoolean(EntityHelper.IsDeleted, true);
-				updateWill.add(u);
+				Record upt = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
+				upt.setBoolean(EntityHelper.IsDeleted, true);
+				updates.add(upt);
 			} else {
-				deleteWill.add((ID) o[0]);
+				deletes.add((ID) o[0]);
 			}
 		}
 
 		Application.getCommonService().createOrUpdateAndDelete(
-				updateWill.toArray(new Record[0]), deleteWill.toArray(new ID[0]), false);
+				updates.toArray(new Record[0]), deletes.toArray(new ID[0]), false);
 	}
 
 	private JSONArray parseFilesJson(String files) {
