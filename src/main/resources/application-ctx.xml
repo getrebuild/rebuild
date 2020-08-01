@@ -130,8 +130,7 @@
 	<aop:config>
 		<aop:pointcut id="servicesPoint"
                       expression="execution(* com.rebuild.server..*Service.*(..))
-                      &amp;&amp; !execution(* com.rebuild.server..*Service.get*(..))
-                      &amp;&amp; !execution(* com.rebuild.server..*Service.ntx*(..))" />
+                      &amp;&amp; !execution(* com.rebuild.server..*Service.get*(..))" />
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard" />
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" />
 	</aop:config>
@@ -187,7 +186,12 @@
 	<bean class="com.rebuild.server.service.base.AttachmentFolderService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	
+
+	<bean class="com.rebuild.server.service.notification.NotificationService">
+		<constructor-arg index="0" ref="persistManagerFactory" />
+	</bean>
+
+	<!-- BIZZ -->
 	<bean class="com.rebuild.server.service.bizz.UserService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
@@ -200,18 +204,26 @@
 	<bean class="com.rebuild.server.service.bizz.TeamService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
-	
-	<bean class="com.rebuild.server.service.notification.NotificationService">
-		<constructor-arg index="0" ref="persistManagerFactory" />
-	</bean>
 
+	<!-- 动态 -->
 	<bean class="com.rebuild.server.service.feeds.FeedsService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="1">
+			<list>
+				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
+			</list>
+		</constructor-arg>
 	</bean>
-    <bean class="com.rebuild.server.service.feeds.FeedsCommentService">
+	<bean class="com.rebuild.server.service.feeds.FeedsCommentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="1">
+			<list>
+				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
+			</list>
+		</constructor-arg>
 	</bean>
 
+	<!-- 项目 -->
 	<bean class="com.rebuild.server.service.configuration.ProjectConfigService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
@@ -220,9 +232,19 @@
 	</bean>
 	<bean class="com.rebuild.server.service.project.ProjectTaskService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="1">
+			<list>
+				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
+			</list>
+		</constructor-arg>
 	</bean>
 	<bean class="com.rebuild.server.service.project.ProjectCommentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="1">
+			<list>
+				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
+			</list>
+		</constructor-arg>
 	</bean>
 
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">
@@ -241,7 +263,7 @@
 			</list>
 		</constructor-arg>
 	</bean>
-	
+
 	<import resource="classpath:application-job.xml"/>
 	
 </beans>

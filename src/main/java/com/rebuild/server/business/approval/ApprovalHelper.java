@@ -7,10 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.business.approval;
 
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.base.ApprovalStepService;
 import org.springframework.util.Assert;
 
@@ -55,5 +58,29 @@ public class ApprovalHelper {
             throw new NoRecordFoundException("记录不存在或你无权查看");
         }
         return o;
+    }
+
+    /**
+     * 流程是否正在使用中（处于审核中）
+     *
+     * @param approvalId
+     * @return
+     */
+    public static int checkInUsed(ID approvalId) {
+        Object[] belongEntity = Application.createQueryNoFilter(
+                "select belongEntity from RobotApprovalConfig where configId = ?")
+                .setParameter(1, approvalId)
+                .unique();
+        Entity entity = MetadataHelper.getEntity((String) belongEntity[0]);
+
+        String sql = String.format(
+                "select count(%s) from %s where approvalId = ? and approvalState = ?",
+                entity.getPrimaryField().getName(), entity.getName());
+        Object[] inUsed = Application.createQueryNoFilter(sql)
+                .setParameter(1, approvalId)
+                .setParameter(2, ApprovalState.PROCESSING.getState())
+                .unique();
+
+        return inUsed != null ? ObjectUtils.toInt(inUsed[0]) : 0;
     }
 }

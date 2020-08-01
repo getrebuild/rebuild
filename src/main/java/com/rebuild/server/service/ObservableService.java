@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service;
@@ -26,10 +15,14 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Observable;
+import java.util.Observer;
 
 /**
  * 可注入观察者的服务
@@ -39,20 +32,38 @@ import java.util.Observable;
  * 
  * @see OperatingObserver
  */
-public abstract class ObservableService extends Observable implements EntityService {
+public abstract class ObservableService extends Observable implements ServiceSpec {
+
+	private static final Log LOG = LogFactory.getLog(ObservableService.class);
 
 	/**
 	 * 删除前触发的动作
 	 */
 	public static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
 	
-	final protected ServiceSpec delegate;
+	final protected ServiceSpec delegateService;
 	
 	/**
 	 * @param aPMFactory
 	 */
-	public ObservableService(PersistManagerFactory aPMFactory) {
-		this.delegate = new SystemEntityService(aPMFactory);
+	protected ObservableService(PersistManagerFactory aPMFactory) {
+		this(aPMFactory, null);
+	}
+
+	/**
+	 * @param aPMFactory
+	 * @param observers
+	 */
+	protected ObservableService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+		this.delegateService = new BaseServiceImpl(aPMFactory);
+
+		// 注入观察者 @see application-ctx.xml
+		if (observers != null) {
+			for (Observer o : observers) {
+				addObserver(o);
+				LOG.info(this + " add observer : " + o);
+			}
+		}
 	}
 	
 	@Override
@@ -62,7 +73,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 
 	@Override
 	public Record create(Record record) {
-		record = delegate.create(record);
+		record = delegateService.create(record);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -75,7 +86,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 	public Record update(Record record) {
 		final Record before = countObservers() > 0 ? record(record) : null;
 		
-		record = delegate.update(record);
+		record = delegateService.update(record);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -96,7 +107,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 			notifyObservers(OperatingContext.create(Application.getCurrentUser(), DELETE_BEFORE, deleted, null));
 		}
 		
-		int affected = delegate.delete(recordId);
+		int affected = delegateService.delete(recordId);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -112,7 +123,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 	 * @return
 	 */
 	protected Record record(Record base) {
-		ID primary = base.getPrimary();
+		final ID primary = base.getPrimary();
 		Assert.notNull(primary, "Record primary not be bull");
 		
 		StringBuilder sql = new StringBuilder("select ");
@@ -125,15 +136,8 @@ public abstract class ObservableService extends Observable implements EntityServ
 		
 		Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
 		if (current == null) {
-			throw new NoRecordFoundException("ID: " + primary);
+			throw new NoRecordFoundException("ID : " + primary);
 		}
 		return current;
-	}
-	
-	/**
-	 * @return
-	 */
-	protected ServiceSpec delegate() {
-		return delegate;
 	}
 }

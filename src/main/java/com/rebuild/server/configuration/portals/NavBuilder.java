@@ -191,7 +191,7 @@ public class NavBuilder extends NavManager {
             navUrl = String.format("%s/project/%s/tasks", ServerListener.getContextPath(), navUrl);
 
         } else if (navName.startsWith(NAV_PROJECT)) {
-            navName = "nav_entity-PROJECT--add";
+            navName = "nav_project--add";
             navUrl = ServerListener.getContextPath() + "/admin/projects";
 
         } else {

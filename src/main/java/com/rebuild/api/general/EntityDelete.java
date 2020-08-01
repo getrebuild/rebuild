@@ -32,14 +32,13 @@ public class EntityDelete extends BaseApi {
 
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
-        ID deleteId = context.getParameterAsId("id");
-
-        Entity entity = MetadataHelper.getEntity(deleteId.getEntityCode());
+        final ID deleteId = context.getParameterAsId("id");
+        final Entity entity = MetadataHelper.getEntity(deleteId.getEntityCode());
         if (!entity.isQueryable() || MetadataHelper.isBizzEntity(entity.getEntityCode())) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Unsupportted operator for entity/id : " + deleteId);
+            throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Unsupportted operation for entity/id : " + deleteId);
         }
 
-        int deleted = Application.getGeneralEntityService().delete(deleteId);
+        int deleted = Application.getService(entity.getEntityCode()).delete(deleteId);
         return formatSuccess(JSONUtils.toJSONObject("deleted", deleted));
     }
 }

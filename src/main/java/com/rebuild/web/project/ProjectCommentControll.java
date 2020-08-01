@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.springframework.stereotype.Controller;
@@ -48,7 +49,7 @@ public class ProjectCommentControll extends BaseControll {
         JSONArray ret = new JSONArray();
         for (Object[] o : array) {
             if (o[2] != null) o[2] = JSON.parse((String) o[2]);
-            o[3] = ProjectTaskControll.formatUTCWithZone((Date) o[3]);
+            o[3] = CommonsUtils.formatUTCWithZone((Date) o[3]);
             o[4] = new Object[]{ o[4], UserHelper.getName((ID) o[4]) };
             o[5] = user.equals(o[5]);
 

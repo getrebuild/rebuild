@@ -149,5 +149,6 @@ window.__PageConfig = {
 <c:if test="${actionType == 'SENDNOTIFICATION'}"><script src="${baseUrl}/assets/js/triggers/trigger.SENDNOTIFICATION.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'AUTOASSIGN'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOASSIGN.jsx" type="text/babel"></script></c:if>
 <c:if test="${actionType == 'AUTOSHARE'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOSHARE.jsx" type="text/babel"></script></c:if>
+<c:if test="${actionType == 'AUTOAPPROVAL'}"><script src="${baseUrl}/assets/js/triggers/trigger.AUTOAPPROVAL.jsx" type="text/babel"></script></c:if>
 </body>
 </html>

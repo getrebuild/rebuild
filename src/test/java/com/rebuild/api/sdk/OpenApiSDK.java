@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.api.sdk;
@@ -25,9 +14,12 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
@@ -39,24 +31,39 @@ import java.util.concurrent.TimeUnit;
  */
 public class OpenApiSDK {
 
+    private static final MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
+
+    private static final JSON ERROR_REQ = JSON.parseObject("{ error_code:600, error_msg:'Http request failed' }");
+
+    private static final Log LOG = LogFactory.getLog(OpenApiSDK.class);
+
     final private String appId;
     final private String appSecret;
+    final private String baseUrl;
 
-    private OkHttpClient okHttpClient;
-
-    private static final MediaType JSON_TYPE = MediaType.get("application/json; charset=utf-8");
+    final private OkHttpClient okHttpClient;
 
     /**
      * @param appId
      * @param appSecret
      */
     public OpenApiSDK(String appId, String appSecret) {
+        this(appId, appSecret, "https://nightly.getrebuild.com/gw/api/");
+    }
+
+    /**
+     * @param appId
+     * @param appSecret
+     * @param baseUrl
+     */
+    public OpenApiSDK(String appId, String appSecret, String baseUrl) {
         this.appId = appId;
         this.appSecret = appSecret;
+        this.baseUrl = baseUrl;
 
         this.okHttpClient = new OkHttpClient().newBuilder()
                 .retryOnConnectionFailure(false)
-                .callTimeout(5, TimeUnit.SECONDS)
+                .callTimeout(15, TimeUnit.SECONDS)
                 .build();
     }
 
@@ -64,27 +71,19 @@ public class OpenApiSDK {
      * @param params 业务参数
      * @return
      */
-    public String signMD5(Map<String, Object> params) {
+    public String sign(Map<String, Object> params) {
         return sign(params, "MD5");
     }
 
     /**
-     * @param params 业务参数
-     * @return
-     */
-    public String signSHA1(Map<String, Object> params) {
-        return sign(params, "SHA1");
-    }
-
-    /**
-     * @param params
+     * @param reqParams
      * @param signType MD5|SHA1
      * @return
      */
-    protected String sign(Map<String, Object> params, String signType) {
+    public String sign(Map<String, Object> reqParams, String signType) {
         Map<String, Object> sortMap = new TreeMap<>();
-        if (params != null && !params.isEmpty()) {
-            sortMap.putAll(params);
+        if (reqParams != null && !reqParams.isEmpty()) {
+            sortMap.putAll(reqParams);
         }
         sortMap.put("appid", this.appId);
         sortMap.put("timestamp", System.currentTimeMillis() / 1000);  // in sec
@@ -98,19 +97,20 @@ public class OpenApiSDK {
                     .append('&');
         }
 
+        final String signUrl = sign.toString() + "sign=";
+
+        // 拼接
         sign.append(this.appId)
                 .append('.')
                 .append(this.appSecret);
 
-        String signUrl = sign.toString() + "sign=";
         if ("MD5".equals(signType)) {
-            signUrl += EncryptUtils.toMD5Hex(sign.toString());
+            return signUrl + EncryptUtils.toMD5Hex(sign.toString());
         } else if ("SHA1".equals(signType)) {
-            signUrl += EncryptUtils.toSHA1Hex(sign.toString());
+            return signUrl + EncryptUtils.toSHA1Hex(sign.toString());
         } else {
             throw new IllegalArgumentException("signType=" + signType);
         }
-        return signUrl;
     }
 
     /**
@@ -118,13 +118,13 @@ public class OpenApiSDK {
      * @return
      * @throws IOException
      */
-    public JSON get(String url) throws IOException {
+    public JSON httpGet(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {
-            String resp = response.body().string();
+            String resp = Objects.requireNonNull(response.body()).string();
             return (JSON) JSON.parse(resp);
         }
     }
@@ -135,7 +135,7 @@ public class OpenApiSDK {
      * @return
      * @throws IOException
      */
-    public JSON post(String url, JSON post) throws IOException {
+    public JSON httpPost(String url, JSON post) throws IOException {
         RequestBody body = RequestBody.create(post.toJSONString(), JSON_TYPE);
 
         Request request = new Request.Builder()
@@ -144,8 +144,50 @@ public class OpenApiSDK {
                 .build();
 
         try (Response response = okHttpClient.newCall(request).execute()) {
-            String resp = response.body().string();
+            String resp = Objects.requireNonNull(response.body()).string();
             return (JSON) JSON.parse(resp);
         }
+    }
+
+    /**
+     * @param apiName
+     * @param reqParams
+     * @return
+     */
+    public JSON get(String apiName, Map<String, Object> reqParams) {
+        final String apiUrl = buildApiUrl(apiName, reqParams);
+        try {
+            return httpGet(apiUrl);
+        } catch (Exception e) {
+            LOG.error("Api (GET) failed : " + apiUrl, e);
+            return ERROR_REQ;
+        }
+    }
+
+    /**
+     * @param apiName
+     * @param reqParams
+     * @param post
+     * @return
+     */
+    public JSON post(String apiName, Map<String, Object> reqParams, JSON post) {
+        final String apiUrl = buildApiUrl(apiName, reqParams);
+        try {
+            return httpPost(apiUrl, post);
+        } catch (Exception e) {
+            LOG.error("Api (POST) failed : " + apiUrl, e);
+            return ERROR_REQ;
+        }
+    }
+
+    private String buildApiUrl(String apiName, Map<String, Object> reqParams) {
+        StringBuilder apiUrl = new StringBuilder(baseUrl);
+        if (!baseUrl.endsWith("/")) apiUrl.append('/');
+
+        if (apiName.startsWith("/")) apiName = apiName.substring(1);
+        apiUrl.append(apiName);
+
+        apiUrl.append('?').append(sign(reqParams));
+        return apiUrl.toString();
     }
 }

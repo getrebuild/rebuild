@@ -18,11 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.business.trigger;
 
-import com.rebuild.server.business.trigger.impl.AutoAssign;
-import com.rebuild.server.business.trigger.impl.AutoShare;
-import com.rebuild.server.business.trigger.impl.FieldAggregation;
-import com.rebuild.server.business.trigger.impl.FieldWriteback;
-import com.rebuild.server.business.trigger.impl.SendNotification;
+import com.rebuild.server.business.trigger.impl.*;
 import org.springframework.cglib.core.ReflectUtils;
 
 import java.lang.reflect.Constructor;
@@ -40,6 +36,7 @@ public enum ActionType {
 	SENDNOTIFICATION("发送通知", SendNotification.class),
 	AUTOSHARE("自动共享", AutoShare.class),
 	AUTOASSIGN("自动分派", AutoAssign.class),
+	AUTOAPPROVAL("自动审批", AutoApproval.class),
 
 	;
 	

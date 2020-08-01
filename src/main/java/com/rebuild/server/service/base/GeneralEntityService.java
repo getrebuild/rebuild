@@ -18,6 +18,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.RebuildException;
+import com.rebuild.server.business.approval.ApprovalHelper;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.business.dataimport.DataImporter;
 import com.rebuild.server.business.recyclebin.RecycleStore;
@@ -33,10 +34,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.server.service.BaseService;
-import com.rebuild.server.service.DataSpecificationException;
-import com.rebuild.server.service.ObservableService;
-import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.*;
 import com.rebuild.server.service.bizz.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.server.service.bizz.privileges.User;
 import org.apache.commons.lang.StringUtils;
@@ -63,7 +61,7 @@ import java.util.Set;
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
-public class GeneralEntityService extends ObservableService  {
+public class GeneralEntityService extends ObservableService implements EntityService {
 	
 	private static final Log LOG = LogFactory.getLog(GeneralEntityService.class);
 
@@ -72,23 +70,17 @@ public class GeneralEntityService extends ObservableService  {
 	/**
 	 * @param aPMFactory
 	 */
-	public GeneralEntityService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
-		this.aPMFactory = aPMFactory;
+	protected GeneralEntityService(PersistManagerFactory aPMFactory) {
+		this(aPMFactory, null);
 	}
 	
 	/**
 	 * @param aPMFactory
 	 * @param observers
 	 */
-	public GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
-		this(aPMFactory);
-
-		// 注入观察者（application-ctx.xml）
-		for (Observer o : observers) {
-			addObserver(o);
-			LOG.info(this + " add observer : " + o);
-		}
+	protected GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+		super(aPMFactory, observers);
+		this.aPMFactory = aPMFactory;
 	}
 	
 	@Override
@@ -134,7 +126,7 @@ public class GeneralEntityService extends ObservableService  {
 		this.deleteInternal(record);
 		int affected = 1;
 
-		Map<String, Set<ID>> recordsOfCascaded = getRecordsOfCascaded(record, cascades, BizzPermission.DELETE);
+		Map<String, Set<ID>> recordsOfCascaded = getCascadedRecords(record, cascades, BizzPermission.DELETE);
 		for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("级联删除 - " + e.getKey() + " > " + e.getValue());
@@ -203,12 +195,12 @@ public class GeneralEntityService extends ObservableService  {
 		} else {
 			assignBefore = countObservers() > 0 ? record(assignAfter) : null;
 			
-			this.delegate.update(assignAfter);
+			delegateService.update(assignAfter);
 			Application.getRecordOwningCache().cleanOwningUser(record);
 			affected = 1;
 		}
 		
-		Map<String, Set<ID>> cass = getRecordsOfCascaded(record, cascades, BizzPermission.ASSIGN);
+		Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.ASSIGN);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("级联分派 - " + e.getKey() + " > " + e.getValue());
@@ -236,7 +228,7 @@ public class GeneralEntityService extends ObservableService  {
 		sharedAfter.setString("belongEntity", entityName);
 		sharedAfter.setInt("rights", BizzPermission.READ.getMask());
 		
-		Object[] hasShared = ((BaseService) this.delegate).getPMFactory().createQuery(
+		Object[] hasShared = ((BaseService) delegateService).getPMFactory().createQuery(
 				"select accessId from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
 				.setParameter(1, entityName)
 				.setParameter(2, record)
@@ -255,12 +247,12 @@ public class GeneralEntityService extends ObservableService  {
 				LOG.debug("共享至与记录所属为同一用户，忽略 : " + record);
 			}
 		} else {
-			this.delegate.create(sharedAfter);
+			delegateService.create(sharedAfter);
 			affected = 1;
 			shareChange = true;
 		}
 		
-		Map<String, Set<ID>> cass = getRecordsOfCascaded(record, cascades, BizzPermission.SHARE);
+		Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.SHARE);
 		for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
 			if (LOG.isDebugEnabled()) {
 				LOG.debug("级联共享 - " + e.getKey() + " > " + e.getValue());
@@ -290,7 +282,7 @@ public class GeneralEntityService extends ObservableService  {
 			unsharedBefore = record(unsharedBefore);
 		}
 		
-		this.delegate.delete(accessId);
+		delegateService.delete(accessId);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -325,7 +317,7 @@ public class GeneralEntityService extends ObservableService  {
 	 * @param action 动作
 	 * @return
 	 */
-	protected Map<String, Set<ID>> getRecordsOfCascaded(ID recordMaster, String[] cascadeEntities, Permission action) {
+	protected Map<String, Set<ID>> getCascadedRecords(ID recordMaster, String[] cascadeEntities, Permission action) {
 		if (cascadeEntities == null || cascadeEntities.length == 0) {
 			return Collections.emptyMap();
 		}
@@ -396,7 +388,7 @@ public class GeneralEntityService extends ObservableService  {
 		if (action == BizzPermission.CREATE) {
 			// 验证审批状态
 			// 仅验证新建明细（相当于更新主记录）
-			if (masterEntity != null && masterEntity.containsField(EntityHelper.ApprovalId)) {
+			if (masterEntity != null && MetadataHelper.hasApprovalField(record.getEntity())) {
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
 				ApprovalState state = getApprovalState(record.getID(stmField.getName()));
 				if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
@@ -455,7 +447,7 @@ public class GeneralEntityService extends ObservableService  {
 	 *
 	 * @param recordOfNew
 	 */
-	protected void appendDefaultValue(Record recordOfNew) {
+	private void appendDefaultValue(Record recordOfNew) {
 		Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
 
 		Entity entity = recordOfNew.getEntity();
@@ -513,14 +505,10 @@ public class GeneralEntityService extends ObservableService  {
 	 *
 	 * @param recordId
 	 * @return
-	 * @throws NoRecordFoundException
 	 */
-	private ApprovalState getApprovalState(ID recordId) throws NoRecordFoundException {
-		Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId, EntityHelper.ApprovalState);
-		if (o == null) {
-			throw new NoRecordFoundException(recordId);
-		}
-		return (ApprovalState) ApprovalState.valueOf((Integer) o[0]);
+	private ApprovalState getApprovalState(ID recordId) {
+		Object[] state = ApprovalHelper.getApprovalState(recordId);
+		return (ApprovalState) ApprovalState.valueOf((Integer) state[2]);
 	}
 
 	/**
@@ -528,9 +516,8 @@ public class GeneralEntityService extends ObservableService  {
 	 *
 	 * @param record
 	 * @return
-	 * @throws DataSpecificationException
 	 */
-	public List<Record> ntxCheckRepeated(Record record) throws DataSpecificationException {
+	public List<Record> getCheckRepeated(Record record) {
 		Entity entity = record.getEntity();
 		// 仅处理业务实体
 		if (!MetadataHelper.hasPrivilegesField(entity)) {

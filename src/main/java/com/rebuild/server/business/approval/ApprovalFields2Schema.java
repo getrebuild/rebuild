@@ -24,6 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.Field2Schema;
 import com.rebuild.server.metadata.entity.ModifiyMetadataException;
@@ -46,7 +47,7 @@ public class ApprovalFields2Schema extends Field2Schema {
 	 * @throws ModifiyMetadataException
 	 */
 	public boolean createFields(Entity approvalEntity) throws ModifiyMetadataException {
-		if (approvalEntity.containsField(EntityHelper.ApprovalId)) {
+		if (MetadataHelper.hasApprovalField(approvalEntity)) {
 			return false;
 		}
 		

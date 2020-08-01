@@ -16,7 +16,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
-import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.BaseServiceImpl;
 import com.rebuild.server.service.bizz.privileges.Department;
 
 /**
@@ -25,7 +25,7 @@ import com.rebuild.server.service.bizz.privileges.Department;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class DepartmentService extends SystemEntityService {
+public class DepartmentService extends BaseServiceImpl {
 
     /**
      * 根级部门

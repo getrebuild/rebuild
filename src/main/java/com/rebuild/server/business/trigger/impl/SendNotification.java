@@ -16,7 +16,6 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
-import com.rebuild.server.business.trigger.TriggerException;
 import com.rebuild.server.helper.SMSender;
 import com.rebuild.server.helper.fieldvalue.ContentWithFieldVars;
 import com.rebuild.server.service.OperatingContext;
@@ -56,9 +55,22 @@ public class SendNotification implements TriggerAction {
 	public ActionType getType() {
 		return ActionType.SENDNOTIFICATION;
 	}
-	
+
 	@Override
 	public void execute(OperatingContext operatingContext) {
+		ThreadPool.exec(() -> {
+			ThreadPool.waitFor(3000);
+			try {
+				executeAsync();
+			} catch (Exception ex) {
+				LOG.error(null, ex);
+			}
+		});
+	}
+
+	/**
+	 */
+	private void executeAsync() {
 		final JSONObject content = (JSONObject) context.getActionContent();
 		
 		JSONArray sendTo = content.getJSONArray("sendTo");
@@ -74,24 +86,21 @@ public class SendNotification implements TriggerAction {
 		final int type = content.getIntValue("type");
 		if (type == TYPE_MAIL && !SMSender.availableMail()) {
 			LOG.warn("Could not send because email-service is unavailable");
-		} else if (type == TYPE_SMS && !SMSender.availableSMS()) {
+		}
+		if (type == TYPE_SMS && !SMSender.availableSMS()) {
 			LOG.warn("Could not send because sms-service is unavailable");
 		}
-
-		// 这里等待一会，因为主事物可能未完成，如果有变量可能脏读
-		ThreadPool.waitFor(3000);
 
 		String message = content.getString("content");
 		message = ContentWithFieldVars.replaceWithRecord(message, context.getSourceRecord());
 
-		// for email
-		String subject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
+		String emailSubject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
 
 		for (ID user : toUsers) {
 		    if (type == TYPE_MAIL) {
 				String emailAddr = Application.getUserStore().getUser(user).getEmail();
 		        if (emailAddr != null) {
-					SMSender.sendMail(emailAddr, subject, message);
+					SMSender.sendMail(emailAddr, emailSubject, message);
                 }
 
             } else if (type == TYPE_SMS) {
@@ -100,25 +109,10 @@ public class SendNotification implements TriggerAction {
 					SMSender.sendSMS(mobile, message);
 				}
 
-            }
-		    // default: TYPE_NOTIFICATION
-		    else {
+            } else if (type == TYPE_NOTIFICATION) {
     			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 	    		Application.getNotifications().send(m);
-
             }
 		}
-	}
-	
-	@Override
-	public void prepare(OperatingContext operatingContext) throws TriggerException {
-		// NOOP
-	}
-
-	// 这里使用异步可能存在脏读问题
-	// 但考虑到具体的业务消息（短信、邮件）发送后也不能撤销、提升速度
-	@Override
-	public boolean useAsync() {
-		return true;
 	}
 }
