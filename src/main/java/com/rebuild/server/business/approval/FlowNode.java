@@ -34,6 +34,7 @@ public class FlowNode {
 	public static final String NODE_ROOT = "ROOT";
 	public static final String NODE_CANCELED = "CANCELED";
 	public static final String NODE_REVOKED = "REVOKED";
+	public static final String NODE_AUTOAPPROVAL = "AUTOAPPROVAL";
 
 	// 节点类型
 	

@@ -16,7 +16,12 @@ class ContentAutoApproval extends ActionContentSpec {
         <div className="form-group row pt-1">
           <label className="col-12 col-lg-3 col-form-label text-lg-right">使用审批流程 (可选)</label>
           <div className="col-12 col-lg-8">
-            <select className="form-control form-control-sm" ref={(c) => this._useApproval = c}></select>
+            <select className="form-control form-control-sm" ref={(c) => this._useApproval = c}>
+              <option value="">不使用</option>
+              {(this.state.approvalList || []).map((item) => {
+                return <option key={item.id} value={item.id}>{item.text}</option>
+              })}
+            </select>
           </div>
         </div>
       </form>
@@ -30,13 +35,17 @@ class ContentAutoApproval extends ActionContentSpec {
     })
 
     const content = this.props.content || {}
-    if (content.useApproval) $(this._useApproval).val(content.useApproval)
 
+    $.get(`/admin/robot/trigger/auto-approval-alist?entity=${this.props.sourceEntity}`, (res) => {
+      this.setState({ approvalList: res.data }, () => {
+        if (content.useApproval) $(this._useApproval).val(content.useApproval)
+      })
+    })
   }
 
   buildContent() {
     return {
-      useApproval: this._useApproval.val(),
+      useApproval: $(this._useApproval).val() || '',
     }
   }
 }

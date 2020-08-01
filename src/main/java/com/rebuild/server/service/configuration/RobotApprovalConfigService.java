@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.approval.ApprovalFields2Schema;
+import com.rebuild.server.business.approval.ApprovalHelper;
 import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
@@ -49,7 +50,7 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 	@Override
 	public Record update(Record record) {
 		if (record.hasValue("flowDefinition")) {
-			int inUsed = ntxCheckInUsed(record.getPrimary());
+			int inUsed = ApprovalHelper.checkInUsed(record.getPrimary());
 			if (inUsed > 0) {
 				throw new DataSpecificationException("有 " + inUsed + " 条记录正在使用此流程，禁止修改");
 			}
@@ -59,7 +60,7 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 
 	@Override
 	public int delete(ID recordId) {
-		int inUsed = ntxCheckInUsed(recordId);
+		int inUsed = ApprovalHelper.checkInUsed(recordId);
 		if (inUsed > 0) {
 			throw new DataSpecificationException("有 " + inUsed + " 条记录正在使用此流程，禁止删除");
 		}
@@ -76,29 +77,5 @@ public class RobotApprovalConfigService extends ConfigurationService implements 
 			Entity entity = MetadataHelper.getEntity((String) cfg[0]);
 			RobotApprovalManager.instance.clean(entity);
 		}
-	}
-
-	/**
-	 * 流程是否正在使用中（处于审核中）
-	 *
-	 * @param configId
-	 * @return
-	 */
-	public int ntxCheckInUsed(ID configId) {
-		Object[] belongEntity = Application.createQueryNoFilter(
-				"select belongEntity from RobotApprovalConfig where configId = ?")
-				.setParameter(1, configId)
-				.unique();
-		Entity entity = MetadataHelper.getEntity((String) belongEntity[0]);
-
-		String sql = String.format(
-				"select count(%s) from %s where approvalId = ? and approvalState = ?",
-				entity.getPrimaryField().getName(), entity.getName());
-		Object[] inUsed = Application.createQueryNoFilter(sql)
-				.setParameter(1, configId)
-				.setParameter(2, ApprovalState.PROCESSING.getState())
-				.unique();
-
-		return inUsed != null ? ObjectUtils.toInt(inUsed[0]) : 0;
 	}
 }

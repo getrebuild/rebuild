@@ -7,22 +7,22 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.business.trigger.impl;
 
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.ActionContext;
 import com.rebuild.server.business.trigger.ActionType;
 import com.rebuild.server.business.trigger.TriggerAction;
 import com.rebuild.server.business.trigger.TriggerException;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.OperatingContext;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.rebuild.server.service.base.ApprovalStepService;
 
 /**
  * @author devezhao
  * @since 2020/7/31
  */
 public class AutoApproval implements TriggerAction {
-
-    private static final Log LOG = LogFactory.getLog(AutoApproval.class);
 
     final protected ActionContext context;
 
@@ -45,6 +45,13 @@ public class AutoApproval implements TriggerAction {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        System.out.println("TODO AutoApproval");
+        ID recordId = operatingContext.getAnyRecord().getPrimary();
+        String useApprover = ((JSONObject) context.getActionContent()).getString("useApprover");
+        String useApproval = ((JSONObject) context.getActionContent()).getString("useApproval");
+
+        Application.getBean(ApprovalStepService.class).txAutoApproved(
+                recordId,
+                ID.isId(useApprover) ? ID.valueOf(useApprover) : null,
+                ID.isId(useApproval) ? ID.valueOf(useApproval) : null);
     }
 }

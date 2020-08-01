@@ -21,6 +21,7 @@ package com.rebuild.server.business.approval;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ import java.util.Set;
  */
 public class FlowParser {
 
+	private static final JSONObject EMPTY_FLOWS = JSONUtils.toJSONObject("nodes", new Object[0]);
+
 	final private JSON flowDefinition;
 	
 	private Map<String, FlowNode> nodeMap = new HashMap<>();
@@ -48,8 +51,8 @@ public class FlowParser {
 	 * @param flowDefinition
 	 */
 	public FlowParser(JSON flowDefinition) {
-		this.flowDefinition = flowDefinition;
-		preparedNodes(((JSONObject) flowDefinition).getJSONArray("nodes"), null);
+		this.flowDefinition = flowDefinition == null ? EMPTY_FLOWS : flowDefinition;
+		preparedNodes(((JSONObject) this.flowDefinition).getJSONArray("nodes"), null);
 	}
 	
 	/**
