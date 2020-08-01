@@ -553,7 +553,7 @@ class ApproverNodeConfig extends StartNodeConfig {
         </div>
         <div className="form-group mt-4">
           <label className="text-bold">可修改字段</label>
-          <div>
+          <div style={{ position: 'relative' }}>
             <table className={`table table-sm fields-table ${(this.state.editableFields || []).length === 0 && 'hide'}`}>
               <tbody ref={(c) => this._editableFields = c}>
                 {(this.state.editableFields || []).map((item) => {
@@ -584,12 +584,18 @@ class ApproverNodeConfig extends StartNodeConfig {
 
   componentDidMount() {
     super.componentDidMount()
+
     const h = $('#config-side').height() - 120
     $('#config-side .form.rb-scroller').height(h).perfectScrollbar()
+
+    $(this._editableFields).sortable({
+      cursor: 'move',
+      axis: 'y',
+    }).disableSelection()
   }
 
   save = () => {
-    let editableFields = []
+    const editableFields = []
     $(this._editableFields).find('input').each(function () {
       let $this = $(this)
       editableFields.push({ field: $this.data('field'), notNull: $this.prop('checked') })
@@ -627,7 +633,7 @@ class ApproverNodeConfig extends StartNodeConfig {
   }
 
   __fieldLabel(name) {
-    const field = fieldsCache.find((x) => { return x.name === name })
+    const field = fieldsCache.find(x => x.name === name)
     return field ? field.label : `[${name.toUpperCase()}]`
   }
 }

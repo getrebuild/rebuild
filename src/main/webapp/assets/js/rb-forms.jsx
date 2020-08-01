@@ -1345,6 +1345,9 @@ class ClassificationSelector extends React.Component {
 // see `reference-search.jsp`
 // eslint-disable-next-line no-unused-vars
 var referenceSearch__call = function (selected) {/* NOOP */ }
+// eslint-disable-next-line no-unused-vars
+var referenceSearch__dialog
+
 class ReferenceSearcher extends RbModal {
 
   constructor(props) {
@@ -1361,12 +1364,17 @@ class ReferenceSearcher extends RbModal {
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body iframe">
-              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 430, maxHeight: '100%' }} />
+              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 368 }} />
             </div>
           </div>
         </div>
       </div>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    referenceSearch__dialog = this
   }
 }
 
