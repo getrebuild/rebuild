@@ -25,17 +25,15 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,12 +48,11 @@ import java.util.TreeMap;
 @Controller
 public class ApiGateway extends Controll {
 
-	private static final Log LOG = LogFactory.getLog(ApiGateway.class);
-
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(1, 200);
 
+    @CrossOrigin
 	@RequestMapping("/gw/api/**")
-	public void api(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public void api(HttpServletRequest request, HttpServletResponse response) {
 		String path = request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE).toString();
 		String bestMatchingPattern = request.getAttribute(HandlerMapping.BEST_MATCHING_PATTERN_ATTRIBUTE).toString();
 		final String apiName = new AntPathMatcher().extractPathWithinPattern(bestMatchingPattern, path);
@@ -118,55 +115,64 @@ public class ApiGateway extends Controll {
 	 * @param request
 	 * @param useApi
 	 * @return
-	 * @throws IOException
 	 */
-	protected ApiContext verfiy(HttpServletRequest request, BaseApi useApi) throws IOException {
+	protected ApiContext verfiy(HttpServletRequest request, BaseApi useApi) {
 		final Map<String, String> sortedMap = new TreeMap<>();
 		for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
 			String[] vv = e.getValue();
 			sortedMap.put(e.getKey(), vv == null || vv.length == 0 ? null : vv[0]);
 		}
 
-		String appid = getParameterNotNull(sortedMap,"appid");
-		ConfigEntry apiConfig = RebuildApiManager.instance.getApp(appid);
+		final String appid = getParameterNotNull(sortedMap,"appid");
+		final String sign = getParameterNotNull(sortedMap,"sign");
+
+		final ConfigEntry apiConfig = RebuildApiManager.instance.getApp(appid);
 		if (apiConfig == null) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [appid] " + appid);
 		}
 
-		String timestamp = getParameterNotNull(sortedMap,"timestamp");
-		long systemTime = System.currentTimeMillis() / 1000;
-		if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (Application.devMode() ? 100 : 10)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] " + appid);
-		}
-
 		// 验证签名
 
-		final String sign = getParameterNotNull(sortedMap,"sign");
+		final String timestamp = sortedMap.get("timestamp");
+		final String signType = sortedMap.get("sign_type");
 		sortedMap.remove("sign");
 
-		String signType = getParameterNotNull(sortedMap,"sign_type");
-		StringBuilder sign2 = new StringBuilder();
-		for (Map.Entry<String, String> e : sortedMap.entrySet()) {
-			sign2.append(e.getKey())
-					.append('=')
-					.append(e.getValue())
-					.append('&');
+		// 明文签名
+		if (timestamp == null && signType == null) {
+			if (!apiConfig.getString("appSecret").equals(sign)) {
+				throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign] " + sign);
+			}
 		}
-		sign2.append(appid)
-				.append('.')
-				.append(apiConfig.getString("appSecret"));
+		// 密文签名
+		else {
+			long systemTime = System.currentTimeMillis() / 1000;
+			if (Math.abs(systemTime - ObjectUtils.toLong(timestamp)) > (Application.devMode() ? 100 : 15)) {
+				throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [timestamp] " + appid);
+			}
 
-		String sign2sign;
-		if ("MD5".equals(signType)) {
-			sign2sign = EncryptUtils.toMD5Hex(sign2.toString());
-		} else if ("SHA1".equals(signType)) {
-			sign2sign = EncryptUtils.toSHA1Hex(sign2.toString());
-		} else {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign_type] " + signType);
-		}
+			StringBuilder sign2 = new StringBuilder();
+			for (Map.Entry<String, String> e : sortedMap.entrySet()) {
+				sign2.append(e.getKey())
+						.append('=')
+						.append(e.getValue())
+						.append('&');
+			}
+			sign2.append(appid)
+					.append('.')
+					.append(apiConfig.getString("appSecret"));
 
-		if (!sign.equals(sign2sign)) {
-			throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign] " + sign);
+			String sign2sign;
+			if ("MD5".equals(signType)) {
+				sign2sign = EncryptUtils.toMD5Hex(sign2.toString());
+			} else if ("SHA1".equals(signType)) {
+				sign2sign = EncryptUtils.toSHA1Hex(sign2.toString());
+			} else {
+				throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign_type] " + signType);
+			}
+
+			if (!sign.equals(sign2sign)) {
+				throw new ApiInvokeException(ApiInvokeException.ERR_BADAUTH, "Invalid [sign] " + sign);
+			}
 		}
 
 		// 组合请求数据
@@ -183,7 +189,7 @@ public class ApiGateway extends Controll {
 	 * @param name
 	 * @return
 	 */
-	protected String getParameterNotNull(Map<String, String> params, String name) {
+	private String getParameterNotNull(Map<String, String> params, String name) {
 		String v = params.get(name);
 		if (StringUtils.isBlank(v)) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Parameter [" + name + "] cannot be empty");
@@ -195,7 +201,7 @@ public class ApiGateway extends Controll {
 	 * @param apiName
 	 * @return
 	 */
-	protected BaseApi createApi(String apiName) {
+	private BaseApi createApi(String apiName) {
 		if (!API_CLASSES.containsKey(apiName)) {
 			throw new ApiInvokeException(ApiInvokeException.ERR_BADAPI, "Unknown API : " + apiName);
 		}

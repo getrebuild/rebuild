@@ -7,8 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
-import cn.devezhao.bizz.security.AccessDeniedException;
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -17,10 +15,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
-import com.rebuild.server.helper.ConfigurationException;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.project.ProjectHelper;
 import com.rebuild.server.service.query.AdvFilterParser;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -33,7 +31,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Set;
 
@@ -151,25 +148,14 @@ public class ProjectTaskControll extends BasePageControll {
         String taskNumber = o[1].toString();
         if (StringUtils.isNotBlank((String) o[0])) taskNumber = o[0] + "-" + taskNumber;
 
-        String createdOn = formatUTCWithZone((Date) o[4]);
-        String deadline = formatUTCWithZone((Date) o[5]);
-        String endTime = formatUTCWithZone((Date) o[10]);
+        String createdOn = CommonsUtils.formatUTCWithZone((Date) o[4]);
+        String deadline = CommonsUtils.formatUTCWithZone((Date) o[5]);
+        String endTime = CommonsUtils.formatUTCWithZone((Date) o[10]);
 
         Object[] executor = o[6] == null ? null : new Object[]{ o[6], UserHelper.getName((ID) o[6]) };
 
         return JSONUtils.toJSONObject(
                 new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime" },
                 new Object[] { o[2], taskNumber, o[3], createdOn, deadline, executor, o[7], o[8], o[9], endTime });
-    }
-
-    /**
-     * @param date
-     * @return
-     */
-    protected static String formatUTCWithZone(Date date) {
-        if (date == null) return null;
-        int offset = CalendarUtils.getInstance().get(Calendar.ZONE_OFFSET);
-        offset = offset / 1000 / 60 / 60;  // hours
-        return CalendarUtils.getUTCDateTimeFormat().format(date) + " UTC" + (offset > 0 ? "+" : "") + offset;
     }
 }

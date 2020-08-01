@@ -7,12 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -117,5 +116,17 @@ public class CommonsUtils {
 			if (StringUtils.isNotBlank(varName)) vars.add(varName);
 		}
 		return vars;
+	}
+
+	/**
+	 * @param date
+	 * @return
+	 */
+	public static String formatUTCWithZone(Date date) {
+		if (date == null) return null;
+		String datetime = CalendarUtils.getUTCDateTimeFormat().format(date);
+		int offset = CalendarUtils.getInstance().get(Calendar.ZONE_OFFSET);
+		offset = offset / 1000 / 60 / 60;  // in hours
+		return datetime + " UTC" + (offset >= 0 ? "+" : "") + offset;
 	}
 }
