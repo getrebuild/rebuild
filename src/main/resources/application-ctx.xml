@@ -219,9 +219,19 @@
 	</bean>
 	<bean class="com.rebuild.server.service.project.ProjectTaskService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="1">
+			<list>
+				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
+			</list>
+		</constructor-arg>
 	</bean>
 	<bean class="com.rebuild.server.service.project.ProjectCommentService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
+		<constructor-arg index="1">
+			<list>
+				<bean class="com.rebuild.server.service.base.AttachmentAwareObserver" />
+			</list>
+		</constructor-arg>
 	</bean>
 
 	<bean name="generalEntityService" class="com.rebuild.server.service.base.GeneralEntityService">

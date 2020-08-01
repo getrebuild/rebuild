@@ -20,14 +20,17 @@ import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import org.apache.commons.lang.StringUtils;
 
+import java.util.List;
+import java.util.Observer;
+
 /**
  * @author devezhao
  * @since 2020/7/27
  */
 public class ProjectCommentService extends BaseTaskService {
 
-    protected ProjectCommentService(PersistManagerFactory aPMFactory) {
-        super(aPMFactory);
+    protected ProjectCommentService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+        super(aPMFactory, observers);
     }
 
     @Override
@@ -42,9 +45,7 @@ public class ProjectCommentService extends BaseTaskService {
 
         record = super.create(record);
 
-        chechAtUserAndNotification(record, record.getString("content"));
-        awareAttachment(OperatingContext.create(
-                Application.getCurrentUser(), BizzPermission.CREATE, null, record));
+        checkAtUserAndNotification(record, record.getString("content"));
         return record;
     }
 
@@ -60,13 +61,7 @@ public class ProjectCommentService extends BaseTaskService {
             throw new PrivilegesException("不能删除他人评论");
         }
 
-        final Record beforeRecord = record(commentId);
-
-        int d = super.delete(commentId);
-
-        awareAttachment(OperatingContext.create(
-                Application.getCurrentUser(), BizzPermission.DELETE, beforeRecord, null));
-        return d;
+        return super.delete(commentId);
     }
 
     /**
@@ -76,7 +71,7 @@ public class ProjectCommentService extends BaseTaskService {
      * @param content
      * @return
      */
-    private int chechAtUserAndNotification(Record record, String content) {
+    private int checkAtUserAndNotification(Record record, String content) {
         if (StringUtils.isBlank(content)) return 0;
 
         final String msg = "@" + record.getEditor() + " 在任务中提到了你 \n> " + content;

@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server.service.project;
 
 import cn.devezhao.bizz.privileges.PrivilegesException;
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -17,10 +16,12 @@ import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.configuration.ProjectPlanConfigService;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
+
+import java.util.List;
+import java.util.Observer;
 
 /**
  * @author devezhao
@@ -33,8 +34,8 @@ public class ProjectTaskService extends BaseTaskService {
     // 中值法排序
     private static final int MID_VALUE = 1000;
 
-    protected ProjectTaskService(PersistManagerFactory aPMFactory) {
-        super(aPMFactory);
+    protected ProjectTaskService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+        super(aPMFactory, observers);
     }
 
     @Override
@@ -55,9 +56,6 @@ public class ProjectTaskService extends BaseTaskService {
 
         if (record.hasValue("executor", false)) {
             sendNotification(record.getPrimary());
-        }
-        if (record.hasValue("attachments", false)) {
-            awareAttachment(OperatingContext.create(user, BizzPermission.CREATE, null, record));
         }
         return record;
     }
@@ -90,15 +88,10 @@ public class ProjectTaskService extends BaseTaskService {
             }
         }
 
-        final Record beforeRecord = record.hasValue("attachments") ? record(record.getPrimary()) : null;
-
         record = super.update(record);
 
         if (record.hasValue("executor", false)) {
             sendNotification(record.getPrimary());
-        }
-        if (beforeRecord != null) {
-            awareAttachment(OperatingContext.create(user, BizzPermission.UPDATE, beforeRecord, record));
         }
         return record;
     }
@@ -110,11 +103,7 @@ public class ProjectTaskService extends BaseTaskService {
             throw new PrivilegesException("不能删除他人任务");
         }
 
-        final Record beforeRecord = record(taskId);
-
         int d = super.delete(taskId);
-
-        awareAttachment(OperatingContext.create(user, BizzPermission.DELETE, beforeRecord, null));
         ProjectManager.instance.clean(taskId);
         return d;
     }

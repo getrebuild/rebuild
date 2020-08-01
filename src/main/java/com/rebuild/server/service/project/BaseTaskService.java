@@ -18,21 +18,24 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.BaseService;
 import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.base.AttachmentAwareObserver;
 import org.springframework.util.Assert;
 
 import java.text.MessageFormat;
+import java.util.List;
+import java.util.Observer;
 import java.util.Set;
 
 /**
  * @author devezhao
  * @since 2020/7/27
  */
-public abstract class BaseTaskService extends BaseService {
+public abstract class BaseTaskService extends ObservableService {
 
-    protected BaseTaskService(PersistManagerFactory aPMFactory) {
-        super(aPMFactory);
+    protected BaseTaskService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+        super(aPMFactory, observers);
     }
 
     /**
@@ -52,29 +55,5 @@ public abstract class BaseTaskService extends BaseService {
         if (c != null && c.get("members", Set.class).contains(user)) return true;
 
         throw new DataSpecificationException("非项目成员禁止操作");
-    }
-
-    /**
-     * 进入附件表
-     *
-     * @param context
-     */
-    protected void awareAttachment(OperatingContext context) {
-        new AttachmentAwareObserver().update(null, context);
-    }
-
-    /**
-     * @param taskOrComment
-     * @return
-     */
-    protected Record record(ID taskOrComment) {
-        Entity entity = MetadataHelper.getEntity(taskOrComment.getEntityCode());
-        String sql = MessageFormat.format(
-                "select {0},attachments,createdBy from {1} where {0} = ?",
-                entity.getPrimaryField().getName(), entity.getName());
-
-        return Application.createQueryNoFilter(sql)
-                .setParameter(1, taskOrComment)
-                .record();
     }
 }

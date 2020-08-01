@@ -26,10 +26,14 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.metadata.EntityHelper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Observable;
+import java.util.Observer;
 
 /**
  * 可注入观察者的服务
@@ -41,6 +45,8 @@ import java.util.Observable;
  */
 public abstract class ObservableService extends Observable implements ServiceSpec {
 
+	private static final Log LOG = LogFactory.getLog(ObservableService.class);
+
 	/**
 	 * 删除前触发的动作
 	 */
@@ -51,8 +57,24 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 	/**
 	 * @param aPMFactory
 	 */
-	public ObservableService(PersistManagerFactory aPMFactory) {
+	protected ObservableService(PersistManagerFactory aPMFactory) {
+		this(aPMFactory, null);
+	}
+
+	/**
+	 * @param aPMFactory
+	 * @param observers
+	 */
+	protected ObservableService(PersistManagerFactory aPMFactory, List<Observer> observers) {
 		this.delegateService = new BaseServiceImpl(aPMFactory);
+
+		// 注入观察者 @see application-ctx.xml
+		if (observers != null) {
+			for (Observer o : observers) {
+				addObserver(o);
+				LOG.info(this + " add observer : " + o);
+			}
+		}
 	}
 	
 	@Override

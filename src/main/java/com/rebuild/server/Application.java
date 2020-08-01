@@ -149,7 +149,7 @@ public final class Application {
 				ServiceSpec ss = e.getValue();
 				if (ss.getEntityCode() > 0) {
 					SSS.put(ss.getEntityCode(), ss);
-					LOG.info("Service specification : " + ss.getClass());
+					LOG.info("Service specification : " + ss.getEntityCode() + " " + ss.getClass());
 				}
 			}
 

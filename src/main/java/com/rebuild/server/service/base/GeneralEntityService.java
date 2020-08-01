@@ -70,23 +70,17 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 	/**
 	 * @param aPMFactory
 	 */
-	public GeneralEntityService(PersistManagerFactory aPMFactory) {
-		super(aPMFactory);
-		this.aPMFactory = aPMFactory;
+	protected GeneralEntityService(PersistManagerFactory aPMFactory) {
+		this(aPMFactory, null);
 	}
 	
 	/**
 	 * @param aPMFactory
 	 * @param observers
 	 */
-	public GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
-		this(aPMFactory);
-
-		// 注入观察者（application-ctx.xml）
-		for (Observer o : observers) {
-			addObserver(o);
-			LOG.info(this + " add observer : " + o);
-		}
+	protected GeneralEntityService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+		super(aPMFactory, observers);
+		this.aPMFactory = aPMFactory;
 	}
 	
 	@Override
