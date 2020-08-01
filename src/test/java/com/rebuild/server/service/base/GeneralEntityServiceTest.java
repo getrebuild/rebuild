@@ -68,7 +68,7 @@ public class GeneralEntityServiceTest extends TestSupportWithUser {
 	@Test
 	public void getRecordsOfCascaded() throws Exception {
 		Application.getSessionStore().set(SIMPLE_USER);
-		Application.getGeneralEntityService().getRecordsOfCascaded(
+		Application.getGeneralEntityService().getCascadedRecords(
 				SIMPLE_USER,
 				new String[] { "Role", "Department" },
 				BizzPermission.DELETE);
@@ -79,7 +79,7 @@ public class GeneralEntityServiceTest extends TestSupportWithUser {
 		Record record = EntityHelper.forNew(TEST_ENTITY, SIMPLE_USER);
 		record.setString("TESTALLFIELDSName", "123");
 
-		List<Record> repeated = Application.getGeneralEntityService().ntxCheckRepeated(record);
+		List<Record> repeated = Application.getGeneralEntityService().getCheckRepeated(record);
 		System.out.println(JSON.toJSONString(repeated));
 	}
 

@@ -66,6 +66,8 @@ public abstract class OperatingObserver implements Observer {
 			onCreate(ctx);
 		} else if (ctx.getAction() == BizzPermission.UPDATE) {
 			onUpdate(ctx);
+		} else if (ctx.getAction() == ObservableService.DELETE_BEFORE) {
+			onDeleteBefore(ctx);
 		} else if (ctx.getAction() == BizzPermission.DELETE) {
 			onDelete(ctx);
 		} else if (ctx.getAction() == BizzPermission.ASSIGN) {
@@ -74,8 +76,6 @@ public abstract class OperatingObserver implements Observer {
 			onShare(ctx);
 		} else if (ctx.getAction() == EntityService.UNSHARE) {
 			onUnshare(ctx);
-		} else if (ctx.getAction() == ObservableService.DELETE_BEFORE) {
-			onDeleteBefore(ctx);
 		}
 	}
 

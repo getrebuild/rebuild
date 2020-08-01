@@ -323,7 +323,7 @@ class RbHighbar extends React.Component {
    */
   static error(message) {
     if (!message) message = $lang('SystemBusy')
-    RbHighbar.create(message, 'danger', { timeout: 6000 })
+    RbHighbar.create(message, 'danger', { timeout: 4000 })
   }
 }
 

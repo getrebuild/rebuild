@@ -23,7 +23,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
-import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.BaseServiceImpl;
 import com.rebuild.server.service.bizz.UserHelper;
 
 /**
@@ -32,7 +32,7 @@ import com.rebuild.server.service.bizz.UserHelper;
  * @author devezhao
  * @since 2019/11/14
  */
-public class AttachmentFolderService extends SystemEntityService {
+public class AttachmentFolderService extends BaseServiceImpl {
 
     protected AttachmentFolderService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);

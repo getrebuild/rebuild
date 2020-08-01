@@ -39,20 +39,20 @@ import java.util.Observable;
  * 
  * @see OperatingObserver
  */
-public abstract class ObservableService extends Observable implements EntityService {
+public abstract class ObservableService extends Observable implements ServiceSpec {
 
 	/**
 	 * 删除前触发的动作
 	 */
 	public static final Permission DELETE_BEFORE = new BizzPermission("DELETE_BEFORE", 0, false);
 	
-	final protected ServiceSpec delegate;
+	final protected ServiceSpec delegateService;
 	
 	/**
 	 * @param aPMFactory
 	 */
 	public ObservableService(PersistManagerFactory aPMFactory) {
-		this.delegate = new SystemEntityService(aPMFactory);
+		this.delegateService = new BaseServiceImpl(aPMFactory);
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 
 	@Override
 	public Record create(Record record) {
-		record = delegate.create(record);
+		record = delegateService.create(record);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -75,7 +75,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 	public Record update(Record record) {
 		final Record before = countObservers() > 0 ? record(record) : null;
 		
-		record = delegate.update(record);
+		record = delegateService.update(record);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -96,7 +96,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 			notifyObservers(OperatingContext.create(Application.getCurrentUser(), DELETE_BEFORE, deleted, null));
 		}
 		
-		int affected = delegate.delete(recordId);
+		int affected = delegateService.delete(recordId);
 		
 		if (countObservers() > 0) {
 			setChanged();
@@ -112,7 +112,7 @@ public abstract class ObservableService extends Observable implements EntityServ
 	 * @return
 	 */
 	protected Record record(Record base) {
-		ID primary = base.getPrimary();
+		final ID primary = base.getPrimary();
 		Assert.notNull(primary, "Record primary not be bull");
 		
 		StringBuilder sql = new StringBuilder("select ");
@@ -125,15 +125,8 @@ public abstract class ObservableService extends Observable implements EntityServ
 		
 		Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
 		if (current == null) {
-			throw new NoRecordFoundException("ID: " + primary);
+			throw new NoRecordFoundException("ID : " + primary);
 		}
 		return current;
-	}
-	
-	/**
-	 * @return
-	 */
-	protected ServiceSpec delegate() {
-		return delegate;
 	}
 }

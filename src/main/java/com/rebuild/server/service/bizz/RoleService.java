@@ -24,7 +24,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.BaseServiceImpl;
 import com.rebuild.server.service.bizz.privileges.AdminGuard;
 
 import java.util.HashMap;
@@ -36,7 +36,7 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
-public class RoleService extends SystemEntityService implements AdminGuard {
+public class RoleService extends BaseServiceImpl implements AdminGuard {
 
 	/**
 	 * 管理员权限

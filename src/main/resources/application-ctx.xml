@@ -130,8 +130,7 @@
 	<aop:config>
 		<aop:pointcut id="servicesPoint"
                       expression="execution(* com.rebuild.server..*Service.*(..))
-                      &amp;&amp; !execution(* com.rebuild.server..*Service.get*(..))
-                      &amp;&amp; !execution(* com.rebuild.server..*Service.ntx*(..))" />
+                      &amp;&amp; !execution(* com.rebuild.server..*Service.get*(..))" />
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard" />
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" />
 	</aop:config>

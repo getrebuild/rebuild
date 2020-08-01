@@ -24,14 +24,12 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.base.QuickCodeReindexTask;
 
 /**
- * 系统实体用
- * 
  * @author devezhao
  * @since 01/04/2019
  */
-public class SystemEntityService extends BaseService {
+public class BaseServiceImpl extends BaseService {
 
-	protected SystemEntityService(PersistManagerFactory aPMFactory) {
+	protected BaseServiceImpl(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 	
@@ -53,7 +51,7 @@ public class SystemEntityService extends BaseService {
 	}
 	
 	/**
-	 * 助记码
+	 * 设置助记码
 	 * 
 	 * @param record
 	 */

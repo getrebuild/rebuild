@@ -24,7 +24,7 @@ import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
-import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.BaseServiceImpl;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.utils.AppUtils;
@@ -36,7 +36,7 @@ import com.rebuild.utils.CommonsUtils;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-public class UserService extends SystemEntityService {
+public class UserService extends BaseServiceImpl {
 	
 	// 系统用户
 	public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");

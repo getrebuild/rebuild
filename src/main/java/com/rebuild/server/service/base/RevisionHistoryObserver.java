@@ -31,11 +31,6 @@ import com.rebuild.utils.JSONUtils;
  */
 public class RevisionHistoryObserver extends OperatingObserver {
 
-    @Override
-    protected boolean isAsync() {
-        return true;
-    }
-
 	@Override
 	protected void updateByAction(OperatingContext ctx) {
 		// 激活
@@ -118,4 +113,9 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
 	    return record;
     }
+
+	@Override
+	protected boolean isAsync() {
+		return true;
+	}
 }
