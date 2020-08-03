@@ -254,7 +254,7 @@ var __loadMessages = function () {
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
       o = $('<div class="notification-info"></div>').appendTo(o)
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
-      $('<span class="date">' + item[2] + '</span>').appendTo(o)
+      $('<span class="date">' + $fromNow(item[2]) + '</span>').appendTo(o)
     })
     __loadMessages_state = true
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">暂无消息</li>').appendTo(dest)
@@ -559,9 +559,10 @@ var converEmoji = function (text) {
   })
   return text
 }
+var $converEmoji = converEmoji
 
 // Use momentjs
 var $fromNow = function (date) {
-  if (!date || !window.moment) return
+  if (!date || !window.moment) return null
   return moment(date.split('UTC')[0].trim()).fromNow()
 }

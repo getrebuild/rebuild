@@ -11,7 +11,6 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -33,6 +32,7 @@ import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import com.rebuild.web.IllegalParameterException;
@@ -353,8 +353,8 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 		
-		recordMeta[0] = Moment.moment((Date) recordMeta[0]).fromNow();
-		recordMeta[1] = Moment.moment((Date) recordMeta[1]).fromNow();
+		recordMeta[0] = CommonsUtils.formatClientDate((Date) recordMeta[0]);
+		recordMeta[1] = CommonsUtils.formatClientDate((Date) recordMeta[1]);
 		
 		String[] owning = null;
 		List<String[]> sharingList = null;

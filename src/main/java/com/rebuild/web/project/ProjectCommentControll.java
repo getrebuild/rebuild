@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.DateFormatUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -49,7 +50,7 @@ public class ProjectCommentControll extends BaseControll {
         JSONArray ret = new JSONArray();
         for (Object[] o : array) {
             if (o[2] != null) o[2] = JSON.parse((String) o[2]);
-            o[3] = CommonsUtils.formatUTCWithZone((Date) o[3]);
+            o[3] = CommonsUtils.formatClientDate((Date) o[3]);
             o[4] = new Object[]{ o[4], UserHelper.getName((ID) o[4]) };
             o[5] = user.equals(o[5]);
 

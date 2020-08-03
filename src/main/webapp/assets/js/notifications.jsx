@@ -67,7 +67,7 @@ class MessageList extends React.Component {
         <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
         <div className="notification-info">
           <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
-          <div className="date">{item[2]}</div>
+          <div className="date"><DateShow date={item[2]} /></div>
         </div>
         {append
           && <a title="查看相关记录" className="badge link" href={`${rb.baseUrl}/app/list-and-view?id=${item[5]}`}>查看</a>}
@@ -146,7 +146,7 @@ class ApprovalList extends MessageList {
         <div className="image"><img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} title={item[0][1]} alt="Avatar" /></div>
         <div className="notification-info">
           <div className="text" dangerouslySetInnerHTML={{ __html: item[1] }}></div>
-          <div className="date">{item[2]}</div>
+          <div className="date"><DateShow date={item[2]} /></div>
           {(item[3] && item[3][0] === 1) && <span className="badge badge-warning">{item[3][1]}</span>}
           {(item[3] && item[3][0] === 2) && <span className="badge badge-secondary">{item[3][1]}</span>}
           {(item[3] && item[3][0] === 10) && <span className="badge badge-success">{item[3][1]}</span>}

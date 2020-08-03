@@ -344,14 +344,13 @@ class Task extends React.Component {
             </div>
             <div className="task-content">
               <div className="task-title text-wrap">{this.state.taskName}</div>
-              {this.state.endTime
-                && <div className="task-time">完成于 <span title={this.state.endTime}>{$fromNow(this.state.endTime)}</span></div>}
-              <div className="task-time">创建于 <span title={this.state.createdOn}>{$fromNow(this.state.createdOn)}</span></div>
+              {this.state.endTime && <div className="task-time">完成于 <DateShow date={this.state.endTime} /></div>}
+              <div className="task-time">创建于 <DateShow date={this.state.createdOn} /></div>
               {(!this.state.endTime && this.state.deadline)
                 && (
                   <div className="task-time">
                     <span className={`badge badge-${this._outDeadline(this.state.deadline) ? 'danger' : 'primary'}`}>
-                      截止时间 <span title={this.state.deadline}>{$fromNow(this.state.deadline)}</span>
+                      截止时间 <DateShow date={this.state.deadline} />
                     </span>
                   </div>
                 )}

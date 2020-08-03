@@ -494,7 +494,7 @@ class TaskCommentsList extends React.Component {
                     {TextEditor.renderRichContent(item)}
                     <div className="actions">
                       <div className="float-left text-muted fs-12 time">
-                        <span title={item.createdOn}>{$fromNow(item.createdOn)}</span>
+                        <DateShow date={item.createdOn} />
                       </div>
                       <ul className="list-unstyled m-0">
                         {item.self && <li className="list-inline-item mr-2">

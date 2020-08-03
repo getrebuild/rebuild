@@ -593,6 +593,11 @@ const UserShow = function (props) {
   )
 }
 
+// ~~ 日期显示
+const DateShow = function (props) {
+  return props.date ? <span title={props.date}>{$fromNow(props.date)}</span> : null
+}
+
 /**
  * JSX 组件渲染
  * @param {*} jsx 

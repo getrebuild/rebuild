@@ -978,7 +978,7 @@ class ChartSelect extends RbModalHandler {
                 <span className="float-left chart-icon"><i className={item[2]}></i></span>
                 <span className="float-left title">
                   <strong>{item[1]}</strong>
-                  <p className="text-muted fs-12">{item[4] && <span>{item[4]}</span>}<span>{item[3]}</span></p>
+                  <p className="text-muted fs-12">{item[4] && <span>{item[4]}</span>} <DateShow date={item[3]} /></p>
                 </span>
                 <span className="float-right">
                   {this.state.appended.includes(item[0])

@@ -209,7 +209,7 @@ class RelatedList extends React.Component {
                 <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={(e) => this._handleView(e)} title="打开">{item[1]}</a>
               </div>
               <div className="col-2 text-right">
-                <span className="fs-12 text-muted" title="修改时间">{item[2]}</span>
+                <span className="fs-12 text-muted" title={`修改时间 ${item[2]}`}>{$fromNow(item[2])}</span>
               </div>
             </div>
             <div className="rbview-form inside">
@@ -376,18 +376,23 @@ const RbViewPage = {
     }
   },
 
-  // 记录元数据
+  // 元数据
   initRecordMeta() {
     $.get(`/app/entity/record-meta?id=${this.__id}`, (res) => {
       if (res.error_code !== 0) {
         $('.view-operating').empty()
         return
       }
+
       for (let k in res.data) {
         const v = res.data[k]
         if (!v || v === undefined) return
+        const $el = $('.J_' + k)
+        if ($el.length === 0) return
+
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
+
         } else if (k === 'sharingList') {
           const list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           const _this = this
@@ -407,8 +412,12 @@ const RbViewPage = {
           } else {
             $('.J_sharingList').parent().remove()
           }
+
+        } else if (k === 'createdOn' || k === 'modifiedOn') {
+          renderRbcomp(<DateShow date={v} />, $el[0])
+
         } else {
-          $('<span>' + v + '</span>').appendTo('.J_' + k)
+          $('<span>' + v + '</span>').appendTo($el)
         }
       }
 
