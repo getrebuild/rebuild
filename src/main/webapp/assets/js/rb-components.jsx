@@ -135,7 +135,7 @@ class RbModalHandler extends React.Component {
   }
 }
 
-// ~~ Modal of Form 处理器
+// ~~ FormModal 处理器
 class RbFormHandler extends RbModalHandler {
 
   constructor(props) {
@@ -153,7 +153,10 @@ class RbFormHandler extends RbModalHandler {
     this.setState(s, call)
     this.handleChangeAfter(id, val)
   }
-  handleChangeAfter(name, value) {/* NOOP */ }
+
+  handleChangeAfter(name, value) {
+    // NOOP
+  }
 
   componentWillUnmount() {
     // destroy select2
@@ -591,6 +594,11 @@ const UserShow = function (props) {
       {props.showName && (<div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>{props.name}{props.deptName && <em>{props.deptName}</em>}</div>)}
     </a>
   )
+}
+
+// ~~ 日期显示
+const DateShow = function (props) {
+  return props.date ? <span title={props.date}>{$fromNow(props.date)}</span> : null
 }
 
 /**

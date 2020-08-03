@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.DateFormatUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -148,9 +149,9 @@ public class ProjectTaskControll extends BasePageControll {
         String taskNumber = o[1].toString();
         if (StringUtils.isNotBlank((String) o[0])) taskNumber = o[0] + "-" + taskNumber;
 
-        String createdOn = CommonsUtils.formatUTCWithZone((Date) o[4]);
-        String deadline = CommonsUtils.formatUTCWithZone((Date) o[5]);
-        String endTime = CommonsUtils.formatUTCWithZone((Date) o[10]);
+        String createdOn = CommonsUtils.formatClientDate((Date) o[4]);
+        String deadline = CommonsUtils.formatClientDate((Date) o[5]);
+        String endTime = CommonsUtils.formatClientDate((Date) o[10]);
 
         Object[] executor = o[6] == null ? null : new Object[]{ o[6], UserHelper.getName((ID) o[6]) };
 

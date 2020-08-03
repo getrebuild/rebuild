@@ -108,7 +108,7 @@ class RbFormModal extends React.Component {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this.__refresh()}>点击此处</a>查看最新数据</p> })
-          this.__refresh()
+          this._refresh()
         }
       } else if (res.error_msg === 'NO_EXISTS') {
         this.setState({ alertMessage: '记录已经不存在，可能已被其他用户删除' })
@@ -116,7 +116,7 @@ class RbFormModal extends React.Component {
     })
   }
 
-  __refresh() {
+  _refresh() {
     const hold = { id: this.state.id, entity: this.state.entity }
     this.setState({ id: null, alertMessage: null }, () => { this.show(hold) })
   }
@@ -245,12 +245,12 @@ class RbForm extends React.Component {
   /**
    * @next {Number}
    */
-  post(next) { setTimeout(() => this._post(next), 30) }
+  post = (next) => setTimeout(() => this._post(next), 30)
   _post(next) {
     const _data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
-      if (err) { RbHighbar.create(err); return }
+      if (err) return RbHighbar.create(err)
       else _data[k] = this.__FormData[k].value
     }
     _data.metadata = { entity: this.state.entity, id: this.state.id }

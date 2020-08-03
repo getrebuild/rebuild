@@ -26,6 +26,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.configuration.DashboardConfigService;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.ArrayUtils;
@@ -149,7 +150,7 @@ public class DashboardControll extends BasePageControll {
 
             charts = Application.createQueryNoFilter(sql).setParameter(1, useBizz).array();
 			for (Object[] o : charts) {
-			    o[3] = Moment.moment((Date) o[3]).fromNow();
+			    o[3] = CommonsUtils.formatClientDate((Date) o[3]);
 			    o[4] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[4]));
             }
 		}

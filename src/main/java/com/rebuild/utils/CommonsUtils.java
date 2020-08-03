@@ -11,7 +11,10 @@ import cn.devezhao.commons.CalendarUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -119,14 +122,12 @@ public class CommonsUtils {
 	}
 
 	/**
+	 * 客户端所需的日期时间格式（带时区偏移）
 	 * @param date
 	 * @return
 	 */
-	public static String formatUTCWithZone(Date date) {
+	public static String formatClientDate(Date date) {
 		if (date == null) return null;
-		String datetime = CalendarUtils.getUTCDateTimeFormat().format(date);
-		int offset = CalendarUtils.getInstance().get(Calendar.ZONE_OFFSET);
-		offset = offset / 1000 / 60 / 60;  // in hours
-		return datetime + " UTC" + (offset >= 0 ? "+" : "") + offset;
+		return CalendarUtils.getUTCWithZoneDateTimeFormat().format(date);
 	}
 }

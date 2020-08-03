@@ -45,7 +45,7 @@ public class FlowParser {
 
 	final private JSON flowDefinition;
 	
-	private Map<String, FlowNode> nodeMap = new HashMap<>();
+	private final Map<String, FlowNode> nodeMap = new HashMap<>();
 	
 	/**
 	 * @param flowDefinition
@@ -128,7 +128,7 @@ public class FlowParser {
 		next.sort((o1, o2) -> {
 			int p1 = ((FlowBranch) o1).getPriority();
 			int p2 = ((FlowBranch) o2).getPriority();
-			return p1 > p2 ? 1 : (p1 == p2 ? 0 : -1);
+			return Integer.compare(p1, p2);
 		});
 		return next;
 	}
@@ -142,6 +142,18 @@ public class FlowParser {
 			return nodeMap.get(nodeId);
 		}
 		throw new ApprovalException("无效节点 : " + nodeId);
+	}
+
+	/**
+	 * 是否有审批人节点，没有审批人节点的无效
+	 *
+	 * @return
+	 */
+	public boolean hasApproverNode() {
+		for (FlowNode node : nodeMap.values()) {
+			if (node.getType().equals(FlowNode.TYPE_APPROVER)) return true;
+		}
+		return false;
 	}
 	
 	/**

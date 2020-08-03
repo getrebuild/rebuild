@@ -18,6 +18,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.server.configuration;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.business.approval.FlowParser;
 
 /**
@@ -28,6 +29,8 @@ import com.rebuild.server.business.approval.FlowParser;
  */
 public class FlowDefinition extends ConfigEntry {
 	private static final long serialVersionUID = 9146239943240893998L;
+
+	transient private FlowParser flowParser;
 	
 	/**
 	 * @return
@@ -40,6 +43,17 @@ public class FlowDefinition extends ConfigEntry {
 	 * @return
 	 */
 	public FlowParser createFlowParser() {
-		return new FlowParser(getJSON("flowDefinition"));
+		if (flowParser == null) {
+			flowParser = new FlowParser(getJSON("flowDefinition"));
+		}
+		return flowParser;
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean isWorkable() {
+		JSONObject def = (JSONObject) getJSON("flowDefinition");
+		return def != null && createFlowParser().hasApproverNode();
 	}
 }

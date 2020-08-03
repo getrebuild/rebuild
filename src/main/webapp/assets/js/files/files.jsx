@@ -16,37 +16,39 @@ class FilesList extends React.Component {
 
   render() {
     const hasFiles = (this.state.files || []).length > 0
-    return <div className="file-list">
-      {(this.state.files || []).map((item) => {
-        let checked = this.state.currentActive === item.id
-        return <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={() => this._handleClick(item.id)}>
-          <div className="check">
-            <div className="custom-control custom-checkbox m-0">
-              <input className="custom-control-input" type="checkbox" checked={checked} onChange={() => this._handleClick(item.id)} />
-              <label className="custom-control-label"></label>
+    return (
+      <div className="file-list">
+        {(this.state.files || []).map((item) => {
+          const checked = this.state.currentActive === item.id
+          return <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={() => this._handleClick(item.id)}>
+            <div className="check">
+              <div className="custom-control custom-checkbox m-0">
+                <input className="custom-control-input" type="checkbox" checked={checked} onChange={() => this._handleClick(item.id)} />
+                <label className="custom-control-label"></label>
+              </div>
             </div>
+            <div className="type"><i className="file-icon" data-type={item.fileType}></i></div>
+            <div className="detail">
+              <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
+              <div className="extras">{this.renderExtras(item)}</div>
+            </div>
+            <div className="info"><DateShow date={item.uploadOn} /></div>
+            <div className="info">{item.uploadBy[1]}</div>
           </div>
-          <div className="type"><i className="file-icon" data-type={item.fileType}></i></div>
-          <div className="detail">
-            <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
-            <div className="extras">{this.renderExtras(item)}</div>
+        })}
+        {this.state.currentLen >= PAGE_SIZE &&
+          <div className="text-center mt-3 mb-3">
+            <a href="#mores" onClick={(e) => { this.loadData(null, this.__pageNo + 1); e.preventDefault() }}>显示更多</a>
           </div>
-          <div className="info">{item.uploadOn}</div>
-          <div className="info">{item.uploadBy[1]}</div>
-        </div>
-      })}
-      {this.state.currentLen >= PAGE_SIZE &&
-        <div className="text-center mt-3 mb-3">
-          <a href="#mores" onClick={(e) => { this.loadData(null, this.__pageNo + 1); e.preventDefault() }}>显示更多</a>
-        </div>
-      }
-      {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE &&
-        <div className="text-center mt-3 mb-3 text-muted">没有更多了</div>
-      }
-      {this.__pageNo === 1 && !hasFiles &&
-        <div className="list-nodata pt-8 pb-8"><i className="zmdi zmdi-folder-outline"></i><p>暂无相关文件</p></div>
-      }
-    </div>
+        }
+        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE &&
+          <div className="text-center mt-3 mb-3 text-muted">没有更多了</div>
+        }
+        {this.__pageNo === 1 && !hasFiles &&
+          <div className="list-nodata pt-8 pb-8"><i className="zmdi zmdi-folder-outline"></i><p>暂无相关文件</p></div>
+        }
+      </div>
+    )
   }
 
   _handleClick(id) {
@@ -58,7 +60,9 @@ class FilesList extends React.Component {
   renderExtras(item) {
     return <React.Fragment >
       <span>{item.fileSize}</span>
-      {item.relatedRecord && <span><a title="点击查看相关记录" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>{item.relatedRecord[1]}</a></span>}
+      {item.relatedRecord &&
+        <span><a title="点击查看相关记录" onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>{item.relatedRecord[1]}</a></span>
+      }
     </React.Fragment>
   }
 

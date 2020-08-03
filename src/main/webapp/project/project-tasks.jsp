@@ -65,7 +65,6 @@
 		</div>
 	</div>
 </div>
-<script src="${baseUrl}/assets/lib/moment-with-locales.min.js?v=2.27.0"></script>
 <%@ include file="/_include/Foot.jsp"%>
 <script>
 window.__PageConfig = {

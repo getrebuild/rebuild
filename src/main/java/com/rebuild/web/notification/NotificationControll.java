@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.notification;
 
-import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
@@ -15,6 +14,7 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.notification.MessageBuilder;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.springframework.stereotype.Controller;
@@ -23,7 +23,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Date;
 
 /**
@@ -38,23 +37,23 @@ import java.util.Date;
 public class NotificationControll extends BasePageControll {
 
 	@RequestMapping("/notifications")
-	public ModelAndView pageIndex(HttpServletRequest request) throws IOException {
+	public ModelAndView pageIndex() {
 		return createModelAndView("/notification/messages.jsp");
 	}
 
 	@RequestMapping("/notifications/todo")
-	public ModelAndView pageTodo(HttpServletRequest request) throws IOException {
+	public ModelAndView pageTodo() {
 		return createModelAndView("/notification/todo.jsp");
 	}
 
 	@RequestMapping("/notification/check-state")
-	public void checkMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void checkMessage(HttpServletRequest request, HttpServletResponse response) {
 		int unread = Application.getNotifications().getUnreadMessage(getRequestUser(request));
 		writeSuccess(response, JSONUtils.toJSONObject("unread", unread));
 	}
 
 	@RequestMapping("/notification/make-read")
-	public void toggleUnread(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void toggleUnread(HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		String ids = getParameter(request, "id");
 
@@ -70,9 +69,7 @@ public class NotificationControll extends BasePageControll {
 		}
 
 		for (String id : ids.split(",")) {
-			if (!ID.isId(id)) {
-				continue;
-			}
+			if (!ID.isId(id)) continue;
 
 			Record record = EntityHelper.forUpdate(ID.valueOf(id), user);
 			record.setBoolean("unread", false);
@@ -82,7 +79,7 @@ public class NotificationControll extends BasePageControll {
 	}
 
 	@RequestMapping("/notification/messages")
-	public void listMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void listMessage(HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		int pn = getIntParameter(request, "pageNo", 1);
 		int ps = getIntParameter(request, "pageSize", 40);
@@ -107,14 +104,14 @@ public class NotificationControll extends BasePageControll {
 			Object[] m = array[i];
 			m[0] = new Object[] { m[0], UserHelper.getName((ID) m[0]) };
 			m[1] = MessageBuilder.formatMessage((String) m[1], !preview, true);
-			m[2] = Moment.moment((Date) m[2]).fromNow();
+			m[2] = CommonsUtils.formatClientDate((Date) m[2]);
 			array[i] = m;
 		}
 		writeSuccess(response, array);
 	}
 
 	@RequestMapping("/notification/approvals")
-	public void listApprovals(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void listApprovals(HttpServletRequest request, HttpServletResponse response) {
 		ID user = getRequestUser(request);
 		int pn = getIntParameter(request, "pageNo", 1);
 		int ps = getIntParameter(request, "pageSize", 40);
@@ -130,7 +127,7 @@ public class NotificationControll extends BasePageControll {
 			Object[] m = array[i];
 			m[0] = new Object[] { m[0], UserHelper.getName((ID) m[0]) };
 			m[1] = MessageBuilder.formatMessage((String) m[1]);
-			m[2] = Moment.moment((Date) m[2]).fromNow();
+			m[2] = CommonsUtils.formatClientDate((Date) m[2]);
 
 			// 审批状态
 			ID approvalStep = (ID) m[3];

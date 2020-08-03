@@ -8,9 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.feeds;
 
 import cn.devezhao.bizz.security.member.Team;
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -23,6 +21,7 @@ import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.server.service.query.AdvFilterParser;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.lang.StringUtils;
@@ -33,7 +32,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -52,7 +50,7 @@ public class FeedsListControll extends BasePageControll {
      * @see com.rebuild.server.business.feeds.FeedsType
      */
     @RequestMapping("/feeds/{type}")
-    public ModelAndView pageIndex(@PathVariable String type, HttpServletRequest request) throws IOException {
+    public ModelAndView pageIndex(@PathVariable String type, HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/feeds/home.jsp");
         mv.getModel().put("feedsType", type);
 
@@ -64,7 +62,7 @@ public class FeedsListControll extends BasePageControll {
     }
 
     @RequestMapping("/feeds/feeds-list")
-    public void fetchFeeds(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void fetchFeeds(HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
 
         JSON filter = ServletUtils.getRequestJson(request);
@@ -183,7 +181,7 @@ public class FeedsListControll extends BasePageControll {
     }
 
     @RequestMapping("/feeds/comments-list")
-    public void fetchComments(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void fetchComments(HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
 
         ID feeds = getIdParameterNotNull(request, "feeds");
@@ -227,9 +225,8 @@ public class FeedsListControll extends BasePageControll {
         item.put("id", o[0]);
         item.put("self", o[1].equals(user));
         item.put("createdBy", new Object[] { o[1], UserHelper.getName((ID) o[1]) });
-        item.put("createdOn", CalendarUtils.getUTCDateTimeFormat().format(o[2]));
-        item.put("createdOnFN", Moment.moment((Date) o[2]).fromNow());
-        item.put("modifedOn", CalendarUtils.getUTCDateTimeFormat().format(o[3]));
+        item.put("createdOn", CommonsUtils.formatClientDate((Date) o[2]));
+        item.put("modifedOn", CommonsUtils.formatClientDate((Date) o[3]));
         item.put("content", FeedsHelper.formatContent((String) o[4]));
         if (o[5] != null) {
             item.put("images", JSON.parse((String) o[5]));
