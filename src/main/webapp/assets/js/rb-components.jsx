@@ -135,7 +135,7 @@ class RbModalHandler extends React.Component {
   }
 }
 
-// ~~ Modal of Form 处理器
+// ~~ FormModal 处理器
 class RbFormHandler extends RbModalHandler {
 
   constructor(props) {
@@ -153,7 +153,10 @@ class RbFormHandler extends RbModalHandler {
     this.setState(s, call)
     this.handleChangeAfter(id, val)
   }
-  handleChangeAfter(name, value) {/* NOOP */ }
+
+  handleChangeAfter(name, value) {
+    // NOOP
+  }
 
   componentWillUnmount() {
     // destroy select2

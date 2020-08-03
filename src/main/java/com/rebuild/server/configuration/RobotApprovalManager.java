@@ -21,6 +21,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +34,8 @@ public class RobotApprovalManager implements ConfigManager {
 
 	public static final RobotApprovalManager instance = new RobotApprovalManager();
 	private RobotApprovalManager() {}
+
+	private static final String CKEY_PREFIX = "RobotApprovalManager2-";
 	
 	/**
 	 * 获取实体/记录流程状态
@@ -95,10 +98,10 @@ public class RobotApprovalManager implements ConfigManager {
 		// 过滤可用的
 		List<FlowDefinition> workable = new ArrayList<>();
 		for (FlowDefinition def : defs) {
-			if (def.isDisabled() || def.getJSON("flowDefinition") == null) {
+			if (def.isDisabled() || !def.isWorkable()) {
 				continue;
 			}
-			
+
 			FlowParser flowParser = def.createFlowParser();
 			FlowNode root = flowParser.getNode("ROOT");  // 发起人节点
 			
@@ -122,24 +125,24 @@ public class RobotApprovalManager implements ConfigManager {
 	 * @return
 	 */
 	public FlowDefinition[] getFlowDefinitions(Entity entity) {
-		final String cKey = "RobotApprovalManager-" + entity.getName();
+		final String cKey = CKEY_PREFIX + entity.getName();
 		FlowDefinition[] defs = (FlowDefinition[]) Application.getCommonCache().getx(cKey);
 		if (defs != null) {
 			return defs;
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(
-				"select flowDefinition,isDisabled,name,configId from RobotApprovalConfig where belongEntity = ?")
+				"select flowDefinition,isDisabled,name,configId,modifiedOn from RobotApprovalConfig where belongEntity = ?")
 				.setParameter(1, entity.getName())
 				.array();
 		
 		List<FlowDefinition> list = new ArrayList<>();
 		for (Object[] o : array) {
-			FlowDefinition def = new FlowDefinition();
-			def.set("flowDefinition", JSON.parseObject((String) o[0]));
-			def.set("disabled", o[1]);
-			def.set("name", o[2]);
-			def.set("id", o[3]);
+			FlowDefinition def = (FlowDefinition) new FlowDefinition()
+					.set("flowDefinition", JSON.parseObject((String) o[0]))
+					.set("disabled", o[1])
+					.set("name", o[2])
+					.set("id", o[3]);
 			list.add(def);
 		}
 		
@@ -150,7 +153,7 @@ public class RobotApprovalManager implements ConfigManager {
 	
 	@Override
 	public void clean(Object entity) {
-		final String cKey = "RobotApprovalManager-" + ((Entity) entity).getName();
+		final String cKey = CKEY_PREFIX + ((Entity) entity).getName();
 		Application.getCommonCache().evict(cKey);
 	}
 }

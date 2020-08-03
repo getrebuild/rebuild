@@ -96,7 +96,7 @@ class NodeSpec extends React.Component {
   serialize() {
     // 检查节点是否有必填设置
     if (this.nodeType === 'approver' || this.nodeType === 'cc') {
-      let users = this.state.data ? this.state.data.users : ['']
+      const users = this.state.data ? this.state.data.users : ['']
       if (users[0] === 'SPEC') {
         RbHighbar.create(NTs[this.nodeType][2])
         this.setState({ hasError: true })
@@ -117,8 +117,8 @@ class NodeGroupSpec extends React.Component {
   }
 
   renderNodes() {
-    let nodes = (this.state.nodes || []).map((item) => {
-      let props = { ...item, key: 'kn-' + item.nodeId, $$$parent: this }
+    const nodes = (this.state.nodes || []).map((item) => {
+      const props = { ...item, key: 'kn-' + item.nodeId, $$$parent: this }
       if (item.type === 'condition') return <ConditionNode {...props} />
       else return <SimpleNode {...props} />
     })
@@ -126,13 +126,13 @@ class NodeGroupSpec extends React.Component {
   }
 
   onRef = (nodeRef, remove) => {
-    let nodeId = nodeRef.props.nodeId
+    const nodeId = nodeRef.props.nodeId
     this.__nodeRefs[nodeId] = (remove ? null : nodeRef)
   }
 
   addNode = (type, depsNodeId, call) => {
-    let n = { type: type, nodeId: $random(type === 'condition' ? 'COND' : 'NODE') }
-    let nodes = []
+    const n = { type: type, nodeId: $random(type === 'condition' ? 'COND' : 'NODE') }
+    const nodes = []
     if (depsNodeId) {
       if (depsNodeId === 'ROOT' || depsNodeId === 'COND') nodes.push(n)
       this.state.nodes.forEach((item) => {
@@ -157,7 +157,7 @@ class NodeGroupSpec extends React.Component {
   }
 
   removeNode = (nodeId) => {
-    let nodes = []
+    const nodes = []
     this.state.nodes.forEach((item) => {
       if (nodeId !== item.nodeId) nodes.push(item)
     })
@@ -165,10 +165,10 @@ class NodeGroupSpec extends React.Component {
   }
 
   serialize() {
-    let ns = []
+    const ns = []
     for (let i = 0; i < this.state.nodes.length; i++) {
-      let nodeRef = this.__nodeRefs[this.state.nodes[i].nodeId]
-      let s = nodeRef.serialize()
+      const nodeRef = this.__nodeRefs[this.state.nodes[i].nodeId]
+      const s = nodeRef.serialize()
       if (!s) return false
       ns.push(s)
     }
@@ -235,12 +235,12 @@ class ConditionNode extends NodeSpec {
   }
 
   onRef = (branchRef, remove) => {
-    let nodeId = branchRef.props.nodeId
+    const nodeId = branchRef.props.nodeId
     this.__branchRefs[nodeId] = (remove ? null : branchRef)
   }
 
   addBranch = () => {
-    let bs = this.state.branches
+    const bs = this.state.branches
     bs.push({ nodeId: $random('COND') })
     this.setState({ branches: bs })
   }
@@ -250,7 +250,7 @@ class ConditionNode extends NodeSpec {
       e.stopPropagation()
       e.nativeEvent.stopImmediatePropagation()
     }
-    let bs = []
+    const bs = []
     this.state.branches.forEach((item) => {
       if (nodeId !== item.nodeId) bs.push(item)
     })
@@ -263,7 +263,7 @@ class ConditionNode extends NodeSpec {
 
   serialize() {
     let holdANode = null
-    let bs = []
+    const bs = []
     for (let i = 0; i < this.state.branches.length; i++) {
       let branchRef = this.__branchRefs[this.state.branches[i].nodeId]
       if (!holdANode) holdANode = branchRef
@@ -350,7 +350,7 @@ class ConditionBranch extends NodeGroupSpec {
   }
 
   serialize() {
-    let s = super.serialize()
+    const s = super.serialize()
     if (!s || s.nodes.length === 0) {
       this.setState({ hasError: true })
       if (s !== false) RbHighbar.create('请为分支添加审批人或抄送人')
@@ -483,7 +483,7 @@ class StartNodeConfig extends RbFormHandler {
   }
 
   save = () => {
-    let d = {
+    const d = {
       nodeName: this.state.nodeName,
       users: this.state.users === 'SPEC' ? this._UserSelector.getSelected() : [this.state.users]
     }
@@ -625,7 +625,7 @@ class ApproverNodeConfig extends StartNodeConfig {
   }
 
   removeEditableField(field) {
-    let fs = []
+    const fs = []
     this.state.editableFields.forEach((item) => {
       if (item.field !== field) fs.push(item)
     })
@@ -698,7 +698,7 @@ class ConditionBranchConfig extends StartNodeConfig {
       <div className="header">
         <input type="text" placeholder="分支条件" data-id="nodeName" value={this.state.nodeName || ''} onChange={this.handleChange} maxLength="20" />
       </div>
-      {this.state.isLast && <div className="alert alert-warning">该条件分支将作为最终分支匹配其他条件</div>}
+      {this.state.isLast && <div className="alert alert-warning">该分支将作为最终分支匹配其他条件</div>}
       <AdvFilter filter={this.state.filter} entity={this.props.entity} confirm={this.save} cancel={this.cancel} canNoFilters={true} />
     </div>
   }
@@ -750,16 +750,21 @@ class RbFlowCanvas extends NodeGroupSpec {
     $('.box-scale').draggable({ cursor: 'move', axis: 'x', scroll: false })
     $('#rbflow').removeClass('rb-loading-active')
 
-    const btns = $('.J_save').click(() => {
+    const $btns = $('.J_save').click(() => {
       const s = this.serialize()
       if (!s) return
-      let _data = { flowDefinition: s }
-      _data.metadata = { entity: 'RobotApprovalConfig', id: wpc.configId }
 
-      btns.button('loading')
-      $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+      let data = {
+        flowDefinition: s,
+        metadata: { id: wpc.configId }
+      }
+      data = JSON.stringify(data)
+      const noApproverNode = !data.includes('"approver"')
+
+      $btns.button('loading')
+      $.post('/app/entity/record-save', data, (res) => {
         if (res.error_code === 0) {
-          RbAlert.create('保存并发布成功', {
+          RbAlert.create(`保存并发布成功${noApproverNode ? '（未添加审批节点，暂不可用）' : ''}`, {
             type: 'primary',
             cancelText: '返回列表',
             cancel: () => location.replace('../approvals'),
@@ -767,7 +772,7 @@ class RbFlowCanvas extends NodeGroupSpec {
             confirm: () => location.reload()
           })
         } else RbHighbar.error(res.error_msg)
-        btns.button('reset')
+        $btns.button('reset')
       })
     })
 
@@ -789,6 +794,7 @@ class RbFlowCanvas extends NodeGroupSpec {
   }
 }
 
+// ~ 流程中可编辑字段
 class DlgFields extends RbModalHandler {
 
   constructor(props) {
@@ -820,7 +826,7 @@ class DlgFields extends RbModalHandler {
   }
 
   confirm = () => {
-    let selected = []
+    const selected = []
     $(this._fields).find('input:checked').each(function () {
       selected.push(this.value)
     })
@@ -830,6 +836,7 @@ class DlgFields extends RbModalHandler {
   }
 }
 
+// ~~ 另存为
 class DlgCopy extends ConfigFormDlg {
 
   constructor(props) {

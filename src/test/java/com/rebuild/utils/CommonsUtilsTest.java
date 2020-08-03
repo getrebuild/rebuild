@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -94,5 +95,10 @@ public class CommonsUtilsTest {
 		System.out.println(name);
 		dest.put("code", code);
 		dest.put("name", name);
+	}
+
+	@Test
+	public void formatClientDate() {
+		System.out.println(CommonsUtils.formatClientDate(CalendarUtils.now()));
 	}
 }
