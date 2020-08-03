@@ -237,7 +237,7 @@ class DlgShareManager extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={(this.props.unshare === true ? '管理' : '') + '共享用户'} ref={(c) => this._dlg = c}>
+      <RbModal title={(this.props.unshare === true ? '管理' : '查看') + '共享用户'} ref={(c) => this._dlg = c}>
         <div className="sharing-list">
           <ul className="list-unstyled list-inline">
             {(this.state.sharingList || []).map((item) => {
