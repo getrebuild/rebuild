@@ -5,17 +5,17 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const user_id = window.__PageConfig.recordId
+const userId = window.__PageConfig.recordId
 
 $(document).ready(function () {
   $('.J_delete').off('click').click(function () {
-    $.get(`/admin/bizuser/delete-checks?id=${user_id}`, function (res) {
+    $.get(`/admin/bizuser/delete-checks?id=${userId}`, (res) => {
       if (res.data.hasMember === 0) {
         RbAlert.create('此用户可以被安全的删除', '删除用户', {
           icon: 'alert-circle-o',
           type: 'danger',
           confirmText: '删除',
-          confirm: function () { deleteUser(user_id, this) }
+          confirm: function () { deleteUser(userId, this) }
         })
       } else {
         RbAlert.create('此用户已被使用过，因此不能删除。如不再使用可将其停用', '无法删除', {
@@ -36,20 +36,16 @@ $(document).ready(function () {
   })
   $('.J_enable').click(() => toggleDisabled(false))
 
-  $('.J_changeRole').click(() => { renderRbcomp(<DlgEnableUser user={user_id} role={true} />) })
-  $('.J_changeDept').click(() => { renderRbcomp(<DlgEnableUser user={user_id} dept={true} />) })
+  $('.J_changeRole').click(() => renderRbcomp(<DlgEnableUser user={userId} role={true} />))
+  $('.J_changeDept').click(() => renderRbcomp(<DlgEnableUser user={userId} dept={true} />))
 
   $('.J_resetpwd').click(() => {
-    const chars = 'ABCDEFGHJKMNPQRSTWXYabcdefhkmnprstwxy2345678'
-    let newpwd = ''
-    for (let i = 0; i < 8; i++) newpwd += chars.charAt(Math.floor(Math.random() * chars.length))
-    newpwd += '!8'
-
-    RbAlert.create(`密码将重置为 <code class="fs-13">${newpwd}</code> 是否确认？`, {
+    const newpwd = $random(null, true, 8) + '!8'
+    RbAlert.create(`密码将重置为 <code class="fs-13 text-bold">${newpwd}</code> 是否确认？`, {
       html: true,
       confirm: function () {
         this.disabled(true)
-        $.post(`/admin/bizuser/user-resetpwd?id=${user_id}&newp=${$decode(newpwd)}`, (res) => {
+        $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}`, (res) => {
           this.disabled()
           if (res.error_code === 0) {
             RbHighbar.success('密码重置成功')
@@ -61,32 +57,33 @@ $(document).ready(function () {
   })
 
   if (rb.isAdminVerified) {
-    $.get(`/admin/bizuser/check-user-status?id=${user_id}`, (res) => {
+    $.get(`/admin/bizuser/check-user-status?id=${userId}`, (res) => {
       if (res.error_code > 0) return
       if (res.data.system === true && rb.isAdminVerified === true) {
-        $('.J_tips').removeClass('hide').find('.message p').text('系统内建超级管理员，不允许修改。此用户拥有最高级系统权限，请谨慎使用')
         $('.view-action').remove()
+        $('.J_tips').removeClass('hide').find('.message p').text('系统内建超级管理员，不允许修改。此用户拥有最高级系统权限，请谨慎使用')
         return
       }
 
-      const _data = res.data
-      if (_data.disabled === true) {
+      if (res.data.disabled === true) {
         $('.J_disable').remove()
-        if (!_data.role || !_data.dept) {
-          $('.J_enable').off('click').click(() => {
-            renderRbcomp(<DlgEnableUser enable={true} user={user_id} dept={!_data.dept} role={!_data.role} />)
-          })
-        }
-      } else $('.J_enable').remove()
 
-      if (_data.active === true) return
-      let reason = []
-      if (!_data.role) reason.push('未指定角色')
-      else if (_data.roleDisabled) reason.push('所属角色已停用')
-      if (!_data.dept) reason.push('未指定部门')
-      else if (_data.deptDisabled) reason.push('所在部门已停用')
-      if (_data.disabled === true) reason.push('已停用')
-      $('.J_tips').removeClass('hide').find('.message p').text('当前用户处于未激活状态，因为其 ' + reason.join(' / '))
+        if (!res.data.role || !res.data.dept) {
+          $('.J_enable').off('click').click(() => renderRbcomp(<DlgEnableUser enable={true} user={userId} dept={!res.data.dept} role={!res.data.role} />))
+        }
+      } else {
+        $('.J_enable').remove()
+      }
+
+      if (res.data.active === true) return
+
+      const reasons = []
+      if (!res.data.role) reasons.push('未指定角色')
+      else if (res.data.roleDisabled) reasons.push('所属角色已停用')
+      if (!res.data.dept) reasons.push('未指定部门')
+      else if (res.data.deptDisabled) reasons.push('所在部门已停用')
+      if (res.data.disabled === true) reasons.push('已停用')
+      $('.J_tips').removeClass('hide').find('.message p').text('当前用户处于未激活状态，因为其 ' + reasons.join(' / '))
     })
   }
 })
@@ -94,11 +91,15 @@ $(document).ready(function () {
 // 启用/禁用
 const toggleDisabled = function (disabled, alert) {
   alert && alert.disabled(true)
-  const _data = { user: user_id, enable: !disabled }
-  $.post('/admin/bizuser/enable-user', JSON.stringify(_data), (res) => {
+
+  const data = {
+    user: userId,
+    enable: !disabled
+  }
+  $.post('/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
     if (res.error_code === 0) {
       RbHighbar.success('用户已' + (disabled ? '停用' : '启用'))
-      setTimeout(() => location.reload(), 500)
+      _reload(200)
     } else RbHighbar.error(res.error_msg)
   })
 }
@@ -106,6 +107,7 @@ const toggleDisabled = function (disabled, alert) {
 // 删除用户
 const deleteUser = function (id, alert) {
   alert && alert.disabled(true)
+
   $.post(`/admin/bizuser/user-delete?id=${id}`, (res) => {
     if (res.error_code === 0) {
       parent.location.hash = '!/View/'
@@ -175,28 +177,35 @@ class DlgEnableUser extends RbModalHandler {
   }
 
   post() {
-    let data = { user: this.props.user }
+    const data = {
+      user: this.props.user
+    }
     if (this.props.enable === true) data.enable = true
     if (this.__s2dept) {
       const v = this.__s2dept.val()
-      if (!v) { RbHighbar.create('请选择部门'); return }
+      if (!v) return RbHighbar.create('请选择部门')
       data.dept = v
     }
     if (this.__s2role) {
       const v = this.__s2role.val()
-      if (!v) { RbHighbar.create('请选择角色'); return }
+      if (!v) return RbHighbar.create('请选择角色')
       data.role = v
     }
 
-    const btns = $(this._btns).find('.btn').button('loading')
+    const $btns = $(this._btns).find('.btn').button('loading')
     $.post('/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
-        if (data.enable === true) {
-          RbHighbar.success('用户已激活')
-          setTimeout(() => location.reload(), 500)
-        } else location.reload()
-      } else RbHighbar.error(res.error_msg)
-      btns.button('reset')
+        if (data.enable === true) RbHighbar.success('用户已激活')
+        _reload(data.enable ? 200 : 0)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+      $btns.button('reset')
     })
   }
+}
+
+const _reload = function (timeout) {
+  setTimeout(() => location.reload(), timeout || 1)
+  parent && parent.RbListPage && parent.RbListPage.reload()
 }

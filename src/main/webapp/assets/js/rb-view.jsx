@@ -383,6 +383,7 @@ const RbViewPage = {
   // 元数据
   initRecordMeta() {
     $.get(`/app/entity/record-meta?id=${this.__id}`, (res) => {
+      // 如果出错就清空操作区
       if (res.error_code !== 0) {
         $('.view-operating').empty()
         return
@@ -425,7 +426,7 @@ const RbViewPage = {
         }
       }
 
-      // PlainEntity
+      // If PlainEntity
       if (!res.data.owningUser) $('.view-user').remove()
     })
   },
