@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,9 +63,7 @@ public class UsersGetting extends BaseControll {
 		
 		List<JSON> ret = new ArrayList<>();
 		for (Member m : members) {
-			if (m.isDisabled()) {
-				continue;
-			}
+			if (m.isDisabled()) continue;
 
 			String name = m.getName();
 
@@ -83,6 +80,8 @@ public class UsersGetting extends BaseControll {
 				JSONObject o = JSONUtils.toJSONObject(new String[] { "id", "text" },
 						new String[] { m.getIdentity().toString(), name });
 				ret.add(o);
+
+				// 最多显示40个
 				if (ret.size() >= 40) break;
 			}
 		}
@@ -95,12 +94,10 @@ public class UsersGetting extends BaseControll {
 	 *
 	 * @param request
 	 * @param response
-	 * @throws IOException
-	 *
 	 * @see UserHelper#parseUsers(JSONArray, ID)
 	 */
 	@RequestMapping("user-selector")
-	public void parseUserSelectorRaw(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void parseUserSelectorRaw(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameter(request, "entity");
 		JSON users = ServletUtils.getRequestJson(request);
 		Entity hadEntity = MetadataHelper.containsEntity(entity) ? MetadataHelper.getEntity(entity) : null;

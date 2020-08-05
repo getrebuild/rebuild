@@ -498,6 +498,11 @@ class UserSelector extends React.Component {
     this.setState({ tabType: type, items: this.cached[ckey] }, () => {
       if (!this.cached[ckey]) {
         $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
+          // // 全部用户
+          // if (this.props.showAllUser && type === 'User' && !this.state.query) {
+          //   res.data.unshift({ id: '001-9999999999999999', text: '全部用户' })
+          // }
+
           this.cached[ckey] = res.data
           this.switchTab(type)
         })
@@ -531,7 +536,7 @@ class UserSelector extends React.Component {
 
   searchItems(e) {
     this.setState({ query: e.target.value }, () => {
-      $setTimeout(() => this.switchTab(), 300, 'us-searchItems')
+      $setTimeout(() => this.switchTab(), 300, 'us-search-items')
     })
   }
 

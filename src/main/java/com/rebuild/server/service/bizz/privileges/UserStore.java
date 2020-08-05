@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +52,7 @@ public class UserStore {
 
 	final private Map<String, ID> USERs_NAME2ID = new ConcurrentHashMap<>();
 	final private Map<String, ID> USERs_MAIL2ID = new ConcurrentHashMap<>();
-	
+
 	final private PersistManagerFactory aPMFactory;
 	
 	protected UserStore(PersistManagerFactory aPMFactory) {
@@ -590,14 +591,13 @@ public class UserStore {
 				.array();
 		for (Object[] d : definition) {
 			int entity = (int) d[0];
+			Privileges p;
 			if (entity == 0) {
-				Privileges p = new ZeroPrivileges((String) d[2], (String) d[1]);
-				role.addPrivileges(p);
+				p = new ZeroPrivileges((String) d[2], (String) d[1]);
 			} else {
-				Privileges p = new EntityPrivileges(
-						entity, converEntityPrivilegesDefinition((String) d[1]));
-				role.addPrivileges(p);
+				p = new EntityPrivileges(entity, converEntityPrivilegesDefinition((String) d[1]));
 			}
+			role.addPrivileges(p);
 		}
 	}
 

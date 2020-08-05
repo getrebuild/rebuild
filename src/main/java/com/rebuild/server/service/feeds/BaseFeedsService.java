@@ -64,6 +64,7 @@ public abstract class BaseFeedsService extends ObservableService {
      * 内容中涉及的用户要加入 FeedsMention
      *
      * @param record
+     * @param isNew
      */
     protected void awareMention(Record record, boolean isNew) {
         String content = record.getString("content");
@@ -96,9 +97,8 @@ public abstract class BaseFeedsService extends ObservableService {
             super.create(clone);
             atUsers.add(atUser);
         }
-        if (atUsers.isEmpty()) {
-            return;
-        }
+
+        if (atUsers.isEmpty()) return;
 
         // 发送通知
         final String msgContent = "@" + record.getEditor() + " 在动态中提到了你 \n> " + content;

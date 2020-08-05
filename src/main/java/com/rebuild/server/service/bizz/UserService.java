@@ -42,7 +42,10 @@ public class UserService extends BaseServiceImpl {
 	public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");
 	// 管理员
 	public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
-	
+
+	// 暂未用：全部用户（注意这是一个虚拟用户 ID，并不真实存在）
+	public static final ID _ALL_USER = ID.valueOf("001-9999999999999999");
+
 	public UserService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
