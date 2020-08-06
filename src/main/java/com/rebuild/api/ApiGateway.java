@@ -180,6 +180,8 @@ public class ApiGateway extends Controll {
 		String postData = ServletUtils.getRequestString(request);
 		JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
 		ID bindUser = apiConfig.getID("bindUser");
+		// 默认绑定系统用户
+		if (bindUser == null) bindUser = UserService.SYSTEM_USER;
 
         return new ApiContext(sortedMap, postJson, appid, bindUser);
 	}
