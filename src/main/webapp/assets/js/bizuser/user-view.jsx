@@ -133,14 +133,14 @@ class DlgEnableUser extends RbModalHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">用户部门</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => this._deptNew = c} />
+              <UserSelector hideUser={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => this._deptNew = c} />
             </div>
           </div>}
         {this.props.role === true &&
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">用户角色</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" ref={(c) => this._roleNew = c} />
+              <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} multiple={false} ref={(c) => this._roleNew = c} />
             </div>
           </div>}
         <div className="form-group row footer">
@@ -153,43 +153,21 @@ class DlgEnableUser extends RbModalHandler {
     </RbModal>
   }
 
-  componentDidMount() {
-    if (this._deptNew) this.__s2dept = this.__initSelect2(this._deptNew, ['Department', '部门'])
-    if (this._roleNew) this.__s2role = this.__initSelect2(this._roleNew, ['Role', '角色'])
-  }
-
-  __initSelect2(el, type) {
-    return $(el).select2({
-      placeholder: '选择' + type[1],
-      minimumInputLength: 1,
-      ajax: {
-        url: '/commons/search/search',
-        delay: 300,
-        data: function (params) {
-          return { entity: type[0], q: params.term }
-        },
-        processResults: function (data) {
-          const rs = data.data.map((item) => { return item })
-          return { results: rs }
-        }
-      }
-    })
-  }
-
   post() {
-    const data = {
-      user: this.props.user
+    const data = { user: this.props.user }
+
+    if (this.props.enable === true) {
+      data.enable = true
     }
-    if (this.props.enable === true) data.enable = true
-    if (this.__s2dept) {
-      const v = this.__s2dept.val()
-      if (!v) return RbHighbar.create('请选择部门')
-      data.dept = v
+    if (this._deptNew) {
+      const v = this._deptNew.val()
+      if (v.length === 0) return RbHighbar.create('请选择部门')
+      data.dept = v[0]
     }
-    if (this.__s2role) {
-      const v = this.__s2role.val()
-      if (!v) return RbHighbar.create('请选择角色')
-      data.role = v
+    if (this._roleNew) {
+      const v = this._roleNew.val()
+      if (v.length === 0) return RbHighbar.create('请选择角色')
+      data.role = v[0]
     }
 
     const $btns = $(this._btns).find('.btn').button('loading')
