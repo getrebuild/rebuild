@@ -2446,10 +2446,10 @@ form {
 
 .card-list .card-footer a {
     color: #999;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     display: inline-block;
-    padding: 1px 4px;
-    margin-right: 4px;
+    padding: 0 3px;
+    margin-right: 6px;
 }
 
 .card-list .card-footer a:hover {

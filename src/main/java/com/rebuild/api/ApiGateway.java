@@ -80,10 +80,9 @@ public class ApiGateway extends Controll {
 				Application.getSessionStore().set(context.getBindUser());
 			}
 
-			JSON data = api.execute(context);
-			JSON success = formatSuccess(data);
-			ServletUtils.writeJson(response, success.toJSONString());
-			logRequestAsync(reuqestTime, remoteIp, apiName, context, success);
+			JSON result = api.execute(context);
+			ServletUtils.writeJson(response, result.toJSONString());
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, result);
 
 			return;
 
@@ -100,13 +99,12 @@ public class ApiGateway extends Controll {
 			Application.getSessionStore().clean();
 		}
 
-		JSON err = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
-		LOG.error(err.toJSONString());
-		ServletUtils.writeJson(response, err.toJSONString());
+		JSON error = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
+		LOG.error(error.toJSONString());
+		ServletUtils.writeJson(response, error.toJSONString());
 		try {
-			logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
-		} catch (Exception ignored) {
-		}
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, error);
+		} catch (Exception ignored) { }
 	}
 
 	/**

@@ -29,6 +29,7 @@ public class DataReportGeneratorTest extends TestSupportWithUser {
     @SuppressWarnings("deprecation")
     @Test
     public void testGenerator() throws Exception {
+        // 不支持中文变量
         File template = ResourceUtils.getFile("classpath:report-template.xlsx");
         ID record = addRecordOfTestAllFields();
         ReportGenerator generator = new ReportGenerator(template, record);

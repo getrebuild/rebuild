@@ -10,7 +10,6 @@ package com.rebuild.server.business.trigger.impl;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.trigger.ActionContext;
@@ -26,8 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -59,8 +56,10 @@ public class SendNotification implements TriggerAction {
 	@Override
 	public void execute(OperatingContext operatingContext) {
 		ThreadPool.exec(() -> {
-			ThreadPool.waitFor(3000);
 			try {
+				// 等待事物完成
+				ThreadPool.waitFor(3000);
+
 				executeAsync();
 			} catch (Exception ex) {
 				LOG.error(null, ex);
@@ -73,12 +72,7 @@ public class SendNotification implements TriggerAction {
 	private void executeAsync() {
 		final JSONObject content = (JSONObject) context.getActionContent();
 		
-		JSONArray sendTo = content.getJSONArray("sendTo");
-		List<String> sendToList = new ArrayList<>();
-		for (Object o : sendTo) {
-			sendToList.add((String) o);
-		}
-		Set<ID> toUsers = UserHelper.parseUsers(sendToList, context.getSourceRecord());
+		Set<ID> toUsers = UserHelper.parseUsers(content.getJSONArray("sendTo"), context.getSourceRecord());
 		if (toUsers.isEmpty()) {
 			return;
 		}
@@ -86,9 +80,10 @@ public class SendNotification implements TriggerAction {
 		final int type = content.getIntValue("type");
 		if (type == TYPE_MAIL && !SMSender.availableMail()) {
 			LOG.warn("Could not send because email-service is unavailable");
-		}
-		if (type == TYPE_SMS && !SMSender.availableSMS()) {
+			return;
+		} else if (type == TYPE_SMS && !SMSender.availableSMS()) {
 			LOG.warn("Could not send because sms-service is unavailable");
+			return;
 		}
 
 		String message = content.getString("content");
@@ -109,7 +104,7 @@ public class SendNotification implements TriggerAction {
 					SMSender.sendSMS(mobile, message);
 				}
 
-            } else if (type == TYPE_NOTIFICATION) {
+            } else {  // TYPE_NOTIFICATION
     			Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
 	    		Application.getNotifications().send(m);
             }
