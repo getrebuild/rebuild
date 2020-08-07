@@ -12,9 +12,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
+import com.rebuild.server.Application;
 import com.rebuild.server.helper.datalist.DataListControl;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -42,18 +44,22 @@ public class EntityList extends EntityGet {
             throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity : " + entity);
         }
 
+        if (!Application.getPrivilegesManager().allowRead(context.getBindUser(), useEntity.getEntityCode())) {
+            return formatFailure("无权读取 [" + EasyMeta.getLabel(useEntity) + "] 记录");
+        }
+
         String[] fields = context.getParameterNotBlank("fields").split(",");
         fields = getValidFields(useEntity, fields);
 
         int pageNo = context.getParameterAsInt("page_no", 1);
         int pageSize = context.getParameterAsInt("page_size", 40);
         String sortBy = context.getParameter("sort_by");
+
         if (StringUtils.isBlank(sortBy)) {
             sortBy = EntityHelper.ModifiedOn + ":desc";
-        }
 
-        if (!useEntity.containsField(sortBy.split(":")[0])) {
-            throw new ApiInvokeException("Unknow field in `sort_by` : " + sortBy.split(":")[0]);
+        } else if (!useEntity.containsField(sortBy.split(":")[0])) {
+            return formatFailure("无效排序字段 : " + sortBy.split(":")[0]);
         }
 
         JSON useFilter = context.getPostData();
@@ -65,7 +71,6 @@ public class EntityList extends EntityGet {
                     new String[] { "entity", "type" },
                     new String[] { useEntity.getName(), "QUICK" });
             quickFilter.put("values", JSONUtils.toJSONObject("1", quickName));
-
             useFilter = quickFilter;
         }
 

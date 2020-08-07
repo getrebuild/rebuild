@@ -15,6 +15,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RebuildApiManager;
@@ -81,7 +82,8 @@ public class ApiGateway extends Controll {
 			}
 
 			JSON result = api.execute(context);
-			ServletUtils.writeJson(response, result.toJSONString());
+			ServletUtils.writeJson(response, JSON.toJSONString(result,
+					SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteMapNullValue));
 			logRequestAsync(reuqestTime, remoteIp, apiName, context, result);
 
 			return;

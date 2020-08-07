@@ -35,7 +35,7 @@ import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.IllegalParameterException;
+import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -72,18 +72,15 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 
-		// 业务实体检查重复值
-		if (MetadataHelper.hasPrivilegesField(record.getEntity())
-				|| EasyMeta.valueOf(record.getEntity()).isPlainEntity()) {
-            List<Record> repeated = Application.getGeneralEntityService().getCheckRepeated(record);
-            if (!repeated.isEmpty()) {
-                JSONObject map = new JSONObject();
-                map.put("error_code", CODE_REPEATED_VALUES);
-                map.put("error_msg", "存在重复值");
-                map.put("data", buildRepeatedData(repeated));
-                writeJSON(response, map);
-                return;
-            }
+		// 检查重复值
+		List<Record> repeated = Application.getGeneralEntityService().getCheckRepeated(record, 100);
+		if (!repeated.isEmpty()) {
+			JSONObject map = new JSONObject();
+			map.put("error_code", CODE_REPEATED_VALUES);
+			map.put("error_msg", "存在重复值");
+			map.put("data", buildRepeatedData(repeated));
+			writeJSON(response, map);
+			return;
         }
 
 		try {
@@ -438,7 +435,7 @@ public class GeneralOperatingControll extends BaseControll {
 				sameEntityCode = id0.getEntityCode();
 			}
 			if (sameEntityCode != id0.getEntityCode()) {
-				throw new IllegalParameterException("只能批量处理同一实体的记录");
+				throw new InvalidParameterException("只能批量处理同一实体的记录");
 			}
 			idList.add(ID.valueOf(id));
 		}
@@ -488,7 +485,7 @@ public class GeneralOperatingControll extends BaseControll {
 	 * @return
 	 */
 	private JSON buildRepeatedData(List<Record> records) {
-		Entity entity = records.get(0).getEntity();
+		final Entity entity = records.get(0).getEntity();
 
 		// 准备字段
 		List<String> fields = new ArrayList<>();

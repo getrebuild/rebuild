@@ -25,6 +25,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
 import org.springframework.util.Assert;
 
@@ -414,12 +415,8 @@ public class PrivilegesManager {
 	 * @returny
 	 */
 	private Boolean userAllow(ID user) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
+		if (UserHelper.isAdmin(user)) return Boolean.TRUE;
+		if (!theUserStore.getUser(user).isActive()) return Boolean.FALSE;
 		return null;
 	}
 

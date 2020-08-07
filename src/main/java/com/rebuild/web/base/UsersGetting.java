@@ -21,7 +21,7 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.IllegalParameterException;
+import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,7 +56,7 @@ public class UsersGetting extends BaseControll {
 		} else if ("Team".equalsIgnoreCase(type)) {
             members = Application.getUserStore().getAllTeams();
         }  else {
-			throw new IllegalParameterException("Unknow type of bizz : " + type);
+			throw new InvalidParameterException("Unknow type of bizz : " + type);
 		}
 		// 排序
 		members = UserHelper.sortMembers(members);

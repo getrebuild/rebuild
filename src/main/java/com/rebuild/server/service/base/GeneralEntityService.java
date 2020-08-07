@@ -515,16 +515,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 	 * 检查/获取重复字段值
 	 *
 	 * @param record
+	 * @param maxReturns
 	 * @return
 	 */
-	public List<Record> getCheckRepeated(Record record) {
-		Entity entity = record.getEntity();
+	public List<Record> getCheckRepeated(Record record, int maxReturns) {
+		final Entity entity = record.getEntity();
+
 		// 仅处理业务实体
-		if (!MetadataHelper.hasPrivilegesField(entity)) {
+		if (!(MetadataHelper.hasPrivilegesField(record.getEntity())
+				|| EasyMeta.valueOf(record.getEntity()).isPlainEntity())) {
 			return Collections.emptyList();
 		}
 
-		List<String> norepeatFields = new ArrayList<>();
+		List<String> checkFields = new ArrayList<>();
 		for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
 			Field field = entity.getField(iter.next());
 			if (field.isRepeatable()
@@ -533,19 +536,19 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 					|| EasyMeta.getDisplayType(field) == DisplayType.SERIES) {
 				continue;
 			}
-			norepeatFields.add(field.getName());
+			checkFields.add(field.getName());
 		}
-		if (norepeatFields.isEmpty()) {
+		if (checkFields.isEmpty()) {
 			return Collections.emptyList();
 		}
 
 		StringBuilder checkSql = new StringBuilder("select ")
 				.append(entity.getPrimaryField().getName()).append(", ")  // 增加一个主键列
-				.append(StringUtils.join(norepeatFields.iterator(), ", "))
+				.append(StringUtils.join(checkFields.iterator(), ", "))
 				.append(" from ")
 				.append(entity.getName())
 				.append(" where ( ");
-		for (String field : norepeatFields) {
+		for (String field : checkFields) {
 			checkSql.append(field).append(" = ? or ");
 		}
 		checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
@@ -560,9 +563,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 		Query query = aPMFactory.createQuery(checkSql.toString());
 
 		int index = 1;
-		for (String field : norepeatFields) {
+		for (String field : checkFields) {
 			query.setParameter(index++, record.getObjectValue(field));
 		}
-        return query.setLimit(100).list();
+        return query.setLimit(maxReturns).list();
 	}
 }

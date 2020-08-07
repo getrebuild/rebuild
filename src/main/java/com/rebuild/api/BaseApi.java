@@ -37,7 +37,7 @@ public abstract class BaseApi extends Controll {
 
 	/**
 	 * API 执行。
-	 * 处理失败应抛出 {@link ApiInvokeException} 异常（或其子类）或返回错误 ${@link #formatFailure(String)}
+	 * 返回结果应该使用 #formatSuccess 或 #formatFailure 封装。或者也可以直接抛出 {@link ApiInvokeException} 异常
 	 *
 	 * @param context
 	 * @return Use #formatSuccess or #formatFailure

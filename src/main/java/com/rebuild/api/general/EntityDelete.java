@@ -39,6 +39,7 @@ public class EntityDelete extends BaseApi {
         }
 
         int deleted = Application.getService(entity.getEntityCode()).delete(deleteId);
+
         return formatSuccess(JSONUtils.toJSONObject("deleted", deleted));
     }
 }
