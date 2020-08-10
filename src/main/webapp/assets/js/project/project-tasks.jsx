@@ -113,7 +113,6 @@ class PlanBoxes extends React.Component {
         let planidNew = $item.parent('.task-list').attr('data-planid')
         // Plan unchange
         if (planidOld === planidNew) planidNew = undefined
-        console.log('Trigger ... ', $item.data('taskid'), planidOld + ' > ' + planidNew)
 
         // 面板变化
         if (planidNew) {

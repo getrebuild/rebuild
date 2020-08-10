@@ -53,7 +53,6 @@
         "$pages": true,
         "$same": true,
         "$unmount": true,
-        "$initUserSelect2": true,
         "$initReferenceSelect2": true,
         "$keepModalOpen": true,
         "rb": true,

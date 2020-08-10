@@ -682,8 +682,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 	margin-bottom: -15px;
 }
 
+
 .fields-table .custom-control {
 	padding-left: 1.9377rem !important;
+}
+
+.fields-table tr {
+	background-color: #fafafa;
 }
 
 .fields-table td {

@@ -11,7 +11,7 @@
 		<div class="form-group row">
 			<label class="col-sm-3 col-form-label text-sm-right">字段名称</label>
 			<div class="col-sm-7">
-				<input class="form-control form-control-sm" type="text" id="fieldLabel">
+				<input class="form-control form-control-sm" type="text" id="fieldLabel" maxlength="40">
 			</div>
 		</div>
 		<div class="form-group row">

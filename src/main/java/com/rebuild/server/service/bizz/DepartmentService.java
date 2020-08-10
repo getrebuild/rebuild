@@ -54,12 +54,16 @@ public class DepartmentService extends BaseServiceImpl {
     public Record update(Record record) {
         checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
 
-        // 检查循环依赖
+        // 检查父子循环依赖
         if (record.hasValue("parentDept", false)) {
             ID parentDept = record.getID("parentDept");
-            Department parent = Application.getUserStore().getDepartment(parentDept);
+            if (parentDept.equals(record.getPrimary())) {
+                throw new DataSpecificationException("父级部门不能选择自己");
+            }
 
+            Department parent = Application.getUserStore().getDepartment(parentDept);
             Department that = Application.getUserStore().getDepartment(record.getPrimary());
+
             if (that.isChildren(parent, true)) {
                 throw new DataSpecificationException("子级部门不能同时作为父级部门");
             }

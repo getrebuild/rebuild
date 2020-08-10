@@ -294,10 +294,6 @@ body {
 	display: none;
 }
 
-.sharing-list ul>li.active>div {
-	border-color: #4285f4;
-}
-
 .sharing-list ul>li.active>div .zmdi {
 	display: block;
 }

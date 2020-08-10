@@ -16,6 +16,9 @@ import com.rebuild.api.ApiInvokeException;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.ExtRecordCreator;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.Collection;
 
 /**
  * 更新记录
@@ -40,6 +43,16 @@ public class EntityUpdate extends EntityCreate {
         Record recordUpdate = new ExtRecordCreator(
                 useEntity, (JSONObject) context.getPostData(), context.getBindUser(), true)
                 .create();
+        if (recordUpdate.getPrimary() == null) {
+            return formatFailure("非可更新记录");
+        }
+
+        Collection<String> repeatedFields = checkRepeated(recordUpdate);
+        if (!repeatedFields.isEmpty()) {
+            return formatFailure("更新字段 " + StringUtils.join(repeatedFields, "/") + " 中存在重复值",
+                    ApiInvokeException.ERR_DATASPEC);
+        }
+
         recordUpdate = Application.getService(useEntity.getEntityCode()).update(recordUpdate);
 
         return formatSuccess(JSONUtils.toJSONObject("id", recordUpdate.getPrimary()));

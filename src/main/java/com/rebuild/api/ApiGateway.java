@@ -15,6 +15,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.rebuild.server.Application;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RebuildApiManager;
@@ -80,10 +81,10 @@ public class ApiGateway extends Controll {
 				Application.getSessionStore().set(context.getBindUser());
 			}
 
-			JSON data = api.execute(context);
-			JSON success = formatSuccess(data);
-			ServletUtils.writeJson(response, success.toJSONString());
-			logRequestAsync(reuqestTime, remoteIp, apiName, context, success);
+			JSON result = api.execute(context);
+			ServletUtils.writeJson(response, JSON.toJSONString(result,
+					SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteMapNullValue));
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, result);
 
 			return;
 
@@ -100,13 +101,12 @@ public class ApiGateway extends Controll {
 			Application.getSessionStore().clean();
 		}
 
-		JSON err = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
-		LOG.error(err.toJSONString());
-		ServletUtils.writeJson(response, err.toJSONString());
+		JSON error = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);
+		LOG.error(error.toJSONString());
+		ServletUtils.writeJson(response, error.toJSONString());
 		try {
-			logRequestAsync(reuqestTime, remoteIp, apiName, context, err);
-		} catch (Exception ignored) {
-		}
+			logRequestAsync(reuqestTime, remoteIp, apiName, context, error);
+		} catch (Exception ignored) { }
 	}
 
 	/**
@@ -180,6 +180,8 @@ public class ApiGateway extends Controll {
 		String postData = ServletUtils.getRequestString(request);
 		JSON postJson = postData != null ? (JSON) JSON.parse(postData) : null;
 		ID bindUser = apiConfig.getID("bindUser");
+		// 默认绑定系统用户
+		if (bindUser == null) bindUser = UserService.SYSTEM_USER;
 
         return new ApiContext(sortedMap, postJson, appid, bindUser);
 	}

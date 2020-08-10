@@ -21,14 +21,13 @@ import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.IllegalParameterException;
+import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,16 +56,14 @@ public class UsersGetting extends BaseControll {
 		} else if ("Team".equalsIgnoreCase(type)) {
             members = Application.getUserStore().getAllTeams();
         }  else {
-			throw new IllegalParameterException("Unknow type of bizz : " + type);
+			throw new InvalidParameterException("Unknow type of bizz : " + type);
 		}
 		// 排序
 		members = UserHelper.sortMembers(members);
 		
 		List<JSON> ret = new ArrayList<>();
 		for (Member m : members) {
-			if (m.isDisabled()) {
-				continue;
-			}
+			if (m.isDisabled()) continue;
 
 			String name = m.getName();
 
@@ -83,6 +80,8 @@ public class UsersGetting extends BaseControll {
 				JSONObject o = JSONUtils.toJSONObject(new String[] { "id", "text" },
 						new String[] { m.getIdentity().toString(), name });
 				ret.add(o);
+
+				// 最多显示40个
 				if (ret.size() >= 40) break;
 			}
 		}
@@ -95,12 +94,10 @@ public class UsersGetting extends BaseControll {
 	 *
 	 * @param request
 	 * @param response
-	 * @throws IOException
-	 *
 	 * @see UserHelper#parseUsers(JSONArray, ID)
 	 */
 	@RequestMapping("user-selector")
-	public void parseUserSelectorRaw(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void parseUserSelectorRaw(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameter(request, "entity");
 		JSON users = ServletUtils.getRequestJson(request);
 		Entity hadEntity = MetadataHelper.containsEntity(entity) ? MetadataHelper.getEntity(entity) : null;

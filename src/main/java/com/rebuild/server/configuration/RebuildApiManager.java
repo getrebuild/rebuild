@@ -20,13 +20,15 @@ public class RebuildApiManager implements ConfigManager {
     public static final RebuildApiManager instance = new RebuildApiManager();
     private RebuildApiManager() {}
 
+    private static final String CKEY_PREFIX = "RebuildApiManager-";
+
     /**
      * @param appid
      * @return
      */
     public ConfigEntry getApp(String appid) {
-        final String cKey = "RebuildApiManager-" + appid;
-        ConfigEntry config = (ConfigEntry) Application.getCommonCache().getx(cKey);
+        final String ckey = CKEY_PREFIX + appid;
+        ConfigEntry config = (ConfigEntry) Application.getCommonCache().getx(ckey);
         if (config != null) {
             return config;
         }
@@ -35,22 +37,19 @@ public class RebuildApiManager implements ConfigManager {
                 "select appSecret,bindUser,bindIps from RebuildApi where appId = ?")
                  .setParameter(1, appid)
                  .unique();
-        if (o == null) {
-            return null;
-        }
+        if (o == null) return null;
 
         config = new ConfigEntry()
                 .set("appId", appid)
                 .set("appSecret", o[0])
                 .set("bindUser", o[1])
                 .set("bindIps", o[2]);
-        Application.getCommonCache().putx(cKey, config);
+        Application.getCommonCache().putx(ckey, config);
         return config;
     }
 
     @Override
     public void clean(Object appid) {
-        final String cKey = "RebuildApiManager-" + appid;
-        Application.getCommonCache().evict(cKey);
+        Application.getCommonCache().evict(CKEY_PREFIX + appid);
     }
 }

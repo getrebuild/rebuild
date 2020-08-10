@@ -369,12 +369,15 @@ class UserSelector extends React.Component {
     super(props)
     this.state = { selected: props.selected || [] }
 
-    this.cached = {}
-    this.tabTypes = []
-    if (props.hideUser !== true) this.tabTypes.push(['User', '用户'])
-    if (props.hideDepartment !== true) this.tabTypes.push(['Department', '部门'])
-    if (props.hideRole !== true) this.tabTypes.push(['Role', '角色'])
-    if (props.hideTeam !== true && rb.rbv) this.tabTypes.push(['Team', '团队'])
+    this._cached = {}
+    this._useTabs = []
+    if (props.hideUser !== true) this._useTabs.push(['User', '用户'])
+    if (props.hideDepartment !== true) this._useTabs.push(['Department', '部门'])
+    if (props.hideRole !== true) this._useTabs.push(['Role', '角色'])
+    if (props.hideTeam !== true && rb.rbv) this._useTabs.push(['Team', '团队'])
+
+    // 默认显示
+    this.state.tabType = this._useTabs[0][0]
   }
 
   render() {
@@ -392,8 +395,8 @@ class UserSelector extends React.Component {
           </div>
         </div>
         <div className="tab-container m-0">
-          <ul className={`nav nav-tabs nav-tabs-classic ${this.tabTypes.length < 2 ? 'hide' : ''}`}>
-            {this.tabTypes.map((item) => {
+          <ul className={`nav nav-tabs nav-tabs-classic ${this._useTabs.length < 2 ? 'hide' : ''}`}>
+            {this._useTabs.map((item) => {
               return (
                 <li className="nav-item" key={`t-${item[0]}`}>
                   <a onClick={() => this.switchTab(item[0])} className={`nav-link ${this.state.tabType === item[0] ? ' active' : ''}`}>{item[1]}</a>
@@ -461,7 +464,8 @@ class UserSelector extends React.Component {
     const that = this
     $(this._dropdownParent).on({
       'show.bs.dropdown': function () {
-        if (!that.state.tabType) that.switchTab('User')
+        // 初始化
+        if (!that.state.items) that.switchTab()
       },
       'shown.bs.dropdown': function () {
         that._input && that._input.focus()
@@ -495,10 +499,15 @@ class UserSelector extends React.Component {
   switchTab(type) {
     type = type || this.state.tabType
     const ckey = `${type}-${this.state.query}`
-    this.setState({ tabType: type, items: this.cached[ckey] }, () => {
-      if (!this.cached[ckey]) {
+    this.setState({ tabType: type, items: this._cached[ckey] }, () => {
+      if (!this._cached[ckey]) {
         $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
-          this.cached[ckey] = res.data
+          // // 全部用户
+          // if (this.props.showAllUser && type === 'User' && !this.state.query) {
+          //   res.data.unshift({ id: '001-9999999999999999', text: '全部用户' })
+          // }
+
+          this._cached[ckey] = res.data
           this.switchTab(type)
         })
       }
@@ -531,7 +540,7 @@ class UserSelector extends React.Component {
 
   searchItems(e) {
     this.setState({ query: e.target.value }, () => {
-      $setTimeout(() => this.switchTab(), 300, 'us-searchItems')
+      $setTimeout(() => this.switchTab(), 300, 'us-search-items')
     })
   }
 

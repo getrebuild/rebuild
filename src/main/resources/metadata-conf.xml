@@ -167,7 +167,7 @@
 		<field name="itemId" type="primary" />
 		<field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete" />
 		<field name="name" type="string" max-length="100" nullable="false" />
-		<field name="fullName" type="string" max-length="255" nullable="false" description="包括父级名称(用点号分割)" />
+		<field name="fullName" type="string" max-length="191" nullable="false" description="包括父级名称(用点号分割)" />
 		<field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete" />
 		<field name="code" type="string" max-length="50" />
 		<field name="level" type="small-int" default-value="0" updatable="false" />
@@ -210,7 +210,7 @@
 		<field name="belongEntity" type="small-int" default-value="0" updatable="false" />
 		<field name="belongField" type="string" max-length="100" updatable="false" />
 		<field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" cascade="ignore" />
-		<field name="filePath" type="string" max-length="200" nullable="false" />
+		<field name="filePath" type="string" max-length="191" nullable="false" />
 		<field name="fileType" type="string" max-length="20" />
 		<field name="fileSize" type="int" default-value="0" description="in bytes" />
 		<field name="inFolder" type="reference" ref-entity="AttachmentFolder" />
@@ -317,7 +317,7 @@
 		<field name="recycleId" type="primary" />
 		<field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体" />
 		<field name="recordId" type="any-reference" nullable="false" updatable="false" description="ID字段值" cascade="ignore" />
-		<field name="recordName" type="string" max-length="200" nullable="false" updatable="false" description="名称字段值" />
+		<field name="recordName" type="string" max-length="191" nullable="false" updatable="false" description="名称字段值" />
 		<field name="recordContent" type="ntext" nullable="false" updatable="false" description="数据" />
 		<field name="deletedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="删除人" />
 		<field name="deletedOn" type="timestamp" nullable="false" updatable="false" description="删除时间" />
@@ -345,7 +345,7 @@
 		<field name="content" type="text" nullable="false" updatable="false" description="发送内容" />
 		<field name="type" type="small-int" default-value="0" description="1=短信; 2=邮件" />
 		<field name="sendTime" type="timestamp" nullable="false" updatable="false" description="发送时间" />
-		<field name="sendResult" type="string" max-length="200" description="发送结果(xxx|ERR:xxx)" />
+		<field name="sendResult" type="string" max-length="191" description="发送结果(xxx|ERR:xxx)" />
 		<index field-list="type,sendTime,sendResult" />
 	</entity>
 
@@ -420,7 +420,7 @@
 		<field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="所属项目" />
 		<field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="所属面板" />
 		<field name="taskNumber" type="long" nullable="false" updatable="false" description="任务编号" />
-		<field name="taskName" type="string" max-length="300" nullable="false" description="任务名称" />
+		<field name="taskName" type="string" max-length="191" nullable="false" description="任务名称" />
 		<field name="executor" type="reference" ref-entity="User" description="执行人" />
 		<field name="partners" type="string" max-length="420" default-value="ALL" description="参与者(可选值: $UserID)" queryable="false" />
 		<field name="priority" type="small-int" default-value="1" description="优先级(0=较低 1=普通 2=紧急 3=非常紧急)" queryable="false" />

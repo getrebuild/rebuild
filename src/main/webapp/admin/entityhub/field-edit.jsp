@@ -139,7 +139,7 @@
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">字段名称</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<input class="form-control form-control-sm" type="text" id="fieldLabel" value="${fieldLabel}" data-o="${fieldLabel}">
+								<input class="form-control form-control-sm" type="text" id="fieldLabel" maxlength="40" value="${fieldLabel}" data-o="${fieldLabel}">
 							</div>
 						</div>
 						<div class="form-group row">

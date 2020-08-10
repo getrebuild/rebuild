@@ -19,6 +19,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.TestSupportWithMVC;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -51,6 +52,7 @@ public class ApiGatewayTest extends TestSupportWithMVC {
         System.out.println(resp);
     }
 
+    @Ignore
     @Test
     public void testOpenApiSDK() {
         final String[] app = createApp();

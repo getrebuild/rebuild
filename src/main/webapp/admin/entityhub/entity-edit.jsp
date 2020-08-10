@@ -79,7 +79,7 @@ a#entityIcon:hover {
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">实体名称</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<input class="form-control form-control-sm" type="text" id="entityLabel" value="${entityLabel}" data-o="${entityLabel}">
+								<input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40" value="${entityLabel}" data-o="${entityLabel}">
 							</div>
 						</div>
 						<div class="form-group row">

@@ -423,51 +423,6 @@ var $unmount = function (container, delay, keepContainer) {
   }
 }
 
-// 初始化 select2 用户选择
-var $initUserSelect2 = function (el, multiple) {
-  var s_input = null
-  var s = $(el).select2({
-    placeholder: '选择用户',
-    minimumInputLength: 0,
-    multiple: multiple === true,
-    ajax: {
-      url: '/commons/search/search',
-      delay: 300,
-      data: function (params) {
-        var query = {
-          entity: 'User',
-          qfields: 'loginName,fullName,email,quickCode',
-          q: params.term,
-          type: 'UDR'
-        }
-        s_input = params.term
-        return query
-      },
-      processResults: function (data) {
-        return {
-          results: data.data
-        }
-      }
-    },
-    language: {
-      noResults: function () {
-        return (s_input || '').length > 0 ? '未找到结果' : '输入用户名/邮箱搜索'
-      },
-      inputTooShort: function () {
-        return '输入用户名/邮箱搜索'
-      },
-      searching: function () {
-        return '搜索中...'
-      }
-    }
-  })
-  s.on('change.select2', function (e) {
-    var v = e.target.value
-    if (v) $.post('/commons/search/recently-add?type=UDR&id=' + v)
-  })
-  return s
-}
-
 // 初始化引用字段搜索
 var $initReferenceSelect2 = function (el, field) {
   var search_input = null
