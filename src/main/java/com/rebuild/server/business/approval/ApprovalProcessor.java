@@ -81,9 +81,9 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public boolean submit(JSONObject selectNextUsers) throws ApprovalException {
-		final int currentState = (int) ApprovalHelper.getApprovalState(this.record)[2];
-		if (currentState == ApprovalState.PROCESSING.getState() || currentState == ApprovalState.APPROVED.getState()) {
-			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.PROCESSING.getState() ? "提交审批" : "审批完成"));
+		final ApprovalState currentState = ApprovalHelper.getApprovalState(this.record);
+		if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
+			throw new ApprovalException("当前记录已经" + (currentState == ApprovalState.PROCESSING ? "提交审批" : "审批完成"));
 		}
 		
 		FlowNodeGroup nextNodes = getNextNodes(FlowNode.NODE_ROOT);
@@ -137,17 +137,17 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData) throws ApprovalException {
-		final Object[] currentState = ApprovalHelper.getApprovalState(this.record);
-		ApprovalState currentState2 = (ApprovalState) ApprovalState.valueOf((int) currentState[2]);
-		if (currentState2 != ApprovalState.PROCESSING) {
-			throw new ApprovalException("当前记录审批已" + currentState2.getName());
+		final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
+		ApprovalState currentState = status.getCurrentState();
+		if (currentState != ApprovalState.PROCESSING) {
+			throw new ApprovalException("当前记录审批已" + currentState.getName());
 		}
 
 		final Object[] stepApprover = Application.createQueryNoFilter(
 				"select stepId,state,node,approvalId from RobotApprovalStep where recordId = ? and approver = ? and node = ? and isCanceled = 'F'")
 				.setParameter(1, this.record)
 				.setParameter(2, approver)
-				.setParameter(3, getCurrentNodeId(currentState))
+				.setParameter(3, getCurrentNodeId(status))
 				.unique();
 		if (stepApprover == null || (Integer) stepApprover[1] != ApprovalState.DRAFT.getState()) {
 			throw new ApprovalException(stepApprover == null ? "当前流程已经被他人审批" : "你已经审批过当前流程");
@@ -193,14 +193,14 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public void cancel() throws ApprovalException {
-		final Object[] currentState = ApprovalHelper.getApprovalState(this.record);
-		ApprovalState currentState2 = (ApprovalState) ApprovalState.valueOf((int) currentState[2]);
-		if (currentState2 != ApprovalState.PROCESSING) {
-			throw new ApprovalException("已" + currentState2.getName() + "审批不能撤回");
+		final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
+		ApprovalState currentState = status.getCurrentState();
+		if (currentState != ApprovalState.PROCESSING) {
+			throw new ApprovalException("已" + currentState.getName() + "审批不能撤回");
 		}
 
 		Application.getBean(ApprovalStepService.class).txCancel(
-				this.record, (ID) currentState[0], getCurrentNodeId(currentState), false);
+				this.record, status.getApprovalId(), getCurrentNodeId(status), false);
 	}
 
 	/**
@@ -209,9 +209,8 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public void revoke() throws ApprovalException {
-		final Object[] currentState = ApprovalHelper.getApprovalState(this.record);
-		ApprovalState currentState2 = (ApprovalState) ApprovalState.valueOf((int) currentState[2]);
-		if (currentState2 != ApprovalState.APPROVED) {
+		final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
+		if (status.getCurrentState() != ApprovalState.APPROVED) {
 			throw new ApprovalException("未完成审批无需撤销");
 		}
 
@@ -225,7 +224,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 		}
 
 		Application.getBean(ApprovalStepService.class).txCancel(
-				this.record, (ID) currentState[0], getCurrentNodeId(currentState), true);
+				this.record, status.getApprovalId(), getCurrentNodeId(status), true);
 	}
 
 	/**
@@ -313,14 +312,15 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	/**
 	 * 获取当前审批节点 ID
 	 *
-	 * @param useState
+	 * @param useStatus
 	 * @return
 	 */
-	private String getCurrentNodeId(Object[] useState) {
-		if (useState == null) useState = ApprovalHelper.getApprovalState(this.record);
+	private String getCurrentNodeId(ApprovalStatus useStatus) {
+		if (useStatus == null) useStatus = ApprovalHelper.getApprovalStatus(this.record);
 
-		String currentNode = (String) useState[3];
-		if (StringUtils.isBlank(currentNode) || (int) useState[2] >= ApprovalState.REJECTED.getState()) {
+		String currentNode = useStatus.getCurrentStepNode();
+		if (StringUtils.isBlank(currentNode)
+				|| useStatus.getCurrentState().getState() >= ApprovalState.REJECTED.getState()) {
 			currentNode = FlowNode.NODE_ROOT;
 		}
 		return currentNode;
@@ -347,7 +347,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @return returns [S, S]
 	 */
 	public JSONArray getCurrentStep() {
-		final String currentNode = (String) ApprovalHelper.getApprovalState(this.record)[3];
+		final String currentNode = ApprovalHelper.getApprovalStatus(this.record).getCurrentStepNode();
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn from RobotApprovalStep"
 				+ " where recordId = ? and approvalId = ? and node = ? and isCanceled = 'F'")
@@ -369,8 +369,8 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @return returns [ [S,S], [S], [SSS], [S] ]
 	 */
 	public JSONArray getWorkedSteps() {
-		final Object[] state = ApprovalHelper.getApprovalState(this.record);
-		this.approval = (ID) state[0];
+		final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
+		this.approval = status.getApprovalId();
 
 		Object[][] array = Application.createQueryNoFilter(
 				"select approver,state,remark,approvedTime,createdOn,createdBy,node,prevNode from RobotApprovalStep" +
@@ -402,7 +402,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 				new Object[] { firstStep[5],
 						UserHelper.getName((ID) firstStep[5]),
 						CalendarUtils.getUTCDateTimeFormat().format(firstStep[4]),
-						state[0], state[1], state[2] });
+						status.getApprovalId(), status.getApprovalName(), status.getCurrentState().getState() });
 		steps.add(submitter);
 
 		String next = FlowNode.NODE_ROOT;

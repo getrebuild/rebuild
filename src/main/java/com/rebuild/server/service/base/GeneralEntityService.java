@@ -390,7 +390,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 			// 仅验证新建明细（相当于更新主记录）
 			if (masterEntity != null && MetadataHelper.hasApprovalField(record.getEntity())) {
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
-				ApprovalState state = getApprovalState(record.getID(stmField.getName()));
+				ApprovalState state = ApprovalHelper.getApprovalState(record.getID(stmField.getName()));
+
 				if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
 					String stateType = state == ApprovalState.APPROVED ? "已完成审批" : "正在审批中";
 					throw new DataSpecificationException("主记录" + stateType + "，不能添加明细");
@@ -412,10 +413,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 				ApprovalState currentState;
 				ApprovalState changeState = null;
 				try {
-					currentState = getApprovalState(recordId);
+					currentState = ApprovalHelper.getApprovalState(recordId);
 					if (record.hasValue(EntityHelper.ApprovalState)) {
 						changeState = (ApprovalState) ApprovalState.valueOf(record.getInt(EntityHelper.ApprovalState));
 					}
+
 				} catch (NoRecordFoundException ignored) {
 					LOG.warn("No record found for check : " + recordId);
 					return false;
@@ -498,17 +500,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 			throw new NoRecordFoundException(slaveId);
 		}
 		return (ID) o[0];
-	}
-
-	/**
-	 * 获取审批状态
-	 *
-	 * @param recordId
-	 * @return
-	 */
-	private ApprovalState getApprovalState(ID recordId) {
-		Object[] state = ApprovalHelper.getApprovalState(recordId);
-		return (ApprovalState) ApprovalState.valueOf((Integer) state[2]);
 	}
 
 	/**

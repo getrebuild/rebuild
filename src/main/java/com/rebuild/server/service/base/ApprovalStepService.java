@@ -381,12 +381,11 @@ public class ApprovalStepService extends BaseService {
 	 * @return
 	 */
 	public boolean txAutoApproved(ID recordId, ID useApprover, ID useApproval) {
-		Object[] state = ApprovalHelper.getApprovalState(recordId);
-		ApprovalState approvalState = (ApprovalState) ApprovalState.valueOf((Integer) state[2]);
+		final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
 
 		// 其他状态不能自动审批
-		if (approvalState == ApprovalState.DRAFT || approvalState == ApprovalState.REJECTED
-				|| approvalState == ApprovalState.REVOKED) {
+		if (currentState == ApprovalState.DRAFT || currentState == ApprovalState.REJECTED
+				|| currentState == ApprovalState.REVOKED) {
 			if (useApprover == null) useApprover = UserService.SYSTEM_USER;
 			if (useApproval == null) useApproval = APPROVAL_NOID;
 
