@@ -109,7 +109,7 @@ public class Entity2Schema extends Field2Schema {
 			record.setString("masterEntity", masterEntity);
 		}
 		record.setString("nameField", nameFiled);
-		record = Application.getCommonService().create(record);
+		record = Application.getCommonsService().create(record);
 		tempMetaId.add(record.getPrimary());
 		
 		Entity tempEntity = new UnsafeEntity(entityName, physicalName, entityLabel, typeCode, nameFiled);
@@ -145,13 +145,13 @@ public class Entity2Schema extends Field2Schema {
 			}
 		} catch (Throwable ex) {
 		    LOG.error(null, ex);
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
+			Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
             throw new ModifiyMetadataException("元数据初始化失败 : " + ex.getLocalizedMessage());
 		}
 		
 		boolean schemaReady = schema2Database(tempEntity);
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
+			Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
             throw new ModifiyMetadataException("无法创建表到数据库");
 		}
 

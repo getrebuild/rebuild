@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.dashboard;
 
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -96,7 +95,7 @@ public class DashboardControll extends BasePageControll {
 					String field = iter.next();
 					chartRecord.setObjectValue(field, chart.getObjectValue(field));
 				}
-				chartRecord = Application.getCommonService().create(chartRecord);
+				chartRecord = Application.getCommonsService().create(chartRecord);
 				item.put("chart", chartRecord.getPrimary());
 			}
 			dashRecord.setString("config", dashCopy.toJSONString());

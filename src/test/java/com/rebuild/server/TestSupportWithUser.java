@@ -61,7 +61,7 @@ public abstract class TestSupportWithUser extends TestSupport {
             p.setID("roleId", SIMPLE_ROLE);
             p.setInt("entity", testEntity.getEntityCode());
             p.setString("definition", "{'A':1,'R':1,'C':4,'S':1,'D':1,'U':1}");
-            Application.getCommonService().create(p, Boolean.FALSE);
+            Application.getCommonsService().create(p, Boolean.FALSE);
             Application.getUserStore().refreshRole(SIMPLE_ROLE);
         }
 

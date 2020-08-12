@@ -175,7 +175,7 @@ public class MetaFieldControll extends BasePageControll  {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		Application.getCommonService().update(record);
+		Application.getCommonsService().update(record);
 		
 		Application.getMetadataFactory().refresh(false);
 		writeSuccess(response);

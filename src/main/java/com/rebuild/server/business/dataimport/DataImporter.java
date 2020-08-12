@@ -27,7 +27,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.task.HeavyTask;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.ExtRecordCreator;
+import com.rebuild.server.metadata.EntityRecordCreator;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.utils.JSONUtils;
@@ -147,7 +147,7 @@ public class DataImporter extends HeavyTask<Integer> {
 		
 		// Verify new record
 		if (record.getPrimary() == null) {
-			ExtRecordCreator verifier = new ExtRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
+			EntityRecordCreator verifier = new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
 			verifier.verify(record, true);
 		}
 		return record;

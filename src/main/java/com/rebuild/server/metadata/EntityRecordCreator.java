@@ -48,9 +48,9 @@ import java.util.Set;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-26
  */
-public class ExtRecordCreator extends JsonRecordCreator {
+public class EntityRecordCreator extends JsonRecordCreator {
 
-    private static final Log LOG = LogFactory.getLog(ExtRecordCreator.class);
+    private static final Log LOG = LogFactory.getLog(EntityRecordCreator.class);
 
     /**
      * 更新时。是移除不允许更新的字段还是抛出异常
@@ -62,7 +62,7 @@ public class ExtRecordCreator extends JsonRecordCreator {
 	 * @param source
 	 * @param editor
 	 */
-	public ExtRecordCreator(Entity entity, JSONObject source, ID editor) {
+	public EntityRecordCreator(Entity entity, JSONObject source, ID editor) {
 		this(entity, source, editor, false);
 	}
 
@@ -72,7 +72,7 @@ public class ExtRecordCreator extends JsonRecordCreator {
      * @param editor
      * @param strictMode
      */
-    public ExtRecordCreator(Entity entity, JSONObject source, ID editor, boolean strictMode) {
+    public EntityRecordCreator(Entity entity, JSONObject source, ID editor, boolean strictMode) {
         super(entity, source, editor);
         this.strictMode = strictMode;
     }

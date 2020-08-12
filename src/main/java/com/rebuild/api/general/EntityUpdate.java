@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.ExtRecordCreator;
+import com.rebuild.server.metadata.EntityRecordCreator;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -40,7 +40,7 @@ public class EntityUpdate extends EntityCreate {
             throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity : " + useEntity.getName());
         }
 
-        Record recordUpdate = new ExtRecordCreator(
+        Record recordUpdate = new EntityRecordCreator(
                 useEntity, (JSONObject) context.getPostData(), context.getBindUser(), true)
                 .create();
         if (recordUpdate.getPrimary() == null) {

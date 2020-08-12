@@ -21,22 +21,22 @@ import org.junit.Test;
  * @author devezhao
  * @since 2020/06/23
  */
-public class CommonServiceTest extends TestSupport {
+public class CommonsServiceTest extends TestSupport {
 
     @Test
     public void createOrUpdateAndDelete() {
         Entity entity = MetadataHelper.getEntity(TEST_ENTITY);
         Record record = EntityHelper.forNew(entity.getEntityCode(), SIMPLE_USER);
-        record.setString("TestAllFieldsName", "CommonServiceTest" + System.currentTimeMillis());
-        record = Application.getCommonService().create(record, false);
+        record.setString("TestAllFieldsName", "CommonsServiceTest" + System.currentTimeMillis());
+        record = Application.getCommonsService().create(record, false);
         System.out.println("New record : " + record.getPrimary());
 
         record = EntityHelper.forUpdate(record.getPrimary(), SIMPLE_USER);
-        record.setString("TEXT", "CommonServiceTest" + System.currentTimeMillis());
-        Application.getCommonService().update(record, false);
+        record.setString("TEXT", "CommonsServiceTest" + System.currentTimeMillis());
+        Application.getCommonsService().update(record, false);
         System.out.println("Update record : " + record.getPrimary());
 
-        Application.getCommonService().createOrUpdateAndDelete(new Record[0], new ID[] { record.getPrimary() }, false);
+        Application.getCommonsService().createOrUpdateAndDelete(new Record[0], new ID[] { record.getPrimary() }, false);
         System.out.println("Delete record : " + record.getPrimary());
     }
 
@@ -45,7 +45,7 @@ public class CommonServiceTest extends TestSupport {
     public void useStrictMode() {
         Entity entity = MetadataHelper.getEntity(TEST_ENTITY);
         Record record = EntityHelper.forNew(entity.getEntityCode(), SIMPLE_USER);
-        record.setString("TestAllFieldsName", "CommonServiceTest" + System.currentTimeMillis());
-        Application.getCommonService().create(record, true);
+        record.setString("TestAllFieldsName", "CommonsServiceTest" + System.currentTimeMillis());
+        Application.getCommonsService().create(record, true);
     }
 }

@@ -171,7 +171,7 @@ public class MetaEntityControll extends BasePageControll {
 			}
 		}
 		
-		Application.getCommonService().update(record);
+		Application.getCommonsService().update(record);
 		Application.getMetadataFactory().refresh(false);
 		
 		if (needReindex != null) {

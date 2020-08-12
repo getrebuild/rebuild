@@ -10,7 +10,7 @@ package com.rebuild.api.general;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.server.TestSupportWithUser;
-import com.rebuild.server.metadata.ExtRecordCreator;
+import com.rebuild.server.metadata.EntityRecordCreator;
 import com.rebuild.utils.JSONUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class EntityOperateTest extends TestSupportWithUser {
         // CREATE
 
         JSONObject data = new JSONObject();
-        data.put(ExtRecordCreator.META_FIELD, JSONUtils.toJSONObject("entity", TEST_ENTITY));
+        data.put(EntityRecordCreator.META_FIELD, JSONUtils.toJSONObject("entity", TEST_ENTITY));
         data.put("TestAllFieldsName", "EntityCreateTest" + System.currentTimeMillis());
 
         Map<String, String> reqParams = new HashMap<>();
@@ -47,7 +47,7 @@ public class EntityOperateTest extends TestSupportWithUser {
         // UPDATE
 
         data = new JSONObject();
-        data.put(ExtRecordCreator.META_FIELD, JSONUtils.toJSONObject(
+        data.put(EntityRecordCreator.META_FIELD, JSONUtils.toJSONObject(
                 new String[] { "entity", "id" }, new String[] { TEST_ENTITY, createRecordId }));
         data.put("TestAllFieldsName", "UPDATE >> EntityCreateTest" + System.currentTimeMillis());
 
@@ -76,7 +76,7 @@ public class EntityOperateTest extends TestSupportWithUser {
 
     private void displayEntityGet(String recordId) {
         JSONObject data = new JSONObject();
-        data.put(ExtRecordCreator.META_FIELD, JSONUtils.toJSONObject("entity", TEST_ENTITY));
+        data.put(EntityRecordCreator.META_FIELD, JSONUtils.toJSONObject("entity", TEST_ENTITY));
         data.put("TestAllFieldsName", "EntityCreateTest" + System.currentTimeMillis());
 
         Map<String, String> reqParams = new HashMap<>();

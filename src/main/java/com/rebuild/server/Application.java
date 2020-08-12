@@ -28,7 +28,7 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
-import com.rebuild.server.service.CommonService;
+import com.rebuild.server.service.CommonsService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.ServiceSpec;
@@ -388,8 +388,8 @@ public final class Application {
 	/**
 	 * @return
 	 */
-	public static CommonService getCommonService() {
-		return getBean(CommonService.class);
+	public static CommonsService getCommonsService() {
+		return getBean(CommonsService.class);
 	}
 
     /**

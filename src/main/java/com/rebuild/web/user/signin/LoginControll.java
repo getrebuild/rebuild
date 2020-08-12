@@ -238,7 +238,7 @@ public class LoginControll extends BasePageControll {
 		record.setString("ipAddr", ipAddr);
 		record.setString("userAgent", UA);
 		record.setDate("loginTime", CalendarUtils.now());
-		record = Application.getCommonService().create(record);
+		record = Application.getCommonsService().create(record);
 		return record.getPrimary();
 	}
 	

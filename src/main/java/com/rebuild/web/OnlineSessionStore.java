@@ -87,7 +87,7 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 		if (loginId != null) {
 			Record logout = EntityHelper.forUpdate(loginId, UserService.SYSTEM_USER);
 			logout.setDate("logoutTime", CalendarUtils.now());
-			Application.getCommonService().update(logout);
+			Application.getCommonsService().update(logout);
 		}
 	}
 

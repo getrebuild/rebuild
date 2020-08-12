@@ -85,7 +85,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
 					} else {
 						record.setString(EntityHelper.QuickCode, quickCodeNew);
 					}
-					Application.getCommonService().update(record, false);
+					Application.getCommonsService().update(record, false);
 					this.addSucceeded();
 
 				} finally {

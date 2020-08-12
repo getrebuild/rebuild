@@ -241,7 +241,7 @@ public class SMSender {
 			log.setString("sendResult",
 					CommonsUtils.maxstr("ERR:" + StringUtils.defaultIfBlank(error, "Unknow"), 200));
 		}
-		Application.getCommonService().create(log);
+		Application.getCommonsService().create(log);
 	}
 	
 	/**
