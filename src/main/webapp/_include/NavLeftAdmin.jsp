@@ -24,7 +24,7 @@
 							</li>
 						</ul>
 					</li>
-					<li class="${param['activeNav'] == 'apis-manager' ? 'active' : ''}"><a href="${baseUrl}/admin/apis-manager"><i class="icon zmdi zmdi-key"></i><span>API 秘钥管理</span></a></li>
+					<li class="${param['activeNav'] == 'apis-manager' ? 'active' : ''} bosskey-show"><a href="${baseUrl}/admin/apis-manager"><i class="icon zmdi zmdi-key"></i><span>API 秘钥管理</span></a></li>
 					<li class="divider">业务/实体</li>
 					<li class="${param['activeNav'] == 'entities' ? 'active' : ''}"><a href="${baseUrl}/admin/entities"><i class="icon zmdi zmdi-widgets"></i><span>实体管理</span></a></li>
 					<li class="${param['activeNav'] == 'classifications' ? 'active' : ''}"><a href="${baseUrl}/admin/entityhub/classifications"><i class="icon zmdi zmdi-layers"></i><span>分类数据</span></a></li>
