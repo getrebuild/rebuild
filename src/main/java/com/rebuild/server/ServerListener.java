@@ -99,7 +99,6 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
      */
     public static void updateGlobalContextAttributes(ServletContext context) {
 		context.setAttribute("env", Application.devMode() ? "dev" : "production");
-		context.setAttribute("rbv", Application.rbvMode());
         context.setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
         context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), StringUtils.EMPTY));
         context.setAttribute("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));

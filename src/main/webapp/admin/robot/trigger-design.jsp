@@ -73,7 +73,31 @@
 											<span class="custom-control-label"> 审批撤销时 <i class="zmdi zmdi-help zicon down-1" title="审批通过后管理员可以撤销重审" data-toggle="tooltip"></i></span>
 										</label>
 									</div>
-									<c:if test="${rbv}"><jsp:include page="/admin/robot/TriggerByTimer.jsp" /></c:if>
+									<div class="mt-1">
+										<div>
+											<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+												<input class="custom-control-input" type="checkbox" value="512" onclick="_handle512Change()" />
+												<span class="custom-control-label"> 定期执行</span>
+											</label>
+										</div>
+										<div class="on-timers mt-1 hide">
+											<div class="input-group input-group-sm">
+												<select class="form-control form-control-sm J_whenTimer1">
+													<option value="D">每天</option>
+													<option value="M">每月</option>
+													<option value="H">每小时</option>
+												</select>
+												<div class="input-group-prepend input-group-append">
+													<span class="input-group-text">执行</span>
+												</div>
+												<input type="text" class="form-control form-control-sm text-center J_whenTimer2" placeholder="1" />
+												<div class="input-group-append">
+													<span class="input-group-text">次</span>
+												</div>
+											</div>
+											<p class="form-text">具体实行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00</p>
+										</div>
+									</div>
 								</div>
 							</div>
 							<div class="form-group row">

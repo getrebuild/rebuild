@@ -87,17 +87,17 @@ class UserSelectorWithField extends UserSelector {
 
   constructor(props) {
     super(props)
-    this.tabTypes.push(['FIELDS', '使用字段'])
+    this._useTabs.push(['FIELDS', '使用字段'])
   }
 
   componentDidMount() {
     super.componentDidMount()
 
-    this.__fields = []
+    this._fields = []
     $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity || wpc.sourceEntity}`, (res) => {
       $(res.data).each((idx, item) => {
         if (item.type === 'REFERENCE' && item.ref && BIZZ_ENTITIES.includes(item.ref[0])) {
-          this.__fields.push({ id: item.name, text: item.label })
+          this._fields.push({ id: item.name, text: item.label })
         }
       })
     })
@@ -108,16 +108,16 @@ class UserSelectorWithField extends UserSelector {
     if (type === 'FIELDS') {
       const q = this.state.query
       const ckey = type + '-' + q
-      this.setState({ tabType: type, items: this.cached[ckey] }, () => {
-        if (!this.cached[ckey]) {
+      this.setState({ tabType: type, items: this._cached[ckey] }, () => {
+        if (!this._cached[ckey]) {
           if (!q) {
-            this.cached[ckey] = this.__fields
+            this._cached[ckey] = this._fields
           } else {
             const fs = []
-            $(this.__fields).each(function () {
+            $(this._fields).each(function () {
               if (this.text.contains(q)) fs.push(this)
             })
-            this.cached[ckey] = fs
+            this._cached[ckey] = fs
           }
           this.switchTab(type)
         }
@@ -139,4 +139,9 @@ class ActionContentSpec extends React.Component {
   buildContent() {
     return false
   }
+}
+
+function _handle512Change() {
+  if ($(event.target).prop('checked')) $('.on-timers').removeClass('hide')
+  else $('.on-timers').addClass('hide')
 }

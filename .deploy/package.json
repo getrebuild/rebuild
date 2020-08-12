@@ -1,0 +1,31 @@
+{
+  "name": "rebuild-babel",
+  "version": "1.0.0",
+  "description": "rebuild js/jsx/css compiler",
+  "author": "rebuild",
+  "license": "GPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/getrebuild/rebuild.git"
+  },
+  "scripts": {
+    "build": "babel js/es6 -d js/es5"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-react": "^7.6.3",
+    "clean-css": "^4.2.1",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0",
+    "gulp-clean-css": "^3.10.0",
+    "gulp-debug": "^4.0.0",
+    "gulp-filter": "^6.0.0",
+    "gulp-replace": "^1.0.0",
+    "gulp-sequence": "^1.0.0",
+    "gulp-uglify": "^3.0.1",
+    "rev-hash": "^2.0.0"
+  }
+}

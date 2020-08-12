@@ -48,7 +48,7 @@ public abstract class DistributedJobBean extends QuartzJobBean {
      * @return
      */
     protected boolean isSafe() {
-        if (Application.rbvMode() && Application.getCommonCache().isUseRedis()) {
+        if (Application.getCommonCache().isUseRedis()) {
             JedisPool pool = Application.getCommonCache().getJedisPool();
             String jobKey = getClass().getName() + LOCK_KEY;
 

@@ -7,31 +7,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .bosskey-show,
 .dev-show,
-.admin-show,
-.rbv-show {
+.admin-show {
     display: none;
 }
 
 html.dev .dev-show,
-html.admin .admin-show,
-html.rbv .rbv-show {
+html.admin .admin-show {
     display: block;
 }
 
 html.dev .dev-show.inline,
-html.admin .admin-show.inline,
-html.rbv .rbv-show.inline {
+html.admin .admin-show.inline {
     display: inline-block;
 }
 
 html.dev .dev-show.row,
-html.admin .admin-show.row,
-html.rbv .rbv-show.row {
+html.admin .admin-show.row {
     display: flex;
-}
-
-html.rbv .rbv-hide {
-    display: none !important;
 }
 
 html,

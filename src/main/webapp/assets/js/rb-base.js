@@ -83,7 +83,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
 
   if (rb.env === 'dev') $('html').addClass('dev')
-  if (rb.rbv) $('html').addClass('rbv')
   setTimeout(function () {
     $(document.body).addClass('rb-animate')
   }, 1000)
