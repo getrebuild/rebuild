@@ -146,6 +146,6 @@ function release(cb) {
     })
 }
 
-exports.default = series(maven, parallel(compileJs, compileCss), compileJsp)
-exports.mvn = maven
+exports.default = series(parallel(compileJs, compileCss), compileJsp)
 exports.p = series(maven, parallel(compileJs, compileCss), compileJsp, release)
+exports.mvn = maven
