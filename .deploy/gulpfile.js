@@ -76,7 +76,8 @@ function compileJsp(cb) {
           if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
           return '<script src="' + file + '"></script>'
         } else {
-          file += '?v=' + _assetsHex(file.replace('.jsx', '.js').split('?')[0])
+          file = file.replace('.jsx', '.js').split('?')[0]
+          file += '?v=' + _assetsHex(file)
           return '<script src="' + file + '"></script>'
         }
       })
@@ -107,6 +108,22 @@ function compileJsp(cb) {
     )
 }
 
+function maven(cb) {
+  const pomfile = `${__dirname}/../pom.xml`
+  console.log('Using pom.xml : ' + pomfile)
+
+  const mvn = require('child_process').spawnSync(
+    process.platform === 'win32' ? 'mvn.cmd' : 'mvn',
+    ['clean', 'package', '-f', pomfile],
+    { stdio: 'inherit' })
+
+  if (mvn.status !== 0) {
+    process.stderr.write(mvn.stderr)
+    process.exit(mvn.status)
+  }
+  cb()
+}
+
 const RELEASE_HOME = 'D:/MAVEN2017/rebuild/for-production/rebuild-standalone/REBUILD'
 function release(cb) {
   return src('../target/rebuild/**')
@@ -129,5 +146,6 @@ function release(cb) {
     })
 }
 
-exports.default = series(parallel(compileJs, compileCss), compileJsp)
-exports.p = series(parallel(compileJs, compileCss), compileJsp, release)
+exports.default = series(maven, parallel(compileJs, compileCss), compileJsp)
+exports.mvn = maven
+exports.p = series(maven, parallel(compileJs, compileCss), compileJsp, release)

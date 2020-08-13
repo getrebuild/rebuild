@@ -1,5 +1,5 @@
 {
-  "name": "rebuild-compiler",
+  "name": "rebuild-gulp",
   "version": "1.0.0",
   "description": "rebuild js/jsx/css compiler",
   "main": "index.js",
@@ -12,7 +12,7 @@
     "type": "git",
     "url": "https://github.com/getrebuild/rebuild.git"
   },
-  "devDependencies": {
+  "dependencies": {
     "@babel/core": "^7.11.1",
     "@babel/preset-env": "^7.11.0",
     "@babel/preset-react": "^7.10.4",
