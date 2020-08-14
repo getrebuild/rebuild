@@ -235,7 +235,7 @@ public class ApiGateway extends Controll {
 			record.setString("responseBody", CommonsUtils.maxstr(result.toJSONString(), 10000));
 			record.setDate("requestTime", requestTime);
 			record.setDate("responseTime", CalendarUtils.now());
-			Application.getCommonService().create(record, false);
+			Application.getCommonsService().create(record, false);
 		});
 	}
 

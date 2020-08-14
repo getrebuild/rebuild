@@ -135,7 +135,7 @@
 		<aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice" />
 	</aop:config>
 	
-	<bean class="com.rebuild.server.service.CommonService">
+	<bean class="com.rebuild.server.service.CommonsService">
 		<constructor-arg index="0" ref="persistManagerFactory" />
 	</bean>
 	

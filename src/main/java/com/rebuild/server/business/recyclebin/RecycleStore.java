@@ -113,7 +113,7 @@ public class RecycleStore {
             if (o[2] != null) {
                 clone.setID("channelWith", (ID) o[2]);
             }
-            Application.getCommonService().create(clone);
+            Application.getCommonsService().create(clone);
             affected++;
         }
 

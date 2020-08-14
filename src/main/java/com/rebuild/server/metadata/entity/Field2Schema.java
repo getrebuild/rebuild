@@ -89,7 +89,7 @@ public class Field2Schema {
 		
 		boolean schemaReady = schema2Database(entity, new Field[] { field });
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
+			Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
 			throw new ModifiyMetadataException("无法创建字段到数据库");
 		}
 		
@@ -275,7 +275,7 @@ public class Field2Schema {
 			throw new ModifiyMetadataException("引用字段必须指定引用实体");
 		}
 
-		recordOfField = Application.getCommonService().create(recordOfField);
+		recordOfField = Application.getCommonsService().create(recordOfField);
 		tempMetaId.add(recordOfField.getPrimary());
 
 		// 以下会改变一些属性，因为并不想他们保存在元数据中

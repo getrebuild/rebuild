@@ -23,18 +23,7 @@ import org.springframework.util.Assert;
  * @see MetadataHelper
  */
 public class EntityHelper {
-	
-	/**
-	 * 实体是否具有权限字段
-	 * 
-	 * @param entity
-	 * @return
-	 * @see MetadataHelper#hasPrivilegesField(Entity)
-	 */
-	public static boolean hasPrivilegesField(Entity entity) {
-		return MetadataHelper.hasPrivilegesField(entity);
-	}
-	
+
 	/**
 	 * @param data
 	 * @param user
@@ -55,9 +44,9 @@ public class EntityHelper {
 			entityName = MetadataHelper.getEntityName(ID.valueOf(id));
 		}
 
-		ExtRecordCreator creator = new ExtRecordCreator(MetadataHelper.getEntity(entityName), data, user);
+		EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
 		Record record = creator.create(false);
-		ExtRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
+		EntityRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
 		return record;
 	}
 
@@ -84,7 +73,7 @@ public class EntityHelper {
 		Record record = new StandardRecord(entity, user);
 		record.setID(entity.getPrimaryField().getName(), recordId);
 		if (bindCommons) {
-			ExtRecordCreator.bindCommonsFieldsValue(record, false);
+			EntityRecordCreator.bindCommonsFieldsValue(record, false);
 		}
 		return record;
 	}
@@ -117,7 +106,7 @@ public class EntityHelper {
 		Assert.notNull(user, "[user] not be bull");
 
 		Record record = new StandardRecord(entity, user);
-		ExtRecordCreator.bindCommonsFieldsValue(record, true);
+		EntityRecordCreator.bindCommonsFieldsValue(record, true);
 		return record;
 	}
 	

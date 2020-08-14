@@ -44,7 +44,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 		Entity entityMeta = MetadataHelper.getEntity(entity);
 		putEntityMeta(mv, entityMeta);
 		
-		if (EntityHelper.hasPrivilegesField(entityMeta)) {
+		if (MetadataHelper.hasPrivilegesField(entityMeta)) {
 			Privileges priv = Application.getPrivilegesManager().getPrivileges(user, entityMeta.getEntityCode());
 			Permission[] actions = new Permission[] {
 					BizzPermission.CREATE,
@@ -82,7 +82,7 @@ public abstract class BaseEntityControll extends BasePageControll {
 		if (entity.getMasterEntity() != null) {
 			entity = entity.getMasterEntity();
 		}
-		if (EntityHelper.hasPrivilegesField(entity)) {
+		if (MetadataHelper.hasPrivilegesField(entity)) {
 			Permission[] actions = new Permission[] {
 					BizzPermission.CREATE,
 					BizzPermission.DELETE,

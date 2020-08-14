@@ -105,7 +105,7 @@ public class FormDesignControll extends BasePageControll implements PortalsConfi
 			}
 
 			if (!willUpdate.isEmpty()) {
-				Application.getCommonService().createOrUpdate(willUpdate.toArray(new Record[0]), false);
+				Application.getCommonsService().createOrUpdate(willUpdate.toArray(new Record[0]), false);
 				MetadataHelper.getMetadataFactory().refresh(false);
 			}
 		}

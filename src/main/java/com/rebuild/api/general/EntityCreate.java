@@ -17,7 +17,7 @@ import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.server.Application;
-import com.rebuild.server.metadata.ExtRecordCreator;
+import com.rebuild.server.metadata.EntityRecordCreator;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.utils.JSONUtils;
@@ -45,7 +45,7 @@ public class EntityCreate extends BaseApi {
             throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity : " + useEntity.getName());
         }
 
-        Record recordNew = new ExtRecordCreator(
+        Record recordNew = new EntityRecordCreator(
                 useEntity, (JSONObject) context.getPostData(), context.getBindUser(), true)
                 .create();
         if (recordNew.getPrimary() != null) {
@@ -69,7 +69,7 @@ public class EntityCreate extends BaseApi {
      */
     protected Entity getUseEntity(ApiContext context) {
         JSONObject data = (JSONObject) context.getPostData();
-        JSONObject metadata = data.getJSONObject(ExtRecordCreator.META_FIELD);
+        JSONObject metadata = data.getJSONObject(EntityRecordCreator.META_FIELD);
 
         final String useEntity = metadata == null ? null : metadata.getString("entity");
         if (metadata == null || useEntity == null) {

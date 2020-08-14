@@ -53,7 +53,7 @@ public class AutoFillinManagerTest extends TestSupportWithUser {
 		config.setString("sourceField", "TEXT");
 		config.setString("targetField", "TEXT");
 		config.setString("extConfig", "{'whenCreate':true,'whenUpdate':true,'fillinForce':true}");
-		config = Application.getCommonService().create(config, false);
+		config = Application.getCommonsService().create(config, false);
 
 		try {
 			Entity test = MetadataHelper.getEntity(TEST_ENTITY);
@@ -62,7 +62,7 @@ public class AutoFillinManagerTest extends TestSupportWithUser {
 			JSONArray fills = AutoFillinManager.instance.getFillinValue(test.getField(setField), recordId);
 			System.out.println("Fills : " + fills);
 		} finally {
-			Application.getCommonService().delete(config.getPrimary(), false);
+			Application.getCommonsService().delete(config.getPrimary(), false);
 		}
 
 	}

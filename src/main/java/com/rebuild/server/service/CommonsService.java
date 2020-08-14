@@ -27,9 +27,9 @@ import org.springframework.util.Assert;
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
-public class CommonService extends BaseService {
+public class CommonsService extends BaseService {
 
-	protected CommonService(PersistManagerFactory aPMFactory) {
+	protected CommonsService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
 
@@ -180,7 +180,7 @@ public class CommonService extends BaseService {
 			entity = entity.getMasterEntity();
 		}
 
-		if (EntityHelper.hasPrivilegesField(entity)) {
+		if (MetadataHelper.hasPrivilegesField(entity)) {
 			throw new PrivilegesException("Privileges entity cannot use this class (methods) : " + entity.getName());
 		}
 	}

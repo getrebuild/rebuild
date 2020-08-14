@@ -18,7 +18,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.server.service.CommonService;
+import com.rebuild.server.service.CommonsService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
@@ -146,7 +146,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @return
 	 */
 	private boolean isGuardMethod(MethodInvocation invocation) {
-		if (CommonService.class.isAssignableFrom(invocation.getThis().getClass())) {
+		if (CommonsService.class.isAssignableFrom(invocation.getThis().getClass())) {
 			return false;
 		}
 		String action = invocation.getMethod().getName();

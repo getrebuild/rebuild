@@ -50,7 +50,7 @@ public class FileManagerControll extends BaseControll {
             }
             fileRecords.add(r);
         }
-        Application.getCommonService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
+        Application.getCommonsService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
 
         writeSuccess(response);
     }
@@ -73,7 +73,7 @@ public class FileManagerControll extends BaseControll {
 
             willDeletes.add(fileId);
         }
-        Application.getCommonService().delete(willDeletes.toArray(new ID[0]));
+        Application.getCommonsService().delete(willDeletes.toArray(new ID[0]));
 
         writeSuccess(response);
     }
@@ -103,7 +103,7 @@ public class FileManagerControll extends BaseControll {
             }
             fileRecords.add(r);
         }
-        Application.getCommonService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
+        Application.getCommonsService().createOrUpdate(fileRecords.toArray(new Record[0]), false);
         writeSuccess(response);
     }
 

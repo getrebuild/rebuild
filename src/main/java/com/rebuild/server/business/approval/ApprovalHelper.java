@@ -48,16 +48,26 @@ public class ApprovalHelper {
 
     /**
      * @param recordId
-     * @return Returns [ApprovalId, ApprovalName, ApprovalState, ApprovalStepNode]
+     * @return
      * @throws NoRecordFoundException
      */
-    public static Object[] getApprovalState(ID recordId) throws NoRecordFoundException {
+    public static ApprovalStatus getApprovalStatus(ID recordId) throws NoRecordFoundException {
         Object[] o = Application.getQueryFactory().uniqueNoFilter(recordId,
                 EntityHelper.ApprovalId, EntityHelper.ApprovalId + ".name", EntityHelper.ApprovalState, EntityHelper.ApprovalStepNode);
         if (o == null) {
             throw new NoRecordFoundException("记录不存在或你无权查看");
         }
-        return o;
+        return new ApprovalStatus((ID) o[0], (String) o[1], (Integer) o[2], (String) o[3], recordId);
+    }
+
+    /**
+     * @param recordId
+     * @return
+     * @throws NoRecordFoundException
+     * @see #getApprovalStatus(ID)
+     */
+    public static ApprovalState getApprovalState(ID recordId) throws NoRecordFoundException {
+        return getApprovalStatus(recordId).getCurrentState();
     }
 
     /**

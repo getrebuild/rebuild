@@ -18,7 +18,6 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -69,18 +68,14 @@ public class ApprovalControll extends BasePageControll {
 	public void getApprovalState(HttpServletRequest request, HttpServletResponse response) {
 		final ID user = getRequestUser(request);
 		final ID recordId = getIdParameterNotNull(request, "record");
+		final ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
 
-		Object[] state = ApprovalHelper.getApprovalState(recordId);
-		if (state == null) {
-			writeFailure(response, "无效记录");
-			return;
-		}
-		
 		Map<String, Object> data = new HashMap<>();
 
-		int stateVal = ObjectUtils.toInt(state[2], ApprovalState.DRAFT.getState());
+		int stateVal = status.getCurrentState().getState();
 		data.put("state", stateVal);
-		ID useApproval = (ID) state[0];
+
+		ID useApproval = status.getApprovalId();
 		if (useApproval != null) {
 			data.put("approvalId", useApproval);
 			// 当前审批步骤

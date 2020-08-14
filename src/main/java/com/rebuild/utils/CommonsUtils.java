@@ -11,11 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -101,24 +97,6 @@ public class CommonsUtils {
 		}
 		String escape = StringEscapeUtils.escapeHtml(text.toString());
 		return escape.replace("&gt;", ">");  // `>` for MD
-	}
-
-	private static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._]+)}");
-	/**
-	 * 提取内容中的变量 {xxx}
-	 * @param content
-	 * @return
-	 */
-	public static Set<String> matchsVars(String content) {
-		if (StringUtils.isBlank(content)) return Collections.emptySet();
-
-		Set<String> vars = new HashSet<>();
-		Matcher m = PATT_VAR.matcher(content);
-		while (m.find()) {
-			String varName = m.group(1);
-			if (StringUtils.isNotBlank(varName)) vars.add(varName);
-		}
-		return vars;
 	}
 
 	/**

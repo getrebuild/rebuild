@@ -12,17 +12,19 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author devezhao
  * @since 2020/6/5
  */
 public class ContentWithFieldVars {
+
+    private static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._]+)}");
 
     /**
      * 替换文本中的字段变量
@@ -38,9 +40,9 @@ public class ContentWithFieldVars {
 
         Map<String, String> fieldVars = new HashMap<>();
         Entity entity = MetadataHelper.getEntity(record.getEntityCode());
-        for (String name : CommonsUtils.matchsVars(content)) {
-            if (MetadataHelper.checkAndWarnField(entity, name)) {
-                fieldVars.put(name, null);
+        for (String field : matchsVars(content)) {
+            if (MetadataHelper.getLastJoinField(entity, field) != null) {
+                fieldVars.put(field, null);
             }
         }
 
@@ -65,5 +67,25 @@ public class ContentWithFieldVars {
             content = content.replace("{" + e.getKey() + "}", StringUtils.defaultIfBlank(e.getValue(), StringUtils.EMPTY));
         }
         return content;
+    }
+
+
+    /**
+     * 提取内容中的变量 {xxx}
+     * @param content
+     * @return
+     */
+    public static Set<String> matchsVars(String content) {
+        if (StringUtils.isBlank(content)) {
+            return Collections.emptySet();
+        }
+
+        Set<String> vars = new HashSet<>();
+        Matcher m = PATT_VAR.matcher(content);
+        while (m.find()) {
+            String varName = m.group(1);
+            if (StringUtils.isNotBlank(varName)) vars.add(varName);
+        }
+        return vars;
     }
 }

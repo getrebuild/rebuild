@@ -72,7 +72,7 @@ public class ClassificationImporterTest extends TestSupportWithMVC {
 		if (lastAdded == null) {
 			Record record = EntityHelper.forNew(EntityHelper.Classification, UserService.ADMIN_USER);
 			record.setString("name", "测试" + System.currentTimeMillis());
-			record = Application.getCommonService().create(record);
+			record = Application.getCommonsService().create(record);
 			lastAdded = record.getPrimary();
 		}
 		System.out.println("Mock Classification : " + lastAdded);

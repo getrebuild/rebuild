@@ -56,6 +56,15 @@
 		<property name="cronExpression" value="0 * * * * ?" />
 	</bean>
 
+	<bean id="triggerByTimerJob" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<bean class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+				<property name="jobClass" value="com.rebuild.server.business.trigger.impl.TriggerByTimerJob" />
+			</bean>
+		</property>
+		<property name="cronExpression" value="0 * * * * ?" />
+	</bean>
+
 	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="autoStartup" value="true" />
 		<property name="startupDelay" value="30" />
@@ -67,6 +76,7 @@
 				<ref bean="recycleBinCleanerJob" />
 				<ref bean="perHourJob" />
 				<ref bean="feedsScheduleJob" />
+				<ref bean="triggerByTimerJob" />
 			</list>
 		</property>
 	</bean>

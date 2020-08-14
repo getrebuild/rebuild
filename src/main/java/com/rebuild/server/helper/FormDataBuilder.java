@@ -22,7 +22,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.metadata.ExtRecordCreator;
+import com.rebuild.server.metadata.EntityRecordCreator;
 import com.rebuild.server.metadata.MetadataHelper;
 
 /**
@@ -75,7 +75,7 @@ public class FormDataBuilder {
         if (record != null) {
             metadata.put("id", record.toLiteral());
         }
-        this.data.put(ExtRecordCreator.META_FIELD, metadata);
+        this.data.put(EntityRecordCreator.META_FIELD, metadata);
     }
 
     /**
@@ -100,9 +100,9 @@ public class FormDataBuilder {
     /**
      * @param editor
      * @return
-     * @see ExtRecordCreator
+     * @see EntityRecordCreator
      */
     public Record buildRecord(ID editor) {
-        return new ExtRecordCreator(this.entity, this.build(), editor).create();
+        return new EntityRecordCreator(this.entity, this.build(), editor).create();
     }
 }

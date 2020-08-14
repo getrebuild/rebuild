@@ -339,7 +339,7 @@ public class GeneralOperatingControll extends BaseControll {
 		final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		String sql = "select createdOn,modifiedOn from %s where %s = '%s'";
-		if (EntityHelper.hasPrivilegesField(entity)) {
+		if (MetadataHelper.hasPrivilegesField(entity)) {
 			sql = sql.replaceFirst("modifiedOn", "modifiedOn,owningUser");
 		}
 		

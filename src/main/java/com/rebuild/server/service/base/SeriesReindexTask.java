@@ -62,7 +62,7 @@ public class SeriesReindexTask extends HeavyTask<Integer> {
                 Record record = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
                 String series = SeriesGeneratorFactory.generate(field);
                 record.setString(field.getName(), series);
-                Application.getCommonService().update(record, false);
+                Application.getCommonsService().update(record, false);
                 this.addSucceeded();
 
             } finally {

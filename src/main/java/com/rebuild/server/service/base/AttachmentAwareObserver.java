@@ -60,7 +60,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
 		}
 		if (creates.isEmpty()) return;
 
-		Application.getCommonService().createOrUpdate(creates.toArray(new Record[0]), false);
+		Application.getCommonsService().createOrUpdate(creates.toArray(new Record[0]), false);
 	}
 	
 	@Override
@@ -112,7 +112,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
 		}
 		if (creates.isEmpty() && deletes.isEmpty()) return;
 
-		Application.getCommonService().createOrUpdateAndDelete(
+		Application.getCommonsService().createOrUpdateAndDelete(
 				creates.toArray(new Record[0]), deletes.toArray(new ID[0]), false);
 	}
 	
@@ -143,7 +143,7 @@ public class AttachmentAwareObserver extends OperatingObserver {
 			}
 		}
 
-		Application.getCommonService().createOrUpdateAndDelete(
+		Application.getCommonsService().createOrUpdateAndDelete(
 				updates.toArray(new Record[0]), deletes.toArray(new ID[0]), false);
 	}
 

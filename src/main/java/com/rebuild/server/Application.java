@@ -28,7 +28,7 @@ import com.rebuild.server.helper.cache.CommonCache;
 import com.rebuild.server.helper.cache.RecordOwningCache;
 import com.rebuild.server.helper.setup.UpgradeDatabase;
 import com.rebuild.server.metadata.DynamicMetadataFactory;
-import com.rebuild.server.service.CommonService;
+import com.rebuild.server.service.CommonsService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.SQLExecutor;
 import com.rebuild.server.service.ServiceSpec;
@@ -93,9 +93,7 @@ public final class Application {
 	private static boolean debugMode = false;
 	// 服务启动正常
 	private static boolean serversReady = false;
-	// RBV Module
-	private static boolean loadedRbvModule = false;
-	
+
 	// SPRING
 	private static ApplicationContext APPLICATION_CTX;
 	// 实体对应的服务类
@@ -121,13 +119,6 @@ public final class Application {
 		if (!serversReady) {
 		    LOG.fatal(formatBootMsg("REBUILD BOOTING FAILURE DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
 			return;
-		}
-
-		try {
-			Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").newInstance();
-			LOG.info("Loaded " + RBV);
-			loadedRbvModule = true;
-		} catch (Exception ignore) {
 		}
 
 		try {
@@ -220,14 +211,6 @@ public final class Application {
 		return BooleanUtils.toBoolean(System.getProperty("rbdev")) || debugMode;
 	}
 
-	/**
-	 * 是否商业授权
-	 * @return
-	 */
-	public static boolean rbvMode() {
-		return loadedRbvModule && (BooleanUtils.toBoolean(System.getProperty("rbv")) || License.isCommercial());
-	}
-	
 	/**
 	 * 各项服务是否正常启动
 	 * @return
@@ -388,8 +371,8 @@ public final class Application {
 	/**
 	 * @return
 	 */
-	public static CommonService getCommonService() {
-		return getBean(CommonService.class);
+	public static CommonsService getCommonsService() {
+		return getBean(CommonsService.class);
 	}
 
     /**

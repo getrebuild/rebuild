@@ -89,7 +89,7 @@ public class ApiGatewayTest extends TestSupportWithMVC {
                 .add("appSecret", appSecret)
                 .add("bindUser", UserService.SYSTEM_USER)
                 .buildRecord(UserService.SYSTEM_USER);
-        Application.getCommonService().create(record, false);
+        Application.getCommonsService().create(record, false);
 
         RebuildApiManager.instance.clean(appId);
         return new String[] { appId, appSecret };
