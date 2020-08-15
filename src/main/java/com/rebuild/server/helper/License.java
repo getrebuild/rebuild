@@ -75,8 +75,8 @@ public final class License {
      * @return
      */
     public static boolean isCommercial() {
-        JSONObject result = siteApi("api/authority/query", true);
-        return result != null && StringUtils.contains(result.getString("authType") , "开源");
+        JSONObject auth = siteApi("api/authority/query", true);
+        return auth != null && !auth.getString("authType").contains("开源");
     }
 
     /**
