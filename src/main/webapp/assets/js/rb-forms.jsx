@@ -506,6 +506,7 @@ class RbFormNumber extends RbFormText {
 
   constructor(props) {
     super(props)
+    if (this.state.value) this.state.value = (this.state.value + '').replace(/,/g, '')
   }
 
   isValueError() {
@@ -533,6 +534,7 @@ class RbFormDecimal extends RbFormNumber {
 
   constructor(props) {
     super(props)
+    if (this.state.value) this.state.value = (this.state.value + '').replace(/,/g, '')
   }
 
   isValueError() {
