@@ -123,7 +123,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @throws ApprovalException
 	 */
 	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers) throws ApprovalException {
-		approve(approver, state, remark, selectNextUsers, null);
+		approve(approver, state, remark, selectNextUsers, null, null);
 	}
 
 	/**
@@ -134,9 +134,10 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 * @param remark
 	 * @param selectNextUsers
 	 * @param addedData
+	 * @param checkUseGroup
 	 * @throws ApprovalException
 	 */
-	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData) throws ApprovalException {
+	public void approve(ID approver, ApprovalState state, String remark, JSONObject selectNextUsers, Record addedData, String checkUseGroup) throws ApprovalException {
 		final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
 		ApprovalState currentState = status.getCurrentState();
 		if (currentState != ApprovalState.PROCESSING) {
@@ -181,7 +182,7 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 
 		FlowNode currentNode = getFlowParser().getNode((String) stepApprover[2]);
 		Application.getBean(ApprovalStepService.class)
-				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData);
+				.txApprove(approvedStep, currentNode.getSignMode(), ccs, nextApprovers, nextNode, addedData, checkUseGroup);
 
 		// 非主事物
 		shareIfNeed(this.record, ccs4share);
@@ -456,18 +457,13 @@ public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
 	 *
 	 * @param recordId
 	 * @param shareTo
-	 * @return
 	 */
-	private int shareIfNeed(ID recordId, Set<ID> shareTo) {
+	private void shareIfNeed(ID recordId, Set<ID> shareTo) {
 		final EntityService es = Application.getEntityService(recordId.getEntityCode());
-
-		int shared = 0;
 		for (ID user : shareTo) {
 			if (!Application.getPrivilegesManager().allowRead(user, recordId)) {
 				es.share(recordId, user, null);
-				shared++;
 			}
 		}
-		return shared;
 	}
 }

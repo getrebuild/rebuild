@@ -120,7 +120,7 @@
 			<tx:method name="share*"   propagation="REQUIRED" no-rollback-for="DataSpecificationNoRollbackException" />
 			<tx:method name="unshare*" propagation="REQUIRED" no-rollback-for="DataSpecificationNoRollbackException" />
 			<tx:method name="bulk*"    propagation="REQUIRED" no-rollback-for="DataSpecificationNoRollbackException" />
-			<tx:method name="tx*"      propagation="REQUIRED" />
+			<tx:method name="tx*"      propagation="REQUIRED" no-rollback-for="DataSpecificationNoRollbackException" />
             <tx:method name="*"        propagation="SUPPORTS" />
 		</tx:attributes>
 	</tx:advice>
