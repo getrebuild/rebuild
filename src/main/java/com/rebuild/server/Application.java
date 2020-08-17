@@ -63,7 +63,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.11.0-dev";
+	public static final String VER = "1.11.0";
 	/** Rebuild Build
 	 */
 	public static final int BUILD = 11100;
