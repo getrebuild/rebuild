@@ -1376,6 +1376,7 @@ class ReferenceSearcher extends RbModal {
 
   componentDidMount() {
     super.componentDidMount()
+    // eslint-disable-next-line no-unused-vars
     referenceSearch__dialog = this
   }
 }
