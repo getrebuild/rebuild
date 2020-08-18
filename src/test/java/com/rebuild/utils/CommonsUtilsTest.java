@@ -7,20 +7,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import cn.devezhao.commons.excel.Cell;
+import cn.devezhao.commons.CalendarUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
-import com.rebuild.server.helper.SysConfiguration;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -53,18 +50,6 @@ public class CommonsUtilsTest {
 		for (String t : ts) {
 			System.out.println(t + " > " + CommonsUtils.stars(t));
 		}
-	}
-
-	@Test
-	public void testGet() throws Exception {
-		String ret = CommonsUtils.get("https://ipapi.co/58.39.87.252/json/");
-		System.out.println(JSONUtils.prettyPrint(JSON.parse(ret)));
-	}
-
-	@Test
-	public void testPost() throws Exception {
-		String ret = CommonsUtils.post("http://ip-api.com/json/58.39.87.252", null);
-		System.out.println(JSONUtils.prettyPrint(JSON.parse(ret)));
 	}
 	
 	@Ignore
@@ -113,25 +98,7 @@ public class CommonsUtilsTest {
 	}
 
 	@Test
-	public void readExcel() throws Exception {
-		List<Cell[]> rows = CommonsUtils.readExcel(
-				ResourceUtils.getFile("classpath:dataimports-test.xlsx"));
-		for (Cell[] row : rows) {
-			System.out.println(StringUtils.join(row, " | "));
-		}
-
-		rows = CommonsUtils.readExcel(
-				ResourceUtils.getFile("classpath:dataimports-test.xls"));
-		for (Cell[] row : rows) {
-			System.out.println(StringUtils.join(row, " | "));
-		}
+	public void formatClientDate() {
+		System.out.println(CommonsUtils.formatClientDate(CalendarUtils.now()));
 	}
-
-	@Test
-    public void zip() throws Exception {
-	    File file = ResourceUtils.getFile("classpath:metadata-conf.xml");
-	    File dest = SysConfiguration.getFileOfTemp(file.getName() + ".zip");
-	    CommonsUtils.zip(file, dest);
-	    System.out.println("Zip to : " + dest);
-    }
 }

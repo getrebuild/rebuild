@@ -26,17 +26,17 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * 查询过滤器
+ * 基于角色权限的查询过滤器
  * 
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-21
  */
-public class EntityQueryFilter implements Filter, QueryFilter {
+public class RoleBaseQueryFilter implements Filter, QueryFilter {
 	private static final long serialVersionUID = -7388577069739389698L;
 
 	/**
 	 * 总是拒绝 */
-	public static final Filter DENIED = new EntityQueryFilter() {
+	public static final Filter DENIED = new RoleBaseQueryFilter() {
 		private static final long serialVersionUID = -1841438304452108874L;
 		@Override
         public String evaluate(Entity entity) {
@@ -46,7 +46,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	
 	/**
 	 * 总是允许 */
-	public static final Filter ALLOWED = new EntityQueryFilter() {
+	public static final Filter ALLOWED = new RoleBaseQueryFilter() {
 		private static final long serialVersionUID = -1300184338130890817L;
 		@Override
         public String evaluate(Entity entity) {
@@ -54,7 +54,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		}
 	};
 	
-	private EntityQueryFilter() {
+	private RoleBaseQueryFilter() {
 		this.user = null;
 		this.specAction = null;
 	}
@@ -64,11 +64,11 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 	final private User user;
 	final private Permission specAction;
 	
-	protected EntityQueryFilter(User user) {
+	protected RoleBaseQueryFilter(User user) {
 		this(user, BizzPermission.READ);
 	}
 	
-	protected EntityQueryFilter(User user, Permission specAction) {
+	protected RoleBaseQueryFilter(User user, Permission specAction) {
 		this.user = user;
 		this.specAction = specAction;
 	}
@@ -87,7 +87,7 @@ public class EntityQueryFilter implements Filter, QueryFilter {
 		}
 
 		Entity useMaster = null;
-		if (!EntityHelper.hasPrivilegesField(entity)) {
+		if (!MetadataHelper.hasPrivilegesField(entity)) {
 			// NOTE BIZZ 实体全部用户可见
 			if (MetadataHelper.isBizzEntity(entity.getEntityCode()) || EasyMeta.valueOf(entity).isPlainEntity()) {
 				return ALLOWED.evaluate(null);

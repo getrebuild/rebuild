@@ -241,6 +241,7 @@ public class MetadataHelper {
 	 *
 	 * @param fieldName
 	 * @return
+	 * @see #hasApprovalField(Entity)
 	 */
 	public static boolean isApprovalField(String fieldName) {
 		return EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)
@@ -271,6 +272,24 @@ public class MetadataHelper {
 	}
 
 	/**
+	 * @param entityCode
+	 * @return
+	 * @see EasyMeta#isPlainEntity()
+	 */
+	public static boolean isPlainEntity(int entityCode) {
+		return EasyMeta.valueOf(entityCode).isPlainEntity();
+	}
+
+	/**
+	 * @param entityName
+	 * @return
+	 * @see EasyMeta#isPlainEntity()
+	 */
+	public static boolean isPlainEntity(String entityName) {
+		return EasyMeta.valueOf(entityName).isPlainEntity();
+	}
+
+	/**
 	 * 实体是否具备权限字段（业务实体）
 	 *
 	 * @param entity
@@ -278,6 +297,16 @@ public class MetadataHelper {
 	 */
 	public static boolean hasPrivilegesField(Entity entity) {
 		return  entity.containsField(EntityHelper.OwningUser) && entity.containsField(EntityHelper.OwningDept);
+	}
+
+	/**
+	 * 实体启用了具备审批流程
+	 *
+	 * @param entity
+	 * @return
+	 */
+	public static boolean hasApprovalField(Entity entity) {
+		return  entity.containsField(EntityHelper.ApprovalId) && entity.containsField(EntityHelper.ApprovalState);
 	}
 
 	/**

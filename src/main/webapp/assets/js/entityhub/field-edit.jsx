@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const wpc = window.__PageConfig
 const __gExtConfig = {}
 
+const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
+
 $(document).ready(function () {
   const dt = wpc.fieldType
   const extConfig = wpc.extConfig
@@ -18,13 +20,12 @@ $(document).ready(function () {
       fieldLabel: $val('#fieldLabel'),
       comments: $val('#comments'),
       nullable: $val('#fieldNullable'),
+      creatable: $val('#fieldCreatable'),
       updatable: $val('#fieldUpdatable'),
       repeatable: $val('#fieldRepeatable')
     }
-    if (_data.fieldLabel === '') {
-      RbHighbar.create('请输入字段名称')
-      return
-    }
+
+    if (_data.fieldLabel === '') return RbHighbar.create('请输入字段名称')
 
     const dv = $val('#defaultValue')
     if (dv) {
@@ -54,19 +55,33 @@ $(document).ready(function () {
       return
     }
 
-    _data.metadata = { entity: 'MetaField', id: wpc.metaId }
-    $btn.button('loading')
-    $.post('/admin/entity/field-update', JSON.stringify(_data), function (res) {
-      if (res.error_code === 0) {
-        location.href = '../fields'
-      } else {
-        $btn.button('reset')
-        RbHighbar.error(res.error_msg)
-      }
-    })
+    const save = function () {
+      _data.metadata = { entity: 'MetaField', id: wpc.metaId }
+      $btn.button('loading')
+      $.post('/admin/entity/field-update', JSON.stringify(_data), function (res) {
+        if (res.error_code === 0) {
+          location.href = '../fields'
+        } else {
+          $btn.button('reset')
+          RbHighbar.error(res.error_msg)
+        }
+      })
+    }
+
+    if ($('#fieldNullable').prop('checked') === false && $('#fieldCreatable').prop('checked') === false) {
+      RbAlert.create('同时设置不允许为空和不允许创建可能导致新建记录失败。是否仍要保存？', {
+        confirm: function () {
+          this.disabled(true)
+          save()
+        }
+      })
+    } else {
+      save()
+    }
   })
 
   $('#fieldNullable').attr('checked', $('#fieldNullable').data('o') === true)
+  $('#fieldCreatable').attr('checked', $('#fieldCreatable').data('o') === true)
   $('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') === true)
   $('#fieldRepeatable').attr('checked', $('#fieldRepeatable').data('o') === true)
 
@@ -100,10 +115,10 @@ $(document).ready(function () {
     $('.J_picklist-edit').click(() =>
       RbModal.create(`${rb.baseUrl}/admin/p/entityhub/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, '配置选项'))
   }
-  // 自增
+  // 自动编号
   else if (dt === 'SERIES') {
     $('#defaultValue').parents('.form-group').remove()
-    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
+    $('.J_options input').attr('disabled', true)
 
     $('.J_series-reindex').click(() => {
       RbAlert.create('此操作将为空字段补充编号（空字段过多耗时会较长）。是否继续？', {
@@ -120,20 +135,8 @@ $(document).ready(function () {
   // 日期时间
   else if (dt === 'DATE' || dt === 'DATETIME') {
     $('#defaultValue').datetimepicker({
-      componentIcon: 'zmdi zmdi-calendar',
-      navIcons: {
-        rightIcon: 'zmdi zmdi-chevron-right',
-        leftIcon: 'zmdi zmdi-chevron-left'
-      },
       format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
       minView: dt === 'DATE' ? 2 : 0,
-      weekStart: 1,
-      autoclose: true,
-      language: 'zh',
-      todayHighlight: false,
-      showMeridian: false,
-      keyboardNavigation: false,
-      minuteStep: 5
     })
     $('#defaultValue').next().removeClass('hide').find('button').click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
   }
@@ -170,25 +173,24 @@ $(document).ready(function () {
   }
   // 条形码
   else if (dt === 'BARCODE') {
-    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable').attr('disabled', true)
+    $('.J_options input').attr('disabled', true)
   }
 
-  // 重复值选项
-  if ((dt === 'TEXT' || dt === 'DATE' || dt === 'DATETIME' || dt === 'EMAIL' || dt === 'URL' || dt === 'PHONE' || dt === 'REFERENCE' || dt === 'SERIES')
-    && wpc.fieldName !== 'approvalId') {
+  // 显示重复值选项
+  if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
     $('#fieldRepeatable').parents('.custom-control').removeClass('hide')
   }
 
   // 内建字段
   if (wpc.fieldBuildin) {
-    $('#fieldNullable, #fieldUpdatable, #fieldRepeatable, .footer .J_action .J_del').attr('disabled', true)
+    $('.J_options input, .J_del').attr('disabled', true)
     if (wpc.isSlaveToMasterField) {
-      $('.footer .J_action').removeClass('hide')
+      $('.J_action').removeClass('hide')
     } else {
       $('.footer .alert').removeClass('hide')
     }
   } else {
-    $('.footer .J_action').removeClass('hide')
+    $('.J_action').removeClass('hide')
   }
 
   $('.J_del').click(function () {
@@ -251,14 +253,14 @@ class AdvDateDefaultValue extends RbAlert {
             <select className="form-control form-control-sm" ref={(c) => this._refs[0] = c}>
               <option value="NOW">当前日期</option>
             </select>
-            <select className="form-control form-control-sm" ref={(c) => this._refs[1] = c}
+            <select className="form-control form-control-sm ml-1" ref={(c) => this._refs[1] = c}
               onChange={(e) => this.setState({ uncalc: !e.target.value })}>
               <option value="">不计算</option>
               <option value="+">加上</option>
               <option value="-">减去</option>
             </select>
-            <input type="number" min="1" max="999999" className="form-control form-control-sm" defaultValue="1" disabled={this.state.uncalc} ref={(c) => this._refs[2] = c} />
-            <select className="form-control form-control-sm" disabled={this.state.uncalc} ref={(c) => this._refs[3] = c}>
+            <input type="number" min="1" max="999999" className="form-control form-control-sm ml-1" defaultValue="1" disabled={this.state.uncalc} ref={(c) => this._refs[2] = c} />
+            <select className="form-control form-control-sm ml-1" disabled={this.state.uncalc} ref={(c) => this._refs[3] = c}>
               <option value="D">天</option>
               <option value="M">月</option>
               <option value="Y">年</option>

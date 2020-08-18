@@ -53,7 +53,6 @@
         "$pages": true,
         "$same": true,
         "$unmount": true,
-        "$initUserSelect2": true,
         "$initReferenceSelect2": true,
         "$keepModalOpen": true,
         "rb": true,
@@ -71,6 +70,7 @@
         "AdvFilter": true,
         "UserSelector": true,
         "UserShow": true,
+        "DateShow": true,
         "DeleteConfirm": true,
         "ApprovalProcessor": true,
         "RbFormModal": true,
@@ -93,8 +93,11 @@
         "$empty": true,
         "$mp": true,
         "converEmoji": true,
+        "$converEmoji": true,
         "$throttle": true,
-        "$timechunk": true
+        "$timechunk": true,
+        "moment": true,
+        "$fromNow": true
     },
     "rules": {
         "react/jsx-no-target-blank": 0,

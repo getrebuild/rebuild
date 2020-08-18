@@ -30,10 +30,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .level-boxes form .input-group .custom-control {
   position: absolute;
-  margin: 0;
   background-color: #fff;
   right: 65px;
-  margin-top: 9px;
+  margin: 9px 0 0;
   padding-right: 5px;
   z-index: 91;
 }

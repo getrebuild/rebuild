@@ -14,8 +14,7 @@ class RbViewForm extends React.Component {
     super(props)
     this.state = { ...props }
 
-    // this.onViewEditable = rb.env === 'dev'
-    this.onViewEditable = true
+    this.onViewEditable = wpc.onViewEditable === false ? false : true
     this.__FormData = {}
   }
 
@@ -54,7 +53,7 @@ class RbViewForm extends React.Component {
   }
 
   renderViewError(message) {
-    this.setState({ formComponent: __renderError(message) }, () => this.hideLoading())
+    this.setState({ formComponent: _renderError(message) }, () => this.hideLoading())
     $('.view-operating .view-action').empty()
   }
 
@@ -97,28 +96,32 @@ class RbViewForm extends React.Component {
   saveSingleFieldValue(fieldComp) { setTimeout(() => this._saveSingleFieldValue(fieldComp), 30) }
   _saveSingleFieldValue(fieldComp) {
     const fieldName = fieldComp.props.field
-    const val = this.__FormData[fieldName]
+    const fieldValue = this.__FormData[fieldName]
     // Unchanged
-    if (!val) {
+    if (!fieldValue) {
       fieldComp.toggleEditMode(false)
       return
     }
-    if (val.error) {
-      RbHighbar.create(val.error)
-      return
+    if (fieldValue.error) return RbHighbar.create(fieldValue.error)
+
+    const data = {
+      metadata: { entity: this.props.entity, id: this.props.id },
+      [fieldName]: fieldValue.value
     }
 
-    const _data = { metadata: { entity: this.props.entity, id: this.props.id } }
-    _data[fieldName] = val.value
-
-    const btns = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
-    $.post('/app/entity/record-save?single=true', JSON.stringify(_data), (res) => {
-      btns.button('reset')
+    const $btns = $(fieldComp._fieldText).find('.edit-oper .btn').button('loading')
+    $.post('/app/entity/record-save?single=true', JSON.stringify(data), (res) => {
+      $btns.button('reset')
       if (res.error_code === 0) {
         this.setFieldUnchanged(fieldName)
         fieldComp.toggleEditMode(false, res.data[fieldName])
+        // 刷新列表
+        parent && parent.RbListPage && parent.RbListPage.reload()
       }
-      else if (res.error_code === 499) renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
+      else if (res.error_code === 499) {
+        // 有重复
+        renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
+      }
       else RbHighbar.error(res.error_msg)
     })
   }
@@ -132,7 +135,7 @@ const detectViewElement = function (item) {
   return <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>{window.detectElement(item)}</div>
 }
 
-const __renderError = (message) => {
+const _renderError = (message) => {
   return (
     <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
       <div className="icon"><i className="zmdi zmdi-alert-triangle"></i></div>
@@ -144,6 +147,7 @@ const __renderError = (message) => {
 // 选择报表
 class SelectReport extends React.Component {
   state = { ...this.props }
+
   render() {
     return (
       <div className="modal select-list" ref={(c) => this._dlg = c} tabIndex="-1">
@@ -193,11 +197,8 @@ class SelectReport extends React.Component {
 
 // ~ 相关项列表
 class RelatedList extends React.Component {
+  state = { ...this.props, viewOpens: {}, viewComponents: {} }
 
-  constructor(props) {
-    super(props)
-    this.state = { ...props, viewOpens: {}, viewComponents: {} }
-  }
   render() {
     return (
       <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
@@ -210,7 +211,7 @@ class RelatedList extends React.Component {
                 <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={(e) => this._handleView(e)} title="打开">{item[1]}</a>
               </div>
               <div className="col-2 text-right">
-                <span className="fs-12 text-muted" title="修改时间">{item[2]}</span>
+                <span className="fs-12 text-muted" title={`修改时间 ${item[2]}`}>{$fromNow(item[2])}</span>
               </div>
             </div>
             <div className="rbview-form inside">
@@ -220,17 +221,18 @@ class RelatedList extends React.Component {
         })}
         {this.state.showMores && (
           <div className="text-center load-mores">
-            <div><button type="button" className="btn btn-secondary" onClick={() => this.loadList(1)}>加载更多</button></div>
+            <div><button type="button" className="btn btn-secondary" onClick={() => this.fetchList(1)}>加载更多</button></div>
           </div>
         )}
       </div>
     )
   }
 
-  componentDidMount = () => this.loadList()
-  loadList(plus) {
+  componentDidMount = () => this.fetchList()
+
+  fetchList(append) {
     this.__pageNo = this.__pageNo || 1
-    if (plus) this.__pageNo += plus
+    if (append) this.__pageNo += append
     const pageSize = 20
     $.get(`/app/entity/related-list?masterId=${this.props.master}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
       const _data = res.data.data || []
@@ -256,7 +258,7 @@ class RelatedList extends React.Component {
       $.get(`/app/${this.props.entity.split('.')[0]}/view-model?id=${id}`, (res) => {
         if (res.error_code > 0 || !!res.data.error) {
           const err = res.data.error || res.error_msg
-          viewComponents[id] = __renderError(err)
+          viewComponents[id] = _renderError(err)
         }
         else {
           viewComponents[id] = <div className="row">
@@ -277,6 +279,7 @@ const FeedsList = window.FeedsList || React.Component
 // eslint-disable-next-line no-undef
 class ReducedFeedsList extends FeedsList {
   state = { ...this.props }
+
   render() {
     return (
       <div className={`related-list ${!this.state.data ? 'rb-loading rb-loading-active' : ''}`}>
@@ -293,13 +296,13 @@ class ReducedFeedsList extends FeedsList {
     )
   }
 
-  fetchFeeds(plus) {
+  fetchFeeds(append) {
     const filter = { entity: 'Feeds', equation: 'AND', items: [] }
     filter.items.push({ field: 'type', op: 'EQ', value: 2 })
     filter.items.push({ field: 'relatedRecord', op: 'EQ', value: wpc.recordId })
 
     this.__pageNo = this.__pageNo || 1
-    if (plus) this.__pageNo += plus
+    if (append) this.__pageNo += append
     const pageSize = 20
 
     $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&sort=&type=&foucs=&pageSize=${pageSize}`, JSON.stringify(filter), (res) => {
@@ -353,7 +356,7 @@ const RbViewPage = {
       const needEntity = (wpc.type === 'SlaveList' || wpc.type === 'SlaveView') ? null : entity[0]
       renderRbcomp(<DeleteConfirm id={that.__id} entity={needEntity} deleteAfter={() => {
         // 刷新主视图
-        parent && parent.RbViewModal && parent.RbViewModal.holderMain() && parent.RbViewModal.holderMain(true)
+        parent && parent.RbViewModal && parent.RbViewModal.currentHolder(true)
         that.hide(true)
       }} />)
     })
@@ -377,18 +380,24 @@ const RbViewPage = {
     }
   },
 
-  // 记录元数据
+  // 元数据
   initRecordMeta() {
     $.get(`/app/entity/record-meta?id=${this.__id}`, (res) => {
+      // 如果出错就清空操作区
       if (res.error_code !== 0) {
         $('.view-operating').empty()
         return
       }
+
       for (let k in res.data) {
         const v = res.data[k]
         if (!v || v === undefined) return
+        const $el = $('.J_' + k)
+        if ($el.length === 0) return
+
         if (k === 'owningUser') {
-          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $('.J_owningUser')[0])
+          renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
+
         } else if (k === 'sharingList') {
           const list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
           const _this = this
@@ -408,12 +417,16 @@ const RbViewPage = {
           } else {
             $('.J_sharingList').parent().remove()
           }
+
+        } else if (k === 'createdOn' || k === 'modifiedOn') {
+          renderRbcomp(<DateShow date={v} />, $el[0])
+
         } else {
-          $('<span>' + v + '</span>').appendTo('.J_' + k)
+          $('<span>' + v + '</span>').appendTo($el)
         }
       }
 
-      // PlainEntity
+      // If PlainEntity
       if (!res.data.owningUser) $('.view-user').remove()
     })
   },

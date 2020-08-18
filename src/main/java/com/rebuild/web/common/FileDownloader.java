@@ -82,6 +82,7 @@ public class FileDownloader extends BaseControll {
 			else {
 				filePath = CodecUtils.urlDecode(filePath);
 				File img = temp ? SysConfiguration.getFileOfTemp(filePath) : SysConfiguration.getFileOfData(filePath);
+				if (!img.exists()) return;
 
 				BufferedImage bi = ImageIO.read(img);
 				Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);

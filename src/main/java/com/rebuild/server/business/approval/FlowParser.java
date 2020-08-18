@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.business.approval;
@@ -21,6 +10,7 @@ package com.rebuild.server.business.approval;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -40,16 +30,18 @@ import java.util.Set;
  */
 public class FlowParser {
 
+	private static final JSONObject EMPTY_FLOWS = JSONUtils.toJSONObject("nodes", new Object[0]);
+
 	final private JSON flowDefinition;
 	
-	private Map<String, FlowNode> nodeMap = new HashMap<>();
+	private final Map<String, FlowNode> nodeMap = new HashMap<>();
 	
 	/**
 	 * @param flowDefinition
 	 */
 	public FlowParser(JSON flowDefinition) {
-		this.flowDefinition = flowDefinition;
-		preparedNodes(((JSONObject) flowDefinition).getJSONArray("nodes"), null);
+		this.flowDefinition = flowDefinition == null ? EMPTY_FLOWS : flowDefinition;
+		preparedNodes(((JSONObject) this.flowDefinition).getJSONArray("nodes"), null);
 	}
 	
 	/**
@@ -125,7 +117,7 @@ public class FlowParser {
 		next.sort((o1, o2) -> {
 			int p1 = ((FlowBranch) o1).getPriority();
 			int p2 = ((FlowBranch) o2).getPriority();
-			return p1 > p2 ? 1 : (p1 == p2 ? 0 : -1);
+			return Integer.compare(p1, p2);
 		});
 		return next;
 	}
@@ -139,6 +131,18 @@ public class FlowParser {
 			return nodeMap.get(nodeId);
 		}
 		throw new ApprovalException("无效节点 : " + nodeId);
+	}
+
+	/**
+	 * 是否有审批人节点，没有审批人节点的无效
+	 *
+	 * @return
+	 */
+	public boolean hasApproverNode() {
+		for (FlowNode node : nodeMap.values()) {
+			if (node.getType().equals(FlowNode.TYPE_APPROVER)) return true;
+		}
+		return false;
 	}
 	
 	/**

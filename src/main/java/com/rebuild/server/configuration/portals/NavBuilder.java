@@ -15,7 +15,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.ServerListener;
 import com.rebuild.server.configuration.ConfigEntry;
+import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,15 +39,20 @@ public class NavBuilder extends NavManager {
     public static final NavBuilder instance = new NavBuilder();
     private NavBuilder() { }
 
-    /**
-     * 默认导航
-     */
+    // 默认导航
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
             new String[] { "icon", "text", "type", "value" },
             new Object[][] {
-                    new Object[] { "chart-donut", "动态", "ENTITY", NAV_FEEDS },
-                    new Object[] { "folder", "文件", "ENTITY", NAV_FILEMRG }
+                    new Object[] { "chart-donut", "动态", "BUILTIN", NAV_FEEDS },
+                    new Object[] { "shape", "项目", "BUILTIN", NAV_PROJECT },
+                    new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG }
             });
+
+    // 新建项目
+    private static final JSONObject NAV_PROJECT__ADD = JSONUtils.toJSONObject(
+            new String[] { "icon", "text", "type", "value" },
+            new String[] { "plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add" }
+    );
 
     /**
      * @param request
@@ -62,7 +69,9 @@ public class NavBuilder extends NavManager {
     public JSONArray getNavPortal(ID user) {
         ConfigEntry config = getLayoutOfNav(user);
         if (config == null) {
-            return NAVS_DEFAULT;
+            JSONArray useDefault =  (JSONArray) NAVS_DEFAULT.clone();
+            ((JSONObject) useDefault.get(1)).put("sub", getAvailableProjects(user));
+            return useDefault;
         }
 
         // 过滤
@@ -85,6 +94,8 @@ public class NavBuilder extends NavManager {
                 }
             } else if (isFilterNav(nav, user)) {
                 iter.remove();
+            } else if (NAV_PROJECT.equals(nav.getString("value"))) {
+                nav.put("sub", getAvailableProjects(user));
             }
         }
         return navs;
@@ -103,7 +114,7 @@ public class NavBuilder extends NavManager {
             String entity = nav.getString("value");
             if (NAV_PARENT.equals(entity)) {
                 return true;
-            } else if (NAV_FEEDS.equals(entity) || NAV_FILEMRG.equals(entity)) {
+            } else if (NAV_FEEDS.equals(entity) || NAV_FILEMRG.equals(entity) || NAV_PROJECT.equals(entity)) {
                 return false;
             } else if (!MetadataHelper.containsEntity(entity)) {
                 LOG.warn("Unknow entity in nav : " + entity);
@@ -111,10 +122,35 @@ public class NavBuilder extends NavManager {
             }
 
             Entity entityMeta = MetadataHelper.getEntity(entity);
-            return !Application.getSecurityManager().allowRead(user, entityMeta.getEntityCode());
+            return !Application.getPrivilegesManager().allowRead(user, entityMeta.getEntityCode());
         }
         return false;
     }
+
+    /**
+     * 动态获取项目菜单
+     *
+     * @param user
+     * @return
+     */
+    private JSONArray getAvailableProjects(ID user) {
+        ConfigEntry[] projects = ProjectManager.instance.getAvailable(user);
+
+        JSONArray navsOfProjects = new JSONArray();
+        for (ConfigEntry e : projects) {
+            navsOfProjects.add(JSONUtils.toJSONObject(
+                    new String[] { "type", "text", "icon", "value" },
+                    new Object[] { NAV_PROJECT, e.getString("projectName"), e.getString("iconName"), e.getID("id") }));
+        }
+
+        // 管理员显示新建项目入口
+        if (UserHelper.isAdmin(user)) {
+            navsOfProjects.add(NAV_PROJECT__ADD.clone());
+        }
+        return navsOfProjects;
+    }
+
+    // --
 
     /**
      * 渲染导航菜單
@@ -123,8 +159,9 @@ public class NavBuilder extends NavManager {
      * @param activeNav
      * @return
      */
-    public String renderNavItem(JSONObject item, String activeNav) {
-        final boolean isUrlType = "URL".equals(item.getString("type"));
+    public static String renderNavItem(JSONObject item, String activeNav) {
+        final String navType = item.getString("type");
+        final boolean isUrlType = "URL".equals(navType);
         String navName = item.getString("value");
         String navUrl = item.getString("value");
 
@@ -136,12 +173,27 @@ public class NavBuilder extends NavManager {
             } else {
                 navUrl = ServerListener.getContextPath() + navUrl;
             }
+
         } else if (NAV_FEEDS.equals(navName)) {
-            navName = "nav_entity-Feeds";
+            navName = "nav_entity-FEEDS";
             navUrl = ServerListener.getContextPath() + "/feeds/home";
+
         } else if (NAV_FILEMRG.equals(navName)) {
-            navName = "nav_entity-Attachment";
+            navName = "nav_entity-ATTACHMENT";
             navUrl = ServerListener.getContextPath() + "/files/home";
+
+        } else if (NAV_PROJECT.equals(navName)) {
+            navName = "nav_entity-PROJECT";
+            navUrl = ServerListener.getContextPath() + "/project/search";
+
+        } else if (NAV_PROJECT.equals(navType)) {
+            navName = "nav_project-" + navName;
+            navUrl = String.format("%s/project/%s/tasks", ServerListener.getContextPath(), navUrl);
+
+        } else if (navName.startsWith(NAV_PROJECT)) {
+            navName = "nav_project--add";
+            navUrl = ServerListener.getContextPath() + "/admin/projects";
+
         } else {
             navName = "nav_entity-" + navName;
             navUrl = ServerListener.getContextPath() + "/app/" + navUrl + "/list";
@@ -158,13 +210,15 @@ public class NavBuilder extends NavManager {
             }
         }
 
-        StringBuilder navHtml = new StringBuilder()
-                .append(String.format("<li class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
-                        navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
-                        subNavs == null ? navUrl : "###",
-                        isOutUrl ? "_blank" : "_self",
-                        navIcon,
-                        navText));
+        String navItemHtml = String.format(
+                "<li class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
+                navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
+                subNavs == null ? navUrl : "###",
+                isOutUrl ? "_blank" : "_self",
+                navIcon,
+                navText);
+        StringBuilder navHtml = new StringBuilder(navItemHtml);
+
         if (subNavs != null) {
             StringBuilder subHtml = new StringBuilder()
                     .append("<ul class=\"sub-menu\"><li class=\"title\">")
@@ -184,7 +238,7 @@ public class NavBuilder extends NavManager {
             Document navBody = Jsoup.parseBodyFragment(navHtml.toString());
             for (Element nav : navBody.select("." + activeNav)) {
                 nav.addClass("active");
-                if (activeNav.startsWith("nav_entity-")) {
+                if (activeNav.startsWith("nav_entity-") || activeNav.startsWith("nav_project-")) {
                     Element navParent = nav.parent();
                     if (navParent != null && navParent.hasClass("sub-menu-ul")) {
                         navParent.parent().parent().parent().parent().addClass("open active");

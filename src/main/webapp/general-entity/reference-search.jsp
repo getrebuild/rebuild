@@ -57,11 +57,13 @@ window.__PageConfig = {
 </script>
 <script src="${baseUrl}/assets/js/rb-datalist.jsx" type="text/babel"></script>
 <script type="text/babel">
+RbList.renderAfter = function() {
+    parent &&  parent.referenceSearch__dialog && parent.referenceSearch__dialog.resize()
+}
 $(document).ready(function () {
     $('.J_select').click(function () {
         const ss = RbListPage._RbList.getSelectedIds()
         if (ss.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ss)
-        else console.log(ss)
     })
 })
 </script>

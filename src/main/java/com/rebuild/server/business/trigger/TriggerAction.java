@@ -49,16 +49,7 @@ public interface TriggerAction {
 	 * @param operatingContext
 	 * @throws TriggerException
 	 */
-	void prepare(OperatingContext operatingContext) throws TriggerException;
-
-	/**
-	 * 异步执行。注意：由于异步执行可能会开启新事物，所以如果依赖主事物的数据，可能存在脏读
-	 *
-	 * @return
-	 */
-	default boolean useAsync() {
-		return false;
-	}
+	default void prepare(OperatingContext operatingContext) throws TriggerException {}
 
 	/**
 	 * 执行后进行清理工作。注意：只有同步任务并且不是用新事物的任务才会触发

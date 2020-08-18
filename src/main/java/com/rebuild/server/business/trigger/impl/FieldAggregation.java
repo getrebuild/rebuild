@@ -107,7 +107,7 @@ public class FieldAggregation implements TriggerAction {
 		
 		// 如果当前用户对目标记录无修改权限
 		if (!allowNoPermissionUpdate
-                && !Application.getSecurityManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
+                && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
 		    LOG.warn("No privileges to update record of target: " + this.targetRecordId);
 		    return;
 		}
@@ -130,7 +130,7 @@ public class FieldAggregation implements TriggerAction {
 
 			// 会关联触发下一触发器（如有）
 			TRIGGER_CHAIN_DEPTH.set(depth + 1);
-			if (EntityHelper.hasPrivilegesField(targetEntity)) {
+			if (MetadataHelper.hasPrivilegesField(targetEntity)) {
 				Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
 			} else {
 				Application.getService(targetEntity.getEntityCode()).update(targetRecord);

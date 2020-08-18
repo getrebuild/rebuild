@@ -37,13 +37,12 @@ public class TaskExecutors extends QuartzJobBean {
 
 	private static final Log LOG = LogFactory.getLog(TaskExecutors.class);
 
-	private static final int MAX_TASK = Runtime.getRuntime().availableProcessors() / 2;
-
-	private static final int MAX_QUEUE = MAX_TASK * 10;
+	private static final int MAX_TASKS_NUMBER = Integer.max(Runtime.getRuntime().availableProcessors() / 2, 2);
 
 	private static final ExecutorService EXECS = new ThreadPoolExecutor(
-			MAX_TASK, MAX_TASK, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(MAX_QUEUE));
-	
+			MAX_TASKS_NUMBER, MAX_TASKS_NUMBER, 0L, TimeUnit.MILLISECONDS,
+			new LinkedBlockingQueue<>(MAX_TASKS_NUMBER * 10));
+
 	private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
 
 	/**

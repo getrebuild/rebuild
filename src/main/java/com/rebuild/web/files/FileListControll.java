@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.web.files;
@@ -22,18 +11,19 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.business.files.FilesHelper;
+import com.rebuild.server.configuration.ProjectManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.DisplayType;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.UserHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
 import org.apache.commons.io.FileUtils;
@@ -46,9 +36,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author devezhao
@@ -106,17 +94,31 @@ public class FileListControll extends BasePageControll {
         // 附件还是文档
         if (entity > 0) {
             if (entity == EntityHelper.Feeds) {
-                sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.FeedsComment));
-            } else if (entity > 1) {
+                sqlWhere.add(String.format(
+                        "(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.FeedsComment));
+            } else if (entity == EntityHelper.ProjectTask) {
+                sqlWhere.add(String.format(
+                        "(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.ProjectTaskComment));
+            }  else if (entity > 1) {
                 Entity entityMeta = MetadataHelper.getEntity(entity);
                 if (entityMeta.getSlaveEntity() != null) {
-                    sqlWhere.add(String.format("(belongEntity = %d or belongEntity = %d)", entity, entityMeta.getSlaveEntity().getEntityCode()));
+                    sqlWhere.add(String.format(
+                            "(belongEntity = %d or belongEntity = %d)", entity, entityMeta.getSlaveEntity().getEntityCode()));
                 } else {
                     sqlWhere.add("belongEntity = " + entity);
                 }
+
             } else {
-                sqlWhere.add("belongEntity > 0");
+                // 查看全部实体
+                if (UserHelper.isAdmin(user)) {
+                    sqlWhere.add("belongEntity > 0");
+                } else {
+                    String esql = "( belongEntity = " +
+                            StringUtils.join(getAllowEntities(user, true), " or belongEntity = ") + " )";
+                    sqlWhere.add(esql);
+                }
             }
+
         } else {
             sqlWhere.add("belongEntity = 0");
             if (inFolder != null) {
@@ -124,18 +126,21 @@ public class FileListControll extends BasePageControll {
             } else {
                 ID[] ps = FilesHelper.getPrivateFolders(user);
                 if (ps.length > 0) {
-                    sqlWhere.add(String.format("(inFolder is null or inFolder not in ('%s'))", StringUtils.join(ps,"','")));
+                    sqlWhere.add(String.format("(inFolder is null or inFolder not in ('%s'))",
+                            StringUtils.join(ps,"','")));
                 }
             }
         }
 
-        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord from Attachment where (1=1) and (isDeleted = ?)";
+        String sql = "select attachmentId,filePath,fileType,fileSize,createdBy,modifiedOn,inFolder,relatedRecord" +
+                " from Attachment where (1=1) and (isDeleted = ?)";
         sql = sql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
         if ("older".equals(sort)) {
             sql += " order by createdOn asc";
         } else {
             sql += " order by modifiedOn desc";
         }
+
         Object[][] array = Application.createQueryNoFilter(sql)
                 .setParameter(1, false)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
@@ -149,7 +154,7 @@ public class FileListControll extends BasePageControll {
             item.put("fileType", o[2]);
             item.put("fileSize", FileUtils.byteCountToDisplaySize(ObjectUtils.toLong(o[3])));
             item.put("uploadBy", new Object[] { o[4], UserHelper.getName((ID) o[4]) });
-            item.put("uploadOn", Moment.moment((Date) o[5]).fromNow());
+            item.put("uploadOn", CommonsUtils.formatClientDate((Date) o[5]));
             item.put("inFolder", o[6]);
 
             ID relatedRecord = (ID) o[7];
@@ -171,42 +176,56 @@ public class FileListControll extends BasePageControll {
         writeSuccess(response, folders);
     }
 
-    // 附件实体
+    /**
+     * @see FileManagerControll#checkReadable(HttpServletRequest, HttpServletResponse)
+     */
     @RequestMapping("list-entity")
     public void listEntity(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
 
         JSONArray ret = new JSONArray();
-        // 动态
-        ret.add(toEntityJson(MetadataHelper.getEntity(EntityHelper.Feeds)));
-        for (Entity e : MetadataSorter.sortEntities(user)) {
-            // 明细实体会合并到主实体显示
-            if (MetadataHelper.isSlaveEntity(e.getEntityCode())) {
-                continue;
-            }
-
-            // 有附件字段的实体才显示
-            if (hasAttachmentFields(e)
-                    || (e.getSlaveEntity() != null && hasAttachmentFields(e.getSlaveEntity()))) {
-                ret.add(toEntityJson(e));
-            }
+        for (int entity : getAllowEntities(user, false)) {
+            ret.add(formatEntityJson(MetadataHelper.getEntity(entity)));
         }
         writeSuccess(response, ret);
     }
 
-    private JSONObject toEntityJson(Entity entity) {
+    private Integer[] getAllowEntities(ID user, boolean inQuery) {
+        List<Integer> allows = new ArrayList<>();
+
+        // 动态
+        allows.add(EntityHelper.Feeds);
+        if (inQuery) allows.add(EntityHelper.FeedsComment);
+
+        // 项目
+        if (ProjectManager.instance.getAvailable(user).length > 0) {
+            allows.add(EntityHelper.ProjectTask);
+            if (inQuery) allows.add(EntityHelper.ProjectTaskComment);
+        }
+
+        for (Entity e : MetadataSorter.sortEntities(user)) {
+            // 明细实体会合并到主实体显示
+            if (!inQuery && MetadataHelper.isSlaveEntity(e.getEntityCode())) continue;
+
+            // 有附件字段的实体才显示
+            if (hasAttachmentFields(e)) {
+                allows.add(e.getEntityCode());
+            }
+            if (e.getSlaveEntity() != null && hasAttachmentFields(e.getSlaveEntity())) {
+                allows.add(e.getSlaveEntity().getEntityCode());
+            }
+        }
+        return allows.toArray(new Integer[0]);
+    }
+
+    private JSONObject formatEntityJson(Entity entity) {
+        String label = entity.getEntityCode() == EntityHelper.ProjectTask ? "项目" : EasyMeta.getLabel(entity);
         return JSONUtils.toJSONObject(
                 new String[] { "id", "text" },
-                new Object[] { entity.getEntityCode(), EasyMeta.getLabel(entity) });
+                new Object[] { entity.getEntityCode(), label });
     }
 
     private boolean hasAttachmentFields(Entity entity) {
-        for (Field field : entity.getFields()) {
-            DisplayType dt = EasyMeta.getDisplayType(field);
-            if (dt == DisplayType.FILE || dt == DisplayType.IMAGE) {
-                return true;
-            }
-        }
-        return false;
+        return MetadataSorter.sortFields(entity, DisplayType.FILE, DisplayType.IMAGE).length > 0;
     }
 }

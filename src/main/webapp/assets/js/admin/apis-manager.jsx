@@ -30,7 +30,9 @@ class AppList extends React.Component {
           <td>{item[4] || '无 (拥有全部权限)'}</td>
           <td>{item[5]}</td>
           <td>{item[6] || 0}</td>
-          <td className="actions"><a className="icon" onClick={() => this.delete(item[0])}><i className="zmdi zmdi-delete" /></a></td>
+          <td className="actions">
+            <a className="icon danger" onClick={() => this.delete(item)}><i className="zmdi zmdi-delete" /></a>
+          </td>
         </tr>
       })}
     </React.Fragment>
@@ -53,13 +55,13 @@ class AppList extends React.Component {
     this.setState({ secretShows: shows })
   }
 
-  delete(id) {
+  delete(app) {
     RbAlert.create('删除后，使用此 API 秘钥的第三方应用功能将会失败', {
       type: 'danger',
       confirmText: '删除',
       confirm: function () {
         this.disabled(true)
-        $.post(`/admin/apis-manager/app-delete?id=${id}`, (res) => {
+        $.post(`/admin/apis-manager/app-delete?id=${app[0]}`, (res) => {
           if (res.error_code === 0) location.reload()
           else RbHighbar.error(res.error_msg)
         })
@@ -76,36 +78,32 @@ class DlgEdit extends RbFormHandler {
   }
 
   render() {
-    return <RbModal title="添加 API 秘钥管理" ref={(c) => this._dlg = c}>
+    return <RbModal title="添加 API 秘钥" ref={(c) => this._dlg = c}>
       <div className="form">
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">绑定用户</label>
+          <label className="col-sm-3 col-form-label text-sm-right">绑定用户 (权限)</label>
           <div className="col-sm-7">
-            <select className="form-control form-control-sm" ref={(c) => this._user = c}></select>
-            <p className="form-text mb-0">为 API 秘钥绑定一个用户，此秘钥将拥有和其一样的权限。如不绑定则拥有全部权限</p>
+            <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => this._UserSelector = c} />
+            <p className="form-text mb-0">强烈建议为 API 秘钥绑定一个用户，此秘钥将拥有和其一样的权限。如不绑定则拥有全部权限</p>
           </div>
         </div>
         <div className="form-group row footer">
-          <div className="col-sm-7 offset-sm-3">
+          <div className="col-sm-7 offset-sm-3" ref={(c) => this._btns = c}>
             <button className="btn btn-primary" type="button" onClick={this.save}>确定</button>
+            <a className="btn btn-link" onClick={this.hide}>取消</a>
           </div>
         </div>
       </div>
     </RbModal>
   }
 
-  componentDidMount() {
-    this._select2 = $initUserSelect2(this._user)
-  }
-
   save = () => {
-    const bindUser = this._select2.val()
+    const bindUser = this._UserSelector.val()
     this.disabled(true)
     $.post(`/admin/apis-manager/app-create?bind=${bindUser || ''}`, (res) => {
-      if (res.error_code === 0) {
-        location.reload()
-      } else RbHighbar.error(res.error_msg)
       this.disabled()
+      if (res.error_code === 0) location.reload()
+      else RbHighbar.error(res.error_msg)
     })
   }
 }

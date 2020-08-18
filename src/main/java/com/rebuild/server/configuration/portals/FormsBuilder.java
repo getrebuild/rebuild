@@ -21,6 +21,8 @@ import com.rebuild.server.business.approval.ApprovalState;
 import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.configuration.RobotTriggerManager;
+import com.rebuild.server.helper.ConfigurableItem;
+import com.rebuild.server.helper.SysConfiguration;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.helper.state.StateManager;
@@ -133,10 +135,10 @@ public class FormsBuilder extends FormsManager {
 				// 明细无需审批
 				approvalState = null;
 				
-				if (!Application.getSecurityManager().allowUpdate(user, masterRecordId)) {
+				if (!Application.getPrivilegesManager().allowUpdate(user, masterRecordId)) {
 					return formatModelError("你没有权限向此记录添加明细");
 				}
-			} else if (!Application.getSecurityManager().allowCreate(user, entityMeta.getEntityCode())) {
+			} else if (!Application.getPrivilegesManager().allowCreate(user, entityMeta.getEntityCode())) {
 				return formatModelError("没有新建权限");
 			} else {
 				approvalState = getHadApproval(entityMeta, null);
@@ -144,7 +146,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		// 查看（视图）
 		else if (viewMode) {
-			if (!Application.getSecurityManager().allowRead(user, record)) {
+			if (!Application.getPrivilegesManager().allowRead(user, record)) {
 				return formatModelError("你无权读取此记录或记录已被删除");
 			}
 			
@@ -153,7 +155,7 @@ public class FormsBuilder extends FormsManager {
 		}
 		// 编辑
 		else {
-			if (!Application.getSecurityManager().allowUpdate(user, record)) {
+			if (!Application.getPrivilegesManager().allowUpdate(user, record)) {
 				return formatModelError("你没有编辑此记录的权限");
 			}
 			
@@ -265,6 +267,7 @@ public class FormsBuilder extends FormsManager {
 	public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
 		final User currentUser = Application.getUserStore().getUser(user);
 		final Date now = CalendarUtils.now();
+		final boolean hideUncreate = SysConfiguration.getBool(ConfigurableItem.FormHideUncreateField) && data == null;
 
 		// Check and clean
 		for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -277,22 +280,23 @@ public class FormsBuilder extends FormsManager {
 			if (!MetadataHelper.checkAndWarnField(entity, fieldName)) {
 				iter.remove();
 				continue;
-			}
-
-			Field fieldMeta = entity.getField(fieldName);
-			EasyMeta easyField = new EasyMeta(fieldMeta);
-			final DisplayType dt = easyField.getDisplayType();
-			el.put("label", easyField.getLabel());
-			el.put("type", dt.name());
+            }
 
 			// 触发器自动只读
 			final boolean roViaTriggers = el.getBooleanValue("readonly");
+
+            final Field fieldMeta = entity.getField(fieldName);
+            if (hideUncreate && (!fieldMeta.isCreatable() || roViaTriggers)) {
+                iter.remove();
+                continue;
+            }
+
+			final EasyMeta easyField = new EasyMeta(fieldMeta);
+			final DisplayType dt = easyField.getDisplayType();
+			el.put("label", easyField.getLabel());
+			el.put("type", dt.name());
 			// 不可更新字段
-			if ((data != null && !fieldMeta.isUpdatable()) || roViaTriggers) {
-				el.put("readonly", true);
-			} else {
-				el.put("readonly", false);
-			}
+            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaTriggers);
 
 			// 优先使用指定值
 			final Boolean nullable = el.getBoolean("nullable");

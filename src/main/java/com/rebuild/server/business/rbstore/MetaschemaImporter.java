@@ -194,7 +194,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
 			EasyMeta easyMeta = EasyMeta.valueOf(entity);
 			Record updateNameField = EntityHelper.forUpdate(easyMeta.getMetaId(), this.getUser(), false);
 			updateNameField.setString("nameField", nameField);
-			Application.getCommonService().update(updateNameField);
+			Application.getCommonsService().update(updateNameField);
 		}
 
 		// 布局

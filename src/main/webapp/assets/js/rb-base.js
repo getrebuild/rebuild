@@ -72,11 +72,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
   $.cookie.defaults = { expires: 14, path: '/', secure: location.protocol === 'https:' }
 
-  $.fn.select2.defaults.set('width', '100%')
-  $.fn.select2.defaults.set('language', 'zh-CN')
-  $.fn.select2.defaults.set('allowClear', true)
-  $.fn.select2.defaults.set('placeholder', '')
-
   window.rb = window.rb || {}
   $('meta[name^="rb."]').each(function (idx, item) {
     var k = $(item).attr('name').substr(3) // remove `rb.`
@@ -88,7 +83,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
 
   if (rb.env === 'dev') $('html').addClass('dev')
-  if (rb.rbv) $('html').addClass('rbv')
   setTimeout(function () {
     $(document.body).addClass('rb-animate')
   }, 1000)
@@ -108,6 +102,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
     })
     if (!(location.protocol === 'http:' || location.protocol === 'https:')) location.href = 'https://getrebuild.com/'
   }
+
+  if (window.moment) window.moment.locale(rb.locale)
+
+  $.fn.datetimepicker.defaults = {
+    language: rb.locale ? rb.locale.substr(0, 2) : 'zh',
+    fontAwesome: true,
+    format: 'yyyy-mm-dd hh:ii',
+    weekStart: 1,
+    todayHighlight: true,
+    showMeridian: false,
+    keyboardNavigation: false,
+    autoclose: true,
+    minuteStep: 5,
+  }
+
+  $.fn.select2.defaults.set('width', '100%')
+  $.fn.select2.defaults.set('language', rb.locale)
+  $.fn.select2.defaults.set('allowClear', true)
+  $.fn.select2.defaults.set('placeholder', '')
 
 })(jQuery)
 

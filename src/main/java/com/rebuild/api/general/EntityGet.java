@@ -16,7 +16,6 @@ import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.bizz.UserHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -37,24 +36,26 @@ public class EntityGet extends BaseApi {
 
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
-        ID queryId = context.getParameterAsId("id");
-        Entity useEntity = MetadataHelper.getEntity(queryId.getEntityCode());
+        final ID queryId = context.getParameterAsId("id");
+        final Entity useEntity = MetadataHelper.getEntity(queryId.getEntityCode());
+        if (!useEntity.isQueryable()) {
+            throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity/id : " + queryId);
+        }
+
+        if (!Application.getPrivilegesManager().allowRead(context.getBindUser(), queryId)) {
+            return formatFailure("无权读取记录或记录不存在 : " + queryId);
+        }
 
         String[] fields = context.getParameterNotBlank("fields").split(",");
         fields = getValidFields(useEntity, fields);
 
-        if (!UserHelper.isAdmin(context.getBindUser())) {
-            if (!Application.getSecurityManager().allowRead(context.getBindUser(), queryId)) {
-                return formatFailure("No privileges or record not exists : " + queryId);
-            }
-        }
-
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(fields, ","), useEntity.getName(), useEntity.getPrimaryField().getName());
+
         Query query = Application.getQueryFactory().createQueryNoFilter(sql);
         Object[] queryed = query.setParameter(1, queryId).unique();
         if (queryed == null) {
-            return formatFailure("Record not exists : " + queryId);
+            return formatFailure("记录不存在 : " + queryId);
         }
 
         return formatSuccess(ApiDataListWrapper.buildItem(query.getSelectItems(), queryed));
@@ -67,19 +68,18 @@ public class EntityGet extends BaseApi {
      */
     protected String[] getValidFields(Entity entity, String[] fields) {
         // TODO 限制连接查询
+
         List<String> validFields = new ArrayList<>();
         for (String field : fields) {
-            if (!entity.containsField(field)) {
-                throw new ApiInvokeException("Unknow field in `fields` : " + field);
-            }
-
-            if (!MetadataHelper.isSystemField(field)) {
+            if (entity.containsField(field) && !MetadataHelper.isSystemField(field)) {
                 validFields.add(field);
+            } else {
+                LOG.warn("Filtered invalid field of query : " + field);
             }
         }
 
         if (validFields.isEmpty()) {
-            throw new ApiInvokeException("No valid fields in `fields` : " + StringUtils.join(fields, ","));
+            validFields.add(entity.getPrimaryField().getName());
         }
         return validFields.toArray(new String[0]);
     }

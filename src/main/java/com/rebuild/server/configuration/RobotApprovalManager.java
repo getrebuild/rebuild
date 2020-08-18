@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.configuration;
@@ -32,6 +21,7 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.bizz.UserHelper;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,10 +30,12 @@ import java.util.List;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24
  */
-public class RobotApprovalManager implements ConfigManager<Entity> {
+public class RobotApprovalManager implements ConfigManager {
 
 	public static final RobotApprovalManager instance = new RobotApprovalManager();
 	private RobotApprovalManager() {}
+
+	private static final String CKEY_PREFIX = "RobotApprovalManager2-";
 	
 	/**
 	 * 获取实体/记录流程状态
@@ -53,7 +45,7 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	 * @return <tt>null</tt> 表示没有流程
 	 */
 	public ApprovalState hadApproval(Entity entity, ID record) {
-		if (entity.getMasterEntity() != null || !entity.containsField(EntityHelper.ApprovalId)) {
+		if (entity.getMasterEntity() != null || !MetadataHelper.hasApprovalField(entity)) {
 			return null;
 		}
 		
@@ -106,10 +98,10 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 		// 过滤可用的
 		List<FlowDefinition> workable = new ArrayList<>();
 		for (FlowDefinition def : defs) {
-			if (def.isDisabled() || def.getJSON("flowDefinition") == null) {
+			if (def.isDisabled() || !def.isWorkable()) {
 				continue;
 			}
-			
+
 			FlowParser flowParser = def.createFlowParser();
 			FlowNode root = flowParser.getNode("ROOT");  // 发起人节点
 			
@@ -133,24 +125,24 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	 * @return
 	 */
 	public FlowDefinition[] getFlowDefinitions(Entity entity) {
-		final String cKey = "RobotApprovalManager-" + entity.getName();
+		final String cKey = CKEY_PREFIX + entity.getName();
 		FlowDefinition[] defs = (FlowDefinition[]) Application.getCommonCache().getx(cKey);
 		if (defs != null) {
 			return defs;
 		}
 		
 		Object[][] array = Application.createQueryNoFilter(
-				"select flowDefinition,isDisabled,name,configId from RobotApprovalConfig where belongEntity = ?")
+				"select flowDefinition,isDisabled,name,configId,modifiedOn from RobotApprovalConfig where belongEntity = ?")
 				.setParameter(1, entity.getName())
 				.array();
 		
 		List<FlowDefinition> list = new ArrayList<>();
 		for (Object[] o : array) {
-			FlowDefinition def = new FlowDefinition();
-			def.set("flowDefinition", JSON.parseObject((String) o[0]));
-			def.set("disabled", o[1]);
-			def.set("name", o[2]);
-			def.set("id", o[3]);
+			FlowDefinition def = (FlowDefinition) new FlowDefinition()
+					.set("flowDefinition", JSON.parseObject((String) o[0]))
+					.set("disabled", o[1])
+					.set("name", o[2])
+					.set("id", o[3]);
 			list.add(def);
 		}
 		
@@ -160,8 +152,8 @@ public class RobotApprovalManager implements ConfigManager<Entity> {
 	}
 	
 	@Override
-	public void clean(Entity cacheKey) {
-		final String cKey = "RobotApprovalManager-" + cacheKey.getName();
+	public void clean(Object entity) {
+		final String cKey = CKEY_PREFIX + ((Entity) entity).getName();
 		Application.getCommonCache().evict(cKey);
 	}
 }

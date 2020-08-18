@@ -61,7 +61,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
 				LOG.error("Task interrupted : " + user + " > " + deptNew);
 				break;
 			}
-			if (!EntityHelper.hasPrivilegesField(e)) {
+			if (!MetadataHelper.hasPrivilegesField(e)) {
 				this.addCompleted();
 				continue;
 			}

@@ -45,7 +45,6 @@ public class SendNotificationTest extends TestSupportWithUser {
         String content = String.format("{ typy:1, sendTo:['%s'], content:'SENDNOTIFICATION {createdBy} {3782732}' }", toUser);
         triggerConfig.setString("actionContent", content);
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
-        RobotTriggerManager.instance.clean(entity);
 
         // 当前未读消息
         int unread = Application.getNotifications().getUnreadMessage(toUser);
@@ -54,9 +53,9 @@ public class SendNotificationTest extends TestSupportWithUser {
         Record record = EntityHelper.forNew(entity.getEntityCode(), getSessionUser());
         record.setString("TestAllFieldsName", "SENDNOTIFICATION");
         // Create
-        record = Application.getEntityService(entity.getEntityCode()).create(record);
+        record = Application.getService(entity.getEntityCode()).create(record);
         // Delete
-        Application.getEntityService(entity.getEntityCode()).delete(record.getPrimary());
+        Application.getService(entity.getEntityCode()).delete(record.getPrimary());
 
         // 比对消息数
         ThreadPool.waitFor(4000);

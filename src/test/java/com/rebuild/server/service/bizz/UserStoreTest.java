@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.service.bizz;
 
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.TestSupport;
 import com.rebuild.server.service.bizz.privileges.Department;
@@ -25,7 +26,7 @@ import static org.junit.Assert.assertTrue;
 public class UserStoreTest extends TestSupport {
 
 	@Test
-	public void testStore() throws Exception {
+	public void testStore() {
 		Application.getUserStore().getAllUsers();
 		Application.getUserStore().getAllDepartments();
 		Application.getUserStore().getAllRoles();
@@ -38,7 +39,7 @@ public class UserStoreTest extends TestSupport {
 	}
 	
 	@Test
-	public void testRefresh() throws Exception {
+	public void testRefresh() {
 		Application.getUserStore().refreshUser(UserService.ADMIN_USER);
 		Application.getUserStore().refreshDepartment(DepartmentService.ROOT_DEPT);
 		Application.getUserStore().refreshRole(RoleService.ADMIN_ROLE);
@@ -46,24 +47,27 @@ public class UserStoreTest extends TestSupport {
 	}
 	
 	@Test
-	public void testExists() throws Exception {
+	public void testExists() {
 		assertTrue(Application.getUserStore().existsUser("admin"));
         assertFalse(Application.getUserStore().existsUser("not_exists"));
 	}
 
 	@Test
 	public void testMemberToTeam() {
-		Application.getSessionStore().set(SIMPLE_USER);
+		Application.getSessionStore().set(UserService.SYSTEM_USER);
+
+		ID teamUser = UserService.ADMIN_USER;
 		try {
-			Application.getBean(TeamService.class).createMembers(SIMPLE_TEAM, Collections.singletonList(SIMPLE_USER));
-			User user = Application.getUserStore().getUser(SIMPLE_USER);
+			Application.getBean(TeamService.class).createMembers(SIMPLE_TEAM, Collections.singletonList(teamUser));
+			User user = Application.getUserStore().getUser(teamUser);
 			System.out.println(user.getOwningTeams());
 
             assertFalse(user.getOwningTeams().isEmpty());
-			assertTrue(Application.getUserStore().getTeam(SIMPLE_TEAM).isMember(SIMPLE_USER));
+			assertTrue(Application.getUserStore().getTeam(SIMPLE_TEAM).isMember(teamUser));
 
-			Application.getBean(TeamService.class).deleteMembers(SIMPLE_TEAM, Collections.singletonList(SIMPLE_USER));
+			Application.getBean(TeamService.class).deleteMembers(SIMPLE_TEAM, Collections.singletonList(teamUser));
 			System.out.println(user.getOwningTeams());
+
 		} finally {
 			Application.getSessionStore().clean();
 		}

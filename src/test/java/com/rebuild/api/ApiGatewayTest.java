@@ -1,40 +1,32 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.api;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Record;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.api.sdk.OpenApiSDK;
 import com.rebuild.server.Application;
+import com.rebuild.server.configuration.ConfigEntry;
 import com.rebuild.server.configuration.RebuildApiManager;
 import com.rebuild.server.helper.FormDataBuilder;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.web.MvcResponse;
 import com.rebuild.web.TestSupportWithMVC;
-import org.apache.commons.lang.math.RandomUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +44,7 @@ public class ApiGatewayTest extends TestSupportWithMVC {
         String apiUrl = "/gw/api/system-time?";
         Map<String, Object> bizParams = new HashMap<>();
 
-        apiUrl += new OpenApiSDK(app[0], app[1]).signMD5(bizParams);
+        apiUrl += new OpenApiSDK(app[0], app[1]).sign(bizParams, "SHA1");
         System.out.println("Request API : " + apiUrl);
 
         MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(apiUrl);
@@ -60,21 +52,46 @@ public class ApiGatewayTest extends TestSupportWithMVC {
         System.out.println(resp);
     }
 
+    @Ignore
+    @Test
+    public void testOpenApiSDK() {
+        final String[] app = createApp();
+        final String baseUrl = "http://localhost:8180/rebuild/gw/api/";
+
+        // 加密签名请求
+        OpenApiSDK openApiSDK = new OpenApiSDK(app[0], app[1], baseUrl);
+        JSON ret = openApiSDK.get("system-time", null);
+        System.out.println("OpenApiSDK response : " + ret);
+
+        // 明文请求
+        String apiUrl = baseUrl + "system-time?appid=" + app[0] + "&sign=" + app[1];
+        try {
+            ret = openApiSDK.httpGet(apiUrl);
+            System.out.println("OpenApiSDK response (plaintext) : " + ret);
+
+        } catch (IOException ignored) {
+        }
+    }
+
     /**
      * @return
      */
     protected static String[] createApp() {
-        String appId = (100000000 + RandomUtils.nextInt(899999999)) + "";
-        String appSecret = CodecUtils.randomCode(40);
+        final String appId = "999999999";
+        ConfigEntry exists = RebuildApiManager.instance.getApp(appId);
+        if (exists != null) {
+            return new String[] { appId, exists.getString("appSecret") };
+        }
 
+        String appSecret = CodecUtils.randomCode(40);
         Record record = FormDataBuilder.builder(EntityHelper.RebuildApi)
                 .add("appId", appId)
                 .add("appSecret", appSecret)
                 .add("bindUser", UserService.SYSTEM_USER)
                 .buildRecord(UserService.SYSTEM_USER);
-        Application.getCommonService().create(record, false);
-        RebuildApiManager.instance.clean(appId);
+        Application.getCommonsService().create(record, false);
 
-        return new String[]{appId, appSecret};
+        RebuildApiManager.instance.clean(appId);
+        return new String[] { appId, appSecret };
     }
 }

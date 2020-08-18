@@ -108,7 +108,7 @@ class RbFormModal extends React.Component {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this.__refresh()}>点击此处</a>查看最新数据</p> })
-          this.__refresh()
+          this._refresh()
         }
       } else if (res.error_msg === 'NO_EXISTS') {
         this.setState({ alertMessage: '记录已经不存在，可能已被其他用户删除' })
@@ -116,7 +116,7 @@ class RbFormModal extends React.Component {
     })
   }
 
-  __refresh() {
+  _refresh() {
     const hold = { id: this.state.id, entity: this.state.entity }
     this.setState({ id: null, alertMessage: null }, () => { this.show(hold) })
   }
@@ -245,12 +245,12 @@ class RbForm extends React.Component {
   /**
    * @next {Number}
    */
-  post(next) { setTimeout(() => this._post(next), 30) }
+  post = (next) => setTimeout(() => this._post(next), 30)
   _post(next) {
     const _data = {}
     for (let k in this.__FormData) {
       const err = this.__FormData[k].error
-      if (err) { RbHighbar.create(err); return }
+      if (err) return RbHighbar.create(err)
       else _data[k] = this.__FormData[k].value
     }
     _data.metadata = { entity: this.state.entity, id: this.state.id }
@@ -412,7 +412,7 @@ class RbFormElement extends React.Component {
     const err = this.isValueError()
     const errMsg = err ? (this.props.label + err) : null
 
-    if (this.isValueUnchanged()) {
+    if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
       if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
       else this.props.$$$parent.setFieldUnchanged(this.props.field)
     } else {
@@ -506,6 +506,7 @@ class RbFormNumber extends RbFormText {
 
   constructor(props) {
     super(props)
+    if (this.state.value) this.state.value = (this.state.value + '').replace(/,/g, '')
   }
 
   isValueError() {
@@ -533,6 +534,7 @@ class RbFormDecimal extends RbFormNumber {
 
   constructor(props) {
     super(props)
+    if (this.state.value) this.state.value = (this.state.value + '').replace(/,/g, '')
   }
 
   isValueError() {
@@ -608,18 +610,9 @@ class RbFormDateTime extends RbFormElement {
 
       const that = this
       this.__datetimepicker = $(this._fieldValue).datetimepicker({
-        componentIcon: 'zmdi zmdi-calendar',
-        navIcons: { rightIcon: 'zmdi zmdi-chevron-right', leftIcon: 'zmdi zmdi-chevron-left' },
         format: format || 'yyyy-mm-dd hh:ii:ss',
         minView: minView,
         startView: startView,
-        weekStart: 1,
-        autoclose: true,
-        language: 'zh',
-        todayHighlight: true,
-        showMeridian: false,
-        keyboardNavigation: false,
-        minuteStep: 5,
       }).on('changeDate', function () {
         const val = $(this).val()
         that.handleChange({ target: { value: val } }, true)
@@ -1354,6 +1347,9 @@ class ClassificationSelector extends React.Component {
 // see `reference-search.jsp`
 // eslint-disable-next-line no-unused-vars
 var referenceSearch__call = function (selected) {/* NOOP */ }
+// eslint-disable-next-line no-unused-vars
+var referenceSearch__dialog
+
 class ReferenceSearcher extends RbModal {
 
   constructor(props) {
@@ -1370,12 +1366,18 @@ class ReferenceSearcher extends RbModal {
               <button className="close" type="button" onClick={() => this.hide()}><span className="zmdi zmdi-close" /></button>
             </div>
             <div className="modal-body iframe">
-              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 430, maxHeight: '100%' }} />
+              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 368 }} />
             </div>
           </div>
         </div>
       </div>
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    // eslint-disable-next-line no-unused-vars
+    referenceSearch__dialog = this
   }
 }
 

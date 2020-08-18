@@ -11,7 +11,6 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import cn.devezhao.momentjava.Moment;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -33,9 +32,10 @@ import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.privileges.User;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
-import com.rebuild.web.IllegalParameterException;
+import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -43,19 +43,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.sql.DataTruncation;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
- * 记录操作
+ * 记录操作（增/改/删/分派/共享）
  * 
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
@@ -68,9 +60,9 @@ public class GeneralOperatingControll extends BaseControll {
 	public static final int CODE_REPEATED_VALUES = 499;
 
 	@RequestMapping("record-save")
-	public void save(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID user = getRequestUser(request);
-		JSON formJson = ServletUtils.getRequestJson(request);
+	public void save(HttpServletRequest request, HttpServletResponse response) {
+		final ID user = getRequestUser(request);
+		final JSON formJson = ServletUtils.getRequestJson(request);
 		
 		Record record;
 		try {
@@ -80,7 +72,8 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 
-		List<Record> repeated = Application.getGeneralEntityService().checkRepeated(record);
+		// 检查重复值
+		List<Record> repeated = Application.getGeneralEntityService().getCheckRepeated(record, 100);
 		if (!repeated.isEmpty()) {
 			JSONObject map = new JSONObject();
 			map.put("error_code", CODE_REPEATED_VALUES);
@@ -88,7 +81,7 @@ public class GeneralOperatingControll extends BaseControll {
 			map.put("data", buildRepeatedData(repeated));
 			writeJSON(response, map);
 			return;
-		}
+        }
 
 		try {
 			record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
@@ -99,32 +92,31 @@ public class GeneralOperatingControll extends BaseControll {
 		    if (ex.getCause() instanceof DataTruncation) {
                 writeFailure(response, "字段长度超过限制");
             } else {
+		    	LOG.error(null, ex);
                 writeFailure(response, ex.getLocalizedMessage());
             }
 		    return;
         }
 
-		// 单字段修改
-		boolean fromSingle = getBoolParameter(request, "single");
-        Map<String, Object> fieldsVal = null;
-		if (fromSingle) {
-		    fieldsVal = new HashMap<>();
-		    for (String field : record.getAvailableFields()) {
-                Field fieldMeta = record.getEntity().getField(field);
-		        if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {
-		            continue;
-                }
-
-		        Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
-		        fieldsVal.put(field, newValue);
-            }
-        }
-		
 		Map<String, Object> map = new HashMap<>();
 		map.put("id", record.getPrimary());
-		if (fieldsVal != null) {
-		    map.putAll(fieldsVal);
-        }
+
+		// 单字段修改立即返回新值
+		boolean viaSingle = getBoolParameter(request, "single");
+		if (viaSingle) {
+			Map<String, Object> fieldsVal = new HashMap<>();
+			for (String field : record.getAvailableFields()) {
+				Field fieldMeta = record.getEntity().getField(field);
+				if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {
+					continue;
+				}
+
+				Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
+				fieldsVal.put(field, newValue);
+			}
+			map.putAll(fieldsVal);
+		}
+
 		writeSuccess(response, map);
 	}
 	
@@ -139,10 +131,10 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
+		final ServiceSpec ies = Application.getService(entity.getEntityCode());
+
 		String[] cascades = parseCascades(request);
-		ServiceSpec ies = Application.getService(entity.getEntityCode());
-		
+
 		int affected;
 		try {
 			if (!EntityService.class.isAssignableFrom(ies.getClass())) {
@@ -175,11 +167,11 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
-		ID assignTo = getIdParameterNotNull(request, "to");
+		final EntityService ies = Application.getEntityService(entity.getEntityCode());
+
 		String[] cascades = parseCascades(request);
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
-		
+		ID assignTo = getIdParameterNotNull(request, "to");
+
 		int affected;
 		try {
 			// 仅一条记录
@@ -217,10 +209,10 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = records[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
+		final EntityService ies = Application.getEntityService(entity.getEntityCode());
+
 		String[] cascades = parseCascades(request);
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
-		
+
 		int affected = 0;
 		try {
 			for (ID to : toUsers) {
@@ -255,8 +247,7 @@ public class GeneralOperatingControll extends BaseControll {
 		
 		final ID firstId = accessIds[0];
 		final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-		
-		EntityService ies = Application.getEntityService(entity.getEntityCode());
+		final EntityService ies = Application.getEntityService(entity.getEntityCode());
 		
 		int affected;
 		try {
@@ -287,19 +278,22 @@ public class GeneralOperatingControll extends BaseControll {
 		}
 		
 		// 查询共享记录ID
-		String sql = String.format(
-				"select recordId,accessId from ShareAccess where recordId in ('%s')", StringUtils.join(records, "','"));
+		String accessSql = String.format(
+				"select recordId,accessId from ShareAccess where recordId in ('%s')",
+				StringUtils.join(records, "','"));
+
 		String to = getParameterNotNull(request, "to");
+		// 非全部
 		if (!"$ALL$".equals(to)) {
 			ID[] toUsers = parseUserList(request);
 			if (toUsers.length == 0) {
 				writeFailure(response, "没有要取消共享的用户");
 				return;
 			}
-			sql += String.format(" and shareTo in ('%s')", StringUtils.join(toUsers, "','"));
+			accessSql += String.format(" and shareTo in ('%s')", StringUtils.join(toUsers, "','"));
 		}
 		
-		Object[][] accessArray = Application.createQueryNoFilter(sql).array();
+		Object[][] accessArray = Application.createQueryNoFilter(accessSql).array();
 		if (accessArray.length == 0) {
 			JSON ret = JSONUtils.toJSONObject(
 					new String[] { "unshared", "requests" },
@@ -308,24 +302,26 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 		
-		Map<ID, Set<ID>> accessMap = new HashMap<>();
+		Map<ID, Set<ID>> accessListMap = new HashMap<>();
 		for (Object[] o : accessArray) {
 			ID record = (ID) o[0];
-			Set<ID> access = accessMap.computeIfAbsent(record, k -> new HashSet<>());
+			Set<ID> access = accessListMap.computeIfAbsent(record, k -> new HashSet<>());
 			access.add((ID) o[1]);
 		}
-		
-		EntityService ies = Application.getEntityService(records[0].getEntityCode());
+
+		final EntityService ies = Application.getEntityService(records[0].getEntityCode());
 		
 		int affected = 0;
 		try {
-			for (Map.Entry<ID, Set<ID>> e : accessMap.entrySet()) {
+			for (Map.Entry<ID, Set<ID>> e : accessListMap.entrySet()) {
 				ID record = e.getKey();
-				Set<ID> access = e.getValue();
+				Set<ID> accessList = e.getValue();
 				BulkContext context = new BulkContext(
-						user, EntityService.UNSHARE, access.toArray(new ID[0]), record);
+						user, EntityService.UNSHARE, accessList.toArray(new ID[0]), record);
+				// 每条记录一个事物
 				affected += ies.bulk(context);
 			}
+
 		} catch (AccessDeniedException know) {
 			writeFailure(response, know.getLocalizedMessage());
 			return;
@@ -340,10 +336,10 @@ public class GeneralOperatingControll extends BaseControll {
 	@RequestMapping("record-meta")
 	public void fetchRecordMeta(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
-		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		String sql = "select createdOn,modifiedOn from %s where %s = '%s'";
-		if (EntityHelper.hasPrivilegesField(entity)) {
+		if (MetadataHelper.hasPrivilegesField(entity)) {
 			sql = sql.replaceFirst("modifiedOn", "modifiedOn,owningUser");
 		}
 		
@@ -354,8 +350,8 @@ public class GeneralOperatingControll extends BaseControll {
 			return;
 		}
 		
-		recordMeta[0] = Moment.moment((Date) recordMeta[0]).fromNow();
-		recordMeta[1] = Moment.moment((Date) recordMeta[1]).fromNow();
+		recordMeta[0] = CommonsUtils.formatClientDate((Date) recordMeta[0]);
+		recordMeta[1] = CommonsUtils.formatClientDate((Date) recordMeta[1]);
 		
 		String[] owning = null;
 		List<String[]> sharingList = null;
@@ -368,7 +364,7 @@ public class GeneralOperatingControll extends BaseControll {
 					"select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
 					.setParameter(1, entity.getName())
 					.setParameter(2, id)
-					.setLimit(9)  // 显示多了页面显示不出
+					.setLimit(9)  // 最多显示9个
 					.array();
 			sharingList = new ArrayList<>();
 			for (Object[] st : shareTo) {
@@ -385,7 +381,7 @@ public class GeneralOperatingControll extends BaseControll {
 	@RequestMapping("record-lastModified")
 	public void fetchRecordLastModified(HttpServletRequest request, HttpServletResponse response) {
 		final ID id = getIdParameterNotNull(request, "id");
-		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		String sql = String.format("select modifiedOn from %s where %s = '%s'",
 				entity.getName(), entity.getPrimaryField().getName(), id);
@@ -403,8 +399,8 @@ public class GeneralOperatingControll extends BaseControll {
 	
 	@RequestMapping("shared-list")
 	public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) {
-		ID id = getIdParameterNotNull(request, "id");
-		Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+		final ID id = getIdParameterNotNull(request, "id");
+		final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
 		
 		Object[][] array = Application.createQueryNoFilter(
 				"select shareTo,accessId,createdOn,createdBy from ShareAccess where belongEntity = ? and recordId = ?")
@@ -427,6 +423,7 @@ public class GeneralOperatingControll extends BaseControll {
 	 */
 	private ID[] parseIdList(HttpServletRequest request) {
 		String ids = getParameterNotNull(request, "id");
+
 		Set<ID> idList = new HashSet<>();
 		int sameEntityCode = 0;
 		for (String id : ids.split(",")) {
@@ -438,7 +435,7 @@ public class GeneralOperatingControll extends BaseControll {
 				sameEntityCode = id0.getEntityCode();
 			}
 			if (sameEntityCode != id0.getEntityCode()) {
-				throw new IllegalParameterException("只能批量删除同一实体的记录");
+				throw new InvalidParameterException("只能批量处理同一实体的记录");
 			}
 			idList.add(ID.valueOf(id));
 		}
@@ -453,17 +450,9 @@ public class GeneralOperatingControll extends BaseControll {
 	 */
 	private ID[] parseUserList(HttpServletRequest request) {
 		String to = getParameterNotNull(request, "to");
-		Set<ID> toList = new HashSet<>();
-		for (String id : to.split(",")) {
-			if (ID.isId(id)) {
-				ID uid = ID.valueOf(id);
-				if (uid.getEntityCode() != EntityHelper.User) {
-					throw new IllegalParameterException("无效用户:" + uid);
-				}
-				toList.add(uid);
-			}
-		}
-		return toList.toArray(new ID[0]);
+
+		Set<ID> users = UserHelper.parseUsers(Arrays.asList(to.split(",")), null, true);
+		return users.toArray(new ID[0]);
 	}
 	
 	/**
@@ -496,7 +485,7 @@ public class GeneralOperatingControll extends BaseControll {
 	 * @return
 	 */
 	private JSON buildRepeatedData(List<Record> records) {
-		Entity entity = records.get(0).getEntity();
+		final Entity entity = records.get(0).getEntity();
 
 		// 准备字段
 		List<String> fields = new ArrayList<>();

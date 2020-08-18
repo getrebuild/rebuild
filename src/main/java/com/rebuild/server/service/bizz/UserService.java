@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.bizz;
@@ -35,7 +24,7 @@ import com.rebuild.server.helper.language.Languages;
 import com.rebuild.server.helper.task.TaskExecutors;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.DataSpecificationException;
-import com.rebuild.server.service.SystemEntityService;
+import com.rebuild.server.service.BaseServiceImpl;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import com.rebuild.utils.AppUtils;
@@ -47,13 +36,16 @@ import com.rebuild.utils.CommonsUtils;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-public class UserService extends SystemEntityService {
+public class UserService extends BaseServiceImpl {
 	
 	// 系统用户
 	public static final ID SYSTEM_USER = ID.valueOf("001-0000000000000000");
 	// 管理员
 	public static final ID ADMIN_USER = ID.valueOf("001-0000000000000001");
-	
+
+	// 暂未用：全部用户（注意这是一个虚拟用户 ID，并不真实存在）
+	public static final ID _ALL_USER = ID.valueOf("001-9999999999999999");
+
 	public UserService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
@@ -74,7 +66,7 @@ public class UserService extends SystemEntityService {
      * @return
      */
     private Record create(Record record, boolean notifyUser) {
-    	checkAdminGuard(null, BizzPermission.CREATE);
+    	checkAdminGuard(BizzPermission.CREATE, null);
 
         final String passwd = record.getString("password");
         saveBefore(record);
@@ -89,7 +81,7 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public Record update(Record record) {
-		checkAdminGuard(record.getPrimary(), BizzPermission.UPDATE);
+		checkAdminGuard(BizzPermission.UPDATE, record.getPrimary());
 
 		saveBefore(record);
 		Record r = super.update(record);
@@ -99,7 +91,7 @@ public class UserService extends SystemEntityService {
 	
 	@Override
 	public int delete(ID record) {
-    	checkAdminGuard(null, BizzPermission.DELETE);
+    	checkAdminGuard(BizzPermission.DELETE, null);
 
 		super.delete(record);
 		Application.getUserStore().removeUser(record);
@@ -151,22 +143,23 @@ public class UserService extends SystemEntityService {
 	}
 
 	/**
-	 * @param user
 	 * @param action
+	 * @param user
 	 * @see com.rebuild.server.service.bizz.privileges.AdminGuard
 	 */
-	private void checkAdminGuard(ID user, Permission action) {
+	private void checkAdminGuard(Permission action, ID user) {
 		ID currentUser = Application.getCurrentUser();
 		if (UserHelper.isAdmin(currentUser)) return;
 
 		if (action == BizzPermission.CREATE || action == BizzPermission.DELETE) {
-			throw new PrivilegesException("无操作权限");
+			throw new PrivilegesException("无操作权限 (E1)");
 		}
+
 		// 用户可自己改自己
 		if (action == BizzPermission.UPDATE && currentUser.equals(user)) {
 			return;
 		}
-		throw new PrivilegesException("无操作权限");
+		throw new PrivilegesException("无操作权限 (E1)");
 	}
 
     /**
@@ -175,7 +168,7 @@ public class UserService extends SystemEntityService {
      * @param password
      * @throws DataSpecificationException
      */
-    public void checkPassword(String password) throws DataSpecificationException {
+    protected void checkPassword(String password) throws DataSpecificationException {
         if (password.length() < 6) {
             throw new DataSpecificationException(Languages.lang("PasswordLevel1Tip"));
         }
@@ -232,7 +225,7 @@ public class UserService extends SystemEntityService {
 	}
 	
 	/**
-	 * 入参值为 null 表示不做修改
+	 * xxxNew 值为 null 表示不做修改
 	 * 
 	 * @param user
 	 * @param deptNew
@@ -274,13 +267,15 @@ public class UserService extends SystemEntityService {
 			TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew), Application.getCurrentUser());
 		}
 	}
-	
-	/**
-	 * 用户注册
-	 * 
-	 * @param record
-	 */
-	public ID txSignUp(Record record) {
+
+    /**
+     * 新用户注册
+     *
+     * @param record
+     * @return
+     * @throws DataSpecificationException
+     */
+	public ID txSignUp(Record record) throws DataSpecificationException {
 		record = this.create(record, false);
 
 		ID newUserId = record.getPrimary();

@@ -52,7 +52,8 @@
 window.__PageConfig = {
 	type: 'RecordView',
 	entity: ['Team','${entityLabel}','${entityIcon}'],
-	recordId: '${id}'
+	recordId: '${id}',
+	onViewEditable: false
 }
 </script>
 <script src="${baseUrl}/assets/js/rb-forms.jsx" type="text/babel"></script>

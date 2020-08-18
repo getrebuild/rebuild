@@ -60,4 +60,5 @@ public class PerHourJob extends DistributedJobBean {
     protected void doCleanTempFiles() {
         FileFilterByLastModified.deletes(SysConfiguration.getFileOfTemp(null), 7);
     }
+
 }

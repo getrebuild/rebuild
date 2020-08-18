@@ -31,6 +31,7 @@ import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.TransactionManual;
+import com.rebuild.server.service.bizz.UserService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.transaction.TransactionStatus;
@@ -177,7 +178,7 @@ public class RecycleRestore {
                 .setParameter(1, recordId)
                 .array();
         for (Object[] o : array) {
-            Record u = EntityHelper.forUpdate((ID) o[0], null, false);
+            Record u = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
             u.setBoolean(EntityHelper.IsDeleted, false);
             PM.update(u);
         }

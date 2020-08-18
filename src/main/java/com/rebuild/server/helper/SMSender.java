@@ -17,6 +17,7 @@ import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.utils.CommonsUtils;
+import com.rebuild.utils.HttpUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -114,7 +115,7 @@ public class SMSender {
 
 		JSONObject rJson;
 		try {
-			String r = CommonsUtils.post("https://api.mysubmail.com/mail/send.json", params);
+			String r = HttpUtils.post("https://api.mysubmail.com/mail/send.json", params);
 			rJson = JSON.parseObject(r);
 		} catch (Exception ex) {
 			LOG.error("Mail failed to send : " + to + " > " + subject, ex);
@@ -126,13 +127,13 @@ public class SMSender {
 		JSONArray returns = rJson.getJSONArray("return");
 		if (STATUS_OK.equalsIgnoreCase(rJson.getString("status")) && !returns.isEmpty()) {
 			String sendId = ((JSONObject) returns.get(0)).getString("send_id");
-			createLog(to, scontent, sendId, null);
+			createLog(to, scontent, 2, sendId, null);
 			return sendId;
 
 		} else {
 			LOG.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
 
-			createLog(to, scontent, null, rJson.getString("msg"));
+			createLog(to, scontent, 2, null, rJson.getString("msg"));
 			return null;
 		}
 	}
@@ -197,7 +198,7 @@ public class SMSender {
 
 		JSONObject rJson;
 		try {
-			String r = CommonsUtils.post("https://api.mysubmail.com/message/send.json", params);
+			String r = HttpUtils.post("https://api.mysubmail.com/message/send.json", params);
 			rJson = JSON.parseObject(r);
 		} catch (Exception ex) {
 			LOG.error("SMS failed to send : " + to + " > " + content, ex);
@@ -206,13 +207,13 @@ public class SMSender {
 		
 		if (STATUS_OK.equalsIgnoreCase(rJson.getString("status"))) {
 			String sendId = rJson.getString("send_id");
-			createLog(to, content, sendId, null);
+			createLog(to, content, 1, sendId, null);
 			return sendId;
 
 		} else {
 			LOG.error("SMS failed to send : " + to + " > " + content + "\nError : " + rJson);
 
-			createLog(to, content, null, rJson.getString("msg"));
+			createLog(to, content, 1, null, rJson.getString("msg"));
 			return null;
 		}
 	}
@@ -222,23 +223,25 @@ public class SMSender {
 	 *
 	 * @param to
 	 * @param content
+	 * @param type 1=短信 2=邮件
 	 * @param sentid
 	 * @param error
 	 */
-	private static void createLog(String to, String content, String sentid, String error) {
+	private static void createLog(String to, String content, int type, String sentid, String error) {
 		if (!Application.serversReady()) return;
 
 		Record log = EntityHelper.forNew(EntityHelper.SmsendLog, UserService.SYSTEM_USER);
 		log.setString("to", to);
 		log.setString("content", CommonsUtils.maxstr(content, 10000));
 		log.setDate("sendTime", CalendarUtils.now());
+		log.setInt("type", type);
 		if (sentid != null) {
 			log.setString("sendResult", sentid);
 		} else {
 			log.setString("sendResult",
 					CommonsUtils.maxstr("ERR:" + StringUtils.defaultIfBlank(error, "Unknow"), 200));
 		}
-		Application.getCommonService().create(log);
+		Application.getCommonsService().create(log);
 	}
 	
 	/**

@@ -89,7 +89,7 @@ public class Field2Schema {
 		
 		boolean schemaReady = schema2Database(entity, new Field[] { field });
 		if (!schemaReady) {
-			Application.getCommonService().delete(tempMetaId.toArray(new ID[0]));
+			Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
 			throw new ModifiyMetadataException("无法创建字段到数据库");
 		}
 		
@@ -215,7 +215,11 @@ public class Field2Schema {
 			creatable = false;
 			updatable = false;
 			repeatable = false;
-		} else if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)) {
+		} else if (dt == DisplayType.BARCODE) {
+			nullable = true;
+            creatable = false;
+            updatable = false;
+        } else if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)) {
 			repeatable = false;
 		}
 
@@ -270,11 +274,11 @@ public class Field2Schema {
 		if (dt == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
 			throw new ModifiyMetadataException("引用字段必须指定引用实体");
 		}
-		
-		recordOfField = Application.getCommonService().create(recordOfField);
+
+		recordOfField = Application.getCommonsService().create(recordOfField);
 		tempMetaId.add(recordOfField.getPrimary());
-		
-		// 此处会改变一些属性，因为并不想他们同步到数据库
+
+		// 以下会改变一些属性，因为并不想他们保存在元数据中
 		
 		boolean autoValue = EntityHelper.AutoId.equalsIgnoreCase(fieldName);
 		if (EntityHelper.ApprovalState.equalsIgnoreCase(fieldName)) {

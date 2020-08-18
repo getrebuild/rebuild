@@ -210,4 +210,14 @@ public final class ServerStatus {
 		}
 		return new double[] { 0, 0 };
 	}
+
+	/**
+	 * CPU 负载
+	 *
+	 * @return
+	 */
+	public static double getSystemLoad() {
+		double load = SystemUtils.getRuntimeInformation().getSystemLoad();
+		return load < 0 ? 0 : ObjectUtils.round(load, 2);
+	}
 }

@@ -18,24 +18,19 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 package com.rebuild.web.base.general;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.approval.ApprovalException;
-import com.rebuild.server.business.approval.ApprovalHelper;
-import com.rebuild.server.business.approval.ApprovalProcessor;
-import com.rebuild.server.business.approval.ApprovalState;
-import com.rebuild.server.business.approval.FlowNodeGroup;
-import com.rebuild.server.business.approval.FormBuilder;
+import com.rebuild.server.business.approval.*;
 import com.rebuild.server.configuration.FlowDefinition;
 import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.DataSpecificationNoRollbackException;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -46,7 +41,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -60,9 +54,9 @@ public class ApprovalControll extends BasePageControll {
 	
 	@RequestMapping("workable")
 	public void getWorkable(HttpServletRequest request, HttpServletResponse response) {
-		ID recordId = getIdParameterNotNull(request, "record");
-		ID user = getRequestUser(request);
-		
+		final ID user = getRequestUser(request);
+		final ID recordId = getIdParameterNotNull(request, "record");
+
 		FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
 		JSONArray data = new JSONArray();
 		for (FlowDefinition d : defs) {
@@ -73,21 +67,16 @@ public class ApprovalControll extends BasePageControll {
 	
 	@RequestMapping("state")
 	public void getApprovalState(HttpServletRequest request, HttpServletResponse response) {
-		ID recordId = getIdParameterNotNull(request, "record");
-		ID user = getRequestUser(request);
-		
-		Object[] state = Application.getQueryFactory().unique(recordId,
-				EntityHelper.ApprovalId, EntityHelper.ApprovalState);
-		if (state == null) {
-			writeFailure(response, "无效记录");
-			return;
-		}
-		
+		final ID user = getRequestUser(request);
+		final ID recordId = getIdParameterNotNull(request, "record");
+		final ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
+
 		Map<String, Object> data = new HashMap<>();
 
-		int stateVal = ObjectUtils.toInt(state[1], ApprovalState.DRAFT.getState());
+		int stateVal = status.getCurrentState().getState();
 		data.put("state", stateVal);
-		ID useApproval = (ID) state[0];
+
+		ID useApproval = status.getApprovalId();
 		if (useApproval != null) {
 			data.put("approvalId", useApproval);
 			// 当前审批步骤
@@ -118,10 +107,10 @@ public class ApprovalControll extends BasePageControll {
 	
 	@RequestMapping("fetch-nextstep")
 	public void fetchNextStep(HttpServletRequest request, HttpServletResponse response) {
-		ID recordId = getIdParameterNotNull(request, "record");
-		ID approvalId = getIdParameterNotNull(request, "approval");
-		ID user = getRequestUser(request);
-		
+		final ID user = getRequestUser(request);
+		final ID recordId = getIdParameterNotNull(request, "record");
+		final ID approvalId = getIdParameterNotNull(request, "approval");
+
 		ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, approvalId);
 		FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
 
@@ -141,6 +130,7 @@ public class ApprovalControll extends BasePageControll {
 		data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
 		data.put("isLastStep", nextNodes.isLastStep());
 		data.put("signMode", nextNodes.getSignMode());
+		data.put("useGroup", nextNodes.getGroupId());
 
 		// 可修改字段
 		JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
@@ -162,9 +152,10 @@ public class ApprovalControll extends BasePageControll {
 	}
 	
 	@RequestMapping("submit")
-	public void doSubmit(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID recordId = getIdParameterNotNull(request, "record");
-		ID approvalId = getIdParameterNotNull(request, "approval");
+	public void doSubmit(HttpServletRequest request, HttpServletResponse response) {
+		final ID recordId = getIdParameterNotNull(request, "record");
+		final ID approvalId = getIdParameterNotNull(request, "approval");
+
 		JSONObject selectUsers = (JSONObject) ServletUtils.getRequestJson(request);
 		
 		try {
@@ -180,14 +171,15 @@ public class ApprovalControll extends BasePageControll {
 	}
 	
 	@RequestMapping("approve")
-	public void doApprove(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		ID approver = getRequestUser(request);
-		ID recordId = getIdParameterNotNull(request, "record");
-		int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
+	public void doApprove(HttpServletRequest request, HttpServletResponse response) {
+		final ID approver = getRequestUser(request);
+		final ID recordId = getIdParameterNotNull(request, "record");
+		final int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
 		
 		JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
 		JSONObject selectUsers = post.getJSONObject("selectUsers");
 		String remark = post.getString("remark");
+		String useGroup = post.getString("useGroup");
 
 		// 可编辑字段
 		JSONObject aformData = post.getJSONObject("aformData");
@@ -204,15 +196,17 @@ public class ApprovalControll extends BasePageControll {
 
 		try {
 			new ApprovalProcessor(recordId)
-					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord);
+					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup);
 			writeSuccess(response);
+		} catch (DataSpecificationNoRollbackException ex) {
+			writeJSON(response, formatFailure(ex.getMessage(), 499));
 		} catch (ApprovalException ex) {
 			writeFailure(response, ex.getMessage());
 		}
 	}
 
 	@RequestMapping("cancel")
-	public void doCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void doCancel(HttpServletRequest request, HttpServletResponse response) {
 		ID recordId = getIdParameterNotNull(request, "record");
 		try {
 			new ApprovalProcessor(recordId).cancel();
@@ -223,7 +217,7 @@ public class ApprovalControll extends BasePageControll {
 	}
 
 	@RequestMapping("revoke")
-	public void doRevoke(HttpServletRequest request, HttpServletResponse response) throws IOException {
+	public void doRevoke(HttpServletRequest request, HttpServletResponse response) {
 		ID recordId = getIdParameterNotNull(request, "record");
 		try {
 			new ApprovalProcessor(recordId).revoke();
@@ -235,7 +229,8 @@ public class ApprovalControll extends BasePageControll {
 	
 	@RequestMapping("flow-definition")
 	public void getFlowDefinition(HttpServletRequest request, HttpServletResponse response) {
-		ID approvalId = getIdParameterNotNull(request, "id");
+		final ID approvalId = getIdParameterNotNull(request, "id");
+
 		Object[] belongEntity = Application.createQueryNoFilter(
 				"select belongEntity from RobotApprovalConfig where configId = ?")
 				.setParameter(1, approvalId)

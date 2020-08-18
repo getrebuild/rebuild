@@ -10,8 +10,6 @@ package com.rebuild.server.service;
 import com.rebuild.server.TestSupport;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * @author devezhao
  * @since 2020/2/25

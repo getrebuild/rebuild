@@ -94,6 +94,8 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
      * @see #INSTALL_FILE
      */
 	private Properties fromInstallFile() {
+		if (Application.devMode()) return new Properties();
+
         File file = SysConfiguration.getFileOfData(INSTALL_FILE);
         if (file.exists()) {
             try {

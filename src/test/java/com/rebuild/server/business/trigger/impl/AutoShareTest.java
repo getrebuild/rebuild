@@ -54,7 +54,7 @@ public class AutoShareTest extends TestSupportWithUser {
 
         // 测试执行
         ID testId = addRecordOfTestAllFields();
-        boolean allowed = Application.getSecurityManager().allowViaShare(SIMPLE_USER, testId, BizzPermission.READ);
+        boolean allowed = Application.getPrivilegesManager().allowViaShare(SIMPLE_USER, testId, BizzPermission.READ);
         Assert.assertTrue(allowed);
 
         // 清理

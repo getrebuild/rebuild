@@ -95,14 +95,14 @@ class ApprovalProcessor extends React.Component {
 
   submit = () => {
     const that = this
-    if (this._submitForm) this._submitForm.show()
-    else renderRbcomp(<ApprovalSubmitForm id={this.props.id} />, null, function () { that._submitForm = this })
+    if (this._SubmitForm) this._SubmitForm.show(null, () => that._SubmitForm.reload())
+    else renderRbcomp(<ApprovalSubmitForm id={this.props.id} />, null, function () { that._SubmitForm = this })
   }
 
   approve = () => {
     const that = this
-    if (this._approveForm) this._approveForm.show()
-    else renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} />, null, function () { that._approveForm = this })
+    if (this._ApproveForm) this._ApproveForm.show()
+    else renderRbcomp(<ApprovalApproveForm id={this.props.id} approval={this.state.approvalId} entity={this.props.entity} />, null, function () { that._ApproveForm = this })
   }
 
   cancel = () => {
@@ -161,7 +161,7 @@ class ApprovalUsersForm extends RbFormHandler {
           })}
         </div>
         {this.state.approverSelfSelecting && <div>
-          <UserSelector ref={(c) => this._approverSelect = c} />
+          <UserSelector ref={(c) => this._approverSelector = c} />
         </div>}
       </div>}
       {ccHas && <div className="form-group">
@@ -172,7 +172,7 @@ class ApprovalUsersForm extends RbFormHandler {
           })}
         </div>
         {this.state.ccSelfSelecting && <div>
-          <UserSelector ref={(c) => this._ccSelect = c} />
+          <UserSelector ref={(c) => this._ccSelector = c} />
         </div>}
       </div>}
     </div>
@@ -180,11 +180,11 @@ class ApprovalUsersForm extends RbFormHandler {
 
   getSelectUsers() {
     const selectUsers = {
-      selectApprovers: this.state.approverSelfSelecting ? this._approverSelect.getSelected() : [],
-      selectCcs: this.state.ccSelfSelecting ? this._ccSelect.getSelected() : []
+      selectApprovers: this.state.approverSelfSelecting ? this._approverSelector.getSelected() : [],
+      selectCcs: this.state.ccSelfSelecting ? this._ccSelector.getSelected() : []
     }
 
-    if (this.state.isLastStep !== true) {
+    if (!this.state.isLastStep) {
       if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
         RbHighbar.create('请选择审批人')
         return false
@@ -235,7 +235,9 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
     </RbModal>
   }
 
-  componentDidMount() {
+  componentDidMount = () => this.reload()
+
+  reload() {
     $.get(`/app/entity/approval/workable?record=${this.props.id}`, (res) => {
       if (res.data && res.data.length > 0) {
         this.setState({ approvals: res.data, useApproval: res.data[0].id }, () => {
@@ -252,10 +254,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
   }
 
   post() {
-    if (!this.state.useApproval) {
-      RbHighbar.create('请选择审批流程')
-      return
-    }
+    if (!this.state.useApproval) return RbHighbar.create('请选择审批流程')
     const selectUsers = this.getSelectUsers()
     if (!selectUsers) return
 
@@ -279,6 +278,11 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   render() {
     return <RbModal ref={(c) => this._dlg = c} title="审批" width="600">
       <div className="form approval-form">
+        {this.state.bizMessage &&
+          <div className="form-group">
+            <RbAlertBox message={this.state.bizMessage} onClose={() => this.setState({ bizMessage: null })} />
+          </div>
+        }
         {this.state.aform && this._renderEditableForm()}
         <div className="form-group">
           <label>批注</label>
@@ -291,10 +295,6 @@ class ApprovalApproveForm extends ApprovalUsersForm {
         </div>
       </div>
     </RbModal>
-  }
-
-  componentDidMount() {
-    this.getNextStep()
   }
 
   _renderEditableForm() {
@@ -312,8 +312,10 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     </div>
   }
 
+  componentDidMount = () => this.getNextStep()
+
   post(state) {
-    let aformData = {}
+    const aformData = {}
     if (this.state.aform && state === 10) {
       const fd = this._rbform.__FormData
       for (let k in fd) {
@@ -330,12 +332,22 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       if (!selectUsers) return
     }
 
-    const data = { remark: this.state.remark || '', selectUsers: selectUsers, aformData: aformData }
+    const data = {
+      remark: this.state.remark || '',
+      selectUsers: selectUsers,
+      aformData: aformData,
+      useGroup: this.state.useGroup
+    }
 
     this.disabled(true)
     $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
-      if (res.error_code > 0) RbHighbar.error(res.error_msg)
-      else {
+      if (res.error_code === 499) {
+        this.setState({ bizMessage: res.error_msg })
+        this.getNextStep()
+
+      } else if (res.error_code > 0) {
+        RbHighbar.error(res.error_msg)
+      } else {
         _reload(this, '审批已' + (state === 10 ? '同意' : '驳回'))
         typeof this.props.call === 'function' && this.props.call()
       }
@@ -404,7 +416,7 @@ class ApprovalStepViewer extends React.Component {
 
   renderApprovers(s, idx, lastState) {
     const kp = 'step-' + idx + '-'
-    let sss = []
+    const sss = []
     let nodeState = 0
     if (s[0].signMode === 'OR') {
       s.forEach(item => {
@@ -413,7 +425,7 @@ class ApprovalStepViewer extends React.Component {
     }
 
     s.forEach(item => {
-      let approverName = item.approver === rb.currentUser ? '你' : item.approverName
+      const approverName = item.approver === rb.currentUser ? '你' : item.approverName
       let aMsg = `等待 ${approverName} 审批`
       if (item.state >= 10) aMsg = `由 ${approverName} ${STATE_NAMES[item.state]}`
       if ((nodeState >= 10 || lastState >= 10) && item.state < 10) aMsg = `${approverName} 未进行审批`
@@ -463,9 +475,10 @@ class ApprovalStepViewer extends React.Component {
 }
 
 // 刷新页面
-const _reload = function (a, msg) {
+const _reload = function (dlg, msg) {
+  dlg && dlg.hide()
   msg && RbHighbar.success(msg)
-  a && a.hide()
+
   setTimeout(() => {
     if (window.RbViewPage) window.RbViewPage.reload()
     if (window.RbListPage) window.RbListPage.reload()

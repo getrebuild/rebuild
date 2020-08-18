@@ -31,11 +31,6 @@ import com.rebuild.utils.JSONUtils;
  */
 public class RevisionHistoryObserver extends OperatingObserver {
 
-    @Override
-    protected boolean isAsync() {
-        return true;
-    }
-
 	@Override
 	protected void updateByAction(OperatingContext ctx) {
 		// 激活
@@ -49,25 +44,25 @@ public class RevisionHistoryObserver extends OperatingObserver {
 	@Override
 	public void onCreate(OperatingContext context) {
         Record revision = newRevision(context, false);
-        Application.getCommonService().create(revision);
+        Application.getCommonsService().create(revision);
 	}
 	
 	@Override
 	public void onUpdate(OperatingContext context) {
         Record revision = newRevision(context, true);
-        Application.getCommonService().create(revision);
+        Application.getCommonsService().create(revision);
 	}
 	
 	@Override
 	public void onDelete(OperatingContext context) {
         Record revision = newRevision(context, false);
-        Application.getCommonService().create(revision);
+        Application.getCommonsService().create(revision);
 	}
 	
 	@Override
 	public void onAssign(OperatingContext context) {
         Record revision = newRevision(context, true);
-        Application.getCommonService().create(revision);
+        Application.getCommonsService().create(revision);
 	}
 	
 	@Override
@@ -76,7 +71,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
         ID recordId = context.getAfterRecord().getID("recordId");
         revision.setID("recordId", recordId);
         revision.setString("belongEntity", MetadataHelper.getEntityName(recordId));
-        Application.getCommonService().create(revision);
+        Application.getCommonsService().create(revision);
 	}
 
 	@Override
@@ -85,7 +80,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
         ID recordId = context.getBeforeRecord().getID("recordId");
         revision.setID("recordId", recordId);
         revision.setString("belongEntity", MetadataHelper.getEntityName(recordId));
-        Application.getCommonService().create(revision);
+        Application.getCommonsService().create(revision);
 	}
 
 	/**
@@ -118,4 +113,9 @@ public class RevisionHistoryObserver extends OperatingObserver {
 
 	    return record;
     }
+
+	@Override
+	protected boolean isAsync() {
+		return true;
+	}
 }

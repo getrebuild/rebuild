@@ -92,7 +92,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 			for (Field field : entityMeta.getReferenceToFields(true)) {
 				Entity e = field.getOwnEntity();
 				if (e.getMasterEntity() == null &&
-                        Application.getSecurityManager().allow(user, e.getEntityCode(), useAction)) {
+                        Application.getPrivilegesManager().allow(user, e.getEntityCode(), useAction)) {
 					refs.add(getEntityShow(field, mfRefs, applyType));
 				}
 			}
@@ -119,7 +119,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
 				continue;
 			}
 
-			if (Application.getSecurityManager().allow(user, addonEntity.getEntityCode(), useAction)) {
+			if (Application.getPrivilegesManager().allow(user, addonEntity.getEntityCode(), useAction)) {
 				if (e.length > 1) {
 					addons.add(getEntityShow(addonEntity.getField(e[1]), mfRefs, applyType));
 				} else {

@@ -4,7 +4,8 @@
 <script src="${baseUrl}/assets/lib/bootstrap.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/perfect-scrollbar.jquery.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/mprogress.min.js"></script>
-<script src="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.js"></script>
+<script src="${baseUrl}/assets/lib/moment-with-locales.min.js?v=2.27.0"></script>
+<script src="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.js?v=2.4.4"></script>
 <script src="${baseUrl}/assets/lib/jquery.html5uploader.js"></script>
 <script src="${baseUrl}/assets/lib/qiniu.min.js"></script>
 <script src="${baseUrl}/assets/lib/widget/select2.min.js?v=4.0.13"></script>

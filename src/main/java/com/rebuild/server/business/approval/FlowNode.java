@@ -34,6 +34,7 @@ public class FlowNode {
 	public static final String NODE_ROOT = "ROOT";
 	public static final String NODE_CANCELED = "CANCELED";
 	public static final String NODE_REVOKED = "REVOKED";
+	public static final String NODE_AUTOAPPROVAL = "AUTOAPPROVAL";
 
 	// 节点类型
 	
@@ -110,8 +111,10 @@ public class FlowNode {
 	public boolean allowSelfSelecting() {
 		if (getDataMap().containsKey("selfSelecting")) {
 			return getDataMap().getBooleanValue("selfSelecting");
+		} else {
+			// 默认允许
+			return true;
 		}
-		return false;
 	}
 
 	/**
@@ -120,8 +123,10 @@ public class FlowNode {
 	public boolean allowCcAutoShare() {
 		if (getDataMap().containsKey("ccAutoShare")) {
 			return getDataMap().getBooleanValue("ccAutoShare");
+		} else {
+			// 默认允许
+			return true;
 		}
-		return false;
 	}
 
 	/**

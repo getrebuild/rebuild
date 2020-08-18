@@ -29,7 +29,7 @@ import com.rebuild.server.service.configuration.ChartConfigService;
 import com.rebuild.server.service.configuration.DashboardConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseEntityControll;
-import com.rebuild.web.IllegalParameterException;
+import com.rebuild.web.InvalidParameterException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -82,10 +82,10 @@ public class ChartDesignControll extends BaseEntityControll {
 			mv.getModel().put("chartOwningAdmin", UserHelper.isAdmin(user));
 			entityMeta = MetadataHelper.getEntity(entity);
 		} else {
-			throw new IllegalParameterException("无效图表参数");
+			throw new InvalidParameterException("无效图表参数");
 		}
 		
-		if (!Application.getSecurityManager().allowRead(getRequestUser(request), entityMeta.getEntityCode())) {
+		if (!Application.getPrivilegesManager().allowRead(getRequestUser(request), entityMeta.getEntityCode())) {
 			response.sendError(403, "你没有读取 [" + EasyMeta.getLabel(entityMeta) + "] 的权限，因此无法设计此图表");
 			return null;
 		}

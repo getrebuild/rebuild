@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.configuration.portals;
@@ -45,7 +34,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/10/21
  */
-public abstract class ShareToManager<T> implements ConfigManager<T> {
+public abstract class ShareToManager implements ConfigManager {
 
     protected static final Log LOG = LogFactory.getLog(ShareToManager.class);
 
@@ -74,7 +63,8 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
      * @param hasApplyType
      */
     protected void cleanWithBelongEntity(ID cfgid, boolean hasApplyType) {
-        String ql = String.format("select belongEntity%s from %s where configId = ?", (hasApplyType ? ",applyType" : ""), getConfigEntity());
+        String ql = String.format("select belongEntity%s from %s where configId = ?",
+                (hasApplyType ? ",applyType" : ""), getConfigEntity());
         Object[] c = Application.createQueryNoFilter(ql).setParameter(1, cfgid).unique();
         if (c != null) {
             Application.getCommonCache().evict(formatCacheKey((String) c[0], hasApplyType ? (String) c[1] : null));
@@ -95,8 +85,7 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
             return null;
         }
 
-        // 优先使用自己的
-        // TODO 普通用户只能使用自己的布局（若有）
+        // 1.优先使用自己的
         boolean isAdmin = UserHelper.isAdmin(user);
         for (Object[] d : alls) {
             ID createdBy = (ID) d[2];
@@ -104,12 +93,14 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
                 return (ID) d[0];
             }
         }
-        // 其次共享的
+
+        // 2.其次使用共享的
         for (Object[] d : alls) {
             if (isShareTo((String) d[1], user)) {
                 return (ID) d[0];
             }
         }
+
         return null;
     }
 
@@ -175,7 +166,7 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
     }
 
     /**
-     * 是否共享
+     * 是否为共享成员
      *
      * @param shareTo
      * @param user
@@ -184,11 +175,13 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
     private boolean isShareTo(String shareTo, ID user) {
         if (SHARE_ALL.equals(shareTo)) {
             return true;
+
         } else if (shareTo.length() >= 20) {
             Set<String> userDefs = new HashSet<>();
             CollectionUtils.addAll(userDefs, shareTo.split(","));
             Set<ID> sharedUsers = UserHelper.parseUsers(userDefs, null);
             return sharedUsers.contains(user);
+
         }
         return false;
     }
@@ -236,6 +229,7 @@ public abstract class ShareToManager<T> implements ConfigManager<T> {
         if (c == null) {
             throw new RebuildException("No config found : " + cfgid);
         }
+
         CREATEDBYs.put(cfgid, (ID) c[0]);
         return (ID) c[0];
     }

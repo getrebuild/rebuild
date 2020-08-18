@@ -23,18 +23,7 @@ import org.springframework.util.Assert;
  * @see MetadataHelper
  */
 public class EntityHelper {
-	
-	/**
-	 * 实体是否具有权限字段
-	 * 
-	 * @param entity
-	 * @return
-	 * @see MetadataHelper#hasPrivilegesField(Entity)
-	 */
-	public static boolean hasPrivilegesField(Entity entity) {
-		return MetadataHelper.hasPrivilegesField(entity);
-	}
-	
+
 	/**
 	 * @param data
 	 * @param user
@@ -55,9 +44,9 @@ public class EntityHelper {
 			entityName = MetadataHelper.getEntityName(ID.valueOf(id));
 		}
 
-		ExtRecordCreator creator = new ExtRecordCreator(MetadataHelper.getEntity(entityName), data, user);
+		EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
 		Record record = creator.create(false);
-		ExtRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
+		EntityRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
 		return record;
 	}
 
@@ -78,13 +67,13 @@ public class EntityHelper {
 	 */
 	public static Record forUpdate(ID recordId, ID user, boolean bindCommons) {
 		Assert.notNull(recordId, "[recordId] not be bull");
-		Assert.notNull(recordId, "[user] not be bull");
-		
+		Assert.notNull(user, "[user] not be bull");
+
 		Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		Record record = new StandardRecord(entity, user);
 		record.setID(entity.getPrimaryField().getName(), recordId);
 		if (bindCommons) {
-			ExtRecordCreator.bindCommonsFieldsValue(record, false);
+			EntityRecordCreator.bindCommonsFieldsValue(record, false);
 		}
 		return record;
 	}
@@ -113,9 +102,11 @@ public class EntityHelper {
 	 * @return
 	 */
 	private static Record forNew(Entity entity, ID user) {
+		Assert.notNull(entity, "[entity] not be bull");
 		Assert.notNull(user, "[user] not be bull");
+
 		Record record = new StandardRecord(entity, user);
-		ExtRecordCreator.bindCommonsFieldsValue(record, true);
+		EntityRecordCreator.bindCommonsFieldsValue(record, true);
 		return record;
 	}
 	
@@ -171,9 +162,17 @@ public class EntityHelper {
 	public static final int RecycleBin = 33;
 	public static final int RevisionHistory = 34;
 	public static final int SmsendLog = 35;
+	// 动态
 	public static final int Feeds = 40;
 	public static final int FeedsComment = 41;
 	public static final int FeedsLike = 42;
 	public static final int FeedsMention = 43;
-
+	// 项目
+	public static final int ProjectConfig = 50;
+	public static final int ProjectPlanConfig = 51;
+	public static final int ProjectTask = 52;
+	public static final int ProjectTaskRelation = 53;
+	public static final int ProjectTaskComment = 54;
+	public static final int ProjectTaskTag = 55;
+	public static final int ProjectTaskTagRelation = 56;
 }

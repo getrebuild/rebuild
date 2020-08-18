@@ -100,12 +100,10 @@ public class FeedsHelper {
     public static Map<String, ID> findMentionsMap(String content) {
         Map<String, ID> found = new HashMap<>();
         for (String ats : content.split("@")) {
-            if (StringUtils.isBlank(ats)) {
-                continue;
-            }
-            String[] atss = ats.split("\\s");
+            if (StringUtils.isBlank(ats)) continue;
+            String[] atsList = ats.split("\\s");
 
-            String fullName = atss[0];
+            String fullName = atsList[0];
             // 全名
             ID user = UserHelper.findUserByFullName(fullName);
             // 用户名
@@ -113,14 +111,10 @@ public class FeedsHelper {
                 user = Application.getUserStore().getUser(fullName).getId();
             }
 
-            if (user == null && atss.length >= 2) {
-                fullName = atss[0] + " " + atss[1];
+            // 兼容全名中有1个空格
+            if (user == null && atsList.length >= 2) {
+                fullName = atsList[0] + " " + atsList[1];
                 user = UserHelper.findUserByFullName(fullName);
-
-                if (user == null && atss.length >= 3) {
-                    fullName = atss[0] + " " + atss[1] + " " + atss[2];
-                    user = UserHelper.findUserByFullName(fullName);
-                }
             }
 
             if (user != null) {

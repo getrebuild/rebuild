@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
+import com.rebuild.server.helper.cache.RecentlyUsedCache;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
@@ -36,7 +37,7 @@ public class RecentlyUsedSearch extends BaseControll {
 	public void fetchRecently(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String type = getParameter(request, "type");
-		ID[] recently = Application.getRecentlyUsedCache().gets(getRequestUser(request), entity, type);
+		ID[] recently = cache().gets(getRequestUser(request), entity, type);
 		writeSuccess(response, formatSelect2(recently, "最近使用"));
 	}
 	
@@ -44,7 +45,7 @@ public class RecentlyUsedSearch extends BaseControll {
 	public void addRecently(HttpServletRequest request, HttpServletResponse response) {
 		ID id = getIdParameterNotNull(request, "id");
 		String type = getParameter(request, "type");
-		Application.getRecentlyUsedCache().addOne(getRequestUser(request),id, type);
+		cache().addOne(getRequestUser(request),id, type);
 		writeSuccess(response);
 	}
 	
@@ -52,7 +53,7 @@ public class RecentlyUsedSearch extends BaseControll {
 	public void cleanRecently(HttpServletRequest request, HttpServletResponse response) {
 		String entity = getParameterNotNull(request, "entity");
 		String type = getParameter(request, "type");
-		Application.getRecentlyUsedCache().clean(getRequestUser(request),entity, type);
+		cache().clean(getRequestUser(request),entity, type);
 		writeSuccess(response);
 	}
 	
@@ -82,5 +83,12 @@ public class RecentlyUsedSearch extends BaseControll {
 			data = array;
 		}
 		return data;
+	}
+
+	/**
+	 * @return
+	 */
+	protected static RecentlyUsedCache cache() {
+		return Application.getBean(RecentlyUsedCache.class);
 	}
 }

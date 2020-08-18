@@ -44,3 +44,6 @@ rebuild.iml
 node_modules
 test.*
 .gitmodules
+.deploy/temp/
+.deploy/build/
+.deploy/node_modules/

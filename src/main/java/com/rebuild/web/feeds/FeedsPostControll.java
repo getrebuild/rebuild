@@ -61,9 +61,9 @@ public class FeedsPostControll extends BaseControll {
         if (liked == null) {
             Record record = EntityHelper.forNew(EntityHelper.FeedsLike, user);
             record.setID("source", source);
-            Application.getCommonService().create(record);
+            Application.getCommonsService().create(record);
         } else {
-            Application.getCommonService().delete((ID) liked[0]);
+            Application.getCommonsService().delete((ID) liked[0]);
         }
 
         writeSuccess(response, liked == null);
@@ -98,7 +98,7 @@ public class FeedsPostControll extends BaseControll {
         Record record = EntityHelper.forUpdate(feedsId, user);
         record.setString("contentMore", contentMore.toJSONString());
         record.removeValue(EntityHelper.ModifiedOn);
-        Application.getCommonService().update(record);
+        Application.getCommonsService().update(record);
         writeSuccess(response);
     }
 }

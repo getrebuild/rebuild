@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* eslint-disable no-undef */
 
 const wpc = window.__PageConfig
+
 $(document).ready(function () {
   renderRbcomp(<LevelBoxes id={wpc.id} />, 'boxes')
 
@@ -15,10 +16,11 @@ $(document).ready(function () {
     if (_dlgImports) _dlgImports.show()
     else renderRbcomp(<DlgImports id={wpc.id} />, null, function () { _dlgImports = this })
   })
-  $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 312))()
+  $addResizeHandler(() => $('#boxes .rb-scroller').css('max-height', $(window).height() - 310))()
 })
 
 class LevelBoxes extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props }
@@ -74,6 +76,7 @@ class LevelBoxes extends React.Component {
 
 const LNAME = ['一', '二', '三', '四']
 class LevelBox extends React.Component {
+
   constructor(props) {
     super(props)
     this.state = { ...props, turnOn: props.level === 0 }
@@ -97,12 +100,13 @@ class LevelBox extends React.Component {
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
             <input className="form-control" type="text" maxLength="60" placeholder="名称" value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
-            {this.state.itemId && this.state.itemHide && (
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
-                <span className="custom-control-label">启用</span>
-              </label>
-            )}
+            {this.state.itemId && this.state.itemHide &&
+              (
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                  <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
+                  <span className="custom-control-label">启用</span>
+                </label>
+              )}
             <div className="input-group-append">
               <button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>{this.state.itemId ? '保存' : '添加'}</button>
             </div>
@@ -135,8 +139,7 @@ class LevelBox extends React.Component {
 
   loadItems(p) {
     this.parentId = p
-    const url = `/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`
-    $.get(url, (res) => {
+    $.get(`/admin/entityhub/classification/load-data-items?data_id=${wpc.id}&parent=${p || ''}`, (res) => {
       this.clear()
       this.setState({ items: res.data, activeId: null })
     })
@@ -164,16 +167,10 @@ class LevelBox extends React.Component {
     e.preventDefault()
     const name = $.trim(this.state.itemName)
     if (!name) return
-    if (this.props.level >= 1 && !this.parentId) {
-      RbHighbar.create('请先选择上级分类项')
-      return
-    }
+    if (this.props.level >= 1 && !this.parentId) return RbHighbar.create('请先选择上级分类项')
 
     const repeated = this.state.items.find((x) => { return x[1] === name && x[0] !== this.state.itemId })
-    if (repeated) {
-      RbHighbar.create('存在同名分类项')
-      return
-    }
+    if (repeated) return RbHighbar.create('存在同名分类项')
 
     let url = `/admin/entityhub/classification/save-data-item?data_id=${wpc.id}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
@@ -183,6 +180,7 @@ class LevelBox extends React.Component {
       url += '&hide=false'
       isUnhide = true
     }
+
     this.setState({ inSave: true })
     $.post(url, (res) => {
       if (res.error_code === 0) {
@@ -289,6 +287,7 @@ const saveOpenLevel = function () {
         RbHighbar.success('已启用' + LNAME[level] + '级分类')
       }
     })
+
   }, 500, 'saveOpenLevel')
 }
 
@@ -300,7 +299,7 @@ class DlgImports extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title="导入分类数据" ref={(c) => this._dlg = c} >
+      <RbModal title="导入分类数据" ref={(c) => this._dlg = c}>
         <div className="tab-container">
           <ul className="nav nav-tabs">
             <li className="nav-item"><a className="nav-link active" href="#FILE" data-toggle="tab">文件导入</a></li>
@@ -366,7 +365,7 @@ class DlgImports extends RbModalHandler {
   componentDidMount() {
     // FILE
     let uploadStart = false
-    $createUploader($(this._uploadInput),
+    $createUploader(this._uploadInput,
       () => {
         if (!uploadStart) {
           uploadStart = true

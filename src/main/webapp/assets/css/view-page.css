@@ -271,6 +271,7 @@ body {
 
 .sharing-list ul>li>div {
 	background-color: #f7f7f7;
+	border: 1px solid #f7f7f7;
 	padding: 5px;
 	border-radius: 2px;
 	width: 150px;
@@ -290,7 +291,11 @@ body {
 	line-height: 18px;
 	background-color: #4285f4;
 	text-align: center;
-	border-bottom-right-radius: 2px;
+	display: none;
+}
+
+.sharing-list ul>li.active>div .zmdi {
+	display: block;
 }
 
 .sharing-list ul>li>div .user-show .name {

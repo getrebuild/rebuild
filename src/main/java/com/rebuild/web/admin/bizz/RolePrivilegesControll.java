@@ -25,6 +25,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.EntityHelper;
+import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.MetadataSorter;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.bizz.RoleService;
@@ -75,7 +76,7 @@ public class RolePrivilegesControll extends BaseEntityControll {
 	private void setEntities(ModelAndView mv) {
 		List<Object[]> entities = new ArrayList<>();
 		for (Entity e : MetadataSorter.sortEntities()) {
-			if (EntityHelper.hasPrivilegesField(e)) {
+			if (MetadataHelper.hasPrivilegesField(e)) {
 				entities.add(new Object[] { e.getEntityCode(), EasyMeta.getLabel(e) });
 			}
 		}

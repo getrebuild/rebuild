@@ -106,6 +106,7 @@ public class MetaFieldControll extends BasePageControll  {
 		mv.getModel().put("fieldType", easyField.getDisplayType(false));
 		mv.getModel().put("fieldTypeLabel", easyField.getDisplayType(true));
 		mv.getModel().put("fieldNullable", fieldMeta.isNullable());
+		mv.getModel().put("fieldCreatable", fieldMeta.isCreatable());
 		mv.getModel().put("fieldUpdatable", fieldMeta.isUpdatable());
 		mv.getModel().put("fieldRepeatable", fieldMeta.isRepeatable());
 		mv.getModel().put("fieldBuildin", easyField.isBuiltin());
@@ -174,7 +175,7 @@ public class MetaFieldControll extends BasePageControll  {
 		ID user = getRequestUser(request);
 		JSON formJson = ServletUtils.getRequestJson(request);
 		Record record = EntityHelper.parse((JSONObject) formJson, user);
-		Application.getCommonService().update(record);
+		Application.getCommonsService().update(record);
 		
 		Application.getMetadataFactory().refresh(false);
 		writeSuccess(response);

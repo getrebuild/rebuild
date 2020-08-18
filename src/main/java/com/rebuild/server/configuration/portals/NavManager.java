@@ -24,12 +24,12 @@ public class NavManager extends BaseLayoutManager {
 
 	// 父菜单
 	public static final String NAV_PARENT = "$PARENT$";
-	// 动态
-	public static final String NAV_FEEDS = "$FEEDS$";
 	// 文件
 	public static final String NAV_FILEMRG = "$FILEMRG$";
-	// 项目看板
-	public static final String NAV_KANBANMRG = "$KANBANMRG$";
+	// 动态
+	public static final String NAV_FEEDS = "$FEEDS$";
+	// 项目
+	public static final String NAV_PROJECT = "$PROJECT$";
 
 	public static final NavManager instance = new NavManager();
 	protected NavManager() { }

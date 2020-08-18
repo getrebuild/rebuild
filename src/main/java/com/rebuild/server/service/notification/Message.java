@@ -40,6 +40,8 @@ public class Message {
 	public static final int TYPE_APPROVAL = 20;
     // 动态
     public static final int TYPE_FEEDS = 30;
+	// 项目-任务
+	public static final int TYPE_PROJECT = 40;
 
 	private ID fromUser;
 	private ID toUser;

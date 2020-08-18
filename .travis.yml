@@ -11,11 +11,11 @@ services:
   - mysql
   - redis
 
-#git:
-#  depth: 3
 #branches:
 #  only:
 #    - master
+git:
+  submodules: false
 
 before_script:
   - mysql -e "CREATE DATABASE rebuild10 COLLATE utf8mb4_general_ci;"

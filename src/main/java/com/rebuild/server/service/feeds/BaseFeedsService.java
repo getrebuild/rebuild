@@ -1,24 +1,12 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018-2019 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.feeds;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -27,17 +15,13 @@ import com.rebuild.server.Application;
 import com.rebuild.server.business.feeds.FeedsHelper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.service.BaseService;
-import com.rebuild.server.service.OperatingContext;
-import com.rebuild.server.service.base.AttachmentAwareObserver;
+import com.rebuild.server.service.ObservableService;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.notification.Message;
 import com.rebuild.server.service.notification.MessageBuilder;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 
 /**
@@ -46,10 +30,10 @@ import java.util.regex.Matcher;
  * @author ZHAO
  * @since 2019/11/5
  */
-public abstract class FeedsAware extends BaseService {
+public abstract class BaseFeedsService extends ObservableService {
 
-    protected FeedsAware(PersistManagerFactory aPMFactory) {
-        super(aPMFactory);
+    protected BaseFeedsService(PersistManagerFactory aPMFactory, List<Observer> observers) {
+        super(aPMFactory, observers);
     }
 
     @Override
@@ -57,27 +41,22 @@ public abstract class FeedsAware extends BaseService {
         record = super.create(converContent(record));
 
         awareMention(record, true);
-        awareAttachment(OperatingContext.create(Application.getCurrentUser(), BizzPermission.CREATE, null, record));
         return record;
     }
 
     @Override
     public Record update(Record record) {
-        final Record before = getBeforeRecord(record.getPrimary());
         record = super.update(converContent((record)));
 
         awareMention(record, false);
-        awareAttachment(OperatingContext.create(Application.getCurrentUser(), BizzPermission.UPDATE, before, record));
         return record;
     }
 
     @Override
     public int delete(ID recordId) {
-        final Record before = getBeforeRecord(recordId);
         int del = super.delete(recordId);
 
         awareMention(recordId);
-        awareAttachment(OperatingContext.create(Application.getCurrentUser(), BizzPermission.DELETE, before, null));
         return del;
     }
 
@@ -85,6 +64,7 @@ public abstract class FeedsAware extends BaseService {
      * 内容中涉及的用户要加入 FeedsMention
      *
      * @param record
+     * @param isNew
      */
     protected void awareMention(Record record, boolean isNew) {
         String content = record.getString("content");
@@ -117,24 +97,19 @@ public abstract class FeedsAware extends BaseService {
             super.create(clone);
             atUsers.add(atUser);
         }
-        if (atUsers.isEmpty()) {
-            return;
-        }
+
+        if (atUsers.isEmpty()) return;
 
         // 发送通知
-        String messageContent = String.format("@%s 在%s中提到了你",
-                record.getEditor(),
-                record.getEntity().getEntityCode() == EntityHelper.Feeds ? "动态" : "评论");
-        messageContent += "\n> " + content;
+        final String msgContent = "@" + record.getEditor() + " 在动态中提到了你 \n> " + content;
         ID related = record.getPrimary();
         if (related.getEntityCode() == EntityHelper.FeedsComment) {
             related = record.getID("feedsId");
         }
 
         for (ID to : atUsers) {
-            Message message = new Message(
-                    null, to, messageContent, related, Message.TYPE_FEEDS);
-            Application.getNotifications().send(message);
+            Application.getNotifications().send(
+                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related));
         }
     }
 
@@ -170,25 +145,5 @@ public abstract class FeedsAware extends BaseService {
         }
         record.setString("content", content);
         return record;
-    }
-
-    /**
-     * 进入附件表
-     *
-     * @param context
-     */
-    protected void awareAttachment(OperatingContext context) {
-        new AttachmentAwareObserver().update(null, context);
-    }
-
-    /**
-     * @param recordId
-     * @return
-     */
-    private Record getBeforeRecord(ID recordId) {
-        Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
-        String primary = entity.getPrimaryField().getName();
-        String sql = String.format("select images,attachments,%s from %s where %s = ?", primary, entity.getName(), primary);
-        return Application.createQueryNoFilter(sql).setParameter(1, recordId).record();
     }
 }

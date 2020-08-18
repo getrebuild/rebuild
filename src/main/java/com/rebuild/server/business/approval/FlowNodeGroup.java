@@ -92,7 +92,7 @@ public class FlowNodeGroup {
 			if (FlowNode.TYPE_CC.equals(node.getType()) && node.allowCcAutoShare()) {
 				users.addAll(node.getSpecUsers(operator, recordId));
 
-				if (firstNode != null) {
+				if (firstNode == null) {
 					firstNode = node;
 				}
 			}
@@ -164,5 +164,16 @@ public class FlowNodeGroup {
 	public String getSignMode() {
 		FlowNode node = getApprovalNode();
 		return node == null ? FlowNode.SIGN_OR : node.getSignMode();
+	}
+
+	/**
+	 * @return
+	 */
+	public String getGroupId() {
+		StringBuilder sb = new StringBuilder();
+		for (FlowNode node : nodes) {
+			sb.append(node.getNodeId());
+		}
+		return sb.toString();
 	}
 }

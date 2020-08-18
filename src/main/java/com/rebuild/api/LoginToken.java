@@ -64,7 +64,7 @@ public class LoginToken extends BaseApi {
 
         User loginUser = Application.getUserStore().getUser(user);
         if (!loginUser.isActive()
-                || !Application.getSecurityManager().allow(loginUser.getId(), ZeroEntry.AllowLogin)) {
+                || !Application.getPrivilegesManager().allow(loginUser.getId(), ZeroEntry.AllowLogin)) {
             return Languages.lang("UnactiveUserTip");
         }
 

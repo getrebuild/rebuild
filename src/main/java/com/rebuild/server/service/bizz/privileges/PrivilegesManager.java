@@ -25,7 +25,9 @@ import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
+import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.server.service.bizz.UserService;
+import org.springframework.util.Assert;
 
 /**
  * 实体安全/权限 管理
@@ -37,7 +39,7 @@ import com.rebuild.server.service.bizz.UserService;
  * @see BizzPermission
  * @see BizzDepthEntry
  */
-public class SecurityManager {
+public class PrivilegesManager {
 
 	final private UserStore theUserStore;
 	final private RecordOwningCache theRecordOwningCache;
@@ -46,19 +48,11 @@ public class SecurityManager {
 	 * @param us
 	 * @param roc
 	 */
-	protected SecurityManager(UserStore us, RecordOwningCache roc) {
+	protected PrivilegesManager(UserStore us, RecordOwningCache roc) {
 		this.theUserStore = us;
 		this.theRecordOwningCache = roc;
 	}
-	
-	/**
-	 * @param record
-	 * @return
-	 */
-	public ID getOwningUser(ID record) {
-		return theRecordOwningCache.getOwningUser(record);
-	}
-	
+
 	/**
 	 * 获取指定实体的权限集合
 	 * 
@@ -207,7 +201,7 @@ public class SecurityManager {
 	 */
 	public boolean allow(ID user, int entity, Permission action) {
 		// CRUD and PlainEntity
-		if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(entity).isPlainEntity()) {
+		if (action.getMask() <= BizzPermission.READ.getMask() && MetadataHelper.isPlainEntity(entity)) {
 			return true;
 		}
 
@@ -223,7 +217,7 @@ public class SecurityManager {
 			return true;
 		}
 		
-		// 取消共享与共享公用权限
+		// 取消共享与共享共用权限
 		if (action == EntityService.UNSHARE) {
 			action = BizzPermission.SHARE;
 		}
@@ -255,7 +249,7 @@ public class SecurityManager {
 	 */
 	public boolean allow(ID user, ID target, Permission action) {
 		// CRUD and PlainEntity
-		if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(target.getEntityCode()).isPlainEntity()) {
+		if (action.getMask() <= BizzPermission.READ.getMask() && MetadataHelper.isPlainEntity(target.getEntityCode())) {
 			return true;
 		}
 
@@ -325,18 +319,18 @@ public class SecurityManager {
 				return allowViaShare(user, target, action);
 			}
 			return true;
+
 		} else if (BizzDepthEntry.DEEPDOWN.equals(depth)) {
 			if (accessUserDept.equals(targetUser.getOwningDept())) {
 				return true;
 			}
 			
-			allowed = accessUserDept.isChildrenAll(targetUser.getOwningDept());
+			allowed = accessUserDept.isChildren(targetUser.getOwningDept(), true);
 			if (!allowed) {
 				return allowViaShare(user, target, action);
 			}
 			return true;
 		}
-		
 		return false;
 	}
 	
@@ -351,7 +345,7 @@ public class SecurityManager {
 	public boolean allowViaShare(ID user, ID target, Permission action) {
 		
 		// TODO 目前只共享了读取权限
-		// TODO 性能优化-缓存
+		// TODO 性能优化-使用缓存
 		
 		if (action != BizzPermission.READ) {
 			return false;
@@ -417,7 +411,17 @@ public class SecurityManager {
 	}
 
 	/**
-	 * 扩展权限
+	 * @param user
+	 * @returny
+	 */
+	private Boolean userAllow(ID user) {
+		if (UserHelper.isAdmin(user)) return Boolean.TRUE;
+		if (!theUserStore.getUser(user).isActive()) return Boolean.FALSE;
+		return null;
+	}
+
+	/**
+	 * 验证扩展权限
 	 *
 	 * @param user
 	 * @param entry
@@ -441,33 +445,18 @@ public class SecurityManager {
 		}
 		return entry.getDefaultVal();
 	}
-
-	/**
-	 * @param user
-	 * @returny
-	 */
-	private Boolean userAllow(ID user) {
-		if (UserService.ADMIN_USER.equals(user)) {
-			return true;
-		}
-		if (!theUserStore.getUser(user).isActive()) {
-			return false;
-		}
-		return null;
-	}
 	
 	/**
-	 * 创建查询过滤器
-	 * 
 	 * @param user
 	 * @return
+	 * @see #createQueryFilter(ID, Permission)
 	 */
 	public Filter createQueryFilter(ID user) {
 		return createQueryFilter(user, BizzPermission.READ);
 	}
 	
 	/**
-	 * 创建查询过滤器
+	 * 创建基于角色权限的查询过滤器
 	 * 
 	 * @param user
 	 * @param action
@@ -476,8 +465,8 @@ public class SecurityManager {
 	public Filter createQueryFilter(ID user, Permission action) {
 		User theUser = theUserStore.getUser(user);
 		if (theUser.isAdmin()) {
-			return EntityQueryFilter.ALLOWED;
+			return RoleBaseQueryFilter.ALLOWED;
 		}
-		return new EntityQueryFilter(theUser, action);
+		return new RoleBaseQueryFilter(theUser, action);
 	}
 }

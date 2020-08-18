@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.server;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.SystemUtils;
 import com.rebuild.server.helper.AesPreferencesConfigurer;
 import com.rebuild.server.helper.ConfigurableItem;
 import com.rebuild.server.helper.SysConfiguration;
@@ -60,7 +61,10 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
 
             if (!checkInstalled()) {
                 eventHold = event;
-                LOG.warn(Application.formatBootMsg("REBUILD IS WAITING FOR INSTALL ...", null, "Install URL : http://localhost:18080/"));
+
+				int serverPort = SystemUtils.getRuntimeInformation().getServletPort();
+				if (serverPort < 1) serverPort = 18080;
+                LOG.warn(Application.formatBootMsg("REBUILD IS WAITING FOR INSTALL ...", null, "Install URL : http://localhost:" + serverPort + "/"));
                 return;
             }
 
@@ -95,7 +99,6 @@ public class ServerListener extends ContextCleanupListener implements InstallSta
      */
     public static void updateGlobalContextAttributes(ServletContext context) {
 		context.setAttribute("env", Application.devMode() ? "dev" : "production");
-		context.setAttribute("rbv", Application.rbvMode());
         context.setAttribute("appName", SysConfiguration.get(ConfigurableItem.AppName));
         context.setAttribute("storageUrl", StringUtils.defaultIfEmpty(SysConfiguration.getStorageUrl(), StringUtils.EMPTY));
         context.setAttribute("fileSharable", SysConfiguration.getBool(ConfigurableItem.FileSharable));

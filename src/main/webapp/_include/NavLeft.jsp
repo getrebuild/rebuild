@@ -16,7 +16,7 @@ final JSONArray navArray = NavBuilder.instance.getNavPortal(request);
 			<div class="left-sidebar-content no-divider">
 				<ul class="sidebar-elements">
 					<li class="<%="dashboard-home".equals(activeNav) ? "active" : ""%>"><a href="${baseUrl}/dashboard/home"><i class="icon zmdi zmdi-home"></i><span>首页</span></a></li>
-					<% for (Object o : navArray) out.print(NavBuilder.instance.renderNavItem((JSONObject) o, activeNav)); %>
+					<% for (Object o : navArray) out.print(NavBuilder.renderNavItem((JSONObject) o, activeNav)); %>
 				</ul>
 			</div>
 		</div>

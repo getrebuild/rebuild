@@ -1,6 +1,106 @@
 -- Database upgrade scripts for rebuild 1.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #28
+alter table `project_config`
+  add column `PRINCIPAL` char(20) comment '负责人';
+
+-- #27 Project/Kanban (v1.11)
+-- ************ Entity [ProjectConfig] DDL ************
+create table if not exists `project_config` (
+  `CONFIG_ID`          char(20) not null,
+  `PROJECT_NAME`       varchar(100) not null comment '项目名称',
+  `PROJECT_CODE`       varchar(10) not null comment '项目代号',
+  `ICON_NAME`          varchar(30) comment '图标ICON',
+  `COMMENTS`           varchar(300) comment '备注',
+  `MEMBERS`            varchar(420) comment '项目成员($MemberID)',
+  `SCOPE`              smallint(6) default '1' comment '可见范围(1=公开 2=成员)',
+  `EXTRA_DEFINITION`   text(1000) comment '扩展配置(JSON Map)',
+  primary key  (`CONFIG_ID`),
+  unique index UIX0_project_config (`PROJECT_CODE`)
+)Engine=InnoDB;
+-- ************ Entity [ProjectPlanConfig] DDL ************
+create table if not exists `project_plan_config` (
+  `CONFIG_ID`          char(20) not null,
+  `PROJECT_ID`         char(20) not null comment '所属项目',
+  `PLAN_NAME`          varchar(100) not null comment '面板名称',
+  `COMMENTS`           varchar(300) comment '备注',
+  `SEQ`                int(11) default '0' comment '排序(小到大)',
+  `FLOW_STATUS`        smallint(6) default '1' comment '工作流状态',
+  `FLOW_NEXTS`         varchar(420) comment '可转换到哪个面板',
+  primary key  (`CONFIG_ID`),
+  index IX0_project_plan_config (`PROJECT_ID`, `SEQ`)
+)Engine=InnoDB;
+-- ************ Entity [ProjectTask] DDL ************
+create table if not exists `project_task` (
+  `TASK_ID`            char(20) not null,
+  `PROJECT_ID`         char(20) not null comment '所属项目',
+  `PROJECT_PLAN_ID`    char(20) not null comment '所属面板',
+  `TASK_NUMBER`        bigint(20) not null comment '任务编号',
+  `TASK_NAME`          varchar(191) not null comment '任务名称',
+  `EXECUTOR`           char(20) comment '执行人',
+  `PARTNERS`           varchar(420) default 'ALL' comment '参与者(可选值: $UserID)',
+  `PRIORITY`           smallint(6) default '1' comment '优先级(0=较低 1=普通 2=紧急 3=非常紧急)',
+  `STATUS`             smallint(6) default '0' comment '状态(0=未完成/未开始)',
+  `DEADLINE`           timestamp null default null comment '截至时间',
+  `START_TIME`         timestamp null default null comment '开始时间',
+  `END_TIME`           timestamp null default null comment '完成时间',
+  `DESCRIPTION`        text(10000) comment '详情',
+  `ATTACHMENTS`        varchar(700) comment '附件',
+  `PARENT_TASK_ID`     char(20) comment '父级任务',
+  `SEQ`                int(11) default '0' comment '排序(小到大)',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`TASK_ID`),
+  index IX0_project_task (`PROJECT_ID`, `PROJECT_PLAN_ID`, `SEQ`),
+  index IX1_project_task (`PROJECT_ID`, `TASK_NUMBER`, `TASK_NAME`, `STATUS`)
+)Engine=InnoDB;
+-- ************ Entity [ProjectTaskRelation] DDL ************
+create table if not exists `project_task_relation` (
+  `RELATION_ID`        char(20) not null,
+  `TASK_ID`            char(20) not null,
+  `RELATION_TASK_ID`   char(20) not null,
+  `RELATION_TYPE`      smallint(6) default '0' comment '关系类型(0=相关 1=前置 2=后置)',
+  primary key  (`RELATION_ID`),
+  index IX0_project_task_relation (`TASK_ID`, `RELATION_TASK_ID`)
+)Engine=InnoDB;
+-- ************ Entity [ProjectTaskComment] DDL ************
+create table if not exists `project_task_comment` (
+  `COMMENT_ID`         char(20) not null,
+  `TASK_ID`            char(20) not null comment '哪个任务',
+  `CONTENT`            text(3000) not null comment '内容',
+  `ATTACHMENTS`        varchar(700) comment '附件',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`COMMENT_ID`),
+  index IX0_project_task_comment (`TASK_ID`)
+)Engine=InnoDB;
+-- ************ Entity [ProjectTaskTag] DDL ************
+create table if not exists `project_task_tag` (
+  `TAG_ID`             char(20) not null,
+  `PROJECT_ID`         char(20) not null comment '所属项目',
+  `TAG_NAME`           varchar(100) not null comment '标签名',
+  `COLOR`              varchar(20) comment '颜色',
+  primary key  (`TAG_ID`),
+  index IX0_project_task_tag (`PROJECT_ID`)
+)Engine=InnoDB;
+-- ************ Entity [ProjectTaskTagRelation] DDL ************
+create table if not exists `project_task_tag_relation` (
+  `RELATION_ID`        char(20) not null,
+  `TASK_ID`            char(20) not null,
+  `TAG_ID`             char(20) not null,
+  primary key  (`RELATION_ID`),
+  index IX0_project_task_tag_relation (`TASK_ID`, `TAG_ID`)
+)Engine=InnoDB;
+
+-- #26 (v1.11)
+alter table `smsend_log`
+  add column `TYPE` smallint(6) default '0' comment '1=短信; 2=邮件';
+
 -- #25
 alter table `robot_trigger_config`
   add column `WHEN_TIMER` varchar(100) comment '定期执行';
@@ -12,7 +112,7 @@ create table if not exists `smsend_log` (
   `TO`                 varchar(100) not null comment '收件人',
   `CONTENT`            text(21845) not null comment '发送内容',
   `SEND_TIME`          timestamp not null default current_timestamp comment '发送时间',
-  `SEND_RESULT`        varchar(200) comment '发送结果(OK:xxx|ERR:xxx)',
+  `SEND_RESULT`        varchar(191) comment '发送结果(OK:xxx|ERR:xxx)',
   primary key  (`SEND_ID`),
   index IX0_smsend_log (`SEND_TIME`, `SEND_RESULT`)
 )Engine=InnoDB;
@@ -151,7 +251,7 @@ create table if not exists `recycle_bin` (
   `RECYCLE_ID`         char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
   `RECORD_ID`          char(20) not null comment 'ID字段值',
-  `RECORD_NAME`        varchar(200) not null comment '名称字段值',
+  `RECORD_NAME`        varchar(191) not null comment '名称字段值',
   `RECORD_CONTENT`     longtext not null comment '数据',
   `DELETED_BY`         char(20) not null comment '删除人',
   `DELETED_ON`         timestamp not null default current_timestamp comment '删除时间',
@@ -330,7 +430,7 @@ create table if not exists `classification_data` (
   `ITEM_ID`            char(20) not null,
   `DATA_ID`            char(20) not null,
   `NAME`               varchar(100) not null,
-  `FULL_NAME`          varchar(300) not null comment '包括父级名称, 用点号分割',
+  `FULL_NAME`          varchar(191) not null comment '包括父级名称, 用点号分割',
   `PARENT`             char(20),
   `CODE`               varchar(50),
   `LEVEL`              smallint(6) default '0',

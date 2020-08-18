@@ -65,7 +65,7 @@ public class KVStorage {
         }
         record.setString("value", String.valueOf(value));
 
-        Application.getCommonService().createOrUpdate(record);
+        Application.getCommonsService().createOrUpdate(record);
         Application.getCommonCache().evict(key);
     }
 

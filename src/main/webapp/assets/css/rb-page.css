@@ -7,25 +7,23 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .bosskey-show,
 .dev-show,
-.admin-show,
-.rbv-show {
+.admin-show {
     display: none;
 }
 
 html.dev .dev-show,
-html.admin .admin-show,
-html.rbv .rbv-show {
+html.admin .admin-show {
     display: block;
 }
 
-html.dev .dev-show.row,
-html.admin .admin-show.row,
-html.rbv .rbv-show.row {
-    display: flex;
+html.dev .dev-show.inline,
+html.admin .admin-show.inline {
+    display: inline-block;
 }
 
-html.rbv .rbv-hide {
-    display: none !important;
+html.dev .dev-show.row,
+html.admin .admin-show.row {
+    display: flex;
 }
 
 html,
@@ -164,6 +162,7 @@ body {
 .text-break {
     word-break: break-all;
     word-wrap: break-word;
+    white-space: normal;
 }
 
 .text-overflow {
@@ -391,6 +390,7 @@ a.btn {
     height: 2.6rem;
     min-height: 2.6rem;
     min-width: auto;
+    box-shadow: none !important;
 }
 
 .input-search button .icon,
@@ -476,6 +476,32 @@ div.dataTables_wrapper div.dataTables_filter {
 
 .datetimepicker.dropdown-menu .switch {
     padding-top: 5px;
+}
+
+.datetimepicker.dropdown-menu .fa {
+    display: inline-block;
+    font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-size: 1.615rem;
+}
+
+.datetimepicker.dropdown-menu .fa.fa-arrow-left::before {
+    content: '\f2fa';
+}
+
+.datetimepicker.dropdown-menu .fa.fa-arrow-right::before {
+    content: '\f2fb';
+}
+
+div.dataTables_filter .filter-tips.badge {
+    float: left;
+    margin-left: 5px;
+    margin-top: 4px;
+    background-color: #fff8f2;
+    color: #a04100;
 }
 
 .adv-search,
@@ -2185,6 +2211,18 @@ form {
     color: #777
 }
 
+.user-selector .dropdown-menu {
+    padding: 0;
+    margin: 0;
+    background-color: #f2f2f2;
+    width: 260px;
+}
+
+.user-selector .dropdown-menu ol,
+.user-selector .dropdown-menu ul {
+    padding-left: 0;
+}
+
 .user-selector .select2-selection {
     line-height: 1;
 }
@@ -2192,6 +2230,7 @@ form {
 .user-selector .select2-selection .select2-selection__rendered {
     padding-left: 8px;
     padding-right: 8px;
+    height: auto;
 }
 
 .user-selector .select2-selection__choice.abtn {
@@ -2223,17 +2262,6 @@ form {
     box-shadow: inset 0 2px 0 #1266f1;
 }
 
-.user-selector .dropdown-wrapper {
-    position: absolute;
-    background-color: #f2f2f2;
-    z-index: 91;
-    width: 260px;
-    border-radius: 0;
-    -webkit-box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, .12);
-    display: block;
-}
-
 .user-selector .selector-search {
     padding: 10px;
 }
@@ -2251,7 +2279,7 @@ form {
 .user-selector .nav-tabs>li.nav-item a.nav-link {
     padding: 4px 8px;
     font-size: 12px;
-    min-width: 50px;
+    min-width: 42px;
 }
 
 .user-selector .tab-content {
@@ -2277,8 +2305,9 @@ form {
 
 .user-selector .select2-results__option.un-hover {
     background-color: #fff !important;
-    color: #444;
+    color: #777;
     cursor: default;
+    padding-top: 7px;
 }
 
 .user-selector .select2-results__option {
@@ -2309,11 +2338,6 @@ form {
 
 .user-selector .select2-results__option img.avatar+span.text {
     margin-left: 6px;
-}
-
-.user-selector .dropdown-wrapper ol,
-.user-selector .dropdown-wrapper ul {
-    padding-left: 0;
 }
 
 .user-show {
@@ -2414,14 +2438,18 @@ form {
 
 .card-list .card-footer a {
     color: #999;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     display: inline-block;
-    padding: 1px 4px;
-    margin-right: 4px;
+    padding: 0 3px;
+    margin-right: 6px;
 }
 
 .card-list .card-footer a:hover {
     color: #666;
+}
+
+.card-list .card-footer a.danger:hover {
+    color: #ea4335;
 }
 
 .card-list .card-footer .badge {
@@ -2676,7 +2704,7 @@ form {
 }
 
 .form.approval-form .rbform .form-group.row {
-    padding: 6px 0;
+    padding: 10px 0;
 }
 
 .notification-page {
@@ -2953,7 +2981,6 @@ form {
     text-align: center;
     display: inline-block;
     height: 48px;
-    line-height: 1;
     line-height: 48px;
 }
 
@@ -3186,8 +3213,14 @@ form {
     display: none;
 }
 
+.rb-aside.rb-aside-collapsed .page-head,
 .rb-aside.rb-aside-collapsed .main-content {
     margin-left: 50px;
+}
+
+.page-head.page-head-sm {
+    padding-top: 12px;
+    padding-bottom: 0;
 }
 
 .rb-animate .rb-aside .page-aside.widgets {
@@ -3510,9 +3543,8 @@ a.icon-link>.zmdi {
     color: #fbbc05;
     font-size: 1rem;
     font-weight: normal;
-    padding: 3px 6px;
     position: relative;
-    padding-right: 30px;
+    padding: 3px 30px 3px 6px;
     cursor: default;
     overflow: hidden;
 }
@@ -3524,7 +3556,7 @@ a.icon-link>.zmdi {
     border-left: 1px solid #fbbc05;
     top: 0;
     right: 0;
-    padding-top: 2px;
+    padding-top: 3px;
     opacity: 1;
     text-shadow: none;
     font-weight: normal;
@@ -3533,6 +3565,11 @@ a.icon-link>.zmdi {
 .badge-border:hover .close {
     background-color: #fbbc05;
     color: #fff !important;
+}
+
+a.avatar.x26 img {
+    width: 26px;
+    height: 26px;
 }
 
 /* text overflow */
@@ -3561,4 +3598,10 @@ a.icon-link>.zmdi {
     font-style: italic;
     border-top: 1px solid #d5d8de;
     line-height: 1;
+}
+
+.use-dropdown .dropdown-menu {
+    max-width: none;
+    min-width: 0;
+    padding: 0;
 }

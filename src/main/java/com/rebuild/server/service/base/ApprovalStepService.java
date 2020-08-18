@@ -1,19 +1,8 @@
 /*
-rebuild - Building your business-systems freely.
-Copyright (C) 2018 devezhao <zhaofang123@gmail.com>
+Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program. If not, see <https://www.gnu.org/licenses/>.
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 package com.rebuild.server.service.base;
@@ -23,14 +12,15 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.approval.ApprovalState;
-import com.rebuild.server.business.approval.FlowNode;
+import com.rebuild.server.business.approval.*;
 import com.rebuild.server.business.trigger.RobotTriggerManual;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.DataSpecificationNoRollbackException;
 import com.rebuild.server.service.OperatingContext;
+import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.notification.MessageBuilder;
 
 import java.util.Set;
@@ -46,6 +36,11 @@ import java.util.Set;
  */
 public class ApprovalStepService extends BaseService {
 
+	/**
+	 * 虚拟审批
+	 */
+	public static final ID APPROVAL_NOID = ID.valueOf("028-0000000000000000");
+
 	protected ApprovalStepService(PersistManagerFactory aPMFactory) {
 		super(aPMFactory);
 	}
@@ -56,34 +51,34 @@ public class ApprovalStepService extends BaseService {
 	}
 	
 	/**
-	 * @param mainRecord
+	 * @param recordOfMain
 	 * @param cc
 	 * @param nextApprovers
 	 */
-	public void txSubmit(Record mainRecord, Set<ID> cc, Set<ID> nextApprovers) {
+	public void txSubmit(Record recordOfMain, Set<ID> cc, Set<ID> nextApprovers) {
 		final ID submitter = Application.getCurrentUser();
-		final ID recordId = mainRecord.getPrimary();
-		final ID approvalId = mainRecord.getID(EntityHelper.ApprovalId);
+		final ID recordId = recordOfMain.getPrimary();
+		final ID approvalId = recordOfMain.getID(EntityHelper.ApprovalId);
 		
 		// 使用新流程，作废之前的步骤
 		cancelAliveSteps(recordId, null, null, null, false);
 
-		super.update(mainRecord);
+		super.update(recordOfMain);
 		
-		String entityLabel = EasyMeta.getLabel(mainRecord.getEntity());
-		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
+		String entityLabel = EasyMeta.getLabel(recordOfMain.getEntity());
+		String approvalMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
 		
 		// 审批人
 		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, submitter);
 		step.setID("recordId", recordId);
 		step.setID("approvalId", approvalId);
-		step.setString("node", mainRecord.getString(EntityHelper.ApprovalStepNode));
+		step.setString("node", recordOfMain.getString(EntityHelper.ApprovalStepNode));
 		step.setString("prevNode", FlowNode.NODE_ROOT);
 		for (ID a : nextApprovers) {
 			Record clone = step.clone();
 			clone.setID("approver", a);
 			clone = super.create(clone);
-			Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, clone.getPrimary()));
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approvalMsg, clone.getPrimary()));
 		}
 		
 		// 抄送人
@@ -94,26 +89,42 @@ public class ApprovalStepService extends BaseService {
 			}
 		}
 		
-		// see #findSubmitter
-		String cKey = "ApprovalSubmitter" + recordId + approvalId;
-		Application.getCommonCache().evict(cKey);
+		// see #getSubmitter
+		String ckey = "ApprovalSubmitter" + recordId + approvalId;
+		Application.getCommonCache().evict(ckey);
 	}
 
 	/**
 	 * @param stepRecord
 	 * @param signMode
 	 * @param cc
-	 * @param nextApprovers 驳回时无需
-	 * @param nextNode 驳回时无需
-	 * @param addedData 驳回时无需
+	 * @param nextApprovers [驳回时无需]
+	 * @param nextNode [驳回时无需]
+	 * @param addedData [驳回时无需]
+	 * @param checkUseGroup [驳回时无需]
 	 */
-	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData) {
+	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
+		// 审批时更新主记录
 		if (addedData != null) {
-			IN_ADDED.set(true);
+			ADDED_MODE.set(true);
 			try {
 				Application.getService(addedData.getEntity().getEntityCode()).update(addedData);
 			} finally {
-				IN_ADDED.remove();
+				ADDED_MODE.remove();
+			}
+
+			// 检查数据修改后的步骤对不对 GitHub#208
+			if (checkUseGroup != null) {
+				Object[] stepObject = Application.createQueryNoFilter(
+						"select recordId,approvalId from RobotApprovalStep where stepId = ?")
+						.setParameter(1, stepRecord.getPrimary())
+						.unique();
+
+				ApprovalProcessor approvalProcessor = new ApprovalProcessor((ID) stepObject[0], (ID) stepObject[1]);
+				FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
+				if (!nextNodes.getGroupId().equals(checkUseGroup)) {
+					throw new DataSpecificationNoRollbackException("由于更改数据导致流程改变，你需要重新审批");
+				}
 			}
 		}
 
@@ -124,12 +135,12 @@ public class ApprovalStepService extends BaseService {
 				"select recordId,approvalId,node from RobotApprovalStep where stepId = ?")
 				.setParameter(1, stepRecordId)
 				.unique();
-		final ID submitter = findSubmitter((ID) stepObject[0], (ID) stepObject[1]);
+		final ID submitter = getSubmitter((ID) stepObject[0], (ID) stepObject[1]);
 		final ID recordId = (ID) stepObject[0];
 		final ID approvalId = (ID) stepObject[1];
 		final String currentNode = (String) stepObject[2];
 		final ID approver = Application.getCurrentUser();
-		
+
 		String entityLabel = EasyMeta.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
 		ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 		
@@ -148,19 +159,19 @@ public class ApprovalStepService extends BaseService {
 			cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
 
 			// 更新主记录
-			Record main = EntityHelper.forUpdate(recordId, approver, false);
-			main.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
-			super.update(main);
+			Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
+			recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
+			super.update(recordOfMain);
 			
-			String rejectMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
-			Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectMsg));
+			String rejectedMsg = String.format("@%s 驳回了你的%s审批 @%s", approver, entityLabel, recordId);
+			Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg));
 			return;
 		}
 		
 		// 或签/会签
 		boolean goNextNode = true;
 		
-		String approveMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
+		String approvalMsg = String.format("有一条%s记录请你审批 @%s", entityLabel, recordId);
 		
 		// 或签。一人通过其他作废
 		if (FlowNode.SIGN_OR.equals(signMode)) {
@@ -193,31 +204,22 @@ public class ApprovalStepService extends BaseService {
 					Record r = EntityHelper.forUpdate((ID) o[0], approver);
 					r.setBoolean("isWaiting", false);
 					super.update(r);
-					Application.getNotifications().send(MessageBuilder.createApproval(submitter, (ID) o[1], approveMsg, r.getPrimary()));
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, (ID) o[1], approvalMsg, r.getPrimary()));
 				}
 			}
 		}
 
-		// 最终状态
+		// 最终状态（审批通过）
 		if (goNextNode && (nextApprovers == null || nextNode == null)) {
-			// 审批通过
-			final Record main = EntityHelper.forUpdate(recordId, approver, false);
-			main.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
-			super.update(main);
-
-			// 触发器
-			Record before = main.clone();
-			before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-			new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, main));
-
+			approved(recordId, approver, null, null);
 			return;
 		}
-		
+
 		// 进入下一步
 		if (goNextNode) {
-			Record main = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
-			main.setString(EntityHelper.ApprovalStepNode, nextNode);
-			super.update(main);
+			Record recordOfMain = EntityHelper.forUpdate(recordId, Application.getCurrentUser(), false);
+			recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
+			super.update(recordOfMain);
 		}
 		
 		// 审批人
@@ -227,19 +229,19 @@ public class ApprovalStepService extends BaseService {
 
 				// 非会签通知审批
 				if (goNextNode && created != null) {
-					Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approveMsg, created));
+					Application.getNotifications().send(MessageBuilder.createApproval(submitter, a, approvalMsg, created));
 				}
 			}
 		}
 	}
 
 	/**
-	 * 撤回/撤销（针对审批完成的）
+	 * 撤回/撤销
 	 *
 	 * @param recordId
 	 * @param approvalId
 	 * @param currentNode
-	 * @param isRevoke
+	 * @param isRevoke 是否撤销，这是针对审批完成的
 	 */
 	public void txCancel(ID recordId, ID approvalId, String currentNode, boolean isRevoke) {
 		final ID opUser = Application.getCurrentUser();
@@ -247,22 +249,22 @@ public class ApprovalStepService extends BaseService {
 
 		Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
 		step.setID("recordId", recordId);
-		step.setID("approvalId", approvalId);
+		step.setID("approvalId", approvalId == null ? APPROVAL_NOID : approvalId);
 		step.setID("approver", opUser);
 		step.setInt("state", useState.getState());
 		step.setString("node", isRevoke ? FlowNode.NODE_REVOKED : FlowNode.NODE_CANCELED);
 		step.setString("prevNode", currentNode);
 		super.create(step);
 
-		final Record main = EntityHelper.forUpdate(recordId, opUser);
-		main.setInt(EntityHelper.ApprovalState, useState.getState());
-		super.update(main);
+		final Record recordOfMain = EntityHelper.forUpdate(recordId, opUser);
+		recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
+		super.update(recordOfMain);
 
-		// 触发器
+		// 撤销时触发器
 		if (isRevoke) {
-			Record before = main.clone();
+			Record before = recordOfMain.clone();
 			before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
-			new RobotTriggerManual().onRevoked(OperatingContext.create(opUser, BizzPermission.UPDATE, before, main));
+			new RobotTriggerManual().onRevoked(OperatingContext.create(opUser, BizzPermission.UPDATE, before, recordOfMain));
 		}
 	}
 
@@ -330,9 +332,9 @@ public class ApprovalStepService extends BaseService {
 			if (excludeStep != null && excludeStep.equals(o[0])) {
 				continue;
 			}
-			Record r = EntityHelper.forUpdate((ID) o[0], Application.getCurrentUser());
-			r.setBoolean("isCanceled", true);
-			super.update(r);
+			Record step = EntityHelper.forUpdate((ID) o[0], Application.getCurrentUser());
+			step.setBoolean("isCanceled", true);
+			super.update(step);
 		}
 	}
 	
@@ -343,9 +345,9 @@ public class ApprovalStepService extends BaseService {
 	 * @param approvalId
 	 * @return
 	 */
-	public ID findSubmitter(ID recordId, ID approvalId) {
-		String cKey = "ApprovalSubmitter" + recordId + approvalId;
-		ID submitter = (ID) Application.getCommonCache().getx(cKey);
+	public ID getSubmitter(ID recordId, ID approvalId) {
+		final String ckey = "ApprovalSubmitter" + recordId + approvalId;
+		ID submitter = (ID) Application.getCommonCache().getx(ckey);
 		if (submitter != null) {
 			return submitter;
 		}
@@ -356,20 +358,73 @@ public class ApprovalStepService extends BaseService {
 				.setParameter(1, recordId)
 				.setParameter(2, approvalId)
 				.unique();
+
 		submitter = (ID) firstStep[0];
-		Application.getCommonCache().putx(cKey, submitter);
+		Application.getCommonCache().putx(ckey, submitter);
 		return submitter;
+	}
+
+	/**
+	 * 审批通过
+	 *
+	 * @param recordId
+	 * @param approver
+	 * @param useApproval [自动审批时需要]
+	 * @param useNode [自动审批时需要]
+	 */
+	private void approved(ID recordId, ID approver, ID useApproval, String useNode) {
+		// 审批通过
+		final Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
+		recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
+		if (useApproval != null) recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
+		if (useNode != null) recordOfMain.setString(EntityHelper.ApprovalStepNode, useNode);
+		super.update(recordOfMain);
+
+		// 触发器
+		Record before = recordOfMain.clone();
+		before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
+		new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, recordOfMain));
+	}
+
+	/**
+	 * 自动审批
+	 *
+	 * @param recordId
+	 * @param useApprover
+	 * @param useApproval
+	 * @return
+	 */
+	public boolean txAutoApproved(ID recordId, ID useApprover, ID useApproval) {
+		final ApprovalState currentState = ApprovalHelper.getApprovalState(recordId);
+
+		// 其他状态不能自动审批
+		if (currentState == ApprovalState.DRAFT || currentState == ApprovalState.REJECTED
+				|| currentState == ApprovalState.REVOKED) {
+			if (useApprover == null) useApprover = UserService.SYSTEM_USER;
+			if (useApproval == null) useApproval = APPROVAL_NOID;
+
+			ID stepId = createStepIfNeed(recordId, useApproval,
+					FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT);
+			Record step = EntityHelper.forUpdate(stepId, useApprover, false);
+			step.setInt("state", ApprovalState.APPROVED.getState());
+			step.setString("remark", "自动审批 (触发器)");
+			super.update(step);
+
+			approved(recordId, useApprover, useApproval, FlowNode.NODE_AUTOAPPROVAL);
+			return true;
+		}
+		return false;
 	}
 
 	// --
 
-	private static final ThreadLocal<Boolean> IN_ADDED = new ThreadLocal<>();
+	private static final ThreadLocal<Boolean> ADDED_MODE = new ThreadLocal<>();
 	/**
 	 * 可编辑字段模式
 	 *
 	 * @return
 	 */
 	public static boolean inAddedMode() {
-		return IN_ADDED.get() != null && IN_ADDED.get();
+		return ADDED_MODE.get() != null && ADDED_MODE.get();
 	}
 }

@@ -904,7 +904,7 @@ $(document).ready(() => {
   const via = $urlp('via', location.hash)
   if (via) {
     wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $('<div class="badge badge-border float-left mt-1">当前数据已过滤<a class="close" title="查看全部数据">&times;</a></div>').appendTo('.dataTables_filter')
+    const $cleanVia = $('<div class="badge badge-border filter-tips">当前数据已过滤<a class="close" title="查看全部数据">&times;</a></div>').appendTo('.dataTables_filter')
     $cleanVia.find('a').click(() => {
       wpc.protocolFilter = null
       RbListPage.reload()
@@ -1043,9 +1043,9 @@ class RbViewModal extends React.Component {
     else return this.__HOLDERs[id]
   }
   /**
-   * 主视图
+   * 当前激活视图
    */
-  static holderMain(reload) {
+  static currentHolder(reload) {
     if (reload && this.__HOLDER) {
       this.__HOLDER.showLoading()
       this.__HOLDER._iframe.contentWindow.location.reload()

@@ -114,7 +114,9 @@
 					<div class="copyright">&copy; ${appName}</div>
 				</div>
 			</div>
-			<div class="copyright rbv-hide">${bundle.lang('RightsTip')}</div>
+			<% if (!com.rebuild.server.helper.License.isCommercial()) { %>
+			<div class="copyright">${bundle.lang('RightsTip')}</div>
+			<% } %>
 		</div>
 	</div>
 </div>

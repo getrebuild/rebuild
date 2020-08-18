@@ -9,14 +9,13 @@
 <link rel="shortcut icon" href="${baseUrl}/assets/img/favicon.png">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/material-design-iconic-font.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/widget/perfect-scrollbar.min.css">
-<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.css">
+<link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/widget/bootstrap-datetimepicker.min.css?v=2.4.4">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/animate.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/widget/select2.min.css?v=4.0.13">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/widget/mprogress.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/lib/jquery-ui.min.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-base.css">
 <link rel="stylesheet" type="text/css" href="${baseUrl}/assets/css/rb-page.css">
-<meta name="rb.rbv" content="${rbv}">
 <meta name="rb.env" content="${env}">
 <meta name="rb.locale" content="${bundle.locale()}">
 <meta name="rb.baseUrl" content="${baseUrl}">

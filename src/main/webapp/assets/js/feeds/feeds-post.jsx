@@ -104,32 +104,21 @@ class FeedsPost extends React.Component {
   }
 }
 
-// 复写组件
-class UserSelectorExt extends UserSelector {
-  constructor(props) {
-    super(props)
-  }
-  componentDidMount() {
-    $(this._scroller).perfectScrollbar()
-  }
-  clickItem(e) {
-    const id = e.target.dataset.id
-    const name = $(e.target).text()
-    typeof this.props.call === 'function' && this.props.call(id, name)
-  }
-}
-
 // ~ 动态编辑框
 class FeedsEditor extends React.Component {
-  state = { ...this.props }
 
-  render() {
-    const es = []
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    this.__es = []
     for (let k in EMOJIS) {
       const item = EMOJIS[k]
-      es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
+      this.__es.push(<a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}><img src={`${rb.baseUrl}/assets/img/emoji/${item}`} /></a>)
     }
+  }
 
+  render() {
     // 日程已完成
     const isFinish = this.state.type === 4 && this.props.contentMore && this.props.contentMore.finishTime
 
@@ -142,23 +131,23 @@ class FeedsEditor extends React.Component {
           defaultValue={this.props.initValue} />
         <div className="action-btns">
           <ul className="list-unstyled list-inline m-0 p-0">
-            <li className="list-inline-item">
-              <a onClick={this._toggleEmoji} title="表情"><i className="zmdi zmdi-mood" /></a>
-              <span className={`mount ${this.state.showEmoji ? '' : 'hide'}`} ref={(c) => this._emoji = c}>
-                {this.state.renderEmoji && <div className="emoji-wrapper">{es}</div>}
-              </span>
+            <li className="list-inline-item use-dropdown">
+              <a onClick={() => this.setState({ renderEmoji: true })} title="表情" data-toggle="dropdown"><i className="zmdi zmdi-mood" /></a>
+              <div className="dropdown-menu">
+                {this.state.renderEmoji && <div className="emoji-wrapper">{this.__es}</div>}
+              </div>
             </li>
             <li className="list-inline-item">
-              <a onClick={this._toggleAtUser} title="@用户"><i className="zmdi at-text">@</i></a>
-              <span className={`mount ${this.state.showAtUser ? '' : 'hide'}`} ref={(c) => this._atUser = c}>
-                <UserSelectorExt hideDepartment={true} hideRole={true} ref={(c) => this._UserSelector = c} call={this._selectAtUser} />
-              </span>
+              <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} hideSelection={true} multiple={false}
+                ref={(c) => this._UserSelector = c}
+                compToggle={<a title="@用户" data-toggle="dropdown"><i className="zmdi at-text">@</i></a>}
+                onSelectItem={this._selectAtUser} />
             </li>
             <li className="list-inline-item">
               <a title="图片" onClick={() => this._imageInput.click()}><i className="zmdi zmdi-image-o" /></a>
             </li>
             <li className="list-inline-item">
-              <a title="附件" onClick={() => this._fileInput.click()}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
+              <a title="附件" onClick={() => this._fileInput.click()} style={{ marginLeft: -5 }}><i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" /></a>
             </li>
           </ul>
         </div>
@@ -175,22 +164,26 @@ class FeedsEditor extends React.Component {
       {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && <div className="attachment">
         <div className="img-field">
           {(this.state.images || []).map((item) => {
-            return (<span key={'img-' + item}>
-              <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
-                <b title="移除" onClick={() => this._removeImage(item)}><span className="zmdi zmdi-close"></span></b>
-              </a>
-            </span>)
+            return (
+              <span key={'img-' + item}>
+                <a title={$fileCutName(item)} className="img-thumbnail img-upload">
+                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+                  <b title="移除" onClick={() => this._removeImage(item)}><span className="zmdi zmdi-close"></span></b>
+                </a>
+              </span>
+            )
           })}
         </div>
         <div className="file-field">
           {(this.state.files || []).map((item) => {
             const fileName = $fileCutName(item)
-            return <div key={'file-' + item} className="img-thumbnail" title={fileName}>
-              <i className="file-icon" data-type={$fileExtName(fileName)} />
-              <span>{fileName}</span>
-              <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
-            </div>
+            return (
+              <div key={'file-' + item} className="img-thumbnail" title={fileName}>
+                <i className="file-icon" data-type={$fileExtName(fileName)} />
+                <span>{fileName}</span>
+                <b title="移除" onClick={() => this._removeFile(item)}><span className="zmdi zmdi-close"></span></b>
+              </div>
+            )
           })}
         </div>
       </div>
@@ -201,14 +194,10 @@ class FeedsEditor extends React.Component {
       </span>
     </React.Fragment>
   }
+
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
   componentDidMount() {
-    $(document.body).click((e) => {
-      if (this.__unmount) return
-      if (e.target && $(e.target).parents('li.list-inline-item').length > 0) return
-      this.setState({ showEmoji: false, showAtUser: false })
-    })
     autosize(this._editor)
     setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
 
@@ -239,27 +228,13 @@ class FeedsEditor extends React.Component {
     }, () => mp_end())
   }
 
-  componentWillUnmount = () => this.__unmount = true
-
-  _toggleEmoji = () => {
-    this.setState({ renderEmoji: true, showEmoji: !this.state.showEmoji }, () => {
-      if (this.state.showEmoji) this.setState({ showAtUser: false })
-    })
-  }
-  _toggleAtUser = () => {
-    this.setState({ showAtUser: !this.state.showAtUser }, () => {
-      if (this.state.showAtUser) {
-        this.setState({ showEmoji: false })
-        this._UserSelector.openDropdown()
-      }
-    })
-  }
   _selectEmoji(emoji) {
     $(this._editor).insertAtCursor(`[${emoji}]`)
     this.setState({ showEmoji: false })
   }
-  _selectAtUser = (id, name) => {
-    $(this._editor).insertAtCursor(`@${name} `)
+
+  _selectAtUser = (s) => {
+    $(this._editor).insertAtCursor(`@${s.text} `)
     this.setState({ showAtUser: false })
   }
 
@@ -268,13 +243,17 @@ class FeedsEditor extends React.Component {
     images.remove(image)
     this.setState({ images: images })
   }
+
   _removeFile(file) {
     const files = this.state.files
     files.remove(file)
     this.setState({ files: files })
   }
 
-  val() { return $(this._editor).val() }
+  val() {
+    return $(this._editor).val()
+  }
+
   vals() {
     const vals = {
       content: this.val(),
@@ -295,7 +274,9 @@ class FeedsEditor extends React.Component {
     }
     return vals
   }
+
   focus = () => $(this._editor).selectRange(9999, 9999)  // Move to last
+
   reset = () => {
     $(this._editor).val('')
     autosize.update(this._editor)
@@ -425,22 +406,6 @@ class SelectRelated extends React.Component {
   reset = () => $(this._record).val(null).trigger('change')
 }
 
-const __dpConfig = {
-  componentIcon: 'zmdi zmdi-calendar',
-  navIcons: {
-    rightIcon: 'zmdi zmdi-chevron-right',
-    leftIcon: 'zmdi zmdi-chevron-left'
-  },
-  format: 'yyyy-mm-dd hh:ii',
-  minView: 0,
-  weekStart: 1,
-  autoclose: true,
-  language: 'zh',
-  showMeridian: false,
-  keyboardNavigation: false,
-  minuteStep: 5
-}
-
 // 公告选项
 class AnnouncementOptions extends React.Component {
   state = { ...this.props }
@@ -480,7 +445,7 @@ class AnnouncementOptions extends React.Component {
   }
 
   componentDidMount() {
-    $(this._showTime).find('.form-control').datetimepicker(__dpConfig)
+    $(this._showTime).find('.form-control').datetimepicker()
     $(this._showWhere).find('.zicon').tooltip()
 
     const initValue = this.props.initValue
@@ -553,7 +518,7 @@ class ScheduleOptions extends React.Component {
     </div>
   }
   componentDidMount() {
-    $(this._scheduleTime).find('.form-control').datetimepicker(__dpConfig)
+    $(this._scheduleTime).find('.form-control').datetimepicker()
     const initValue = this.props.initValue
     if (initValue) {
       $(this._scheduleTime).find('.form-control').val(initValue.scheduleTime)

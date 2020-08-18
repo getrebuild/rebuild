@@ -254,7 +254,7 @@ var __loadMessages = function () {
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
       o = $('<div class="notification-info"></div>').appendTo(o)
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
-      $('<span class="date">' + item[2] + '</span>').appendTo(o)
+      $('<span class="date">' + $fromNow(item[2]) + '</span>').appendTo(o)
     })
     __loadMessages_state = true
     if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">暂无消息</li>').appendTo(dest)
@@ -280,16 +280,20 @@ var __showNotification = function () {
 var __globalSearch = function () {
   $('.sidebar-elements li').each(function (idx, item) {
     if (idx > 40) return false
-    if (!$(item).hasClass('parent') && ($(item).attr('class') || '').contains('nav_entity-')) {
-      var $a = $(item).find('a')
+    var $item = $(item)
+    if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
+      var $a = $item.find('>a')
       $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
+    } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
+      var $a = $item.find('>a')
+      $('<a class="text-truncate QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo('.search-models')
     }
   })
 
   var activeModel
   var aModels = $('.search-models a').click(function () {
     var s = $('.search-input-gs').val()
-    location.href = $(this).data('url') + '#gs=' + $encode(s)
+    location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
   if (aModels.length === 0) return
   activeModel = aModels.eq(0).addClass('active')
@@ -301,7 +305,9 @@ var __globalSearch = function () {
     $('.search-models').show()
   }).on('keydown', function (e) {
     var s = $('.search-input-gs').val()
-    if (e.keyCode === 13 && s) location.href = activeModel.data('url') + '#gs=' + $encode(s)
+    if (e.keyCode === 13 && s) {
+      location.href = activeModel.data('url') + (activeModel.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
+    }
   })
 }
 
@@ -417,51 +423,6 @@ var $unmount = function (container, delay, keepContainer) {
   }
 }
 
-// 初始化 select2 用户选择
-var $initUserSelect2 = function (el, multiple) {
-  var s_input = null
-  var s = $(el).select2({
-    placeholder: '选择用户',
-    minimumInputLength: 0,
-    multiple: multiple === true,
-    ajax: {
-      url: '/commons/search/search',
-      delay: 300,
-      data: function (params) {
-        var query = {
-          entity: 'User',
-          qfields: 'loginName,fullName,email,quickCode',
-          q: params.term,
-          type: 'UDR'
-        }
-        s_input = params.term
-        return query
-      },
-      processResults: function (data) {
-        return {
-          results: data.data
-        }
-      }
-    },
-    language: {
-      noResults: function () {
-        return (s_input || '').length > 0 ? '未找到结果' : '输入用户名/邮箱搜索'
-      },
-      inputTooShort: function () {
-        return '输入用户名/邮箱搜索'
-      },
-      searching: function () {
-        return '搜索中...'
-      }
-    }
-  })
-  s.on('change.select2', function (e) {
-    var v = e.target.value
-    if (v) $.post('/commons/search/recently-add?type=UDR&id=' + v)
-  })
-  return s
-}
-
 // 初始化引用字段搜索
 var $initReferenceSelect2 = function (el, field) {
   var search_input = null
@@ -552,4 +513,11 @@ var converEmoji = function (text) {
     }
   })
   return text
+}
+var $converEmoji = converEmoji
+
+// Use momentjs
+var $fromNow = function (date) {
+  if (!date || !window.moment) return null
+  return moment(date.split('UTC')[0].trim()).fromNow()
 }

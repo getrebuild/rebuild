@@ -76,7 +76,7 @@ public class MetadataSorter {
             
 			if (user == null) {
 				sorted.add(e);
-			} else if (Application.getSecurityManager().allowRead(user, e.getEntityCode())) {
+			} else if (Application.getPrivilegesManager().allowRead(user, e.getEntityCode())) {
 				sorted.add(e);
 			}
 		}

@@ -19,6 +19,7 @@ import com.rebuild.server.business.feeds.FeedsType;
 import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseControll;
 import org.apache.commons.lang.ArrayUtils;
@@ -67,7 +68,7 @@ public class RelatedListControll extends BaseControll {
                 nameValue = FieldValueWrapper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
 			}
 			o[1] = nameValue;
-			o[2] = Moment.moment((Date) o[2]).fromNow();
+			o[2] = CommonsUtils.formatClientDate((Date) o[2]);
 		}
 		
 		JSON ret = JSONUtils.toJSONObject(

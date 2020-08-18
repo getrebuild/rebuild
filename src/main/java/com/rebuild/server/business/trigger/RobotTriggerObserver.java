@@ -7,12 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.business.trigger;
 
-import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.server.Application;
 import com.rebuild.server.configuration.RobotTriggerManager;
 import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.DataSpecificationException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.OperatingObserver;
 
@@ -50,13 +47,47 @@ public class RobotTriggerObserver extends OperatingObserver {
         execAction(context, TriggerWhen.UNSHARE);
     }
 
+    // 删除做特殊处理
+
+    private static final Map<ID, TriggerAction[]> DELETE_ACTION_HOLDS = new ConcurrentHashMap<>();
+
+    @Override
+    protected void onDeleteBefore(OperatingContext context) {
+        final ID primary = context.getAnyRecord().getPrimary();
+
+        TriggerAction[] actionsOnDelete = RobotTriggerManager.instance.getActions(primary, TriggerWhen.DELETE);
+        for (TriggerAction action : actionsOnDelete) {
+            try {
+                action.prepare(context);
+            } catch (Exception ex) {
+                LOG.error("Preparing trigger failure: " + action, ex);
+            }
+        }
+        DELETE_ACTION_HOLDS.put(primary, actionsOnDelete);
+    }
+
+    @Override
+    protected void onDelete(OperatingContext context) {
+        final ID primary = context.getAnyRecord().getPrimary();
+        try {
+            execAction(context, TriggerWhen.DELETE);
+        } finally {
+            DELETE_ACTION_HOLDS.remove(primary);
+        }
+    }
+
     /**
+     * 执行触发内容
+     *
      * @param context
      * @param when
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
-        TriggerAction[] actions = RobotTriggerManager.instance.getActions(getEffectId(context), when);
-        if (actions.length == 0) {
+        final ID primary = context.getAnyRecord().getPrimary();
+
+        TriggerAction[] actions = when == TriggerWhen.DELETE ?
+                DELETE_ACTION_HOLDS.get(primary) : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
+        if (actions == null || actions.length == 0) {
             return;
         }
 
@@ -66,46 +97,24 @@ public class RobotTriggerObserver extends OperatingObserver {
             setTriggerSource(context);
         }
         // 自己触发自己，避免无限执行
-        else if (getTriggerSource().getAnyRecord().getPrimary().equals(context.getAnyRecord().getPrimary())) {
+        else if (getTriggerSource().getAnyRecord().getPrimary().equals(primary)) {
             return;
         }
 
-        final ID currentUser = Application.getCurrentUser();
         try {
-
             for (TriggerAction action : actions) {
-                if (action.useAsync()) continue;
-                LOG.info("Trigger [ " + action.getType() + " ] by record : " + context.getAnyRecord().getPrimary());
+                LOG.info("Trigger [ " + action.getType() + " ] by record : " + primary);
 
                 try {
                     action.execute(context);
-                } catch (DataSpecificationException ex) {
-                    LOG.error("Failed triggers : " + action + " << " + context, ex);
-                    throw ex;
                 } catch (Exception ex) {
                     LOG.error("Failed triggers : " + action + " << " + context, ex);
+                    throw ex;
                 } finally {
                     if (cleanSource) {
                         action.clean();
                     }
                 }
-            }
-
-            // 异步执行
-            for (TriggerAction action : actions) {
-                if (!action.useAsync()) continue;
-                LOG.info("Trigger [ " + action.getType() + " ] by record : " + context.getAnyRecord().getPrimary());
-
-                ThreadPool.exec(() -> {
-                    Application.getSessionStore().set(currentUser);
-                    try {
-                        action.execute(context);
-                    } catch (Exception ex) {
-                        LOG.error("Failed triggers : " + action + " << " + context, ex);
-                    } finally {
-                        Application.getSessionStore().clean();
-                    }
-                });
             }
 
         } finally {
@@ -121,48 +130,12 @@ public class RobotTriggerObserver extends OperatingObserver {
      *
      * @return
      */
-    protected ID getEffectId(OperatingContext context) {
+    private ID getEffectedId(OperatingContext context) {
         ID effectId = context.getAnyRecord().getPrimary();
         if (effectId.getEntityCode() == EntityHelper.ShareAccess) {
             effectId = context.getAnyRecord().getID("recordId");
         }
         return effectId;
-    }
-
-    // 删除做特殊处理
-
-    private static final Map<ID, TriggerAction[]> DELETE_ACTION_HOLDS = new ConcurrentHashMap<>();
-
-    @Override
-    protected void onDeleteBefore(OperatingContext context) {
-        final ID primary = context.getAnyRecord().getPrimary();
-        TriggerAction[] actions = RobotTriggerManager.instance.getActions(primary, TriggerWhen.DELETE);
-        for (TriggerAction action : actions) {
-            try {
-                action.prepare(context);
-            } catch (Exception ex) {
-                LOG.error("Preparing trigger failure: " + action, ex);
-            }
-        }
-        DELETE_ACTION_HOLDS.put(primary, actions);
-    }
-
-    @Override
-    protected void onDelete(OperatingContext context) {
-        final ID primary = context.getAnyRecord().getPrimary();
-        TriggerAction[] holdActions = DELETE_ACTION_HOLDS.get(primary);
-        if (holdActions == null) {
-            LOG.warn("No action held for trigger of delete");
-            return;
-        }
-        for (TriggerAction action : holdActions) {
-            try {
-                action.execute(context);
-            } catch (Exception ex) {
-                LOG.error("Executing trigger failure: " + action, ex);
-            }
-        }
-        DELETE_ACTION_HOLDS.remove(primary);
     }
 
     // -- 当前线程触发源

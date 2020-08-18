@@ -18,7 +18,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
-import com.rebuild.server.service.CommonService;
+import com.rebuild.server.service.CommonsService;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.ServiceSpec;
 import com.rebuild.server.service.base.BulkContext;
@@ -54,7 +54,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		if (!isGuardMethod(invocation)) {
 			return;
 		}
-		
+
 		final ID caller = Application.getSessionStore().get();
 		if (Application.devMode()) {
 			LOG.info("User [ " + caller + " ] calls : " + invocation.getMethod());
@@ -63,7 +63,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 		Class<?> invocationClass = invocation.getThis().getClass();
 		// 验证管理员操作
 		if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
-			throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
+		    throw new AccessDeniedException("非法操作请求 (E" + ((ServiceSpec) invocation.getThis()).getEntityCode() + ")");
 		}
 		// 仅 EntityService 或子类会验证角色权限
 		if (!EntityService.class.isAssignableFrom(invocationClass)) {
@@ -79,7 +79,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			
 			BulkContext context = (BulkContext) firstArgument;
 			Entity entity = context.getMainEntity();
-			if (!Application.getSecurityManager().allow(caller, entity.getEntityCode(), context.getAction())) {
+			if (!Application.getPrivilegesManager().allow(caller, entity.getEntityCode(), context.getAction())) {
 				LOG.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
 				throw new AccessDeniedException(formatHumanMessage(context.getAction(), entity, null));
 			}
@@ -98,14 +98,12 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 			recordId = (ID) idOrRecord;
 			entity = MetadataHelper.getEntity(recordId.getEntityCode());
 		} else {
-			throw new IllegalArgumentException("First argument must be Record/ID!");
+			throw new IllegalArgumentException("First argument must be Record or ID : " + idOrRecord);
 		}
 
 		// 忽略权限检查
-		if (EasyMeta.valueOf(entity).isPlainEntity()) {
-			return;
-		}
-		
+		if (EasyMeta.valueOf(entity).isPlainEntity()) return;
+
 		Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 		
 		boolean allowed;
@@ -116,25 +114,25 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 
 				Field stmField = MetadataHelper.getSlaveToMasterField(entity);
 				ID masterId = ((Record) idOrRecord).getID(stmField.getName());
-				if (masterId == null || !Application.getSecurityManager().allowUpdate(caller, masterId)) {
+				if (masterId == null || !Application.getPrivilegesManager().allowUpdate(caller, masterId)) {
 					throw new AccessDeniedException("你没有添加明细的权限");
 				}
 				allowed = true;
 
 			} else {
-				allowed = Application.getSecurityManager().allow(caller, entity.getEntityCode(), action);
+				allowed = Application.getPrivilegesManager().allow(caller, entity.getEntityCode(), action);
 			}
 			
 		} else {
 			Assert.notNull(recordId, "No primary in record!");
-			allowed = Application.getSecurityManager().allow(caller, recordId, action);
+			allowed = Application.getPrivilegesManager().allow(caller, recordId, action);
 		}
 
 		// 无权限操作
 		if (!allowed && IN_NOPERMISSION_PASS.get() != null) {
 			allowed = true;
-			IN_NOPERMISSION_PASS.remove();
-			LOG.warn("Allow no permission(" + action.getName() + ") passed : " + recordId);
+            IN_NOPERMISSION_PASS.remove();
+			LOG.warn("Allow no permission(" + action.getName() + ") passed once : " + recordId);
 		}
 
 		if (!allowed) {
@@ -148,7 +146,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 	 * @return
 	 */
 	private boolean isGuardMethod(MethodInvocation invocation) {
-		if (CommonService.class.isAssignableFrom(invocation.getThis().getClass())) {
+		if (CommonsService.class.isAssignableFrom(invocation.getThis().getClass())) {
 			return false;
 		}
 		String action = invocation.getMethod().getName();

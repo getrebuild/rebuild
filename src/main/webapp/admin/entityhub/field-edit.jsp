@@ -139,7 +139,7 @@
 						<div class="form-group row">
 							<label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">字段名称</label>
 							<div class="col-md-12 col-xl-6 col-lg-8">
-								<input class="form-control form-control-sm" type="text" id="fieldLabel" value="${fieldLabel}" data-o="${fieldLabel}">
+								<input class="form-control form-control-sm" type="text" id="fieldLabel" maxlength="40" value="${fieldLabel}" data-o="${fieldLabel}">
 							</div>
 						</div>
 						<div class="form-group row">
@@ -290,7 +290,7 @@
                                 <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">编码规则</label>
                                 <div class="col-md-12 col-xl-6 col-lg-8">
                                     <input class="form-control form-control-sm" type="text" id="barcodeFormat" value="">
-                                    <p class="form-text mb-0 help">可使用固定值或本实体字段变量及其组合，字段变量使用 <code>{}</code> 包裹</p>
+                                    <p class="form-text mb-0 help">可使用固定值、本实体字段（内部标示）或它们的组合，字段变量使用 <code>{}</code> 包裹</p>
                                 </div>
                             </div>
                         </div>
@@ -301,10 +301,13 @@
 							</div>
 						</div>
 						<div class="form-group row">
-							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
+							<div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4 J_options">
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="fieldNullable" data-o="${fieldNullable}"><span class="custom-control-label"> 允许为空</span>
 								</label>
+                                <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                                    <input class="custom-control-input" type="checkbox" id="fieldCreatable" data-o="${fieldCreatable}"><span class="custom-control-label"> 允许创建</span>
+                                </label>
 								<label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
 									<input class="custom-control-input" type="checkbox" id="fieldUpdatable" data-o="${fieldUpdatable}"><span class="custom-control-label"> 允许修改</span>
 								</label>
