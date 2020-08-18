@@ -92,7 +92,7 @@ public class FlowNodeGroup {
 			if (FlowNode.TYPE_CC.equals(node.getType()) && node.allowCcAutoShare()) {
 				users.addAll(node.getSpecUsers(operator, recordId));
 
-				if (firstNode != null) {
+				if (firstNode == null) {
 					firstNode = node;
 				}
 			}
