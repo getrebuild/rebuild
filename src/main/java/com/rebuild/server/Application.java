@@ -63,7 +63,7 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.11.0-dev";
+	public static final String VER = "1.11.0";
 	/** Rebuild Build
 	 */
 	public static final int BUILD = 11100;
@@ -175,13 +175,14 @@ public final class Application {
 		List<String> msgsList = new ArrayList<>();
 		CollectionUtils.addAll(msgsList, msgs);
 		msgsList.add("\n  Version : " + VER);
-		msgsList.add("OS      : " + SystemUtils.OS_NAME + " " + SystemUtils.OS_ARCH);
-		msgsList.add("Report an issue :");
+		msgsList.add("OS      : " + SystemUtils.OS_NAME + " (" + SystemUtils.OS_ARCH + ")");
+		msgsList.add("JVM     : " + SystemUtils.JAVA_VM_NAME + " (" + SystemUtils.JAVA_VERSION + ")");
+		msgsList.add("\n  Report an issue :");
 		msgsList.add("https://getrebuild.com/report-issue?title=boot");
 
-        return "\n###################################################################\n\n  "
+        return "\n\n###################################################################\n\n  "
                 + StringUtils.join(msgsList, "\n  ") +
-                "\n\n###################################################################";
+                "\n\n###################################################################\n";
     }
 
 	/**

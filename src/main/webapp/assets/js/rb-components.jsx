@@ -339,7 +339,7 @@ function RbAlertBox(props) {
     <div className={`alert alert-icon alert-icon-border alert-dismissible alert-sm alert-${type}`}>
       <div className="icon"><i className={`zmdi zmdi-${icon}`} /></div>
       <div className="message">
-        <a className="close" data-dismiss="alert"><i className="zmdi zmdi-close" /></a>
+        <a className="close" data-dismiss="alert" onClick={() => typeof props.onClose === 'function' && props.onClose()}><i className="zmdi zmdi-close" /></a>
         <p>{props.message || 'INMESSAGE'}</p>
       </div>
     </div>

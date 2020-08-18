@@ -165,4 +165,15 @@ public class FlowNodeGroup {
 		FlowNode node = getApprovalNode();
 		return node == null ? FlowNode.SIGN_OR : node.getSignMode();
 	}
+
+	/**
+	 * @return
+	 */
+	public String getGroupId() {
+		StringBuilder sb = new StringBuilder();
+		for (FlowNode node : nodes) {
+			sb.append(node.getNodeId());
+		}
+		return sb.toString();
+	}
 }

@@ -278,6 +278,11 @@ class ApprovalApproveForm extends ApprovalUsersForm {
   render() {
     return <RbModal ref={(c) => this._dlg = c} title="审批" width="600">
       <div className="form approval-form">
+        {this.state.bizMessage &&
+          <div className="form-group">
+            <RbAlertBox message={this.state.bizMessage} onClose={() => this.setState({ bizMessage: null })} />
+          </div>
+        }
         {this.state.aform && this._renderEditableForm()}
         <div className="form-group">
           <label>批注</label>
@@ -330,13 +335,19 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     const data = {
       remark: this.state.remark || '',
       selectUsers: selectUsers,
-      aformData: aformData
+      aformData: aformData,
+      useGroup: this.state.useGroup
     }
 
     this.disabled(true)
     $.post(`/app/entity/approval/approve?record=${this.props.id}&state=${state}`, JSON.stringify(data), (res) => {
-      if (res.error_code > 0) RbHighbar.error(res.error_msg)
-      else {
+      if (res.error_code === 499) {
+        this.setState({ bizMessage: res.error_msg })
+        this.getNextStep()
+
+      } else if (res.error_code > 0) {
+        RbHighbar.error(res.error_msg)
+      } else {
         _reload(this, '审批已' + (state === 10 ? '同意' : '驳回'))
         typeof this.props.call === 'function' && this.props.call()
       }

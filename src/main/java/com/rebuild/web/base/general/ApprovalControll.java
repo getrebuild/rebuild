@@ -30,6 +30,7 @@ import com.rebuild.server.configuration.RobotApprovalManager;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.service.DataSpecificationException;
+import com.rebuild.server.service.DataSpecificationNoRollbackException;
 import com.rebuild.server.service.bizz.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BasePageControll;
@@ -129,6 +130,7 @@ public class ApprovalControll extends BasePageControll {
 		data.put("ccSelfSelecting", nextNodes.allowSelfSelectingCc());
 		data.put("isLastStep", nextNodes.isLastStep());
 		data.put("signMode", nextNodes.getSignMode());
+		data.put("useGroup", nextNodes.getGroupId());
 
 		// 可修改字段
 		JSONArray editableFields = approvalProcessor.getCurrentNode().getEditableFields();
@@ -177,6 +179,7 @@ public class ApprovalControll extends BasePageControll {
 		JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
 		JSONObject selectUsers = post.getJSONObject("selectUsers");
 		String remark = post.getString("remark");
+		String useGroup = post.getString("useGroup");
 
 		// 可编辑字段
 		JSONObject aformData = post.getJSONObject("aformData");
@@ -193,8 +196,10 @@ public class ApprovalControll extends BasePageControll {
 
 		try {
 			new ApprovalProcessor(recordId)
-					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord);
+					.approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup);
 			writeSuccess(response);
+		} catch (DataSpecificationNoRollbackException ex) {
+			writeJSON(response, formatFailure(ex.getMessage(), 499));
 		} catch (ApprovalException ex) {
 			writeFailure(response, ex.getMessage());
 		}

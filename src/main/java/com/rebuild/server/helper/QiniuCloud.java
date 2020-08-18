@@ -317,8 +317,12 @@ public class QiniuCloud {
             size = QiniuCloud.instance().stats();
         } else {
             File data = SysConfiguration.getFileOfData("rb");
-            size = FileUtils.sizeOfDirectory(data);
+            if (data.exists()) {
+	            size = FileUtils.sizeOfDirectory(data);
+			}
         }
+
+        if (size == null) size = 0L;
 
         Application.getCommonCache().putx("_StorageSize", size, CommonCache.TS_HOUR);
         return size;

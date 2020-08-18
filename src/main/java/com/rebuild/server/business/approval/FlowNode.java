@@ -111,8 +111,10 @@ public class FlowNode {
 	public boolean allowSelfSelecting() {
 		if (getDataMap().containsKey("selfSelecting")) {
 			return getDataMap().getBooleanValue("selfSelecting");
+		} else {
+			// 默认允许
+			return true;
 		}
-		return false;
 	}
 
 	/**
@@ -121,8 +123,10 @@ public class FlowNode {
 	public boolean allowCcAutoShare() {
 		if (getDataMap().containsKey("ccAutoShare")) {
 			return getDataMap().getBooleanValue("ccAutoShare");
+		} else {
+			// 默认允许
+			return true;
 		}
-		return false;
 	}
 
 	/**

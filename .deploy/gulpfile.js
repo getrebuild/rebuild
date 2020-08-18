@@ -1,4 +1,9 @@
-const { src, dest, series, parallel } = require('gulp')
+const {
+  src,
+  dest,
+  series,
+  parallel
+} = require('gulp')
 const babel = require('gulp-babel')
 const babelCore = require('@babel/core')
 const cleanCSS = require('gulp-clean-css')
@@ -22,7 +27,9 @@ function compileJs(cb) {
       babel(BABEL_OPTIONS)
     )
     .pipe(
-      debug({ title: 'Compiled : ' })
+      debug({
+        title: 'Compiled : '
+      })
     )
     .pipe(
       dest('build/assets/js')
@@ -35,7 +42,9 @@ function compileCss(cb) {
       cleanCSS()
     )
     .pipe(
-      debug({ title: 'Compiled : ' })
+      debug({
+        title: 'Compiled : '
+      })
     )
     .pipe(
       dest('build/assets/css')
@@ -43,6 +52,7 @@ function compileCss(cb) {
 }
 
 const _assetsHexCached = {}
+
 function _assetsHex(file) {
   let hex = _assetsHexCached[file]
   if (!hex) {
@@ -101,7 +111,9 @@ function compileJsp(cb) {
       })
     )
     .pipe(
-      debug({ title: 'Compiled : ' })
+      debug({
+        title: 'Compiled : '
+      })
     )
     .pipe(
       dest('build')
@@ -114,8 +126,9 @@ function maven(cb) {
 
   const mvn = require('child_process').spawnSync(
     process.platform === 'win32' ? 'mvn.cmd' : 'mvn',
-    ['clean', 'package', '-f', pomfile],
-    { stdio: 'inherit' })
+    ['clean', 'package', '-f', pomfile], {
+      stdio: 'inherit'
+    })
 
   if (mvn.status !== 0) {
     process.stderr.write(mvn.stderr)
@@ -124,13 +137,14 @@ function maven(cb) {
   cb()
 }
 
-const RELEASE_HOME = 'D:/MAVEN2017/rebuild/for-production/rebuild-standalone/REBUILD'
+const RELEASE_HOME = 'D:/GitHub/for-production/rebuild-standalone/REBUILD'
+
 function release(cb) {
   return src('../target/rebuild/**')
     .pipe(
       filter((file) => {
-        const m = /\.jsx/.test(file.path) || /\.development\./.test(file.path) || /babel\./.test(file.path)
-          || /rebel\.xml/.test(file.path)
+        const m = /\.jsx/.test(file.path) || /\.development\./.test(file.path) || /babel\./.test(file.path) ||
+          /rebel\.xml/.test(file.path)
         m && console.log('Filtered : ' + file.path)
         return !m
       })

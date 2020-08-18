@@ -12,14 +12,13 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
-import com.rebuild.server.business.approval.ApprovalHelper;
-import com.rebuild.server.business.approval.ApprovalState;
-import com.rebuild.server.business.approval.FlowNode;
+import com.rebuild.server.business.approval.*;
 import com.rebuild.server.business.trigger.RobotTriggerManual;
 import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
 import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.BaseService;
+import com.rebuild.server.service.DataSpecificationNoRollbackException;
 import com.rebuild.server.service.OperatingContext;
 import com.rebuild.server.service.bizz.UserService;
 import com.rebuild.server.service.notification.MessageBuilder;
@@ -99,11 +98,12 @@ public class ApprovalStepService extends BaseService {
 	 * @param stepRecord
 	 * @param signMode
 	 * @param cc
-	 * @param nextApprovers 驳回时无需
-	 * @param nextNode 驳回时无需
-	 * @param addedData 驳回时无需
+	 * @param nextApprovers [驳回时无需]
+	 * @param nextNode [驳回时无需]
+	 * @param addedData [驳回时无需]
+	 * @param checkUseGroup [驳回时无需]
 	 */
-	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData) {
+	public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
 		// 审批时更新主记录
 		if (addedData != null) {
 			ADDED_MODE.set(true);
@@ -111,6 +111,20 @@ public class ApprovalStepService extends BaseService {
 				Application.getService(addedData.getEntity().getEntityCode()).update(addedData);
 			} finally {
 				ADDED_MODE.remove();
+			}
+
+			// 检查数据修改后的步骤对不对 GitHub#208
+			if (checkUseGroup != null) {
+				Object[] stepObject = Application.createQueryNoFilter(
+						"select recordId,approvalId from RobotApprovalStep where stepId = ?")
+						.setParameter(1, stepRecord.getPrimary())
+						.unique();
+
+				ApprovalProcessor approvalProcessor = new ApprovalProcessor((ID) stepObject[0], (ID) stepObject[1]);
+				FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
+				if (!nextNodes.getGroupId().equals(checkUseGroup)) {
+					throw new DataSpecificationNoRollbackException("由于更改数据导致流程改变，你需要重新审批");
+				}
 			}
 		}
 
@@ -126,7 +140,7 @@ public class ApprovalStepService extends BaseService {
 		final ID approvalId = (ID) stepObject[1];
 		final String currentNode = (String) stepObject[2];
 		final ID approver = Application.getCurrentUser();
-		
+
 		String entityLabel = EasyMeta.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
 		ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 		
