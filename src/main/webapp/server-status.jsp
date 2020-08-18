@@ -82,7 +82,7 @@
 		</tr>
 		<tr>
 			<th>JVM</th>
-			<td><%=SystemUtils.JAVA_VERSION%> (<%=SystemUtils.JAVA_VM_NAME%>)</td>
+			<td><%=SystemUtils.JAVA_VM_NAME%> (<%=SystemUtils.JAVA_VERSION%>)</td>
 		</tr>
 		<tr>
 			<th>Data Directory</th>
