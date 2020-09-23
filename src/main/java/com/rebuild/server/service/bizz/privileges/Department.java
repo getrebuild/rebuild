@@ -41,8 +41,8 @@ public class Department extends BusinessUnit {
 		for (BusinessUnit dept : getChildren()) {
 			if (dept.getIdentity().equals(child.getIdentity())) {
 				return true;
-			} else {
-				return ((Department) dept).isChildren(child, true);
+			} else if (((Department) dept).isChildren(child, true)) {
+				return true;
 			}
 		}
 		return false;
