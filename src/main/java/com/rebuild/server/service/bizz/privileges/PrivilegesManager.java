@@ -21,13 +21,11 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.server.Application;
 import com.rebuild.server.helper.cache.NoRecordFoundException;
 import com.rebuild.server.helper.cache.RecordOwningCache;
+import com.rebuild.server.metadata.EntityHelper;
 import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
 import com.rebuild.server.service.EntityService;
 import com.rebuild.server.service.bizz.RoleService;
 import com.rebuild.server.service.bizz.UserHelper;
-import com.rebuild.server.service.bizz.UserService;
-import org.springframework.util.Assert;
 
 /**
  * 实体安全/权限 管理
@@ -202,6 +200,10 @@ public class PrivilegesManager {
 	public boolean allow(ID user, int entity, Permission action) {
 		// CRUD and PlainEntity
 		if (action.getMask() <= BizzPermission.READ.getMask() && MetadataHelper.isPlainEntity(entity)) {
+			return true;
+		}
+		// R and Feeds
+		if (entity == EntityHelper.Feeds && action == BizzPermission.READ) {
 			return true;
 		}
 
