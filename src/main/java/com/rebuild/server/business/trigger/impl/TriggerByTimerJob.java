@@ -48,8 +48,6 @@ public class TriggerByTimerJob extends DistributedJobBean {
      */
     @Override
     public void executeInternalSafe() throws JobExecutionException {
-        if (!isSafe()) return;
-
         final Calendar time = CalendarUtils.getInstance();
         final Object[][] timerTriggers = Application.createQueryNoFilter(
                 "select when,whenTimer,whenFilter,belongEntity,actionType,actionContent,configId from RobotTriggerConfig" +

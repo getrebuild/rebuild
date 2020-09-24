@@ -63,10 +63,10 @@ public final class Application {
 	
 	/** Rebuild Version
 	 */
-	public static final String VER = "1.11.0";
+	public static final String VER = "1.11.1";
 	/** Rebuild Build
 	 */
-	public static final int BUILD = 11100;
+	public static final int BUILD = 11101;
 
 	/** Logging for Global
 	 */
