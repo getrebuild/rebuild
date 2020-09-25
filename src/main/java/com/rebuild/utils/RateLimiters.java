@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -39,8 +39,8 @@ public class RateLimiters {
      * for 登陆
      */
     public static final RequestRateLimiter RRL_LOGIN = createRateLimiter(
-            new long[] { RateLimiters.MINUTE / 2, RateLimiters.MINUTE, RateLimiters.HOUR },
-            new int[]  {  5, 10, 30 });
+            new long[]{RateLimiters.MINUTE / 2, RateLimiters.MINUTE, RateLimiters.HOUR},
+            new int[]{5, 10, 30});
 
     /**
      * @param seconds

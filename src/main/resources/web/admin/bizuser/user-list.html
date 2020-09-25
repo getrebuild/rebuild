@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/users" />
+    <title>[[${bundle.lang('SomeManage,User')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='users')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller">
+            <div class="aside-tree">
+              <div class="ph-item rb">
+                <div class="ph-col-12 p-0">
+                  <div class="ph-row">
+                    <div class="ph-col-12 big"></div>
+                    <div class="ph-col-12 big"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="main-content container-fluid">
+          <ul class="nav nav-tabs nav-tabs-classic">
+            <li class="nav-item">
+              <a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> [[${bundle.lang('User')}]]</a>
+            </li>
+            <li class="nav-item">
+              <a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> [[${bundle.lang('Department')}]]</a>
+            </li>
+          </ul>
+          <div class="card card-table">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-header">
+                  <div class="col-12 col-lg-5">
+                    <div class="dataTables_filter">
+                      <div class="input-group input-search">
+                        <input class="form-control" type="text" th:placeholder="${bundle.lang('Query')}" maxlength="40" data-quickFields="loginName,fullName,email,quickCode" />
+                        <span class="input-group-btn">
+                          <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-7">
+                    <div class="dataTables_oper">
+                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.lang('Open')}]]</button>
+                      <div class="btn-group btn-space">
+                        <button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> [[${bundle.lang('NewSome,User')}]]</button>
+                        <button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
+                        <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                          <a class="dropdown-item J_new-dept"><i class="icon zmdi zmdi-accounts-add"></i> [[${bundle.lang('NewSome,Department')}]]</a>
+                        </div>
+                      </div>
+                      <div class="btn-group btn-space">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.lang('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                          <a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.lang('FieldShow')}]]</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="react-list" class="rb-loading rb-loading-active data-list">
+                  <th:block th:replace="~{/_include/spinner}" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        type: 'RecordList',
+        entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
+        privileges: _$unth('[[${entityPrivileges}]]'),
+        listConfig: _$unth('[[${DataListConfig}]]'),
+        advFilter: false,
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/dept-tree.js}"></script>
+    <script type="text/babel">
+      const RbForm_postAfter = RbForm.postAfter
+
+      let formPostType = 1
+      RbForm.postAfter = function () {
+        if (formPostType == 1) RbForm_postAfter()
+        else loadDeptTree()
+      }
+
+      $(document).ready(function () {
+        loadDeptTree()
+        $('.J_new').click(function () {
+          formPostType = 1
+        })
+        $('.J_new-dept').click(function () {
+          formPostType = 2
+          RbFormModal.create({ title: $lang('NewSome,Department'), entity: 'Department', icon: 'accounts' })
+        })
+      })
+
+      clickDept = function (depts) {
+        if (depts[0] == '$ALL$') depts = []
+        let exp = { items: [], values: {} }
+        exp.items.push({ op: 'in', field: 'deptId', value: '{2}' })
+        exp.values['2'] = depts
+        RbListPage._RbList.search(depts.length == 0 ? {} : exp)
+      }
+    </script>
+  </body>
+</html>

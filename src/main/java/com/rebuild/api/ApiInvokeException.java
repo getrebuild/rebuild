@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.api;
 
-import com.rebuild.server.RebuildException;
+import com.rebuild.core.RebuildException;
 
 /**
  * API 根异常
@@ -16,12 +16,8 @@ import com.rebuild.server.RebuildException;
  * @since 2019-07-23
  */
 public class ApiInvokeException extends RebuildException {
-	private static final long serialVersionUID = -5069862757215287578L;
-	
-	// 内部错误
-    public static final int ERR_SERVER = 500;
-    // 业务错误
-    public static final int ERR_BIZ = Controll.CODE_ERROR;
+    private static final long serialVersionUID = -5069862757215287578L;
+
     // 鉴权错误
     public static final int ERR_BADAUTH = 401;
     // 无效API
@@ -33,8 +29,7 @@ public class ApiInvokeException extends RebuildException {
     // 违反数据约束
     public static final int ERR_DATASPEC = 420;
 
-
-    private int errorCode = ERR_BIZ;
+    private int errorCode = Controller.CODE_ERROR;
 
     public ApiInvokeException(String errorMsg) {
         super(errorMsg);

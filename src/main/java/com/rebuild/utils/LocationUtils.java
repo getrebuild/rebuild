@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -9,10 +9,10 @@ package com.rebuild.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.cache.CommonCache;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import com.rebuild.core.Application;
+import com.rebuild.core.cache.CommonsCache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 位置工具
@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LocationUtils {
 
-    private static final Log LOG = LogFactory.getLog(LocationUtils.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LocationUtils.class);
 
     /**
      * 获取 IP 所在位置
@@ -44,7 +44,7 @@ public class LocationUtils {
     public static JSON getLocation(String ip, boolean useCache) {
         JSONObject result;
         if (useCache) {
-            result = (JSONObject) Application.getCommonCache().getx("IPLocation2" + ip);
+            result = (JSONObject) Application.getCommonsCache().getx("IPLocation2" + ip);
             if (result != null) {
                 return result;
             }
@@ -84,7 +84,7 @@ public class LocationUtils {
             result.put("country", "N");
         }
 
-        Application.getCommonCache().putx("IPLocation2" + ip, result, CommonCache.TS_WEEK);
+        Application.getCommonsCache().putx("IPLocation2" + ip, result, CommonsCache.TS_WEEK);
         return result;
     }
 

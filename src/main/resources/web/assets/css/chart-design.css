@@ -1,0 +1,420 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.rb-top-header {
+  box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.1), 0 2px 12px 0 rgba(170, 182, 206, 0.2), inset 0 -1px 0 0 rgba(255, 255, 255, 0.3);
+}
+
+.rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .zmdi-arrow-left {
+  font-size: 2.11rem;
+}
+
+.rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar:hover .zmdi-arrow-left {
+  color: #4285f4;
+}
+
+.chart-box .chart-head .chart-title {
+  display: none;
+}
+
+.chart-box .chart-body {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.chart-box.TREEMAP {
+  padding-top: 25px;
+}
+
+#chart-preview {
+  background-color: #fff;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
+  padding: 0;
+  position: relative;
+  min-height: 200px;
+}
+
+.data-aside,
+.config-aside {
+  position: fixed;
+  height: 100%;
+  top: 0;
+  margin-top: 61px;
+  padding-bottom: 61px;
+  box-shadow: inset 0 -1px 0 0 rgba(10, 18, 32, 0.12);
+  background-color: #f5f5f5;
+}
+
+.data-aside {
+  left: 0;
+  border-right: 1px solid #e3e3e3;
+  width: 230px;
+}
+
+.config-aside {
+  right: 0;
+  border-left: 1px solid #e3e3e3;
+  width: 326px;
+}
+
+.data-aside .rb-scroller,
+.config-aside .rb-scroller {
+  height: 100%;
+  width: 100%;
+}
+
+.config-aside .tooltip .tooltip-inner {
+  text-align: left;
+}
+
+.rb-content .main-content {
+  margin-left: 230px;
+  margin-right: 326px;
+  width: auto;
+  padding: 0 15px;
+}
+
+.axis-editor {
+  margin-bottom: 15px;
+}
+
+.axis-editor .axis {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px 0;
+}
+
+.axis .axis-head {
+  color: #777;
+  float: left;
+  width: 65px;
+  cursor: default;
+}
+
+.axis .axis-head > a {
+  display: inline-block;
+  padding: 0 3px;
+  cursor: default;
+}
+
+.axis .axis-target {
+  margin-left: 65px;
+  min-height: 30px;
+  margin-top: -6px;
+  margin-bottom: -6px;
+  padding: 2px 0 0;
+}
+
+.axis-target .item {
+  background-color: #4285f4;
+  padding: 4px 4px;
+  color: #fff;
+  display: inline-block;
+  margin-right: 3px;
+  margin-bottom: 2px;
+  position: relative;
+  cursor: default;
+  white-space: nowrap;
+}
+
+.axis-target .item::before {
+  position: absolute;
+  width: 0;
+  height: 0;
+  content: '';
+  transform: rotate(45deg);
+  border: 4px solid #eee;
+  top: -4px;
+  right: -4px;
+}
+
+.axis-target .item > a {
+  display: inline-block;
+  width: 14px;
+  text-align: center;
+}
+
+.axis-target .item > a.del {
+  visibility: hidden;
+}
+
+.axis-target .item:hover > a.del {
+  visibility: visible;
+}
+
+.axis-target .item > a:hover {
+  opacity: 0.8;
+}
+
+.axis-target .dropdown-menu {
+  min-width: 140px;
+  box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 12px 0 rgba(170, 182, 206, 0.36);
+  border-width: 0;
+  border-radius: 0;
+  padding: 4px 0;
+}
+
+.axis-target .dropdown-menu .dropdown-divider {
+  margin: 4px 0;
+}
+
+.axis-target .dropdown-menu .dropdown-item {
+  cursor: pointer;
+  padding: 6px 14px;
+}
+
+.axis-target.ui-droppable-active,
+.axis-target.ui-droppable-hover {
+  background-color: #fff7c5;
+}
+
+.data-info {
+  padding: 0 15px;
+}
+
+.data-info + .data-info {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.data-info > h5 {
+  color: #777;
+  margin: 10px 0;
+  line-height: 18px;
+}
+
+.data-info ul {
+  margin-bottom: 11px;
+}
+
+.data-info ul li > a,
+.data-info ul li > span,
+a.ui-draggable.ui-draggable-dragging {
+  display: block;
+  padding: 4px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-info ul li a:hover,
+a.ui-draggable.ui-draggable-dragging {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.data-info .esource a {
+  position: relative;
+  cursor: default;
+}
+
+.data-info .esource a i.zmdi {
+  float: left;
+  font-size: 1.2rem;
+  line-height: 20px;
+}
+
+.data-info .esource a > span {
+  float: right;
+  display: none;
+}
+
+.data-info .esource a > span i.zmdi {
+  color: #777;
+  font-size: 1.2rem;
+}
+
+.data-info .esource a:hover > span {
+  display: block;
+  cursor: pointer;
+}
+
+.data-info .esource a:hover > span:hover {
+  opacity: 0.8;
+}
+
+.data-info .input {
+  margin-bottom: 9px;
+  padding: 0 6px;
+}
+
+.data-info .input .form-control {
+  border-width: 0;
+  padding: 0 6px;
+  background-color: rgba(255, 255, 255, 0.6);
+  height: 30px !important;
+}
+
+.input .form-control:hover,
+.input .form-control:focus {
+  background-color: #fff;
+}
+
+.input .form-control[disabled] {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+  cursor: default;
+}
+
+a.ui-draggable.ui-draggable-dragging {
+  min-width: 150px;
+  border-radius: 2px;
+}
+
+.data-info ul li i.icon,
+.data-info ul.fields li a::before {
+  width: 18px;
+  display: inline-block;
+  color: #4285f4;
+}
+
+.data-info ul.fields li a::before {
+  font-size: 0.9rem;
+  content: '#';
+}
+
+.data-info .fields li.text a::before,
+.data-info .fields li.clazz a::before {
+  content: 'T';
+}
+
+.data-info .fields li.date a::before {
+  content: 'D';
+}
+
+.data-info .fields li.num a::before {
+  content: 'N';
+}
+
+.chart-type > a {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  padding: 4px;
+  margin: 4px 0 4px 6px;
+  cursor: not-allowed;
+}
+
+.chart-type > a.select {
+  box-shadow: 0 0 0 2px rgba(81, 130, 227, 0.06), inset 0 0 0 2px rgba(81, 129, 228, 0.6);
+  background-color: #fff !important;
+}
+
+.chart-type > a.active {
+  cursor: pointer;
+}
+
+.chart-type > a.active:hover {
+  background-color: rgba(255, 255, 255, 0.6);
+}
+
+.chart-type > a > i {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  background: url(../img/charts-sprite.svg?v=1.10) 0 0 no-repeat;
+}
+
+.chart-type > a > i.C200 {
+  background-position: -1244px -1464px;
+}
+
+.chart-type > a.active > i.C200 {
+  background-position: -1180px -1464px;
+}
+
+.chart-type > a > i.C310 {
+  background-position: -202px -1288px;
+}
+
+.chart-type > a.active > i.C310 {
+  background-position: -170px -1288px;
+}
+
+.chart-type > a > i.C220 {
+  background-position: -1138px -1326px;
+}
+
+.chart-type > a.active > i.C220 {
+  background-position: -1106px -1326px;
+}
+
+.chart-type > a > i.C210 {
+  background-position: -1148px -1464px;
+}
+
+.chart-type > a.active > i.C210 {
+  background-position: -1501px -1406px;
+}
+
+.chart-type > a > i.C230 {
+  background-position: -1010px -1326px;
+}
+
+.chart-type > a.active > i.C230 {
+  background-position: -978px -1326px;
+}
+
+.chart-type > a > i.C330 {
+  background-position: -768px -871px;
+}
+
+.chart-type > a.active > i.C330 {
+  background-position: -709px -387px;
+}
+
+.chart-type > a > i.C370 {
+  background-position: -1212px -1464px;
+}
+
+.chart-type > a.active > i.C370 {
+  background-position: -1020px -1464px;
+}
+
+.chart-type > a > i.C290 {
+  background-position: -394px -1288px;
+}
+
+.chart-type > a.active > i.C290 {
+  background-position: -362px -1288px;
+}
+
+.chart-type > a > i.C340 {
+  background-position: -1105px -722px;
+}
+
+.chart-type > a.active > i.C340 {
+  background-position: -956px -1464px;
+}
+
+.chart-type > a > i.C280 {
+  background-position: -714px -1288px;
+}
+
+.chart-type > a.active > i.C280 {
+  background-position: -650px -1288px;
+}
+
+.chart-type > a > i.C271 {
+  background-position: -970px -1288px;
+}
+
+.chart-type > a.active > i.C271 {
+  background-position: -938px -1288px;
+}
+
+.chart-type > a > i.C360 {
+  background-position: -1330px -1326px;
+}
+
+.chart-type > a.active > i.C360 {
+  background-position: -1372px -1464px;
+}
+
+.chart-type > a > i.C243 {
+  background-position: -1322px -1288px;
+}
+
+.chart-type > a.active > i.C243 {
+  background-position: -1290px -1288px;
+}

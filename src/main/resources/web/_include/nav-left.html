@@ -1,0 +1,22 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+  <div class="rb-left-sidebar">
+    <div class="left-sidebar-wrapper">
+      <a class="left-sidebar-toggle">[[${bundle.lang('NavMenu')}]]</a>
+      <div class="left-sidebar-spacer">
+        <div class="left-sidebar-scroll rb-scroller">
+          <div class="left-sidebar-content no-divider">
+            <ul class="sidebar-elements">
+              <li th:class="${active == 'dashboard-home'} ? 'active'">
+                <a th:href="@{/dashboard/home}"><i class="icon zmdi zmdi-home"></i><span>[[${bundle.lang('Home')}]]</span></a>
+              </li>
+              <th:block th:utext="${T(com.rebuild.core.configuration.NavBuilder).renderNav(#request, active)}"></th:block>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div th:if="${AllowCustomNav}" class="bottom-widget">
+        <a class="nav-settings" th:title="${bundle.lang('SetSome,NavMenu')}"><i class="icon zmdi zmdi-apps"></i></a>
+      </div>
+    </div>
+  </div>
+</th:block>

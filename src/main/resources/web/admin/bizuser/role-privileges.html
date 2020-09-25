@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/privileges" />
+    <title>[[${bundle.lang('RolePrivileges')}]]</title>
+    <style type="text/css">
+      .priv {
+        width: 36px;
+        height: 18px;
+        display: inline-block;
+        background: url([[${baseUrl}]]/assets/img/role/role_0.gif) no-repeat center center;
+      }
+      .priv:hover {
+        cursor: pointer;
+        opacity: 0.8;
+      }
+      .R1 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_1.gif);
+      }
+      .R2 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_2.gif);
+      }
+      .R3 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_3.gif);
+      }
+      .R4 {
+        background-image: url([[${baseUrl}]]/assets/img/role/role_4.gif);
+      }
+      .table-priv.table {
+        table-layout: fixed;
+        border: 0 none;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .table-priv.table td,
+      .table-priv.table th {
+        padding: 9px 6px;
+        vertical-align: middle;
+        line-height: 1;
+      }
+      .table-priv.table th {
+        border-top: 0 none;
+        font-weight: normal;
+        color: #777;
+      }
+      .table-priv.table th a:hover,
+      .table-priv.table .name a:hover {
+        opacity: 0.8;
+      }
+      .legend {
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        display: inline-block;
+        padding: 9px 15px;
+      }
+      .legend label {
+        margin: 0 6px;
+      }
+      .legend .priv {
+        width: 22px;
+        float: left;
+      }
+      .legend-wrap {
+        padding: 10px 0 5px;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='role-privileges')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller">
+            <div class="aside-tree">
+              <div class="ph-item rb">
+                <div class="ph-col-12 p-0">
+                  <div class="ph-row">
+                    <div class="ph-col-12 big"></div>
+                    <div class="ph-col-12 big"></div>
+                  </div>
+                </div>
+              </div>
+              <ul class="list-unstyled"></ul>
+            </div>
+          </div>
+        </aside>
+        <div class="main-content container-fluid">
+          <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm hide J_tips">
+            <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
+            <div class="message">
+              <a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
+              <p>1</p>
+            </div>
+          </div>
+          <div class="float-right" style="margin-top: -1px">
+            <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.lang('NewSome,Role')}]]</button>
+            <button class="btn btn-primary btn-space J_save mr-0" type="button" disabled="disabled">[[${bundle.lang('Save')}]]</button>
+          </div>
+          <div class="tab-container">
+            <ul class="nav nav-tabs nav-tabs-classic">
+              <li class="nav-item"><a data-toggle="tab" href="#priv-entity" class="nav-link active">[[${bundle.lang('EntityPrivileges')}]]</a></li>
+              <li class="nav-item"><a data-toggle="tab" href="#priv-zero" class="nav-link">[[${bundle.lang('ZeroPrivileges')}]]</a></li>
+            </ul>
+            <div class="tab-content mb-0" style="border-top: 0px solid #4285f4">
+              <div class="tab-pane active" id="priv-entity">
+                <table class="table table-hover table-priv">
+                  <thead>
+                    <tr>
+                      <th width="25%">[[${bundle.lang('BizEntity')}]]</th>
+                      <th class="text-center unselect"><a data-action="C">[[${bundle.lang('Create')}]]</a></th>
+                      <th class="text-center unselect"><a data-action="R">[[${bundle.lang('Read')}]]</a></th>
+                      <th class="text-center unselect"><a data-action="U">[[${bundle.lang('Update')}]]</a></th>
+                      <th class="text-center unselect"><a data-action="D">[[${bundle.lang('Delete')}]]</a></th>
+                      <th class="text-center unselect"><a data-action="A">[[${bundle.lang('Assign')}]]</a></th>
+                      <th class="text-center unselect"><a data-action="S">[[${bundle.lang('Share')}]]</a></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr th:each="entity : ${Entities}">
+                      <td class="name"><a th:data-name="${entity[0]}">[[${entity[1]}]]</a></td>
+                      <td class="text-center"><i data-action="C" class="priv R0"></i></td>
+                      <td class="text-center"><i data-action="R" class="priv R0"></i></td>
+                      <td class="text-center"><i data-action="U" class="priv R0"></i></td>
+                      <td class="text-center"><i data-action="D" class="priv R0"></i></td>
+                      <td class="text-center"><i data-action="A" class="priv R0"></i></td>
+                      <td class="text-center"><i data-action="S" class="priv R0"></i></td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="legend-wrap">
+                  <div class="legend">
+                    [[${bundle.lang('Legend')}]]
+                    <label><i class="priv R0"></i> [[${bundle.lang('NoPrivileges')}]]</label>
+                    <label><i class="priv R1"></i> [[${bundle.lang('DepthEntry1')}]]</label>
+                    <label><i class="priv R2"></i> [[${bundle.lang('DepthEntry2')}]]</label>
+                    <label><i class="priv R3"></i> [[${bundle.lang('DepthEntry3')}]]</label>
+                    <label><i class="priv R4"></i> [[${bundle.lang('DepthEntry4')}]]</label>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane" id="priv-zero">
+                <table class="table table-hover table-priv">
+                  <thead>
+                    <tr>
+                      <th width="25%">[[${bundle.lang('PermissionItem')}]]</th>
+                      <th class="text-center unselect"><a data-action="Z">[[${bundle.lang('Allow')}]]</a></th>
+                      <th>[[${bundle.lang('PrePermission')}]]</th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="name"><a data-name="AllowLogin">[[${bundle.lang('AllowSome,Login')}]]</a></td>
+                      <td class="text-center"><i data-action="Z" class="priv R4"></i></td>
+                      <td colspan="5" class="text-muted">[[${bundle.lang('Null')}]]</td>
+                    </tr>
+                    <tr>
+                      <td class="name"><a data-name="AllowCustomNav">[[${bundle.lang('AllowSetSome,NavMenu')}]]</a></td>
+                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted">[[${bundle.lang('Null')}]]</td>
+                    </tr>
+                    <tr>
+                      <td class="name"><a data-name="AllowCustomDataList">[[${bundle.lang('AllowSetSome,FieldShow')}]]</a></td>
+                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted">[[${bundle.lang('AllowSetSomePrePermission,Read')}]]</td>
+                    </tr>
+                    <tr>
+                      <td class="name"><a data-name="AllowBatchUpdate">[[${bundle.lang('AllowSome,BatchUpdate')}]]</a></td>
+                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted">[[${bundle.lang('AllowSetSomePrePermission,Update')}]]</td>
+                    </tr>
+                    <tr class="hide">
+                      <td class="name"><a data-name="AllowDataImport">[[${bundle.lang('AllowSome,DataImport')}]]</a></td>
+                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted">[[${bundle.lang('AllowSetSomePrePermission,Create')}]]</td>
+                    </tr>
+                    <tr>
+                      <td class="name"><a data-name="AllowDataExport">[[${bundle.lang('AllowSome,DataExport')}]]</a></td>
+                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted">[[${bundle.lang('AllowSetSomePrePermission,Read')}]]</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="legend-wrap">
+                  <div class="legend">
+                    [[${bundle.lang('Legend')}]]
+                    <label><i class="priv R4"></i> [[${bundle.lang('True')}]]</label>
+                    <label><i class="priv R0"></i> [[${bundle.lang('False')}]]</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        recordId: '[[${id}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/role-view.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/role-privileges.js}" type="text/babel"></script>
+  </body>
+</html>

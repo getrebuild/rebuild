@@ -1,11 +1,7 @@
 {
-  "name": "rebuild-gulp",
-  "version": "1.0.0",
-  "description": "rebuild js/jsx/css compiler",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "name": "rebuild-compiler",
+  "version": "0.2.0",
+  "description": "rebuild js/css/html compiler",
   "author": "rebuild",
   "license": "GPL-3.0",
   "repository": {

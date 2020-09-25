@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -15,12 +15,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
-import com.rebuild.server.configuration.portals.ClassificationManager;
-import com.rebuild.server.configuration.portals.MultiSelectManager;
-import com.rebuild.server.configuration.portals.PickListManager;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.configuration.general.MultiSelectManager;
+import com.rebuild.core.configuration.general.PickListManager;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.impl.EasyMeta;
 
 /**
  * 获取字段列表
@@ -39,7 +39,7 @@ public class FieldList extends BaseApi {
     public JSON execute(ApiContext context) throws ApiInvokeException {
         String entity = context.getParameterNotBlank("entity");
         if (!MetadataHelper.containsEntity(entity)) {
-            throw new ApiInvokeException("Unknow entity : " + entity);
+            throw new ApiInvokeException("Unknown entity : " + entity);
         }
 
         Entity thatEntity = MetadataHelper.getEntity(entity);

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('SomeConf,SmsEmail')}]]</title>
+    <style type="text/css">
+      .row.stats .col-8 span {
+        display: block;
+        height: 40px;
+        width: 100%;
+        margin-top: 4px;
+      }
+      .row.stats .col-4 {
+        height: 48px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='integration-submail')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header card-header-divider">
+                  [[${bundle.lang('Submail')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.lang('Modify')}]]</a>
+                </div>
+                <div class="card-body">
+                  <h5>[[${bundle.lang('SomeService,Mail')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">APPID</td>
+                        <td data-id="MailUser" th:data-value="${mailAccount == null ? '' : mailAccount[0]}">[[${mailAccount == null ? bundle.lang('Unset') : mailAccount[0]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>APPKEY</td>
+                        <td data-id="MailPassword" th:data-value="${mailAccount == null ? '' : mailAccount[1]}">[[${mailAccount == null ? bundle.lang('Unset') : mailAccount[1]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          [[${bundle.lang('MailServAddr')}]]
+                          <p>[[${bundle.lang('MailServAddrTips')}]]</p>
+                        </td>
+                        <td data-id="MailAddr" th:data-value="${mailAccount == null ? '' : mailAccount[2]}">[[${mailAccount == null ? bundle.lang('Unset') : mailAccount[2]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('MailServName')}]]</td>
+                        <td data-id="MailName" th:data-value="${mailAccount == null ? '' : mailAccount[3]}">[[${mailAccount == null ? bundle.lang('Unset') : mailAccount[3]}]]</td>
+                      </tr>
+                      <tr class="show-on-edit">
+                        <td></td>
+                        <td><button class="btn btn-primary bordered J_test-email">[[${bundle.lang('SendTest')}]]</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div th:if="${mailAccount == null}" class="alert alert-danger alert-icon mt-6 mb-6">
+                    <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
+                    <div class="message">[[${bundle.lang('SomeServiceUnsetTips,Mail')}]]</div>
+                  </div>
+                  <h5>[[${bundle.lang('SomeService,Sms')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">APPID</td>
+                        <td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">[[${smsAccount == null ? bundle.lang('Unset') : smsAccount[0]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>APPKEY</td>
+                        <td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">[[${smsAccount == null ? bundle.lang('Unset') : smsAccount[1]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('SmsSign')}]]</td>
+                        <td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">[[${smsAccount == null ? bundle.lang('Unset') : smsAccount[2]}]]</td>
+                      </tr>
+                      <tr class="show-on-edit">
+                        <td></td>
+                        <td><button class="btn btn-primary bordered J_test-sms">[[${bundle.lang('SendTest')}]]</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div th:if="${smsAccount == null}" class="alert alert-danger alert-icon mt-6">
+                    <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
+                    <div class="message">[[${bundle.lang('SomeServiceUnsetTips,Sms')}]]</div>
+                  </div>
+                  <div class="edit-footer">
+                    <button class="btn btn-link">[[${bundle.lang('Cancel')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.lang('Save')}]]</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12">
+              <div class="card">
+                <div class="card-header card-header-divider">[[${bundle.lang('SentCount')}]]</div>
+                <div class="card-body">
+                  <div class="row stats J_stats-sms">
+                    <div class="col-8">
+                      <span></span>
+                    </div>
+                    <div class="col-4">
+                      <strong class="fs-16">0</strong>
+                      <p class="text-muted m-0">[[${bundle.lang('Sms')}]]</p>
+                    </div>
+                  </div>
+                  <div class="row stats J_stats-email mt-4">
+                    <div class="col-8">
+                      <span></span>
+                    </div>
+                    <div class="col-4">
+                      <strong class="fs-16">0</strong>
+                      <p class="text-muted m-0">[[${bundle.lang('Email')}]]</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
+    <script th:src="@{/assets/js/admin/submail.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -26,24 +26,16 @@ hs_err_pid*
 /.project
 /.settings/
 /.idea/
-rebuild.iml
+*.iml
+**/rebel.xml
 
 # Bin
 /target/
 /bin/
-/.production/node_modules/
-/.production/_temp/
-/.production/build/
-/a.json
-
+node_modules
+node
 
 # MacOS
 
 .DS_Store
-
-node_modules
 test.*
-.gitmodules
-.deploy/temp/
-.deploy/build/
-.deploy/node_modules/

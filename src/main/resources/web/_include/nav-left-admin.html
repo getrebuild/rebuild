@@ -1,0 +1,81 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+  <div class="rb-left-sidebar">
+    <div class="left-sidebar-wrapper">
+      <a class="left-sidebar-toggle">[[${bundle.lang('NavMenu')}]]</a>
+      <div class="left-sidebar-spacer">
+        <div class="left-sidebar-scroll rb-scroller">
+          <div class="left-sidebar-content">
+            <ul class="sidebar-elements">
+              <li class="divider">[[${bundle.lang('System')}]]</li>
+              <li th:class="${active == 'systems'} ? 'active'">
+                <a th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i><span>[[${bundle.lang('GeneralSet')}]]</span></a>
+              </li>
+              <li class="parent">
+                <a><i class="icon zmdi zmdi-puzzle-piece"></i><span>[[${bundle.lang('Integration')}]]</span></a>
+                <ul class="sub-menu">
+                  <li class="title">[[${bundle.lang('Integration')}]]</li>
+                  <li class="nav-items">
+                    <div class="rb-scroller">
+                      <div class="content">
+                        <ul>
+                          <li th:class="${active == 'integration-storage'} ? 'active'"><a th:href="@{/admin/integration/storage}">[[${bundle.lang('IntegrationStorage')}]]</a></li>
+                          <li th:class="${active == 'integration-submail'} ? 'active'"><a th:href="@{/admin/integration/submail}">[[${bundle.lang('IntegrationMsgs')}]]</a></li>
+                        </ul>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
+              </li>
+              <li th:class="${active == 'apis-manager'} ? 'active'">
+                <a th:href="@{/admin/apis-manager}"><i class="icon zmdi zmdi-key"></i><span>[[${bundle.lang('RebuildApi')}]]</span></a>
+              </li>
+              <li class="divider">[[${bundle.lang('BizAndEntity')}]]</li>
+              <li th:class="${active == 'entities'} ? 'active'">
+                <a th:href="@{/admin/entities}"><i class="icon zmdi zmdi-widgets"></i><span>[[${bundle.lang('NavEntities')}]]</span></a>
+              </li>
+              <li th:class="${active == 'classifications'} ? 'active'">
+                <a th:href="@{/admin/metadata/classifications}"><i class="icon zmdi zmdi-layers"></i><span>[[${bundle.lang('Classification')}]]</span></a>
+              </li>
+              <li th:class="${active == 'robot-approval'} ? 'active'">
+                <a th:href="@{/admin/robot/approvals}"><i class="icon zmdi zmdi-assignment-check"></i><span>[[${bundle.lang('ApprovalConfig')}]]</span></a>
+              </li>
+              <li th:class="${active == 'robot-trigger'} ? 'active'">
+                <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.lang('Trigger')}]]</span></a>
+              </li>
+              <li th:class="${active == 'data-imports'} ? 'active'">
+                <a th:href="@{/admin/data/data-imports}"><i class="icon zmdi zmdi-cloud-upload"></i><span>[[${bundle.lang('DataImport')}]]</span></a>
+              </li>
+              <li th:class="${active == 'report-templates'} ? 'active'">
+                <a th:href="@{/admin/data/report-templates}"><i class="icon zmdi zmdi-map"></i><span>[[${bundle.lang('ReportTemplate')}]]</span></a>
+              </li>
+              <li class="divider">[[${bundle.lang('Project')}]]</li>
+              <li th:class="${active == 'projects'} ? 'active'">
+                <a th:href="@{/admin/projects}"><i class="icon zmdi zmdi-shape"></i><span>[[${bundle.lang('NavProject')}]]</span></a>
+              </li>
+              <li class="divider">[[${bundle.lang('User')}]]</li>
+              <li th:class="${active == 'users'} ? 'active'">
+                <a th:href="@{/admin/bizuser/users}"><i class="icon zmdi zmdi-accounts"></i><span>[[${bundle.lang('DeptUser')}]]</span></a>
+              </li>
+              <li th:class="${active == 'role-privileges'} ? 'active'">
+                <a th:href="@{/admin/bizuser/role-privileges}"><i class="icon zmdi zmdi-lock"></i><span>[[${bundle.lang('RolePrivileges')}]]</span></a>
+              </li>
+              <li th:class="${active == 'teams'} ? 'active'">
+                <a th:href="@{/admin/bizuser/teams}"><i class="icon zmdi zmdi-case"></i><span>[[${bundle.lang('BizTeam')}]]</span></a>
+              </li>
+              <li class="divider">[[${bundle.lang('Audit')}]]</li>
+              <li th:class="${active == 'revision-history'} ? 'active'">
+                <a th:href="@{/admin/audit/revision-history}"><i class="icon zmdi zmdi-wrap-text"></i><span>[[${bundle.lang('RevisionHistory')}]]</span></a>
+              </li>
+              <li th:class="${active == 'recycle-bin'} ? 'active'">
+                <a th:href="@{/admin/audit/recycle-bin}"><i class="icon zmdi zmdi-delete fs-16"></i><span>[[${bundle.lang('RecycleBin')}]]</span></a>
+              </li>
+              <li th:class="${active == 'login-logs'} ? 'active'">
+                <a th:href="@{/admin/audit/login-logs}"><i class="icon zmdi zmdi-pin-account"></i><span>[[${bundle.lang('LoginLog')}]]</span></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

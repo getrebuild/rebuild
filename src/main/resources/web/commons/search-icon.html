@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('Icon')}]]</title>
+    <style type="text/css">
+      #icons a {
+        display: inline-block;
+        width: 34px;
+        height: 34px;
+        text-align: center;
+        border-radius: 2px;
+      }
+      #icons a i {
+        font-size: 21px;
+        line-height: 34px;
+      }
+      #icons a:hover {
+        background-color: #4285f4;
+      }
+      #icons a:hover i {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body class="dialog">
+    <div class="main-content">
+      <div id="icons" class="text-center"></div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/zmdi-icons.js}"></script>
+    <script type="text/babel">
+      $(document).ready(function () {
+        const call = parent && parent.clickIcon ? parent.clickIcon : console.log
+        $(ZMDI_ICONS).each(function () {
+          if (ZMDI_ICONS_IGNORE.contains(this + '') == false) {
+            const $a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons')
+            $a.click(function () {
+              call($(this).data('icon'))
+            })
+          }
+        })
+        parent && parent.RbModal && parent.RbModal.resize()
+      })
+    </script>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -14,10 +14,10 @@ import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.server.helper.datalist.DataListWrapper;
-import com.rebuild.server.helper.fieldvalue.FieldValueWrapper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.support.general.DataListWrapper;
+import com.rebuild.core.support.general.FieldValueWrapper;
 import com.rebuild.utils.JSONUtils;
 
 /**
@@ -43,8 +43,8 @@ public class ApiDataListWrapper extends DataListWrapper {
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "total", "list" },
-                new Object[] { total, list });
+                new String[]{"total", "list"},
+                new Object[]{total, list});
     }
 
     /**
@@ -67,7 +67,7 @@ public class ApiDataListWrapper extends DataListWrapper {
 
             DisplayType dt = EasyMeta.getDisplayType(fields[i].getField());
             if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE) {
-                displayValue = JSONUtils.toJSONObject(new String[] { "value", "text" }, new Object[] { value, displayValue });
+                displayValue = JSONUtils.toJSONObject(new String[]{"value", "text"}, new Object[]{value, displayValue});
             } else if (dt == DisplayType.BOOL) {
                 displayValue = (Boolean) value ? BoolEditor.TRUE : BoolEditor.FALSE;
             }

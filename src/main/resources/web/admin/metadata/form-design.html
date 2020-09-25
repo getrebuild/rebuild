@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/form-design.css}" />
+    <title>[[${bundle.lang('FormLayout')}]]</title>
+  </head>
+  <body class="open-right-sidebar">
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller-aside rb-scroller">
+            <div class="aside-content">
+              <div class="content">
+                <div class="aside-header">
+                  <button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+                  <span class="title">[[${entityLabel}]]</span>
+                  <p class="description">[[${comments}]]</p>
+                </div>
+              </div>
+              <div class="aside-nav collapse">
+                <ul class="nav">
+                  <li><a href="base">[[${bundle.lang('BasicInfo')}]]</a></li>
+                  <li><a href="fields">[[${bundle.lang('NavFields')}]]</a></li>
+                  <li class="active"><a href="form-design">[[${bundle.lang('FormLayout')}]]</a></li>
+                  <li><a href="advanced">[[${bundle.lang('AdvConf')}]]</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="rb-right-sidebar field-aside">
+          <div class="rb-content">
+            <div class="field-head">
+              <h4 class="float-left">[[${bundle.lang('SomeList,Field')}]]</h4>
+              <div class="float-right">
+                <a class="btn btn-link btn-sm p-0 J_new-field" style="margin-top: 10px">+ [[${bundle.lang('AddSome,Field')}]]</a>
+              </div>
+            </div>
+            <div class="rb-scroller">
+              <div class="field-list dd-list">
+                <div class="nodata">[[${bundle.lang('AllFieldsLayouted')}]]</div>
+              </div>
+            </div>
+            <div class="field-legend">
+              <span class="not-nullable">[[${bundle.lang('Required')}]]</span>
+              <span class="readonly">[[${bundle.lang('Readonly')}]]</span>
+            </div>
+          </div>
+        </div>
+        <div class="main-content container-fluid">
+          <div style="min-width: 400px">
+            <div class="float-right" style="margin-top: -1px">
+              <a class="btn btn-link J_add-divider">+ [[${bundle.lang('AddSome,Divider')}]]</a>
+              <button class="btn btn-primary J_save" type="button">[[${bundle.lang('Save')}]]</button>
+            </div>
+            <div class="tab-container">
+              <ul class="nav nav-tabs nav-tabs-classic">
+                <li class="nav-item"><a class="nav-link active" href="#form-design">[[${bundle.lang('FormAndViewLayout')}]]</a></li>
+              </ul>
+              <div class="tab-content mb-5">
+                <div class="tab-pane active">
+                  <div class="form-preview view-preview dd-list">
+                    <div class="nodata">[[${bundle.lang('ClickFieldLayoutTips')}]]</div>
+                  </div>
+                  <div class="clearfix"></div>
+                </div>
+              </div>
+            </div>
+            <p class="protips">[[${bundle.lang('FormAndViewLayoutTips1')}]]</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        formConfig: _$unth('[[${FormConfig}]]'),
+        entityName: '[[${entityName}]]',
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+      }
+    </script>
+    <script th:src="@{/assets/js/metadata/form-design.js}" type="text/babel"></script>
+  </body>
+</html>

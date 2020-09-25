@@ -1,0 +1,175 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.file-header {
+  z-index: 1;
+}
+
+.file-header .file-path {
+  height: 46px;
+  padding: 9px 0;
+  background-color: #eee;
+}
+
+.file-header .file-path .breadcrumb {
+  font-size: 1rem;
+  margin: 0;
+  background-color: #eee;
+  cursor: default;
+}
+
+.file-header .file-path .breadcrumb > .active {
+  color: #888;
+}
+
+.file-header .file-path .breadcrumb-item + .breadcrumb-item::before {
+  color: #aaa;
+}
+
+.file-header .file-operator {
+  padding: 13px 20px;
+  background-color: #fff;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.file-viewport {
+  margin: 0;
+  padding: 0;
+}
+
+.file-list .file-list-item {
+  background-color: #fff;
+  border-bottom: 1px solid #e6e6e6;
+  padding: 10px 20px;
+  display: table;
+  width: 100%;
+  cursor: default;
+  position: relative;
+}
+
+.file-list .file-list-item:hover,
+.file-list-item.active {
+  background-color: #f5f5f5;
+}
+
+.file-list-item > div {
+  display: table-cell;
+  vertical-align: top;
+  margin: 0;
+}
+
+.file-list-item > div.info {
+  color: #aaa;
+  font-size: 12px;
+  text-align: right;
+  width: 100px;
+}
+
+.file-list-item > div.check,
+.file-list-item > div.type {
+  width: 40px;
+  vertical-align: middle;
+}
+
+.file-list-item > div.type {
+  transform: translateY(2px);
+}
+
+.file-list-item > div.type .file-icon::before {
+  border-top-color: #fff;
+  border-right-color: #fff;
+}
+
+.file-list-item.active > div.type .file-icon::before,
+.file-list-item:hover > div.type .file-icon::before {
+  border-top-color: #f5f5f5;
+  border-right-color: #f5f5f5;
+}
+
+.file-list-item > div.detail {
+  width: auto;
+}
+
+.file-list-item > div.detail > .extras {
+  margin-top: 1px;
+  overflow: hidden;
+}
+
+.file-list-item > div.detail > .extras > span {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.file-list-item > div.detail > .extras > span.op {
+  display: none;
+}
+
+.file-list-item:hover > div.detail > .extras > span.op {
+  display: inline-block;
+}
+
+.file-list-item > div.detail > .extras > span.op > a {
+  color: #999;
+  display: inline-block;
+  padding: 0 8px;
+}
+
+.file-list-item > div.detail > .extras > span.op > a:hover {
+  color: #555;
+}
+
+.file-list-item > div.detail .extras > span,
+.file-list-item > div.detail .extras > span > a {
+  color: #777;
+}
+
+.file-list-item > div.detail .extras > span + span::before {
+  content: '·';
+  margin: 0 7px;
+}
+
+.file-list-item > div.detail a:hover {
+  text-decoration: underline;
+}
+
+.upload-box {
+  display: block;
+  border: 1px dotted #ccc;
+  border-radius: 2px;
+  padding: 9px;
+  color: #aaa;
+  text-align: center;
+  cursor: pointer;
+  font-size: 12px;
+  min-height: 37px;
+  margin: 0;
+}
+
+.upload-box:hover {
+  background-color: #eee;
+}
+
+.upload-box.active {
+  background-color: #fff7c5;
+}
+
+.file-field.files .img-thumbnail {
+  width: 100%;
+  margin-right: 0;
+}
+
+.aside-tree li > a > .icon {
+  font-size: 12px;
+  color: #aaa;
+  margin-left: 6px;
+  cursor: help;
+}
+
+.aside-tree li.active > a > .icon {
+  color: #fff;
+}

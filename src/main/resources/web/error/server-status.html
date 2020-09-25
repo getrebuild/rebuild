@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
+    <title>REBUILD</title>
+    <style type="text/css">
+      .block {
+        max-width: 1000px;
+        padding: 0 14px;
+        margin: 30px auto 0;
+      }
+      .error {
+        background-color: #ea4335;
+        color: #fff;
+        padding: 18px 0;
+      }
+      .error a {
+        color: #fff;
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div th:if="${!ok}" class="error">
+      <div class="block mt-0">
+        <h2 class="mt-0">[[${bundle.lang('SystemFailure')}]]</h2>
+        <div th:utext="${bundle.lang('SystemFailureMemo')}"></div>
+      </div>
+    </div>
+    <div class="block">
+      <h5 class="text-bold">[[${bundle.lang('QuickCheck')}]]</h5>
+      <table class="table table-bordered table-sm table-hover">
+        <tbody>
+          <tr>
+            <th width="30%">Status</th>
+            <td>
+              <span class="text-success" th:if="${ok}">OK</span>
+              <span class="text-danger" th:if="${!ok}">Startup failed</span>
+            </td>
+          </tr>
+          <tr th:each="s : ${status}">
+            <th>[[${s.name}]]</th>
+            <td>
+              <span class="text-success" th:if="${s.success}">OK</span>
+              <span class="text-danger" th:if="${!s.success}">[[${s.error}]]</span>
+            </td>
+          </tr>
+          <tr>
+            <th>Memory Usage</th>
+            <td>
+              [[${MemoryUsage[1]}]]% ([[${MemoryUsage[0]}]]MB)
+            </td>
+          </tr>
+          <tr>
+            <th>System Load</th>
+            <td>
+              [[${SystemLoad}]]
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="block" th:if="${user != null}">
+      <h5 class="text-bold">[[${bundle.lang('SystemInfo')}]]</h5>
+      <table class="table table-bordered table-sm table-hover">
+      <tbody>
+        <tr>
+          <th width="30%">Version</th>
+          <td>[[${T(com.rebuild.core.Application).VER}]]</td>
+        </tr>
+        <tr>
+          <th>OS</th>
+          <td>[[${T(org.apache.commons.lang.SystemUtils).OS_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).OS_ARCH}]])</td>
+        </tr>
+        <tr>
+          <th>JVM</th>
+          <td>[[${T(org.apache.commons.lang.SystemUtils).JAVA_VM_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).JAVA_VERSION}]])</td>
+        </tr>
+        <tr>
+          <th>System Time</th>
+          <td>[[${T(cn.devezhao.commons.CalendarUtils).now()}]]</td>
+        </tr>
+        <tr>
+          <th>Startup Time</th>
+          <td>[[${T(com.rebuild.core.ServerStatus).STARTUP_TIME}]]</td>
+        </tr>
+        <tr>
+          <th>Data Directory</th>
+          <td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfData("/")}]]</td>
+        </tr>
+        <tr>
+          <th>Temp Directory</th>
+          <td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfTemp("/")}]]</td>
+        </tr>
+      </tbody>
+      </table>
+    </div>
+    <div class="block">
+      <div class="text-muted">
+        &copy; REBUILD &nbsp;·&nbsp;
+        <a href="server-status.json">Status Api</a>
+      </div>
+    </div>
+  </body>
+</html>

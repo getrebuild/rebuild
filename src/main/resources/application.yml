@@ -1,0 +1,36 @@
+# REBUILD
+rebuild:
+
+# TOMCAT (Built-in)
+server:
+  port: 18080
+  servlet:
+    context-path:
+    encoding:
+      charset: UTF-8
+      force: true
+    session:
+      tracking-modes: cookie
+  error:
+    whitelabel.enabled: true
+  tomcat:
+    uri-encoding: UTF-8
+    threads.max: 200
+
+# SPRING
+spring:
+  mvc:
+    static-path-pattern: /assets/**
+  resources:
+    static-locations: classpath:/web/assets
+  servlet:
+    multipart.enabled: false
+  thymeleaf:
+    prefix: classpath:/web
+    cache: true
+    enable-spring-el-compiler: false
+  quartz:
+    scheduler-name: rbScheduler
+    startup-delay: 15s
+  main:
+    banner-mode: off

@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -12,11 +12,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.datalist.DataListControl;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.support.general.DataListBuilder;
+import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -24,10 +25,9 @@ import org.apache.commons.lang.StringUtils;
  * 查询记录列表
  *
  * @author devezhao
+ * @see com.rebuild.core.service.query.AdvFilterParser
+ * @see DataListWrapper
  * @since 2020/5/21
- *
- * @see com.rebuild.server.service.query.AdvFilterParser
- * @see com.rebuild.server.helper.datalist.DataListWrapper
  */
 public class EntityList extends EntityGet {
 
@@ -41,11 +41,11 @@ public class EntityList extends EntityGet {
         final String entity = context.getParameterNotBlank("entity");
         final Entity useEntity = MetadataHelper.getEntity(entity);
         if (!useEntity.isQueryable()) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity : " + entity);
+            throw new ApiInvokeException("Unsupportted operation for entity : " + entity);
         }
 
         if (!Application.getPrivilegesManager().allowRead(context.getBindUser(), useEntity.getEntityCode())) {
-            return formatFailure("无权读取 [" + EasyMeta.getLabel(useEntity) + "] 记录");
+            return formatFailure("No permission to read records of " + EasyMeta.getLabel(useEntity));
         }
 
         String[] fields = context.getParameterNotBlank("fields").split(",");
@@ -59,7 +59,7 @@ public class EntityList extends EntityGet {
             sortBy = EntityHelper.ModifiedOn + ":desc";
 
         } else if (!useEntity.containsField(sortBy.split(":")[0])) {
-            return formatFailure("无效排序字段 : " + sortBy.split(":")[0]);
+            return formatFailure("Invalid sort field : " + sortBy.split(":")[0]);
         }
 
         JSON useFilter = context.getPostData();
@@ -68,8 +68,8 @@ public class EntityList extends EntityGet {
         String quickName = context.getParameter("q");
         if (StringUtils.isNotBlank(quickName)) {
             JSONObject quickFilter = JSONUtils.toJSONObject(
-                    new String[] { "entity", "type" },
-                    new String[] { useEntity.getName(), "QUICK" });
+                    new String[]{"entity", "type"},
+                    new String[]{useEntity.getName(), "QUICK"});
             quickFilter.put("values", JSONUtils.toJSONObject("1", quickName));
             useFilter = quickFilter;
         }
@@ -83,8 +83,8 @@ public class EntityList extends EntityGet {
         queryEntry.put("sort", sortBy);
         queryEntry.put("reload", "true");
 
-        DataListControl control = new ApiDataListControl(queryEntry, context.getBindUser());
-        JSONObject ret = (JSONObject) control.getJSONResult();
+        DataListBuilder builder = new ApiDataListControl(queryEntry, context.getBindUser());
+        JSONObject ret = (JSONObject) builder.getJSONResult();
         return formatSuccess(ret);
     }
 }

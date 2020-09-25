@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -8,8 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.api.metadata;
 
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.TestSupport;
 import com.rebuild.api.ApiContext;
-import com.rebuild.server.TestSupport;
 import com.rebuild.utils.JSONUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +26,7 @@ public class FieldListTest extends TestSupport {
     @Test
     public void execute() {
         Map<String, String> reqParams = new HashMap<>();
-        reqParams.put("entity", "TestAllFields");
+        reqParams.put("entity", TestAllFields);
         ApiContext apiContext = new ApiContext(reqParams, null);
 
         JSONObject ret = (JSONObject) new FieldList().execute(apiContext);

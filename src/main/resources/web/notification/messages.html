@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('Notification')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left}" />
+      <div class="rb-content">
+        <div class="main-content container">
+          <div class="tab-container">
+            <ul class="nav nav-tabs nav-tabs-classic notification-tab">
+              <li class="nav-item">
+                <a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.lang('Message')}]]</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="notifications/todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.lang('Todo')}]]</a>
+              </li>
+              <button class="btn btn-secondary read-all" type="button"><i class="zmdi zmdi-check-all icon"></i> [[${bundle.lang('MakeReadAll')}]]</button>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active">
+                <div class="row">
+                  <div class="col-md-3 col-12">
+                    <div class="list-group notification-type">
+                      <a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action">
+                        <span class="text">[[${bundle.lang('UnreadMsg')}]]</span>
+                      </a>
+                      <a href="#read" data-type="2" class="hide list-group-item d-flex list-group-item-action">
+                        <span class="text">[[${bundle.lang('ReadedMsg')}]]</span>
+                      </a>
+                      <a href="#feeds" data-type="30" class="list-group-item d-flex list-group-item-action">
+                        <span class="text">[[${bundle.lang('Feeds')}]]</span>
+                      </a>
+                      <a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action">
+                        <span class="text">[[${bundle.lang('Approval')}]]</span>
+                      </a>
+                      <a href="#assigns" data-type="10" class="list-group-item d-flex list-group-item-action">
+                        <span class="text">[[${bundle.lang('Assign')}]]/[[${bundle.lang('Share')}]]</span>
+                      </a>
+                      <a href="#all" data-type="3" class="list-group-item d-flex list-group-item-action">
+                        <span class="text">[[${bundle.lang('AllMsg')}]]</span>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="col-md-9 col-12" id="message-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/notifications.js}" type="text/babel"></script>
+  </body>
+</html>

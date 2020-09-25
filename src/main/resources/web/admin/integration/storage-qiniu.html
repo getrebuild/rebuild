@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('SomeConf,CloudStorage')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='integration-storage')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header card-header-divider">
+                  [[${bundle.lang('Qiniu')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.lang('Modify')}]]</a>
+                </div>
+                <div class="card-body">
+                  <h5>[[${bundle.lang('CloudStorage')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.lang('StorageDomain')}]]</td>
+                        <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">[[${storageAccount == null ? bundle.lang('Unset') : storageAccount[3]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          [[${bundle.lang('StorageBucket')}]]
+                          <p>[[${bundle.lang('StorageBucketTips')}]]</p>
+                        </td>
+                        <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}">[[${storageAccount == null ? bundle.lang('Unset') : storageAccount[2]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('StorageAk')}]]</td>
+                        <td data-id="StorageApiKey" th:data-value="${storageAccount == null ? '' : storageAccount[0]}">[[${storageAccount == null ? bundle.lang('Unset') : storageAccount[0]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('StorageSk')}]]</td>
+                        <td data-id="StorageApiSecret" th:data-value="${storageAccount == null ? '' : storageAccount[1]}">[[${storageAccount == null ? bundle.lang('Unset') : storageAccount[1]}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div th:if="${!_StorageCloud}" class="alert alert-warning alert-icon mt-6">
+                    <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+                    <div class="message">[[${bundle.lang('StorageFallback')}]]</div>
+                  </div>
+                  <div class="edit-footer">
+                    <button class="btn btn-link">[[${bundle.lang('Cancel')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.lang('Save')}]]</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12">
+              <div class="card">
+                <div class="card-header card-header-divider">[[${bundle.lang('StorageSize')}]]</div>
+                <div class="card-body">
+                  <strong class="fs-16">[[${_StorageSize}]]</strong>
+                  ([[${bundle.lang(_StorageCloud ? 'Qiniu' : 'LocalStorage')}]])
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/triggers.css}" />
+    <title>[[${bundle.lang('Trigger')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='robot-trigger')}" />
+      <div class="rb-content">
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.lang('Trigger')}]]<span class="sub-title">[[${name ?: bundle.lang('Unname')}]]</span></div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="main-content container-fluid pt-0">
+          <div class="card mb-0">
+            <div class="card-body">
+              <ul class="timeline spare">
+                <li class="timeline-item">
+                  <div class="timeline-date"><span>[[${bundle.lang('WhenTriggerAction')}]]</span></div>
+                  <div class="timeline-content">
+                    <form class="simple">
+                      <div class="form-group row">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('SourceEntity')}]]</label>
+                        <div class="col-12 col-lg-9">
+                          <div class="form-control-plaintext text-bold">[[${sourceEntityLabel}]]</div>
+                        </div>
+                      </div>
+                      <div class="form-group row pt-0 pb-0">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('TriggerAction')}]]</label>
+                        <div class="col-12 col-lg-9 pt-1 J_when">
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                            <input class="custom-control-input" type="checkbox" value="1" />
+                            <span class="custom-control-label"> [[${bundle.lang('WhenCreate')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                            <input class="custom-control-input" type="checkbox" value="4" />
+                            <span class="custom-control-label"> [[${bundle.lang('WhenUpdate')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                            <input class="custom-control-input" type="checkbox" value="2" />
+                            <span class="custom-control-label"> [[${bundle.lang('WhenDelete')}]]</span>
+                          </label>
+                          <div class="mt-1">
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" value="16" />
+                              <span class="custom-control-label"> [[${bundle.lang('WhenAssign')}]]</span>
+                            </label>
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" value="32" />
+                              <span class="custom-control-label"> [[${bundle.lang('WhenShare')}]]</span>
+                            </label>
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" value="64" />
+                              <span class="custom-control-label"> [[${bundle.lang('WhenUnShare')}]]</span>
+                            </label>
+                          </div>
+                          <div class="mt-1">
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" value="128" />
+                              <span class="custom-control-label"> [[${bundle.lang('WhenApproved')}]]</span>
+                            </label>
+                            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                              <input class="custom-control-input" type="checkbox" value="256" />
+                              <span class="custom-control-label">
+                                [[${bundle.lang('WhenRevoked')}]]
+                                <i class="zmdi zmdi-help zicon down-1" th:title="${bundle.lang('WhenRevokedTips')}" data-toggle="tooltip"></i
+                              ></span>
+                            </label>
+                          </div>
+                          <div class="mt-1 bosskey-show">
+                            <div>
+                              <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                                <input class="custom-control-input" type="checkbox" value="512" onclick="_handle512Change()" />
+                                <span class="custom-control-label"> [[${bundle.lang('JobExecution')}]]</span>
+                              </label>
+                            </div>
+                            <div class="on-timers mt-1 hide">
+                              <div class="input-group input-group-sm">
+                                <select class="form-control form-control-sm J_whenTimer1">
+                                  <option value="D">[[${bundle.lang('EveryDay')}]]</option>
+                                  <option value="M">[[${bundle.lang('EveryMonth')}]]</option>
+                                  <option value="H">[[${bundle.lang('EveryHour')}]]</option>
+                                </select>
+                                <div class="input-group-prepend input-group-append">
+                                  <span class="input-group-text">[[${bundle.lang('Execution')}]]</span>
+                                </div>
+                                <input type="text" class="form-control form-control-sm text-center J_whenTimer2" placeholder="1" />
+                                <div class="input-group-append">
+                                  <span class="input-group-text">[[${bundle.lang('Times')}]]</span>
+                                </div>
+                              </div>
+                              <p class="form-text">[[${bundle.lang('JobExecutionTips')}]]</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('SetAdvFiletr')}]]</label>
+                        <div class="col-12 col-lg-9 J_whenFilter">
+                          <a class="btn btn-sm btn-link pl-0 text-left down-2">[[${bundle.lang('ClickSet')}]]</a>
+                          <p class="form-text mb-0 mt-0">[[${bundle.lang('SetFilterTriggerTips')}]]</p>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </li>
+                <li class="timeline-item">
+                  <div class="timeline-date"><span>[[${bundle.lang('JustExecutionAction')}]]</span></div>
+                  <div class="timeline-content">
+                    <form class="simple">
+                      <div class="form-group row">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('ExecutionAction')}]]</label>
+                        <div class="col-12 col-lg-9">
+                          <div class="form-control-plaintext text-bold">[[${actionTypeLabel}]]</div>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('ActionContent')}]]</label>
+                        <div class="col-12 col-lg-9">
+                          <div id="react-content">[[${bundle.lang('Loading')}]]</div>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('ActionPriority')}]]</label>
+                        <div class="col-12 col-lg-9">
+                          <input type="number" class="form-control form-control-sm" id="priority" th:value="${priority}" th:data-o="${priority}" style="max-width: 200px" />
+                          <p class="form-text mb-0">[[${bundle.lang('ActionPriorityTips')}]]</p>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </li>
+                <li class="timeline-item last">
+                  <div class="timeline-content">
+                    <form class="simple">
+                      <div class="form-group row footer">
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right"></label>
+                        <div class="col-12 col-lg-9">
+                          <button class="btn btn-primary J_save" type="button">[[${bundle.lang('Save')}]]</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        configId: '[[${configId}]]',
+        actionType: '[[${actionType}]]',
+        sourceEntity: '[[${sourceEntity}]]',
+        when: ~~'[[${when}]]',
+        whenTimer: '[[${whenTimer}]]',
+        whenFilter: _$unth('[[${whenFilter}]]'),
+        actionContent: _$unth('[[${actionContent}]]'),
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/trigger/trigger-design.js}" type="text/babel"></script>
+    <script th:if="${actionType == 'FIELDAGGREGATION'}" th:src="@{/assets/js/trigger/trigger.FIELDAGGREGATION.js}" type="text/babel"></script>
+    <script th:if="${actionType == 'FIELDWRITEBACK'}" th:src="@{/assets/js/trigger/trigger.FIELDWRITEBACK.js}" type="text/babel"></script>
+    <script th:if="${actionType == 'SENDNOTIFICATION'}" th:src="@{/assets/js/trigger/trigger.SENDNOTIFICATION.js}" type="text/babel"></script>
+    <script th:if="${actionType == 'AUTOASSIGN'}" th:src="@{/assets/js/trigger/trigger.AUTOASSIGN.js}" type="text/babel"></script>
+    <script th:if="${actionType == 'AUTOSHARE'}" th:src="@{/assets/js/trigger/trigger.AUTOSHARE.js}" type="text/babel"></script>
+    <script th:if="${actionType == 'AUTOAPPROVAL'}" th:src="@{/assets/js/trigger/trigger.AUTOAPPROVAL.js}" type="text/babel"></script>
+  </body>
+</html>

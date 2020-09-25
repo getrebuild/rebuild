@@ -1,5 +1,29 @@
--- Database upgrade scripts for rebuild 1.x
+-- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
+
+-- #30 Language (v2.0)
+-- ************ Entity [Language] DDL ************
+create table if not exists `language` (
+  `LANG_ID`            char(20) not null,
+  `LOCALE`             varchar(10) not null comment 'Locale',
+  `NAME`               varchar(100) not null comment '语言名',
+  `VALUE`              varchar(300) not null comment '语言值',
+  primary key  (`LANG_ID`),
+  index IX0_language (`LOCALE`, `NAME`)
+)Engine=InnoDB;
+
+-- #29 (v2.0)
+-- Add commons fields
+alter table `project_config`
+  add column `CREATED_BY` char(20) not null comment '创建人' default '001-0000000000000000',
+  add column `CREATED_ON` timestamp not null default current_timestamp comment '创建时间',
+  add column `MODIFIED_BY` char(20) not null comment '修改人' default '001-0000000000000000',
+  add column `MODIFIED_ON` timestamp not null default current_timestamp comment '修改时间';
+-- Meta config
+alter table `meta_field`
+  add column `QUERYABLE` char(1) default 'T';
+alter table `meta_entity`
+  add column `EXT_CONFIG` varchar(700) comment '更多扩展配置 (JSON Map)';
 
 -- #28
 alter table `project_config`
@@ -143,7 +167,7 @@ alter table `feeds`
 alter table `attachment_folder`
   add column `SCOPE` varchar(20) default 'ALL' comment '哪些人可见, 可选值: ALL/SELF/$TeamID',
   add index `IX1_attachment_folder` (`SCOPE`, `CREATED_BY`);
-  
+
 -- #17 Team
 -- ************ Entity [Team] DDL ************
 create table if not exists `team` (
@@ -447,7 +471,7 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
   values
   ('018-0000000000000001', '地区', NULL, 2, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   ('018-0000000000000002', '行业', NULL, 1, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
-  
+
 -- #1 Add LoginLog table (v1.1)
 -- ************ Entity [LoginLog] DDL ************
 create table if not exists `login_log` (

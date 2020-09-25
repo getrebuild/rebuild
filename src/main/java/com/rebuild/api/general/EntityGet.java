@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -14,8 +14,8 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.MetadataHelper;
+import com.rebuild.core.Application;
+import com.rebuild.core.metadata.MetadataHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -39,11 +39,11 @@ public class EntityGet extends BaseApi {
         final ID queryId = context.getParameterAsId("id");
         final Entity useEntity = MetadataHelper.getEntity(queryId.getEntityCode());
         if (!useEntity.isQueryable()) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity/id : " + queryId);
+            throw new ApiInvokeException("Unsupportted operation for entity/id : " + queryId);
         }
 
         if (!Application.getPrivilegesManager().allowRead(context.getBindUser(), queryId)) {
-            return formatFailure("无权读取记录或记录不存在 : " + queryId);
+            return formatFailure("No permission to read the record or the record does not exist : " + queryId);
         }
 
         String[] fields = context.getParameterNotBlank("fields").split(",");
@@ -55,7 +55,7 @@ public class EntityGet extends BaseApi {
         Query query = Application.getQueryFactory().createQueryNoFilter(sql);
         Object[] queryed = query.setParameter(1, queryId).unique();
         if (queryed == null) {
-            return formatFailure("记录不存在 : " + queryId);
+            return formatFailure("Record not exists : " + queryId);
         }
 
         return formatSuccess(ApiDataListWrapper.buildItem(query.getSelectItems(), queryed));

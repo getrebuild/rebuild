@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('NavProject')}]]</title>
+    <style type="text/css">
+      #members {
+        min-height: 37px;
+      }
+      .plan-boxes {
+        background-color: #eee;
+        white-space: nowrap;
+        overflow: auto;
+        border-radius: 2px;
+        margin: 0;
+      }
+      .plan-boxes.card-list .card {
+        padding: 0;
+        width: 180px;
+        display: inline-block;
+        margin: 20px 0 15px 20px;
+      }
+      .plan-boxes.card-list .card .card-body {
+        cursor: move;
+      }
+      .plan-boxes.card-list .card:last-child {
+        margin-right: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='projects')}" />
+      <div class="rb-content">
+        <div class="page-head">
+          <div class="float-left">
+            <div class="page-head-title">[[${bundle.lang('NavProject')}]]<span class="sub-title">[[${projectName}]]</span></div>
+          </div>
+          <div class="float-right pt-1"></div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="main-content container-fluid pt-0">
+          <div class="card mb-0">
+            <div class="card-body">
+              <form class="simple">
+                <div class="form-group row">
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('ProjectScope')}]]</label>
+                  <div class="col-12 col-lg-9 pt-1">
+                    <label class="custom-control custom-control-sm custom-radio custom-control-inline">
+                      <input class="custom-control-input" type="radio" name="scope" id="scope_1" value="1" checked />
+                      <span class="custom-control-label">[[${bundle.lang('ProjectPublicTips')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-radio custom-control-inline">
+                      <input class="custom-control-input" type="radio" name="scope" id="scope_2" value="2" />
+                      <span class="custom-control-label">[[${bundle.lang('ProjectPrivateTips')}]]</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group row pt-0">
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('Principal')}]]</label>
+                  <div class="col-12 col-lg-9">
+                    <div id="principal"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('Members')}]]</label>
+                  <div class="col-12 col-lg-9">
+                    <div id="members"></div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.lang('ProjectPlan')}]]</label>
+                  <div class="col-12 col-lg-9">
+                    <div class="plan-boxes card-list mb-2" id="plans">
+                      <p class="text-muted m-3">[[${bundle.lang('Loading')}]]</p>
+                    </div>
+                    <button class="btn btn-secondary btn-sm J_add-plan" type="button"><i class="zmdi zmdi-plus"></i> [[${bundle.lang('Add')}]]</button>
+                  </div>
+                </div>
+                <div class="form-group row footer">
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right"> </label>
+                  <div class="col-12 col-lg-9">
+                    <button class="btn btn-primary J_save" type="button">[[${bundle.lang('Save')}]]</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        id: '[[${projectId}]]',
+        scope: ~~'[[${scope}]]',
+        principal: '[[${principal}]]',
+        members: '[[${members}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/project/project-editor.js}" type="text/babel"></script>
+  </body>
+</html>

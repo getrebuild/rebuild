@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('Classification')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='classifications')}" />
+      <div class="rb-content">
+        <div class="page-head">
+          <div class="float-left"><div class="page-head-title">[[${bundle.lang('Classification')}]]</div></div>
+          <div class="float-right pt-1">
+            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.lang('Add')}]]</button>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="main-content container-fluid pt-0" id="list">
+          <div class="card ph">
+            <div class="card-body">
+              <div class="ph-item">
+                <div class="ph-col-12">
+                  <div class="ph-row">
+                    <div class="ph-col-8"></div>
+                    <div class="ph-col-4 empty"></div>
+                    <div class="ph-col-12"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/metadata/classification-list.js}" type="text/babel"></script>
+  </body>
+</html>

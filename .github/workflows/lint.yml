@@ -8,5 +8,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - uses: actions/setup-node@v1
-    - run: npm install
-    - run: npm run lint
+    - name: npm-install
+      run: npm install
+      working-directory: ./src/main/resources/web
+    - name: npm-run-lint
+      run: npm run lint
+      working-directory: ./src/main/resources/web

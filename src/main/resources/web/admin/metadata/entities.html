@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
+    <title>[[${bundle.lang('SomeManage,Entity')}]]</title>
+    <style type="text/css">
+      .card.entity {
+        position: relative;
+        margin-bottom: 20px;
+      }
+      .card.entity:hover {
+        background-color: rgba(255, 255, 255, 0.7);
+      }
+      .card.entity .card-body {
+        padding: 12px 20px;
+        color: #333;
+      }
+      .card.entity .card-body .float-left {
+        width: 30px;
+        text-align: center;
+      }
+      .card.entity .icon {
+        font-size: 32px;
+        color: #4285f4;
+      }
+      .card.entity .badge {
+        position: absolute;
+        top: 11px;
+        right: 11px;
+      }
+      .card.entity span {
+        margin-top: 2px;
+        display: block;
+      }
+      #entityList {
+        margin: 0 -10px;
+      }
+      #entityList > div {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+      .card.ph {
+        margin-left: 10px;
+        margin-top: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid" style="padding-bottom: 5px">
+          <div class="row" id="entityList">
+            <div class="card ph">
+              <div class="card-body">
+                <div class="ph-item">
+                  <div class="ph-col-12">
+                    <div class="ph-row">
+                      <div class="ph-col-8"></div>
+                      <div class="ph-col-4 empty"></div>
+                      <div class="ph-col-12"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script type="text/palin" id="entity-tmpl">
+      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+      	<a class="card entity">
+      		<div class="card-body">
+      			<div class="float-left"><i class="icon zmdi"></i></div>
+      			<div class="ml-7"><span class="text-truncate"></span><p class="text-muted text-truncate m-0"></p></div>
+      			<div class="clearfix"></div>
+      		</div>
+      	</a>
+      </div>
+    </script>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+      }
+    </script>
+    <script type="text/babel">
+      $(document).ready(function () {
+        $.get('/admin/entity/entity-list?bizz=true', function (res) {
+          $('#entityList').empty()
+          $(res.data).each(function () {
+            if (this.builtin == true) render_entity(this)
+          })
+          $(res.data).each(function () {
+            if (this.builtin == false) render_entity(this)
+          })
+
+          const $new = render_entity({
+            icon: 'plus',
+            entityLabel: $lang('AddEntity'),
+            comments: $lang('AddEntityTips'),
+          })
+          $new
+            .find('a.card')
+            .attr('href', 'javascript:;')
+            .click(function () {
+              if (window.__PageConfig.isSuperAdmin) RbModal.create('/p/admin/metadata/entity-new', $lang('AddEntity'))
+              else RbHighbar.error('OnlyAdminCanSome,AddEntity')
+            })
+        })
+      })
+
+      const render_entity = function (item) {
+        const $t = $($('#entity-tmpl').html()).appendTo('#entityList')
+        $t.find('a.card').attr('href', 'entity/' + item.entityName + '/base')
+        $t.find('.icon').addClass('zmdi-' + item.icon)
+        $t.find('span').text(item.entityLabel)
+        $t.find('p').text(item.comments || '-')
+        if (item.builtin == true) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$lang('BuiltIn')}</i>`).appendTo($t.find('a.card'))
+        if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$lang('Detail')}</i>`).appendTo($t.find('a.card'))
+        return $t
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('SomeConf,General')}]]</title>
+    <style type="text/css">
+      .syscfg a.img-thumbnail {
+        display: inline-block;
+        padding: 0.4rem 0.5rem;
+        background-color: #fff;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='systems')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header card-header-divider">
+                  [[${bundle.lang('SomeConf,General')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.lang('Modify')}]]</a>
+                </div>
+                <div class="card-body">
+                  <h5>[[${bundle.lang('General')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.lang('Name')}]]</td>
+                        <td th:data-id="${commercial >= 20 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
+                      </tr>
+                      <tr>
+                        <td>LOGO</td>
+                        <td class="fs-0">
+                          <a class="img-thumbnail"><i class="logo-img"></i></a>
+                          <a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>
+                          [[${bundle.lang('HomeUrl')}]]
+                          <p>[[${bundle.lang('HomeUrlTips')}]]</p>
+                        </td>
+                        <td data-id="HomeURL" th:data-value="${HomeURL}">[[${HomeURL}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('DefaultLanguage')}]]</td>
+                        <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('OpenSignUp')}]]</td>
+                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${bundle.lang(OpenSignUp ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('LiveWallpaper')}]]</td>
+                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.lang(LiveWallpaper ? 'True' : 'False')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.lang('SysSecure')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.lang('PasswordPolicy')}]]</td>
+                        <td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
+                          <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.lang('PasswordPolicyL1')}]]</th:block>
+                          <th:block th:if="${PasswordPolicy == '2'}">[[${bundle.lang('PasswordPolicyL2')}]]</th:block>
+                          <th:block th:if="${PasswordPolicy == '3'}">[[${bundle.lang('PasswordPolicyL3')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('FileSharable')}]]</td>
+                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.lang(FileSharable ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.lang('MarkWatermark')}]]</td>
+                        <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${bundle.lang(MarkWatermark ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>
+                          [[${bundle.lang('DBBackupsEnable')}]]
+                          <p>[[${bundle.lang('DBBackupsEnableTips')}]]</p>
+                        </td>
+                        <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${bundle.lang(DBBackupsEnable ? 'True' : 'False')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="edit-footer">
+                    <button class="btn btn-link">[[${bundle.lang('Cancel')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.lang('Save')}]]</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12">
+              <div class="card">
+                <div class="card-header card-header-divider">[[${bundle.lang('About')}]] REBUILD</div>
+                <div class="card-body">
+                  <p class="mb-1">[[${bundle.lang('RebuildVersion')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
+                  <p class="mb-2">[[${bundle.lang('LicenseType')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
+                  <ul style="line-height: 2">
+                    <li><a class="link" target="_blank" th:href="@{/error/server-status}">[[${bundle.lang('SysStatus')}]]</a></li>
+                    <li><a class="link" target="_blank" href="https://getrebuild.com/docs/">[[${bundle.lang('HelpDoc')}]]</a></li>
+                    <li><a class="link" target="_blank" href="https://getrebuild.com/">[[${bundle.lang('TechSupport')}]]</a></li>
+                  </ul>
+                  <div class="text-muted link">&copy; <span th:utext="${bundle.lang('RebuildRights')}"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+    <script type="text/babel">
+      const _LANGS = _$unth('[[${availableLangs}]]')
+      $(document).ready(() => {
+        const $L = $('#_DefaultLanguage')
+        $L.text(_LANGS[$L.text()] || 'UNKONWN')
+      })
+
+      useEditComp = function (name, value) {
+        if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable'].includes(name)) {
+          return (
+            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
+              <option value="true">{$lang('True')}</option>
+              <option value="false">{$lang('False')}</option>
+            </select>
+          )
+        } else if ('PasswordPolicy' === name) {
+          return (
+            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
+              <option value="1">{$lang('PasswordPolicyL1')}</option>
+              <option value="2">{$lang('PasswordPolicyL2')}</option>
+              <option value="3">{$lang('PasswordPolicyL3')}</option>
+            </select>
+          )
+        } else if ('DefaultLanguage' === name) {
+          const options = []
+          for (let k in _LANGS) options.push(<option value={k}>{_LANGS[k]}</option>)
+          return (
+            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
+              {options}
+            </select>
+          )
+        }
+      }
+    </script>
+  </body>
+</html>

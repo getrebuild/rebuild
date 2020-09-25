@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('AddEntity')}]]</title>
+  </head>
+  <body class="dialog">
+    <div class="main-content pt-1">
+      <div class="tab-container">
+        <ul class="nav nav-tabs">
+          <li class="nav-item"><a class="nav-link active" href="#MANUAL" data-toggle="tab">[[${bundle.lang('Manual')}]]</a></li>
+          <li class="nav-item">
+            <a class="nav-link J_imports" href="#IMPORTS" data-toggle="tab"><i class="icon zmdi zmdi-cloud-outline-alt"></i> [[${bundle.lang('RbImport')}]]</a>
+          </li>
+        </ul>
+        <div class="tab-content m-0 pb-0">
+          <div class="tab-pane active" id="MANUAL">
+            <div class="form">
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('SomeName,Entity')}]]</label>
+                <div class="col-sm-7">
+                  <input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40" />
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('Remark')}]]</label>
+                <div class="col-sm-7">
+                  <textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" th:placeholder="${bundle.lang('Optional')}"></textarea>
+                </div>
+              </div>
+              <div class="form-group row pt-2">
+                <label class="col-sm-3 col-form-label text-sm-right"></label>
+                <div class="col-sm-7">
+                  <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                    <input class="custom-control-input" type="checkbox" id="nameField" />
+                    <span class="custom-control-label">[[${bundle.lang('AddSome,NameField')}]]</span>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group row pt-0">
+                <label class="col-sm-3 col-form-label text-sm-right"></label>
+                <div class="col-sm-7">
+                  <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                    <input class="custom-control-input" type="checkbox" id="isDetail" />
+                    <span class="custom-control-label">
+                      [[${bundle.lang('ThisDetailEntity')}]]
+                      <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.lang('ThisDetailEntityTips')}"></i>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div class="form-group row J_mainEntity hide">
+                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('SelectSome,MainEntity')}]]</label>
+                <div class="col-sm-7">
+                  <select class="form-control form-control-sm" id="mainEntity"></select>
+                </div>
+              </div>
+              <div class="form-group row footer">
+                <div class="col-sm-7 offset-sm-3">
+                  <button class="btn btn-primary" type="button">[[${bundle.lang('Confirm')}]]</button>
+                  <button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">[[${bundle.lang('Cancel')}]]</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-pane" id="IMPORTS">
+            <div id="metaschemas"></div>
+            <div class="mt-2 text-right">
+              <a href="https://github.com/getrebuild/rebuild-datas/" class="link" target="_blank">[[${bundle.lang('RbSubmit')}]]</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/metadata/entity-new.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/approvals.css}" />
+    <title>[[${bundle.lang('ApprovalConfig')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='robot-approval')}" />
+      <div class="rb-content">
+        <div class="page-head">
+          <div class="float-left">
+            <div class="page-head-title">[[${bundle.lang('ApprovalConfig')}]]<span class="sub-title">[[${name}]]</span></div>
+          </div>
+          <div class="float-right pt-1">
+            <div class="btn-group btn-space">
+              <button class="btn btn-primary J_save" type="button">[[${bundle.lang('Save')}]]</button>
+              <button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
+              <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
+                <a class="dropdown-item J_copy"><i class="icon zmdi zmdi-copy"></i> [[${bundle.lang('SaveAs')}]]</a>
+              </div>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="main-content container-fluid pt-0">
+          <div class="row wizard-row">
+            <div class="col-md-12 fuelux">
+              <div class="wizard wizard-ux rounded">
+                <div class="steps-container">
+                  <ul class="steps">
+                    <li data-step="2" class="active">[[${bundle.lang('ApprovalDesign')}]] <i class="chevron"></i></li>
+                  </ul>
+                  <div class="step-content p-0">
+                    <div data-step="2" class="step-pane active">
+                      <div class="rbflow-design rb-loading rb-loading-active" id="rbflow">
+                        <th:block th:replace="~{/_include/spinner}" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rb-right-sidebar">
+        <div class="sb-content">
+          <div id="config-side"></div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        configId: '[[${configId}]]',
+        name: '[[${name}]]',
+        applyEntity: '[[${applyEntity}]]',
+        flowDefinition: _$unth('[[${flowDefinition}]]'),
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/approval-design.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/auditing" />
+    <title>[[${bundle.lang('RevisionHistory')}]]</title>
+    <style type="text/css">
+      .table.table-fixed td {
+        vertical-align: text-top;
+      }
+      .table.table-fixed td > div {
+        word-break: break-all;
+        max-height: 100px;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='revision-history')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid">
+          <div class="card card-table">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-header">
+                  <div class="col-12 col-md-6">
+                    <div class="dataTables_filter">
+                      <div class="float-left mr-2 select2-sm">
+                        <select class="form-control form-control-sm" id="belongEntity" style="width: 220px">
+                          <option value="$ALL$">[[${bundle.lang('AllEntity')}]]</option>
+                        </select>
+                      </div>
+                      <div class="input-group input-search">
+                        <input class="form-control" type="text" th:placeholder="${bundle.lang('Query')}" maxlength="40" />
+                        <span class="input-group-btn"
+                          ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
+                        ></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="dataTables_oper">
+                      <button class="btn btn-space btn-secondary J_details"><i class="icon zmdi zmdi-search-in-file"></i> [[${bundle.lang('Details')}]]</button>
+                    </div>
+                  </div>
+                </div>
+                <div id="react-list" class="rb-loading rb-loading-active data-list">
+                  <th:block th:replace="~{/_include/spinner}" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/revision-history.js}" type="text/babel"></script>
+  </body>
+</html>

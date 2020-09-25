@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title th:text="${entityLabel}"></title>
+    <style type="text/css">
+      .rb-datatable-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        background-color: #f7f7f7;
+        z-index: 10;
+      }
+      #react-list {
+        margin-top: 68px;
+      }
+    </style>
+  </head>
+  <body class="dialog">
+    <div class="main-content container-fluid p-0">
+      <div class="card card-table">
+        <div class="card-body">
+          <div class="dataTables_wrapper container-fluid">
+            <div class="row rb-datatable-header">
+              <div class="col-6">
+                <div class="dataTables_filter">
+                  <div class="input-group input-search">
+                    <input class="form-control" type="text" th:placeholder="${bundle.lang('QuickQuery')}" maxlength="40" />
+                    <span class="input-group-btn">
+                      <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="dataTables_oper">
+                  <button class="btn btn-space btn-primary J_select"><i class="icon zmdi zmdi-check"></i> [[${bundle.lang('Confirm')}]]</button>
+                </div>
+              </div>
+            </div>
+            <div id="react-list" class="rb-loading rb-loading-active data-list">
+              <th:block th:replace="~{/_include/spinner}" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        type: 'RecordList',
+        entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
+        listConfig: _$unth('[[${DataListConfig}]]'),
+        advFilter: false,
+        protocolFilter: '[[${referenceFilter}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script type="text/babel">
+      RbList.renderAfter = function () {
+        parent && parent.referenceSearch__dialog && parent.referenceSearch__dialog.resize()
+      }
+      $(document).ready(function () {
+        $('.J_select').click(function () {
+          const ss = RbListPage._RbList.getSelectedIds()
+          if (ss.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ss)
+        })
+      })
+    </script>
+  </body>
+</html>

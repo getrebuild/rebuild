@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.utils;
 
 import cn.devezhao.commons.CalendarUtils;
-import com.rebuild.server.Application;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -44,22 +43,15 @@ public class FileFilterByLastModified implements FileFilter {
      *
      * @param indir
      * @param keepDays 保留最近N天
-     * @return
      */
-    public static int deletes(File indir, int keepDays) {
+    public static void deletes(File indir, int keepDays) {
         File[] ds = indir.listFiles(new FileFilterByLastModified(keepDays));
         if (ds == null || ds.length == 0) {
-            return 0;
+            return;
         }
 
-        int del = 0;
         for (File d : ds) {
-            if (d.isFile()) {
-                FileUtils.deleteQuietly(d);
-                Application.LOG.warn("Delete useless file : " + d);
-                del++;
-            }
+            if (d.isFile()) FileUtils.deleteQuietly(d);
         }
-        return del;
     }
 }

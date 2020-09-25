@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('AddSome,Field')}]]</title>
+  </head>
+  <body class="dialog">
+    <div class="main-content">
+      <form>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('FieldName')}]]</label>
+          <div class="col-sm-7">
+            <input class="form-control form-control-sm" type="text" id="fieldLabel" maxlength="40" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('Type')}]]</label>
+          <div class="col-sm-7">
+            <select class="form-control form-control-sm" id="type">
+              <option value="TEXT">[[${bundle.lang('t.TEXT')}]]</option>
+              <option value="NTEXT">[[${bundle.lang('t.NTEXT')}]]</option>
+              <option value="PHONE">[[${bundle.lang('t.PHONE')}]]</option>
+              <option value="EMAIL">[[${bundle.lang('t.EMAIL')}]]</option>
+              <option value="URL">[[${bundle.lang('t.URL')}]]</option>
+              <option value="SERIES">[[${bundle.lang('t.SERIES')}]]</option>
+              <option value="NUMBER">[[${bundle.lang('t.NUMBER')}]]</option>
+              <option value="DECIMAL">[[${bundle.lang('t.DECIMAL')}]]</option>
+              <option value="DATE">[[${bundle.lang('t.DATE')}]]</option>
+              <option value="DATETIME">[[${bundle.lang('t.DATETIME')}]]</option>
+              <option value="PICKLIST">[[${bundle.lang('t.PICKLIST')}]]</option>
+              <option value="MULTISELECT">[[${bundle.lang('t.MULTISELECT')}]]</option>
+              <option value="CLASSIFICATION">[[${bundle.lang('t.CLASSIFICATION')}]]</option>
+              <option value="REFERENCE">[[${bundle.lang('t.REFERENCE')}]]</option>
+              <option value="FILE">[[${bundle.lang('t.FILE')}]]</option>
+              <option value="IMAGE">[[${bundle.lang('t.IMAGE')}]]</option>
+              <option value="AVATAR">[[${bundle.lang('t.AVATAR')}]]</option>
+              <option value="BARCODE">[[${bundle.lang('t.BARCODE')}]]</option>
+              <option value="BOOL">[[${bundle.lang('t.BOOL')}]]</option>
+              <optgroup th:label="${bundle.lang('ReserveType')}" class="bosskey-show">
+                <option value="STATE">[[${bundle.lang('t.STATE')}]]</option>
+              </optgroup>
+            </select>
+          </div>
+        </div>
+        <div class="form-group row hide J_dt-REFERENCE">
+          <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('SelectSome,RefEntity')}]]</label>
+          <div class="col-sm-7">
+            <select class="form-control form-control-sm" id="refEntity"></select>
+          </div>
+        </div>
+        <div class="form-group row hide J_dt-CLASSIFICATION">
+          <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('SelectSome,Classification')}]]</label>
+          <div class="col-sm-7">
+            <select class="form-control form-control-sm" id="refClassification"></select>
+          </div>
+        </div>
+        <div class="form-group row hide J_dt-STATE">
+          <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('StateClass')}]]</label>
+          <div class="col-sm-7">
+            <input class="form-control form-control-sm" type="text" id="stateClass" placeholder="com.rebuild.core.support.state.HowtoState" />
+          </div>
+        </div>
+        <div class="form-group row">
+          <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.lang('Remark')}]]</label>
+          <div class="col-sm-7">
+            <textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" th:placeholder="${bundle.lang('Optional')}"></textarea>
+          </div>
+        </div>
+        <div class="form-group row pb-0">
+          <label class="col-sm-3 col-form-label text-sm-right"></label>
+          <div class="col-sm-7">
+            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+              <input class="custom-control-input" type="checkbox" id="saveAndNew" />
+              <span class="custom-control-label">[[${bundle.lang('AddNext')}]]</span>
+            </label>
+            <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
+              <input class="custom-control-input" type="checkbox" id="add2Layout" checked />
+              <span class="custom-control-label">[[${bundle.lang('AppendToLayout')}]]</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group row footer">
+          <div class="col-sm-7 offset-sm-3">
+            <button class="btn btn-primary" type="button">[[${bundle.lang('Confirm')}]]</button>
+            <button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">[[${bundle.lang('Cancel')}]]</button>
+          </div>
+        </div>
+      </form>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/metadata/field-new.js}" type="text/babel"></script>
+  </body>
+</html>

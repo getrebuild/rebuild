@@ -11,9 +11,7 @@ coverage:
 ignore:
   - ".github/.*"
   - ".vscode/.*"
-  - ".setup/.*"
-  - ".production/.*"
-  - "src/test/.*"
-  - "src/main/webapp/.*"
-  - "src/main/java/com/rebuild/web/.*"
   - ".*/.*Exception.java"
+  - "src/test/.*"
+  - "src/main/resources/.*"
+  - "src/main/java/com/rebuild/web/.*"

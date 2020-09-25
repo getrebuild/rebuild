@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/cropper.min.css}" />
+    <title>[[${bundle.lang('UserSet')}]]</title>
+    <style type="text/css">
+      .avatar-wrap {
+        height: 256px;
+        padding-top: 55px;
+        background-color: rgb(245, 247, 249);
+        border-radius: 4px;
+        margin-bottom: 10px;
+        margin-top: 10px;
+      }
+      .avatar {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        line-height: 1;
+        font-size: 0;
+        background-color: #eee;
+        border-radius: 50%;
+        overflow: hidden;
+        margin: 0 auto;
+      }
+      .avatar > img {
+        width: 100%;
+      }
+      .avatar > label {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: none;
+        font-size: 14px;
+        text-align: center;
+        padding-top: 46px;
+        color: #fff !important;
+        line-height: 1.5;
+      }
+      .avatar:hover > label {
+        display: block;
+        cursor: pointer;
+      }
+      .avatar > label i.zmdi {
+        font-size: 28px;
+      }
+      .avatar > label input {
+        display: none;
+      }
+      form .form-group.row {
+        margin-left: 5px;
+        margin-right: 5px;
+        padding: 8px 0;
+        border-bottom: 1px dotted #e6e9f0;
+      }
+      .split-span > span + span::before {
+        content: ' / ';
+        color: #aaa;
+      }
+      #logs thead th {
+        font-weight: normal;
+        color: #777;
+      }
+    </style>
+  </head>
+  <body th:with="user = ${T(com.rebuild.utils.AppUtils).getRequestUserBean(#request)}">
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left}" />
+      <div class="rb-content">
+        <div class="main-content container">
+          <div class="card">
+            <div class="card-body">
+              <div class="tab-container">
+                <ul class="nav nav-tabs">
+                  <li class="nav-item"><a class="nav-link active" href="#base" data-toggle="tab">[[${bundle.lang('UserInfo')}]]</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#secure" data-toggle="tab">[[${bundle.lang('SecureSet')}]]</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#logs" data-toggle="tab">[[${bundle.lang('LoginLog')}]]</a></li>
+                </ul>
+                <div class="tab-content m-0">
+                  <div class="tab-pane active" id="base">
+                    <div class="row">
+                      <div class="col-md-4 col-12">
+                        <div class="avatar-wrap">
+                          <div class="avatar text-center">
+                            <img alt="Avatar" id="avatar-img" th:src="@{/account/user-avatar?w=200}" />
+                            <label>
+                              <i class="zmdi zmdi-camera"></i>
+                              <br />[[${bundle.lang('ModifySome,Avatar')}]]
+                              <input type="file" id="avatar-input" accept="image/png,image/jpeg,image/gif" data-temp="true" />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-8 col-12">
+                        <form>
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.lang('LoginName')}]]</label>
+                            <div class="col-sm-8">
+                              <div class="form-control-plaintext" th:text="${user.getName()}"></div>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.lang('f.owningDept')}]]</label>
+                            <div class="col-sm-8">
+                              <div class="form-control-plaintext" th:text="${user.getOwningBizUnit().getName()}"></div>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.lang('JoinedTeam')}]]</label>
+                            <div class="col-sm-8">
+                              <div class="form-control-plaintext split-span">
+                                <th:block th:each="team : ${user.getOwningTeams()}">
+                                  <span th:text="${team.getName()}"></span>
+                                </th:block>
+                                <em class="text-muted" th:if="${user.getOwningTeams().isEmpty()}">[[${bundle.lang('YouNotJoinAnyTeams')}]]</em>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.lang('FullName')}]]</label>
+                            <div class="col-sm-8">
+                              <input class="form-control form-control-sm" type="text" id="fullName" th:value="${user.getFullName()}" th:data-o="${user.getFullName()}" />
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.lang('Workphone')}]]</label>
+                            <div class="col-sm-8">
+                              <input
+                                class="form-control form-control-sm"
+                                type="text"
+                                id="workphone"
+                                th:placeholder="${bundle.lang('Null')}"
+                                th:value="${user.getWorkphone()}"
+                                th:data-o="${user.getWorkphone()}"
+                              />
+                            </div>
+                          </div>
+                          <div class="form-group row border-none mt-3">
+                            <div class="col-sm-8 offset-sm-4">
+                              <button class="btn btn-primary J_save" type="button">[[${bundle.lang('Confirm')}]]</button>
+                            </div>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-pane" id="secure">
+                    <form>
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label text-left">[[${bundle.lang('ModifySome,Email')}]]</label>
+                        <div class="col-sm-7 pl-0">
+                          <div class="form-control-plaintext text-muted J_email-account" th:text="${user.getEmail() ?: bundle.lang('SomeUnset,Email')}"></div>
+                        </div>
+                        <div class="col-sm-3 text-right">
+                          <button class="btn btn-primary bordered J_email" type="button">[[${bundle.lang('Modify')}]]</button>
+                        </div>
+                      </div>
+                      <div class="form-group row">
+                        <label class="col-sm-2 col-form-label text-left">[[${bundle.lang('ModifySome,Password')}]]</label>
+                        <div class="col-sm-7 pl-0">
+                          <div class="form-control-plaintext text-muted">[[${bundle.lang('ModifyPasswdTips')}]]</div>
+                        </div>
+                        <div class="col-sm-3 text-right">
+                          <button class="btn btn-primary bordered J_passwd" type="button">[[${bundle.lang('Modify')}]]</button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                  <div class="tab-pane" id="logs">
+                    <table class="table table-fixed">
+                      <thead>
+                        <tr>
+                          <th width="50"></th>
+                          <th>[[${bundle.lang('LoginTime')}]]</th>
+                          <th>[[${bundle.lang('IpAddr')}]]</th>
+                          <th>[[${bundle.lang('UserAgent')}]]</th>
+                        </tr>
+                      </thead>
+                      <tbody></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        userid: '[[${user.getId()}]]',
+      }
+    </script>
+    <script th:src="@{/assets/lib/widget/cropper.min.js}"></script>
+    <script th:src="@{/assets/js/user-settings.js}" type="text/babel"></script>
+  </body>
+</html>

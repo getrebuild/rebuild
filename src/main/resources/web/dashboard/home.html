@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.lang('Home')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/charts/gridstack.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/dashboard.css}" />
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left(active='dashboard-home')}" />
+      <div class="rb-loading rb-loading-active must-center J_dash-load">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
+      <div class="rb-content">
+        <div class="announcement-wrapper"></div>
+        <div class="main-content container-fluid p-0">
+          <div class="tools-bar">
+            <div class="row">
+              <div class="col-sm-6 dash-list">
+                <div class="dash-head">
+                  <h4 class="J_dash-select">[[${bundle.lang('Dashboard')}]]</h4>
+                  <div class="dash-action">
+                    <a class="zicon J_dash-edit"><i class="zmdi zmdi-settings"></i></a>
+                    <a class="zicon J_dash-new" th:title="${bundle.lang('AddSome,Dashboard')}"><i class="zmdi zmdi-plus-circle-o"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 text-right d-none d-md-block dash-right">
+                <div class="btn-group">
+                  <button type="button" class="btn btn-link pr-0 text-right J_dash-fullscreen" th:title="${bundle.lang('FullScreen')}">
+                    <i class="zmdi zmdi-fullscreen icon up-1" style="font-size: 1.45rem"></i>
+                  </button>
+                </div>
+                <div class="btn-group J_dash-refresh">
+                  <button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown">
+                    <i class="zmdi zmdi-time-countdown icon"></i>
+                    <span>[[${bundle.lang('AutoRefresh')}]]</span>
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-right" style="min-width: 140px">
+                    <a class="dropdown-item" data-time="30">30 [[${bundle.lang('Second')}]]</a>
+                    <a class="dropdown-item" data-time="60">1 [[${bundle.lang('Minte')}]]</a>
+                    <a class="dropdown-item" data-time="300">5 [[${bundle.lang('Minte')}]]</a>
+                    <a class="dropdown-item" data-time="600">10 [[${bundle.lang('Minte')}]]</a>
+                    <a class="dropdown-item" data-time="1800">30 [[${bundle.lang('Minte')}]]</a>
+                  </div>
+                </div>
+                <div class="btn-group">
+                  <button type="button" class="btn btn-link pr-0 text-right J_chart-adds" data-toggle="dropdown">
+                    <i class="zmdi zmdi-plus icon"></i> [[${bundle.lang('AddSome,Chart')}]]
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item J_chart-new">[[${bundle.lang('AddNewChart')}]]</a>
+                    <a class="dropdown-item J_chart-select">[[${bundle.lang('AddExistsChart')}]]</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="chart-grid invisible">
+            <div class="grid-stack"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/lib/charts/lodash.min.js}"></script>
+    <script th:src="@{/assets/lib/charts/gridstack.all.js}"></script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
+    <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/charts/dashboard.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
+  </body>
+</html>

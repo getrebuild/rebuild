@@ -1,0 +1,217 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.rb-content .main-content {
+  margin-right: 280px;
+}
+
+.rb-right-sidebar.field-aside {
+  width: 280px;
+  z-index: 1;
+}
+
+.readonly {
+  border-left: 3px solid #bbb !important;
+}
+
+.not-nullable {
+  border-left: 3px solid #ea4335 !important;
+}
+
+.field-aside .rb-content {
+  padding: 18px 0;
+  margin: 0;
+}
+
+.field-head {
+  height: 44px;
+  padding: 0 20px;
+}
+
+.dd-list {
+  min-height: 200px;
+}
+
+.dd-list .nodata {
+  padding: 12px 0;
+  color: #999;
+  border: 1px dotted #dedede;
+  text-align: center;
+  display: none;
+  margin: 0;
+}
+
+.dd-list .dd-item {
+  position: relative;
+}
+
+.dd-list .dd-item span.ft {
+  position: absolute;
+  top: 9px;
+  right: 9px;
+  font-size: 12px;
+  color: #999;
+  background-color: #eee;
+  display: inline-block;
+  padding: 3px 4px;
+  line-height: 1;
+  border-radius: 2px;
+}
+
+.dd-list .dd-item .dd-action {
+  float: right;
+  cursor: default;
+  margin-top: 13px;
+  margin-right: 6px;
+  display: none;
+}
+
+.dd-list .dd-item .dd-handle:hover .dd-action {
+  display: block;
+}
+
+.dd-list .dd-item .dd-action a {
+  color: #fff;
+  font-size: 1.23rem;
+  font-style: normal;
+  display: inline-block;
+  padding-left: 6px;
+  opacity: 0.8;
+}
+
+.dd-list .dd-item .dd-action a:hover {
+  opacity: 1;
+}
+
+.dd-list .dd-item .dd-action a + a {
+  margin-left: 4px;
+}
+
+.dd-list .dd-item .dd-action a .zmdi-unfold-more {
+  font-size: 1.55rem;
+  transform: translateY(1px) rotate(90deg);
+}
+
+.dd-list .dd-item.w-100 a .zmdi-unfold-more::before {
+  content: '\f311';
+}
+
+.form-preview .dd-item,
+.form-preview .dd-placeholder {
+  float: left;
+  width: 49%;
+  margin-left: 0.5%;
+  margin-right: 0.5%;
+}
+
+.form-preview .dd-placeholder {
+  margin-top: 5px;
+  margin-bottom: 5px;
+  height: 36px;
+}
+
+.form-preview .dd-item.w-100 {
+  width: 99% !important;
+}
+
+.form-preview .dd-item span.ft {
+  top: 13px;
+}
+
+.form-preview .dd-item:hover span.ft {
+  display: none;
+}
+
+.form-preview .divider .dd-handle {
+  background-color: #eee;
+}
+
+.form-preview .divider .dd-handle > span:empty::after {
+  content: attr(_title);
+  font-style: italic;
+  color: #999;
+}
+
+.form-preview .divider .dd-handle:hover > span:empty::after {
+  color: #fff;
+}
+
+.form-preview .dd-item,
+.form-preview .dd-handle {
+  cursor: move !important;
+}
+
+.field-list {
+  padding: 0 20px 35px;
+}
+
+.field-list .dd-item .dd-handle {
+  cursor: pointer;
+}
+
+.field-list .dd-item .dd-handle::before {
+  content: '\f278';
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  float: right;
+  font-size: 1.6rem;
+  color: #999;
+}
+
+.field-list .dd-item:hover .dd-handle::before {
+  color: #fff;
+}
+
+.field-list .dd-item span.ft {
+  right: 32px;
+}
+
+.field-list .nodata {
+  margin-top: 5px;
+  background-color: #fff;
+}
+
+form.field-attr {
+  width: 500px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+form.field-attr label {
+  font-weight: bold;
+}
+
+form.field-attr label > span {
+  font-weight: normal;
+  color: #777;
+}
+
+.dd-list .dd-item .dd-handle span > i {
+  font-size: 15px;
+  margin-left: 5px;
+  color: #999;
+  cursor: help;
+  position: absolute;
+  margin-top: 2px;
+}
+
+.dd-list .dd-item .dd-handle:hover span > i {
+  color: #fff;
+}
+
+.field-legend {
+  position: fixed;
+  background-color: #fafafa;
+  padding: 10px;
+  bottom: 0;
+  width: 265px;
+}
+
+.field-legend > span {
+  padding-left: 4px;
+  font-size: 12px;
+  margin-left: 10px;
+}

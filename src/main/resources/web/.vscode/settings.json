@@ -1,0 +1,12 @@
+{
+  "editor.fontSize": 12,
+  "editor.tabSize": 2,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.codeAction.showDocumentation": {
+    "enable": true
+  },
+  "eslint.onIgnoredFiles": "warn",
+  "eslint.validate": ["javascript", "javascriptreact"]
+}

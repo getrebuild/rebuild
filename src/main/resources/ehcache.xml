@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ehcache>
-	<diskStore path="java.io.tmpdir" />
-	<cache name="rebuild"
-		maxElementsInMemory="100"
-		eternal="false"
-		overflowToDisk="true"
-		maxElementsOnDisk="100000000"
-		diskPersistent="true"
-		timeToIdleSeconds="0"
-		timeToLiveSeconds="0"
-		diskExpiryThreadIntervalSeconds="120"
-		memoryStoreEvictionPolicy="LRU"
-		/>
+    <diskStore path="java.io.tmpdir"/>
+    <cache name="rebuild"
+           maxElementsInMemory="100"
+           eternal="false"
+           overflowToDisk="true"
+           maxElementsOnDisk="100000000"
+           diskPersistent="true"
+           timeToIdleSeconds="0"
+           timeToLiveSeconds="0"
+           diskExpiryThreadIntervalSeconds="120"
+           memoryStoreEvictionPolicy="LRU"
+    />
 </ehcache>
