@@ -1149,7 +1149,7 @@
   "RecordName": "Record Name",
   "RecordId": "Record ID",
   "BelongEntity": "Entity",
-  "DeleteOn": "Delete time",
+  "DeletedOn": "删除时间",
   "DeletedBy": "Delete User",
   "DeleteChannel": "Delete channel",
   "TemplateFile": "Template file",
