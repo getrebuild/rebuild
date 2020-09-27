@@ -18,6 +18,7 @@ import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.distributed.UseRedis;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.io.FileUtils;
@@ -126,18 +127,18 @@ public class Installer implements InstallState {
      * 刷新配置
      */
     private void refresh() throws Exception {
-        // 新配置
+        // 重配置
         Application.getBean(BootEnvironmentPostProcessor.class).postProcessEnvironment(null, null);
 
-        // 重配置数据源
+        // 刷新: 数据源
         DruidDataSource ds = (DruidDataSource) Application.getBean(DataSource.class);
         ds.setUrl(BootEnvironmentPostProcessor.getProperty("db.url"));
         ds.setUsername(BootEnvironmentPostProcessor.getProperty("db.user"));
         ds.setPassword(BootEnvironmentPostProcessor.getProperty("db.passwd"));
 
-        // 重配置 REDIS
+        // 刷新: REDIS
         JedisPool pool = BootConfiguration.createJedisPoolInternal();
-        for (Object o : Application.getContext().getBeansOfType(BaseCacheTemplate.class).values()) {
+        for (Object o : Application.getContext().getBeansOfType(UseRedis.class).values()) {
             if (!((BaseCacheTemplate<?>) o).refreshJedisPool(pool)) break;
         }
 

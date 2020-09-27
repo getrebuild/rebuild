@@ -7,15 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.cache;
 
-import cn.devezhao.commons.ThrowableUtils;
-import com.rebuild.core.BootConfiguration;
-import org.apache.commons.io.IOUtils;
+import com.rebuild.core.support.distributed.UseRedis;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.Serializable;
@@ -26,7 +23,7 @@ import java.io.Serializable;
  * @author devezhao
  * @since 01/02/2019
  */
-public abstract class BaseCacheTemplate<V extends Serializable> implements CacheTemplate<V> {
+public abstract class BaseCacheTemplate<V extends Serializable> implements CacheTemplate<V>, UseRedis {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
@@ -55,13 +52,10 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
         this.keyPrefix = fix + StringUtils.defaultIfBlank(keyPrefix, StringUtils.EMPTY);
     }
 
-    /**
-     * @param jedisPool
-     * @return
-     */
-    public boolean refreshJedisPool(JedisPool jedisPool) {
-        if (testJedisPool(jedisPool)) {
-            this.delegate = new RedisDriver<>(jedisPool);
+    @Override
+    public boolean refreshJedisPool(JedisPool pool) {
+        if (testJedisPool(pool)) {
+            this.delegate = new RedisDriver<>(pool);
             return true;
         }
         return false;
@@ -115,20 +109,6 @@ public abstract class BaseCacheTemplate<V extends Serializable> implements Cache
      */
     public CacheTemplate<V> getCacheTemplate() {
         return delegate;
-    }
-
-    private boolean testJedisPool(JedisPool jedisPool) {
-        if (jedisPool == BootConfiguration.USE_EHCACHE) return false;
-
-        try {
-            Jedis jedis = jedisPool.getResource();
-            IOUtils.closeQuietly(jedis);
-            return true;
-        } catch (Exception ex) {
-            LOG.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
-                    + " !!! falling back to EhCache");
-        }
-        return false;
     }
 
     private String unityKey(String key) {

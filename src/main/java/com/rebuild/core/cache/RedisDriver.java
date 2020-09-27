@@ -34,7 +34,6 @@ public class RedisDriver<V extends Serializable> implements CacheTemplate<V> {
         Jedis jedis = null;
         try {
             jedis = jedisPool.getResource();
-
             return jedis.get(key);
         } finally {
             IOUtils.closeQuietly(jedis);
