@@ -8,18 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.core.support.distributed.KnownJedisPool;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
-import org.redisson.Redisson;
-import org.redisson.api.RedissonClient;
-import org.redisson.config.Config;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
 
 import java.io.IOException;
 
@@ -46,6 +43,11 @@ public class BootConfiguration implements InstallState {
         return manager;
     }
 
+//    @Bean
+//    DistributedSupport createDistributedSupport() {
+//        return new DistributedSupport(createJedisPool());
+//    }
+
     /**
      * @return
      */
@@ -53,12 +55,9 @@ public class BootConfiguration implements InstallState {
         String use = BootEnvironmentPostProcessor.getProperty("db.CacheHost");
         if ("0".equals(use)) return USE_EHCACHE;
 
-        return new JedisPool(
-                new JedisPoolConfig(),
+        return new KnownJedisPool(
                 StringUtils.defaultIfBlank(use, "127.0.0.1"),
                 ObjectUtils.toInt(BootEnvironmentPostProcessor.getProperty("db.CachePort"), 6379),
-                5000,
-                BootEnvironmentPostProcessor.getProperty("db.CachePassword", null),
-                0);
+                BootEnvironmentPostProcessor.getProperty("db.CachePassword", null));
     }
 }

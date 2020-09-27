@@ -1,3 +1,10 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
 package com.rebuild.core.support.distributed;
 
 import com.rebuild.TestSupport;
@@ -6,17 +13,20 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import org.junit.Assert;
 import org.junit.Test;
-import org.redisson.Redisson;
-import org.redisson.api.RMap;
-import org.redisson.api.RedissonClient;
 
+import java.util.concurrent.ConcurrentMap;
+
+/**
+ * @author devezhao
+ * @since 2020/9/27
+ */
 public class DistributedSupportTest extends TestSupport {
 
     @Test
     public void testMap() {
-        RedissonClient redissonClient = Redisson.create();
+        DistributedSupport support = Application.getBean(DistributedSupport.class);
 
-        RMap<String, User> users = redissonClient.getMap("RB_USER");
+        ConcurrentMap<String, User> users = support.getMap("RB_USER");
         users.put("User1", Application.getUserStore().getUser(UserService.SYSTEM_USER));
 
         User fromCache = users.get("User1");
