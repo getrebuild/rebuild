@@ -74,7 +74,7 @@ public class DistributedSupport implements UseRedis {
      * @param <T>
      * @return
      */
-    public <T> List<T> gteList(String namespace) {
+    public <T> List<T> getList(String namespace) {
         if (redissonClient != null) {
             return redissonClient.getList(namespace);
         } else {
@@ -87,7 +87,7 @@ public class DistributedSupport implements UseRedis {
      * @param <T>
      * @return
      */
-    public <T> Set<T> gteSet(String namespace) {
+    public <T> Set<T> getSet(String namespace) {
         if (redissonClient != null) {
             return redissonClient.getSet(namespace);
         } else {
