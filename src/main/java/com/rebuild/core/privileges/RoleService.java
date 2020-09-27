@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.BaseServiceImpl;
 import org.springframework.stereotype.Service;
@@ -82,7 +83,7 @@ public class RoleService extends BaseServiceImpl implements AdminGuard {
      * @param definition
      */
     public void updatePrivileges(ID roleId, JSONObject definition) {
-        final ID user = Application.getCurrentUser();
+        final ID user = UserContext.getUser();
 
         Object[][] array = Application.createQuery(
                 "select privilegesId,definition,entity,zeroKey from RolePrivileges where roleId = ?")

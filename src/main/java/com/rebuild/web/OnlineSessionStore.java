@@ -9,12 +9,10 @@ package com.rebuild.web;
 
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.privileges.CurrentCaller;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
@@ -36,15 +34,13 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * @since 09/27/2018
  */
 @Component
-public class OnlineSessionStore extends CurrentCaller implements HttpSessionListener {
+public class OnlineSessionStore implements HttpSessionListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(OnlineSessionStore.class);
 
     private static final Set<HttpSession> ONLINE_SESSIONS = new CopyOnWriteArraySet<>();
 
     private static final Map<ID, HttpSession> ONLINE_USERS = new ConcurrentHashMap<>();
-
-    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current session locale");
 
     /**
      * 最近访问 [时间, 路径]
@@ -131,30 +127,5 @@ public class OnlineSessionStore extends CurrentCaller implements HttpSessionList
 
         ONLINE_SESSIONS.remove(s);
         ONLINE_USERS.put((ID) loginUser, s);
-    }
-
-    /**
-     * @param locale
-     */
-    public void setLocale(String locale) {
-        LOCALE.set(locale);
-    }
-
-    /**
-     * @return Returns default if unset
-     * @see com.rebuild.core.support.i18n.Language
-     */
-    public String getLocale() {
-        String locale = LOCALE.get();
-        if (locale == null) {
-            locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
-        }
-        return locale;
-    }
-
-    @Override
-    public void clean() {
-        super.clean();
-        LOCALE.remove();
     }
 }

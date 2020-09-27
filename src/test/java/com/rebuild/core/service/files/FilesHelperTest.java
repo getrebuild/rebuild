@@ -10,6 +10,7 @@ package com.rebuild.core.service.files;
 import cn.devezhao.persist4j.Record;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import org.junit.Test;
@@ -23,7 +24,7 @@ import java.util.Arrays;
 public class FilesHelperTest extends TestSupport {
 
     static {
-        Application.getSessionStore().set(UserService.ADMIN_USER);
+        UserContext.setUser(UserService.ADMIN_USER);
     }
 
     @Test

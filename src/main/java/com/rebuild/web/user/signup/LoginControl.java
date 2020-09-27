@@ -20,6 +20,7 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.api.user.LoginToken;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
@@ -287,7 +288,7 @@ public class LoginControl extends BaseController {
         Record record = EntityHelper.forUpdate(user.getId(), user.getId());
         record.setString("password", newpwd);
         try {
-            Application.getSessionStore().set(user.getId());
+            UserContext.setUser(user.getId());
 
             Application.getBean(UserService.class).update(record);
             writeSuccess(response);
@@ -295,7 +296,7 @@ public class LoginControl extends BaseController {
         } catch (DataSpecificationException ex) {
             writeFailure(response, ex.getLocalizedMessage());
         } finally {
-            Application.getSessionStore().clean();
+            UserContext.clear();
         }
     }
 

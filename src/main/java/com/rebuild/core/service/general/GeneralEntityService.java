@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.DefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -103,7 +104,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     @Override
     public int delete(ID record, String[] cascades) {
-        final ID currentUser = Application.getCurrentUser();
+        final ID currentUser = UserContext.getUser();
 
         RecycleStore recycleBin = null;
         if (RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0) {
@@ -161,7 +162,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @throws DataSpecificationException
      */
     private int deleteInternal(ID record) throws DataSpecificationException {
-        Record delete = EntityHelper.forUpdate(record, Application.getCurrentUser());
+        Record delete = EntityHelper.forUpdate(record, UserContext.getUser());
         if (!checkModifications(delete, BizzPermission.DELETE)) {
             return 0;
         }
@@ -204,14 +205,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (countObservers() > 0 && assignBefore != null) {
             setChanged();
-            notifyObservers(OperatingContext.create(Application.getCurrentUser(), BizzPermission.ASSIGN, assignBefore, assignAfter));
+            notifyObservers(OperatingContext.create(UserContext.getUser(), BizzPermission.ASSIGN, assignBefore, assignAfter));
         }
         return affected;
     }
 
     @Override
     public int share(ID record, ID to, String[] cascades) {
-        final ID currentUser = Application.getCurrentUser();
+        final ID currentUser = UserContext.getUser();
         final String entityName = MetadataHelper.getEntityName(record);
 
         final Record sharedAfter = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
@@ -264,7 +265,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     @Override
     public int unshare(ID record, ID accessId) {
-        ID currentUser = Application.getCurrentUser();
+        ID currentUser = UserContext.getUser();
 
         Record unsharedBefore = null;
         if (countObservers() > 0) {
@@ -330,7 +331,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             // remove last ' or '
             sql.replace(sql.length() - 4, sql.length(), " )");
 
-            Filter filter = Application.getPrivilegesManager().createQueryFilter(Application.getCurrentUser(), action);
+            Filter filter = Application.getPrivilegesManager().createQueryFilter(UserContext.getUser(), action);
             Object[][] array = Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 
             Set<ID> records = new HashSet<>();

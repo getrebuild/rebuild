@@ -14,7 +14,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import org.springframework.core.NamedThreadLocal;
 
 /**
- * 请求用户上线文
+ * 请求用户上下文
  *
  * @author devezhao
  * @since 2020/9/27
@@ -22,6 +22,7 @@ import org.springframework.core.NamedThreadLocal;
 public class UserContext {
 
     private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("Current user");
+
     private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current locale of user");
 
     public static void set(ID user, String locale) {
@@ -58,6 +59,7 @@ public class UserContext {
         String local = LOCALE.get();
         if (local != null) return local;
 
+        // Use default
         return RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
     }
 }

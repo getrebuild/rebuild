@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
@@ -20,6 +21,7 @@ import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.MetaschemaImporter;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.BlackList;
 import org.apache.commons.io.FileUtils;
@@ -42,18 +44,21 @@ public class TestSupport {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TestSupport.class);
 
-    private static boolean RebuildStarted = false;
+    private static boolean RebuildReady = false;
 
     @BeforeClass
     public static void setUp() {
-        if (RebuildStarted) return;
+        if (RebuildReady) return;
         LOG.warn("TESTING Setup ...");
 
         try {
             BootApplication.main(new String[] { "-Drbdev=true" });
-            RebuildStarted = true;
+            RebuildReady = true;
 
-            addTestEntities(false);
+            Language.MANUAL_REFRESH.set(true);
+            if (addTestEntities(false)) {
+                Application.getLanguage().refresh(true);
+            }
 
         } catch (Exception ex) {
             LOG.error("Add entities of test error!", ex);
@@ -65,7 +70,7 @@ public class TestSupport {
     public static void setDown() {
         LOG.warn("TESTING Setdown ...");
 
-        Application.getSessionStore().clean();
+        UserContext.clear();
     }
 
     // -- 测试实体
@@ -95,9 +100,11 @@ public class TestSupport {
      * 添加测试用实体
      *
      * @param dropExists
+     * @return
      * @throws Exception
      */
-    protected static void addTestEntities(boolean dropExists) throws Exception {
+    protected static boolean addTestEntities(boolean dropExists) throws Exception {
+        boolean changed = false;
         if (dropExists) {
             if (MetadataHelper.containsEntity(TestAllFields)) {
                 LOG.warn("Dropping test entity : " + TestAllFields);
@@ -144,6 +151,7 @@ public class TestSupport {
                             .createField(testEntity, fieldName, dt, null, null, null);
                 }
             }
+            changed = true;
         }
 
         if (!MetadataHelper.containsEntity(Account)) {
@@ -151,6 +159,7 @@ public class TestSupport {
                     ResourceUtils.getFile("classpath:schema-Account.json"));
             MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(metaschema));
             TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+            changed = true;
         }
 
         if (!MetadataHelper.containsEntity(SalesOrder)) {
@@ -158,7 +167,10 @@ public class TestSupport {
                     ResourceUtils.getFile("classpath:schema-SalesOrder.json"));
             MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(metaschema));
             TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+            changed = true;
         }
+
+        return changed;
     }
 
     /**
@@ -177,8 +189,8 @@ public class TestSupport {
      * @return
      */
     protected static ID addRecordOfTestAllFields(ID user) {
-        if (user != null && Application.getSessionStore().get(true) == null) {
-            Application.getSessionStore().set(user);
+        if (user != null && UserContext.getUser(true) == null) {
+            UserContext.setUser(user);
         }
 
         Entity testEntity = MetadataHelper.getEntity(TestAllFields);

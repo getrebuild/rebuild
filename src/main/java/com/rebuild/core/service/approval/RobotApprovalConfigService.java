@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -41,7 +42,7 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
     @Override
     public Record create(Record record) {
         String entity = record.getString("belongEntity");
-        new ApprovalFields2Schema(Application.getCurrentUser())
+        new ApprovalFields2Schema(UserContext.getUser())
                 .createFields(MetadataHelper.getEntity(entity));
         return super.create(record);
     }

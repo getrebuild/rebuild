@@ -16,6 +16,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.util.support.Table;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -224,16 +225,13 @@ public class Entity2Schema extends Field2Schema {
             return false;
         }
 
-        final ID sessionUser = Application.getSessionStore().get(true);
-        if (sessionUser == null) {
-            Application.getSessionStore().set(user);
-        }
+        final ID sessionUser = UserContext.getUser(true);
+        if (sessionUser == null) UserContext.setUser(user);
+
         try {
             Application.getBean(MetaEntityService.class).delete(metaRecordId);
         } finally {
-            if (sessionUser == null) {
-                Application.getSessionStore().clean();
-            }
+            if (sessionUser == null) UserContext.clear();
         }
 
         MetadataHelper.getMetadataFactory().refresh(false);

@@ -10,6 +10,7 @@ package com.rebuild.core.privileges;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import org.junit.Test;
@@ -54,7 +55,7 @@ public class UserStoreTest extends TestSupport {
 
     @Test
     public void testMemberToTeam() {
-        Application.getSessionStore().set(UserService.SYSTEM_USER);
+        UserContext.setUser(UserService.SYSTEM_USER);
 
         ID teamUser = UserService.ADMIN_USER;
         try {
@@ -69,7 +70,7 @@ public class UserStoreTest extends TestSupport {
             System.out.println(user.getOwningTeams());
 
         } finally {
-            Application.getSessionStore().clean();
+            UserContext.clear();
         }
     }
 

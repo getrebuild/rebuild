@@ -36,7 +36,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
     @Override
     public synchronized void refresh(boolean initState) {
         super.refresh(initState);
-        if (!initState && Application.isReady()) Application.getLanguage().refresh();
+        if (!initState && Application.isReady()) Application.getLanguage().refresh(false);
     }
 
     @Override

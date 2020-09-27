@@ -12,17 +12,13 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
-import com.rebuild.core.BootEnvironmentPostProcessor;
-import com.rebuild.core.Initialization;
-import com.rebuild.core.RebuildException;
+import com.rebuild.core.*;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.state.StateSpec;
 import com.rebuild.utils.CommonsUtils;
-import com.rebuild.web.OnlineSessionStore;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,16 +65,20 @@ public class Language implements Initialization {
                 LanguageBundle bundle = new LanguageBundle(locale, o, this);
                 bundleMap.put(locale, bundle);
             } catch (IOException ex) {
-                LOG.error("Cannot read file of language : " + locale);
+                LOG.error("Cannot load language bundle : " + locale, ex);
             }
         }
     }
 
     /**
      * 刷新语言包
+     *
+     * @param force
      */
-    public void refresh() {
+    public void refresh(boolean force) {
         if (bundleMap.isEmpty()) return;
+
+        if (force) MANUAL_REFRESH.remove();
 
         Boolean manual = MANUAL_REFRESH.get();
         if (manual != null && manual) return;
@@ -164,11 +164,11 @@ public class Language implements Initialization {
      * 当前用户语言包（线程量用户）
      *
      * @return
-     * @see OnlineSessionStore#getLocale()
+     * @see UserContext#getLocale()
      * @see com.rebuild.utils.AppUtils#getReuqestBundle(HttpServletRequest)
      */
     public static LanguageBundle getCurrentBundle() {
-        return Application.getLanguage().getBundle(Application.getSessionStore().getLocale());
+        return Application.getLanguage().getBundle(UserContext.getLocale());
     }
 
     /**

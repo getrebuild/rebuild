@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.BaseServiceImpl;
 import org.springframework.stereotype.Service;
@@ -71,7 +72,7 @@ public class TeamService extends BaseServiceImpl implements AdminGuard {
             if (team.isMember(user)) {
                 continue;
             }
-            Record record = EntityHelper.forNew(EntityHelper.TeamMember, Application.getCurrentUser());
+            Record record = EntityHelper.forNew(EntityHelper.TeamMember, UserContext.getUser());
             record.setID("teamId", teamId);
             record.setID("userId", user);
             super.create(record);

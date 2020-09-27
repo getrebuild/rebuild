@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import org.junit.Assert;
@@ -32,7 +33,7 @@ public class FeedsHelperTest extends TestSupport {
 
     @Test
     public void getNumOfComment() {
-        Application.getSessionStore().set(UserService.ADMIN_USER);
+        UserContext.setUser(UserService.ADMIN_USER);
 
         ID feedsId = createFeeds();
         createComment(feedsId);

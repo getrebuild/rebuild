@@ -10,6 +10,7 @@ package com.rebuild.core.service.files;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.BaseService;
@@ -53,7 +54,7 @@ public class AttachmentFolderService extends BaseService {
             throw new DataSpecificationException(Language.getLang("DeleteFolderHasSubs"));
         }
 
-        ID user = Application.getCurrentUser();
+        ID user = UserContext.getUser();
         if (!UserHelper.isAdmin(user)) {
             Object[] createdBy = Application.createQueryNoFilter(
                     "select createdBy from AttachmentFolder where folderId = ?")

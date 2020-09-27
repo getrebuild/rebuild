@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core;
 
-import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -227,10 +226,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     public static OnlineSessionStore getSessionStore() {
         return getBean(OnlineSessionStore.class);
-    }
-
-    public static ID getCurrentUser() throws AccessDeniedException {
-        return getSessionStore().get();
     }
 
     public static PersistManagerFactory getPersistManagerFactory() {

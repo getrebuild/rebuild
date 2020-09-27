@@ -16,6 +16,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.CommonsService;
@@ -54,7 +55,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             return;
         }
 
-        final ID caller = Application.getSessionStore().get();
+        final ID caller = UserContext.getUser();
         if (Application.devMode()) {
             LOG.info("User [ " + caller + " ] calls : " + invocation.getMethod());
         }

@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.notification.Message;
@@ -37,7 +38,7 @@ public class ProjectCommentService extends BaseTaskService {
 
     @Override
     public Record create(Record record) {
-        final ID user = Application.getCurrentUser();
+        final ID user = UserContext.getUser();
         checkInMembers(user, record.getID("taskId"));
 
         record = super.create(record);
@@ -53,7 +54,7 @@ public class ProjectCommentService extends BaseTaskService {
 
     @Override
     public int delete(ID commentId) {
-        final ID user = Application.getCurrentUser();
+        final ID user = UserContext.getUser();
         if (!ProjectHelper.isManageable(commentId, user)) {
             throw new PrivilegesException("不能删除他人评论");
         }

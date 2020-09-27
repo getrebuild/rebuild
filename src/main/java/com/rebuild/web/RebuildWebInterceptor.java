@@ -12,6 +12,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.ResultBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -55,7 +56,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         // Locale
         final String locale = detectLocale(request);
-        Application.getSessionStore().setLocale(locale);
+        UserContext.setLocale(locale);
 
         if (htmlRequest) {
             request.setAttribute(WebConstants.LOCALE, locale);
@@ -115,7 +116,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                 return false;
             }
 
-            Application.getSessionStore().set(requestUser);
+            UserContext.setUser(requestUser);
 
             if (htmlRequest) {
                 // Last active
@@ -145,10 +146,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         // 清理用户
-        ID user = Application.isReady() ? Application.getSessionStore().get(true) : null;
-        if (user != null) {
-            Application.getSessionStore().clean();
-        }
+        UserContext.clear();
 
         // 打印处理时间
         Long time = REQUEST_TIME.get();

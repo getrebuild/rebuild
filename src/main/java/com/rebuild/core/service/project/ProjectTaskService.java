@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.notification.Message;
@@ -42,7 +43,7 @@ public class ProjectTaskService extends BaseTaskService {
 
     @Override
     public Record create(Record record) {
-        final ID user = Application.getCurrentUser();
+        final ID user = UserContext.getUser();
         checkInMembers(user, record.getID("projectId"));
 
         record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
@@ -59,7 +60,7 @@ public class ProjectTaskService extends BaseTaskService {
 
     @Override
     public Record update(Record record) {
-        final ID user = Application.getCurrentUser();
+        final ID user = UserContext.getUser();
         checkInMembers(user, record.getPrimary());
 
         // 自动完成
@@ -95,7 +96,7 @@ public class ProjectTaskService extends BaseTaskService {
 
     @Override
     public int delete(ID taskId) {
-        final ID user = Application.getCurrentUser();
+        final ID user = UserContext.getUser();
         if (!ProjectHelper.isManageable(taskId, user)) {
             throw new PrivilegesException("不能删除他人任务");
         }

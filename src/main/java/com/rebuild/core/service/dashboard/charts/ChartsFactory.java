@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.EasyMeta;
@@ -39,7 +40,7 @@ public class ChartsFactory {
 
         JSONObject config = (JSONObject) chart.getJSON("config");
         config.put("chartOwning", chart.getID("createdBy"));
-        return create(config, Application.getCurrentUser());
+        return create(config, UserContext.getUser());
     }
 
     /**

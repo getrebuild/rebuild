@@ -9,7 +9,7 @@ package com.rebuild.core.metadata.entity;
 
 import cn.devezhao.persist4j.Entity;
 import com.rebuild.TestSupport;
-import com.rebuild.core.Application;
+import com.rebuild.core.UserContext;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.Entity2Schema;
@@ -24,7 +24,7 @@ import org.junit.Test;
 public class Meta2SchemaTest extends TestSupport {
 
     static {
-        Application.getSessionStore().set(UserService.ADMIN_USER);
+        UserContext.setUser(UserService.ADMIN_USER);
     }
 
     @Test
