@@ -20,6 +20,8 @@ import com.rebuild.core.service.BaseService;
 import org.springframework.stereotype.Service;
 
 /**
+ * 请使用协作类 {@link Field2Schema}
+ *
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
@@ -80,5 +82,13 @@ public class MetaFieldService extends BaseService implements AdminGuard {
 
         MetadataHelper.getMetadataFactory().refresh(false);
         return record;
+    }
+
+    /**
+     * @see Field2Schema
+     */
+    @Override
+    public Record create(Record record) {
+        return super.create(record);
     }
 }

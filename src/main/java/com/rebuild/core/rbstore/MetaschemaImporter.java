@@ -19,9 +19,12 @@ import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.configuration.general.PickListService;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.*;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.approval.RobotApprovalConfigService;
+import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
@@ -198,6 +201,9 @@ public class MetaschemaImporter extends HeavyTask<String> {
             Application.getCommonsService().update(needUpdate);
         }
 
+        // 刷新元数据
+        MetadataHelper.getMetadataFactory().refresh(false);
+
         // 布局
 
         JSONObject layouts = schemaEntity.getJSONObject("layouts");
@@ -216,7 +222,24 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
-        MetadataHelper.getMetadataFactory().refresh(false);
+        // 触发器
+
+        JSONArray triggers = schemaEntity.getJSONArray("triggers");
+        if (triggers != null) {
+            for (Object o : triggers) {
+                performTrigger((JSONObject) o);
+            }
+        }
+
+        // 审批流程
+
+        JSONArray approvals = schemaEntity.getJSONArray("approvals");
+        if (approvals != null) {
+            for (Object o : approvals) {
+                performApproval((JSONObject) o);
+            }
+        }
+
         return entityName;
     }
 
@@ -241,13 +264,13 @@ public class MetaschemaImporter extends HeavyTask<String> {
                 schemaField.getString("defaultValue"));
 
         if (DisplayType.PICKLIST == dt || DisplayType.MULTISELECT == dt) {
-            picklistHolders.add(new Object[]{unsafeField, readyPickList(schemaField.getJSONArray("items"))});
+            picklistHolders.add(new Object[]{unsafeField, performPickList(schemaField.getJSONArray("items"))});
         }
 
         return unsafeField;
     }
 
-    private JSONObject readyPickList(JSONArray items) {
+    private JSONObject performPickList(JSONArray items) {
         JSONArray show = new JSONArray();
         for (Object o : items) {
             JSONArray item = (JSONArray) o;
@@ -282,5 +305,25 @@ public class MetaschemaImporter extends HeavyTask<String> {
         record.setString("config", config.toJSONString());
         record.setString("shareTo", ShareToManager.SHARE_ALL);
         Application.getBean(AdvFilterService.class).create(record);
+    }
+
+    private void performTrigger(JSONObject config) {
+        Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotTriggerConfig);
+        config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
+        config.put("belongEntity", configEntity.getName());
+
+        Record record = new EntityRecordCreator(configEntity, config, getUser())
+                .create();
+        Application.getBean(RobotTriggerConfigService.class).create(record);
+    }
+
+    private void performApproval(JSONObject config) {
+        Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotApprovalConfig);
+        config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
+        config.put("belongEntity", configEntity.getName());
+
+        Record record = new EntityRecordCreator(configEntity, config, getUser())
+                .create();
+        Application.getBean(RobotApprovalConfigService.class).create(record);
     }
 }

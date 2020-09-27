@@ -15,7 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONable;
 
 /**
- * Record 构建
+ * Record 构建器
  *
  * @author devezhao
  * @since 2020/1/17
@@ -39,11 +39,11 @@ public class RecordBuilder implements JSONable {
     }
 
     /**
-     * @param record
+     * @param recordId
      * @return
      */
-    public static RecordBuilder builder(ID record) {
-        return new RecordBuilder(MetadataHelper.getEntity(record.getEntityCode()), record);
+    public static RecordBuilder builder(ID recordId) {
+        return new RecordBuilder(MetadataHelper.getEntity(recordId.getEntityCode()), recordId);
     }
 
     // --
@@ -54,15 +54,15 @@ public class RecordBuilder implements JSONable {
 
     /**
      * @param entity
-     * @param record
+     * @param recordId
      */
-    private RecordBuilder(Entity entity, ID record) {
+    private RecordBuilder(Entity entity, ID recordId) {
         this.entity = entity;
 
         JSONObject metadata = new JSONObject();
         metadata.put("entity", entity.getName());
-        if (record != null) {
-            metadata.put("id", record.toLiteral());
+        if (recordId != null) {
+            metadata.put("id", recordId.toLiteral());
         }
         this.data.put(EntityRecordCreator.META_FIELD, metadata);
     }

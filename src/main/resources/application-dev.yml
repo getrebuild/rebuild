@@ -5,7 +5,7 @@ db.passwd: rebuild
 # Use built-in ehcache if redis not defined or unavailable
 db.CacheHost: 127.0.0.1
 db.CachePort: 6379
-db.CachePassword: AES(vXwBKYUosMpJRO9jeG9+IA==)
+db.CachePassword:
 
 # REBUILD
 rebuild:
@@ -23,6 +23,8 @@ rebuild:
   MailPassword: AES(vRnLDh4PVen2faMH+itQuFjzwBcWtCTO6qslkF36VAoKxKZT7YVYoWKjP8gPrEIS)
   MailAddr: hi@smtp.getrebuild.com
   MailName: REBUILD
+  # Language
+  SuportLanguages: zh_CN,en
 
 # TOMCAT (Built-in)
 server:

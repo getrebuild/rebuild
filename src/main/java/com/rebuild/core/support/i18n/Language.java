@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -25,9 +26,11 @@ import com.rebuild.web.OnlineSessionStore;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,21 +47,29 @@ public class Language implements Initialization {
 
     private static final Logger LOG = LoggerFactory.getLogger(Language.class);
 
-    private static final String[] LOCALES = new String[] { "zh_CN", "en" };
-
     private static final String BUNDLE_FILE = "i18n/language.%s.json";
+
+    /**
+     * 手动刷新
+     */
+    public static final ThreadLocal<Boolean> MANUAL_REFRESH = new NamedThreadLocal<>("Pause init on batch");
 
     private Map<String, LanguageBundle> bundleMap = new HashMap<>();
 
     @Override
-    public void init() throws Exception {
-        for (String locale : LOCALES) {
+    public void init() {
+        String[] supports = BootEnvironmentPostProcessor.getProperty(
+                "rebuild.SuportLanguages", "zh_CN,en").split(",");
+
+        for (String locale : supports) {
             LOG.info("Loading language bundle : " + locale);
 
             try (InputStream is = CommonsUtils.getStreamOfRes(String.format(BUNDLE_FILE, locale))) {
                 JSONObject o = JSON.parseObject(is, null);
                 LanguageBundle bundle = new LanguageBundle(locale, o, this);
                 bundleMap.put(locale, bundle);
+            } catch (IOException ex) {
+                LOG.error("Cannot read file of language : " + locale);
             }
         }
     }
@@ -68,6 +79,9 @@ public class Language implements Initialization {
      */
     public void refresh() {
         if (bundleMap.isEmpty()) return;
+
+        Boolean manual = MANUAL_REFRESH.get();
+        if (manual != null && manual) return;
 
         try {
             this.init();

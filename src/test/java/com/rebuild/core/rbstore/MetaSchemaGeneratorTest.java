@@ -30,7 +30,7 @@ public class MetaSchemaGeneratorTest extends TestSupport {
     }
 
     @Test
-    public void testGenerateHaveSlave() {
+    public void testGenerateHaveDetail() {
         if (MetadataHelper.containsEntity(SalesOrder)) {
             Entity test = MetadataHelper.getEntity(SalesOrder);
             MetaSchemaGenerator generator = new MetaSchemaGenerator(test);

@@ -16,9 +16,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -34,13 +36,13 @@ import java.io.IOException;
  */
 public class MetaSchemaGenerator {
 
-    final private Entity entity;
+    final private Entity mainEntity;
 
     /**
      * @param entity
      */
     public MetaSchemaGenerator(Entity entity) {
-        this.entity = entity;
+        this.mainEntity = entity;
     }
 
     /**
@@ -56,9 +58,9 @@ public class MetaSchemaGenerator {
      * @return
      */
     public JSON generate() {
-        JSONObject schema = (JSONObject) performEntity(entity, false);
-        if (entity.getDetailEntity() != null) {
-            JSON detail = performEntity(entity.getDetailEntity(), true);
+        JSONObject schema = (JSONObject) performEntity(mainEntity, false);
+        if (mainEntity.getDetailEntity() != null) {
+            JSON detail = performEntity(mainEntity.getDetailEntity(), true);
             schema.put("detail", detail);
         }
         return schema;
@@ -93,47 +95,23 @@ public class MetaSchemaGenerator {
         }
         schemaEntity.put("fields", metaFields);
 
-        // 布局相关（仅管理员的）
+        // 布局（仅管理员的）
+        schemaEntity.put("layouts", performLayouts(entity));
 
-        JSONObject putLayouts = new JSONObject();
-        Object[][] layouts = Application.createQueryNoFilter(
-                "select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
-                .setParameter(1, entity.getName())
-                .setParameter(2, UserService.ADMIN_USER)
-                .array();
-        for (Object[] layout : layouts) {
-            String type = (String) layout[0];
-            JSONArray config = JSON.parseArray((String) layout[1]);
-            if (!config.isEmpty()) {
-                putLayouts.put(type, config);
-            }
+        // 高级过滤（仅管理员的）
+        schemaEntity.put("filters", performFilters(entity));
+
+        // 触发器
+        schemaEntity.put("triggers", performTriggers(entity));
+
+        // 审批流程
+        if (!isDetail) {
+            schemaEntity.put("approvals", performApprovals(entity));
         }
-        schemaEntity.put("layouts", putLayouts);
-
-        // 过滤器（仅管理员的）
-
-        JSONObject putFilters = new JSONObject();
-        Object[][] filters = Application.createQueryNoFilter(
-                "select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
-                .setParameter(1, entity.getName())
-                .setParameter(2, UserService.ADMIN_USER)
-                .array();
-        for (Object[] filter : filters) {
-            String name = (String) filter[0];
-            JSONObject config = JSON.parseObject((String) filter[1]);
-            if (!config.isEmpty()) {
-                putFilters.put(name, config);
-            }
-        }
-        schemaEntity.put("filters", putFilters);
 
         return schemaEntity;
     }
 
-    /**
-     * @param field
-     * @return
-     */
     private JSON performField(Field field) {
         final JSONObject schemaField = new JSONObject(true);
         final EasyMeta easyField = EasyMeta.valueOf(field);
@@ -180,5 +158,98 @@ public class MetaSchemaGenerator {
             });
         }
         return items;
+    }
+
+    private JSON performLayouts(Entity entity) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
+                .setParameter(1, entity.getName())
+                .setParameter(2, UserService.ADMIN_USER)
+                .array();
+
+        // 每种布局只保留一个
+        JSONObject layouts = new JSONObject();
+        for (Object[] o : array) {
+            JSONArray config = (JSONArray) parseJSON(o[1]);
+            if (!config.isEmpty()) {
+                String type = (String) o[0];
+                layouts.put(type, config);
+            }
+        }
+        return layouts;
+    }
+
+    private JSON performFilters(Entity entity) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
+                .setParameter(1, entity.getName())
+                .setParameter(2, UserService.ADMIN_USER)
+                .array();
+
+        JSONObject filters = new JSONObject();
+        for (Object[] o : array) {
+            JSONObject config = (JSONObject) parseJSON(o[1]);
+            if (!config.isEmpty()) {
+                String name = (String) o[0];
+                filters.put(name, config);
+            }
+        }
+        return filters;
+    }
+
+    private JSON performTriggers(Entity entity) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select when,whenTimer,whenFilter,actionType,actionContent,priority,name from RobotTriggerConfig where belongEntity = ? and isDisabled = 'F'")
+                .setParameter(1, entity.getName())
+                .array();
+        if (array.length == 0) {
+            return JSONUtils.EMPTY_ARRAY;
+        }
+
+        JSONArray triggers = new JSONArray();
+        for (Object[] o : array) {
+            JSON config = RecordBuilder.builder(entity)
+                    .add("when", o[0])
+                    .add("whenTimer", o[1])
+                    .add("whenFilter", parseJSON(o[2]))
+                    .add("actionType", o[3])
+                    .add("actionContent", parseJSON(o[4]))
+                    .add("priority", o[5])
+                    .add("name", o[6])
+                    .toJSON();
+            ((JSONObject) config).remove("metadata");
+            triggers.add(config);
+        }
+        return triggers;
+    }
+
+    private JSON performApprovals(Entity entity) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select name,flowDefinition from RobotApprovalConfig where belongEntity = ? and isDisabled = 'F'")
+                .setParameter(1, entity.getName())
+                .array();
+        if (array.length == 0) {
+            return JSONUtils.EMPTY_ARRAY;
+        }
+
+        JSONArray approvals = new JSONArray();
+        for (Object[] o : array) {
+            JSON config = RecordBuilder.builder(entity)
+                    .add("name", o[0])
+                    .add("flowDefinition", parseJSON(o[1]))
+                    .toJSON();
+            ((JSONObject) config).remove("metadata");
+            approvals.add(config);
+        }
+        return approvals;
+    }
+
+    private JSON parseJSON(Object content) {
+        if (content == null) return null;
+
+        JSON config = (JSON) JSON.parse(content.toString());
+        if (config instanceof JSONObject && ((JSONObject) config).isEmpty()) return null;
+        else if (config instanceof JSONArray && ((JSONArray) config).isEmpty()) return null;
+        else return config;
     }
 }

@@ -1,5 +1,6 @@
 {
   "entity": "SalesOrder999",
+  "entityIcon": "texture",
   "entityLabel": "订单999",
   "nameField": "orderNumber",
   "fields": [
@@ -9,6 +10,8 @@
       "displayType": "SERIES",
       "nullable": false,
       "updatable": false,
+      "repeatable": false,
+      "queryable": true,
       "extConfig": {
         "seriesZero": "N",
         "seriesFormat": "{YYYYMMDD}-{0000}"
@@ -20,8 +23,10 @@
       "displayType": "REFERENCE",
       "nullable": false,
       "updatable": true,
+      "repeatable": true,
+      "queryable": true,
       "refEntity": "Account999",
-      "refEntityLabel": "客户"
+      "refEntityLabel": "客户999"
     },
     {
       "field": "totalAmount",
@@ -29,6 +34,8 @@
       "displayType": "DECIMAL",
       "nullable": true,
       "updatable": true,
+      "repeatable": true,
+      "queryable": true,
       "extConfig": {
         "decimalFormat": "##,##0.00"
       }
@@ -133,27 +140,56 @@
       "entity": "SalesOrder999"
     }
   },
+  "triggers": [],
+  "approvals": [
+    {
+      "flowDefinition": {
+        "nodes": [
+          {
+            "type": "start",
+            "nodeId": "ROOT"
+          },
+          {
+            "data": {
+              "selfSelecting": true,
+              "signMode": "OR",
+              "editableFields": [],
+              "users": []
+            },
+            "type": "approver",
+            "nodeId": "NODE16012157788611"
+          }
+        ]
+      },
+      "name": "订单审批"
+    }
+  ],
   "detail": {
     "entity": "SalesOrderItem999",
+    "entityIcon": "texture",
     "entityLabel": "订单明细999",
     "nameField": "itemName",
     "fields": [
-      {
-        "field": "itemName",
-        "fieldLabel": "项目",
-        "displayType": "TEXT",
-        "nullable": false,
-        "updatable": true
-      },
       {
         "field": "amount",
         "fieldLabel": "金额",
         "displayType": "DECIMAL",
         "nullable": false,
         "updatable": true,
+        "repeatable": true,
+        "queryable": true,
         "extConfig": {
           "decimalFormat": "##,##0.00"
         }
+      },
+      {
+        "field": "itemName",
+        "fieldLabel": "项目",
+        "displayType": "TEXT",
+        "nullable": false,
+        "updatable": true,
+        "repeatable": true,
+        "queryable": true
       },
       {
         "field": "quantity",
@@ -161,6 +197,8 @@
         "displayType": "NUMBER",
         "nullable": true,
         "updatable": true,
+        "repeatable": true,
+        "queryable": true,
         "defaultValue": "1",
         "extConfig": {
           "defaultValue": "1"
@@ -191,6 +229,25 @@
         }
       ]
     },
-    "filters": {}
+    "filters": {},
+    "triggers": [
+      {
+        "actionType": "FIELDAGGREGATION",
+        "actionContent": {
+          "targetEntity": "SalesOrder999Id.SalesOrder999",
+          "items": [
+            {
+              "sourceField": "amount",
+              "targetField": "totalAmount",
+              "calcMode": "SUM"
+            }
+          ],
+          "readonlyFields": false
+        },
+        "priority": 1,
+        "when": 7,
+        "whenTimer": "D:1"
+      }
+    ]
   }
 }
