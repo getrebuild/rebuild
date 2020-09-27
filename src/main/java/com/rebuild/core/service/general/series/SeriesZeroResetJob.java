@@ -14,7 +14,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
-import com.rebuild.core.support.DistributedJobBean;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import java.util.Calendar;
@@ -25,11 +25,11 @@ import java.util.Calendar;
  * @author devezhao
  * @since 12/25/2018
  */
-public class SeriesZeroResetJob extends DistributedJobBean {
+public class SeriesZeroResetJob extends DistributedJobLock {
 
     @Scheduled(cron = "0 0 0 * * ?")
     protected void executeJob() {
-        if (isRunning()) return;
+        if (!tryLock()) return;
 
         boolean isFirstDayOfYear = false;
         boolean isFirstDayOfMonth = false;

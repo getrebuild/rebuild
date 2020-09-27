@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.support;
+package com.rebuild.core.support.distributed;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.support.setup.Installer;
@@ -21,7 +21,7 @@ import redis.clients.jedis.JedisPool;
  * @author ZHAO
  * @since 2020/4/5
  */
-public abstract class DistributedJobBean {
+public abstract class DistributedJobLock {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
@@ -36,7 +36,7 @@ public abstract class DistributedJobBean {
      *
      * @return
      */
-    protected boolean isRunning() {
+    protected boolean tryLock() {
         if (Installer.isUseRedis()) {
             JedisPool pool = Application.getCommonsCache().getJedisPool();
             String jobKey = getClass().getName() + LOCK_KEY;
@@ -45,7 +45,7 @@ public abstract class DistributedJobBean {
                 String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_TIME);
                 if (tryLock == null) {
                     LOG.info("The job has been executed by another instance : " + getClass().getName());
-                    return true;
+                    return false;
                 }
             }
         }
@@ -53,6 +53,6 @@ public abstract class DistributedJobBean {
         if (LOG.isDebugEnabled()) {
             LOG.error("Job " + getClass().getName() + " can be safe execution");
         }
-        return false;
+        return true;
     }
 }

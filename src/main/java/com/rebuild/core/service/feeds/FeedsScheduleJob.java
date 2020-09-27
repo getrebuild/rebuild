@@ -14,9 +14,9 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
-import com.rebuild.core.support.DistributedJobBean;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SMSender;
+import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AppUtils;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -26,11 +26,11 @@ import java.util.*;
  * @author devezhao
  * @since 2020/2/27
  */
-public class FeedsScheduleJob extends DistributedJobBean {
+public class FeedsScheduleJob extends DistributedJobLock {
 
     @Scheduled(cron = "0 * * * * ?")
     public void executeJob() {
-        if (isRunning()) return;
+        if (!tryLock()) return;
 
         Calendar time = CalendarUtils.getInstance();
         time.set(Calendar.SECOND, 0);

@@ -21,7 +21,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.AdvFilterParser;
-import com.rebuild.core.support.DistributedJobBean;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -36,14 +36,14 @@ import java.util.List;
  * @author devezhao
  * @since 2020/5/27
  */
-public class TriggerByTimerJob extends DistributedJobBean {
+public class TriggerByTimerJob extends DistributedJobLock {
 
     /**
      * @see RobotTriggerManager#getActions(Entity, TriggerWhen...)
      */
     @Scheduled(cron = "0 * * * * ?")
     public void executeJob() {
-        if (!isRunning()) return;
+        if (!tryLock()) return;
 
         final Calendar time = CalendarUtils.getInstance();
         final Object[][] timerTriggers = Application.createQueryNoFilter(

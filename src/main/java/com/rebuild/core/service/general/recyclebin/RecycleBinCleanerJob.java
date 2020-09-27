@@ -13,7 +13,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.DistributedJobBean;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -25,14 +25,14 @@ import java.util.Date;
  * @author devezhao
  * @since 2019/8/21
  */
-public class RecycleBinCleanerJob extends DistributedJobBean {
+public class RecycleBinCleanerJob extends DistributedJobLock {
 
     // 永久保留
     private static final int KEEPING_FOREVER = 9999;
 
     @Scheduled(cron = "0 0 4 * * ?")
     protected void executeJob() {
-        if (isRunning()) return;
+        if (!tryLock()) return;
 
         // 回收站
 

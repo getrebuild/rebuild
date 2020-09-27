@@ -18,7 +18,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.SMSender;
+import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.utils.BlackList;
 import com.rebuild.web.BaseController;

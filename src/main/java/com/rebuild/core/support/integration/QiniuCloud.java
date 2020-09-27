@@ -5,7 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.support;
+package com.rebuild.core.support.integration;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
@@ -23,6 +23,7 @@ import com.qiniu.util.StringMap;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.cache.CommonsCache;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.HttpUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;

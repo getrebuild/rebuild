@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service;
 
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.DistributedJobBean;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.utils.FileFilterByLastModified;
@@ -22,11 +22,11 @@ import java.util.Calendar;
  * @author devezhao
  * @since 2020/2/4
  */
-public class PerHourJob extends DistributedJobBean {
+public class PerHourJob extends DistributedJobLock {
 
     @Scheduled(cron = "0 0 * * * ?")
     protected void executeJob() {
-        if (isRunning()) return;
+        if (!tryLock()) return;
 
         final int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
 

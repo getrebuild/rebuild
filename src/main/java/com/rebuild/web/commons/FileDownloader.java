@@ -10,7 +10,7 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.core.Application;
-import com.rebuild.core.support.QiniuCloud;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.web.BaseController;
 import net.coobird.thumbnailator.Thumbnails;

@@ -17,6 +17,8 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.*;
+import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;

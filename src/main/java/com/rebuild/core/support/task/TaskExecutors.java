@@ -11,7 +11,7 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.support.DistributedJobBean;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,7 +28,7 @@ import java.util.concurrent.*;
  * @see org.springframework.core.task.AsyncTaskExecutor
  * @since 09/29/2018
  */
-public class TaskExecutors extends DistributedJobBean {
+public class TaskExecutors extends DistributedJobLock {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskExecutors.class);
 
@@ -112,7 +112,7 @@ public class TaskExecutors extends DistributedJobBean {
 
     @Scheduled(cron = "0 15,35,55 * * * ?")
     public void executeJob() {
-        if (isRunning() || TASKS.isEmpty()) return;
+        if (TASKS.isEmpty() || !tryLock()) return;
 
         LOG.info("{} task(s) in the queue", TASKS.size());
 

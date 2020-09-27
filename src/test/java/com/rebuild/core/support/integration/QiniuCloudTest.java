@@ -5,10 +5,11 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.support;
+package com.rebuild.core.support.integration;
 
 import cn.devezhao.commons.ThreadPool;
 import com.rebuild.TestSupport;
+import com.rebuild.core.support.integration.QiniuCloud;
 import org.junit.Test;
 import org.springframework.util.ResourceUtils;
 
