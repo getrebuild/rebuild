@@ -12,6 +12,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.ConcurrentMap;
@@ -22,6 +23,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DistributedSupportTest extends TestSupport {
 
+    @Ignore
     @Test
     public void testMap() {
         DistributedSupport support = Application.getBean(DistributedSupport.class);
