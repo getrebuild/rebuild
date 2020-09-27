@@ -152,6 +152,6 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
 
             value = ENV_HOLD.getProperty(name);
         }
-        return value == null ? defaultValue : value;
+        return StringUtils.isEmpty(value) ? defaultValue : value;
     }
 }

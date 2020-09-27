@@ -11,6 +11,9 @@ import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.context.annotation.Bean;
@@ -55,7 +58,7 @@ public class BootConfiguration implements InstallState {
                 StringUtils.defaultIfBlank(use, "127.0.0.1"),
                 ObjectUtils.toInt(BootEnvironmentPostProcessor.getProperty("db.CachePort"), 6379),
                 5000,
-                BootEnvironmentPostProcessor.getProperty("db.CachePassword"),
+                BootEnvironmentPostProcessor.getProperty("db.CachePassword", null),
                 0);
     }
 }
