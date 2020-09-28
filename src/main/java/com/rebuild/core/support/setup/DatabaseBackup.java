@@ -24,7 +24,8 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * 数据库备份
- * `mysqldump[.exe]` 命令必须在环境变量中
+ * - `mysqldump[.exe]` 命令必须在环境变量中
+ * - 除了本库还要有全局的 `RELOAD` 权限
  *
  * @author devezhao
  * @since 2020/2/4
