@@ -229,9 +229,9 @@ public class FormsBuilder extends FormsManager {
 
         ID mainId = FormBuilderContextHolder.getMainIdOfDetail(false);
         if (mainId == null) {
-            Field stmField = MetadataHelper.getDetailToMainField(entity);
+            Field dtmField = MetadataHelper.getDetailToMainField(entity);
             String sql = String.format("select %s from %s where %s = ?",
-                    stmField.getName(), entity.getName(), entity.getPrimaryField().getName());
+                    dtmField.getName(), entity.getName(), entity.getPrimaryField().getName());
             Object[] o = Application.createQueryNoFilter(sql).setParameter(1, recordId).unique();
             if (o == null) {
                 return null;
@@ -517,11 +517,11 @@ public class FormsBuilder extends FormsManager {
             }
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
-                Field stmField = MetadataHelper.getDetailToMainField(entity);
-                Object mixValue = inFormFields.contains(stmField.getName()) ? readyReferenceValue(value) : value;
+                Field dtmField = MetadataHelper.getDetailToMainField(entity);
+                Object mixValue = inFormFields.contains(dtmField.getName()) ? readyReferenceValue(value) : value;
                 if (mixValue != null) {
-                    initialValReady.put(stmField.getName(), mixValue);
-                    initialValKeeps.add(stmField.getName());
+                    initialValReady.put(dtmField.getName(), mixValue);
+                    initialValKeeps.add(dtmField.getName());
                 }
             } else if (entity.containsField(field)) {
                 if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {

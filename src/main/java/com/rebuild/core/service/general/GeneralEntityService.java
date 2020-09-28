@@ -383,8 +383,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             // 验证审批状态
             // 仅验证新建明细（相当于更新主记录）
             if (mainEntity != null && MetadataHelper.hasApprovalField(record.getEntity())) {
-                Field stmField = MetadataHelper.getDetailToMainField(entity);
-                ApprovalState state = ApprovalHelper.getApprovalState(record.getID(stmField.getName()));
+                Field dtmField = MetadataHelper.getDetailToMainField(entity);
+                ApprovalState state = ApprovalHelper.getApprovalState(record.getID(dtmField.getName()));
 
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
                     String stateType = state == ApprovalState.APPROVED ? "RecordApproved" : "RecordInApproval";
@@ -493,8 +493,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @throws NoRecordFoundException
      */
     private ID getMainId(Entity detailEntity, ID detailId) throws NoRecordFoundException {
-        Field stmField = MetadataHelper.getDetailToMainField(detailEntity);
-        Object[] o = Application.getQueryFactory().uniqueNoFilter(detailId, stmField.getName());
+        Field dtmField = MetadataHelper.getDetailToMainField(detailEntity);
+        Object[] o = Application.getQueryFactory().uniqueNoFilter(detailId, dtmField.getName());
         if (o == null) {
             throw new NoRecordFoundException(detailId);
         }

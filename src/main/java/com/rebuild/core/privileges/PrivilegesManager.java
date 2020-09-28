@@ -406,9 +406,9 @@ public class PrivilegesManager {
      */
     private ID getMainRecordId(ID detailId) {
         Entity entity = MetadataHelper.getEntity(detailId.getEntityCode());
-        Field stmField = MetadataHelper.getDetailToMainField(entity);
+        Field dtmField = MetadataHelper.getDetailToMainField(entity);
 
-        Object[] primary = Application.getQueryFactory().uniqueNoFilter(detailId, stmField.getName());
+        Object[] primary = Application.getQueryFactory().uniqueNoFilter(detailId, dtmField.getName());
         return primary == null ? null : (ID) primary[0];
     }
 

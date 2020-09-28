@@ -43,9 +43,9 @@ public class MetadataSorter {
      *
      * @param user
      * @param usesBizz 是否包括内建 BIZZ 实体
+     * @param usesDetail 是否包括明细实体
      * @return
      */
-    @SuppressWarnings("SuspiciousToArrayCall")
     public static Entity[] sortEntities(ID user, boolean usesBizz, boolean usesDetail) {
         List<BaseMeta> entities = new ArrayList<>();
         for (Entity e : MetadataHelper.getEntities()) {
@@ -77,7 +77,7 @@ public class MetadataSorter {
      * 获取字段
      *
      * @param entity
-     * @param usesTypes
+     * @param usesTypes 仅返回指定的类型
      * @return
      */
     public static Field[] sortFields(Entity entity, DisplayType... usesTypes) {
@@ -91,8 +91,7 @@ public class MetadataSorter {
      * @param usesTypes 仅返回指定的类型
      * @return
      */
-    @SuppressWarnings("SuspiciousToArrayCall")
-    protected static Field[] sortFields(Field[] fields, DisplayType... usesTypes) {
+    public static Field[] sortFields(Field[] fields, DisplayType... usesTypes) {
         List<BaseMeta> fieldsList = new ArrayList<>();
         for (Field field : fields) {
             if (!field.isQueryable() || field.getType() == FieldType.PRIMARY) continue;
@@ -109,8 +108,12 @@ public class MetadataSorter {
             }
         }
 
-        sortByLabel(fieldsList);
-        return fieldsList.toArray(new Field[0]);
+        if (usesTypes.length == 0) {
+            return sortByType(fieldsList);
+        } else {
+            sortByLabel(fieldsList);
+            return fieldsList.toArray(new Field[0]);
+        }
     }
 
     /**
@@ -118,7 +121,7 @@ public class MetadataSorter {
      *
      * @param fields
      */
-    public static Field[] sort(List<Field> fields) {
+    static Field[] sortByType(List<BaseMeta> fields) {
         List<BaseMeta> othersFields = new ArrayList<>();
         List<BaseMeta> commonsFields = new ArrayList<>();
         List<BaseMeta> approvalFields = new ArrayList<>();
@@ -145,7 +148,12 @@ public class MetadataSorter {
         return allFields.toArray(new Field[0]);
     }
 
-    private static void sortByLabel(List<BaseMeta> metas) {
+    /**
+     * 按照显示名排序
+     *
+     * @param metas
+     */
+    static void sortByLabel(List<BaseMeta> metas) {
         metas.sort((foo, bar) -> {
             String fooLetter = EasyMeta.getLabel(foo);
             String barLetter = EasyMeta.getLabel(bar);

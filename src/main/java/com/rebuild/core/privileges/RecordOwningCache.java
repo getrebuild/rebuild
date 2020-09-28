@@ -64,8 +64,8 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
         String sql = "select owningUser from %s where %s = '%s'";
         // 使用主记录
         if (useMain != null) {
-            Field stmField = MetadataHelper.getDetailToMainField(entity);
-            sql = sql.replaceFirst("owningUser", stmField.getName() + ".owningUser");
+            Field dtmField = MetadataHelper.getDetailToMainField(entity);
+            sql = sql.replaceFirst("owningUser", dtmField.getName() + ".owningUser");
         }
         sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), record.toLiteral());
 

@@ -106,12 +106,12 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         }
 
         // 明细关联字段
-        final Field stmField = entityMeta.getMainEntity() == null ? null : MetadataHelper.getDetailToMainField(entityMeta);
+        final Field dtmField = entityMeta.getMainEntity() == null ? null : MetadataHelper.getDetailToMainField(entityMeta);
 
         // 引用实体的字段
         for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
             // 过滤所属用户/所属部门等系统字段（除了明细引用（主实体）字段）
-            if (EasyMeta.valueOf(field).isBuiltin() && (stmField == null || !stmField.equals(field))) {
+            if (EasyMeta.valueOf(field).isBuiltin() && (dtmField == null || !dtmField.equals(field))) {
                 continue;
             }
 

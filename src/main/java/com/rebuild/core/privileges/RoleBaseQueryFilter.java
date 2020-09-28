@@ -118,14 +118,14 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         }
 
         String ownFormat = "%s = '%s'";
-        Field stmField = null;
+        Field dtmField = null;
         if (useMain != null) {
-            stmField = MetadataHelper.getDetailToMainField(entity);
-            ownFormat = stmField.getName() + "." + ownFormat;
+            dtmField = MetadataHelper.getDetailToMainField(entity);
+            ownFormat = dtmField.getName() + "." + ownFormat;
         }
 
         if (de == BizzDepthEntry.PRIVATE) {
-            return appendShareFilter(entity, stmField,
+            return appendShareFilter(entity, dtmField,
                     String.format(ownFormat, EntityHelper.OwningUser, user.getIdentity()));
         }
 
@@ -133,7 +133,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         String deptSql = String.format(ownFormat, EntityHelper.OwningDept, dept.getIdentity());
 
         if (de == BizzDepthEntry.LOCAL) {
-            return appendShareFilter(entity, stmField, deptSql);
+            return appendShareFilter(entity, dtmField, deptSql);
         } else if (de == BizzDepthEntry.DEEPDOWN) {
             Set<String> sqls = new HashSet<>();
             sqls.add(deptSql);
@@ -141,7 +141,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             for (BusinessUnit child : dept.getAllChildren()) {
                 sqls.add(String.format(ownFormat, EntityHelper.OwningDept, child.getIdentity()));
             }
-            return appendShareFilter(entity, stmField, "(" + StringUtils.join(sqls, " or ") + ")");
+            return appendShareFilter(entity, dtmField, "(" + StringUtils.join(sqls, " or ") + ")");
         }
 
         return DENIED.evaluate(null);

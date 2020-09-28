@@ -64,7 +64,7 @@ public class MetaFieldController extends BaseController {
         Collections.addAll(allFields, entity.getFields());
 
         List<Map<String, Object>> ret = new ArrayList<>();
-        for (Field field : MetadataSorter.sort(allFields)) {
+        for (Field field : MetadataSorter.sortFields(allFields.toArray(new Field[0]))) {
             if (MetadataHelper.isSystemField(field)) continue;
 
             EasyMeta easyMeta = EasyMeta.valueOf(field);
@@ -116,8 +116,8 @@ public class MetaFieldController extends BaseController {
 
         // 明细实体
         if (((Entity) easyEntity.getBaseMeta()).getMainEntity() != null) {
-            Field stmField = MetadataHelper.getDetailToMainField((Entity) easyEntity.getBaseMeta());
-            mv.getModel().put("isDetailToMainField", stmField.equals(fieldMeta));
+            Field dtmField = MetadataHelper.getDetailToMainField((Entity) easyEntity.getBaseMeta());
+            mv.getModel().put("isDetailToMainField", dtmField.equals(fieldMeta));
         } else {
             mv.getModel().put("isDetailToMainField", false);
         }

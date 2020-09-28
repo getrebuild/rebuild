@@ -112,8 +112,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             if (entity.getMainEntity() != null) {
                 Assert.isTrue(Record.class.isAssignableFrom(idOrRecord.getClass()), "First argument must be Record!");
 
-                Field stmField = MetadataHelper.getDetailToMainField(entity);
-                ID mainid = ((Record) idOrRecord).getID(stmField.getName());
+                Field dtmField = MetadataHelper.getDetailToMainField(entity);
+                ID mainid = ((Record) idOrRecord).getID(dtmField.getName());
                 if (mainid == null || !Application.getPrivilegesManager().allowUpdate(caller, mainid)) {
                     throw new AccessDeniedException(Language.getLang("YouNoSomePermission", "AddDetail"));
                 }
