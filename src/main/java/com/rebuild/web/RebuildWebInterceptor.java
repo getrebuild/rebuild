@@ -51,7 +51,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         REQUEST_TIME.set(System.currentTimeMillis());
 
-        final String requestUri = request.getRequestURI();
+        final String requestUri = request.getRequestURI()
+                + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
         final boolean htmlRequest = AppUtils.isHtmlRequest(request);
 
         // Locale
