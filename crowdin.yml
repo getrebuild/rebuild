@@ -5,5 +5,4 @@ files:
     languages_mapping:
       locale:
         'zh-CN': 'zh_CN'
-        'zh-TW': 'zh_TW'
         'en-US': 'en'
