@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
+import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
@@ -57,18 +59,24 @@ public class MetaFieldService extends BaseService implements AdminGuard {
         int del = 0;
         for (String who : whoUsed) {
             Entity whichEntity = MetadataHelper.getEntity(who);
-            if (!whichEntity.containsField("belongEntity") || !whichEntity.containsField("belongField")) {
-                continue;
-            }
 
-            String sql = String.format("select %s from %s where belongEntity = '%s' and belongField = '%s'",
+            String sql = String.format(
+                    "select %s from %s where belongEntity = '%s' and belongField = '%s'",
                     whichEntity.getPrimaryField().getName(), whichEntity.getName(), field.getOwnEntity().getName(), field.getName());
+
             Object[][] usedArray = getPersistManagerFactory().createQuery(sql).array();
             for (Object[] used : usedArray) {
                 del += super.delete((ID) used[0]);
             }
+
             if (usedArray.length > 0) {
                 LOG.warn("deleted configuration of field [ " + field.getOwnEntity().getName() + "." + field.getName() + " ] in [ " + who + " ] : " + usedArray.length);
+
+                if (who.equals("PickList")) {
+                    PickListManager.instance.clean(field);
+                } else if (who.equals("AutoFillinConfig")) {
+                    AutoFillinManager.instance.clean(field);
+                }
             }
         }
 
