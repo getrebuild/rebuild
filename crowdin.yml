@@ -1,3 +1,8 @@
+commit_message: '[Crowdin] Update translations'
 files:
-  - source: /src/main/resources/i18n/language.zh_CN.json
-    translation: /src/main/resources/i18n/language.%locale%.json
+  - source: '/src/main/resources/i18n/language.zh_CN.json'
+    translation: '/src/main/resources/i18n/language.%locale%.json'
+    languages_mapping:
+      locale:
+        'zh-CN': 'zh_CN'
+        'en-US': 'en'
