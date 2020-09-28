@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 
 /**
  * 可设置执行用户，如果未设置则使用当前线程用户。
@@ -39,6 +39,6 @@ public abstract class SetUser<T extends SetUser> {
      * @return
      */
     public ID getUser() {
-        return user != null ? user : UserContext.getUser();
+        return user != null ? user : UserContextHolder.getUser();
     }
 }

@@ -12,7 +12,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.ResultBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -42,7 +42,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
     private static final Logger LOG = LoggerFactory.getLogger(RebuildWebInterceptor.class);
 
-    private static final ThreadLocal<Long> REQUEST_TIME = new NamedThreadLocal<>("REQUEST_TIME");
+    private static final ThreadLocal<Long> REQUEST_TIME = new NamedThreadLocal<>("Request time start");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
@@ -56,7 +56,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         // Locale
         final String locale = detectLocale(request);
-        UserContext.setLocale(locale);
+        UserContextHolder.setLocale(locale);
 
         if (htmlRequest) {
             request.setAttribute(WebConstants.LOCALE, locale);
@@ -116,7 +116,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                 return false;
             }
 
-            UserContext.setUser(requestUser);
+            UserContextHolder.setUser(requestUser);
 
             if (htmlRequest) {
                 // Last active
@@ -146,7 +146,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         // 清理用户
-        UserContext.clear();
+        UserContextHolder.clear();
 
         // 打印处理时间
         Long time = REQUEST_TIME.get();

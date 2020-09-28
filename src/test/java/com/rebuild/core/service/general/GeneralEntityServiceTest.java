@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -37,7 +37,7 @@ public class GeneralEntityServiceTest extends TestSupport {
 
     @Test
     public void CRUD() {
-        UserContext.setUser(UserService.ADMIN_USER);
+        UserContextHolder.setUser(UserService.ADMIN_USER);
 
         // 新建
         Record record = EntityHelper.forNew(EntityHelper.Role, UserService.ADMIN_USER);
@@ -60,7 +60,7 @@ public class GeneralEntityServiceTest extends TestSupport {
 
     @Test
     public void getRecordsOfCascaded() {
-        UserContext.setUser(SIMPLE_USER);
+        UserContextHolder.setUser(SIMPLE_USER);
 
         Application.getGeneralEntityService().getCascadedRecords(
                 SIMPLE_USER,

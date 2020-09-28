@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.FormBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -86,7 +87,7 @@ public class GeneralModelControl extends EntityController {
                 // 创建明细实体必须指定主实体，以便验证权限
                 String mainid = ((JSONObject) initialVal).getString(FormsBuilder.DV_MAINID);
                 if (ID.isId(mainid)) {
-                    FormsBuilder.setCurrentMainId(ID.valueOf(mainid));
+                    FormBuilderContextHolder.setMainIdOfDetail(ID.valueOf(mainid));
                 }
             }
         }
@@ -98,8 +99,9 @@ public class GeneralModelControl extends EntityController {
                 FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
             }
             writeSuccess(response, model);
+
         } finally {
-            FormsBuilder.setCurrentMainId(null);
+            FormBuilderContextHolder.clear();
         }
     }
 

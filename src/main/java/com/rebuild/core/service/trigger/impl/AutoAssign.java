@@ -15,7 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -131,7 +131,7 @@ public class AutoAssign implements TriggerAction {
         }
 
         if (allowNoPermissionAssign) {
-            PrivilegesGuardInterceptor.setNoPermissionPassOnce(recordId);
+            PrivilegesGuardContextHolder.setSkipGuardOnce(recordId);
         }
         Application.getEntityService(context.getSourceEntity().getEntityCode()).assign(recordId, toUser, cascades);
 

@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -28,7 +28,7 @@ import org.junit.Test;
 public class FieldAggregationTest extends TestSupport {
 
     static {
-        UserContext.setUser(UserService.ADMIN_USER);
+        UserContextHolder.setUser(UserService.ADMIN_USER);
     }
 
     @Test

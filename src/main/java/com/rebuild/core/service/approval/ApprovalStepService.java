@@ -12,7 +12,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.EasyMeta;
@@ -59,7 +59,7 @@ public class ApprovalStepService extends BaseService {
      * @param nextApprovers
      */
     public void txSubmit(Record recordOfMain, Set<ID> cc, Set<ID> nextApprovers) {
-        final ID submitter = UserContext.getUser();
+        final ID submitter = UserContextHolder.getUser();
         final ID recordId = recordOfMain.getPrimary();
         final ID approvalId = recordOfMain.getID(EntityHelper.ApprovalId);
 
@@ -111,11 +111,11 @@ public class ApprovalStepService extends BaseService {
     public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
         // 审批时更新主记录
         if (addedData != null) {
-            ADDED_MODE.set(true);
+            ApprovalContextHolder.setAddedModeOnce();
             try {
                 Application.getService(addedData.getEntity().getEntityCode()).update(addedData);
             } finally {
-                ADDED_MODE.remove();
+                ApprovalContextHolder.clear();
             }
 
             // 检查数据修改后的步骤对不对 GitHub#208
@@ -144,7 +144,7 @@ public class ApprovalStepService extends BaseService {
         final ID recordId = (ID) stepObject[0];
         final ID approvalId = (ID) stepObject[1];
         final String currentNode = (String) stepObject[2];
-        final ID approver = UserContext.getUser();
+        final ID approver = UserContextHolder.getUser();
 
         String entityLabel = EasyMeta.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
         ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
@@ -223,7 +223,7 @@ public class ApprovalStepService extends BaseService {
 
         // 进入下一步
         if (goNextNode) {
-            Record recordOfMain = EntityHelper.forUpdate(recordId, UserContext.getUser(), false);
+            Record recordOfMain = EntityHelper.forUpdate(recordId, UserContextHolder.getUser(), false);
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
             super.update(recordOfMain);
         }
@@ -250,7 +250,7 @@ public class ApprovalStepService extends BaseService {
      * @param isRevoke    是否撤销，这是针对审批完成的
      */
     public void txCancel(ID recordId, ID approvalId, String currentNode, boolean isRevoke) {
-        final ID opUser = UserContext.getUser();
+        final ID opUser = UserContextHolder.getUser();
         final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
@@ -294,7 +294,7 @@ public class ApprovalStepService extends BaseService {
             return null;
         }
 
-        Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, UserContext.getUser());
+        Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, UserContextHolder.getUser());
         step.setID("recordId", recordId);
         step.setID("approvalId", approvalId);
         step.setString("node", node);
@@ -338,7 +338,7 @@ public class ApprovalStepService extends BaseService {
             if (excludeStep != null && excludeStep.equals(o[0])) {
                 continue;
             }
-            Record step = EntityHelper.forUpdate((ID) o[0], UserContext.getUser());
+            Record step = EntityHelper.forUpdate((ID) o[0], UserContextHolder.getUser());
             step.setBoolean("isCanceled", true);
             super.update(step);
         }
@@ -420,18 +420,5 @@ public class ApprovalStepService extends BaseService {
             return true;
         }
         return false;
-    }
-
-    // --
-
-    private static final ThreadLocal<Boolean> ADDED_MODE = new ThreadLocal<>();
-
-    /**
-     * 可编辑字段模式
-     *
-     * @return
-     */
-    public static boolean inAddedMode() {
-        return ADDED_MODE.get() != null && ADDED_MODE.get();
     }
 }

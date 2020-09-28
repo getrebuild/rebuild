@@ -10,7 +10,7 @@ package com.rebuild.api.general;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.api.ApiContext;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -29,7 +29,7 @@ public class EntityOperatingTest extends TestSupport {
 
     @Test
     public void executeCreateAndUpdateAndDelete() {
-        UserContext.setUser(UserService.SYSTEM_USER);
+        UserContextHolder.setUser(UserService.SYSTEM_USER);
 
         // CREATE
 

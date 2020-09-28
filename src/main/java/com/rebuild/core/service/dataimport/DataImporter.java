@@ -32,8 +32,6 @@ import java.util.*;
  */
 public class DataImporter extends HeavyTask<Integer> {
 
-    private static final ThreadLocal<ID> IN_IMPORTING = new ThreadLocal<>();
-
     final private ImportRule rule;
     private ID owningUser;
 
@@ -53,7 +51,7 @@ public class DataImporter extends HeavyTask<Integer> {
         this.setTotal(rows.size() - 1);
 
         owningUser = rule.getDefaultOwningUser() != null ? rule.getDefaultOwningUser() : getUser();
-        IN_IMPORTING.set(owningUser);
+        DataImporterContextHolder.setImportMode(owningUser);
 
         for (final Cell[] row : rows) {
             if (isInterrupt()) {
@@ -86,7 +84,7 @@ public class DataImporter extends HeavyTask<Integer> {
     @Override
     protected void completedAfter() {
         super.completedAfter();
-        IN_IMPORTING.remove();
+        DataImporterContextHolder.clear();
     }
 
     /**
@@ -170,16 +168,5 @@ public class DataImporter extends HeavyTask<Integer> {
 
         Object[] exists = query.unique();
         return exists == null ? null : (ID) exists[0];
-    }
-
-    // --
-
-    /**
-     * 是否为导入状态
-     *
-     * @return
-     */
-    public static boolean inImportingState() {
-        return IN_IMPORTING.get() != null;
     }
 }

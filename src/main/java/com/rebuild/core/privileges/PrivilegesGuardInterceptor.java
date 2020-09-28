@@ -16,7 +16,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.CommonsService;
@@ -55,7 +55,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             return;
         }
 
-        final ID caller = UserContext.getUser();
+        final ID caller = UserContextHolder.getUser();
         if (Application.devMode()) {
             LOG.info("User [ " + caller + " ] calls : " + invocation.getMethod());
         }
@@ -129,9 +129,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         // 无权限操作
-        if (!allowed && IN_NOPERMISSION_PASS.get() != null) {
+        if (!allowed && PrivilegesGuardContextHolder.getSkipGuardOnce(true) != null) {
             allowed = true;
-            IN_NOPERMISSION_PASS.remove();
             LOG.warn("Allow no permission(" + action.getName() + ") passed once : " + recordId);
         }
 
@@ -209,19 +208,5 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         } else {
             return Language.formatLang("YouNoSomeRecordPermission", actionKey);
         }
-    }
-
-    // --
-
-    private static final ThreadLocal<ID> IN_NOPERMISSION_PASS = new ThreadLocal<>();
-
-    /**
-     * 允许无权限操作一次
-     *
-     * @param record
-     */
-    public static void setNoPermissionPassOnce(ID record) {
-        Assert.notNull(record, "[record] cannot be null");
-        IN_NOPERMISSION_PASS.set(record);
     }
 }

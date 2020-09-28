@@ -20,14 +20,13 @@ import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.api.user.LoginToken;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.*;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
@@ -300,7 +299,7 @@ public class LoginControl extends BaseController {
         Record record = EntityHelper.forUpdate(user.getId(), user.getId());
         record.setString("password", newpwd);
         try {
-            UserContext.setUser(user.getId());
+            UserContextHolder.setUser(user.getId());
 
             Application.getBean(UserService.class).update(record);
             writeSuccess(response);
@@ -308,7 +307,7 @@ public class LoginControl extends BaseController {
         } catch (DataSpecificationException ex) {
             writeFailure(response, ex.getLocalizedMessage());
         } finally {
-            UserContext.clear();
+            UserContextHolder.clear();
         }
     }
 

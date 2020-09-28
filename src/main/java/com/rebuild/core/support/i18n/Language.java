@@ -48,7 +48,7 @@ public class Language implements Initialization {
     /**
      * 手动刷新
      */
-    public static final ThreadLocal<Boolean> MANUAL_REFRESH = new NamedThreadLocal<>("Pause init on batch");
+    public static final ThreadLocal<Boolean> MANUAL_REFRESH = new NamedThreadLocal<>("Manual refresh on batch");
 
     private Map<String, LanguageBundle> bundleMap = new HashMap<>();
 
@@ -164,11 +164,11 @@ public class Language implements Initialization {
      * 当前用户语言包（线程量用户）
      *
      * @return
-     * @see UserContext#getLocale()
+     * @see UserContextHolder#getLocale()
      * @see com.rebuild.utils.AppUtils#getReuqestBundle(HttpServletRequest)
      */
     public static LanguageBundle getCurrentBundle() {
-        return Application.getLanguage().getBundle(UserContext.getLocale());
+        return Application.getLanguage().getBundle(UserContextHolder.getLocale());
     }
 
     /**

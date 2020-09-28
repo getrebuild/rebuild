@@ -12,7 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -81,7 +81,7 @@ public class AutoShare extends AutoAssign {
 
         for (ID toUser : toUsers) {
             if (allowNoPermissionShare) {
-                PrivilegesGuardInterceptor.setNoPermissionPassOnce(recordId);
+                PrivilegesGuardContextHolder.setSkipGuardOnce(recordId);
             }
 
             Application.getEntityService(context.getSourceEntity().getEntityCode()).share(recordId, toUser, cascades);

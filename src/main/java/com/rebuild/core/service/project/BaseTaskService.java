@@ -9,7 +9,7 @@ package com.rebuild.core.service.project;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.DataSpecificationException;
@@ -37,7 +37,7 @@ public abstract class BaseTaskService extends ObservableService {
      * @return
      */
     protected boolean checkInMembers(ID user, ID taskOrProject) {
-        if (user == null) user = UserContext.getUser();
+        if (user == null) user = UserContextHolder.getUser();
         Assert.notNull(taskOrProject, "taskOrProject");
 
         ConfigBean c = taskOrProject.getEntityCode() == EntityHelper.ProjectTask

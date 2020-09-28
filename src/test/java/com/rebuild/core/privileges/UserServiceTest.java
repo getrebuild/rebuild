@@ -12,7 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Test;
@@ -24,7 +24,7 @@ import org.junit.Test;
 public class UserServiceTest extends TestSupport {
 
     static {
-        UserContext.setUser(UserService.ADMIN_USER);
+        UserContextHolder.setUser(UserService.ADMIN_USER);
     }
 
     @Test

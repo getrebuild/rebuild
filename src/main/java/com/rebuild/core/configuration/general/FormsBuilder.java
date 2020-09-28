@@ -108,11 +108,10 @@ public class FormsBuilder extends FormsManager {
         // 新建
         if (record == null) {
             if (mainEntity != null) {
-                ID mainRecordId = MAINID_4NEW_DETAIL.get();
-                Assert.notNull(mainRecordId, "Please calls #setCurrentMainId first");
+                ID mainId = FormBuilderContextHolder.getMainIdOfDetail(true);
+                Assert.notNull(mainId, "Please calls FormBuilderContextHolder#setMainIdOfDetail first");
 
                 approvalState = getHadApproval(entityMeta, null);
-                MAINID_4NEW_DETAIL.set(null);
 
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
                     String stateType = approvalState == ApprovalState.APPROVED ? "RecordApproved" : "RecordInApproval";
@@ -122,7 +121,7 @@ public class FormsBuilder extends FormsManager {
                 // 明细无需审批
                 approvalState = null;
 
-                if (!Application.getPrivilegesManager().allowUpdate(user, mainRecordId)) {
+                if (!Application.getPrivilegesManager().allowUpdate(user, mainId)) {
                     return formatModelError(Language.formatLang("YouNoSomePermission", "AddDetail"));
                 }
             } else if (!Application.getPrivilegesManager().allowCreate(user, entityMeta.getEntityCode())) {
@@ -228,8 +227,8 @@ public class FormsBuilder extends FormsManager {
             return RobotApprovalManager.instance.hadApproval(entity, recordId);
         }
 
-        ID mainRecordId = MAINID_4NEW_DETAIL.get();
-        if (mainRecordId == null) {
+        ID mainId = FormBuilderContextHolder.getMainIdOfDetail(false);
+        if (mainId == null) {
             Field stmField = MetadataHelper.getDetailToMainField(entity);
             String sql = String.format("select %s from %s where %s = ?",
                     stmField.getName(), entity.getName(), entity.getPrimaryField().getName());
@@ -237,9 +236,9 @@ public class FormsBuilder extends FormsManager {
             if (o == null) {
                 return null;
             }
-            mainRecordId = (ID) o[0];
+            mainId = (ID) o[0];
         }
-        return RobotApprovalManager.instance.hadApproval(mainEntity, mainRecordId);
+        return RobotApprovalManager.instance.hadApproval(mainEntity, mainId);
     }
 
     /**
@@ -574,23 +573,6 @@ public class FormsBuilder extends FormsManager {
         } catch (NoRecordFoundException ex) {
             LOG.error("No record found : " + idVal);
             return null;
-        }
-    }
-
-    // -- 主/明细实体权限处理
-
-    private static final ThreadLocal<ID> MAINID_4NEW_DETAIL = new ThreadLocal<>();
-
-    /**
-     * 创建明细实体必须指定主实体，以便验证权限
-     *
-     * @param mainId
-     */
-    public static void setCurrentMainId(ID mainId) {
-        if (mainId == null) {
-            MAINID_4NEW_DETAIL.remove();
-        } else {
-            MAINID_4NEW_DETAIL.set(mainId);
         }
     }
 }

@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.BaseServiceImpl;
 import com.rebuild.core.service.NoRecordFoundException;
@@ -71,7 +71,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
         if (countObservers() > 0) {
             setChanged();
-            notifyObservers(OperatingContext.create(UserContext.getUser(), BizzPermission.CREATE, null, record));
+            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.CREATE, null, record));
         }
         return record;
     }
@@ -84,7 +84,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
 
         if (countObservers() > 0) {
             setChanged();
-            notifyObservers(OperatingContext.create(UserContext.getUser(), BizzPermission.UPDATE, before, record));
+            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.UPDATE, before, record));
         }
         return record;
     }
@@ -93,19 +93,19 @@ public abstract class ObservableService extends Observable implements ServiceSpe
     public int delete(ID recordId) {
         Record deleted = null;
         if (countObservers() > 0) {
-            deleted = EntityHelper.forUpdate(recordId, UserContext.getUser());
+            deleted = EntityHelper.forUpdate(recordId, UserContextHolder.getUser());
             deleted = record(deleted);
 
             // 删除前触发，做一些状态保持
             setChanged();
-            notifyObservers(OperatingContext.create(UserContext.getUser(), DELETE_BEFORE, deleted, null));
+            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), DELETE_BEFORE, deleted, null));
         }
 
         int affected = delegateService.delete(recordId);
 
         if (countObservers() > 0) {
             setChanged();
-            notifyObservers(OperatingContext.create(UserContext.getUser(), BizzPermission.DELETE, deleted, null));
+            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.DELETE, deleted, null));
         }
         return affected;
     }

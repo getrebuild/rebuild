@@ -12,7 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.trigger.ActionType;
@@ -29,7 +29,7 @@ public class AutoShareTest extends TestSupport {
 
     @Test
     public void execute() {
-        UserContext.setUser(UserService.ADMIN_USER);
+        UserContextHolder.setUser(UserService.ADMIN_USER);
 
         // 添加配置
         Application.getSqlExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = '" + TestAllFields + "'");

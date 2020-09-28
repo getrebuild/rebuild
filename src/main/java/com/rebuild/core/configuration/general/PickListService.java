@@ -15,7 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
@@ -53,7 +53,7 @@ public class PickListService extends BaseConfigurationService implements AdminGu
      */
     public void updateBatch(Field field, JSONObject config) {
         Assert.notNull(config, "[config] cannot be null");
-        ID user = UserContext.getUser();
+        ID user = UserContextHolder.getUser();
 
         JSONArray showItems = config.getJSONArray("show");
         JSONArray hideItems = config.getJSONArray("hide");

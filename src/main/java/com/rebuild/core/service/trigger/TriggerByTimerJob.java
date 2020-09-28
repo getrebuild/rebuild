@@ -15,7 +15,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -62,7 +62,7 @@ public class TriggerByTimerJob extends DistributedJobLock {
                 continue;
             }
 
-            UserContext.setUser(UserService.SYSTEM_USER);
+            UserContextHolder.setUser(UserService.SYSTEM_USER);
             try {
                 LOG.info("Trigger [ " + trigger[6] + " ] timer run at : " + time.getTime());
                 int a = triggerOne(trigger);
@@ -71,7 +71,7 @@ public class TriggerByTimerJob extends DistributedJobLock {
             } catch (Exception ex) {
                 LOG.error("Timer trigger error : " + trigger[6], ex);
             } finally {
-                UserContext.clear();
+                UserContextHolder.clear();
             }
         }
     }

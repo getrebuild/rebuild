@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
@@ -70,7 +70,7 @@ public class TestSupport {
     public static void setDown() {
         LOG.warn("TESTING Setdown ...");
 
-        UserContext.clear();
+        UserContextHolder.clear();
     }
 
     // -- 测试实体
@@ -189,8 +189,8 @@ public class TestSupport {
      * @return
      */
     protected static ID addRecordOfTestAllFields(ID user) {
-        if (user != null && UserContext.getUser(true) == null) {
-            UserContext.setUser(user);
+        if (user != null && UserContextHolder.getUser(true) == null) {
+            UserContextHolder.setUser(user);
         }
 
         Entity testEntity = MetadataHelper.getEntity(TestAllFields);

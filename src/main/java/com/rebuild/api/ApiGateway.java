@@ -18,7 +18,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -97,7 +97,7 @@ public class ApiGateway extends Controller implements Initialization {
             final BaseApi api = createApi(apiName);
             context = verfiy(request, api);
 
-            UserContext.setUser(context.getBindUser());
+            UserContextHolder.setUser(context.getBindUser());
             JSON result = api.execute(context);
             logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, result);
 
@@ -113,7 +113,7 @@ public class ApiGateway extends Controller implements Initialization {
             errorCode = CODE_ERROR;
             errorMsg = ex.getLocalizedMessage();
         } finally {
-            UserContext.clear();
+            UserContextHolder.clear();
         }
 
         JSON error = formatFailure(StringUtils.defaultIfBlank(errorMsg, "Server Internal Error"), errorCode);

@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.DefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -25,10 +25,10 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.NoRecordFoundException;
+import com.rebuild.core.service.approval.ApprovalContextHolder;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
-import com.rebuild.core.service.approval.ApprovalStepService;
-import com.rebuild.core.service.dataimport.DataImporter;
+import com.rebuild.core.service.dataimport.DataImporterContextHolder;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
@@ -104,7 +104,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     @Override
     public int delete(ID record, String[] cascades) {
-        final ID currentUser = UserContext.getUser();
+        final ID currentUser = UserContextHolder.getUser();
 
         RecycleStore recycleBin = null;
         if (RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0) {
@@ -162,7 +162,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * @throws DataSpecificationException
      */
     private int deleteInternal(ID record) throws DataSpecificationException {
-        Record delete = EntityHelper.forUpdate(record, UserContext.getUser());
+        Record delete = EntityHelper.forUpdate(record, UserContextHolder.getUser());
         if (!checkModifications(delete, BizzPermission.DELETE)) {
             return 0;
         }
@@ -205,14 +205,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         if (countObservers() > 0 && assignBefore != null) {
             setChanged();
-            notifyObservers(OperatingContext.create(UserContext.getUser(), BizzPermission.ASSIGN, assignBefore, assignAfter));
+            notifyObservers(OperatingContext.create(UserContextHolder.getUser(), BizzPermission.ASSIGN, assignBefore, assignAfter));
         }
         return affected;
     }
 
     @Override
     public int share(ID record, ID to, String[] cascades) {
-        final ID currentUser = UserContext.getUser();
+        final ID currentUser = UserContextHolder.getUser();
         final String entityName = MetadataHelper.getEntityName(record);
 
         final Record sharedAfter = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
@@ -265,7 +265,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
     @Override
     public int unshare(ID record, ID accessId) {
-        ID currentUser = UserContext.getUser();
+        ID currentUser = UserContextHolder.getUser();
 
         Record unsharedBefore = null;
         if (countObservers() > 0) {
@@ -331,7 +331,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             // remove last ' or '
             sql.replace(sql.length() - 4, sql.length(), " )");
 
-            Filter filter = Application.getPrivilegesManager().createQueryFilter(UserContext.getUser(), action);
+            Filter filter = Application.getPrivilegesManager().createQueryFilter(UserContextHolder.getUser(), action);
             Object[][] array = Application.getQueryFactory().createQuery(sql.toString(), filter).array();
 
             Set<ID> records = new HashSet<>();
@@ -422,7 +422,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     rejected = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
                 } else if (action == BizzPermission.UPDATE) {
                     rejected = (currentState == ApprovalState.APPROVED && changeState != ApprovalState.CANCELED) /* 管理员撤销 */
-                            || (currentState == ApprovalState.PROCESSING && !ApprovalStepService.inAddedMode()   /* 审批时修改 */);
+                            || (currentState == ApprovalState.PROCESSING && !ApprovalContextHolder.isAddedModeOnce(false) /* 审批时修改 */);
                 }
 
                 if (rejected) {
@@ -477,7 +477,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
         for (Field field : seriesFields) {
             // 导入模式，不强制生成
-            if (record.hasValue(field.getName()) && DataImporter.inImportingState()) {
+            if (record.hasValue(field.getName()) && DataImporterContextHolder.isImportMode(false)) {
                 continue;
             }
             record.setString(field.getName(), SeriesGeneratorFactory.generate(field));

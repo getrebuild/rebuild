@@ -17,7 +17,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.service.BaseServiceImpl;
@@ -169,7 +169,7 @@ public class UserService extends BaseServiceImpl {
      * @see AdminGuard
      */
     private void checkAdminGuard(Permission action, ID user) {
-        ID currentUser = UserContext.getUser();
+        ID currentUser = UserContextHolder.getUser();
         if (UserHelper.isAdmin(currentUser)) return;
 
         if (action == BizzPermission.CREATE || action == BizzPermission.DELETE) {
@@ -270,7 +270,7 @@ public class UserService extends BaseServiceImpl {
             roleNew = null;
         }
 
-        Record record = EntityHelper.forUpdate(user, UserContext.getUser());
+        Record record = EntityHelper.forUpdate(user, UserContextHolder.getUser());
         boolean changed = false;
         if (deptNew != null) {
             record.setID("deptId", deptNew);
@@ -295,7 +295,7 @@ public class UserService extends BaseServiceImpl {
 
         // 改变记录的所属部门
         if (deptOld != null) {
-            TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew), UserContext.getUser());
+            TaskExecutors.submit(new ChangeOwningDeptTask(user, deptNew), UserContextHolder.getUser());
         }
     }
 
@@ -351,11 +351,11 @@ public class UserService extends BaseServiceImpl {
      * @throws DataSpecificationException
      */
     public ID txSignUp(Record record) throws DataSpecificationException {
-        UserContext.setUser(SYSTEM_USER);
+        UserContextHolder.setUser(SYSTEM_USER);
         try {
             record = this.create(record, false);
         } finally {
-            UserContext.clear();
+            UserContextHolder.clear();
         }
 
         // 通知管理员

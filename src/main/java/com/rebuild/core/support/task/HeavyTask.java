@@ -9,7 +9,7 @@ package com.rebuild.core.support.task;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.support.SetUser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +170,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
     @Override
     final public void run() {
         if (this.threadUser != null) {
-            UserContext.setUser(this.threadUser);
+            UserContextHolder.setUser(this.threadUser);
         }
 
         try {
@@ -198,7 +198,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
     protected void completedAfter() {
         this.completedTime = CalendarUtils.now();
         if (this.threadUser != null) {
-            UserContext.clear();
+            UserContextHolder.clear();
         }
     }
 }

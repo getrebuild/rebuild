@@ -11,7 +11,7 @@ import cn.devezhao.persist4j.*;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.NativeQuery;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.RoleBaseQueryFilter;
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +42,7 @@ public class QueryFactory {
      * @return
      */
     public Query createQuery(String ajql) {
-        return createQuery(ajql, UserContext.getUser());
+        return createQuery(ajql, UserContextHolder.getUser());
     }
 
     /**

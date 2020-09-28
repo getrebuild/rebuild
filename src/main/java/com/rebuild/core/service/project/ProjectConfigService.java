@@ -11,7 +11,7 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.UserContext;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.AdminGuard;
@@ -93,7 +93,7 @@ public class ProjectConfigService extends BaseConfigurationService implements Ad
      * @see ProjectPlanConfigService
      */
     private ID createPlan(ID projectId, String planName, int seq, int flowStatus, ID[] flowNexts) {
-        Record plan = EntityHelper.forNew(EntityHelper.ProjectPlanConfig, UserContext.getUser());
+        Record plan = EntityHelper.forNew(EntityHelper.ProjectPlanConfig, UserContextHolder.getUser());
         plan.setID("projectId", projectId);
         plan.setString("planName", planName);
         plan.setInt("seq", seq);
@@ -105,7 +105,7 @@ public class ProjectConfigService extends BaseConfigurationService implements Ad
     }
 
     private void updateFlowNexts(ID planId, ID[] flowNexts) {
-        Record plan = EntityHelper.forUpdate(planId, UserContext.getUser(), false);
+        Record plan = EntityHelper.forUpdate(planId, UserContextHolder.getUser(), false);
         plan.setString("flowNexts", StringUtils.join(flowNexts, ","));
         super.updateOnly(plan);
     }
