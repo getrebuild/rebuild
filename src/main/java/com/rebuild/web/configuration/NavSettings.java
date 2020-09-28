@@ -44,7 +44,9 @@ public class NavSettings extends BaseController implements ShareTo {
     @PostMapping("nav-settings")
     public void sets(HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
-        Assert.isTrue(Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomNav), "没有权限");
+        Assert.isTrue(
+                Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomNav),
+                getLang(request, "NoPrivileges"));
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个

@@ -83,7 +83,7 @@ public class EntityList extends EntityGet {
         queryEntry.put("sort", sortBy);
         queryEntry.put("reload", "true");
 
-        DataListBuilder builder = new ApiDataListControl(queryEntry, context.getBindUser());
+        DataListBuilder builder = new ApiDataListBuilder(queryEntry, context.getBindUser());
         JSONObject ret = (JSONObject) builder.getJSONResult();
         return formatSuccess(ret);
     }

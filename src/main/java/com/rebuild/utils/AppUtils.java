@@ -20,7 +20,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
-import com.rebuild.web.admin.AdminVerfiyControl;
+import com.rebuild.web.admin.AdminVerfiyController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.http.MediaType;
 
@@ -128,7 +128,7 @@ public class AppUtils {
      * @return
      */
     public static boolean isAdminVerified(HttpServletRequest request) {
-        Object verified = ServletUtils.getSessionAttribute(request, AdminVerfiyControl.KEY_VERIFIED);
+        Object verified = ServletUtils.getSessionAttribute(request, AdminVerfiyController.KEY_VERIFIED);
         return verified != null;
     }
 

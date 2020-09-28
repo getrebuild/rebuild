@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.rebuild.core.Application;
 import org.apache.commons.lang.ArrayUtils;
 
 /**
@@ -33,7 +34,12 @@ public class BlackList {
             String s = CommonsUtils.getStringOfRes("blacklist.json");
             BLACKLIST = JSON.parseArray(s == null ? JSONUtils.EMPTY_ARRAY_STR : s);
         }
-        return BLACKLIST.contains(text.toLowerCase()) || isSqlKeyword(text);
+
+        if (Application.devMode()) {
+            return isSqlKeyword(text);
+        } else {
+            return BLACKLIST.contains(text.toLowerCase()) || isSqlKeyword(text);
+        }
     }
 
     /**

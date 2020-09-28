@@ -18,7 +18,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.web.commons.LanguageControl;
+import com.rebuild.web.commons.LanguageController;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -170,7 +170,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
         if (locale != null) return locale;
 
         // 1. Cookie
-        locale = ServletUtils.readCookie(request, LanguageControl.CK_LOCALE);
+        locale = ServletUtils.readCookie(request, LanguageController.CK_LOCALE);
         if (locale == null) {
             // 2. User-Local
             locale = request.getLocale().getLanguage();

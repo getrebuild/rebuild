@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 public interface ShareTo {
 
     /**
-     * 公共字段
+     * 可共享配置公共字段
      *
      * @param request
      * @param record
