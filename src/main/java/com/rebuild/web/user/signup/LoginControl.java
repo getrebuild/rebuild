@@ -27,6 +27,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.*;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
@@ -44,6 +45,9 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * @author zhaofang123@gmail.com
@@ -116,7 +120,12 @@ public class LoginControl extends BaseController {
         }
 
         // 登录页
-        return createModelAndView("/signup/login");
+        ModelAndView mv = createModelAndView("/signup/login");
+
+        // 切换语言
+        putLocales(mv, AppUtils.getReuqestLocale(request));
+
+        return mv;
     }
 
     @PostMapping("user-login")
@@ -252,19 +261,21 @@ public class LoginControl extends BaseController {
     @PostMapping("user-forgot-passwd")
     public void userForgotPasswd(HttpServletRequest request, HttpServletResponse response) {
         if (!SMSender.availableMail()) {
-            writeFailure(response, "邮件服务账户未配置，请联系管理员配置");
+            writeFailure(response, getLang(request, "EmailAccountUnset"));
             return;
         }
 
         String email = getParameterNotNull(request, "email");
         if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
-            writeFailure(response, "邮箱无效");
+            writeFailure(response, getLang(request, "SomeInvalid,Email"));
             return;
         }
 
         String vcode = VerfiyCode.generate(email, 2);
-        String content = "你的重置密码验证码是：" + vcode;
-        String sentid = SMSender.sendMail(email, "重置密码", content);
+        String subject = getLang(request, "ResetPassword");
+        String content = String.format(getLang(request, "YourVCode", "ResetPassword"), vcode);
+
+        String sentid = SMSender.sendMail(email, subject, content);
         if (sentid != null) {
             writeSuccess(response);
         } else {
@@ -314,5 +325,28 @@ public class LoginControl extends BaseController {
         } else {
             writeSuccess(response, ret.getString("url"));
         }
+    }
+
+    /**
+     * 可用语言
+     *
+     * @param into
+     * @param currentLocale
+     */
+    public static void putLocales(ModelAndView into, String currentLocale) {
+        String currentLocaleText = null;
+
+        List<String[]> langs = new ArrayList<>();
+        for (String locale : Application.getLanguage().availableLocales()) {
+            Locale inst = Locale.forLanguageTag(locale.split("[_-]")[0]);
+            langs.add(new String[] { locale, inst.getDisplayName(inst) });
+
+            if (locale.equals(currentLocale)) {
+                currentLocaleText = inst.getDisplayName(inst);
+            }
+        }
+
+        into.getModelMap().put("currentLang", currentLocaleText);
+        into.getModelMap().put("availableLangs", langs);
     }
 }

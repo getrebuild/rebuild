@@ -65,9 +65,15 @@
               </div>
             </div>
             <div class="copyright">
-              &copy; REBUILD ([[${Version}]])
+              <div>
+                <span>&copy; REBUILD ([[${Version}]])</span>
+              </div>
               <div class="mt-1 license link" th:utext="${bundle.lang('RebuildRights')}"></div>
               <div class="mt-2">
+                <a class="select-lang dropdown-toggle mr-1" data-toggle="dropdown"><span>[[${currentLang}]]</span></a>
+                <div class="dropdown-menu">
+                  <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="|@{/language/select?nexturl=install&locale=}${lang[0]}|">[[${lang[1]}]]</a>
+                </div>
                 <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">[[${bundle.lang('InstallGuide')}]]</a>
               </div>
             </div>

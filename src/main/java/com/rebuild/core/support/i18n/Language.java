@@ -154,7 +154,7 @@ public class Language implements Initialization {
     /**
      * @return
      */
-    public Set<String> availableList() {
+    public Set<String> availableLocales() {
         return bundleMap.keySet();
     }
 

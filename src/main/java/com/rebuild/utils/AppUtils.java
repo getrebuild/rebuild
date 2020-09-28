@@ -106,8 +106,15 @@ public class AppUtils {
      * @return
      */
     public static LanguageBundle getReuqestBundle(HttpServletRequest request) {
-        String locale = (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
-        return Application.getLanguage().getBundle(locale);
+        return Application.getLanguage().getBundle(getReuqestLocale(request));
+    }
+
+    /**
+     * @param request
+     * @return
+     */
+    public static String getReuqestLocale(HttpServletRequest request) {
+        return (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
     }
 
     /**

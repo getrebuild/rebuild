@@ -46,7 +46,7 @@ import java.util.*;
  */
 @Controller
 @RequestMapping("/admin/")
-public class SystemConfigurationControl extends BaseController {
+public class RebuildConfigurationControl extends BaseController {
 
     @GetMapping("systems")
     public ModelAndView pageSystems() {
@@ -56,12 +56,12 @@ public class SystemConfigurationControl extends BaseController {
         }
 
         // Available lang
-        JSONObject localesJson = new JSONObject();
-        for (String locale : Application.getLanguage().availableList()) {
+        JSONObject langsJson = new JSONObject();
+        for (String locale : Application.getLanguage().availableLocales()) {
             Locale inst = Locale.forLanguageTag(locale.split("[_-]")[0]);
-            localesJson.put(locale, inst.getDisplayName(inst) + " (" + locale + ")");
+            langsJson.put(locale, inst.getDisplayName(inst) + " (" + locale + ")");
         }
-        mv.getModel().put("availableLangs", localesJson);
+        mv.getModel().put("availableLangs", langsJson);
 
         JSONObject auth = License.queryAuthority(false);
         mv.getModel().put("LicenseType",

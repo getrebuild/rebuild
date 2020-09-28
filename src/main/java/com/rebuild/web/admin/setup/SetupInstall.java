@@ -14,8 +14,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.user.signup.LoginControl;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +45,7 @@ import java.sql.SQLException;
 public class SetupInstall extends BaseController implements InstallState {
 
     @GetMapping("install")
-    public ModelAndView index(HttpServletResponse response) throws IOException {
+    public ModelAndView index(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (Application.isReady() && !Application.devMode()) {
             response.sendError(404);
             return null;
@@ -51,6 +53,10 @@ public class SetupInstall extends BaseController implements InstallState {
 
         ModelAndView mv = createModelAndView("/admin/setup/install");
         mv.getModel().put("Version", Application.VER);
+
+        // 切换语言
+        LoginControl.putLocales(mv, AppUtils.getReuqestLocale(request));
+
         return mv;
     }
 

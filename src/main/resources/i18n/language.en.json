@@ -276,7 +276,7 @@
   "SystemFailureMemo": "REBUILD did not start success. Please troubleshoot by quick check and restart the service after troubleshooting. You can also [report this issue](https://getrebuild.com/report-issue?title=boot-error)",
   "QuickCheck": "Quick Check",
   "SystemInfo": "System information",
-  "YourCaptcha": "Your {0} verification code is : **%s**",
+  "YourVCode": "Your {0} verification code is : **%s**",
   "UserSignup": "Signup",
   "UserLogin": "Login",
   "Login": "Login",

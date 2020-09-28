@@ -84,6 +84,8 @@ public class LanguageControl extends BaseController {
             String nexturl = request.getParameter("nexturl");
             if ("login".equals(nexturl)) {
                 nexturl = AppUtils.getContextPath() + "/user/login?locale=" + getParameter(request, "locale");
+            } else if ("install".equals(nexturl)) {
+                nexturl = AppUtils.getContextPath() + "/setup/install?locale=" + getParameter(request, "locale");
             }
 
             nexturl = StringUtils.defaultIfBlank(nexturl, AppUtils.getContextPath());

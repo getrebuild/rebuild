@@ -48,16 +48,6 @@
       .rb-content {
         z-index: 2;
       }
-      .select-lang > a {
-        display: inline-block;
-        padding: 6px 5px;
-        font-size: 0;
-        line-height: 1;
-        border-radius: 2px;
-      }
-      .select-lang > a:hover {
-        background-color: #e6eff8;
-      }
     </style>
   </head>
   <body class="rb-splash-screen">
@@ -100,9 +90,11 @@
                     <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.lang('Login')}]]</button>
                     <div class="mt-4 text-center" th:utext="${bundle.lang('NoAccountYet')}"></div>
                   </div>
-                  <div class="select-lang text-center mb-2">
-                    <a th:href="@{/language/select?nexturl=login&locale=zh_CN}" title="中文"><img th:src="@{/assets/img/flag/zh_CN.png}" /></a>
-                    <a th:href="@{/language/select?nexturl=login&locale=en}" title="English"><img th:src="@{/assets/img/flag/en.png}" /></a>
+                  <div class="text-center mb-2">
+                    <a class="select-lang dropdown-toggle" data-toggle="dropdown"><span>[[${currentLang}]]</span></a>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="|@{/language/select?nexturl=login&locale=}${lang[0]}|">[[${lang[1]}]]</a>
+                    </div>
                   </div>
                 </form>
               </div>

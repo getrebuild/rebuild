@@ -3592,3 +3592,16 @@ a.avatar.x26 img {
 .modal-title {
   text-transform: uppercase;
 }
+
+a.select-lang {
+  display: inline-block;
+  padding: 5px 10px;
+  line-height: 1;
+  border-radius: 2px;
+  border: 1px solid #e6eff8;
+}
+
+a.select-lang:hover {
+  border: 1px solid #4285f4;
+  background-color: #e6eff8;
+}

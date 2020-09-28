@@ -72,7 +72,7 @@ public class SignUpControl extends BaseController {
         }
 
         String vcode = VerfiyCode.generate(email, 1);
-        String content = String.format(getLang(request, "YourCaptcha", "Signup"), vcode);
+        String content = String.format(getLang(request, "YourVCode", "Signup"), vcode);
         String sentid = SMSender.sendMail(email, getLang(request, "SignupVcode"), content);
         LOG.warn(email + " >> " + content);
         if (sentid != null) {
