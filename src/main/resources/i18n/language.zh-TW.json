@@ -276,7 +276,7 @@
   "SystemFailureMemo": "服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](https://getrebuild.com/report-issue?title=boot-error)",
   "QuickCheck": "快速检查",
   "SystemInfo": "系统信息",
-  "YourCaptcha": "你的{0}验证码是 : **%s**",
+  "YourVCode": "你的{0}验证码是 : **%s**",
   "UserSignup": "用户注册",
   "UserLogin": "用户登录",
   "Login": "登录",
