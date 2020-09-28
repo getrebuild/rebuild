@@ -117,7 +117,7 @@ public class Language implements Initialization {
      */
     public LanguageBundle getDefaultBundle() {
         String d = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
-        if (!available(d)) {
+        if (available(d) != null) {
             throw new RebuildException("No default locale found : " + d);
         }
         return bundleMap.get(d);
@@ -143,12 +143,14 @@ public class Language implements Initialization {
      * @param locale
      * @return
      */
-    public boolean available(String locale) {
+    public String available(String locale) {
         boolean a = bundleMap.containsKey(locale);
-        if (!a && useLanguageCode(locale) != null) {
-            return true;
+        if (a) return locale;
+
+        if ((locale = useLanguageCode(locale)) != null) {
+            return locale;
         }
-        return a;
+        return null;
     }
 
     /**

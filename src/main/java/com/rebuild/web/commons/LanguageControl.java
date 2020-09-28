@@ -71,7 +71,7 @@ public class LanguageControl extends BaseController {
     @RequestMapping("select")
     public void selectLanguage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String locale = request.getParameter("locale");
-        if (locale == null || !Application.getLanguage().available(locale)) {
+        if (locale == null || (locale = Application.getLanguage().available(locale)) == null) {
             locale = Application.getLanguage().getDefaultBundle().getLocale();
         }
 

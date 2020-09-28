@@ -16,6 +16,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyControl;
@@ -114,7 +116,11 @@ public class AppUtils {
      * @return
      */
     public static String getReuqestLocale(HttpServletRequest request) {
-        return (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
+        String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
+        if (locale == null) {
+            locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
+        }
+        return locale;
     }
 
     /**

@@ -176,7 +176,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
         }
 
         // 3. Default
-        if (!Application.getLanguage().available(locale)) {
+        if ((locale = Application.getLanguage().available(locale)) == null) {
             locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
 
