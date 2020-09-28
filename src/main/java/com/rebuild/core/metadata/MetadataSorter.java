@@ -16,8 +16,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.text.Collator;
+import java.util.*;
 
 /**
  * 元数据辅助类，注意此类返回的数据会过滤和排序
@@ -154,10 +154,11 @@ public class MetadataSorter {
      * @param metas
      */
     static void sortByLabel(List<BaseMeta> metas) {
+        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         metas.sort((foo, bar) -> {
             String fooLetter = EasyMeta.getLabel(foo);
             String barLetter = EasyMeta.getLabel(bar);
-            return fooLetter.compareTo(barLetter);
+            return comparator.compare(fooLetter, barLetter);
         });
     }
 }
