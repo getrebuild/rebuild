@@ -96,7 +96,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
     @Override
     public ModelAndView resolveErrorView(HttpServletRequest request, HttpStatus status, Map<String, Object> model) {
-        return createError(request, null, status, model);
+        return createError(request, (Exception) request.getAttribute(ServletUtils.ERROR_EXCEPTION), status, model);
     }
 
     /**
@@ -134,6 +134,11 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         error.getModel().put("error_code", errorCode);
         error.getModel().put("error_msg", errorMsg);
+
+        if (ex != null && Application.devMode()) {
+            error.getModel().put("error_stack", ex.getLocalizedMessage());
+        }
+
         return error;
     }
 }

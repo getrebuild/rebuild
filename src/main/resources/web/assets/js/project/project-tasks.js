@@ -209,6 +209,7 @@ class PlanBox extends React.Component {
                       onKeyDown={(e) => {
                         if (e.keyCode === 13) {
                           this._handleCreateTask()
+                          $stopEvent(e)
                           return false
                         }
                       }}

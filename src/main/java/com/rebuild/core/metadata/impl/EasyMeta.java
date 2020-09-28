@@ -354,7 +354,7 @@ public class EasyMeta implements BaseMeta {
     public static JSON getEntityShow(Entity entity) {
         EasyMeta easy = valueOf(entity);
         return JSONUtils.toJSONObject(
-                new String[]{"entity", "entityLabel", "icon"},
-                new String[]{easy.getName(), easy.getLabel(), easy.getIcon()});
+                new String[] { "entity", "entityLabel", "icon" },
+                new String[] { easy.getName(), easy.getLabel(), easy.getIcon() });
     }
 }

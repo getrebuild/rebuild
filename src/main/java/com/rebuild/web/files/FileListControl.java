@@ -23,6 +23,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -219,10 +220,9 @@ public class FileListControl extends BaseController {
     }
 
     private JSONObject formatEntityJson(Entity entity) {
-        String label = entity.getEntityCode() == EntityHelper.ProjectTask ? "项目" : EasyMeta.getLabel(entity);
         return JSONUtils.toJSONObject(
-                new String[]{"id", "text"},
-                new Object[]{entity.getEntityCode(), label});
+                new String[] { "id", "text" },
+                new Object[] { entity.getEntityCode(), Language.getLang(entity) });
     }
 
     private boolean hasAttachmentFields(Entity entity) {

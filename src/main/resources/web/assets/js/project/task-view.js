@@ -381,7 +381,7 @@ class ValueDescription extends ValueComp {
         <div className="form-control-plaintext">
           <TextEditor hideToolbar={true} ref={(c) => (this._editor = c)} />
           <div className="mt-2 text-right">
-            <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link">
+            <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
               {$lang('Cancel')}
             </button>
             <button className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>

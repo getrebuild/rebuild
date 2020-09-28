@@ -5,11 +5,11 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/feeds.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/project-tasks.css}" />
-    <title>[[${bundle.lang('ProjectTask')}]]</title>
+    <title>[[${bundle.lang('SomeView,Task')}]]</title>
   </head>
-  <body class="view-body" th:appendclass="${!isMember} ? 'readonly'">
+  <body class="view-body" th:classappend="${!isMember} ? 'readonly'">
     <div class="view-header">
-      <i class="header-icon zmdi" th:appendclass="${'zmdi-' + projectIcon}"></i>
+      <i class="header-icon zmdi" th:classappend="${'zmdi-' + projectIcon}"></i>
       <h3 class="title">[[${bundle.lang('SomeView,Task')}]]</h3>
       <span>
         <a class="close J_close" th:title="${bundle.lang('Close')}"><i class="zmdi zmdi-close"></i></a>

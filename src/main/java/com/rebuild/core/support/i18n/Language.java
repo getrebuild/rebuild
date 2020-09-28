@@ -117,7 +117,7 @@ public class Language implements Initialization {
      */
     public LanguageBundle getDefaultBundle() {
         String d = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
-        if (available(d) != null) {
+        if (available(d) == null) {
             throw new RebuildException("No default locale found : " + d);
         }
         return bundleMap.get(d);
