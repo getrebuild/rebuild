@@ -15,6 +15,7 @@ import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -23,7 +24,8 @@ import org.junit.Test;
  */
 public class Meta2SchemaTest extends TestSupport {
 
-    static {
+    @Before
+    public void setUpPerMethod() {
         UserContextHolder.setUser(UserService.ADMIN_USER);
     }
 

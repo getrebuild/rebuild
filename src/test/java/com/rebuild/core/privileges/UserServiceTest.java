@@ -22,13 +22,10 @@ import org.junit.Test;
  * @since 2020/2/6
  */
 public class UserServiceTest extends TestSupport {
-
-    static {
-        UserContextHolder.setUser(UserService.ADMIN_USER);
-    }
-
     @Test
     public void users() {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+
         Record record = EntityHelper.forNew(EntityHelper.User, UserService.SYSTEM_USER);
         record.setString("loginName", "testuser" + RandomUtils.nextInt(999999));
         record.setString("password", CodecUtils.randomCode(10) + "Aa1!");

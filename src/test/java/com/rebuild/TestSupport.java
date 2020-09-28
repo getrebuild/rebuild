@@ -26,6 +26,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.BlackList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -70,6 +71,11 @@ public class TestSupport {
     public static void setDown() {
         LOG.warn("TESTING Setdown ...");
 
+        UserContextHolder.clear();
+    }
+
+    @After
+    public void setDownPerMethod() {
         UserContextHolder.clear();
     }
 

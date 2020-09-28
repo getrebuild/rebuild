@@ -9,7 +9,6 @@ package com.rebuild.core.configuration;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
-import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.DashboardManager;
 import org.junit.Test;
@@ -22,13 +21,7 @@ public class DashboardManagerTest extends TestSupport {
 
     @Test
     public void testGetList() {
-        UserContextHolder.setUser(UserService.SYSTEM_USER);
-        try {
-            JSON dashs = DashboardManager.instance.getAvailable(UserService.ADMIN_USER);
-            System.out.println(dashs.toJSONString());
-
-        } finally {
-            UserContextHolder.clear();
-        }
+        JSON dashs = DashboardManager.instance.getAvailable(UserService.ADMIN_USER);
+        System.out.println(dashs.toJSONString());
     }
 }

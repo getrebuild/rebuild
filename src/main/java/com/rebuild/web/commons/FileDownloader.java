@@ -39,20 +39,17 @@ import java.nio.charset.StandardCharsets;
 @RequestMapping("/filex/")
 public class FileDownloader extends BaseController {
 
-    // 图片缓存时间
-    private static final int IMG_CACHE_TIME = 60 * 2;
-
     @GetMapping("img/**")
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String filePath = request.getRequestURI();
         filePath = filePath.split("/filex/img/")[1];
 
-        ServletUtils.addCacheHead(response, IMG_CACHE_TIME);
-
         if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
             response.sendRedirect(filePath);
             return;
         }
+
+        ServletUtils.addCacheHead(response, 30);
 
         final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
         String imageView2 = request.getQueryString();
@@ -98,7 +95,7 @@ public class FileDownloader extends BaseController {
                 filePath += "?" + imageView2;
             }
 
-            String privateUrl = QiniuCloud.instance().url(filePath, IMG_CACHE_TIME * 60);
+            String privateUrl = QiniuCloud.instance().url(filePath, 30 * 60);
             response.sendRedirect(privateUrl);
         }
     }

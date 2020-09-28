@@ -13,10 +13,13 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -26,6 +29,11 @@ import java.util.Arrays;
  * @since 2019/12/03
  */
 public class BulkBacthUpdateTest extends TestSupport {
+
+    @Before
+    public void setUpPerMethod() {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+    }
 
     @Test
     public void exec() {

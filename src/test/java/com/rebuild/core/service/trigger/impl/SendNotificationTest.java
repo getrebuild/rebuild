@@ -30,12 +30,10 @@ import static org.junit.Assert.assertEquals;
  */
 public class SendNotificationTest extends TestSupport {
 
-    static {
-        UserContextHolder.setUser(UserService.ADMIN_USER);
-    }
-
     @Test
     public void testExecute() {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+
         // 添加配置
         Application.getSqlExecutor().execute("delete from robot_trigger_config where BELONG_ENTITY = 'TestAllFields'");
 

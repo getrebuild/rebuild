@@ -26,12 +26,10 @@ import org.junit.Test;
  */
 public class FieldWritebackTest extends TestSupport {
 
-    static {
-        UserContextHolder.setUser(UserService.ADMIN_USER);
-    }
-
     @Test
     public void testExecute() {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+
         // 添加配置
         Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
         triggerConfig.setString("belongEntity", SalesOrder);

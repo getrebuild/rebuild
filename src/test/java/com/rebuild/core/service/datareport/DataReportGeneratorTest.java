@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
@@ -38,6 +39,8 @@ public class DataReportGeneratorTest extends TestSupport {
 
     @Test
     public void testGeneratorV2() throws FileNotFoundException {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
 
         Entity SalesOrder999 = MetadataHelper.getEntity(SalesOrder);

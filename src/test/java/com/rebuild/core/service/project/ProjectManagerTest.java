@@ -16,6 +16,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -24,10 +25,6 @@ import org.junit.Test;
  * @since 2020/7/28
  */
 public class ProjectManagerTest extends TestSupport {
-
-    static {
-        UserContextHolder.setUser(UserService.ADMIN_USER);
-    }
 
     private static final String USE_CODE = "RBTEST";
 
@@ -53,6 +50,11 @@ public class ProjectManagerTest extends TestSupport {
         } else {
             _LastSavedProject = (ID) exists[0];
         }
+    }
+
+    @Before
+    public void setUpPerMethod() {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
     }
 
     @Test

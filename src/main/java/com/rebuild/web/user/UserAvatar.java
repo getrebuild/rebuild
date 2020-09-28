@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user;
 
-import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -15,8 +14,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
@@ -40,9 +39,6 @@ import java.io.IOException;
 @RequestMapping("/account")
 public class UserAvatar extends BaseController {
 
-    // 头像缓存时间
-    private static final int AVATAR_CACHE_TIME = 15;
-
     @RequestMapping("/user-avatar")
     public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
         renderUserAvatar(getRequestUser(request), request, response);
@@ -65,9 +61,6 @@ public class UserAvatar extends BaseController {
         }
 
         User realUser = null;
-        if (user instanceof ID) {
-            realUser = Application.getUserStore().getUser((ID) user);
-        }
         if (ID.isId(user)) {
             realUser = Application.getUserStore().getUser(ID.valueOf(user.toString()));
         } else if (Application.getUserStore().existsName(user.toString())) {
@@ -81,8 +74,6 @@ public class UserAvatar extends BaseController {
             return;
         }
 
-        ServletUtils.addCacheHead(response, AVATAR_CACHE_TIME);
-
         String avatarUrl = realUser.getAvatarUrl();
         avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
         if (avatarUrl != null) {
@@ -90,7 +81,7 @@ public class UserAvatar extends BaseController {
             avatarUrl = avatarUrl + "?imageView2/2/w/" + w + "/interlace/1/q/100";
 
             if (QiniuCloud.instance().available()) {
-                avatarUrl = QiniuCloud.instance().url(avatarUrl, AVATAR_CACHE_TIME * 60);
+                avatarUrl = QiniuCloud.instance().url(avatarUrl, 30 * 60);
             } else {
                 avatarUrl = AppUtils.getContextPath() + "/filex/img/" + avatarUrl;
             }

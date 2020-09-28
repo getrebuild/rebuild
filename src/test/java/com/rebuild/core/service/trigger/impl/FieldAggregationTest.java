@@ -27,12 +27,10 @@ import org.junit.Test;
  */
 public class FieldAggregationTest extends TestSupport {
 
-    static {
-        UserContextHolder.setUser(UserService.ADMIN_USER);
-    }
-
     @Test
     public void testExecute() {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+
         // 添加配置
         Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
         triggerConfig.setString("belongEntity", SalesOrderItem);
@@ -57,6 +55,8 @@ public class FieldAggregationTest extends TestSupport {
 
     @Test
     public void testEvaluator() {
+        UserContextHolder.setUser(UserService.ADMIN_USER);
+
         Entity sourceEntity = MetadataHelper.getEntity(SalesOrder);
 
         JSONObject configUseFormula = JSON.parseObject("{ targetField:'totalAmount', calcMode:'FORMULA', sourceFormula:'{totalAmount$$$$SUM}*1.35' }");
