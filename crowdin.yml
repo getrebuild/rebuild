@@ -4,7 +4,7 @@ files:
     translation: '/src/main/resources/i18n/language.%locale%.json'
     languages_mapping:
       locale:
-        'zh_CN': 'zh-CN'
-        'zh_TW': 'zh-TW'
-        'en': 'en-US'
-        'ja': 'ja-JP'
+        'zh-CN': 'zh_CN'
+        'zh-TW': 'zh_TW'
+        'en-US': 'en'
+        'ja-JP': 'ja'
