@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 
@@ -51,7 +52,7 @@ public class DataImporter extends HeavyTask<Integer> {
         this.setTotal(rows.size() - 1);
 
         owningUser = rule.getDefaultOwningUser() != null ? rule.getDefaultOwningUser() : getUser();
-        DataImporterContextHolder.setImportMode(owningUser);
+        GeneralEntityServiceContextHolder.setSkipSeriesValue();
 
         for (final Cell[] row : rows) {
             if (isInterrupt()) {
@@ -84,7 +85,7 @@ public class DataImporter extends HeavyTask<Integer> {
     @Override
     protected void completedAfter() {
         super.completedAfter();
-        DataImporterContextHolder.clear();
+        GeneralEntityServiceContextHolder.isSkipSeriesValue(true);
     }
 
     /**

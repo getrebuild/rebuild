@@ -37,7 +37,7 @@
         <constructor-arg index="0" ref="mysql5DataSource"/>
         <constructor-arg index="1" ref="mysql5Dialect"/>
         <constructor-arg index="2">
-            <bean class="com.rebuild.core.metadata.DynamicMetadataFactory">
+            <bean class="com.rebuild.core.metadata.impl.DynamicMetadataFactory">
                 <constructor-arg index="0" value="metadata-conf.xml"/>
                 <constructor-arg index="1" ref="mysql5Dialect"/>
             </bean>

@@ -17,11 +17,11 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.MetaschemaImporter;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.BlackList;
 import org.apache.commons.io.FileUtils;
@@ -56,9 +56,9 @@ public class TestSupport {
             BootApplication.main(new String[] { "-Drbdev=true" });
             RebuildReady = true;
 
-            Language.MANUAL_REFRESH.set(true);
+            DynamicMetadataContextHolder.setSkipLanguageRefresh();
             if (addTestEntities(false)) {
-                Application.getLanguage().refresh(true);
+                DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
             }
 
         } catch (Exception ex) {

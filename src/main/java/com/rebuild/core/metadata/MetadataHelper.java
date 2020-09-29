@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

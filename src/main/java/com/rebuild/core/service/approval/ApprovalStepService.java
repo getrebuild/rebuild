@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
+import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.service.trigger.RobotTriggerManual;
@@ -111,11 +112,12 @@ public class ApprovalStepService extends BaseService {
     public void txApprove(Record stepRecord, String signMode, Set<ID> cc, Set<ID> nextApprovers, String nextNode, Record addedData, String checkUseGroup) {
         // 审批时更新主记录
         if (addedData != null) {
-            ApprovalContextHolder.setAddedModeOnce();
+            GeneralEntityServiceContextHolder.setAllowForceUpdateOnce(addedData.getPrimary());
             try {
                 Application.getService(addedData.getEntity().getEntityCode()).update(addedData);
             } finally {
-                ApprovalContextHolder.clear();
+                // 再清理一次，以防出错未清理
+                GeneralEntityServiceContextHolder.isAllowForceUpdateOnce(true);
             }
 
             // 检查数据修改后的步骤对不对 GitHub#208

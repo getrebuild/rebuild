@@ -25,10 +25,8 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.NoRecordFoundException;
-import com.rebuild.core.service.approval.ApprovalContextHolder;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
-import com.rebuild.core.service.dataimport.DataImporterContextHolder;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
@@ -422,7 +420,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     rejected = currentState == ApprovalState.APPROVED || currentState == ApprovalState.PROCESSING;
                 } else if (action == BizzPermission.UPDATE) {
                     rejected = (currentState == ApprovalState.APPROVED && changeState != ApprovalState.CANCELED) /* 管理员撤销 */
-                            || (currentState == ApprovalState.PROCESSING && !ApprovalContextHolder.isAddedModeOnce(false) /* 审批时修改 */);
+                            || (currentState == ApprovalState.PROCESSING && !GeneralEntityServiceContextHolder.isAllowForceUpdateOnce(true) /* 审批时修改 */);
                 }
 
                 if (rejected) {
@@ -476,8 +474,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     private void setSeriesValue(Record record) {
         Field[] seriesFields = MetadataSorter.sortFields(record.getEntity(), DisplayType.SERIES);
         for (Field field : seriesFields) {
-            // 导入模式，不强制生成
-            if (record.hasValue(field.getName()) && DataImporterContextHolder.isImportMode(false)) {
+            // 不强制生成
+            if (record.hasValue(field.getName())
+                    && GeneralEntityServiceContextHolder.isSkipSeriesValue(false)) {
                 continue;
             }
             record.setString(field.getName(), SeriesGeneratorFactory.generate(field));

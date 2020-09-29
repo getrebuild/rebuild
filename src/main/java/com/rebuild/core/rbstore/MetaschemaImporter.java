@@ -14,13 +14,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.AdvFilterService;
-import com.rebuild.core.configuration.general.LayoutConfigService;
-import com.rebuild.core.configuration.general.PickListService;
-import com.rebuild.core.configuration.general.ShareToManager;
+import com.rebuild.core.configuration.general.*;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.metadata.impl.*;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
@@ -46,6 +44,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
     private JSONObject remoteData;
 
     private List<Object[]> picklistHolders = new ArrayList<>();
+
+    private boolean needClearContextHolder = false;
 
     /**
      * @param fileUrl
@@ -116,6 +116,11 @@ public class MetaschemaImporter extends HeavyTask<String> {
         this.readyRemoteData();
         setTotal(100);
 
+        if (!DynamicMetadataContextHolder.isSkipLanguageRefresh(false)) {
+            DynamicMetadataContextHolder.setSkipLanguageRefresh();
+            needClearContextHolder = true;
+        }
+
         String entityName = performEntity(remoteData, null);
         Entity createdEntity = MetadataHelper.getEntity(entityName);
         setCompleted(45);
@@ -145,6 +150,15 @@ public class MetaschemaImporter extends HeavyTask<String> {
         return entityName;
     }
 
+    @Override
+    protected void completedAfter() {
+        super.completedAfter();
+
+        if (needClearContextHolder) {
+            DynamicMetadataContextHolder.isSkipLanguageRefresh(true);
+        }
+    }
+
     /**
      * @param schemaEntity
      * @param mainEntityName
@@ -152,8 +166,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
      * @throws MetadataException
      */
     private String performEntity(JSONObject schemaEntity, String mainEntityName) throws MetadataException {
-        String entityName = schemaEntity.getString("entity");
-        String entityLabel = schemaEntity.getString("entityLabel");
+        final String entityName = schemaEntity.getString("entity");
+        final String entityLabel = schemaEntity.getString("entityLabel");
 
         Entity2Schema entity2Schema = new Entity2Schema(this.getUser());
         entity2Schema.createEntity(
@@ -213,12 +227,21 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
+        // 表单回填
+
+        JSONArray fillins = schemaEntity.getJSONArray("fillins");
+        if (fillins != null) {
+            for (Object o : fillins) {
+                performFillin(entityName, (JSONObject) o);
+            }
+        }
+
         // 高级查询
 
-        JSONObject filters = schemaEntity.getJSONObject("filters");
+        JSONArray filters = schemaEntity.getJSONArray("filters");
         if (filters != null) {
-            for (Map.Entry<String, Object> e : filters.entrySet()) {
-                performFilter(entityName, e.getKey(), (JSON) e.getValue());
+            for (Object o : filters) {
+                performFilter(entityName, (JSONObject) o);
             }
         }
 
@@ -227,7 +250,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         JSONArray triggers = schemaEntity.getJSONArray("triggers");
         if (triggers != null) {
             for (Object o : triggers) {
-                performTrigger((JSONObject) o);
+                performTrigger(entityName, (JSONObject) o);
             }
         }
 
@@ -236,14 +259,19 @@ public class MetaschemaImporter extends HeavyTask<String> {
         JSONArray approvals = schemaEntity.getJSONArray("approvals");
         if (approvals != null) {
             for (Object o : approvals) {
-                performApproval((JSONObject) o);
+                performApproval(entityName, (JSONObject) o);
             }
         }
 
         return entityName;
     }
 
-    private Field performField(JSONObject schemaField, Entity belong) {
+    /**
+     * @param schemaField
+     * @param belong
+     * @return
+     */
+    protected Field performField(JSONObject schemaField, Entity belong) {
         String fieldName = schemaField.getString("field");
         String fieldLabel = schemaField.getString("fieldLabel");
         String displayType = schemaField.getString("displayType");
@@ -264,7 +292,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
                 schemaField.getString("defaultValue"));
 
         if (DisplayType.PICKLIST == dt || DisplayType.MULTISELECT == dt) {
-            picklistHolders.add(new Object[]{unsafeField, performPickList(schemaField.getJSONArray("items"))});
+            picklistHolders.add(new Object[] {
+                    unsafeField, performPickList(schemaField.getJSONArray("items")) });
         }
 
         return unsafeField;
@@ -275,52 +304,84 @@ public class MetaschemaImporter extends HeavyTask<String> {
         for (Object o : items) {
             JSONArray item = (JSONArray) o;
 
-            JSONObject opt = JSONUtils.toJSONObject(
-                    new String[]{"text", "default"},
-                    new Object[]{item.getString(0), item.getBoolean(1)});
-
+            JSONObject option = JSONUtils.toJSONObject(
+                    new String[] { "text", "default" },
+                    new Object[] { item.getString(0), item.getBoolean(1) });
             // MultiSelect
             if (item.size() > 2) {
-                opt.put("mask", item.getLongValue(2));
+                option.put("mask", item.getLongValue(2));
             }
-            show.add(opt);
+
+            show.add(option);
         }
 
         return JSONUtils.toJSONObject("show", show);
     }
 
-    private void performLayout(String entity, String type, JSON config) {
-        Record record = EntityHelper.forNew(EntityHelper.LayoutConfig, getUser());
-        record.setString("belongEntity", entity);
-        record.setString("applyType", type);
-        record.setString("config", config.toJSONString());
-        record.setString("shareTo", ShareToManager.SHARE_ALL);
+    /**
+     * @param entity
+     * @param applyType
+     * @param config
+     */
+    protected void performLayout(String entity, String applyType, JSON config) {
+        Record record = RecordBuilder.builder(EntityHelper.LayoutConfig)
+                .add("belongEntity", entity)
+                .add("applyType", applyType)
+                .add("config", config.toJSONString())
+                .add("shareTo", ShareToManager.SHARE_ALL)
+                .build(getUser());
         Application.getBean(LayoutConfigService.class).create(record);
     }
 
-    private void performFilter(String entity, String filterName, JSON config) {
-        Record record = EntityHelper.forNew(EntityHelper.FilterConfig, getUser());
-        record.setString("belongEntity", entity);
-        record.setString("filterName", filterName);
-        record.setString("config", config.toJSONString());
-        record.setString("shareTo", ShareToManager.SHARE_ALL);
+    /**
+     * @param entity
+     * @param config
+     */
+    protected void performFillin(String entity, JSONObject config) {
+        Entity configEntity = MetadataHelper.getEntity(EntityHelper.AutoFillinConfig);
+        config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
+        config.put("belongEntity", entity);
+
+        Record record = new EntityRecordCreator(configEntity, config, getUser())
+                .create();
+        Application.getBean(AutoFillinConfigService.class).create(record);
+    }
+
+    /**
+     *
+     * @param entityName
+     * @param config
+     */
+    protected void performFilter(String entityName, JSONObject config) {
+        Entity configEntity = MetadataHelper.getEntity(EntityHelper.FilterConfig);
+        config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
+        config.put("belongEntity", entityName);
+
+        Record record = new EntityRecordCreator(configEntity, config, getUser())
+                .create();
         Application.getBean(AdvFilterService.class).create(record);
     }
 
-    private void performTrigger(JSONObject config) {
+    /**
+     * @param config
+     */
+    protected void performTrigger(String entity,JSONObject config) {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotTriggerConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
-        config.put("belongEntity", configEntity.getName());
+        config.put("belongEntity", entity);
 
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();
         Application.getBean(RobotTriggerConfigService.class).create(record);
     }
 
-    private void performApproval(JSONObject config) {
+    /**
+     * @param config
+     */
+    protected void performApproval(String entity, JSONObject config) {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotApprovalConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
-        config.put("belongEntity", configEntity.getName());
+        config.put("belongEntity", entity);
 
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();

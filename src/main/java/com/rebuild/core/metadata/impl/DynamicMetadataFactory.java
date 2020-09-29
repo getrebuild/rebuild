@@ -5,15 +5,17 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.metadata;
+package com.rebuild.core.metadata.impl;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.dialect.Dialect;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.XmlHelper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.MetadataHelper;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -36,7 +38,10 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
     @Override
     public synchronized void refresh(boolean initState) {
         super.refresh(initState);
-        if (!initState && Application.isReady()) Application.getLanguage().refresh(false);
+
+        if (!initState && !DynamicMetadataContextHolder.isSkipLanguageRefresh(false)) {
+            Application.getLanguage().refresh();
+        }
     }
 
     @Override
@@ -148,6 +153,19 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 
         if (LOG.isDebugEnabled()) {
             XmlHelper.dump(rootElement);
+        }
+    }
+
+    @Override
+    protected Entity getEntityNoLock(String name) {
+        try {
+            return super.getEntityNoLock(name);
+        } catch (MetadataException notExists) {
+            if (DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
+                return new GhostEntity();
+            } else {
+                throw notExists;
+            }
         }
     }
 }

@@ -11,6 +11,8 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.metadata.impl.EntityImpl;
 
 /**
+ * 尚未同步到数据库中的实体
+ *
  * @author zhaofang123@gmail.com
  * @since 08/04/2018
  */

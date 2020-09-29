@@ -22,7 +22,6 @@ import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.NamedThreadLocal;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,11 +43,6 @@ public class Language implements Initialization {
     private static final Logger LOG = LoggerFactory.getLogger(Language.class);
 
     private static final String BUNDLE_FILE = "i18n/language.%s.json";
-
-    /**
-     * 手动刷新
-     */
-    public static final ThreadLocal<Boolean> MANUAL_REFRESH = new NamedThreadLocal<>("Manual refresh on batch");
 
     private Map<String, LanguageBundle> bundleMap = new HashMap<>();
 
@@ -72,16 +66,9 @@ public class Language implements Initialization {
 
     /**
      * 刷新语言包
-     *
-     * @param force
      */
-    public void refresh(boolean force) {
+    public void refresh() {
         if (bundleMap.isEmpty()) return;
-
-        if (force) MANUAL_REFRESH.remove();
-
-        Boolean manual = MANUAL_REFRESH.get();
-        if (manual != null && manual) return;
 
         try {
             this.init();

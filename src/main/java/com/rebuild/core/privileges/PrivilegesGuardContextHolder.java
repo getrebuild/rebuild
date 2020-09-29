@@ -34,11 +34,11 @@ public class PrivilegesGuardContextHolder {
     /**
      * @return
      */
-    public static ID getSkipGuardOnce(boolean clear) {
-        ID record = SKIP_GUARD.get();
-        if (clear && record != null) {
+    public static ID getSkipGuardOnce() {
+        ID recordId = SKIP_GUARD.get();
+        if (recordId != null) {
             SKIP_GUARD.remove();
         }
-        return record;
+        return recordId;
     }
 }

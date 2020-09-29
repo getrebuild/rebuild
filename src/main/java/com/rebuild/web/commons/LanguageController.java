@@ -75,7 +75,7 @@ public class LanguageController extends BaseController {
             locale = Application.getLanguage().getDefaultBundle().getLocale();
         }
 
-        if (Application.devMode()) Application.getLanguage().refresh(false);
+        if (Application.devMode()) Application.getLanguage().refresh();
 
         ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
         AppUtils.addCookie(response, CK_LOCALE, locale);

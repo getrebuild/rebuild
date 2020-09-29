@@ -17,7 +17,7 @@ import cn.devezhao.persist4j.query.QueryedRecord;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.core.cache.CommonsCache;
-import com.rebuild.core.metadata.DynamicMetadataFactory;
+import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.core.privileges.RecordOwningCache;
 import com.rebuild.core.privileges.UserStore;

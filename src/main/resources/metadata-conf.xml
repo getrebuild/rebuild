@@ -127,18 +127,18 @@
 
     <entity name="LayoutConfig" type-code="013" description="布局 (表单/列表/导航/视图(相关项/新建))" queryable="false">
         <field name="configId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="config" type="text" description="JSON格式配置" nullable="false"/>
         <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人 (可选值: ALL/SELF/$MemberID)"/>
-        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="applyType" type="string" max-length="20" nullable="false" updatable="false" description="FORM,DATALIST,NAV,TBA,ADD"/>
         <field name="configName" type="string" max-length="100"/>
     </entity>
 
     <entity name="FilterConfig" type-code="014" description="过滤条件" queryable="false">
         <field name="configId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="config" type="text" description="JSON格式配置" nullable="false"/>
         <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人 (可选值: ALL/SELF/$MemberID)"/>
-        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="filterName" type="string" max-length="100" nullable="false"/>
     </entity>
 
@@ -151,8 +151,8 @@
 
     <entity name="ChartConfig" type-code="017" description="图表" queryable="false">
         <field name="chartId" type="primary"/>
-        <field name="config" type="text" description="JSON格式配置" nullable="false"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
+        <field name="config" type="text" description="JSON格式配置" nullable="false"/>
         <field name="chartType" type="string" max-length="100" nullable="false"/>
         <field name="title" type="string" max-length="100" nullable="false"/>
     </entity>

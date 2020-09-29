@@ -129,7 +129,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         // 无权限操作
-        if (!allowed && PrivilegesGuardContextHolder.getSkipGuardOnce(true) != null) {
+        if (!allowed && PrivilegesGuardContextHolder.getSkipGuardOnce() != null) {
             allowed = true;
             LOG.warn("Allow no permission(" + action.getName() + ") passed once : " + recordId);
         }

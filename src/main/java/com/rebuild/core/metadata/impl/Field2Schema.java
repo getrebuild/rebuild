@@ -257,9 +257,14 @@ public class Field2Schema {
         }
 
         if (StringUtils.isNotBlank(refEntity)) {
-            if (!MetadataHelper.containsEntity(refEntity)) {
-                throw new MetadataException(Language.getLang("SomeInvalid", "RefEntity") + " : " + refEntity);
+            // 忽略验证实体是否存在
+            // 在导入实体时需要，需自行保证引用实体有效性，否则系统会出错
+            if (!DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
+                if (!MetadataHelper.containsEntity(refEntity)) {
+                    throw new MetadataException(Language.getLang("SomeInvalid", "RefEntity") + " : " + refEntity);
+                }
             }
+
             recordOfField.setString("refEntity", refEntity);
             if (cascade != null) {
                 String cascadeAlias = cascade == CascadeModel.RemoveLinks ? "remove-links" : cascade.name().toLowerCase();

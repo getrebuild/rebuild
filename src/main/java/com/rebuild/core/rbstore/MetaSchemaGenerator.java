@@ -16,7 +16,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserService;
@@ -85,6 +84,7 @@ public class MetaSchemaGenerator {
         schemaEntity.put("nameField", entity.getNameField().getName());
         schemaEntity.put("quickFields", easyEntity.getExtraAttr("quickFields"));
 
+        // 字段
         JSONArray metaFields = new JSONArray();
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isCommonsField(field)
@@ -95,16 +95,14 @@ public class MetaSchemaGenerator {
         }
         schemaEntity.put("fields", metaFields);
 
-        // 布局（仅管理员的）
         schemaEntity.put("layouts", performLayouts(entity));
 
-        // 高级过滤（仅管理员的）
+        schemaEntity.put("fillins", performFillins(entity));
+
         schemaEntity.put("filters", performFilters(entity));
 
-        // 触发器
         schemaEntity.put("triggers", performTriggers(entity));
 
-        // 审批流程
         if (!isDetail) {
             schemaEntity.put("approvals", performApprovals(entity));
         }
@@ -112,7 +110,13 @@ public class MetaSchemaGenerator {
         return schemaEntity;
     }
 
-    private JSON performField(Field field) {
+    /**
+     * 字段
+     *
+     * @param field
+     * @return
+     */
+    protected JSON performField(Field field) {
         final JSONObject schemaField = new JSONObject(true);
         final EasyMeta easyField = EasyMeta.valueOf(field);
         final DisplayType dt = easyField.getDisplayType();
@@ -134,7 +138,6 @@ public class MetaSchemaGenerator {
 
         if (dt == DisplayType.REFERENCE) {
             schemaField.put("refEntity", field.getReferenceEntity().getName());
-            schemaField.put("refEntityLabel", EasyMeta.getLabel(field.getReferenceEntity()));
         } else if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
             schemaField.put("items", performPickList(field));
         }
@@ -147,6 +150,12 @@ public class MetaSchemaGenerator {
         return schemaField;
     }
 
+    /**
+     * 列表选项
+     *
+     * @param field
+     * @return
+     */
     private JSON performPickList(Field field) {
         ConfigBean[] entries = PickListManager.instance.getPickListRaw(
                 field.getOwnEntity().getName(), field.getName(), false);
@@ -160,18 +169,23 @@ public class MetaSchemaGenerator {
         return items;
     }
 
-    private JSON performLayouts(Entity entity) {
+    /**
+     * 布局（每种布局只保留一个（管理员的））
+     *
+     * @param entity
+     * @return
+     */
+    protected JSON performLayouts(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
                 .setParameter(1, entity.getName())
                 .setParameter(2, UserService.ADMIN_USER)
                 .array();
 
-        // 每种布局只保留一个
         JSONObject layouts = new JSONObject();
         for (Object[] o : array) {
             JSONArray config = (JSONArray) parseJSON(o[1]);
-            if (!config.isEmpty()) {
+            if (config != null && !config.isEmpty()) {
                 String type = (String) o[0];
                 layouts.put(type, config);
             }
@@ -179,66 +193,99 @@ public class MetaSchemaGenerator {
         return layouts;
     }
 
-    private JSON performFilters(Entity entity) {
+    /**
+     * 表单自动回填
+     *
+     * @param entity
+     * @return
+     */
+    protected JSON performFillins(Entity entity) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select belongField,sourceField,targetField,extConfig from AutoFillinConfig where belongEntity = ?")
+                .setParameter(1, entity.getName())
+                .array();
+
+        JSONArray fillins = new JSONArray();
+        for (Object[] o : array) {
+            JSON config = JSONUtils.toJSONObject(
+                    new String[] { "belongField", "sourceField", "targetField", "extConfig" },
+                    new Object[] { o[0], o[1], o[2], parseJSON(o[3]) });
+            fillins.add(config);
+        }
+        return fillins;
+    }
+
+    /**
+     * 高级过滤
+     *
+     * @param entity
+     * @return
+     */
+    protected JSON performFilters(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
                 .setParameter(1, entity.getName())
                 .setParameter(2, UserService.ADMIN_USER)
                 .array();
 
-        JSONObject filters = new JSONObject();
+        JSONArray filters = new JSONArray();
         for (Object[] o : array) {
-            JSONObject config = (JSONObject) parseJSON(o[1]);
-            if (!config.isEmpty()) {
-                String name = (String) o[0];
-                filters.put(name, config);
-            }
+            JSONObject filterConfig = (JSONObject) parseJSON(o[1]);
+            if (filterConfig == null) continue;
+
+            JSON config = JSONUtils.toJSONObject(
+                    new String[] { "filterName", "config" },
+                    new Object[] { o[0], filterConfig });
+            filters.add(config);
         }
         return filters;
     }
 
-    private JSON performTriggers(Entity entity) {
+    /**
+     * 触发器
+     *
+     * @param entity
+     * @return
+     */
+    protected JSON performTriggers(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select when,whenTimer,whenFilter,actionType,actionContent,priority,name from RobotTriggerConfig where belongEntity = ? and isDisabled = 'F'")
                 .setParameter(1, entity.getName())
                 .array();
-        if (array.length == 0) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
 
         JSONArray triggers = new JSONArray();
         for (Object[] o : array) {
-            JSON config = RecordBuilder.builder(entity)
-                    .add("when", o[0])
-                    .add("whenTimer", o[1])
-                    .add("whenFilter", parseJSON(o[2]))
-                    .add("actionType", o[3])
-                    .add("actionContent", parseJSON(o[4]))
-                    .add("priority", o[5])
-                    .add("name", o[6])
-                    .toJSON();
-            ((JSONObject) config).remove("metadata");
+            JSON actionContent = parseJSON(o[4]);
+            if (actionContent == null) continue;
+
+            JSON config = JSONUtils.toJSONObject(
+                    new String[] { "when", "whenTimer", "whenFilter", "actionType", "actionContent", "priority", "name" },
+                    new Object[] { o[0], o[1], parseJSON(o[2]), o[3], actionContent, o[5], o[6] });
             triggers.add(config);
         }
         return triggers;
     }
 
-    private JSON performApprovals(Entity entity) {
+    /**
+     * 审批流程
+     *
+     * @param entity
+     * @return
+     */
+    protected JSON performApprovals(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select name,flowDefinition from RobotApprovalConfig where belongEntity = ? and isDisabled = 'F'")
                 .setParameter(1, entity.getName())
                 .array();
-        if (array.length == 0) {
-            return JSONUtils.EMPTY_ARRAY;
-        }
 
         JSONArray approvals = new JSONArray();
         for (Object[] o : array) {
-            JSON config = RecordBuilder.builder(entity)
-                    .add("name", o[0])
-                    .add("flowDefinition", parseJSON(o[1]))
-                    .toJSON();
-            ((JSONObject) config).remove("metadata");
+            JSON flowDefinition = parseJSON(o[1]);
+            if (flowDefinition == null) continue;
+
+            JSON config = JSONUtils.toJSONObject(
+                    new String[] { "name", "flowDefinition" },
+                    new Object[] { o[0], flowDefinition });
             approvals.add(config);
         }
         return approvals;
