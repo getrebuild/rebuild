@@ -9,6 +9,7 @@ package com.rebuild.web.admin.rbstore;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -29,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 public class RBStoreController extends BaseController {
 
     @GetMapping("load-index")
-    public Object loadDataIndex(HttpServletRequest request) {
+    public JSONAware loadDataIndex(HttpServletRequest request) {
         String type = getParameterNotNull(request, "type");
         JSON index = RBStore.fetchRemoteJson(type + "/index.json");
         return index == null ? RespBody.error() : index;

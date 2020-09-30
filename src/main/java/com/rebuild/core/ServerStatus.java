@@ -41,8 +41,13 @@ public final class ServerStatus {
 
     private static final Logger LOG = LoggerFactory.getLogger(ServerStatus.class);
 
+    /**
+     * 启动时间
+     */
     public static final Date STARTUP_TIME = CalendarUtils.now();
-
+    /**
+     * 启动实例标识
+     */
     public static final String STARTUP_ONCE = CodecUtils.randomCode(40);
 
     private static long LastCheckTime = 0;

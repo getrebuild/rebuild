@@ -9,7 +9,6 @@ package com.rebuild.api;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
@@ -22,13 +21,8 @@ import com.rebuild.utils.JSONable;
  */
 public class RespBody implements JSONable {
 
-    @JsonProperty("error_code")
     private int errorCode;
-
-    @JsonProperty("error_msg")
     private String errorMsg;
-
-    @JsonProperty("data")
     private Object data;
 
     public RespBody(int errorCode, String errorMsg, Object data) {
@@ -54,8 +48,8 @@ public class RespBody implements JSONable {
         JSONObject result = JSONUtils.toJSONObject(
                 new String[] { "error_code", "error_msg" },
                 new Object[] { getErrorCode(), getErrorMsg() });
-        if (data != null) {
-            result.put("data", data);
+        if (getData() != null) {
+            result.put("data", getData());
         }
         return result;
     }
@@ -80,6 +74,17 @@ public class RespBody implements JSONable {
      */
     public static RespBody error(String errorMsg) {
         return error(errorMsg, Controller.CODE_ERROR);
+    }
+
+    /**
+     * @param errorMsgLang
+     * @param phKeys
+     * @return
+     * @see Language#getLang(String, String...)
+     */
+    public static RespBody errorl(String errorMsgLang, String ... phKeys) {
+        String lang = Language.getLang(errorMsgLang, phKeys);
+        return error(lang, Controller.CODE_ERROR);
     }
 
     /**

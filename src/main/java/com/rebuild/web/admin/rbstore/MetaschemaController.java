@@ -34,7 +34,7 @@ import java.util.List;
 public class MetaschemaController extends BaseController {
 
     @RequestMapping("/admin/metadata/imports")
-    public Object imports(HttpServletRequest request) {
+    public RespBody imports(HttpServletRequest request) {
         final String entityKey = getParameterNotNull(request, "key");
 
         JSONArray index = (JSONArray) RBStore.fetchMetaschema("index.json");
@@ -85,7 +85,8 @@ public class MetaschemaController extends BaseController {
                 return RespBody.error(hasError);
             }
 
-            return TaskExecutors.exec(importer);
+            String entityName = (String) TaskExecutors.exec(importer);
+            return RespBody.ok(entityName);
 
         } catch (Exception ex) {
             return RespBody.error(ex.getLocalizedMessage());

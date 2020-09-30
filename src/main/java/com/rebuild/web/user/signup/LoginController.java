@@ -16,6 +16,7 @@ import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.api.user.LoginToken;
 import com.rebuild.core.Application;
@@ -26,7 +27,10 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.support.*;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
+import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
@@ -39,6 +43,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -128,13 +133,13 @@ public class LoginController extends BaseController {
     }
 
     @PostMapping("user-login")
-    public void userLogin(HttpServletRequest request, HttpServletResponse response) {
+    @ResponseBody
+    public RespBody userLogin(HttpServletRequest request, HttpServletResponse response) {
         String vcode = getParameter(request, "vcode");
         Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, SK_NEED_VCODE);
         if (needVcode != null && needVcode
                 && (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
-            writeFailure(response, getLang(request, "SomeError", "Captcha"));
-            return;
+            return RespBody.errorl("SomeError", "Captcha");
         }
 
         final String user = getParameterNotNull(request, "user");
@@ -143,14 +148,12 @@ public class LoginController extends BaseController {
         int retry = getLoginRetryTimes(user, 1);
         if (retry > 3 && StringUtils.isBlank(vcode)) {
             ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
-            writeFailure(response, "VCODE");
-            return;
+            return RespBody.error("VCODE");
         }
 
         String hasError = LoginToken.checkUser(user, password);
         if (hasError != null) {
-            writeFailure(response, hasError);
-            return;
+            return RespBody.error(hasError);
         }
 
         User loginUser = Application.getUserStore().getUser(user);
@@ -162,9 +165,9 @@ public class LoginController extends BaseController {
 
         String danger = ServerStatus.checkValidity();
         if (danger != null) {
-            writeSuccess(response, JSONUtils.toJSONObject("danger", danger));
+            return RespBody.ok(JSONUtils.toJSONObject("danger", danger));
         } else {
-            writeSuccess(response);
+            return RespBody.ok();
         }
     }
 
@@ -244,10 +247,10 @@ public class LoginController extends BaseController {
     }
 
     @GetMapping("logout")
-    public void logout(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
         ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         ServletUtils.getSession(request).invalidate();
-        response.sendRedirect("login");
+        return "redirect:/user/login";
     }
 
     // --
@@ -258,32 +261,30 @@ public class LoginController extends BaseController {
     }
 
     @PostMapping("user-forgot-passwd")
-    public void userForgotPasswd(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody userForgotPasswd(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
-            writeFailure(response, getLang(request, "EmailAccountUnset"));
-            return;
+            return RespBody.errorl("EmailAccountUnset");
         }
 
         String email = getParameterNotNull(request, "email");
         if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
-            writeFailure(response, getLang(request, "SomeInvalid,Email"));
-            return;
+            return RespBody.errorl("SomeInvalid,Email");
         }
 
         String vcode = VerfiyCode.generate(email, 2);
         String subject = getLang(request, "ResetPassword");
         String content = String.format(getLang(request, "YourVCode", "ResetPassword"), vcode);
-
         String sentid = SMSender.sendMail(email, subject, content);
+
         if (sentid != null) {
-            writeSuccess(response);
+            return RespBody.ok();
         } else {
-            writeFailure(response);
+            return RespBody.errorl("OperationFailed");
         }
     }
 
     @PostMapping("user-confirm-passwd")
-    public void userConfirmPasswd(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody userConfirmPasswd(HttpServletRequest request) {
         JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 
         String newpwd = data.getString("newpwd");
@@ -291,8 +292,7 @@ public class LoginController extends BaseController {
         String vcode = data.getString("vcode");
 
         if (!VerfiyCode.verfiy(email, vcode, true)) {
-            writeFailure(response, getLang(request, "SomeInvalid", "Captcha"));
-            return;
+            return RespBody.errorl("SomeInvalid", "Captcha");
         }
 
         User user = Application.getUserStore().getUserByEmail(email);
@@ -302,29 +302,33 @@ public class LoginController extends BaseController {
             UserContextHolder.setUser(user.getId());
 
             Application.getBean(UserService.class).update(record);
-            writeSuccess(response);
             VerfiyCode.clean(email);
+
+            return RespBody.ok();
+
         } catch (DataSpecificationException ex) {
-            writeFailure(response, ex.getLocalizedMessage());
+            return RespBody.error(ex.getLocalizedMessage());
         } finally {
             UserContextHolder.clear();
         }
     }
 
     @GetMapping("live-wallpaper")
-    public void getLiveWallpaper(HttpServletResponse response) {
+    @ResponseBody
+    public String getLiveWallpaper() {
         if (!RebuildConfiguration.getBool(ConfigurationItem.LiveWallpaper)) {
-            writeFailure(response);
-            return;
+            return null;
         }
 
         JSONObject ret = License.siteApi("api/misc/bgimg", true);
         if (ret == null) {
-            writeFailure(response);
+            return null;
         } else {
-            writeSuccess(response, ret.getString("url"));
+            return ret.getString("url");
         }
     }
+
+    // --
 
     /**
      * 可用语言

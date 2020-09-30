@@ -21,8 +21,10 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,12 +41,12 @@ import java.io.IOException;
 @RequestMapping("/account")
 public class UserAvatar extends BaseController {
 
-    @RequestMapping("/user-avatar")
+    @GetMapping("/user-avatar")
     public void renderAvatat(HttpServletRequest request, HttpServletResponse response) throws IOException {
         renderUserAvatar(getRequestUser(request), request, response);
     }
 
-    @RequestMapping("/user-avatar/{user}")
+    @GetMapping("/user-avatar/{user}")
     public void renderAvatat(@PathVariable String user, HttpServletRequest request, HttpServletResponse response) throws IOException {
         renderUserAvatar(user, request, response);
     }
@@ -54,7 +56,7 @@ public class UserAvatar extends BaseController {
      * @param response
      * @throws IOException
      */
-    protected void renderUserAvatar(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void renderUserAvatar(Object user, HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (user == null) {
             response.sendRedirect(AppUtils.getContextPath() + "/assets/img/avatar.png");
             return;
@@ -109,7 +111,8 @@ public class UserAvatar extends BaseController {
     }
 
     @RequestMapping("/user-avatar-update")
-    public void avatarUpdate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @ResponseBody
+    public String avatarUpdate(HttpServletRequest request) throws IOException {
         String avatarRaw = getParameterNotNull(request, "avatar");
         String xywh = getParameterNotNull(request, "xywh");
 
@@ -121,7 +124,7 @@ public class UserAvatar extends BaseController {
         record.setString("avatarUrl", uploadName);
         Application.getBean(UserService.class).update(record);
 
-        writeSuccess(response, uploadName);
+        return uploadName;
     }
 
     /**

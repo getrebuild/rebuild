@@ -12,6 +12,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
@@ -48,6 +49,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
         request.getSession(true);
+        response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE);
 
         REQUEST_TIME.set(System.currentTimeMillis());
 

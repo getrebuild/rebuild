@@ -19,15 +19,15 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import java.util.List;
 
 /**
- * 注意：若 `Controller` 的方法返回 `null` 则不会进入此方法
- *
  * @author devezhao
  * @since 2020/9/30
+ *
  * @see RespBody
  * @see RebuildWebConfigurer#configureHandlerExceptionResolvers(List)
+ * @see RebuildWebConfigurer#configureMessageConverters(List)
  */
 @ControllerAdvice
-public class RebuildResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
@@ -36,6 +36,12 @@ public class RebuildResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+        // 强转为 JSON
+        // Controller 方法返回 `null` `String` 时 mediaType=TEXT_PLAIN
+        if (mediaType == MediaType.TEXT_PLAIN) {
+            serverHttpResponse.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
+        }
+
         if (o instanceof RespBody) {
             return ((RespBody) o).toJSON();
         } else {
