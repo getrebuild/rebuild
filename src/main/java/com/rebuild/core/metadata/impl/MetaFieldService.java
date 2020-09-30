@@ -72,9 +72,9 @@ public class MetaFieldService extends BaseService implements AdminGuard {
             if (usedArray.length > 0) {
                 LOG.warn("deleted configuration of field [ " + field.getOwnEntity().getName() + "." + field.getName() + " ] in [ " + who + " ] : " + usedArray.length);
 
-                if (who.equals("PickList")) {
+                if ("PickList".equals(who)) {
                     PickListManager.instance.clean(field);
-                } else if (who.equals("AutoFillinConfig")) {
+                } else if ("AutoFillinConfig".equals(who)) {
                     AutoFillinManager.instance.clean(field);
                 }
             }

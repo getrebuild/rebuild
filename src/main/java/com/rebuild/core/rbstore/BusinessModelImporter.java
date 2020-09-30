@@ -16,7 +16,7 @@ import com.rebuild.core.support.task.HeavyTask;
  * @author devezhao
  * @since 2020/9/29
  */
-public class BusinessModelImporter extends HeavyTask<Void> {
+public class BusinessModelImporter extends HeavyTask<Integer> {
 
     private String[] entities;
 
@@ -25,10 +25,9 @@ public class BusinessModelImporter extends HeavyTask<Void> {
     }
 
     @Override
-    protected Void exec() throws Exception {
+    protected Integer exec() throws Exception {
         DynamicMetadataContextHolder.setSkipRefentityCheck();
         DynamicMetadataContextHolder.setSkipLanguageRefresh();
-
 
         return null;
     }

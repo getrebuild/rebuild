@@ -9,12 +9,11 @@ package com.rebuild.core.rbstore;
 
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.support.License;
 import com.rebuild.utils.HttpUtils;
-import org.apache.commons.io.FileUtils;
+import com.rebuild.utils.JSONUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
 
 /**
  * RB 在线元数据仓库
@@ -34,21 +33,32 @@ public class RBStore {
     /**
      * for Classification
      *
-     * @param fileUrl
+     * @param fileUri
      * @return
      */
-    public static JSON fetchClassification(String fileUrl) {
-        return fetchRemoteJson("classifications/" + fileUrl);
+    public static JSON fetchClassification(String fileUri) {
+        return fetchRemoteJson("classifications/" + fileUri);
     }
 
     /**
      * for Metaschema
      *
-     * @param fileUrl
+     * @param fileUri
      * @return
      */
-    public static JSON fetchMetaschema(String fileUrl) {
-        return fetchRemoteJson("metaschemas/" + fileUrl);
+    public static JSON fetchMetaschema(String fileUri) {
+        return fetchRemoteJson("metaschemas/" + fileUri);
+    }
+
+    /**
+     * for BusinessModel
+     *
+     * @param fileUri
+     * @return
+     * @see License
+     */
+    public static JSON fetchBusinessModel(String fileUri) {
+        return License.siteApi("api/business-model/" + fileUri, true);
     }
 
     /**
@@ -63,22 +73,16 @@ public class RBStore {
             fileUrl = DATA_REPO + fileUrl;
         }
 
-        JSON d = null;
         try {
-            File tmp = HttpUtils.readBinary(fileUrl);
-            if (tmp != null) {
-                String t2str = FileUtils.readFileToString(tmp, "utf-8");
-                d = (JSON) JSON.parse(t2str);
-                FileUtils.deleteQuietly(tmp);
+            String content = HttpUtils.get(fileUrl);
+            if (JSONUtils.wellFormat(content)) {
+                return (JSON) JSON.parse(content);
             }
 
         } catch (Exception e) {
             LOG.error("Fetch failure from URL : " + fileUrl, e);
         }
 
-        if (d == null) {
-            throw new RebuildException("Unable to read data from RB store");
-        }
-        return d;
+        throw new RebuildException("Unable to read data from RB-Store");
     }
 }
