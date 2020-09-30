@@ -10,33 +10,33 @@ package com.rebuild.web.admin.rbstore;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/28
  */
-@Controller
+@RestController
 @RequestMapping("/admin/rbstore")
 public class RBStoreController extends BaseController {
 
     @GetMapping("load-index")
-    public void loadDataIndex(HttpServletRequest request, HttpServletResponse response) {
+    public Object loadDataIndex(HttpServletRequest request) {
         String type = getParameterNotNull(request, "type");
         JSON index = RBStore.fetchRemoteJson(type + "/index.json");
-        writeSuccess(response, index);
+        return index == null ? RespBody.error() : index;
     }
 
     @GetMapping("load-metaschemas")
-    public void loadMetaschemas(HttpServletResponse response) {
+    public JSON loadMetaschemas() {
         JSONArray index = (JSONArray) RBStore.fetchMetaschema("index.json");
 
         for (Object o : index) {
@@ -46,6 +46,6 @@ public class RBStoreController extends BaseController {
                 item.put("exists", true);
             }
         }
-        writeSuccess(response, index);
+        return index;
     }
 }

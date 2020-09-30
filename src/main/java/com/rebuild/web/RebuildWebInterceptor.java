@@ -10,7 +10,7 @@ package com.rebuild.web;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
-import com.rebuild.api.ResultBody;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
@@ -112,7 +112,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                 if (htmlRequest) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
                 } else {
-                    ServletUtils.writeJson(response, ResultBody.error(401).toString());
+                    ServletUtils.writeJson(response, RespBody.error(401).toString());
                 }
                 return false;
             }
@@ -136,7 +136,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             if (htmlRequest) {
                 sendRedirect(response, "/user/login", requestUri);
             } else {
-                ServletUtils.writeJson(response, ResultBody.error(403).toString());
+                ServletUtils.writeJson(response, RespBody.error(403).toString());
             }
             return false;
         }

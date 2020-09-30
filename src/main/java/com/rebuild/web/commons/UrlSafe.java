@@ -15,8 +15,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,7 +33,7 @@ import java.net.URL;
 @Controller
 public class UrlSafe extends BaseController {
 
-    @RequestMapping(value = "/commons/url-safe", method = RequestMethod.GET)
+    @GetMapping("/commons/url-safe")
     public ModelAndView safeRedirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String url = getParameterNotNull(request, "url");
         if (!url.startsWith("http")) {
@@ -50,6 +49,8 @@ public class UrlSafe extends BaseController {
         mv.getModel().put("outerUrl", url);
         return mv;
     }
+
+    // --
 
     private static JSONArray TRUSTED_URLS;
 

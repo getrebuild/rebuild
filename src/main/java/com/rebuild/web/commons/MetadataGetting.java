@@ -19,11 +19,11 @@ import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -32,35 +32,35 @@ import java.util.*;
  * @author zhaofang123@gmail.com
  * @since 09/19/2018
  */
-@Controller
+@RestController
 @RequestMapping("/commons/metadata/")
 public class MetadataGetting extends BaseController {
 
-    @RequestMapping("entities")
-    public void entities(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("entities")
+    public List<Map<String, Object>> entities(HttpServletRequest request) {
         ID user = getRequestUser(request);
         boolean usesDetail = getBoolParameter(request, "detail", false);
 
-        List<Map<String, String>> list = new ArrayList<>();
+        List<Map<String, Object>> data = new ArrayList<>();
         for (Entity e : MetadataSorter.sortEntities(user, false, usesDetail)) {
-            Map<String, String> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             EasyMeta easy = new EasyMeta(e);
             map.put("name", e.getName());
             map.put("label", easy.getLabel());
             map.put("icon", easy.getIcon());
-            list.add(map);
+            data.add(map);
         }
-        writeSuccess(response, list);
+        return data;
     }
 
-    @RequestMapping("fields")
-    public void fields(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("fields")
+    public List<Map<String, Object>> fields(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         Entity entityMeta = MetadataHelper.getEntity(entity);
         boolean appendRefFields = "2".equals(getParameter(request, "deep"));
 
-        List<Map<String, Object>> fsList = new ArrayList<>();
-        putFields(fsList, entityMeta, appendRefFields);
+        List<Map<String, Object>> data = new ArrayList<>();
+        putFields(data, entityMeta, appendRefFields);
 
         // 追加二级引用字段
         if (appendRefFields) {
@@ -70,12 +70,11 @@ public class MetadataGetting extends BaseController {
                 int code = field.getReferenceEntity().getEntityCode();
                 if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) continue;
 
-                fsList.add(buildField(field));
-                putFields(fsList, field, false);
+                data.add(formatField(field));
+                putFields(data, field, false);
             }
         }
-
-        writeSuccess(response, fsList);
+        return data;
     }
 
     /**
@@ -94,7 +93,7 @@ public class MetadataGetting extends BaseController {
         }
 
         for (Field field : MetadataSorter.sortFields(useEntity)) {
-            Map<String, Object> map = buildField(field);
+            Map<String, Object> map = formatField(field);
 
             // 引用字段处理
             if (EasyMeta.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {
@@ -114,11 +113,35 @@ public class MetadataGetting extends BaseController {
         }
     }
 
+    // 哪些实体引用了指定实体
+    @GetMapping("references")
+    public List<String[]> references(HttpServletRequest request) {
+        String entity = getParameterNotNull(request, "entity");
+        Entity entityMeta = MetadataHelper.getEntity(entity);
+
+        Set<Entity> references = new HashSet<>();
+        for (Field field : entityMeta.getReferenceToFields()) {
+            Entity own = field.getOwnEntity();
+            if (!(own.getMainEntity() != null || field.getType() == FieldType.ANY_REFERENCE)) {
+                references.add(own);
+            }
+        }
+
+        List<String[]> data = new ArrayList<>();
+        for (Entity e : references) {
+            EasyMeta easy = new EasyMeta(e);
+            data.add(new String[] { easy.getName(), easy.getLabel() });
+        }
+        return data;
+    }
+
+    // --
+
     /**
      * @param field
      * @return
      */
-    public static Map<String, Object> buildField(Field field) {
+    public static Map<String, Object> formatField(Field field) {
         Map<String, Object> map = new HashMap<>();
         EasyMeta easyField = EasyMeta.valueOf(field);
         map.put("name", field.getName());
@@ -137,27 +160,5 @@ public class MetadataGetting extends BaseController {
             map.put("stateClass", StateHelper.getSatetClass(field).getName());
         }
         return map;
-    }
-
-    // 哪些实体引用了指定实体
-    @RequestMapping("references")
-    public void references(HttpServletRequest request, HttpServletResponse response) {
-        String entity = getParameterNotNull(request, "entity");
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-
-        Set<Entity> references = new HashSet<>();
-        for (Field field : entityMeta.getReferenceToFields()) {
-            Entity own = field.getOwnEntity();
-            if (!(own.getMainEntity() != null || field.getType() == FieldType.ANY_REFERENCE)) {
-                references.add(own);
-            }
-        }
-
-        List<String[]> list = new ArrayList<>();
-        for (Entity e : references) {
-            EasyMeta easy = new EasyMeta(e);
-            list.add(new String[]{easy.getName(), easy.getLabel()});
-        }
-        writeSuccess(response, list);
     }
 }

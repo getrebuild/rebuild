@@ -78,10 +78,10 @@ public final class License {
      */
     public static JSONObject queryAuthority(boolean useCache) {
         JSONObject auth = siteApi("api/authority/query", useCache);
-        if (auth == null) {
+        if (auth == null || auth.getString("error") != null) {
             auth = JSONUtils.toJSONObject(
-                    new String[]{"sn", "authType", "authObject", "authExpires"},
-                    new String[]{SN(), "开源社区版", "GitHub", "无"});
+                    new String[] { "sn", "authType", "authObject", "authExpires" },
+                    new String[] { SN(), "开源社区版", "GitHub", "无" });
         }
         return auth;
     }

@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletResponse;
  * @since 09/1/2020
  */
 @Controller
-public class ErrorPageResolver extends BaseController {
+public class ErrorPageView extends BaseController {
 
     @GetMapping("/error/unsupported-browser")
     public ModelAndView pageUnsupportedBrowser(HttpServletRequest request) {
@@ -70,7 +70,11 @@ public class ErrorPageResolver extends BaseController {
     @GetMapping({"/gw/server-status", "/gw/server-status.json"})
     public String v1Fix(HttpServletRequest request) {
         String uri = request.getRequestURI();
-        if (uri.endsWith("/server-status.json")) return "redirect:/error/server-status.json";
-        else return "redirect:/error/server-status";
+
+        if (uri.endsWith("/server-status.json")) {
+            return "redirect:/error/server-status.json";
+        } else {
+            return "redirect:/error/server-status";
+        }
     }
 }

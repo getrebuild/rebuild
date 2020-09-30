@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * 请求响应
  *
  * @author devezhao
- * @see ResultBody
+ * @see RespBody
  * @since 01/10/2019
  */
 public abstract class Controller {
@@ -37,7 +37,7 @@ public abstract class Controller {
      * @return
      */
     protected JSON formatSuccess(Object data) {
-        return ResultBody.ok(data).toJSON();
+        return RespBody.ok(data).toJSON();
     }
 
     /**
@@ -54,6 +54,6 @@ public abstract class Controller {
      * @return
      */
     protected JSON formatFailure(String errorMsg, int errorCode) {
-        return ResultBody.error(errorMsg, errorCode).toJSON();
+        return RespBody.error(errorMsg, errorCode).toJSON();
     }
 }

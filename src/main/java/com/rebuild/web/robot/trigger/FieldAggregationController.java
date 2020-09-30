@@ -115,7 +115,7 @@ public class FieldAggregationController extends BaseController {
     /**
      * @param field
      * @return
-     * @see MetadataGetting#buildField(Field)
+     * @see MetadataGetting#formatField(Field)
      */
     protected static String[] buildField(Field field, boolean includesType) {
         EasyMeta easyField = EasyMeta.valueOf(field);

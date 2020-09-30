@@ -79,7 +79,7 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
-     * 直接执行此方法（同步方式）
+     * 直接执行此方法（同步方式），无返回值
      *
      * @param task
      */

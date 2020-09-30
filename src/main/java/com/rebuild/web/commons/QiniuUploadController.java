@@ -11,31 +11,28 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/02
  */
-@Controller
+@RestController
 public class QiniuUploadController extends BaseController {
 
     // 获取上传参数
-    @RequestMapping("/filex/qiniu/upload-keys")
-    public void getUploadKeys(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @GetMapping("/filex/qiniu/upload-keys")
+    public JSON getUploadKeys(HttpServletRequest request) {
         String fileName = getParameterNotNull(request, "file");
 
         String fileKey = QiniuCloud.formatFileKey(fileName);
         String token = QiniuCloud.instance().getUploadToken(fileKey);
 
-        JSON ret = JSONUtils.toJSONObject(
-                new String[]{"key", "token"}, new String[]{fileKey, token});
-        writeSuccess(response, ret);
+        return JSONUtils.toJSONObject(
+                new String[] { "key", "token" },
+                new String[] { fileKey, token });
     }
-
 }

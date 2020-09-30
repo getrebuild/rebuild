@@ -15,7 +15,7 @@ import com.rebuild.core.support.general.BarCodeGenerator;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -32,8 +32,8 @@ import java.io.IOException;
 @Controller
 public class BarCodeGeneratorController extends BaseController {
 
-    @RequestMapping("/commons/barcode/generate")
-    public void generate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @GetMapping("/commons/barcode/generate")
+    public void generateAndRender(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String entity = getParameterNotNull(request, "entity");
         String field = getParameterNotNull(request, "field");
         if (!MetadataHelper.checkAndWarnField(entity, field)) {
@@ -48,7 +48,7 @@ public class BarCodeGeneratorController extends BaseController {
         writeTo(BarCodeGenerator.getBarCodeImage(barcodeField, record), response);
     }
 
-    @RequestMapping({"/commons/barcode/render-qr", "/commons/barcode/render"})
+    @GetMapping({"/commons/barcode/render-qr", "/commons/barcode/render"})
     public void render(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String content = getParameterNotNull(request, "t");
 

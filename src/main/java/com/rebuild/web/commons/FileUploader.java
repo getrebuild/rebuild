@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.ObjectUtils;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -18,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -49,7 +51,7 @@ public class FileUploader extends BaseController {
         }
 
         if (file == null || file.isEmpty()) {
-            writeFailure(response, "上传失败，请选择文件");
+            writeFailure(response, "No file found");
             return;
         }
 
@@ -69,7 +71,7 @@ public class FileUploader extends BaseController {
 
             file.transferTo(dest);
             if (!dest.exists()) {
-                writeFailure(response, "上传失败，请稍后重试");
+                writeFailure(response, getLang(request, "ErrorUpload"));
                 return;
             }
 
@@ -81,7 +83,7 @@ public class FileUploader extends BaseController {
         if (uploadName != null) {
             writeSuccess(response, uploadName);
         } else {
-            writeFailure(response, "上传失败，请稍后重试");
+            writeFailure(response, getLang(request, "ErrorUpload"));
         }
     }
 
@@ -89,16 +91,17 @@ public class FileUploader extends BaseController {
      * @see FilesHelper#storeFileSize(String, int)
      */
     @RequestMapping("store-filesize")
-    public void storeFilesize(HttpServletRequest request, HttpServletResponse response) {
+    @ResponseBody
+    public RespBody storeFilesize(HttpServletRequest request) {
         int fileSize = ObjectUtils.toInt(request.getParameter("fs"));
         if (fileSize < 1) {
-            return;
+            return RespBody.error();
         }
 
         String filePath = request.getParameter("fp");
         if (StringUtils.isNotBlank(filePath)) {
             FilesHelper.storeFileSize(filePath, fileSize);
         }
-        writeSuccess(response);
+        return RespBody.ok();
     }
 }

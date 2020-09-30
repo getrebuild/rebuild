@@ -9,19 +9,20 @@ package com.rebuild.web.commons;
 
 import cn.devezhao.commons.ThreadPool;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
- * 任务操作入口类
+ * 任务 `HeavyTask` 操作
  *
  * @author devezhao
  * @see HeavyTask
@@ -29,46 +30,43 @@ import java.io.IOException;
  * @since 09/29/2018
  */
 @RequestMapping("/commons/task/")
-@Controller
+@RestController
 public class HeavyTaskController extends BaseController {
 
     // 任务状态
-    @RequestMapping("state")
-    public void checkState(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("state")
+    public JSONAware taskState(HttpServletRequest request) {
         String taskid = getParameterNotNull(request, "taskid");
         HeavyTask<?> task = TaskExecutors.getTask(taskid);
-        if (task == null) {
-            writeFailure(response, "无效任务 : " + taskid);
-            return;
-        }
 
-        JSON state = formatTaskState(task);
-        writeSuccess(response, state);
+        if (task == null) {
+            return RespBody.error("Unknow task : " + taskid);
+        } else {
+            return formatTaskState(task);
+        }
     }
 
     // 中断任务
     @RequestMapping("cancel")
-    public void importCancel(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public JSONAware taskCancel(HttpServletRequest request) {
         String taskid = getParameterNotNull(request, "taskid");
         HeavyTask<?> task = TaskExecutors.getTask(taskid);
         if (task == null) {
-            writeFailure(response, "无效任务 : " + taskid);
-            return;
+            return RespBody.error("Unknow task : " + taskid);
         }
         if (task.isCompleted()) {
-            writeFailure(response, "无法终止，因为任务已经完成");
-            return;
+            return RespBody.error(getLang(request, "TaskCompletedWarn"));
         }
 
         task.interrupt();
         for (int i = 0; i < 10; i++) {
             if (task.isInterrupted()) {
-                writeSuccess(response, formatTaskState(task));
-                return;
+                return formatTaskState(task);
             }
             ThreadPool.waitFor(200);
         }
-        writeFailure(response);
+
+        return RespBody.error(getLang(request, "NotCancelTask"));
     }
 
     /**
@@ -77,7 +75,7 @@ public class HeavyTaskController extends BaseController {
      * @param task
      * @return
      */
-    public static JSON formatTaskState(HeavyTask<?> task) {
+    private JSON formatTaskState(HeavyTask<?> task) {
         JSONObject state = new JSONObject();
         state.put("progress", task.getCompletedPercent());
         state.put("completed", task.getCompleted());

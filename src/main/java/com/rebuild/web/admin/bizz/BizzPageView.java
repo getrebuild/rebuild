@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Controller
 @RequestMapping("/app/")
-public class BizzPageResolver extends EntityController {
+public class BizzPageView extends EntityController {
 
     @GetMapping("User/view/{id}")
     public ModelAndView userView(@PathVariable String id, HttpServletRequest request) {

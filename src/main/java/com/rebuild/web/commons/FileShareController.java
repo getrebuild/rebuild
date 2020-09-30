@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.integration.QiniuCloud;
@@ -16,8 +17,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -34,39 +34,43 @@ import java.io.IOException;
 public class FileShareController extends BaseController {
 
     // URL of public
-    @RequestMapping("/filex/make-url")
-    public void makeUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    @GetMapping("/filex/make-url")
+    @ResponseBody
+    public JSON makeUrl(HttpServletRequest request) {
         String fileUrl = getParameterNotNull(request, "url");
-        String publicUrl = genPublicUrl(fileUrl);
-        writeSuccess(response, JSONUtils.toJSONObject("publicUrl", publicUrl));
+        String publicUrl = makePublicUrl(fileUrl);
+        return JSONUtils.toJSONObject("publicUrl", publicUrl);
     }
 
     // URL of share
-    @RequestMapping("/filex/make-share")
-    public void makeShareUrl(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Assert.isTrue(RebuildConfiguration.getBool(ConfigurationItem.FileSharable), "不允许分享文件");
+    @GetMapping("/filex/make-share")
+    @ResponseBody
+    public JSON viewSharedFile(HttpServletRequest request) {
+        Assert.isTrue(
+                RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
+                getLang(request, "FileSharableDeny"));
 
         String fileUrl = getParameterNotNull(request, "url");
-        int minte = getIntParameter(request, "time", 5);
+        int mtime = getIntParameter(request, "time", 5);
 
         String shareKey = CodecUtils.randomCode(40);
-        Application.getCommonsCache().put(shareKey, fileUrl, minte * 60);
+        Application.getCommonsCache().put(shareKey, fileUrl, mtime * 60);
 
         String shareUrl = RebuildConfiguration.getHomeUrl("s/" + shareKey);
-        writeSuccess(response, JSONUtils.toJSONObject("shareUrl", shareUrl));
+        return JSONUtils.toJSONObject("shareUrl", shareUrl);
     }
 
-    @RequestMapping("/s/{shareKey}")
-    public ModelAndView makeShareUrl(@PathVariable String shareKey,
-                                     HttpServletResponse response) throws IOException {
+    @GetMapping("/s/{shareKey}")
+    public ModelAndView viewSharedFile(@PathVariable String shareKey,
+                                       HttpServletRequest request, HttpServletResponse response) throws IOException {
         String fileUrl;
         if (!RebuildConfiguration.getBool(ConfigurationItem.FileSharable)
                 || (fileUrl = Application.getCommonsCache().get(shareKey)) == null) {
-            response.sendError(403, "分享的文件已过期");
+            response.sendError(403, getLang(request, "ShardeFileExpired"));
             return null;
         }
 
-        String publicUrl = genPublicUrl(fileUrl);
+        String publicUrl = makePublicUrl(fileUrl);
         ModelAndView mv = createModelAndView("/commons/shared-file");
         mv.getModelMap().put("publicUrl", publicUrl);
         return mv;
@@ -77,7 +81,7 @@ public class FileShareController extends BaseController {
      * @return
      * @see FileDownloader#download(HttpServletRequest, HttpServletResponse)
      */
-    private String genPublicUrl(String fileUrl) {
+    private String makePublicUrl(String fileUrl) {
         String publicUrl;
         if (QiniuCloud.instance().available()) {
             publicUrl = QiniuCloud.instance().url(fileUrl, 120);

@@ -20,6 +20,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
 
 /**
  * Root Controller
@@ -213,10 +214,23 @@ public abstract class BaseController extends Controller {
     }
 
     /**
-     * @param page
+     * @param view
      * @return
      */
-    protected ModelAndView createModelAndView(String page) {
-        return new ModelAndView(page);
+    protected ModelAndView createModelAndView(String view) {
+        return new ModelAndView(view);
+    }
+
+    /**
+     * @param view
+     * @param modelMap
+     * @return
+     */
+    protected ModelAndView createModelAndView(String view, Map<String, Object> modelMap) {
+        ModelAndView mv = createModelAndView(view);
+        if (modelMap != null && !modelMap.isEmpty()) {
+            mv.getModelMap().putAll(modelMap);
+        }
+        return mv;
     }
 }

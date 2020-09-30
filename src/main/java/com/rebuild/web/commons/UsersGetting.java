@@ -23,13 +23,11 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 用户/部门/角色/团队 获取
@@ -37,12 +35,12 @@ import java.util.List;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/25
  */
-@Controller
+@RestController
 @RequestMapping("/commons/search/")
 public class UsersGetting extends BaseController {
 
-    @RequestMapping("users")
-    public void loadUsers(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("users")
+    public JSON loadUsers(HttpServletRequest request) {
         final String type = getParameter(request, "type", "User");
         final String query = getParameter(request, "q");
 
@@ -61,7 +59,7 @@ public class UsersGetting extends BaseController {
         // 排序
         members = UserHelper.sortMembers(members);
 
-        List<JSON> ret = new ArrayList<>();
+        JSONArray found = new JSONArray();
         for (Member m : members) {
             if (m.isDisabled()) continue;
 
@@ -79,31 +77,30 @@ public class UsersGetting extends BaseController {
                     || (ifUser != null && ifUser.getEmail() != null && StringUtils.containsIgnoreCase(ifUser.getEmail(), query))) {
                 JSONObject o = JSONUtils.toJSONObject(new String[]{"id", "text"},
                         new String[]{m.getIdentity().toString(), name});
-                ret.add(o);
+                found.add(o);
 
                 // 最多显示40个
-                if (ret.size() >= 40) break;
+                if (found.size() >= 40) break;
             }
         }
-
-        writeSuccess(response, ret);
+        return found;
     }
 
     /**
      * 获取符合 UserSelector 组件的数据
      *
      * @param request
-     * @param response
      * @see UserHelper#parseUsers(JSONArray, ID)
      */
-    @RequestMapping("user-selector")
-    public void parseUserSelectorRaw(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("user-selector")
+    public JSON parseUserSelectorRaw(HttpServletRequest request) {
         String entity = getParameter(request, "entity");
         JSON users = ServletUtils.getRequestJson(request);
         Entity hadEntity = MetadataHelper.containsEntity(entity) ? MetadataHelper.getEntity(entity) : null;
 
-        List<JSON> formatted = new ArrayList<>();
-        String[] keys = new String[]{"id", "text"};
+        JSONArray formatted = new JSONArray();
+        String[] keys = new String[] {"id", "text"};
+
         for (Object item : (JSONArray) users) {
             String idOrField = (String) item;
             if (ID.isId(idOrField)) {
@@ -116,6 +113,6 @@ public class UsersGetting extends BaseController {
                 formatted.add(JSONUtils.toJSONObject(keys, new String[]{idOrField, fullLabel}));
             }
         }
-        writeSuccess(response, formatted);
+        return formatted;
     }
 }

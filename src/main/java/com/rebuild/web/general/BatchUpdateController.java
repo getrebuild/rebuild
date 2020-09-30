@@ -104,7 +104,7 @@ public class BatchUpdateController extends BaseController {
      * @return
      */
     private Map<String, Object> buildField(Field field, DisplayType dt) {
-        Map<String, Object> map = MetadataGetting.buildField(field);
+        Map<String, Object> map = MetadataGetting.formatField(field);
 
         // 字段选项
         if (dt == DisplayType.PICKLIST) {

@@ -24,7 +24,7 @@ import java.io.IOException;
  * @since 09/20/2018
  */
 @Controller
-public class CommonPageResolver extends BaseController {
+public class CommonPageView extends BaseController {
 
     @GetMapping("/")
     public String index() {
