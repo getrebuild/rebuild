@@ -10,6 +10,7 @@ package com.rebuild.server.helper;
 import com.rebuild.server.RebuildException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.util.ResourceUtils;
 
@@ -40,7 +41,7 @@ public final class SysConfiguration extends KVStorage {
 
 		String d = get(ConfigurableItem.DataDirectory);
 		File data = null;
-		if (d != null) {
+		if (StringUtils.isNotBlank(d)) {
 			data = new File(d);
 			if (!data.exists() && !data.mkdirs()) {
 			    LOG.error("Couldn't mkdirs for data : " + data);
