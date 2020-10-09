@@ -141,7 +141,7 @@ public class AesPreferencesConfigurer extends PreferencesPlaceholderConfigurer i
 	 */
 	public static String getItem(String name) {
 		if (ConfigurableItem.DataDirectory.name().equals(name)) {
-			return System.getProperty("DataDirectory");
+			return StringUtils.defaultIfBlank(System.getProperty("DataDirectory"), null);
 		}
 
 		if (propsHold == null) return null;
