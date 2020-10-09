@@ -31,7 +31,9 @@ $(document).ready(function () {
     if (dv) {
       if (checkDefaultValue(dv, dt) === false) return
       else data.defaultValue = dv
-    } else if (dv === '') data.defaultValue = dv
+    } else if (dv === '') {
+      data.defaultValue = dv
+    }
 
     const extConfigNew = { ...__gExtConfig }
     // 不同类型的配置
@@ -135,6 +137,10 @@ $(document).ready(function () {
   } else {
     $('.J_action').removeClass('hide')
   }
+
+  // 只读属性
+  delete extConfig['classification']
+  delete extConfig['stateClass']
 
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) {
