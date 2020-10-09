@@ -15,16 +15,24 @@ import org.slf4j.LoggerFactory;
  * 请求响应
  *
  * @author devezhao
- * @see RespBody
  * @since 01/10/2019
+ * @see RespBody
  */
 public abstract class Controller {
 
-    // 成功
+    /**
+     * 成功
+     */
     public static final int CODE_OK = 0;
-    // 错误
+
+    /**
+     * 失败
+     */
     public static final int CODE_ERROR = 400;
-    // 未知错误
+
+    /**
+     * 未知错误
+     */
     public static final int CODE_SERV_ERROR = 500;
 
     /**

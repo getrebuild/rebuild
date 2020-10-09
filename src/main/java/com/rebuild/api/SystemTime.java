@@ -23,8 +23,8 @@ public class SystemTime extends BaseApi {
     @Override
     public JSON execute(ApiContext context) {
         JSON data = JSONUtils.toJSONObject(
-                new String[]{"time"},
-                new Object[]{I18nUtils.formatDate(CalendarUtils.now())});
+                new String[] { "time" },
+                new Object[] { I18nUtils.formatDate(CalendarUtils.now()) });
         return formatSuccess(data);
     }
 }

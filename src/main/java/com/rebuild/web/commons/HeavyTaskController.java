@@ -55,7 +55,7 @@ public class HeavyTaskController extends BaseController {
             return RespBody.error("Unknow task : " + taskid);
         }
         if (task.isCompleted()) {
-            return RespBody.error(getLang(request, "TaskCompletedWarn"));
+            return RespBody.errorl("TaskCompletedWarn");
         }
 
         task.interrupt();
@@ -66,7 +66,7 @@ public class HeavyTaskController extends BaseController {
             ThreadPool.waitFor(200);
         }
 
-        return RespBody.error(getLang(request, "NotCancelTask"));
+        return RespBody.errorl("NotCancelTask");
     }
 
     /**

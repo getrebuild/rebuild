@@ -18,7 +18,6 @@ import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,11 +28,10 @@ import java.io.IOException;
  */
 public class ApiGatewayTest extends TestSupport {
 
-    @Ignore
     @Test
     public void testOpenApiSDK() {
         final String[] app = createApp();
-        final String baseUrl = "http://localhost:8180/rebuild/gw/api/";
+        final String baseUrl = "http://localhost:18080/rebuild/gw/api/";
 
         // 加密签名请求
         OpenApiSDK openApiSDK = new OpenApiSDK(app[0], app[1], baseUrl);
@@ -51,6 +49,8 @@ public class ApiGatewayTest extends TestSupport {
     }
 
     /**
+     * 创建用于调用接口的 API Key
+     *
      * @return
      */
     protected static String[] createApp() {
@@ -69,6 +69,6 @@ public class ApiGatewayTest extends TestSupport {
         Application.getCommonsService().create(record, false);
 
         RebuildApiManager.instance.clean(appId);
-        return new String[]{appId, appSecret};
+        return new String[] { appId, appSecret };
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 
 /**
  * 文件共享
@@ -71,9 +72,7 @@ public class FileShareController extends BaseController {
         }
 
         String publicUrl = makePublicUrl(fileUrl);
-        ModelAndView mv = createModelAndView("/commons/shared-file");
-        mv.getModelMap().put("publicUrl", publicUrl);
-        return mv;
+        return createModelAndView("/commons/shared-file", Collections.singletonMap("publicUrl", publicUrl));
     }
 
     /**

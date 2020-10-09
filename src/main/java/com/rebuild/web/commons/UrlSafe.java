@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collections;
 
 /**
  * 外部 URL 监测跳转
@@ -45,9 +46,7 @@ public class UrlSafe extends BaseController {
             return null;
         }
 
-        ModelAndView mv = createModelAndView("/commons/url-safe");
-        mv.getModel().put("outerUrl", url);
-        return mv;
+        return createModelAndView("/commons/url-safe", Collections.singletonMap("outerUrl", url));
     }
 
     // --

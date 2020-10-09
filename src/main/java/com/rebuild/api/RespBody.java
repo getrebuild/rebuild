@@ -31,14 +31,23 @@ public class RespBody implements JSONable {
         this.data = data;
     }
 
+    /**
+     * @return
+     */
     public int getErrorCode() {
         return errorCode;
     }
 
+    /**
+     * @return
+     */
     public String getErrorMsg() {
         return errorMsg;
     }
 
+    /**
+     * @return
+     */
     public Object getData() {
         return data;
     }

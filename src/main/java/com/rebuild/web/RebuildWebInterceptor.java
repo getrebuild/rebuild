@@ -210,10 +210,14 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             return true;
         }
 
+        requestUri = requestUri.split("\\?")[0];
         requestUri = requestUri.replaceFirst(AppUtils.getContextPath(), "");
-        return requestUri.length() < 3 || requestUri.startsWith("/t/") || requestUri.startsWith("/s/")
+
+        return requestUri.length() < 3
                 || requestUri.endsWith("/error") || requestUri.contains("/error/")
+                || requestUri.startsWith("/t/") || requestUri.startsWith("/s/")
                 || requestUri.startsWith("/setup/")
+                || requestUri.startsWith("/gw/")
                 || requestUri.startsWith("/language/")
                 || requestUri.startsWith("/filex/access/")
                 || requestUri.startsWith("/commons/announcements")

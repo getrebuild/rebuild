@@ -49,7 +49,7 @@ public class BootApplication extends SpringBootServletInitializer {
 
     public static String getContextPath() {
         if (CONTEXT_PATH == null) {
-            // BOOT
+            // IN BOOT
             CONTEXT_PATH = BootEnvironmentPostProcessor.getProperty("server.servlet.context-path", "");
         }
         return CONTEXT_PATH;
