@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.server.helper;
 
+import cn.devezhao.commons.CodecUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.server.Application;
@@ -59,8 +60,8 @@ public final class License {
         if (SN == null) {
             SN = String.format("ZR%d%s-%s",
                     Application.BUILD,
-                    StringUtils.leftPad(Locale.getDefault().getCountry(), 3, "0"),
-                    UUID.randomUUID().toString().replace("-", "").substring(0, 14).toUpperCase());
+                    Locale.getDefault().getCountry().substring(0, 2),
+                    CodecUtils.randomCode(14).toUpperCase());
             if (Application.serversReady()) {
                 SysConfiguration.set(ConfigurableItem.SN, SN);
             }
