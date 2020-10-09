@@ -142,7 +142,7 @@
           )
         } else if ('DefaultLanguage' === name) {
           const options = []
-          for (let k in _LANGS) options.push(<option value={k}>{_LANGS[k]}</option>)
+          for (let k in _LANGS) options.push(<option value={k} key={k}>{_LANGS[k]}</option>)
           return (
             <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
               {options}
