@@ -22,13 +22,13 @@ module.exports = {
   rules: {
     'react/jsx-no-target-blank': 0,
     'react/prop-types': 0,
-    strict: 0,
+    'strict': 0,
     'no-redeclare': 0,
-    indent: [2, 2],
+    'indent': [2, 2],
     'linebreak-style': [0, 'unix'],
-    quotes: [2, 'single'],
-    semi: [2, 'never'],
-    eqeqeq: [2, 'always'],
+    'quotes': [2, 'single'],
+    'semi': [2, 'never'],
+    'eqeqeq': [2, 'always'],
   },
 
   globals: {

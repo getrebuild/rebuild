@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.rbstore;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.License;
 import com.rebuild.utils.HttpUtils;
@@ -57,7 +58,7 @@ public class RBStore {
      * @return
      * @see License
      */
-    public static JSON fetchBusinessModel(String fileUri) {
+    public static JSONObject fetchBusinessModel(String fileUri) {
         return License.siteApi("api/business-model/" + fileUri, true);
     }
 

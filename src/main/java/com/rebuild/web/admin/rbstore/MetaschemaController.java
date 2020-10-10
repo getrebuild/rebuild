@@ -85,8 +85,8 @@ public class MetaschemaController extends BaseController {
                 return RespBody.error(hasError);
             }
 
-            String entityName = (String) TaskExecutors.exec(importer);
-            return RespBody.ok(entityName);
+            String created = (String) TaskExecutors.exec(importer);
+            return RespBody.ok(created);
 
         } catch (Exception ex) {
             return RespBody.error(ex.getLocalizedMessage());

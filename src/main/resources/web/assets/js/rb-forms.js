@@ -1571,7 +1571,7 @@ class ClassificationSelector extends React.Component {
     $(this._select).each(function (idx) {
       const s = $(this)
         .select2({
-          placeholder: '选择' + (idx + 1) + '分类',
+          placeholder: $lang('SelectSome').replace('{0}', $lang('XLevelClass').replace('%d', idx + 1)),
           allowClear: false,
         })
         .on('change', () => {
@@ -1600,7 +1600,7 @@ class ClassificationSelector extends React.Component {
     const last = this._select2[this.state.openLevel]
     const v = last.val()
     if (!v) {
-      RbHighbar.create($lang('InvalidArgs'))
+      RbHighbar.create($lang('PlsSelectSome').replace('{0}', this.props.label))
     } else {
       const text = []
       $(this._select2).each(function () {

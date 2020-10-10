@@ -1176,6 +1176,7 @@
   "EmailBeUsed": "邮箱已被占用，请换用其他邮箱",
   "OperationFailed": "操作失败，请稍后重试",
   "OldPasswdWrong": "原密码输入有误",
+  "ChangeClassLevelTips": "改变分类级别将影响现有数据。是否继续？",
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
   "s.ApprovalState.PROCESSING": "审批中",

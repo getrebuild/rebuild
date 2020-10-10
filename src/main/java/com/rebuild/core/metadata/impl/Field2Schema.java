@@ -339,6 +339,8 @@ public class Field2Schema {
         identifier = identifier.toLowerCase();
         if (identifier.length() > 42) {
             identifier = identifier.substring(0, 42);
+        } else if (identifier.length() < 4) {
+            identifier += RandomUtils.nextInt(9999);
         }
 
         return identifier;

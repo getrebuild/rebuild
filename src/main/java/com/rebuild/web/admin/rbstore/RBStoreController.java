@@ -13,7 +13,10 @@ import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.rbstore.RBStore;
+import com.rebuild.core.support.task.TaskExecutors;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,10 +39,30 @@ public class RBStoreController extends BaseController {
         return index == null ? RespBody.error() : index;
     }
 
+    @Deprecated
     @GetMapping("load-metaschemas")
     public JSON loadMetaschemas() {
         JSONArray index = (JSONArray) RBStore.fetchMetaschema("index.json");
+        buildEntityData(index);
+        return index;
+    }
 
+    @GetMapping("load-business-model")
+    public JSONAware loadBusinessModel() {
+        JSONObject index = RBStore.fetchBusinessModel("index.json");
+        String hasError = index.getString("error");
+        if (hasError != null) {
+            return RespBody.error(hasError);
+        }
+
+        for (String cat : index.keySet()) {
+            JSONArray models = index.getJSONArray(cat);
+            buildEntityData(models);
+        }
+        return index;
+    }
+
+    private JSONArray buildEntityData(JSONArray index) {
         for (Object o : index) {
             JSONObject item = (JSONObject) o;
             String key = item.getString("key");
@@ -48,5 +71,14 @@ public class RBStoreController extends BaseController {
             }
         }
         return index;
+    }
+
+    @RequestMapping("/business-model/imports")
+    public JSON importBusinessModel(HttpServletRequest request) {
+        String[] entities = getParameterNotNull(request, "key").split(",");
+
+        BusinessModelImporter importer = new BusinessModelImporter(entities);
+        String taskid = TaskExecutors.submit(importer, getRequestUser(request));
+        return JSONUtils.toJSONObject("taskid", taskid);
     }
 }

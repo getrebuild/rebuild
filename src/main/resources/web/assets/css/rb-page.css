@@ -3589,8 +3589,8 @@ a.avatar.x26 img {
   padding: 0;
 }
 
-.modal-title {
-  text-transform: uppercase;
+.modal-title, .btn, .dropdown-item {
+  text-transform: capitalize;
 }
 
 a.select-lang {

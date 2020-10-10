@@ -91,7 +91,7 @@ class LevelBox extends React.Component {
       <div className={`col-md-3 ${this.state.turnOn ? '' : 'off'}`}>
         <div className="float-left">
           <h5 className="text-bold">
-            {$lang('XLevelClass').replace('%d', ~~this.props.level + 1)}
+            {$lang('XLevelClass').replace('%d', (~~this.props.level + 1) + ' ')}
           </h5>
         </div>
         {this.props.level < 1 ? null : (
@@ -169,8 +169,20 @@ class LevelBox extends React.Component {
   turnToggle = (e, stop) => {
     const c = e.target.checked
     this.setState({ turnOn: c })
-    if (stop !== true) this.props.$$$parent.notifyToggle(this.props.level, c)
-    saveOpenLevel()
+    if (stop !== true) {
+      const that = this
+      RbAlert.create($lang('ChangeClassLevelTips'), {
+        confirm: function () {
+          that.props.$$$parent.notifyToggle(that.props.level, c)
+          saveOpenLevel()
+          this.hide()
+        },
+        cancel: function () {
+          that.setState({ turnOn: !c })
+          this.hide()
+        }
+      })
+    }
   }
 
   changeVal = (e) => {

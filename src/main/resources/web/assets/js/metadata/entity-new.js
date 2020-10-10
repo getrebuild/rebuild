@@ -52,11 +52,15 @@ $(document).ready(function () {
   let indexLoaded = false
   $('.J_imports').click(() => {
     if (indexLoaded) return
-    renderRbcomp(<MetaschemaList />, 'metaschemas')
+    // renderRbcomp(<MetaschemaList />, 'metaschemas')
+    // eslint-disable-next-line react/jsx-no-undef
+    renderRbcomp(<BusinessModelBuilder />, 'metaschemas')
     indexLoaded = true
   })
 })
 
+// @Deprecated
+// eslint-disable-next-line no-unused-vars
 class MetaschemaList extends React.Component {
   constructor(props) {
     super(props)
@@ -106,11 +110,13 @@ class MetaschemaList extends React.Component {
 
   componentDidMount() {
     $.get('/admin/rbstore/load-metaschemas', (res) => {
-      if (res.error_code === 0)
+      if (res.error_code === 0) {
         this.setState({ indexes: res.data }, () => {
           parent.RbModal.resize()
         })
-      else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 

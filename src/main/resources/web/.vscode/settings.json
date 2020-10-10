@@ -8,5 +8,10 @@
     "enable": true
   },
   "eslint.onIgnoredFiles": "warn",
-  "eslint.validate": ["javascript", "javascriptreact"]
+  "eslint.validate": ["javascript", "javascriptreact"],
+
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }
