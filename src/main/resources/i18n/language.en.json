@@ -512,7 +512,7 @@
   "ThisDetailEntity": "This is a detail entity",
   "ThisDetailEntityTips": "Detail entity allow better organization of business relationships. For example, the Order details are usually dependent on the Order, not independent",
   "DataSource": "Data source",
-  "ImportEntityTips1": "Importing this entity will also import **%s** dependent entities.",
+  "ImportEntityTips1": "导入本实体将同时导入 **%s** 等依赖实体。",
   "ImportEntityTips2": "You can make appropriate adjustments after importing. Start importing?",
   "BasicInfo": "Basic",
   "FormLayout": "Form Layout",
