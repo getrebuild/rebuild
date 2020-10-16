@@ -65,7 +65,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.0.0-beta2";
+    public static final String VER = "2.0.0";
     /**
      * Rebuild Build
      */
