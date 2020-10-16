@@ -10,8 +10,8 @@ package com.rebuild.core.service.datareport;
 import cn.devezhao.persist4j.Entity;
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class TemplateExtractorTest extends TestSupport {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
         Set<String> vars = new TemplateExtractor(template, true).extractVars();
         System.out.println(vars);
-        Assert.assertTrue(vars.size() >= 7);
+        Assertions.assertTrue(vars.size() >= 7);
     }
 
     @Test

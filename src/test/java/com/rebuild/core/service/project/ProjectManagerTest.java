@@ -15,10 +15,10 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
@@ -30,7 +30,7 @@ public class ProjectManagerTest extends TestSupport {
 
     private static ID _LastSavedProject;
 
-    @BeforeClass
+    @BeforeAll
     public static void createNewProject() {
         ProjectConfigService pcs = (ProjectConfigService) Application.getService(EntityHelper.ProjectConfig);
 
@@ -53,7 +53,7 @@ public class ProjectManagerTest extends TestSupport {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUpPerMethod() {
         UserContextHolder.setUser(UserService.ADMIN_USER);
     }
@@ -61,7 +61,7 @@ public class ProjectManagerTest extends TestSupport {
     @Test
     public void testGetProject() {
         ConfigBean[] uses = ProjectManager.instance.getAvailable(SIMPLE_USER);
-        Assert.assertTrue(uses.length > 0);
+        Assertions.assertTrue(uses.length > 0);
 
         ProjectManager.instance.getProject(uses[0].getID("id"), null);
     }
@@ -69,7 +69,7 @@ public class ProjectManagerTest extends TestSupport {
     @Test
     public void testGetPlansOfProject() {
         ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(_LastSavedProject);
-        Assert.assertTrue(plans.length > 0);
+        Assertions.assertTrue(plans.length > 0);
     }
 
     @Test
@@ -84,8 +84,8 @@ public class ProjectManagerTest extends TestSupport {
         task = Application.getBean(ProjectTaskService.class).create(task);
         System.out.println("New task created : " + task.getPrimary());
 
-        Assert.assertTrue(ProjectHelper.checkReadable(task.getPrimary(), SIMPLE_USER));
-        Assert.assertTrue(ProjectHelper.isManageable(task.getPrimary(), SIMPLE_USER));
+        Assertions.assertTrue(ProjectHelper.checkReadable(task.getPrimary(), SIMPLE_USER));
+        Assertions.assertTrue(ProjectHelper.isManageable(task.getPrimary(), SIMPLE_USER));
 
         // DELETE
         Application.getBean(ProjectTaskService.class).delete(task.getPrimary());

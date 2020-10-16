@@ -9,7 +9,7 @@ package com.rebuild.core.support.setup;
 
 import com.rebuild.TestSupport;
 import com.rebuild.core.support.RebuildConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;

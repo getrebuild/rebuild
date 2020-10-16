@@ -10,7 +10,8 @@ package com.rebuild.core.support.general;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.service.NoRecordFoundException;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -23,8 +24,9 @@ public class FieldValueWrapperTest extends TestSupport {
         System.out.println(FieldValueWrapper.getLabel(SIMPLE_USER));
     }
 
-    @Test(expected = NoRecordFoundException.class)
+    @Test
     public void testGetLabelThrow() {
-        System.out.println(FieldValueWrapper.getLabel(ID.newId(1)));
+        Assertions.assertThrows(NoRecordFoundException.class,
+                () -> FieldValueWrapper.getLabel(ID.newId(1)));
     }
 }

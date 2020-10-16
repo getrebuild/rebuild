@@ -11,9 +11,9 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ConcurrentMap;
 
@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DistributedSupportTest extends TestSupport {
 
-    @Ignore
+    @Disabled
     @Test
     public void testMap() {
         DistributedSupport support = Application.getBean(DistributedSupport.class);
@@ -32,12 +32,12 @@ public class DistributedSupportTest extends TestSupport {
         users.put("User1", Application.getUserStore().getUser(UserService.SYSTEM_USER));
 
         User fromCache = users.get("User1");
-        Assert.assertEquals(fromCache, Application.getUserStore().getUser(UserService.SYSTEM_USER));
-        Assert.assertTrue(users.containsKey("User1"));
-        Assert.assertFalse(users.containsKey("User2"));
-        Assert.assertEquals(1, users.size());
+        Assertions.assertEquals(fromCache, Application.getUserStore().getUser(UserService.SYSTEM_USER));
+        Assertions.assertTrue(users.containsKey("User1"));
+        Assertions.assertFalse(users.containsKey("User2"));
+        Assertions.assertEquals(1, users.size());
 
         users.remove("User1");
-        Assert.assertTrue(users.isEmpty());
+        Assertions.assertTrue(users.isEmpty());
     }
 }

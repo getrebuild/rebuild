@@ -11,10 +11,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.TestSupport;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -24,8 +22,8 @@ public class StateHelperTest extends TestSupport {
 
     @Test
     public void isStateClass() {
-        assertTrue(StateHelper.isStateClass(HowtoState.class.getName()));
-        assertFalse(StateHelper.isStateClass(AppUtils.class.getName()));
+        Assertions.assertTrue(StateHelper.isStateClass(HowtoState.class.getName()));
+        Assertions.assertFalse(StateHelper.isStateClass(AppUtils.class.getName()));
     }
 
     @Test

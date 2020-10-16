@@ -10,8 +10,8 @@ package com.rebuild.core.rbstore;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
 import com.rebuild.utils.JSONUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -22,7 +22,7 @@ public class RBStoreTest extends TestSupport {
     @Test
     public void fetchMetaschema() {
         JSON data = RBStore.fetchMetaschema("ACCOUNT-1.0.json");
-        Assert.assertNotNull(data);
+        Assertions.assertNotNull(data);
 
         System.out.println(JSONUtils.prettyPrint(data));
     }

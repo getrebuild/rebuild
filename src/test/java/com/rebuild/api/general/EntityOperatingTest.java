@@ -15,8 +15,8 @@ import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.utils.JSONUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +42,7 @@ public class EntityOperatingTest extends TestSupport {
 
         final JSONObject createResult = (JSONObject) new EntityCreate().execute(apiContext);
         System.out.println(JSONUtils.prettyPrint(createResult));
-        Assert.assertNotNull(createResult.get("error_code"));
+        Assertions.assertNotNull(createResult.get("error_code"));
 
         final String createRecordId = createResult.getJSONObject("data").getString("id");
 
@@ -60,7 +60,7 @@ public class EntityOperatingTest extends TestSupport {
 
         final JSONObject updateResult = (JSONObject) new EntityUpdate().execute(apiContext);
         System.out.println(JSONUtils.prettyPrint(updateResult));
-        Assert.assertNotNull(updateResult.get("error_code"));
+        Assertions.assertNotNull(updateResult.get("error_code"));
 
         displayEntityGet(createRecordId);
 
@@ -72,7 +72,7 @@ public class EntityOperatingTest extends TestSupport {
 
         final JSONObject deleteResult = (JSONObject) new EntityDelete().execute(apiContext);
         System.out.println(JSONUtils.prettyPrint(deleteResult));
-        Assert.assertNotNull(deleteResult.get("error_code"));
+        Assertions.assertNotNull(deleteResult.get("error_code"));
 
         // Not exists
         displayEntityGet(createRecordId);

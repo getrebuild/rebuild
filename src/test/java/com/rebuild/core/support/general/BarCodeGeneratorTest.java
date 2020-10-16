@@ -11,7 +11,7 @@ import cn.devezhao.persist4j.Field;
 import com.google.zxing.BarcodeFormat;
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao

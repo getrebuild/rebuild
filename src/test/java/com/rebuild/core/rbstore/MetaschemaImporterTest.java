@@ -15,7 +15,7 @@ import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.task.TaskExecutors;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;

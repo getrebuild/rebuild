@@ -9,13 +9,11 @@ package com.rebuild.core.support.integration;
 
 import cn.devezhao.commons.ThreadPool;
 import com.rebuild.TestSupport;
-import com.rebuild.core.support.integration.QiniuCloud;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -45,7 +43,7 @@ public class QiniuCloudTest extends TestSupport {
         String fileKey = QiniuCloud.formatFileKey(fileName);
         System.out.println("File key ... " + fileKey);
         String fileName2 = QiniuCloud.parseFileName(fileKey);
-        assertEquals(fileName, fileName2);
+        Assertions.assertEquals(fileName, fileName2);
 
         System.out.println("File2 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt"));
         System.out.println("File3 key ... " + QiniuCloud.formatFileKey("_____1123++545#e+++?&&f  d  fefe.txt", false));

@@ -10,7 +10,7 @@ package com.rebuild.core.support.task;
 import cn.devezhao.commons.ThreadPool;
 import com.rebuild.TestSupport;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.RejectedExecutionException;
 
@@ -39,10 +39,14 @@ public class HeavyTaskTest extends TestSupport {
         new TaskExecutors().executeJob();
     }
 
-    @Test(expected = RejectedExecutionException.class)
+    @Test
     public void testRejected() {
         for (int i = 0; i < 500; i++) {
-            TaskExecutors.submit(new TestTask("testRejected", 2), UserService.SYSTEM_USER);
+            try {
+                TaskExecutors.submit(new TestTask("testRejected", 2), UserService.SYSTEM_USER);
+            } catch (RejectedExecutionException ex) {
+                break;
+            }
         }
     }
 

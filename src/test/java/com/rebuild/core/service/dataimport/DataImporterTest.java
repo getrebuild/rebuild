@@ -7,11 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dataimport;
 
+import cn.devezhao.bizz.privileges.PrivilegesException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
@@ -34,12 +36,15 @@ public class DataImporterTest extends TestSupport {
         System.out.println("ImportsEnter 3 : " + importsEnter);
     }
 
-    // No `repeat_fields`
-    @Test(expected = IllegalArgumentException.class)
+
+    @Test
     public void testErrorRule() {
         JSONObject rule = JSON.parseObject("{ file:'dataimports-test.csv', entity:'TestAllFieldsName', repeat_opt:3, fields_mapping:{ TestAllFieldsName:5 } }");
         rule.remove("entity");
-        ImportRule.parse(rule);
+
+        // No `entity`
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> ImportRule.parse(rule));
     }
 
     @Test

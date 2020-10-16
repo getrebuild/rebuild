@@ -14,8 +14,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
@@ -39,7 +39,7 @@ public class FeedsHelperTest extends TestSupport {
         createComment(feedsId);
 
         int num = FeedsHelper.getNumOfComment(feedsId);
-        Assert.assertEquals(1, num);
+        Assertions.assertEquals(1, num);
         Application.getService(EntityHelper.Feeds).delete(feedsId);
 
         FeedsHelper.isMyLike(feedsId, SIMPLE_USER);

@@ -20,9 +20,8 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.service.trigger.TriggerWhen;
-import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -62,7 +61,7 @@ public class SendNotificationTest extends TestSupport {
         // 比对消息数
         ThreadPool.waitFor(4000);
         int unreadCheck = Application.getNotifications().getUnreadMessage(toUser);
-        assertEquals(unread, unreadCheck - 2);
+        Assertions.assertEquals(unread, unreadCheck - 2);
 
         // 清理
         Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());

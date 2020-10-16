@@ -7,9 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.feeds;
 
+import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.metadata.EntityHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ZHAO
@@ -28,8 +30,9 @@ public class FeedsConstantTest {
         System.out.println(FeedsType.parse(1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testFeedsType2() {
-        System.out.println(FeedsType.parse(111));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> FeedsType.parse(111));
     }
 }

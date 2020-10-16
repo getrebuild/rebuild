@@ -10,7 +10,7 @@ package com.rebuild.core.service.trigger;
 import cn.devezhao.persist4j.Entity;
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataSorter;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

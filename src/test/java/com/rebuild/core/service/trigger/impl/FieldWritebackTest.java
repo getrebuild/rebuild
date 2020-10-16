@@ -18,7 +18,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.service.trigger.TriggerWhen;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao

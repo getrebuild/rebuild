@@ -15,8 +15,9 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
@@ -29,7 +30,7 @@ public class QueryFactoryTest extends TestSupport {
         String sql = "select loginName from User";
         Filter filter = Application.getPrivilegesManager().createQueryFilter(SIMPLE_USER);
         Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
-        Assert.assertTrue(array.length > 0);
+        Assertions.assertTrue(array.length > 0);
     }
 
     @Test
@@ -50,8 +51,9 @@ public class QueryFactoryTest extends TestSupport {
         Application.getQueryFactory().createQuery(sql.toString(), filter).array();
     }
 
-    @Test(expected = AccessDeniedException.class)
+    @Test
     public void testNoUser() {
-        Application.getQueryFactory().createQuery("select loginName from User").array();
+        Assertions.assertThrows(AccessDeniedException.class,
+                () -> Application.getQueryFactory().createQuery("select loginName from User").array());
     }
 }

@@ -18,8 +18,8 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.service.trigger.TriggerWhen;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -47,7 +47,7 @@ public class AutoShareTest extends TestSupport {
         ID testId = addRecordOfTestAllFields(UserService.ADMIN_USER);
 
         boolean allowed = Application.getPrivilegesManager().allowViaShare(SIMPLE_USER, testId, BizzPermission.READ);
-        Assert.assertTrue(allowed);
+        Assertions.assertTrue(allowed);
 
         // 清理
         Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());

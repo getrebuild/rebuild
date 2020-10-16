@@ -11,8 +11,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.api.ApiContext;
 import com.rebuild.utils.JSONUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +32,7 @@ public class PickListDataTest extends TestSupport {
 
         JSONObject ret = (JSONObject) new PickListData().execute(apiContext);
         System.out.println(JSONUtils.prettyPrint(ret));
-        Assert.assertEquals(0, ret.getIntValue("error_code"));
+        Assertions.assertEquals(0, ret.getIntValue("error_code"));
     }
 
     @Test
@@ -44,6 +44,6 @@ public class PickListDataTest extends TestSupport {
 
         JSONObject ret = (JSONObject) new MultiSelectData().execute(apiContext);
         System.out.println(JSONUtils.prettyPrint(ret));
-        Assert.assertEquals(0, ret.getIntValue("error_code"));
+        Assertions.assertEquals(0, ret.getIntValue("error_code"));
     }
 }

@@ -10,8 +10,8 @@ package com.rebuild.core.service.general.recyclebin;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -29,9 +29,9 @@ public class RecycleRestoreTest extends TestSupport {
                 "select recycleId from RecycleBin where recordId = ?")
                 .setParameter(1, testId)
                 .unique();
-        Assert.assertNotNull(recycle);
+        Assertions.assertNotNull(recycle);
 
         int a = new RecycleRestore((ID) recycle[0]).restore();
-        Assert.assertEquals(1, a);
+        Assertions.assertEquals(1, a);
     }
 }

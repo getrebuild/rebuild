@@ -14,9 +14,8 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -47,10 +46,10 @@ public class PrivilegesManagerTest extends TestSupport {
     public void testAllow() {
         Entity test = MetadataHelper.getEntity(Account);
         boolean allowAccount = Application.getPrivilegesManager().allow(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
-        assertFalse(allowAccount);
+        Assertions.assertFalse(allowAccount);
 
         test = MetadataHelper.getEntity(SalesOrderItem);
         boolean allowSalesOrderItem = Application.getPrivilegesManager().allow(SIMPLE_USER, ID.newId(test.getEntityCode()), BizzPermission.READ);
-        assertFalse(allowSalesOrderItem);
+        Assertions.assertFalse(allowSalesOrderItem);
     }
 }

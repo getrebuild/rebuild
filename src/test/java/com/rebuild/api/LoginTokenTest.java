@@ -10,8 +10,8 @@ package com.rebuild.api;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.api.user.LoginToken;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +31,7 @@ public class LoginTokenTest extends TestSupport {
 
         JSONObject ret = (JSONObject) new LoginToken().execute(apiContext);
         System.out.println(ret);
-        Assert.assertNotNull(ret.get("error_code"));
+        Assertions.assertNotNull(ret.get("error_code"));
     }
 
     @Test

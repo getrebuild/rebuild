@@ -8,15 +8,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.integration;
 
 import com.rebuild.TestSupport;
-import com.rebuild.core.support.integration.SMSender;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/08
  */
-@Ignore
+@Disabled
 public class SMSenderTest extends TestSupport {
 
     @Test

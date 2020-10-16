@@ -9,8 +9,8 @@ package com.rebuild.api;
 
 import com.rebuild.TestSupport;
 import com.rebuild.api.user.AuthTokenManager;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
@@ -21,14 +21,14 @@ public class AuthTokenManagerTest extends TestSupport {
     @Test
     public void tokenLifecycle() {
         String newToken = AuthTokenManager.generateToken(SIMPLE_USER, 60);
-        Assert.assertNotNull(AuthTokenManager.verifyToken(newToken, false));
-        Assert.assertNotNull(AuthTokenManager.verifyToken(newToken, false));
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(newToken, false));
+        Assertions.assertNotNull(AuthTokenManager.verifyToken(newToken, false));
 
         // renew
         AuthTokenManager.refreshToken(newToken, 60);
 
         // destroy
         AuthTokenManager.verifyToken(newToken, true);
-        Assert.assertNull(AuthTokenManager.verifyToken(newToken, false));
+        Assertions.assertNull(AuthTokenManager.verifyToken(newToken, false));
     }
 }
