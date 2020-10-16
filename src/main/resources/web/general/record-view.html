@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/feeds.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
+    <title th:text="${entityLabel}"></title>
+  </head>
+  <body class="view-body">
+    <div class="view-header">
+      <i class="header-icon zmdi" th:classappend="|zmdi-${entityIcon}|"></i>
+      <h3 class="title" th:text="${bundle.L('SomeView,e.' + entityName)}"></h3>
+      <span>
+        <a class="close J_close" th:title="${bundle.L('Close')}"><i class="zmdi zmdi-close"></i></a>
+        <a class="close sm J_reload" th:title="${bundle.L('Refresh')}"><i class="zmdi zmdi-refresh"></i></a>
+        <a class="close sm admin-show" th:title="${bundle.L('ConfSome,FormLayout')}" th:href="|${baseUrl}/admin/entity/${entityName}/form-design|" target="_blank">
+          <i class="zmdi zmdi-settings"></i>
+        </a>
+      </span>
+    </div>
+    <div class="main-content container-fluid">
+      <div class="row">
+        <div class="col-12 col-md-9">
+          <div class="tab-container">
+            <ul class="nav nav-tabs">
+              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('View')}]]</a></li>
+              <a class="vtab-settings admin-show J_view-addons" data-type="TAB" th:title="${bundle.L('ConfSome,ViewShowAddon')}"><i class="zmdi zmdi-settings"></i></a>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab-rbview"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-3 view-operating">
+          <div class="view-action row">
+            <div class="col-12 col-lg-6">
+              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('Edit')}]]</button>
+            </div>
+            <div class="col-12 col-lg-6 btn-group J_mores">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('Delete')}]]</a>
+                <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('Assign')}]]</a>
+                <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('Share')}]]</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item J_print" target="_blank" th:href="|${baseUrl}/app/${entityName}/print?id=${id}|"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('Print')}]]</a>
+                <a class="dropdown-item J_report"><i class="icon zmdi zmdi-map"></i> [[${bundle.L('Report')}]]</a>
+              </div>
+            </div>
+            <div th:if="${detailEntity != null}" class="col-12 col-lg-6">
+              <button class="btn btn-secondary J_add-detail" type="button" th:data-entity="${detailEntity}" th:data-label="${detailEntityLabel}" th:data-icon="${detailEntityIcon}">
+                <i class="icon x14 zmdi zmdi-playlist-plus"></i> [[${bundle.L('AddDetail')}]]
+              </button>
+            </div>
+            <div class="col-12 col-lg-6 btn-group J_adds">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('AddRelated')}]]</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item admin-show J_view-addons" data-type="ADD"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('ConfSome,ViewNewAddon')}]]</a>
+              </div>
+            </div>
+          </div>
+          <div class="view-user">
+            <div class="form-line">
+              <fieldset><legend>[[${bundle.L('ViewUser')}]]</legend></fieldset>
+            </div>
+            <dl class="row">
+              <dt class="col-12 col-lg-4">[[${bundle.L('f.owningUser')}]]</dt>
+              <dd class="col-12 col-lg-8 J_owningUser"></dd>
+            </dl>
+            <dl class="row">
+              <dt class="col-12 col-lg-4">[[${bundle.L('ShareUsers')}]]</dt>
+              <dd class="col-12 col-lg-8 J_sharingList"></dd>
+            </dl>
+          </div>
+          <div class="view-date">
+            <div class="form-line">
+              <fieldset><legend>[[${bundle.L('ViewDate')}]]</legend></fieldset>
+            </div>
+            <dl class="row">
+              <dt class="col-12 col-lg-4">[[${bundle.L('f.createdOn')}]]</dt>
+              <dd class="col-12 col-lg-8 J_createdOn"></dd>
+            </dl>
+            <dl class="row">
+              <dt class="col-12 col-lg-4">[[${bundle.L('f.modifiedOn')}]]</dt>
+              <dd class="col-12 col-lg-8 J_modifiedOn"></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        type: 'RecordView',
+        entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
+        privileges: _$unthy('[[${entityPrivileges}]]'),
+        viewTabs: _$unthy('[[${ViewTabs}]]'),
+        viewAdds: _$unthy('[[${ViewAdds}]]'),
+        recordId: '[[${id}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/feeds/feeds-list.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
+  </body>
+</html>

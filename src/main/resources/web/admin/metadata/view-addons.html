@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('ConfSome,View')}]]</title>
+  </head>
+  <body class="dialog">
+    <div class="main-content">
+      <div class="row m-0">
+        <div class="col-6 sortable-swap">
+          <h5 class="sortable-box-title">[[${bundle.L('Showed')}]]</h5>
+          <div class="sortable-box rb-scroller">
+            <ol class="dd-list J_config"></ol>
+          </div>
+          <i class="zmdi zmdi-swap"></i>
+        </div>
+        <div class="col-6">
+          <h5 class="sortable-box-title">[[${bundle.L('UnShow')}]]</h5>
+          <div class="sortable-box rb-scroller">
+            <ol class="dd-list unset-list"></ol>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('Cancel')}]]</button>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/sortable.js}"></script>
+    <script type="text/babel">
+      $(document).ready(function () {
+        const entity = $urlp('entity'),
+          type = $urlp('type')
+        const _url = '/admin/entity/' + entity + '/view-addons?type=' + type
+
+        $.get(_url, function (res) {
+          $(res.data.refs).each(function () {
+            render_unset(this)
+          })
+          $(res.data.config).each(function () {
+            $('.unset-list li[data-key="' + this + '"]').trigger('click')
+          })
+          if (!res.data.refs || res.data.refs.length === 0) $(`<li class="dd-item nodata">${$L('NoData')}</li>`).appendTo('.unset-list')
+        })
+
+        const $btn = $('.J_save').click(function () {
+          const config = []
+          $('.J_config>li').each(function () {
+            config.push($(this).data('key'))
+          })
+
+          $btn.button('loading')
+          $.post(_url, JSON.stringify(config), function (res) {
+            $btn.button('reset')
+            if (res.error_code === 0) parent.location.reload()
+          })
+        })
+      })
+    </script>
+  </body>
+</html>

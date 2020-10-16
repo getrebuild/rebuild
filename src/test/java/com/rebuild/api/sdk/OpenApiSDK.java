@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -9,13 +9,9 @@ package com.rebuild.api.sdk;
 
 import cn.devezhao.commons.EncryptUtils;
 import com.alibaba.fastjson.JSON;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import okhttp3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Map;
@@ -35,7 +31,7 @@ public class OpenApiSDK {
 
     private static final JSON ERROR_REQ = JSON.parseObject("{ error_code:600, error_msg:'Http request failed' }");
 
-    private static final Log LOG = LogFactory.getLog(OpenApiSDK.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OpenApiSDK.class);
 
     final private String appId;
     final private String appSecret;
@@ -68,7 +64,7 @@ public class OpenApiSDK {
     }
 
     /**
-     * @param params 业务参数
+     * @param params
      * @return
      */
     public String sign(Map<String, Object> params) {
@@ -77,7 +73,7 @@ public class OpenApiSDK {
 
     /**
      * @param reqParams
-     * @param signType MD5|SHA1
+     * @param signType
      * @return
      */
     public String sign(Map<String, Object> reqParams, String signType) {

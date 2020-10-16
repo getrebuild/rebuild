@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
+    <title>[[${bundle.L('SomeView,User')}]]</title>
+  </head>
+  <body class="view-body">
+    <div class="view-header">
+      <i class="header-icon zmdi" th:classappend="${'zmdi-' + entityIcon}"></i>
+      <h3 class="title">[[${bundle.L('SomeView,User')}]]</h3>
+      <span>
+        <a class="close J_close"><i class="zmdi zmdi-close"></i></a>
+        <a class="close sm J_reload"><i class="zmdi zmdi-refresh"></i></a>
+      </span>
+    </div>
+    <div class="main-content container-fluid">
+      <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm hide J_tips">
+        <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
+        <div class="message">
+          <a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
+          <p></p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-12 col-md-9">
+          <div class="tab-container">
+            <ul class="nav nav-tabs">
+              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('SomeInfo,User')}]]</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab-rbview"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-3 view-operating">
+          <div class="view-action row admin-show admin-verified">
+            <div class="col-12 col-lg-6">
+              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('Edit')}]]</button>
+            </div>
+            <div class="col-12 col-lg-6 btn-group J_mores">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item J_enable"><i class="icon zmdi zmdi-check-circle"></i> [[${bundle.L('Enable')}]]</a>
+                <a class="dropdown-item J_disable"><i class="icon zmdi zmdi-block"></i> [[${bundle.L('Disable')}]]</a>
+                <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('Delete')}]]</a>
+                <a class="dropdown-item J_resetpwd"><i class="icon zmdi zmdi-key"></i> [[${bundle.L('ResetPassword')}]]</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item J_changeDept"><i class="icon zmdi zmdi-accounts"></i> [[${bundle.L('ModifySome,Department')}]]</a>
+                <a class="dropdown-item J_changeRole"><i class="icon zmdi zmdi-lock"></i> [[${bundle.L('ModifySome,Role')}]]</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        type: 'RecordView',
+        entity: ['User', '[[${entityLabel}]]', '[[${entityIcon}]]'],
+        recordId: '[[${id}]]',
+        onViewEditable: false,
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/user-view.js}" type="text/babel"></script>
+  </body>
+</html>

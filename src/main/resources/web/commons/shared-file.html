@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('Share0File')}]]</title>
+    <style type="text/css">
+      .preview-modal .preview-header .float-right a:first-child {
+        display: none;
+      }
+      .preview-modal {
+        background-color: transparent;
+      }
+      .preview-modal .preview-header {
+        background-color: #28a745;
+      }
+      .sharebox .zmdi {
+        color: #aaa;
+        font-size: 81px;
+        opacity: 0.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sharebox must-center">
+      <i class="zmdi zmdi-share"></i>
+    </div>
+    <div class="copyright fixed">&copy; [[${appName}]]</div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script type="text/babel">
+      window.__PageConfig = {
+        publicUrl: '[[${publicUrl}]]'.replace('&amp;', '&'),
+      }
+      $(document).ready(function () {
+        renderRbcomp(<RbPreview urls={[window.__PageConfig.publicUrl]} currentIndex="0" unclose="true" />)
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('UserLogin')}]]</title>
+    <style type="text/css">
+      #login-form > .row {
+        margin-left: -15px !important;
+        margin-right: -15px !important;
+      }
+      .vcode-row {
+        height: 41px;
+        max-width: 100%;
+      }
+      .vcode-row img {
+        cursor: pointer;
+      }
+      .splash-footer *,
+      .copyright,
+      .copyright * {
+        color: rgba(255, 255, 255, 0.9) !important;
+        text-shadow: 0 1px 1px #555;
+        max-width: 680px;
+        margin: 0 auto;
+        text-align: center;
+      }
+      .copyright.dev-show a {
+        text-decoration: underline;
+      }
+      .rb-bgimg {
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 1;
+        background: url(../assets/img/bg.jpg) no-repeat 0 0;
+        background-size: cover;
+        opacity: 1;
+      }
+      .rb-bgimg::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: rgba(0, 0, 0, 0.1);
+      }
+      .rb-content {
+        z-index: 2;
+      }
+    </style>
+  </head>
+  <body class="rb-splash-screen">
+    <div class="rb-wrapper rb-login">
+      <div class="rb-bgimg"></div>
+      <div class="rb-content">
+        <div class="announcement-wrapper"></div>
+        <div class="main-content container-fluid">
+          <div class="splash-container mb-1">
+            <div class="card card-border-color card-border-color-primary">
+              <div class="card-header"><a class="logo-img"></a></div>
+              <div class="card-body">
+                <form id="login-form">
+                  <div class="form-group">
+                    <input class="form-control" id="user" type="text" th:placeholder="${bundle.L('UsernameOrEmail')}" />
+                  </div>
+                  <div class="form-group">
+                    <input class="form-control" id="passwd" type="password" th:placeholder="${bundle.L('Password')}" />
+                  </div>
+                  <div class="form-group row pt-0 mb-3 vcode-row" th:if="${session.needLoginVCode}">
+                    <div class="col-6 pr-0">
+                      <input class="form-control" type="text" th:placeholder="${bundle.L('Captcha')}" />
+                    </div>
+                    <div class="col-6 text-right pl-0 pr-0">
+                      <img class="mw-100 mr-zero" src="captcha" th:title="${bundle.L('ClickReload')}" />
+                    </div>
+                  </div>
+                  <div class="form-group row login-tools">
+                    <div class="col-6 login-remember">
+                      <label class="custom-control custom-checkbox custom-control-inline mb-0">
+                        <input class="custom-control-input" type="checkbox" id="autoLogin" />
+                        <span class="custom-control-label">[[${bundle.L('RememberMe')}]]</span>
+                      </label>
+                    </div>
+                    <div class="col-6 login-forgot-password">
+                      <a href="forgot-passwd">[[${bundle.L('ForgotPassword')}]]</a>
+                    </div>
+                  </div>
+                  <div class="form-group login-submit mb-2">
+                    <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('Login')}]]</button>
+                    <div class="mt-4 text-center" th:utext="${bundle.L('NoAccountYet')}"></div>
+                  </div>
+                  <div class="text-center mb-2">
+                    <a class="select-lang dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span></a>
+                    <div class="dropdown-menu">
+                      <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="|@{/language/select?nexturl=login&locale=}${lang[0]}|">[[${lang[1]}]]</a>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="splash-footer">
+              <div class="copyright">&copy; [[${appName}]]</div>
+            </div>
+          </div>
+          <div th:if="${commercial == 0}" class="copyright link" th:utext="${bundle.L('RebuildRights')}"></div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
+    <script type="text/babel">
+      $(document).ready(function () {
+        if (top != self) {
+          parent.location.reload()
+          return
+        }
+
+        $('.vcode-row img').click(function () {
+          $(this).attr('src', 'captcha?' + $random())
+        })
+
+        $('#login-form').on('submit', function (e) {
+          e.preventDefault()
+          const user = $val('#user'),
+            passwd = $val('#passwd'),
+            vcode = $val('.vcode-row input')
+          if (!user || !passwd) {
+            RbHighbar.create($L('PlsInputSome,UsernameAndPassword'))
+            return
+          }
+          if ($('.vcode-row img').length > 0 && !vcode) {
+            RbHighbar.create($L('PlsInputSome,Captcha'))
+            return
+          }
+
+          const $btn = $('.login-submit button').button('loading')
+          let url = '/user/user-login?user=' + $encode(user) + '&passwd=******&autoLogin=' + $val('#autoLogin')
+          if (!!vcode) url += '&vcode=' + vcode
+
+          $.post(url, passwd, function (res) {
+            if (res.error_code == 0) {
+              if (res.data && res.data.danger) alert(res.data.danger)
+              location.replace($decode($urlp('nexturl') || '../dashboard/home'))
+            } else if (res.error_msg == 'VCODE') {
+              location.reload()
+            } else {
+              $('.vcode-row img').trigger('click')
+              $('.vcode-row input').val('')
+              RbHighbar.create(res.error_msg)
+              $btn.button('reset')
+            }
+          })
+        })
+
+        $.get('/user/live-wallpaper', (res) => {
+          if (res.error_code != 0 || !res.data) return
+          const bgimg = new Image()
+          bgimg.src = res.data
+          bgimg.onload = function () {
+            $('.rb-bgimg').animate({ opacity: 0 })
+            setTimeout(function () {
+              $('.rb-bgimg')
+                .css('background-image', 'url(' + res.data + ')')
+                .animate({ opacity: 1 })
+            }, 400)
+          }
+        })
+      })
+    </script>
+  </body>
+</html>

@@ -1,0 +1,476 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+html,
+body {
+  overflow: auto;
+  height: 100%;
+}
+
+.main-content {
+  margin-top: 60px;
+}
+
+.tab-container {
+  margin-top: -8px;
+}
+
+.tab-content {
+  margin: 0;
+  padding: 13px 0 0;
+}
+
+.view-header {
+  padding: 15px 20px;
+  height: 61px;
+  border-bottom: 1px solid #e6e6e6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1001;
+  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.9);
+}
+
+.view-header .header-icon {
+  float: left;
+}
+
+.view-header .title {
+  line-height: 1.428571;
+  display: inline-block;
+  margin: 0;
+  font-weight: 300;
+  font-size: 1.538rem;
+  max-width: 80%;
+}
+
+.view-header > span > .close {
+  font-size: 1.638rem;
+  opacity: 0.6;
+  padding: 1rem;
+  height: 40px;
+  margin: -10px -1rem -1rem auto;
+}
+
+.view-header > span > .close.sm {
+  font-size: 1.45rem;
+  margin-right: -7px;
+}
+
+.view-header > span > .close:hover {
+  opacity: 0.8;
+}
+
+.rbview-form .form-group.row {
+  padding: 4px 0;
+}
+
+.rbview-form .form-control-plaintext {
+  min-height: 37px;
+}
+
+.rbview-form .img-field .img-thumbnail:hover,
+.rbview-form .file-field .img-thumbnail:hover {
+  opacity: 0.8;
+}
+
+.rbview-form .file-field .img-thumbnail {
+  width: 100%;
+  margin: 0;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext {
+  max-height: 72px;
+  position: relative;
+}
+
+.rbview-form .type-NTEXT .form-control-plaintext > p {
+  margin: 0;
+  line-height: 1.428571;
+}
+
+.nav-tabs > li.nav-item a.nav-link {
+  padding: 11px 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nav-tabs,
+.nav-tabs > li.nav-item {
+  position: relative;
+}
+
+.nav-tabs .vtab-settings {
+  position: absolute;
+  right: 0;
+  top: 4px;
+  padding: 9px 8px;
+  font-size: 15px;
+  opacity: 0.6;
+  display: none !important;
+}
+
+.nav-tabs .vtab-settings:hover {
+  opacity: 0.8;
+}
+
+.nav-tabs:hover .vtab-settings {
+  display: inline-block !important;
+}
+
+.nav-tabs .badge {
+  position: absolute;
+  top: -1px;
+  right: -4px;
+  font-size: 0.8462rem;
+  font-weight: normal;
+  line-height: 1.2;
+}
+
+.related-list {
+  min-height: 200px;
+}
+
+.related-list .card {
+  border: 1px solid #ebebeb;
+  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
+  padding: 0;
+  margin-bottom: 9px;
+}
+
+.related-list .card:hover {
+  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+}
+
+.related-list .card .header-title {
+  padding: 10px 0;
+  margin: 0;
+  cursor: default;
+  position: relative;
+}
+
+.related-list .card .header-title::after {
+  position: absolute;
+  font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
+  content: '\f278';
+  color: #aaa;
+  right: 15px;
+  margin-top: 2px;
+  font-size: 1.2rem;
+}
+
+.related-list .card .header-title .col-2.text-right {
+  padding-right: 30px;
+}
+
+.view-operating > div {
+  margin-bottom: 15px !important;
+}
+
+.view-operating .row,
+.view-operating .form-line {
+  margin-bottom: 10px;
+}
+
+.view-operating dt {
+  font-weight: normal;
+}
+
+.view-action {
+  margin-top: 33px;
+}
+
+.view-action .col-lg-6 {
+  margin-bottom: 0.769231rem;
+}
+
+.view-action .col-lg-6:nth-child(odd) {
+  padding-right: 0.384615rem;
+}
+
+.view-action .col-lg-6:nth-child(even) {
+  padding-left: 0.384615rem;
+}
+
+.view-action .col-lg-6 .btn {
+  width: 100%;
+}
+
+.view-action.empty {
+  margin-top: 4px;
+}
+
+@media screen and (max-width: 991px) {
+  .view-action .col-lg-6 {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+}
+
+.view-operating > div.view-user {
+  margin-bottom: 0 !important;
+}
+
+.view-date .col-lg-4,
+.view-user .col-lg-4 {
+  padding-right: 0;
+  color: #222;
+}
+
+.view-user .col-lg-8 {
+  min-height: 30px;
+  margin-top: -6px;
+  margin-bottom: 0;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.view-date .col-lg-8 {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+@media screen and (max-width: 991px) {
+  .view-user .col-lg-8,
+  .view-date .col-lg-8 {
+    padding-left: 15px;
+    margin-top: 5px;
+  }
+}
+
+.view-user .row ul > li {
+  margin-bottom: 0;
+  margin-right: 7px;
+}
+
+.view-user .row ul > li:last-child {
+  margin-right: 0;
+}
+
+.view-user .row:last-child {
+  margin-bottom: 0;
+  margin-top: 18px;
+  min-height: 36.5px;
+}
+
+.sharing-list ul {
+  margin: 10px 0 21px 10px;
+}
+
+.sharing-list ul > li {
+  margin-bottom: 0.5rem;
+}
+
+.sharing-list ul > li > div {
+  background-color: #f7f7f7;
+  border: 1px solid #f7f7f7;
+  padding: 5px;
+  border-radius: 2px;
+  width: 150px;
+  cursor: pointer;
+  position: relative;
+  height: 40px;
+}
+
+.sharing-list ul > li > div .zmdi {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  font-size: 1.2rem;
+  color: #fff;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
+  background-color: #4285f4;
+  text-align: center;
+  display: none;
+}
+
+.sharing-list ul > li.active > div .zmdi {
+  display: block;
+}
+
+.sharing-list ul > li > div .user-show .name {
+  color: #555;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.load-mores {
+  border-top: 1px solid #eee;
+  height: 34px;
+  margin-top: 34px;
+}
+
+.load-mores .btn {
+  width: 160px;
+  line-height: 1.8rem;
+  min-height: 2.6rem;
+  border-radius: 99px;
+  font-size: 12px;
+}
+
+.load-mores > div {
+  width: 180px;
+  background-color: #fff;
+  margin: -1.4rem auto 0;
+}
+
+.load-mores > .btn {
+  display: inline-block;
+  margin-top: -1.4rem;
+}
+
+.rbview-form .form-group.row.editable a.edit {
+  position: absolute;
+  right: 15px;
+  top: 0;
+  color: #aaa;
+  width: 22px;
+  height: 22px;
+  margin-top: 6px;
+  text-align: center;
+  border-radius: 2px;
+  background-color: #f8f9fa;
+  display: none;
+}
+
+.rbview-form .form-group.row.editable a.edit::before {
+  font-family: 'Material-Design-Iconic-Font';
+  content: '\f158';
+  font-size: 14px;
+  display: inline-block;
+  margin-top: 1px;
+}
+
+.rbview-form .form-group.row.editable a.edit:hover {
+  color: #4285f4;
+}
+
+.rbview-form .form-group.row.editable a.edit:active {
+  box-shadow: inset 0 2px 0 #e6e6e6;
+  background-color: #f0f0f0;
+}
+
+.rbview-form .form-group.row.editable > div {
+  position: relative;
+}
+
+.rbview-form .form-group.row.editable > div:hover > a.edit {
+  display: block;
+}
+
+.rbview-form .form-group.row.editable > div .edit-oper {
+  text-align: right;
+}
+
+.rbview-form .form-group.row.editable > div .edit-oper .btn {
+  width: 28px;
+  height: 28px;
+  overflow: hidden;
+  line-height: 1.1;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  font-weight: bold;
+}
+
+.type-AVATAR .edit-oper,
+.type-BOOL .edit-oper,
+.type-FILE .edit-oper,
+.type-MULTISELECT .edit-oper,
+.type-IMAGE .edit-oper {
+  border-top: 1px solid #dbdbdb;
+}
+
+.type-AVATAR .edit-oper {
+  margin-top: 7px;
+}
+
+.type-IMAGE .edit-oper {
+  margin-top: -2px;
+}
+
+.type-BOOL .edit-oper {
+  margin-top: -8px;
+}
+
+.type-MULTISELECT .edit-oper {
+  margin-top: -1px;
+}
+
+.rbview-form.readonly .form-group.row.editable a.edit {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+.rbview-form .img-field .img-upload.img-thumbnail.zoom-in {
+  background-color: transparent;
+}
+
+.rbview-form.inside {
+  display: none;
+  padding: 10px 15px;
+}
+
+.rbview-form.inside > .rb-loading {
+  height: 60px;
+}
+
+.rbview-form.inside > .alert {
+  margin: 10px auto !important;
+}
+
+.card.active .rbview-form.inside {
+  display: block;
+}
+
+.card.active .header-title {
+  background-color: #eee;
+}
+
+.card.active .header-title::after {
+  content: '\f273';
+}
+
+/* over Feeds */
+
+.feeds-list.inview {
+  margin-top: -11px;
+}
+
+.feeds-list.inview > div {
+  padding: 12px 1px 0;
+  position: relative;
+}
+
+.feeds-list.inview > div + div {
+  border-top: 1px solid #eee;
+}
+
+.feeds-list.inview .actions {
+  border: 0 none;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+.feeds-list.inview .feeds > .content .rich-content {
+  font-size: 1rem;
+}
+
+.feeds-list.inview .feeds > .content .rich-content > .appends {
+  font-size: 12px;
+}

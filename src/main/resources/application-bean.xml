@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd" default-lazy-init="true">
+
+    <bean name="mysql5DataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="url" value="${db.url}"/>
+        <property name="username" value="${db.user}"/>
+        <property name="password" value="${db.passwd}"/>
+        <property name="initialSize" value="3"/>
+        <property name="minIdle" value="3"/>
+        <property name="maxActive" value="200"/>
+        <property name="maxWait" value="5000"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+        <property name="validationQuery" value="select 1"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxOpenPreparedStatements" value="100"/>
+        <property name="asyncInit" value="false"/>
+        <property name="filters" value="mergeStat"/>
+    </bean>
+
+    <bean name="mysql5Dialect" class="cn.devezhao.persist4j.dialect.MySQL5Dialect"/>
+
+    <bean class="cn.devezhao.persist4j.engine.PersistManagerFactoryImpl">
+        <constructor-arg index="0" ref="mysql5DataSource"/>
+        <constructor-arg index="1" ref="mysql5Dialect"/>
+        <constructor-arg index="2">
+            <bean class="com.rebuild.core.metadata.impl.DynamicMetadataFactory">
+                <constructor-arg index="0" value="metadata-conf.xml"/>
+                <constructor-arg index="1" ref="mysql5Dialect"/>
+            </bean>
+        </constructor-arg>
+    </bean>
+
+    <bean name="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="mysql5DataSource"/>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="create*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="delete*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="update*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="assign*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="share*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="unshare*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="bulk*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="tx*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="*" propagation="SUPPORTS"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <bean name="privilegesGuard" class="com.rebuild.core.privileges.PrivilegesGuardInterceptor"/>
+
+    <aop:config>
+        <aop:pointcut id="servicesPoint"
+                      expression="execution(* com.rebuild.core..*Service.*(..))
+                      &amp;&amp; !execution(* com.rebuild.core..*Service.get*(..))"/>
+        <aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard"/>
+        <aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice"/>
+    </aop:config>
+
+</beans>

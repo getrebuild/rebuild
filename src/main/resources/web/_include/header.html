@@ -1,0 +1,39 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="renderer" content="webkit" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/material-design-iconic-font.min.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/perfect-scrollbar.min.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-datetimepicker.min.css?v=2.4.4}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/animate.min.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/select2.min.css?v=4.0.13}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/mprogress.min.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/jquery-ui.min.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
+  <meta name="rb.env" th:content="${env}" />
+  <meta name="rb.commercial" th:content="${commercial}" />
+  <meta name="rb.locale" th:content="${locale}" />
+  <meta name="rb.baseUrl" th:content="${baseUrl}" />
+  <meta name="rb.appName" th:content="${appName}" />
+  <meta name="rb.storageUrl" th:content="${storageUrl}" />
+  <meta name="rb.fileSharable" th:content="${fileSharable}" />
+  <meta name="rb.csrfToken" th:content="${csrfToken}" />
+  <meta name="rb.accessToken" th:content="${accessToken}" />
+  <th:block th:if="${user != null}">
+    <meta name="rb.currentUser" th:content="${user.getId()}" />
+    <meta name="rb.isAdminUser" th:content="${user.isAdmin()}" />
+    <meta name="rb.isAdminVerified" th:content="${T(com.rebuild.utils.AppUtils).isAdminVerified(#request)}" />
+  </th:block>
+  <script th:if="${markWatermark == 'true'}" th:src="@{/assets/lib/watermark.js?v=2.3.2.2}"></script>
+  <!--[if lt IE 11]>
+    <script th:src="@{/assets/lib/react/polyfill.min.js?v=7.6.0}"></script>
+  <![endif]-->
+  <!--[if lt IE 10]>
+    <script>
+      location.href = '[[${baseUrl}]]/error/unsupported-browser'
+    </script>
+  <![endif]-->
+</th:block>

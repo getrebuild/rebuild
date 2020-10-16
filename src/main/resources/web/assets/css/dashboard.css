@@ -1,0 +1,189 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+.grid-stack .grid-stack-item {
+  padding: 0;
+  margin: 0;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content {
+  background-color: #fff;
+  height: 100%;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content.high,
+.grid-stack .grid-stack-item .grid-stack-item-content:hover {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content.high {
+  outline: 2px solid #4285f4;
+}
+
+.grid-stack .grid-stack-item .grid-stack-item-content:hover .chart-oper {
+  display: block;
+}
+
+.grid-stack > .grid-stack-item > .ui-resizable-se,
+.grid-stack > .grid-stack-item > .ui-resizable-sw {
+  background-image: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBzdGFuZGFsb25lPSJubyI/Pg08IS0tIEdlbmVyYXRvcjogQWRvYmUgRmlyZXdvcmtzIENTNiwgRXhwb3J0IFNWRyBFeHRlbnNpb24gYnkgQWFyb24gQmVhbGwgKGh0dHA6Ly9maXJld29ya3MuYWJlYWxsLmNvbSkgLiBWZXJzaW9uOiAwLjYuMSAgLS0+DTwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DTxzdmcgaWQ9IlVudGl0bGVkLVBhZ2UlMjAxIiB2aWV3Qm94PSIwIDAgNiA2IiBzdHlsZT0iYmFja2dyb3VuZC1jb2xvcjojZmZmZmZmMDAiIHZlcnNpb249IjEuMSINCXhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHhtbDpzcGFjZT0icHJlc2VydmUiDQl4PSIwcHgiIHk9IjBweCIgd2lkdGg9IjZweCIgaGVpZ2h0PSI2cHgiDT4NCTxnIG9wYWNpdHk9IjAuMzAyIj4NCQk8cGF0aCBkPSJNIDYgNiBMIDAgNiBMIDAgNC4yIEwgNCA0LjIgTCA0LjIgNC4yIEwgNC4yIDAgTCA2IDAgTCA2IDYgTCA2IDYgWiIgZmlsbD0iIzAwMDAwMCIvPg0JPC9nPg08L3N2Zz4=);
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  -webkit-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  -o-transform: rotate(0deg);
+  transform: rotate(0deg);
+  right: 5px;
+}
+
+.grid-stack > .grid-stack-item > .grid-stack-item-content {
+  overflow: hidden;
+  overflow: unset;
+  left: 5px;
+  right: 5px;
+}
+
+.grid-stack .grid-stack-placeholder > .placeholder-content {
+  background-color: #fff;
+  border-color: #fff;
+  opacity: 0.3;
+}
+
+.tools-bar {
+  height: 44px;
+  padding: 7px 25px 0;
+}
+
+.tools-bar h4 {
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+.tools-bar h4:hover {
+  opacity: 0.8;
+}
+
+.chart-grid {
+  padding: 2px 20px 25px 20px;
+  margin-top: 8px;
+  min-height: 300px;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+  .chart-grid {
+    overflow: hidden;
+    padding: 2px 15px 25px 15px;
+    padding-bottom: 0;
+  }
+
+  .grid-stack > .grid-stack-item > .grid-stack-item-content {
+    left: 0;
+    right: 0;
+  }
+
+  .tools-bar .col-sm-6 {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .grid-stack.grid-stack-one-column-mode > .grid-stack-item {
+    margin-bottom: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .tools-bar .col-sm-6 {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.chart-add {
+  display: block;
+  text-align: center;
+  height: 100%;
+  padding-top: 20px;
+}
+
+.chart-add i.zmdi {
+  font-size: 71px;
+  color: #ddd;
+  font-weight: lighter;
+}
+
+.dash-list .dash-head {
+  display: inline-block;
+  padding-right: 71px;
+  position: relative;
+}
+
+.dash-head .dash-action {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-top: 9px;
+  padding-left: 6px;
+  display: none;
+  text-align: left;
+  width: 70px;
+}
+
+.dash-head:hover .dash-action {
+  display: block;
+}
+
+.dash-head .dash-action a {
+  padding: 3px;
+  margin-left: 3px;
+}
+
+.modal.select-list .modal-body li a {
+  border: 1px solid #4285f4;
+  background-color: #fff;
+  padding: 8px 10px;
+  color: #4285f4;
+  border-radius: 0;
+}
+
+.J_dash-select:hover {
+  color: #4285f4;
+}
+
+.shareTo--wrap .custom-control {
+  margin-top: 0;
+}
+
+.dash-right .btn-group {
+  margin-top: 7px;
+  margin-right: 3px;
+}
+
+.dash-right .btn-group > .btn {
+  min-height: 24px;
+  line-height: 24px;
+  min-width: 0;
+}
+
+body.fullscreen .rb-wrapper {
+  padding: 0 !important;
+}
+
+body.fullscreen .rb-wrapper > .rb-top-header,
+body.fullscreen .rb-wrapper > .rb-left-sidebar {
+  display: none !important;
+}
+
+body.fullscreen .rb-wrapper > .rb-content {
+  margin-left: 0 !important;
+}
+
+body.fullscreen .J_dash-fullscreen .zmdi-fullscreen::before {
+  content: '\f16c';
+}

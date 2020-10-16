@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
+    <title>[[${bundle.L('SomeView,Department')}]]</title>
+  </head>
+  <body class="view-body">
+    <div class="view-header">
+      <i class="header-icon zmdi" th:classappend="${'zmdi-' + entityIcon}"></i>
+      <h3 class="title">[[${bundle.L('SomeView,Department')}]]</h3>
+      <span>
+        <a class="close J_close"><i class="zmdi zmdi-close"></i></a>
+        <a class="close sm J_reload"><i class="zmdi zmdi-refresh"></i></a>
+      </span>
+    </div>
+    <div class="main-content container-fluid">
+      <div class="row">
+        <div class="col-12 col-md-9">
+          <div class="tab-container">
+            <ul class="nav nav-tabs">
+              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('SomeInfo,Department')}]]</a></li>
+            </ul>
+            <div class="tab-content">
+              <div class="tab-pane active" id="tab-rbview"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-3 view-operating">
+          <div class="view-action row admin-show admin-verified">
+            <div class="col-12 col-lg-6">
+              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('Edit')}]]</button>
+            </div>
+            <div class="col-12 col-lg-6 btn-group J_mores">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <a class="dropdown-item J_delete-dept"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('Delete')}]]</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        type: 'RecordView',
+        entity: ['Department', '[[${entityLabel}]]', '[[${entityIcon}]]'],
+        recordId: '[[${id}]]',
+        onViewEditable: false,
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/dept-view.js}" type="text/babel"></script>
+  </body>
+</html>

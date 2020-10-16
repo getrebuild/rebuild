@@ -21,8 +21,11 @@ const BABEL_OPTIONS = {
   minified: true
 }
 
+const WEB_ROOT = '../src/main/resources/web'
+const OUT_ROOT = '../target/classes/web'
+
 function compileJs(cb) {
-  return src('../target/rebuild/assets/js/**/*.js?(x)')
+  return src(`${WEB_ROOT}/assets/js/**/*.js`)
     .pipe(
       babel(BABEL_OPTIONS)
     )
@@ -32,12 +35,12 @@ function compileJs(cb) {
       })
     )
     .pipe(
-      dest('build/assets/js')
+      dest(`${OUT_ROOT}/assets/js`)
     )
 }
 
 function compileCss(cb) {
-  return src('../target/rebuild/assets/css/**/*.css')
+  return src(`${WEB_ROOT}/assets/css/**/*.css`)
     .pipe(
       cleanCSS()
     )
@@ -47,7 +50,7 @@ function compileCss(cb) {
       })
     )
     .pipe(
-      dest('build/assets/css')
+      dest(`${OUT_ROOT}/assets/css`)
     )
 }
 
@@ -56,20 +59,17 @@ const _assetsHexCached = {}
 function _assetsHex(file) {
   let hex = _assetsHexCached[file]
   if (!hex) {
-    try {
-      hex = revHash(fs.readFileSync(file.replace('${baseUrl}', 'build')))
-    } catch (err) {
-      hex = revHash(fs.readFileSync(file.replace('${pageContext.request.contextPath}', 'build')))
-    }
+    hex = revHash(fs.readFileSync(`${WEB_ROOT}${file}`))
     _assetsHexCached[file] = hex
   }
   return hex
 }
 
-function compileJsp(cb) {
-  return src('../target/rebuild/**/*.jsp')
+function compileHtml(cb) {
+  return src(`${WEB_ROOT}/**/*.html`)
+    .pipe(filter(file => !/node_modules/.test(file.path)))
     .pipe(
-      replace(/<script type="text\/babel">([\s\S]*)<\/script>/igm, (match, p) => {
+      replace(/<script type="text\/babel">([\s\S]*)<\/script>/igm, (m, p) => {
         if (p.trim().length === 0) return '<!-- No script -->'
         const min = babelCore.transformSync(p, BABEL_OPTIONS).code
         return '<script>\n' + min + '\n</script>'
@@ -79,34 +79,33 @@ function compileJsp(cb) {
       replace(/ type="text\/babel"/ig, '')
     )
     .pipe(
-      replace(/<script src="(.*)"><\/script>/ig, (m, p) => {
+      replace(/<script th:src="@\{(.*)\}"><\/script>/ig, (m, p) => {
         let file = p
         if (file.includes('/lib/') || file.includes('/language/')) {
           if (file.includes('babel')) return '<!-- No Babel -->'
           if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
-          return '<script src="' + file + '"></script>'
+          return '<script th:src="@{' + file + '}"></script>'
         } else {
-          file = file.replace('.jsx', '.js').split('?')[0]
-          file += '?v=' + _assetsHex(file)
-          return '<script src="' + file + '"></script>'
+          file += '?v=' + _assetsHex(file.split('?')[0])
+          return '<script th:src="@{' + file + '}"></script>'
         }
       })
     )
     .pipe(
-      replace(/<style type="text\/css">([\s\S]*)<\/style>/igm, (match, p) => {
+      replace(/<style type="text\/css">([\s\S]*)<\/style>/igm, (m, p) => {
         if (p.trim().length === 0) return '<!-- No style -->'
         const min = new cleanCSS2({}).minify(p).styles
         return '<style type="text/css">\n' + min + '\n</style>'
       })
     )
     .pipe(
-      replace(/<link rel="stylesheet" type="text\/css" href="(.*)">/ig, (match, p) => {
+      replace(/<link rel="stylesheet" type="text\/css" th:href="@\{(.*)\}" \/>/ig, (m, p) => {
         let file = p
         if (file.includes('/lib/')) {
-          return '<link rel="stylesheet" type="text/css" href="' + file + '">'
+          return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         } else {
           file += '?v=' + _assetsHex(file.split('?')[0])
-          return '<link rel="stylesheet" type="text/css" href="' + file + '">'
+          return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         }
       })
     )
@@ -116,7 +115,7 @@ function compileJsp(cb) {
       })
     )
     .pipe(
-      dest('build')
+      dest(OUT_ROOT)
     )
 }
 
@@ -127,8 +126,8 @@ function maven(cb) {
   const mvn = require('child_process').spawnSync(
     process.platform === 'win32' ? 'mvn.cmd' : 'mvn',
     ['clean', 'package', '-f', pomfile], {
-      stdio: 'inherit'
-    })
+    stdio: 'inherit'
+  })
 
   if (mvn.status !== 0) {
     process.stderr.write(mvn.stderr)
@@ -137,29 +136,29 @@ function maven(cb) {
   cb()
 }
 
-const RELEASE_HOME = 'D:/GitHub/for-production/rebuild-standalone/REBUILD'
+// const RELEASE_HOME = 'D:/GitHub/for-production/rebuild-standalone/REBUILD'
 
-function release(cb) {
-  return src('../target/rebuild/**')
-    .pipe(
-      filter((file) => {
-        const m = /\.jsx/.test(file.path) || /\.development\./.test(file.path) || /babel\./.test(file.path) ||
-          /rebel\.xml/.test(file.path)
-        m && console.log('Filtered : ' + file.path)
-        return !m
-      })
-    )
-    .pipe(
-      dest(RELEASE_HOME)
-    )
-    .on('end', () => {
-      src('build/**')
-        .pipe(
-          dest(RELEASE_HOME)
-        )
-    })
-}
+// function release(cb) {
+//   return src('../target/rebuild/**')
+//     .pipe(
+//       filter((file) => {
+//         const m = /\.jsx/.test(file.path) || /\.development\./.test(file.path) || /babel\./.test(file.path) ||
+//           /rebel\.xml/.test(file.path)
+//         m && console.log('Filtered : ' + file.path)
+//         return !m
+//       })
+//     )
+//     .pipe(
+//       dest(RELEASE_HOME)
+//     )
+//     .on('end', () => {
+//       src('build/**')
+//         .pipe(
+//           dest(RELEASE_HOME)
+//         )
+//     })
+// }
 
-exports.default = series(parallel(compileJs, compileCss), compileJsp)
-exports.p = series(maven, parallel(compileJs, compileCss), compileJsp, release)
+exports.default = series(parallel(compileJs, compileCss), compileHtml)
 exports.mvn = maven
+// exports.p = series(maven, parallel(compileJs, compileCss), compileHtml, release)

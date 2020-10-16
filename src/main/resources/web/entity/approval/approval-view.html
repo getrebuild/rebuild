@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/approvals.css}" />
+    <title>[[${bundle.L('ApprovalDiagram')}]]</title>
+  </head>
+  <body class="view-body" style="background-color: #f5f5f7">
+    <div class="view-header">
+      <i class="header-icon zmdi zmdi-usb zmdi-hc-rotate-180"></i>
+      <h3 class="title">[[${bundle.L('ApprovalDiagram')}]]</h3>
+      <span>
+        <a class="close J_close" th:title="${bundle.L('Close')}"><i class="zmdi zmdi-close"></i></a>
+      </span>
+    </div>
+    <div class="main-content container-fluid p-0">
+      <div class="rbflow-design preview" id="rbflow"></div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/approval-design.js}" type="text/babel"></script>
+    <script>
+      window.__PageConfig = {
+        id: '[[${approvalId}]]',
+      }
+    </script>
+    <script type="text/babel">
+      // Clean
+      window.$addResizeHandler__calls = []
+
+      $(document).ready(function () {
+        const ph = parent && parent.RbViewModal ? parent.RbViewModal.holder(window.__PageConfig.id) : null
+        if (ph) $('.J_close').click(() => ph.hide())
+        else $('.J_close').remove()
+
+        $.get('/app/entity/approval/flow-definition?id=' + window.__PageConfig.id, function (res) {
+          ph && ph.hideLoading()
+          if (res.error_code !== 0) {
+            RbHighbar.error(res.error_msg)
+            return
+          }
+          // @see `wpc` in approval-design.js
+          wpc = { ...res.data, preview: true }
+          renderRbcomp(<RbFlowCanvas />, 'rbflow')
+        })
+      })
+    </script>
+  </body>
+</html>

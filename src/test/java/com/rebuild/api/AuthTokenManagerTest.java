@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -7,7 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.api;
 
-import com.rebuild.server.TestSupport;
+import com.rebuild.TestSupport;
+import com.rebuild.api.user.AuthTokenManager;
 import org.junit.Assert;
 import org.junit.Test;
 

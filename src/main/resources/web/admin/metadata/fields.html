@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('NavFields')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller-aside rb-scroller">
+            <div class="aside-content">
+              <div class="content">
+                <div class="aside-header">
+                  <button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+                  <span class="title">[[${entityLabel}]]</span>
+                  <p class="description">[[${comments}]]</p>
+                </div>
+              </div>
+              <div class="aside-nav collapse">
+                <ul class="nav">
+                  <li><a href="base">[[${bundle.L('BasicInfo')}]]</a></li>
+                  <li class="active"><a href="fields">[[${bundle.L('NavFields')}]]</a></li>
+                  <li><a href="form-design">[[${bundle.L('FormLayout')}]]</a></li>
+                  <li><a href="advanced">[[${bundle.L('AdvConf')}]]</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="main-content container-fluid">
+          <div class="card card-table">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-header">
+                  <div class="col-sm-6">
+                    <div class="dataTables_filter">
+                      <div class="input-group input-search">
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('Query')}" maxlength="40" />
+                        <span class="input-group-btn"
+                          ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
+                        ></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="dataTables_oper">
+                      <button class="btn btn-primary btn-space J_new-field"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('Add')}]]</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row rb-datatable-body">
+                  <div class="col-sm-12">
+                    <div class="rb-loading rb-loading-active data-list">
+                      <table class="table table-hover table-striped" id="dataList">
+                        <thead>
+                          <tr>
+                            <th width="25%" data-filed="fieldLabel">[[${bundle.L('FieldName')}]]</th>
+                            <th width="16%" data-field="fieldName">[[${bundle.L('MetaName')}]]</th>
+                            <th width="16%" data-field="displayType">[[${bundle.L('Type')}]]</th>
+                            <th data-field="comments">[[${bundle.L('Remark')}]]</th>
+                            <th width="50"></th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                      <th:block th:replace="~{/_include/spinner}" />
+                    </div>
+                  </div>
+                </div>
+                <div id="pagination">
+                  <div class="row rb-datatable-footer">
+                    <div class="col-sm-3"><div class="dataTables_info"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        entityName: '[[${entityName}]]',
+        nameField: '[[${nameField}]]',
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+      }
+    </script>
+    <script type="text/babel">
+      const wpc = window.__PageConfig
+      $(document).ready(function () {
+        loadFields()
+
+        $('.input-search .btn').click(() => __renderList())
+        $('.input-search .form-control').keydown(function (event) {
+          if (event.which == 13) $('.input-search .btn').trigger('click')
+        })
+        $('.J_new-field').click(function () {
+          if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('AddField'))
+          else RbHighbar.error($L('OnlyAdminCanSome,AddField'))
+        })
+      })
+
+      let fields_data
+      const loadFields = function () {
+        $.get('../list-field?entity=' + wpc.entityName, function (res) {
+          fields_data = res.data
+          __renderList()
+        })
+      }
+
+      const __renderList = function () {
+        const $tbody = $('#dataList tbody').empty()
+        const q = ($val('.input-search .form-control') || '').toLowerCase()
+        $(fields_data || []).each(function (idx, item) {
+          if (q && !(item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q))) return
+
+          const $tr = $('<tr data-id="' + (item.fieldId || '') + '"></tr>').appendTo($tbody)
+          const $name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo($tr)
+          if (item.fieldName == wpc.nameField) {
+            $tr.addClass('primary')
+            $(`<span class="badge badge-pill badge-secondary thin ml-1">${$L('Name')}</span>`).appendTo($name)
+          } else if (item.creatable == false) {
+            $tr.addClass('muted')
+          } else if (item.nullable == false) {
+            $tr.addClass('danger')
+          }
+          $(`<td><div class="text-muted">${item.fieldName}</div></td>`).appendTo($tr)
+          $(`<td><div class="text-muted">${item.displayType}</div></td>`).appendTo($tr)
+          $(`<td><div class="text-none" _title="${$L('Null')}">${item.comments || ''}</div></td>`).appendTo($tr)
+          $(`<td class="actions"><a class="icon J_edit" href="field/${item.fieldName}"><i class="zmdi zmdi-settings"></i></a></td>`).appendTo($tr)
+        })
+
+        $('.dataTables_info').text($L('CountXItems').replace('%d', $tbody.find('tr').length))
+        $('#dataList').parent().removeClass('rb-loading-active')
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "rebuild-lint",
+  "version": "1.0.0",
+  "description": "Lint the web",
+  "main": ".eslintrc.js",
+  "scripts": {
+    "lint": "eslint --ext .js assets/js/* &"
+  },
+  "author": "REBUILD",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.7.0",
+    "eslint-plugin-react": "^7.20.6"
+  }
+}

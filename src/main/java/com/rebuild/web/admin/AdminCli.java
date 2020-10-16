@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -7,11 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.ConfigurableItem;
-import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.setup.Installer;
 import org.apache.commons.lang.StringUtils;
-import redis.clients.jedis.Jedis;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +21,7 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2020/3/16
  */
-public class AdminCli {
+public class AdminCLI {
 
     private static final String C_HELP = "help";
     private static final String C_CACHE = "cache";
@@ -33,7 +32,7 @@ public class AdminCli {
     /**
      * @param args
      */
-    protected AdminCli(String args) {
+    protected AdminCLI(String args) {
         List<String> list = new ArrayList<>();
         Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(args);
         while (m.find()) {
@@ -71,7 +70,7 @@ public class AdminCli {
             }
         }
 
-        return StringUtils.defaultIfBlank(result, "Unknow command : " + commands[0]);
+        return StringUtils.defaultIfBlank(result, "Unknown command : " + commands[0]);
     }
 
     /**
@@ -93,14 +92,7 @@ public class AdminCli {
 
         String name = commands[1];
         if ("clean".equals(name)) {
-            if (Application.getCommonCache().isUseRedis()) {
-                try (Jedis jedis = Application.getCommonCache().getJedisPool().getResource()) {
-                    jedis.flushAll();
-                }
-            } else {
-                Application.getCommonCache().getEhcacheCache().clear();
-            }
-
+            Installer.clearAllCache();
         } else {
             result = "Bad arguments";
         }
@@ -111,7 +103,7 @@ public class AdminCli {
     /**
      * @return
      * @see #C_SYSCFG
-     * @see ConfigurableItem
+     * @see ConfigurationItem
      */
     protected String execSyscfg() {
         if (commands.length < 3) return "Bad arguments";
@@ -119,8 +111,8 @@ public class AdminCli {
         String name = commands[1];
         String value = commands[2];
         try {
-            ConfigurableItem item = ConfigurableItem.valueOf(name);
-            SysConfiguration.set(item, value);
+            ConfigurationItem item = ConfigurationItem.valueOf(name);
+            RebuildConfiguration.set(item, value);
             return "OK";
 
         } catch (IllegalArgumentException ex) {

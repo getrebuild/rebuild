@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/charts.css}" />
+    <title th:text="${entityLabel}"></title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left(active=${'nav_entity-' + mainEntity})}" />
+      <div class="rb-content">
+        <aside class="page-aside widgets">
+          <a class="side-toggle" th:title="${bundle.L('Toggle')}"><i class="zmdi zmdi-arrow-left"></i></a>
+          <div class="tab-container">
+            <ul class="nav nav-tabs">
+              <li class="nav-item"><a class="nav-link active" href="#asideFilters" data-toggle="tab">[[${bundle.L('CommonQuery')}]]</a></li>
+              <li class="nav-item"><a class="nav-link J_load-chart" href="#asideWidgets" data-toggle="tab">[[${bundle.L('Chart')}]]</a></li>
+            </ul>
+            <div class="tab-content rb-scroller">
+              <div class="tab-pane active" id="asideFilters">
+                <div class="ph-item rb">
+                  <div class="ph-col-12 p-0">
+                    <div class="ph-row">
+                      <div class="ph-col-12 big"></div>
+                      <div class="ph-col-12 big"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="tab-pane" id="asideWidgets">
+                <div class="charts-wrap"></div>
+                <div class="text-center">
+                  <button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('SelectSome,Chart')}]]</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="main-content container-fluid">
+          <ul class="nav nav-tabs nav-tabs-classic">
+            <li class="nav-item">
+              <a th:href="|../${mainEntity}/list|" class="nav-link"><span class="icon zmdi" th:classappend="${'zmdi-' + mainEntityIcon}"></span> [[${mainEntityLabel}]]</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active"><span class="icon zmdi" th:classappend="${'zmdi-' + detailEntityIcon}"></span> [[${detailEntityLabel}]]</a>
+            </li>
+          </ul>
+          <div class="card card-table">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-header">
+                  <div class="col-12 col-md-6">
+                    <div class="dataTables_filter">
+                      <div class="adv-search float-left">
+                        <div class="btn-group btn-space">
+                          <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
+                            <span class="text-truncate J_name">[[${bundle.L('AllDatas')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
+                          </button>
+                          <div class="dropdown-menu rb-scroller">
+                            <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('AllDatas')}]]</a></div>
+                          </div>
+                          <div class="input-group-append">
+                            <button title="高级查询" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="input-group input-search float-left">
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('QuickQuery')}" maxlength="40" />
+                        <span class="input-group-btn"
+                          ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
+                        ></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="dataTables_oper">
+                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('Open')}]]</button>
+                      <button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('Edit')}]]</button>
+                      <div class="btn-group btn-space J_action">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+                        <div class="dropdown-menu dropdown-menu-right">
+                          <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('Delete')}]]</a>
+                          <div class="dropdown-divider"></div>
+                          <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> [[${bundle.L('DataExport')}]]</a>
+                          <a class="dropdown-item admin-show" th:href="|${baseUrl}/admin/data/data-imports?entity=${entityName}|">
+                            <i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('DataImport')}]]
+                          </a>
+                          <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> [[${bundle.L('BatchUpdate')}]] </a>
+                          <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('FieldShow')}]]</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="react-list" class="rb-loading rb-loading-active data-list">
+                  <th:block th:replace="~{/_include/spinner}" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        type: 'DetailList',
+        entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
+        privileges: _$unthy('[[${entityPrivileges}]]'),
+        listConfig: _$unthy('[[${DataListConfig}]]'),
+        advFilter: true,
+      }
+    </script>
+    <script th:src="@{/assets/lib/charts/echarts.min.js}"></script>
+    <script th:src="@{/assets/js/charts/charts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-datalist.append.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
+  </body>
+</html>

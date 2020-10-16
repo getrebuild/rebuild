@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('Feeds')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/feeds.css}" />
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left(active='nav_entity-Feeds')}" />
+      <div class="rb-content">
+        <div class="announcement-wrapper"></div>
+        <div class="main-content container container-smart">
+          <div class="row">
+            <div class="col-lg-8 col-12">
+              <div class="rb-loading rb-loading-active" id="rb-feeds">
+                <th:block th:replace="~{/_include/spinner}" />
+              </div>
+            </div>
+            <div class="col-lg-4 col-12 side-wrapper-parent pl-lg-0">
+              <div class="side-wrapper">
+                <div class="accordion m-0">
+                  <div class="card">
+                    <div class="card-header" id="headingSearch">
+                      <button class="btn" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="true"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('Search')}]]</button>
+                    </div>
+                    <div class="collapse show" id="collapseSearch">
+                      <div class="card-body">
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control search J_search-key" th:placeholder="${bundle.L('Keyword')}" th:title="${bundle.L('InputForSearch')}" />
+                          <span class="append">
+                            <a><i class="icon zmdi zmdi-close"></i></a>
+                            <i class="icon zmdi zmdi-search"></i>
+                          </span>
+                        </div>
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control search J_date-begin" th:placeholder="${bundle.L('PublishTime') + ' (' + bundle.L('Start0') + ')'}" />
+                          <span class="append">
+                            <a><i class="icon zmdi zmdi-close"></i></a>
+                            <i class="icon zmdi zmdi-calendar"></i>
+                          </span>
+                        </div>
+                        <div class="input-group input-group-sm">
+                          <input type="text" class="form-control search J_date-end" th:placeholder="${bundle.L('PublishTime') + ' (' + bundle.L('End0') + ')'}" />
+                          <span class="append">
+                            <a><i class="icon zmdi zmdi-close"></i></a>
+                            <i class="icon zmdi zmdi-calendar"></i>
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card-header" id="headingFeedsType">
+                      <button class="btn" data-toggle="collapse" data-target="#collapseFeedsType"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('Type')}]]</button>
+                    </div>
+                    <div class="collapse" id="collapseFeedsType">
+                      <div class="card-body">
+                        <div class="aside-tree rb-scroller">
+                          <ul class="list-unstyled">
+                            <li data-type="1"><a>[[${bundle.L('FeedsType1')}]]</a></li>
+                            <li data-type="2"><a>[[${bundle.L('FeedsType2')}]]</a></li>
+                            <li data-type="4"><a>[[${bundle.L('FeedsType4')}]]</a></li>
+                            <li data-type="3"><a>[[${bundle.L('FeedsType3')}]]</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card-header" id="headingGroup">
+                      <button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('Team')}]]</button>
+                      <a class="add-group admin-show" th:href="@{/admin/bizuser/teams}" th:title="${bundle.L('SomeManage,Team')}"><i class="icon zmdi zmdi-settings"></i></a>
+                    </div>
+                    <div class="collapse" id="collapseGroup">
+                      <div class="card-body">
+                        <div class="search-member"><input type="text" th:placeholder="${bundle.L('SearchSome,Team')}" /></div>
+                        <div class="aside-tree rb-scroller"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="card-header" id="headingUser">
+                      <button class="btn" data-toggle="collapse" data-target="#collapseUser"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('User')}]]</button>
+                    </div>
+                    <div class="collapse" id="collapseUser">
+                      <div class="card-body pb-3">
+                        <div class="search-member"><input type="text" th:placeholder="${bundle.L('SearchSome,User')}" /></div>
+                        <div class="aside-tree rb-scroller"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      __USER_EMAIL = '[[${UserEmail}]]'
+      __USER_MOBILE = '[[${UserMobile}]]'
+    </script>
+    <script th:src="@{/assets/lib/jquery.textarea.js}"></script>
+    <script th:src="@{/assets/js/feeds/announcement.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/feeds/feeds-post.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/feeds/feeds-list.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/feeds/feeds.js}" type="text/babel"></script>
+  </body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('NavMenu')}]]</title>
+    <style type="text/css">
+      .dd3-content > .zmdi {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        font-size: 1.45rem;
+        margin-left: -20px;
+        margin-top: 1px;
+      }
+      .dd3-content {
+        padding-left: 60px !important;
+        cursor: default;
+      }
+      .dd-item > ul {
+        margin-left: 22px;
+        padding-left: 0;
+        position: relative;
+      }
+      .input-group-prepend .input-group-text {
+        width: 37px;
+        text-align: center;
+        display: inline-block;
+        overflow: hidden;
+        padding: 9px 0 0;
+        background-color: #fff;
+      }
+      .input-group-prepend .input-group-text:hover {
+        background-color: #eee;
+        cursor: pointer;
+      }
+      .input-group-prepend .input-group-text i.zmdi {
+        font-size: 1.5rem;
+      }
+    </style>
+  </head>
+  <body class="dialog">
+    <div class="main-content">
+      <div class="row m-0">
+        <div class="col-5 mt-2 pr-0">
+          <div class="sortable-box h380 rb-scroller">
+            <ol class="dd-list J_config"></ol>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn btn-secondary btn-sm J_add-menu">+ [[${bundle.L('AddSome,MenuItem')}]]</button>
+          </div>
+        </div>
+        <div class="col-7 mt-2 pl-6">
+          <div class="text-muted J_edit-tips">[[${bundle.L('ClickEditMenuItem')}]]</div>
+          <div class="J_edit-menu hide" style="margin-top: -6px">
+            <div class="tab-container">
+              <ul class="nav nav-tabs">
+                <li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">[[${bundle.L('RelatedEntry')}]]</a></li>
+                <li class="nav-item"><a class="nav-link J_menuType" href="#URL" data-toggle="tab">[[${bundle.L('OutUrl')}]]</a></li>
+              </ul>
+              <div class="tab-content m-0 p-0 pt-3 pb-3">
+                <div class="tab-pane active" id="ENTITY">
+                  <select class="form-control form-control-sm J_menuEntity">
+                    <option value="">[[${bundle.L('SelectSome,RelatedEntry')}]]</option>
+                    <optgroup th:label="${bundle.L('BizEntity')}">
+                      <!-- Biz entities -->
+                    </optgroup>
+                    <optgroup th:label="${bundle.L('SysBuiltIn')}">
+                      <option value="$FILEMRG$" data-icon="folder">[[${bundle.L('File')}]]</option>
+                      <option value="$FEEDS$" data-icon="chart-donut">[[${bundle.L('Feeds')}]]</option>
+                      <option value="$PROJECT$" data-icon="shape">[[${bundle.L('Project')}]]</option>
+                      <option value="$PARENT$" data-icon="menu">[[${bundle.L('ParentMenu')}]]</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div class="tab-pane" id="URL">
+                  <input type="text" class="form-control form-control-sm J_menuUrl" th:placeholder="${bundle.L('InputSome,OutUrl')}" />
+                  <div class="form-text">[[${bundle.L('SupportEntryAndUrl')}]]</div>
+                </div>
+              </div>
+            </div>
+            <div class="input-group mb-3">
+              <span class="input-group-prepend">
+                <span class="input-group-text J_menuIcon" th:title="${bundle.L('SelectSome,Icon')}"><i class="zmdi zmdi-texture"></i></span>
+              </span>
+              <input type="text" class="form-control form-control-sm J_menuName" th:placeholder="${bundle.L('MenuName')}" />
+            </div>
+            <div>
+              <button type="button" class="btn btn-primary btn-outline J_menuConfirm">[[${bundle.L('Confirm')}]]</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <div class="float-left">
+          <div id="shareTo" class="shareTo--wrap"></div>
+        </div>
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide('/p/settings/nav-settings')" type="button">[[${bundle.L('Cancel')}]]</button>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/settings-share2.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/nav-settings.js}" type="text/babel"></script>
+  </body>
+</html>

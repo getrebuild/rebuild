@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%BC%95%E7%94%A8%E5%AD%97%E6%AE%B5%E5%9B%9E%E5%A1%AB" />
+    <title>[[${bundle.L('FormFillback')}]]</title>
+    <style type="text/css">
+      .dataTables_wrapper .rb-datatable-header {
+        position: static;
+      }
+      span.badge {
+        font-size: 1rem;
+        padding: 4px 10px;
+        font-weight: normal;
+      }
+      #dataList tbody tr td > div {
+        position: relative;
+      }
+      #dataList tbody tr td > div::after {
+        font-family: 'Material-Design-Iconic-Font';
+        content: '\f2fd';
+        position: absolute;
+        right: 0;
+        transform: rotate(180deg);
+        color: #878787;
+        margin-top: -1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller-aside rb-scroller">
+            <div class="aside-content">
+              <div class="content">
+                <div class="aside-header">
+                  <button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+                  <span class="title">[[${entityLabel}]]</span>
+                  <p class="description">[[${comments}]]</p>
+                </div>
+              </div>
+              <div class="aside-nav collapse">
+                <ul class="nav">
+                  <li><a href="../../base">[[${bundle.L('BasicInfo')}]]</a></li>
+                  <li class="active"><a href="../../fields">[[${bundle.L('NavFields')}]]</a></li>
+                  <li><a href="../../form-design">[[${bundle.L('FormLayout')}]]</a></li>
+                  <li><a href="../../advanced">[[${bundle.L('AdvConf')}]]</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('FormFillback')}]]</div>
+        </div>
+        <div class="main-content container-fluid pt-1">
+          <ul class="nav nav-tabs nav-tabs-classic">
+            <li class="nav-item"><a th:href="|../${fieldName}|" class="nav-link">[[${bundle.L('FieldInfo')}]]</a></li>
+            <li class="nav-item"><a href="./auto-fillin" class="nav-link active">[[${bundle.L('FormFillback')}]]</a></li>
+          </ul>
+          <div class="card">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-header pl-0 pr-0">
+                  <div class="col-sm-6 pl-0 pt-1">
+                    <span class="badge badge-warning">[[${entityLabel}]]</span>
+                    <span class="zmdi zmdi-forward zmdi-hc-rotate-180 text-muted ml-1 mr-1"></span>
+                    <span class="badge badge-warning">[[${referenceEntityLabel}]]</span>
+                  </div>
+                  <div class="col-sm-6">
+                    <div class="dataTables_oper">
+                      <button class="btn btn-primary J_add-rule"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('Add')}]]</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="row rb-datatable-body">
+                  <div class="col-sm-12">
+                    <div class="rb-loading rb-loading-active data-list">
+                      <table class="table table-hover table-striped table-fixed" id="dataList">
+                        <thead>
+                          <tr>
+                            <th>[[${bundle.L('TargetField')}]]</th>
+                            <th>[[${bundle.L('SourceField')}]]</th>
+                            <th width="30%">[[${bundle.L('FillbackRule')}]]</th>
+                            <th width="100"></th>
+                          </tr>
+                        </thead>
+                        <tbody></tbody>
+                      </table>
+                      <th:block th:replace="~{/_include/spinner}" />
+                      <div class="list-nodata hide">
+                        <span class="zmdi zmdi-info-outline"></span>
+                        <p>[[${bundle.L('NoSome,FormFillback')}]]</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="protips" th:utext="${bundle.L('FillbackByTrigger')}"></p>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        entityName: '[[${entityName}]]',
+        fieldName: '[[${fieldName}]]',
+        referenceEntity: '[[${referenceEntity}]]',
+      }
+    </script>
+    <script th:src="@{/assets/js/metadata/auto-fillin.js}" type="text/babel"></script>
+  </body>
+</html>

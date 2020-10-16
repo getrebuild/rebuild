@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('FieldInfo')}]]</title>
+    <style type="text/css">
+      .col-form-label {
+        padding-bottom: 8px;
+      }
+      .sortable-box {
+        height: 208px;
+        max-width: 300px;
+      }
+      .sortable-box .dd-list {
+        height: 200px;
+      }
+      .sortable-box .dd-list .dd-item,
+      .sortable-box .dd-list .dd-handle {
+        background-color: #fff !important;
+        color: #404040 !important;
+        border-color: #dedede !important;
+      }
+      .sortable-box .no-item {
+        padding: 9px;
+        text-align: center;
+        color: #999;
+      }
+      .sortable-box.autoh,
+      .sortable-box.autoh .dd-list {
+        height: auto;
+      }
+      .sortable-box .default .dd-handle {
+        background-color: #dedede !important;
+      }
+      .sortable-box .default .dd-handle::before {
+        color: #4285f4;
+      }
+      .dt-MULTISELECT .dd-handle,
+      .dt-PICKLIST .dd-handle {
+        padding-left: 31px !important;
+      }
+      .dt-MULTISELECT .dd-handle::before,
+      .dt-PICKLIST .dd-handle::before {
+        position: absolute;
+        font-family: 'Material-Design-Iconic-Font';
+        font-size: 20px;
+        color: #bbb;
+        left: 10px;
+        content: '\f279';
+      }
+      .dt-MULTISELECT .default .dd-handle::before {
+        content: '\f26a';
+      }
+      .dt-PICKLIST .dd-handle::before {
+        font-size: 18px;
+        margin-top: -1px;
+        content: '\f26c';
+      }
+      .dt-PICKLIST .default .dd-handle::before {
+        content: '\f269';
+      }
+      .form-text.help code {
+        cursor: help;
+        font-weight: bold;
+      }
+      .calc-expr {
+        border-radius: 3px;
+        padding: 10px 0;
+        background-color: #eee;
+      }
+      .calc-expr .col-4 {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='entities')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller-aside rb-scroller">
+            <div class="aside-content">
+              <div class="content">
+                <div class="aside-header">
+                  <span class="title">[[${entityLabel}]]</span>
+                  <p class="description">[[${comments}]]</p>
+                </div>
+              </div>
+              <div class="aside-nav collapse">
+                <ul class="nav">
+                  <li><a href="../base">[[${bundle.L('BasicInfo')}]]</a></li>
+                  <li class="active"><a href="../fields">[[${bundle.L('NavFields')}]]</a></li>
+                  <li><a href="../form-design">[[${bundle.L('FormLayout')}]]</a></li>
+                  <li><a href="../advanced">[[${bundle.L('AdvConf')}]]</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <div class="page-head">
+          <div class="page-head-title">[[${bundle.L('FieldInfo')}]]</div>
+        </div>
+        <div class="main-content container-fluid pt-1">
+          <ul th:if="${fieldType == 'REFERENCE'} and ${!fieldBuildin}" class="nav nav-tabs nav-tabs-classic">
+            <li class="nav-item"><a th:href="${fieldName}" class="nav-link active">[[${bundle.L('FieldInfo')}]]</a></li>
+            <li class="nav-item"><a th:href="|${fieldName}/auto-fillin|" class="nav-link">[[${bundle.L('FormFillback')}]]</a></li>
+          </ul>
+          <div class="card mb-0">
+            <div class="card-body pt-4">
+              <form class="simple">
+                <div class="form-group row">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('FieldName')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <input class="form-control form-control-sm" type="text" id="fieldLabel" maxlength="40" th:value="${fieldLabel}" th:data-o="${fieldLabel}" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('MetaName')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <input class="form-control form-control-sm" type="text" readonly="readonly" th:value="${fieldName}" />
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Type')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <input class="form-control form-control-sm" type="text" readonly="readonly" th:value="${fieldTypeLabel}" />
+                  </div>
+                </div>
+                <div class="form-group row J_for-DECIMAL hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DecimalLength')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <select class="form-control form-control-sm" id="decimalFormat">
+                      <option value="##,##0.0">1</option>
+                      <option value="##,##0.00" selected="selected">2</option>
+                      <option value="##,##0.000">3</option>
+                      <option value="##,##0.0000">4</option>
+                      <option value="##,##0.00000">5</option>
+                      <option value="##,##0.000000">6</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row J_for-REFERENCE hide pt-0 pb-0">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('RefEntity')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <div class="form-control-plaintext">
+                      <a class="J_referenceEntity" th:data-refentity="${fieldRefentity}" th:href="|../../${fieldRefentity}/base|">[[${fieldRefentityLabel}]] ([[${fieldRefentity}]])</a>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row J_for-REFERENCE hide pt-0 pb-1">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('ClickSet')}]]</a>
+                    <p class="form-text mb-0 mt-0">[[${bundle.L('RefEntityUseTips')}]]</p>
+                  </div>
+                </div>
+                <div class="form-group row J_for-DATE hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Format')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <select class="form-control form-control-sm" id="dateFormat">
+                      <option value="yyyy">YYYY</option>
+                      <option value="yyyy-MM">YYYY-MM</option>
+                      <option value="yyyy-MM-dd" selected="selected">YYYY-MM-DD</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row J_for-DATETIME hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Format')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <select class="form-control form-control-sm" id="datetimeFormat">
+                      <option value="yyyy-MM-dd">YYYY-MM-DD</option>
+                      <option value="yyyy-MM-dd HH:mm">YYYY-MM-DD HH:II</option>
+                      <option value="yyyy-MM-dd HH:mm:ss" selected="selected">YYYY-MM-DD HH:II:SS</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-group row J_for-IMAGE J_for-FILE hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('AllowUploadNum')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                    <input
+                      class="bslider form-control"
+                      id="uploadNumber"
+                      type="text"
+                      data-slider-value="[0,9]"
+                      data-slider-step="1"
+                      data-slider-max="9"
+                      data-slider-min="0"
+                      data-slider-tooltip="show"
+                    />
+                    <div class="form-text J_minmax" th:utext="${bundle.L('AllowUploadNumTips')}"></div>
+                  </div>
+                </div>
+                <div class="form-group row J_for-PICKLIST J_for-MULTISELECT hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('OptionList')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <div th:class="|rb-scroller sortable-box autoh dt-${fieldType}|">
+                      <ol class="dd-list" id="picklist-items">
+                        <li class="no-item">[[${bundle.L('Loading')}]]</li>
+                      </ol>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm J_picklist-edit"><i class="zmdi zmdi-settings"></i> [[${bundle.L('SetOptionList')}]]</button>
+                  </div>
+                </div>
+                <div class="J_for-SERIES hide">
+                  <div class="form-group row">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SeriesFormat')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <input class="form-control form-control-sm" type="text" id="seriesFormat" value="{YYYYMMDD}-{0000}" />
+                      <p class="form-text mb-0 help" th:utext="${bundle.L('SeriesFormatTips')}"></p>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SeriesZero')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <select class="form-control form-control-sm" id="seriesZero">
+                        <option value="N" selected="selected">[[${bundle.L('SeriesZeroR1')}]]</option>
+                        <option value="D">[[${bundle.L('SeriesZeroR2')}]]</option>
+                        <option value="M">[[${bundle.L('SeriesZeroR3')}]]</option>
+                        <option value="Y">[[${bundle.L('SeriesZeroR4')}]]</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row J_for-CLASSIFICATION pt-0 pb-0 hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Classification')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <div class="form-control-plaintext" id="useClassification">
+                      <a th:href="@{/admin/metadata/classifications}">[[${bundle.L('Loading')}]]</a>
+                      <i class="zmdi zmdi-layers fs-14 ml-1 text-muted"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row J_for-TEXT J_for-NTEXT J_for-EMAIL J_for-PHONE J_for-URL J_for-NUMBER J_for-DECIMAL J_for-DATE J_for-DATETIME hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DefaultValue')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <div class="input-group">
+                      <input
+                        class="form-control form-control-sm"
+                        type="text"
+                        id="defaultValue"
+                        th:value="${fieldDefaultValue}"
+                        th:data-o="${fieldDefaultValue}"
+                        th:placeholder="${bundle.L('Null')}"
+                        autocomplete="off"
+                      />
+                      <div class="input-group-append hide">
+                        <button class="btn btn-secondary mw-auto" th:title="${bundle.L('DateFormula')}" type="button"><i class="icon zmdi zmdi-settings-square"></i></button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row J_for-DECIMAL J_for-NUMBER hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('AllowNegative')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="notNegative" /><span class="custom-control-label"> [[${bundle.L('NotAllow')}]]</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group row J_for-STATE pt-0 pb-0 hide">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('StateClass')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <div class="form-control-plaintext code text-danger" id="stateClass"></div>
+                  </div>
+                </div>
+                <div class="J_for-BARCODE hide">
+                  <div class="form-group row">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Style')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                      <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" checked /><span class="custom-control-label"> [[${bundle.L('BarCode')}]] (CODE128)</span>
+                      </label>
+                      <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE" /><span class="custom-control-label"> [[${bundle.L('QrCode')}]]</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="form-group row">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('CodeFormat')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <input class="form-control form-control-sm" type="text" id="barcodeFormat" />
+                      <p class="form-text mb-0 help" th:utext="${bundle.L('BarCodeFormatTips')}"></p>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Remark')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${fieldComments}" th:placeholder="${bundle.L('Optional')}">[[${fieldComments}]]</textarea>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4 J_options">
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="fieldNullable" th:data-o="${fieldNullable}" />
+                      <span class="custom-control-label"> [[${bundle.L('AllowNullable')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="fieldCreatable" th:data-o="${fieldCreatable}" />
+                      <span class="custom-control-label"> [[${bundle.L('AllowCreatable')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                      <input class="custom-control-input" type="checkbox" id="fieldUpdatable" th:data-o="${fieldUpdatable}" />
+                      <span class="custom-control-label"> [[${bundle.L('AllowUpdatable')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
+                      <input class="custom-control-input" type="checkbox" id="fieldRepeatable" th:data-o="${fieldRepeatable}" />
+                      <span class="custom-control-label">[[${bundle.L('AllowRepeatable')}]]</span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
+                      <input class="custom-control-input" type="checkbox" id="fieldQueryable" th:data-o="${fieldQueryable}" />
+                      <span class="custom-control-label"> [[${bundle.L('AllowUses')}]]</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="form-group row footer">
+                  <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
+                    <div class="J_action hide">
+                      <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('Save')}]]</button>
+                      <button class="btn btn-danger btn-outline btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('Delete')}]]</button>
+                      <button th:if="${fieldType == 'SERIES'}" class="btn btn-secondary btn-space J_series-reindex" type="button">[[${bundle.L('AppendSeries')}]]</button>
+                    </div>
+                    <div class="alert alert-warning alert-icon hide mb-0">
+                      <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
+                      <div class="message">[[${bundle.L('BuiltInNotModify')}]]</div>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        metaId: '[[${fieldMetaId}]]',
+        fieldType: '[[${fieldType}]]',
+        extConfig: _$unthy('[[${fieldExtConfig}]]'),
+        entityName: '[[${entityName}]]',
+        fieldName: '[[${fieldName}]]',
+        fieldBuildin: '[[${fieldBuildin}]]' === 'true',
+        isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+        isDetailToMainField: '[[${isDetailToMainField}]]' === 'true',
+      }
+    </script>
+    <script th:src="@{/assets/lib/widget/bootstrap-slider.min.js}"></script>
+    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-edit.js}" type="text/babel"></script>
+  </body>
+</html>

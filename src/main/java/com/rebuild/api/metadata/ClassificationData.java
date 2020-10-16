@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -15,11 +15,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.portals.ClassificationManager;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.DisplayType;
-import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.core.Application;
+import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 
 /**
@@ -27,6 +27,7 @@ import com.rebuild.utils.JSONUtils;
  *
  * @author devezhao
  * @since 2020/5/14
+ * @see ClassificationManager
  */
 public class ClassificationData extends BaseApi {
 
@@ -40,19 +41,19 @@ public class ClassificationData extends BaseApi {
 
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
-        String entity = context.getParameterNotBlank("entity");
-        String field = context.getParameterNotBlank("field");
+        final String entity = context.getParameterNotBlank("entity");
+        final String field = context.getParameterNotBlank("field");
 
-        Field thatField = MetadataHelper.getField(entity, field);
-        if (EasyMeta.getDisplayType(thatField) != DisplayType.CLASSIFICATION) {
-            throw new ApiInvokeException("None CLASSIFICATION field : " + entity + "." + field);
+        Field classField = MetadataHelper.getField(entity, field);
+        if (EasyMeta.getDisplayType(classField) != DisplayType.CLASSIFICATION) {
+            throw new ApiInvokeException("Non classification field : " + entity + "." + field);
         }
 
-        dataId = ClassificationManager.instance.getUseClassification(thatField, true);
+        dataId = ClassificationManager.instance.getUseClassification(classField, true);
         if (dataId == null) {
-            throw new ApiInvokeException("Bad CLASSIFICATION field : " + entity + "." + field);
+            throw new ApiInvokeException("Bad classification field : " + entity + "." + field);
         }
-        openLevel = ClassificationManager.instance.getOpenLevel(thatField);
+        openLevel = ClassificationManager.instance.getOpenLevel(classField);
 
         Object[][] array = Application.createQueryNoFilter(
                 "select itemId,name from ClassificationData where level = 0 and dataId = ?")
@@ -91,7 +92,7 @@ public class ClassificationData extends BaseApi {
 
     private JSONObject buildItem(Object[] o) {
         return JSONUtils.toJSONObject(
-                new String[] { "id", "text" },
-                new Object[] { o[0], o[1] });
+                new String[]{"id", "text"},
+                new Object[]{o[0], o[1]});
     }
 }

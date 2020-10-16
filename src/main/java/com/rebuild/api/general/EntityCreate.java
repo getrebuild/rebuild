@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -16,10 +16,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
-import com.rebuild.server.Application;
-import com.rebuild.server.metadata.EntityRecordCreator;
-import com.rebuild.server.metadata.MetadataHelper;
-import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.core.Application;
+import com.rebuild.core.metadata.EntityRecordCreator;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -42,19 +42,20 @@ public class EntityCreate extends BaseApi {
     public JSON execute(ApiContext context) throws ApiInvokeException {
         final Entity useEntity = getUseEntity(context);
         if (!useEntity.isQueryable() || !useEntity.isCreatable()) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BIZ, "Unsupportted operation for entity : " + useEntity.getName());
+            throw new ApiInvokeException("Unsupportted operation for entity : " + useEntity.getName());
         }
 
         Record recordNew = new EntityRecordCreator(
                 useEntity, (JSONObject) context.getPostData(), context.getBindUser(), true)
                 .create();
         if (recordNew.getPrimary() != null) {
-            return formatFailure("非可新建记录");
+            return formatFailure("Non-creatable record");
         }
 
         Collection<String> repeatedFields = checkRepeated(recordNew);
         if (!repeatedFields.isEmpty()) {
-            return formatFailure("新建字段 " + StringUtils.join(repeatedFields, "/") + " 中存在重复值",
+            return formatFailure(
+                    "There are duplicate field values : " + StringUtils.join(repeatedFields, "/"),
                     ApiInvokeException.ERR_DATASPEC);
         }
 
@@ -73,11 +74,11 @@ public class EntityCreate extends BaseApi {
 
         final String useEntity = metadata == null ? null : metadata.getString("entity");
         if (metadata == null || useEntity == null) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Invalid post/data : `metadata` element not be empty");
+            throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Invalid post/data : [metadata] element not be null");
         }
 
         if (!MetadataHelper.containsEntity(useEntity)) {
-            throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Invalid post/data : Unknow entity : " + useEntity);
+            throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Invalid post/data : Unknown entity : " + useEntity);
         }
 
         Entity entity = MetadataHelper.getEntity(useEntity);
@@ -89,6 +90,7 @@ public class EntityCreate extends BaseApi {
 
     /**
      * 检查重复值
+     *
      * @param record
      */
     protected Collection<String> checkRepeated(Record record) {

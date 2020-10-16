@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="renderer" content="webkit" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/material-design-iconic-font.min.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
+    <title>REBUILD</title>
+    <style type="text/css">
+      .zmdi.err404,
+      .zmdi.err403,
+      .zmdi.err400,
+      .zmdi.err600 {
+        color: #4285f4 !important;
+      }
+      .zmdi.err600::before {
+        content: '\f17a';
+        color: #fbbc05;
+      }
+      .error-description > pre:empty {
+        display: none;
+      }
+    </style>
+  </head>
+  <body class="rb-splash-screen">
+    <div class="rb-wrapper rb-error">
+      <div class="rb-content m-0">
+        <div class="main-content container">
+          <div class="error-container">
+            <div class="error-number mb-0"><i class="zmdi zmdi-alert-circle text-danger" th:classappend="${'err' + error_code}"></i></div>
+            <div class="error-description" th:utext="${error_msg}"></div>
+            <div class="error-description text-left"><pre th:utext="${error_stack}"></pre></div>
+            <div class="error-goback-button">
+              <a class="btn btn-xl btn-space btn-secondary" th:href="@{/dashboard/home}" id="goHome">[[${bundle.L('ReturnHome')}]]</a>
+              <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.L('Retry')}]]</button>
+              <div class="mt-4">
+                <a href="https://getrebuild.com/report-issue?title=error-page" target="_blank">[[${bundle.L('ReportIssue')}]]</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      if (self != top) {
+        var $btn = document.getElementById('goHome')
+        $btn.parentNode.removeChild($btn)
+        if (parent && parent.RbViewModal) {
+          try {
+            parent.RbViewModal.currentHolder().hideLoading()
+          } catch (ignore) {}
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/project-tasks.css}" />
+    <title th:text="${projectName} + ' · ' + ${bundle.L('Project')}"></title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left(active=${'nav_project-' + projectId})}" />
+      <div class="rb-loading rb-loading-active must-center J_project-load">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
+      <div class="rb-content">
+        <div class="main-content container-fluid p-0">
+          <div class="tools-bar">
+            <div class="row">
+              <div class="col-sm-6">
+                <div class="project-head">
+                  <h4 th:text="${projectName}"></h4>
+                  <div class="project-action">
+                    <span class="admin-show">
+                      <a th:href="${baseUrl} + '/admin/project/' + ${projectId}" th:title="${bundle.L('NavProject')}" class="zicon"><i class="zmdi zmdi-settings"></i></a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 text-right d-none d-md-block project-right">
+                <div class="btn-group J_sorts">
+                  <button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown">
+                    <i class="zmdi zmdi-sort-asc icon"></i>
+                    <span>[[${bundle.L('TasksSort')}]]</span>
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-right">
+                    <a class="dropdown-item" data-sort="seq">[[${bundle.L('TasksSortSeq')}]]</a>
+                    <a class="dropdown-item" data-sort="deadline">[[${bundle.L('TasksSortDeadline')}]]</a>
+                    <a class="dropdown-item" data-sort="modifiedOn">[[${bundle.L('TasksSortModified')}]]</a>
+                  </div>
+                </div>
+                <div class="btn-group J_search">
+                  <button type="button" class="btn btn-link pr-0 text-right" data-toggle="dropdown">
+                    <i class="zmdi zmdi-search icon"></i>
+                    [[${bundle.L('Search')}]]
+                    <i class="indicator-primary bg-warning hide" style="top: 1px; right: -7px"></i>
+                  </button>
+                  <div class="dropdown-menu dropdown-menu-right">
+                    <div class="px-4 py-2">
+                      <div class="input-group input-search m-0">
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('InputForSearch')}" maxlength="40" />
+                        <span class="input-group-btn">
+                          <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
+                        </span>
+                      </div>
+                    </div>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item J_filter"><i class="icon zmdi zmdi-filter-list"></i> [[${bundle.L('AdvFilter')}]]</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="plan-boxes"></div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        id: '[[${projectId}]]',
+        icon: '[[${iconName}]]',
+        projectCode: '[[${projectCode}]]',
+        projectName: '[[${projectName}]]',
+        projectPlans: _$unthy('[[${projectPlans}]]'),
+        isMember: '[[${isMember}]]' === 'true',
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/project/project-tasks.js}" type="text/babel"></script>
+  </body>
+</html>

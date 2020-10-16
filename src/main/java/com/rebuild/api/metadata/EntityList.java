@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -14,8 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
-import com.rebuild.server.metadata.MetadataSorter;
-import com.rebuild.server.metadata.entity.EasyMeta;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.impl.EasyMeta;
 
 /**
  * 获取实体列表
@@ -50,11 +50,11 @@ public class EntityList extends BaseApi {
         o.put("queryable", entity.isQueryable());
         o.put("deletable", entity.isDeletable());
 
-        if (entity.getMasterEntity() != null) {
-            o.put("master_entity", entity.getMasterEntity().getName());
+        if (entity.getMainEntity() != null) {
+            o.put("main_entity", entity.getMainEntity().getName());
         }
-        if (entity.getSlaveEntity() != null) {
-            o.put("slave_entity", entity.getSlaveEntity().getName());
+        if (entity.getDetailEntity() != null) {
+            o.put("detail_entity", entity.getDetailEntity().getName());
         }
         return o;
     }

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/feeds.css}" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/project-tasks.css}" />
+    <title>[[${bundle.L('SomeView,Task')}]]</title>
+  </head>
+  <body class="view-body" th:classappend="${!isMember} ? 'readonly'">
+    <div class="view-header">
+      <i class="header-icon zmdi" th:classappend="${'zmdi-' + projectIcon}"></i>
+      <h3 class="title">[[${bundle.L('SomeView,Task')}]]</h3>
+      <span>
+        <a class="close J_close" th:title="${bundle.L('Close')}"><i class="zmdi zmdi-close"></i></a>
+        <a class="close sm J_reload" th:title="${bundle.L('Refresh')}"><i class="zmdi zmdi-refresh"></i></a>
+      </span>
+    </div>
+    <div class="main-content container-fluid">
+      <div id="task-contents"></div>
+    </div>
+    <div id="task-comment"></div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        type: 'TaskView',
+        taskId: '[[${id}]]',
+        isMember: '[[${isMember}]]' === 'true',
+        isManageable: '[[${isManageable}]]' === 'true',
+      }
+    </script>
+    <script th:src="@{/assets/lib/jquery.textarea.js}"></script>
+    <script th:src="@{/assets/js/project/task-view.js}" type="text/babel"></script>
+  </body>
+</html>

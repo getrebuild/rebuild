@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -10,53 +10,28 @@ package com.rebuild.api;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.TestSupport;
 import com.rebuild.api.sdk.OpenApiSDK;
-import com.rebuild.server.Application;
-import com.rebuild.server.configuration.ConfigEntry;
-import com.rebuild.server.configuration.RebuildApiManager;
-import com.rebuild.server.helper.FormDataBuilder;
-import com.rebuild.server.metadata.EntityHelper;
-import com.rebuild.server.service.bizz.UserService;
-import com.rebuild.web.MvcResponse;
-import com.rebuild.web.TestSupportWithMVC;
-import org.junit.Ignore;
+import com.rebuild.core.Application;
+import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.RebuildApiManager;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.core.privileges.UserService;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author devezhao
  * @since 2019/7/23
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-public class ApiGatewayTest extends TestSupportWithMVC {
+public class ApiGatewayTest extends TestSupport {
 
-    @Test
-    public void testSimple() throws Exception {
-        final String[] app = createApp();
-
-        String apiUrl = "/gw/api/system-time?";
-        Map<String, Object> bizParams = new HashMap<>();
-
-        apiUrl += new OpenApiSDK(app[0], app[1]).sign(bizParams, "SHA1");
-        System.out.println("Request API : " + apiUrl);
-
-        MockHttpServletRequestBuilder builder = MockMvcRequestBuilders.get(apiUrl);
-        MvcResponse resp = perform(builder, null);
-        System.out.println(resp);
-    }
-
-    @Ignore
     @Test
     public void testOpenApiSDK() {
         final String[] app = createApp();
-        final String baseUrl = "http://localhost:8180/rebuild/gw/api/";
+        final String baseUrl = "http://localhost:18080/rebuild/gw/api/";
 
         // 加密签名请求
         OpenApiSDK openApiSDK = new OpenApiSDK(app[0], app[1], baseUrl);
@@ -74,21 +49,23 @@ public class ApiGatewayTest extends TestSupportWithMVC {
     }
 
     /**
+     * 创建用于调用接口的 API Key
+     *
      * @return
      */
     protected static String[] createApp() {
         final String appId = "999999999";
-        ConfigEntry exists = RebuildApiManager.instance.getApp(appId);
+        ConfigBean exists = RebuildApiManager.instance.getApp(appId);
         if (exists != null) {
-            return new String[] { appId, exists.getString("appSecret") };
+            return new String[]{appId, exists.getString("appSecret")};
         }
 
         String appSecret = CodecUtils.randomCode(40);
-        Record record = FormDataBuilder.builder(EntityHelper.RebuildApi)
+        Record record = RecordBuilder.builder(EntityHelper.RebuildApi)
                 .add("appId", appId)
                 .add("appSecret", appSecret)
                 .add("bindUser", UserService.SYSTEM_USER)
-                .buildRecord(UserService.SYSTEM_USER);
+                .build(UserService.SYSTEM_USER);
         Application.getCommonsService().create(record, false);
 
         RebuildApiManager.instance.clean(appId);

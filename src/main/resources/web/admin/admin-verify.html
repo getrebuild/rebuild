@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('AdminVerify')}]]</title>
+    <style type="text/css">
+      .rb-navbar-header .rb-toggle-left-sidebar {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-nosidebar-left rb-color-header">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid">
+          <div class="splash-container">
+            <div class="card card-border-color card-border-color-primary">
+              <div class="card-header">
+                <h4>[[${bundle.L('VerifyYourAdminIdentity')}]]</h4>
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="form-group">
+                    <input class="form-control" id="admin-passwd" type="password" th:placeholder="${bundle.L('InputSome,Password')}" autocomplete="off" />
+                  </div>
+                  <div class="form-group login-submit">
+                    <button class="btn btn-primary btn-xl J_verify-btn" type="submit">[[${bundle.L('Confirm')}]]</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="splash-footer">
+              <span><a href="javascript:history.back()">[[${bundle.L('Return')}]]</a></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script type="text/babel">
+      $(document).ready(function () {
+        if (self != top && $(window).width() < 800) {
+          $('.splash-footer, .navbar').remove()
+          $('.rb-wrapper').addClass('pt-0')
+        }
+
+        const nexturl = $decode($urlp('nexturl') || '../admin/systems')
+        const $btn = $('.J_verify-btn').click(function () {
+          const passwd = $val('#admin-passwd')
+          if (!passwd) {
+            RbHighbar.create($L('PlsInputSome', 'Password'))
+            return false
+          }
+
+          $btn.button('loading')
+          $.post('admin-verify?passwd=' + passwd, function (res) {
+            if (res.error_code == 0) location.replace(nexturl)
+            else {
+              RbHighbar.create(res.error_msg)
+              $btn.button('reset')
+            }
+          })
+          return false
+        })
+      })
+    </script>
+  </body>
+</html>

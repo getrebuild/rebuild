@@ -1,5 +1,5 @@
 /*
-Copyright (c) REBUILD <https://getrebuild.com/> and its owners. All rights reserved.
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
 
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
@@ -7,8 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import com.rebuild.server.Application;
-import com.rebuild.server.helper.SysConfiguration;
+import com.rebuild.core.Application;
+import com.rebuild.core.support.RebuildConfiguration;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -17,12 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.springframework.http.HttpHeaders;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -33,10 +28,9 @@ import java.util.concurrent.TimeUnit;
  * HTTP 调用工具
  *
  * @author devezhao
- * @since 2020/7/15
- *
  * @see org.springframework.http.HttpStatus
  * @see org.springframework.http.HttpHeaders
+ * @since 2020/7/15
  */
 public class HttpUtils {
 
@@ -55,8 +49,8 @@ public class HttpUtils {
         if (okHttpClient == null) {
             okHttpClient = new OkHttpClient.Builder()
                     .connectTimeout(15, TimeUnit.SECONDS)
-                    .writeTimeout(60, TimeUnit.SECONDS)
-                    .readTimeout(60, TimeUnit.SECONDS)
+                    .writeTimeout(30, TimeUnit.SECONDS)
+                    .readTimeout(30, TimeUnit.SECONDS)
                     .retryOnConnectionFailure(true)
                     .build();
         }
@@ -139,7 +133,7 @@ public class HttpUtils {
      * @throws IOException
      */
     public static File readBinary(String url) throws IOException {
-        File tmp = SysConfiguration.getFileOfTemp("download." + UUID.randomUUID().toString());
+        File tmp = RebuildConfiguration.getFileOfTemp("download." + UUID.randomUUID().toString());
         boolean success = readBinary(url, tmp, Collections.singletonMap(HttpHeaders.USER_AGENT, RB_UA));
         return success && tmp.exists() ? tmp : null;
     }

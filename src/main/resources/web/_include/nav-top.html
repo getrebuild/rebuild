@@ -1,0 +1,63 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+  <nav class="navbar navbar-expand fixed-top rb-top-header">
+    <div class="container-fluid">
+      <div class="rb-navbar-header">
+        <a class="navbar-brand" th:href="@{/dashboard/home}"></a>
+        <a class="rb-toggle-left-sidebar" th:title="${bundle.L('Toggle')}"><span class="icon zmdi zmdi-menu"></span></a>
+      </div>
+      <div class="search-container">
+        <input class="form-control form-control-sm search-input-gs" type="text" name="search" maxlength="100" th:placeholder="${bundle.L('Search')}" autocomplete="off" />
+        <div class="search-models animated fadeIn faster"></div>
+      </div>
+      <div class="rb-right-navbar">
+        <ul class="nav navbar-nav float-right rb-user-nav">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
+              <img th:src="@{/account/user-avatar}" alt="Avatar" />
+              <span class="user-name" th:text="${user.getFullName()}">[[${bundle.L('FullName')}]]</span>
+            </a>
+            <div class="dropdown-menu">
+              <div class="user-info">
+                <div class="user-name" th:text="${user.getFullName()}">[[${bundle.L('FullName')}]]</div>
+                <div class="user-id" th:data-user="${user.getId()}">[[${user.getEmail() ?: bundle.L('SomeUnset,Email')}]]</div>
+              </div>
+              <a class="dropdown-item" th:href="@{/settings/user}"><i class="icon zmdi zmdi-account-box"></i>[[${bundle.L('UserSet')}]]</a>
+              <a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('Exit')}]]</a>
+            </div>
+          </li>
+        </ul>
+        <div class="page-title hide"><span>REBUILD</span></div>
+        <ul class="nav navbar-nav float-right rb-icons-nav">
+          <li class="nav-item dropdown admin-danger hide">
+            <a class="nav-link" href="javascript:;"><i class="icon zmdi zmdi-alert-octagon text-danger"></i></a>
+          </li>
+          <li class="nav-item dropdown page-help">
+            <a class="nav-link" href="https://getrebuild.com/docs/" th:title="${bundle.L('ViewPageHelp')}" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
+          </li>
+          <li class="nav-item dropdown admin-show admin-settings">
+            <a class="nav-link" th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i></a>
+          </li>
+          <li class="nav-item dropdown J_notifications-top">
+            <a class="nav-link dropdown-toggle" data-toggle="dropdown" th:href="@{/notifications}">
+              <i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span>
+            </a>
+            <ul class="dropdown-menu rb-notifications">
+              <li>
+                <div class="title">[[${bundle.L('Unread')}]] <span class="badge badge-pill">0</span></div>
+                <div class="list">
+                  <div class="rb-scroller">
+                    <div class="content">
+                      <ul></ul>
+                    </div>
+                  </div>
+                </div>
+                <div class="footer"><a th:href="@{/notifications}">[[${bundle.L('ViewAll')}]]</a></div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="rb-scroll-top"></div>
+</th:block>

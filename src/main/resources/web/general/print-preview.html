@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('PrintPreview')}]]</title>
+    <style type="text/css">
+      html,
+      body {
+        background-color: #fff;
+      }
+      .preview-tools {
+        padding: 10px 15px 5px;
+        text-align: right;
+      }
+      .table th {
+        background-color: #eee !important;
+        width: 17.5%;
+      }
+      .table th,
+      .table td {
+        vertical-align: top;
+        word-break: break-all;
+        word-wrap: break-word;
+      }
+      .table td img {
+        max-height: 80px;
+        max-width: 80px;
+      }
+      .table td .img-field.barcode .img-thumbnail img {
+        max-height: 100%;
+        max-width: 100%;
+      }
+      .table td > p {
+        margin: 0;
+        line-height: 1.428571;
+      }
+      .preview-content {
+        margin: 0 20px 20px;
+      }
+      @media print {
+        .preview-content {
+          margin: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-tools d-print-none">
+      <button class="btn btn-space btn-secondary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('Print')}]]</button>
+      <button class="btn btn-space btn-secondary" onclick="window.close()">[[${bundle.L('Close')}]]</button>
+    </div>
+    <div class="preview-content">
+      <div id="preview-table"></div>
+      <div class="font-italic text-muted hide">[[${printTime}]] &nbsp;·&nbsp; [[${printUser}]]</div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      window.__PageConfig = {
+        record: '[[${recordId}]]',
+        content: _$unthy('[[${contentBody}]]'),
+      }
+    </script>
+    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/print-preview.js}" type="text/babel"></script>
+  </body>
+</html>

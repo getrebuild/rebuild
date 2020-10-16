@@ -1,0 +1,255 @@
+{
+  "entity": "SalesOrder999",
+  "entityIcon": "texture",
+  "entityLabel": "订单999",
+  "nameField": "orderNumber",
+  "fields": [
+    {
+      "field": "orderNumber",
+      "fieldLabel": "订单号",
+      "displayType": "SERIES",
+      "nullable": false,
+      "updatable": false,
+      "repeatable": false,
+      "queryable": true,
+      "extConfig": {
+        "seriesZero": "N",
+        "seriesFormat": "{YYYYMMDD}-{0000}"
+      }
+    },
+    {
+      "field": "relatedAccount",
+      "fieldLabel": "相关客户",
+      "displayType": "REFERENCE",
+      "nullable": false,
+      "updatable": true,
+      "repeatable": true,
+      "queryable": true,
+      "refEntity": "Account999",
+      "refEntityLabel": "客户999"
+    },
+    {
+      "field": "totalAmount",
+      "fieldLabel": "总计金额",
+      "displayType": "DECIMAL",
+      "nullable": true,
+      "updatable": true,
+      "repeatable": true,
+      "queryable": true,
+      "extConfig": {
+        "decimalFormat": "##,##0.00"
+      }
+    }
+  ],
+  "layouts": {
+    "FORM": [
+      {
+        "field": "orderNumber",
+        "isFull": true
+      },
+      {
+        "field": "relatedAccount",
+        "isFull": false
+      },
+      {
+        "field": "totalAmount",
+        "isFull": false
+      },
+      {
+        "field": "owningUser",
+        "isFull": false
+      },
+      {
+        "field": "owningDept",
+        "isFull": false
+      }
+    ],
+    "DATALIST": [
+      {
+        "field": "orderNumber"
+      },
+      {
+        "field": "totalAmount"
+      },
+      {
+        "field": "modifiedBy"
+      },
+      {
+        "field": "modifiedOn"
+      },
+      {
+        "field": "createdBy"
+      },
+      {
+        "field": "createdOn"
+      },
+      {
+        "field": "owningUser"
+      },
+      {
+        "field": "owningDept"
+      },
+      {
+        "field": "relatedAccount.owningDept"
+      },
+      {
+        "field": "relatedAccount"
+      },
+      {
+        "field": "relatedAccount.accountName"
+      },
+      {
+        "field": "relatedAccount.accountNumber"
+      },
+      {
+        "field": "relatedAccount.location"
+      },
+      {
+        "field": "relatedAccount.source"
+      },
+      {
+        "field": "relatedAccount.leijichengjiaojine"
+      },
+      {
+        "field": "relatedAccount.modifiedBy"
+      },
+      {
+        "field": "relatedAccount.modifiedOn"
+      },
+      {
+        "field": "relatedAccount.createdBy"
+      },
+      {
+        "field": "relatedAccount.createdOn"
+      },
+      {
+        "field": "relatedAccount.owningUser"
+      }
+    ]
+  },
+  "filters": [
+    {
+      "filterName":"我的订单",
+      "config":{
+        "items":[
+          {
+            "op":"SFU",
+            "field":"owningUser",
+            "index":1
+          }
+        ],
+        "entity":"SalesOrder"
+      }
+    }
+  ],
+  "triggers": [],
+  "approvals": [
+    {
+      "flowDefinition": {
+        "nodes": [
+          {
+            "type": "start",
+            "nodeId": "ROOT"
+          },
+          {
+            "data": {
+              "selfSelecting": true,
+              "signMode": "OR",
+              "editableFields": [],
+              "users": []
+            },
+            "type": "approver",
+            "nodeId": "NODE16012157788611"
+          }
+        ]
+      },
+      "name": "订单999审批"
+    }
+  ],
+  "detail": {
+    "entity": "SalesOrderItem999",
+    "entityIcon": "texture",
+    "entityLabel": "订单明细999",
+    "nameField": "itemName",
+    "fields": [
+      {
+        "field": "amount",
+        "fieldLabel": "金额",
+        "displayType": "DECIMAL",
+        "nullable": false,
+        "updatable": true,
+        "repeatable": true,
+        "queryable": true,
+        "extConfig": {
+          "decimalFormat": "##,##0.00"
+        }
+      },
+      {
+        "field": "itemName",
+        "fieldLabel": "项目",
+        "displayType": "TEXT",
+        "nullable": false,
+        "updatable": true,
+        "repeatable": true,
+        "queryable": true
+      },
+      {
+        "field": "quantity",
+        "fieldLabel": "数量",
+        "displayType": "NUMBER",
+        "nullable": true,
+        "updatable": true,
+        "repeatable": true,
+        "queryable": true,
+        "defaultValue": "1",
+        "extConfig": {
+          "defaultValue": "1"
+        }
+      }
+    ],
+    "layouts": {
+      "FORM": [
+        {
+          "field": "itemName",
+          "isFull": false
+        },
+        {
+          "field": "amount",
+          "isFull": false
+        },
+        {
+          "field": "quantity",
+          "isFull": false
+        }
+      ],
+      "DATALIST": [
+        {
+          "field": "amount"
+        },
+        {
+          "field": "SalesOrder999Id"
+        }
+      ]
+    },
+    "filters": [],
+    "triggers": [
+      {
+        "actionType": "FIELDAGGREGATION",
+        "actionContent": {
+          "targetEntity": "SalesOrder999Id.SalesOrder999",
+          "items": [
+            {
+              "sourceField": "amount",
+              "targetField": "totalAmount",
+              "calcMode": "SUM"
+            }
+          ],
+          "readonlyFields": false
+        },
+        "priority": 1,
+        "when": 7,
+        "whenTimer": "D:1"
+      }
+    ]
+  }
+}

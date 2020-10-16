@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('OptionList')}]]</title>
+    <style type="text/css">
+      .unset-list .dd-handle {
+        font-style: italic;
+        color: #aaa;
+      }
+      .unset-list .dd-item a.action {
+        position: absolute;
+        right: 24px;
+        top: 1px;
+        font-style: normal;
+      }
+      .unset-list .dd-item:hover a.action {
+        color: #fff;
+      }
+    </style>
+  </head>
+  <body class="dialog">
+    <div class="main-content">
+      <div class="row m-0">
+        <div class="col-6">
+          <h5 class="sortable-box-title">[[${bundle.L('OptionList')}]]</h5>
+          <div class="sortable-box rb-scroller">
+            <ol class="dd-list J_config"></ol>
+          </div>
+          <form>
+            <div class="input-group input-group-sm">
+              <input class="form-control J_text" type="text" maxlength="50" />
+              <div class="input-group-append">
+                <button class="btn btn-secondary J_confirm" type="submit" style="min-width: 0">[[${bundle.L('Add')}]]</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="col-6">
+          <h5 class="sortable-box-title">[[${bundle.L('Disabled')}]]</h5>
+          <div class="sortable-box rb-scroller">
+            <ol class="dd-list unset-list"></ol>
+          </div>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('Cancel')}]]</button>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/sortable.js}"></script>
+    <script th:src="@{/assets/js/metadata/picklist-editor.js}" type="text/babel"></script>
+  </body>
+</html>
