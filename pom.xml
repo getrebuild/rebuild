@@ -13,7 +13,8 @@
     <version>2.0.0</version>
     <name>rebuild</name>
     <description>RB V2 use SpringBoot</description>
-    <!-- REMOVE USE BOOT -->
+    <!-- UNCOMMENT USE TOMCAT -->
+    <!-- <packaging>war</packaging> -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -116,7 +117,8 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <!-- REMOVE USE BOOT -->
+            <!-- UNCOMMENT USE TOMCAT -->
+            <!-- <scope>provided</scope> -->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

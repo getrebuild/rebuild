@@ -30,8 +30,6 @@ RB 2.0 为您带来重大更新。
 
 #### 1. 源码编译
 
-> 注意：使用以下步骤编译 `jar` 需要先将 `pom.xml` 文件中注释为 `USE BOOT` 的下一行删除或注释，因为目前默认打包 `war`
-
 ```
 # 拉取
 git clone --depth=1 https://github.com/getrebuild/rebuild.git
@@ -47,18 +45,16 @@ java -jar target/rebuild.jar
 
 #### 2. 已发布版本
 
-从 2.0 版本开始，我们将同时提供 `boot` 与 `standalone` 两种安装包。`boot` 为 Spring Boot 的 `jar` 独立运行模式，`standalone` 为外置 Tomcat 运行模式。进入 [releases](https://github.com/getrebuild/rebuild/releases) 页面选择适合你的安装包下载使用。
+你也可以直接下载已发布的版本使用，从 2.0 版本开始，我们将同时提供 `boot` 与 `standalone` 两种安装包。`boot` 为 Spring Boot 的 `jar` 独立运行模式，`standalone` 为外置 Tomcat 运行模式。进入 [releases](https://github.com/getrebuild/rebuild/releases) 页面选择适合你的安装包下载使用。
 
 更多信息请参考 [安装文档](https://getrebuild.com/docs/admin/install)
 
 
 ## 开发
 
-RB 2.0 支持 `jar` 与 `war` 两种打包/运行模式，两种模式在实际使用上并无太大区别。
+RB 2.0 支持 `jar` 与 `war` 两种打包/运行模式，两种模式在开发与使用上并无太大区别。默认情况下 RB 使用 Spring Boot 的独立 `jar` 模式，启动类为 [BootApplication](https://github.com/getrebuild/rebuild/blob/master/src/main/java/com/rebuild/core/BootApplication.java) 。
 
-默认情况下 RB 使用 `war` 模式，也就是需要部署到 Tomcat 或其他 Java Web 容器中运行。在实际开发时，你可以选择任一种模式。
-
-如采用 `jar` 方式，请将 `pom.xml` 文件中注释为 `USE BOOT` 的下一行删除或注释（也可以启用 IDEA 的 `Include dependencies with "Provided" scope` 选项），然后运行 [BootApplication](src/main/java/com/rebuild/core/BootApplication.java) Spring Boot 入口类。
+如希望使用外部 Tomcat（或其他 Java Web 容器） 即 `war` 方式，请将 `pom.xml` 文件中注释为 `UNCOMMENT USE TOMCAT` 的下一行取消注释。
 
 #### 启动参数
 
