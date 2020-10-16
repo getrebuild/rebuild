@@ -17,7 +17,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.utils.JSONUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao

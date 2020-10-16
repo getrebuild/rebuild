@@ -15,7 +15,8 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
@@ -41,12 +42,14 @@ public class CommonsServiceTest extends TestSupport {
         System.out.println("Delete record : " + record.getPrimary());
     }
 
-    // No privileges access
-    @Test(expected = PrivilegesException.class)
+    @Test
     public void useStrictMode() {
         Entity entity = MetadataHelper.getEntity(TestAllFields);
         Record record = EntityHelper.forNew(entity.getEntityCode(), SIMPLE_USER);
         record.setString("TestAllFieldsName", "CommonsServiceTest" + System.currentTimeMillis());
-        Application.getCommonsService().create(record, true);
+
+        // No privileges access
+        Assertions.assertThrows(PrivilegesException.class,
+                () -> Application.getCommonsService().create(record, true));
     }
 }

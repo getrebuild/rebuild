@@ -10,7 +10,7 @@ package com.rebuild.core.configuration.general;
 import com.rebuild.TestSupport;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao

@@ -18,8 +18,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.ServiceSpec;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class GeneralEntityServiceTest extends TestSupport {
     @Test
     public void getServiceSpec() {
         ServiceSpec ies = Application.getService(EntityHelper.User);
-        Assert.assertEquals(ies.getEntityCode(), EntityHelper.User);
+        Assertions.assertEquals(ies.getEntityCode(), EntityHelper.User);
     }
 
     @Test

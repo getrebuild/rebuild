@@ -7,8 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -18,7 +18,7 @@ public class BlockListTest {
 
     @Test
     public void test() {
-        Assert.assertTrue(BlockList.isBlock("admin"));
-        Assert.assertFalse(BlockList.isBlock("imnotadmin"));
+        Assertions.assertTrue(BlockList.isBlock("admin"));
+        Assertions.assertFalse(BlockList.isBlock("imnotadmin"));
     }
 }

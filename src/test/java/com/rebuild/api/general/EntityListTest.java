@@ -15,8 +15,8 @@ import com.rebuild.api.ApiContext;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class EntityListTest extends TestSupport {
 
         final JSONObject listResult = (JSONObject) new EntityList().execute(apiContext);
         System.out.println(JSONUtils.prettyPrint(listResult));
-        Assert.assertNotNull(listResult.get("error_code"));
+        Assertions.assertNotNull(listResult.get("error_code"));
     }
 
     static String getAllFields(Entity entity) {

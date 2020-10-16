@@ -13,12 +13,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author devezhao
@@ -49,8 +47,8 @@ public class UserStoreTest extends TestSupport {
 
     @Test
     public void testExists() {
-        assertTrue(Application.getUserStore().existsUser("admin"));
-        assertFalse(Application.getUserStore().existsUser("not_exists"));
+        Assertions.assertTrue(Application.getUserStore().existsUser("admin"));
+        Assertions.assertFalse(Application.getUserStore().existsUser("not_exists"));
     }
 
     @Test
@@ -63,8 +61,8 @@ public class UserStoreTest extends TestSupport {
             User user = Application.getUserStore().getUser(teamUser);
             System.out.println(user.getOwningTeams());
 
-            assertFalse(user.getOwningTeams().isEmpty());
-            assertTrue(Application.getUserStore().getTeam(SIMPLE_TEAM).isMember(teamUser));
+            Assertions.assertFalse(user.getOwningTeams().isEmpty());
+            Assertions.assertTrue(Application.getUserStore().getTeam(SIMPLE_TEAM).isMember(teamUser));
 
             Application.getBean(TeamService.class).deleteMembers(SIMPLE_TEAM, Collections.singletonList(teamUser));
             System.out.println(user.getOwningTeams());

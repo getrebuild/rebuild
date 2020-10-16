@@ -12,7 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author zhaofang123@gmail.com

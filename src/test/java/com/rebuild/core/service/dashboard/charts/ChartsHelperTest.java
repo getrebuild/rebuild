@@ -7,10 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard.charts;
 
-import org.junit.Test;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author ZHAO
@@ -20,9 +18,8 @@ public class ChartsHelperTest {
 
     @Test
     public void isZero() {
-        assertTrue(ChartsHelper.isZero(null));
-        assertFalse(ChartsHelper.isZero("123"));
-        assertTrue(ChartsHelper.isZero(0));
-        assertTrue(ChartsHelper.isZero(0d));
+        Assertions.assertFalse(ChartsHelper.isZero("123"));
+        Assertions.assertTrue(ChartsHelper.isZero(0));
+        Assertions.assertTrue(ChartsHelper.isZero(0d));
     }
 }

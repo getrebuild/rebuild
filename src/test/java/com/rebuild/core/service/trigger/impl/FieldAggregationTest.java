@@ -19,7 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.trigger.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

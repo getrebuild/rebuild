@@ -26,28 +26,23 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.BlockList;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.ResourceUtils;
 
 /**
  * JUnit4 测试基类
  */
-@Ignore
-@RunWith(SpringJUnit4ClassRunner.class)
 public class TestSupport {
 
     protected static final Logger LOG = LoggerFactory.getLogger(TestSupport.class);
 
     private static boolean RebuildReady = false;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() {
         if (RebuildReady) return;
         LOG.warn("TESTING Setup ...");
@@ -67,14 +62,14 @@ public class TestSupport {
         }
     }
 
-    @AfterClass
+    @AfterAll
     public static void setDown() {
         LOG.warn("TESTING Setdown ...");
 
         UserContextHolder.clear();
     }
 
-    @After
+    @AfterEach
     public void setDownPerMethod() {
         UserContextHolder.clear();
     }

@@ -9,7 +9,7 @@ package com.rebuild.core.support.setup;
 
 import com.rebuild.TestSupport;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 

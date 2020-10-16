@@ -15,13 +15,14 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import org.apache.commons.lang.math.RandomUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
  * @since 2020/2/6
  */
 public class UserServiceTest extends TestSupport {
+
     @Test
     public void users() {
         UserContextHolder.setUser(UserService.ADMIN_USER);

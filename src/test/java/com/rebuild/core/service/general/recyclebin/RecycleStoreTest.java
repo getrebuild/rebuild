@@ -10,7 +10,7 @@ package com.rebuild.core.service.general.recyclebin;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

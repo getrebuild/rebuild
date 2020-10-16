@@ -11,7 +11,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao
@@ -72,11 +73,13 @@ public class ChartsTest extends TestSupport {
         System.out.println(line.build());
     }
 
-    @Test(expected = ChartsException.class)
+    @Test
     public void testBadChart() {
         JSONObject config = JSON.parseObject(
                 "{'entity':'testallfields','title':'无效图表','type':'abc'}");
-        ChartsFactory.create(config, UserService.ADMIN_USER);
+
+        Assertions.assertThrows(ChartsException.class,
+                () -> ChartsFactory.create(config, UserService.ADMIN_USER));
     }
 
     @Test

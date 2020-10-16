@@ -19,8 +19,8 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
@@ -30,7 +30,7 @@ import java.util.Arrays;
  */
 public class BulkBacthUpdateTest extends TestSupport {
 
-    @Before
+    @BeforeEach
     public void setUpPerMethod() {
         UserContextHolder.setUser(UserService.ADMIN_USER);
     }

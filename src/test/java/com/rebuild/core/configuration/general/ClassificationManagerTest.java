@@ -12,7 +12,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com

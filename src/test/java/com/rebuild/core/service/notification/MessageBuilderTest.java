@@ -10,7 +10,7 @@ package com.rebuild.core.service.notification;
 import com.rebuild.TestSupport;
 import com.rebuild.core.privileges.DepartmentService;
 import com.rebuild.core.privileges.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao-mac zhaofang123@gmail.com

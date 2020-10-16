@@ -9,7 +9,7 @@ package com.rebuild.core.metadata;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.TestSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao-mac zhaofang123@gmail.com

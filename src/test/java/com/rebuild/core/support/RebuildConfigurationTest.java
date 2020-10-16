@@ -8,7 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import com.rebuild.TestSupport;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -24,10 +25,12 @@ public class RebuildConfigurationTest extends TestSupport {
         }
     }
 
-    @Test(expected = SecurityException.class)
+    @Test
     public void getFileOfData() {
         System.out.println(RebuildConfiguration.getFileOfTemp(null));
+
         // Attack
-        System.out.println(RebuildConfiguration.getFileOfTemp("../123.jpg"));
+        Assertions.assertThrows(SecurityException.class,
+                () -> RebuildConfiguration.getFileOfTemp("../123.jpg"));
     }
 }

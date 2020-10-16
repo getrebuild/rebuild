@@ -10,7 +10,7 @@ package com.rebuild.web.admin.rbstore;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.TestSupport;
 import com.rebuild.core.rbstore.RBStore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;

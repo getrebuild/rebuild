@@ -12,7 +12,7 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.DashboardManager;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com

@@ -10,7 +10,7 @@ package com.rebuild.core.service.dataimport;
 import cn.devezhao.commons.excel.Cell;
 import com.rebuild.TestSupport;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.FileNotFoundException;

@@ -8,8 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import com.rebuild.TestSupport;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -22,6 +22,6 @@ public class VerfiyCodeTest extends TestSupport {
         String key = "testCodeMatching";
         String vcode = VerfiyCode.generate(key);
         boolean isMatch = VerfiyCode.verfiy(key, vcode);
-        Assert.assertTrue(isMatch);
+        Assertions.assertTrue(isMatch);
     }
 }

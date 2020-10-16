@@ -12,7 +12,7 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
 import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;

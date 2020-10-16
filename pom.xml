@@ -10,11 +10,11 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>2.0.0-beta2</version>
+    <version>2.0.0</version>
     <name>rebuild</name>
     <description>RB V2 use SpringBoot</description>
-    <!-- REMOVE USE BOOT -->
-    <packaging>war</packaging>
+    <!-- UNCOMMENT USE TOMCAT -->
+    <!-- <packaging>war</packaging> -->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -62,6 +62,24 @@
                     <workingDirectory>.deploy</workingDirectory>
                 </configuration>
             </plugin>
+            <!-- Codecov : `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <instrumentation>
+                        <excludes>
+                            <exclude>com/rebuild/**/*Test.class</exclude>
+                        </excludes>
+                    </instrumentation>
+                    <formats>
+                        <format>html</format>
+                        <format>xml</format>
+                    </formats>
+                    <check />
+                </configuration>
+            </plugin>
         </plugins>
         <resources>
             <resource>
@@ -99,8 +117,8 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-tomcat</artifactId>
-            <!-- REMOVE USE BOOT -->
-            <scope>provided</scope>
+            <!-- UNCOMMENT USE TOMCAT -->
+            <!-- <scope>provided</scope> -->
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -307,12 +325,6 @@
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
             <version>3.4.0</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>

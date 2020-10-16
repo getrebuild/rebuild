@@ -13,7 +13,7 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.privileges.bizz.Department;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Set;

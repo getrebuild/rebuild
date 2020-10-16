@@ -17,8 +17,8 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
 import com.rebuild.core.service.trigger.TriggerWhen;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -44,7 +44,7 @@ public class AutoAssignTest extends TestSupport {
         // 测试执行
         ID testId = addRecordOfTestAllFields(SIMPLE_USER);
         ID owningUser = Application.getRecordOwningCache().getOwningUser(testId);
-        Assert.assertEquals(SIMPLE_USER, owningUser);
+        Assertions.assertEquals(SIMPLE_USER, owningUser);
 
         // 清理
         Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());

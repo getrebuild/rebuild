@@ -11,8 +11,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.api.ApiContext;
 import com.rebuild.utils.JSONUtils;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +30,6 @@ public class EntityListTest extends TestSupport {
 
         JSONObject ret = (JSONObject) new EntityList().execute(apiContext);
         System.out.println(JSONUtils.prettyPrint(ret));
-        Assert.assertNotNull(ret.get("error_code"));
+        Assertions.assertNotNull(ret.get("error_code"));
     }
 }
