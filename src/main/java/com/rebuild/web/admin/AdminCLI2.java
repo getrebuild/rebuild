@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2020/3/16
  */
-public class AdminCLI {
+public class AdminCLI2 {
 
     private static final String C_HELP = "help";
     private static final String C_CACHE = "cache";
@@ -32,7 +32,7 @@ public class AdminCLI {
     /**
      * @param args
      */
-    protected AdminCLI(String args) {
+    protected AdminCLI2(String args) {
         List<String> list = new ArrayList<>();
         Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(args);
         while (m.find()) {

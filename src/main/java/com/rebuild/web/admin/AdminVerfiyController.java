@@ -114,7 +114,7 @@ public class AdminVerfiyController extends BaseController {
             return;
         }
 
-        String result = new AdminCLI(command).exec();
+        String result = new AdminCLI2(command).exec();
         ServletUtils.write(response, result);
     }
 }
