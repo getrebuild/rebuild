@@ -45,7 +45,7 @@ java -jar target/rebuild.jar
 
 打开浏览器输入 [http://localhost:18080/](http://localhost:18080/) 开始体验。
 
-#### 已发布版本
+#### 2. 已发布版本
 
 从 2.0 版本开始，我们将同时提供 `boot` 与 `standalone` 两种安装包。`boot` 为 Spring Boot 的 `jar` 独立运行模式，`standalone` 为外置 Tomcat 运行模式。进入 [releases](https://github.com/getrebuild/rebuild/releases) 页面选择适合你的安装包下载使用。
 
@@ -81,4 +81,4 @@ REBUILD uses both open source ([GPL-3.0](LICENSE)) and [commercial](COMMERCIAL) 
 
 ## 购买商业版
 
-从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 RB 对贵司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的发展与日常运营。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
+从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 RB 对贵司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
