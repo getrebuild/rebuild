@@ -123,8 +123,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 if (started) {
                     String banner = RebuildBanner.formatSimple(
                             "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
-                            "License : " + License.queryAuthority(false).values(),
-                            "Local   : " + localUrl);
+                            "License   : " + License.queryAuthority(false).values(),
+                            "Local URL : " + localUrl);
                     LOG.info(banner);
                 }
 
