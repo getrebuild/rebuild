@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
@@ -92,7 +93,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     // 服务启动状态
     private static boolean _READY;
     // 等待系统组件装载
-    private static boolean _WAIT_LOADS = true;
+    private static boolean _WAITLOADS = true;
+    // 增值模块
+    private static boolean _RBV;
 
     // SPRING
     private static ApplicationContext _CONTEXT;
@@ -148,7 +151,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 }
             }
 
-            _WAIT_LOADS = false;
+            _WAITLOADS = false;
         }
     }
 
@@ -165,6 +168,13 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             LOG.error(RebuildBanner.formatBanner(
                     "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
+        }
+
+        try {
+            Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").newInstance();
+            LOG.info("Loaded " + RBV);
+            _RBV = true;
+        } catch (Exception ignore) {
         }
 
         // 升级数据库
@@ -216,6 +226,14 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     /**
+     * RBV 可用
+     * @return
+     */
+    public static boolean rbvLoaded() {
+        return License.getCommercialType() > 0 && _RBV;
+    }
+
+    /**
      * 已启动（不含组件装载）
      * @return
      */
@@ -228,7 +246,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      * @return
      */
     public static boolean isWaitLoads() {
-        return _WAIT_LOADS && _CONTEXT != null;
+        return _WAITLOADS && _CONTEXT != null;
     }
 
     public static ApplicationContext getContext() {
