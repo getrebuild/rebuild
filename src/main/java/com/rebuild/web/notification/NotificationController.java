@@ -62,10 +62,12 @@ public class NotificationController extends BaseController {
                     "select messageId from Notification where toUser = ?")
                     .setParameter(1, user)
                     .array();
-            ids = "";
+
+            StringBuilder sb = new StringBuilder();
             for (Object[] o : unreads) {
-                ids += o[0] + ",";
+                sb.append(o[0]).append(',');
             }
+            ids = sb.toString();
         }
 
         for (String id : ids.split(",")) {

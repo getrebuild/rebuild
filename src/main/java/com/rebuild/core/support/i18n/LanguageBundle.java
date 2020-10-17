@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
  * @since 2019/10/31
  */
 public class LanguageBundle implements JSONable {
+    private static final long serialVersionUID = 1985809451734089603L;
 
     private static final Logger LOG = LoggerFactory.getLogger(LanguageBundle.class);
 
@@ -61,7 +62,7 @@ public class LanguageBundle implements JSONable {
     private JSONObject bundle;
     private String bundleHash;
 
-    private Language parent;
+    transient private Language parent;
 
     /**
      * @param locale
@@ -278,6 +279,8 @@ public class LanguageBundle implements JSONable {
      * 等待启动时使用
      */
     static final LanguageBundle UNLOADS_BUNDLE = new LanguageBundle() {
+        private static final long serialVersionUID = -9096686370342671391L;
+
         @Override
         public String getLang(String key, String... phKeys) {
             return key.toUpperCase();

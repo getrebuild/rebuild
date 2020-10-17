@@ -172,6 +172,8 @@ public class UserHelper {
                 case EntityHelper.Team:
                     ms = Application.getUserStore().getTeam(groupId).getMembers();
                     break;
+                default:
+                    break;
             }
 
         } catch (NoMemberFoundException ex) {

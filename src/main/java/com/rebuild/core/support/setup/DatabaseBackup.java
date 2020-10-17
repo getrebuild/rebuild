@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -74,8 +75,8 @@ public class DatabaseBackup {
         BufferedReader reader = null;
         StringBuilder echo = new StringBuilder();
         try {
-            readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            readerError = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
 
             String line;
             while ((line = readerError.readLine()) != null) {

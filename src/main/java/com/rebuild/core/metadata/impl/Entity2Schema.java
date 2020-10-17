@@ -72,9 +72,9 @@ public class Entity2Schema extends Field2Schema {
 
         } else {
             entityName = toPinyinName(entityLabel);
-            while (true) {
+            for (int i = 0; i < 5; i++) {
                 if (MetadataHelper.containsEntity(entityName)) {
-                    entityName += RandomUtils.nextInt(9999);
+                    entityName += RandomUtils.nextInt(99);
                 } else {
                     break;
                 }

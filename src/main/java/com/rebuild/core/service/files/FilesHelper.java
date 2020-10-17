@@ -63,7 +63,7 @@ public class FilesHelper {
             attach.setString("fileType", ext);
         }
         if (FILESIZES.containsKey(filePath)) {
-            attach.setInt("fileSize", (int) FILESIZES.remove(filePath));
+            attach.setInt("fileSize", (Integer) FILESIZES.remove(filePath));
         }
         return attach;
     }

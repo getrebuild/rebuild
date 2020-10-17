@@ -13,6 +13,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
@@ -70,7 +71,7 @@ public class RedisDriver<V extends Serializable> implements CacheTemplate<V> {
         try {
             jedis = jedisPool.getResource();
 
-            byte[] bs = jedis.get(key.getBytes());
+            byte[] bs = jedis.get(key.getBytes(StandardCharsets.UTF_8));
             if (bs == null || bs.length == 0) {
                 return null;
             }
@@ -96,7 +97,7 @@ public class RedisDriver<V extends Serializable> implements CacheTemplate<V> {
         try {
             jedis = jedisPool.getResource();
 
-            byte[] bkey = key.getBytes();
+            byte[] bkey = key.getBytes(StandardCharsets.UTF_8);
             if (seconds > 0) {
                 jedis.setex(bkey, seconds, SerializationUtils.serialize(value));
             } else {

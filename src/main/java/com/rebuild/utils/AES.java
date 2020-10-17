@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 
 /**
  * AES 加/解密
@@ -41,14 +42,14 @@ public class AES {
         key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
         byte[] crypted;
         try {
-            SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
+            SecretKeySpec skey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.ENCRYPT_MODE, skey);
-            crypted = cipher.doFinal(input.getBytes());
+            crypted = cipher.doFinal(input.getBytes(StandardCharsets.UTF_8));
         } catch (Exception ex) {
             throw new RebuildException("Encrypting error : " + input, ex);
         }
-        return new String(Base64.encodeBase64(crypted));
+        return new String(Base64.encodeBase64(crypted), StandardCharsets.UTF_8);
     }
 
     /**
@@ -85,14 +86,14 @@ public class AES {
         key = StringUtils.leftPad(key, 16, "0").substring(0, 16);
         byte[] output;
         try {
-            SecretKeySpec skey = new SecretKeySpec(key.getBytes(), "AES");
+            SecretKeySpec skey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, skey);
             output = cipher.doFinal(Base64.decodeBase64(input));
         } catch (Exception ex) {
             throw new RebuildException("Decrypting error : " + input, ex);
         }
-        return new String(output);
+        return new String(output, StandardCharsets.UTF_8);
     }
 
     /**
