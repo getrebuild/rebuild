@@ -17,6 +17,7 @@ import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -75,7 +76,11 @@ public class FileDownloader extends BaseController {
             else {
                 filePath = CodecUtils.urlDecode(filePath);
                 File img = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
-                if (!img.exists()) return;
+                if (!img.exists()) {
+                    response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
+                    response.sendError(HttpStatus.NOT_FOUND.value());
+                    return;
+                }
 
                 BufferedImage bi = ImageIO.read(img);
                 Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
@@ -123,7 +128,7 @@ public class FileDownloader extends BaseController {
         if (request.getRequestURI().contains("/filex/access/")) {
             String e = getParameter(request, "e");
             if (StringUtils.isBlank(e) || Application.getCommonsCache().get(e) == null) {
-                response.sendError(403, "文件已过期");
+                response.sendError(403, getLang(request, "ShardeFileExpired"));
                 return;
             }
 

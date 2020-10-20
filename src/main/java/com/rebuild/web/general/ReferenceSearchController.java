@@ -189,14 +189,16 @@ public class ReferenceSearchController extends EntityController {
     private List<Object> resultSearch(String sqlWhere, Entity entity, boolean usePrivileges) {
         Field nameField = MetadataHelper.getNameField(entity);
 
-        String sql = MessageFormat.format("select {0},{1} from {2} where ({3})",
+        String sql = MessageFormat.format("select {0},{1} from {2} where {3}",
                 entity.getPrimaryField().getName(), nameField.getName(), entity.getName(), sqlWhere);
 
-        DisplayType dt = EasyMeta.getDisplayType(nameField);
-        if (dt != DisplayType.ID) {
-            sql += " order by " + nameField.getName();
-        } else if (entity.containsField(EntityHelper.ModifiedOn)) {
-            sql += " order by modifiedOn desc";
+        if (!sqlWhere.contains(" order by ")) {
+            DisplayType dt = EasyMeta.getDisplayType(nameField);
+            if (dt != DisplayType.ID) {
+                sql += " order by " + nameField.getName();
+            } else if (entity.containsField(EntityHelper.ModifiedOn)) {
+                sql += " order by modifiedOn desc";
+            }
         }
 
         Object[][] array = (usePrivileges ? Application.createQueryNoFilter(sql) : Application.createQuery(sql))

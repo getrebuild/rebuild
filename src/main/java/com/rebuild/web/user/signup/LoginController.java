@@ -108,6 +108,7 @@ public class LoginController extends BaseController {
                 }
 
             } catch (Exception ex) {
+                ServletUtils.readCookie(request, CK_AUTOLOGIN);
                 LOG.error("Cannot decode User from alt : " + alt, ex);
             }
 

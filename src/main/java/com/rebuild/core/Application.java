@@ -171,7 +171,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         try {
-            Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").newInstance();
+            Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").getDeclaredConstructor().newInstance();
             LOG.info("Loaded " + RBV);
             _RBV = true;
         } catch (Exception ignore) {
