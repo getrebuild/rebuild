@@ -13,6 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.task.HeavyTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 
@@ -23,6 +25,8 @@ import java.text.MessageFormat;
  * @since 12/29/2018
  */
 public class ChangeOwningDeptTask extends HeavyTask<Integer> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ChangeOwningDeptTask.class);
 
     final private ID user;
     final private ID deptNew;

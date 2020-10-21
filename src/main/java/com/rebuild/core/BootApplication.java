@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core;
 
-import com.rebuild.core.support.RebuildConfiguration;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -41,7 +40,7 @@ import javax.servlet.ServletException;
 @ImportResource("classpath:application-bean.xml")
 public class BootApplication extends SpringBootServletInitializer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RebuildConfiguration.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BootApplication.class);
 
     private static boolean DEBUG = false;
 

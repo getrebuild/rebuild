@@ -36,6 +36,8 @@ import com.rebuild.core.support.general.FieldValueWrapper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -47,6 +49,8 @@ import java.util.*;
  * @since 2019/06/03
  */
 public class FormsBuilder extends FormsManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FormsBuilder.class);
 
     public static final FormsBuilder instance = new FormsBuilder();
 

@@ -11,6 +11,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 批量导入业务模块
@@ -19,6 +21,8 @@ import com.rebuild.core.support.task.HeavyTask;
  * @since 2020/9/29
  */
 public class BusinessModelImporter extends HeavyTask<Integer> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BusinessModelImporter.class);
 
     private final String[] modelFiles;
 
