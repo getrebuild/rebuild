@@ -83,7 +83,6 @@ public class AutoShare extends AutoAssign {
             if (allowNoPermissionShare) {
                 PrivilegesGuardContextHolder.setSkipGuard(recordId);
             }
-
             Application.getEntityService(context.getSourceEntity().getEntityCode()).share(recordId, toUser, cascades);
         }
     }
