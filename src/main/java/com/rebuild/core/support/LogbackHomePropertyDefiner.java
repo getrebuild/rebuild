@@ -10,7 +10,7 @@ package com.rebuild.core.support;
 import ch.qos.logback.core.PropertyDefinerBase;
 
 /**
- * logback dir : ${DataDirectory}/logs/
+ * logback dir : ${DataDirectory}/_log/
  *
  * @author devezhao
  * @since 2020/10/20
@@ -19,6 +19,6 @@ public class LogbackHomePropertyDefiner extends PropertyDefinerBase {
 
     @Override
     public String getPropertyValue() {
-        return RebuildConfiguration.getFileOfData("logs").getAbsolutePath();
+        return RebuildConfiguration.getFileOfData("_log").getAbsolutePath();
     }
 }

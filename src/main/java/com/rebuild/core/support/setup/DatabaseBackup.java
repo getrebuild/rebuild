@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -50,7 +49,7 @@ public class DatabaseBackup {
         String dbname = url.split("/")[1];
 
         String destName = dbname + "." + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
-        File backups = RebuildConfiguration.getFileOfData("backups");
+        File backups = RebuildConfiguration.getFileOfData("_backups");
         if (!backups.exists()) {
             FileUtils.forceMkdir(backups);
         }
@@ -68,15 +67,15 @@ public class DatabaseBackup {
         }
         // for Linux
         else {
-            process = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", cmd});
+            process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmd });
         }
 
         BufferedReader readerError = null;
         BufferedReader reader = null;
         StringBuilder echo = new StringBuilder();
         try {
-            readerError = new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-            reader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
+            readerError = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
 
             String line;
             while ((line = readerError.readLine()) != null) {

@@ -10,6 +10,7 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.web.BaseController;
@@ -74,7 +75,7 @@ public class FileDownloader extends BaseController {
             }
             // 粗略图
             else {
-                filePath = CodecUtils.urlDecode(filePath);
+                filePath = checkFilePath(filePath);
                 File img = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
                 if (!img.exists()) {
                     response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
@@ -165,7 +166,7 @@ public class FileDownloader extends BaseController {
      * @throws IOException
      */
     public static boolean writeLocalFile(String filePath, boolean temp, HttpServletResponse response) throws IOException {
-        filePath = CodecUtils.urlDecode(filePath);
+        filePath = checkFilePath(filePath);
         File file = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
         return writeLocalFile(file, response);
     }
@@ -219,5 +220,21 @@ public class FileDownloader extends BaseController {
 
         response.setHeader("Content-Disposition", "attachment;filename=" + attname);
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    }
+
+    /**
+     * @param filepath
+     * @return
+     */
+    private static String checkFilePath(String filepath) {
+        filepath = CodecUtils.urlDecode(filepath);
+        filepath = filepath.replace("\\", "/");
+
+        if (filepath.contains("../")
+                || filepath.startsWith("_log/") || filepath.contains("/_log/")
+                || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
+            throw new RebuildException("Attack path detected : " + filepath);
+        }
+        return filepath;
     }
 }

@@ -230,7 +230,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      * @return
      */
     public static boolean rbvLoaded() {
-        return License.getCommercialType() > 0 && _RBV;
+        return _RBV && License.getCommercialType() > 0;
     }
 
     /**
