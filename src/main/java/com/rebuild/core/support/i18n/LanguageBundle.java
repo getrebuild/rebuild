@@ -84,7 +84,8 @@ public class LanguageBundle implements JSONable {
     private JSONObject merge(JSONObject bundle) {
         if (Application.isReady()) {
             appendMetadata(bundle);
-            if (License.getCommercialType() > 0) {
+
+            if (License.isCommercial()) {
                 appendDatabase(bundle);
             }
         }

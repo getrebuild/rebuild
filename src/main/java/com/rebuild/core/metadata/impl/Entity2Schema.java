@@ -93,7 +93,7 @@ public class Entity2Schema extends Field2Schema {
                 "select min(typeCode) from MetaEntity").unique();
         int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0
                 ? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
-        if (typeCode <= (License.getCommercialType() > 0 ? 500 : 900)) {
+        if (typeCode <= (License.isCommercial() ? 500 : 900)) {
             throw new MetadataModificationException("Entity code exceeds system limit : " + typeCode);
         }
 

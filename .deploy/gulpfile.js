@@ -62,7 +62,7 @@ function _assetsHex(file) {
     try {
       hex = revHash(fs.readFileSync(`${WEB_ROOT}${file}`))
     } catch (err) {
-      console.log('Hash of file error : ' + file, err)
+      console.log('Cannot #revHash : ' + file, err)
       // Use date
       const d = new Date()
       hex = [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('')

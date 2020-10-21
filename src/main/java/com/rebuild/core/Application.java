@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core;
 
 import cn.devezhao.commons.ObjectUtils;
-import cn.devezhao.commons.ReflectUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Query;
@@ -94,8 +93,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     private static boolean _READY;
     // 等待系统组件装载
     private static boolean _WAITLOADS = true;
-    // 增值模块
-    private static boolean _RBV;
 
     // SPRING
     private static ApplicationContext _CONTEXT;
@@ -170,12 +167,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             return false;
         }
 
-        try {
-            Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").getDeclaredConstructor().newInstance();
-            LOG.info("Loaded " + RBV);
-            _RBV = true;
-        } catch (Exception ignore) {
-        }
+        License.isRbvAttached();
 
         // 升级数据库
         new UpgradeDatabase().upgradeQuietly();
@@ -223,14 +215,6 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      */
     public static boolean devMode() {
         return BootApplication.devMode();
-    }
-
-    /**
-     * RBV 可用
-     * @return
-     */
-    public static boolean rbvLoaded() {
-        return _RBV && License.getCommercialType() > 0;
     }
 
     /**
