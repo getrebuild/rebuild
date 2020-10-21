@@ -188,7 +188,7 @@
   "Error0": "Succeeded",
   "Error401": "Unauthorized access",
   "Error403": "Access is blocked due to insufficient permissions",
-  "Error404": "Accessed page/resource does not exist",
+  "Error404": "Accessed page/file does not exist",
   "Error500": "The system is busy, please try again later",
   "ErrorOutMaxInput": "Field length exceeds limit",
   "NoPrivileges": "No permission",

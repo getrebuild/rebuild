@@ -75,8 +75,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
     cache: false,
     complete: function (xhr) {
       if (!(xhr.status === 200 || xhr.status === 0)) {
-        if (xhr.responseJSON && xhr.responseJSON.status === 404) RbHighbar.error($L('Error500') + ' : ' + xhr.responseJSON.path)
-        else RbHighbar.error(xhr.responseText || $L('Error500'))
+        if (xhr.responseJSON && xhr.responseJSON.status === 404) {
+          RbHighbar.error($L('Error404') + ' : ' + xhr.responseJSON.path)
+        } else {
+          var err = xhr.responseText
+          try {
+            err = $.parseJSON(err || '{}').error_msg
+          } catch (ignore) {}
+          RbHighbar.error(err)
+        }
       }
     },
     beforeSend: function (xhr, settings) {

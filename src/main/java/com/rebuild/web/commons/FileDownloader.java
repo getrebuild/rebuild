@@ -11,8 +11,8 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.web.BaseController;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
@@ -129,7 +129,7 @@ public class FileDownloader extends BaseController {
         if (request.getRequestURI().contains("/filex/access/")) {
             String e = getParameter(request, "e");
             if (StringUtils.isBlank(e) || Application.getCommonsCache().get(e) == null) {
-                response.sendError(403, getLang(request, "ShardeFileExpired"));
+                response.sendError(HttpStatus.FORBIDDEN.value(), getLang(request, "ShardeFileExpired"));
                 return;
             }
 
@@ -182,7 +182,7 @@ public class FileDownloader extends BaseController {
     public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
         if (!file.exists()) {
             response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            response.sendError(HttpStatus.NOT_FOUND.value());
             return false;
         }
 
