@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core;
 
+import com.rebuild.core.support.RebuildConfiguration;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -19,11 +20,13 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ImportResource;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import java.io.File;
 
 /**
  * 启动类
@@ -64,9 +67,12 @@ public class BootApplication extends SpringBootServletInitializer {
         DEBUG = args.length > 0 && args[0].contains("rbdev=true");
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
+        // kill -15 `cat ~/.rebuild/rebuild.pid`
+        File pidFile = RebuildConfiguration.getFileOfData("rebuild.pid");
+
         LOG.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
         SpringApplication spring = new SpringApplication(BootApplication.class);
-        spring.addListeners(new Application());
+        spring.addListeners(new ApplicationPidFileWriter(pidFile), new Application());
         spring.run(args);
     }
 

@@ -29,6 +29,13 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <!-- /etc/init.d/rebuild.jar start|stop|restart -->
+                <!--
+                <configuration>
+                    <executable>true</executable>
+                    <fork>true</fork>
+                </configuration>
+                -->
             </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
