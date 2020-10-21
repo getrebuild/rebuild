@@ -59,7 +59,14 @@ const _assetsHexCached = {}
 function _assetsHex(file) {
   let hex = _assetsHexCached[file]
   if (!hex) {
-    hex = revHash(fs.readFileSync(`${WEB_ROOT}${file}`))
+    try {
+      hex = revHash(fs.readFileSync(`${WEB_ROOT}${file}`))
+    } catch (err) {
+      console.log('Hash of file error : ' + file, err)
+      // Use date
+      const d = new Date()
+      hex = [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('')
+    }
     _assetsHexCached[file] = hex
   }
   return hex
