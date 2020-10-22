@@ -11,7 +11,6 @@ import com.rebuild.api.RespBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
@@ -27,7 +26,6 @@ import java.util.List;
  * @since 2020/9/30
  *
  * @see RespBody
- * @see RebuildWebConfigurer#configureHandlerExceptionResolvers(List)
  * @see RebuildWebConfigurer#configureMessageConverters(List)
  */
 @ControllerAdvice
@@ -42,25 +40,24 @@ public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
     @Override
     public Object beforeBodyWrite(Object o, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+        // #supports
+        // Controller send status of error
+        int statusCode = ((ServletServerHttpResponse) serverHttpResponse).getServletResponse().getStatus();
+        if (statusCode != 200) {
+            LOG.warn("Response Error Status : " + o);
+            return o;
+        }
+
         // 强转为 JSON Herader
-        // Controller 方法返回 `null` `String` 时 mediaType=TEXT_PLAIN
+        // @ResponseBody 方法返回 `null` `String` 时 mediaType=TEXT_PLAIN
         if (MediaType.TEXT_PLAIN.equals(mediaType)) {
             serverHttpResponse.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         }
 
         if (o instanceof RespBody) {
             return ((RespBody) o).toJSON();
-
         } else {
-            // Controller send status of error (xhr)
-            int statusCode = ((ServletServerHttpResponse) serverHttpResponse).getServletResponse().getStatus();
-
-            if (statusCode == HttpStatus.OK.value()) {
-                return RespBody.ok(o).toJSON();
-            } else {
-                LOG.error("Response Error Status : " + o);
-                return RespBody.error(statusCode);
-            }
+            return RespBody.ok(o).toJSON();
         }
     }
 }

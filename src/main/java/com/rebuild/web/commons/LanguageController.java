@@ -78,7 +78,7 @@ public class LanguageController extends BaseController {
         if (Application.devMode()) Application.getLanguage().refresh();
 
         ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
-        AppUtils.addCookie(response, CK_LOCALE, locale);
+        ServletUtils.addCookie(response, CK_LOCALE, locale);
 
         if (AppUtils.isHtmlRequest(request)) {
             String nexturl = request.getParameter("nexturl");
