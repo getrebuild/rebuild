@@ -7,16 +7,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.commons;
 
+import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -116,11 +119,18 @@ public class MetadataGetting extends BaseController {
     // 哪些实体引用了指定实体
     @GetMapping("references")
     public List<String[]> references(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
-        Entity entityMeta = MetadataHelper.getEntity(entity);
+        final ID user = getRequestUser(request);
+
+        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
+
+        String permission = getParameter(request, "permission");
+        Permission checkPermission = null;
+        if (permission != null) {
+            checkPermission = PrivilegesManager.parse(permission);
+        }
 
         Set<Entity> references = new HashSet<>();
-        for (Field field : entityMeta.getReferenceToFields()) {
+        for (Field field : entity.getReferenceToFields()) {
             Entity own = field.getOwnEntity();
             if (!(own.getMainEntity() != null || field.getType() == FieldType.ANY_REFERENCE)) {
                 references.add(own);
@@ -129,8 +139,11 @@ public class MetadataGetting extends BaseController {
 
         List<String[]> data = new ArrayList<>();
         for (Entity e : references) {
-            EasyMeta easy = new EasyMeta(e);
-            data.add(new String[] { easy.getName(), easy.getLabel() });
+            if (checkPermission == null
+                    || Application.getPrivilegesManager().allow(user, e.getEntityCode(), checkPermission)) {
+                EasyMeta easy = new EasyMeta(e);
+                data.add(new String[] { easy.getName(), easy.getLabel() });
+            }
         }
         return data;
     }
