@@ -46,13 +46,19 @@ class RbFormModal extends React.Component {
   }
 
   componentDidMount() {
-    $(this._rbmodal)
+    const $root = $(this._rbmodal)
       .modal({
         show: false,
         backdrop: 'static',
         keyboard: false,
       })
-      .on('hidden.bs.modal', () => $keepModalOpen())
+      .on('hidden.bs.modal', () => {
+        $keepModalOpen()
+        if (this.props.disposeOnHide === true) {
+          $root.modal('dispose')
+          $unmount($root.parent().parent())
+        }
+      })
     this.showAfter({}, true)
   }
 
@@ -151,13 +157,20 @@ class RbFormModal extends React.Component {
   /**
    * @param {*} props
    */
-  static create(props) {
-    const that = this
-    if (that.__HOLDER) that.__HOLDER.show(props)
-    else
+  static create(props, newDlg) {
+    if (newDlg === true) {
+      renderRbcomp(<RbFormModal {...props} />)
+      return
+    }
+
+    if (this.__HOLDER) {
+      this.__HOLDER.show(props)
+    } else {
+      const that = this
       renderRbcomp(<RbFormModal {...props} />, null, function () {
         that.__HOLDER = this
       })
+    }
   }
 }
 

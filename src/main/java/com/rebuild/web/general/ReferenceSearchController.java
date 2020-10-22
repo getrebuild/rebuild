@@ -253,6 +253,8 @@ public class ReferenceSearchController extends EntityController {
             return null;
         }
 
+        final ID user = getRequestUser(request);
+
         Entity entity = MetadataHelper.getEntity(fieldAndEntity[1]);
         Field field = entity.getField(fieldAndEntity[0]);
         Entity searchEntity = field.getReferenceEntity();
@@ -260,8 +262,12 @@ public class ReferenceSearchController extends EntityController {
         ModelAndView mv = createModelAndView("/general/reference-search");
         putEntityMeta(mv, searchEntity);
 
-        JSON config = DataListManager.instance.getFieldsLayout(searchEntity.getName(), getRequestUser(request));
+        JSON config = DataListManager.instance.getFieldsLayout(searchEntity.getName(), user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+
+        // 可新建
+        mv.getModel().put("canCreate",
+                Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
 
         // 是否启用了字段过滤
         String referenceDataFilter = EasyMeta.valueOf(field).getExtraAttr("referenceDataFilter");
@@ -270,6 +276,7 @@ public class ReferenceSearchController extends EntityController {
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
         }
+
         return mv;
     }
 }
