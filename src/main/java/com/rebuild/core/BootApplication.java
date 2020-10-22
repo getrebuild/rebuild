@@ -29,7 +29,7 @@ import javax.servlet.ServletException;
 import java.io.File;
 
 /**
- * 启动类
+ * SpringBoot 启动类
  *
  * @author devezhao
  * @since 2020/9/22
@@ -45,18 +45,24 @@ public class BootApplication extends SpringBootServletInitializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootApplication.class);
 
-    private static boolean DEBUG = false;
-
     private static String CONTEXT_PATH = null;
 
+    private static boolean DEBUG = false;
+
+    /**
+     * @return
+     */
     public static String getContextPath() {
         if (CONTEXT_PATH == null) {
-            // IN BOOT
+            // USE BOOT
             CONTEXT_PATH = BootEnvironmentPostProcessor.getProperty("server.servlet.context-path", "");
         }
         return CONTEXT_PATH;
     }
 
+    /**
+     * @return
+     */
     public static boolean devMode() {
         return DEBUG || BooleanUtils.toBoolean(System.getProperty("rbdev"));
     }
