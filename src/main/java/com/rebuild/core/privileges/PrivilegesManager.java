@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.privileges;
 
+import cn.devezhao.bizz.BizzException;
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
@@ -470,5 +471,31 @@ public class PrivilegesManager {
             return RoleBaseQueryFilter.ALLOWED;
         }
         return new RoleBaseQueryFilter(theUser, action);
+    }
+
+    // --
+
+    // 权限动作集合
+    private static final Permission[] RB_PERMISSIONS = new Permission[] {
+            BizzPermission.CREATE,
+            BizzPermission.DELETE,
+            BizzPermission.UPDATE,
+            BizzPermission.READ,
+            BizzPermission.ASSIGN,
+            BizzPermission.SHARE,
+            EntityService.UNSHARE
+    };
+
+    /**
+     * @param name
+     * @return
+     */
+    public static Permission parse(String name) {
+        for (Permission p : RB_PERMISSIONS) {
+            if (p.getName().equalsIgnoreCase(name)) {
+                return p;
+            }
+        }
+        throw new BizzException("Unknown Permission : " + name);
     }
 }

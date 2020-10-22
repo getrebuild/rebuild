@@ -1726,7 +1726,7 @@ class DeleteConfirm extends RbAlert {
   enableCascade() {
     this.setState({ enableCascade: !this.state.enableCascade })
     if (!this.state.cascadesEntity) {
-      $.get('/commons/metadata/references?entity=' + this.props.entity, (res) => {
+      $.get(`/commons/metadata/references?entity=${this.props.entity}&permission=D`, (res) => {
         this.setState({ cascadesEntity: res.data }, () => {
           this.__select2 = $(this._cascades)
             .select2({

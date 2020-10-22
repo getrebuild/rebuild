@@ -76,7 +76,7 @@ class ContentAutoAssign extends ActionContentSpec {
     }
 
     const cascades = content.cascades ? content.cascades.split(',') : []
-    $.get('/commons/metadata/references?entity=' + this.props.sourceEntity, (res) => {
+    $.get(`/commons/metadata/references?entity=${this.props.sourceEntity}`, (res) => {
       this.setState({ cascadesEntity: res.data }, () => {
         this.__select2 = $(this._cascades)
           .select2({
