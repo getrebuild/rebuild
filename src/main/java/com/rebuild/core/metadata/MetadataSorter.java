@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
@@ -17,7 +18,10 @@ import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 
 import java.text.Collator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * 元数据辅助类，注意此类返回的数据会过滤和排序
@@ -39,7 +43,7 @@ public class MetadataSorter {
     }
 
     /**
-     * 用户权限内可用实体
+     * 用户权限内*可读*实体
      *
      * @param user
      * @param usesBizz 是否包括内建 BIZZ 实体
@@ -57,7 +61,7 @@ public class MetadataSorter {
 
             if (user == null || !MetadataHelper.hasPrivilegesField(e)) {
                 entities.add(e);
-            } else if (Application.getPrivilegesManager().allowRead(user, e.getEntityCode())) {
+            } else if (Application.getPrivilegesManager().allow(user, e.getEntityCode(), BizzPermission.READ)) {
                 entities.add(e);
             }
         }

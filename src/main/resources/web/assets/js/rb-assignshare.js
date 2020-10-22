@@ -11,30 +11,30 @@ class DlgAssign extends RbModalHandler {
   constructor(props) {
     super(props)
     this.onView = !!window.RbViewPage
-    this.specs = ['assign', 'Assign']
+    this._Props = ['assign', 'Assign', 'A']
   }
 
   render() {
     return (
-      <RbModal title={$L(this.specs[1])} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L(this._Props[1])} ref={(c) => (this._dlg = c)}>
         <div className="form">
           {this.onView === true ? null : (
             <div className="form-group row pb-0">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SomeWhichRecords,' + this.specs[1])}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('SomeWhichRecords,' + this._Props[1])}</label>
               <div className="col-sm-7">
                 <div className="form-control-plaintext">{`${$L('DatasSelected')} (${$L('XItem').replace('%d', this.state.ids.length)})`}</div>
               </div>
             </div>
           )}
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('SomeToWho,' + this.specs[1])}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('SomeToWho,' + this._Props[1])}</label>
             <div className="col-sm-7">{this._useUserSelector()}</div>
           </div>
           {this.state.cascadesShow !== true ? (
             <div className="form-group row">
               <div className="col-sm-7 offset-sm-3">
                 <a href="#" onClick={this._showCascade}>
-                  {$L('SameSomeRelatedRecords,' + this.specs[1])}
+                  {$L('SameSomeRelatedRecords,' + this._Props[1])}
                 </a>
               </div>
             </div>
@@ -71,14 +71,17 @@ class DlgAssign extends RbModalHandler {
 
   _showCascade = () => {
     event && event.preventDefault()
-    $.get(`/commons/metadata/references?entity=${this.props.entity}`, (res) => {
+    $.get(`/commons/metadata/references?entity=${this.props.entity}&permission=${this._Props[2]}`, (res) => {
       this.setState({ cascadesShow: true, cascadesEntity: res.data }, () => {
+        const defaultSelected = []
+        res.data.forEach((item) => defaultSelected.push(item[0]))
+
         $(this._cascades)
           .select2({
             multiple: true,
             placeholder: $L('SelectCasEntity'),
           })
-          .val(null)
+          .val(defaultSelected)
           .trigger('change')
       })
     })
@@ -91,21 +94,21 @@ class DlgAssign extends RbModalHandler {
   post() {
     let users = this._UserSelector.val()
     if (!users || users.length === 0) {
-      RbHighbar.create($L('PlsSelectSomeToWho,' + this.specs[1]))
+      RbHighbar.create($L('PlsSelectSomeToWho,' + this._Props[1]))
       return
     }
     if ($.type(users) === 'array') users = users.join(',')
     const cass = this.state.cascadesShow === true ? $(this._cascades).val().join(',') : ''
 
     const $btns = $(this._btns).find('.btn').button('loading')
-    $.post(`/app/entity/record-${this.specs[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}`, (res) => {
+    $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}`, (res) => {
       if (res.error_code === 0) {
         this.setState({ cascadesShow: false })
         this._UserSelector.clearSelection()
         $(this._cascades).val(null).trigger('change')
 
         this.hide()
-        RbHighbar.success($L('SomeSuccess,' + this.specs[1]))
+        RbHighbar.success($L('SomeSuccess,' + this._Props[1]))
 
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
@@ -136,7 +139,7 @@ class DlgAssign extends RbModalHandler {
 class DlgShare extends DlgAssign {
   constructor(props) {
     super(props)
-    this.specs = ['share', 'Share']
+    this._Props = ['share', 'Share', 'S']
   }
 
   _useUserSelector() {
