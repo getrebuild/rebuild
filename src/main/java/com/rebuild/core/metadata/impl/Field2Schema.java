@@ -76,9 +76,9 @@ public class Field2Schema {
         }
 
         String fieldName = toPinyinName(fieldLabel);
-        while (true) {
+        for (int i = 0; i < 5; i++) {
             if (entity.containsField(fieldName) || MetadataHelper.isCommonsField(fieldName)) {
-                fieldName += (10 + RandomUtils.nextInt(89));
+                fieldName += RandomUtils.nextInt(99);
             } else {
                 break;
             }

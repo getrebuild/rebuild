@@ -22,6 +22,8 @@ import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Iterator;
@@ -33,6 +35,8 @@ import java.util.Iterator;
  * @since 2020/6/16
  */
 public class NavBuilder extends NavManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(NavBuilder.class);
 
     public static final NavBuilder instance = new NavBuilder();
 

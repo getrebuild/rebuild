@@ -21,6 +21,8 @@ import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -32,6 +34,8 @@ import java.util.*;
  * @since 01/09/2019
  */
 public class DataImporter extends HeavyTask<Integer> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DataImporter.class);
 
     final private ImportRule rule;
     private ID owningUser;

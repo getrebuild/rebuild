@@ -26,6 +26,8 @@ import com.rebuild.core.support.state.StateManager;
 import com.rebuild.core.support.state.StateSpec;
 import com.rebuild.core.support.task.HeavyTask;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -36,6 +38,8 @@ import java.util.List;
  * @since 12/28/2018
  */
 public class QuickCodeReindexTask extends HeavyTask<Integer> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(QuickCodeReindexTask.class);
 
     private static final int PAGE_SIZE = 1000;
 

@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,6 +44,7 @@ public class TriggerByTimerJob extends DistributedJobLock {
      */
     @Scheduled(cron = "0 * * * * ?")
     public void executeJob() {
+        if (!License.isCommercial()) return;
         if (!tryLock()) return;
 
         final Calendar time = CalendarUtils.getInstance();

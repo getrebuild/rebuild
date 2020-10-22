@@ -20,14 +20,16 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.JdbcTemplateAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ImportResource;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import java.io.File;
 
 /**
- * 启动类
+ * SpringBoot 启动类
  *
  * @author devezhao
  * @since 2020/9/22
@@ -41,20 +43,26 @@ import javax.servlet.ServletException;
 @ImportResource("classpath:application-bean.xml")
 public class BootApplication extends SpringBootServletInitializer {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RebuildConfiguration.class);
-
-    private static boolean DEBUG = false;
+    private static final Logger LOG = LoggerFactory.getLogger(BootApplication.class);
 
     private static String CONTEXT_PATH = null;
 
+    private static boolean DEBUG = false;
+
+    /**
+     * @return
+     */
     public static String getContextPath() {
         if (CONTEXT_PATH == null) {
-            // IN BOOT
+            // USE BOOT
             CONTEXT_PATH = BootEnvironmentPostProcessor.getProperty("server.servlet.context-path", "");
         }
         return CONTEXT_PATH;
     }
 
+    /**
+     * @return
+     */
     public static boolean devMode() {
         return DEBUG || BooleanUtils.toBoolean(System.getProperty("rbdev"));
     }
@@ -65,9 +73,12 @@ public class BootApplication extends SpringBootServletInitializer {
         DEBUG = args.length > 0 && args[0].contains("rbdev=true");
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
+        // kill -15 `cat ~/.rebuild/rebuild.pid`
+        File pidFile = RebuildConfiguration.getFileOfData("rebuild.pid");
+
         LOG.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
         SpringApplication spring = new SpringApplication(BootApplication.class);
-        spring.addListeners(new Application());
+        spring.addListeners(new ApplicationPidFileWriter(pidFile), new Application());
         spring.run(args);
     }
 

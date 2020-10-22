@@ -89,7 +89,7 @@ public class AutoAssign implements TriggerAction {
 
         ID toUser = null;
 
-        final boolean orderedAssign = ((JSONObject) context.getActionContent()).getIntValue("assignRule") == 1;
+        final boolean orderedAssign = ((JSONObject) context.getActionContent()).getIntValue("assignRule") != 2;
         final String orderedAssignKey = "AutoAssignLastAssignTo" + context.getConfigId();
         if (orderedAssign) {
             String lastAssignTo = KVStorage.getCustomValue(orderedAssignKey);
@@ -116,12 +116,7 @@ public class AutoAssign implements TriggerAction {
 
         } else {
             int rnd = RandomUtils.nextInt(toUsers.size());
-            for (ID u : toUsers) {
-                if (--rnd == 0) {
-                    toUser = u;
-                    break;
-                }
-            }
+            toUser = toUsers.toArray(new ID[0])[rnd];
         }
 
         String hasCascades = ((JSONObject) context.getActionContent()).getString("cascades");

@@ -70,7 +70,7 @@
                               ></span>
                             </label>
                           </div>
-                          <div class="mt-1 bosskey-show">
+                          <div class="mt-1" th:if="${commercial > 0}">
                             <div>
                               <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                                 <input class="custom-control-input" type="checkbox" value="512" onclick="_handle512Change()" />
@@ -165,11 +165,6 @@
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/trigger/trigger-design.js}" type="text/babel"></script>
-    <script th:if="${actionType == 'FIELDAGGREGATION'}" th:src="@{/assets/js/trigger/trigger.FIELDAGGREGATION.js}" type="text/babel"></script>
-    <script th:if="${actionType == 'FIELDWRITEBACK'}" th:src="@{/assets/js/trigger/trigger.FIELDWRITEBACK.js}" type="text/babel"></script>
-    <script th:if="${actionType == 'SENDNOTIFICATION'}" th:src="@{/assets/js/trigger/trigger.SENDNOTIFICATION.js}" type="text/babel"></script>
-    <script th:if="${actionType == 'AUTOASSIGN'}" th:src="@{/assets/js/trigger/trigger.AUTOASSIGN.js}" type="text/babel"></script>
-    <script th:if="${actionType == 'AUTOSHARE'}" th:src="@{/assets/js/trigger/trigger.AUTOSHARE.js}" type="text/babel"></script>
-    <script th:if="${actionType == 'AUTOAPPROVAL'}" th:src="@{/assets/js/trigger/trigger.AUTOAPPROVAL.js}" type="text/babel"></script>
+    <script th:src="|${baseUrl}/assets/js/trigger/trigger.${actionType}.js?v=2.0.0|" type="text/babel"></script>
   </body>
 </html>

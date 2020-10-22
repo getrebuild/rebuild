@@ -15,9 +15,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.service.query.FilterParseException;
 import com.rebuild.core.support.task.HeavyTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,8 +28,6 @@ import java.util.Set;
  * @since 10/16/2018
  */
 public abstract class BulkOperator extends HeavyTask<Integer> {
-
-    protected static final Logger LOG = LoggerFactory.getLogger(BulkOperator.class);
 
     final protected BulkContext context;
     final protected GeneralEntityService ges;
@@ -68,7 +65,7 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
         String sqlWhere = filterParser.toSqlWhere();
         // `(1=1)`.length < 10
         if (sqlWhere.length() < 10) {
-            throw new SecurityException("Must specify filter items : " + sqlWhere);
+            throw new FilterParseException("Must specify items of filter : " + sqlWhere);
         }
 
         Entity entity = MetadataHelper.getEntity(asFilterExp.getString("entity"));

@@ -110,7 +110,7 @@ public class UserService extends BaseServiceImpl {
                 .setParameter(1, record)
                 .unique();
         if (ObjectUtils.toInt(hasLogin[0]) > 0) {
-            throw new OperationDeniedException("Already used");
+            throw new OperationDeniedException("ALREADY USED");
         }
 
         super.delete(record);

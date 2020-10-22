@@ -15,7 +15,6 @@ import com.rebuild.api.Controller;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -167,7 +166,13 @@ public abstract class BaseController extends Controller {
      */
     protected Integer getIntParameter(HttpServletRequest request, String name, Integer defaultValue) {
         String v = request.getParameter(name);
-        return v == null ? defaultValue : NumberUtils.toInt(v, defaultValue);
+        if (StringUtils.isBlank(v)) return defaultValue;
+
+        try {
+            return Integer.parseInt(v);
+        } catch (NumberFormatException ignored) {
+            return null;
+        }
     }
 
     /**

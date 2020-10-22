@@ -8,12 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ReflectUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
@@ -25,9 +28,13 @@ import java.util.Locale;
  */
 public final class License {
 
+    private static final Logger LOG = LoggerFactory.getLogger(License.class);
+
     private static final String OSA_KEY = "IjkMHgq94T7s7WkP";
 
     private static String USE_SN;
+
+    private static Boolean USE_RBV;
 
     /**
      * @return
@@ -93,6 +100,29 @@ public final class License {
         JSONObject auth = queryAuthority(true);
         Integer authType = auth.getInteger("authTypeInt");
         return authType == null ? 0 : authType;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isCommercial() {
+        return getCommercialType() > 0;
+    }
+
+    /**
+     * @return
+     */
+    public static boolean isRbvAttached() {
+        if (USE_RBV != null) return USE_RBV;
+
+        try {
+            Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").getDeclaredConstructor().newInstance();
+            LOG.info("Attached " + RBV);
+            USE_RBV = true;
+        } catch (Exception norbv) {
+            USE_RBV = false;
+        }
+        return USE_RBV;
     }
 
     /**

@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- *
  */
 public class Tests {
 
@@ -23,5 +22,4 @@ public class Tests {
         System.out.println(Arrays.toString(Locale.getISOCountries()));
         System.out.println(Arrays.toString(Locale.getISOLanguages()));
     }
-
 }

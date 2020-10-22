@@ -20,6 +20,8 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,8 @@ import java.util.Map;
  * @since 08/30/2018
  */
 public class DataListManager extends BaseLayoutManager {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DataListManager.class);
 
     public static final DataListManager instance = new DataListManager();
 

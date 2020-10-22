@@ -133,7 +133,7 @@ public class SignUpController extends BaseController {
             return;
         }
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 5; i++) {
             if (Application.getUserStore().existsName(loginName)) {
                 loginName += RandomUtils.nextInt(99);
             } else {

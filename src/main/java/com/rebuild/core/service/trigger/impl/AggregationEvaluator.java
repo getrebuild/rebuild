@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
  */
 public class AggregationEvaluator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FieldAggregation.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AggregationEvaluator.class);
 
     private static final Pattern FIELD_PATT = Pattern.compile("\\{(.*?)}");
 

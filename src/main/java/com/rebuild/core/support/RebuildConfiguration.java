@@ -38,7 +38,7 @@ public class RebuildConfiguration extends KVStorage {
      * @return
      */
     public static File getFileOfData(String filepath) {
-        if (filepath != null && (filepath.contains("../") || filepath.contains("/backups/"))) {
+        if (filepath != null && filepath.contains("../")) {
             throw new SecurityException("Attack path detected : " + filepath);
         }
 
@@ -80,7 +80,7 @@ public class RebuildConfiguration extends KVStorage {
         File temp = getFileOfData("temp");
         if (!temp.exists()) {
             if (!temp.mkdirs()) {
-                throw new RebuildException("Cannot mkdirs : " + temp);
+                throw new RebuildException("Cannot mkdirs for temp : " + temp);
             }
         }
         return filepath == null ? temp : new File(temp, filepath);
@@ -187,7 +187,7 @@ public class RebuildConfiguration extends KVStorage {
      * @return
      */
     public static String get(ConfigurationItem name, boolean noCache) {
-        if (name == ConfigurationItem.AppName && License.getCommercialType() <= 0) return "REBUILD";
+        if (name == ConfigurationItem.AppName && !License.isCommercial()) return "REBUILD";
         else return getValue(name.name(), noCache, name.getDefaultValue());
     }
 

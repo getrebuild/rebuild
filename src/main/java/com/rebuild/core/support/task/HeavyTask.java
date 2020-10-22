@@ -27,7 +27,7 @@ import java.util.Date;
  */
 public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runnable {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(HeavyTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HeavyTask.class);
 
     volatile private boolean interrupt = false;
     volatile private boolean interruptState = false;

@@ -25,7 +25,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.nio.file.AccessDeniedException;
 import java.sql.DataTruncation;
 
@@ -210,17 +209,5 @@ public class AppUtils {
         } catch (Exception ignore) {
         }
         return MediaType.TEXT_HTML.equals(mediaType) || MediaType.APPLICATION_XHTML_XML.equals(mediaType);
-    }
-
-    /**
-     * @param response
-     * @param name
-     * @param value
-     * @see ServletUtils#addCookie(HttpServletResponse, String, String, int, String, String)
-     * @see ServletUtils#readCookie(HttpServletRequest, String)
-     */
-    public static void addCookie(HttpServletResponse response, String name, String value) {
-        ServletUtils.addCookie(response, name, value, 60 * 60 * 24 * 90,
-                null, StringUtils.defaultIfBlank(getContextPath(), "/"));
     }
 }

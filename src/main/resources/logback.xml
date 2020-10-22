@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <define name="LOGS_HOME" class="com.rebuild.core.support.LogbackHomePropertyDefiner" />
+
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{HH:mm:ss.SSS} %-5level [%-20thread] %logger{36}:%line - %msg%n</pattern>
@@ -12,7 +14,7 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-20thread] %logger{36}:%line - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${java.io.tmpdir}/logs/rebuild.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
+            <fileNamePattern>${LOGS_HOME}/rebuild.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
             <maxFileSize>100MB</maxFileSize>
             <maxHistory>180</maxHistory>
         </rollingPolicy>

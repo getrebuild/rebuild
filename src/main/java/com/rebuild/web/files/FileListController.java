@@ -66,7 +66,7 @@ public class FileListController extends BaseController {
             }
         }
         // 记住最后一次访问的文件类型
-        AppUtils.addCookie(response, CK_LASTPATH, path);
+        ServletUtils.addCookie(response, CK_LASTPATH, path);
 
         return createModelAndView("/files/" + path);
     }

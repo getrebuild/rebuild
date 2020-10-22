@@ -10,13 +10,15 @@ package com.rebuild.web.commons;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import com.rebuild.core.Application;
-import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.web.BaseController;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,9 +75,13 @@ public class FileDownloader extends BaseController {
             }
             // 粗略图
             else {
-                filePath = CodecUtils.urlDecode(filePath);
+                filePath = checkFilePath(filePath);
                 File img = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
-                if (!img.exists()) return;
+                if (!img.exists()) {
+                    response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
+                    response.sendError(HttpStatus.NOT_FOUND.value());
+                    return;
+                }
 
                 BufferedImage bi = ImageIO.read(img);
                 Thumbnails.Builder<BufferedImage> builder = Thumbnails.of(bi);
@@ -123,7 +129,7 @@ public class FileDownloader extends BaseController {
         if (request.getRequestURI().contains("/filex/access/")) {
             String e = getParameter(request, "e");
             if (StringUtils.isBlank(e) || Application.getCommonsCache().get(e) == null) {
-                response.sendError(403, "文件已过期");
+                response.sendError(HttpStatus.FORBIDDEN.value(), getLang(request, "ShardeFileExpired"));
                 return;
             }
 
@@ -160,7 +166,7 @@ public class FileDownloader extends BaseController {
      * @throws IOException
      */
     public static boolean writeLocalFile(String filePath, boolean temp, HttpServletResponse response) throws IOException {
-        filePath = CodecUtils.urlDecode(filePath);
+        filePath = checkFilePath(filePath);
         File file = temp ? RebuildConfiguration.getFileOfTemp(filePath) : RebuildConfiguration.getFileOfData(filePath);
         return writeLocalFile(file, response);
     }
@@ -176,7 +182,7 @@ public class FileDownloader extends BaseController {
     public static boolean writeLocalFile(File file, HttpServletResponse response) throws IOException {
         if (!file.exists()) {
             response.setHeader("Content-Disposition", StringUtils.EMPTY);  // Clean download
-            response.sendError(HttpServletResponse.SC_NOT_FOUND);
+            response.sendError(HttpStatus.NOT_FOUND.value());
             return false;
         }
 
@@ -214,5 +220,21 @@ public class FileDownloader extends BaseController {
 
         response.setHeader("Content-Disposition", "attachment;filename=" + attname);
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    }
+
+    /**
+     * @param filepath
+     * @return
+     */
+    private static String checkFilePath(String filepath) {
+        filepath = CodecUtils.urlDecode(filepath);
+        filepath = filepath.replace("\\", "/");
+
+        if (filepath.contains("../")
+                || filepath.startsWith("_log/") || filepath.contains("/_log/")
+                || filepath.startsWith("_backups/") || filepath.contains("/_backups/")) {
+            throw new RebuildException("Attack path detected : " + filepath);
+        }
+        return filepath;
     }
 }

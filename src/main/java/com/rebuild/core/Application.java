@@ -92,7 +92,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     // 服务启动状态
     private static boolean _READY;
     // 等待系统组件装载
-    private static boolean _WAIT_LOADS = true;
+    private static boolean _WAITLOADS = true;
 
     // SPRING
     private static ApplicationContext _CONTEXT;
@@ -123,8 +123,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 if (started) {
                     String banner = RebuildBanner.formatSimple(
                             "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
-                            "License : " + License.queryAuthority(false).values(),
-                            "Local   : " + localUrl);
+                            "License   : " + License.queryAuthority(false).values(),
+                            "Local URL : " + localUrl);
                     LOG.info(banner);
                 }
 
@@ -148,7 +148,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                 }
             }
 
-            _WAIT_LOADS = false;
+            _WAITLOADS = false;
         }
     }
 
@@ -166,6 +166,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
         }
+
+        License.isRbvAttached();
 
         // 升级数据库
         new UpgradeDatabase().upgradeQuietly();
@@ -228,7 +230,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      * @return
      */
     public static boolean isWaitLoads() {
-        return _WAIT_LOADS && _CONTEXT != null;
+        return _WAITLOADS && _CONTEXT != null;
     }
 
     public static ApplicationContext getContext() {

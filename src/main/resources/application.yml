@@ -16,6 +16,7 @@ server:
   tomcat:
     uri-encoding: UTF-8
     threads.max: 200
+  max-http-header-size: 32KB
 
 # SPRING
 spring:

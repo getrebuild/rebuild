@@ -49,7 +49,7 @@ public class DatabaseBackup {
         String dbname = url.split("/")[1];
 
         String destName = dbname + "." + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
-        File backups = RebuildConfiguration.getFileOfData("backups");
+        File backups = RebuildConfiguration.getFileOfData("_backups");
         if (!backups.exists()) {
             FileUtils.forceMkdir(backups);
         }
@@ -67,7 +67,7 @@ public class DatabaseBackup {
         }
         // for Linux
         else {
-            process = Runtime.getRuntime().exec(new String[]{"/bin/sh", "-c", cmd});
+            process = Runtime.getRuntime().exec(new String[] { "/bin/sh", "-c", cmd });
         }
 
         BufferedReader readerError = null;

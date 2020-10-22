@@ -75,9 +75,9 @@ public class LoginController extends BaseController {
         }
 
         // 授权 Token 登录
-        String token = getParameter(request, "token");
-        if (StringUtils.isNotBlank(token)) {
-            ID tokenUser = AuthTokenManager.verifyToken(token, true);
+        final String useToken = getParameter(request, "token");
+        if (StringUtils.isNotBlank(useToken)) {
+            ID tokenUser = AuthTokenManager.verifyToken(useToken, true);
             if (tokenUser != null) {
                 loginSuccessed(request, response, tokenUser, false);
 
@@ -91,12 +91,11 @@ public class LoginController extends BaseController {
         }
 
         // Cookie 记住登录
-        String alt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
-        if (StringUtils.isNotBlank(alt)) {
+        final String useAlt = ServletUtils.readCookie(request, CK_AUTOLOGIN);
+        if (StringUtils.isNotBlank(useAlt)) {
             ID altUser = null;
             try {
-                alt = AES.decrypt(alt);
-                String[] alts = alt.split(",");
+                String[] alts = AES.decrypt(useAlt).split(",");
                 altUser = ID.isId(alts[0]) ? ID.valueOf(alts[0]) : null;
 
                 // 最大一个月有效期
@@ -108,7 +107,8 @@ public class LoginController extends BaseController {
                 }
 
             } catch (Exception ex) {
-                LOG.error("Cannot decode User from alt : " + alt, ex);
+                ServletUtils.readCookie(request, CK_AUTOLOGIN);
+                LOG.error("Cannot decode User from alt : " + useAlt, ex);
             }
 
             if (altUser != null && Application.getUserStore().existsUser(altUser)) {
@@ -205,7 +205,7 @@ public class LoginController extends BaseController {
         if (autoLogin) {
             String alt = user + "," + System.currentTimeMillis() + ",v1";
             alt = AES.encrypt(alt);
-            AppUtils.addCookie(response, CK_AUTOLOGIN, alt);
+            ServletUtils.addCookie(response, CK_AUTOLOGIN, alt);
         } else {
             ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         }

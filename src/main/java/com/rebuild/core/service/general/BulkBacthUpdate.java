@@ -17,6 +17,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 批量修改
@@ -25,6 +27,8 @@ import org.apache.commons.lang.StringUtils;
  * @since 2019/12/2
  */
 public class BulkBacthUpdate extends BulkOperator {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BulkBacthUpdate.class);
 
     /**
      * 修改为
@@ -40,7 +44,7 @@ public class BulkBacthUpdate extends BulkOperator {
     }
 
     @Override
-    protected Integer exec() throws Exception {
+    protected Integer exec() {
         final ID[] willUpdates = prepareRecords();
         this.setTotal(willUpdates.length);
 
