@@ -1261,6 +1261,8 @@ $(document).ready(() => {
         RbViewModal.create({ entity: viewHash[2], id: viewHash[3] })
       }, 500)
     }
+  } else if (viewHash === '#!/New') {
+    $('.J_new').trigger('click')
   }
 
   // ASIDE

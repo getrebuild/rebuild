@@ -35,8 +35,8 @@
               </div>
               <div class="col-6">
                 <div class="dataTables_oper">
-                  <button class="btn btn-space btn-primary btn-outline J_select" type="button"><i class="icon zmdi zmdi-check"></i> [[${bundle.L('Confirm')}]]</button>
-                  <button class="btn btn-space btn-primary J_new hide" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('New')}]]</button>
+                  <button class="btn btn-space btn-primary btn-outline J_select" type="button"><i class="icon zmdi zmdi-check"></i> [[${bundle.L('Select')}]]</button>
+                  <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/${entityName}/list#!/New|"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('New')}]]</a>
                 </div>
               </div>
             </div>
@@ -67,6 +67,11 @@
           const ss = RbListPage._RbList.getSelectedIds()
           if (ss.length > 0 && parent && parent.referenceSearch__call) parent.referenceSearch__call(ss)
         })
+        // $('.J_new2').click(function () {
+        //   const entity = window.__PageConfig.entity
+        //   const props = { title: $L('NewSome').replace('{0}', entity[1]), entity: entity[0], icon: entity[2], disposeOnHide: true }
+        //   if (parent && parent.RbFormModal) parent.RbFormModal.create(props, true)
+        // })
       })
     </script>
   </body>

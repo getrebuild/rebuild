@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -44,6 +45,13 @@ public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         // Controller send status of error
         int statusCode = ((ServletServerHttpResponse) serverHttpResponse).getServletResponse().getStatus();
         if (statusCode != 200) {
+            if (o instanceof Map) {
+                String path404 = (String) ((Map<?, ?>) o).get("path");
+                if (path404 != null && path404.endsWith(".js.map")) {
+                    return o;
+                }
+            }
+
             LOG.warn("Response Error Status : " + o);
             return o;
         }
