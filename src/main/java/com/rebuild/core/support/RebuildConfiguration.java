@@ -187,8 +187,7 @@ public class RebuildConfiguration extends KVStorage {
      * @return
      */
     public static String get(ConfigurationItem name, boolean noCache) {
-        if (name == ConfigurationItem.AppName && !License.isCommercial()) return "REBUILD";
-        else return getValue(name.name(), noCache, name.getDefaultValue());
+        return getValue(name.name(), noCache, name.getDefaultValue());
     }
 
     /**
