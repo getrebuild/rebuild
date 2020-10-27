@@ -67,7 +67,7 @@ public class AppUtils {
      * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
      */
     public static ID getRequestUser(HttpServletRequest request) {
-        Object user = request.getSession(true).getAttribute(WebUtils.CURRENT_USER);
+        Object user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
         return user == null ? null : (ID) user;
     }
 

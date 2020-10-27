@@ -7,16 +7,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AutoFillinManager;
+import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 表单功能扩展
@@ -24,23 +28,40 @@ import javax.servlet.http.HttpServletResponse;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/20
  */
-@Controller
+@RestController
 @RequestMapping("/app/entity/extras/")
 public class FormExtrasController extends BaseController {
 
     /**
-     * 获取表单回填值
+     * 获取表单回填数据
      *
      * @param request
-     * @param response
      */
     @RequestMapping("fillin-value")
-    public void getFillinValue(HttpServletRequest request, HttpServletResponse response) {
+    public JSON getFillinValue(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         String field = getParameterNotNull(request, "field");
-        ID source = getIdParameterNotNull(request, "source");
 
-        JSON ret = AutoFillinManager.instance.getFillinValue(MetadataHelper.getField(entity, field), source);
-        writeSuccess(response, ret);
+        ID sourceRecord = getIdParameterNotNull(request, "source");
+        Field useField = MetadataHelper.getField(entity, field);
+
+        return AutoFillinManager.instance.getFillinValue(useField, sourceRecord);
+    }
+
+    /**
+     * 记录转换
+     *
+     * @param request
+     */
+    @RequestMapping("transform")
+    public ID transform(HttpServletRequest request) {
+        ID configId = getIdParameterNotNull(request, "id");
+        ID sourceRecord = getIdParameterNotNull(request, "source");
+
+        ConfigBean config = TransformManager.instance.getTransformConfig(configId, null);
+        Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
+
+        RecordTransfomer transfomer = new RecordTransfomer(targetEntity);
+        return transfomer.transform(sourceRecord, config.getJSON("mapping"));
     }
 }

@@ -39,6 +39,9 @@
               <li th:class="${active == 'robot-approval'} ? 'active'">
                 <a th:href="@{/admin/robot/approvals}"><i class="icon zmdi zmdi-assignment-check"></i><span>[[${bundle.L('ApprovalConfig')}]]</span></a>
               </li>
+              <li th:class="${active == 'transforms'} ? 'active'">
+                <a th:href="@{/admin/transforms}"><i class="icon zmdi zmdi-repeat"></i><span>[[${bundle.L('e.TransformConfig')}]]</span></a>
+              </li>
               <li th:class="${active == 'robot-trigger'} ? 'active'">
                 <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('Trigger')}]]</span></a>
               </li>

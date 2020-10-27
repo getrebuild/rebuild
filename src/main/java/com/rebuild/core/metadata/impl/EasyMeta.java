@@ -322,6 +322,14 @@ public class EasyMeta implements BaseMeta {
     }
 
     /**
+     * @param entityName
+     * @return
+     */
+    public static String getLabel(String entityName) {
+        return getLabel(MetadataHelper.getEntity(entityName));
+    }
+
+    /**
      * @param entityOrField
      * @return
      */

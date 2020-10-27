@@ -359,6 +359,15 @@
         <index field-list="locale,name"/>
     </entity>
 
+    <entity name="TransformConfig" type-code="037" description="记录转换映射" queryable="false">
+        <field name="configId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="源实体"/>
+        <field name="targetEntity" type="string" max-length="100" nullable="false" updatable="false" description="目标实体"/>
+        <field name="name" type="string" max-length="100" description="名称"/>
+        <field name="config" type="text" description="映射配置"/>
+        <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
+    </entity>
+
     <!-- 动态不涉及审计 -->
     <entity name="Feeds" type-code="040" description="动态" name-field="content" extra-attrs="{icon:'chart-donut'}">
         <field name="feedsId" type="primary"/>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/transforms" />
+    <title>[[${bundle.L('e.TransformConfig')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header rb-aside" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='transforms')}" />
+      <div class="rb-content">
+        <aside class="page-aside">
+          <div class="rb-scroller">
+            <div class="aside-tree">
+              <h5 class="config-title">[[${bundle.L('ApplyEntity')}]]</h5>
+              <ul class="list-unstyled">
+                <li class="active"><a>[[${bundle.L('AllEntity')}]]</a></li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+        <div class="page-head">
+          <div class="float-left"><div class="page-head-title">[[${bundle.L('e.TransformConfig')}]]</div></div>
+          <div class="float-right pt-1">
+            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('Add')}]]</button>
+          </div>
+          <div class="float-right pt-1 mr-3">
+            <div class="input-group input-search">
+              <input class="form-control" type="text" th:placeholder="${bundle.L('Query')}" maxlength="40" />
+              <span class="input-group-btn"
+                ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
+              ></span>
+            </div>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="main-content container-fluid pt-0">
+          <div class="card card-table">
+            <div class="card-body">
+              <div class="dataTables_wrapper container-fluid">
+                <div class="row rb-datatable-body">
+                  <div class="col-sm-12">
+                    <div class="rb-loading rb-loading-active data-list">
+                      <table class="table table-hover table-striped table-fixed">
+                        <thead>
+                          <tr>
+                            <th>[[${bundle.L('Name')}]]</th>
+                            <th>[[${bundle.L('SourceEntity')}]]</th>
+                            <th>[[${bundle.L('TargetEntity')}]]</th>
+                            <th width="80">[[${bundle.L('Enable')}]]</th>
+                            <th width="160">[[${bundle.L('f.modifiedOn')}]]</th>
+                            <th width="80"></th>
+                          </tr>
+                        </thead>
+                        <tbody id="dataList"></tbody>
+                      </table>
+                      <th:block th:replace="~{/_include/spinner}" />
+                      <div class="list-nodata hide">
+                        <span class="zmdi zmdi-repeat"></span>
+                        <p>[[${bundle.L('NoSome,e.TransformConfig')}]]</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="pagination">
+                  <div class="row rb-datatable-footer">
+                    <div class="col-sm-3"><div class="dataTables_info"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/config-comps.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/transform-list.js}" type="text/babel"></script>
+  </body>
+</html>

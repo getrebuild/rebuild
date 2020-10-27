@@ -37,7 +37,7 @@ server:
     session:
       tracking-modes: cookie
   error:
-    whitelabel.enabled: true
+    whitelabel.enabled: false
   tomcat:
     uri-encoding: UTF-8
     threads.max: 200
