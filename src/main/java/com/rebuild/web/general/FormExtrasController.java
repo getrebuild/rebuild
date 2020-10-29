@@ -11,6 +11,8 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.configuration.general.TransformManager;
@@ -18,6 +20,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,14 +57,19 @@ public class FormExtrasController extends BaseController {
      * @param request
      */
     @RequestMapping("transform")
-    public ID transform(HttpServletRequest request) {
-        ID configId = getIdParameterNotNull(request, "id");
+    public RespBody transform(HttpServletRequest request) {
+        ID transid = getIdParameterNotNull(request, "transid");
         ID sourceRecord = getIdParameterNotNull(request, "source");
 
-        ConfigBean config = TransformManager.instance.getTransformConfig(configId, null);
+        ConfigBean config = TransformManager.instance.getTransformConfig(transid, null);
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
 
-        RecordTransfomer transfomer = new RecordTransfomer(targetEntity);
-        return transfomer.transform(sourceRecord, config.getJSON("mapping"));
+        RecordTransfomer transfomer = new RecordTransfomer(targetEntity, (JSONObject) config.getJSON("config"));
+        if (!transfomer.checkFilter()) {
+            return RespBody.errorl("TransformNotAllow");
+        }
+
+        ID newId = transfomer.transform(sourceRecord);
+        return RespBody.ok(newId);
     }
 }

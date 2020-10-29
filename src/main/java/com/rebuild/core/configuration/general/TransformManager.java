@@ -36,6 +36,8 @@ public class TransformManager implements ConfigManager {
     private TransformManager() { }
 
     /**
+     * 前端使用
+     *
      * @param sourceEntity
      * @return
      */
@@ -51,9 +53,10 @@ public class TransformManager implements ConfigManager {
                 continue;
             }
 
+            EasyMeta easyMeta = EasyMeta.valueOf(targetEntity);
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[] { "targetEntity", "targetEntityLabel", "id" },
-                    new Object[] { target, EasyMeta.getLabel(targetEntity), c.getID("id") });
+                    new String[] { "entityIcon", "entityLabel", "transid" },
+                    new Object[] { easyMeta.getIcon(), easyMeta.getLabel(), c.getID("id") });
             data.add(item);
         }
         return data;

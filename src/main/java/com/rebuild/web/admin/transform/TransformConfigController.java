@@ -117,6 +117,10 @@ public class TransformConfigController extends BaseController {
             fullType += "." + field.getReferenceEntity().getName();
         } else if (DisplayType.STATE.name().equals(fullType)) {
             fullType += "." + easyMeta.getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+        } else if (DisplayType.CLASSIFICATION.name().equals(fullType)) {
+            fullType += "." + easyMeta.getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE);
+        } else if (DisplayType.ID.name().equals(fullType)) {
+            fullType = DisplayType.REFERENCE.name() + "." + field.getOwnEntity().getName();
         }
         item.put("type", fullType);
         return item;

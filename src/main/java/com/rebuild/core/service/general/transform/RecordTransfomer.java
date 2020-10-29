@@ -10,6 +10,7 @@ package com.rebuild.core.service.general.transform;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * TODO
@@ -20,20 +21,27 @@ import com.alibaba.fastjson.JSON;
 public class RecordTransfomer {
 
     private Entity targetEntity;
+    private JSONObject transConfig;
 
     /**
      * @param targetEntity
      */
-    public RecordTransfomer(Entity targetEntity) {
+    public RecordTransfomer(Entity targetEntity, JSONObject transConfig) {
         this.targetEntity = targetEntity;
     }
 
     /**
-     * @param sourceRecord
-     * @param useMapping
      * @return
      */
-    public ID transform(ID sourceRecord, JSON useMapping) {
+    public boolean checkFilter() {
+        return false;
+    }
+
+    /**
+     * @param sourceRecord
+     * @return
+     */
+    public ID transform(ID sourceRecord) {
         return null;
     }
 }

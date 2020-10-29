@@ -1195,6 +1195,11 @@
   "NoUsesEntity": "无可用实体",
   "NoUsesField": "无可用字段",
   "To": "至",
+  "Transform": "转换",
+  "TransformAs": "转换为",
+  "TransformAsTips": "确认将当前记录转换为 %s 吗？",
+  "TransformAsAndOpen": "转换后打开",
+  "TransformNotAllow": "当前记录不符合转换条件",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
