@@ -8,12 +8,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.admin.transform;
 
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.support.state.StateHelper;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.data.ReportTemplateController;
 import org.springframework.stereotype.Controller;
@@ -61,16 +69,57 @@ public class TransformConfigController extends BaseController {
         }
 
         mv.getModelMap().put("configId", configId);
+        mv.getModelMap().put("config", config.getJSON("config"));
 
         Entity sourceEntity = MetadataHelper.getEntity(config.getString("source"));
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
-        mv.getModelMap().put("sourcePrimary", sourceEntity.getPrimaryField().getName());
-        mv.getModelMap().put("sourceEntity", sourceEntity.getName());
-        mv.getModelMap().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));
-        mv.getModelMap().put("targetEntity", targetEntity.getName());
-        mv.getModelMap().put("targetEntityLabel", EasyMeta.getLabel(targetEntity));
+
+        // 主实体
+        mv.getModelMap().put("sourceEntity", buildEntity(sourceEntity, true));
+        mv.getModelMap().put("targetEntity", buildEntity(targetEntity, false));
+
+        // 明细（两个实体均有明细才返回）
+        if (sourceEntity.getDetailEntity() != null && targetEntity.getDetailEntity() != null) {
+            mv.getModelMap().put("sourceDetailEntity", buildEntity(sourceEntity.getDetailEntity(), true));
+            mv.getModelMap().put("targetDetailEntity", buildEntity(targetEntity.getDetailEntity(), false));
+        }
 
         return mv;
+    }
+
+    private JSONObject buildEntity(Entity entity, boolean isSource) {
+        JSONObject entityData = JSONUtils.toJSONObject(
+                new String[] { "entity", "label" },
+                new Object[] { entity.getName(), EasyMeta.getLabel(entity) });
+
+        JSONArray fields = new JSONArray();
+        if (isSource) {
+            fields.add(buildField(entity.getPrimaryField()));
+        }
+
+        for (Field field : MetadataSorter.sortFields(entity)) {
+            if (!isSource && !field.isCreatable()) continue;
+            fields.add(buildField(field));
+        }
+        entityData.put("fields", fields);
+
+        return entityData;
+    }
+
+    private JSONObject buildField(Field field) {
+        EasyMeta easyMeta = EasyMeta.valueOf(field);
+        JSONObject item = JSONUtils.toJSONObject(
+                new String[] { "id", "text", "nullable" },
+                new Object[] { field.getName(), easyMeta.getLabel(), field.isNullable() });
+
+        String fullType = easyMeta.getDisplayType(false);
+        if (DisplayType.REFERENCE.name().equals(fullType)) {
+            fullType += "." + field.getReferenceEntity().getName();
+        } else if (DisplayType.STATE.name().equals(fullType)) {
+            fullType += "." + easyMeta.getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+        }
+        item.put("type", fullType);
+        return item;
     }
 
     @ResponseBody

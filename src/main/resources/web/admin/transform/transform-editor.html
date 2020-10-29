@@ -4,23 +4,29 @@
     <th:block th:replace="~{/_include/header}" />
     <title>[[${bundle.L('e.TransformConfig')}]]</title>
     <style type="text/css">
+      .nav-tabs > li.nav-item a.nav-link {
+        padding: 8px 15px;
+      }
       form.simple {
         max-width: 1100px;
       }
-      #fieldsMapping span.badge {
+      .fields-mapping span.badge {
         font-size: 1rem;
         padding: 4px 10px;
         font-weight: normal;
         margin-top: 3px;
       }
-      #fieldsMapping span.badge::before {
+      .fields-mapping span.badge::before {
         content: '\f2fd';
         font-family: 'Material-Design-Iconic-Font';
         position: absolute;
         left: -2px;
-        color: #999;
+        color: #878787;
       }
-      #fieldsMapping span.badge > i {
+      .fields-mapping .row.active span.badge::before {
+        color: #fbbc05;
+      }
+      .fields-mapping span.badge > i {
         display: inline-block;
         background-color: #ea4335;
         width: 3px;
@@ -46,24 +52,21 @@
               <form class="simple">
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8 J_useFilter">
-                    <a class="btn btn-sm btn-link pl-0 text-left down-2">[[${bundle.L('ClickSet')}]]</a>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <a class="btn btn-sm btn-link pl-0 text-left down-2" id="useFilter">[[${bundle.L('ClickSet')}]]</a>
                     <p class="form-text mb-0 mt-0">[[${bundle.L('SetFilterTransformTips')}]]</p>
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('TransformeMapping')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <div class="row">
-                      <div class="col-7">
-                        <div class="form-control-plaintext text-bold">[[${sourceEntityLabel}]]</div>
-                      </div>
-                      <div class="col-5">
-                        <div class="form-control-plaintext text-bold">[[${targetEntityLabel}]]</div>
-                      </div>
-                    </div>
-                    <div id="fieldsMapping">
-                      <span class="text-muted">[[${bundle.L('Loading')}]]</span>
+                    <ul th:if="${sourceDetailEntity != null}" class="nav nav-tabs mb-2">
+                      <li class="nav-item"><a class="nav-link active" href="#EMAIN" data-toggle="tab">[[${bundle.L('MainEntity')}]]</a></li>
+                      <li class="nav-item"><a class="nav-link" href="#EDETAIL" data-toggle="tab">[[${bundle.L('DetailEntity')}]]</a></li>
+                    </ul>
+                    <div class="tab-content m-0 p-0 fields-mapping">
+                      <div class="tab-pane active" id="EMAIN"></div>
+                      <div class="tab-pane" id="EDETAIL"></div>
                     </div>
                   </div>
                 </div>
@@ -90,10 +93,11 @@
     <script>
       window.__PageConfig = {
         configId: '[[${configId}]]',
-        sourceEntity: '[[${sourceEntity}]]',
-        targetEntity: '[[${targetEntity}]]',
-        sourcePrimary: '[[${sourcePrimary}]]',
         config: _$unthy('[[${config}]]'),
+        sourceEntity: _$unthy('[[${sourceEntity}]]'),
+        sourceDetailEntity: _$unthy('[[${sourceDetailEntity}]]'),
+        targetEntity: _$unthy('[[${targetEntity}]]'),
+        targetDetailEntity: _$unthy('[[${targetDetailEntity}]]'),
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>

@@ -127,7 +127,7 @@ class TransformEdit extends ConfigFormDlg {
   }
 
   componentDidMount() {
-    $.get('/commons/metadata/entities?detail=true', (res) => {
+    $.get('/commons/metadata/entities', (res) => {
       this.setState({ entities: res.data }, () => {
         this._$source = $(this._source).select2({
           placeholder: $L('SelectSome,Entity'),

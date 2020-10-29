@@ -1187,7 +1187,7 @@
   "NoSelect4UnShareUser": "There are no users to unshare",
   "RecordNotExists": "Record does not exist",
   "TransformEntity": "Transform Entity",
-  "SetFilterTransformTips": "Only records that meet the filter criteria can be transform",
+  "SetFilterTransformTips": "Only records that meet the conditions are allowed to be transform",
   "TransformeMapping": "Fields Mapping",
   "TransformeAfterFill": "Backfill after transform",
   "TransformeAfterFillTips": "The transform record ID can be backfilled into the source record",

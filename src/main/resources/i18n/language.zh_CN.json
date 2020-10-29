@@ -1187,7 +1187,7 @@
   "NoSelect4UnShareUser": "没有要取消共享的用户",
   "RecordNotExists": "记录不存在",
   "TransformEntity": "转换实体",
-  "SetFilterTransformTips": "符合过滤条件的记录才能被转换",
+  "SetFilterTransformTips": "符合过滤条件的记录才允许被转换",
   "TransformeMapping": "转换字段映射",
   "TransformeAfterFill": "转换后回填",
   "TransformeAfterFillTips": "可将转换后的记录 ID 回填至源记录中",
