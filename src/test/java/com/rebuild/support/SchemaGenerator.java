@@ -32,7 +32,7 @@ public class SchemaGenerator {
         PMF = Application.getPersistManagerFactory();
 
 //        generate();
-        generate(EntityHelper.Language);
+        generate(EntityHelper.TransformConfig);
 
         System.exit(0);
     }
