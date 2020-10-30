@@ -1195,7 +1195,7 @@
   "s.ApprovalState.REVOKED": "撤销",
   "s.HowtoState.DRAFT": "草稿",
   "s.HowtoState.PENDING": "处理中",
-  "s.HowtoState.SOLVED": "已驳回",
+  "s.HowtoState.SOLVED": "已解决",
   "s.HowtoState.REJECTED": "已驳回",
   "t.__": "字段类型",
   "t.NUMBER": "数字",

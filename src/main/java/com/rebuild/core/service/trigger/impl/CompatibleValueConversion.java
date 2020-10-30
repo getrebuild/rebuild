@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
@@ -19,6 +20,7 @@ import com.rebuild.core.support.general.FieldValueWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -130,8 +132,14 @@ public class CompatibleValueConversion {
             }
         } else if (is2Text) {
             compatibleValue = FieldValueWrapper.instance.wrapFieldValue(sourceValue, sourceField);
+
+        } else if (sourceType == DisplayType.NUMBER && targetType == DisplayType.DECIMAL) {
+            compatibleValue = BigDecimal.valueOf((Long) sourceValue);
+
+        } else if (sourceType == DisplayType.DECIMAL && targetType == DisplayType.NUMBER) {
+            compatibleValue = ObjectUtils.toLong(sourceValue);
+
         }
-        // 整数/浮点数无需转换，因为持久层框架已有兼容处理
 
         return compatibleValue;
     }
