@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service;
 
 import com.rebuild.core.Application;
+import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
@@ -28,7 +29,9 @@ public class TransactionManual {
      * @return
      */
     public static TransactionStatus newTransaction() {
-        return getTxManager().getTransaction(new DefaultTransactionAttribute());
+        DefaultTransactionAttribute attr = new DefaultTransactionAttribute();
+        attr.setName("rb-txm-" + RandomStringUtils.randomNumeric(12));
+        return getTxManager().getTransaction(attr);
     }
 
     /**
