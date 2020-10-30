@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.rbstore.MetaschemaImporter;
+import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.BlockList;
 import org.apache.commons.io.FileUtils;
@@ -159,7 +160,7 @@ public class TestSupport {
             String metaschema = FileUtils.readFileToString(
                     ResourceUtils.getFile("classpath:schema-Account999.json"));
             MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(metaschema));
-            TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+            TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
             changed = true;
         }
 
@@ -167,7 +168,7 @@ public class TestSupport {
             String metaschema = FileUtils.readFileToString(
                     ResourceUtils.getFile("classpath:schema-SalesOrder999.json"));
             MetaschemaImporter importer = new MetaschemaImporter(JSON.parseObject(metaschema));
-            TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+            TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
             changed = true;
         }
 

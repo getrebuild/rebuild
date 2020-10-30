@@ -109,7 +109,8 @@ public class ReportsController extends BaseController {
         queryData = new BatchOperatorQuery(dataRange, queryData).wrapQueryData(DataExporter.MAX_ROWS, false);
 
         try {
-            File file = new DataExporter(queryData).setUser(user).export();
+            DataExporter exporter = (DataExporter) new DataExporter(queryData).setUser(user);
+            File file = exporter.export();
             writeSuccess(response, file.getName());
         } catch (Exception ex) {
             writeFailure(response, ex.getLocalizedMessage());

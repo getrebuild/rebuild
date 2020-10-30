@@ -45,7 +45,7 @@ import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
  * @author devezhao
  * @since 09/29/2018
  */
-public class AdvFilterParser extends SetUser<AdvFilterParser> {
+public class AdvFilterParser extends SetUser {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdvFilterParser.class);
 

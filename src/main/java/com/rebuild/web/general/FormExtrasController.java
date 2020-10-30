@@ -65,7 +65,7 @@ public class FormExtrasController extends BaseController {
         Entity targetEntity = MetadataHelper.getEntity(config.getString("target"));
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, (JSONObject) config.getJSON("config"));
-        if (!transfomer.checkFilter()) {
+        if (!transfomer.checkFilter(sourceRecord)) {
             return RespBody.errorl("TransformNotAllow");
         }
 

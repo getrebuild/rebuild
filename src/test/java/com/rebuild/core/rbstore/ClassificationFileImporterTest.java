@@ -13,6 +13,7 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
@@ -32,7 +33,7 @@ public class ClassificationFileImporterTest extends TestSupport {
         File file = ResourceUtils.getFile("classpath:classification-demo.xlsx");
 
         ClassificationFileImporter importer = new ClassificationFileImporter(newClass, file);
-        TaskExecutors.run(importer.setUser(UserService.SYSTEM_USER));
+        TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.SYSTEM_USER));
         System.out.println("ClassificationFileImporter : " + importer.getSucceeded());
     }
 
