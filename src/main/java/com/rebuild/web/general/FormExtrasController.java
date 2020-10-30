@@ -20,7 +20,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
