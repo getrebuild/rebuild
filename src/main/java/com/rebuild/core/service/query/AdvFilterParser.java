@@ -41,6 +41,20 @@ import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
 
 /**
  * 高级查询解析器
+ * <pre>
+ * {
+ *     [entity]: 'xxx',
+ *     [type]: 'xxx',
+ *     [equation]: 'xxx',
+ *     items: [
+ *       { field:'xxx', op: 'xxx', value: 'xxx' },
+ *       ...
+ *     ],
+ *     [values]: [
+ *       'xxx', ...
+ *     ]
+ * }
+ * </pre>
  *
  * @author devezhao
  * @since 09/29/2018
@@ -82,15 +96,17 @@ public class AdvFilterParser extends SetUser {
 
         // 快速搜索模式，自动确定查询项
         if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
-            JSONArray items = buildQuickFilterItems(filterExp.getString("quickFields"));
-            this.filterExp.put("items", items);
+            JSONArray quickItems = buildQuickFilterItems(filterExp.getString("quickFields"));
+            this.filterExp.put("items", quickItems);
         }
 
         JSONArray items = filterExp.getJSONArray("items");
-        JSONObject values = filterExp.getJSONObject("values");
-        String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;
+
+        JSONObject values = filterExp.getJSONObject("values");
         values = values == null ? JSONUtils.EMPTY_OBJECT : values;
+
+        String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
 
         Map<Integer, String> indexItemSqls = new LinkedHashMap<>();
         int incrIndex = 1;

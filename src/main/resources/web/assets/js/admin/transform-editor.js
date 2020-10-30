@@ -31,6 +31,7 @@ $(document).ready(() => {
       fieldsMappingDetail = this
     })
   }
+  console.log(wpc.sourceEntity)
 
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
@@ -109,7 +110,8 @@ class FieldsMapping extends React.Component {
 
         const sourceFields = []
         that.props.source.fields.forEach((item) => {
-          if (_isCompatible(item, ftc)) sourceFields.push(item)
+          if ((item.type === 'ID' && ftc === `REFERENCE.${that.props.source.entity}`)
+              || _isCompatible(item, ftc)) sourceFields.push(item)
         })
 
         $this
@@ -198,8 +200,8 @@ const FT_COMPATIBLE = {
 
 function _isCompatible(field, ftc) {
   if (field.type === ftc) return true
-  const cc = FT_COMPATIBLE[ftc] || []
-  return cc.includes('*') || cc.includes(field.type)
+  const allow = FT_COMPATIBLE[ftc] || []
+  return allow.includes('*') || allow.includes(field.type)
 }
 
 let advFilter_data

@@ -1198,7 +1198,7 @@
   "Transform": "转换",
   "TransformAs": "转换为",
   "TransformAsTips": "确认将当前记录转换为 %s 吗？",
-  "TransformAsAndOpen": "转换后打开",
+  "TransformAsAndOpen": "转换后打开新记录",
   "TransformNotAllow": "当前记录不符合转换条件",
 
   "s.__": "状态",
@@ -1210,7 +1210,7 @@
   "s.ApprovalState.REVOKED": "撤销",
   "s.HowtoState.DRAFT": "草稿",
   "s.HowtoState.PENDING": "处理中",
-  "s.HowtoState.SOLVED": "已驳回",
+  "s.HowtoState.SOLVED": "已解决",
   "s.HowtoState.REJECTED": "已驳回",
   "t.__": "字段类型",
   "t.NUMBER": "数字",

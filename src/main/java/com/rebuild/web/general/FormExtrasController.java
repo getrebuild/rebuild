@@ -65,7 +65,7 @@ public class FormExtrasController extends BaseController {
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, (JSONObject) config.getJSON("config"));
         if (!transfomer.checkFilter(sourceRecord)) {
-            return RespBody.errorl("TransformNotAllow");
+            return RespBody.error(getLang(request, "TransformNotAllow"), 400);
         }
 
         ID newId = transfomer.transform(sourceRecord);

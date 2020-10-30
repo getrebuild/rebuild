@@ -600,14 +600,19 @@ const RbViewPage = {
   initTrans(config) {
     const that = this
     config.forEach((item) => {
-      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.entityIcon}"></i>${item.entityLabel}</a>`)
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.click(() => {
-        RbAlert.create($L('TransformAsTips').replace('%s', item.entityLabel), {
+        const alert = $L('TransformAsTips').replace('%s', `[ ${item.entityLabel} ]`)
+        RbAlert.create(alert, {
           confirm: function () {
             this.disabled(true)
             $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {
               if (res.error_code === 0) {
                 RbHighbar.success($L('SomeSuccess,Transform'))
+                setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
+              } else if (res.error_code === 400) {
+                this.hide()
+                RbHighbar.create(res.error_msg)
               } else {
                 RbHighbar.error(res.error_msg)
               }
@@ -620,17 +625,21 @@ const RbViewPage = {
   },
 
   // 通过父级页面打开
-  clickView(el) {
+  clickView(target) {
     if (parent && parent.RbViewModal) {
-      let viewUrl = $(el).attr('href') // /View/{entity}/{id}
-      viewUrl = viewUrl.split('/')
-      parent.RbViewModal.create({ entity: viewUrl[2], id: viewUrl[3] }, true)
+      // `#!/View/{entity}/{id}`
+      const viewUrl = typeof target === 'string' ? target : $(target).attr('href')
+      if (!viewUrl) {
+        console.warn('Bad view target : ', target)
+        return
+      }
+      const urlSpec = viewUrl.split('/')
+      parent.RbViewModal.create({ entity: urlSpec[2], id: urlSpec[3] }, true)
     }
     return false
   },
   clickViewUser(id) {
-    if (parent && parent.RbViewModal) parent.RbViewModal.create({ entity: 'User', id: id }, true)
-    return false
+    return this.clickView('#!/View/User/' + id)
   },
 
   // 清理操作按钮

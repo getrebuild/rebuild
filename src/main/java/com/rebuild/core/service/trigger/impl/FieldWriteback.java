@@ -16,6 +16,7 @@ import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.support.general.FieldValueCompatibleConversion;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashMap;
@@ -91,7 +92,7 @@ public class FieldWriteback extends FieldAggregation {
 
             Field sourceField = MetadataHelper.getLastJoinField(sourceEntity, e.getValue());
             Field targetField = targetEntity.getField(e.getKey());
-            Object newValue = new CompatibleValueConversion(sourceField, targetField).conversion(value, exprsMap.get(e.getKey()));
+            Object newValue = new FieldValueCompatibleConversion(sourceField, targetField).convert(value, exprsMap.get(e.getKey()));
             if (newValue != null) {
                 record.setObjectValue(targetField.getName(), newValue);
             }

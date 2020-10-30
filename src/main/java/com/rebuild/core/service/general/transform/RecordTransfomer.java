@@ -17,11 +17,11 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.query.FilterRecordChecker;
+import com.rebuild.core.support.general.FieldValueCompatibleConversion;
 import com.rebuild.core.support.SetUser;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 转换记录
@@ -121,11 +121,10 @@ public class RecordTransfomer extends SetUser {
             }
         }
 
-        // TODO 检查并排除无效字段
-
+        List<String> validFields = checkAndWarnFields(sourceEntity, fieldsMapping.values());
         String querySource = String.format(
                 "select %s from %s where %s = '%s'",
-                StringUtils.join(fieldsMapping.values(), ","), sourceEntity.getName(),
+                StringUtils.join(validFields, ","), sourceEntity.getName(),
                 sourceEntity.getPrimaryField().getName(), sourceRecordId);
         Record source = Application.createQueryNoFilter(querySource).record();
 
@@ -135,11 +134,23 @@ public class RecordTransfomer extends SetUser {
 
             Object value = source.getObjectValue(sf);
             if (value != null) {
-                target.setObjectValue(tf, value);
+                Object compatibleValue = new FieldValueCompatibleConversion(
+                        sourceEntity.getField(sf), targetEntity.getField(tf)).convert(value);
+                target.setObjectValue(tf, compatibleValue);
             }
         }
 
         target = Application.getEntityService(targetEntity.getEntityCode()).create(target);
         return target.getPrimary();
+    }
+
+    private List<String> checkAndWarnFields(Entity entity, Collection<?> fieldsName) {
+        List<String> valid = new ArrayList<>();
+        for (Object field : fieldsName) {
+            if (MetadataHelper.checkAndWarnField(entity, (String) field)) {
+                valid.add((String) field);
+            }
+        }
+        return valid;
     }
 }

@@ -1195,6 +1195,11 @@
   "NoUsesEntity": "No entity available",
   "NoUsesField": "No field available",
   "To": "To",
+  "Transform": "Transform",
+  "TransformAs": "Transform To",
+  "TransformAsTips": "Are you sure to transform the current record to %s ?",
+  "TransformAsAndOpen": "Open new record after transform",
+  "TransformNotAllow": "The current record does not meet the transform conditions",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
