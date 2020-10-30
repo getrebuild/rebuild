@@ -39,7 +39,9 @@ public class UserSettings extends EntityController {
 
     @GetMapping("/user")
     public ModelAndView pageUser(HttpServletRequest request) {
-        return createModelAndView("/settings/user-settings", "User", getRequestUser(request));
+        ModelAndView mv = createModelAndView("/settings/user-settings");
+        mv.getModelMap().put("user", Application.getUserStore().getUser(getRequestUser(request)));
+        return mv;
     }
 
     @RequestMapping("/user/send-email-vcode")

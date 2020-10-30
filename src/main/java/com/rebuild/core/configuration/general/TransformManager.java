@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -18,7 +19,6 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,8 +44,8 @@ public class TransformManager implements ConfigManager {
     public JSONArray getTransforms(String sourceEntity, ID user) {
         JSONArray data = new JSONArray();
         for (ConfigBean c : getRawTransforms(sourceEntity)) {
-            // 尚未配置
-            if (c.getJSON("config") == null) continue;
+            // 过滤尚未配置或禁用的
+            if (c.getJSON("config") == null || c.getBoolean("disabled")) continue;
 
             String target = c.getString("target");
             Entity targetEntity = MetadataHelper.getEntity(target);
@@ -79,9 +79,6 @@ public class TransformManager implements ConfigManager {
         throw new ConfigurationException("No `TransformConfig` found : " + configId);
     }
 
-    /**
-     * @return
-     */
     @SuppressWarnings("unchecked")
     protected List<ConfigBean> getRawTransforms(String sourceEntity) {
         final String cKey = "TransformManager-" + sourceEntity;
@@ -91,7 +88,7 @@ public class TransformManager implements ConfigManager {
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select belongEntity,targetEntity,configId,config from TransformConfig where belongEntity = ? and isDisabled = 'F'")
+                "select belongEntity,targetEntity,configId,config,isDisabled from TransformConfig where belongEntity = ?")
                 .setParameter(1, sourceEntity)
                 .array();
 
@@ -100,7 +97,8 @@ public class TransformManager implements ConfigManager {
             ConfigBean entry = new ConfigBean()
                     .set("source", o[0])
                     .set("target", o[1])
-                    .set("id", o[2]);
+                    .set("id", o[2])
+                    .set("disabled", ObjectUtils.toBool(o[4], false));
 
             JSON config = JSON.parseObject((String) o[3]);
             entry.set("config", config);

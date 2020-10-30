@@ -64,10 +64,23 @@ public class AppUtils {
      *
      * @param request
      * @return null or UserID
-     * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
      */
     public static ID getRequestUser(HttpServletRequest request) {
+        return getRequestUser(request, false);
+    }
+
+    /**
+     * 获取当前请求用户
+     *
+     * @param request
+     * @return null or UserID
+     * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
+     */
+    public static ID getRequestUser(HttpServletRequest request, boolean refreshToken) {
         Object user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
+        if (user == null) {
+            user = getRequestUserViaRbMobile(request, refreshToken);
+        }
         return user == null ? null : (ID) user;
     }
 
@@ -89,17 +102,6 @@ public class AppUtils {
             return user;
         }
         return null;
-    }
-
-    /**
-     * @param request
-     * @return
-     */
-    public static User getRequestUserBean(HttpServletRequest request) {
-        ID user = getRequestUser(request);
-        if (user == null) user = getRequestUserViaRbMobile(request, false);
-        if (user == null) return null;
-        return Application.getUserStore().getUser(user);
     }
 
     /**

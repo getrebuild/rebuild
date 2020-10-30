@@ -31,7 +31,6 @@ $(document).ready(() => {
       fieldsMappingDetail = this
     })
   }
-  console.log(wpc.sourceEntity)
 
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {

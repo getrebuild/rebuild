@@ -9,13 +9,12 @@ package com.rebuild.core.service;
 
 import com.rebuild.core.Application;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.interceptor.DefaultTransactionAttribute;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 /**
- * 手动事物管理
+ * 手动事物管理。默认事务管理见 `application-bean.xml`
  *
  * @author devezhao
  * @see org.springframework.transaction.support.TransactionSynchronizationManager
@@ -24,23 +23,21 @@ import org.springframework.transaction.support.DefaultTransactionDefinition;
 public class TransactionManual {
 
     /**
-     * 获取事物管理器
-     *
-     * @return
-     */
-    public static DataSourceTransactionManager getTxManager() {
-        return Application.getBean(DataSourceTransactionManager.class);
-    }
-
-    /**
      * 开启一个事物
      *
      * @return
      */
     public static TransactionStatus newTransaction() {
-        DefaultTransactionDefinition def = new DefaultTransactionDefinition();
-        def.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-        return getTxManager().getTransaction(def);
+        return getTxManager().getTransaction(new DefaultTransactionAttribute());
+    }
+
+    /**
+     * Shadow for TransactionAspectSupport#currentTransactionStatus
+     *
+     * @return
+     */
+    public static TransactionStatus currentTransaction() {
+        return TransactionAspectSupport.currentTransactionStatus();
     }
 
     /**
@@ -50,6 +47,7 @@ public class TransactionManual {
      */
     public static void commit(TransactionStatus status) {
         getTxManager().commit(status);
+        status.flush();
     }
 
     /**
@@ -59,14 +57,16 @@ public class TransactionManual {
      */
     public static void rollback(TransactionStatus status) {
         getTxManager().rollback(status);
+        status.flush();
     }
 
     /**
-     * Shadow for TransactionAspectSupport#currentTransactionStatus
+     * 获取事物管理器
      *
      * @return
      */
-    public static TransactionStatus currentTransactionStatus() {
-        return TransactionAspectSupport.currentTransactionStatus();
+    protected static DataSourceTransactionManager getTxManager() {
+        return Application.getBean(DataSourceTransactionManager.class);
     }
+
 }
