@@ -353,10 +353,8 @@ var _globalSearch = function () {
         _tryActive($active, $active.next())
       } else if (e.keyCode === 13) {
         var s = $('.search-input-gs').val()
-        if (s) {
-          var $active = $('.search-models .active')
-          location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
-        }
+        var $active = $('.search-models .active')
+        location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
       }
     })
 }

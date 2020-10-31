@@ -13,6 +13,7 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,6 @@ public class MetaschemaImporterTest extends TestSupport {
         }
 
         MetaschemaImporter importer = new MetaschemaImporter(data);
-        TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+        TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
     }
 }

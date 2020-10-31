@@ -168,6 +168,7 @@ public class EntityHelper {
     public static final int RevisionHistory = 34;
     public static final int SmsendLog = 35;
     public static final int Language = 36;
+    public static final int TransformConfig = 37;
 
     // 动态
 

@@ -16,9 +16,9 @@ import com.rebuild.core.UserContextHolder;
  *
  * @author ZHAO
  * @since 2019/11/19
+ * @see UserContextHolder
  */
-@SuppressWarnings({"unchecked", "rawtypes"})
-public abstract class SetUser<T extends SetUser> {
+public abstract class SetUser {
 
     private ID user;
 
@@ -28,9 +28,9 @@ public abstract class SetUser<T extends SetUser> {
      * @param user
      * @return
      */
-    public T setUser(ID user) {
+    public SetUser setUser(ID user) {
         this.user = user;
-        return (T) this;
+        return this;
     }
 
     /**

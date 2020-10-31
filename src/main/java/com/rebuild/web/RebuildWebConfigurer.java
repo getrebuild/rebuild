@@ -143,7 +143,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                     "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
                     "\nIP      : " + ServletUtils.getRemoteAddr(request) +
                     "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
-                    "\nURL(s)  : " + request.getRequestURL() + " [ " + StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "-") + " ]" +
+                    "\nURL(s)  : " + getRequestUrls(request) +
                     "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "");
             LOG.error(errorLog, ex);
         }
@@ -156,5 +156,20 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         }
 
         return error;
+    }
+
+    /**
+     * 获取请求/引用地址
+     *
+     * @param request
+     * @return
+     */
+    static String getRequestUrls(HttpServletRequest request) {
+        String reqUrl = request.getRequestURL().toString();
+        String refUrl = ServletUtils.getReferer(request);
+
+        if (refUrl == null) return reqUrl;
+        else if (reqUrl.endsWith("/error")) return refUrl;
+        else return reqUrl + " [ " + refUrl + " ]";
     }
 }

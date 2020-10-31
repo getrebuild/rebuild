@@ -34,7 +34,7 @@ import java.util.*;
  * @author devezhao
  * @since 2020/2/24
  */
-public class EasyExcelGenerator extends SetUser<EasyExcelGenerator> {
+public class EasyExcelGenerator extends SetUser {
 
     private File template;
     private ID recordId;

@@ -42,6 +42,7 @@ public class MetadataGetting extends BaseController {
     @GetMapping("entities")
     public List<Map<String, Object>> entities(HttpServletRequest request) {
         ID user = getRequestUser(request);
+        // 返回明细实体
         boolean usesDetail = getBoolParameter(request, "detail", false);
 
         List<Map<String, Object>> data = new ArrayList<>();
@@ -60,6 +61,7 @@ public class MetadataGetting extends BaseController {
     public List<Map<String, Object>> fields(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         Entity entityMeta = MetadataHelper.getEntity(entity);
+        // 返回引用实体的字段
         boolean appendRefFields = "2".equals(getParameter(request, "deep"));
 
         List<Map<String, Object>> data = new ArrayList<>();

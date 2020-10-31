@@ -201,6 +201,8 @@ body {
 
 .view-action .col-lg-6 .btn {
   width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .view-action.empty {

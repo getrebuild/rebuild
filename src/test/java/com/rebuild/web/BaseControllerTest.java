@@ -32,7 +32,6 @@ class BaseControllerTest extends TestSupport {
         MockHttpServletRequest request = MockMvcRequestBuilders
                 .get("/user/login?name=a&int=123456&id=" + SIMPLE_USER)
                 .buildRequest(Objects.requireNonNull(((WebApplicationContext) Application.getContext()).getServletContext()));
-        request.getSession(true);
 
         assertEquals(c.getParameter(request, "name"), "a");
 

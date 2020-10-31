@@ -165,7 +165,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
      */
     private JSONObject getEntityShow(Field field, Set<Entity> mfRefs, String applyType) {
         Entity fieldEntity = field.getOwnEntity();
-        JSONObject show = (JSONObject) EasyMeta.getEntityShow(fieldEntity);
+        JSONObject show = EasyMeta.getEntityShow(fieldEntity);
         show.put("entity", fieldEntity.getName() + EF_SPLIT + field.getName());
 
         if (mfRefs.contains(fieldEntity)) {

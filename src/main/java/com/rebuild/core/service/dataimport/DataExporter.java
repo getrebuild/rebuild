@@ -32,7 +32,7 @@ import java.util.List;
  * @see DataListBuilderImpl
  * @since 2019/11/18
  */
-public class DataExporter extends SetUser<DataExporter> {
+public class DataExporter extends SetUser {
 
     /**
      * 最大行数

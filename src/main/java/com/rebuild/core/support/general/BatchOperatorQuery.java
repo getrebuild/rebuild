@@ -25,7 +25,7 @@ import java.util.Set;
  * @author ZHAO
  * @since 2019/12/1
  */
-public class BatchOperatorQuery extends SetUser<BatchOperatorQuery> {
+public class BatchOperatorQuery extends SetUser {
 
     /**
      * 选中数据

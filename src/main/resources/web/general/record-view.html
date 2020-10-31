@@ -59,6 +59,13 @@
                 <a class="dropdown-item admin-show J_view-addons" data-type="ADD"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('ConfSome,ViewNewAddon')}]]</a>
               </div>
             </div>
+            <div class="col-12 col-lg-6 btn-group J_trans hide">
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-repeat"></i> [[${bundle.L('TransformAs')}]]</button>
+              <div class="dropdown-menu dropdown-menu-right">
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item admin-show" target="_blank" th:href="${baseUrl} + '/admin/transforms'"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('ConfSome,e.TransformConfig')}]]</a>
+              </div>
+            </div>
           </div>
           <div class="view-user">
             <div class="form-line">
@@ -97,6 +104,7 @@
         privileges: _$unthy('[[${entityPrivileges}]]'),
         viewTabs: _$unthy('[[${ViewTabs}]]'),
         viewAdds: _$unthy('[[${ViewAdds}]]'),
+        transformTos: _$unthy('[[${TransformTos}]]'),
         recordId: '[[${id}]]',
       }
     </script>

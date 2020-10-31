@@ -36,10 +36,6 @@ public abstract class BaseController extends Controller {
     protected ID getRequestUser(HttpServletRequest request) {
         ID user = AppUtils.getRequestUser(request);
         if (user == null) {
-            user = AppUtils.getRequestUserViaRbMobile(request, false);
-        }
-
-        if (user == null) {
             throw new InvalidParameterException(getLang(request, "BadRequestUser"));
         }
         return user;

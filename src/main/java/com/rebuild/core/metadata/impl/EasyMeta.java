@@ -322,6 +322,14 @@ public class EasyMeta implements BaseMeta {
     }
 
     /**
+     * @param entityName
+     * @return
+     */
+    public static String getLabel(String entityName) {
+        return getLabel(MetadataHelper.getEntity(entityName));
+    }
+
+    /**
      * @param entityOrField
      * @return
      */
@@ -353,7 +361,7 @@ public class EasyMeta implements BaseMeta {
      * @param entity
      * @return Retuens { entity:xxx, entityLabel:xxx, icon:xxx }
      */
-    public static JSON getEntityShow(Entity entity) {
+    public static JSONObject getEntityShow(Entity entity) {
         EasyMeta easy = valueOf(entity);
         return JSONUtils.toJSONObject(
                 new String[] { "entity", "entityLabel", "icon" },

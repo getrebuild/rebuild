@@ -25,7 +25,7 @@ import java.util.Date;
  * @see TaskExecutors
  * @since 09/29/2018
  */
-public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runnable {
+public abstract class HeavyTask<T> extends SetUser implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeavyTask.class);
 
@@ -51,7 +51,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
     }
 
     @Override
-    public HeavyTask<T> setUser(ID user) {
+    public SetUser setUser(ID user) {
         this.threadUser = user;
         return super.setUser(user);
     }

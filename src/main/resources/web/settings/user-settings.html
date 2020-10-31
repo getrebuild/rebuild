@@ -67,7 +67,7 @@
       }
     </style>
   </head>
-  <body th:with="user = ${T(com.rebuild.utils.AppUtils).getRequestUserBean(#request)}">
+  <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
       <th:block th:replace="~{/_include/nav-top}" />
       <th:block th:replace="~{/_include/nav-left}" />

@@ -38,7 +38,7 @@ import java.util.*;
  * @author devezhao
  * @since 12/14/2018
  */
-public abstract class ChartData extends SetUser<ChartData> implements ChartSpec {
+public abstract class ChartData extends SetUser implements ChartSpec {
 
     protected JSONObject config;
 

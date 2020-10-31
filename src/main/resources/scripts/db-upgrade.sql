@@ -1,6 +1,22 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #31 (v2.1)
+-- ************ Entity [TransformConfig] DDL ************
+create table if not exists `transform_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '源实体',
+  `TARGET_ENTITY`      varchar(100) not null comment '目标实体',
+  `NAME`               varchar(100) comment '名称',
+  `CONFIG`             text(21845) comment '映射配置',
+  `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 -- #30 Language (v2.0)
 -- ************ Entity [Language] DDL ************
 create table if not exists `language` (

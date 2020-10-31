@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.FormBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
+import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -53,11 +54,12 @@ public class GeneralModelController extends EntityController {
         final Entity thatEntity = MetadataHelper.getEntity(entity);
 
         if (!Application.getPrivilegesManager().allowRead(user, thatEntity.getEntityCode())) {
-            response.sendError(403, "你没有访问此实体的权限");
+            response.sendError(403, getLang(request, "YouNoPermissionAccessSome", "Entity"));
             return null;
         }
 
-        ID record = ID.valueOf(id);
+        final ID record = ID.valueOf(id);
+
         ModelAndView mv;
         if (thatEntity.getMainEntity() != null) {
             mv = createModelAndView("/general/detail-view", record, user);
@@ -69,6 +71,11 @@ public class GeneralModelController extends EntityController {
             JSON vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
             mv.getModel().put("ViewAdds", vadd);
         }
+
+        // 记录转换
+        JSON trans = TransformManager.instance.getTransforms(entity, user);
+        mv.getModel().put("TransformTos", trans);
+
         mv.getModel().put("id", record);
 
         return mv;
@@ -127,7 +134,7 @@ public class GeneralModelController extends EntityController {
         sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
         Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
         if (recordMeta == null) {
-            writeFailure(response, "记录不存在");
+            writeFailure(response, getLang(request, "RecordNotExists"));
             return;
         }
 
@@ -168,7 +175,7 @@ public class GeneralModelController extends EntityController {
                 entity.getName(), entity.getPrimaryField().getName(), id);
         Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
         if (recordMeta == null) {
-            writeFailure(response, "NO_EXISTS");
+            writeFailure(response, getLang(request, "RecordNotExists"));
             return;
         }
 

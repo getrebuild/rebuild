@@ -62,27 +62,27 @@ public class ChartsFactory {
 
         String type = config.getString("type");
         if ("INDEX".equalsIgnoreCase(type)) {
-            return new IndexChart(config).setUser(user);
+            return (ChartData) new IndexChart(config).setUser(user);
         } else if ("TABLE".equalsIgnoreCase(type)) {
-            return new TableChart(config).setUser(user);
+            return (ChartData) new TableChart(config).setUser(user);
         } else if ("LINE".equalsIgnoreCase(type)) {
-            return new LineChart(config).setUser(user);
+            return (ChartData) new LineChart(config).setUser(user);
         } else if ("BAR".equalsIgnoreCase(type)) {
-            return new BarChart(config).setUser(user);
+            return (ChartData) new BarChart(config).setUser(user);
         } else if ("PIE".equalsIgnoreCase(type)) {
-            return new PieChart(config).setUser(user);
+            return (ChartData) new PieChart(config).setUser(user);
         } else if ("FUNNEL".equalsIgnoreCase(type)) {
-            return new FunnelChart(config).setUser(user);
+            return (ChartData) new FunnelChart(config).setUser(user);
         } else if ("TREEMAP".equalsIgnoreCase(type)) {
-            return new TreemapChart(config).setUser(user);
+            return (ChartData) new TreemapChart(config).setUser(user);
         } else if ("RADAR".equalsIgnoreCase(type)) {
-            return new RadarChart(config).setUser(user);
+            return (ChartData) new RadarChart(config).setUser(user);
         } else if ("SCATTER".equalsIgnoreCase(type)) {
-            return new ScatterChart(config).setUser(user);
+            return (ChartData) new ScatterChart(config).setUser(user);
         } else {
             for (BuiltinChart ch : getBuiltinCharts()) {
                 if (ch.getChartType().equalsIgnoreCase(type)) {
-                    return ((ChartData) ch).setUser(user);
+                    return (ChartData) ((ChartData) ch).setUser(user);
                 }
             }
         }

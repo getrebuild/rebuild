@@ -33,7 +33,8 @@ public class DataReportGeneratorTest extends TestSupport {
         File template = ResourceUtils.getFile("classpath:report-template-v2.xlsx");
         ID record = addRecordOfTestAllFields(SIMPLE_USER);
 
-        File file = new EasyExcelGenerator(template, record).setUser(UserService.ADMIN_USER).generate();
+        File file = ((EasyExcelGenerator) new EasyExcelGenerator(template, record).setUser(UserService.ADMIN_USER))
+                .generate();
         System.out.println("Report : " + file);
     }
 
@@ -48,7 +49,8 @@ public class DataReportGeneratorTest extends TestSupport {
         record = Application.getEntityService(SalesOrder999.getEntityCode()).create(record);
 
         // 主记录+明细记录
-        File file = new EasyExcelGenerator(template, record.getPrimary()).setUser(UserService.ADMIN_USER).generate();
+        File file = ((EasyExcelGenerator) new EasyExcelGenerator(template, record.getPrimary()).setUser(UserService.ADMIN_USER))
+                .generate();
         System.out.println("Report : " + file);
     }
 }

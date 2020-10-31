@@ -21,7 +21,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.commons.LanguageController;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.NamedThreadLocal;
@@ -108,10 +107,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         // 用户验证
 
-        ID requestUser = AppUtils.getRequestUser(request);
-        if (requestUser == null) {
-            requestUser = AppUtils.getRequestUserViaRbMobile(request, true);
-        }
+        final ID requestUser = AppUtils.getRequestUser(request, true);
 
         if (requestUser != null) {
             // 管理后台访问
@@ -137,8 +133,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             }
 
         } else if (!isIgnoreAuth(requestUri)) {
-            LOG.warn("Unauthorized access {} from {} via {}",
-                    requestUri, StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "-"), ServletUtils.getRemoteAddr(request));
+            LOG.warn("Unauthorized access {} via {}",
+                    RebuildWebConfigurer.getRequestUrls(request), ServletUtils.getRemoteAddr(request));
 
             if (htmlRequest) {
                 sendRedirect(response, "/user/login", requestUri);
@@ -162,8 +158,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         time = System.currentTimeMillis() - time;
         if (time > 1000) {
-            LOG.warn("Method handle time {} ms. Request URL {} [ {} ]",
-                    time, ServletUtils.getFullRequestUrl(request), StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "-"));
+            LOG.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
     }
 
