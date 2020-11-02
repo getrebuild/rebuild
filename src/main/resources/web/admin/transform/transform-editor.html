@@ -7,33 +7,28 @@
       .nav-tabs > li.nav-item a.nav-link {
         padding: 8px 15px;
       }
-      form.simple {
-        max-width: 1100px;
+
+      .fields-mapping .row {
+        margin-bottom: 6px;
       }
       .fields-mapping span.badge {
         font-size: 1rem;
         padding: 4px 10px;
         font-weight: normal;
-        margin-top: 3px;
+        margin-top: 4px;
+      }
+      .fields-mapping span.badge.req {
+        border-left: 3px solid #ea4335;
       }
       .fields-mapping span.badge::before {
         content: '\f2fd';
         font-family: 'Material-Design-Iconic-Font';
         position: absolute;
         left: -2px;
-        color: #878787;
+        color: #aaa;
       }
       .fields-mapping .row.active span.badge::before {
         color: #fbbc05;
-      }
-      .fields-mapping span.badge > i {
-        display: inline-block;
-        background-color: #ea4335;
-        width: 3px;
-        height: 12px;
-        margin-right: 4px;
-        transform: translateY(1px);
-        cursor: help;
       }
     </style>
   </head>
@@ -49,7 +44,7 @@
         <div class="main-content container-fluid pt-0">
           <div class="card mb-0">
             <div class="card-body">
-              <form class="simple">
+              <form class="simple" style="max-width: 1100px">
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
@@ -73,7 +68,7 @@
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('TransformeAfterFill')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <div style="max-width:435px">
+                    <div>
                       <select class="form-control form-control-sm" id="fillbackField"></select>
                       <p class="form-text">[[${bundle.L('TransformeAfterFillTips')}]]</p>
                     </div>

@@ -2067,7 +2067,7 @@ form.dropzone .note {
 }
 
 form.simple {
-  max-width: 900px;
+  max-width: 1000px;
 }
 
 .fs-0 {
@@ -2438,7 +2438,6 @@ form {
 }
 
 .card-list .card-footer a.danger:hover {
-
 }
 
 .card-list .card-footer .badge {
@@ -3590,7 +3589,9 @@ a.avatar.x26 img {
   padding: 0;
 }
 
-.modal-title, .btn, .dropdown-item {
+.modal-title,
+.btn,
+.dropdown-item {
   text-transform: capitalize;
 }
 

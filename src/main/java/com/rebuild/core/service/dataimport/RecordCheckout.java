@@ -101,20 +101,24 @@ public class RecordCheckout {
             return checkoutStateValue(field, cell);
         }
 
+        String string = cell.asString();
+        if (string != null) string = string.trim();
+
         // 格式验证
         if (validate) {
             if (dt == DisplayType.EMAIL) {
-                String email = cell.asString();
-                return RegexUtils.isEMail(email) ? email : null;
+                string = cell.asString();
+                return RegexUtils.isEMail(string) ? string : null;
             } else if (dt == DisplayType.URL) {
-                String url = cell.asString();
-                return RegexUtils.isUrl(url) ? url : null;
+                string = cell.asString();
+                return RegexUtils.isUrl(string) ? string : null;
             } else if (dt == DisplayType.PHONE) {
-                String tel = cell.asString();
-                return RegexUtils.isCNMobile(tel) || RegexUtils.isTel(tel) ? tel : null;
+                string = cell.asString();
+                return RegexUtils.isCNMobile(string) || RegexUtils.isTel(string) ? string : null;
             }
         }
-        return cell.asString();
+
+        return string;
     }
 
     /**

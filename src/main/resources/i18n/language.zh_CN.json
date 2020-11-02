@@ -707,7 +707,7 @@
   "DataFile": "数据文件",
   "ImportDataTips1": "有合并单元格的数据请处理过后再上传，否则可能出现表头识别有误",
   "ImportDataTips2": "系统默认仅识别第一个 SHEET，且会将首行识别为表头",
-  "ImportDataTips3": "更多导入帮助请 [参考文档](https://getrebuild.com/docs/admin/data-import)",
+  "ImportDataTips3": "主实体与明细实体请分别导入，更多帮助请 [参考文档](https://getrebuild.com/docs/admin/data-import)",
   "WhenDuplicateRecords": "遇到重复记录时",
   "WhenDuplicateRecordUpdate": "覆盖 (更新)",
   "WhenDuplicateRecordSkip": "跳过",

@@ -707,7 +707,7 @@
   "DataFile": "Data File",
   "ImportDataTips1": "Data with merged cells should be processed before uploading, otherwise errors in header recognition may occur",
   "ImportDataTips2": "By default, only the first SHEET is recognized, and the first row is recognized as the header",
-  "ImportDataTips3": "For more import help, please [View document](https://getrebuild.com/docs/admin/data-import)",
+  "ImportDataTips3": "Please import the main-entity and the detail-entity separately. For more help, please [View document](https://getrebuild.com/docs/admin/data-import)",
   "WhenDuplicateRecords": "When duplicate records",
   "WhenDuplicateRecordUpdate": "Overlay (Update)",
   "WhenDuplicateRecordSkip": "Skip",
