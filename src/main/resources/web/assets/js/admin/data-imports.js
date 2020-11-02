@@ -270,7 +270,6 @@ function _secToTime(s) {
 
 // 检查所属用户权限
 function _checkUserPrivileges() {
-  console.log(_Config)
   if (!_Config.entity || !_Config.owning_user) return
   $.get(`/admin/data/data-imports/check-user?user=${_Config.owning_user}&entity=${_Config.entity}`, (res) => {
     let hasError = []
