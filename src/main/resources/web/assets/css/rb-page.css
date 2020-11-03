@@ -3527,7 +3527,7 @@ a.icon-link > .zmdi {
   font-size: 1rem;
   font-weight: normal;
   position: relative;
-  padding: 3px 30px 3px 6px;
+  padding: 4px 30px 3px 6px;
   cursor: default;
   overflow: hidden;
 }
@@ -3539,7 +3539,7 @@ a.icon-link > .zmdi {
   border-left: 1px solid #fbbc05;
   top: 0;
   right: 0;
-  padding-top: 3px;
+  padding-top: 4px;
   opacity: 1;
   text-shadow: none;
   font-weight: normal;

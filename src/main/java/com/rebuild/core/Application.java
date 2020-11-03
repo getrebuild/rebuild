@@ -14,7 +14,9 @@ import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.query.QueryedRecord;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.serializer.SerializeConfig;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.alibaba.fastjson.serializer.ToStringSerializer;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
@@ -87,6 +89,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         SerializeConfig.getGlobalInstance().put(Date.class, RbDateCodec.instance);
         SerializeConfig.getGlobalInstance().put(StandardRecord.class, RbRecordCodec.instance);
         SerializeConfig.getGlobalInstance().put(QueryedRecord.class, RbRecordCodec.instance);
+
+        JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.DisableCircularReferenceDetect.getMask();
+        JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.WriteMapNullValue.getMask();
     }
 
     // 服务启动状态

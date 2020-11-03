@@ -5,7 +5,7 @@
   "FreeVerNotSupportted": "The free version does not support {0} feature",
   "SomeError": "{0} error",
   "SomeInvalid": "Invalid {0}",
-  "InvalidArgs": "Invalid parameter",
+  "InvalidParams": "Invalid parameter",
   "SomeDuplicate": "{0} repeated",
   "Exists": "Already exists",
   "SomeExists": "{0} already exists",

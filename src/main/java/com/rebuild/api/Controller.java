@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * 请求响应
+ * 请求控制器
  *
  * @author devezhao
  * @since 01/10/2019
@@ -26,12 +26,12 @@ public abstract class Controller {
     public static final int CODE_OK = 0;
 
     /**
-     * 失败
+     * 业务失败
      */
     public static final int CODE_ERROR = 400;
 
     /**
-     * 未知错误
+     * 服务错误
      */
     public static final int CODE_SERV_ERROR = 500;
 
