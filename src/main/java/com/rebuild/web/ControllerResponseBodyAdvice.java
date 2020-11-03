@@ -47,7 +47,7 @@ public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         if (statusCode != 200) {
             if (o instanceof Map) {
                 String path404 = (String) ((Map<?, ?>) o).get("path");
-                if (path404 != null && path404.endsWith(".js.map")) {
+                if (path404 != null && path404.endsWith(".map")) {
                     return o;
                 }
             }

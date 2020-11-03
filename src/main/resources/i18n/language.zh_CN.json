@@ -5,7 +5,7 @@
   "FreeVerNotSupportted": "免费版不支持{0}功能",
   "SomeError": "{0}错误",
   "SomeInvalid": "{0}无效",
-  "InvalidArgs": "无效参数",
+  "InvalidParams": "无效参数",
   "SomeDuplicate": "{0}重复",
   "Exists": "已存在",
   "SomeExists": "{0}已存在",

@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -25,17 +26,18 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.dashboard.ChartConfigService;
 import com.rebuild.core.service.dashboard.DashboardConfigService;
 import com.rebuild.core.service.dashboard.charts.ChartData;
-import com.rebuild.core.service.dashboard.charts.ChartsException;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
+import com.rebuild.web.EntityParam;
+import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
 import com.rebuild.web.commons.MetadataGetting;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,30 +50,28 @@ import java.util.List;
  * @author devezhao
  * @since 12/09/2018
  */
-@Controller
+@RestController
 @RequestMapping("/dashboard")
 public class ChartDesignController extends EntityController {
 
     @GetMapping("/chart-design")
-    public ModelAndView pageDesign(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView pageDesign(@IdParam(required = false) ID chartId,
+                                   @EntityParam(name = "source", required = false) Entity entity,
+                                   HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/dashboard/chart-design");
 
-        ID user = getRequestUser(request);
-        String entity = getParameter(request, "source");
-        ID chartId = getIdParameter(request, "id");
-
-        Entity entityMeta;
         if (chartId != null) {
             Object[] chart = Application.createQueryNoFilter(
                     "select belongEntity,title,config,createdBy from ChartConfig where chartId = ?")
                     .setParameter(1, chartId)
                     .unique();
             if (chart == null) {
-                response.sendError(404, "Invalid chart : " + chartId);
+                response.sendError(404, Language.L("UnknownChart"));
                 return null;
             }
             if (!UserHelper.isAdmin(user) && !user.equals(chart[3])) {
-                response.sendError(403, Language.L("NotOpOtherUserSome", "Chart"));
+                response.sendError(403, Language.L("NotOpOtherUserSome,Chart"));
                 return null;
             }
 
@@ -79,26 +79,27 @@ public class ChartDesignController extends EntityController {
             mv.getModel().put("chartTitle", chart[1]);
             mv.getModel().put("chartConfig", chart[2]);
             mv.getModel().put("chartOwningAdmin", UserHelper.isAdmin((ID) chart[3]));
-            entityMeta = MetadataHelper.getEntity((String) chart[0]);
+            entity = MetadataHelper.getEntity((String) chart[0]);
+
         } else if (entity != null) {
             mv.getModel().put("chartConfig", JSONUtils.EMPTY_OBJECT_STR);
             mv.getModel().put("chartOwningAdmin", UserHelper.isAdmin(user));
-            entityMeta = MetadataHelper.getEntity(entity);
+
         } else {
             throw new InvalidParameterException(Language.L("InvalidParams"));
         }
 
-        if (!Application.getPrivilegesManager().allowRead(getRequestUser(request), entityMeta.getEntityCode())) {
-            response.sendError(403, Language.LF("NoReadEntity", EasyMeta.getLabel(entityMeta)));
+        if (!Application.getPrivilegesManager().allowRead(getRequestUser(request), entity.getEntityCode())) {
+            response.sendError(403, Language.LF("NoReadEntity", EasyMeta.getLabel(entity)));
             return null;
         }
 
-        putEntityMeta(mv, entityMeta);
+        putEntityMeta(mv, entity);
 
         // Fields
         List<String[]> fields = new ArrayList<>();
-        putFields(fields, entityMeta, null);
-        for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
+        putFields(fields, entity, null);
+        for (Field field : MetadataSorter.sortFields(entity, DisplayType.REFERENCE)) {
             int entityCode = field.getReferenceEntity().getEntityCode();
             if (MetadataHelper.isBizzEntity(entityCode) || entityCode == EntityHelper.RobotApprovalConfig) {
                 continue;
@@ -111,12 +112,6 @@ public class ChartDesignController extends EntityController {
         return mv;
     }
 
-    /**
-     * @param dest
-     * @param entity
-     * @param parent
-     * @see MetadataGetting
-     */
     private void putFields(List<String[]> dest, Entity entity, Field parent) {
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyMeta easyField = EasyMeta.valueOf(field);
@@ -144,22 +139,15 @@ public class ChartDesignController extends EntityController {
     }
 
     @PostMapping("/chart-preview")
-    public void dataPreview(HttpServletRequest request, HttpServletResponse response) {
+    public JSON dataPreview(HttpServletRequest request) {
         JSON config = ServletUtils.getRequestJson(request);
-        JSON data;
-        try {
-            ChartData chart = ChartsFactory.create((JSONObject) config, getRequestUser(request));
-            data = chart.build(true);
-        } catch (ChartsException ex) {
-            writeFailure(response, ex.getLocalizedMessage());
-            return;
-        }
-        writeSuccess(response, data);
+        ChartData chart = ChartsFactory.create((JSONObject) config, getRequestUser(request));
+        return chart.build(true);
     }
 
     @PostMapping("/chart-save")
-    public void chartSave(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public JSON chartSave(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
 
         Record record = EntityHelper.parse((JSONObject) formJson, user);
@@ -187,15 +175,12 @@ public class ChartDesignController extends EntityController {
             Application.getBean(DashboardConfigService.class).createOrUpdate(dashRecord);
         }
 
-        JSONObject ret = JSONUtils.toJSONObject("id", record.getPrimary());
-        writeSuccess(response, ret);
+        return JSONUtils.toJSONObject("id", record.getPrimary());
     }
 
     @RequestMapping("/chart-delete")
-    public void chartDelete(HttpServletRequest request, HttpServletResponse response) {
-        // TODO 不能删除他人图表
-        ID chartId = getIdParameterNotNull(request, "id");
+    public RespBody chartDelete(@IdParam ID chartId) {
         Application.getBean(ChartConfigService.class).delete(chartId);
-        writeSuccess(response);
+        return RespBody.ok();
     }
 }
