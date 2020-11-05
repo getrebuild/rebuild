@@ -26,6 +26,7 @@ import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -234,13 +235,13 @@ public class UserService extends BaseServiceImpl {
 
         String appName = RebuildConfiguration.get(ConfigurationItem.AppName);
         String homeUrl = RebuildConfiguration.getHomeUrl();
+        LanguageBundle dlb = Application.getLanguage().getDefaultBundle();
 
-        String subject = Language.L("YourAccountReady");
-        String content = String.format(
-                Language.L("NewUserAddedNotify"),
+        String subject = dlb.getLang("YourAccountReady");
+        String content = dlb.formatLang("NewUserAddedNotify",
                 appName, newUser.getString("loginName"), passwd, homeUrl, homeUrl);
 
-        SMSender.sendMail(newUser.getString("email"), subject, content);
+        SMSender.sendMailAsync(newUser.getString("email"), subject, content);
         return true;
     }
 

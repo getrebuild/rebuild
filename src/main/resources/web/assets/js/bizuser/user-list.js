@@ -65,7 +65,18 @@ class UserImport extends RbModalHandler {
                 {this.state.uploadFile && <u className="text-bold">{$fileCutName(this.state.uploadFile)}</u>}
               </div>
               <div className="clearfix"></div>
-              <p className="form-text mt-0 mb-1 link" dangerouslySetInnerHTML={{ __html: $L('ImportUserTips') }}></p>
+              <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('ImportUserTips') }}></p>
+            </div>
+          </div>
+          <div className="form-group row">
+            <label className="col-sm-3 col-form-label text-sm-right"></label>
+            <div className="col-sm-9">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <input className="custom-control-input" type="checkbox" ref={(c) => (this._notify = c)} />
+                <span className="custom-control-label">
+                  {$L('ImportUserAndNotify')} {window.__PageConfig.serviceMail !== 'true' && <span>({$L('Unavailable')})</span>}
+                </span>
+              </label>
             </div>
           </div>
           <div className="form-group row footer">
@@ -103,7 +114,7 @@ class UserImport extends RbModalHandler {
     if (rb.commercial < 1) return RbHighbar.error($L('FreeVerNotSupportted,ImportUser'))
     if (!this.state.uploadFile) return RbHighbar.create($L('PlsUploadFile'))
 
-    $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}`, (res) => {
+    $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._notify).prop('checked')}`, (res) => {
       if (res.error_code === 0) {
         this.__taskid = res.data
         $(this._btn).button('loading')

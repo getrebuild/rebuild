@@ -66,7 +66,7 @@ class TransformList extends ConfigList {
 class TransformEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.subtitle = $L('e.TransformConfig')
+    this.subtitle = $L('TransformConfig')
   }
 
   renderFrom() {

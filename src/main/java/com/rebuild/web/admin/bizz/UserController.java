@@ -54,6 +54,7 @@ public class UserController extends EntityController {
 
         JSON config = DataListManager.instance.getFieldsLayout("User", user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
+        mv.getModel().put("serviceMail", SMSender.availableMail());
         return mv;
     }
 
