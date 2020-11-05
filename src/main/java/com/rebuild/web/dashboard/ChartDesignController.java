@@ -33,7 +33,6 @@ import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
-import com.rebuild.web.commons.MetadataGetting;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
