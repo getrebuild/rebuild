@@ -557,7 +557,9 @@ class UserSelector extends React.Component {
   }
 
   clearSelection() {
-    this.setState({ selected: [] })
+    this.setState({ selected: [] }, () => {
+      typeof this.props.onClearSelection === 'function' && this.props.onClearSelection()
+    })
   }
 
   switchTab(type) {
@@ -587,7 +589,7 @@ class UserSelector extends React.Component {
       const st = $(this._scroller).scrollTop()
       const et = $el.position().top
       if (et >= 0) {
-        const top = et + st - (222 - 36)  // maxHeight - elementHeight
+        const top = et + st - (222 - 36) // maxHeight - elementHeight
         if (top > 0) $(this._scroller).scrollTop(top)
       } else {
         const top = st + et
@@ -620,14 +622,14 @@ class UserSelector extends React.Component {
     })
   }
 
-  clickItem(e) {
+  clickItem(e, isRemove) {
     const $target = $(e.currentTarget)
     const id = $target.data('id') || $target.parents('.select2-results__option').data('id')
 
     let exists = false
     let ns = []
     // 单选
-    if (this.props.multiple !== false) {
+    if (this.props.multiple !== false || isRemove) {
       ns = this.state.selected.filter((x) => {
         if (x.id === id) {
           exists = true
@@ -646,7 +648,7 @@ class UserSelector extends React.Component {
     }
 
     this.setState({ selected: ns }, () => {
-      typeof this.props.onSelectItem === 'function' && this.props.onSelectItem(selected)
+      typeof this.props.onSelectItem === 'function' && this.props.onSelectItem(selected, isRemove)
     })
   }
 

@@ -77,6 +77,7 @@ public class HeavyTaskController extends BaseController {
      */
     private JSON formatTaskState(HeavyTask<?> task) {
         JSONObject state = new JSONObject();
+        state.put("total", task.getTotal());
         state.put("progress", task.getCompletedPercent());
         state.put("completed", task.getCompleted());
         state.put("succeeded", task.getSucceeded());
