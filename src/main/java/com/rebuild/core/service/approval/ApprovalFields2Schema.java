@@ -16,6 +16,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.support.i18n.Language;
@@ -41,7 +42,7 @@ public class ApprovalFields2Schema extends Field2Schema {
         if (MetadataHelper.hasApprovalField(approvalEntity)) {
             return false;
         }
-        if (!MetadataHelper.hasPrivilegesField(approvalEntity)) {
+        if (!(MetadataHelper.hasPrivilegesField(approvalEntity) || EasyMeta.valueOf(approvalEntity).isPlainEntity())) {
             throw new RebuildException("Unsupported entity : " + approvalEntity.getName());
         }
 
