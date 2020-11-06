@@ -95,10 +95,20 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
             if (value != null) confPs.put(name, value);
         }
 
+        String dbUrl = env.getProperty("db.url");
+
         // `application-bean.xml` 占位符必填
-        if (env.getProperty("db.url") == null) confPs.put("db.url", "jdbc:mysql://127.0.0.1:3306/rebuild20");
+        if (dbUrl == null) {
+            dbUrl = "jdbc:mysql://127.0.0.1:3306/rebuild20?characterEncoding=UTF8";
+            confPs.put("db.url", dbUrl);
+        }
         if (env.getProperty("db.user") == null) confPs.put("db.user", "rebuild");
         if (env.getProperty("db.passwd") == null) confPs.put("db.passwd", "rebuild");
+
+        // start: V2.1
+        if (!dbUrl.contains("serverTimezone")) {
+            confPs.put("db.url", dbUrl + "&serverTimezone=GMT");
+        }
 
         aesDecrypt(confPs);
         env.getPropertySources().addFirst(new PropertiesPropertySource(".configuration", confPs));

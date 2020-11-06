@@ -43,7 +43,6 @@ import com.rebuild.utils.codec.RbDateCodec;
 import com.rebuild.utils.codec.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
 import com.rebuild.web.RebuildWebConfigurer;
-import org.h2.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -76,8 +75,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     static {
         // Driver for DB
         try {
-            Class.forName(com.mysql.jdbc.Driver.class.getName());
-            Class.forName(Driver.class.getName());
+            Class.forName(com.mysql.cj.jdbc.Driver.class.getName());
+            Class.forName(org.h2.Driver.class.getName());
         } catch (ClassNotFoundException ex) {
             throw new RebuildException(ex);
         }
