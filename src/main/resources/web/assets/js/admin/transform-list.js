@@ -51,7 +51,7 @@ class TransformList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('DeleteApprovalConfirm'), {
+    RbAlert.create($L('DeleteSomeConfirm,TransformConfig'), {
       html: true,
       type: 'danger',
       confirmText: $L('Delete'),

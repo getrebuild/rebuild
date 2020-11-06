@@ -7,7 +7,9 @@
       .nav-tabs > li.nav-item a.nav-link {
         padding: 8px 15px;
       }
-
+      .fields-mapping .alert {
+        margin-bottom: 0;
+      }
       .fields-mapping .row {
         margin-bottom: 6px;
       }
@@ -60,7 +62,9 @@
                       <li class="nav-item"><a class="nav-link" href="#EDETAIL" data-toggle="tab">[[${bundle.L('DetailEntity')}]]</a></li>
                     </ul>
                     <div class="tab-content m-0 p-0 fields-mapping">
-                      <div class="tab-pane active" id="EMAIN"></div>
+                      <div class="tab-pane active" id="EMAIN">
+                        <p class="text-muted m-0" style="padding-top:7px">[[${bundle.L('Loading')}]]</p>
+                      </div>
                       <div class="tab-pane" id="EDETAIL"></div>
                     </div>
                   </div>

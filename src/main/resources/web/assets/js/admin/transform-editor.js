@@ -134,6 +134,13 @@ class FieldsMapping extends React.Component {
   render() {
     const _source = this.props.source
     const _target = this.props.target
+
+    if (!_target.fields || _target.fields.length === 0) {
+      return (
+        <RbAlertBox message={$L('NoUsesField')} />
+      )
+    }
+
     return (
       <div ref={(c) => (this._fieldsMapping = c)}>
         <div className="row mb-0">
