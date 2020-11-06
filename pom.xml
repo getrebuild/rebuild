@@ -114,6 +114,20 @@
                             </sources>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>rbv-test-resource</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>add-test-resource</goal>
+                        </goals>
+                        <configuration>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/@rbv/test/resources</directory>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             -->

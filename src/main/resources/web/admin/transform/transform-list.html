@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/transforms" />
-    <title>[[${bundle.L('e.TransformConfig')}]]</title>
+    <title>[[${bundle.L('TransformConfig')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header rb-aside" th:classappend="${sideCollapsedClazz}">
@@ -21,7 +21,7 @@
           </div>
         </aside>
         <div class="page-head">
-          <div class="float-left"><div class="page-head-title">[[${bundle.L('e.TransformConfig')}]]</div></div>
+          <div class="float-left"><div class="page-head-title">[[${bundle.L('TransformConfig')}]]</div></div>
           <div class="float-right pt-1">
             <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('Add')}]]</button>
           </div>
@@ -58,7 +58,7 @@
                       <th:block th:replace="~{/_include/spinner}" />
                       <div class="list-nodata hide">
                         <span class="zmdi zmdi-repeat"></span>
-                        <p>[[${bundle.L('NoSome,e.TransformConfig')}]]</p>
+                        <p>[[${bundle.L('NoSome,TransformConfig')}]]</p>
                       </div>
                     </div>
                   </div>

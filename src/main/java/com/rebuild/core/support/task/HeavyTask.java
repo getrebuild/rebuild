@@ -37,8 +37,11 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
      */
     private ID threadUser;
 
+    // 要处理的数据总数量
     private int total = -1;
+    // 完成数量
     private int completed = 0;
+    // 成功数量
     private int succeeded = 0;
 
     final private Date beginTime;
@@ -149,7 +152,7 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
         return errorMessage;
     }
 
-    // 中断处理。是否允许中断由子类决定
+    // 中断处理。是否允许中断由子类决定（实现）
 
     public void interrupt() {
         this.interrupt = true;

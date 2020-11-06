@@ -75,16 +75,13 @@
                         <div class="form-group row">
                           <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('UploadSome,DataFile')}]]</label>
                           <div class="col-md-12 col-xl-6 col-lg-8">
-                            <div class="float-left">
-                              <div class="file-select">
-                                <input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="52428800" />
-                                <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>[[${bundle.L('UploadFile')}]]</span></label>
-                              </div>
+                            <div class="file-select">
+                              <input type="file" class="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-temp="true" data-maxsize="52428800" />
+                              <label for="upload-input" class="btn-secondary"><i class="zmdi zmdi-upload"></i><span>[[${bundle.L('UploadFile')}]]</span></label>
                             </div>
-                            <div class="float-left ml-2 pt-1">
+                            <div>
                               <u class="text-bold J_upload-input"></u>
                             </div>
-                            <div class="clearfix"></div>
                             <div class="form-text mb-0">
                               <ul class="mb-0 pl-4">
                                 <li>[[${bundle.L('ImportDataTips1')}]]</li>
@@ -123,7 +120,7 @@
                         <div class="form-group row">
                           <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('RecordOwningUser')}]]</label>
                           <div class="col-md-12 col-xl-6 col-lg-8">
-                            <select class="form-control form-control-sm" id="toUser"></select>
+                            <div id="toUser"></div>
                             <div class="form-text mb-0">[[${bundle.L('RecordOwningUserTips')}]]</div>
                             <div id="user-warn"></div>
                           </div>
@@ -166,7 +163,9 @@
                           <div class="col-6"><h5 class="text-bold m-0 p-0 J_import_state">[[${bundle.L('DataReading')}]]</h5></div>
                           <div class="col-6 text-right text-muted">[[${bundle.L('TimeConsuming')}]] <span class="J_import_time">00:00:00</span></div>
                         </div>
-                        <div class="progress"></div>
+                        <div class="progress">
+                          <div class="progress-bar J_import-bar"></div>
+                        </div>
                         <div class="mt-3">
                           <button class="btn btn-danger btn-space J_step3-cancel" type="button">[[${bundle.L('InterruptImport')}]]</button>
                           <a class="btn btn-link btn-space J_step3-logs hide" href="data-imports">[[${bundle.L('ContinueImport')}]]</a>

@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -29,16 +30,16 @@ import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 import java.util.Iterator;
 
@@ -46,7 +47,7 @@ import java.util.Iterator;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-@Controller
+@RestController
 @RequestMapping("/dashboard")
 public class DashboardController extends BaseController {
 
@@ -56,14 +57,13 @@ public class DashboardController extends BaseController {
     }
 
     @GetMapping("/dash-gets")
-    public void dashGets(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        JSON dashs = DashboardManager.instance.getAvailable(user);
-        writeSuccess(response, dashs);
+    public JSON dashGets(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        return DashboardManager.instance.getAvailable(user);
     }
 
     @PostMapping("/dash-new")
-    public void dashNew(HttpServletRequest request, HttpServletResponse response) {
+    public JSON dashNew(HttpServletRequest request) {
         ID user = getRequestUser(request);
         JSONObject formJson = (JSONObject) ServletUtils.getRequestJson(request);
         JSONArray dashCopy = formJson.getJSONArray("__copy");
@@ -104,24 +104,23 @@ public class DashboardController extends BaseController {
 
         dashRecord = Application.getBean(DashboardConfigService.class).create(dashRecord);
 
-        JSON ret = JSONUtils.toJSONObject("id", dashRecord.getPrimary());
-        writeSuccess(response, ret);
+        return JSONUtils.toJSONObject("id", dashRecord.getPrimary());
     }
 
     @PostMapping("/dash-config")
-    public void dashConfig(HttpServletRequest request, HttpServletResponse response) {
-        ID dashid = getIdParameterNotNull(request, "id");
+    public RespBody dashConfig(@IdParam ID dashId, HttpServletRequest request) {
         JSON config = ServletUtils.getRequestJson(request);
 
-        Record record = EntityHelper.forUpdate(dashid, getRequestUser(request));
+        Record record = EntityHelper.forUpdate(dashId, getRequestUser(request));
         record.setString("config", config.toJSONString());
         Application.getBean(DashboardConfigService.class).update(record);
-        writeSuccess(response);
+
+        return RespBody.ok();
     }
 
     @GetMapping("/chart-list")
-    public void chartList(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public JSON chartList(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         String type = request.getParameter("type");
 
         Object[][] charts;
@@ -163,6 +162,6 @@ public class DashboardController extends BaseController {
             }
         }
 
-        writeSuccess(response, charts);
+        return (JSON) JSON.toJSON(charts);
     }
 }

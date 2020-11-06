@@ -10,7 +10,6 @@ package com.rebuild.web;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.rebuild.api.Controller;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
@@ -98,17 +97,11 @@ public abstract class BaseController extends Controller {
      * @param aJson
      */
     protected void writeJSON(HttpServletResponse response, Object aJson) {
-        if (aJson == null) {
-            throw new IllegalArgumentException();
-        }
-
         String aJsonString;
         if (aJson instanceof String) {
             aJsonString = (String) aJson;
         } else {
-            // fix: $ref.xxx
-            aJsonString = JSON.toJSONString(aJson,
-                    SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteMapNullValue);
+            aJsonString = JSON.toJSONString(aJson);
         }
         ServletUtils.writeJson(response, aJsonString);
     }

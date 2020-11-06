@@ -5,7 +5,8 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const ientry = {
+// 导入规则
+const _Config = {
   file: null,
   entity: null,
   repeat_opt: 1,
@@ -19,31 +20,6 @@ let import_inprogress = false
 let import_taskid
 
 $(document).ready(() => {
-  init_upload()
-
-  const fileds_render = (entity) => {
-    if (!entity) return
-    const $el = $('#repeatFields').empty()
-    $.get(`/admin/data/data-imports/import-fields?entity=${entity}`, (res) => {
-      $(res.data).each(function () {
-        if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
-        $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($el)
-      })
-
-      $el
-        .select2({
-          maximumSelectionLength: 3,
-          placeholder: $L('SelectSome,Field'),
-        })
-        .on('change', function () {
-          ientry.repeat_fields = $(this).val()
-        })
-
-      fields_cached = res.data
-      ientry.entity = entity
-    })
-  }
-
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
       $('<option value="' + this.name + '">' + this.label + '</option>').appendTo('#toEntity')
@@ -54,122 +30,73 @@ $(document).ready(() => {
         allowClear: false,
       })
       .on('change', function () {
-        fileds_render($(this).val())
-        check_user()
+        _renderRepeatFields($(this).val())
+        _checkUserPrivileges()
       })
     if ($urlp('entity')) $toe.val($urlp('entity'))
     $toe.trigger('change')
   })
 
+  $createUploader('#upload-input', null, (res) => {
+    _Config.file = res.key
+    $('.J_upload-input').text($fileCutName(_Config.file))
+  })
+
   $('input[name=repeatOpt]').click(function () {
-    ientry.repeat_opt = ~~$(this).val()
-    if (ientry.repeat_opt === 3) $('.J_repeatFields').hide()
+    _Config.repeat_opt = ~~$(this).val()
+    if (_Config.repeat_opt === 3) $('.J_repeatFields').hide()
     else $('.J_repeatFields').show()
   })
 
-  $('#toUser')
-    .select2({
-      placeholder: $L('Default'),
-      minimumInputLength: 1,
-      ajax: {
-        url: '/commons/search/search',
-        delay: 300,
-        data: function (params) {
-          const query = {
-            entity: 'User',
-            quickFields: 'loginName,fullName,email,quickCode',
-            q: params.term,
-          }
-          return query
-        },
-        processResults: function (data) {
-          const rs = data.data.map((item) => {
-            return item
-          })
-          return { results: rs }
-        },
-      },
-    })
-    .on('change', function () {
-      ientry.owning_user = $(this).val() || null
-      check_user()
-    })
+  const _onSelectUser = function (s, isRemove) {
+    if (isRemove || !s) _Config.owning_user = null
+    else _Config.owning_user = s.id
+  }
+  renderRbcomp(
+    <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} onSelectItem={(s, isRemove) => _onSelectUser(s, isRemove)} onClearSelection={() => _onSelectUser()} />,
+    'toUser'
+  )
 
   $('.J_step1-btn').click(step_mapping)
   $('.J_step2-btn').click(step_import)
   $('.J_step2-return').click(step_upload)
   $('.J_step3-cancel').click(import_cancel)
 
-  window.onbeforeunload = function () {
-    if (import_inprogress === true) return false
-  }
   import_taskid = $urlp('task', location.hash)
   if (import_taskid) {
     step_import_show()
     import_inprogress = true
     import_state(import_taskid, true)
   }
+
+  window.onbeforeunload = function () {
+    if (import_inprogress === true) return false
+  }
 })
 
-const init_upload = () => {
-  $('#upload-input').html5Uploader({
-    postUrl: rb.baseUrl + '/filex/upload?temp=yes',
-    onSelectError: function (field, error) {
-      if (error === 'ErrorType') RbHighbar.create($L('PlsUploadSomeFile').replace('%s', 'EXCEL/CSV '))
-      else if (error === 'ErrorMaxSize') RbHighbar.create($L('ExceedMaxLimit') + ' (50MB)')
-    },
-    onClientLoad: function () {
-      $mp.start()
-    },
-    onSuccess: function (d) {
-      $mp.end()
-      d = JSON.parse(d.currentTarget.response)
-      if (d.error_code === 0) {
-        ientry.file = d.data
-        $('.J_upload-input').text($fileCutName(ientry.file))
-      } else {
-        RbHighbar.error($L('ErrorUpload'))
-      }
-    },
-  })
-}
-
-// 检查所属用户权限
-const check_user = () => $setTimeout(check_user0, 200, 'check_user')
-const check_user0 = () => {
-  if (!ientry.entity || !ientry.owning_user) return
-  $.get(`/admin/data/data-imports/check-user?user=${ientry.owning_user}&entity=${ientry.entity}`, (res) => {
-    let hasError = []
-    if (res.data.canCreate !== true) hasError.push($L('Create'))
-    if (res.data.canUpdate !== true) hasError.push($L('Update'))
-    if (hasError.length > 0) {
-      renderRbcomp(<RbAlertBox message={$L('SelectUserNoPermissionConfirm').replace('%s', hasError.join('/'))} />, 'user-warn')
-    } else {
-      $('#user-warn').empty()
-    }
-  })
-}
-
+// 1. 初始导入
 const step_upload = () => {
   $('.steps li, .step-content .step-pane').removeClass('active complete')
   $('.steps li[data-step=1], .step-content .step-pane[data-step=1]').addClass('active')
 }
+
+// 2. 字段映射
 const step_mapping = () => {
-  if (!ientry.entity) {
+  if (!_Config.entity) {
     RbHighbar.create($L('PlsSelectSome,ImportEntity'))
     return
   }
-  if (!ientry.file) {
+  if (!_Config.file) {
     RbHighbar.create($L('PlsUploadSome,DataFile'))
     return
   }
-  if (ientry.repeat_opt !== 3 && (!ientry.repeat_fields || ientry.repeat_fields.length === 0)) {
+  if (_Config.repeat_opt !== 3 && (!_Config.repeat_fields || _Config.repeat_fields.length === 0)) {
     RbHighbar.create($L('PlsSelectSome,DuplicateFields'))
     return
   }
 
   const $btn = $('.J_step1-btn').button('loading')
-  $.get(`/admin/data/data-imports/check-file?file=${$encode(ientry.file)}`, (res) => {
+  $.get(`/admin/data/data-imports/check-file?file=${$encode(_Config.file)}`, (res) => {
     $btn.button('reset')
     if (res.error_code > 0) {
       RbHighbar.create(res.error_msg)
@@ -188,6 +115,8 @@ const step_mapping = () => {
     $('.steps li[data-step=2], .step-content .step-pane[data-step=2]').addClass('active')
   })
 }
+
+// 3. 开始导入
 const step_import = () => {
   let fm = {}
   $('#fieldsMapping tbody>tr').each(function () {
@@ -206,12 +135,12 @@ const step_import = () => {
     }
   })
   if (!fm) return
-  ientry.fields_mapping = fm
+  _Config.fields_mapping = fm
 
   RbAlert.create($L('DataImportConfirm'), {
     confirm: function () {
       this.disabled(true)
-      $.post('/admin/data/data-imports/import-submit', JSON.stringify(ientry), (res) => {
+      $.post('/admin/data/data-imports/import-submit', JSON.stringify(_Config), (res) => {
         if (res.error_code === 0) {
           this.hide()
           step_import_show()
@@ -224,11 +153,15 @@ const step_import = () => {
     },
   })
 }
+
+// 3.1. 开始导入
 const step_import_show = () => {
   $('.steps li, .step-content .step-pane').removeClass('active complete')
   $('.steps li[data-step=1], .steps li[data-step=2]').addClass('complete')
   $('.steps li[data-step=3], .step-content .step-pane[data-step=3]').addClass('active')
 }
+
+// 3.2. 导入状态
 const import_state = (taskid, inLoad) => {
   $.get(`/commons/task/state?taskid=${taskid}`, (res) => {
     if (res.error_code !== 0) {
@@ -243,7 +176,7 @@ const import_state = (taskid, inLoad) => {
     }
 
     const _data = res.data
-    $('.J_import_time').text(sec_to_time(~~_data.elapsedTime / 1000))
+    $('.J_import_time').text(_secToTime(~~_data.elapsedTime / 1000))
 
     if (_data.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
@@ -251,6 +184,7 @@ const import_state = (taskid, inLoad) => {
     } else if (_data.isInterrupted === true) {
       $('.J_import_state').text($L('ImportInterrupttedTips').replace('%d', _data.succeeded))
     }
+
     if (_data.isCompleted === true || _data.isInterrupted === true) {
       $('.J_step3-cancel').attr('disabled', true).text($L('ImportFinshed'))
       $('.J_step3-logs').removeClass('hide')
@@ -258,15 +192,18 @@ const import_state = (taskid, inLoad) => {
       return
     }
 
-    if (_data.total > -1) {
+    if (_data.progress > 0) {
       $('.J_import_state').text($L('DataImporting') + ' ' + _data.completed + '/' + _data.total)
       $('.J_import-bar').css('width', _data.progress * 100 + '%')
     }
+
     setTimeout(() => {
       import_state(taskid)
     }, 500)
   })
 }
+
+// 3.3. 中断导入
 const import_cancel = () => {
   RbAlert.create($L('ImportInterrupttedConfirm'), {
     type: 'danger',
@@ -319,7 +256,8 @@ const render_fieldsMapping = (columns, fields) => {
     })
 }
 
-const sec_to_time = function (s) {
+// 格式化秒显示
+function _secToTime(s) {
   if (!s || s <= 0) return '00:00:00'
   let hh = Math.floor(s / 3600)
   let mm = Math.floor(s / 60) % 60
@@ -328,4 +266,43 @@ const sec_to_time = function (s) {
   if (mm < 10) mm = '0' + mm
   if (ss < 10) ss = '0' + ss
   return hh + ':' + mm + ':' + ss
+}
+
+// 检查所属用户权限
+function _checkUserPrivileges() {
+  if (!_Config.entity || !_Config.owning_user) return
+  $.get(`/admin/data/data-imports/check-user?user=${_Config.owning_user}&entity=${_Config.entity}`, (res) => {
+    let hasError = []
+    if (res.data.canCreate !== true) hasError.push($L('Create'))
+    if (res.data.canUpdate !== true) hasError.push($L('Update'))
+    if (hasError.length > 0) {
+      renderRbcomp(<RbAlertBox message={$L('SelectUserNoPermissionConfirm').replace('%s', hasError.join('/'))} />, 'user-warn')
+    } else {
+      $('#user-warn').empty()
+    }
+  })
+}
+
+// 渲染重复判断字段
+function _renderRepeatFields(entity) {
+  if (!entity) return
+  const $el = $('#repeatFields').empty()
+  $.get(`/admin/data/data-imports/import-fields?entity=${entity}`, (res) => {
+    $(res.data).each(function () {
+      if (this.name === 'createdBy' || this.name === 'createdOn' || this.name === 'modifiedOn' || this.name === 'modifiedBy') return
+      $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($el)
+    })
+
+    $el
+      .select2({
+        maximumSelectionLength: 3,
+        placeholder: $L('SelectSome,Field'),
+      })
+      .on('change', function () {
+        _Config.repeat_fields = $(this).val()
+      })
+
+    fields_cached = res.data
+    _Config.entity = entity
+  })
 }

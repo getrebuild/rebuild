@@ -136,7 +136,7 @@ class FieldsMapping extends React.Component {
     const _target = this.props.target
     return (
       <div ref={(c) => (this._fieldsMapping = c)}>
-        <div className="row">
+        <div className="row mb-0">
           <div className="col-7">
             <div className="form-control-plaintext text-bold">{_source.label}</div>
           </div>
@@ -146,13 +146,12 @@ class FieldsMapping extends React.Component {
         </div>
         {_target.fields.map((item) => {
           return (
-            <div className="row mb-1" key={item.id}>
+            <div className="row" key={item.id}>
               <div className="col-7">
                 <select className="form-control form-control-sm" data-ftc={item.type} data-req={!item.nullable} data-field={item.id}></select>
               </div>
               <div className="col-5">
-                <span className="badge">
-                  {!item.nullable && <i title={$L('Required')}></i>}
+                <span className={`badge ${item.nullable ? '' : 'req'}`}>
                   {item.text}
                 </span>
               </div>
