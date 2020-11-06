@@ -19,7 +19,9 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.exception.jdbc.GenericJdbcException;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.metadata.EntityHelper;
@@ -27,33 +29,34 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.general.FieldValueWrapper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.sql.DataTruncation;
 import java.util.*;
 
 /**
- * 记录操作（增/改/删/分派/共享）
+ * 业务实体操作（增/改/删/分派/共享）
  *
  * @author zhaofang123@gmail.com
  * @since 08/30/2018
+ * @see Application#getEntityService(int)
+ * @see CommonOperatingController
  */
-@Controller
+@RestController
 @RequestMapping("/app/entity/")
 public class GeneralOperatingController extends BaseController {
 
@@ -61,7 +64,7 @@ public class GeneralOperatingController extends BaseController {
     public static final int CODE_REPEATED_VALUES = 499;
 
     @PostMapping("record-save")
-    public void save(HttpServletRequest request, HttpServletResponse response) {
+    public JSONAware save(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final JSON formJson = ServletUtils.getRequestJson(request);
 
@@ -69,8 +72,12 @@ public class GeneralOperatingController extends BaseController {
         try {
             record = EntityHelper.parse((JSONObject) formJson, user);
         } catch (DataSpecificationException known) {
-            writeFailure(response, known.getLocalizedMessage());
-            return;
+            return RespBody.error(known.getLocalizedMessage());
+        }
+
+        // 兼容所有类型的实体
+        if (!(MetadataHelper.hasPrivilegesField(record.getEntity()) || MetadataHelper.isPlainEntity(record.getEntity()))) {
+            return CommonOperatingController.saveRecord(record);
         }
 
         // 检查重复值
@@ -80,34 +87,30 @@ public class GeneralOperatingController extends BaseController {
             map.put("error_code", CODE_REPEATED_VALUES);
             map.put("error_msg", getLang(request, "RecordRepeated"));
             map.put("data", buildRepeatedData(repeated));
-            writeJSON(response, map);
-            return;
+            return map;
         }
-
-        final EntityService ies = Application.getEntityService(record.getEntity().getEntityCode());
 
         try {
-            record = ies.createOrUpdate(record);
+            record = Application.getEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
+
         } catch (AccessDeniedException | DataSpecificationException known) {
-            writeFailure(response, known.getLocalizedMessage());
-            return;
+            return RespBody.error(known.getLocalizedMessage());
+
         } catch (GenericJdbcException ex) {
             if (ex.getCause() instanceof DataTruncation) {
-                writeFailure(response, getLang(request, "DataTruncation"));
-            } else {
-                LOG.error(null, ex);
-                writeFailure(response, ex.getLocalizedMessage());
+                return RespBody.errorl("DataTruncation");
             }
-            return;
+
+            LOG.error(null, ex);
+            return RespBody.error(ex.getLocalizedMessage());
         }
 
-        Map<String, Object> map = new HashMap<>();
-        map.put("id", record.getPrimary());
+        JSONObject ret = new JSONObject();
+        ret.put("id", record.getPrimary());
 
         // 单字段修改立即返回新值
         boolean viaSingle = getBoolParameter(request, "single");
         if (viaSingle) {
-            Map<String, Object> fieldsVal = new HashMap<>();
             for (String field : record.getAvailableFields()) {
                 Field fieldMeta = record.getEntity().getField(field);
                 if (MetadataHelper.isCommonsField(field) || fieldMeta.getType() == FieldType.PRIMARY) {
@@ -115,25 +118,29 @@ public class GeneralOperatingController extends BaseController {
                 }
 
                 Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
-                fieldsVal.put(field, newValue);
+                ret.put(field, newValue);
             }
-            map.putAll(fieldsVal);
         }
 
-        writeSuccess(response, map);
+        return ret;
     }
 
     @PostMapping("record-delete")
-    public void delete(HttpServletRequest request, HttpServletResponse response) {
+    public JSONAware delete(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            writeFailure(response, getLang(request, "NoSelect4Delete"));
-            return;
+            return RespBody.errorl("NoSelect4Delete");
         }
 
         final ID firstId = records[0];
         final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
+
+        // 兼容所有类型的实体
+        if (!(MetadataHelper.hasPrivilegesField(entity) || MetadataHelper.isPlainEntity(entity))) {
+            return CommonOperatingController.deleteRecord(firstId);
+        }
+
         final EntityService ies = Application.getEntityService(entity.getEntityCode());
 
         String[] cascades = parseCascades(request);
@@ -146,24 +153,22 @@ public class GeneralOperatingController extends BaseController {
                 BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, records);
                 affected = ies.bulk(context);
             }
+
         } catch (AccessDeniedException | DataSpecificationException known) {
-            writeFailure(response, known.getLocalizedMessage());
-            return;
+            return RespBody.error(known.getLocalizedMessage());
         }
 
-        JSON ret = JSONUtils.toJSONObject(
+        return JSONUtils.toJSONObject(
                 new String[] { "deleted", "requests" },
                 new Object[] { affected, records.length });
-        writeSuccess(response, ret);
     }
 
     @PostMapping("record-assign")
-    public void assign(HttpServletRequest request, HttpServletResponse response) {
+    public JSONAware assign(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            writeFailure(response, getLang(request, "NoSelect4Assign"));
-            return;
+            return RespBody.errorl("NoSelect4Assign");
         }
 
         final ID firstId = records[0];
@@ -182,30 +187,27 @@ public class GeneralOperatingController extends BaseController {
                 BulkContext context = new BulkContext(user, BizzPermission.ASSIGN, assignTo, cascades, records);
                 affected = ies.bulk(context);
             }
+
         } catch (AccessDeniedException known) {
-            writeFailure(response, known.getLocalizedMessage());
-            return;
+            return RespBody.error(known.getLocalizedMessage());
         }
 
-        JSON ret = JSONUtils.toJSONObject(
+        return JSONUtils.toJSONObject(
                 new String[] { "assigned", "requests" },
                 new Object[] { affected, records.length });
-        writeSuccess(response, ret);
     }
 
     @PostMapping("record-share")
-    public void share(HttpServletRequest request, HttpServletResponse response) {
+    public JSONAware share(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            writeFailure(response, getLang(request, "NoSelect4Share"));
-            return;
+            return RespBody.errorl("NoSelect4Share");
         }
 
         final ID[] toUsers = parseUserList(request);
         if (toUsers.length == 0) {
-            writeFailure(response, getLang(request, "NoSelect4ShareUser"));
-            return;
+            return RespBody.errorl("NoSelect4ShareUser");
         }
 
         final ID firstId = records[0];
@@ -225,25 +227,22 @@ public class GeneralOperatingController extends BaseController {
                     affected += ies.bulk(context);
                 }
             }
+
         } catch (AccessDeniedException known) {
-            writeFailure(response, known.getLocalizedMessage());
-            return;
+            return RespBody.error(known.getLocalizedMessage());
         }
 
-        JSON ret = JSONUtils.toJSONObject(
+        return JSONUtils.toJSONObject(
                 new String[] { "shared", "requests" },
                 new Object[] { affected, records.length });
-        writeSuccess(response, ret);
     }
 
     @PostMapping("record-unshare")
-    public void unsharesa(HttpServletRequest request, HttpServletResponse response) {
+    public JSONAware unsharesa(@IdParam(name = "record") ID recordId, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final ID record = getIdParameterNotNull(request, "record");  // Record ID
         final ID[] accessIds = parseIdList(request);  // ShareAccess IDs
         if (accessIds.length == 0) {
-            writeFailure(response, getLang(request, "NoSelect4UnShare"));
-            return;
+            return RespBody.errorl("NoSelect4UnShare");
         }
 
         final ID firstId = accessIds[0];
@@ -253,29 +252,27 @@ public class GeneralOperatingController extends BaseController {
         int affected;
         try {
             if (accessIds.length == 1) {
-                affected = ies.unshare(record, accessIds[0]);
+                affected = ies.unshare(recordId, accessIds[0]);
             } else {
-                BulkContext context = new BulkContext(user, EntityService.UNSHARE, accessIds, record);
+                BulkContext context = new BulkContext(user, EntityService.UNSHARE, accessIds, recordId);
                 affected = ies.bulk(context);
             }
+
         } catch (AccessDeniedException known) {
-            writeFailure(response, known.getLocalizedMessage());
-            return;
+            return RespBody.error(known.getLocalizedMessage());
         }
 
-        JSON ret = JSONUtils.toJSONObject(
+        return JSONUtils.toJSONObject(
                 new String[] { "unshared", "requests" },
                 new Object[] { affected, accessIds.length });
-        writeSuccess(response, ret);
     }
 
     @PostMapping("record-unshare-batch")
-    public void unshareBatch(HttpServletRequest request, HttpServletResponse response) {
+    public JSONAware unshareBatch(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            writeFailure(response, getLang(request, "NoSelect4UnShare"));
-            return;
+            return RespBody.errorl("NoSelect4UnShare");
         }
 
         // 查询共享记录ID
@@ -288,19 +285,17 @@ public class GeneralOperatingController extends BaseController {
         if (!"$ALL$".equals(to)) {
             ID[] toUsers = parseUserList(request);
             if (toUsers.length == 0) {
-                writeFailure(response, getLang(request, "NoSelect4UnShareUser"));
-                return;
+                return RespBody.errorl("NoSelect4UnShareUser");
             }
+
             accessSql += String.format(" and shareTo in ('%s')", StringUtils.join(toUsers, "','"));
         }
 
         Object[][] accessArray = Application.createQueryNoFilter(accessSql).array();
         if (accessArray.length == 0) {
-            JSON ret = JSONUtils.toJSONObject(
+            return JSONUtils.toJSONObject(
                     new String[] { "unshared", "requests" },
                     new Object[] { 0, 0 });
-            writeSuccess(response, ret);
-            return;
         }
 
         Map<ID, Set<ID>> accessListMap = new HashMap<>();
@@ -324,32 +319,30 @@ public class GeneralOperatingController extends BaseController {
             }
 
         } catch (AccessDeniedException known) {
-            writeFailure(response, known.getLocalizedMessage());
-            return;
+            return RespBody.error(known.getLocalizedMessage());
         }
 
-        JSON ret = JSONUtils.toJSONObject(
+        return JSONUtils.toJSONObject(
                 new String[] { "unshared", "requests" },
                 new Object[] { affected, records.length });
-        writeSuccess(response, ret);
     }
 
     @GetMapping("shared-list")
-    public void fetchSharedList(HttpServletRequest request, HttpServletResponse response) {
-        final ID id = getIdParameterNotNull(request, "id");
-        final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
+    public Object[][] fetchSharedList(@IdParam ID recordId) {
+        final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
         Object[][] array = Application.createQueryNoFilter(
                 "select shareTo,accessId,createdOn,createdBy from ShareAccess where belongEntity = ? and recordId = ?")
                 .setParameter(1, entity.getName())
-                .setParameter(2, id)
+                .setParameter(2, recordId)
                 .array();
+
         for (Object[] o : array) {
             o[0] = new String[]{o[0].toString(), UserHelper.getName((ID) o[0])};
             o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
             o[3] = UserHelper.getName((ID) o[3]);
         }
-        writeSuccess(response, array);
+        return array;
     }
 
     /**

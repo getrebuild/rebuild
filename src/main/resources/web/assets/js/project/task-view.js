@@ -130,7 +130,7 @@ class TaskForm extends React.Component {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        $.post(`/app/entity/record-delete?id=${that.props.id}`, (res) => {
+        $.post(`/app/entity/common-delete?id=${that.props.id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             RbHighbar.success($L('SomeDeleted,Task'))
@@ -181,7 +181,7 @@ class ValueComp extends React.Component {
       metadata: { id: this.props.$$$parent.props.id },
     }
 
-    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         __TaskViewer.refreshTask && __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
         typeof call === 'function' && call(true)
@@ -620,7 +620,7 @@ class TaskCommentsList extends React.Component {
       type: 'danger',
       confirmText: $L('Delete'),
       confirm: function () {
-        $.post(`/app/entity/record-delete?id=${item.id}`, (res) => {
+        $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
           this.hide()
           if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
           const ss = that.state.comments.filter((x) => x.id !== item.id)
@@ -669,7 +669,7 @@ class TaskComment extends React.Component {
     _data.taskId = this.props.id
     _data.metadata = { entity: 'ProjectTaskComment' }
 
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         this._editor.reset()
         this.commentState(false)

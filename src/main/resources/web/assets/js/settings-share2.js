@@ -223,7 +223,7 @@ class Share2Settings extends Share2Switch {
     RbAlert.create($L('DeleteSomeConfirm,Conf'), {
       confirm: function () {
         this.disabled(true)
-        $.post(`/app/entity/record-delete?id=${id}`, () => parent.location.reload())
+        $.post(`/app/entity/record-common?id=${id}`, () => parent.location.reload())
       },
     })
   }

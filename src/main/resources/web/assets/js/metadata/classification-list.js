@@ -66,7 +66,7 @@ class GridList extends React.Component {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        $.post(`/app/entity/record-delete?id=${dataId}`, (res) => {
+        $.post(`/app/entity/common-delete?id=${dataId}`, (res) => {
           if (res.error_code === 0) {
             RbHighbar.success($L('SomeDeleted,Classification'))
             setTimeout(() => location.reload(), 500)
@@ -135,7 +135,7 @@ class DlgEdit extends RbFormHandler {
     }
 
     this.disabled(true)
-    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'classification/' + res.data.id

@@ -263,6 +263,16 @@ public class MetadataHelper {
     }
 
     /**
+     * 没有权限字段的业务实体
+     *
+     * @param entity
+     * @return
+     */
+    public static boolean isPlainEntity(Entity entity) {
+        return EasyMeta.valueOf(entity).isPlainEntity();
+    }
+
+    /**
      * 实体是否具备权限字段（业务实体）
      *
      * @param entity

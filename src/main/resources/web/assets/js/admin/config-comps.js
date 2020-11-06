@@ -110,7 +110,7 @@ class ConfigList extends React.Component {
 
   // 删除数据
   handleDelete(id) {
-    $.post(`/app/entity/record-delete?id=${id}`, (res) => {
+    $.post(`/app/entity/common-delete?id=${id}`, (res) => {
       if (res.error_code === 0) {
         RbHighbar.success('删除成功')
         setTimeout(() => location.reload(), 500)

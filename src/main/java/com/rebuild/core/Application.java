@@ -275,6 +275,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return getBean(PrivilegesManager.class);
     }
 
+    public static NotificationService getNotifications() {
+        return getBean(NotificationService.class);
+    }
+
     public static QueryFactory getQueryFactory() {
         return getBean(QueryFactory.class);
     }
@@ -296,11 +300,17 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     /**
+     * 非业务实体使用
      * @see #getCommonsService()
      */
     public static ServiceSpec getService(int entityCode) {
         if (_ESS != null && _ESS.containsKey(entityCode)) {
-            return _ESS.get(entityCode);
+            ServiceSpec es = _ESS.get(entityCode);
+            if (EntityService.class.isAssignableFrom(es.getClass())) {
+                LOG.warn("Use the #getEntityService is recommended");
+            }
+            return es;
+
         } else {
             // default
             return getCommonsService();
@@ -308,6 +318,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     }
 
     /**
+     * 业务实体使用
      * @see #getGeneralEntityService()
      */
     public static EntityService getEntityService(int entityCode) {
@@ -333,9 +344,5 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     public static CommonsService getCommonsService() {
         return getBean(CommonsService.class);
-    }
-
-    public static NotificationService getNotifications() {
-        return getBean(NotificationService.class);
     }
 }

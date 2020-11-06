@@ -208,7 +208,7 @@ class ReporEdit extends ConfigFormDlg {
     post.metadata = { entity: 'DataReportConfig', id: this.props.id }
 
     this.disabled(true)
-    $.post('/app/entity/record-save', JSON.stringify(post), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) location.reload()
       else RbHighbar.error(res.error_msg)
       this.disabled()

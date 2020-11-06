@@ -1760,7 +1760,7 @@ class DeleteConfirm extends RbAlert {
     const cascades = this.__select2 ? this.__select2.val().join(',') : ''
 
     const btns = $(this._btns).find('.btn').button('loading')
-    $.post('/app/entity/record-delete?id=' + ids + '&cascades=' + cascades, (res) => {
+    $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.deleted === res.data.requests) RbHighbar.success($L('SomeSuccess', 'Delete'))
         else if (res.data.deleted === 0) RbHighbar.error($L('NotDeleteTips'))

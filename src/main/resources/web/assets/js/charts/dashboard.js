@@ -363,7 +363,7 @@ class DlgDashSettings extends RbFormHandler {
     }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
 
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         $('.dash-head h4').text(_data.title)
         if (dlgRefs['DashSelect']) {
@@ -380,7 +380,7 @@ class DlgDashSettings extends RbFormHandler {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        $.post('/app/entity/record-delete?id=' + dashid, function (res) {
+        $.post('/app/entity/common-delete?id=' + dashid, function (res) {
           // if (res.error_code === 0) location.replace('home#del=' + dashid)  // Chrome no refresh?
           if (res.error_code === 0) location.reload()
           else RbHighbar.error(res.error_msg)

@@ -159,7 +159,7 @@ class TransformEdit extends ConfigFormDlg {
     }
 
     this.disabled(true)
-    $.post('/app/entity/record-save', JSON.stringify(post), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'transform/' + res.data.id

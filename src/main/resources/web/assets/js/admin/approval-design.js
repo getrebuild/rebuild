@@ -828,7 +828,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       const noApproverNode = !data.includes('"approver"')
 
       $btns.button('loading')
-      $.post('/app/entity/record-save', data, (res) => {
+      $.post('/app/entity/common-save', data, (res) => {
         if (res.error_code === 0) {
           RbAlert.create($L('SaveAndPublishSuccess') + (noApproverNode ? `(${$L('NoAnyNodesTips')})` : ''), {
             cancelText: $L('ReturnList'),

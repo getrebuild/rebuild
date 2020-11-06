@@ -327,7 +327,7 @@ class PlanBox extends React.Component {
     if (_data.deadline) _data.deadline += ':00'
 
     const $btn = $(this._btn).button('loading')
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         this.refreshTasks(true)
 
@@ -434,7 +434,7 @@ class Task extends React.Component {
 // 保存任务
 const __saveTask = function (id, data, call) {
   data.metadata = { id: id }
-  $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
+  $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
     if (res.error_code !== 0) RbHighbar.error(res.error_msg)
     else typeof call === 'function' && call()
   })

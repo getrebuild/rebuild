@@ -367,12 +367,4 @@ public class EasyMeta implements BaseMeta {
                 new String[] { "entity", "entityLabel", "icon" },
                 new String[] { easy.getName(), easy.getLabel(), easy.getIcon() });
     }
-
-    /**
-     * @param entity
-     * @return
-     */
-    public static boolean isPlainEntity(Entity entity) {
-        return EasyMeta.valueOf(entity).isPlainEntity();
-    }
 }
