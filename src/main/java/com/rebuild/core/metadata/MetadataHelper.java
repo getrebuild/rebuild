@@ -263,6 +263,18 @@ public class MetadataHelper {
     }
 
     /**
+     * 是否业务实体
+     *
+     * @param entity
+     * @return
+     * @see #hasPrivilegesField(Entity)
+     * @see EasyMeta#isPlainEntity()
+     */
+    public static boolean isBusinessEntity(Entity entity) {
+        return hasPrivilegesField(entity) || EasyMeta.valueOf(entity).isPlainEntity();
+    }
+
+    /**
      * 实体是否具备权限字段（业务实体）
      *
      * @param entity

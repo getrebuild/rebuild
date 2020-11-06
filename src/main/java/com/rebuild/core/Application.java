@@ -43,7 +43,6 @@ import com.rebuild.utils.codec.RbDateCodec;
 import com.rebuild.utils.codec.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
 import com.rebuild.web.RebuildWebConfigurer;
-import org.h2.Driver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -76,8 +75,8 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     static {
         // Driver for DB
         try {
-            Class.forName(com.mysql.jdbc.Driver.class.getName());
-            Class.forName(Driver.class.getName());
+            Class.forName(com.mysql.cj.jdbc.Driver.class.getName());
+            Class.forName(org.h2.Driver.class.getName());
         } catch (ClassNotFoundException ex) {
             throw new RebuildException(ex);
         }
@@ -275,6 +274,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return getBean(PrivilegesManager.class);
     }
 
+    public static NotificationService getNotifications() {
+        return getBean(NotificationService.class);
+    }
+
     public static QueryFactory getQueryFactory() {
         return getBean(QueryFactory.class);
     }
@@ -295,16 +298,39 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return getBean(SqlExecutor.class);
     }
 
+    /**
+     * 非业务实体使用
+     * @see #getCommonsService()
+     */
     public static ServiceSpec getService(int entityCode) {
         if (_ESS != null && _ESS.containsKey(entityCode)) {
-            return _ESS.get(entityCode);
+            ServiceSpec es = _ESS.get(entityCode);
+            if (EntityService.class.isAssignableFrom(es.getClass())) {
+                LOG.warn("Use the #getEntityService is recommended");
+            }
+            return es;
+
         } else {
-            return getGeneralEntityService();
+            // default
+            return getCommonsService();
         }
     }
 
+    /**
+     * 业务实体使用
+     * @see #getGeneralEntityService()
+     */
     public static EntityService getEntityService(int entityCode) {
-        ServiceSpec es = getService(entityCode);
+        ServiceSpec es = null;
+        if (_ESS != null && _ESS.containsKey(entityCode)) {
+            es = _ESS.get(entityCode);
+        }
+
+        if (es == null) {
+            // default
+            return getGeneralEntityService();
+        }
+
         if (EntityService.class.isAssignableFrom(es.getClass())) {
             return (EntityService) es;
         }
@@ -317,9 +343,5 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     public static CommonsService getCommonsService() {
         return getBean(CommonsService.class);
-    }
-
-    public static NotificationService getNotifications() {
-        return getBean(NotificationService.class);
     }
 }

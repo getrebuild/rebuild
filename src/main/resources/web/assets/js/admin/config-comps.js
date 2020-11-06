@@ -74,15 +74,19 @@ class ConfigList extends React.Component {
     const q = $('.input-search input').val()
 
     $.get(`${this.requestUrl}?entity=${entity || ''}&q=${$encode(q)}`, (res) => {
-      this.setState({ data: res.data || [] }, () => {
-        $('.rb-loading-active').removeClass('rb-loading-active')
-        $('.dataTables_info').text(`共 ${this.state.data.length} 项`)
+      if (res.error_code === 0) {
+        this.setState({ data: res.data || [] }, () => {
+          $('.rb-loading-active').removeClass('rb-loading-active')
+          $('.dataTables_info').text(`共 ${this.state.data.length} 项`)
 
-        if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
-        else $('.list-nodata').addClass('hide')
+          if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
+          else $('.list-nodata').addClass('hide')
 
-        this.renderEntityTree()
-      })
+          this.renderEntityTree()
+        })
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 
@@ -110,11 +114,13 @@ class ConfigList extends React.Component {
 
   // 删除数据
   handleDelete(id) {
-    $.post(`/app/entity/record-delete?id=${id}`, (res) => {
+    $.post(`/app/entity/common-delete?id=${id}`, (res) => {
       if (res.error_code === 0) {
         RbHighbar.success('删除成功')
         setTimeout(() => location.reload(), 500)
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }

@@ -20,7 +20,6 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
-import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.data.ReportTemplateController;

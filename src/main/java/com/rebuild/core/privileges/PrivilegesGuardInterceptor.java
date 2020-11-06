@@ -204,9 +204,9 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         if (target == null) {
-            return Language.LF("YouNoSomePermission", actionKey) + " (" + EasyMeta.getLabel(entity) + ")";
+            return Language.L("YouNoSomePermission", actionKey) + " (" + EasyMeta.getLabel(entity) + ")";
         } else {
-            return Language.LF("YouNoSomeRecordPermission", actionKey);
+            return Language.L("YouNoSomeRecordPermission", actionKey) + " (" + target + ")";
         }
     }
 }

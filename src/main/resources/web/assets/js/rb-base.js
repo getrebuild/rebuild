@@ -417,6 +417,13 @@ var $stopEvent = function (e) {
 }
 
 /**
+ * 是否为 true 或 'true'
+ */
+var $isTrue = function (a) {
+  return a === true || a === 'true'
+}
+
+/**
  * 定位到指定元素
  */
 var $gotoSection = function (top, target) {

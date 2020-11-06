@@ -42,7 +42,7 @@ class CommonsCacheTest extends TestSupport {
         final JSONObject mixValue = JSONUtils.toJSONObject("abc", "123");
 
         Application.getCommonsCache().putx(key, mixValue);
-        System.out.println(Application.getCommonsCache().get(key));
+        System.out.println(Application.getCommonsCache().getx(key));
 
         Application.getCommonsCache().evict(key);
         assertNull(Application.getCommonsCache().get(key));

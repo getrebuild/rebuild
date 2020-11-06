@@ -51,7 +51,7 @@ class TransformList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('DeleteApprovalConfirm'), {
+    RbAlert.create($L('DeleteSomeConfirm,TransformConfig'), {
       html: true,
       type: 'danger',
       confirmText: $L('Delete'),
@@ -159,7 +159,7 @@ class TransformEdit extends ConfigFormDlg {
     }
 
     this.disabled(true)
-    $.post('/app/entity/record-save', JSON.stringify(post), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'transform/' + res.data.id

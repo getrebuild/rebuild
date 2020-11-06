@@ -93,7 +93,7 @@ class FolderEditDlg extends RbFormHandler {
     _data.metadata = { entity: 'AttachmentFolder', id: this.props.id || null }
 
     this.disabled(true)
-    $.post('/app/entity/record-save', JSON.stringify(_data), () => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), () => {
       this.hide()
       typeof this.props.call === 'function' && this.props.call()
     })
@@ -325,7 +325,7 @@ class FolderTree extends React.Component {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        $.post(`/app/entity/record-delete?id=${id}`, (res) => {
+        $.post(`/app/entity/common-delete?id=${id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             that.loadData()

@@ -38,7 +38,7 @@ const loadRules = () => {
           type: 'danger',
           confirm: function () {
             this.disabled(true)
-            $.post(`/app/entity/record-delete?id=${configId}`, (res) => {
+            $.post(`/app/entity/common-delete?id=${configId}`, (res) => {
               if (res.error_code === 0) {
                 this.hide()
                 loadRules()

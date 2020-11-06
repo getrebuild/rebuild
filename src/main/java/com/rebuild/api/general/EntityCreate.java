@@ -59,7 +59,7 @@ public class EntityCreate extends BaseApi {
                     ApiInvokeException.ERR_DATASPEC);
         }
 
-        recordNew = Application.getService(useEntity.getEntityCode()).create(recordNew);
+        recordNew = Application.getEntityService(useEntity.getEntityCode()).create(recordNew);
 
         return formatSuccess(JSONUtils.toJSONObject("id", recordNew.getPrimary()));
     }

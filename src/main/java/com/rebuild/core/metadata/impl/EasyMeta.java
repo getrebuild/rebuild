@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
@@ -366,13 +365,5 @@ public class EasyMeta implements BaseMeta {
         return JSONUtils.toJSONObject(
                 new String[] { "entity", "entityLabel", "icon" },
                 new String[] { easy.getName(), easy.getLabel(), easy.getIcon() });
-    }
-
-    /**
-     * @param entity
-     * @return
-     */
-    public static boolean isPlainEntity(Entity entity) {
-        return EasyMeta.valueOf(entity).isPlainEntity();
     }
 }

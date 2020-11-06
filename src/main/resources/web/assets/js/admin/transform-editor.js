@@ -73,7 +73,7 @@ $(document).ready(() => {
     }
 
     $btn.button('loading')
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) location.href = '../transforms'
       else RbHighbar.error(res.error_msg)
       $btn.button('reset')
@@ -134,6 +134,13 @@ class FieldsMapping extends React.Component {
   render() {
     const _source = this.props.source
     const _target = this.props.target
+
+    if (!_target.fields || _target.fields.length === 0) {
+      return (
+        <RbAlertBox message={$L('NoUsesField')} />
+      )
+    }
+
     return (
       <div ref={(c) => (this._fieldsMapping = c)}>
         <div className="row mb-0">

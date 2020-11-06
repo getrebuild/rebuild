@@ -54,9 +54,9 @@ public class SendNotificationTest extends TestSupport {
         Record record = EntityHelper.forNew(entity.getEntityCode(), SIMPLE_USER);
         record.setString("TestAllFieldsName", "SENDNOTIFICATION");
         // Create
-        record = Application.getService(entity.getEntityCode()).create(record);
+        record = Application.getEntityService(entity.getEntityCode()).create(record);
         // Delete
-        Application.getService(entity.getEntityCode()).delete(record.getPrimary());
+        Application.getEntityService(entity.getEntityCode()).delete(record.getPrimary());
 
         // 比对消息数
         ThreadPool.waitFor(4000);

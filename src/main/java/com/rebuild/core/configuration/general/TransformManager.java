@@ -47,6 +47,10 @@ public class TransformManager implements ConfigManager {
             // 过滤尚未配置或禁用的
             if (c.getJSON("config") == null || c.getBoolean("disabled")) continue;
 
+            // 无字段映射
+            JSONObject fieldsMapping = ((JSONObject) c.getJSON("config")).getJSONObject("fieldsMapping");
+            if (fieldsMapping == null || fieldsMapping.isEmpty()) continue;
+
             String target = c.getString("target");
             Entity targetEntity = MetadataHelper.getEntity(target);
             if (!Application.getPrivilegesManager().allowCreate(user, targetEntity.getEntityCode())) {

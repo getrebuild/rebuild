@@ -181,7 +181,7 @@ public class Installer implements InstallState {
 
         Assert.notNull(dbProps, "[databaseProps] cannot be null");
         String dbUrl = String.format(
-                "jdbc:mysql://%s:%d/%s?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull&useSSL=false&sessionVariables=default_storage_engine=InnoDB",
+                "jdbc:mysql://%s:%d/%s?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT",
                 dbProps.getString("dbHost"),
                 dbProps.getIntValue("dbPort"),
                 dbName);

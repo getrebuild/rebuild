@@ -23,9 +23,7 @@ import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
-import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.general.BulkContext;
-import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -68,8 +66,7 @@ public class BatchUpdateController extends BaseController {
         BulkContext bulkContext = new BulkContext(user, BizzPermission.UPDATE, requestData);
 
         Entity entityMeta = MetadataHelper.getEntity(entity);
-        ServiceSpec ies = Application.getService(entityMeta.getEntityCode());
-        String taskid = ((EntityService) ies).bulkAsync(bulkContext);
+        String taskid = Application.getEntityService(entityMeta.getEntityCode()).bulkAsync(bulkContext);
 
         writeSuccess(response, taskid);
     }
