@@ -1201,7 +1201,7 @@
   "TransformAsAndOpen": "转换后打开新记录",
   "TransformNotAllow": "当前记录不符合转换条件",
   "ImportUser": "导入用户",
-  "ImportUserTips": "请按照 [模板文件](https://getrebuild.com/docs/images/users-template.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)",
+  "ImportUserTips": "请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)",
   "ImportUserOkTips": "成功导入 %d 用户",
   "ImportUserAndNotify": "导入成功后发送邮件通知用户",
   "TransformConfig": "记录转换映射",

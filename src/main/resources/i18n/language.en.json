@@ -1201,7 +1201,7 @@
   "TransformAsAndOpen": "Open new record after transform",
   "TransformNotAllow": "The current record does not meet the transform conditions",
   "ImportUser": "Import Users",
-  "ImportUserTips": "Please fill in and upload according to the requirements of [Template](https://getrebuild.com/docs/images/users-template.xls). For more help, please [View document](https://getrebuild.com/docs/admin/users)",
+  "ImportUserTips": "Please fill in and upload according to the requirements of [Template](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls). For more help, please [View document](https://getrebuild.com/docs/admin/users)",
   "ImportUserOkTips": "Successfully imported %d users",
   "ImportUserAndNotify": "Send email to users after the import is successful",
   "TransformConfig": "Record Transform",
