@@ -54,7 +54,7 @@
           }
 
           $btn.button('loading')
-          $.post('admin-verify?passwd=' + passwd, function (res) {
+          $.post('admin-verify?passwd=' + $encode(passwd), function (res) {
             if (res.error_code == 0) location.replace(nexturl)
             else {
               RbHighbar.create(res.error_msg)

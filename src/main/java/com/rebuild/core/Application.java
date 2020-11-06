@@ -70,7 +70,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Build
      */
-    public static final int BUILD = 20000;
+    public static final int BUILD = 20001;
 
     static {
         // Driver for DB
@@ -179,7 +179,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
         if (lastBuild < BUILD) {
-            LOG.warn("Clear all cache after the first upgrade : " + BUILD);
+            LOG.warn("CLEAR ALL CACHE AFTER THE FIRST UPGRADE : " + BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
         }
