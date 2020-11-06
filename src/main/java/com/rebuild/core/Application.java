@@ -295,16 +295,32 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return getBean(SqlExecutor.class);
     }
 
+    /**
+     * @see #getCommonsService()
+     */
     public static ServiceSpec getService(int entityCode) {
         if (_ESS != null && _ESS.containsKey(entityCode)) {
             return _ESS.get(entityCode);
         } else {
-            return getGeneralEntityService();
+            // default
+            return getCommonsService();
         }
     }
 
+    /**
+     * @see #getGeneralEntityService()
+     */
     public static EntityService getEntityService(int entityCode) {
-        ServiceSpec es = getService(entityCode);
+        ServiceSpec es = null;
+        if (_ESS != null && _ESS.containsKey(entityCode)) {
+            es = _ESS.get(entityCode);
+        }
+
+        if (es == null) {
+            // default
+            return getGeneralEntityService();
+        }
+
         if (EntityService.class.isAssignableFrom(es.getClass())) {
             return (EntityService) es;
         }

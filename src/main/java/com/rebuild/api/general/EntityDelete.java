@@ -38,7 +38,7 @@ public class EntityDelete extends BaseApi {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Unsupportted operation for entity/id : " + deleteId);
         }
 
-        int deleted = Application.getService(entity.getEntityCode()).delete(deleteId);
+        int deleted = Application.getEntityService(entity.getEntityCode()).delete(deleteId);
 
         return formatSuccess(JSONUtils.toJSONObject("deleted", deleted));
     }

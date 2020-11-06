@@ -537,6 +537,8 @@ public class UserStore implements Initialization {
 
         for (User user : USERS.values()) {
             Role role = user.getOwningRole();
+            if (role == null) continue;
+
             if (role.getIdentity().equals(roleId)
                     || (role instanceof CombinedRole && ((CombinedRole) role).getRoleAppends().contains(roleId))) {
                 refreshUserRoleAppends(user);

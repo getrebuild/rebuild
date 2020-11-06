@@ -45,11 +45,11 @@ public class FieldWritebackTest extends TestSupport {
 
         Record account999Record = EntityHelper.forNew(account999.getEntityCode(), SIMPLE_USER);
         account999Record.setString("accountName", "FWB" + System.nanoTime());
-        account999Record = Application.getService(account999.getEntityCode()).create(account999Record);
+        account999Record = Application.getEntityService(account999.getEntityCode()).create(account999Record);
 
         Record salesOrder999Record = EntityHelper.forNew(salesOrder999.getEntityCode(), SIMPLE_USER);
         salesOrder999Record.setID("relatedAccount", account999Record.getPrimary());
-        Application.getService(account999.getEntityCode()).create(salesOrder999Record);
+        Application.getEntityService(account999.getEntityCode()).create(salesOrder999Record);
 
         // 清理
         Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());

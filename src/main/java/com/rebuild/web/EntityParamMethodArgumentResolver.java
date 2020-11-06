@@ -41,7 +41,7 @@ public class EntityParamMethodArgumentResolver implements HandlerMethodArgumentR
         if (StringUtils.isBlank(value)) {
             if (param.required()) {
                 throw new InvalidParameterException(
-                        Language.L("BadRequestParams") + String.format("[ %s = %s ]", param.name(), value));
+                        Language.L("BadRequestParams") + String.format(" [ %s=%s ]", param.name(), value));
             } else {
                 return null;
             }

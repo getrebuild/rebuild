@@ -84,8 +84,10 @@ public class GeneralOperatingController extends BaseController {
             return;
         }
 
+        final EntityService ies = Application.getEntityService(record.getEntity().getEntityCode());
+
         try {
-            record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
+            record = ies.createOrUpdate(record);
         } catch (AccessDeniedException | DataSpecificationException known) {
             writeFailure(response, known.getLocalizedMessage());
             return;
@@ -132,19 +134,17 @@ public class GeneralOperatingController extends BaseController {
 
         final ID firstId = records[0];
         final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
-        final ServiceSpec ies = Application.getService(entity.getEntityCode());
+        final EntityService ies = Application.getEntityService(entity.getEntityCode());
 
         String[] cascades = parseCascades(request);
 
         int affected;
         try {
-            if (!EntityService.class.isAssignableFrom(ies.getClass())) {
-                affected = ies.delete(firstId);
-            } else if (records.length == 1) {
-                affected = ((EntityService) ies).delete(firstId, cascades);
+            if (records.length == 1) {
+                affected = ies.delete(firstId, cascades);
             } else {
                 BulkContext context = new BulkContext(user, BizzPermission.DELETE, null, cascades, records);
-                affected = ((EntityService) ies).bulk(context);
+                affected = ies.bulk(context);
             }
         } catch (AccessDeniedException | DataSpecificationException known) {
             writeFailure(response, known.getLocalizedMessage());
