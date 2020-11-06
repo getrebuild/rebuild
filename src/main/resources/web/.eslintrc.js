@@ -105,5 +105,6 @@ module.exports = {
     $fromNow: true,
     $expired: true,
     $L: true,
+    $isTrue: true
   },
 }

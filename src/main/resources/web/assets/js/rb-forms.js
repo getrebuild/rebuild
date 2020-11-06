@@ -210,24 +210,27 @@ class RbForm extends React.Component {
   renderFormAction() {
     const pmodel = this.props.$$$parent.state.__formModel
     const moreActions = []
-    if (pmodel.hadApproval)
+    if (pmodel.hadApproval) {
       moreActions.push(
         <a key="Action103" className="dropdown-item" onClick={() => this.post(103)}>
           {$L('SaveAndSubmit')}
         </a>
       )
-    if (pmodel.isMain === true)
+    }
+
+    if (pmodel.isMain === true) {
       moreActions.push(
         <a key="Action102" className="dropdown-item" onClick={() => this.post(102)}>
           {$L('SaveAndAddDetail')}
         </a>
       )
-    else if (pmodel.isDetail === true)
+    } else if (pmodel.isDetail === true) {
       moreActions.push(
         <a key="Action101" className="dropdown-item" onClick={() => this.post(101)}>
           {$L('SaveAndAdd')}
         </a>
       )
+    }
 
     let actionBtn = (
       <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
@@ -475,11 +478,13 @@ class RbFormElement extends React.Component {
   onEditModeChanged(destroy) {
     if (destroy) {
       if (this.__select2) {
-        if ($.type(this.__select2) === 'array')
+        if ($.type(this.__select2) === 'array') {
           $(this.__select2).each(function () {
             this.select2('destroy')
           })
-        else this.__select2.select2('destroy')
+        } else {
+          this.__select2.select2('destroy')
+        }
         this.__select2 = null
       }
     }
@@ -638,7 +643,7 @@ class RbFormNumber extends RbFormText {
     const err = super.isValueError()
     if (err) return err
     if (!!this.state.value && $regex.isNumber(this.state.value) === false) return $L('SomeNotFormatWell').replace('{0}', '')
-    if (!!this.state.value && this.props.notNegative === 'true' && parseFloat(this.state.value) < 0) return $L('SomeNotNegative').replace('{0}', '')
+    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('SomeNotNegative').replace('{0}', '')
     return null
   }
 
@@ -675,7 +680,7 @@ class RbFormDecimal extends RbFormNumber {
     const err = super._isValueError()
     if (err) return err
     if (!!this.state.value && $regex.isDecimal(this.state.value) === false) return $L('SomeNotFormatWell').replace('{0}', '')
-    if (!!this.state.value && this.props.notNegative === 'true' && parseFloat(this.state.value) < 0) return $L('SomeNotNegative').replace('{0}', '')
+    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('SomeNotNegative').replace('{0}', '')
     return null
   }
 }
@@ -713,15 +718,14 @@ class RbFormTextarea extends RbFormElement {
 
   componentDidMount() {
     super.componentDidMount()
-    this.unmountFieldComp()
+    this.onEditModeChanged(true)
   }
 
-  unmountFieldComp() {
-    if (this._textarea) $(this._textarea).perfectScrollbar()
-  }
-
-  mountFieldComp() {
-    if (this._textarea) $(this._textarea).perfectScrollbar('destroy')
+  onEditModeChanged(destroy) {
+    if (this._textarea) {
+      if (destroy) $(this._textarea).perfectScrollbar()
+      else $(this._textarea).perfectScrollbar('destroy')
+    }
   }
 }
 
