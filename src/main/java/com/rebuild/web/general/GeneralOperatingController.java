@@ -76,7 +76,7 @@ public class GeneralOperatingController extends BaseController {
         }
 
         // 兼容所有类型的实体
-        if (!(MetadataHelper.hasPrivilegesField(record.getEntity()) || MetadataHelper.isPlainEntity(record.getEntity()))) {
+        if (!MetadataHelper.isBusinessEntity(record.getEntity())) {
             return CommonOperatingController.saveRecord(record);
         }
 
@@ -137,7 +137,7 @@ public class GeneralOperatingController extends BaseController {
         final Entity entity = MetadataHelper.getEntity(firstId.getEntityCode());
 
         // 兼容所有类型的实体
-        if (!(MetadataHelper.hasPrivilegesField(entity) || MetadataHelper.isPlainEntity(entity))) {
+        if (!MetadataHelper.isBusinessEntity(entity)) {
             return CommonOperatingController.deleteRecord(firstId);
         }
 

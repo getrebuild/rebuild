@@ -513,12 +513,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     public List<Record> getCheckRepeated(Record record, int maxReturns) {
         final Entity entity = record.getEntity();
 
-        // 仅处理业务实体
-        if (!(MetadataHelper.hasPrivilegesField(record.getEntity())
-                || EasyMeta.valueOf(record.getEntity()).isPlainEntity())) {
-            return Collections.emptyList();
-        }
-
         List<String> checkFields = new ArrayList<>();
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             Field field = entity.getField(iter.next());

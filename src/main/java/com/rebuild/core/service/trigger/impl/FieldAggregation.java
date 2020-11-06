@@ -130,7 +130,7 @@ public class FieldAggregation implements TriggerAction {
             // 会关联触发下一触发器（如有）
             TRIGGER_CHAIN_DEPTH.set(depth + 1);
 
-            if (MetadataHelper.hasPrivilegesField(targetEntity)) {
+            if (MetadataHelper.isBusinessEntity(targetEntity)) {
                 Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
             } else {
                 Application.getService(targetEntity.getEntityCode()).update(targetRecord);

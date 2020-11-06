@@ -41,7 +41,7 @@ public class ApprovalFields2Schema extends Field2Schema {
         if (MetadataHelper.hasApprovalField(approvalEntity)) {
             return false;
         }
-        if (!(MetadataHelper.hasPrivilegesField(approvalEntity) || MetadataHelper.isPlainEntity(approvalEntity))) {
+        if (!MetadataHelper.hasPrivilegesField(approvalEntity)) {
             throw new RebuildException("Unsupported entity : " + approvalEntity.getName());
         }
 
