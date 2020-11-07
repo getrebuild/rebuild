@@ -62,7 +62,7 @@ public class CommonOperatingController extends BaseController {
      * @param record
      * @return
      */
-    protected static JSONAware saveRecord(Record record) {
+    static JSONAware saveRecord(Record record) {
         try {
             record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
             return JSONUtils.toJSONObject("id", record.getPrimary());
@@ -75,7 +75,7 @@ public class CommonOperatingController extends BaseController {
      * @param recordId
      * @return
      */
-    protected static JSON deleteRecord(ID recordId) {
+    static JSON deleteRecord(ID recordId) {
         int del = Application.getService(recordId.getEntityCode()).delete(recordId);
         return JSONUtils.toJSONObject(
                 new String[] { "deleted", "requests" },

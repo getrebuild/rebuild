@@ -110,17 +110,17 @@ class ClassificationSelector extends React.Component {
           const p = $(s).val()
           if (p) {
             if (s.__level < that.state.openLevel) {
-              that.loadData(s.__level + 1, p) // Load next-level
+              that._loadData(s.__level + 1, p) // Load next-level
             }
           }
         })
       s.__level = idx
       that._select2.push(s)
     })
-    this.loadData(0)
+    this._loadData(0)
   }
 
-  loadData(level, p) {
+  _loadData(level, p) {
     $.get(`/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
       const s = this.state.datas
       s[level] = res.data

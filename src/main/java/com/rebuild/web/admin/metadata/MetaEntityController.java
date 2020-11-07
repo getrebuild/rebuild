@@ -59,23 +59,28 @@ public class MetaEntityController extends BaseController {
     }
 
     @GetMapping("entity/{entity}/base")
-    public ModelAndView pageBase(@PathVariable String entity) {
+    public ModelAndView pageBase(@PathVariable String entity, HttpServletResponse response) throws IOException {
+        Entity metaEntity = MetadataHelper.getEntity(entity);
+        if (!(MetadataHelper.isBusinessEntity(metaEntity) || MetadataHelper.isBizzEntity(metaEntity.getEntityCode()))) {
+            response.sendError(403);
+            return null;
+        }
+
         ModelAndView mv = createModelAndView("/admin/metadata/entity-edit");
         setEntityBase(mv, entity);
 
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-        mv.getModel().put("nameField", MetadataHelper.getNameField(entityMeta).getName());
+        mv.getModel().put("nameField", MetadataHelper.getNameField(metaEntity).getName());
 
-        if (entityMeta.getMainEntity() != null) {
-            mv.getModel().put("mainEntity", entityMeta.getMainEntity().getName());
-            mv.getModel().put("detailEntity", entityMeta.getName());
-        } else if (entityMeta.getDetailEntity() != null) {
-            mv.getModel().put("mainEntity", entityMeta.getName());
-            mv.getModel().put("detailEntity", entityMeta.getDetailEntity().getName());
+        if (metaEntity.getMainEntity() != null) {
+            mv.getModel().put("mainEntity", metaEntity.getMainEntity().getName());
+            mv.getModel().put("detailEntity", metaEntity.getName());
+        } else if (metaEntity.getDetailEntity() != null) {
+            mv.getModel().put("mainEntity", metaEntity.getName());
+            mv.getModel().put("detailEntity", metaEntity.getDetailEntity().getName());
         }
 
         // 扩展配置
-        mv.getModel().put("entityExtConfig", EasyMeta.valueOf(entityMeta).getExtraAttrs(true));
+        mv.getModel().put("entityExtConfig", EasyMeta.valueOf(metaEntity).getExtraAttrs(true));
 
         return mv;
     }
@@ -239,7 +244,7 @@ public class MetaEntityController extends BaseController {
      * @param entity
      * @return
      */
-    protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
+    static EasyMeta setEntityBase(ModelAndView mv, String entity) {
         EasyMeta entityMeta = EasyMeta.valueOf(entity);
         mv.getModel().put("entityMetaId", entityMeta.getMetaId());
         mv.getModel().put("entityName", entityMeta.getName());

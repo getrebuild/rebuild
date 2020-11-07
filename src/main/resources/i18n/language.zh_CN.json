@@ -550,7 +550,7 @@
   "SeriesZeroR3": "每月归零",
   "SeriesZeroR4": "每年归零",
   "AppendSeries": "补充编号",
-  "AppendSeriesConfirm": "此操作将为空字段补充编号 (空字段过多耗时会较长)。是否继续？",
+  "AppendSeriesConfirm": "此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？",
   "DefaultValue": "默认值",
   "DateFormula": "日期公式",
   "AllowNegative": "是否允许负数",

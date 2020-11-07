@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
@@ -50,15 +51,11 @@ public class GeneralModelController extends EntityController {
     public ModelAndView pageView(@PathVariable String entity, @PathVariable ID id,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID user = getRequestUser(request);
-        final Entity thatEntity = MetadataHelper.getEntity(entity);
-
-        if (!Application.getPrivilegesManager().allowRead(user, thatEntity.getEntityCode())) {
-            response.sendError(403, getLang(request, "YouNoPermissionAccessSome", "Entity"));
-            return null;
-        }
+        final Entity useEntity = GeneralListController.checkPageOfEntity(user, entity, response);
+        if (useEntity == null) return null;
 
         ModelAndView mv;
-        if (thatEntity.getMainEntity() != null) {
+        if (useEntity.getMainEntity() != null) {
             mv = createModelAndView("/general/detail-view", id, user);
         } else {
             mv = createModelAndView("/general/record-view", id, user);
@@ -171,5 +168,20 @@ public class GeneralModelController extends EntityController {
         return JSONUtils.toJSONObject(
                 new String[] { "lastModified"},
                 new Object[] { ((Date) recordMeta[0]).getTime() });
+    }
+
+    // 打印视图
+    @GetMapping("print")
+    public ModelAndView printPreview(@PathVariable String entity, @IdParam ID recordId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
+        JSON model = FormsBuilder.instance.buildView(entity, user, recordId);
+
+        ModelAndView mv = createModelAndView("/general/print-preview");
+        mv.getModel().put("contentBody", model);
+        mv.getModel().put("recordId", recordId);
+        mv.getModel().put("printTime", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+        mv.getModel().put("printUser", UserHelper.getName(user));
+        return mv;
     }
 }

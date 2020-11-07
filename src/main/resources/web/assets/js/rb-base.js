@@ -420,7 +420,7 @@ var $stopEvent = function (e) {
  * 是否为 true 或 'true'
  */
 var $isTrue = function (a) {
-  return a === true || a === 'true'
+  return a === true || a === 'true' || a === 'T'
 }
 
 /**

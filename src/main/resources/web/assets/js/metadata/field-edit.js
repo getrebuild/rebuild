@@ -84,17 +84,17 @@ $(document).ready(function () {
     }
   })
 
-  $('#fieldNullable').attr('checked', $('#fieldNullable').data('o') === true)
-  $('#fieldCreatable').attr('checked', $('#fieldCreatable').data('o') === true)
-  $('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') === true)
-  $('#fieldRepeatable').attr('checked', $('#fieldRepeatable').data('o') === true)
-  $('#fieldQueryable').attr('checked', $('#fieldQueryable').data('o') === true)
+  $('#fieldNullable').attr('checked', $isTrue($('#fieldNullable').data('o')))
+  $('#fieldCreatable').attr('checked', $isTrue($('#fieldCreatable').data('o')))
+  $('#fieldUpdatable').attr('checked', $isTrue($('#fieldUpdatable').data('o')))
+  $('#fieldRepeatable').attr('checked', $isTrue($('#fieldRepeatable').data('o')))
+  $('#fieldQueryable').attr('checked', $isTrue($('#fieldQueryable').data('o')))
 
   // 设置扩展值
   for (let k in extConfig) {
     const $control = $(`#${k}`)
     if ($control.length === 1) {
-      if ($control.attr('type') === 'checkbox') $control.attr('checked', extConfig[k] === 'true' || extConfig[k] === true)
+      if ($control.attr('type') === 'checkbox') $control.attr('checked', $isTrue(extConfig[k]))
       else if ($control.prop('tagName') === 'DIV') $control.text(extConfig[k])
       else $control.val(extConfig[k])
     } else {
@@ -102,9 +102,7 @@ $(document).ready(function () {
     }
   }
 
-  if (wpc.fieldName === 'approvalState' || wpc.fieldName === 'approvalId') {
-    $('.J_for-STATE, .J_for-REFERENCE').remove()
-  } else if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
+  if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
     _handlePicklist(dt)
   } else if (dt === 'SERIES') {
     _handleSeries()
@@ -116,11 +114,11 @@ $(document).ready(function () {
     _handleClassification(extConfig)
   } else if (dt === 'REFERENCE') {
     _handleReference()
-  } else if (dt === 'BARCODE') {
-    $('.J_options input').attr('disabled', true)
   } else if (dt === 'BOOL') {
     const $dv = $('.J_defaultValue')
     if ($dv.data('o')) $dv.val($dv.data('o'))
+  } else if (dt === 'BARCODE') {
+    $('.J_fieldAttrs input').attr('disabled', true)
   }
 
   // 显示重复值选项
@@ -134,14 +132,7 @@ $(document).ready(function () {
 
   // 内建字段
   if (wpc.fieldBuildin) {
-    $('.J_options input, .J_del').attr('disabled', true)
-    if (wpc.isDetailToMainField) {
-      $('.J_action').removeClass('hide')
-    } else {
-      $('.footer .alert').removeClass('hide')
-    }
-  } else {
-    $('.J_action').removeClass('hide')
+    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
   }
 
   // 只读属性
@@ -203,8 +194,7 @@ const checkDefaultValue = function (v, t) {
 class AdvDateDefaultValue extends RbAlert {
   constructor(props) {
     super(props)
-    this._refs = []
-    this.state.uncalc = true
+    this.state = { calcNum: 1, calcUnit: 'Y' }
   }
 
   renderContent() {
@@ -213,16 +203,24 @@ class AdvDateDefaultValue extends RbAlert {
         <div className="form-group">
           <label className="text-bold">{$L('SetSome,DateFormula')}</label>
           <div className="input-group">
-            <select className="form-control form-control-sm" ref={(c) => (this._refs[0] = c)}>
+            <select className="form-control form-control-sm">
               <option value="NOW">{$L('CurrentDate')}</option>
             </select>
-            <select className="form-control form-control-sm ml-1" ref={(c) => (this._refs[1] = c)} onChange={(e) => this.setState({ uncalc: !e.target.value })}>
+            <select className="form-control form-control-sm ml-1" onChange={(e) => this.setState({ calcOp: e.target.value })}>
               <option value="">{$L('CalcNone')}</option>
               <option value="+">{$L('CalcPlus')}</option>
               <option value="-">{$L('CalcMinus')}</option>
             </select>
-            <input type="number" min="1" max="999999" className="form-control form-control-sm ml-1" defaultValue="1" disabled={this.state.uncalc} ref={(c) => (this._refs[2] = c)} />
-            <select className="form-control form-control-sm ml-1" disabled={this.state.uncalc} ref={(c) => (this._refs[3] = c)}>
+            <input
+              type="number"
+              min="1"
+              max="999999"
+              className="form-control form-control-sm ml-1"
+              defaultValue="1"
+              disabled={!this.state.calcOp}
+              onChange={(e) => this.setState({ calcNum: e.target.value })}
+            />
+            <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
               <option value="D">{$L('Year')}</option>
               <option value="M">{$L('Month')}</option>
               <option value="Y">{$L('Day')}</option>
@@ -236,7 +234,7 @@ class AdvDateDefaultValue extends RbAlert {
           </div>
         </div>
         <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
+          <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>
             {$L('Confirm')}
           </button>
         </div>
@@ -244,16 +242,11 @@ class AdvDateDefaultValue extends RbAlert {
     )
   }
 
-  confirm = () => {
+  confirm() {
     let expr = 'NOW'
-    const op = $(this._refs[1]).val()
-    const num = $(this._refs[2]).val() || 1
-    if (op) {
-      if (isNaN(num)) {
-        RbHighbar.create($L('PlsInputSome,Number'))
-        return
-      }
-      expr += ` ${op} ${num}${$(this._refs[3]).val()}`
+    if (this.state.calcOp) {
+      if (isNaN(this.state.calcNum)) return RbHighbar.create($L('PlsInputSome,Number'))
+      expr += ` ${this.state.calcOp} ${this.state.calcNum}${this.state.calcUnit}`
     }
     $('.J_defaultValue').val('{' + expr + '}')
     this.hide()
@@ -335,7 +328,7 @@ const _handlePicklist = function (dt) {
 }
 
 const _handleSeries = function () {
-  $('.J_options input').attr('disabled', true)
+  $('.J_fieldAttrs input').attr('disabled', true)
   $('.J_series-reindex').click(() => {
     RbAlert.create($L('AppendSeriesConfirm'), {
       confirm: function () {

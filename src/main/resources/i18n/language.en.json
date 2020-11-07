@@ -550,7 +550,7 @@
   "SeriesZeroR3": "Zero monthly",
   "SeriesZeroR4": "Zero every year",
   "AppendSeries": "Padding Numbers",
-  "AppendSeriesConfirm": "This operation will padding the number of empty fields (too many empty fields will take longer). Whether to continue?",
+  "AppendSeriesConfirm": "This operation will padding numbers to empty fields. Too many empty fields will take a long time. Please be patient. Whether to continue?",
   "DefaultValue": "Default value",
   "DateFormula": "Date formula",
   "AllowNegative": "Allow negative number",

@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 页面上需要某个实体信息的 Controller
+ * 实体页面（列表、视图） Controller
  *
  * @author devezhao
  * @since 01/10/2019

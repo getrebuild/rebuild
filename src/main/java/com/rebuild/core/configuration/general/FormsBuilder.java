@@ -375,9 +375,19 @@ public class FormsBuilder extends FormsManager {
                     } else {
                         Object defVal = FieldDefaultValueHelper.exprDefaultValue(fieldMeta);
                         if (defVal != null) {
+                            // 日期
                             if (dateLength > -1) {
                                 defVal = CalendarUtils.getUTCDateTimeFormat().format(defVal);
                                 defVal = defVal.toString().substring(0, dateLength);
+                            }
+                            // 引用型
+                            else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
+                                try {
+                                    String label = FieldValueWrapper.getLabel((ID) defVal);
+                                    defVal = FieldValueWrapper.wrapMixValue((ID) defVal, label);
+                                } catch (NoRecordFoundException ignore) {
+                                    defVal = null;
+                                }
                             }
 
                             el.put("value", defVal);

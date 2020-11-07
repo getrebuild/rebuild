@@ -169,7 +169,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="form-group row pt-0 pb-1">
+                  <div class="form-group row pt-0 pb-1 J_for-REFERENCE-filter">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('ClickSet')}]]</a>
@@ -287,7 +287,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-group row" id="defaultValue">
+                <div th:if="${!fieldBuildin}" class="form-group row" id="defaultValue">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DefaultValue')}]]</label>
                   <div th:switch="${fieldType}" class="col-md-12 col-xl-6 col-lg-8">
                     <select th:case="'BOOL'" class="form-control form-control-sm J_defaultValue" th:data-o="${fieldDefaultValue}">
@@ -314,8 +314,8 @@
                     <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${fieldComments}" th:placeholder="${bundle.L('Optional')}">[[${fieldComments}]]</textarea>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4 J_options">
+                <div class="form-group row J_fieldAttrs">
+                  <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="fieldNullable" th:data-o="${fieldNullable}" />
                       <span class="custom-control-label"> [[${bundle.L('AllowNullable')}]]</span>
@@ -340,12 +340,12 @@
                 </div>
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
-                    <div class="J_action hide">
+                    <div th:if="${!fieldBuildin}" class="J_action">
                       <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('Save')}]]</button>
                       <button class="btn btn-danger btn-outline btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('Delete')}]]</button>
-                      <button th:if="${fieldType == 'SERIES'}" class="btn btn-secondary btn-space J_series-reindex" type="button">[[${bundle.L('AppendSeries')}]]</button>
+                      <button th:if="${fieldType == 'SERIES'}" class="btn btn-warning btn-outline btn-space J_series-reindex" type="button">[[${bundle.L('AppendSeries')}]]</button>
                     </div>
-                    <div class="alert alert-warning alert-icon hide mb-0">
+                    <div th:if="${fieldBuildin}" class="alert alert-warning alert-icon mb-0">
                       <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
                       <div class="message">[[${bundle.L('BuiltInNotModify')}]]</div>
                     </div>

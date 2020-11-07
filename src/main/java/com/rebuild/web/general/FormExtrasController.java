@@ -34,11 +34,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/app/entity/extras/")
 public class FormExtrasController extends BaseController {
 
-    /**
-     * 获取表单回填数据
-     *
-     * @param request
-     */
+    // 获取表单回填数据
     @RequestMapping("fillin-value")
     public JSON getFillinValue(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
@@ -50,11 +46,7 @@ public class FormExtrasController extends BaseController {
         return AutoFillinManager.instance.getFillinValue(useField, sourceRecord);
     }
 
-    /**
-     * 记录转换
-     *
-     * @param request
-     */
+    // 记录转换
     @RequestMapping("transform")
     public RespBody transform(HttpServletRequest request) {
         ID transid = getIdParameterNotNull(request, "transid");

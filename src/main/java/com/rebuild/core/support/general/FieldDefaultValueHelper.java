@@ -10,7 +10,6 @@ package com.rebuild.core.support.general;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.editor.BoolEditor;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
@@ -18,6 +17,7 @@ import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.core.support.state.StateSpec;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -47,16 +47,17 @@ public class FieldDefaultValueHelper {
      *
      * @param field
      * @return
+     * @see #exprDefaultValue(Field, String)
      */
     public static Object exprDefaultValue(Field field) {
         return exprDefaultValue(field, (String) field.getDefaultValue());
     }
 
     /**
-     * 获取字段默认值，可指定表达式
+     * 获取字段默认值。注意此方法会根据不同的字段类型返回对应的对象（如日期、布尔、ID等）
      *
      * @param field
-     * @param valueExpr
+     * @param valueExpr 指定表达式
      * @return
      */
     public static Object exprDefaultValue(Field field, String valueExpr) {
@@ -88,7 +89,7 @@ public class FieldDefaultValueHelper {
         // 未指定
         if (StringUtils.isBlank(valueExpr)) {
             if (dt == DisplayType.BOOL) {
-                return BoolEditor.FALSE;
+                return Boolean.FALSE;
             }
             return null;
         }
@@ -113,6 +114,9 @@ public class FieldDefaultValueHelper {
 
         } else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
             return ID.valueOf(valueExpr);
+
+        } else if (dt == DisplayType.BOOL) {
+            return BooleanUtils.toBoolean(valueExpr);
 
         } else {
             return valueExpr;

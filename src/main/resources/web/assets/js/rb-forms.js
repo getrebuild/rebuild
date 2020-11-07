@@ -1221,7 +1221,7 @@ class RbFormClassification extends RbFormElement {
       const that = this
       renderRbcomp(
         // eslint-disable-next-line react/jsx-no-undef
-        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} />,
+        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen={true} />,
         null,
         function () {
           that.__selector = this
@@ -1318,7 +1318,7 @@ class RbFormBool extends RbFormElement {
             className="custom-control-input"
             name={'radio-' + this.props.field}
             type="radio"
-            checked={this.state.value === 'T'}
+            checked={$isTrue(this.state.value)}
             data-value="T"
             onChange={this.changeValue}
             disabled={this.props.readonly}
@@ -1330,7 +1330,7 @@ class RbFormBool extends RbFormElement {
             className="custom-control-input"
             name={'radio-' + this.props.field}
             type="radio"
-            checked={this.state.value === 'F'}
+            checked={!$isTrue(this.state.value)}
             data-value="F"
             onChange={this.changeValue}
             disabled={this.props.readonly}
