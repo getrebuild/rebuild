@@ -115,7 +115,7 @@ $(document).ready(() => {
       const opt = $('.chart-option input[data-name=' + k + ']')
       if (opt.length > 0) {
         if (opt.attr('type') === 'checkbox') {
-          if (option[k] === 'true' || option[k] === true) opt.trigger('click')
+          if ($isTrue(option[k])) opt.trigger('click')
         } else {
           opt.val(option[k])
         }

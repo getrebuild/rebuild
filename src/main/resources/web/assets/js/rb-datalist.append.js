@@ -157,7 +157,7 @@ class BatchUpdate extends BatchOperator {
     const field = this.state.fields.find((item) => {
       return fieldName === item.name
     })
-    return field ? field.label : `[${fieldName}.toUpperCase()]`
+    return field ? field.label : `[${fieldName.toUpperCase()}]`
   }
 
   addItem = () => {
@@ -411,7 +411,7 @@ class BatchUpdateEditor extends React.Component {
       if (isNaN(item.value)) {
         RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
         return null
-      } else if (field.notNegative === 'true' && ~~item.value < 0) {
+      } else if ($isTrue(field.notNegative) && ~~item.value < 0) {
         RbHighbar.create($L('SomeNotBeNegative').replace('{0}', field.label))
         return null
       }
