@@ -663,6 +663,15 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
   )
 })
 
+CellRenders.addRender('AVATAR', function (v, s, k) {
+  const imgUrl = rb.baseUrl + '/filex/img/' + v + '?imageView2/2/w/100/interlace/1/q/100'
+  return (
+    <td key={k} className="user-avatar">
+      <img src={imgUrl} alt="Avatar" />
+    </td>
+  )
+})
+
 // ~ 分页组件
 class RbListPagination extends React.Component {
   constructor(props) {
@@ -890,9 +899,7 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
-          const $action = $(`<div class="action"><a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('Delete')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo(
-            $item
-          )
+          const $action = $(`<div class="action"><a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('Delete')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
 
           $action.find('a:eq(0)').click(function () {
             that.showAdvFilter(item.id)

@@ -275,7 +275,7 @@ public class FieldValueWrapper {
      * @see BarCodeGenerator
      */
     public String wrapBarcode(Object value, EasyMeta field) {
-        if (value != null && value instanceof ID) {
+        if (value instanceof ID) {
             return BarCodeGenerator.getBarCodeContent((Field) field.getBaseMeta(), (ID) value);
         }
         return null;

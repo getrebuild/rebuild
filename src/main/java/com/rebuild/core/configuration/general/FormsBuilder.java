@@ -18,7 +18,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.metadata.DefaultValueHelper;
+import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
@@ -368,22 +368,24 @@ public class FormsBuilder extends FormsManager {
                     }
                 }
 
+                // 默认值
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES) {
                         el.put("value", autoValue);
-                    } else if (dt == DisplayType.BOOL) {
-                        el.put("value", BoolEditor.FALSE);
                     } else {
-                        String defaultVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
-                        if (defaultVal != null) {
+                        Object defVal = FieldDefaultValueHelper.exprDefaultValue(fieldMeta);
+                        if (defVal != null) {
                             if (dateLength > -1) {
-                                defaultVal = defaultVal.substring(0, dateLength);
+                                defVal = CalendarUtils.getUTCDateTimeFormat().format(defVal);
+                                defVal = defVal.toString().substring(0, dateLength);
                             }
-                            el.put("value", defaultVal);
+
+                            el.put("value", defVal);
                         }
                     }
                 }
 
+                // 触发器自动值
                 if (roViaTriggers && el.get("value") == null) {
                     if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
                         el.put("value", FieldValueWrapper.wrapMixValue(null, autoValue));
@@ -567,9 +569,7 @@ public class FormsBuilder extends FormsManager {
      * @return returns [ID, LABEL]
      */
     private JSON readyReferenceValue(String idVal) {
-        if (!ID.isId(idVal)) {
-            return null;
-        }
+        if (!ID.isId(idVal)) return null;
 
         try {
             String idLabel = FieldValueWrapper.getLabel(ID.valueOf(idVal));

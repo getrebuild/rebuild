@@ -36,7 +36,9 @@
               <div class="col-6">
                 <div class="dataTables_oper">
                   <button class="btn btn-space btn-primary btn-outline J_select" type="button"><i class="icon zmdi zmdi-check"></i> [[${bundle.L('Select')}]]</button>
-                  <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/${entityName}/list#!/New|"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('New')}]]</a>
+                  <a th:if="${canCreate}" target="_blank" class="btn btn-space btn-primary" th:href="|${baseUrl}/app/${entityName}/list#!/New|"
+                    ><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('New')}]]</a
+                  >
                 </div>
               </div>
             </div>
@@ -60,7 +62,7 @@
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script type="text/babel">
       RbList.renderAfter = function () {
-        parent && parent.referenceSearch__dialog && parent.referenceSearch__dialog.resize()
+        parent && parent.referenceSearch__dlg && parent.referenceSearch__dlg.resize()
       }
       $(document).ready(function () {
         $('.J_select').click(function () {

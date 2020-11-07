@@ -14,7 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.metadata.DefaultValueHelper;
+import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -445,7 +445,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * 补充默认值
      *
      * @param recordOfNew
-     * @see DefaultValueHelper
+     * @see FieldDefaultValueHelper
      */
     private void appendDefaultValue(Record recordOfNew) {
         Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
@@ -462,7 +462,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 continue;
             }
 
-            Object defVal = DefaultValueHelper.exprDefaultValue(field, (String) field.getDefaultValue());
+            Object defVal = FieldDefaultValueHelper.exprDefaultValue(field);
             if (defVal != null) {
                 recordOfNew.setObjectValue(field.getName(), defVal);
             }

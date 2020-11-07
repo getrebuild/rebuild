@@ -9,6 +9,7 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
+const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -27,7 +28,7 @@ $(document).ready(function () {
     }
     if (data.fieldLabel === '') return RbHighbar.create($L('PlsInputSome,FieldName'))
 
-    const dv = $val('#defaultValue')
+    const dv = dt === 'CLASSIFICATION' || dt === 'REFERENCE' ? $('.J_defaultValue').attr('data-value-id') : $val('.J_defaultValue')
     if (dv) {
       if (checkDefaultValue(dv, dt) === false) return
       else data.defaultValue = dv
@@ -39,7 +40,7 @@ $(document).ready(function () {
     // 不同类型的配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
-      if (k && 'defaultValue' !== k) extConfigNew[k] = $val(this)
+      extConfigNew[k] = $val(this)
     })
     // 单选
     $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
@@ -89,8 +90,6 @@ $(document).ready(function () {
   $('#fieldRepeatable').attr('checked', $('#fieldRepeatable').data('o') === true)
   $('#fieldQueryable').attr('checked', $('#fieldQueryable').data('o') === true)
 
-  $(`.J_for-${dt}`).removeClass('hide')
-
   // 设置扩展值
   for (let k in extConfig) {
     const $control = $(`#${k}`)
@@ -119,11 +118,18 @@ $(document).ready(function () {
     _handleReference()
   } else if (dt === 'BARCODE') {
     $('.J_options input').attr('disabled', true)
+  } else if (dt === 'BOOL') {
+    const $dv = $('.J_defaultValue')
+    if ($dv.data('o')) $dv.val($dv.data('o'))
   }
 
   // 显示重复值选项
   if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
     $('#fieldRepeatable').parents('.custom-control').removeClass('hide')
+  }
+  // 默认值
+  if (!SHOW_DEFAULTVALUE.includes(dt)) {
+    $('#defaultValue').remove()
   }
 
   // 内建字段
@@ -173,7 +179,7 @@ $(document).ready(function () {
 // Render item to PickList box
 const picklistItemRender = function (data) {
   const $item = $(`<li class="dd-item" data-key="${data.id}"><div class="dd-handle">${data.text}</div></li>`).appendTo('#picklist-items')
-  if (data['default'] === true) $item.addClass('default')
+  if ($isTrue(data['default'])) $item.addClass('default')
 }
 
 // Check incorrect?
@@ -249,7 +255,7 @@ class AdvDateDefaultValue extends RbAlert {
       }
       expr += ` ${op} ${num}${$(this._refs[3]).val()}`
     }
-    $('#defaultValue').val('{' + expr + '}')
+    $('.J_defaultValue').val('{' + expr + '}')
     this.hide()
   }
 }
@@ -280,6 +286,37 @@ const _handleReference = function () {
       })
     }
   })
+
+  // 默认值
+  const $dv = $('.J_defaultValue')
+  const $dvClear = $('.J_defaultValue-clear')
+
+  let _ReferenceSearcher
+  function _showSearcher() {
+    if (_ReferenceSearcher) {
+      _ReferenceSearcher.show()
+    } else {
+      const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('SelectSome,DefaultValue')} />, function () {
+        _ReferenceSearcher = this
+      })
+    }
+  }
+
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
+    '.J_defaultValue-append'
+  )
+  $append.click(() => _showSearcher())
+
+  window.referenceSearch__call = function (s) {
+    s = s[0]
+    $dv.attr('data-value-id', s).val(s)
+    _loadRefLabel($dv, $dvClear)
+    _ReferenceSearcher.hide()
+  }
+
+  _loadRefLabel($dv, $dvClear)
 }
 
 const _handlePicklist = function (dt) {
@@ -298,7 +335,6 @@ const _handlePicklist = function (dt) {
 }
 
 const _handleSeries = function () {
-  $('#defaultValue').parents('.form-group').remove()
   $('.J_options input').attr('disabled', true)
   $('.J_series-reindex').click(() => {
     RbAlert.create($L('AppendSeriesConfirm'), {
@@ -314,14 +350,13 @@ const _handleSeries = function () {
 }
 
 const _handleDate = function (dt) {
-  $('#defaultValue').datetimepicker({
+  $('.J_defaultValue').datetimepicker({
     format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
     minView: dt === 'DATE' ? 2 : 0,
   })
-  $('#defaultValue')
-    .next()
-    .removeClass('hide')
-    .find('button')
+
+  $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('DateFormula')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
+    .appendTo('.J_defaultValue-append')
     .click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
 }
 
@@ -353,9 +388,60 @@ const _handleFile = function (extConfig) {
 }
 
 const _handleClassification = function (extConfig) {
+  const $dv = $('.J_defaultValue')
+  const $dvClear = $('.J_defaultValue-clear')
+
+  let _ClassificationSelector
+  function _showSelector(data) {
+    if (_ClassificationSelector) {
+      _ClassificationSelector.show()
+    } else {
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ClassificationSelector
+          entity={wpc.entityName}
+          field={wpc.fieldName}
+          label={$L('DefaultValue')}
+          openLevel={data.openLevel}
+          onSelect={(s) => {
+            $dv.attr('data-value-id', s.id).val(s.text)
+            $dvClear.removeClass('hide')
+          }}
+        />,
+        null,
+        function () {
+          _ClassificationSelector = this
+        }
+      )
+    }
+  }
+
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
+    '.J_defaultValue-append'
+  )
+
   $.get(`/admin/metadata/classification/info?id=${extConfig.classification}`, function (res) {
     $('#useClassification a')
       .attr({ href: `${rb.baseUrl}/admin/metadata/classification/${extConfig.classification}` })
       .text(res.data.name)
+
+    $dv.attr('readonly', true)
+    $append.click(() => _showSelector(res.data))
   })
+
+  _loadRefLabel($dv, $dvClear)
+}
+
+const _loadRefLabel = function ($dv, $dvClear) {
+  const dvid = $dv.val()
+  if (dvid) {
+    $.get(`/commons/search/read-labels?ids=${dvid}`, (res) => {
+      if (res.data && res.data[dvid]) $dv.val(res.data[dvid])
+    })
+
+    $dvClear.removeClass('hide').click(() => {
+      $dv.attr('data-value-id', '').val('')
+      $dvClear.addClass('hide')
+    })
+  }
 }
