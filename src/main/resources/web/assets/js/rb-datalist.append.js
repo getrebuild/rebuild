@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+// 列表附加操作，可在其他页面独立引入
 
 // ~~ 列表记录批量操作
 
@@ -133,9 +134,7 @@ class BatchUpdate extends BatchOperator {
                     <div className="col-2 pl-0 pr-0">
                       <span className="badge badge-light">{BUE_OPTYPES[item.op]}</span>
                     </div>
-                    <div className="col-6">
-                      {item.op !== 'NULL' && <span className="badge badge-light text-break text-left">{item.text || item.value}</span>}
-                    </div>
+                    <div className="col-6">{item.op !== 'NULL' && <span className="badge badge-light text-break text-left">{item.text || item.value}</span>}</div>
                   </div>
                 </div>
               )
@@ -158,7 +157,7 @@ class BatchUpdate extends BatchOperator {
     const field = this.state.fields.find((item) => {
       return fieldName === item.name
     })
-    return field ? field.label : `[${fieldName}.toUpperCase()]`
+    return field ? field.label : `[${fieldName.toUpperCase()}]`
   }
 
   addItem = () => {
@@ -412,7 +411,7 @@ class BatchUpdateEditor extends React.Component {
       if (isNaN(item.value)) {
         RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
         return null
-      } else if (field.notNegative === 'true' && ~~item.value < 0) {
+      } else if ($isTrue(field.notNegative) && ~~item.value < 0) {
         RbHighbar.create($L('SomeNotBeNegative').replace('{0}', field.label))
         return null
       }

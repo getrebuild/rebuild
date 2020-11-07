@@ -18,6 +18,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -41,24 +42,11 @@ public class GeneralListController extends EntityController {
                                  HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         final ID user = getRequestUser(request);
-        if (!MetadataHelper.containsEntity(entity) || MetadataHelper.isBizzEntity(entity)) {
-            response.sendError(404);
-            return null;
-        }
-
-        final Entity thatEntity = MetadataHelper.getEntity(entity);
-        if (!thatEntity.isQueryable()) {
-            response.sendError(404);
-            return null;
-        }
-
-        if (!Application.getPrivilegesManager().allowRead(user, thatEntity.getEntityCode())) {
-            response.sendError(403, getLang(request, "YouNoPermissionAccessSome", "Page"));
-            return null;
-        }
+        final Entity useEntity = checkPageOfEntity(user, entity, response);
+        if (useEntity == null) return null;
 
         ModelAndView mv;
-        if (thatEntity.getMainEntity() != null) {
+        if (useEntity.getMainEntity() != null) {
             mv = createModelAndView("/general/detail-list", entity, user);
         } else {
             mv = createModelAndView("/general/record-list", entity, user);
@@ -84,5 +72,34 @@ public class GeneralListController extends EntityController {
 
         DataListBuilder builder = new DataListBuilderImpl(query, getRequestUser(request));
         return builder.getJSONResult();
+    }
+
+    /**
+     * 检查实体页面
+     *
+     * @param user
+     * @param entity
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    static Entity checkPageOfEntity(ID user, String entity, HttpServletResponse response) throws IOException {
+        if (!MetadataHelper.containsEntity(entity)) {
+            response.sendError(404);
+            return null;
+        }
+
+        final Entity checkEntity = MetadataHelper.getEntity(entity);
+        if (!checkEntity.isQueryable()) {
+            response.sendError(404);
+            return null;
+        }
+
+        if (!Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) {
+            response.sendError(403, Language.L("YouNoPermissionAccessSome", "Page"));
+            return null;
+        }
+
+        return checkEntity;
     }
 }

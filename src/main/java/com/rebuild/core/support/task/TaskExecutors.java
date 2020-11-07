@@ -15,6 +15,7 @@ import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.concurrent.*;
  * @see org.springframework.core.task.AsyncTaskExecutor
  * @since 09/29/2018
  */
+@Component
 public class TaskExecutors extends DistributedJobLock {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskExecutors.class);

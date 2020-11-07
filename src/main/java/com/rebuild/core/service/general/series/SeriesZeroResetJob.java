@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 
@@ -25,6 +26,7 @@ import java.util.Calendar;
  * @author devezhao
  * @since 12/25/2018
  */
+@Component
 public class SeriesZeroResetJob extends DistributedJobLock {
 
     @Scheduled(cron = "0 0 0 * * ?")

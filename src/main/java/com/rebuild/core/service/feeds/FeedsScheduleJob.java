@@ -14,11 +14,12 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
-import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AppUtils;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
@@ -26,6 +27,7 @@ import java.util.*;
  * @author devezhao
  * @since 2020/2/27
  */
+@Component
 public class FeedsScheduleJob extends DistributedJobLock {
 
     @Scheduled(cron = "0 * * * * ?")
@@ -78,7 +80,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             }
 
             final ID toUser = (ID) list.get(0)[0];
-            final String subjectTemp = "你有 %d 条动态日程提醒";
+            final String subjectTemp = Application.getLanguage().getDefaultBundle().L("YouHaveXSchedule");
 
             // 消息通知
             if (!notifications.isEmpty()) {
@@ -139,7 +141,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
         }
 
         if (msgs.size() > num) {
-            sb.append("\n- 等共计 ").append(msgs.size()).append(" 条");
+            sb.append("\n- ... ").append(msgs.size());
         }
 
         return sb.toString();

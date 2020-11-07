@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import com.rebuild.core.configuration.general.PickListManager;
-import com.rebuild.core.metadata.DefaultValueHelper;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import org.slf4j.Logger;
@@ -79,7 +78,7 @@ public class FieldValueCompatibleConversion {
 
         // 日期公式
         if (valueExpr != null && (sourceType == DisplayType.DATETIME || sourceType == DisplayType.DATE)) {
-            Date newDate = DefaultValueHelper.parseDateExpr("{NOW" + valueExpr + "}", (Date) sourceValue);
+            Date newDate = FieldDefaultValueHelper.parseDateExpr("{NOW" + valueExpr + "}", (Date) sourceValue);
             if (newDate != null) {
                 sourceValue = newDate;
             }

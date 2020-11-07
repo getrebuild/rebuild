@@ -9,6 +9,7 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
+const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -27,7 +28,7 @@ $(document).ready(function () {
     }
     if (data.fieldLabel === '') return RbHighbar.create($L('PlsInputSome,FieldName'))
 
-    const dv = $val('#defaultValue')
+    const dv = dt === 'CLASSIFICATION' || dt === 'REFERENCE' ? $('.J_defaultValue').attr('data-value-id') : $val('.J_defaultValue')
     if (dv) {
       if (checkDefaultValue(dv, dt) === false) return
       else data.defaultValue = dv
@@ -39,7 +40,7 @@ $(document).ready(function () {
     // 不同类型的配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
-      if (k && 'defaultValue' !== k) extConfigNew[k] = $val(this)
+      extConfigNew[k] = $val(this)
     })
     // 单选
     $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
@@ -83,19 +84,17 @@ $(document).ready(function () {
     }
   })
 
-  $('#fieldNullable').attr('checked', $('#fieldNullable').data('o') === true)
-  $('#fieldCreatable').attr('checked', $('#fieldCreatable').data('o') === true)
-  $('#fieldUpdatable').attr('checked', $('#fieldUpdatable').data('o') === true)
-  $('#fieldRepeatable').attr('checked', $('#fieldRepeatable').data('o') === true)
-  $('#fieldQueryable').attr('checked', $('#fieldQueryable').data('o') === true)
-
-  $(`.J_for-${dt}`).removeClass('hide')
+  $('#fieldNullable').attr('checked', $isTrue($('#fieldNullable').data('o')))
+  $('#fieldCreatable').attr('checked', $isTrue($('#fieldCreatable').data('o')))
+  $('#fieldUpdatable').attr('checked', $isTrue($('#fieldUpdatable').data('o')))
+  $('#fieldRepeatable').attr('checked', $isTrue($('#fieldRepeatable').data('o')))
+  $('#fieldQueryable').attr('checked', $isTrue($('#fieldQueryable').data('o')))
 
   // 设置扩展值
   for (let k in extConfig) {
     const $control = $(`#${k}`)
     if ($control.length === 1) {
-      if ($control.attr('type') === 'checkbox') $control.attr('checked', extConfig[k] === 'true' || extConfig[k] === true)
+      if ($control.attr('type') === 'checkbox') $control.attr('checked', $isTrue(extConfig[k]))
       else if ($control.prop('tagName') === 'DIV') $control.text(extConfig[k])
       else $control.val(extConfig[k])
     } else {
@@ -103,9 +102,7 @@ $(document).ready(function () {
     }
   }
 
-  if (wpc.fieldName === 'approvalState' || wpc.fieldName === 'approvalId') {
-    $('.J_for-STATE, .J_for-REFERENCE').remove()
-  } else if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
+  if (dt === 'PICKLIST' || dt === 'MULTISELECT') {
     _handlePicklist(dt)
   } else if (dt === 'SERIES') {
     _handleSeries()
@@ -117,25 +114,25 @@ $(document).ready(function () {
     _handleClassification(extConfig)
   } else if (dt === 'REFERENCE') {
     _handleReference()
+  } else if (dt === 'BOOL') {
+    const $dv = $('.J_defaultValue')
+    if ($dv.data('o')) $dv.val($dv.data('o'))
   } else if (dt === 'BARCODE') {
-    $('.J_options input').attr('disabled', true)
+    $('.J_fieldAttrs input').attr('disabled', true)
   }
 
   // 显示重复值选项
   if (SHOW_REPEATABLE.includes(dt) && wpc.fieldName !== 'approvalId') {
     $('#fieldRepeatable').parents('.custom-control').removeClass('hide')
   }
+  // 默认值
+  if (!SHOW_DEFAULTVALUE.includes(dt)) {
+    $('#defaultValue').remove()
+  }
 
   // 内建字段
   if (wpc.fieldBuildin) {
-    $('.J_options input, .J_del').attr('disabled', true)
-    if (wpc.isDetailToMainField) {
-      $('.J_action').removeClass('hide')
-    } else {
-      $('.footer .alert').removeClass('hide')
-    }
-  } else {
-    $('.J_action').removeClass('hide')
+    $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
   }
 
   // 只读属性
@@ -173,7 +170,7 @@ $(document).ready(function () {
 // Render item to PickList box
 const picklistItemRender = function (data) {
   const $item = $(`<li class="dd-item" data-key="${data.id}"><div class="dd-handle">${data.text}</div></li>`).appendTo('#picklist-items')
-  if (data['default'] === true) $item.addClass('default')
+  if ($isTrue(data['default'])) $item.addClass('default')
 }
 
 // Check incorrect?
@@ -197,8 +194,7 @@ const checkDefaultValue = function (v, t) {
 class AdvDateDefaultValue extends RbAlert {
   constructor(props) {
     super(props)
-    this._refs = []
-    this.state.uncalc = true
+    this.state = { calcNum: 1, calcUnit: 'Y' }
   }
 
   renderContent() {
@@ -207,16 +203,24 @@ class AdvDateDefaultValue extends RbAlert {
         <div className="form-group">
           <label className="text-bold">{$L('SetSome,DateFormula')}</label>
           <div className="input-group">
-            <select className="form-control form-control-sm" ref={(c) => (this._refs[0] = c)}>
+            <select className="form-control form-control-sm">
               <option value="NOW">{$L('CurrentDate')}</option>
             </select>
-            <select className="form-control form-control-sm ml-1" ref={(c) => (this._refs[1] = c)} onChange={(e) => this.setState({ uncalc: !e.target.value })}>
+            <select className="form-control form-control-sm ml-1" onChange={(e) => this.setState({ calcOp: e.target.value })}>
               <option value="">{$L('CalcNone')}</option>
               <option value="+">{$L('CalcPlus')}</option>
               <option value="-">{$L('CalcMinus')}</option>
             </select>
-            <input type="number" min="1" max="999999" className="form-control form-control-sm ml-1" defaultValue="1" disabled={this.state.uncalc} ref={(c) => (this._refs[2] = c)} />
-            <select className="form-control form-control-sm ml-1" disabled={this.state.uncalc} ref={(c) => (this._refs[3] = c)}>
+            <input
+              type="number"
+              min="1"
+              max="999999"
+              className="form-control form-control-sm ml-1"
+              defaultValue="1"
+              disabled={!this.state.calcOp}
+              onChange={(e) => this.setState({ calcNum: e.target.value })}
+            />
+            <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
               <option value="D">{$L('Year')}</option>
               <option value="M">{$L('Month')}</option>
               <option value="Y">{$L('Day')}</option>
@@ -230,7 +234,7 @@ class AdvDateDefaultValue extends RbAlert {
           </div>
         </div>
         <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
+          <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>
             {$L('Confirm')}
           </button>
         </div>
@@ -238,18 +242,13 @@ class AdvDateDefaultValue extends RbAlert {
     )
   }
 
-  confirm = () => {
+  confirm() {
     let expr = 'NOW'
-    const op = $(this._refs[1]).val()
-    const num = $(this._refs[2]).val() || 1
-    if (op) {
-      if (isNaN(num)) {
-        RbHighbar.create($L('PlsInputSome,Number'))
-        return
-      }
-      expr += ` ${op} ${num}${$(this._refs[3]).val()}`
+    if (this.state.calcOp) {
+      if (isNaN(this.state.calcNum)) return RbHighbar.create($L('PlsInputSome,Number'))
+      expr += ` ${this.state.calcOp} ${this.state.calcNum}${this.state.calcUnit}`
     }
-    $('#defaultValue').val('{' + expr + '}')
+    $('.J_defaultValue').val('{' + expr + '}')
     this.hide()
   }
 }
@@ -280,6 +279,37 @@ const _handleReference = function () {
       })
     }
   })
+
+  // 默认值
+  const $dv = $('.J_defaultValue')
+  const $dvClear = $('.J_defaultValue-clear')
+
+  let _ReferenceSearcher
+  function _showSearcher() {
+    if (_ReferenceSearcher) {
+      _ReferenceSearcher.show()
+    } else {
+      const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('SelectSome,DefaultValue')} />, function () {
+        _ReferenceSearcher = this
+      })
+    }
+  }
+
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
+    '.J_defaultValue-append'
+  )
+  $append.click(() => _showSearcher())
+
+  window.referenceSearch__call = function (s) {
+    s = s[0]
+    $dv.attr('data-value-id', s).val(s)
+    _loadRefLabel($dv, $dvClear)
+    _ReferenceSearcher.hide()
+  }
+
+  _loadRefLabel($dv, $dvClear)
 }
 
 const _handlePicklist = function (dt) {
@@ -298,8 +328,7 @@ const _handlePicklist = function (dt) {
 }
 
 const _handleSeries = function () {
-  $('#defaultValue').parents('.form-group').remove()
-  $('.J_options input').attr('disabled', true)
+  $('.J_fieldAttrs input').attr('disabled', true)
   $('.J_series-reindex').click(() => {
     RbAlert.create($L('AppendSeriesConfirm'), {
       confirm: function () {
@@ -314,14 +343,13 @@ const _handleSeries = function () {
 }
 
 const _handleDate = function (dt) {
-  $('#defaultValue').datetimepicker({
+  $('.J_defaultValue').datetimepicker({
     format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
     minView: dt === 'DATE' ? 2 : 0,
   })
-  $('#defaultValue')
-    .next()
-    .removeClass('hide')
-    .find('button')
+
+  $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('DateFormula')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
+    .appendTo('.J_defaultValue-append')
     .click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
 }
 
@@ -353,9 +381,60 @@ const _handleFile = function (extConfig) {
 }
 
 const _handleClassification = function (extConfig) {
+  const $dv = $('.J_defaultValue')
+  const $dvClear = $('.J_defaultValue-clear')
+
+  let _ClassificationSelector
+  function _showSelector(data) {
+    if (_ClassificationSelector) {
+      _ClassificationSelector.show()
+    } else {
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ClassificationSelector
+          entity={wpc.entityName}
+          field={wpc.fieldName}
+          label={$L('DefaultValue')}
+          openLevel={data.openLevel}
+          onSelect={(s) => {
+            $dv.attr('data-value-id', s.id).val(s.text)
+            $dvClear.removeClass('hide')
+          }}
+        />,
+        null,
+        function () {
+          _ClassificationSelector = this
+        }
+      )
+    }
+  }
+
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
+    '.J_defaultValue-append'
+  )
+
   $.get(`/admin/metadata/classification/info?id=${extConfig.classification}`, function (res) {
     $('#useClassification a')
       .attr({ href: `${rb.baseUrl}/admin/metadata/classification/${extConfig.classification}` })
       .text(res.data.name)
+
+    $dv.attr('readonly', true)
+    $append.click(() => _showSelector(res.data))
   })
+
+  _loadRefLabel($dv, $dvClear)
+}
+
+const _loadRefLabel = function ($dv, $dvClear) {
+  const dvid = $dv.val()
+  if (dvid) {
+    $.get(`/commons/search/read-labels?ids=${dvid}`, (res) => {
+      if (res.data && res.data[dvid]) $dv.val(res.data[dvid])
+    })
+
+    $dvClear.removeClass('hide').click(() => {
+      $dv.attr('data-value-id', '').val('')
+      $dvClear.addClass('hide')
+    })
+  }
 }

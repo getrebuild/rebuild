@@ -9,17 +9,20 @@ package com.rebuild.web.admin.metadata;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONAware;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +35,7 @@ import java.io.IOException;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/03/27
  */
-@Controller
+@RestController
 @RequestMapping("/admin/metadata/")
 public class ClassificationController extends BaseController {
 
@@ -42,11 +45,11 @@ public class ClassificationController extends BaseController {
     }
 
     @RequestMapping("classification/{id}")
-    public ModelAndView page(@PathVariable String id,
+    public ModelAndView page(@PathVariable ID id,
                              HttpServletRequest request, HttpServletResponse resp) throws IOException {
         Object[] data = Application.createQuery(
                 "select name,openLevel from Classification where dataId = ?")
-                .setParameter(1, ID.valueOf(id))
+                .setParameter(1, id)
                 .unique();
         if (data == null) {
             resp.sendError(404, getLang(request, "SomeNotExists", "Classification"));
@@ -61,33 +64,31 @@ public class ClassificationController extends BaseController {
     }
 
     @RequestMapping("classification/list")
-    public void list(HttpServletResponse resp) {
-        Object[][] array = Application.createQuery(
+    public Object[][] list() {
+        return Application.createQuery(
                 "select dataId,name,isDisabled,openLevel from Classification order by name")
                 .array();
-        writeSuccess(resp, array);
     }
 
     @RequestMapping("classification/info")
-    public void info(HttpServletRequest request, HttpServletResponse resp) {
-        ID dataId = getIdParameterNotNull(request, "id");
+    public JSONAware info(@IdParam ID classId) {
         Object[] data = Application.createQuery(
-                "select name from Classification where dataId = ?")
-                .setParameter(1, dataId)
+                "select name,openLevel from Classification where dataId = ?")
+                .setParameter(1, classId)
                 .unique();
 
         if (data == null) {
-            writeFailure(resp, getLang(request, "SomeNotExists", "Classification"));
+            return RespBody.errorl("SomeNotExists,Classification");
         } else {
-            writeSuccess(resp, JSONUtils.toJSONObject("name", data[0]));
+            return JSONUtils.toJSONObject(new String[] { "name", "openLevel" }, data);
         }
     }
 
     @RequestMapping("classification/save-data-item")
-    public void saveDataItem(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        ID itemId = getIdParameter(request, "item_id");
-        ID dataId = getIdParameter(request, "data_id");
+    public JSONAware saveDataItem(@IdParam(name = "item_id", required = false) ID itemId,
+                                  @IdParam(name = "data_id", required = false) ID dataId,
+                                  HttpServletRequest request) {
+        final ID user = getRequestUser(request);
 
         Record item;
         if (itemId != null) {
@@ -103,8 +104,7 @@ public class ClassificationController extends BaseController {
             }
             item.setInt("level", level);
         } else {
-            writeFailure(response, getLang(request, "InvalidParams"));
-            return;
+            return RespBody.errorl("InvalidParams");
         }
 
         String code = getParameter(request, "code");
@@ -121,27 +121,24 @@ public class ClassificationController extends BaseController {
         }
 
         item = Application.getBean(ClassificationService.class).createOrUpdateItem(item);
-        writeSuccess(response, item.getPrimary());
+        return RespBody.ok(item.getPrimary());
     }
 
     @RequestMapping("classification/delete-data-item")
-    public void deleteDataItem(HttpServletRequest request, HttpServletResponse response) {
-        ID itemId = getIdParameter(request, "item_id");
+    public RespBody deleteDataItem(@IdParam(name = "item_id") ID itemId) {
         Application.getBean(ClassificationService.class).deleteItem(itemId);
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     @RequestMapping("classification/load-data-items")
-    public void loadDataItems(HttpServletRequest request, HttpServletResponse response) {
-        ID dataId = getIdParameterNotNull(request, "data_id");
-        ID parent = getIdParameter(request, "parent");
-
+    public RespBody loadDataItems(@IdParam(name = "data_id", required = false) ID dataId,
+                                  @IdParam(name = "parent", required = false) ID parentId) {
         Object[][] child;
-        if (parent != null) {
+        if (parentId != null) {
             child = Application.createQuery(
                     "select itemId,name,code,isHide from ClassificationData where dataId = ? and parent = ? order by code,name")
                     .setParameter(1, dataId)
-                    .setParameter(2, parent)
+                    .setParameter(2, parentId)
                     .array();
         } else if (dataId != null) {
             child = Application.createQuery(
@@ -149,9 +146,9 @@ public class ClassificationController extends BaseController {
                     .setParameter(1, dataId)
                     .array();
         } else {
-            writeFailure(response, getLang(request, "InvalidParams"));
-            return;
+            return RespBody.errorl("InvalidParams");
         }
-        writeSuccess(response, child);
+
+        return RespBody.ok(child);
     }
 }

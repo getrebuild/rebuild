@@ -5,18 +5,19 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.core.metadata;
+package com.rebuild.core.support.general;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.core.support.state.StateSpec;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
@@ -34,9 +35,9 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2019/8/20
  */
-public class DefaultValueHelper {
+public class FieldDefaultValueHelper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultValueHelper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(FieldDefaultValueHelper.class);
 
     // 日期公式 {NOW + 1D}
     private static final Pattern EXPR_PATTERN = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDHI])}");
@@ -46,32 +47,26 @@ public class DefaultValueHelper {
      *
      * @param field
      * @return
+     * @see #exprDefaultValue(Field, String)
      */
-    public static String exprDefaultValueToString(Field field) {
-        Object defVal = exprDefaultValue(field, (String) field.getDefaultValue());
-        if (defVal == null) {
-            return null;
-        }
-
-        if (field.getType() == FieldType.TIMESTAMP || field.getType() == FieldType.DATE) {
-            return CalendarUtils.getUTCDateTimeFormat().format(defVal);
-        } else {
-            return defVal.toString();
-        }
+    public static Object exprDefaultValue(Field field) {
+        return exprDefaultValue(field, (String) field.getDefaultValue());
     }
 
     /**
-     * 获取字段默认值，可指定表达式
+     * 获取字段默认值。注意此方法会根据不同的字段类型返回对应的对象（如日期、布尔、ID等）
      *
      * @param field
-     * @param valueExpr
+     * @param valueExpr 指定表达式
      * @return
      */
     public static Object exprDefaultValue(Field field, String valueExpr) {
         final DisplayType dt = EasyMeta.getDisplayType(field);
 
+        // 特殊默认
         if (dt == DisplayType.PICKLIST) {
             return PickListManager.instance.getDefaultItem(field);
+
         } else if (dt == DisplayType.STATE) {
             Class<?> stateClass;
             try {
@@ -86,11 +81,16 @@ public class DefaultValueHelper {
                     return ((StateSpec) c).getState();
                 }
             }
+
         } else if (dt == DisplayType.MULTISELECT) {
             return MultiSelectManager.instance.getDefaultValue(field);
         }
 
+        // 未指定
         if (StringUtils.isBlank(valueExpr)) {
+            if (dt == DisplayType.BOOL) {
+                return Boolean.FALSE;
+            }
             return null;
         }
 
@@ -108,8 +108,16 @@ public class DefaultValueHelper {
 
         } else if (dt == DisplayType.DECIMAL) {
             return BigDecimal.valueOf(NumberUtils.toDouble(valueExpr));
+
         } else if (dt == DisplayType.NUMBER) {
             return NumberUtils.toLong(valueExpr);
+
+        } else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
+            return ID.valueOf(valueExpr);
+
+        } else if (dt == DisplayType.BOOL) {
+            return BooleanUtils.toBoolean(valueExpr);
+
         } else {
             return valueExpr;
         }

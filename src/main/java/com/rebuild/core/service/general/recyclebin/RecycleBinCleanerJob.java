@@ -16,6 +16,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
@@ -25,6 +26,7 @@ import java.util.Date;
  * @author devezhao
  * @since 2019/8/21
  */
+@Component
 public class RecycleBinCleanerJob extends DistributedJobLock {
 
     // 永久保留

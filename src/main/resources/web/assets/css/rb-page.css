@@ -1718,6 +1718,12 @@ th.column-fixed {
   color: #4c8bf5;
 }
 
+.btn-warning.btn-outline,
+.btn-warning.btn-outline[disabled] {
+  background-color: #fff;
+  color: #fbbc05;
+}
+
 .btn-danger.btn-outline,
 .btn-danger.btn-outline[disabled] {
   background-color: #fff;
@@ -1725,6 +1731,7 @@ th.column-fixed {
 }
 
 .btn-primary.btn-outline:hover,
+.btn-warning.btn-outline:hover,
 .btn-danger.btn-outline:hover {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1);
 }
@@ -3591,7 +3598,8 @@ a.avatar.x26 img {
 
 .modal-title,
 .btn,
-.dropdown-item {
+.dropdown-item,
+.page-head-title {
   text-transform: capitalize;
 }
 

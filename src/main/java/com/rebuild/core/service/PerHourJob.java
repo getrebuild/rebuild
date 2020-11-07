@@ -13,6 +13,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.utils.FileFilterByLastModified;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.Calendar;
 
@@ -22,6 +23,7 @@ import java.util.Calendar;
  * @author devezhao
  * @since 2020/2/4
  */
+@Component
 public class PerHourJob extends DistributedJobLock {
 
     @Scheduled(cron = "0 0 * * * ?")
