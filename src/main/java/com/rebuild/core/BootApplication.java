@@ -23,6 +23,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.ApplicationPidFileWriter;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -41,6 +42,7 @@ import java.io.File;
         RedisAutoConfiguration.class,
         CacheAutoConfiguration.class})
 @ImportResource("classpath:application-bean.xml")
+@EnableScheduling
 public class BootApplication extends SpringBootServletInitializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(BootApplication.class);

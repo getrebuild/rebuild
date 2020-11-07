@@ -1205,6 +1205,7 @@
   "ImportUserOkTips": "Successfully imported %d users",
   "ImportUserAndNotify": "Send email to users after the import is successful",
   "TransformConfig": "Record Transform",
+  "YouHaveXSchedule": "You have %d schedule reminders",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

@@ -26,6 +26,7 @@ import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,6 +38,7 @@ import java.util.List;
  * @author devezhao
  * @since 2020/5/27
  */
+@Component
 public class TriggerByTimerJob extends DistributedJobLock {
 
     /**
