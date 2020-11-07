@@ -241,7 +241,7 @@ class PlanEdit extends RbFormHandler {
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        RbHighbar.success('面板已保存')
+        RbHighbar.success('SeomeSuccess,Save')
         _PlanList.loadPlans()
       } else {
         RbHighbar.error(res.error_msg)

@@ -13,7 +13,7 @@ class ConfigFormDlg extends RbFormHandler {
   }
 
   render() {
-    const title = this.title || (this.props.id ? '修改' : '添加') + (this.subtitle || '')
+    const title = this.title || $L(this.props.id ? 'ModifySome' : 'AddSome').replace('{0}', this.subtitle || '')
     return (
       <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
@@ -21,10 +21,10 @@ class ConfigFormDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.confirm}>
-                确定
+                {$L('Confirm')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                取消
+                {$L('Cancel')}
               </a>
             </div>
           </div>
@@ -77,7 +77,7 @@ class ConfigList extends React.Component {
       if (res.error_code === 0) {
         this.setState({ data: res.data || [] }, () => {
           $('.rb-loading-active').removeClass('rb-loading-active')
-          $('.dataTables_info').text(`共 ${this.state.data.length} 项`)
+          $('.dataTables_info').text($L('CountXItems').replace('%d', this.state.data.length))
 
           if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
           else $('.list-nodata').addClass('hide')
@@ -116,7 +116,7 @@ class ConfigList extends React.Component {
   handleDelete(id) {
     $.post(`/app/entity/common-delete?id=${id}`, (res) => {
       if (res.error_code === 0) {
-        RbHighbar.success('删除成功')
+        RbHighbar.success($L('SomeSuccess,Delete'))
         setTimeout(() => location.reload(), 500)
       } else {
         RbHighbar.error(res.error_msg)

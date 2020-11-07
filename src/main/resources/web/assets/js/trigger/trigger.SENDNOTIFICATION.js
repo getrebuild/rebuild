@@ -54,7 +54,7 @@ class ContentSendNotification extends ActionContentSpec {
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('Content')}</label>
             <div className="col-12 col-lg-8">
               <textarea className="form-control form-control-sm row3x" ref={(c) => (this._content = c)} maxLength="600"></textarea>
-              <p className="form-text">{$L('NotifyContentTips')}</p>
+              <p className="form-text" dangerouslySetInnerHTML={{ __html: $L('NotifyContentTips') }}></p>
             </div>
           </div>
         </form>

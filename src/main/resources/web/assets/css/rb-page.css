@@ -3598,7 +3598,8 @@ a.avatar.x26 img {
 
 .modal-title,
 .btn,
-.dropdown-item {
+.dropdown-item,
+.page-head-title {
   text-transform: capitalize;
 }
 
