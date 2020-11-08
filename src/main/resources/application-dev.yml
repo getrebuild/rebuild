@@ -55,8 +55,10 @@ spring:
     prefix: classpath:/web
     cache: false
     enable-spring-el-compiler: false
-  quartz:
-    scheduler-name: rbScheduler
-    startup-delay: 15s
+  task:
+    scheduling:
+      thread-name-prefix: rbScheduler-
+      pool:
+        size: 5
   main:
     banner-mode: off
