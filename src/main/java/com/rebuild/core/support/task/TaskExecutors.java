@@ -112,9 +112,8 @@ public class TaskExecutors extends DistributedJobLock {
 
     // --
 
-    @Scheduled(fixedRate = 300000, initialDelay = 30000)
+    @Scheduled(fixedRate = 300000, initialDelay = 300000)
     public void executeJob() {
-        LOG.info("ccccc");
         if (TASKS.isEmpty() || !tryLock()) return;
 
         LOG.info("{} task(s) in the queue", TASKS.size());
