@@ -18,6 +18,7 @@ import com.rebuild.utils.JSONable;
  *
  * @author ZHAO
  * @since 2020/8/28
+ * @see com.rebuild.web.ControllerResponseBodyAdvice
  */
 public class RespBody implements JSONable {
 

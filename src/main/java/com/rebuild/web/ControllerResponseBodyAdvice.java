@@ -19,6 +19,7 @@ import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
@@ -59,6 +60,7 @@ public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         // 强转为 JSON Herader
         // @ResponseBody 方法返回 `null` `String` 时 mediaType=TEXT_PLAIN
         if (MediaType.TEXT_PLAIN.equals(mediaType)) {
+            LOG.warn("Force conversion TEXT_PLAIN : {}", ((HttpServletRequest) serverHttpRequest).getRequestURI());
             serverHttpResponse.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         }
 
