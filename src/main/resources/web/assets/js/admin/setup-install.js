@@ -170,7 +170,7 @@ class DatabaseConf extends React.Component {
               <div className="icon">
                 <span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span>
               </div>
-              <div className="message">{this.state.testMessage}</div>
+              <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }}></div>
             </div>
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
@@ -291,7 +291,7 @@ class CacheConf extends DatabaseConf {
               <div className="icon">
                 <span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span>
               </div>
-              <div className="message">{this.state.testMessage}</div>
+              <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }}></div>
             </div>
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
@@ -426,4 +426,6 @@ class AdminConf extends DatabaseConf {
   }
 }
 
-$(document).ready(() => renderRbcomp(<Setup />, $('.card-body')))
+$(document).ready(() => {
+  renderRbcomp(<Setup />, $('.card-body'))
+})

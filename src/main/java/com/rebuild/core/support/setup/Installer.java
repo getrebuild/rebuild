@@ -32,10 +32,7 @@ import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -132,6 +129,7 @@ public class Installer implements InstallState {
 
         // 刷新: 数据源
         DruidDataSource ds = (DruidDataSource) Application.getBean(DataSource.class);
+        ds.restart();
         ds.setUrl(BootEnvironmentPostProcessor.getProperty("db.url"));
         ds.setUsername(BootEnvironmentPostProcessor.getProperty("db.user"));
         ds.setPassword(BootEnvironmentPostProcessor.getProperty("db.passwd"));
@@ -200,6 +198,9 @@ public class Installer implements InstallState {
      * 数据库
      */
     protected void installDatabase() {
+        // 本身就是 RB 数据库，无需创建
+        if (isRbDatabase()) return;
+
         if (!quickMode) {
             // 创建数据库（如果需要）
             // noinspection EmptyTryBlock
@@ -322,6 +323,29 @@ public class Installer implements InstallState {
         } catch (SQLException sqlex) {
             LOG.error("Cannot execute SQL : " + sql, sqlex);
         }
+    }
+
+    /**
+     * 是否为 RB 数据库，系统检测 `system_config` 表
+     *
+     * @return
+     */
+    public boolean isRbDatabase() {
+        try (Connection conn = getConnection(null)) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery("select 'VALUE' from system_config where ITEM = 'DBVer'")) {
+                    if (rs.next()) {
+                        String dbVer = rs.getString(1);
+                        LOG.info("Check RB database version : " + dbVer);
+                        return true;
+                    }
+                }
+            }
+
+        } catch (SQLException ex) {
+            LOG.warn("Check RB database error : " + ex.getLocalizedMessage());
+        }
+        return false;
     }
 
     // --

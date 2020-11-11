@@ -37,6 +37,9 @@ public abstract class DistributedJobLock {
      * @return
      */
     protected boolean tryLock() {
+        // 系统待安装
+        if (!Application.isReady()) return false;
+
         if (Installer.isUseRedis()) {
             JedisPool pool = Application.getCommonsCache().getJedisPool();
             String jobKey = getClass().getName() + LOCK_KEY;
