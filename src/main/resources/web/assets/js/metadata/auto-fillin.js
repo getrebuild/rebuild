@@ -28,13 +28,13 @@ const loadRules = () => {
       if (extc.whenUpdate) extcLabel.push($L('WhenUpdate'))
       if (extc.fillinForce) extcLabel.push($L('ForceFillback'))
       $('<td>' + extcLabel.join(', ') + '</div></td>').appendTo(tr)
-      const $act = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr)
+      const $act = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr)
       $act.find('a:eq(0)').click(() => {
         renderRbcomp(<DlgRuleEdit {...bProps} {...extc} id={this.id} sourceField={this.sourceField} targetField={this.targetField} />)
       })
       const configId = this.id
       $act.find('a:eq(1)').click(() => {
-        RbAlert.create($L('DeleteSomeConfirm,Fillback'), {
+        RbAlert.create($L('DeleteSomeConfirm,FillbackRule'), {
           type: 'danger',
           confirm: function () {
             this.disabled(true)
