@@ -293,7 +293,7 @@
   "UsernameOrEmail": "用户名 (或邮箱)",
   "ClickReload": "点击刷新",
   "RememberMe": "记住登录",
-  "NoAccountYet": "还没有账号？[立即注册](signup)",
+  "NoAccountYet": "还没有账号? [立即注册](signup)",
   "ForgotPassword": "找回密码",
   "ResetPassword": "重置密码",
   "ReturnLogin": "返回登录",

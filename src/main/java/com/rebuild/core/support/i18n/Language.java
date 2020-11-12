@@ -49,6 +49,8 @@ public class Language implements Initialization {
 
     private Map<String, LanguageBundle> bundleMap = new HashMap<>();
 
+    private Map<String, String> aLocales = new LinkedHashMap<>();
+
     @Override
     public void init() {
         String[] supports = BootEnvironmentPostProcessor.getProperty(
@@ -61,6 +63,14 @@ public class Language implements Initialization {
                 JSONObject o = JSON.parseObject(is, null);
                 LanguageBundle bundle = new LanguageBundle(locale, o, this);
                 bundleMap.put(locale, bundle);
+
+                if (LC_NAMES.containsKey(locale)) {
+                    aLocales.put(locale, LC_NAMES.get(locale));
+                } else {
+                    String[] lc = locale.split("[_-]");
+                    Locale inst = new Locale(lc[0], lc.length > 1 ? lc[1] : "");
+                    aLocales.put(locale, inst.getDisplayLanguage(inst) + " (" + locale + ")");
+                }
 
             } catch (IOException ex) {
                 LOG.error("Cannot load language bundle : " + locale, ex);
@@ -150,17 +160,7 @@ public class Language implements Initialization {
      * @return
      */
     public Map<String, String> availableLocales() {
-        Map<String, String> map = new LinkedHashMap<>();
-        for (String locale : bundleMap.keySet()) {
-            if (LC_NAMES.containsKey(locale)) {
-                map.put(locale, LC_NAMES.get(locale));
-            } else {
-                String[] lc = locale.split("[_-]");
-                Locale inst = new Locale(lc[0], lc.length > 1 ? lc[1] : "");
-                map.put(locale, inst.getDisplayLanguage(inst) + " (" + locale + ")");
-            }
-        }
-        return map;
+        return Collections.unmodifiableMap(aLocales);
     }
 
     // -- Quick Methods
