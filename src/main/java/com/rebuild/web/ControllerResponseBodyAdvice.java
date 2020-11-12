@@ -61,6 +61,7 @@ public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         // 强转为 JSON Herader
         // @ResponseBody 方法返回 `null` `String` 时 mediaType=TEXT_PLAIN
         if (MediaType.TEXT_PLAIN.equals(mediaType)) {
+            // @Deprecated
             LOG.warn("Force conversion TEXT_PLAIN : {}",
                     ((ServletServerHttpRequest) serverHttpRequest).getServletRequest().getRequestURI());
             serverHttpResponse.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_VALUE);

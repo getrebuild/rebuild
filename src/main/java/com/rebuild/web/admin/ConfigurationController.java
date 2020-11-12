@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
@@ -55,13 +56,8 @@ public class ConfigurationController extends BaseController {
             mv.getModel().put(item.name(), RebuildConfiguration.get(item));
         }
 
-        // Available lang
-        JSONObject langsJson = new JSONObject();
-        for (String locale : Application.getLanguage().availableLocales()) {
-            Locale inst = Locale.forLanguageTag(locale.split("[_-]")[0]);
-            langsJson.put(locale, inst.getDisplayName(inst) + " (" + locale + ")");
-        }
-        mv.getModel().put("availableLangs", langsJson);
+        // Available langs
+        mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
 
         JSONObject auth = License.queryAuthority(false);
         mv.getModel().put("LicenseType",

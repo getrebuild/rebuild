@@ -23,8 +23,6 @@ rebuild:
   MailPassword: AES(vRnLDh4PVen2faMH+itQuFjzwBcWtCTO6qslkF36VAoKxKZT7YVYoWKjP8gPrEIS)
   MailAddr: hi@smtp.getrebuild.com
   MailName: REBUILD
-  # Language
-  SuportLanguages: zh_CN,en
 
 # TOMCAT (Built-in)
 server:
