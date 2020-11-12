@@ -43,7 +43,7 @@ public class TaskExecutors extends DistributedJobLock {
     private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
 
     /**
-     * 提交给任务调度（异步执行）
+     * 异步执行（提交给任务调度）
      *
      * @param task
      * @param execUser 执行用户。因为是在线程中执行，所以必须指定
@@ -81,23 +81,12 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
-     * 直接执行此方法（同步方式），无返回值
+     * 同步执行
      *
      * @param task
      */
     public static void run(HeavyTask<?> task) {
         task.run();
-    }
-
-    /**
-     * 直接执行此方法（同步方式），有返回值。
-     * 需要自行处理异常、需自行处理线程用户问题
-     *
-     * @param task
-     * @see HeavyTask#run()
-     */
-    public static Object exec(HeavyTask<?> task) throws Exception {
-        return task.exec();
     }
 
     /**
