@@ -498,6 +498,7 @@ class ModelConf extends React.Component {
 
   _onClick(e) {
     const $el = $(e.currentTarget)
+    if (!$el.prop('checked')) return
     const refs = ($el.data('refs') || '').split(',')
     refs.forEach((s) => {
       $(this._$refs[s]).find('input').prop('checked', true)

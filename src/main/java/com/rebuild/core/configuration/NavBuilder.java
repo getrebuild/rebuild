@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -161,7 +162,7 @@ public class NavBuilder extends NavManager {
      * @param initEntity
      */
     public void addInitNavOnInstall(String[] initEntity) {
-        JSONArray initNav = (JSONArray) JSONUtils.clone(NAVS_DEFAULT);
+        JSONArray initNav = (JSONArray) Language.getCurrentBundle().replaceLangKey(NAVS_DEFAULT);
 
         for (String e : initEntity) {
             EasyMeta entity = EasyMeta.valueOf(e);

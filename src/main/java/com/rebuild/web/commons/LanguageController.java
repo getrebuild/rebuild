@@ -106,7 +106,8 @@ public class LanguageController extends BaseController {
         }
 
         ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
-        ServletUtils.addCookie(response, CK_LOCALE, locale);
+        ServletUtils.addCookie(response, CK_LOCALE, locale,
+                60 * 60 * 24 * 14, null, StringUtils.defaultIfBlank(AppUtils.getContextPath(), "/"));
         return locale;
     }
 }

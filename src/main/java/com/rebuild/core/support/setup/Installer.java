@@ -209,7 +209,10 @@ public class Installer implements InstallState {
      */
     protected void installDatabase() {
         // 本身就是 RB 数据库，无需创建
-        if (isRbDatabase()) return;
+        if (isRbDatabase()) {
+            LOG.warn("Use RB database without create");
+            return;
+        }
 
         if (!quickMode) {
             // 创建数据库（如果需要）
@@ -351,8 +354,8 @@ public class Installer implements InstallState {
             allModels.putAll(bmi.findRefs((String) model));
         }
 
-        bmi.setUser(UserService.ADMIN_USER);
         bmi.setModelFiles(allModels.values().toArray(new String[0]));
+        bmi.setUser(UserService.SYSTEM_USER);
         TaskExecutors.run(bmi);
 
         // 初始化菜单
@@ -365,9 +368,14 @@ public class Installer implements InstallState {
      * @return
      */
     public boolean isRbDatabase() {
+        String rbSql = SqlBuilder.buildSelect("system_config")
+                .addColumn("VALUE")
+                .setWhere("ITEM = 'DBVer'")
+                .toSql();
+
         try (Connection conn = getConnection(null)) {
             try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("select `VALUE` from system_config where ITEM = 'DBVer'")) {
+                try (ResultSet rs = stmt.executeQuery(rbSql)) {
                     if (rs.next()) {
                         String dbVer = rs.getString(1);
                         LOG.info("Check RB database version : " + dbVer);

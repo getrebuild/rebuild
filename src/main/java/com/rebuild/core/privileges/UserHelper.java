@@ -69,7 +69,7 @@ public class UserHelper {
      * @return
      */
     public static boolean isSuperAdmin(ID userId) {
-        return UserService.ADMIN_USER.equals(userId);
+        return UserService.ADMIN_USER.equals(userId) || UserService.SYSTEM_USER.equals(userId);
     }
 
     /**

@@ -29,7 +29,7 @@ public class UserContextHolder {
 
     private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("Current user");
 
-    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current locale of user");
+    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current locale");
 
     private UserContextHolder() { }
 
@@ -40,13 +40,6 @@ public class UserContextHolder {
     public static void set(ID user, String locale) {
         setUser(user);
         setLocale(locale);
-    }
-
-    /**
-     */
-    public static void clear() {
-        CALLER.remove();
-        LOCALE.remove();
     }
 
     /**
@@ -101,5 +94,24 @@ public class UserContextHolder {
 
         // Use default
         return RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
+    }
+
+    /**
+     */
+    public static void clear() {
+        clearUser();
+        clearLocale();
+    }
+
+    /**
+     */
+    public static void clearUser() {
+        CALLER.remove();
+    }
+
+    /**
+     */
+    public static void clearLocale() {
+        LOCALE.remove();
     }
 }
