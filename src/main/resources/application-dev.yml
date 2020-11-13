@@ -23,8 +23,6 @@ rebuild:
   MailPassword: AES(vRnLDh4PVen2faMH+itQuFjzwBcWtCTO6qslkF36VAoKxKZT7YVYoWKjP8gPrEIS)
   MailAddr: hi@smtp.getrebuild.com
   MailName: REBUILD
-  # Language
-  SuportLanguages: zh_CN,en
 
 # TOMCAT (Built-in)
 server:
@@ -55,8 +53,10 @@ spring:
     prefix: classpath:/web
     cache: false
     enable-spring-el-compiler: false
-  quartz:
-    scheduler-name: rbScheduler
-    startup-delay: 15s
+  task:
+    scheduling:
+      thread-name-prefix: rbScheduler-
+      pool:
+        size: 5
   main:
     banner-mode: off

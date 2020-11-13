@@ -81,4 +81,9 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
         }
         return ids.toArray(new ID[0]);
     }
+
+    @Override
+    public Integer exec() {
+        throw new UnsupportedOperationException();
+    }
 }

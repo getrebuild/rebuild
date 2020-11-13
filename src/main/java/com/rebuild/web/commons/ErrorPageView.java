@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
@@ -47,6 +48,9 @@ public class ErrorPageView extends BaseController {
 
         mv.getModel().put("MemoryUsage", ServerStatus.getHeapMemoryUsed());
         mv.getModel().put("SystemLoad", ServerStatus.getSystemLoad());
+
+        mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
+
         return mv;
     }
 

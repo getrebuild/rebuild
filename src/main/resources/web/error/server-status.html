@@ -65,12 +65,16 @@
         </tbody>
       </table>
     </div>
-    <div class="block" th:if="${user != null}">
+    <div class="block" th:if="${isAdminVerified}">
       <h5 class="text-bold">[[${bundle.L('SystemInfo')}]]</h5>
       <table class="table table-bordered table-sm table-hover">
       <tbody>
         <tr>
-          <th width="30%">Version</th>
+          <th width="30%">SN</th>
+          <td>[[${T(com.rebuild.core.support.License).SN()}]]</td>
+        </tr>
+        <tr>
+          <th>Version</th>
           <td>[[${T(com.rebuild.core.Application).VER}]]</td>
         </tr>
         <tr>

@@ -40,7 +40,7 @@
   <body>
     <div class="rb-console">
       <div class="in">
-        <input type="text" placeholder="> enter command ..." />
+        <input type="text" placeholder="> enter command ... eg: help" />
       </div>
       <div class="out"></div>
     </div>
@@ -58,7 +58,7 @@
 
             cprint(c)
             $.post('/admin/cli/exec', c, (o) => {
-              if (o) cprint(o, true)
+              if (o && o.data) cprint(o.data, true)
             })
           }
         })

@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
-import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -129,8 +128,7 @@ public class AppUtils {
      * @return
      */
     public static boolean isAdminVerified(HttpServletRequest request) {
-        Object verified = ServletUtils.getSessionAttribute(request, AdminVerfiyController.KEY_VERIFIED);
-        return verified != null;
+        return ServletUtils.getSessionAttribute(request, AdminVerfiyController.KEY_VERIFIED) != null;
     }
 
     /**

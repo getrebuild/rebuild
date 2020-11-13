@@ -39,11 +39,10 @@ import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.UserAgent;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -51,13 +50,13 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.Map;
 
 /**
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
-@Controller
+@RestController
 @RequestMapping("/user/")
 public class LoginController extends BaseController {
 
@@ -133,7 +132,6 @@ public class LoginController extends BaseController {
     }
 
     @PostMapping("user-login")
-    @ResponseBody
     public RespBody userLogin(HttpServletRequest request, HttpServletResponse response) {
         String vcode = getParameter(request, "vcode");
         Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, SK_NEED_VCODE);
@@ -247,10 +245,10 @@ public class LoginController extends BaseController {
     }
 
     @GetMapping("logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView logout(HttpServletRequest request, HttpServletResponse response) {
         ServletUtils.removeCookie(request, response, CK_AUTOLOGIN);
         ServletUtils.getSession(request).invalidate();
-        return "redirect:/user/login";
+        return new ModelAndView("redirect:/user/login");
     }
 
     // --
@@ -314,17 +312,16 @@ public class LoginController extends BaseController {
     }
 
     @GetMapping("live-wallpaper")
-    @ResponseBody
-    public String getLiveWallpaper() {
+    public RespBody getLiveWallpaper() {
         if (!RebuildConfiguration.getBool(ConfigurationItem.LiveWallpaper)) {
-            return null;
+            return RespBody.ok();
         }
 
         JSONObject ret = License.siteApi("api/misc/bgimg", true);
         if (ret == null) {
-            return null;
+            return RespBody.ok();
         } else {
-            return ret.getString("url");
+            return RespBody.ok(ret.getString("url"));
         }
     }
 
@@ -339,17 +336,19 @@ public class LoginController extends BaseController {
     public static void putLocales(ModelAndView into, String currentLocale) {
         String currentLocaleText = null;
 
-        List<String[]> langs = new ArrayList<>();
-        for (String locale : Application.getLanguage().availableLocales()) {
-            Locale inst = Locale.forLanguageTag(locale.split("[_-]")[0]);
-            langs.add(new String[] { locale, inst.getDisplayName(inst) });
+        List<String[]> alangs = new ArrayList<>();
+        for (Map.Entry<String, String> lc : Application.getLanguage().availableLocales().entrySet()) {
+            String lcText = lc.getValue();
+            lcText = lcText.split("\\(")[0].trim();
 
-            if (locale.equals(currentLocale)) {
-                currentLocaleText = inst.getDisplayName(inst);
+            alangs.add(new String[] { lc.getKey(), lcText });
+
+            if (lc.getKey().equals(currentLocale)) {
+                currentLocaleText = lcText;
             }
         }
 
         into.getModelMap().put("currentLang", currentLocaleText);
-        into.getModelMap().put("availableLangs", langs);
+        into.getModelMap().put("availableLangs", alangs);
     }
 }

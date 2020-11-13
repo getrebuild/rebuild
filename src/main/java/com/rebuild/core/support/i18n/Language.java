@@ -27,9 +27,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 多语言
@@ -42,14 +40,21 @@ public class Language implements Initialization {
 
     private static final Logger LOG = LoggerFactory.getLogger(Language.class);
 
+    private static final Map<String, String> LC_NAMES = new HashMap<>();
+    static {
+        LC_NAMES.put("zh_TW", "繁体 (zh_TW)");
+    }
+
     private static final String BUNDLE_FILE = "i18n/language.%s.json";
 
     private Map<String, LanguageBundle> bundleMap = new HashMap<>();
 
+    private Map<String, String> aLocales = new LinkedHashMap<>();
+
     @Override
     public void init() {
         String[] supports = BootEnvironmentPostProcessor.getProperty(
-                "rebuild.SuportLanguages", "zh_CN,en").split(",");
+                "rebuild.SuportLanguages", "zh_CN,zh_TW,en").split(",");
 
         for (String locale : supports) {
             LOG.info("Loading language bundle : " + locale);
@@ -58,6 +63,14 @@ public class Language implements Initialization {
                 JSONObject o = JSON.parseObject(is, null);
                 LanguageBundle bundle = new LanguageBundle(locale, o, this);
                 bundleMap.put(locale, bundle);
+
+                if (LC_NAMES.containsKey(locale)) {
+                    aLocales.put(locale, LC_NAMES.get(locale));
+                } else {
+                    String[] lc = locale.split("[_-]");
+                    Locale inst = new Locale(lc[0], lc.length > 1 ? lc[1] : "");
+                    aLocales.put(locale, inst.getDisplayLanguage(inst) + " (" + locale + ")");
+                }
 
             } catch (IOException ex) {
                 LOG.error("Cannot load language bundle : " + locale, ex);
@@ -146,8 +159,8 @@ public class Language implements Initialization {
     /**
      * @return
      */
-    public Set<String> availableLocales() {
-        return bundleMap.keySet();
+    public Map<String, String> availableLocales() {
+        return Collections.unmodifiableMap(aLocales);
     }
 
     // -- Quick Methods
@@ -167,6 +180,7 @@ public class Language implements Initialization {
      * @param key
      * @param phKeys 可替换语言 Key 中的 {0} {1}
      * @return
+     * @see LanguageBundle#getLang(String, String...)
      */
     public static String L(String key, String... phKeys) {
         return getCurrentBundle().getLang(key, phKeys);
@@ -176,6 +190,7 @@ public class Language implements Initialization {
      * @param key
      * @param phValues 可格式化语言 Key 中的 %s %d
      * @return
+     * @see LanguageBundle#formatLang(String, Object...)
      */
     public static String LF(String key, Object... phValues) {
         return getCurrentBundle().formatLang(key, phValues);

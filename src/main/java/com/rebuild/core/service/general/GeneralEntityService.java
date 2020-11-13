@@ -287,7 +287,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     public int bulk(BulkContext context) {
         BulkOperator operator = buildBulkOperator(context);
         try {
-            return (int) TaskExecutors.exec(operator);
+            return operator.exec();
         } catch (RebuildException ex) {
             throw ex;
         } catch (Exception ex) {

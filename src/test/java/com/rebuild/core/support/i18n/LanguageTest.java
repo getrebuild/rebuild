@@ -45,7 +45,7 @@ public class LanguageTest extends TestSupport {
 
     @Test
     public void replaceLangKey() {
-        JSON resource = NavBuilder.instance.getNavPortal(UserService.ADMIN_USER);
+        JSON resource = NavBuilder.instance.getUserNav(UserService.ADMIN_USER);
         resource = Application.getLanguage().getDefaultBundle().replaceLangKey(resource);
         System.out.println(JSONUtils.prettyPrint(resource));
     }

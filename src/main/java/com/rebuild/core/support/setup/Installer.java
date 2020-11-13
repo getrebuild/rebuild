@@ -11,14 +11,19 @@ import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.sql.SqlBuilder;
 import cn.devezhao.commons.sql.builder.UpdateBuilder;
 import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootConfiguration;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
+import com.rebuild.core.configuration.NavBuilder;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseRedis;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.io.FileUtils;
@@ -32,13 +37,8 @@ import redis.clients.jedis.JedisPool;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.sql.*;
+import java.util.*;
 
 import static com.rebuild.core.support.ConfigurationItem.*;
 
@@ -121,6 +121,13 @@ public class Installer implements InstallState {
 
         // Clean cached
         clearAllCache();
+
+        // 安装模块
+        try {
+            this.installModel();
+        } catch (Exception ex) {
+            LOG.error("Install model error", ex);
+        }
     }
 
     /**
@@ -132,6 +139,7 @@ public class Installer implements InstallState {
 
         // 刷新: 数据源
         DruidDataSource ds = (DruidDataSource) Application.getBean(DataSource.class);
+        ds.restart();
         ds.setUrl(BootEnvironmentPostProcessor.getProperty("db.url"));
         ds.setUsername(BootEnvironmentPostProcessor.getProperty("db.user"));
         ds.setPassword(BootEnvironmentPostProcessor.getProperty("db.passwd"));
@@ -200,6 +208,12 @@ public class Installer implements InstallState {
      * 数据库
      */
     protected void installDatabase() {
+        // 本身就是 RB 数据库，无需创建
+        if (isRbDatabase()) {
+            LOG.warn("Use RB database without create");
+            return;
+        }
+
         if (!quickMode) {
             // 创建数据库（如果需要）
             // noinspection EmptyTryBlock
@@ -322,6 +336,58 @@ public class Installer implements InstallState {
         } catch (SQLException sqlex) {
             LOG.error("Cannot execute SQL : " + sql, sqlex);
         }
+    }
+
+    /**
+     * 安装实体
+     */
+    protected void installModel() {
+        JSONArray modelProps = installProps.getJSONArray("modelProps");
+        if (modelProps == null || modelProps.isEmpty()) {
+            return;
+        }
+
+        BusinessModelImporter bmi = new BusinessModelImporter();
+
+        Map<String, String> allModels = new HashMap<>();
+        for (Object model : modelProps) {
+            allModels.putAll(bmi.findRefs((String) model));
+        }
+
+        bmi.setModelFiles(allModels.values().toArray(new String[0]));
+        bmi.setUser(UserService.SYSTEM_USER);
+        TaskExecutors.run(bmi);
+
+        // 初始化菜单
+        NavBuilder.instance.addInitNavOnInstall(bmi.getCreatedEntity().toArray(new String[0]));
+    }
+
+    /**
+     * 是否为 RB 数据库，系统检测 `system_config` 表
+     *
+     * @return
+     */
+    public boolean isRbDatabase() {
+        String rbSql = SqlBuilder.buildSelect("system_config")
+                .addColumn("VALUE")
+                .setWhere("ITEM = 'DBVer'")
+                .toSql();
+
+        try (Connection conn = getConnection(null)) {
+            try (Statement stmt = conn.createStatement()) {
+                try (ResultSet rs = stmt.executeQuery(rbSql)) {
+                    if (rs.next()) {
+                        String dbVer = rs.getString(1);
+                        LOG.info("Check RB database version : " + dbVer);
+                        return true;
+                    }
+                }
+            }
+
+        } catch (SQLException ex) {
+            LOG.warn("Check RB database error : " + ex.getLocalizedMessage());
+        }
+        return false;
     }
 
     // --

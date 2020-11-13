@@ -70,22 +70,14 @@ public class LanguageController extends BaseController {
 
     @GetMapping("select")
     public void selectLanguage(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        String locale = request.getParameter("locale");
-        if (locale == null || (locale = Application.getLanguage().available(locale)) == null) {
-            locale = Application.getLanguage().getDefaultBundle().getLocale();
-        }
-
-        if (Application.devMode()) Application.getLanguage().refresh();
-
-        ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
-        ServletUtils.addCookie(response, CK_LOCALE, locale);
+        String locale = setSessionLocale(request, response);
 
         if (AppUtils.isHtmlRequest(request)) {
             String nexturl = request.getParameter("nexturl");
             if ("login".equals(nexturl)) {
-                nexturl = AppUtils.getContextPath() + "/user/login?locale=" + getParameter(request, "locale");
+                nexturl = AppUtils.getContextPath() + "/user/login?locale=" + locale;
             } else if ("install".equals(nexturl)) {
-                nexturl = AppUtils.getContextPath() + "/setup/install?locale=" + getParameter(request, "locale");
+                nexturl = AppUtils.getContextPath() + "/setup/install?locale=" + locale;
             }
 
             nexturl = StringUtils.defaultIfBlank(nexturl, AppUtils.getContextPath());
@@ -93,5 +85,29 @@ public class LanguageController extends BaseController {
         } else {
             writeSuccess(response);
         }
+    }
+
+    /**
+     * 切换语言
+     *
+     * @param request
+     * @param response
+     * @return
+     */
+    public static String setSessionLocale(HttpServletRequest request, HttpServletResponse response) {
+        String locale = StringUtils.defaultIfBlank(
+                request.getParameter("_locale"), request.getParameter("locale"));
+        if (locale == null || (locale = Application.getLanguage().available(locale)) == null) {
+            locale = Application.getLanguage().getDefaultBundle().getLocale();
+        }
+
+        if (Application.devMode()) {
+            Application.getLanguage().refresh();
+        }
+
+        ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
+        ServletUtils.addCookie(response, CK_LOCALE, locale,
+                60 * 60 * 24 * 14, null, StringUtils.defaultIfBlank(AppUtils.getContextPath(), "/"));
+        return locale;
     }
 }

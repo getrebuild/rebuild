@@ -12,22 +12,23 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONObject;
 import com.hankcs.hanlp.HanLP;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.VerfiyCode;
+import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.BlockList;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
 import org.apache.commons.lang.math.RandomUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +42,7 @@ import java.io.IOException;
  * @author devezhao
  * @since 11/01/2018
  */
-@Controller
+@RestController
 @RequestMapping("/user/")
 public class SignUpController extends BaseController {
 
@@ -55,42 +56,39 @@ public class SignUpController extends BaseController {
     }
 
     @PostMapping("signup-email-vcode")
-    public void signupEmailVcode(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody signupEmailVcode(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
-            writeFailure(response, getLang(request, "EmailAccountUnset"));
-            return;
+            return RespBody.errorl("EmailAccountUnset");
         }
 
         String email = getParameterNotNull(request, "email");
 
         if (!RegexUtils.isEMail(email)) {
-            writeFailure(response, getLang(request, "SomeInvalid", "Email"));
-            return;
+            return RespBody.errorl("SomeInvalid,Email");
         } else if (Application.getUserStore().existsEmail(email)) {
-            writeFailure(response, getLang(request, "SomeExists", "Email"));
-            return;
+            return RespBody.errorl("SomeExists,Email");
         }
 
         String vcode = VerfiyCode.generate(email, 1);
         String content = String.format(getLang(request, "YourVCode", "Signup"), vcode);
         String sentid = SMSender.sendMail(email, getLang(request, "SignupVcode"), content);
+
         LOG.warn(email + " >> " + content);
         if (sentid != null) {
-            writeSuccess(response);
+            return RespBody.ok();
         } else {
-            writeFailure(response);
+            return RespBody.error();
         }
     }
 
     @PostMapping("signup-confirm")
-    public void signupConfirm(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody signupConfirm(HttpServletRequest request) {
         JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 
         String email = data.getString("email");
         String vcode = data.getString("vcode");
         if (!VerfiyCode.verfiy(email, vcode, true)) {
-            writeFailure(response, getLang(request, "SomeInvalid", "Captcha"));
-            return;
+            return RespBody.error("SomeInvalid,Captcha");
         }
 
         String loginName = data.getString("loginName");
@@ -112,15 +110,15 @@ public class SignUpController extends BaseController {
             String content = String.format(getLang(request, "SignupPending"), fullName, loginName, passwd, homeUrl, homeUrl);
             SMSender.sendMail(email, getLang(request, "AdminReviewSignup"), content);
 
-            writeSuccess(response);
+            return RespBody.ok();
 
         } catch (DataSpecificationException ex) {
-            writeFailure(response, ex.getLocalizedMessage());
+            return RespBody.error(ex.getLocalizedMessage());
         }
     }
 
     @RequestMapping("checkout-name")
-    public void checkoutName(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody checkoutName(HttpServletRequest request) {
         String fullName = getParameterNotNull(request, "fullName");
 
         fullName = fullName.replaceAll("[^a-zA-Z0-9\u4e00-\u9fa5]", "");
@@ -129,8 +127,7 @@ public class SignUpController extends BaseController {
             loginName = loginName.substring(0, 20);
         }
         if (BlockList.isBlock(loginName)) {
-            writeSuccess(response);
-            return;
+            return RespBody.ok();
         }
 
         for (int i = 0; i < 5; i++) {
@@ -142,7 +139,7 @@ public class SignUpController extends BaseController {
         }
 
         loginName = loginName.toLowerCase();
-        writeSuccess(response, loginName);
+        return RespBody.ok(loginName);
     }
 
     @GetMapping("captcha")

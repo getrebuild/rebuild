@@ -201,7 +201,7 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
     protected void completedAfter() {
         this.completedTime = CalendarUtils.now();
         if (this.threadUser != null) {
-            UserContextHolder.clear();
+            UserContextHolder.clearUser();
         }
     }
 }

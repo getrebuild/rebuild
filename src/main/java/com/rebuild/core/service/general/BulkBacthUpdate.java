@@ -44,7 +44,7 @@ public class BulkBacthUpdate extends BulkOperator {
     }
 
     @Override
-    protected Integer exec() {
+    public Integer exec() {
         final ID[] willUpdates = prepareRecords();
         this.setTotal(willUpdates.length);
 

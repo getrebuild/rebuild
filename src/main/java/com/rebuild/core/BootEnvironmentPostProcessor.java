@@ -106,7 +106,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         if (env.getProperty("db.passwd") == null) confPs.put("db.passwd", "rebuild");
 
         // start: V2.1
-        if (!dbUrl.contains("serverTimezone")) {
+        if (dbUrl.contains("jdbc:mysql") && !dbUrl.contains("serverTimezone")) {
             confPs.put("db.url", dbUrl + "&serverTimezone=GMT");
         }
 
