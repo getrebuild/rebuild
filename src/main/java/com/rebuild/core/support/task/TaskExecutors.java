@@ -90,7 +90,7 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
-     * 停止任务
+     * 停止任务执行器
      */
     public static void shutdown() {
         List<Runnable> runs = EXECS.shutdownNow();

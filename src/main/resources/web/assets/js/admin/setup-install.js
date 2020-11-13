@@ -15,13 +15,14 @@ class Setup extends React.Component {
   state = { ...this.props, stepNo: 0, installState: 10 }
 
   render() {
-    let state = _INSTALL_STATES[this.state.installState]
+    const state = _INSTALL_STATES[this.state.installState]
     return (
       <div>
         {!this.state.stepNo && <RbWelcome $$$parent={this} />}
         {this.state.stepNo === 2 && <DatabaseConf {...this.state.databaseProps} $$$parent={this} />}
         {this.state.stepNo === 3 && <CacheConf {...this.state.cacheProps} $$$parent={this} />}
         {this.state.stepNo === 4 && <AdminConf {...this.state.adminProps} $$$parent={this} />}
+        {this.state.stepNo === 5 && <ModelConf {...this.state.modelProps} $$$parent={this} />}
         {this.state.stepNo === 10 && (
           <div>
             <div className="rb-finish text-center">
@@ -60,6 +61,7 @@ class Setup extends React.Component {
       databaseProps: this.state.databaseProps || {},
       cacheProps: this.state.cacheProps || {},
       adminProps: this.state.adminProps || {},
+      modelProps: this.state.modelProps || {},
     }
     this.setState({ installState: 10 })
     $.post('/setup/install-rebuild', JSON.stringify(data), (res) => {
@@ -78,13 +80,13 @@ class RbWelcome extends React.Component {
         <h3>{$L('SelectSome,InstallMode')}</h3>
         <ul className="list-unstyled">
           <li>
-            <a onClick={() => this._start(1)}>
+            <a onClick={() => this._next(1)}>
               <h5 className="m-0 text-bold">{$L('InstallMySql')}</h5>
               <p className="m-0 mt-1 text-muted">{$L('InstallMySqlTips')}</p>
             </a>
           </li>
           <li>
-            <a onClick={() => this._start(99)}>
+            <a onClick={() => this._next(99)}>
               <h5 className="m-0 text-bold">{$L('InstallH2')}</h5>
               <p className="m-0 mt-1 text-muted">{$L('InstallH2Tips')}</p>
             </a>
@@ -95,7 +97,7 @@ class RbWelcome extends React.Component {
   }
 
   // 开始安装
-  _start(type) {
+  _next(type) {
     const that = this
     RbAlert.create(`<div class="text-left link">${$('.license').html()}<p class="text-bold">${$L('CommercialTips')}</p></div>`, {
       html: true,
@@ -111,6 +113,7 @@ class RbWelcome extends React.Component {
 }
 
 // ~
+let DatabaseConf_mount = false
 class DatabaseConf extends React.Component {
   state = { ...this.props }
 
@@ -162,7 +165,7 @@ class DatabaseConf extends React.Component {
           </div>
         </form>
         <div className="progress">
-          <div className="progress-bar" style={{ width: '25%' }}></div>
+          <div className="progress-bar" style={{ width: '20%' }}></div>
         </div>
         <div className="splash-footer">
           {this.state.testMessage && (
@@ -221,7 +224,14 @@ class DatabaseConf extends React.Component {
 
     this.setState({ inTest: true })
     $.post('/setup/test-connection', JSON.stringify(ps), (res) => {
-      this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg }, () => typeof call === 'function' && call(ps, res))
+      let msg = res.data || res.error_msg
+      if (msg.substr(0, 2) === '1#') {
+        msg = msg.substr(2)
+        DatabaseConf_mount = true
+      } else {
+        DatabaseConf_mount = false
+      }
+      this.setState({ inTest: false, testState: res.error_code === 0, testMessage: msg }, () => typeof call === 'function' && call(ps, res))
     })
   }
 
@@ -239,7 +249,7 @@ class CacheConf extends DatabaseConf {
 
   render() {
     return (
-      <div className="rb-systems">
+      <div className="rb-cache">
         <h3>{$L('SetSome,CacheSrv')}</h3>
         <form>
           <div className="form-group row">
@@ -283,7 +293,7 @@ class CacheConf extends DatabaseConf {
           )}
         </form>
         <div className="progress">
-          <div className="progress-bar" style={{ width: '50%' }}></div>
+          <div className="progress-bar" style={{ width: '40%' }}></div>
         </div>
         <div className="splash-footer">
           {this.state.testMessage && (
@@ -359,7 +369,7 @@ class AdminConf extends DatabaseConf {
 
   render() {
     return (
-      <div className="rb-systems">
+      <div className="rb-admin">
         <h3>{$L('SetSome,SuperAdmin')}</h3>
         <form>
           <div className="form-group row pt-0">
@@ -380,7 +390,7 @@ class AdminConf extends DatabaseConf {
           </div>
         </form>
         <div className="progress">
-          <div className="progress-bar" style={{ width: '75%' }}></div>
+          <div className="progress-bar" style={{ width: '60%' }}></div>
         </div>
         <div className="splash-footer">
           {this.props.$$$parent.state.installType === 1 && (
@@ -396,8 +406,8 @@ class AdminConf extends DatabaseConf {
             </button>
           )}
           <div className="float-right">
-            <button className="btn btn-primary" onClick={this._next}>
-              {$L('FinishInstall')}
+            <button className="btn btn-secondary" onClick={this._next}>
+              {$L('NextStep')}
             </button>
           </div>
           <div className="clearfix"></div>
@@ -422,10 +432,100 @@ class AdminConf extends DatabaseConf {
   _next = () => {
     const ps = this._buildProps(true)
     if (!ps) return
-    this.props.$$$parent.setState({ stepNo: 10, adminProps: ps }, () => this.props.$$$parent.install())
+    this.props.$$$parent.setState({ stepNo: 5, adminProps: ps })
+  }
+}
+
+// ~
+let ModelConf_data
+let ModelConf_error
+class ModelConf extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+    this._$refs = {}
+  }
+
+  render() {
+    const _canUse = !DatabaseConf_mount && !ModelConf_error && ModelConf_data
+    return (
+      <div className="rb-model">
+        <h3>{$L('SelectSome,InitEntity')}</h3>
+        <form>
+          {_canUse &&
+            ModelConf_data.map((item) => {
+              return (
+                <div key={item.key}>
+                  <label className="custom-control custom-checkbox" title={item.desc} ref={(c) => (this._$refs[item.key] = c)}>
+                    <input className="custom-control-input" type="checkbox" value={item.key} data-refs={item.refs} onClick={(e) => this._onClick(e)} />
+                    <span className="custom-control-label text-bold">{item.name}</span>
+                    <p>{item.desc}</p>
+                  </label>
+                </div>
+              )
+            })}
+        </form>
+        {_canUse && <p className="mt-1 mb-1 protips">{$L('SelectInitEntityTips')}</p>}
+        {DatabaseConf_mount && (
+          <div className="mb-6">
+            <RbAlertBox message={$L('CantSelectInitEntityTips')} />
+          </div>
+        )}
+        {!DatabaseConf_mount && ModelConf_error && (
+          <div className="mb-6">
+            <RbAlertBox message={ModelConf_error} />
+          </div>
+        )}
+        <div className="clearfix"></div>
+        <div className="progress">
+          <div className="progress-bar" style={{ width: '80%' }}></div>
+        </div>
+        <div className="splash-footer">
+          <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(4)}>
+            <i className="zmdi zmdi-chevron-left icon" />
+            {$L('SetSome,SuperAdmin')}
+          </button>
+          <div className="float-right">
+            <button className="btn btn-primary" onClick={this._next}>
+              {$L('FinishInstall')}
+            </button>
+          </div>
+          <div className="clearfix"></div>
+        </div>
+      </div>
+    )
+  }
+
+  _onClick(e) {
+    const $el = $(e.currentTarget)
+    const refs = ($el.data('refs') || '').split(',')
+    refs.forEach((s) => {
+      $(this._$refs[s]).find('input').prop('checked', true)
+    })
+  }
+
+  _buildProps() {
+    if (ModelConf_error) return []
+    const sm = []
+    for (let k in this._$refs) {
+      const $s = $(this._$refs[k]).find('input')
+      if ($s.prop('checked')) sm.push($s.val())
+    }
+    return sm
+  }
+
+  _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps() })
+  _next = () => {
+    const ps = this._buildProps(true)
+    this.props.$$$parent.setState({ stepNo: 10, modelProps: ps }, () => this.props.$$$parent.install())
   }
 }
 
 $(document).ready(() => {
   renderRbcomp(<Setup />, $('.card-body'))
+
+  $.get('/setup/init-entity', (res) => {
+    if (res.error_code === 0) ModelConf_data = res.data
+    else ModelConf_error = res.error_msg
+  })
 })

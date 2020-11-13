@@ -57,7 +57,7 @@ public class UserContextHolder {
 
         ID exists = getUser(true);
         if (exists != null) {
-            LOG.warn("Replace user to current session (thread) : " + exists + " > " + user);
+            LOG.warn("Replace user in current session (thread) : " + exists + " > " + user);
             CALLER.remove();
         }
         CALLER.set(user);

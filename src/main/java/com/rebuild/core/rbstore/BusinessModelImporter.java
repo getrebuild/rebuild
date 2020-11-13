@@ -17,10 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 批量导入业务模块
@@ -33,6 +30,8 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
     private static final Logger LOG = LoggerFactory.getLogger(BusinessModelImporter.class);
 
     private String[] modelFiles;
+
+    private List<String> createdEntity = new ArrayList<>();
 
     public BusinessModelImporter() {
     }
@@ -62,12 +61,20 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
             }
 
             String created = new MetaschemaImporter(data).exec();
+            createdEntity.add(created);
             LOG.info("Entity created : " + created);
             this.addCompleted();
             this.addSucceeded();
         }
 
         return modelFiles.length;
+    }
+
+    /**
+     * @return
+     */
+    public List<String> getCreatedEntity() {
+        return createdEntity;
     }
 
     @Override

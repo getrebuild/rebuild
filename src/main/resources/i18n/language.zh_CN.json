@@ -1207,6 +1207,10 @@
   "ImportUserAndNotify": "导入成功后发送邮件通知用户",
   "TransformConfig": "记录转换映射",
   "YouHaveXSchedule": "你有 %d 条日程提醒",
+  "InitEntity": "初始业务实体",
+  "NoInitEntityTips": "暂无可用业务实体。此安装步骤不是必须的，你仍可以继续安装",
+  "SelectInitEntityTips": "你可以选择需要的业务实体使用，或在安装完成后再进行添加",
+  "CantSelectInitEntityTips": "由于使用了已存在的 RB 数据库，因此此步骤不可用，你仍可以继续安装",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

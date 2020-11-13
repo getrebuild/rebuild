@@ -10,9 +10,11 @@ package com.rebuild.web.admin.setup;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AppUtils;
@@ -67,7 +69,6 @@ public class InstallController extends BaseController implements InstallState {
         JSONObject props = JSONUtils.toJSONObject("databaseProps", dbProps);
 
         Installer checker = new Installer(props);
-
         try (Connection conn = checker.getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
             String okMsg = formatLang(request, "ConnectionSucceed",
@@ -78,9 +79,11 @@ public class InstallController extends BaseController implements InstallState {
                 if (rs.next()) {
                     String hasTable = rs.getString("TABLE_NAME");
                     if (hasTable != null) {
+                        // 挂载模式
                         if (checker.isRbDatabase()) {
                             okMsg += String.format(" (%s)",
                                     formatLang(request, "NoneEmptyDbTips", dbProps.getString("dbName")));
+                            okMsg = "1#" + okMsg;
                         } else {
                             return RespBody.errorl("NoneEmptyDbError");
                         }
@@ -124,6 +127,16 @@ public class InstallController extends BaseController implements InstallState {
         } catch (Exception ex) {
             return RespBody.error(
                     formatLang(request, "ConnectionError", ThrowableUtils.getRootCause(ex).getLocalizedMessage()));
+        }
+    }
+
+    @GetMapping("init-entity")
+    public JSONAware getInitModels() {
+        try {
+            return RBStore.fetchMetaschema("index-2.0.json");
+        } catch (Exception ex) {
+            LOG.warn(null, ex);
+            return RespBody.errorl("NoInitEntityTips");
         }
     }
 

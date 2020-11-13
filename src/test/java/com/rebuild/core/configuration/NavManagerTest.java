@@ -24,14 +24,14 @@ public class NavManagerTest extends TestSupport {
     public void getNavLayout() {
         JSON nav = NavManager.instance.getNavLayout(UserService.ADMIN_USER);
         if (nav != null) {
-            System.out.println("testGetNav .......... \n" + nav.toJSONString());
+            System.out.println("getNavLayout .......... \n" + nav.toJSONString());
         }
     }
 
     @Test
-    public void getNavPortal() {
-        JSONArray navForPortal = NavBuilder.instance.getNavPortal(SIMPLE_USER);
-        System.out.println("testPortalNav .......... \n" + navForPortal.toJSONString());
+    public void getUserNav() {
+        JSONArray navForPortal = NavBuilder.instance.getUserNav(SIMPLE_USER);
+        System.out.println("getUserNav .......... \n" + navForPortal.toJSONString());
 
         if (!navForPortal.isEmpty()) {
             JSONObject firstNav = (JSONObject) navForPortal.get(0);

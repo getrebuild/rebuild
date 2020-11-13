@@ -11,14 +11,19 @@ import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.sql.SqlBuilder;
 import cn.devezhao.commons.sql.builder.UpdateBuilder;
 import com.alibaba.druid.pool.DruidDataSource;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootConfiguration;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.cache.BaseCacheTemplate;
 import com.rebuild.core.cache.RedisDriver;
+import com.rebuild.core.configuration.NavBuilder;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.UseRedis;
+import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.io.FileUtils;
@@ -33,9 +38,7 @@ import redis.clients.jedis.JedisPool;
 import javax.sql.DataSource;
 import java.io.*;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 import static com.rebuild.core.support.ConfigurationItem.*;
 
@@ -118,6 +121,13 @@ public class Installer implements InstallState {
 
         // Clean cached
         clearAllCache();
+
+        // 安装模块
+        try {
+            this.installModel();
+        } catch (Exception ex) {
+            LOG.error("Install model error", ex);
+        }
     }
 
     /**
@@ -326,6 +336,30 @@ public class Installer implements InstallState {
     }
 
     /**
+     * 安装实体
+     */
+    protected void installModel() {
+        JSONArray modelProps = installProps.getJSONArray("modelProps");
+        if (modelProps == null || modelProps.isEmpty()) {
+            return;
+        }
+
+        BusinessModelImporter bmi = new BusinessModelImporter();
+
+        Map<String, String> allModels = new HashMap<>();
+        for (Object model : modelProps) {
+            allModels.putAll(bmi.findRefs((String) model));
+        }
+
+        bmi.setUser(UserService.ADMIN_USER);
+        bmi.setModelFiles(allModels.values().toArray(new String[0]));
+        TaskExecutors.run(bmi);
+
+        // 初始化菜单
+        NavBuilder.instance.addInitNavOnInstall(bmi.getCreatedEntity().toArray(new String[0]));
+    }
+
+    /**
      * 是否为 RB 数据库，系统检测 `system_config` 表
      *
      * @return
@@ -333,7 +367,7 @@ public class Installer implements InstallState {
     public boolean isRbDatabase() {
         try (Connection conn = getConnection(null)) {
             try (Statement stmt = conn.createStatement()) {
-                try (ResultSet rs = stmt.executeQuery("select 'VALUE' from system_config where ITEM = 'DBVer'")) {
+                try (ResultSet rs = stmt.executeQuery("select `VALUE` from system_config where ITEM = 'DBVer'")) {
                     if (rs.next()) {
                         String dbVer = rs.getString(1);
                         LOG.info("Check RB database version : " + dbVer);
