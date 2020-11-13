@@ -49,4 +49,12 @@ public class LanguageTest extends TestSupport {
         resource = Application.getLanguage().getDefaultBundle().replaceLangKey(resource);
         System.out.println(JSONUtils.prettyPrint(resource));
     }
+
+    @Test
+    public void available() {
+        System.out.println(Application.getLanguage().available("zh"));
+        System.out.println(Application.getLanguage().available("zh-cn"));
+        System.out.println(Application.getLanguage().available("zh-hk"));
+        System.out.println(Application.getLanguage().available("zh-tw"));
+    }
 }

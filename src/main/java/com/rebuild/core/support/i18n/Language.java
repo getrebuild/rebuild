@@ -104,7 +104,7 @@ public class Language implements Initialization {
                 return bundleMap.get(locale);
             }
 
-            locale = useLanguageCode(locale);
+            locale = useLanguageCode(locale.split("[-_]")[0]);
             if (locale != null) {
                 return bundleMap.get(locale);
             }
@@ -127,13 +127,12 @@ public class Language implements Initialization {
     }
 
     /**
-     * @param locale
+     * @param language
      * @return
      */
-    private String useLanguageCode(String locale) {
-        String code = locale.split("[_-]")[0];
-        for (String key : bundleMap.keySet()) {
-            if (key.equals(code) || key.startsWith(code)) {
+    private String useLanguageCode(String language) {
+        for (String key : aLocales.keySet()) {
+            if (key.equals(language) || key.startsWith(language)) {
                 return key;
             }
         }
@@ -147,10 +146,14 @@ public class Language implements Initialization {
      * @return
      */
     public String available(String locale) {
-        boolean a = bundleMap.containsKey(locale);
+        String[] lc = locale.split("[-_]");
+        locale = lc[0].toLowerCase();
+        if (lc.length > 1) locale += "_" + lc[1].toUpperCase();
+
+        boolean a = aLocales.containsKey(locale);
         if (a) return locale;
 
-        if ((locale = useLanguageCode(locale)) != null) {
+        if ((locale = useLanguageCode(lc[0])) != null) {
             return locale;
         }
         return null;
@@ -160,7 +163,7 @@ public class Language implements Initialization {
      * @return
      */
     public Map<String, String> availableLocales() {
-        return Collections.unmodifiableMap(aLocales);
+        return new LinkedHashMap<>(aLocales);
     }
 
     // -- Quick Methods

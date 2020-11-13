@@ -36,7 +36,6 @@ public interface JSONable extends JSONAware, Serializable {
 
     @Override
     default String toJSONString() {
-        return JSON.toJSONString(toJSON(),
-                SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteMapNullValue);
+        return JSON.toJSONString(toJSON());
     }
 }
