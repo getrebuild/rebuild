@@ -80,7 +80,7 @@ public class ReportsController extends BaseController {
         final ID user = getRequestUser(request);
         Assert.isTrue(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport),
-                getLang(request, "NoPrivileges"));
+                getLang(request, "NoOpPrivileges"));
 
         int dataRange = getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED);
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);

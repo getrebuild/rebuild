@@ -64,7 +64,8 @@ public class DashboardController extends BaseController {
 
     @PostMapping("/dash-new")
     public JSON dashNew(HttpServletRequest request) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
+
         JSONObject formJson = (JSONObject) ServletUtils.getRequestJson(request);
         JSONArray dashCopy = formJson.getJSONArray("__copy");
         if (dashCopy != null) {
@@ -147,6 +148,7 @@ public class DashboardController extends BaseController {
                 sql = sql.replace("1=1", entitySql);
             }
 
+            // TODO 是否开放所有可用图表
             charts = Application.createQueryNoFilter(sql).setParameter(1, useBizz).array();
             for (Object[] o : charts) {
                 o[3] = I18nUtils.formatDate((Date) o[3]);
@@ -154,7 +156,7 @@ public class DashboardController extends BaseController {
             }
         }
 
-        // 内置图表
+        // 附加内置图表
         if (!"entity".equalsIgnoreCase(type)) {
             for (BuiltinChart b : ChartsFactory.getBuiltinCharts()) {
                 Object[] c = new Object[]{b.getChartId(), b.getChartTitle(), b.getChartType(), null, Language.L("BuiltIn")};

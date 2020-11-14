@@ -129,7 +129,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
                 // 前端使用
                 request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
-                request.setAttribute("AllowCustomNav",
+                request.setAttribute(ZeroEntry.AllowCustomNav.name(),
                         Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
             }
 

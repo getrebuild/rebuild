@@ -16,7 +16,7 @@ class BaseChart extends React.Component {
     const opers = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('ViewSourceData')} href={`${rb.baseUrl}/dashboard/view-chart-sources?id=${this.props.id}`}>
+          <a title={$L('ViewSourceData')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
             <i className="zmdi zmdi-rss" />
           </a>
         )}

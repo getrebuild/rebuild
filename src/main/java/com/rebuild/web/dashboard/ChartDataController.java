@@ -44,9 +44,7 @@ public class ChartDataController extends BaseController {
         }
 
         ChartData chart = ChartsFactory.create(chartId);
-        JSONObject o = (JSONObject) chart.setExtraParams(paramMap).build();
-        o.put("test", null);
-        return o;
+        return chart.setExtraParams(paramMap).build();
     }
 
     /**
@@ -54,8 +52,8 @@ public class ChartDataController extends BaseController {
      * @throws IOException
      * @see DataListBuilderImpl
      */
-    @RequestMapping("view-chart-sources")
-    public void viewChartSources(@IdParam ID chartId, HttpServletResponse response) throws IOException {
+    @RequestMapping("view-chart-source")
+    public void viewChartSource(@IdParam ID chartId, HttpServletResponse response) throws IOException {
         ConfigBean configEntry = ChartManager.instance.getChart(chartId);
 
         JSONObject config = (JSONObject) configEntry.getJSON("config");

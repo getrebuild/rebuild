@@ -21,6 +21,14 @@ $(document).ready(function () {
   let dash_list = null
   $.get('/dashboard/dash-gets', (res) => {
     dash_list = res.data
+    if (!dash_list || dash_list.length === 0) {
+      $('.chart-grid').removeClass('invisible')
+      $('.J_dash-load').remove()
+
+      renderRbcomp(<RbAlertBox message={$L('NoDashboardTips')} />, $('.chart-grid')[0])
+      return
+    }
+
     let d = dash_list[0] // default
     if (dash_list.length > 1) {
       const dset = $storage.get('DashDefault')
@@ -187,10 +195,14 @@ const render_dashboard = function (init) {
     const gsi =
       '<div class="grid-stack-item">' +
       '<div id="chart-add" class="grid-stack-item-content">' +
-      `<a class="chart-add" onclick="dlgShow('DlgAddChart')"><i class="zmdi zmdi-plus"></i><p>${$L('AddSome,Chart')}</p></a>` +
+      `<a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('AddSome,Chart')}</p></a>` +
       '</div>' +
       '</div>'
-    gridstack.addWidget(gsi, 0, 0, 2, 2)
+    const $gsi = gridstack.addWidget(gsi, 0, 0, 2, 2)
+    $gsi.find('a').click(() => {
+      if ($('.J_chart-new').length === 0) $('.J_chart-select').trigger('click')
+      else dlgShow('DlgAddChart')
+    })
     gridstack.disable()
   }
 
@@ -296,7 +308,7 @@ class DlgAddChart extends RbFormHandler {
       })
       this.__select2 = entity_el.select2({
         allowClear: false,
-        placeholder: $L('SelectSome,DataSource')
+        placeholder: $L('SelectSome,DataSource'),
       })
     })
   }
@@ -308,7 +320,7 @@ class DlgAddChart extends RbFormHandler {
   }
 }
 
-// 面板设置
+// 仪表盘设置
 class DlgDashSettings extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -321,14 +333,7 @@ class DlgDashSettings extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
             <div className="col-sm-7">
-              <input
-                className="form-control form-control-sm"
-                value={this.state.title || ''}
-                placeholder={$L('DefaultDashboard')}
-                data-id="title"
-                onChange={this.handleChange}
-                maxLength="40"
-              />
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('DefaultDashboard')} data-id="title" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
           {rb.isAdminUser && (
@@ -370,7 +375,9 @@ class DlgDashSettings extends RbFormHandler {
           dlgRefs['DashSelect'].setState({ dashTitle: _data.title })
         }
         this.hide()
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 
@@ -390,7 +397,7 @@ class DlgDashSettings extends RbFormHandler {
   }
 }
 
-// 添加面板
+// 添加仪表盘
 class DlgDashAdd extends RbFormHandler {
   constructor(props) {
     super(props)
@@ -403,14 +410,7 @@ class DlgDashAdd extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
             <div className="col-sm-7">
-              <input
-                className="form-control form-control-sm"
-                value={this.state.title || ''}
-                placeholder={$L('MyDashboard')}
-                data-id="title"
-                onChange={this.handleChange}
-                maxLength="40"
-              />
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('MyDashboard')} data-id="title" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
           <div className="form-group row">
@@ -451,7 +451,7 @@ class DlgDashAdd extends RbFormHandler {
   }
 }
 
-// 选择默认面板
+// 选择默认仪表盘
 class DashSelect extends React.Component {
   constructor(props) {
     super(props)
