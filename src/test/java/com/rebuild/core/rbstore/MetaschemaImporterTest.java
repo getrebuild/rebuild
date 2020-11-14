@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -28,7 +29,7 @@ import java.io.File;
 public class MetaschemaImporterTest extends TestSupport {
 
     @Test
-    public void testImport() throws Exception {
+    void testImport() throws Exception {
         File file = ResourceUtils.getFile("classpath:metaschema-test.json");
         String text = FileUtils.readFileToString(file, "utf-8");
         JSONObject data = JSON.parseObject(text);
@@ -41,5 +42,14 @@ public class MetaschemaImporterTest extends TestSupport {
 
         MetaschemaImporter importer = new MetaschemaImporter(data);
         TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
+    }
+
+    @Test
+    void verfiy() throws IOException {
+        File file = ResourceUtils.getFile("classpath:metaschema-test.json");
+        String text = FileUtils.readFileToString(file, "utf-8");
+        JSONObject data = JSON.parseObject(text);
+
+        System.out.println(new MetaschemaImporter(data).verfiy());
     }
 }

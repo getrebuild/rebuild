@@ -114,8 +114,8 @@ public class MetaFieldController extends BaseController {
 
         // 字段类型相关
         Type ft = fieldMeta.getType();
-        if (ft == FieldType.REFERENCE) {
-            Entity refentity = fieldMeta.getReferenceEntities()[0];
+        if (ft == FieldType.REFERENCE || ft == FieldType.REFERENCE_LIST) {
+            Entity refentity = fieldMeta.getReferenceEntity();
             mv.getModel().put("fieldRefentity", refentity.getName());
             mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
         }

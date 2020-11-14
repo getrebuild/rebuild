@@ -281,7 +281,7 @@ public class Field2Schema {
         }
         recordOfField.setInt("maxLength", maxLength);
 
-        if (dt == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
+        if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && StringUtils.isBlank(refEntity)) {
             throw new MetadataModificationException(Language.L("RefFieldMustHasRefEntity"));
         }
 

@@ -176,9 +176,16 @@ public class ParseHelper {
 
         // 引用字段不能作为名称字段（前端限制），此处的处理是因为某些系统实体有用到
         // 主要要保证其兼容 LIKE 条件的语法要求
-        if (dt == DisplayType.REFERENCE || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
+        if (dt == DisplayType.REFERENCE
+                || dt == DisplayType.PICKLIST
+                || dt == DisplayType.CLASSIFICATION) {
             return QueryCompiler.NAME_FIELD_PREFIX + field.getName();
-        } else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
+
+        } else if (dt == DisplayType.TEXT
+                || dt == DisplayType.EMAIL
+                || dt == DisplayType.URL
+                || dt == DisplayType.PHONE
+                || dt == DisplayType.SERIES) {
             return field.getName();
         } else {
             return null;

@@ -84,9 +84,14 @@ public class BatchUpdateController extends BaseController {
 
             DisplayType dt = easyMeta.getDisplayType();
             // 不支持的字段
-            if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
-                    || dt == DisplayType.LOCATION || dt == DisplayType.SERIES || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.NTEXT || dt == DisplayType.BARCODE || dt == DisplayType.N2NREFERENCE) {
+            if (dt == DisplayType.FILE
+                    || dt == DisplayType.IMAGE
+                    || dt == DisplayType.AVATAR
+                    || dt == DisplayType.LOCATION
+                    || dt == DisplayType.BARCODE
+                    || dt == DisplayType.SERIES
+                    || dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE) {
                 continue;
             }
 

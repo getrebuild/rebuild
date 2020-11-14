@@ -68,7 +68,7 @@ public class FieldList extends BaseApi {
         o.put("repeatable", field.isRepeatable());
         o.put("queryable", field.isQueryable());
 
-        if (dt == DisplayType.REFERENCE) {
+        if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
             o.put("reference_entity", field.getReferenceEntity().getName());
         }
         if (dt == DisplayType.CLASSIFICATION) {

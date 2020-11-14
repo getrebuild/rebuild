@@ -301,8 +301,11 @@ public abstract class ChartData extends SetUser implements ChartSpec {
         DisplayType axisType = axisField.getDisplayType();
 
         String label;
-        if (axisType == DisplayType.REFERENCE || axisType == DisplayType.CLASSIFICATION
-                || axisType == DisplayType.BOOL || axisType == DisplayType.PICKLIST || axisType == DisplayType.STATE) {
+        if (axisType == DisplayType.REFERENCE
+                || axisType == DisplayType.CLASSIFICATION
+                || axisType == DisplayType.BOOL
+                || axisType == DisplayType.PICKLIST
+                || axisType == DisplayType.STATE) {
             label = (String) FieldValueWrapper.instance.wrapFieldValue(value, axisField, true);
         } else {
             label = value.toString();

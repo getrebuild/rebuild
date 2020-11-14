@@ -83,7 +83,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
         for (Object o : entity.getJSONArray("fields")) {
             JSONObject field = (JSONObject) o;
-            if (DisplayType.REFERENCE.name().equalsIgnoreCase(field.getString("displayType"))) {
+            String dt = field.getString("displayType");
+            if (DisplayType.REFERENCE.name().equals(dt) || DisplayType.N2NREFERENCE.name().equals(dt)) {
                 String refEntity = field.getString("refEntity");
                 if (!entityName.equals(refEntity) && !MetadataHelper.containsEntity(refEntity)) {
                     return Language.L("MissRefEntity") + " : " + field.getString("fieldLabel") + " (" + refEntity + ")";

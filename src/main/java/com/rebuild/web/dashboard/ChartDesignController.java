@@ -121,8 +121,13 @@ public class ChartDesignController extends EntityController {
         for (Field field : MetadataSorter.sortFields(entity)) {
             EasyMeta easyField = EasyMeta.valueOf(field);
             DisplayType dt = easyField.getDisplayType();
-            if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT
+            if (dt == DisplayType.IMAGE
+                    || dt == DisplayType.FILE
+                    || dt == DisplayType.AVATAR
+                    || dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE
+                    || dt == DisplayType.LOCATION
+                    || dt == DisplayType.MULTISELECT
                     || dt == DisplayType.BARCODE) {
                 continue;
             }

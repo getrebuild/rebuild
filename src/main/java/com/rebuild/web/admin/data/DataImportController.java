@@ -111,12 +111,14 @@ public class DataImportController extends BaseController {
 
             // TODO 开放媒体字段导入
             EasyMeta easyMeta = new EasyMeta(field);
-            if (easyMeta.getDisplayType() == DisplayType.FILE
-                    || easyMeta.getDisplayType() == DisplayType.IMAGE
-                    || easyMeta.getDisplayType() == DisplayType.AVATAR
-                    || easyMeta.getDisplayType() == DisplayType.BARCODE
-                    || easyMeta.getDisplayType() == DisplayType.ID
-                    || easyMeta.getDisplayType() == DisplayType.ANYREFERENCE) {
+            DisplayType dt = easyMeta.getDisplayType();
+            if (dt == DisplayType.FILE
+                    || dt == DisplayType.IMAGE
+                    || dt == DisplayType.AVATAR
+                    || dt == DisplayType.BARCODE
+                    || dt == DisplayType.ID
+                    || dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE) {
                 continue;
             }
 

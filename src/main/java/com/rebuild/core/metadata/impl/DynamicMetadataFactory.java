@@ -87,6 +87,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             } else {
                 extraAttrs = JSON.parseObject((String) c[9]);
             }
+
             extraAttrs.put("metaId", c[4]);
             extraAttrs.put("comments", c[5]);
             extraAttrs.put("icon", c[6]);
@@ -126,14 +127,20 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             if (fieldName.equals(EntityHelper.AutoId)) {
                 field.addAttribute("auto-value", "true");
             }
+
             if (dt == DisplayType.DECIMAL) {
                 field.addAttribute("decimal-scale", "8");
             }
-            if (dt == DisplayType.ANYREFERENCE || dt == DisplayType.REFERENCE
-                    || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
+
+            if (dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE
+                    || dt == DisplayType.REFERENCE
+                    || dt == DisplayType.PICKLIST
+                    || dt == DisplayType.CLASSIFICATION) {
                 field.addAttribute("ref-entity", (String) c[10])
                         .addAttribute("cascade", (String) c[11]);
             }
+
             if (dt == DisplayType.BARCODE || dt == DisplayType.ID
                     || MetadataHelper.isSystemField(fieldName)) {
                 field.addAttribute("queryable", "false");
@@ -146,6 +153,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             } else {
                 extraAttrs = JSON.parseObject((String) c[14]);
             }
+
             extraAttrs.put("metaId", c[12]);
             extraAttrs.put("comments", c[13]);
             extraAttrs.put("displayType", dt.name());

@@ -268,6 +268,8 @@ public class EasyMeta implements BaseMeta {
             }
         } else if (ft == FieldType.ANY_REFERENCE) {
             return DisplayType.ANYREFERENCE;
+        } else if (ft == FieldType.REFERENCE_LIST) {
+            return DisplayType.N2NREFERENCE;
         } else if (ft == FieldType.TIMESTAMP) {
             return DisplayType.DATETIME;
         } else if (ft == FieldType.DATE) {

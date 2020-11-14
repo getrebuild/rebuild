@@ -136,7 +136,7 @@ public class MetaSchemaGenerator {
             schemaField.put("defaultValue", defaultVal);
         }
 
-        if (dt == DisplayType.REFERENCE) {
+        if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
             schemaField.put("refEntity", field.getReferenceEntity().getName());
         } else if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
             schemaField.put("items", performPickList(field));

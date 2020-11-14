@@ -445,7 +445,7 @@ class RbFormElement extends React.Component {
         onChange={this.handleChange}
         onBlur={this.props.readonly ? null : this.checkValue}
         readOnly={this.props.readonly}
-        maxLength="255"
+        maxLength={this.props.maxLength || 200}
       />
     )
   }
@@ -664,7 +664,7 @@ class RbFormNumber extends RbFormText {
         onChange={this.handleChange}
         onBlur={this.props.readonly ? null : this.checkValue}
         readOnly={this.props.readonly}
-        maxLength="30"
+        maxLength="29"
       />
     )
   }
@@ -700,7 +700,7 @@ class RbFormTextarea extends RbFormElement {
         onChange={this.handleChange}
         onBlur={this.props.readonly ? null : this.checkValue}
         readOnly={this.props.readonly}
-        maxLength="3000"
+        maxLength="6000"
       />
     )
   }
@@ -746,6 +746,7 @@ class RbFormDateTime extends RbFormElement {
           value={this.state.value || ''}
           onChange={this.handleChange}
           onBlur={this.checkValue}
+          maxLength="20"
         />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
         <div className="input-group-append">
@@ -1496,9 +1497,9 @@ var detectElement = function (item) {
   } else if (item.type === 'URL') {
     return <RbFormUrl {...item} />
   } else if (item.type === 'EMAIL') {
-    return <RbFormEMail {...item} />
+    return <RbFormEMail {...item} maxLength="100" />
   } else if (item.type === 'PHONE') {
-    return <RbFormPhone {...item} />
+    return <RbFormPhone {...item} maxLength="40" />
   } else if (item.type === 'NUMBER') {
     return <RbFormNumber {...item} />
   } else if (item.type === 'DECIMAL') {

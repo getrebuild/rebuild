@@ -21,7 +21,7 @@ public enum DisplayType {
     DATE("日期", FieldType.DATE, -1, "yyyy-MM-dd"),
     DATETIME("日期时间", FieldType.TIMESTAMP, -1, "yyyy-MM-dd HH:mm:ss"),
     TEXT("文本", FieldType.STRING, 200),
-    NTEXT("多行文本", FieldType.TEXT, 3000),
+    NTEXT("多行文本", FieldType.TEXT, 6000),
     EMAIL("邮箱", FieldType.STRING, 100),
     URL("链接", FieldType.STRING, 200),
     PHONE("电话", FieldType.STRING, 40),
@@ -31,18 +31,19 @@ public enum DisplayType {
     PICKLIST("列表", FieldType.REFERENCE, -1),
     CLASSIFICATION("分类", FieldType.REFERENCE, -1),
     REFERENCE("引用", FieldType.REFERENCE, -1),
-    AVATAR("头像", FieldType.STRING, 200),
+    AVATAR("头像", FieldType.STRING, 300),
     MULTISELECT("多选", FieldType.LONG, -1),
     BOOL("布尔", FieldType.BOOL, -1),
-    BARCODE("条形码", FieldType.TEXT, 200),
+    BARCODE("条形码", FieldType.STRING, 300),
+    N2NREFERENCE("多引用", FieldType.REFERENCE_LIST, -1),
 
     // 内部
 
     ID("主键", FieldType.PRIMARY, -1),
-    LOCATION("位置", FieldType.STRING, 70),
     STATE("状态", FieldType.SMALL_INT, -1),
     ANYREFERENCE("任意引用", FieldType.ANY_REFERENCE, -1),
-    N2NREFERENCE("多对多引用", FieldType.REFERENCE_LIST, -1),
+
+    LOCATION("位置", FieldType.STRING, 70),
 
     ;
 
