@@ -611,12 +611,9 @@ CellRenders.addRender('PHONE', function (v, s, k) {
 })
 
 const APPROVAL_STATE_CLAZZs = {
-  PROCESSING: 'warning',
-  REJECTED: 'danger',
-  APPROVED: 'success',
-  '审批中': 'warning',
-  '驳回': 'danger',
-  '通过': 'success',
+  [$L('s.ApprovalState.PROCESSING')]: 'warning',
+  [$L('s.ApprovalState.REJECTED')]: 'danger',
+  [$L('s.ApprovalState.APPROVED')]: 'success',
 }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
