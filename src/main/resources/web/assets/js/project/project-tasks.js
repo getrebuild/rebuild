@@ -354,8 +354,7 @@ class Task extends React.Component {
         data-seq={this.state.seq}
         data-taskid={this.state.id}
         data-planid={this.props.planid}
-        onClick={() => TaskViewModal.create(this.state.id)}
-      >
+        onClick={() => TaskViewModal.create(this.state.id)}>
         <div className="task-card-body">
           <div className="task-content-wrapper">
             <div className="task-status">
@@ -494,7 +493,7 @@ class TaskViewModal extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={`${rb.baseUrl}/project/task/${this.state.taskid}`} frameBorder="0" scrolling="no"></iframe>
+              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state._taskUrl || ''} frameBorder="0" scrolling="no"></iframe>
               <RbSpinner />
             </div>
           </div>
@@ -516,6 +515,8 @@ class TaskViewModal extends React.Component {
       })
 
     $dlg.modal({ show: true })
+    // fix: 打开视图卡顿
+    setTimeout(() => this.setState({ _taskUrl: `${rb.baseUrl}/project/task/${this.state.taskid}` }), 200)
   }
 
   setLoadingState(state) {
