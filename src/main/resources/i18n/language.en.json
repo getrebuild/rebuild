@@ -1211,6 +1211,11 @@
   "NoInitEntityTips": "There are no business entities available. This installation step is not necessary, you can still continue to install",
   "SelectInitEntityTips": "You can choose the business entity you need to use, or add it after the installation is complete",
   "CantSelectInitEntityTips": "Because the existing RB database is used, this step is not available, you can still continue install",
+  "DialPhone": "Dial",
+  "UnConf": "Not configured",
+  "SomeUnConf": "{0} not configured",
+  "RecentlyUsed": "Recently Used",
+  "EtcXItems": "etc. %d items",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

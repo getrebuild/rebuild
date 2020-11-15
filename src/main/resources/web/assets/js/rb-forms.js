@@ -473,6 +473,7 @@ class RbFormElement extends React.Component {
   renderViewElement() {
     let text = arguments.length > 0 ? arguments[0] : this.state.value
     if (text && $empty(text)) text = null
+
     return (
       <React.Fragment>
         <div className="form-control-plaintext">{text || <span className="text-muted">无</span>}</div>
@@ -1099,7 +1100,7 @@ class RbFormReference extends RbFormElement {
     )
   }
   _renderViewElement() {
-    super.renderViewElement()
+    return super.renderViewElement()
   }
 
   _clickView = (e) => window.RbViewPage && window.RbViewPage.clickView(e.target)
@@ -1210,14 +1211,17 @@ class RbFormN2NReference extends RbFormReference {
   renderViewElement() {
     const value = this.state.value
     if ($empty(value)) return super._renderViewElement()
-
     if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
-    if (!value.id) return <div className="form-control-plaintext">{value.text}</div>
+
     return (
       <div className="form-control-plaintext">
-        <a href={`#!/View/${value.entity}/${value.id}`} onClick={this._clickView}>
-          {value.text}
-        </a>
+        {value.map((item) => {
+          return (
+            <a key={`o-${item.id}`} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
+              {item.text}
+            </a>
+          )
+        })}
       </div>
     )
   }
@@ -1257,6 +1261,15 @@ class RbFormN2NReference extends RbFormReference {
       }
       that.setValue(val)
     })
+  }
+
+  onEditModeChanged(destroy) {
+    super.onEditModeChanged(destroy)
+    if (!destroy && this.__select2) {
+      this.__select2.on('select2:select', function (e) {
+        $.post(`/commons/search/recently-add?id=${e.params.data.id}`)
+      })
+    }
   }
 }
 

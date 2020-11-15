@@ -131,7 +131,9 @@ class RbViewForm extends React.Component {
       } else if (res.error_code === 499) {
         // 有重复
         renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }

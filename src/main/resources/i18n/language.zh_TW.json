@@ -1211,6 +1211,11 @@
   "NoInitEntityTips": "暫無可用業務實體。此安裝步驟不是必須的，你仍可以繼續安裝",
   "SelectInitEntityTips": "你可以選擇需要的業務實體使用，或在安裝完成後再進行添加",
   "CantSelectInitEntityTips": "由於使用了已存在的 RB 數據庫，因此此步驟不可用，你仍可以繼續安裝",
+  "DialPhone": "撥打電話",
+  "UnConf": "未配置",
+  "SomeUnConf": "{0}未配置",
+  "RecentlyUsed": "最近使用",
+  "EtcXItems": "等 %d 項",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",
