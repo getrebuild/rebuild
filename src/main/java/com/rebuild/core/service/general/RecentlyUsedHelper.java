@@ -61,7 +61,8 @@ public class RecentlyUsedHelper {
         List<ID> data = new ArrayList<>();
         for (int i = 0; i < limit && i < cached.size(); i++) {
             final ID raw = cached.get(i);
-            if (!(raw.getEntityCode() == EntityHelper.ClassificationData || Application.getPrivilegesManager().allowRead(user, raw))) {
+            if (!(raw.getEntityCode() == EntityHelper.ClassificationData
+                    || Application.getPrivilegesManager().allowRead(user, raw))) {
                 continue;
             }
 

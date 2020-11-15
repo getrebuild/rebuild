@@ -193,3 +193,105 @@ class ReferenceSearcher extends RbModal {
     window.referenceSearch__dlg = this
   }
 }
+
+// 删除确认
+// eslint-disable-next-line no-unused-vars
+class DeleteConfirm extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { enableCascades: false }
+  }
+
+  render() {
+    let message = this.props.message
+    if (!message) message = this.props.ids ? $L('DeleteSelectedSomeConfirm').replace('%d', this.props.ids.length) : $L('DeleteRecordConfirm')
+
+    return (
+      <div className="modal rbalert" ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={() => this.hide()}>
+                <span className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <div className="text-center ml-6 mr-6">
+                <div className="text-danger">
+                  <span className="modal-main-icon zmdi zmdi-alert-triangle" />
+                </div>
+                <div className="mt-3 text-bold">{message}</div>
+                {!this.props.entity ? null : (
+                  <div className="mt-2">
+                    <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
+                      <input className="custom-control-input" type="checkbox" checked={this.state.enableCascade === true} onChange={() => this.enableCascade()} />
+                      <span className="custom-control-label"> {$L('DeleteCasTips')}</span>
+                    </label>
+                    <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
+                      <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)} multiple>
+                        {(this.state.cascadesEntity || []).map((item) => {
+                          return (
+                            <option key={`opt-${item[0]}`} value={item[0]}>
+                              {item[1]}
+                            </option>
+                          )
+                        })}
+                      </select>
+                    </div>
+                  </div>
+                )}
+                <div className="mt-4 mb-3" ref={(c) => (this._btns = c)}>
+                  <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
+                    {$L('Cancel')}
+                  </button>
+                  <button className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()}>
+                    {$L('Delete')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  enableCascade() {
+    this.setState({ enableCascade: !this.state.enableCascade })
+    if (!this.state.cascadesEntity) {
+      $.get(`/commons/metadata/references?entity=${this.props.entity}&permission=D`, (res) => {
+        this.setState({ cascadesEntity: res.data }, () => {
+          this.__select2 = $(this._cascades)
+            .select2({
+              placeholder: $L('SelectCasEntity'),
+              width: '88%',
+            })
+            .val(null)
+            .trigger('change')
+        })
+      })
+    }
+  }
+
+  handleDelete() {
+    let ids = this.props.ids || this.props.id
+    if (!ids || ids.length === 0) return
+    if (typeof ids === 'object') ids = ids.join(',')
+    const cascades = this.__select2 ? this.__select2.val().join(',') : ''
+
+    const $btns = $(this._btns).find('.btn').button('loading')
+    $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
+      if (res.error_code === 0) {
+        if (res.data.deleted === res.data.requests) RbHighbar.success($L('SomeSuccess', 'Delete'))
+        else if (res.data.deleted === 0) RbHighbar.error($L('NotDeleteTips'))
+        else RbHighbar.success($L('SuccessDeletedXItems').replace('%d', res.data.deleted))
+
+        this.hide()
+        typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
+      } else {
+        RbHighbar.error(res.error_msg)
+        $btns.button('reset')
+      }
+    })
+  }
+}

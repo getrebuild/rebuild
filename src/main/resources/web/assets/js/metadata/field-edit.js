@@ -9,7 +9,7 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
-const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE']
+const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -28,7 +28,14 @@ $(document).ready(function () {
     }
     if (data.fieldLabel === '') return RbHighbar.create($L('PlsInputSome,FieldName'))
 
-    const dv = dt === 'CLASSIFICATION' || dt === 'REFERENCE' ? $('.J_defaultValue').attr('data-value-id') : $val('.J_defaultValue')
+    // 默认值
+    let dv = $val('.J_defaultValue')
+    if (dt === 'CLASSIFICATION' || dt === 'REFERENCE' || dt === 'N2NREFERENCE') {
+      dv = $('.J_defaultValue').attr('data-value-id') || ''
+      const odv = $('.J_defaultValue').attr('data-o') || ''
+      if (dv === odv) dv = null
+    }
+
     if (dv) {
       if (checkDefaultValue(dv, dt) === false) return
       else data.defaultValue = dv
@@ -114,6 +121,8 @@ $(document).ready(function () {
     _handleClassification(extConfig)
   } else if (dt === 'REFERENCE') {
     _handleReference()
+  } else if (dt === 'N2NREFERENCE') {
+    _handleReference(true)
   } else if (dt === 'BOOL') {
     const $dv = $('.J_defaultValue')
     if ($dv.data('o')) $dv.val($dv.data('o'))
@@ -253,65 +262,6 @@ class AdvDateDefaultValue extends RbAlert {
   }
 }
 
-const _handleReference = function () {
-  const referenceEntity = $('.J_referenceEntity').data('refentity')
-
-  let dataFilter = (wpc.extConfig || {}).referenceDataFilter
-  const saveFilter = function (res) {
-    if (res && res.items && res.items.length > 0) {
-      $('#referenceDataFilter').text(`${$L('AdvFiletrSeted')} (${res.items.length})`)
-      dataFilter = res
-    } else {
-      $('#referenceDataFilter').text($L('ClickSet'))
-      dataFilter = null
-    }
-    __gExtConfig.referenceDataFilter = dataFilter
-  }
-  dataFilter && saveFilter(dataFilter)
-
-  let advFilter
-  $('#referenceDataFilter').click(() => {
-    if (advFilter) {
-      advFilter.show()
-    } else {
-      renderRbcomp(<AdvFilter title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
-        advFilter = this
-      })
-    }
-  })
-
-  // 默认值
-  const $dv = $('.J_defaultValue')
-  const $dvClear = $('.J_defaultValue-clear')
-
-  let _ReferenceSearcher
-  function _showSearcher() {
-    if (_ReferenceSearcher) {
-      _ReferenceSearcher.show()
-    } else {
-      const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
-      // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('SelectSome,DefaultValue')} />, function () {
-        _ReferenceSearcher = this
-      })
-    }
-  }
-
-  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
-    '.J_defaultValue-append'
-  )
-  $append.click(() => _showSearcher())
-
-  window.referenceSearch__call = function (s) {
-    s = s[0]
-    $dv.attr('data-value-id', s).val(s)
-    _loadRefLabel($dv, $dvClear)
-    _ReferenceSearcher.hide()
-  }
-
-  _loadRefLabel($dv, $dvClear)
-}
-
 const _handlePicklist = function (dt) {
   $.get(`/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
     if (res.data.length === 0) {
@@ -382,7 +332,10 @@ const _handleFile = function (extConfig) {
 
 const _handleClassification = function (extConfig) {
   const $dv = $('.J_defaultValue')
-  const $dvClear = $('.J_defaultValue-clear')
+  const $dvClear = $('.J_defaultValue-clear').click(() => {
+    $dv.attr('data-value-id', '').val('')
+    $dvClear.addClass('hide')
+  })
 
   let _ClassificationSelector
   function _showSelector(data) {
@@ -422,19 +375,103 @@ const _handleClassification = function (extConfig) {
     $append.click(() => _showSelector(res.data))
   })
 
-  _loadRefLabel($dv, $dvClear)
+  _loadRefsLabel($dv, $dvClear)
 }
 
-const _loadRefLabel = function ($dv, $dvClear) {
+const _handleReference = function (isN2N) {
+  const referenceEntity = $('.J_referenceEntity').data('refentity')
+
+  // 数据过滤
+  let dataFilter = (wpc.extConfig || {}).referenceDataFilter
+  const saveFilter = function (res) {
+    if (res && res.items && res.items.length > 0) {
+      $('#referenceDataFilter').text(`${$L('AdvFiletrSeted')} (${res.items.length})`)
+      dataFilter = res
+    } else {
+      $('#referenceDataFilter').text($L('ClickSet'))
+      dataFilter = null
+    }
+    __gExtConfig.referenceDataFilter = dataFilter
+  }
+  dataFilter && saveFilter(dataFilter)
+
+  let advFilter
+  $('#referenceDataFilter').click(() => {
+    if (advFilter) {
+      advFilter.show()
+    } else {
+      renderRbcomp(<AdvFilter title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
+        advFilter = this
+      })
+    }
+  })
+
+  // 默认值
+  const $dv = $('.J_defaultValue')
+  const $dvClear = $('.J_defaultValue-clear').click(() => {
+    $dv.attr('data-value-id', '').val('')
+    $dvClear.addClass('hide')
+  })
+
+  let _ReferenceSearcher
+  function _showSearcher() {
+    if (_ReferenceSearcher) {
+      _ReferenceSearcher.show()
+    } else {
+      const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
+      // eslint-disable-next-line react/jsx-no-undef
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('SelectSome,DefaultValue')} />, function () {
+        _ReferenceSearcher = this
+      })
+    }
+  }
+
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
+    '.J_defaultValue-append'
+  )
+  $dv.attr('readonly', true)
+  $append.click(() => _showSearcher())
+
+  window.referenceSearch__call = function (selected) {
+    let val
+    if (isN2N) {
+      let keepVal = $dv.attr('data-value-id')
+      if (keepVal) keepVal = keepVal.split(',')
+      else keepVal = []
+
+      selected.forEach((s) => {
+        if (!keepVal.contains(s)) keepVal.push(s)
+      })
+      val = keepVal.slice(0, 20).join(',')
+    } else {
+      val = selected[0]
+    }
+
+    $dv.attr('data-value-id', val).val(val)
+    _loadRefsLabel($dv, $dvClear)
+    _ReferenceSearcher.hide()
+  }
+
+  _loadRefsLabel($dv, $dvClear)
+}
+
+const _loadRefsLabel = function ($dv, $dvClear) {
   const dvid = $dv.val()
   if (dvid) {
-    $.get(`/commons/search/read-labels?ids=${dvid}`, (res) => {
-      if (res.data && res.data[dvid]) $dv.val(res.data[dvid])
+    $.get(`/commons/search/read-labels?ids=${dvid}&ignoreMiss=true`, (res) => {
+      if (res.data) {
+        const ids = []
+        const labels = []
+        for (let k in res.data) {
+          ids.push(k)
+          labels.push(res.data[k])
+        }
+
+        $dv.attr('data-value-id', ids.join(','))
+        $dv.val(labels.join(', '))
+      }
     })
 
-    $dvClear.removeClass('hide').click(() => {
-      $dv.attr('data-value-id', '').val('')
-      $dvClear.addClass('hide')
-    })
+    $dvClear && $dvClear.removeClass('hide')
   }
 }

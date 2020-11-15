@@ -700,6 +700,17 @@ body.view-body {
   color: #4285f4;
 }
 
+.select2-container--default .select2-selection--multiple::after {
+  content: '\f2f9';
+  font-family: 'Material-Design-Iconic-Font';
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 35px;
+  color: #404040;
+  position: absolute;
+  right: 10px;
+}
+
 textarea.row2x {
   height: 52px !important;
   resize: none;
@@ -998,11 +1009,11 @@ a {
   vertical-align: middle;
 }
 
-.datetime-field .input-group-append button {
+.input-group.has-append .input-group-append button {
   min-width: 38px;
 }
 
-.datetime-field .clean {
+.input-group.has-append .clean {
   position: absolute;
   right: 45px;
   top: 0;

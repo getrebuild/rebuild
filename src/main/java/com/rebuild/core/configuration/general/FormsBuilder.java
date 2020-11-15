@@ -372,6 +372,7 @@ public class FormsBuilder extends FormsManager {
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES) {
                         el.put("value", autoValue);
+
                     } else {
                         Object defVal = FieldDefaultValueHelper.exprDefaultValue(fieldMeta);
                         if (defVal != null) {
@@ -388,6 +389,10 @@ public class FormsBuilder extends FormsManager {
                                 } catch (NoRecordFoundException ignore) {
                                     defVal = null;
                                 }
+                            }
+                            // 多引用
+                            else if (dt == DisplayType.N2NREFERENCE) {
+                                defVal = FieldValueWrapper.instance.wrapN2NReference(defVal, EasyMeta.valueOf(fieldMeta));
                             }
 
                             el.put("value", defVal);

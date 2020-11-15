@@ -24,8 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,6 +36,7 @@ import java.util.regex.Pattern;
  *
  * @author devezhao
  * @since 2019/8/20
+ * @see FieldValueWrapper
  */
 public class FieldDefaultValueHelper {
 
@@ -114,6 +117,15 @@ public class FieldDefaultValueHelper {
 
         } else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
             return ID.valueOf(valueExpr);
+
+        } else if (dt == DisplayType.N2NREFERENCE) {
+            String[] ids = valueExpr.split(",");
+
+            List<ID> idArray = new ArrayList<>();
+            for (String id : ids) {
+                if (ID.isId(id)) idArray.add(ID.valueOf(id));
+            }
+            return idArray.toArray(new ID[0]);
 
         } else if (dt == DisplayType.BOOL) {
             return BooleanUtils.toBoolean(valueExpr);

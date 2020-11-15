@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
@@ -118,6 +119,8 @@ public class FieldValueWrapper {
             return wrapDecimal(value, field);
         } else if (dt == DisplayType.REFERENCE) {
             return wrapReference(value, field);
+        } else if (dt == DisplayType.N2NREFERENCE) {
+            return wrapN2NReference(value, field);
         } else if (dt == DisplayType.BOOL) {
             return wrapBool(value, field);
         } else if (dt == DisplayType.PICKLIST) {
@@ -189,7 +192,7 @@ public class FieldValueWrapper {
      * @return
      * @see #wrapMixValue(ID, String)
      */
-    public JSON wrapReference(Object value, EasyMeta field) {
+    public JSONObject wrapReference(Object value, EasyMeta field) {
         Object text = ((ID) value).getLabelRaw();
         if (text == null) {
             text = getLabelNotry((ID) value);
@@ -200,6 +203,22 @@ public class FieldValueWrapper {
         }
 
         return wrapMixValue((ID) value, text == null ? null : text.toString());
+    }
+
+    /**
+     * @param value
+     * @param field
+     * @return
+     * @see #wrapReference(Object, EasyMeta)
+     */
+    public JSONArray wrapN2NReference(Object value, EasyMeta field) {
+        ID[] ids = (ID[]) value;
+        
+        JSONArray idArray = new JSONArray();
+        for (ID id : ids) {
+            idArray.add(wrapReference(id, field));
+        }
+        return idArray;
     }
 
     /**
