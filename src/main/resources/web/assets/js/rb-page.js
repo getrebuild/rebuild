@@ -490,7 +490,7 @@ var $unmount = function (container, delay, keepContainer) {
 var $initReferenceSelect2 = function (el, field) {
   var search_input = null
   return $(el).select2({
-    placeholder: $L('SelectSome').replace('{0}', field.label),
+    placeholder: field.placeholder || $L('SelectSome').replace('{0}', field.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
     ajax: {

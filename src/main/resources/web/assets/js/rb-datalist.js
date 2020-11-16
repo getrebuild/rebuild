@@ -1237,6 +1237,7 @@ const ChartsWidget = {
       this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
       return
     }
+    // eslint-disable-next-line react/jsx-no-undef
     renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
       ChartsWidget.__chartSelect = this
       this.setState({ appended: ChartsWidget.__currentCharts() })

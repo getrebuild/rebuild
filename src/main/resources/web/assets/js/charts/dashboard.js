@@ -111,6 +111,7 @@ $(document).ready(function () {
         chart.w = chart.h = 4
         add_widget(chart)
       }
+      // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<ChartSelect key="ChartSelect" select={select} />, null, function () {
         dlgChartSelect = this
         this.setState({ appended: appended })

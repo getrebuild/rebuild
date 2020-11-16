@@ -91,7 +91,6 @@ module.exports = {
     ConfigFormDlg: true,
     RbPreview: true,
     $countdownButton: true,
-    ChartSelect: true,
     Share2: true,
     $stopEvent: true,
     $addResizeHandler: true,
@@ -105,6 +104,7 @@ module.exports = {
     $fromNow: true,
     $expired: true,
     $L: true,
-    $isTrue: true
+    $isTrue: true,
+    $fieldIsCompatible: true
   },
 }

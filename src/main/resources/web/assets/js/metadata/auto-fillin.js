@@ -16,10 +16,10 @@ $(document).ready(() => {
 })
 
 const loadRules = () => {
-  $.get('../auto-fillin-list?field=' + wpc.fieldName, (res) => {
-    const tbody = $('#dataList tbody').empty()
+  $.get(`../auto-fillin-list?field=${wpc.fieldName}`, (res) => {
+    const $tbody = $('#dataList tbody').empty()
     $(res.data).each(function () {
-      let tr = $('<tr></tr>').appendTo(tbody)
+      let tr = $('<tr></tr>').appendTo($tbody)
       $('<td><div>' + this.targetFieldLabel + '</div></td>').appendTo(tr)
       $('<td>' + this.sourceFieldLabel + '</div></td>').appendTo(tr)
       const extc = this.extConfig
@@ -63,7 +63,7 @@ class DlgRuleEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title="回填规则" ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('FillbackRule')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('SourceField')}</label>
@@ -150,7 +150,7 @@ class DlgRuleEdit extends RbFormHandler {
               placeholder: $L('SelectSome,Field'),
               allowClear: false,
             })
-            .on('change', (e) => this.__renderTargetFields(e.target.value))
+            .on('change', (e) => this._renderTargetFields(e.target.value))
           this.__select2.push(s2source)
 
           if (this.props.sourceField) {
@@ -168,40 +168,20 @@ class DlgRuleEdit extends RbFormHandler {
       })
     })
   }
-  __renderTargetFields(s) {
-    const source = this.__sourceFieldsCache.find((x) => {
-      return s === x.name
-    })
-    let canFillinByType = CAN_FILLIN_MAPPINGS[source.type] || []
-    canFillinByType.push('TEXT')
-    canFillinByType.push('NTEXT')
+
+  _renderTargetFields(s) {
+    const source = this.__sourceFieldsCache.find((x) => s === x.name)
 
     // 显示兼容的目标字段
-    let tFields = []
+    const targetFields = []
     $(this.__targetFieldsCache).each(function () {
-      if (
-        !this.creatable ||
-        this.name === wpc.fieldName ||
-        this.type === 'SERIES' ||
-        this.type === 'MULTISELECT' ||
-        this.type === 'PICKLIST' ||
-        (source.type === 'FILE' && this.type !== 'FILE') ||
-        (source.type === 'IMAGE' && this.type !== 'IMAGE') ||
-        (source.type === 'AVATAR' && this.type !== 'AVATAR')
-      )
-        return
-
-      if (source.type === this.type || canFillinByType.includes(this.type)) {
-        if (source.type === 'REFERENCE') {
-          if (source.ref && this.ref && source.ref[0] === this.ref[0]) tFields.push(this)
-        } else if (source.type === 'STATE') {
-          if (source.stateClass && source.stateClass === this.stateClass) tFields.push(this)
-        } else {
-          tFields.push(this)
-        }
+      if (this.creatable && this.name !== wpc.fieldName && $fieldIsCompatible(source, this)) {
+        targetFields.push(this)
       }
     })
-    this.setState({ targetFields: tFields })
+    this.setState({ targetFields: targetFields }, () => {
+      if (targetFields.length > 0) this.__select2[0].val(targetFields[0].name)
+    })
   }
 
   handleChange(e) {
@@ -236,11 +216,4 @@ class DlgRuleEdit extends RbFormHandler {
       this.disabled()
     })
   }
-}
-
-const CAN_FILLIN_MAPPINGS = {
-  NUMBER: ['DECIMAL'],
-  DECIMAL: ['NUMBER'],
-  DATE: ['DATETIME'],
-  DATETIME: ['DATE'],
 }

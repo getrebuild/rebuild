@@ -118,6 +118,7 @@ public class EasyMeta implements BaseMeta {
      *
      * @param name
      * @return
+     * @see FieldExtConfigProps
      */
     public String getExtraAttr(String name) {
         return getExtraAttrs().getString(name);

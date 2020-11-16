@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.web.BaseController;
@@ -167,12 +168,14 @@ public class MetadataGetting extends BaseController {
         map.put("updatable", field.isUpdatable());
 
         DisplayType dt = EasyMeta.getDisplayType(field);
-        if (dt == DisplayType.REFERENCE) {
+        if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
             Entity refEntity = field.getReferenceEntity();
             Field nameField = MetadataHelper.getNameField(refEntity);
             map.put("ref", new String[]{refEntity.getName(), EasyMeta.getDisplayType(nameField).name()});
         } else if (dt == DisplayType.STATE) {
             map.put("stateClass", StateHelper.getSatetClass(field).getName());
+        } else if (dt == DisplayType.CLASSIFICATION) {
+            map.put("classification", easyField.getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE));
         }
         return map;
     }
