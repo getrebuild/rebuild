@@ -12,14 +12,18 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
+import cn.devezhao.persist4j.record.FieldValueException;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 字段值兼容转换
@@ -76,8 +80,12 @@ public class FieldValueCompatibleConversion {
         final DisplayType targetType = EasyMeta.getDisplayType(target);
         final boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
 
+        if (sourceType == DisplayType.MULTISELECT) {
+            throw new FieldValueException("Incompatible field (value) : " + sourceField);
+        }
+
         // 日期公式
-        if (valueExpr != null && (sourceType == DisplayType.DATETIME || sourceType == DisplayType.DATE)) {
+        if (StringUtils.isNotBlank(valueExpr) && (sourceType == DisplayType.DATETIME || sourceType == DisplayType.DATE)) {
             Date newDate = FieldDefaultValueHelper.parseDateExpr("{NOW" + valueExpr + "}", (Date) sourceValue);
             if (newDate != null) {
                 sourceValue = newDate;
@@ -96,6 +104,19 @@ public class FieldValueCompatibleConversion {
             } else if (returnMixValue) {
                 String text = FieldValueWrapper.getLabelNotry((ID) sourceValue);
                 compatibleValue = FieldValueWrapper.wrapMixValue((ID) sourceValue, text);
+            }
+
+        } else if (sourceType == DisplayType.N2NREFERENCE) {
+            if (is2Text) {
+                ID[] idArray = (ID[]) sourceValue;
+                List<String> texts = new ArrayList<>();
+                for (ID id : idArray) {
+                    texts.add(FieldValueWrapper.getLabelNotry(id));
+                }
+                compatibleValue = StringUtils.join(texts, ", ");
+
+            } else if (returnMixValue) {
+                compatibleValue = FieldValueWrapper.instance.wrapN2NReference(sourceValue, sourceField);
             }
 
         } else if (sourceType == DisplayType.CLASSIFICATION) {
