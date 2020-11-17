@@ -175,7 +175,7 @@ class DlgRuleEdit extends RbFormHandler {
     // 显示兼容的目标字段
     const targetFields = []
     $(this.__targetFieldsCache).each(function () {
-      if (this.creatable && this.name !== wpc.fieldName && $fieldIsCompatible(source, this)) {
+      if (this.creatable && this.name !== wpc.fieldName && this.type !== 'SERIES' && $fieldIsCompatible(source, this)) {
         targetFields.push(this)
       }
     })

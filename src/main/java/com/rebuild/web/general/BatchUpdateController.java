@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
@@ -24,22 +25,16 @@ import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.commons.MetadataGetting;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 批量修改
@@ -47,13 +42,12 @@ import java.util.Map;
  * @author ZHAO
  * @since 2019/12/1
  */
-@Controller
+@RestController
 @RequestMapping("/app/{entity}/batch-update/")
 public class BatchUpdateController extends BaseController {
 
     @PostMapping("submit")
-    public void submit(@PathVariable String entity,
-                       HttpServletRequest request, HttpServletResponse response) {
+    public RespBody submit(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         Assert.isTrue(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate),
@@ -68,14 +62,14 @@ public class BatchUpdateController extends BaseController {
         Entity entityMeta = MetadataHelper.getEntity(entity);
         String taskid = Application.getEntityService(entityMeta.getEntityCode()).bulkAsync(bulkContext);
 
-        writeSuccess(response, taskid);
+        return RespBody.ok(taskid);
     }
 
     @GetMapping("fields")
-    public void getFields(@PathVariable String entity, HttpServletResponse response) {
+    public List<JSONObject> getFields(@PathVariable String entity) {
         Entity entityMeta = MetadataHelper.getEntity(entity);
 
-        List<Map<String, Object>> updatableFields = new ArrayList<>();
+        List<JSONObject> updatableFields = new ArrayList<>();
         for (Field field : MetadataSorter.sortFields(entityMeta)) {
             if (!field.isUpdatable()) continue;
 
@@ -95,9 +89,9 @@ public class BatchUpdateController extends BaseController {
                 continue;
             }
 
-            updatableFields.add(this.buildField(field, dt));
+            updatableFields.add(buildField(field, dt));
         }
-        writeSuccess(response, updatableFields);
+        return updatableFields;
     }
 
     /**
@@ -105,8 +99,8 @@ public class BatchUpdateController extends BaseController {
      * @param dt
      * @return
      */
-    private Map<String, Object> buildField(Field field, DisplayType dt) {
-        Map<String, Object> map = MetadataGetting.formatField(field);
+    private JSONObject buildField(Field field, DisplayType dt) {
+        JSONObject map = EasyMeta.getFieldShow(field);
 
         // 字段选项
         if (dt == DisplayType.PICKLIST) {
@@ -120,15 +114,19 @@ public class BatchUpdateController extends BaseController {
 
         } else if (dt == DisplayType.BOOL) {
             JSONArray options = new JSONArray();
-            options.add(JSONUtils.toJSONObject(new String[]{"id", "text"}, new Object[]{true, "是"}));
-            options.add(JSONUtils.toJSONObject(new String[]{"id", "text"}, new Object[]{false, "否"}));
+            options.add(JSONUtils.toJSONObject(
+                    new String[] { "id", "text" },
+                    new Object[] { true, Language.L("True") }));
+            options.add(JSONUtils.toJSONObject(
+                    new String[] { "id", "text" },
+                    new Object[] { false, Language.L("False") }));
             map.put("options", options);
 
         } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
             map.put(FieldExtConfigProps.NUMBER_NOTNEGATIVE,
                     EasyMeta.valueOf(field).getExtraAttr(FieldExtConfigProps.NUMBER_NOTNEGATIVE));
-        }
 
+        }
         return map;
     }
 }

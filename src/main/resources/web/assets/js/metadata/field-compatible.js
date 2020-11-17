@@ -26,18 +26,13 @@ const FT_COMPATIBLE = {
  */
 // eslint-disable-next-line no-unused-vars
 function $fieldIsCompatible(s, t) {
-  // 不支持
-  if (t.type === 'SERIES') return false
-  if (t.type === 'MULTISELECT') return false
-  if (t.type === 'PICKLIST') return false
-
   // 必须对应
   if (s.type === 'FILE' && t.type !== 'FILE') return false
   if (s.type === 'IMAGE' && t.type !== 'IMAGE') return false
   if (s.type === 'AVATAR' && t.type !== 'AVATAR') return false
 
   // 判断附加参数
-  if (t.type === 'REFERENCE' || t.type === 'N2NREFERENCE') {
+  if (t.type === 'REFERENCE' || t.type === 'N2NREFERENCE' || t.type === 'ID') {
     return t.ref && s.ref && t.ref[0] === s.ref[0]
   }
   if (t.type === 'CLASSIFICATION') {

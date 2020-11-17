@@ -34,8 +34,8 @@ $(document).ready(() => {
 
   const fillbackFields = []
   wpc.sourceEntity.fields.forEach((item) => {
-    if (!item.id.includes('.') && item.type === `REFERENCE.${wpc.targetEntity.entity}`) {
-      fillbackFields.push(item)
+    if (!item.name.includes('.') && item.type === 'REFERENCE' && item.ref[0] === wpc.targetEntity.entity) {
+      fillbackFields.push({ id: item.name, text: item.label })
     }
   })
 
@@ -103,19 +103,20 @@ class FieldsMapping extends React.Component {
       .find('select')
       .each(function () {
         const $this = $(this)
-        const field = $this.data('field')
-        const ftc = $this.data('ftc')
-        const req = $this.data('req')
+
+        const fieldName = $this.data('field')
+        const targetField = that.props.target.fields.find((x) => fieldName === x.name)
 
         const sourceFields = []
         that.props.source.fields.forEach((item) => {
-          if ((item.type === 'ID' && ftc === `REFERENCE.${that.props.source.entity}`)
-              || _isCompatible(item, ftc)) sourceFields.push(item)
+          if ($fieldIsCompatible(item, targetField)) {
+            sourceFields.push({ id: item.name, text: item.label })
+          }
         })
 
         $this
           .select2({
-            placeholder: $L('SelectSome,SourceField') + (req ? '' : ` (${$L('Optional')})`),
+            placeholder: $L('SelectSome,SourceField') + (targetField.nullable ? '' : ` (${$L('Optional')})`),
             allowClear: true,
             data: sourceFields,
             language: {
@@ -126,7 +127,7 @@ class FieldsMapping extends React.Component {
             if ($this.val()) $this.parents('.row').addClass('active')
             else $this.parents('.row ').removeClass('active')
           })
-          .val(_data[field] || null)
+          .val(_data[fieldName] || null)
           .trigger('change')
       })
   }
@@ -136,9 +137,7 @@ class FieldsMapping extends React.Component {
     const _target = this.props.target
 
     if (!_target.fields || _target.fields.length === 0) {
-      return (
-        <RbAlertBox message={$L('NoUsesField')} />
-      )
+      return <RbAlertBox message={$L('NoUsesField')} />
     }
 
     return (
@@ -153,14 +152,12 @@ class FieldsMapping extends React.Component {
         </div>
         {_target.fields.map((item) => {
           return (
-            <div className="row" key={item.id}>
+            <div className="row" key={`t-${item.name}`}>
               <div className="col-7">
-                <select className="form-control form-control-sm" data-ftc={item.type} data-req={!item.nullable} data-field={item.id}></select>
+                <select className="form-control form-control-sm" data-field={item.name}></select>
               </div>
               <div className="col-5">
-                <span className={`badge ${item.nullable ? '' : 'req'}`}>
-                  {item.text}
-                </span>
+                <span className={`badge ${item.nullable ? '' : 'req'}`}>{item.label}</span>
               </div>
             </div>
           )
@@ -191,22 +188,6 @@ class FieldsMapping extends React.Component {
       })
     return mapping
   }
-}
-
-// 字段类型兼容
-const FT_COMPATIBLE = {
-  NUMBER: ['DECIMAL'],
-  DECIMAL: ['NUMBER'],
-  DATE: ['DATETIME'],
-  DATETIME: ['DATE'],
-  TEXT: ['*'],
-  NTEXT: ['*'],
-}
-
-function _isCompatible(field, ftc) {
-  if (field.type === ftc) return true
-  const allow = FT_COMPATIBLE[ftc] || []
-  return allow.includes('*') || allow.includes(field.type)
 }
 
 let advFilter_data

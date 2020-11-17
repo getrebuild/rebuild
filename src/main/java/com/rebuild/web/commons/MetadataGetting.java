@@ -13,15 +13,14 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.PrivilegesManager;
-import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,13 +58,13 @@ public class MetadataGetting extends BaseController {
     }
 
     @GetMapping("fields")
-    public List<Map<String, Object>> fields(HttpServletRequest request) {
+    public List<JSONObject> fields(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         Entity entityMeta = MetadataHelper.getEntity(entity);
         // 返回引用实体的字段
         boolean appendRefFields = "2".equals(getParameter(request, "deep"));
 
-        List<Map<String, Object>> data = new ArrayList<>();
+        List<JSONObject> data = new ArrayList<>();
         putFields(data, entityMeta, appendRefFields);
 
         // 追加二级引用字段
@@ -76,7 +75,7 @@ public class MetadataGetting extends BaseController {
                 int code = field.getReferenceEntity().getEntityCode();
                 if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) continue;
 
-                data.add(formatField(field));
+                data.add(EasyMeta.getFieldShow(field));
                 putFields(data, field, false);
             }
         }
@@ -88,7 +87,7 @@ public class MetadataGetting extends BaseController {
      * @param entityOrField
      * @param filterRefField
      */
-    private void putFields(List<Map<String, Object>> dest, BaseMeta entityOrField, boolean filterRefField) {
+    private void putFields(List<JSONObject> dest, BaseMeta entityOrField, boolean filterRefField) {
         Field parentField = null;
         Entity useEntity;
         if (entityOrField instanceof Field) {
@@ -99,7 +98,7 @@ public class MetadataGetting extends BaseController {
         }
 
         for (Field field : MetadataSorter.sortFields(useEntity)) {
-            Map<String, Object> map = formatField(field);
+            JSONObject map = EasyMeta.getFieldShow(field);
 
             // 引用字段处理
             if (EasyMeta.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {
@@ -149,34 +148,5 @@ public class MetadataGetting extends BaseController {
             }
         }
         return data;
-    }
-
-    // --
-
-    /**
-     * @param field
-     * @return
-     */
-    public static Map<String, Object> formatField(Field field) {
-        Map<String, Object> map = new HashMap<>();
-        EasyMeta easyField = EasyMeta.valueOf(field);
-        map.put("name", field.getName());
-        map.put("label", easyField.getLabel());
-        map.put("type", easyField.getDisplayType().name());
-        map.put("nullable", field.isNullable());
-        map.put("creatable", field.isCreatable());
-        map.put("updatable", field.isUpdatable());
-
-        DisplayType dt = EasyMeta.getDisplayType(field);
-        if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
-            Entity refEntity = field.getReferenceEntity();
-            Field nameField = MetadataHelper.getNameField(refEntity);
-            map.put("ref", new String[]{refEntity.getName(), EasyMeta.getDisplayType(nameField).name()});
-        } else if (dt == DisplayType.STATE) {
-            map.put("stateClass", StateHelper.getSatetClass(field).getName());
-        } else if (dt == DisplayType.CLASSIFICATION) {
-            map.put("classification", easyField.getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE));
-        }
-        return map;
     }
 }
