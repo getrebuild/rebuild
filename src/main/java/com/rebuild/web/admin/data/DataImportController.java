@@ -19,8 +19,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.dataimport.DataFileParser;
 import com.rebuild.core.service.dataimport.DataImporter;
 import com.rebuild.core.service.dataimport.ImportRule;
@@ -110,7 +111,7 @@ public class DataImportController extends BaseController {
             }
 
             // TODO 开放媒体字段导入
-            EasyMeta easyMeta = new EasyMeta(field);
+            EasyField easyMeta = EasyMetaFactory.valueOf(field);
             DisplayType dt = easyMeta.getDisplayType();
             if (dt == DisplayType.FILE
                     || dt == DisplayType.IMAGE

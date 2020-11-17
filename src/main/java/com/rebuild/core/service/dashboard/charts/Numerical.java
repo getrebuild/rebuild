@@ -10,7 +10,6 @@ package com.rebuild.core.service.dashboard.charts;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 
 /**

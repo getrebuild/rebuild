@@ -13,7 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -43,7 +43,7 @@ public class StateManager {
         if (EntityHelper.ApprovalState.equalsIgnoreCase(stateField.getName())) {
             stateClass = ApprovalState.class.getName();
         } else {
-            stateClass = EasyMeta.valueOf(stateField).getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+            stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
         }
         return getStateOptions(stateClass);
     }

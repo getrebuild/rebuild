@@ -25,7 +25,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
@@ -112,7 +111,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         // 引用实体的字段
         for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
             // 过滤所属用户/所属部门等系统字段（除了明细引用（主实体）字段）
-            if (EasyMeta.valueOf(field).isBuiltin() && (dtmField == null || !dtmField.equals(field))) {
+            if (EasyMetaFactory.valueOf(field).isBuiltin() && (dtmField == null || !dtmField.equals(field))) {
                 continue;
             }
 

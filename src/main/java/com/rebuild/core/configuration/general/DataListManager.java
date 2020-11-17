@@ -17,8 +17,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -145,7 +145,7 @@ public class DataListManager extends BaseLayoutManager {
     public Map<String, Object> formatField(Field field, Field parent) {
         String parentField = parent == null ? "" : (parent.getName() + ".");
         String parentLabel = parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".");
-        EasyMeta easyField = new EasyMeta(field);
+        EasyField easyField = EasyMetaFactory.valueOf(field);
         return JSONUtils.toJSONObject(
                 new String[]{"field", "label", "type"},
                 new Object[]{parentField + easyField.getName(), parentLabel + easyField.getLabel(), easyField.getDisplayType(false)});

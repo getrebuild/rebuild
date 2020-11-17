@@ -9,7 +9,7 @@ package com.rebuild.core.support.state;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.service.approval.ApprovalState;
 import org.apache.commons.lang.ClassUtils;
@@ -48,7 +48,7 @@ public class StateHelper {
             return ApprovalState.class;
         }
 
-        String stateClass = new EasyMeta(stateField).getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+        String stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
         return getSatetClass(stateClass);
     }
 

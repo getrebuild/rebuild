@@ -16,7 +16,6 @@ import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyMeta;
 
 /**
  * 获取实体列表

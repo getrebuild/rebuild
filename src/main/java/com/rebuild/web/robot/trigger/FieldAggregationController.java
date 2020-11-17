@@ -12,9 +12,9 @@ import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.utils.JSONUtils;
@@ -96,7 +96,7 @@ public class FieldAggregationController extends BaseController {
 
         if (targetEntity != null) {
             for (Field field : MetadataSorter.sortFields(targetEntity, usesTypes)) {
-                if (EasyMeta.valueOf(field).isBuiltin()) {
+                if (EasyMetaFactory.valueOf(field).isBuiltin()) {
                     continue;
                 }
                 targetFields.add(buildField(field));
@@ -116,7 +116,7 @@ public class FieldAggregationController extends BaseController {
     }
 
     private String[] buildField(Field field) {
-        EasyMeta easyField = EasyMeta.valueOf(field);
+        EasyField easyField = EasyMetaFactory.valueOf(field);
         return new String[] { field.getName(), easyField.getLabel() };
     }
 }

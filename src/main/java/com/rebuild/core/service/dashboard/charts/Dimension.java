@@ -11,7 +11,6 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 
 import java.text.MessageFormat;
 

@@ -20,9 +20,9 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
@@ -74,7 +74,7 @@ public class BatchUpdateController extends BaseController {
         for (Field field : MetadataSorter.sortFields(entityMeta)) {
             if (!field.isUpdatable()) continue;
 
-            EasyMeta easyMeta = EasyMeta.valueOf(field);
+            EasyField easyMeta = EasyMetaFactory.valueOf(field);
             if (!easyMeta.isUpdatable()) continue;
 
             DisplayType dt = easyMeta.getDisplayType();
@@ -125,7 +125,7 @@ public class BatchUpdateController extends BaseController {
 
         } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
             map.put(FieldExtConfigProps.NUMBER_NOTNEGATIVE,
-                    EasyMeta.valueOf(field).getExtraAttr(FieldExtConfigProps.NUMBER_NOTNEGATIVE));
+                    EasyMetaFactory.valueOf(field).getExtraAttr(FieldExtConfigProps.NUMBER_NOTNEGATIVE));
 
         }
         return map;

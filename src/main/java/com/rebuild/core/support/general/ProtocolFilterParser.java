@@ -14,7 +14,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
@@ -83,7 +84,7 @@ public class ProtocolFilterParser {
         }
 
         Field field = MetadataHelper.getField(fieldAndEntity[1], fieldAndEntity[0]);
-        String referenceDataFilter = EasyMeta.valueOf(field).getExtraAttr("referenceDataFilter");
+        String referenceDataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(FieldExtConfigProps.REFERENCE_DATAFILTER);
 
         if (JSONUtils.wellFormat(referenceDataFilter)) {
             JSONObject advFilter = JSON.parseObject(referenceDataFilter);

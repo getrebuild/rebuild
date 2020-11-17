@@ -31,6 +31,7 @@ import java.util.Set;
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
+@SuppressWarnings("unused")
 @Deprecated
 public class EasyMeta implements BaseMeta {
     private static final long serialVersionUID = -6463919098111506968L;
@@ -288,31 +289,5 @@ public class EasyMeta implements BaseMeta {
             return DisplayType.DECIMAL;
         }
         return null;
-    }
-
-    // -- QUICK
-
-    /**
-     * @param entityOrField
-     * @return
-     */
-    public static EasyMeta valueOf(BaseMeta entityOrField) {
-        return new EasyMeta(entityOrField);
-    }
-
-    /**
-     * @param entityCode
-     * @return
-     */
-    public static EasyMeta valueOf(int entityCode) {
-        return valueOf(MetadataHelper.getEntity(entityCode));
-    }
-
-    /**
-     * @param entityName
-     * @return
-     */
-    public static EasyMeta valueOf(String entityName) {
-        return valueOf(MetadataHelper.getEntity(entityName));
     }
 }

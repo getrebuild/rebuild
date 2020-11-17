@@ -15,7 +15,6 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.core.support.state.StateSpec;
 import org.apache.commons.lang.BooleanUtils;

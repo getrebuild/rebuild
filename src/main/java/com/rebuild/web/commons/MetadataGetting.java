@@ -18,9 +18,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +49,7 @@ public class MetadataGetting extends BaseController {
         List<Map<String, Object>> data = new ArrayList<>();
         for (Entity e : MetadataSorter.sortEntities(user, false, usesDetail)) {
             Map<String, Object> map = new HashMap<>();
-            EasyMeta easy = new EasyMeta(e);
+            EasyEntity easy = EasyMetaFactory.valueOf(e);
             map.put("name", e.getName());
             map.put("label", easy.getLabel());
             map.put("icon", easy.getIcon());
@@ -144,7 +144,7 @@ public class MetadataGetting extends BaseController {
         for (Entity e : references) {
             if (checkPermission == null
                     || Application.getPrivilegesManager().allow(user, e.getEntityCode(), checkPermission)) {
-                EasyMeta easy = new EasyMeta(e);
+                EasyEntity easy = EasyMetaFactory.valueOf(e);
                 data.add(new String[] { easy.getName(), easy.getLabel() });
             }
         }

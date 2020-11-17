@@ -17,7 +17,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
@@ -80,7 +81,7 @@ public class MetaEntityController extends BaseController {
         }
 
         // 扩展配置
-        mv.getModel().put("entityExtConfig", EasyMeta.valueOf(metaEntity).getExtraAttrs(true));
+        mv.getModel().put("entityExtConfig", EasyMetaFactory.valueOf(metaEntity).getExtraAttrs(true));
 
         return mv;
     }
@@ -103,7 +104,7 @@ public class MetaEntityController extends BaseController {
 
         List<Map<String, Object>> ret = new ArrayList<>();
         for (Entity entity : MetadataSorter.sortEntities(null, usesBizz, usesDetail)) {
-            EasyMeta easyMeta = new EasyMeta(entity);
+            EasyEntity easyMeta = EasyMetaFactory.valueOf(entity);
             Map<String, Object> map = new HashMap<>();
             map.put("entityName", easyMeta.getName());
             map.put("entityLabel", easyMeta.getLabel());
@@ -244,8 +245,8 @@ public class MetaEntityController extends BaseController {
      * @param entity
      * @return
      */
-    static EasyMeta setEntityBase(ModelAndView mv, String entity) {
-        EasyMeta entityMeta = EasyMeta.valueOf(entity);
+    static EasyEntity setEntityBase(ModelAndView mv, String entity) {
+        EasyEntity entityMeta = EasyMetaFactory.valueOf(entity);
         mv.getModel().put("entityMetaId", entityMeta.getMetaId());
         mv.getModel().put("entityName", entityMeta.getName());
         mv.getModel().put("entityLabel", entityMeta.getLabel());

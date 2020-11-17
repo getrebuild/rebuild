@@ -11,8 +11,9 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -45,7 +46,7 @@ public class SeriesZeroResetJob extends DistributedJobLock {
 
         for (Entity entity : MetadataHelper.getEntities()) {
             for (Field field : entity.getFields()) {
-                EasyMeta easy = EasyMeta.valueOf(field);
+                EasyField easy = EasyMetaFactory.valueOf(field);
                 if (easy.getDisplayType() == DisplayType.SERIES) {
                     String zeroFlag = easy.getExtraAttr(FieldExtConfigProps.SERIES_SERIESZERO);
                     if ("D".equalsIgnoreCase(zeroFlag)) {

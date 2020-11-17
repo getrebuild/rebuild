@@ -17,8 +17,9 @@ import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
@@ -120,7 +121,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     continue;
                 }
 
-                final EasyMeta easyField = EasyMeta.valueOf(field);
+                final EasyField easyField = EasyMetaFactory.valueOf(field);
                 if (easyField.getDisplayType() == DisplayType.SERIES) {
                     continue;
                 }
@@ -146,7 +147,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     continue;
                 }
 
-                final EasyMeta easyField = EasyMeta.valueOf(field);
+                final EasyField easyField = EasyMetaFactory.valueOf(field);
                 if (!easyField.isUpdatable()) {
                     if (strictMode) {
                         notAllowed.add(easyField.getLabel());

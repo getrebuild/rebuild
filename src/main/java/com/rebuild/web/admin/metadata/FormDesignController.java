@@ -20,7 +20,8 @@ import com.rebuild.core.configuration.general.FormsManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.web.BaseController;
@@ -88,7 +89,7 @@ public class FormDesignController extends BaseController {
             Entity entityMeta = MetadataHelper.getEntity(entity);
             for (Map.Entry<String, String> e : newLabels.entrySet()) {
                 Field fieldMeta = entityMeta.getField(e.getKey());
-                EasyMeta fieldEasy = EasyMeta.valueOf(fieldMeta);
+                EasyField fieldEasy = EasyMetaFactory.valueOf(fieldMeta);
                 if (fieldEasy.isBuiltin() || fieldEasy.getMetaId() == null) {
                     continue;
                 }

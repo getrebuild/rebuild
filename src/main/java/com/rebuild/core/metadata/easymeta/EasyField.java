@@ -82,7 +82,7 @@ public class EasyField extends BaseEasyMeta<Field> {
     public DisplayType getDisplayType() {
         String displayType = getExtraAttr("displayType");
         DisplayType dt = displayType != null
-                ? DisplayType.valueOf(displayType) : converBuiltinFieldType(getRawMeta());
+                ? DisplayType.valueOf(displayType) : convertBuiltinFieldType(getRawMeta());
         if (dt != null) return dt;
 
         throw new RebuildException("Unsupported field type : " + getRawMeta());
@@ -94,7 +94,7 @@ public class EasyField extends BaseEasyMeta<Field> {
      * @param field
      * @return
      */
-    private DisplayType converBuiltinFieldType(Field field) {
+    private DisplayType convertBuiltinFieldType(Field field) {
         Type ft = field.getType();
         if (ft == FieldType.PRIMARY) {
             return DisplayType.ID;
@@ -128,4 +128,11 @@ public class EasyField extends BaseEasyMeta<Field> {
         }
         return null;
     }
+
+//    // 转换兼容值
+//    abstract Object convertCompatibleValue(EasyField target, Object sourceValue);
+//    // 转换符合字段类型的值
+//    abstract Object checkoutValue(Object rawValue);
+//    // 默认值
+//    abstract Object exprDefaultValue(String expr);
 }

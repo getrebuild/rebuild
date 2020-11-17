@@ -19,7 +19,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.CommonsService;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
@@ -103,7 +102,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         // 忽略权限检查
-        if (EasyMeta.valueOf(entity).isPlainEntity()) return;
+        if (EasyMetaFactory.valueOf(entity).isPlainEntity()) return;
 
         Permission action = getPermissionByMethod(invocation.getMethod(), recordId == null);
 

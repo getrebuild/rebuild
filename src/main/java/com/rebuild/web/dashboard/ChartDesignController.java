@@ -20,9 +20,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dashboard.ChartConfigService;
@@ -120,7 +120,7 @@ public class ChartDesignController extends EntityController {
 
     private void putFields(List<String[]> dest, Entity entity, Field parent) {
         for (Field field : MetadataSorter.sortFields(entity)) {
-            EasyMeta easyField = EasyMeta.valueOf(field);
+            EasyField easyField = EasyMetaFactory.valueOf(field);
             DisplayType dt = easyField.getDisplayType();
             if (dt == DisplayType.IMAGE
                     || dt == DisplayType.FILE

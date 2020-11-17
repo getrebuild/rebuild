@@ -17,7 +17,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.core.RebuildException;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.apache.commons.lang.StringUtils;
 
@@ -41,7 +41,7 @@ public class BarCodeGenerator {
      * @return
      */
     public static String getBarCodeContent(Field field, ID record) {
-        String barcodeFormat = EasyMeta.valueOf(field).getExtraAttr("barcodeFormat");
+        String barcodeFormat = EasyMetaFactory.valueOf(field).getExtraAttr("barcodeFormat");
         if (StringUtils.isBlank(barcodeFormat)) {
             return "UNSET";
         }
@@ -55,7 +55,7 @@ public class BarCodeGenerator {
      */
     public static BufferedImage getBarCodeImage(Field field, ID record) {
         String content = getBarCodeContent(field, record);
-        String barcodeType = EasyMeta.valueOf(field).getExtraAttr("barcodeType");
+        String barcodeType = EasyMetaFactory.valueOf(field).getExtraAttr("barcodeType");
 
         if ("QRCODE".equalsIgnoreCase(barcodeType)) {
             return createQRCode(content);

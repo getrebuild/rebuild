@@ -15,9 +15,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -74,7 +74,7 @@ public class FieldWritebackController extends BaseController {
 
         if (targetEntity != null) {
             for (Field field : MetadataSorter.sortFields(targetEntity)) {
-                EasyMeta easyField = EasyMeta.valueOf(field);
+                EasyField easyField = EasyMetaFactory.valueOf(field);
                 DisplayType dt = easyField.getDisplayType();
                 if (dt == DisplayType.SERIES || easyField.isBuiltin()) {
                     continue;

@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.*;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
@@ -183,7 +184,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
-        Record needUpdate = EntityHelper.forUpdate(EasyMeta.valueOf(entity).getMetaId(), this.getUser(), false);
+        Record needUpdate = EntityHelper.forUpdate(EasyMetaFactory.valueOf(entity).getMetaId(), this.getUser(), false);
 
         String nameField = schemaEntity.getString("nameField");
         if (nameField != null) {

@@ -14,7 +14,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.feeds.FeedsHelper;
@@ -164,7 +165,7 @@ public class FeedsListController extends BaseController {
             // 相关记录
             ID related = (ID) o[9];
             if (related != null && MetadataHelper.containsEntity(related.getEntityCode())) {
-                EasyMeta entity = EasyMeta.valueOf(related.getEntityCode());
+                EasyEntity entity = EasyMetaFactory.valueOf(related.getEntityCode());
                 String nameValue = FieldValueWrapper.getLabelNotry(related);
                 JSONObject mixValue = FieldValueWrapper.wrapMixValue(related, nameValue);
                 mixValue.put("icon", entity.getIcon());

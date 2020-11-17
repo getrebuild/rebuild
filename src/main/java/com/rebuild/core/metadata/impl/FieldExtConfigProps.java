@@ -71,4 +71,15 @@ public class FieldExtConfigProps {
      * 使用哪个状态类
      */
     public static final String STATE_STATECLASS = "stateClass";
+
+    /**
+     * 引用字段数据过滤
+     */
+    public static final String REFERENCE_DATAFILTER = "referenceDataFilter";
+
+    /**
+     * 多引用字段数据过滤
+     * @see #REFERENCE_DATAFILTER
+     */
+    public static final String N2NREFERENCE_DATAFILTER = REFERENCE_DATAFILTER;
 }

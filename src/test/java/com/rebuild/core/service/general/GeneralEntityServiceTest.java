@@ -8,9 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;

@@ -10,7 +10,7 @@ package com.rebuild.core.service.notification;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
 import org.apache.commons.lang.ArrayUtils;
@@ -65,12 +65,8 @@ public class NotificationObserver extends OperatingObserver {
                 MessageBuilder.createMessage(to, content, Message.TYPE_SAHRE));
     }
 
-    /**
-     * @param id
-     * @return
-     */
     private String getLabel(ID id) {
-        return EasyMeta.valueOf(id.getEntityCode()).getLabel();
+        return EasyMetaFactory.valueOf(id.getEntityCode()).getLabel();
     }
 
     /**

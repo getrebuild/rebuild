@@ -22,7 +22,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.*;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.EntityService;
@@ -200,7 +200,7 @@ public class PrivilegesManager {
      */
     public boolean allow(ID user, int entity, Permission action) {
         // PlainEntity: CRUD
-        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(entity).isPlainEntity()) {
+        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(entity).isPlainEntity()) {
             return true;
         }
         // Feeds: R
@@ -252,7 +252,7 @@ public class PrivilegesManager {
      */
     public boolean allow(ID user, ID target, Permission action) {
         // PlainEntity: CRUD
-        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(target.getEntityCode()).isPlainEntity()) {
+        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(target.getEntityCode()).isPlainEntity()) {
             return true;
         }
 

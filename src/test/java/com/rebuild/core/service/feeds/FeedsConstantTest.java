@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.feeds;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.metadata.EntityHelper;
 import org.junit.jupiter.api.Assertions;
