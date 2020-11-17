@@ -18,15 +18,15 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
@@ -202,11 +202,11 @@ public class ReferenceSearchController extends EntityController {
                 continue;
             }
 
-            String label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField, true);
+            String label = (String) FieldValueHelper.wrapFieldValue(o[1], nameField, true);
             if (StringUtils.isBlank(label)) {
-                label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
+                label = FieldValueHelper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
             }
-            result.add(FieldValueWrapper.wrapMixValue(recordId, label));
+            result.add(FieldValueHelper.wrapMixValue(recordId, label));
         }
         return result;
     }
@@ -229,13 +229,13 @@ public class ReferenceSearchController extends EntityController {
             String label;
             if (ignoreMiss) {
                 try {
-                    label = FieldValueWrapper.getLabel(ID.valueOf(id));
+                    label = FieldValueHelper.getLabel(ID.valueOf(id));
                     labels.put(id, label);
                 } catch (NoRecordFoundException ignored) {
                 }
 
             } else {
-                label = FieldValueWrapper.getLabelNotry(ID.valueOf(id));
+                label = FieldValueHelper.getLabelNotry(ID.valueOf(id));
                 labels.put(id, label);
             }
         }

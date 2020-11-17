@@ -20,9 +20,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -33,7 +33,7 @@ import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldDefaultValueHelper;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import org.apache.commons.lang.StringUtils;
@@ -351,15 +351,15 @@ public class FormsBuilder extends FormsManager {
                         case EntityHelper.CreatedBy:
                         case EntityHelper.ModifiedBy:
                         case EntityHelper.OwningUser:
-                            el.put("value", FieldValueWrapper.wrapMixValue(currentUser.getId(), currentUser.getFullName()));
+                            el.put("value", FieldValueHelper.wrapMixValue(currentUser.getId(), currentUser.getFullName()));
                             break;
                         case EntityHelper.OwningDept:
                             Department dept = currentUser.getOwningDept();
                             Assert.notNull(dept, "Department of user is unset : " + currentUser.getId());
-                            el.put("value", FieldValueWrapper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
+                            el.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
                             break;
                         case EntityHelper.ApprovalId:
-                            el.put("value", FieldValueWrapper.wrapMixValue(null, Language.L("UnSubmit")));
+                            el.put("value", FieldValueHelper.wrapMixValue(null, Language.L("UnSubmit")));
                             break;
                         case EntityHelper.ApprovalState:
                             el.put("value", ApprovalState.DRAFT.getState());
@@ -385,15 +385,15 @@ public class FormsBuilder extends FormsManager {
                             // 引用型
                             else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
                                 try {
-                                    String label = FieldValueWrapper.getLabel((ID) defVal);
-                                    defVal = FieldValueWrapper.wrapMixValue((ID) defVal, label);
+                                    String label = FieldValueHelper.getLabel((ID) defVal);
+                                    defVal = FieldValueHelper.wrapMixValue((ID) defVal, label);
                                 } catch (NoRecordFoundException ignore) {
                                     defVal = null;
                                 }
                             }
                             // 多引用
                             else if (dt == DisplayType.N2NREFERENCE) {
-                                defVal = FieldValueWrapper.instance.wrapN2NReference(defVal, EasyMetaFactory.valueOf(fieldMeta));
+                                defVal = easyField.wrapValue(defVal);
                             }
 
                             el.put("value", defVal);
@@ -404,7 +404,7 @@ public class FormsBuilder extends FormsManager {
                 // 触发器自动值
                 if (roViaTriggers && el.get("value") == null) {
                     if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
-                        el.put("value", FieldValueWrapper.wrapMixValue(null, autoValue));
+                        el.put("value", FieldValueHelper.wrapMixValue(null, autoValue));
                     } else if (dt == DisplayType.TEXT || dt == DisplayType.NTEXT
                             || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE
                             || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
@@ -463,7 +463,7 @@ public class FormsBuilder extends FormsManager {
      * @param data
      * @param field
      * @return
-     * @see FieldValueWrapper
+     * @see FieldValueHelper
      */
     public Object wrapFieldValue(Record data, EasyField field) {
         final String fieldName = field.getName();
@@ -471,9 +471,9 @@ public class FormsBuilder extends FormsManager {
         // No value
         if (!data.hasValue(fieldName, false)) {
             if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
-                return FieldValueWrapper.wrapMixValue(null, Language.L(ApprovalState.DRAFT));
+                return FieldValueHelper.wrapMixValue(null, Language.L(ApprovalState.DRAFT));
             } else if (field.getDisplayType() == DisplayType.BARCODE) {
-                return FieldValueWrapper.instance.wrapBarcode(data.getPrimary(), field);
+                return field.wrapValue(data.getPrimary());
             }
             return null;
         }
@@ -487,7 +487,7 @@ public class FormsBuilder extends FormsManager {
         } else if (dt == DisplayType.BOOL) {
             return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;
         } else {
-            return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
+            return FieldValueHelper.wrapFieldValue(fieldValue, field);
         }
     }
 
@@ -588,8 +588,8 @@ public class FormsBuilder extends FormsManager {
         if (!ID.isId(idVal)) return null;
 
         try {
-            String idLabel = FieldValueWrapper.getLabel(ID.valueOf(idVal));
-            return FieldValueWrapper.wrapMixValue(ID.valueOf(idVal), idLabel);
+            String idLabel = FieldValueHelper.getLabel(ID.valueOf(idVal));
+            return FieldValueHelper.wrapMixValue(ID.valueOf(idVal), idLabel);
         } catch (NoRecordFoundException ex) {
             LOG.error("No record found : " + idVal);
             return null;

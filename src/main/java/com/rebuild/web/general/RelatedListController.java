@@ -17,7 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.feeds.FeedsType;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -59,9 +59,9 @@ public class RelatedListController extends BaseController {
         Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
         for (Object[] o : array) {
             Object nameValue = o[1];
-            nameValue = FieldValueWrapper.instance.wrapFieldValue(nameValue, nameField, true);
+            nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameField, true);
             if (nameValue == null || StringUtils.isEmpty(nameValue.toString())) {
-                nameValue = FieldValueWrapper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
+                nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
             }
             o[1] = nameValue;
             o[2] = I18nUtils.formatDate((Date) o[2]);

@@ -21,12 +21,12 @@ public class FieldValueWrapperTest extends TestSupport {
 
     @Test
     public void testGetLabel() {
-        System.out.println(FieldValueWrapper.getLabel(SIMPLE_USER));
+        System.out.println(FieldValueHelper.getLabel(SIMPLE_USER));
     }
 
     @Test
     public void testGetLabelThrow() {
         Assertions.assertThrows(NoRecordFoundException.class,
-                () -> FieldValueWrapper.getLabel(ID.newId(1)));
+                () -> FieldValueHelper.getLabel(ID.newId(1)));
     }
 }

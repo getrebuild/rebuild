@@ -14,10 +14,10 @@ import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.DataListWrapper;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 
 /**
@@ -63,7 +63,7 @@ public class ApiDataListWrapper extends DataListWrapper {
                 continue;
             }
 
-            Object displayValue = FieldValueWrapper.instance.wrapFieldValue(value, fields[i].getField(), false);
+            Object displayValue = FieldValueHelper.wrapFieldValue(value, fields[i].getField(), false);
 
             DisplayType dt = EasyMetaFactory.getDisplayType(fields[i].getField());
             if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE) {

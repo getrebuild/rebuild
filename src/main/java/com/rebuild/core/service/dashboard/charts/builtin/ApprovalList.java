@@ -19,7 +19,7 @@ import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.dashboard.charts.ChartData;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 
@@ -71,7 +71,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
             final ID recordId = (ID) o[2];
             String label;
             try {
-                label = FieldValueWrapper.getLabel(recordId);
+                label = FieldValueHelper.getLabel(recordId);
             } catch (NoRecordFoundException ignored) {
                 deleted++;
                 continue;

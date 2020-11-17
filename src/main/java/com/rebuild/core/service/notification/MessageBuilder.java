@@ -10,7 +10,7 @@ package com.rebuild.core.service.notification;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.MarkdownUtils;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -133,7 +133,7 @@ public class MessageBuilder {
             }
         }
 
-        String recordLabel = FieldValueWrapper.getLabelNotry(id);
+        String recordLabel = FieldValueHelper.getLabelNotry(id);
         String recordUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + id;
         return String.format("[%s](%s)", recordLabel, recordUrl);
     }

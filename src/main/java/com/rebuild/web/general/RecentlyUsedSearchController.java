@@ -13,7 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
@@ -74,7 +74,7 @@ public class RecentlyUsedSearchController extends BaseController {
         for (ID id : idLabels) {
             String label = id.getLabel();
             if (StringUtils.isBlank(label)) {
-                label = FieldValueWrapper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+                label = FieldValueHelper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
 
             data.add(JSONUtils.toJSONObject(

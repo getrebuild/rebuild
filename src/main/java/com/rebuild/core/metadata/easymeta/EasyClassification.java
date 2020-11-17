@@ -11,14 +11,14 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.ClassificationManager;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyClassification extends EasyField {
+public class EasyClassification extends EasyField implements MixValue {
     private static final long serialVersionUID = -2295351268412805467L;
 
     protected EasyClassification(Field field, DisplayType displayType) {
@@ -41,7 +41,7 @@ public class EasyClassification extends EasyField {
     public Object wrapValue(Object value) {
         ID id = (ID) value;
         String text = StringUtils.defaultIfBlank(
-                ClassificationManager.instance.getFullName(id), FieldValueWrapper.MISS_REF_PLACE);
-        return FieldValueWrapper.wrapMixValue(id, text);
+                ClassificationManager.instance.getFullName(id), FieldValueHelper.MISS_REF_PLACE);
+        return FieldValueHelper.wrapMixValue(id, text);
     }
 }

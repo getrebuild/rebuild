@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 
 /**
  * @author devezhao
@@ -18,5 +21,26 @@ public class EasyN2NReference extends EasyReference {
 
     protected EasyN2NReference(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        return super.convertCompatibleValue(value, targetField);
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        ID[] idArrayValue = (ID[]) value;
+        JSONArray array = new JSONArray();
+        for (ID id : idArrayValue) {
+            array.add(super.wrapValue(id));
+        }
+        return array;
+    }
+
+    @Override
+    public Object unpackWrapValue(Object wrappedValue) {
+        JSONArray array = (JSONArray) wrappedValue;
+        return array.isEmpty() ? null : ((JSONObject) array.get(0)).getString("text");
     }
 }

@@ -31,7 +31,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -441,7 +441,7 @@ public class GeneralOperatingController extends BaseController {
             JSONArray valuesJson = new JSONArray();
             for (String field : fields) {
                 Object value = r.getObjectValue(field);
-                value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field), true);
+                value = FieldValueHelper.wrapFieldValue(value, entity.getField(field), true);
                 valuesJson.add(value);
             }
             data.add(valuesJson);

@@ -15,7 +15,7 @@ import org.springframework.util.Assert;
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyFile extends EasyField {
+public class EasyFile extends EasyField implements MixValue {
     private static final long serialVersionUID = -440245863103271478L;
 
     protected EasyFile(Field field, DisplayType displayType) {
@@ -31,5 +31,10 @@ public class EasyFile extends EasyField {
     @Override
     public Object wrapValue(Object value) {
         return JSON.parseArray(value.toString());
+    }
+
+    @Override
+    public Object unpackWrapValue(Object wrappedValue) {
+        return wrappedValue.toString();
     }
 }

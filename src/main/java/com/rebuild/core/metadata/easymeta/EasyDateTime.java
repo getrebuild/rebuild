@@ -10,7 +10,10 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import org.apache.commons.lang.StringUtils;
+
+import java.util.Date;
 
 /**
  * @author devezhao
@@ -23,8 +26,21 @@ public class EasyDateTime extends EasyField {
         super(field, displayType);
     }
 
-    @Override
-    public Object convertCompatibleValue(Object value, EasyField targetField) {
+    /**
+     * @param value
+     * @param targetField
+     * @param valueExpr
+     * @return
+     */
+    public Object convertCompatibleValue(Object value, EasyField targetField, String valueExpr) {
+        // 日期公式
+        if (StringUtils.isNotBlank(valueExpr)) {
+            Date newDate = FieldDefaultValueHelper.parseDateExpr("{NOW" + valueExpr + "}", (Date) value);
+            if (newDate != null) {
+                value = newDate;
+            }
+        }
+
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
@@ -40,6 +56,11 @@ public class EasyDateTime extends EasyField {
             dateValue += " 00:00:00";
         }
         return CalendarUtils.parse(dateValue);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        return convertCompatibleValue(value, targetField, null);
     }
 
     @Override

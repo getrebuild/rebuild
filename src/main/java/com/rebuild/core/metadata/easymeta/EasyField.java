@@ -111,6 +111,7 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
      *
      * @param value 原值
      * @return
+     * @see com.rebuild.core.support.general.FieldValueHelper
      */
     public Object wrapValue(Object value) {
         if (value == null || StringUtils.isBlank(value.toString())) {
@@ -119,8 +120,8 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return value.toString().trim();
     }
 
-//    // 转换符合字段类型的值
-//    abstract Object checkoutValue(Object rawValue);
 //    // 默认值
 //    abstract Object exprDefaultValue(String expr);
+//    // 转换符合字段类型的值
+//    abstract Object checkoutValue(Object rawValue);
 }

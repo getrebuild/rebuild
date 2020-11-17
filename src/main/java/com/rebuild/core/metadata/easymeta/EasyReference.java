@@ -10,13 +10,13 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyReference extends EasyField {
+public class EasyReference extends EasyField implements MixValue {
     private static final long serialVersionUID = -5001745527956303569L;
 
     protected EasyReference(Field field, DisplayType displayType) {
@@ -41,12 +41,12 @@ public class EasyReference extends EasyField {
         ID idValue = (ID) value;
         Object text = idValue.getLabelRaw();
         if (text == null) {
-            text = FieldValueWrapper.getLabelNotry(idValue);
+            text = FieldValueHelper.getLabelNotry(idValue);
         } else {
             Field nameField = getRawMeta().getReferenceEntity().getNameField();
             text = EasyMetaFactory.valueOf(nameField).wrapValue(text);
         }
 
-        return FieldValueWrapper.wrapMixValue(idValue, text == null ? null : text.toString());
+        return FieldValueHelper.wrapMixValue(idValue, text == null ? null : text.toString());
     }
 }
