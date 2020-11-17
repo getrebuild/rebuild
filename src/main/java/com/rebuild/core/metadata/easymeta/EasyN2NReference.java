@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.Field;
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyN2NReference extends EasyField {
+public class EasyN2NReference extends EasyReference {
     private static final long serialVersionUID = -16180408450167432L;
 
     protected EasyN2NReference(Field field, DisplayType displayType) {

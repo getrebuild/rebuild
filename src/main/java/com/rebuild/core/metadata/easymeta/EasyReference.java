@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.support.general.FieldValueWrapper;
 
 /**
  * @author devezhao
@@ -18,5 +21,32 @@ public class EasyReference extends EasyField {
 
     protected EasyReference(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            JSONObject wrapped = (JSONObject) wrapValue(value);
+            return wrapped.getString("text");
+        }
+
+        ID idValue = (ID) value;
+        return idValue;
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        ID idValue = (ID) value;
+        Object text = idValue.getLabelRaw();
+        if (text == null) {
+            text = FieldValueWrapper.getLabelNotry(idValue);
+        } else {
+            Field nameField = getRawMeta().getReferenceEntity().getNameField();
+            text = EasyMetaFactory.valueOf(nameField).wrapValue(text);
+        }
+
+        return FieldValueWrapper.wrapMixValue(idValue, text == null ? null : text.toString());
     }
 }

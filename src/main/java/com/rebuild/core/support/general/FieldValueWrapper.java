@@ -418,7 +418,8 @@ public class FieldValueWrapper {
             text = id.getLabel();
         }
 
-        JSONObject o = JSONUtils.toJSONObject(new String[]{"id", "text"}, new Object[]{id, text});
+        JSONObject o = JSONUtils.toJSONObject(
+                new String[] { "id", "text" }, new Object[] { id, text });
         if (id != null) {
             o.put("entity", MetadataHelper.getEntityName(id));
         }

@@ -8,6 +8,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.support.general.FieldValueWrapper;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
@@ -18,5 +23,25 @@ public class EasyClassification extends EasyField {
 
     protected EasyClassification(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            JSONObject wrapped = (JSONObject) wrapValue(value);
+            return wrapped.getString("text");
+        }
+
+        return super.convertCompatibleValue(value, targetField);
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        ID id = (ID) value;
+        String text = StringUtils.defaultIfBlank(
+                ClassificationManager.instance.getFullName(id), FieldValueWrapper.MISS_REF_PLACE);
+        return FieldValueWrapper.wrapMixValue(id, text);
     }
 }

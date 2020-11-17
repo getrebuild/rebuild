@@ -20,7 +20,6 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.support.general.FieldValueCompatibleConversion;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -117,10 +116,9 @@ public class AutoFillinManager implements ConfigManager {
      * @param target
      * @param value
      * @return
-     * @see FieldValueCompatibleConversion
      */
     protected Object conversionCompatibleValue(Field source, Field target, Object value) {
-        return new FieldValueCompatibleConversion(source, target).convert(value, null, true);
+        return EasyMetaFactory.valueOf(source).convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
     }
 
     /**

@@ -32,6 +32,7 @@ import java.util.List;
  * @author ZHAO
  * @since 2020/2/8
  */
+@Deprecated
 public class FieldValueCompatibleConversion {
 
     private static final Logger LOG = LoggerFactory.getLogger(FieldValueCompatibleConversion.class);

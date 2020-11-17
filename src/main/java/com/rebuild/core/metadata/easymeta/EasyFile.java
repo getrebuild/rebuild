@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.alibaba.fastjson.JSON;
+import org.springframework.util.Assert;
 
 /**
  * @author devezhao
@@ -18,5 +20,16 @@ public class EasyFile extends EasyField {
 
     protected EasyFile(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
+        return value;
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        return JSON.parseArray(value.toString());
     }
 }

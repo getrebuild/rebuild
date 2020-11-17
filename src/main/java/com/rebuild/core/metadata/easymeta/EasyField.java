@@ -12,6 +12,8 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
 import java.util.Set;
 
@@ -84,8 +86,39 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return displayType;
     }
 
-//    // 转换兼容值
-//    abstract Object convertCompatibleValue(EasyField target, Object sourceValue);
+    // --
+
+    /**
+     * 转换兼容值（默认实现仅支持转为文本值或同类型转换）
+     *
+     * @param value 原值
+     * @param targetField 目标字段
+     * @return
+     */
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            return StringUtils.defaultIfBlank((String) wrapValue(value), null);
+        }
+
+        Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
+        return value;
+    }
+
+    /**
+     * 转换为易识别值（默认实现为转为字符串）
+     *
+     * @param value 原值
+     * @return
+     */
+    public Object wrapValue(Object value) {
+        if (value == null || StringUtils.isBlank(value.toString())) {
+            return StringUtils.EMPTY;
+        }
+        return value.toString().trim();
+    }
+
 //    // 转换符合字段类型的值
 //    abstract Object checkoutValue(Object rawValue);
 //    // 默认值

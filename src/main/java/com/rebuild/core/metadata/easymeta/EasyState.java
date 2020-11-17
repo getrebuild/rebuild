@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.state.StateHelper;
 
 /**
  * @author devezhao
@@ -18,5 +21,23 @@ public class EasyState extends EasyField {
 
     protected EasyState(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            return wrapValue(value);
+        }
+
+        Integer intValue = (Integer) value;
+        return intValue;
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        String stateClass = getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+        return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
     }
 }

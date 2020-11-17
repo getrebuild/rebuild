@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.support.i18n.Language;
 
 /**
  * @author devezhao
@@ -18,5 +19,10 @@ public class EasyBool extends EasyField {
 
     protected EasyBool(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        return (Boolean) value ? Language.L("True") : Language.L("False");
     }
 }

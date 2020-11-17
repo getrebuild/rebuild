@@ -19,4 +19,14 @@ public class EasyAnyReference extends EasyField {
     protected EasyAnyReference(Field field, DisplayType displayType) {
         super(field, displayType);
     }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.configuration.general.MultiSelectManager;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
@@ -18,5 +20,26 @@ public class EasyMultiSelect extends EasyField {
 
     protected EasyMultiSelect(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            return wrapValue(value);
+        }
+
+        throw new UnsupportedOperationException("TODO");
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        if ((Long) value <= 0) {
+            return StringUtils.EMPTY;
+        }
+
+        String[] multiLabel = MultiSelectManager.instance.getLabel((Long) value, getRawMeta());
+        return StringUtils.join(multiLabel, ", ");
     }
 }

@@ -7,7 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import org.apache.commons.lang.StringUtils;
+
+import java.text.DecimalFormat;
 
 /**
  * @author devezhao
@@ -18,5 +23,27 @@ public class EasyDecimal extends EasyField {
 
     protected EasyDecimal(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            return wrapValue(value);
+        }
+
+        if (targetType == DisplayType.NUMBER) {
+            return ObjectUtils.toLong(value);
+        }
+
+        return super.convertCompatibleValue(value, targetField);
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        String format = StringUtils.defaultIfBlank(
+                getExtraAttr(FieldExtConfigProps.DECIMAL_FORMAT), getDisplayType().getDefaultFormat());
+        return new DecimalFormat(format).format(value);
     }
 }

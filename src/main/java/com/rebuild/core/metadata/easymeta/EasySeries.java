@@ -19,4 +19,15 @@ public class EasySeries extends EasyField {
     protected EasySeries(Field field, DisplayType displayType) {
         super(field, displayType);
     }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+        if (is2Text) {
+            return wrapValue(value);
+        }
+
+        throw new UnsupportedOperationException("auto value");
+    }
 }

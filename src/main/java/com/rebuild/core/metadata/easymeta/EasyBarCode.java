@@ -8,6 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.support.general.BarCodeGenerator;
+import org.springframework.util.Assert;
 
 /**
  * @author devezhao
@@ -18,5 +21,19 @@ public class EasyBarCode extends EasyField {
 
     protected EasyBarCode(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
+        return value;
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        if (value instanceof ID) {
+            return BarCodeGenerator.getBarCodeContent(getRawMeta(), (ID) value);
+        }
+        return null;
     }
 }

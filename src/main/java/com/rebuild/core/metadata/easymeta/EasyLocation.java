@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import org.springframework.util.Assert;
 
 /**
  * @author devezhao
@@ -18,5 +19,15 @@ public class EasyLocation extends EasyField {
 
     protected EasyLocation(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object convertCompatibleValue(Object value, EasyField targetField) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        throw new UnsupportedOperationException();
     }
 }
