@@ -18,6 +18,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.CommonsService;
 import com.rebuild.core.service.general.BulkContext;
@@ -204,7 +205,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         if (target == null) {
-            return Language.L("YouNoSomePermission", actionKey) + " (" + EasyMeta.getLabel(entity) + ")";
+            return Language.L("YouNoSomePermission", actionKey) + " (" + EasyMetaFactory.getLabel(entity) + ")";
         } else {
             return Language.L("YouNoSomeRecordPermission", actionKey) + " (" + target + ")";
         }

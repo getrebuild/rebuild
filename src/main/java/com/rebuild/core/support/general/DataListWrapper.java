@@ -15,6 +15,8 @@ import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
@@ -136,7 +138,7 @@ public class DataListWrapper {
      * @return
      */
     protected Object wrapFieldValue(Object value, Field field) {
-        EasyMeta fieldEasy = EasyMeta.valueOf(field);
+        EasyField fieldEasy = EasyMetaFactory.valueOf(field);
         if (fieldEasy.getDisplayType() == DisplayType.ID) {
             return FieldValueWrapper.wrapMixValue((ID) value, null);
         } else if (fieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {

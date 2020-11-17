@@ -14,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
@@ -57,7 +58,7 @@ public class ChartsFactory {
 
         Entity entity = MetadataHelper.getEntity(e);
         if (user == null || !Application.getPrivilegesManager().allowRead(user, entity.getEntityCode())) {
-            throw new ChartsException(Language.LF("NoReadEntity", EasyMeta.getLabel(entity)));
+            throw new ChartsException(Language.LF("NoReadEntity", EasyMetaFactory.getLabel(entity)));
         }
 
         String type = config.getString("type");

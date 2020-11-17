@@ -18,11 +18,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -32,6 +32,7 @@ import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import com.rebuild.core.support.general.FieldValueWrapper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -194,7 +195,7 @@ public class FormsBuilder extends FormsManager {
             model.set("isDetail", true);
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("isMain", true);
-            model.set("detailMeta", EasyMeta.getEntityShow(entityMeta.getDetailEntity()));
+            model.set("detailMeta", EasyMetaFactory.getEntityShow(entityMeta.getDetailEntity()));
         }
 
         if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {
@@ -282,7 +283,7 @@ public class FormsBuilder extends FormsManager {
                 continue;
             }
 
-            final EasyMeta easyField = new EasyMeta(fieldMeta);
+            final EasyField easyField = EasyMetaFactory.valueOf(fieldMeta);
             final DisplayType dt = easyField.getDisplayType();
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
@@ -392,7 +393,7 @@ public class FormsBuilder extends FormsManager {
                             }
                             // 多引用
                             else if (dt == DisplayType.N2NREFERENCE) {
-                                defVal = FieldValueWrapper.instance.wrapN2NReference(defVal, EasyMeta.valueOf(fieldMeta));
+                                defVal = FieldValueWrapper.instance.wrapN2NReference(defVal, EasyMetaFactory.valueOf(fieldMeta));
                             }
 
                             el.put("value", defVal);
@@ -436,7 +437,7 @@ public class FormsBuilder extends FormsManager {
             }
 
             // REFERENCE
-            if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+            if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
                 sql.append('&').append(field).append(',');
             }
             sql.append(field).append(',');
@@ -464,7 +465,7 @@ public class FormsBuilder extends FormsManager {
      * @return
      * @see FieldValueWrapper
      */
-    public Object wrapFieldValue(Record data, EasyMeta field) {
+    public Object wrapFieldValue(Record data, EasyField field) {
         final String fieldName = field.getName();
 
         // No value
@@ -545,7 +546,7 @@ public class FormsBuilder extends FormsManager {
                     initialValKeeps.add(dtmField.getName());
                 }
             } else if (entity.containsField(field)) {
-                if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+                if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
                     Object mixValue = inFormFields.contains(field) ? readyReferenceValue(value) : value;
                     if (mixValue != null) {
                         initialValReady.put(field, mixValue);

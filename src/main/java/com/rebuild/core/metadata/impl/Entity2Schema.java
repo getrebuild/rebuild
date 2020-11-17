@@ -19,6 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
@@ -208,7 +209,8 @@ public class Entity2Schema extends Field2Schema {
 
         for (Field whoRef : entity.getReferenceToFields(true)) {
             if (!whoRef.getOwnEntity().equals(entity)) {
-                throw new MetadataModificationException(Language.LF("DeleteEntityHasRefs", EasyMeta.getLabel(whoRef.getOwnEntity())));
+                throw new MetadataModificationException(
+                        Language.LF("DeleteEntityHasRefs", EasyMetaFactory.getLabel(whoRef.getOwnEntity())));
             }
         }
 

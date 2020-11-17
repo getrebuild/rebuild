@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserService;
@@ -126,7 +127,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
         }
 
         Object nameValue = record.getObjectValue(nameField.getName());
-        DisplayType dt = EasyMeta.getDisplayType(nameField);
+        DisplayType dt = EasyMetaFactory.getDisplayType(nameField);
         if (dt == DisplayType.TEXT || dt == DisplayType.SERIES
                 || dt == DisplayType.EMAIL || dt == DisplayType.PHONE || dt == DisplayType.URL
                 || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {

@@ -19,6 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
@@ -152,7 +153,7 @@ public class DashboardController extends BaseController {
             charts = Application.createQueryNoFilter(sql).setParameter(1, useBizz).array();
             for (Object[] o : charts) {
                 o[3] = I18nUtils.formatDate((Date) o[3]);
-                o[4] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[4]));
+                o[4] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[4]));
             }
         }
 

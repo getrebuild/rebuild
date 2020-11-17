@@ -9,6 +9,7 @@ package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 
@@ -35,7 +36,7 @@ public class Dimension extends Axis {
 
     @Override
     public String getSqlName() {
-        DisplayType dt = EasyMeta.getDisplayType(getField());
+        DisplayType dt = EasyMetaFactory.getDisplayType(getField());
         if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
             switch (getFormatCalc()) {
                 case Y:

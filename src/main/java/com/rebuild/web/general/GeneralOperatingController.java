@@ -26,6 +26,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
@@ -117,7 +118,7 @@ public class GeneralOperatingController extends BaseController {
                     continue;
                 }
 
-                Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
+                Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMetaFactory.valueOf(fieldMeta));
                 ret.put(field, newValue);
             }
         }
@@ -431,7 +432,7 @@ public class GeneralOperatingController extends BaseController {
 
         JSONArray fieldsJson = new JSONArray();
         for (String field : fields) {
-            fieldsJson.add(EasyMeta.getLabel(entity.getField(field)));
+            fieldsJson.add(EasyMetaFactory.getLabel(entity.getField(field)));
         }
 
         JSONArray data = new JSONArray();

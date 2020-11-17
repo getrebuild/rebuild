@@ -19,6 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -47,7 +48,7 @@ public class AutoFillinController extends BaseController {
         EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
         mv.getModel().put("fieldName", fieldEasyMeta.getName());
         mv.getModel().put("referenceEntity", fieldMeta.getReferenceEntity().getName());
-        mv.getModel().put("referenceEntityLabel", EasyMeta.getLabel(fieldMeta.getReferenceEntity()));
+        mv.getModel().put("referenceEntityLabel", EasyMetaFactory.getLabel(fieldMeta.getReferenceEntity()));
         return mv;
     }
 
@@ -116,10 +117,10 @@ public class AutoFillinController extends BaseController {
             }
 
             JSON rule = JSONUtils.toJSONObject(
-                    new String[]{"id", "sourceField", "sourceFieldLabel", "targetField", "targetFieldLabel", "extConfig"},
-                    new Object[]{o[0],
-                            sourceField, EasyMeta.getLabel(sourceEntity.getField(sourceField)),
-                            targetField, EasyMeta.getLabel(targetEntity.getField(targetField)),
+                    new String[]{ "id", "sourceField", "sourceFieldLabel", "targetField", "targetFieldLabel", "extConfig" },
+                    new Object[]{ o[0],
+                            sourceField, EasyMetaFactory.getLabel(sourceEntity.getField(sourceField)),
+                            targetField, EasyMetaFactory.getLabel(targetEntity.getField(targetField)),
                             JSON.parse((String) o[3])});
             rules.add(rule);
         }

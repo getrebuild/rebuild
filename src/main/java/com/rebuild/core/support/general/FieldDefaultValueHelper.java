@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.state.StateHelper;
@@ -64,7 +65,7 @@ public class FieldDefaultValueHelper {
      * @return
      */
     public static Object exprDefaultValue(Field field, String valueExpr) {
-        final DisplayType dt = EasyMeta.getDisplayType(field);
+        final DisplayType dt = EasyMetaFactory.getDisplayType(field);
 
         // 特殊默认
         if (dt == DisplayType.PICKLIST) {

@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.approval.RobotApprovalManager;
@@ -47,7 +48,7 @@ public class FieldAggregationController extends BaseController {
             }
 
             Entity refEntity = refField.getReferenceEntity();
-            String entityLabel = EasyMeta.getLabel(refEntity) + " (" + EasyMeta.getLabel(refField) + ")";
+            String entityLabel = EasyMetaFactory.getLabel(refEntity) + " (" + EasyMetaFactory.getLabel(refField) + ")";
             entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
         }
 
@@ -55,7 +56,7 @@ public class FieldAggregationController extends BaseController {
         if (self) {
             entities.add(new String[] {
                     sourceEntity.getName(),
-                    EasyMeta.getLabel(sourceEntity),
+                    EasyMetaFactory.getLabel(sourceEntity),
                     FieldAggregation.SOURCE_SELF });
         }
 
@@ -82,7 +83,7 @@ public class FieldAggregationController extends BaseController {
         // 关联实体
         for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
             String fieldRefName = fieldRef.getName() + ".";
-            String fieldRefLabel = EasyMeta.getLabel(fieldRef) + ".";
+            String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
             for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity(), usesTypes)) {
                 String[] build = buildField(field);
                 build[0] = fieldRefName + build[0];

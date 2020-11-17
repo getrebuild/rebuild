@@ -18,6 +18,7 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
@@ -181,7 +182,7 @@ public class ReferenceSearchController extends EntityController {
                 entity.getPrimaryField().getName(), nameField.getName(), entity.getName(), sqlWhere);
 
         if (!sqlWhere.contains(" order by ")) {
-            DisplayType dt = EasyMeta.getDisplayType(nameField);
+            DisplayType dt = EasyMetaFactory.getDisplayType(nameField);
             if (dt != DisplayType.ID) {
                 sql += " order by " + nameField.getName();
             } else if (entity.containsField(EntityHelper.ModifiedOn)) {

@@ -20,6 +20,7 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
@@ -100,7 +101,7 @@ public class BatchUpdateController extends BaseController {
      * @return
      */
     private JSONObject buildField(Field field, DisplayType dt) {
-        JSONObject map = EasyMeta.getFieldShow(field);
+        JSONObject map = EasyMetaFactory.getFieldShow(field);
 
         // 字段选项
         if (dt == DisplayType.PICKLIST) {

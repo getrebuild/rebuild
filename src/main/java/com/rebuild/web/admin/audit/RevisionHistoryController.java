@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.web.EntityController;
 import org.springframework.stereotype.Controller;
@@ -56,7 +57,7 @@ public class RevisionHistoryController extends EntityController {
                 JSONObject item = (JSONObject) o;
                 String field = item.getString("field");
                 if (entity.containsField(field)) {
-                    field = EasyMeta.getLabel(entity.getField(field));
+                    field = EasyMetaFactory.getLabel(entity.getField(field));
                 } else {
                     field = "[" + field.toUpperCase() + "]";
                 }

@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.dashboard.charts;
 
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Objects;
@@ -70,7 +70,8 @@ public class Axis {
         if (StringUtils.isNotBlank(label)) {
             return label;
         }
-        return (parentField == null ? "" : (EasyMeta.getLabel(parentField) + ".")) + EasyMeta.getLabel(field);
+        return (parentField == null ? "" : (EasyMetaFactory.getLabel(parentField) + "."))
+                + EasyMetaFactory.getLabel(field);
     }
 
     /**

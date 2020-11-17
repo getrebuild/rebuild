@@ -18,6 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.PrivilegesManager;
@@ -70,12 +71,12 @@ public class MetadataGetting extends BaseController {
         // 追加二级引用字段
         if (appendRefFields) {
             for (Field field : entityMeta.getFields()) {
-                if (!field.isQueryable() || EasyMeta.getDisplayType(field) != DisplayType.REFERENCE) continue;
+                if (!field.isQueryable() || EasyMetaFactory.getDisplayType(field) != DisplayType.REFERENCE) continue;
 
                 int code = field.getReferenceEntity().getEntityCode();
                 if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) continue;
 
-                data.add(EasyMeta.getFieldShow(field));
+                data.add(EasyMetaFactory.getFieldShow(field));
                 putFields(data, field, false);
             }
         }
@@ -98,10 +99,10 @@ public class MetadataGetting extends BaseController {
         }
 
         for (Field field : MetadataSorter.sortFields(useEntity)) {
-            JSONObject map = EasyMeta.getFieldShow(field);
+            JSONObject map = EasyMetaFactory.getFieldShow(field);
 
             // 引用字段处理
-            if (EasyMeta.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {
+            if (EasyMetaFactory.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {
                 boolean isApprovalId = field.getName().equalsIgnoreCase(EntityHelper.ApprovalId);
                 boolean isBizz = MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode());
                 if (!(isApprovalId || isBizz)) {
@@ -111,7 +112,7 @@ public class MetadataGetting extends BaseController {
 
             if (parentField != null) {
                 map.put("name", parentField.getName() + "." + map.get("name"));
-                map.put("label", EasyMeta.getLabel(parentField) + "." + map.get("label"));
+                map.put("label", EasyMetaFactory.getLabel(parentField) + "." + map.get("label"));
             }
 
             dest.add(map);

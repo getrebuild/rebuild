@@ -21,8 +21,9 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
@@ -63,10 +64,10 @@ public class FieldValueWrapper {
      * @param field
      * @param unpackMix
      * @return
-     * @see #wrapFieldValue(Object, EasyMeta, boolean)
+     * @see #wrapFieldValue(Object, EasyField, boolean)
      */
     public Object wrapFieldValue(Object value, Field field, boolean unpackMix) {
-        return wrapFieldValue(value, EasyMeta.valueOf(field), unpackMix);
+        return wrapFieldValue(value, EasyMetaFactory.valueOf(field), unpackMix);
     }
 
     /**
@@ -74,9 +75,9 @@ public class FieldValueWrapper {
      * @param field
      * @param unpackMix
      * @return
-     * @see #wrapFieldValue(Object, EasyMeta)
+     * @see #wrapFieldValue(Object, EasyField)
      */
-    public Object wrapFieldValue(Object value, EasyMeta field, boolean unpackMix) {
+    public Object wrapFieldValue(Object value, EasyField field, boolean unpackMix) {
         value = wrapFieldValue(value, field);
         if (unpackMix && value != null) {
             DisplayType dt = field.getDisplayType();
@@ -98,7 +99,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public Object wrapFieldValue(Object value, EasyMeta field) {
+    public Object wrapFieldValue(Object value, EasyField field) {
         Object useSpecial = wrapSpecialField(value, field);
         if (useSpecial != null) {
             return useSpecial;
@@ -147,7 +148,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public String wrapDate(Object value, EasyMeta field) {
+    public String wrapDate(Object value, EasyField field) {
         String format = field.getExtraAttr(FieldExtConfigProps.DATE_DATEFORMAT);
         if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
         return CalendarUtils.getDateFormat(format).format(value);
@@ -158,7 +159,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public String wrapDatetime(Object value, EasyMeta field) {
+    public String wrapDatetime(Object value, EasyField field) {
         String format = field.getExtraAttr(FieldExtConfigProps.DATETIME_DATEFORMAT);
         if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
         return CalendarUtils.getDateFormat(format).format(value);
@@ -169,7 +170,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public String wrapNumber(Object value, EasyMeta field) {
+    public String wrapNumber(Object value, EasyField field) {
         String format = field.getExtraAttr(FieldExtConfigProps.NUMBER_FORMAT);
         if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
         return new DecimalFormat(format).format(value);
@@ -180,7 +181,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public String wrapDecimal(Object value, EasyMeta field) {
+    public String wrapDecimal(Object value, EasyField field) {
         String format = field.getExtraAttr(FieldExtConfigProps.DECIMAL_FORMAT);
         if (StringUtils.isBlank(format)) format = field.getDisplayType().getDefaultFormat();
         return new DecimalFormat(format).format(value);
@@ -192,13 +193,13 @@ public class FieldValueWrapper {
      * @return
      * @see #wrapMixValue(ID, String)
      */
-    public JSONObject wrapReference(Object value, EasyMeta field) {
+    public JSONObject wrapReference(Object value, EasyField field) {
         Object text = ((ID) value).getLabelRaw();
         if (text == null) {
             text = getLabelNotry((ID) value);
 
         } else {
-            Field nameField = ((Field) field.getBaseMeta()).getReferenceEntity().getNameField();
+            Field nameField = field.getRawMeta().getReferenceEntity().getNameField();
             text = instance.wrapFieldValue(text, nameField, true);
         }
 
@@ -209,9 +210,9 @@ public class FieldValueWrapper {
      * @param value
      * @param field
      * @return
-     * @see #wrapReference(Object, EasyMeta)
+     * @see #wrapReference(Object, EasyField)
      */
-    public JSONArray wrapN2NReference(Object value, EasyMeta field) {
+    public JSONArray wrapN2NReference(Object value, EasyField field) {
         ID[] ids = (ID[]) value;
         
         JSONArray idArray = new JSONArray();
@@ -226,7 +227,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public String wrapBool(Object value, EasyMeta field) {
+    public String wrapBool(Object value, EasyField field) {
         return (Boolean) value ? "是" : "否";
     }
 
@@ -236,7 +237,7 @@ public class FieldValueWrapper {
      * @return
      * @see PickListManager
      */
-    public String wrapPickList(Object value, EasyMeta field) {
+    public String wrapPickList(Object value, EasyField field) {
         return StringUtils.defaultIfBlank(PickListManager.instance.getLabel((ID) value), MISS_REF_PLACE);
     }
 
@@ -245,7 +246,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public String wrapState(Object value, EasyMeta field) {
+    public String wrapState(Object value, EasyField field) {
         String stateClass = field.getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
         return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
     }
@@ -256,7 +257,7 @@ public class FieldValueWrapper {
      * @return
      * @see ClassificationManager
      */
-    public JSON wrapClassification(Object value, EasyMeta field) {
+    public JSON wrapClassification(Object value, EasyField field) {
         ID id = (ID) value;
         String text = StringUtils.defaultIfBlank(ClassificationManager.instance.getFullName(id), MISS_REF_PLACE);
         return wrapMixValue(id, text);
@@ -268,11 +269,11 @@ public class FieldValueWrapper {
      * @return
      * @see MultiSelectManager
      */
-    public String wrapMultiSelect(Object value, EasyMeta field) {
+    public String wrapMultiSelect(Object value, EasyField field) {
         if ((Long) value <= 0) {
             return StringUtils.EMPTY;
         }
-        String[] multiLabel = MultiSelectManager.instance.getLabel((Long) value, (Field) field.getBaseMeta());
+        String[] multiLabel = MultiSelectManager.instance.getLabel((Long) value, field.getRawMeta());
         return StringUtils.join(multiLabel, " / ");
     }
 
@@ -281,7 +282,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public JSON wrapFile(Object value, EasyMeta field) {
+    public JSON wrapFile(Object value, EasyField field) {
         return JSON.parseArray(value.toString());
     }
 
@@ -293,9 +294,9 @@ public class FieldValueWrapper {
      * @return
      * @see BarCodeGenerator
      */
-    public String wrapBarcode(Object value, EasyMeta field) {
+    public String wrapBarcode(Object value, EasyField field) {
         if (value instanceof ID) {
-            return BarCodeGenerator.getBarCodeContent((Field) field.getBaseMeta(), (ID) value);
+            return BarCodeGenerator.getBarCodeContent(field.getRawMeta(), (ID) value);
         }
         return null;
     }
@@ -305,7 +306,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    public String wrapSimple(Object value, EasyMeta field) {
+    public String wrapSimple(Object value, EasyField field) {
         String text = value.toString().trim();
         if (StringUtils.isBlank(text)) {
             return StringUtils.EMPTY;
@@ -321,7 +322,7 @@ public class FieldValueWrapper {
      * @param field
      * @return
      */
-    protected Object wrapSpecialField(Object value, EasyMeta field) {
+    protected Object wrapSpecialField(Object value, EasyField field) {
         if (!field.isQueryable()) {
             return "******";
         }

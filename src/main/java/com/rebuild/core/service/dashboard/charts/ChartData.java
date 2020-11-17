@@ -18,8 +18,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
@@ -297,7 +298,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             return ChartsHelper.VALUE_NONE;
         }
 
-        EasyMeta axisField = EasyMeta.valueOf(dimension.getField());
+        EasyField axisField = EasyMetaFactory.valueOf(dimension.getField());
         DisplayType axisType = axisField.getDisplayType();
 
         String label;

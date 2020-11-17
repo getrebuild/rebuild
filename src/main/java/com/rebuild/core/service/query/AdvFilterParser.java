@@ -19,6 +19,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
@@ -203,7 +204,7 @@ public class AdvFilterParser extends SetUser {
             return null;
         }
 
-        DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+        DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
         if (dt == DisplayType.CLASSIFICATION) {
             field = "&" + field;
         } else if (hasNameFlag) {
@@ -214,7 +215,7 @@ public class AdvFilterParser extends SetUser {
 
             // 转化为名称字段
             fieldMeta = fieldMeta.getReferenceEntity().getNameField();
-            dt = EasyMeta.getDisplayType(fieldMeta);
+            dt = EasyMetaFactory.getDisplayType(fieldMeta);
             field += "." + fieldMeta.getName();
         }
 

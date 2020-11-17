@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
@@ -64,7 +65,7 @@ public class RobotTriggerController extends BaseController {
         ModelAndView mv = createModelAndView("/admin/robot/trigger-design");
         mv.getModel().put("configId", configId);
         mv.getModel().put("sourceEntity", sourceEntity.getName());
-        mv.getModel().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));
+        mv.getModel().put("sourceEntityLabel", EasyMetaFactory.getLabel(sourceEntity));
         mv.getModel().put("actionType", actionType.name());
         mv.getModel().put("actionTypeLabel", getLang(request, actionType.name()));
         mv.getModel().put("when", config[2]);
@@ -94,7 +95,7 @@ public class RobotTriggerController extends BaseController {
         List<String[]> list = new ArrayList<>();
         for (Entity e : MetadataSorter.sortEntities(null, false, true)) {
             if (action.isUsableSourceEntity(e.getEntityCode())) {
-                list.add(new String[]{e.getName(), EasyMeta.getLabel(e)});
+                list.add(new String[]{e.getName(), EasyMetaFactory.getLabel(e)});
             }
         }
         writeSuccess(response, list);

@@ -19,8 +19,9 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 
 /**
  * 获取字段列表
@@ -54,7 +55,7 @@ public class FieldList extends BaseApi {
     }
 
     private JSONObject buildField(Field field) {
-        final EasyMeta easyMeta = EasyMeta.valueOf(field);
+        final EasyField easyMeta = EasyMetaFactory.valueOf(field);
         final DisplayType dt = easyMeta.getDisplayType();
 
         JSONObject o = new JSONObject();

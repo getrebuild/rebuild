@@ -19,6 +19,7 @@ import com.rebuild.api.BaseApi;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -104,7 +105,7 @@ public class EntityCreate extends BaseApi {
             Field field = record.getEntity().getField(fieldName);
             if (field.getType() == FieldType.PRIMARY) continue;
 
-            repeatedFields.add(EasyMeta.getLabel(field));
+            repeatedFields.add(EasyMetaFactory.getLabel(field));
         }
         return repeatedFields;
     }

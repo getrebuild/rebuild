@@ -15,6 +15,7 @@ import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 
 /**
@@ -43,7 +44,7 @@ public class EntityList extends BaseApi {
         JSONObject o = new JSONObject();
         o.put("type_code", entity.getEntityCode());
         o.put("entity_name", entity.getName());
-        o.put("entity_label", EasyMeta.getLabel(entity));
+        o.put("entity_label", EasyMetaFactory.getLabel(entity));
 
         o.put("creatable", entity.isCreatable());
         o.put("updatable", entity.isUpdatable());

@@ -20,6 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
@@ -95,7 +96,7 @@ public class ChartDesignController extends EntityController {
         }
 
         if (!Application.getPrivilegesManager().allowRead(getRequestUser(request), entity.getEntityCode())) {
-            response.sendError(403, Language.LF("NoReadEntity", EasyMeta.getLabel(entity)));
+            response.sendError(403, Language.LF("NoReadEntity", EasyMetaFactory.getLabel(entity)));
             return null;
         }
 
@@ -143,7 +144,7 @@ public class ChartDesignController extends EntityController {
 
             dest.add(new String[]{
                     (parent == null ? "" : (parent.getName() + ".")) + easyField.getName(),
-                    (parent == null ? "" : (EasyMeta.getLabel(parent) + ".")) + easyField.getLabel(),
+                    (parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".")) + easyField.getLabel(),
                     type});
         }
     }

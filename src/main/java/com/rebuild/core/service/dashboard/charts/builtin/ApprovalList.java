@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.NoRecordFoundException;
@@ -92,7 +93,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                     o[2],
                     label,
                     o[3],
-                    EasyMeta.getLabel(entity),
+                    EasyMetaFactory.getLabel(entity),
                     entity.getName()
             });
         }

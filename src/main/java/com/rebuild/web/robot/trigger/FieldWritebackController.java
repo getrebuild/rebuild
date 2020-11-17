@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.service.approval.RobotApprovalManager;
@@ -47,9 +48,9 @@ public class FieldWritebackController extends BaseController {
 
         // 源字段
 
-        sourceFields.add(EasyMeta.getFieldShow(sourceEntity.getPrimaryField()));
+        sourceFields.add(EasyMetaFactory.getFieldShow(sourceEntity.getPrimaryField()));
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            sourceFields.add(EasyMeta.getFieldShow(field));
+            sourceFields.add(EasyMetaFactory.getFieldShow(field));
         }
 
         // 关联实体的
@@ -60,9 +61,9 @@ public class FieldWritebackController extends BaseController {
             }
 
             String fieldRefName = fieldRef.getName() + ".";
-            String fieldRefLabel = EasyMeta.getLabel(fieldRef) + ".";
+            String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
             for (Field field : MetadataSorter.sortFields(refEntity)) {
-                JSONObject subField = EasyMeta.getFieldShow(field);
+                JSONObject subField = EasyMetaFactory.getFieldShow(field);
                 subField.put("name", fieldRefName + subField.getString("name"));
                 subField.put("label", fieldRefLabel + subField.getString("label"));
                 sourceFields.add(subField);
@@ -78,7 +79,7 @@ public class FieldWritebackController extends BaseController {
                 if (dt == DisplayType.SERIES || easyField.isBuiltin()) {
                     continue;
                 }
-                targetFields.add(EasyMeta.getFieldShow(field));
+                targetFields.add(EasyMetaFactory.getFieldShow(field));
             }
         }
 

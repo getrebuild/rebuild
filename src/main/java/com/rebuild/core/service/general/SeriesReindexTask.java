@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.util.support.QueryHelper;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserService;
@@ -39,7 +40,7 @@ public class SeriesReindexTask extends HeavyTask<Integer> {
 
     @Override
     public Integer exec() {
-        if (EasyMeta.getDisplayType(field) != DisplayType.SERIES) {
+        if (EasyMetaFactory.getDisplayType(field) != DisplayType.SERIES) {
             throw new IllegalArgumentException("None SERIES field : " + field);
         }
 

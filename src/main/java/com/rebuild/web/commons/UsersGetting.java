@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
@@ -109,7 +110,7 @@ public class UsersGetting extends BaseController {
                     formatted.add(JSONUtils.toJSONObject(keys, new String[]{idOrField, name}));
                 }
             } else if (hadEntity != null && hadEntity.containsField(idOrField.split("//.")[0])) {
-                String fullLabel = EasyMeta.getLabel(hadEntity, idOrField);
+                String fullLabel = EasyMetaFactory.getLabel(hadEntity, idOrField);
                 formatted.add(JSONUtils.toJSONObject(keys, new String[]{idOrField, fullLabel}));
             }
         }

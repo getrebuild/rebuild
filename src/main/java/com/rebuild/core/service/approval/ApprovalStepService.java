@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.BaseService;
@@ -69,7 +70,7 @@ public class ApprovalStepService extends BaseService {
 
         super.update(recordOfMain);
 
-        String entityLabel = EasyMeta.getLabel(recordOfMain.getEntity());
+        String entityLabel = EasyMetaFactory.getLabel(recordOfMain.getEntity());
 
         // 审批人
         String approvalMsg = Language.LF("HasXApprovalNotice", entityLabel);
@@ -148,7 +149,7 @@ public class ApprovalStepService extends BaseService {
         final String currentNode = (String) stepObject[2];
         final ID approver = UserContextHolder.getUser();
 
-        String entityLabel = EasyMeta.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
+        String entityLabel = EasyMetaFactory.getLabel(MetadataHelper.getEntity(recordId.getEntityCode()));
         ApprovalState state = (ApprovalState) ApprovalState.valueOf(stepRecord.getInt("state"));
 
         // 抄送人

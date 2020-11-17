@@ -19,7 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.general.FieldValueCompatibleConversion;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,7 +51,7 @@ public class AutoFillinManager implements ConfigManager {
      */
     public JSONArray getFillinValue(Field field, ID source) {
         // @see field-edit.html 内建字段无配置
-        if (EasyMeta.valueOf(field).isBuiltin()) {
+        if (EasyMetaFactory.valueOf(field).isBuiltin()) {
             return JSONUtils.EMPTY_ARRAY;
         }
 

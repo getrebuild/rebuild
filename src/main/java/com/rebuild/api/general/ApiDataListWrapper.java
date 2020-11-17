@@ -14,6 +14,7 @@ import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.general.DataListWrapper;
@@ -65,7 +66,7 @@ public class ApiDataListWrapper extends DataListWrapper {
 
             Object displayValue = FieldValueWrapper.instance.wrapFieldValue(value, fields[i].getField(), false);
 
-            DisplayType dt = EasyMeta.getDisplayType(fields[i].getField());
+            DisplayType dt = EasyMetaFactory.getDisplayType(fields[i].getField());
             if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.STATE) {
                 displayValue = JSONUtils.toJSONObject(new String[]{"value", "text"}, new Object[]{value, displayValue});
             } else if (dt == DisplayType.BOOL) {

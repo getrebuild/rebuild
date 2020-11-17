@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.utils.ExcelUtils;
 import org.apache.commons.lang.StringUtils;
@@ -145,7 +146,7 @@ public class TemplateExtractor {
 
     private Field findFieldByLabel(Entity entity, String fieldLabel) {
         for (Field field : entity.getFields()) {
-            if (EasyMeta.getLabel(field).equalsIgnoreCase(fieldLabel)) {
+            if (EasyMetaFactory.getLabel(field).equalsIgnoreCase(fieldLabel)) {
                 return field;
             }
         }

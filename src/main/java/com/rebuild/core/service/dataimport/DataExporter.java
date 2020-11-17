@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -113,7 +114,7 @@ public class DataExporter extends SetUser {
         List<String> headList = new ArrayList<>();
         for (String field : control.getQueryParser().getQueryFields()) {
             headFields.add(MetadataHelper.getLastJoinField(control.getEntity(), field));
-            String fieldLabel = EasyMeta.getLabel(control.getEntity(), field);
+            String fieldLabel = EasyMetaFactory.getLabel(control.getEntity(), field);
             headList.add(fieldLabel);
         }
         return headList;
@@ -142,7 +143,7 @@ public class DataExporter extends SetUser {
                 }
 
                 Field field = headFields.get(cellIndex++);
-                DisplayType dt = EasyMeta.getDisplayType(field);
+                DisplayType dt = EasyMetaFactory.getDisplayType(field);
                 if (cellVal == null) {
                     cellVal = StringUtils.EMPTY;
                 } else if (dt == DisplayType.FILE

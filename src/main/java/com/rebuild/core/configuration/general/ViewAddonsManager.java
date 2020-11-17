@@ -19,6 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 
 import java.util.*;
@@ -53,7 +54,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
         // 添加明细实体到第一个
         Entity entityMeta = MetadataHelper.getEntity(entity);
         if (entityMeta.getDetailEntity() != null) {
-            JSON detail = EasyMeta.getEntityShow(entityMeta.getDetailEntity());
+            JSON detail = EasyMetaFactory.getEntityShow(entityMeta.getDetailEntity());
             JSONArray tabsFluent = new JSONArray();
             tabsFluent.add(detail);
             tabsFluent.fluentAddAll((Collection<?>) tabs);
@@ -121,7 +122,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
                 if (e.length > 1) {
                     addons.add(getEntityShow(addonEntity.getField(e[1]), mfRefs, applyType));
                 } else {
-                    addons.add(EasyMeta.getEntityShow(addonEntity));
+                    addons.add(EasyMetaFactory.getEntityShow(addonEntity));
                 }
             }
         }
@@ -161,17 +162,17 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @param mfRefs
      * @param applyType
      * @return
-     * @see EasyMeta#getEntityShow(Entity)
+     * @see EasyMetaFactory#getEntityShow(Entity)
      */
     private JSONObject getEntityShow(Field field, Set<Entity> mfRefs, String applyType) {
         Entity fieldEntity = field.getOwnEntity();
-        JSONObject show = EasyMeta.getEntityShow(fieldEntity);
+        JSONObject show = EasyMetaFactory.getEntityShow(fieldEntity);
         show.put("entity", fieldEntity.getName() + EF_SPLIT + field.getName());
 
         if (mfRefs.contains(fieldEntity)) {
             String entityLabel = TYPE_TAB.equalsIgnoreCase(applyType)
-                    ? String.format("%s (%s)", EasyMeta.getLabel(field), show.getString("entityLabel"))
-                    : String.format("%s (%s)", show.getString("entityLabel"), EasyMeta.getLabel(field));
+                    ? String.format("%s (%s)", EasyMetaFactory.getLabel(field), show.getString("entityLabel"))
+                    : String.format("%s (%s)", show.getString("entityLabel"), EasyMetaFactory.getLabel(field));
             show.put("entityLabel", entityLabel);
         } else if (fieldEntity.getEntityCode() == EntityHelper.Feeds) {
             show.put("entityLabel", "跟进");

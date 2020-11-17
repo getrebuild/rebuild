@@ -17,6 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.UserHelper;
@@ -164,7 +165,7 @@ public class FileListController extends BaseController {
             ID relatedRecord = (ID) o[7];
             if (relatedRecord != null && MetadataHelper.containsEntity(relatedRecord.getEntityCode())) {
                 Entity belongEntity = MetadataHelper.getEntity(relatedRecord.getEntityCode());
-                item.put("relatedRecord", new Object[]{relatedRecord, EasyMeta.getLabel(belongEntity)});
+                item.put("relatedRecord", new Object[]{relatedRecord, EasyMetaFactory.getLabel(belongEntity)});
             }
 
             files.add(item);

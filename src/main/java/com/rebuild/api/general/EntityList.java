@@ -15,6 +15,7 @@ import com.rebuild.api.ApiInvokeException;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListWrapper;
@@ -45,7 +46,7 @@ public class EntityList extends EntityGet {
         }
 
         if (!Application.getPrivilegesManager().allowRead(context.getBindUser(), useEntity.getEntityCode())) {
-            return formatFailure("No permission to read records of " + EasyMeta.getLabel(useEntity));
+            return formatFailure("No permission to read records of " + EasyMetaFactory.getLabel(useEntity));
         }
 
         String[] fields = context.getParameterNotBlank("fields").split(",");

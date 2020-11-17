@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
@@ -157,7 +158,7 @@ public class FieldAggregation implements TriggerAction {
                 continue;
             }
 
-            DisplayType dt = EasyMeta.getDisplayType(targetEntity.getField(targetField));
+            DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
             if (dt == DisplayType.NUMBER) {
                 record.setLong(targetField, ObjectUtils.toLong(evalValue));
             } else if (dt == DisplayType.DECIMAL) {

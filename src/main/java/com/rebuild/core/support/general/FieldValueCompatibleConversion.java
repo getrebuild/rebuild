@@ -12,10 +12,10 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
-import cn.devezhao.persist4j.record.FieldValueException;
 import com.rebuild.core.configuration.general.PickListManager;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 字段值兼容转换
+ * 字段值兼容转换。
+ * 注意：某些字段转换可能导致精度损失，例如浮点数转整数、多行文本转文本
  *
  * @author ZHAO
  * @since 2020/2/8
@@ -75,17 +76,14 @@ public class FieldValueCompatibleConversion {
             return null;
         }
 
-        final EasyMeta sourceField = EasyMeta.valueOf(source);
+        final EasyField sourceField = EasyMetaFactory.valueOf(source);
         final DisplayType sourceType = sourceField.getDisplayType();
-        final DisplayType targetType = EasyMeta.getDisplayType(target);
+        final DisplayType targetType = EasyMetaFactory.getDisplayType(target);
         final boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
 
-        if (sourceType == DisplayType.MULTISELECT) {
-            throw new FieldValueException("Incompatible field (value) : " + sourceField);
-        }
-
         // 日期公式
-        if (StringUtils.isNotBlank(valueExpr) && (sourceType == DisplayType.DATETIME || sourceType == DisplayType.DATE)) {
+        if (StringUtils.isNotBlank(valueExpr)
+                && (sourceType == DisplayType.DATETIME || sourceType == DisplayType.DATE)) {
             Date newDate = FieldDefaultValueHelper.parseDateExpr("{NOW" + valueExpr + "}", (Date) sourceValue);
             if (newDate != null) {
                 sourceValue = newDate;
@@ -93,6 +91,7 @@ public class FieldValueCompatibleConversion {
         }
 
         Object compatibleValue = sourceValue;
+
         if (sourceType == DisplayType.ID) {
             if (is2Text) {
                 compatibleValue = sourceValue.toString().toUpperCase();
