@@ -33,8 +33,9 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._targetEntity = c)}>
                     {(this.state.targetEntities || []).map((item) => {
+                      const val = `${item[2]}.${item[0]}`
                       return (
-                        <option key={'te-' + item[2] + item[0]} value={item[2] + '.' + item[0]}>
+                        <option key={val} value={val}>
                           {item[1]}
                         </option>
                       )
@@ -210,9 +211,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   _getFieldLabel(fields, field) {
-    let found = fields.find((x) => {
-      return x[0] === field
-    })
+    let found = fields.find((x) => x[0] === field)
     if (found) found = found[1]
     return found || '[' + field.toUpperCase() + ']'
   }

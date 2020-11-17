@@ -398,18 +398,14 @@ public class EasyMeta implements BaseMeta {
             Entity refEntity = field.getReferenceEntity();
             Field nameField = MetadataHelper.getNameField(refEntity);
             map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(nameField).name() });
-
         } if (dt == DisplayType.ID) {
             Entity refEntity = field.getOwnEntity();
             Field nameField = MetadataHelper.getNameField(refEntity);
             map.put("ref", new String[] { refEntity.getName(), EasyMeta.getDisplayType(nameField).name() });
-
         } else if (dt == DisplayType.STATE) {
             map.put("stateClass", StateHelper.getSatetClass(field).getName());
-
         } else if (dt == DisplayType.CLASSIFICATION) {
             map.put("classification", easyField.getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE));
-
         }
 
         return map;
