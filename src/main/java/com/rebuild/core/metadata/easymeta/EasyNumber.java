@@ -10,6 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
@@ -45,5 +46,11 @@ public class EasyNumber extends EasyField {
         String format = StringUtils.defaultIfBlank(
                 getExtraAttr(FieldExtConfigProps.NUMBER_FORMAT), getDisplayType().getDefaultFormat());
         return new DecimalFormat(format).format(value);
+    }
+
+    @Override
+    public Object exprDefaultValue() {
+        String valueExpr = (String) getRawMeta().getDefaultValue();
+        return valueExpr == null ? null : NumberUtils.toLong(valueExpr);
     }
 }

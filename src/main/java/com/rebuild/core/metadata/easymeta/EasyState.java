@@ -11,11 +11,14 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
+import com.rebuild.core.support.state.StateSpec;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
+@Slf4j
 public class EasyState extends EasyField {
     private static final long serialVersionUID = -5160207555364899330L;
 
@@ -39,5 +42,23 @@ public class EasyState extends EasyField {
     public Object wrapValue(Object value) {
         String stateClass = getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
         return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
+    }
+
+    @Override
+    public Object exprDefaultValue() {
+        Class<?> stateClass;
+        try {
+            stateClass = StateHelper.getSatetClass(getRawMeta());
+        } catch (IllegalArgumentException ex) {
+            log.error("Bad field of state: " + getRawMeta());
+            return null;
+        }
+
+        for (Object c : stateClass.getEnumConstants()) {
+            if (((StateSpec) c).isDefault()) {
+                return ((StateSpec) c).getState();
+            }
+        }
+        return null;
     }
 }

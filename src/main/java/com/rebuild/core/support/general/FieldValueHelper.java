@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.general;
 
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
@@ -26,6 +28,11 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * 字段值包装
@@ -179,5 +186,51 @@ public class FieldValueHelper {
             o.put("entity", MetadataHelper.getEntityName(id));
         }
         return o;
+    }
+
+    // 日期公式 {NOW+1D}
+    private static final Pattern PATT_DATE = Pattern.compile("\\{NOW([-+])([0-9]{1,9})([YMDHI])}");
+    /**
+     * 解析日期表达式
+     *
+     * @param dateExpr
+     * @param base
+     * @return
+     */
+    public static Date parseDateExpr(String dateExpr, Date base) {
+        if ("{NOW}".equals(dateExpr)) {
+            return CalendarUtils.now();
+        }
+
+        Matcher m = PATT_DATE.matcher(StringUtils.remove(dateExpr, " "));
+        if (m.matches()) {
+            base = base == null ? CalendarUtils.now() : base;
+
+            String op = m.group(1);
+            String num = m.group(2);
+            String unit = m.group(3);
+            int num2int = ObjectUtils.toInt(num);
+            if ("-".equals(op)) {
+                num2int = -num2int;
+            }
+
+            Date date = null;
+            if (num2int == 0) {
+                date = base;
+            } else if ("Y".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.YEAR);
+            } else if ("M".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.MONTH);
+            } else if ("D".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.DAY_OF_MONTH);
+            } else if ("H".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.HOUR_OF_DAY);
+            } else if ("I".equals(unit)) {
+                date = CalendarUtils.add(base, num2int, Calendar.MINUTE);
+            }
+            return date;
+        }
+
+        return null;
     }
 }

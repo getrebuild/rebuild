@@ -120,8 +120,15 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return value.toString().trim();
     }
 
-//    // 默认值
-//    abstract Object exprDefaultValue(String expr);
+    /**
+     * 默认值
+     *
+     * @return
+     */
+    public Object exprDefaultValue() {
+        return getRawMeta().getDefaultValue();
+    }
+
 //    // 转换符合字段类型的值
 //    abstract Object checkoutValue(Object rawValue);
 }

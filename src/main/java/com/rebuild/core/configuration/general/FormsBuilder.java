@@ -32,7 +32,6 @@ import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -375,28 +374,28 @@ public class FormsBuilder extends FormsManager {
                         el.put("value", autoValue);
 
                     } else {
-                        Object defVal = FieldDefaultValueHelper.exprDefaultValue(fieldMeta);
-                        if (defVal != null) {
+                        Object defaultValue = easyField.exprDefaultValue();
+                        if (defaultValue != null) {
                             // 日期
                             if (dateLength > -1) {
-                                defVal = CalendarUtils.getUTCDateTimeFormat().format(defVal);
-                                defVal = defVal.toString().substring(0, dateLength);
+                                defaultValue = CalendarUtils.getUTCDateTimeFormat().format(defaultValue);
+                                defaultValue = defaultValue.toString().substring(0, dateLength);
                             }
                             // 引用型
                             else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
                                 try {
-                                    String label = FieldValueHelper.getLabel((ID) defVal);
-                                    defVal = FieldValueHelper.wrapMixValue((ID) defVal, label);
+                                    String label = FieldValueHelper.getLabel((ID) defaultValue);
+                                    defaultValue = FieldValueHelper.wrapMixValue((ID) defaultValue, label);
                                 } catch (NoRecordFoundException ignore) {
-                                    defVal = null;
+                                    defaultValue = null;
                                 }
                             }
                             // 多引用
                             else if (dt == DisplayType.N2NREFERENCE) {
-                                defVal = easyField.wrapValue(defVal);
+                                defaultValue = easyField.wrapValue(defaultValue);
                             }
 
-                            el.put("value", defVal);
+                            el.put("value", defaultValue);
                         }
                     }
                 }

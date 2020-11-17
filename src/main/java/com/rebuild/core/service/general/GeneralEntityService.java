@@ -17,8 +17,9 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
@@ -32,7 +33,6 @@ import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import org.apache.commons.lang.StringUtils;
@@ -445,7 +445,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * 补充默认值
      *
      * @param recordOfNew
-     * @see FieldDefaultValueHelper
      */
     private void appendDefaultValue(Record recordOfNew) {
         Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
@@ -457,12 +456,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isCommonsField(field)
-                    || recordOfNew.hasValue(field.getName(), true)
-                    || EasyMetaFactory.getDisplayType(field) == DisplayType.SERIES) {
+                    || recordOfNew.hasValue(field.getName(), true)) {
                 continue;
             }
 
-            Object defVal = FieldDefaultValueHelper.exprDefaultValue(field);
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (easyField.getDisplayType() == DisplayType.SERIES) continue;
+
+            Object defVal = easyField.exprDefaultValue();
             if (defVal != null) {
                 recordOfNew.setObjectValue(field.getName(), defVal);
             }

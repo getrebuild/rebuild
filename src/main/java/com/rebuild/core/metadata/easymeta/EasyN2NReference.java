@@ -12,6 +12,9 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author devezhao
  * @since 2020/11/17
@@ -42,5 +45,17 @@ public class EasyN2NReference extends EasyReference {
     public Object unpackWrapValue(Object wrappedValue) {
         JSONArray array = (JSONArray) wrappedValue;
         return array.isEmpty() ? null : ((JSONObject) array.get(0)).getString("text");
+    }
+
+    @Override
+    public Object exprDefaultValue() {
+        String valueExpr = (String) getRawMeta().getDefaultValue();
+        if (valueExpr == null) return null;
+
+        List<ID> idArray = new ArrayList<>();
+        for (String id : valueExpr.split(",")) {
+            if (ID.isId(id)) idArray.add(ID.valueOf(id));
+        }
+        return idArray.toArray(new ID[0]);
     }
 }

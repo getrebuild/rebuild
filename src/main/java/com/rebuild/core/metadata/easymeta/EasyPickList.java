@@ -49,4 +49,10 @@ public class EasyPickList extends EasyField {
         String stateClass = getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
         return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        String valueExpr = (String) getRawMeta().getDefaultValue();
+        return PickListManager.instance.getDefaultItem(getRawMeta());
+    }
 }

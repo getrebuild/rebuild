@@ -10,7 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
-import com.rebuild.core.support.general.FieldDefaultValueHelper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.Date;
@@ -35,7 +35,7 @@ public class EasyDateTime extends EasyField {
     public Object convertCompatibleValue(Object value, EasyField targetField, String valueExpr) {
         // 日期公式
         if (StringUtils.isNotBlank(valueExpr)) {
-            Date newDate = FieldDefaultValueHelper.parseDateExpr("{NOW" + valueExpr + "}", (Date) value);
+            Date newDate = FieldValueHelper.parseDateExpr("{NOW" + valueExpr + "}", (Date) value);
             if (newDate != null) {
                 value = newDate;
             }
@@ -68,5 +68,21 @@ public class EasyDateTime extends EasyField {
         String format = StringUtils.defaultIfBlank(
                 getExtraAttr(FieldExtConfigProps.DATETIME_DATEFORMAT), getDisplayType().getDefaultFormat());
         return CalendarUtils.getDateFormat(format).format(value);
+    }
+
+    @Override
+    public Object exprDefaultValue() {
+        String valueExpr = (String) getRawMeta().getDefaultValue();
+        if (valueExpr == null) return null;
+
+        // 表达式
+        if (valueExpr.contains("NOW")) {
+            return FieldValueHelper.parseDateExpr(valueExpr, null);
+        }
+        // 具体的日期值
+        else {
+            String format = "yyyy-MM-dd HH:mm:ss".substring(0, valueExpr.length());
+            return CalendarUtils.parse(valueExpr, format);
+        }
     }
 }

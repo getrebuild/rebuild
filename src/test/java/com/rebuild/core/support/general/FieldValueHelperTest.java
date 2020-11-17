@@ -14,10 +14,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * @author devezhao zhaofang123@gmail.com
- * @since 2019/05/22
+ * @author devezhao-mac zhaofang123@gmail.com
+ * @since 2019/03/16
  */
-public class FieldValueWrapperTest extends TestSupport {
+public class FieldValueHelperTest extends TestSupport {
+
+    @Test
+    public void parseDateExpr() {
+        System.out.println(FieldValueHelper.parseDateExpr("{NOW}", null));
+        System.out.println(FieldValueHelper.parseDateExpr("{NOW - 1H}", null));
+        System.out.println(FieldValueHelper.parseDateExpr("{NOW + 1M}", null));
+        System.out.println(FieldValueHelper.parseDateExpr("2019-09-01", null));
+        System.out.println(FieldValueHelper.parseDateExpr("2019-09-01 01:01", null));
+    }
 
     @Test
     public void testGetLabel() {

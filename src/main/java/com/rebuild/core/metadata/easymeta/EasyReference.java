@@ -49,4 +49,10 @@ public class EasyReference extends EasyField implements MixValue {
 
         return FieldValueHelper.wrapMixValue(idValue, text == null ? null : text.toString());
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        String valueExpr = (String) getRawMeta().getDefaultValue();
+        return valueExpr == null ? null : ID.valueOf(valueExpr);
+    }
 }

@@ -30,4 +30,9 @@ public class EasySeries extends EasyField {
 
         throw new UnsupportedOperationException("auto value");
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        throw new UnsupportedOperationException();
+    }
 }

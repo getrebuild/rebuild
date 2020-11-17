@@ -39,4 +39,9 @@ public class EasyID extends EasyField {
 
         return super.convertCompatibleValue(value, targetField);
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        throw new UnsupportedOperationException();
+    }
 }

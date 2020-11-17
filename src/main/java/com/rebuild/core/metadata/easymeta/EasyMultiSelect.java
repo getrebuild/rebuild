@@ -42,4 +42,9 @@ public class EasyMultiSelect extends EasyField {
         String[] multiLabel = MultiSelectManager.instance.getLabel((Long) value, getRawMeta());
         return StringUtils.join(multiLabel, ", ");
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        return MultiSelectManager.instance.getDefaultValue(getRawMeta());
+    }
 }

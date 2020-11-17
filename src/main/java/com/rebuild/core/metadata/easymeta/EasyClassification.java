@@ -44,4 +44,10 @@ public class EasyClassification extends EasyField implements MixValue {
                 ClassificationManager.instance.getFullName(id), FieldValueHelper.MISS_REF_PLACE);
         return FieldValueHelper.wrapMixValue(id, text);
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        String valueExpr = (String) getRawMeta().getDefaultValue();
+        return valueExpr == null ? null : ID.valueOf(valueExpr);
+    }
 }
