@@ -13,7 +13,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,7 +145,7 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public ID getUseClassification(Field field, boolean verfiy) {
-        String use = EasyMetaFactory.valueOf(field).getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE);
+        String use = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
         ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
         if (dataId == null) {
             LOG.error("Field [ " + field + " ] unconfig classification");

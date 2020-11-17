@@ -23,7 +23,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.support.i18n.Language;
@@ -124,8 +124,8 @@ public class BatchUpdateController extends BaseController {
             map.put("options", options);
 
         } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
-            map.put(FieldExtConfigProps.NUMBER_NOTNEGATIVE,
-                    EasyMetaFactory.valueOf(field).getExtraAttr(FieldExtConfigProps.NUMBER_NOTNEGATIVE));
+            map.put(EasyFieldConfigProps.NUMBER_NOTNEGATIVE,
+                    EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.NUMBER_NOTNEGATIVE));
 
         }
         return map;

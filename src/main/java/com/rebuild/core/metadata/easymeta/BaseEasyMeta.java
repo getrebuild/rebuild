@@ -10,7 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -92,7 +92,7 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta {
      *
      * @param name
      * @return
-     * @see FieldExtConfigProps
+     * @see EasyFieldConfigProps
      */
     public String getExtraAttr(String name) {
         return getExtraAttrs(false).getString(name);

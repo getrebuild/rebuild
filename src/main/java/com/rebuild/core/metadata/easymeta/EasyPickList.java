@@ -10,7 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.configuration.general.PickListManager;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class EasyPickList extends EasyField {
 
     @Override
     public Object wrapValue(Object value) {
-        String stateClass = getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+        String stateClass = getExtraAttr(EasyFieldConfigProps.STATE_STATECLASS);
         return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
     }
 

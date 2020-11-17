@@ -26,7 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.Field2Schema;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.MetaFieldService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -151,14 +151,14 @@ public class MetaFieldController extends BaseController {
         JSON extConfig = null;
         if (dt == DisplayType.CLASSIFICATION) {
             ID dataId = ID.valueOf(refClassification);
-            extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.CLASSIFICATION_USE, dataId);
+            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.CLASSIFICATION_USE, dataId);
 
         } else if (dt == DisplayType.STATE) {
             if (!StateHelper.isStateClass(stateClass)) {
                 return RespBody.errorl("SomeInvalid,StateClass");
             }
 
-            extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.STATE_STATECLASS, stateClass);
+            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.STATE_STATECLASS, stateClass);
         }
 
         try {

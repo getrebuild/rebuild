@@ -23,7 +23,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
@@ -310,25 +310,31 @@ public class FormsBuilder extends FormsManager {
             if (dt == DisplayType.PICKLIST) {
                 JSONArray options = PickListManager.instance.getPickList(fieldMeta);
                 el.put("options", options);
+
             } else if (dt == DisplayType.STATE) {
                 JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
                 el.put("options", options);
-                el.remove(FieldExtConfigProps.STATE_STATECLASS);
+                el.remove(EasyFieldConfigProps.STATE_STATECLASS);
+
             } else if (dt == DisplayType.MULTISELECT) {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
                 el.put("options", options);
+
             } else if (dt == DisplayType.DATETIME) {
-                if (!el.containsKey("datetimeFormat")) {
-                    el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
+                if (!el.containsKey(EasyFieldConfigProps.DATETIME_FORMAT)) {
+                    el.put(EasyFieldConfigProps.DATETIME_FORMAT, DisplayType.DATETIME.getDefaultFormat());
                 }
-                dateLength = el.getString("datetimeFormat").length();
+                dateLength = el.getString(EasyFieldConfigProps.DATETIME_FORMAT).length();
+
             } else if (dt == DisplayType.DATE) {
-                if (!el.containsKey("dateFormat")) {
-                    el.put("dateFormat", DisplayType.DATE.getDefaultFormat());
+                if (!el.containsKey(EasyFieldConfigProps.DATE_FORMAT)) {
+                    el.put(EasyFieldConfigProps.DATE_FORMAT, DisplayType.DATE.getDefaultFormat());
                 }
-                dateLength = el.getString("dateFormat").length();
+                dateLength = el.getString(EasyFieldConfigProps.DATE_FORMAT).length();
+
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
+
             }
 
             // 编辑/视图
@@ -381,17 +387,10 @@ public class FormsBuilder extends FormsManager {
                                 defaultValue = CalendarUtils.getUTCDateTimeFormat().format(defaultValue);
                                 defaultValue = defaultValue.toString().substring(0, dateLength);
                             }
-                            // 引用型
-                            else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
-                                try {
-                                    String label = FieldValueHelper.getLabel((ID) defaultValue);
-                                    defaultValue = FieldValueHelper.wrapMixValue((ID) defaultValue, label);
-                                } catch (NoRecordFoundException ignore) {
-                                    defaultValue = null;
-                                }
-                            }
-                            // 多引用
-                            else if (dt == DisplayType.N2NREFERENCE) {
+                            // MixValue
+                            else if (dt == DisplayType.REFERENCE
+                                    || dt == DisplayType.CLASSIFICATION
+                                    || dt == DisplayType.N2NREFERENCE) {
                                 defaultValue = easyField.wrapValue(defaultValue);
                             }
 
@@ -404,11 +403,13 @@ public class FormsBuilder extends FormsManager {
                 if (roViaTriggers && el.get("value") == null) {
                     if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
                         el.put("value", FieldValueHelper.wrapMixValue(null, autoValue));
+
                     } else if (dt == DisplayType.TEXT || dt == DisplayType.NTEXT
                             || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE
                             || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
                             || dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
                         el.put("value", autoValue);
+
                     }
                 }
             }

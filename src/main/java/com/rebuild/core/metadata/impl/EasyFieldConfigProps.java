@@ -13,7 +13,7 @@ package com.rebuild.core.metadata.impl;
  * @author ZHAO
  * @since 2019/12/3
  */
-public class FieldExtConfigProps {
+public class EasyFieldConfigProps {
 
     /**
      * 是否允许负数
@@ -36,12 +36,12 @@ public class FieldExtConfigProps {
     /**
      * 日期格式
      */
-    public static final String DATE_DATEFORMAT = "dateFormat";
+    public static final String DATE_FORMAT = "dateFormat";
 
     /**
      * 日期格式
      */
-    public static final String DATETIME_DATEFORMAT = "datetimeFormat";
+    public static final String DATETIME_FORMAT = "datetimeFormat";
 
     /**
      * 允许上传数量

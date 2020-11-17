@@ -29,4 +29,9 @@ public class EasyAnyReference extends EasyField {
     public Object wrapValue(Object value) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public Object exprDefaultValue() {
+        throw new UnsupportedOperationException();
+    }
 }

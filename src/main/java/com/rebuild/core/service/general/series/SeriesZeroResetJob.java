@@ -14,7 +14,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -48,7 +48,7 @@ public class SeriesZeroResetJob extends DistributedJobLock {
             for (Field field : entity.getFields()) {
                 EasyField easy = EasyMetaFactory.valueOf(field);
                 if (easy.getDisplayType() == DisplayType.SERIES) {
-                    String zeroFlag = easy.getExtraAttr(FieldExtConfigProps.SERIES_SERIESZERO);
+                    String zeroFlag = easy.getExtraAttr(EasyFieldConfigProps.SERIES_SERIESZERO);
                     if ("D".equalsIgnoreCase(zeroFlag)) {
                         SeriesGeneratorFactory.zero(field);
                         LOG.info("Zero field by [D] : " + field);

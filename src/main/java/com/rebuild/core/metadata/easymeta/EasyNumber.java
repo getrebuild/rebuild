@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -44,7 +44,7 @@ public class EasyNumber extends EasyField {
     @Override
     public Object wrapValue(Object value) {
         String format = StringUtils.defaultIfBlank(
-                getExtraAttr(FieldExtConfigProps.NUMBER_FORMAT), getDisplayType().getDefaultFormat());
+                getExtraAttr(EasyFieldConfigProps.NUMBER_FORMAT), getDisplayType().getDefaultFormat());
         return new DecimalFormat(format).format(value);
     }
 

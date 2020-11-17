@@ -17,7 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
 import org.springframework.util.ReflectionUtils;
@@ -213,7 +213,7 @@ public class EasyMetaFactory {
         } else if (dt == STATE) {
             map.put("stateClass", StateHelper.getSatetClass(field).getName());
         } else if (dt == CLASSIFICATION) {
-            map.put("classification", easy.getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE));
+            map.put("classification", easy.getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE));
         }
 
         return map;

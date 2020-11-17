@@ -9,7 +9,7 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
@@ -66,7 +66,7 @@ public class EasyDateTime extends EasyField {
     @Override
     public Object wrapValue(Object value) {
         String format = StringUtils.defaultIfBlank(
-                getExtraAttr(FieldExtConfigProps.DATETIME_DATEFORMAT), getDisplayType().getDefaultFormat());
+                getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), getDisplayType().getDefaultFormat());
         return CalendarUtils.getDateFormat(format).format(value);
     }
 

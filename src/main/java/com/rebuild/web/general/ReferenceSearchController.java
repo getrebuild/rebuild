@@ -20,7 +20,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.NoRecordFoundException;
@@ -271,7 +271,7 @@ public class ReferenceSearchController extends EntityController {
                 Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
 
         // 是否启用了字段过滤
-        String referenceDataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(FieldExtConfigProps.REFERENCE_DATAFILTER);
+        String referenceDataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
         if (referenceDataFilter != null && referenceDataFilter.length() > 10) {
             mv.getModel().put("referenceFilter", "ref:" + getParameter(request, "field"));
         } else {

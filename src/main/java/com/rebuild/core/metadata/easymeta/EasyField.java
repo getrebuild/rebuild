@@ -86,6 +86,11 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return displayType;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "#" + getRawMeta().toString();
+    }
+
     // --
 
     /**

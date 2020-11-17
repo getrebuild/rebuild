@@ -14,7 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.support.i18n.Language;
@@ -43,7 +43,7 @@ public class StateManager {
         if (EntityHelper.ApprovalState.equalsIgnoreCase(stateField.getName())) {
             stateClass = ApprovalState.class.getName();
         } else {
-            stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+            stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(EasyFieldConfigProps.STATE_STATECLASS);
         }
         return getStateOptions(stateClass);
     }

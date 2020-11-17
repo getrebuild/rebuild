@@ -48,6 +48,6 @@ public class EasyClassification extends EasyField implements MixValue {
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
-        return valueExpr == null ? null : ID.valueOf(valueExpr);
+        return ID.isId(valueExpr) ? ID.valueOf(valueExpr) : null;
     }
 }

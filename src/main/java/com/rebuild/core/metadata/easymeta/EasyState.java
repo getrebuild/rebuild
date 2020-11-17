@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.core.support.state.StateSpec;
@@ -40,7 +40,7 @@ public class EasyState extends EasyField {
 
     @Override
     public Object wrapValue(Object value) {
-        String stateClass = getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+        String stateClass = getExtraAttr(EasyFieldConfigProps.STATE_STATECLASS);
         return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
     }
 
