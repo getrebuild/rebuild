@@ -16,7 +16,7 @@ import com.rebuild.core.BootApplication;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;

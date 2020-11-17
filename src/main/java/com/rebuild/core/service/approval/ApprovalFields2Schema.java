@@ -16,7 +16,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.support.i18n.Language;

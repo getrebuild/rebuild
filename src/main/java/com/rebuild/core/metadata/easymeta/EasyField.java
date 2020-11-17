@@ -10,11 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
-import com.rebuild.core.RebuildException;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 
 import java.util.Set;
@@ -23,11 +19,14 @@ import java.util.Set;
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyField extends BaseEasyMeta<Field> {
+public abstract class EasyField extends BaseEasyMeta<Field> {
     private static final long serialVersionUID = 6027165766338449527L;
 
-    protected EasyField(Field field) {
+    private final DisplayType displayType;
+
+    protected EasyField(Field field, DisplayType displayType) {
         super(field);
+        this.displayType = displayType;
     }
 
     @Override
@@ -77,56 +76,12 @@ public class EasyField extends BaseEasyMeta<Field> {
     }
 
     /**
+     * 获取 RB 封装类型
+     *
      * @return
      */
     public DisplayType getDisplayType() {
-        String displayType = getExtraAttr("displayType");
-        DisplayType dt = displayType != null
-                ? DisplayType.valueOf(displayType) : convertBuiltinFieldType(getRawMeta());
-        if (dt != null) return dt;
-
-        throw new RebuildException("Unsupported field type : " + getRawMeta());
-    }
-
-    /**
-     * 将字段类型转成 DisplayType
-     *
-     * @param field
-     * @return
-     */
-    private DisplayType convertBuiltinFieldType(Field field) {
-        Type ft = field.getType();
-        if (ft == FieldType.PRIMARY) {
-            return DisplayType.ID;
-        } else if (ft == FieldType.REFERENCE) {
-            int typeCode = field.getReferenceEntity().getEntityCode();
-            if (typeCode == EntityHelper.PickList) {
-                return DisplayType.PICKLIST;
-            } else if (typeCode == EntityHelper.Classification) {
-                return DisplayType.CLASSIFICATION;
-            } else {
-                return DisplayType.REFERENCE;
-            }
-        } else if (ft == FieldType.ANY_REFERENCE) {
-            return DisplayType.ANYREFERENCE;
-        } else if (ft == FieldType.REFERENCE_LIST) {
-            return DisplayType.N2NREFERENCE;
-        } else if (ft == FieldType.TIMESTAMP) {
-            return DisplayType.DATETIME;
-        } else if (ft == FieldType.DATE) {
-            return DisplayType.DATE;
-        } else if (ft == FieldType.STRING) {
-            return DisplayType.TEXT;
-        } else if (ft == FieldType.TEXT || ft == FieldType.NTEXT) {
-            return DisplayType.NTEXT;
-        } else if (ft == FieldType.BOOL) {
-            return DisplayType.BOOL;
-        } else if (ft == FieldType.INT || ft == FieldType.SMALL_INT || ft == FieldType.LONG) {
-            return DisplayType.NUMBER;
-        } else if (ft == FieldType.DOUBLE || ft == FieldType.DECIMAL) {
-            return DisplayType.DECIMAL;
-        }
-        return null;
+        return displayType;
     }
 
 //    // 转换兼容值

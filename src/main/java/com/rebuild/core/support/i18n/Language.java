@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.*;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.state.StateSpec;

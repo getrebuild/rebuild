@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -68,7 +69,7 @@ public class SeriesGeneratorTest extends TestSupport {
 
     /**
      * @return
-     * @see com.rebuild.core.metadata.impl.DisplayType#SERIES
+     * @see DisplayType#SERIES
      */
     private Field getSeriesField() {
         return MetadataHelper.getField(TestAllFields, "series");

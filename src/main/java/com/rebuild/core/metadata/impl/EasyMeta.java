@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;

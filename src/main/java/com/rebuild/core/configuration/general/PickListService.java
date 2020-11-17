@@ -19,7 +19,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.AdminGuard;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;

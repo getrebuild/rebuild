@@ -24,7 +24,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.metadata.impl.MetaFieldService;

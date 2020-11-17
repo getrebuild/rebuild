@@ -19,7 +19,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.utils.JSONUtils;
 
 /**

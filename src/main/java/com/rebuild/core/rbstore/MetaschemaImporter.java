@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.*;
 import com.rebuild.core.privileges.UserService;

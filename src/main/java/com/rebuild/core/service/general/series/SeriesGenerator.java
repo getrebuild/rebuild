@@ -10,7 +10,7 @@ package com.rebuild.core.service.general.series;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;

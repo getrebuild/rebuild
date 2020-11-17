@@ -9,14 +9,22 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.RebuildException;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
+import org.springframework.util.ReflectionUtils;
+
+import java.lang.reflect.Constructor;
+
+import static com.rebuild.core.metadata.easymeta.DisplayType.*;
 
 /**
  * @author devezhao
@@ -53,7 +61,60 @@ public class EasyMetaFactory {
      * @return
      */
     public static EasyField valueOf(Field field) {
-        return new EasyField(field);
+        String displayType = field.getExtraAttrs() == null
+                ? null : field.getExtraAttrs().getString("displayType");
+        DisplayType dt = displayType == null ? convertBuiltinFieldType(field) : DisplayType.valueOf(displayType);
+        if (dt == null) {
+            throw new RebuildException("Unsupported field type : " + field);
+        }
+
+        try {
+            Constructor<?> c = ReflectionUtils.accessibleConstructor(dt.getEasyClass(), Field.class, DisplayType.class);
+            return (EasyField) c.newInstance(field, dt);
+        } catch (Exception ex) {
+            throw new RebuildException(ex);
+        }
+    }
+
+    /**
+     * 将字段类型转成 DisplayType
+     *
+     * @param field
+     * @return
+     */
+    static DisplayType convertBuiltinFieldType(Field field) {
+        Type ft = field.getType();
+        if (ft == FieldType.PRIMARY) {
+            return ID;
+        } else if (ft == FieldType.REFERENCE) {
+            int typeCode = field.getReferenceEntity().getEntityCode();
+            if (typeCode == EntityHelper.PickList) {
+                return PICKLIST;
+            } else if (typeCode == EntityHelper.Classification) {
+                return CLASSIFICATION;
+            } else {
+                return REFERENCE;
+            }
+        } else if (ft == FieldType.ANY_REFERENCE) {
+            return ANYREFERENCE;
+        } else if (ft == FieldType.REFERENCE_LIST) {
+            return N2NREFERENCE;
+        } else if (ft == FieldType.TIMESTAMP) {
+            return DATETIME;
+        } else if (ft == FieldType.DATE) {
+            return DATE;
+        } else if (ft == FieldType.STRING) {
+            return TEXT;
+        } else if (ft == FieldType.TEXT || ft == FieldType.NTEXT) {
+            return NTEXT;
+        } else if (ft == FieldType.BOOL) {
+            return BOOL;
+        } else if (ft == FieldType.INT || ft == FieldType.SMALL_INT || ft == FieldType.LONG) {
+            return NUMBER;
+        } else if (ft == FieldType.DOUBLE || ft == FieldType.DECIMAL) {
+            return DECIMAL;
+        }
+        return null;
     }
 
     /**
@@ -118,8 +179,8 @@ public class EasyMetaFactory {
     public static JSONObject getEntityShow(Entity entity) {
         EasyEntity easy = valueOf(entity);
         return JSONUtils.toJSONObject(
-                new String[] { "entity", "entityLabel", "icon" },
-                new String[] { easy.getName(), easy.getLabel(), easy.getIcon() });
+                new String[]{"entity", "entityLabel", "icon"},
+                new String[]{easy.getName(), easy.getLabel(), easy.getIcon()});
     }
 
     /**
@@ -140,17 +201,18 @@ public class EasyMetaFactory {
         map.put("updatable", field.isUpdatable());
 
         DisplayType dt = getDisplayType(field);
-        if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
+        if (dt == REFERENCE || dt == N2NREFERENCE) {
             Entity refEntity = field.getReferenceEntity();
             Field nameField = MetadataHelper.getNameField(refEntity);
-            map.put("ref", new String[] { refEntity.getName(), getDisplayType(nameField).name() });
-        } if (dt == DisplayType.ID) {
+            map.put("ref", new String[]{refEntity.getName(), getDisplayType(nameField).name()});
+        }
+        if (dt == ID) {
             Entity refEntity = field.getOwnEntity();
             Field nameField = MetadataHelper.getNameField(refEntity);
-            map.put("ref", new String[] { refEntity.getName(), getDisplayType(nameField).name() });
-        } else if (dt == DisplayType.STATE) {
+            map.put("ref", new String[]{refEntity.getName(), getDisplayType(nameField).name()});
+        } else if (dt == STATE) {
             map.put("stateClass", StateHelper.getSatetClass(field).getName());
-        } else if (dt == DisplayType.CLASSIFICATION) {
+        } else if (dt == CLASSIFICATION) {
             map.put("classification", easy.getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE));
         }
 

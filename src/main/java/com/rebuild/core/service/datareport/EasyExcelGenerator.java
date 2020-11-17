@@ -18,7 +18,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueWrapper;

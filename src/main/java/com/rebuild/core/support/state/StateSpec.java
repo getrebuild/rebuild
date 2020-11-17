@@ -7,13 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.state;
 
+import com.rebuild.core.metadata.easymeta.DisplayType;
+
 /**
  * 对开发友好的状态字段（State）规范。
  * 开发时可以更方便的使用状态值（明确的数字值），系统对此类型的字段提供了完整的支持。
  * 此字段与列表字段（PickList）表现相同。
  *
  * @author devezhao
- * @see com.rebuild.core.metadata.impl.DisplayType#STATE
+ * @see DisplayType#STATE
  * @see com.rebuild.core.service.approval.ApprovalState
  * @see HowtoState
  * @since 09/05/2019

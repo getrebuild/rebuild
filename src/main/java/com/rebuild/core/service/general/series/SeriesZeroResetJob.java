@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.FieldExtConfigProps;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.springframework.scheduling.annotation.Scheduled;

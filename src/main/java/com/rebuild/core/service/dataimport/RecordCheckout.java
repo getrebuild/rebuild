@@ -19,7 +19,7 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.support.state.StateManager;
 import org.apache.commons.lang.StringEscapeUtils;

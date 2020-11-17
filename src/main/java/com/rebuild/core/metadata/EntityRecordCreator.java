@@ -19,7 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.trigger.RobotTriggerManager;

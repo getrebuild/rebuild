@@ -16,7 +16,7 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 
 import java.text.Collator;
 import java.util.ArrayList;
