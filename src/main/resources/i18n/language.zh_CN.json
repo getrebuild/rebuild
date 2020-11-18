@@ -1098,7 +1098,7 @@
   "ReConfChartTips": "字段 %s 不存在，请调整图表配置",
   "SourceEntityMiss": "源实体 %s 不存在",
   "NoReadEntity": "没有读取 %s 的权限",
-  "DeleteClassDataInUsed": "此分类数据正在被使用，不能删除",
+  "DeleteClassDataInUsedX": "此分类数据正在被 %s 使用，不能删除",
   "UpdateApprovalInUsedOnX": "有 %d 条记录正在使用此流程，禁止修改",
   "DeleteApprovalInUsedOnX": "有 %d 条记录正在使用此流程，禁止删除",
   "DeleteFolderHasFiles": "目录内有文件不能删除",

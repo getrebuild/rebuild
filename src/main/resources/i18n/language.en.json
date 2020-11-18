@@ -1098,7 +1098,7 @@
   "ReConfChartTips": "Field %s does not exist, please adjust chart configuration",
   "SourceEntityMiss": "Source entity %s does not exist",
   "NoReadEntity": "No permission to read %s",
-  "DeleteClassDataInUsed": "This classification is in use and cannot be deleted",
+  "DeleteClassDataInUsedX": "This classification is being used by %s and cannot be deleted",
   "UpdateApprovalInUsedOnX": "%d records are using this approval, no modifications are allowed",
   "DeleteApprovalInUsedOnX": "There are %d records using this approval, deletion is prohibited",
   "DeleteFolderHasFiles": "Files in folder cannot be deleted",

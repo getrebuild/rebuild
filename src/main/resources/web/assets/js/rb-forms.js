@@ -1162,6 +1162,13 @@ class RbFormReference extends RbFormElement {
   }
 
   setValue(val) {
+    // // TODO 只读模式下（回填）
+    // if (this.props.readonly && val) {
+    //   this.handleChange({ target: { value: val.id } })
+    //   $(this._fieldValue).val(val.text)
+    //   return
+    // }
+
     if (val) {
       const o = new Option(val.text, val.id, true, true)
       this.__select2.append(o)
@@ -1170,6 +1177,12 @@ class RbFormReference extends RbFormElement {
       this.__select2.val(null).trigger('change')
     }
   }
+
+  // getValue() {
+  //   let val = super.getValue()
+  //   if (typeof val === 'object') val = val.id
+  //   return val
+  // }
 
   showSearcher() {
     const that = this

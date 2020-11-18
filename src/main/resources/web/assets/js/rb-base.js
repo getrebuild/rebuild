@@ -88,7 +88,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
         RbHighbar.error(err)
       } else {
         var res = xhr.responseJSON
-        if (res && res.error_code > 0) console.error(JSON.stringify(res))
+        if (res && res.error_code >= 500) console.error(JSON.stringify(res))
       }
     },
     beforeSend: function (xhr, settings) {
