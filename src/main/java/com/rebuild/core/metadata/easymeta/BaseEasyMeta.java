@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.JSONable;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -21,7 +22,7 @@ import org.apache.commons.lang.StringUtils;
  * @author devezhao
  * @since 2020/11/17
  */
-public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta {
+public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSONable {
     private static final long serialVersionUID = 6088391941883022085L;
 
     private final T baseMeta;

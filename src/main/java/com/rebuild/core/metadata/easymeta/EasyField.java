@@ -10,8 +10,10 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -84,6 +86,14 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
      */
     public DisplayType getDisplayType() {
         return displayType;
+    }
+
+    @Override
+    public JSON toJSON() {
+        return JSONUtils.toJSONObject(
+                new String[] { "name", "label", "type", "nullable", "creatable", "updatable" },
+                new Object[] { getName(), getLabel(), getDisplayType().name(),
+                        getRawMeta().isNullable(), getRawMeta().isCreatable(), getRawMeta().isUpdatable() });
     }
 
     @Override

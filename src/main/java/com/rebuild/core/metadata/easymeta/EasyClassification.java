@@ -9,8 +9,10 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.ClassificationManager;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
@@ -23,6 +25,15 @@ public class EasyClassification extends EasyField implements MixValue {
 
     protected EasyClassification(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public JSON toJSON() {
+        JSONObject map = (JSONObject) super.toJSON();
+
+        map.put(EasyFieldConfigProps.CLASSIFICATION_USE,
+                getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE));
+        return map;
     }
 
     @Override

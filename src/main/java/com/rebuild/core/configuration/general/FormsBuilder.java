@@ -194,7 +194,7 @@ public class FormsBuilder extends FormsManager {
             model.set("isDetail", true);
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("isMain", true);
-            model.set("detailMeta", EasyMetaFactory.getEntityShow(entityMeta.getDetailEntity()));
+            model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
 
         if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {

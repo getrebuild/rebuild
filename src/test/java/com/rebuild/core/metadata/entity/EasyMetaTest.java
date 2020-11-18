@@ -23,7 +23,7 @@ public class EasyMetaTest extends TestSupport {
     public void getLabel() {
         Entity user = MetadataHelper.getEntity("User");
         EasyMetaFactory.getLabel(user, "roleId.name");
-        System.out.println(EasyMetaFactory.getEntityShow(user));
+        System.out.println(EasyMetaFactory.toJSON(user));
     }
 
     @Test

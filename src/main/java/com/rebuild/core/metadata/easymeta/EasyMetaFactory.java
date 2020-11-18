@@ -17,9 +17,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
-import com.rebuild.core.support.state.StateHelper;
-import com.rebuild.utils.JSONUtils;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
@@ -127,6 +124,8 @@ public class EasyMetaFactory {
         throw new MetadataException("Unsupport meta type : " + entityOrField);
     }
 
+    // --
+
     /**
      * @param field
      * @return
@@ -171,51 +170,20 @@ public class EasyMetaFactory {
     }
 
     /**
-     * 前端使用
-     *
      * @param entity
-     * @return returns { entity:xxx, entityLabel:xxx, icon:xxx }
+     * @return
+     * @see EasyEntity#toJSON()
      */
-    public static JSONObject getEntityShow(Entity entity) {
-        EasyEntity easy = valueOf(entity);
-        return JSONUtils.toJSONObject(
-                new String[]{"entity", "entityLabel", "icon"},
-                new String[]{easy.getName(), easy.getLabel(), easy.getIcon()});
+    public static JSONObject toJSON(Entity entity) {
+        return (JSONObject) valueOf(entity).toJSON();
     }
 
     /**
-     * 前端使用
-     *
      * @param field
      * @return
+     * @see EasyField#toJSON()
      */
-    public static JSONObject getFieldShow(Field field) {
-        JSONObject map = new JSONObject();
-
-        EasyField easy = valueOf(field);
-        map.put("name", field.getName());
-        map.put("label", easy.getLabel());
-        map.put("type", easy.getDisplayType().name());
-        map.put("nullable", field.isNullable());
-        map.put("creatable", field.isCreatable());
-        map.put("updatable", field.isUpdatable());
-
-        DisplayType dt = getDisplayType(field);
-        if (dt == REFERENCE || dt == N2NREFERENCE) {
-            Entity refEntity = field.getReferenceEntity();
-            Field nameField = MetadataHelper.getNameField(refEntity);
-            map.put("ref", new String[]{refEntity.getName(), getDisplayType(nameField).name()});
-        }
-        if (dt == ID) {
-            Entity refEntity = field.getOwnEntity();
-            Field nameField = MetadataHelper.getNameField(refEntity);
-            map.put("ref", new String[]{refEntity.getName(), getDisplayType(nameField).name()});
-        } else if (dt == STATE) {
-            map.put("stateClass", StateHelper.getSatetClass(field).getName());
-        } else if (dt == CLASSIFICATION) {
-            map.put("classification", easy.getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE));
-        }
-
-        return map;
+    public static JSONObject toJSON(Field field) {
+        return (JSONObject) valueOf(field).toJSON();
     }
 }

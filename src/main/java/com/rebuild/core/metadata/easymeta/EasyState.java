@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
@@ -24,6 +26,14 @@ public class EasyState extends EasyField {
 
     protected EasyState(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public JSON toJSON() {
+        JSONObject map = (JSONObject) super.toJSON();
+
+        map.put(EasyFieldConfigProps.STATE_STATECLASS, StateHelper.getSatetClass(getRawMeta()).getName());
+        return map;
     }
 
     @Override

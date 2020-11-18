@@ -15,9 +15,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -48,9 +48,9 @@ public class FieldWritebackController extends BaseController {
 
         // 源字段
 
-        sourceFields.add(EasyMetaFactory.getFieldShow(sourceEntity.getPrimaryField()));
+        sourceFields.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            sourceFields.add(EasyMetaFactory.getFieldShow(field));
+            sourceFields.add(EasyMetaFactory.toJSON(field));
         }
 
         // 关联实体的
@@ -63,7 +63,7 @@ public class FieldWritebackController extends BaseController {
             String fieldRefName = fieldRef.getName() + ".";
             String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
             for (Field field : MetadataSorter.sortFields(refEntity)) {
-                JSONObject subField = EasyMetaFactory.getFieldShow(field);
+                JSONObject subField = EasyMetaFactory.toJSON(field);
                 subField.put("name", fieldRefName + subField.getString("name"));
                 subField.put("label", fieldRefLabel + subField.getString("label"));
                 sourceFields.add(subField);
@@ -79,7 +79,7 @@ public class FieldWritebackController extends BaseController {
                 if (dt == DisplayType.SERIES || easyField.isBuiltin()) {
                     continue;
                 }
-                targetFields.add(EasyMetaFactory.getFieldShow(field));
+                targetFields.add(EasyMetaFactory.toJSON(field));
             }
         }
 

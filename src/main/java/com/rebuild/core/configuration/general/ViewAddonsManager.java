@@ -53,7 +53,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
         // 添加明细实体到第一个
         Entity entityMeta = MetadataHelper.getEntity(entity);
         if (entityMeta.getDetailEntity() != null) {
-            JSON detail = EasyMetaFactory.getEntityShow(entityMeta.getDetailEntity());
+            JSON detail = EasyMetaFactory.toJSON(entityMeta.getDetailEntity());
             JSONArray tabsFluent = new JSONArray();
             tabsFluent.add(detail);
             tabsFluent.fluentAddAll((Collection<?>) tabs);
@@ -121,7 +121,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
                 if (e.length > 1) {
                     addons.add(getEntityShow(addonEntity.getField(e[1]), mfRefs, applyType));
                 } else {
-                    addons.add(EasyMetaFactory.getEntityShow(addonEntity));
+                    addons.add(EasyMetaFactory.toJSON(addonEntity));
                 }
             }
         }
@@ -161,11 +161,11 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @param mfRefs
      * @param applyType
      * @return
-     * @see EasyMetaFactory#getEntityShow(Entity)
+     * @see EasyMetaFactory#toJSON(Entity)
      */
     private JSONObject getEntityShow(Field field, Set<Entity> mfRefs, String applyType) {
         Entity fieldEntity = field.getOwnEntity();
-        JSONObject show = EasyMetaFactory.getEntityShow(fieldEntity);
+        JSONObject show = EasyMetaFactory.toJSON(fieldEntity);
         show.put("entity", fieldEntity.getName() + EF_SPLIT + field.getName());
 
         if (mfRefs.contains(fieldEntity)) {

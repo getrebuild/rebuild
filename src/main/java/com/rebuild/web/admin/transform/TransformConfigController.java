@@ -90,12 +90,12 @@ public class TransformConfigController extends BaseController {
 
         JSONArray fields = new JSONArray();
         if (isSource) {
-            fields.add(EasyMetaFactory.getFieldShow(entity.getPrimaryField()));
+            fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
         }
 
         for (Field field : MetadataSorter.sortFields(entity)) {
             if (!isSource && !field.isCreatable()) continue;
-            fields.add(EasyMetaFactory.getFieldShow(field));
+            fields.add(EasyMetaFactory.toJSON(field));
         }
         entityData.put("fields", fields);
 

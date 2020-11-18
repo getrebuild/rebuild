@@ -18,8 +18,8 @@ import com.rebuild.api.BaseApi;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 
 /**
@@ -92,7 +92,7 @@ public class ClassificationData extends BaseApi {
 
     private JSONObject buildItem(Object[] o) {
         return JSONUtils.toJSONObject(
-                new String[]{"id", "text"},
-                new Object[]{o[0], o[1]});
+                new String[] { "id", "text" },
+                new Object[] { o[0], o[1]} );
     }
 }

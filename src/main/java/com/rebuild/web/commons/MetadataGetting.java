@@ -18,9 +18,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.PrivilegesManager;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -76,7 +76,7 @@ public class MetadataGetting extends BaseController {
                 int code = field.getReferenceEntity().getEntityCode();
                 if (MetadataHelper.isBizzEntity(code) || code == EntityHelper.RobotApprovalConfig) continue;
 
-                data.add(EasyMetaFactory.getFieldShow(field));
+                data.add(EasyMetaFactory.toJSON(field));
                 putFields(data, field, false);
             }
         }
@@ -99,7 +99,7 @@ public class MetadataGetting extends BaseController {
         }
 
         for (Field field : MetadataSorter.sortFields(useEntity)) {
-            JSONObject map = EasyMetaFactory.getFieldShow(field);
+            JSONObject map = EasyMetaFactory.toJSON(field);
 
             // 引用字段处理
             if (EasyMetaFactory.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {

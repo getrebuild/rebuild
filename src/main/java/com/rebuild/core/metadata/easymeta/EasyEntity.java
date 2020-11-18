@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Entity;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -39,5 +41,12 @@ public class EasyEntity extends BaseEasyMeta<Entity> {
      */
     public boolean isPlainEntity() {
         return getExtraAttrs().getBooleanValue("plainEntity");
+    }
+
+    @Override
+    public JSON toJSON() {
+        return JSONUtils.toJSONObject(
+                new String[] { "entity", "entityLabel", "icon" },
+                new String[] { getName(), getLabel(), getIcon() });
     }
 }
