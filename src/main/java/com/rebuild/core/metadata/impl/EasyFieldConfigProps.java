@@ -44,7 +44,7 @@ public class EasyFieldConfigProps {
     public static final String DATETIME_FORMAT = "datetimeFormat";
 
     /**
-     * 允许上传数量
+     * 允许上传数量 1,5
      */
     public static final String FILE_UPLOADNUMBER = "uploadNumber";
 
@@ -56,11 +56,11 @@ public class EasyFieldConfigProps {
     /**
      * 自动编号规则
      */
-    public static final String SERIES_SERIESFORMAT = "seriesFormat";
+    public static final String SERIES_FORMAT = "seriesFormat";
     /**
      * 自动编号归零方式
      */
-    public static final String SERIES_SERIESZERO = "seriesZero";
+    public static final String SERIES_ZERO = "seriesZero";
 
     /**
      * 使用哪个分类数据
@@ -70,7 +70,7 @@ public class EasyFieldConfigProps {
     /**
      * 使用哪个状态类
      */
-    public static final String STATE_STATECLASS = "stateClass";
+    public static final String STATE_CLASS = "stateClass";
 
     /**
      * 引用字段数据过滤

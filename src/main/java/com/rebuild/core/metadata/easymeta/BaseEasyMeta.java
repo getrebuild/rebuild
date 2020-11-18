@@ -68,17 +68,18 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
 
     @Override
     public JSONObject getExtraAttrs() {
-        return baseMeta.getExtraAttrs() == null ? JSONUtils.EMPTY_OBJECT : baseMeta.getExtraAttrs();
+        JSONObject clone = baseMeta.getExtraAttrs() == null ? JSONUtils.EMPTY_OBJECT : baseMeta.getExtraAttrs();
+        return (JSONObject) JSONUtils.clone(clone);
     }
 
     /**
-     * @param clear
+     * @param clearSystem
      * @return
      */
-    public JSONObject getExtraAttrs(boolean clear) {
+    public JSONObject getExtraAttrs(boolean clearSystem) {
         // see DynamicMetadataFactory
-        if (clear) {
-            JSONObject clone = (JSONObject) JSONUtils.clone(baseMeta.getExtraAttrs());
+        if (clearSystem) {
+            JSONObject clone = getExtraAttrs();
             clone.remove("metaId");
             clone.remove("comments");
             clone.remove("icon");

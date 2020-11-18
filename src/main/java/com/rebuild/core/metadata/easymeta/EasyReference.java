@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
 
 /**
@@ -68,5 +69,14 @@ public class EasyReference extends EasyField implements MixValue {
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
         return ID.isId(valueExpr) ? ID.valueOf(valueExpr) : null;
+    }
+
+    /**
+     * 引用字段数据过滤
+     *
+     * @return
+     */
+    public String attrDataFilter() {
+        return getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
     }
 }

@@ -43,7 +43,7 @@ public class StateManager {
         if (EntityHelper.ApprovalState.equalsIgnoreCase(stateField.getName())) {
             stateClass = ApprovalState.class.getName();
         } else {
-            stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(EasyFieldConfigProps.STATE_STATECLASS);
+            stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(EasyFieldConfigProps.STATE_CLASS);
         }
         return getStateOptions(stateClass);
     }

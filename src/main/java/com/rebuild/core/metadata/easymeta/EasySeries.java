@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
@@ -34,5 +36,20 @@ public class EasySeries extends EasyField {
     @Override
     public Object exprDefaultValue() {
         throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @return
+     */
+    public String attrFormat() {
+        return StringUtils.defaultIfBlank(
+                getExtraAttr(EasyFieldConfigProps.SERIES_FORMAT), getDisplayType().getDefaultFormat());
+    }
+
+    /**
+     * @return
+     */
+    public String attrZeroMode() {
+        return getExtraAttr(EasyFieldConfigProps.SERIES_ZERO);
     }
 }

@@ -21,12 +21,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetaFieldService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
@@ -158,7 +158,7 @@ public class MetaFieldController extends BaseController {
                 return RespBody.errorl("SomeInvalid,StateClass");
             }
 
-            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.STATE_STATECLASS, stateClass);
+            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.STATE_CLASS, stateClass);
         }
 
         try {

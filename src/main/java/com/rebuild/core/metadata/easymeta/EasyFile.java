@@ -9,6 +9,7 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import org.springframework.util.Assert;
 
 /**
@@ -36,5 +37,14 @@ public class EasyFile extends EasyField implements MixValue {
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
         return wrappedValue.toString();
+    }
+
+    /**
+     * 上传数量限制，如 3,6
+     *
+     * @return
+     */
+    public String attrUploadNumber() {
+        return getExtraAttr(EasyFieldConfigProps.FILE_UPLOADNUMBER);
     }
 }

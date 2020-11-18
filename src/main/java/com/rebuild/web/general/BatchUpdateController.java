@@ -20,9 +20,7 @@ import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
@@ -124,11 +122,12 @@ public class BatchUpdateController extends BaseController {
                     new Object[] { false, Language.L("False") }));
             map.put("options", options);
 
-        } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
-            map.put(EasyFieldConfigProps.NUMBER_NOTNEGATIVE,
-                    EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.NUMBER_NOTNEGATIVE));
-
+        } else if (dt == DisplayType.NUMBER) {
+            map.put(EasyFieldConfigProps.NUMBER_NOTNEGATIVE, ((EasyNumber) field).attrNotNegative());
+        } else if (dt == DisplayType.DECIMAL) {
+            map.put(EasyFieldConfigProps.DECIMAL_FORMAT, ((EasyDecimal) field).attrNotNegative());
         }
+
         return map;
     }
 }

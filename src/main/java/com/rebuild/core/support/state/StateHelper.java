@@ -48,7 +48,7 @@ public class StateHelper {
             return ApprovalState.class;
         }
 
-        String stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(EasyFieldConfigProps.STATE_STATECLASS);
+        String stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(EasyFieldConfigProps.STATE_CLASS);
         return getSatetClass(stateClass);
     }
 

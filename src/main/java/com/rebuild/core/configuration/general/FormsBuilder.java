@@ -20,9 +20,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -314,22 +312,18 @@ public class FormsBuilder extends FormsManager {
             } else if (dt == DisplayType.STATE) {
                 JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
                 el.put("options", options);
-                el.remove(EasyFieldConfigProps.STATE_STATECLASS);
+                el.remove(EasyFieldConfigProps.STATE_CLASS);
 
             } else if (dt == DisplayType.MULTISELECT) {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
                 el.put("options", options);
 
             } else if (dt == DisplayType.DATETIME) {
-                if (!el.containsKey(EasyFieldConfigProps.DATETIME_FORMAT)) {
-                    el.put(EasyFieldConfigProps.DATETIME_FORMAT, DisplayType.DATETIME.getDefaultFormat());
-                }
+                el.put(EasyFieldConfigProps.DATETIME_FORMAT, ((EasyDateTime) easyField).attrFormat());
                 dateLength = el.getString(EasyFieldConfigProps.DATETIME_FORMAT).length();
 
             } else if (dt == DisplayType.DATE) {
-                if (!el.containsKey(EasyFieldConfigProps.DATE_FORMAT)) {
-                    el.put(EasyFieldConfigProps.DATE_FORMAT, DisplayType.DATE.getDefaultFormat());
-                }
+                el.put(EasyFieldConfigProps.DATE_FORMAT, ((EasyDate) easyField).attrFormat());
                 dateLength = el.getString(EasyFieldConfigProps.DATE_FORMAT).length();
 
             } else if (dt == DisplayType.CLASSIFICATION) {

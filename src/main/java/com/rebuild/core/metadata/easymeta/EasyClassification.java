@@ -14,12 +14,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
+@Slf4j
 public class EasyClassification extends EasyField implements MixValue {
     private static final long serialVersionUID = -2295351268412805467L;
 
@@ -60,5 +62,19 @@ public class EasyClassification extends EasyField implements MixValue {
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
         return ID.isId(valueExpr) ? ID.valueOf(valueExpr) : null;
+    }
+
+    /**
+     * 使用哪个分类数据
+     *
+     * @return
+     */
+    public ID attrClassificationUse() {
+        String attr = getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
+        if (ID.isId(attr)) {
+            log.error("Field [ " + this + " ] unconfig classification");
+            return null;
+        }
+        return ID.valueOf(attr);
     }
 }

@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import org.apache.commons.lang.StringUtils;
@@ -24,9 +23,8 @@ public class EasyDate extends EasyDateTime {
     }
 
     @Override
-    public Object wrapValue(Object value) {
-        String format = StringUtils.defaultIfBlank(
+    public String attrFormat() {
+        return StringUtils.defaultIfBlank(
                 getExtraAttr(EasyFieldConfigProps.DATE_FORMAT), getDisplayType().getDefaultFormat());
-        return CalendarUtils.getDateFormat(format).format(value);
     }
 }

@@ -114,17 +114,7 @@ public class EasyMetaFactory {
         return null;
     }
 
-    /**
-     * @param entityOrField
-     * @return
-     */
-    public static BaseEasyMeta<?> valueOf(BaseMeta entityOrField) {
-        if (entityOrField instanceof Entity) return valueOf((Entity) entityOrField);
-        if (entityOrField instanceof Field) return valueOf((Field) entityOrField);
-        throw new MetadataException("Unsupport meta type : " + entityOrField);
-    }
-
-    // --
+    // -- QUICK
 
     /**
      * @param field
@@ -147,7 +137,9 @@ public class EasyMetaFactory {
      * @return
      */
     public static String getLabel(BaseMeta entityOrField) {
-        return valueOf(entityOrField).getLabel();
+        if (entityOrField instanceof Entity) return valueOf((Entity) entityOrField).getLabel();
+        else if (entityOrField instanceof Field) return valueOf((Field) entityOrField).getLabel();
+        else throw new MetadataException("Unsupport meta type : " + entityOrField);
     }
 
     /**

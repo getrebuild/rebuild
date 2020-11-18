@@ -31,8 +31,7 @@ public class EasyState extends EasyField {
     @Override
     public JSON toJSON() {
         JSONObject map = (JSONObject) super.toJSON();
-
-        map.put(EasyFieldConfigProps.STATE_STATECLASS, StateHelper.getSatetClass(getRawMeta()).getName());
+        map.put(EasyFieldConfigProps.STATE_CLASS, attrStateClass());
         return map;
     }
 
@@ -50,7 +49,7 @@ public class EasyState extends EasyField {
 
     @Override
     public Object wrapValue(Object value) {
-        String stateClass = getExtraAttr(EasyFieldConfigProps.STATE_STATECLASS);
+        String stateClass = getExtraAttr(EasyFieldConfigProps.STATE_CLASS);
         return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
     }
 
@@ -70,5 +69,12 @@ public class EasyState extends EasyField {
             }
         }
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public String attrStateClass() {
+        return getExtraAttr(EasyFieldConfigProps.STATE_CLASS);
     }
 }

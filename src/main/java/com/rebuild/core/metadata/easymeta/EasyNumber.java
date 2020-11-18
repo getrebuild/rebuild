@@ -9,6 +9,7 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -43,14 +44,32 @@ public class EasyNumber extends EasyField {
 
     @Override
     public Object wrapValue(Object value) {
-        String format = StringUtils.defaultIfBlank(
-                getExtraAttr(EasyFieldConfigProps.NUMBER_FORMAT), getDisplayType().getDefaultFormat());
-        return new DecimalFormat(format).format(value);
+        return new DecimalFormat(attrFormat()).format(value);
     }
 
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
         return valueExpr == null ? null : NumberUtils.toLong(valueExpr);
+    }
+
+    /**
+     * 允许负数
+     *
+     * @return
+     */
+    public boolean attrNotNegative() {
+        String attr = getExtraAttr(EasyFieldConfigProps.NUMBER_NOTNEGATIVE);
+        return attr == null || BooleanUtils.toBoolean(attr);
+    }
+
+    /**
+     * 格式化
+     *
+     * @return
+     */
+    public String attrFormat() {
+        return StringUtils.defaultIfBlank(
+                getExtraAttr(EasyFieldConfigProps.NUMBER_FORMAT), getDisplayType().getDefaultFormat());
     }
 }

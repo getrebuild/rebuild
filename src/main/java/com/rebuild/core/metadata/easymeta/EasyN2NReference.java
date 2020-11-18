@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,5 +58,10 @@ public class EasyN2NReference extends EasyReference {
             if (ID.isId(id)) idArray.add(ID.valueOf(id));
         }
         return idArray.toArray(new ID[0]);
+    }
+
+    @Override
+    public String attrDataFilter() {
+        return getExtraAttr(EasyFieldConfigProps.N2NREFERENCE_DATAFILTER);
     }
 }
