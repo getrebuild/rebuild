@@ -8,10 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core;
 
 import com.rebuild.core.support.RebuildConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.cache.CacheAutoConfiguration;
@@ -43,9 +42,8 @@ import java.io.File;
         CacheAutoConfiguration.class})
 @ImportResource("classpath:application-bean.xml")
 @EnableScheduling
+@Slf4j
 public class BootApplication extends SpringBootServletInitializer {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BootApplication.class);
 
     private static String CONTEXT_PATH = null;
 
@@ -78,7 +76,7 @@ public class BootApplication extends SpringBootServletInitializer {
         // kill -15 `cat ~/.rebuild/rebuild.pid`
         File pidFile = RebuildConfiguration.getFileOfData("rebuild.pid");
 
-        LOG.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
+        log.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
         SpringApplication spring = new SpringApplication(BootApplication.class);
         spring.addListeners(new ApplicationPidFileWriter(pidFile), new Application());
         spring.run(args);
@@ -90,7 +88,7 @@ public class BootApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
-        LOG.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
+        log.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
         SpringApplicationBuilder spring = builder.sources(BootApplication.class);
         spring.listeners(new Application());
         return spring;

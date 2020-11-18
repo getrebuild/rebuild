@@ -285,6 +285,7 @@ class RbForm extends React.Component {
     if (!data || data.length === 0) return
     const that = this
     data.forEach((item) => {
+      debugger
       // eslint-disable-next-line react/no-string-refs
       const fieldComp = that.refs['fieldcomp-' + item.target]
       if (fieldComp) {

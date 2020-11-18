@@ -11,8 +11,7 @@ import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
@@ -23,9 +22,8 @@ import org.springframework.util.Assert;
  * @author devezhao
  * @since 2020/9/27
  */
+@Slf4j
 public class UserContextHolder {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserContextHolder.class);
 
     private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("Current user");
 
@@ -50,7 +48,7 @@ public class UserContextHolder {
 
         ID exists = getUser(true);
         if (exists != null) {
-            LOG.warn("Replace user in current session (thread) : " + exists + " > " + user);
+            log.warn("Replace user in current session (thread) : " + exists + " > " + user);
             CALLER.remove();
         }
         CALLER.set(user);

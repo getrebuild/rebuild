@@ -9,12 +9,14 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.configuration.general.MultiSelectManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
+@Slf4j
 public class EasyMultiSelect extends EasyField {
     private static final long serialVersionUID = -1615061627351160386L;
 
@@ -30,16 +32,34 @@ public class EasyMultiSelect extends EasyField {
             return wrapValue(value);
         }
 
-        throw new UnsupportedOperationException("TODO");
+        if (value == null || (Long) value <= 0) {
+            return null;
+        }
+
+        String[] valueLabels = MultiSelectManager.instance.getLabels((Long) value, getRawMeta());
+        if (valueLabels == null || valueLabels.length == 0) {
+            return null;
+        }
+
+        long maskValue = 0;
+        for (String label : valueLabels) {
+            long mv = MultiSelectManager.instance.findMultiItemByLabel(label, targetField.getRawMeta());
+            if (mv > 0) {
+                maskValue += mv;
+            } else {
+                log.warn("Cannot found mask-value of MultiSelect-Label : {}", label);
+            }
+        }
+        return maskValue > 0 ? maskValue : null;
     }
 
     @Override
     public Object wrapValue(Object value) {
-        if ((Long) value <= 0) {
+        if (value == null || (Long) value <= 0) {
             return StringUtils.EMPTY;
         }
 
-        String[] multiLabel = MultiSelectManager.instance.getLabel((Long) value, getRawMeta());
+        String[] multiLabel = MultiSelectManager.instance.getLabels((Long) value, getRawMeta());
         return StringUtils.join(multiLabel, ", ");
     }
 
