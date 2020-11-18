@@ -18,7 +18,7 @@ class RbFormModal extends React.Component {
       this.state.isDestroy !== true && (
         <div className="modal-wrapper">
           <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-            <div className="modal-dialog">
+            <div className="modal-dialog modal-lg">
               <div className="modal-content">
                 <div className="modal-header modal-header-colored">
                   {this.state.icon && <span className={'icon zmdi zmdi-' + this.state.icon} />}
@@ -285,7 +285,6 @@ class RbForm extends React.Component {
     if (!data || data.length === 0) return
     const that = this
     data.forEach((item) => {
-      debugger
       // eslint-disable-next-line react/no-string-refs
       const fieldComp = that.refs['fieldcomp-' + item.target]
       if (fieldComp) {

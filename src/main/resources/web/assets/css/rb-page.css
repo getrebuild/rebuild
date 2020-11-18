@@ -566,7 +566,12 @@ div.dataTables_filter .filter-tips.badge {
 
 .modal-lg,
 .modal-lg .modal-content {
-  max-width: 1000px;
+  max-width: 780px;
+}
+
+.modal-xl,
+.modal-xl .modal-content {
+  max-width: 1100px;
 }
 
 .modal-header .close + .close {

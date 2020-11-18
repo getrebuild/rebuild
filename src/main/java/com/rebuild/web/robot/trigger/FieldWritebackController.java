@@ -55,10 +55,11 @@ public class FieldWritebackController extends BaseController {
 
         // 关联实体的
         for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            // 是否过滤系统级引用实体 ???
+            if (MetadataHelper.isCommonsField(fieldRef)) continue;
+
             Entity refEntity = fieldRef.getReferenceEntity();
-            if (refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig) {
-                continue;
-            }
+            if (refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
 
             String fieldRefName = fieldRef.getName() + ".";
             String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";

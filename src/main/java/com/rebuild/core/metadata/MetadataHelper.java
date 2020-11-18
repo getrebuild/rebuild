@@ -206,7 +206,6 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(Field field) {
-        if (isSystemField(field)) return true;
         return isCommonsField(field.getName());
     }
 
@@ -219,9 +218,8 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(String fieldName) {
-        if (isSystemField(fieldName) || isApprovalField(fieldName)) {
-            return true;
-        }
+        if (isSystemField(fieldName) || isApprovalField(fieldName)) return true;
+
         return EntityHelper.OwningUser.equalsIgnoreCase(fieldName) || EntityHelper.OwningDept.equalsIgnoreCase(fieldName)
                 || EntityHelper.CreatedOn.equalsIgnoreCase(fieldName) || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
                 || EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName) || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName);

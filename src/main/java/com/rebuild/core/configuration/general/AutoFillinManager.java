@@ -20,6 +20,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyFile;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.utils.JSONUtils;
@@ -124,8 +125,10 @@ public class AutoFillinManager implements ConfigManager {
         Object newValue = easyField.convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
 
         // 转换成前端可接受的值
-        if (!(newValue instanceof String) && easyField instanceof MixValue) {
-            newValue = easyField.wrapValue(newValue);
+        if (easyField instanceof MixValue) {
+            if (!(newValue instanceof String) || easyField instanceof EasyFile) {
+                newValue = easyField.wrapValue(newValue);
+            }
         }
         return newValue;
     }

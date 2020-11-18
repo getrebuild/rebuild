@@ -170,7 +170,7 @@ class ReferenceSearcher extends RbModal {
   render() {
     return (
       <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog modal-lg">
+        <div className="modal-dialog modal-xl">
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || $L('Query')}</h3>
