@@ -271,6 +271,7 @@ public class MetadataHelper {
      * @see com.rebuild.core.metadata.easymeta.EasyEntity#isPlainEntity()
      */
     public static boolean isBusinessEntity(Entity entity) {
+        if (entity.getMainEntity() != null) entity = entity.getMainEntity();
         return hasPrivilegesField(entity) || EasyMetaFactory.valueOf(entity).isPlainEntity();
     }
 

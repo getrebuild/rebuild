@@ -578,11 +578,11 @@ class RbFormElement extends React.Component {
     this.props.$$$parent.saveSingleFieldValue && this.props.$$$parent.saveSingleFieldValue(this)
   }
 
-  // Getter
+  // Setter
   setValue(val) {
     this.handleChange({ target: { value: val } }, true)
   }
-  // Setter
+  // Getter
   getValue() {
     return this.state.value
   }

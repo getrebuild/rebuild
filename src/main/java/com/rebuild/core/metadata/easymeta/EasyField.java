@@ -141,7 +141,7 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
      * @return
      */
     public Object exprDefaultValue() {
-        return getRawMeta().getDefaultValue();
+        return StringUtils.defaultIfBlank((String) getRawMeta().getDefaultValue(), null);
     }
 
 //    // 转换符合字段类型的值

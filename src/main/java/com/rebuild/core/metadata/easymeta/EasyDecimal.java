@@ -51,7 +51,7 @@ public class EasyDecimal extends EasyField {
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
-        return valueExpr == null
+        return StringUtils.isBlank(valueExpr)
                 ? null : BigDecimal.valueOf(NumberUtils.toDouble(valueExpr));
     }
 

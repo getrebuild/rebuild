@@ -71,7 +71,7 @@ public class EasyDateTime extends EasyField {
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
-        if (valueExpr == null) return null;
+        if (StringUtils.isBlank(valueExpr)) return null;
 
         // 表达式
         if (valueExpr.contains("NOW")) {

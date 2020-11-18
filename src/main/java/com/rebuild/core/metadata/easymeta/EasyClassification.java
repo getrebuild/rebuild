@@ -52,10 +52,10 @@ public class EasyClassification extends EasyField implements MixValue {
 
     @Override
     public Object wrapValue(Object value) {
-        ID id = (ID) value;
+        ID idValue = (ID) value;
         String text = StringUtils.defaultIfBlank(
-                ClassificationManager.instance.getFullName(id), FieldValueHelper.MISS_REF_PLACE);
-        return FieldValueHelper.wrapMixValue(id, text);
+                ClassificationManager.instance.getFullName(idValue), FieldValueHelper.MISS_REF_PLACE);
+        return FieldValueHelper.wrapMixValue(idValue, text);
     }
 
     @Override
@@ -71,8 +71,8 @@ public class EasyClassification extends EasyField implements MixValue {
      */
     public ID attrClassificationUse() {
         String attr = getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
-        if (ID.isId(attr)) {
-            log.error("Field [ " + this + " ] unconfig classification");
+        if (!ID.isId(attr)) {
+            log.error("Field [ " + getRawMeta() + " ] unconfig classification");
             return null;
         }
         return ID.valueOf(attr);

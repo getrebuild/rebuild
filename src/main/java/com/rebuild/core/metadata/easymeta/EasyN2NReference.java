@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,21 @@ public class EasyN2NReference extends EasyReference {
 
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        return super.convertCompatibleValue(value, targetField);
+        DisplayType targetType = targetField.getDisplayType();
+        boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
+
+        ID[] idArrayValue = (ID[]) value;
+
+        if (is2Text) {
+            List<String> array = new ArrayList<>();
+            for (ID id : idArrayValue) {
+                array.add((String) super.convertCompatibleValue(id, targetField));
+            }
+            return StringUtils.join(array, ", ");
+
+        } else {
+            return idArrayValue;
+        }
     }
 
     @Override
@@ -44,14 +59,19 @@ public class EasyN2NReference extends EasyReference {
 
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
-        JSONArray array = (JSONArray) wrappedValue;
-        return array.isEmpty() ? null : ((JSONObject) array.get(0)).getString("text");
+        JSONArray arrayValue = (JSONArray) wrappedValue;
+
+        List<String> array = new ArrayList<>();
+        for (Object item : arrayValue) {
+            array.add(((JSONObject) item).getString ("text"));
+        }
+        return StringUtils.join(array, ", ");
     }
 
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
-        if (valueExpr == null) return null;
+        if (StringUtils.isBlank(valueExpr)) return null;
 
         List<ID> idArray = new ArrayList<>();
         for (String id : valueExpr.split(",")) {

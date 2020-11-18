@@ -19,6 +19,8 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
+import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,12 +38,10 @@ public class FormExtrasController extends BaseController {
 
     // 获取表单回填数据
     @RequestMapping("fillin-value")
-    public JSON getFillinValue(HttpServletRequest request) {
-        String entity = getParameterNotNull(request, "entity");
+    public JSON getFillinValue(@EntityParam Entity entity, @IdParam(name = "source") ID sourceRecord,
+                               HttpServletRequest request) {
         String field = getParameterNotNull(request, "field");
-
-        ID sourceRecord = getIdParameterNotNull(request, "source");
-        Field useField = MetadataHelper.getField(entity, field);
+        Field useField = entity.getField(field);
 
         return AutoFillinManager.instance.getFillinValue(useField, sourceRecord);
     }

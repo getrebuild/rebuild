@@ -170,7 +170,7 @@ public class CommonsService extends BaseService {
         }
 
         if (MetadataHelper.hasPrivilegesField(entity)) {
-            throw new PrivilegesException("Privileges entity cannot use this class (methods) : " + entity.getName());
+            throw new PrivilegesException("Privileges/Business entity cannot use this class (methods) : " + entity.getName());
         }
     }
 }

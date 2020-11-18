@@ -116,9 +116,9 @@ $(document).ready(function () {
   } else if (dt === 'DATE' || dt === 'DATETIME') {
     _handleDate(dt)
   } else if (dt === 'FILE' || dt === 'IMAGE') {
-    _handleFile(extConfig)
+    _handleFile(extConfig.uploadNumber)
   } else if (dt === 'CLASSIFICATION') {
-    _handleClassification(extConfig)
+    _handleClassification(extConfig.classification)
   } else if (dt === 'REFERENCE') {
     _handleReference()
   } else if (dt === 'N2NREFERENCE') {
@@ -303,14 +303,15 @@ const _handleDate = function (dt) {
     .click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
 }
 
-const _handleFile = function (extConfig) {
-  let uploadNumber = [0, 9]
-  if (extConfig['uploadNumber']) {
-    uploadNumber = extConfig['uploadNumber'].split(',')
+const _handleFile = function (uploadNumber) {
+  if (uploadNumber) {
+    uploadNumber = uploadNumber.split(',')
     uploadNumber[0] = ~~uploadNumber[0]
     uploadNumber[1] = ~~uploadNumber[1]
     $('.J_minmax b').eq(0).text(uploadNumber[0])
     $('.J_minmax b').eq(1).text(uploadNumber[1])
+  } else {
+    uploadNumber = [0, 9]
   }
 
   $('input.bslider')
@@ -330,7 +331,7 @@ const _handleFile = function (extConfig) {
   $('#fieldNullable').attr('disabled', true)
 }
 
-const _handleClassification = function (extConfig) {
+const _handleClassification = function (useClassification) {
   const $dv = $('.J_defaultValue')
   const $dvClear = $('.J_defaultValue-clear').click(() => {
     $dv.attr('data-value-id', '').val('')
@@ -366,9 +367,9 @@ const _handleClassification = function (extConfig) {
     '.J_defaultValue-append'
   )
 
-  $.get(`/admin/metadata/classification/info?id=${extConfig.classification}`, function (res) {
+  $.get(`/admin/metadata/classification/info?id=${useClassification}`, (res) => {
     $('#useClassification a')
-      .attr({ href: `${rb.baseUrl}/admin/metadata/classification/${extConfig.classification}` })
+      .attr({ href: `${rb.baseUrl}/admin/metadata/classification/${useClassification}` })
       .text(res.data.name)
 
     $dv.attr('readonly', true)

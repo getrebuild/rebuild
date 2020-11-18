@@ -10,7 +10,9 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.core.support.state.StateSpec;
@@ -49,7 +51,7 @@ public class EasyState extends EasyField {
 
     @Override
     public Object wrapValue(Object value) {
-        String stateClass = getExtraAttr(EasyFieldConfigProps.STATE_CLASS);
+        String stateClass = attrStateClass();
         return Language.L(StateHelper.valueOf(stateClass, (Integer) value));
     }
 
@@ -75,6 +77,7 @@ public class EasyState extends EasyField {
      * @return
      */
     public String attrStateClass() {
+        if (EntityHelper.ApprovalState.equals(getName())) return ApprovalState.class.getName();
         return getExtraAttr(EasyFieldConfigProps.STATE_CLASS);
     }
 }

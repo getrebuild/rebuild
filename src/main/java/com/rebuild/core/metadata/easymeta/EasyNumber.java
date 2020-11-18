@@ -50,7 +50,7 @@ public class EasyNumber extends EasyField {
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
-        return valueExpr == null ? null : NumberUtils.toLong(valueExpr);
+        return StringUtils.isBlank(valueExpr) ? null : NumberUtils.toLong(valueExpr);
     }
 
     /**

@@ -86,6 +86,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
         if (err && err.status) err = $L('Error' + err.status)
         RbHighbar.error(err)
+      } else {
+        var res = xhr.responseJSON
+        if (res && res.error_code > 0) console.error(JSON.stringify(res))
       }
     },
     beforeSend: function (xhr, settings) {

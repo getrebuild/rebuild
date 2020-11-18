@@ -463,9 +463,9 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             EasyField easyField = EasyMetaFactory.valueOf(field);
             if (easyField.getDisplayType() == DisplayType.SERIES) continue;
 
-            Object defVal = easyField.exprDefaultValue();
-            if (defVal != null) {
-                recordOfNew.setObjectValue(field.getName(), defVal);
+            Object defaultValue = easyField.exprDefaultValue();
+            if (defaultValue != null) {
+                recordOfNew.setObjectValue(field.getName(), defaultValue);
             }
         }
     }

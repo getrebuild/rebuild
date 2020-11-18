@@ -10,6 +10,7 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author devezhao
@@ -30,6 +31,6 @@ public class EasyBool extends EasyField {
     @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
-        return valueExpr == null ? Boolean.FALSE : BooleanUtils.toBoolean(valueExpr);
+        return StringUtils.isBlank(valueExpr) ? Boolean.FALSE : BooleanUtils.toBoolean(valueExpr);
     }
 }

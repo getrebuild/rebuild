@@ -19,7 +19,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -89,7 +91,7 @@ public class AutoFillinManager implements ConfigManager {
         for (ConfigBean e : config) {
             String sourceField = e.getString("source");
             Object value = null;
-            if (sourceRecord.hasValue(sourceField)) {
+            if (sourceRecord.hasValue(sourceField, false)) {
                 String targetField = e.getString("target");
                 value = conversionCompatibleValue(
                         sourceEntity.getField(sourceField),
@@ -118,7 +120,14 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     protected Object conversionCompatibleValue(Field source, Field target, Object value) {
-        return EasyMetaFactory.valueOf(source).convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
+        EasyField easyField = EasyMetaFactory.valueOf(source);
+        Object newValue = easyField.convertCompatibleValue(value, EasyMetaFactory.valueOf(target));
+
+        // 转换成前端可接受的值
+        if (!(newValue instanceof String) && easyField instanceof MixValue) {
+            newValue = easyField.wrapValue(newValue);
+        }
+        return newValue;
     }
 
     /**
