@@ -33,6 +33,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
+import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -395,7 +396,8 @@ public class FormsBuilder extends FormsManager {
 
                 // 触发器自动值
                 if (roViaTriggers && el.get("value") == null) {
-                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
+                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION
+                            || dt == DisplayType.N2NREFERENCE) {
                         el.put("value", FieldValueHelper.wrapMixValue(null, autoValue));
 
                     } else if (dt == DisplayType.TEXT || dt == DisplayType.NTEXT
