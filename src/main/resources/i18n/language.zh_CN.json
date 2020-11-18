@@ -681,7 +681,7 @@
   "AggregationMethod": "聚合方式",
   "AggregationFilter": "聚合数据条件",
   "AggregationFilterTips": "仅会聚合符合过滤条件的数据",
-  "AutoSetTargetFieldReadonly": "自动设置目标字段为只读",
+  "SetTargetFieldReadonly": "设置目标字段为只读",
   "TargetAndSourceNotSame": "目标字段与源字段不能为同一字段",
   "PlsAdd1AggregationRuleLeast": "请至少添加 1 个聚合规则",
   "DataFilter": "数据过滤条件",
@@ -1216,6 +1216,7 @@
   "SomeUnConf": "{0}未配置",
   "RecentlyUsed": "最近使用",
   "EtcXItems": "等 %d 项",
+  "TargetFieldReadonly": "目标字段只读",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

@@ -15,11 +15,16 @@ import cn.devezhao.persist4j.metadata.BaseMeta;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.service.trigger.RobotTriggerManager;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Constructor;
+import java.util.HashSet;
+import java.util.Set;
 
 import static com.rebuild.core.metadata.easymeta.DisplayType.*;
 
@@ -177,5 +182,20 @@ public class EasyMetaFactory {
      */
     public static JSONObject toJSON(Field field) {
         return (JSONObject) valueOf(field).toJSON();
+    }
+
+    /**
+     * 获取自动只读的字段
+     *
+     * @param entity
+     * @return
+     * @see RobotTriggerManager#getAutoReadonlyFields(String)
+     * @see AutoFillinManager#getAutoReadonlyFields(String)
+     */
+    public static Set<String> getAutoReadonlyFields(String entity) {
+        Set<String> set = new HashSet<>();
+        set.addAll(RobotTriggerManager.instance.getAutoReadonlyFields(entity));
+        set.addAll(AutoFillinManager.instance.getAutoReadonlyFields(entity));
+        return set;
     }
 }

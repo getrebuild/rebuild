@@ -27,13 +27,11 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
-import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,11 +171,11 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        // 触发器自动只读
-        Set<String> roViaTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
+        // 自动只读
+        Set<String> roAutos = EasyMetaFactory.getAutoReadonlyFields(entity);
         for (Object o : elements) {
             JSONObject field = (JSONObject) o;
-            if (roViaTriggers.contains(field.getString("field"))) {
+            if (roAutos.contains(field.getString("field"))) {
                 field.put("readonly", true);
             }
         }
@@ -191,6 +189,7 @@ public class FormsBuilder extends FormsManager {
         // 主/明细实体处理
         if (entityMeta.getMainEntity() != null) {
             model.set("isDetail", true);
+            model.set("mainMeta", EasyMetaFactory.toJSON(entityMeta.getMainEntity()));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("isMain", true);
             model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
@@ -253,7 +252,7 @@ public class FormsBuilder extends FormsManager {
      * @param user
      */
     public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
-        final User currentUser = Application.getUserStore().getUser(user);
+        final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
         final boolean hideUncreate = RebuildConfiguration.getBool(ConfigurationItem.FormHideUncreateField) && data == null;
 
@@ -351,11 +350,11 @@ public class FormsBuilder extends FormsManager {
                         case EntityHelper.CreatedBy:
                         case EntityHelper.ModifiedBy:
                         case EntityHelper.OwningUser:
-                            el.put("value", FieldValueHelper.wrapMixValue(currentUser.getId(), currentUser.getFullName()));
+                            el.put("value", FieldValueHelper.wrapMixValue(formUser.getId(), formUser.getFullName()));
                             break;
                         case EntityHelper.OwningDept:
-                            Department dept = currentUser.getOwningDept();
-                            Assert.notNull(dept, "Department of user is unset : " + currentUser.getId());
+                            Department dept = formUser.getOwningDept();
+                            Assert.notNull(dept, "Department of user is unset : " + formUser.getId());
                             el.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
                             break;
                         case EntityHelper.ApprovalId:
@@ -477,8 +476,9 @@ public class FormsBuilder extends FormsManager {
         final DisplayType dt = field.getDisplayType();
         final Object fieldValue = data.getObjectValue(fieldName);
 
-        if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.AVATAR
-                || dt == DisplayType.STATE || dt == DisplayType.LOCATION) {
+        if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST
+                || dt == DisplayType.AVATAR || dt == DisplayType.STATE
+                || dt == DisplayType.LOCATION) {
             return fieldValue.toString();
         } else if (dt == DisplayType.BOOL) {
             return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;

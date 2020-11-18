@@ -24,12 +24,10 @@ import com.rebuild.core.metadata.easymeta.EasyFile;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 表单自动回填
@@ -174,5 +172,46 @@ public class AutoFillinManager implements ConfigManager {
         Field field2 = (Field) field;
         final String cKey = "AutoFillinManager-" + field2.getOwnEntity().getName() + "." + field2.getName();
         Application.getCommonsCache().evict(cKey);
+        Application.getCommonsCache().evict(CKEY_AFARF);
+    }
+
+    private static final String CKEY_AFARF = "AutoFillinReadonlyFields";
+    /**
+     * 自动回填中涉及的自动只读字段
+     *
+     * @param entity
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public Set<String> getAutoReadonlyFields(String entity) {
+        Map<String, Set<String>> fieldsMap = (Map<String, Set<String>>) Application.getCommonsCache().getx(CKEY_AFARF);
+        if (fieldsMap == null) {
+            fieldsMap = this.initAutoReadonlyFields();
+        }
+        return Collections.unmodifiableSet(fieldsMap.getOrDefault(entity, Collections.emptySet()));
+    }
+
+    synchronized
+    private Map<String, Set<String>> initAutoReadonlyFields() {
+        Object[][] array = Application.createQueryNoFilter(
+                "select extConfig,belongEntity,targetField from AutoFillinConfig")
+                .array();
+
+        CaseInsensitiveMap<String, Set<String>> fieldsMap = new CaseInsensitiveMap<>();
+        for (Object[] o : array) {
+            JSONObject extConfig = JSON.parseObject((String) o[0]);
+            if (extConfig == null || !extConfig.getBooleanValue("readonlyTargetField")) {
+                continue;
+            }
+
+            String belongEntity = (String) o[1];
+            String targetField = (String) o[2];
+
+            Set<String> fields = fieldsMap.computeIfAbsent(belongEntity, k -> new HashSet<>());
+            fields.add(targetField);
+        }
+
+        Application.getCommonsCache().putx(CKEY_AFARF, fieldsMap);
+        return fieldsMap;
     }
 }

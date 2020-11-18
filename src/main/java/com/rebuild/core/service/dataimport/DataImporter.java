@@ -135,7 +135,7 @@ public class DataImporter extends HeavyTask<Integer> {
         // Verify new record
         if (record.getPrimary() == null) {
             EntityRecordCreator verifier = new EntityRecordCreator(rule.getToEntity(), JSONUtils.EMPTY_OBJECT, null);
-            verifier.verify(record, true);
+            verifier.verify(record);
         }
         return record;
     }

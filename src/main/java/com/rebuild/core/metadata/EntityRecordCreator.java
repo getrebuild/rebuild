@@ -17,9 +17,9 @@ import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
@@ -69,55 +69,27 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     @Override
-    protected void afterCreate(Record record, boolean isNew) {
-        super.afterCreate(record, isNew);
-        bindCommonsFieldsValue(record, isNew);
-    }
-
-    /**
-     * 绑定公用/权限字段值
-     *
-     * @param r
-     * @param isNew
-     */
-    protected static void bindCommonsFieldsValue(Record r, boolean isNew) {
-        final Date now = CalendarUtils.now();
-        final Entity entity = r.getEntity();
-
-        if (entity.containsField(EntityHelper.ModifiedOn)) {
-            r.setDate(EntityHelper.ModifiedOn, now);
-        }
-        if (entity.containsField(EntityHelper.ModifiedBy)) {
-            r.setID(EntityHelper.ModifiedBy, r.getEditor());
-        }
-
-        if (isNew) {
-            if (entity.containsField(EntityHelper.CreatedOn)) {
-                r.setDate(EntityHelper.CreatedOn, now);
-            }
-            if (entity.containsField(EntityHelper.CreatedBy)) {
-                r.setID(EntityHelper.CreatedBy, r.getEditor());
-            }
-            if (entity.containsField(EntityHelper.OwningUser)) {
-                r.setID(EntityHelper.OwningUser, r.getEditor());
-            }
-            if (entity.containsField(EntityHelper.OwningDept)) {
-                User user = Application.getUserStore().getUser(r.getEditor());
-                r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
-            }
-        }
+    public boolean onSetFieldValueWarn(Field field, String value, Record record) {
+        // TODO 非系统级字段是否予以通过
+        return false;
     }
 
     @Override
-    public void verify(Record record, boolean isNew) {
+    protected void afterCreate(Record record) {
+        bindCommonsFieldsValue(record, record.getPrimary() == null);
+        verify(record);
+    }
+
+    @Override
+    public void verify(Record record) {
         List<String> notAllowed = new ArrayList<>();
         // 新建
-        if (isNew) {
+        if (record.getPrimary() == null) {
             // 自动只读字段可以忽略非空检查
-            final Set<String> roFieldsByTrigger = RobotTriggerManager.instance.getAutoReadonlyFields(record.getEntity().getName());
+            final Set<String> roAutos = EasyMetaFactory.getAutoReadonlyFields(record.getEntity().getName());
 
             for (Field field : entity.getFields()) {
-                if (MetadataHelper.isSystemField(field) || roFieldsByTrigger.contains(field.getName())) {
+                if (MetadataHelper.isSystemField(field) || roAutos.contains(field.getName())) {
                     continue;
                 }
 
@@ -161,6 +133,40 @@ public class EntityRecordCreator extends JsonRecordCreator {
             if (!notAllowed.isEmpty()) {
                 throw new DataSpecificationException(
                         Language.LF("XNotModify", StringUtils.join(notAllowed, " / ")));
+            }
+        }
+    }
+
+    /**
+     * 绑定公用/权限字段值
+     *
+     * @param r
+     * @param isNew
+     */
+    protected static void bindCommonsFieldsValue(Record r, boolean isNew) {
+        final Date now = CalendarUtils.now();
+        final Entity entity = r.getEntity();
+
+        if (entity.containsField(EntityHelper.ModifiedOn)) {
+            r.setDate(EntityHelper.ModifiedOn, now);
+        }
+        if (entity.containsField(EntityHelper.ModifiedBy)) {
+            r.setID(EntityHelper.ModifiedBy, r.getEditor());
+        }
+
+        if (isNew) {
+            if (entity.containsField(EntityHelper.CreatedOn)) {
+                r.setDate(EntityHelper.CreatedOn, now);
+            }
+            if (entity.containsField(EntityHelper.CreatedBy)) {
+                r.setID(EntityHelper.CreatedBy, r.getEditor());
+            }
+            if (entity.containsField(EntityHelper.OwningUser)) {
+                r.setID(EntityHelper.OwningUser, r.getEditor());
+            }
+            if (entity.containsField(EntityHelper.OwningDept)) {
+                User user = Application.getUserStore().getUser(r.getEditor());
+                r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
             }
         }
     }

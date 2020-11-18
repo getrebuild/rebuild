@@ -57,6 +57,6 @@ public class EasyID extends EasyField {
 
     @Override
     public Object exprDefaultValue() {
-        throw new UnsupportedOperationException();
+        return null;
     }
 }

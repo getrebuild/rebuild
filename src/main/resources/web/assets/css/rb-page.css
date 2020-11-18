@@ -716,6 +716,10 @@ body.view-body {
   right: 10px;
 }
 
+.user-selector.select2-container--default .select2-selection--multiple::after {
+  content: '';
+}
+
 textarea.row2x {
   height: 52px !important;
   resize: none;

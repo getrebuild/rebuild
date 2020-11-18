@@ -139,7 +139,7 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
-                <span className="custom-control-label">{$L('AutoSetTargetFieldReadonly')}</span>
+                <span className="custom-control-label">{$L('SetTargetFieldReadonly')}</span>
               </label>
             </div>
           </div>

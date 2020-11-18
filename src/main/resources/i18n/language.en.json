@@ -681,7 +681,7 @@
   "AggregationMethod": "Aggregation Method",
   "AggregationFilter": "Aggregate Data Conditions",
   "AggregationFilterTips": "Only data that meets the filter criteria will be aggregated",
-  "AutoSetTargetFieldReadonly": "Automatically set target field to read-only",
+  "SetTargetFieldReadonly": "Automatically set target field to read-only",
   "TargetAndSourceNotSame": "Target field and source field cannot be the same field",
   "PlsAdd1AggregationRuleLeast": "Please add at least 1 aggregation rules",
   "DataFilter": "Data filtering conditions",
@@ -1216,6 +1216,7 @@
   "SomeUnConf": "{0} not configured",
   "RecentlyUsed": "Recently Used",
   "EtcXItems": "etc. %d items",
+  "TargetFieldReadonly": "Target field is read-only",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

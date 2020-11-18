@@ -12,12 +12,9 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
-
-import java.util.Set;
 
 /**
  * @author devezhao
@@ -38,17 +35,14 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return getRawMeta().getType() == FieldType.PRIMARY ? "ID" : super.getLabel();
     }
 
-    @Override
-    public boolean isUpdatable() {
-        if (!getRawMeta().isUpdatable()) return false;
-
-        Field field = getRawMeta();
-        if (field.getType() == FieldType.REFERENCE) {
-            Set<String> set = RobotTriggerManager.instance.getAutoReadonlyFields(field.getOwnEntity().getName());
-            return !set.contains(field.getName());
-        }
-        return true;
-    }
+//    @Override
+//    public boolean isUpdatable() {
+//        if (!getRawMeta().isUpdatable()) return false;
+//
+//        Set<String> roViaTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(
+//                getRawMeta().getOwnEntity().getName());
+//        return !roViaTriggers.contains(getName());
+//    }
 
     @Override
     public boolean isBuiltin() {

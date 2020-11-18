@@ -681,7 +681,7 @@
   "AggregationMethod": "聚合管道",
   "AggregationFilter": "聚合數據條件",
   "AggregationFilterTips": "僅會聚合符合過濾條件的數據",
-  "AutoSetTargetFieldReadonly": "自動設定目標字段為只讀",
+  "SetTargetFieldReadonly": "自動設定目標字段為只讀",
   "TargetAndSourceNotSame": "目標字段與源字段不能為同一字段",
   "PlsAdd1AggregationRuleLeast": "請至少添加1個聚合規則",
   "DataFilter": "數據過濾條件",
@@ -1216,6 +1216,7 @@
   "SomeUnConf": "{0}未配置",
   "RecentlyUsed": "最近使用",
   "EtcXItems": "等 %d 項",
+  "TargetFieldReadonly": "目標字段只讀",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",
