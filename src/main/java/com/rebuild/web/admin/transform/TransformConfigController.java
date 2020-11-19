@@ -17,17 +17,14 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.data.ReportTemplateController;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -40,7 +37,7 @@ import java.io.IOException;
  * @author devezhao
  * @since 2020/10/27
  */
-@Controller
+@RestController
 @RequestMapping("/admin/")
 public class TransformConfigController extends BaseController {
 
@@ -89,41 +86,22 @@ public class TransformConfigController extends BaseController {
     private JSONObject buildEntity(Entity entity, boolean isSource) {
         JSONObject entityData = JSONUtils.toJSONObject(
                 new String[] { "entity", "label" },
-                new Object[] { entity.getName(), EasyMeta.getLabel(entity) });
+                new Object[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
 
         JSONArray fields = new JSONArray();
         if (isSource) {
-            fields.add(buildField(entity.getPrimaryField()));
+            fields.add(EasyMetaFactory.toJSON(entity.getPrimaryField()));
         }
 
         for (Field field : MetadataSorter.sortFields(entity)) {
             if (!isSource && !field.isCreatable()) continue;
-            fields.add(buildField(field));
+            fields.add(EasyMetaFactory.toJSON(field));
         }
         entityData.put("fields", fields);
 
         return entityData;
     }
 
-    private JSONObject buildField(Field field) {
-        EasyMeta easyMeta = EasyMeta.valueOf(field);
-        JSONObject item = JSONUtils.toJSONObject(
-                new String[] { "id", "text", "nullable" },
-                new Object[] { field.getName(), easyMeta.getLabel(), field.isNullable() });
-
-        String fullType = easyMeta.getDisplayType(false);
-        if (DisplayType.REFERENCE.name().equals(fullType)) {
-            fullType += "." + field.getReferenceEntity().getName();
-        } else if (DisplayType.STATE.name().equals(fullType)) {
-            fullType += "." + easyMeta.getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
-        } else if (DisplayType.CLASSIFICATION.name().equals(fullType)) {
-            fullType += "." + easyMeta.getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE);
-        }
-        item.put("type", fullType);
-        return item;
-    }
-
-    @ResponseBody
     @RequestMapping("transform/list")
     public Object[][] transformList(HttpServletRequest request) {
         String belongEntity = getParameter(request, "entity");
@@ -135,9 +113,8 @@ public class TransformConfigController extends BaseController {
 
         Object[][] data = ReportTemplateController.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : data) {
-            o[4] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[4]));
+            o[4] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[4]));
         }
         return data;
     }
-
 }

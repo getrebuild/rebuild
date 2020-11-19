@@ -11,9 +11,10 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.EasySeries;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -45,16 +46,16 @@ public class SeriesZeroResetJob extends DistributedJobLock {
 
         for (Entity entity : MetadataHelper.getEntities()) {
             for (Field field : entity.getFields()) {
-                EasyMeta easy = EasyMeta.valueOf(field);
-                if (easy.getDisplayType() == DisplayType.SERIES) {
-                    String zeroFlag = easy.getExtraAttr(FieldExtConfigProps.SERIES_SERIESZERO);
-                    if ("D".equalsIgnoreCase(zeroFlag)) {
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (easyField.getDisplayType() == DisplayType.SERIES) {
+                    String zeroMode = ((EasySeries) easyField).attrZeroMode();
+                    if ("D".equalsIgnoreCase(zeroMode)) {
                         SeriesGeneratorFactory.zero(field);
                         LOG.info("Zero field by [D] : " + field);
-                    } else if ("M".equalsIgnoreCase(zeroFlag) && isFirstDayOfMonth) {
+                    } else if ("M".equalsIgnoreCase(zeroMode) && isFirstDayOfMonth) {
                         SeriesGeneratorFactory.zero(field);
                         LOG.info("Zero field by [M] : " + field);
-                    } else if ("Y".equalsIgnoreCase(zeroFlag) && isFirstDayOfYear) {
+                    } else if ("Y".equalsIgnoreCase(zeroMode) && isFirstDayOfYear) {
                         SeriesGeneratorFactory.zero(field);
                         LOG.info("Zero field by [Y] : " + field);
                     }

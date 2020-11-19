@@ -11,13 +11,15 @@ import cn.devezhao.commons.CodecUtils;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;

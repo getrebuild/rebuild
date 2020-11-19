@@ -46,7 +46,7 @@ public class NavSettings extends BaseController implements ShareTo {
         final ID user = getRequestUser(request);
         Assert.isTrue(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomNav),
-                getLang(request, "NoPrivileges"));
+                getLang(request, "NoOpPrivileges"));
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个

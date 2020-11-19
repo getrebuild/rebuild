@@ -16,7 +16,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
@@ -59,7 +59,7 @@ public class RolePrivilegesController extends EntityController {
         List<Object[]> entities = new ArrayList<>();
         for (Entity e : MetadataSorter.sortEntities()) {
             if (MetadataHelper.hasPrivilegesField(e)) {
-                entities.add(new Object[]{e.getEntityCode(), EasyMeta.getLabel(e)});
+                entities.add(new Object[]{e.getEntityCode(), EasyMetaFactory.getLabel(e)});
             }
         }
         mv.getModel().put("Entities", entities);

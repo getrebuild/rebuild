@@ -21,7 +21,13 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.metadata.impl.Field2Schema;
+import com.rebuild.core.metadata.impl.MetaFieldService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
@@ -63,7 +69,7 @@ public class MetaFieldController extends BaseController {
         for (Field field : MetadataSorter.sortFields(allFields.toArray(new Field[0]))) {
             if (MetadataHelper.isSystemField(field)) continue;
 
-            EasyMeta easyMeta = EasyMeta.valueOf(field);
+            EasyField easyMeta = EasyMetaFactory.valueOf(field);
             Map<String, Object> map = new HashMap<>();
             if (easyMeta.getMetaId() != null) {
                 map.put("fieldId", easyMeta.getMetaId());
@@ -84,10 +90,10 @@ public class MetaFieldController extends BaseController {
     public ModelAndView pageEntityField(@PathVariable String entity, @PathVariable String field,
                                         HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/admin/metadata/field-edit");
-        EasyMeta easyEntity = MetaEntityController.setEntityBase(mv, entity);
+        EasyEntity easyEntity = MetaEntityController.setEntityBase(mv, entity);
 
-        Field fieldMeta = ((Entity) easyEntity.getBaseMeta()).getField(field);
-        EasyMeta easyField = new EasyMeta(fieldMeta);
+        Field fieldMeta = easyEntity.getRawMeta().getField(field);
+        EasyField easyField = EasyMetaFactory.valueOf(fieldMeta);
 
         mv.getModel().put("fieldMetaId", easyField.getMetaId());
         mv.getModel().put("fieldName", easyField.getName());
@@ -105,8 +111,8 @@ public class MetaFieldController extends BaseController {
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 
         // 明细实体
-        if (((Entity) easyEntity.getBaseMeta()).getMainEntity() != null) {
-            Field dtmField = MetadataHelper.getDetailToMainField((Entity) easyEntity.getBaseMeta());
+        if (easyEntity.getRawMeta().getMainEntity() != null) {
+            Field dtmField = MetadataHelper.getDetailToMainField(easyEntity.getRawMeta());
             mv.getModel().put("isDetailToMainField", dtmField.equals(fieldMeta));
         } else {
             mv.getModel().put("isDetailToMainField", false);
@@ -114,10 +120,10 @@ public class MetaFieldController extends BaseController {
 
         // 字段类型相关
         Type ft = fieldMeta.getType();
-        if (ft == FieldType.REFERENCE) {
-            Entity refentity = fieldMeta.getReferenceEntities()[0];
-            mv.getModel().put("fieldRefentity", refentity.getName());
-            mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
+        if (ft == FieldType.REFERENCE || ft == FieldType.REFERENCE_LIST) {
+            Entity refEntity = fieldMeta.getReferenceEntity();
+            mv.getModel().put("fieldRefentity", refEntity.getName());
+            mv.getModel().put("fieldRefentityLabel", EasyMetaFactory.getLabel(refEntity));
         }
 
         // 扩展配置
@@ -145,14 +151,14 @@ public class MetaFieldController extends BaseController {
         JSON extConfig = null;
         if (dt == DisplayType.CLASSIFICATION) {
             ID dataId = ID.valueOf(refClassification);
-            extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.CLASSIFICATION_USE, dataId);
+            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.CLASSIFICATION_USE, dataId);
 
         } else if (dt == DisplayType.STATE) {
             if (!StateHelper.isStateClass(stateClass)) {
                 return RespBody.errorl("SomeInvalid,StateClass");
             }
 
-            extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.STATE_STATECLASS, stateClass);
+            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.STATE_CLASS, stateClass);
         }
 
         try {

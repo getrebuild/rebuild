@@ -18,8 +18,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.support.state.StateManager;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -82,7 +82,7 @@ public class RecordCheckout {
      * @return
      */
     protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
-        final DisplayType dt = EasyMeta.getDisplayType(field);
+        final DisplayType dt = EasyMetaFactory.getDisplayType(field);
         if (dt == DisplayType.NUMBER) {
             return cell.asLong();
         } else if (dt == DisplayType.DECIMAL) {

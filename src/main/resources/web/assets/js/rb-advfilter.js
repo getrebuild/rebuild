@@ -398,7 +398,10 @@ class FilterItem extends React.Component {
       }
     } else if (fieldType === 'BOOL') {
       op = ['EQ']
+    } else if (fieldType === 'N2NREFERENCE') {
+      op = []
     }
+
     op.push('NL', 'NT')
     if (this.isApprovalState()) op = ['IN', 'NIN']
 

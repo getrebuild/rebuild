@@ -12,10 +12,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.rebuild.core.metadata.easymeta.EasyClassification;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 /**
  * 分类数据
@@ -24,8 +22,6 @@ import org.slf4j.LoggerFactory;
  * @since 2019/03/28
  */
 public class ClassificationManager implements ConfigManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ClassificationManager.class);
 
     public static final ClassificationManager instance = new ClassificationManager();
 
@@ -145,10 +141,8 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public ID getUseClassification(Field field, boolean verfiy) {
-        String use = EasyMeta.valueOf(field).getExtraAttr(FieldExtConfigProps.CLASSIFICATION_USE);
-        ID dataId = ID.isId(use) ? ID.valueOf(use) : null;
+        ID dataId = ((EasyClassification) EasyMetaFactory.valueOf(field)).attrClassificationUse();
         if (dataId == null) {
-            LOG.error("Field [ " + field + " ] unconfig classification");
             return null;
         }
 

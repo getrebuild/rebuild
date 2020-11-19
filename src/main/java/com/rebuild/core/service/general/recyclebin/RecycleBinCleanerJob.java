@@ -13,8 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

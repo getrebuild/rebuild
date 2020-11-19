@@ -15,8 +15,8 @@ import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 /**
  * 多选数据
@@ -38,7 +38,7 @@ public class MultiSelectData extends BaseApi {
         final String field = context.getParameterNotBlank("field");
 
         Field multiselectField = MetadataHelper.getField(entity, field);
-        if (EasyMeta.getDisplayType(multiselectField) != DisplayType.MULTISELECT) {
+        if (EasyMetaFactory.getDisplayType(multiselectField) != DisplayType.MULTISELECT) {
             throw new ApiInvokeException("Non multiselect field : " + entity + "." + field);
         }
 

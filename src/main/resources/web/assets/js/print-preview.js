@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+// 打印视图
 
 const wpc = window.__PageConfig
 $(document).ready(() => {
@@ -32,8 +33,8 @@ class PreviewTable extends React.Component {
       <table className="table table-bordered table-sm table-fixed">
         <tbody>
           {rows.map((row, idx) => {
-            let c1 = row[0]
-            let c2 = row[1] || {}
+            const c1 = row[0]
+            const c2 = row[1] || {}
             if (row.length === 1) {
               if (c1.field === '$DIVIDER$') {
                 return (
@@ -72,7 +73,7 @@ class PreviewTable extends React.Component {
       return (
         <div className="img-field avatar">
           <span className="img-thumbnail img-upload">
-            <img src={`${rb.baseUrl}/assets/img/avatar.png`} />
+            <img src={`${rb.baseUrl}/assets/img/avatar.png`} alt="Avatar" />
           </span>
         </div>
       )
@@ -84,7 +85,7 @@ class PreviewTable extends React.Component {
       return (
         <ul className="m-0 p-0 pl-3">
           {item.value.map((x) => {
-            return <li key={`file-${x}`}>{$fileCutName(x)}</li>
+            return <li key={x}>{$fileCutName(x)}</li>
           })}
         </ul>
       )
@@ -93,8 +94,8 @@ class PreviewTable extends React.Component {
         <ul className="list-inline m-0">
           {item.value.map((x) => {
             return (
-              <li className="list-inline-item" key={`image-${x}`}>
-                <img src={`${rb.baseUrl}/filex/img/${x}?imageView2/2/w/100/interlace/1/q/100`} />
+              <li className="list-inline-item" key={x}>
+                <img src={`${rb.baseUrl}/filex/img/${x}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
               </li>
             )
           })}
@@ -104,7 +105,7 @@ class PreviewTable extends React.Component {
       return (
         <div className="img-field avatar">
           <span className="img-thumbnail img-upload">
-            <img src={`${rb.baseUrl}/filex/img/${item.value}?imageView2/2/w/100/interlace/1/q/100`} />
+            <img src={`${rb.baseUrl}/filex/img/${item.value}?imageView2/2/w/100/interlace/1/q/100`} alt="Avatar" />
           </span>
         </div>
       )
@@ -132,12 +133,24 @@ class PreviewTable extends React.Component {
           </span>
         </div>
       )
+    } else if (item.type === 'N2NREFERENCE') {
+      return (
+        <ul className="m-0 p-0 pl-3">
+          {item.value.map((x) => {
+            return <li key={x.id}>{__formatRefText(x)}</li>
+          })}
+        </ul>
+      )
     } else if (typeof item.value === 'object') {
-      let text = item.value.text
-      if (!text && item.value.id) text = `@${item.value.id.toUpperCase()}`
-      return text
+      return __formatRefText(item.value)
     } else {
       return item.value
     }
   }
+}
+
+const __formatRefText = function (value) {
+  const text = value.text
+  if (!text && value.id) return `@${value.id.toUpperCase()}`
+  else return text
 }

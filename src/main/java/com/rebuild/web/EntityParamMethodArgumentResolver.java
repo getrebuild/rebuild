@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web;
 
-import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;

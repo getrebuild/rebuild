@@ -18,13 +18,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.SetUser;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
@@ -297,13 +298,16 @@ public abstract class ChartData extends SetUser implements ChartSpec {
             return ChartsHelper.VALUE_NONE;
         }
 
-        EasyMeta axisField = EasyMeta.valueOf(dimension.getField());
+        EasyField axisField = EasyMetaFactory.valueOf(dimension.getField());
         DisplayType axisType = axisField.getDisplayType();
 
         String label;
-        if (axisType == DisplayType.REFERENCE || axisType == DisplayType.CLASSIFICATION
-                || axisType == DisplayType.BOOL || axisType == DisplayType.PICKLIST || axisType == DisplayType.STATE) {
-            label = (String) FieldValueWrapper.instance.wrapFieldValue(value, axisField, true);
+        if (axisType == DisplayType.REFERENCE
+                || axisType == DisplayType.CLASSIFICATION
+                || axisType == DisplayType.BOOL
+                || axisType == DisplayType.PICKLIST
+                || axisType == DisplayType.STATE) {
+            label = (String) FieldValueHelper.wrapFieldValue(value, axisField, true);
         } else {
             label = value.toString();
         }

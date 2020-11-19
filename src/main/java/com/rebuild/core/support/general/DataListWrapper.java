@@ -15,8 +15,9 @@ import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -111,9 +112,9 @@ public class DataListWrapper {
                 // 如果最终没能取得名称字段，则补充
                 if (field.getType() == FieldType.PRIMARY) {
                     if (nameValue == null) {
-                        nameValue = FieldValueWrapper.getLabel((ID) value, StringUtils.EMPTY);
+                        nameValue = FieldValueHelper.getLabel((ID) value, StringUtils.EMPTY);
                     } else {
-                        nameValue = FieldValueWrapper.instance.wrapFieldValue(nameValue, nameFiled, true);
+                        nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameFiled, true);
                         if (nameValue == null) {
                             nameValue = StringUtils.EMPTY;
                         }
@@ -136,13 +137,13 @@ public class DataListWrapper {
      * @return
      */
     protected Object wrapFieldValue(Object value, Field field) {
-        EasyMeta fieldEasy = EasyMeta.valueOf(field);
+        EasyField fieldEasy = EasyMetaFactory.valueOf(field);
         if (fieldEasy.getDisplayType() == DisplayType.ID) {
-            return FieldValueWrapper.wrapMixValue((ID) value, null);
+            return FieldValueHelper.wrapMixValue((ID) value, null);
         } else if (fieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
-            return FieldValueWrapper.instance.wrapFieldValue(value, fieldEasy, true);
+            return FieldValueHelper.wrapFieldValue(value, fieldEasy, true);
         } else {
-            return FieldValueWrapper.instance.wrapFieldValue(value, fieldEasy);
+            return FieldValueHelper.wrapFieldValue(value, fieldEasy);
         }
     }
 

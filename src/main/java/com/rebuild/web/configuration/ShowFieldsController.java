@@ -23,8 +23,8 @@ import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
@@ -61,7 +61,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         final ID user = getRequestUser(request);
         Assert.isTrue(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList),
-                getLang(request, "NoPrivileges"));
+                getLang(request, "NoOpPrivileges"));
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个
@@ -111,7 +111,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         // 引用实体的字段
         for (Field field : MetadataSorter.sortFields(entityMeta, DisplayType.REFERENCE)) {
             // 过滤所属用户/所属部门等系统字段（除了明细引用（主实体）字段）
-            if (EasyMeta.valueOf(field).isBuiltin() && (dtmField == null || !dtmField.equals(field))) {
+            if (EasyMetaFactory.valueOf(field).isBuiltin() && (dtmField == null || !dtmField.equals(field))) {
                 continue;
             }
 
@@ -178,6 +178,6 @@ public class ShowFieldsController extends BaseController implements ShareTo {
      * @return
      */
     private boolean canListField(Field field) {
-        return EasyMeta.getDisplayType(field) != DisplayType.BARCODE;
+        return EasyMetaFactory.getDisplayType(field) != DisplayType.BARCODE;
     }
 }

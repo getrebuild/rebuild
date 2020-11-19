@@ -18,7 +18,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,7 +57,7 @@ public class TransformManager implements ConfigManager {
                 continue;
             }
 
-            JSONObject item = EasyMeta.getEntityShow(targetEntity);
+            JSONObject item = EasyMetaFactory.toJSON(targetEntity);
             item.put("transid", c.getID("id"));
             data.add(item);
         }

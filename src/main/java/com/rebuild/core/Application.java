@@ -43,8 +43,7 @@ import com.rebuild.utils.codec.RbDateCodec;
 import com.rebuild.utils.codec.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
 import com.rebuild.web.RebuildWebConfigurer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -59,9 +58,8 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 05/18/2018
  */
+@Slf4j
 public class Application implements ApplicationListener<ApplicationStartedEvent> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
     /**
      * Rebuild Version
@@ -129,17 +127,17 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                             "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
                             "License   : " + License.queryAuthority(false).values(),
                             "Local URL : " + localUrl);
-                    LOG.info(banner);
+                    log.info(banner);
                 }
 
             } else {
-                LOG.warn(RebuildBanner.formatBanner(
+                log.warn(RebuildBanner.formatBanner(
                         "REBUILD IS WAITING FOR INSTALL ...", "Install : " + localUrl + "/setup/install"));
             }
 
         } catch (Exception ex) {
             _READY = false;
-            LOG.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
+            log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
 
         } finally {
             if (!started) {
@@ -148,7 +146,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     _CONTEXT.getBean(RebuildWebConfigurer.class).init();
                     _CONTEXT.getBean(Language.class).init();
                 } catch (Exception ex) {
-                    LOG.error("STARTUP FAILED", ex);
+                    log.error("STARTUP FAILED", ex);
                 }
             }
 
@@ -163,11 +161,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      */
     public static boolean init() throws Exception {
         if (_READY) throw new IllegalStateException("Rebuild already started");
-        LOG.info("Initializing Rebuild context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
+        log.info("Initializing Rebuild context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
 
         if (!(_READY = ServerStatus.checkAll())) {
-            LOG.error(RebuildBanner.formatBanner(
-                    "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
+            log.error(RebuildBanner.formatBanner(
+                    "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW logS FOR MORE DETAILS."));
             return false;
         }
 
@@ -179,7 +177,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
         if (lastBuild < BUILD) {
-            LOG.warn("Clean up the cache once when upgrading : " + BUILD);
+            log.warn("Clean up the cache once when upgrading : " + BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
         }
@@ -190,7 +188,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         // 加载自定义实体
-        LOG.info("Loading customized/business entities ...");
+        log.info("Loading customized/business entities ...");
         ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 
         // 实体对应的服务类
@@ -200,7 +198,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             if (s.getEntityCode() > 0) {
                 _ESS.put(s.getEntityCode(), s);
                 if (devMode()) {
-                    LOG.info("Service specification : " + s.getClass().getName() + " for <" + s.getEntityCode() + ">");
+                    log.info("Service specification : " + s.getClass().getName() + " for <" + s.getEntityCode() + ">");
                 }
             }
         }
@@ -306,7 +304,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         if (_ESS != null && _ESS.containsKey(entityCode)) {
             ServiceSpec es = _ESS.get(entityCode);
             if (EntityService.class.isAssignableFrom(es.getClass())) {
-                LOG.warn("Use the #getEntityService is recommended");
+                log.warn("Use the #getEntityService is recommended");
             }
             return es;
 

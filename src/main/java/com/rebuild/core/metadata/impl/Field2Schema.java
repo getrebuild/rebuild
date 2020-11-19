@@ -22,6 +22,9 @@ import com.hankcs.hanlp.HanLP;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
@@ -103,7 +106,7 @@ public class Field2Schema {
      * @return
      */
     public boolean dropField(Field field, boolean force) {
-        EasyMeta easyMeta = EasyMeta.valueOf(field);
+        EasyField easyMeta = EasyMetaFactory.valueOf(field);
         ID metaRecordId = easyMeta.getMetaId();
         if (easyMeta.isBuiltin() || metaRecordId == null) {
             throw new MetadataModificationException(Language.L("BuiltInNotDelete"));
@@ -281,7 +284,7 @@ public class Field2Schema {
         }
         recordOfField.setInt("maxLength", maxLength);
 
-        if (dt == DisplayType.REFERENCE && StringUtils.isBlank(refEntity)) {
+        if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && StringUtils.isBlank(refEntity)) {
             throw new MetadataModificationException(Language.L("RefFieldMustHasRefEntity"));
         }
 

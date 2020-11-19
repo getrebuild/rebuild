@@ -47,7 +47,8 @@ public class RestoreRecordCreator extends JsonRecordCreator {
             if (ignoreNullValue && (value == null || StringUtils.isEmpty(value.toString()))) {
                 continue;
             }
-            setValue(field, value == null ? null : value.toString(), record);
+
+            setFieldValue(field, value == null ? null : value.toString(), record);
         }
         return record;
     }

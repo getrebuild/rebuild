@@ -18,7 +18,8 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
@@ -165,7 +166,7 @@ public class NavBuilder extends NavManager {
         JSONArray initNav = (JSONArray) Language.getCurrentBundle().replaceLangKey(NAVS_DEFAULT);
 
         for (String e : initEntity) {
-            EasyMeta entity = EasyMeta.valueOf(e);
+            EasyEntity entity = EasyMetaFactory.valueOf(e);
 
             JSONObject navItem = JSONUtils.toJSONObject(
                     NAV_ITEM_PROPS,

@@ -10,61 +10,64 @@ package com.rebuild.web.robot.trigger;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author devezhao
  * @see FieldAggregationController
  * @since 2020/2/7
  */
-@Controller
+@RestController
 @RequestMapping("/admin/robot/trigger/")
 public class FieldWritebackController extends BaseController {
 
     @RequestMapping("field-writeback-fields")
-    public void getTargetField(HttpServletRequest request, HttpServletResponse response) {
-        Entity sourceEntity = MetadataHelper.getEntity(getParameterNotNull(request, "source"));
+    public JSON getTargetFields(@EntityParam(name = "source") Entity sourceEntity,
+                                HttpServletRequest request) {
         String target = getParameter(request, "target");
         Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
 
-        List<String[]> sourceFields = new ArrayList<>();
-        List<String[]> targetFields = new ArrayList<>();
+        JSONArray sourceFields = new JSONArray();
+        JSONArray targetFields = new JSONArray();
 
         // 源字段
 
-        sourceFields.add(FieldAggregationController.buildField(sourceEntity.getPrimaryField(), true));
+        sourceFields.add(EasyMetaFactory.toJSON(sourceEntity.getPrimaryField()));
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            sourceFields.add(FieldAggregationController.buildField(field, true));
+            sourceFields.add(EasyMetaFactory.toJSON(field));
         }
-        // 关联实体
+
+        // 关联实体的
         for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            // 是否过滤系统级引用实体 ???
+            if (MetadataHelper.isCommonsField(fieldRef)) continue;
+
             Entity refEntity = fieldRef.getReferenceEntity();
-            if (refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig) {
-                continue;
-            }
+            if (refEntity.getEntityCode() == EntityHelper.RobotApprovalConfig) continue;
 
             String fieldRefName = fieldRef.getName() + ".";
-            String fieldRefLabel = EasyMeta.getLabel(fieldRef) + ".";
+            String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
             for (Field field : MetadataSorter.sortFields(refEntity)) {
-                String[] build = FieldAggregationController.buildField(field, true);
-                build[0] = fieldRefName + build[0];
-                build[1] = fieldRefLabel + build[1];
-                sourceFields.add(build);
+                JSONObject subField = EasyMetaFactory.toJSON(field);
+                subField.put("name", fieldRefName + subField.getString("name"));
+                subField.put("label", fieldRefLabel + subField.getString("label"));
+                sourceFields.add(subField);
             }
         }
 
@@ -72,24 +75,21 @@ public class FieldWritebackController extends BaseController {
 
         if (targetEntity != null) {
             for (Field field : MetadataSorter.sortFields(targetEntity)) {
-                EasyMeta easyField = EasyMeta.valueOf(field);
+                EasyField easyField = EasyMetaFactory.valueOf(field);
                 DisplayType dt = easyField.getDisplayType();
-                if (dt == DisplayType.SERIES || dt == DisplayType.MULTISELECT || easyField.isBuiltin()) {
+                if (dt == DisplayType.SERIES || easyField.isBuiltin()) {
                     continue;
                 }
-                targetFields.add(FieldAggregationController.buildField(field, true));
+                targetFields.add(EasyMetaFactory.toJSON(field));
             }
         }
 
         // 审批流程启用
-        boolean hadApproval = targetEntity != null && RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
+        boolean hadApproval = targetEntity != null
+                && RobotApprovalManager.instance.hadApproval(targetEntity, null) != null;
 
-        JSON data = JSONUtils.toJSONObject(
-                new String[]{"source", "target", "hadApproval"},
-                new Object[]{
-                        sourceFields.toArray(new String[sourceFields.size()][]),
-                        targetFields.toArray(new String[targetFields.size()][]),
-                        hadApproval});
-        writeSuccess(response, data);
+        return JSONUtils.toJSONObject(
+                new String[] { "source", "target", "hadApproval" },
+                new Object[] { sourceFields, targetFields, hadApproval });
     }
 }

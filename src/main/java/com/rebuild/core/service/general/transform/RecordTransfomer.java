@@ -13,14 +13,13 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.query.FilterRecordChecker;
 import com.rebuild.core.support.SetUser;
-import com.rebuild.core.support.general.FieldValueCompatibleConversion;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.transaction.TransactionStatus;
 
@@ -148,8 +147,8 @@ public class RecordTransfomer extends SetUser {
 
             Object value = source.getObjectValue(sf);
             if (value != null) {
-                Object compatibleValue = new FieldValueCompatibleConversion(
-                        sourceEntity.getField(sf), targetEntity.getField(tf)).convert(value);
+                Object compatibleValue = EasyMetaFactory.valueOf(sourceEntity.getField(sf))
+                        .convertCompatibleValue(value, EasyMetaFactory.valueOf(targetEntity.getField(tf)));
                 target.setObjectValue(tf, compatibleValue);
             }
         }

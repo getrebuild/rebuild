@@ -26,12 +26,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -117,7 +117,7 @@ public class GeneralOperatingController extends BaseController {
                     continue;
                 }
 
-                Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMeta.valueOf(fieldMeta));
+                Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMetaFactory.valueOf(fieldMeta));
                 ret.put(field, newValue);
             }
         }
@@ -431,7 +431,7 @@ public class GeneralOperatingController extends BaseController {
 
         JSONArray fieldsJson = new JSONArray();
         for (String field : fields) {
-            fieldsJson.add(EasyMeta.getLabel(entity.getField(field)));
+            fieldsJson.add(EasyMetaFactory.getLabel(entity.getField(field)));
         }
 
         JSONArray data = new JSONArray();
@@ -441,7 +441,7 @@ public class GeneralOperatingController extends BaseController {
             JSONArray valuesJson = new JSONArray();
             for (String field : fields) {
                 Object value = r.getObjectValue(field);
-                value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field), true);
+                value = FieldValueHelper.wrapFieldValue(value, entity.getField(field), true);
                 valuesJson.add(value);
             }
             data.add(valuesJson);

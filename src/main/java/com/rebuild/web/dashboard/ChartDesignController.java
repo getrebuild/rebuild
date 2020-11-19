@@ -20,9 +20,11 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dashboard.ChartConfigService;
 import com.rebuild.core.service.dashboard.DashboardConfigService;
 import com.rebuild.core.service.dashboard.charts.ChartData;
@@ -33,6 +35,7 @@ import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +61,10 @@ public class ChartDesignController extends EntityController {
                                    @EntityParam(name = "source", required = false) Entity entity,
                                    HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID user = getRequestUser(request);
+        Assert.isTrue(
+                Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomChart),
+                getLang(request, "NoOpPrivileges"));
+
         ModelAndView mv = createModelAndView("/dashboard/chart-design");
 
         if (chartId != null) {
@@ -89,7 +96,7 @@ public class ChartDesignController extends EntityController {
         }
 
         if (!Application.getPrivilegesManager().allowRead(getRequestUser(request), entity.getEntityCode())) {
-            response.sendError(403, Language.LF("NoReadEntity", EasyMeta.getLabel(entity)));
+            response.sendError(403, Language.LF("NoReadEntity", EasyMetaFactory.getLabel(entity)));
             return null;
         }
 
@@ -113,10 +120,15 @@ public class ChartDesignController extends EntityController {
 
     private void putFields(List<String[]> dest, Entity entity, Field parent) {
         for (Field field : MetadataSorter.sortFields(entity)) {
-            EasyMeta easyField = EasyMeta.valueOf(field);
+            EasyField easyField = EasyMetaFactory.valueOf(field);
             DisplayType dt = easyField.getDisplayType();
-            if (dt == DisplayType.IMAGE || dt == DisplayType.FILE || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.AVATAR || dt == DisplayType.LOCATION || dt == DisplayType.MULTISELECT
+            if (dt == DisplayType.IMAGE
+                    || dt == DisplayType.FILE
+                    || dt == DisplayType.AVATAR
+                    || dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE
+                    || dt == DisplayType.LOCATION
+                    || dt == DisplayType.MULTISELECT
                     || dt == DisplayType.BARCODE) {
                 continue;
             }
@@ -132,7 +144,7 @@ public class ChartDesignController extends EntityController {
 
             dest.add(new String[]{
                     (parent == null ? "" : (parent.getName() + ".")) + easyField.getName(),
-                    (parent == null ? "" : (EasyMeta.getLabel(parent) + ".")) + easyField.getLabel(),
+                    (parent == null ? "" : (EasyMetaFactory.getLabel(parent) + ".")) + easyField.getLabel(),
                     type});
         }
     }

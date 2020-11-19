@@ -500,7 +500,7 @@ CellRenders.addRender('$NAME$', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
-        <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)} className="column-main">
+        <a href={`#!/View/${v.entity}/${v.id}`} onClick={(e) => CellRenders.clickView(v, e)} className="column-main">
           {v.text}
         </a>
       </div>
@@ -521,16 +521,17 @@ CellRenders.addRender('$NOPRIVILEGES$', function (v, s, k) {
 
 CellRenders.addRender('IMAGE', function (v, s, k) {
   v = v || []
+  const vLen = v.length
   return (
     <td key={k} className="td-min">
-      <div className="column-imgs" style={s} title={$L('CountXImgs').replace('%d', v.length)}>
+      <div className="column-imgs" style={s} title={$L('EtcXItems').replace('%d', vLen)}>
         {v.map((item, idx) => {
           if (idx > 2) return null
-          const imgUrl = rb.baseUrl + '/filex/img/' + item
+          const imgUrl = `${rb.baseUrl}/filex/img/${item}`
           const imgName = $fileCutName(item)
           return (
             <a key={'k-' + item} title={imgName} onClick={(e) => CellRenders.clickPreview(v, idx, e)}>
-              <img alt={$L('t.IMAGE')} src={imgUrl + '?imageView2/2/w/100/interlace/1/q/100'} />
+              <img alt={$L('t.IMAGE')} src={`${imgUrl}?imageView2/2/w/100/interlace/1/q/100`} />
             </a>
           )
         })}
@@ -541,10 +542,11 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
 
 CellRenders.addRender('FILE', function (v, s, k) {
   v = v || []
+  const vLen = v.length
   return (
     <td key={k} className="td-min">
       <div style={s} className="column-files">
-        <ul className="list-unstyled" title={$L('CountXFiles').replace('%d', v.length)}>
+        <ul className="list-unstyled" title={$L('EtcXItems').replace('%d', vLen)}>
           {v.map((item, idx) => {
             if (idx > 0) return null
             const fileName = $fileCutName(item)
@@ -552,6 +554,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
               <li key={'k-' + item} className="text-truncate">
                 <a title={fileName} onClick={(e) => CellRenders.clickPreview(item, null, e)}>
                   {fileName}
+                  {vLen > 1 ? ` ...[${vLen}]` : null}
                 </a>
               </li>
             )
@@ -566,9 +569,29 @@ CellRenders.addRender('REFERENCE', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v.text}>
-        <a href={'#!/View/' + v.entity + '/' + v.id} onClick={(e) => CellRenders.clickView(v, e)}>
+        <a href={`#!/View/${v.entity}/${v.id}`} onClick={(e) => CellRenders.clickView(v, e)}>
           {v.text}
         </a>
+      </div>
+    </td>
+  )
+})
+
+CellRenders.addRender('N2NREFERENCE', function (v, s, k) {
+  v = v || []
+  const vLen = v.length
+  return (
+    <td key={k}>
+      <div style={s} title={$L('EtcXItems').replace('%d', vLen)}>
+        {v.map((item, idx) => {
+          if (idx > 0) return null
+          return (
+            <a key={`o-${item.id}`} href={`#!/View/${item.entity}/${item.id}`} onClick={(e) => CellRenders.clickView(item, e)}>
+              {item.text}
+              {vLen > 1 ? ` ...[${vLen}]` : null}
+            </a>
+          )
+        })}
       </div>
     </td>
   )
@@ -578,7 +601,7 @@ CellRenders.addRender('URL', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a href={rb.baseUrl + '/commons/url-safe?url=' + $encode(v)} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>
+        <a href={`${rb.baseUrl}/commons/url-safe?url=${$encode(v)}`} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>
           {v}
         </a>
       </div>
@@ -611,12 +634,9 @@ CellRenders.addRender('PHONE', function (v, s, k) {
 })
 
 const APPROVAL_STATE_CLAZZs = {
-  PROCESSING: 'warning',
-  REJECTED: 'danger',
-  APPROVED: 'success',
-  '审批中': 'warning',
-  '驳回': 'danger',
-  '通过': 'success',
+  [$L('s.ApprovalState.PROCESSING')]: 'warning',
+  [$L('s.ApprovalState.REJECTED')]: 'danger',
+  [$L('s.ApprovalState.APPROVED')]: 'success',
 }
 CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
@@ -664,7 +684,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
 })
 
 CellRenders.addRender('AVATAR', function (v, s, k) {
-  const imgUrl = rb.baseUrl + '/filex/img/' + v + '?imageView2/2/w/100/interlace/1/q/100'
+  const imgUrl = `${rb.baseUrl}/filex/img/${v}?imageView2/2/w/100/interlace/1/q/100`
   return (
     <td key={k} className="user-avatar">
       <img src={imgUrl} alt="Avatar" />
@@ -1217,6 +1237,7 @@ const ChartsWidget = {
       this.__chartSelect.setState({ appended: ChartsWidget.__currentCharts() })
       return
     }
+    // eslint-disable-next-line react/jsx-no-undef
     renderRbcomp(<ChartSelect select={(c) => this.renderChart(c, true)} entity={wpc.entity[0]} />, null, function () {
       ChartsWidget.__chartSelect = this
       this.setState({ appended: ChartsWidget.__currentCharts() })

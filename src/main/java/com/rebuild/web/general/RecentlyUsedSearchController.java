@@ -8,20 +8,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.general;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 最近搜索（针对引用字段）。
@@ -30,36 +31,39 @@ import javax.servlet.http.HttpServletResponse;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/25
  */
-@Controller
+@RestController
 @RequestMapping("/commons/search/")
 public class RecentlyUsedSearchController extends BaseController {
 
     @GetMapping("recently")
-    public void fetchRecently(HttpServletRequest request, HttpServletResponse response) {
+    public JSON fetchRecently(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         String type = getParameter(request, "type");
+
         ID[] recently = RecentlyUsedHelper.gets(getRequestUser(request), entity, type);
-        writeSuccess(response, formatSelect2(recently, "最近使用"));
+        return formatSelect2(recently, getLang(request, "RecentlyUsed"));
     }
 
     @PostMapping("recently-add")
-    public void addRecently(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody addRecently(HttpServletRequest request) {
         ID id = getIdParameterNotNull(request, "id");
         String type = getParameter(request, "type");
+
         RecentlyUsedHelper.add(getRequestUser(request), id, type);
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     @PostMapping("recently-clean")
-    public void cleanRecently(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody cleanRecently(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         String type = getParameter(request, "type");
+
         RecentlyUsedHelper.clean(getRequestUser(request), entity, type);
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     /**
-     * 格式化成前端 select2 组件数据格式
+     * 格式化成前端 `select2` 组件数据格式
      *
      * @param idLabels
      * @param groupName select2 分组 null 表示无分组
@@ -70,12 +74,12 @@ public class RecentlyUsedSearchController extends BaseController {
         for (ID id : idLabels) {
             String label = id.getLabel();
             if (StringUtils.isBlank(label)) {
-                label = FieldValueWrapper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
+                label = FieldValueHelper.NO_LABEL_PREFIX + id.toLiteral().toUpperCase();
             }
 
             data.add(JSONUtils.toJSONObject(
-                    new String[]{"id", "text"},
-                    new String[]{id.toLiteral(), label}));
+                    new String[] { "id", "text" },
+                    new String[] { id.toLiteral(), label }));
         }
 
         if (groupName != null) {

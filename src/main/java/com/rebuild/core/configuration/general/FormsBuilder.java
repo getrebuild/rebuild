@@ -18,21 +18,18 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.support.general.FieldDefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import org.apache.commons.lang.StringUtils;
@@ -174,11 +171,11 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        // 触发器自动只读
-        Set<String> roViaTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
+        // 自动只读
+        Set<String> roAutos = EasyMetaFactory.getAutoReadonlyFields(entity);
         for (Object o : elements) {
             JSONObject field = (JSONObject) o;
-            if (roViaTriggers.contains(field.getString("field"))) {
+            if (roAutos.contains(field.getString("field"))) {
                 field.put("readonly", true);
             }
         }
@@ -192,9 +189,10 @@ public class FormsBuilder extends FormsManager {
         // 主/明细实体处理
         if (entityMeta.getMainEntity() != null) {
             model.set("isDetail", true);
+            model.set("mainMeta", EasyMetaFactory.toJSON(entityMeta.getMainEntity()));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("isMain", true);
-            model.set("detailMeta", EasyMeta.getEntityShow(entityMeta.getDetailEntity()));
+            model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
 
         if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {
@@ -254,7 +252,7 @@ public class FormsBuilder extends FormsManager {
      * @param user
      */
     public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
-        final User currentUser = Application.getUserStore().getUser(user);
+        final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
         final boolean hideUncreate = RebuildConfiguration.getBool(ConfigurationItem.FormHideUncreateField) && data == null;
 
@@ -282,7 +280,7 @@ public class FormsBuilder extends FormsManager {
                 continue;
             }
 
-            final EasyMeta easyField = new EasyMeta(fieldMeta);
+            final EasyField easyField = EasyMetaFactory.valueOf(fieldMeta);
             final DisplayType dt = easyField.getDisplayType();
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
@@ -310,25 +308,27 @@ public class FormsBuilder extends FormsManager {
             if (dt == DisplayType.PICKLIST) {
                 JSONArray options = PickListManager.instance.getPickList(fieldMeta);
                 el.put("options", options);
+
             } else if (dt == DisplayType.STATE) {
                 JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
                 el.put("options", options);
-                el.remove(FieldExtConfigProps.STATE_STATECLASS);
+                el.remove(EasyFieldConfigProps.STATE_CLASS);
+
             } else if (dt == DisplayType.MULTISELECT) {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
                 el.put("options", options);
+
             } else if (dt == DisplayType.DATETIME) {
-                if (!el.containsKey("datetimeFormat")) {
-                    el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
-                }
-                dateLength = el.getString("datetimeFormat").length();
+                el.put(EasyFieldConfigProps.DATETIME_FORMAT, ((EasyDateTime) easyField).attrFormat());
+                dateLength = el.getString(EasyFieldConfigProps.DATETIME_FORMAT).length();
+
             } else if (dt == DisplayType.DATE) {
-                if (!el.containsKey("dateFormat")) {
-                    el.put("dateFormat", DisplayType.DATE.getDefaultFormat());
-                }
-                dateLength = el.getString("dateFormat").length();
+                el.put(EasyFieldConfigProps.DATE_FORMAT, ((EasyDate) easyField).attrFormat());
+                dateLength = el.getString(EasyFieldConfigProps.DATE_FORMAT).length();
+
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
+
             }
 
             // 编辑/视图
@@ -350,15 +350,15 @@ public class FormsBuilder extends FormsManager {
                         case EntityHelper.CreatedBy:
                         case EntityHelper.ModifiedBy:
                         case EntityHelper.OwningUser:
-                            el.put("value", FieldValueWrapper.wrapMixValue(currentUser.getId(), currentUser.getFullName()));
+                            el.put("value", FieldValueHelper.wrapMixValue(formUser.getId(), formUser.getFullName()));
                             break;
                         case EntityHelper.OwningDept:
-                            Department dept = currentUser.getOwningDept();
-                            Assert.notNull(dept, "Department of user is unset : " + currentUser.getId());
-                            el.put("value", FieldValueWrapper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
+                            Department dept = formUser.getOwningDept();
+                            Assert.notNull(dept, "Department of user is unset : " + formUser.getId());
+                            el.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
                             break;
                         case EntityHelper.ApprovalId:
-                            el.put("value", FieldValueWrapper.wrapMixValue(null, Language.L("UnSubmit")));
+                            el.put("value", FieldValueHelper.wrapMixValue(null, Language.L("UnSubmit")));
                             break;
                         case EntityHelper.ApprovalState:
                             el.put("value", ApprovalState.DRAFT.getState());
@@ -372,38 +372,39 @@ public class FormsBuilder extends FormsManager {
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES) {
                         el.put("value", autoValue);
+
                     } else {
-                        Object defVal = FieldDefaultValueHelper.exprDefaultValue(fieldMeta);
-                        if (defVal != null) {
+                        Object defaultValue = easyField.exprDefaultValue();
+                        if (defaultValue != null) {
                             // 日期
                             if (dateLength > -1) {
-                                defVal = CalendarUtils.getUTCDateTimeFormat().format(defVal);
-                                defVal = defVal.toString().substring(0, dateLength);
+                                defaultValue = CalendarUtils.getUTCDateTimeFormat().format(defaultValue);
+                                defaultValue = defaultValue.toString().substring(0, dateLength);
                             }
-                            // 引用型
-                            else if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
-                                try {
-                                    String label = FieldValueWrapper.getLabel((ID) defVal);
-                                    defVal = FieldValueWrapper.wrapMixValue((ID) defVal, label);
-                                } catch (NoRecordFoundException ignore) {
-                                    defVal = null;
-                                }
+                            // MixValue
+                            else if (dt == DisplayType.REFERENCE
+                                    || dt == DisplayType.CLASSIFICATION
+                                    || dt == DisplayType.N2NREFERENCE) {
+                                defaultValue = easyField.wrapValue(defaultValue);
                             }
 
-                            el.put("value", defVal);
+                            el.put("value", defaultValue);
                         }
                     }
                 }
 
                 // 触发器自动值
                 if (roViaTriggers && el.get("value") == null) {
-                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
-                        el.put("value", FieldValueWrapper.wrapMixValue(null, autoValue));
+                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION
+                            || dt == DisplayType.N2NREFERENCE) {
+                        el.put("value", FieldValueHelper.wrapMixValue(null, autoValue));
+
                     } else if (dt == DisplayType.TEXT || dt == DisplayType.NTEXT
                             || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE
                             || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
                             || dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
                         el.put("value", autoValue);
+
                     }
                 }
             }
@@ -431,7 +432,7 @@ public class FormsBuilder extends FormsManager {
             }
 
             // REFERENCE
-            if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+            if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
                 sql.append('&').append(field).append(',');
             }
             sql.append(field).append(',');
@@ -457,17 +458,17 @@ public class FormsBuilder extends FormsManager {
      * @param data
      * @param field
      * @return
-     * @see FieldValueWrapper
+     * @see FieldValueHelper
      */
-    public Object wrapFieldValue(Record data, EasyMeta field) {
+    public Object wrapFieldValue(Record data, EasyField field) {
         final String fieldName = field.getName();
 
         // No value
         if (!data.hasValue(fieldName, false)) {
             if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
-                return FieldValueWrapper.wrapMixValue(null, Language.L(ApprovalState.DRAFT));
+                return FieldValueHelper.wrapMixValue(null, Language.L(ApprovalState.DRAFT));
             } else if (field.getDisplayType() == DisplayType.BARCODE) {
-                return FieldValueWrapper.instance.wrapBarcode(data.getPrimary(), field);
+                return field.wrapValue(data.getPrimary());
             }
             return null;
         }
@@ -475,13 +476,14 @@ public class FormsBuilder extends FormsManager {
         final DisplayType dt = field.getDisplayType();
         final Object fieldValue = data.getObjectValue(fieldName);
 
-        if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.AVATAR
-                || dt == DisplayType.STATE || dt == DisplayType.LOCATION) {
+        if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST
+                || dt == DisplayType.AVATAR || dt == DisplayType.STATE
+                || dt == DisplayType.LOCATION) {
             return fieldValue.toString();
         } else if (dt == DisplayType.BOOL) {
             return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;
         } else {
-            return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
+            return FieldValueHelper.wrapFieldValue(fieldValue, field);
         }
     }
 
@@ -540,7 +542,7 @@ public class FormsBuilder extends FormsManager {
                     initialValKeeps.add(dtmField.getName());
                 }
             } else if (entity.containsField(field)) {
-                if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+                if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
                     Object mixValue = inFormFields.contains(field) ? readyReferenceValue(value) : value;
                     if (mixValue != null) {
                         initialValReady.put(field, mixValue);
@@ -582,8 +584,8 @@ public class FormsBuilder extends FormsManager {
         if (!ID.isId(idVal)) return null;
 
         try {
-            String idLabel = FieldValueWrapper.getLabel(ID.valueOf(idVal));
-            return FieldValueWrapper.wrapMixValue(ID.valueOf(idVal), idLabel);
+            String idLabel = FieldValueHelper.getLabel(ID.valueOf(idVal));
+            return FieldValueHelper.wrapMixValue(ID.valueOf(idVal), idLabel);
         } catch (NoRecordFoundException ex) {
             LOG.error("No record found : " + idVal);
             return null;

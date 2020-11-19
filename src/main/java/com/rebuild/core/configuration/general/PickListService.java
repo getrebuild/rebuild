@@ -18,8 +18,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.AdminGuard;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -88,7 +88,7 @@ public class PickListService extends BaseConfigurationService implements AdminGu
 
         // MultiSelect 专用
         long nextMaskValue = 0;
-        if (EasyMeta.getDisplayType(field) == DisplayType.MULTISELECT) {
+        if (EasyMetaFactory.getDisplayType(field) == DisplayType.MULTISELECT) {
             Object[] max = Application.createQueryNoFilter(
                     "select max(maskValue) from PickList where belongEntity = ? and belongField = ?")
                     .setParameter(1, field.getOwnEntity().getName())

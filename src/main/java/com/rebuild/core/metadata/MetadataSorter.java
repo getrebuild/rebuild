@@ -14,8 +14,9 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 
 import java.text.Collator;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.Locale;
  * 元数据辅助类，注意此类返回的数据会过滤和排序
  *
  * @author devezhao
- * @see EasyMeta
+ * @see EasyMetaFactory
  * @see MetadataHelper
  * @since 09/30/2018
  */
@@ -56,7 +57,7 @@ public class MetadataSorter {
             if (!e.isQueryable()) continue;
             if (e.getMainEntity() != null && !usesDetail) continue;
 
-            EasyMeta easyEntity = EasyMeta.valueOf(e);
+            EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
             if (easyEntity.isBuiltin() && !easyEntity.isPlainEntity()) continue;
 
             if (user == null || !MetadataHelper.hasPrivilegesField(e)) {
@@ -103,7 +104,7 @@ public class MetadataSorter {
             if (usesTypes.length == 0) {
                 fieldsList.add(field);
             } else {
-                DisplayType fieldDt = EasyMeta.getDisplayType(field);
+                DisplayType fieldDt = EasyMetaFactory.getDisplayType(field);
                 for (DisplayType dt : usesTypes) {
                     if (dt == fieldDt) {
                         fieldsList.add(field);
@@ -160,8 +161,8 @@ public class MetadataSorter {
     static void sortByLabel(List<BaseMeta> metas) {
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         metas.sort((foo, bar) -> {
-            String fooLetter = EasyMeta.getLabel(foo);
-            String barLetter = EasyMeta.getLabel(bar);
+            String fooLetter = EasyMetaFactory.getLabel(foo);
+            String barLetter = EasyMetaFactory.getLabel(bar);
             return comparator.compare(fooLetter, barLetter);
         });
     }

@@ -16,8 +16,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.io.FileUtils;
@@ -74,7 +76,7 @@ public class MetaSchemaGenerator {
         JSONObject schemaEntity = new JSONObject(true);
 
         // 实体
-        EasyMeta easyEntity = EasyMeta.valueOf(entity);
+        EasyEntity easyEntity = EasyMetaFactory.valueOf(entity);
         schemaEntity.put("entity", entity.getName());
         schemaEntity.put("entityIcon", easyEntity.getIcon());
         schemaEntity.put("entityLabel", easyEntity.getLabel());
@@ -118,7 +120,7 @@ public class MetaSchemaGenerator {
      */
     protected JSON performField(Field field) {
         final JSONObject schemaField = new JSONObject(true);
-        final EasyMeta easyField = EasyMeta.valueOf(field);
+        final EasyField easyField = EasyMetaFactory.valueOf(field);
         final DisplayType dt = easyField.getDisplayType();
 
         schemaField.put("field", easyField.getName());
@@ -136,7 +138,7 @@ public class MetaSchemaGenerator {
             schemaField.put("defaultValue", defaultVal);
         }
 
-        if (dt == DisplayType.REFERENCE) {
+        if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
             schemaField.put("refEntity", field.getReferenceEntity().getName());
         } else if (dt == DisplayType.PICKLIST || dt == DisplayType.MULTISELECT) {
             schemaField.put("items", performPickList(field));

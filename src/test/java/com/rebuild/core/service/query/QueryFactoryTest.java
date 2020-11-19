@@ -16,7 +16,6 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**

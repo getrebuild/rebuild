@@ -277,7 +277,7 @@ class BatchUpdateEditor extends React.Component {
   componentWillUnmount() {
     this.__select2.forEach((item) => item.select2('destroy'))
     this.__select2 = null
-    this.__destroyLastValueComp()
+    this._destroyLastValueComp()
   }
 
   render() {
@@ -341,7 +341,7 @@ class BatchUpdateEditor extends React.Component {
     }
   }
 
-  __destroyLastValueComp() {
+  _destroyLastValueComp() {
     if (this.__lastSelect2) {
       this.__lastSelect2.select2('destroy')
       this.__lastSelect2 = null
@@ -356,7 +356,7 @@ class BatchUpdateEditor extends React.Component {
     // Unchanged
     if (prevState.selectField === this.state.selectField && prevState.selectOp === this.state.selectOp) return
     if (this.state.selectOp === 'NULL') return
-    this.__destroyLastValueComp()
+    this._destroyLastValueComp()
 
     const field = this.props.fields.find((item) => {
       return this.state.selectField === item.name
@@ -365,7 +365,7 @@ class BatchUpdateEditor extends React.Component {
       if (field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
         this.__lastSelect2 = $initReferenceSelect2(this._value, {
           name: field.name,
-          label: field.label,
+          placeholder: $L('NewValue'),
           entity: this.props.entity,
           searchType: field.type === 'CLASSIFICATION' ? 'classification' : null,
         })

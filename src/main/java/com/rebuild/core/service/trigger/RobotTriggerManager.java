@@ -157,7 +157,6 @@ public class RobotTriggerManager implements ConfigManager {
     }
 
     private static final String CKEY_TARF = "TriggersAutoReadonlyFields";
-
     /**
      * 获取触发器中涉及的自动只读字段
      *
@@ -170,12 +169,10 @@ public class RobotTriggerManager implements ConfigManager {
         if (fieldsMap == null) {
             fieldsMap = this.initAutoReadonlyFields();
         }
-        return fieldsMap.getOrDefault(entity, Collections.emptySet());
+        return Collections.unmodifiableSet(fieldsMap.getOrDefault(entity, Collections.emptySet()));
     }
 
-    /**
-     * @return
-     */
+    synchronized
     private Map<String, Set<String>> initAutoReadonlyFields() {
         Object[][] array = Application.createQueryNoFilter(
                 "select actionContent from RobotTriggerConfig where (actionType = ? or actionType = ?) and isDisabled = 'F'")

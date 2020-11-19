@@ -237,7 +237,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>commons</artifactId>
-            <version>b4fe41a5f3</version>
+            <version>25ef900f2d</version>
             <exclusions>
                 <exclusion>
                     <artifactId>httpclient</artifactId>
@@ -252,12 +252,12 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>bizz</artifactId>
-            <version>1.1.0</version>
+            <version>58000b9634</version>
         </dependency>
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.5.0</version>
+            <version>f98b9513b0</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>

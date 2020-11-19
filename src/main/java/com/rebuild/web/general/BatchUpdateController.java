@@ -14,32 +14,26 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.commons.MetadataGetting;
-import org.springframework.stereotype.Controller;
 import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 批量修改
@@ -47,17 +41,16 @@ import java.util.Map;
  * @author ZHAO
  * @since 2019/12/1
  */
-@Controller
+@RestController
 @RequestMapping("/app/{entity}/batch-update/")
 public class BatchUpdateController extends BaseController {
 
     @PostMapping("submit")
-    public void submit(@PathVariable String entity,
-                       HttpServletRequest request, HttpServletResponse response) {
+    public RespBody submit(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         Assert.isTrue(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate),
-                getLang(request, "NoPrivileges"));
+                getLang(request, "NoOpPrivileges"));
 
         JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
 
@@ -68,60 +61,71 @@ public class BatchUpdateController extends BaseController {
         Entity entityMeta = MetadataHelper.getEntity(entity);
         String taskid = Application.getEntityService(entityMeta.getEntityCode()).bulkAsync(bulkContext);
 
-        writeSuccess(response, taskid);
+        return RespBody.ok(taskid);
     }
 
     @GetMapping("fields")
-    public void getFields(@PathVariable String entity, HttpServletResponse response) {
+    public List<JSONObject> getFields(@PathVariable String entity) {
         Entity entityMeta = MetadataHelper.getEntity(entity);
 
-        List<Map<String, Object>> updatableFields = new ArrayList<>();
+        List<JSONObject> updatableFields = new ArrayList<>();
         for (Field field : MetadataSorter.sortFields(entityMeta)) {
             if (!field.isUpdatable()) continue;
 
-            EasyMeta easyMeta = EasyMeta.valueOf(field);
-            if (!easyMeta.isUpdatable()) continue;
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (!easyField.isUpdatable()) continue;
 
-            DisplayType dt = easyMeta.getDisplayType();
+            DisplayType dt = easyField.getDisplayType();
             // 不支持的字段
-            if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
-                    || dt == DisplayType.LOCATION || dt == DisplayType.SERIES || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.NTEXT || dt == DisplayType.BARCODE || dt == DisplayType.N2NREFERENCE) {
+            if (dt == DisplayType.FILE
+                    || dt == DisplayType.IMAGE
+                    || dt == DisplayType.AVATAR
+                    || dt == DisplayType.LOCATION
+                    || dt == DisplayType.BARCODE
+                    || dt == DisplayType.SERIES
+                    || dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE) {
                 continue;
             }
 
-            updatableFields.add(this.buildField(field, dt));
+            updatableFields.add(buildField(easyField));
         }
-        writeSuccess(response, updatableFields);
+        return updatableFields;
     }
 
     /**
      * @param field
-     * @param dt
      * @return
      */
-    private Map<String, Object> buildField(Field field, DisplayType dt) {
-        Map<String, Object> map = MetadataGetting.formatField(field);
+    private JSONObject buildField(EasyField field) {
+        JSONObject map = (JSONObject) field.toJSON();
 
         // 字段选项
+        DisplayType dt = field.getDisplayType();
+
         if (dt == DisplayType.PICKLIST) {
-            map.put("options", PickListManager.instance.getPickList(field));
+            map.put("options", PickListManager.instance.getPickList(field.getRawMeta()));
 
         } else if (dt == DisplayType.STATE) {
-            map.put("options", StateManager.instance.getStateOptions(field));
+            map.put("options", StateManager.instance.getStateOptions(field.getRawMeta()));
 
         } else if (dt == DisplayType.MULTISELECT) {
-            map.put("options", MultiSelectManager.instance.getSelectList(field));
+            map.put("options", MultiSelectManager.instance.getSelectList(field.getRawMeta()));
 
         } else if (dt == DisplayType.BOOL) {
             JSONArray options = new JSONArray();
-            options.add(JSONUtils.toJSONObject(new String[]{"id", "text"}, new Object[]{true, "是"}));
-            options.add(JSONUtils.toJSONObject(new String[]{"id", "text"}, new Object[]{false, "否"}));
+            options.add(JSONUtils.toJSONObject(
+                    new String[] { "id", "text" },
+                    new Object[] { true, Language.L("True") }));
+            options.add(JSONUtils.toJSONObject(
+                    new String[] { "id", "text" },
+                    new Object[] { false, Language.L("False") }));
             map.put("options", options);
 
-        } else if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
-            map.put(FieldExtConfigProps.NUMBER_NOTNEGATIVE,
-                    EasyMeta.valueOf(field).getExtraAttr(FieldExtConfigProps.NUMBER_NOTNEGATIVE));
+        } else if (dt == DisplayType.NUMBER) {
+            map.put(EasyFieldConfigProps.NUMBER_NOTNEGATIVE, ((EasyNumber) field).attrNotNegative());
+        } else if (dt == DisplayType.DECIMAL) {
+            map.put(EasyFieldConfigProps.DECIMAL_FORMAT, ((EasyDecimal) field).attrNotNegative());
         }
 
         return map;

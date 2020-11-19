@@ -16,11 +16,10 @@ import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -37,9 +36,8 @@ import java.util.List;
  * @author devezhao
  * @since 10/31/2018
  */
+@Slf4j
 public final class ServerStatus {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ServerStatus.class);
 
     /**
      * 启动时间
@@ -180,9 +178,9 @@ public final class ServerStatus {
             this.error = error;
 
             if (success) {
-                LOG.debug("Checking " + toString());
+                log.debug("Checking " + toString());
             } else {
-                LOG.error("Checking " + toString());
+                log.error("Checking " + toString());
             }
         }
 

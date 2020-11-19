@@ -14,8 +14,8 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.Application;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.core.metadata.impl.GhostEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,7 @@ import java.util.List;
  * 实体元数据
  *
  * @author zhaofang123@gmail.com
- * @see EasyMeta
+ * @see EasyMetaFactory
  * @since 08/13/2018
  */
 public class MetadataHelper {
@@ -206,7 +206,6 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(Field field) {
-        if (isSystemField(field)) return true;
         return isCommonsField(field.getName());
     }
 
@@ -219,9 +218,8 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(String fieldName) {
-        if (isSystemField(fieldName) || isApprovalField(fieldName)) {
-            return true;
-        }
+        if (isSystemField(fieldName) || isApprovalField(fieldName)) return true;
+
         return EntityHelper.OwningUser.equalsIgnoreCase(fieldName) || EntityHelper.OwningDept.equalsIgnoreCase(fieldName)
                 || EntityHelper.CreatedOn.equalsIgnoreCase(fieldName) || EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
                 || EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName) || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName);
@@ -268,10 +266,11 @@ public class MetadataHelper {
      * @param entity
      * @return
      * @see #hasPrivilegesField(Entity)
-     * @see EasyMeta#isPlainEntity()
+     * @see com.rebuild.core.metadata.easymeta.EasyEntity#isPlainEntity()
      */
     public static boolean isBusinessEntity(Entity entity) {
-        return hasPrivilegesField(entity) || EasyMeta.valueOf(entity).isPlainEntity();
+        if (entity.getMainEntity() != null) entity = entity.getMainEntity();
+        return hasPrivilegesField(entity) || EasyMetaFactory.valueOf(entity).isPlainEntity();
     }
 
     /**

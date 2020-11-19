@@ -12,7 +12,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -61,12 +61,13 @@ public class RecentlyUsedHelper {
         List<ID> data = new ArrayList<>();
         for (int i = 0; i < limit && i < cached.size(); i++) {
             final ID raw = cached.get(i);
-            if (!(raw.getEntityCode() == EntityHelper.ClassificationData || Application.getPrivilegesManager().allowRead(user, raw))) {
+            if (!(raw.getEntityCode() == EntityHelper.ClassificationData
+                    || Application.getPrivilegesManager().allowRead(user, raw))) {
                 continue;
             }
 
             try {
-                String label = FieldValueWrapper.getLabel(raw);
+                String label = FieldValueHelper.getLabel(raw);
                 ID clone = ID.valueOf(raw.toLiteral());
                 clone.setLabel(label);
                 data.add(clone);

@@ -33,8 +33,9 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._targetEntity = c)}>
                     {(this.state.targetEntities || []).map((item) => {
+                      const val = `${item[2]}.${item[0]}`
                       return (
-                        <option key={'te-' + item[2] + item[0]} value={item[2] + '.' + item[0]}>
+                        <option key={val} value={val}>
                           {item[1]}
                         </option>
                       )
@@ -138,7 +139,7 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
-                <span className="custom-control-label">{$L('AutoSetTargetFieldReadonly')}</span>
+                <span className="custom-control-label">{$L('SetTargetFieldReadonly')}</span>
               </label>
             </div>
           </div>
@@ -210,9 +211,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   _getFieldLabel(fields, field) {
-    let found = fields.find((x) => {
-      return x[0] === field
-    })
+    let found = fields.find((x) => x[0] === field)
     if (found) found = found[1]
     return found || '[' + field.toUpperCase() + ']'
   }

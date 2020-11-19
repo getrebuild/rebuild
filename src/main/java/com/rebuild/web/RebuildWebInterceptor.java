@@ -29,6 +29,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * 请求拦截
@@ -128,7 +129,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
                 // 前端使用
                 request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
-                request.setAttribute("AllowCustomNav",
+                request.setAttribute(ZeroEntry.AllowCustomNav.name(),
                         Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
             }
 
@@ -175,7 +176,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
         locale = ServletUtils.readCookie(request, LanguageController.CK_LOCALE);
         if (locale == null) {
             // 2. User-Local
-            locale = request.getLocale().getLanguage();
+            Locale userLocale = request.getLocale();
+            locale = String.format("%s_%s", userLocale.getLanguage(), userLocale.getCountry());
         }
 
         // 3. Default

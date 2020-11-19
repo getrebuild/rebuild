@@ -56,7 +56,7 @@ public class ContentWithFieldVars {
         if (o != null) {
             for (String field : fieldVars.keySet()) {
                 Object value = o.getObjectValue(field);
-                value = FieldValueWrapper.instance.wrapFieldValue(value, MetadataHelper.getLastJoinField(entity, field), true);
+                value = FieldValueHelper.wrapFieldValue(value, MetadataHelper.getLastJoinField(entity, field), true);
                 if (value != null) {
                     fieldVars.put(field, value.toString());
                 }

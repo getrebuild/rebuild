@@ -9,7 +9,7 @@ package com.rebuild.core.service.general.series;
 
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 /**
  * 自动编号工厂类
@@ -24,7 +24,7 @@ public class SeriesGeneratorFactory {
      * @return
      */
     public static SeriesGenerator create(Field field) {
-        return new SeriesGenerator(EasyMeta.valueOf(field));
+        return new SeriesGenerator(EasyMetaFactory.valueOf(field));
     }
 
     /**

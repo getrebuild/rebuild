@@ -16,7 +16,7 @@ import com.rebuild.core.BootApplication;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.Field2Schema;
@@ -49,7 +49,7 @@ public class TestSupport {
         LOG.warn("TESTING Setup ...");
 
         try {
-            BootApplication.main(new String[] { "-Drbdev=true" });
+            BootApplication.main(new String[] { "-Drbdev=true -Dserver.port=0" });
             RebuildReady = true;
 
             DynamicMetadataContextHolder.setSkipLanguageRefresh();
@@ -124,20 +124,21 @@ public class TestSupport {
             }
         }
 
+//        new Entity2Schema(UserService.ADMIN_USER).dropEntity(MetadataHelper.getEntity(TestAllFields), true);
         if (!MetadataHelper.containsEntity(TestAllFields)) {
             Entity2Schema entity2Schema = new Entity2Schema(UserService.ADMIN_USER);
             String entityName = entity2Schema.createEntity(TestAllFields.toUpperCase(), null, null, true);
             Entity testEntity = MetadataHelper.getEntity(entityName);
 
             for (DisplayType dt : DisplayType.values()) {
-                if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE || dt == DisplayType.N2NREFERENCE) {
+                if (dt == DisplayType.ID || dt == DisplayType.LOCATION || dt == DisplayType.ANYREFERENCE) {
                     continue;
                 }
 
                 String fieldName = dt.name().toUpperCase();
                 if (BlockList.isBlock(fieldName)) fieldName += "1";
 
-                if (dt == DisplayType.REFERENCE) {
+                if (dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) {
                     new Field2Schema(UserService.ADMIN_USER)
                             .createField(testEntity, fieldName, dt, null, entityName, null);
                 } else if (dt == DisplayType.CLASSIFICATION) {
@@ -173,15 +174,6 @@ public class TestSupport {
         }
 
         return changed;
-    }
-
-    /**
-     * 添加一条测试记录
-     *
-     * @return
-     */
-    protected static ID addRecordOfTestAllFields() {
-        return addRecordOfTestAllFields(SIMPLE_USER);
     }
 
     /**

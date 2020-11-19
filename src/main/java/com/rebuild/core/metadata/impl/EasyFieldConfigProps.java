@@ -13,7 +13,7 @@ package com.rebuild.core.metadata.impl;
  * @author ZHAO
  * @since 2019/12/3
  */
-public class FieldExtConfigProps {
+public class EasyFieldConfigProps {
 
     /**
      * 是否允许负数
@@ -36,15 +36,15 @@ public class FieldExtConfigProps {
     /**
      * 日期格式
      */
-    public static final String DATE_DATEFORMAT = "dateFormat";
+    public static final String DATE_FORMAT = "dateFormat";
 
     /**
      * 日期格式
      */
-    public static final String DATETIME_DATEFORMAT = "datetimeFormat";
+    public static final String DATETIME_FORMAT = "datetimeFormat";
 
     /**
-     * 允许上传数量
+     * 允许上传数量 1,5
      */
     public static final String FILE_UPLOADNUMBER = "uploadNumber";
 
@@ -56,11 +56,11 @@ public class FieldExtConfigProps {
     /**
      * 自动编号规则
      */
-    public static final String SERIES_SERIESFORMAT = "seriesFormat";
+    public static final String SERIES_FORMAT = "seriesFormat";
     /**
      * 自动编号归零方式
      */
-    public static final String SERIES_SERIESZERO = "seriesZero";
+    public static final String SERIES_ZERO = "seriesZero";
 
     /**
      * 使用哪个分类数据
@@ -70,5 +70,16 @@ public class FieldExtConfigProps {
     /**
      * 使用哪个状态类
      */
-    public static final String STATE_STATECLASS = "stateClass";
+    public static final String STATE_CLASS = "stateClass";
+
+    /**
+     * 引用字段数据过滤
+     */
+    public static final String REFERENCE_DATAFILTER = "referenceDataFilter";
+
+    /**
+     * 多引用字段数据过滤
+     * @see #REFERENCE_DATAFILTER
+     */
+    public static final String N2NREFERENCE_DATAFILTER = REFERENCE_DATAFILTER;
 }
