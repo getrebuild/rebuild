@@ -26,22 +26,11 @@ public class EasyID extends EasyField {
     }
 
     @Override
-    public JSON toJSON() {
-        JSONObject map = (JSONObject) super.toJSON();
-
-        Entity refEntity = getRawMeta().getOwnEntity();
-        Field nameField = MetadataHelper.getNameField(refEntity);
-        map.put("ref",
-                new String[] { refEntity.getName(), EasyMetaFactory.getDisplayType(nameField).name() });
-        return map;
-    }
-
-    @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
-            return wrapValue(value);
+            return value.toString();
         }
 
         ID idValue = (ID) value;
@@ -52,11 +41,28 @@ public class EasyID extends EasyField {
             return new ID[] { idValue };
         }
 
-        return super.convertCompatibleValue(value, targetField);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Object exprDefaultValue() {
         return null;
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        if (value instanceof String) value = ID.valueOf((String) value);
+        return value.toString();
+    }
+
+    @Override
+    public JSON toJSON() {
+        JSONObject map = (JSONObject) super.toJSON();
+
+        Entity refEntity = getRawMeta().getOwnEntity();
+        Field nameField = MetadataHelper.getNameField(refEntity);
+        map.put("ref",
+                new String[] { refEntity.getName(), EasyMetaFactory.getDisplayType(nameField).name() });
+        return map;
     }
 }

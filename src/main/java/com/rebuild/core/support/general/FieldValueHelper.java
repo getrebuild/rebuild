@@ -19,6 +19,7 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
@@ -88,12 +89,13 @@ public class FieldValueHelper {
      * @see EasyField#wrapValue(Object)
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
-        if (!field.isQueryable()) return SECURE_TEXT;
+        if (!field.isQueryable() &&
+                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) return SECURE_TEXT;
 
         if (value == null || StringUtils.isBlank(value.toString())) {
             // 审批
             if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalState)) {
-                return Language.L(ApprovalState.DRAFT);
+                return ApprovalState.DRAFT.getState();
             } else if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalId)) {
                 return wrapMixValue(null, Language.L(ApprovalState.DRAFT));
             }
@@ -102,6 +104,24 @@ public class FieldValueHelper {
         }
 
         return field.wrapValue(value);
+    }
+
+    /**
+     * @param id
+     * @param text
+     * @return Returns `{ id:xxx, text:xxx [, entity:xxx] }`
+     */
+    public static JSONObject wrapMixValue(ID id, String text) {
+        if (id != null && StringUtils.isBlank(text)) {
+            text = id.getLabel();
+        }
+
+        JSONObject mixValue = JSONUtils.toJSONObject(
+                new String[] { "id", "text" }, new Object[] { id, text });
+        if (id != null) {
+            mixValue.put("entity", MetadataHelper.getEntityName(id));
+        }
+        return mixValue;
     }
 
     /**
@@ -168,24 +188,6 @@ public class FieldValueHelper {
         } catch (MetadataException | NoRecordFoundException ex) {
             return MISS_REF_PLACE;
         }
-    }
-
-    /**
-     * @param id
-     * @param text
-     * @return Returns `{ id:xxx, text:xxx, entity:xxx }`
-     */
-    public static JSONObject wrapMixValue(ID id, String text) {
-        if (id != null && StringUtils.isBlank(text)) {
-            text = id.getLabel();
-        }
-
-        JSONObject o = JSONUtils.toJSONObject(
-                new String[] { "id", "text" }, new Object[] { id, text });
-        if (id != null) {
-            o.put("entity", MetadataHelper.getEntityName(id));
-        }
-        return o;
     }
 
     // 日期公式 {NOW+1D}

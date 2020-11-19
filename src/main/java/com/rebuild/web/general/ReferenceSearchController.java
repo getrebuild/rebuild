@@ -197,7 +197,7 @@ public class ReferenceSearchController extends EntityController {
         List<Object> result = new ArrayList<>();
         for (Object[] o : array) {
             ID recordId = (ID) o[0];
-            if (MetadataHelper.isBizzEntity(entity.getEntityCode())
+            if (MetadataHelper.isBizzEntity(entity)
                     && (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER))) {
                 continue;
             }

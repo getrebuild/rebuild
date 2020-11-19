@@ -62,7 +62,8 @@ $(document).ready(function () {
 
     data = $cleanMap(data)
     if (Object.keys(data).length === 0) {
-      location.href = '../fields'
+      if (rb.env === 'dev') location.reload()
+      else location.href = '../fields'
       return
     }
 
@@ -71,7 +72,8 @@ $(document).ready(function () {
       $btn.button('loading')
       $.post('/admin/entity/field-update', JSON.stringify(data), function (res) {
         if (res.error_code === 0) {
-          location.href = '../fields'
+          if (rb.env === 'dev') location.reload()
+          else location.href = '../fields'
         } else {
           $btn.button('reset')
           RbHighbar.error(res.error_msg)

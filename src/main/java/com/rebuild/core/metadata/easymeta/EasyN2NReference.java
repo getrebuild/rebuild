@@ -11,7 +11,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -36,36 +36,17 @@ public class EasyN2NReference extends EasyReference {
         ID[] idArrayValue = (ID[]) value;
 
         if (is2Text) {
-            List<String> array = new ArrayList<>();
+            List<String> texts = new ArrayList<>();
             for (ID id : idArrayValue) {
-                array.add((String) super.convertCompatibleValue(id, targetField));
+                texts.add(FieldValueHelper.getLabelNotry(id));
             }
-            return StringUtils.join(array, ", ");
-
-        } else {
-            return idArrayValue;
+            return StringUtils.join(texts, ", ");
         }
-    }
 
-    @Override
-    public Object wrapValue(Object value) {
-        ID[] idArrayValue = (ID[]) value;
-        JSONArray array = new JSONArray();
-        for (ID id : idArrayValue) {
-            array.add(super.wrapValue(id));
+        if (targetField.getDisplayType() == DisplayType.REFERENCE) {
+            return idArrayValue[0];
         }
-        return array;
-    }
-
-    @Override
-    public Object unpackWrapValue(Object wrappedValue) {
-        JSONArray arrayValue = (JSONArray) wrappedValue;
-
-        List<String> array = new ArrayList<>();
-        for (Object item : arrayValue) {
-            array.add(((JSONObject) item).getString ("text"));
-        }
-        return StringUtils.join(array, ", ");
+        return idArrayValue;
     }
 
     @Override
@@ -81,7 +62,24 @@ public class EasyN2NReference extends EasyReference {
     }
 
     @Override
-    public String attrDataFilter() {
-        return getExtraAttr(EasyFieldConfigProps.N2NREFERENCE_DATAFILTER);
+    public Object wrapValue(Object value) {
+        ID[] idArrayValue = (ID[]) value;
+
+        JSONArray array = new JSONArray();
+        for (ID id : idArrayValue) {
+            array.add(super.wrapValue(id));
+        }
+        return array;
+    }
+
+    @Override
+    public Object unpackWrapValue(Object wrappedValue) {
+        JSONArray arrayValue = (JSONArray) wrappedValue;
+
+        List<String> texts = new ArrayList<>();
+        for (Object item : arrayValue) {
+            texts.add(((JSONObject) item).getString ("text"));
+        }
+        return StringUtils.join(texts, ", ");
     }
 }

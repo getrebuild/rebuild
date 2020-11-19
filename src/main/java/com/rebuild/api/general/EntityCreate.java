@@ -82,7 +82,7 @@ public class EntityCreate extends BaseApi {
         }
 
         Entity entity = MetadataHelper.getEntity(useEntity);
-        if (!entity.isQueryable() || MetadataHelper.isBizzEntity(entity.getEntityCode())) {
+        if (!entity.isQueryable() || MetadataHelper.isBizzEntity(entity)) {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Unsupportted operator for entity : " + useEntity);
         }
         return entity;

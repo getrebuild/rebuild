@@ -98,8 +98,7 @@ public class StateHelper {
     public static StateSpec valueOf(Class<?> stateClass, int state) throws IllegalArgumentException {
         Assert.notNull(stateClass, "[stateClass] cannot be null");
 
-        Object[] constants = stateClass.getEnumConstants();
-        for (Object c : constants) {
+        for (Object c : stateClass.getEnumConstants()) {
             if (((StateSpec) c).getState() == state) {
                 return (StateSpec) c;
             }

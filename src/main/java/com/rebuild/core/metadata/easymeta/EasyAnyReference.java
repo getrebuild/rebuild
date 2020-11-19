@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.Field;
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyAnyReference extends EasyField {
+public class EasyAnyReference extends EasyReference {
     private static final long serialVersionUID = -5775035002469908191L;
 
     protected EasyAnyReference(Field field, DisplayType displayType) {
@@ -22,16 +22,6 @@ public class EasyAnyReference extends EasyField {
 
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object wrapValue(Object value) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Object exprDefaultValue() {
         throw new UnsupportedOperationException();
     }
 }

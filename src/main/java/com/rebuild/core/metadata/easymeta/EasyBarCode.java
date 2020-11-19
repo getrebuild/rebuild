@@ -10,12 +10,13 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.general.BarCodeGenerator;
-import org.springframework.util.Assert;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
+@Slf4j
 public class EasyBarCode extends EasyField {
     private static final long serialVersionUID = 5175455130040618922L;
 
@@ -25,8 +26,7 @@ public class EasyBarCode extends EasyField {
 
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
-        return value;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -34,6 +34,8 @@ public class EasyBarCode extends EasyField {
         if (value instanceof ID) {
             return BarCodeGenerator.getBarCodeContent(getRawMeta(), (ID) value);
         }
+
+        if (value != null) log.warn("Cannot wrap value of EasyBarCode : " + value);
         return null;
     }
 }

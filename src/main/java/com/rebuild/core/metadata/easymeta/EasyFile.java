@@ -10,14 +10,13 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import org.springframework.util.Assert;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
-public class EasyFile extends EasyField implements MixValue {
+public class EasyFile extends EasyField {
     private static final long serialVersionUID = -440245863103271478L;
 
     protected EasyFile(Field field, DisplayType displayType) {
@@ -27,26 +26,12 @@ public class EasyFile extends EasyField implements MixValue {
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
         Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
-        return value.toString();
+        return wrapValue(value);
     }
 
     @Override
     public Object wrapValue(Object value) {
+        if (value instanceof JSONArray) return value;
         return JSON.parseArray(value.toString());
-    }
-
-    @Override
-    public Object unpackWrapValue(Object wrappedValue) {
-        if (wrappedValue instanceof JSONArray) return wrappedValue;
-        return JSON.parseArray(wrappedValue.toString());
-    }
-
-    /**
-     * 上传数量限制，如 3,6
-     *
-     * @return
-     */
-    public String attrUploadNumber() {
-        return getExtraAttr(EasyFieldConfigProps.FILE_UPLOADNUMBER);
     }
 }

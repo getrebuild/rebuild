@@ -137,14 +137,17 @@ public class DataListWrapper {
      * @return
      */
     protected Object wrapFieldValue(Object value, Field field) {
-        EasyField fieldEasy = EasyMetaFactory.valueOf(field);
-        if (fieldEasy.getDisplayType() == DisplayType.ID) {
+        EasyField easyField = EasyMetaFactory.valueOf(field);
+        if (easyField.getDisplayType() == DisplayType.ID) {
             return FieldValueHelper.wrapMixValue((ID) value, null);
-        } else if (fieldEasy.getDisplayType() == DisplayType.CLASSIFICATION) {
-            return FieldValueHelper.wrapFieldValue(value, fieldEasy, true);
-        } else {
-            return FieldValueHelper.wrapFieldValue(value, fieldEasy);
         }
+
+        boolean unpack = easyField.getDisplayType() == DisplayType.CLASSIFICATION
+                || easyField.getDisplayType() == DisplayType.PICKLIST
+                || easyField.getDisplayType() == DisplayType.STATE
+                || easyField.getDisplayType() == DisplayType.BOOL;
+
+        return FieldValueHelper.wrapFieldValue(value, easyField, unpack);
     }
 
     /**

@@ -671,7 +671,7 @@ CellRenders.addRender('MULTISELECT', function (v, s, k) {
   return (
     <td key={k} className="td-min column-multi">
       <div style={s} title={v}>
-        {v.split(' / ').map((item) => {
+        {(v.text || []).map((item) => {
           return (
             <span key={'opt-' + item} className="badge">
               {item}

@@ -18,6 +18,8 @@ import com.alibaba.fastjson.JSONObject;
 public interface MixValue {
 
     /**
+     * 获取 Label/Text 人类可识别值
+     *
      * @param wrappedValue
      * @return
      */

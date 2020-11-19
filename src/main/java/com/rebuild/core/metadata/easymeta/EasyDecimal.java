@@ -10,7 +10,6 @@ package com.rebuild.core.metadata.easymeta;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -44,34 +43,16 @@ public class EasyDecimal extends EasyField {
     }
 
     @Override
-    public Object wrapValue(Object value) {
-        return new DecimalFormat(attrFormat()).format(value);
-    }
-
-    @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
         return StringUtils.isBlank(valueExpr)
                 ? null : BigDecimal.valueOf(NumberUtils.toDouble(valueExpr));
     }
 
-    /**
-     * 允许负数
-     *
-     * @return
-     */
-    public boolean attrNotNegative() {
-        String attr = getExtraAttr(EasyFieldConfigProps.DECIMAL_NOTNEGATIVE);
-        return attr == null || BooleanUtils.toBoolean(attr);
-    }
-
-    /**
-     * 格式化
-     *
-     * @return
-     */
-    public String attrFormat() {
-        return StringUtils.defaultIfBlank(
+    @Override
+    public Object wrapValue(Object value) {
+        String format = StringUtils.defaultIfBlank(
                 getExtraAttr(EasyFieldConfigProps.DECIMAL_FORMAT), getDisplayType().getDefaultFormat());
+        return new DecimalFormat(format).format(value);
     }
 }

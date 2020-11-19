@@ -13,7 +13,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.general.FieldValueHelper;
 
 /**
@@ -28,41 +27,15 @@ public class EasyReference extends EasyField implements MixValue {
     }
 
     @Override
-    public JSON toJSON() {
-        JSONObject map = (JSONObject) super.toJSON();
-
-        Entity refEntity = getRawMeta().getReferenceEntity();
-        Field nameField = MetadataHelper.getNameField(refEntity);
-        map.put("ref",
-                new String[] { refEntity.getName(), EasyMetaFactory.getDisplayType(nameField).name() });
-        return map;
-    }
-
-    @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
-            JSONObject wrapped = (JSONObject) wrapValue(value);
-            return wrapped.getString("text");
+            return FieldValueHelper.getLabelNotry((ID) value);
         }
 
-        ID idValue = (ID) value;
-        return idValue;
-    }
-
-    @Override
-    public Object wrapValue(Object value) {
-        ID idValue = (ID) value;
-        Object text = idValue.getLabelRaw();
-        if (text == null) {
-            text = FieldValueHelper.getLabelNotry(idValue);
-        } else {
-            Field nameField = getRawMeta().getReferenceEntity().getNameField();
-            text = EasyMetaFactory.valueOf(nameField).wrapValue(text);
-        }
-
-        return FieldValueHelper.wrapMixValue(idValue, text == null ? null : text.toString());
+        // ID
+        return value;
     }
 
     @Override
@@ -71,12 +44,25 @@ public class EasyReference extends EasyField implements MixValue {
         return ID.isId(valueExpr) ? ID.valueOf(valueExpr) : null;
     }
 
-    /**
-     * 引用字段数据过滤
-     *
-     * @return
-     */
-    public String attrDataFilter() {
-        return getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
+    @Override
+    public Object wrapValue(Object value) {
+        ID idValue = (ID) value;
+        Object text = idValue.getLabelRaw();
+        if (text == null) {
+            text = FieldValueHelper.getLabelNotry(idValue);
+        }
+
+        return FieldValueHelper.wrapMixValue(idValue, text == null ? null : text.toString());
+    }
+
+    @Override
+    public JSON toJSON() {
+        JSONObject map = (JSONObject) super.toJSON();
+
+        Entity refEntity = getRawMeta().getReferenceEntity();
+        Field nameField = MetadataHelper.getNameField(refEntity);
+        map.put("ref",
+                new String[] { refEntity.getName(), EasyMetaFactory.getDisplayType(nameField).name() });
+        return map;
     }
 }

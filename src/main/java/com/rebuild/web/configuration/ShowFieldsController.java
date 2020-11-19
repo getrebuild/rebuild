@@ -23,8 +23,8 @@ import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
@@ -173,10 +173,6 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         writeSuccess(response, list);
     }
 
-    /**
-     * @param field
-     * @return
-     */
     private boolean canListField(Field field) {
         return EasyMetaFactory.getDisplayType(field) != DisplayType.BARCODE;
     }

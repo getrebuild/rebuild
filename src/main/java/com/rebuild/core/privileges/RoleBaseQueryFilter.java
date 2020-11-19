@@ -95,7 +95,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         Entity useMain = null;
         if (!MetadataHelper.hasPrivilegesField(entity)) {
             // NOTE BIZZ 实体全部用户可见
-            if (MetadataHelper.isBizzEntity(entity.getEntityCode()) || EasyMetaFactory.valueOf(entity).isPlainEntity()) {
+            if (MetadataHelper.isBizzEntity(entity) || EasyMetaFactory.valueOf(entity).isPlainEntity()) {
                 return ALLOWED.evaluate(null);
             } else if (entity.getMainEntity() != null) {
                 useMain = entity.getMainEntity();

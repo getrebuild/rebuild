@@ -35,15 +35,6 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return getRawMeta().getType() == FieldType.PRIMARY ? "ID" : super.getLabel();
     }
 
-//    @Override
-//    public boolean isUpdatable() {
-//        if (!getRawMeta().isUpdatable()) return false;
-//
-//        Set<String> roViaTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(
-//                getRawMeta().getOwnEntity().getName());
-//        return !roViaTriggers.contains(getName());
-//    }
-
     @Override
     public boolean isBuiltin() {
         if (super.isBuiltin()) return true;
@@ -108,7 +99,9 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
-            return StringUtils.defaultIfBlank((String) wrapValue(value), null);
+            Object wrappedValue = wrapValue(value);
+            if (wrappedValue == null) return null;
+            return StringUtils.defaultIfBlank(wrappedValue.toString(), null);
         }
 
         Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
@@ -116,28 +109,33 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
     }
 
     /**
-     * 转换为易识别值（默认实现为转为字符串）
+     * 默认值（默认实现为转为字符串）
+     *
+     * @return
+     */
+    public Object exprDefaultValue() {
+        Object dv = getRawMeta().getDefaultValue();
+        if (dv == null) return null;
+        return StringUtils.defaultIfBlank(dv.toString(), null);
+    }
+
+    /**
+     * 转换返回值，输出用（默认实现为原值返回）
      *
      * @param value 原值
      * @return
      * @see com.rebuild.core.support.general.FieldValueHelper
      */
     public Object wrapValue(Object value) {
-        if (value == null || StringUtils.isBlank(value.toString())) {
-            return StringUtils.EMPTY;
-        }
-        return value.toString().trim();
+        if (value == null) return null;
+        if (value instanceof String) return value.toString().trim();
+        return value;
     }
 
-    /**
-     * 默认值
-     *
-     * @return
-     */
-    public Object exprDefaultValue() {
-        return StringUtils.defaultIfBlank((String) getRawMeta().getDefaultValue(), null);
-    }
-
-//    // 转换符合字段类型的值
-//    abstract Object checkoutValue(Object rawValue);
+//    /**
+//     * TODO 转换符合字段类型的值
+//     * @param rawValue
+//     * @return
+//     */
+//    abstract T checkoutValue(Object rawValue);
 }

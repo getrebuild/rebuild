@@ -12,12 +12,15 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.general.DataListWrapper;
+import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.*;
@@ -142,25 +145,26 @@ public class DataExporter extends SetUser {
                 }
 
                 Field field = headFields.get(cellIndex++);
-                DisplayType dt = EasyMetaFactory.getDisplayType(field);
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+
+                DisplayType dt = easyField.getDisplayType();
                 if (cellVal == null) {
                     cellVal = StringUtils.EMPTY;
+                } else if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
+                    cellVal = String.format("[%s]", Language.L("NoPrivileges"));
                 } else if (dt == DisplayType.FILE
                         || dt == DisplayType.IMAGE
                         || dt == DisplayType.AVATAR
-                        || dt == DisplayType.ANYREFERENCE
-                        || dt == DisplayType.N2NREFERENCE
                         || dt == DisplayType.BARCODE) {
-                    cellVal = "[暂不支持" + dt.getDisplayName() + "字段]";
-                } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
+                    cellVal = String.format("[%s]", Language.L("Unsupport"));
+                }  else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位
                 }
 
-                if (cellVal instanceof JSONObject) {
-                    cellVal = ((JSONObject) cellVal).getString("text");
-                } else if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
-                    cellVal = "[无权限]";
+                if (cellVal instanceof JSONObject || cellVal instanceof JSONArray) {
+                    cellVal = ((MixValue) easyField).unpackWrapValue(cellVal);
                 }
+
                 cellVals.add(cellVal.toString());
             }
             into.add(cellVals);
