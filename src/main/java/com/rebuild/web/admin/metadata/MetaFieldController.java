@@ -39,7 +39,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaofang123@gmail.com
@@ -62,11 +65,8 @@ public class MetaFieldController extends BaseController {
 
     @RequestMapping("list-field")
     public List<Map<String, Object>> listField(@EntityParam Entity entity) {
-        List<Field> allFields = new ArrayList<>();
-        Collections.addAll(allFields, entity.getFields());
-
-        List<Map<String, Object>> ret = new ArrayList<>();
-        for (Field field : MetadataSorter.sortFields(allFields.toArray(new Field[0]))) {
+        List<Map<String, Object>> fieldList = new ArrayList<>();
+        for (Field field : MetadataSorter.sortFields(entity)) {
             if (MetadataHelper.isSystemField(field)) continue;
 
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
@@ -81,9 +81,9 @@ public class MetaFieldController extends BaseController {
             map.put("nullable", field.isNullable());
             map.put("builtin", easyMeta.isBuiltin());
             map.put("creatable", field.isCreatable());
-            ret.add(map);
+            fieldList.add(map);
         }
-        return ret;
+        return fieldList;
     }
 
     @GetMapping("{entity}/field/{field}")

@@ -705,21 +705,6 @@ body.view-body {
   color: #4285f4;
 }
 
-.select2-container--default .select2-selection--multiple::after {
-  content: '\f2f9';
-  font-family: 'Material-Design-Iconic-Font';
-  font-size: 1.6rem;
-  font-weight: 400;
-  line-height: 35px;
-  color: #404040;
-  position: absolute;
-  right: 10px;
-}
-
-.user-selector.select2-container--default .select2-selection--multiple::after {
-  content: '';
-}
-
 textarea.row2x {
   height: 52px !important;
   resize: none;
@@ -818,6 +803,17 @@ a {
 .type-REFERENCE .select2-container--default .select2-selection--single .select2-selection__arrow b::after {
   right: 7px;
   top: 8px;
+}
+
+.type-N2NREFERENCE .select2-container--default .select2-selection--multiple::after {
+  content: '\f2f9';
+  font-family: 'Material-Design-Iconic-Font';
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 35px;
+  color: #404040;
+  position: absolute;
+  right: 10px;
 }
 
 .type-N2NREFERENCE .form-control-plaintext > a {
@@ -3629,6 +3625,10 @@ a.avatar.x26 img {
   font-style: italic;
   border-top: 1px solid #d5d8de;
   line-height: 1;
+}
+
+.select2-container--disabled .select2-selection__clear {
+  display: none;
 }
 
 .use-dropdown .dropdown-menu {

@@ -104,7 +104,7 @@ public class MetadataGetting extends BaseController {
             // 引用字段处理
             if (EasyMetaFactory.getDisplayType(field) == DisplayType.REFERENCE && filterRefField) {
                 boolean isApprovalId = field.getName().equalsIgnoreCase(EntityHelper.ApprovalId);
-                boolean isBizz = MetadataHelper.isBizzEntity(field.getReferenceEntity().getEntityCode());
+                boolean isBizz = MetadataHelper.isBizzEntity(field.getReferenceEntity());
                 if (!(isApprovalId || isBizz)) {
                     continue;
                 }

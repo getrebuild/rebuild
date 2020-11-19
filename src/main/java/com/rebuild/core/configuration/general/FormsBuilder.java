@@ -316,11 +316,15 @@ public class FormsBuilder extends FormsManager {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
                 el.put("options", options);
             } else if (dt == DisplayType.DATETIME) {
-                el.put(EasyFieldConfigProps.DATETIME_FORMAT,
-                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT));
+                String format = StringUtils.defaultIfBlank(
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT),
+                        easyField.getDisplayType().getDefaultFormat());
+                el.put(EasyFieldConfigProps.DATETIME_FORMAT, format);
             } else if (dt == DisplayType.DATE) {
-                el.put(EasyFieldConfigProps.DATE_FORMAT,
-                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT));
+                String format = StringUtils.defaultIfBlank(
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
+                        easyField.getDisplayType().getDefaultFormat());
+                el.put(EasyFieldConfigProps.DATE_FORMAT, format);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
             }
@@ -376,15 +380,7 @@ public class FormsBuilder extends FormsManager {
 
                 // 触发器自动值
                 if (roViaAuto && el.get("value") == null) {
-                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
-                        el.put("value", FieldValueHelper.wrapMixValue(null, autoValue));
-
-                    } else if (dt == DisplayType.N2NREFERENCE) {
-                        JSONArray arrayValue = new JSONArray();
-                        arrayValue.add(FieldValueHelper.wrapMixValue(null, autoValue));
-                        el.put("value", arrayValue);
-
-                    } else if (dt == DisplayType.EMAIL
+                    if (dt == DisplayType.EMAIL
                             || dt == DisplayType.PHONE
                             || dt == DisplayType.URL
                             || dt == DisplayType.DATE

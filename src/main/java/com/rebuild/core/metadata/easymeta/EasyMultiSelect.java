@@ -8,7 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.MultiSelectManager;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -61,12 +63,15 @@ public class EasyMultiSelect extends EasyField implements MixValue {
     @Override
     public Object wrapValue(Object value) {
         if (value == null || (Long) value <= 0L) return null;
-        return value;
+
+        JSONObject mixValue = JSONUtils.toJSONObject("id", value);
+        mixValue.put("text", MultiSelectManager.instance.getLabels((Long) value, getRawMeta()));
+        return mixValue;
     }
 
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
-        String[] multiLabel = MultiSelectManager.instance.getLabels((Long) wrappedValue, getRawMeta());
-        return StringUtils.join(multiLabel, ", ");
+        JSONObject mixValue = (JSONObject) wrappedValue;
+        return StringUtils.join(mixValue.getJSONArray("text"), ", ");
     }
 }

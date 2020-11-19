@@ -40,7 +40,6 @@ public class EasyState extends EasyField implements MixValue {
     @Override
     public Object exprDefaultValue() {
         Class<?> stateClass = StateHelper.getSatetClass(getRawMeta());
-
         for (Object c : stateClass.getEnumConstants()) {
             if (((StateSpec) c).isDefault()) {
                 return ((StateSpec) c).getState();

@@ -118,7 +118,7 @@ class DlgRuleEdit extends RbFormHandler {
               </label>
             </div>
           </div>
-          <div className="form-group row pt-1 hide">
+          <div className="form-group row pt-1">
             <label className="col-sm-3 col-form-label text-sm-right pt-1"></label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">

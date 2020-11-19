@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 $(document).ready(() => {
+  console.log(JSON.stringify(wpc.content))
   renderRbcomp(<PreviewTable data={wpc.content} />, 'preview-table')
 })
 
@@ -120,8 +121,7 @@ class PreviewTable extends React.Component {
     } else if (item.type === 'BOOL') {
       return $L(item.value === 'T' ? 'True' : 'False')
     } else if (item.type === 'MULTISELECT') {
-      // eslint-disable-next-line no-undef
-      return __findMultiTexts(item.options, item.value).join(', ')
+      return (item.value.text || []).join(', ')
     } else if (item.type === 'PICKLIST' || item.type === 'STATE') {
       // eslint-disable-next-line no-undef
       return __findOptionText(item.options, item.value)

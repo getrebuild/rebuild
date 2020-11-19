@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2020/11/17
  */
 @Slf4j
-public class EasyPickList extends EasyReference {
+public class EasyPickList extends EasyField implements MixValue {
     private static final long serialVersionUID = 5971173892145230003L;
 
     protected EasyPickList(Field field, DisplayType displayType) {
@@ -50,10 +50,8 @@ public class EasyPickList extends EasyReference {
     }
 
     @Override
-    public Object wrapValue(Object value) {
-        JSONObject map = (JSONObject) super.wrapValue(value);
-        if (map != null) map.remove("entity");
-        return map;
+    public Object unpackWrapValue(Object wrappedValue) {
+        return PickListManager.instance.getLabel((ID) wrappedValue);
     }
 
     @Override

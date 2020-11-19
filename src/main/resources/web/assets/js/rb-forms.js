@@ -437,10 +437,10 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!props.nullable && !props.readonly && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('SomeNotEmpty').replace('{0}', props.label))
+      if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('SomeNotEmpty').replace('{0}', props.label))
       props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
     }
-    if (!props.onView && !this.props.readonly) this.onEditModeChanged()
+    if (!props.onView) this.onEditModeChanged()
   }
 
   componentWillUnmount() {
@@ -476,7 +476,7 @@ class RbFormElement extends React.Component {
 
     return (
       <React.Fragment>
-        <div className="form-control-plaintext">{text || <span className="text-muted">无</span>}</div>
+        <div className="form-control-plaintext">{text || <span className="text-muted">{$L('Null')}</span>}</div>
       </React.Fragment>
     )
   }
@@ -1014,8 +1014,6 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
-    if (this.props.readonly) return super.renderElement(__findOptionText(this.state.options, this.props.value))
-
     const keyName = `${this.state.field}-opt-`
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
@@ -1050,6 +1048,8 @@ class RbFormPickList extends RbFormElement {
           that.handleChange({ target: { value: val } }, true)
         })
         .trigger('change')
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -1059,6 +1059,7 @@ class RbFormPickList extends RbFormElement {
   }
 
   setValue(val) {
+    if (typeof val === 'object') val = val.id
     this.__select2.val(val).trigger('change')
   }
 }
@@ -1069,17 +1070,17 @@ class RbFormReference extends RbFormElement {
   }
 
   renderElement() {
-    if (this.props.readonly) return super.renderElement(this.props.value ? this.props.value.text : null)
-
     const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
     return (
       <div className="input-group has-append">
         <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={hasDataFilter ? $L('FieldUseDataFilter') : null} multiple={this._multiple === true} />
-        <div className="input-group-append">
-          <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
-            <i className="icon zmdi zmdi-search" />
-          </button>
-        </div>
+        {!this.props.readonly && (
+          <div className="input-group-append">
+            <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
+              <i className="icon zmdi zmdi-search" />
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -1143,6 +1144,8 @@ class RbFormReference extends RbFormElement {
         }
         that.handleChange({ target: { value: v } }, true)
       })
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -1292,16 +1295,16 @@ class RbFormClassification extends RbFormElement {
   }
 
   renderElement() {
-    if (this.props.readonly) return super.renderElement(this.props.value ? this.props.value.text : null)
-
     return (
       <div className="input-group has-append">
         <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" />
-        <div className="input-group-append">
-          <button className="btn btn-secondary" type="button" onClick={this.showSelector}>
-            <i className="icon zmdi zmdi-search" />
-          </button>
-        </div>
+        {!this.props.readonly && (
+          <div className="input-group-append">
+            <button className="btn btn-secondary" type="button" onClick={this.showSelector}>
+              <i className="icon zmdi zmdi-search" />
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -1334,6 +1337,8 @@ class RbFormClassification extends RbFormElement {
         if (v) $.post(`/commons/search/recently-add?id=${v}&type=d${this.props.classification}`)
         this.handleChange({ target: { value: v } }, true)
       })
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -1382,6 +1387,7 @@ class RbFormClassification extends RbFormElement {
 class RbFormMultiSelect extends RbFormElement {
   constructor(props) {
     super(props)
+    if (props.value) this.state.value = props.value.id || 0
   }
 
   renderElement() {

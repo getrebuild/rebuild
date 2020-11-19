@@ -144,7 +144,7 @@ public class DataListWrapper {
 
         boolean unpack = easyField.getDisplayType() == DisplayType.CLASSIFICATION
                 || easyField.getDisplayType() == DisplayType.PICKLIST
-                || easyField.getDisplayType() == DisplayType.MULTISELECT
+                || easyField.getDisplayType() == DisplayType.STATE
                 || easyField.getDisplayType() == DisplayType.BOOL;
 
         return FieldValueHelper.wrapFieldValue(value, easyField, unpack);

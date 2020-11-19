@@ -1235,7 +1235,7 @@
   "t.DATE": "Date",
   "t.DATETIME": "Date-Time",
   "t.TEXT": "Text",
-  "t.NTEXT": "Multiline-Text",
+  "t.NTEXT": "Multi-Text",
   "t.EMAIL": "Email",
   "t.URL": "Link",
   "t.PHONE": "Phone",

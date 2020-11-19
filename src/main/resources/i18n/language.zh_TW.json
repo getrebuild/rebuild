@@ -1244,7 +1244,7 @@
   "t.FILE": "附件",
   "t.PICKLIST": "清單",
   "t.CLASSIFICATION": "分類",
-  "t.REFERENCE": "引用",
+  "t.REFERENCE": "引用 (關聯)",
   "t.N2NREFERENCE": "多引用",
   "t.AVATAR": "頭像",
   "t.MULTISELECT": "多選",

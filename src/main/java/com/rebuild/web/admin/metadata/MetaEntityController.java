@@ -62,7 +62,7 @@ public class MetaEntityController extends BaseController {
     @GetMapping("entity/{entity}/base")
     public ModelAndView pageBase(@PathVariable String entity, HttpServletResponse response) throws IOException {
         Entity metaEntity = MetadataHelper.getEntity(entity);
-        if (!(MetadataHelper.isBusinessEntity(metaEntity) || MetadataHelper.isBizzEntity(metaEntity.getEntityCode()))) {
+        if (!(MetadataHelper.isBusinessEntity(metaEntity) || MetadataHelper.isBizzEntity(metaEntity))) {
             response.sendError(403);
             return null;
         }

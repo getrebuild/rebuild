@@ -11,7 +11,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
 import com.alibaba.fastjson.JSONObject;
@@ -89,10 +88,7 @@ public class FieldValueHelper {
      * @see EasyField#wrapValue(Object)
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
-        if (!field.isQueryable() &&
-                (field.getRawMeta().getType() == FieldType.TEXT || field.getRawMeta().getType() == FieldType.NTEXT)) {
-            return SECURE_TEXT;
-        }
+        if (!field.isQueryable()) return SECURE_TEXT;
 
         if (value == null || StringUtils.isBlank(value.toString())) {
             // 审批
@@ -111,19 +107,19 @@ public class FieldValueHelper {
     /**
      * @param id
      * @param text
-     * @return Returns `{ id:xxx, text:xxx, entity:xxx }`
+     * @return Returns `{ id:xxx, text:xxx [, entity:xxx] }`
      */
     public static JSONObject wrapMixValue(ID id, String text) {
         if (id != null && StringUtils.isBlank(text)) {
-            text = id.getLabelRaw() == null ? null : id.getLabelRaw().toString();
+            text = id.getLabel();
         }
 
-        JSONObject mix = JSONUtils.toJSONObject(
+        JSONObject mixValue = JSONUtils.toJSONObject(
                 new String[] { "id", "text" }, new Object[] { id, text });
         if (id != null) {
-            mix.put("entity", MetadataHelper.getEntityName(id));
+            mixValue.put("entity", MetadataHelper.getEntityName(id));
         }
-        return mix;
+        return mixValue;
     }
 
     /**
