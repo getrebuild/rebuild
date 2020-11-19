@@ -24,39 +24,6 @@ rebuild:
   MailAddr: hi@smtp.getrebuild.com
   MailName: REBUILD
 
-# TOMCAT (Built-in)
-server:
-  port: 18080
-  servlet:
-    context-path: /rebuild
-    encoding:
-      charset: UTF-8
-      force: true
-    session:
-      tracking-modes: cookie
-  error:
-    whitelabel.enabled: false
-  tomcat:
-    uri-encoding: UTF-8
-    threads.max: 200
-  max-http-header-size: 32KB
-
-# SPRING
-spring:
-  mvc:
-    static-path-pattern: /assets/**
-  resources:
-    static-locations: classpath:/web/assets
-  servlet:
-    multipart.enabled: false
-  thymeleaf:
-    prefix: classpath:/web
-    cache: false
-    enable-spring-el-compiler: false
-  task:
-    scheduling:
-      thread-name-prefix: rbScheduler-
-      pool:
-        size: 5
-  main:
-    banner-mode: off
+# DEV
+server.servlet.context-path: /rebuild
+spring.main.banner-mode: console

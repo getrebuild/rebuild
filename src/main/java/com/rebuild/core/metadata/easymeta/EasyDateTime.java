@@ -64,11 +64,6 @@ public class EasyDateTime extends EasyField {
     }
 
     @Override
-    public Object wrapValue(Object value) {
-        return CalendarUtils.getDateFormat(attrFormat()).format(value);
-    }
-
-    @Override
     public Object exprDefaultValue() {
         String valueExpr = (String) getRawMeta().getDefaultValue();
         if (StringUtils.isBlank(valueExpr)) return null;
@@ -84,11 +79,10 @@ public class EasyDateTime extends EasyField {
         }
     }
 
-    /**
-     * @return
-     */
-    public String attrFormat() {
-        return StringUtils.defaultIfBlank(
+    @Override
+    public Object wrapValue(Object value) {
+        String format = StringUtils.defaultIfBlank(
                 getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT), getDisplayType().getDefaultFormat());
+        return CalendarUtils.getDateFormat(format).format(value);
     }
 }

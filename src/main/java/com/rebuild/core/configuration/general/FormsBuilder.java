@@ -11,7 +11,6 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.editor.BoolEditor;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -20,7 +19,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
@@ -32,9 +33,8 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -45,9 +45,8 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/03
  */
+@Slf4j
 public class FormsBuilder extends FormsManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FormsBuilder.class);
 
     public static final FormsBuilder instance = new FormsBuilder();
 
@@ -303,32 +302,24 @@ public class FormsBuilder extends FormsManager {
 
             // 不同字段类型的处理
 
-            int dateLength = -1;
-
             if (dt == DisplayType.PICKLIST) {
                 JSONArray options = PickListManager.instance.getPickList(fieldMeta);
                 el.put("options", options);
-
             } else if (dt == DisplayType.STATE) {
                 JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
                 el.put("options", options);
                 el.remove(EasyFieldConfigProps.STATE_CLASS);
-
             } else if (dt == DisplayType.MULTISELECT) {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
                 el.put("options", options);
-
             } else if (dt == DisplayType.DATETIME) {
-                el.put(EasyFieldConfigProps.DATETIME_FORMAT, ((EasyDateTime) easyField).attrFormat());
-                dateLength = el.getString(EasyFieldConfigProps.DATETIME_FORMAT).length();
-
+                el.put(EasyFieldConfigProps.DATETIME_FORMAT,
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT));
             } else if (dt == DisplayType.DATE) {
-                el.put(EasyFieldConfigProps.DATE_FORMAT, ((EasyDate) easyField).attrFormat());
-                dateLength = el.getString(EasyFieldConfigProps.DATE_FORMAT).length();
-
+                el.put(EasyFieldConfigProps.DATE_FORMAT,
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT));
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
-
             }
 
             // 编辑/视图
@@ -372,22 +363,9 @@ public class FormsBuilder extends FormsManager {
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES) {
                         el.put("value", autoValue);
-
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
-                            // 日期
-                            if (dateLength > -1) {
-                                defaultValue = CalendarUtils.getUTCDateTimeFormat().format(defaultValue);
-                                defaultValue = defaultValue.toString().substring(0, dateLength);
-                            }
-                            // MixValue
-                            else if (dt == DisplayType.REFERENCE
-                                    || dt == DisplayType.CLASSIFICATION
-                                    || dt == DisplayType.N2NREFERENCE) {
-                                defaultValue = easyField.wrapValue(defaultValue);
-                            }
-
                             el.put("value", defaultValue);
                         }
                     }
@@ -458,33 +436,11 @@ public class FormsBuilder extends FormsManager {
      * @param data
      * @param field
      * @return
-     * @see FieldValueHelper
+     * @see EasyField#wrapValue(Object)
+     * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
      */
     public Object wrapFieldValue(Record data, EasyField field) {
-        final String fieldName = field.getName();
-
-        // No value
-        if (!data.hasValue(fieldName, false)) {
-            if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
-                return FieldValueHelper.wrapMixValue(null, Language.L(ApprovalState.DRAFT));
-            } else if (field.getDisplayType() == DisplayType.BARCODE) {
-                return field.wrapValue(data.getPrimary());
-            }
-            return null;
-        }
-
-        final DisplayType dt = field.getDisplayType();
-        final Object fieldValue = data.getObjectValue(fieldName);
-
-        if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST
-                || dt == DisplayType.AVATAR || dt == DisplayType.STATE
-                || dt == DisplayType.LOCATION) {
-            return fieldValue.toString();
-        } else if (dt == DisplayType.BOOL) {
-            return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;
-        } else {
-            return FieldValueHelper.wrapFieldValue(fieldValue, field);
-        }
+        return FieldValueHelper.wrapFieldValue(data.getObjectValue(field.getName()), field);
     }
 
     /**
@@ -549,7 +505,7 @@ public class FormsBuilder extends FormsManager {
                     }
                 }
             } else {
-                LOG.warn("Unknown value pair : " + field + " = " + value);
+                log.warn("Unknown value pair : " + field + " = " + value);
             }
         }
 
@@ -587,7 +543,7 @@ public class FormsBuilder extends FormsManager {
             String idLabel = FieldValueHelper.getLabel(ID.valueOf(idVal));
             return FieldValueHelper.wrapMixValue(ID.valueOf(idVal), idLabel);
         } catch (NoRecordFoundException ex) {
-            LOG.error("No record found : " + idVal);
+            log.error("No record found : " + idVal);
             return null;
         }
     }

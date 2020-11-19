@@ -17,7 +17,7 @@ import org.apache.commons.lang.StringUtils;
  * @since 2020/11/17
  */
 @Slf4j
-public class EasyMultiSelect extends EasyField {
+public class EasyMultiSelect extends EasyField implements MixValue {
     private static final long serialVersionUID = -1615061627351160386L;
 
     protected EasyMultiSelect(Field field, DisplayType displayType) {
@@ -29,7 +29,7 @@ public class EasyMultiSelect extends EasyField {
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
-            return wrapValue(value);
+            return unpackWrapValue(value);
         }
 
         if (value == null || (Long) value <= 0) {
@@ -47,24 +47,26 @@ public class EasyMultiSelect extends EasyField {
             if (mv > 0) {
                 maskValue += mv;
             } else {
-                log.warn("Cannot found mask-value of MultiSelect-Label : {}", label);
+                log.warn("Cannot found mask-value of EasyMultiSelect : {}", label);
             }
         }
         return maskValue > 0 ? maskValue : null;
     }
 
     @Override
-    public Object wrapValue(Object value) {
-        if (value == null || (Long) value <= 0) {
-            return StringUtils.EMPTY;
-        }
-
-        String[] multiLabel = MultiSelectManager.instance.getLabels((Long) value, getRawMeta());
-        return StringUtils.join(multiLabel, ", ");
+    public Object exprDefaultValue() {
+        return MultiSelectManager.instance.getDefaultValue(getRawMeta());
     }
 
     @Override
-    public Object exprDefaultValue() {
-        return MultiSelectManager.instance.getDefaultValue(getRawMeta());
+    public Object wrapValue(Object value) {
+        if (value == null || (Long) value <= 0L) return null;
+        return value;
+    }
+
+    @Override
+    public Object unpackWrapValue(Object wrappedValue) {
+        String[] multiLabel = MultiSelectManager.instance.getLabels((Long) wrappedValue, getRawMeta());
+        return StringUtils.join(multiLabel, ", ");
     }
 }

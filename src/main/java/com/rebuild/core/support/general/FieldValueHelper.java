@@ -93,7 +93,7 @@ public class FieldValueHelper {
         if (value == null || StringUtils.isBlank(value.toString())) {
             // 审批
             if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalState)) {
-                return Language.L(ApprovalState.DRAFT);
+                return ApprovalState.DRAFT.getState();
             } else if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalId)) {
                 return wrapMixValue(null, Language.L(ApprovalState.DRAFT));
             }

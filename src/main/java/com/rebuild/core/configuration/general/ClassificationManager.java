@@ -12,8 +12,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.easymeta.EasyClassification;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 
 /**
  * 分类数据
@@ -141,7 +141,8 @@ public class ClassificationManager implements ConfigManager {
      * @return
      */
     public ID getUseClassification(Field field, boolean verfiy) {
-        ID dataId = ((EasyClassification) EasyMetaFactory.valueOf(field)).attrClassificationUse();
+        String classUse = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
+        ID dataId = ID.isId(classUse) ? ID.valueOf(classUse) : null;
         if (dataId == null) {
             return null;
         }

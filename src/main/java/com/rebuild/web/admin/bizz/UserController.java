@@ -88,9 +88,10 @@ public class UserController extends EntityController {
     }
 
     @PostMapping("enable-user")
-    public RespBody enableUser(@IdParam(name = "user") ID userId, HttpServletRequest request) {
+    public RespBody enableUser(HttpServletRequest request) {
         JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
 
+        ID userId = ID.valueOf(data.getString("user"));
         User enUser = Application.getUserStore().getUser(userId);
 
         // 当前是从未激活状态

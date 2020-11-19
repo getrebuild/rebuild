@@ -9,6 +9,8 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.general.PickListManager;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  * @since 2020/11/17
  */
 @Slf4j
-public class EasyPickList extends EasyField {
+public class EasyPickList extends EasyReference {
     private static final long serialVersionUID = 5971173892145230003L;
 
     protected EasyPickList(Field field, DisplayType displayType) {
@@ -26,7 +28,8 @@ public class EasyPickList extends EasyField {
 
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        final String text = (String) wrapValue(value);
+        ID idValue = (ID) value;
+        String text = PickListManager.instance.getLabel(idValue);
 
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
@@ -42,12 +45,14 @@ public class EasyPickList extends EasyField {
     }
 
     @Override
-    public Object wrapValue(Object value) {
-        return PickListManager.instance.getLabel((ID) value);
+    public Object exprDefaultValue() {
+        return PickListManager.instance.getDefaultItem(getRawMeta());
     }
 
     @Override
-    public Object exprDefaultValue() {
-        return PickListManager.instance.getDefaultItem(getRawMeta());
+    public JSON toJSON() {
+        JSONObject map = (JSONObject) super.toJSON();
+        map.remove("ref");
+        return map;
     }
 }

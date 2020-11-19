@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 
 /**
  * @author devezhao
@@ -19,10 +18,5 @@ public class EasyImage extends EasyFile {
 
     protected EasyImage(Field field, DisplayType displayType) {
         super(field, displayType);
-    }
-
-    @Override
-    public String attrUploadNumber() {
-        return getExtraAttr(EasyFieldConfigProps.IMAGE_UPLOADNUMBER);
     }
 }
