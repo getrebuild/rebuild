@@ -1217,6 +1217,7 @@
   "RecentlyUsed": "Recently Used",
   "EtcXItems": "etc. %d items",
   "TargetFieldReadonly": "Target field is read-only",
+  "Unsupport": "Unsupported",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

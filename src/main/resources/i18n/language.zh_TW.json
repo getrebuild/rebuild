@@ -1217,6 +1217,7 @@
   "RecentlyUsed": "最近使用",
   "EtcXItems": "等 %d 項",
   "TargetFieldReadonly": "目標字段只讀",
+  "Unsupport": "暫不支持",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",
