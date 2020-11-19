@@ -50,6 +50,12 @@ public class EasyID extends EasyField {
     }
 
     @Override
+    public Object wrapValue(Object value) {
+        if (value instanceof String) value = ID.valueOf((String) value);
+        return value.toString();
+    }
+
+    @Override
     public JSON toJSON() {
         JSONObject map = (JSONObject) super.toJSON();
 

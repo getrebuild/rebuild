@@ -13,13 +13,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.core.support.state.StateSpec;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author devezhao
  * @since 2020/11/17
  */
-@Slf4j
 public class EasyState extends EasyField implements MixValue {
     private static final long serialVersionUID = -5160207555364899330L;
 
@@ -32,8 +30,7 @@ public class EasyState extends EasyField implements MixValue {
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
-            Class<?> stateClass = StateHelper.getSatetClass(getRawMeta());
-            return StateHelper.valueOf(stateClass, (Integer) value).getName();
+            return unpackWrapValue(value);
         }
 
         // Integer
@@ -50,6 +47,12 @@ public class EasyState extends EasyField implements MixValue {
             }
         }
         return null;
+    }
+
+    @Override
+    public Object unpackWrapValue(Object wrappedValue) {
+        Class<?> stateClass = StateHelper.getSatetClass(getRawMeta());
+        return StateHelper.valueOf(stateClass, (Integer) wrappedValue).getName();
     }
 
     @Override

@@ -97,6 +97,9 @@ public class FormsBuilder extends FormsManager {
         Assert.notNull(user, "[user] cannot be null");
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
+        if (record != null) {
+            Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
+        }
 
         // 明细实体
         final Entity mainEntity = entityMeta.getMainEntity();
@@ -270,11 +273,11 @@ public class FormsBuilder extends FormsManager {
                 continue;
             }
 
-            // 触发器自动只读
-            final boolean roViaTriggers = el.getBooleanValue("readonly");
+            // 自动只读
+            final boolean roViaAuto = el.getBooleanValue("readonly");
 
             final Field fieldMeta = entity.getField(fieldName);
-            if (hideUncreate && (!fieldMeta.isCreatable() || roViaTriggers)) {
+            if (hideUncreate && (!fieldMeta.isCreatable() || roViaAuto)) {
                 iter.remove();
                 continue;
             }
@@ -284,7 +287,7 @@ public class FormsBuilder extends FormsManager {
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
             // 不可更新字段
-            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaTriggers);
+            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaAuto);
 
             // 优先使用指定值
             final Boolean nullable = el.getBoolean("nullable");
@@ -366,27 +369,37 @@ public class FormsBuilder extends FormsManager {
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
-                            el.put("value", defaultValue);
+                            el.put("value", easyField.wrapValue(defaultValue));
                         }
                     }
                 }
 
                 // 触发器自动值
-                if (roViaTriggers && el.get("value") == null) {
-                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION
-                            || dt == DisplayType.N2NREFERENCE) {
+                if (roViaAuto && el.get("value") == null) {
+                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
                         el.put("value", FieldValueHelper.wrapMixValue(null, autoValue));
 
-                    } else if (dt == DisplayType.TEXT || dt == DisplayType.NTEXT
-                            || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE
-                            || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
-                            || dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
-                        el.put("value", autoValue);
+                    } else if (dt == DisplayType.N2NREFERENCE) {
+                        JSONArray arrayValue = new JSONArray();
+                        arrayValue.add(FieldValueHelper.wrapMixValue(null, autoValue));
+                        el.put("value", arrayValue);
 
+                    } else if (dt == DisplayType.EMAIL
+                            || dt == DisplayType.PHONE
+                            || dt == DisplayType.URL
+                            || dt == DisplayType.DATE
+                            || dt == DisplayType.DATETIME
+                            || dt == DisplayType.NUMBER
+                            || dt == DisplayType.DECIMAL
+                            || dt == DisplayType.SERIES
+                            || dt == DisplayType.TEXT
+                            || dt == DisplayType.NTEXT) {
+                        el.put("value", autoValue);
                     }
                 }
-            }
-        }
+
+            }  // end 新建记录
+        }  // end for
     }
 
     /**
@@ -479,7 +492,7 @@ public class FormsBuilder extends FormsManager {
 
             // 引用字段值如 `&User`
             if (field.startsWith(DV_REFERENCE_PREFIX)) {
-                Object mixValue = readyReferenceValue(value);
+                Object mixValue = getReferenceMixValue(value);
                 if (mixValue != null) {
                     Entity source = MetadataHelper.getEntity(field.substring(1));
                     Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
@@ -488,30 +501,33 @@ public class FormsBuilder extends FormsManager {
                         initialValReady.put(refto.getName(), inFormFields.contains(refto.getName()) ? mixValue : value);
                     }
                 }
+
             }
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                Object mixValue = inFormFields.contains(dtmField.getName()) ? readyReferenceValue(value) : value;
+                Object mixValue = inFormFields.contains(dtmField.getName()) ? getReferenceMixValue(value) : value;
                 if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
                 }
-            } else if (entity.containsField(field)) {
+
+            }
+            // 其他
+            else if (entity.containsField(field)) {
                 if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
-                    Object mixValue = inFormFields.contains(field) ? readyReferenceValue(value) : value;
+                    Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
                         initialValReady.put(field, mixValue);
                     }
                 }
+
             } else {
                 log.warn("Unknown value pair : " + field + " = " + value);
             }
         }
 
-        if (initialValReady.isEmpty()) {
-            return;
-        }
+        if (initialValReady.isEmpty()) return;
 
         // 已布局的移除
         for (Object o : elements) {
@@ -533,17 +549,17 @@ public class FormsBuilder extends FormsManager {
     /**
      * 引用字段值
      *
-     * @param idVal
+     * @param idValue
      * @return returns [ID, LABEL]
      */
-    private JSON readyReferenceValue(String idVal) {
-        if (!ID.isId(idVal)) return null;
+    private JSON getReferenceMixValue(String idValue) {
+        if (!ID.isId(idValue)) return null;
 
         try {
-            String idLabel = FieldValueHelper.getLabel(ID.valueOf(idVal));
-            return FieldValueHelper.wrapMixValue(ID.valueOf(idVal), idLabel);
+            String idLabel = FieldValueHelper.getLabel(ID.valueOf(idValue));
+            return FieldValueHelper.wrapMixValue(ID.valueOf(idValue), idLabel);
         } catch (NoRecordFoundException ex) {
-            log.error("No record found : " + idVal);
+            log.error("No record found : " + idValue);
             return null;
         }
     }

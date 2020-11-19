@@ -29,7 +29,7 @@ public class EasyBool extends EasyField implements MixValue {
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
-            return (Boolean) value ? Language.L("True") : Language.L("False");
+            return unpackWrapValue(value);
         }
 
         // Boolean

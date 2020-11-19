@@ -50,6 +50,13 @@ public class EasyPickList extends EasyReference {
     }
 
     @Override
+    public Object wrapValue(Object value) {
+        JSONObject map = (JSONObject) super.wrapValue(value);
+        if (map != null) map.remove("entity");
+        return map;
+    }
+
+    @Override
     public JSON toJSON() {
         JSONObject map = (JSONObject) super.toJSON();
         map.remove("ref");
