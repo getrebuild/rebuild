@@ -449,7 +449,11 @@ public class FormsBuilder extends FormsManager {
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
      */
     public Object wrapFieldValue(Record data, EasyField field) {
-        return FieldValueHelper.wrapFieldValue(data.getObjectValue(field.getName()), field);
+        Object value = data.getObjectValue(field.getName());
+        if (field.getDisplayType() == DisplayType.BARCODE) {
+            value = data.getPrimary();
+        }
+        return FieldValueHelper.wrapFieldValue(value, field);
     }
 
     /**

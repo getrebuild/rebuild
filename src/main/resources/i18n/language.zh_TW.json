@@ -558,7 +558,7 @@
   "BarCode": "條碼",
   "QrCode": "二維碼",
   "CodeFormat": "編碼規則",
-  "BarCodeFormatTips": "可使用固定值、本實體字段 (內部標示) 或他們的組合，字段變數使用 **{}** 包裹",
+  "BarCodeFormatTips": "可使用固定值，內置變量或他們的組合。例如 **{ID}** (ID 為字段內部標識)",
   "AllowNullable": "允許為空",
   "AllowCreatable": "允許創建",
   "AllowUpdatable": "允許更新",

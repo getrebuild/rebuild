@@ -214,7 +214,7 @@ public class Field2Schema {
     public Field createUnsafeField(Entity entity, String fieldName, String fieldLabel, DisplayType dt,
                                    boolean nullable, boolean creatable, boolean updatable, boolean repeatable, boolean queryable, String comments, String refEntity, CascadeModel cascade,
                                    JSON extConfig, Object defaultValue) {
-        if (dt == DisplayType.SERIES) {
+        if (dt == DisplayType.SERIES || EntityHelper.AutoId.equalsIgnoreCase(fieldName)) {
             nullable = false;
             creatable = false;
             updatable = false;
@@ -223,9 +223,9 @@ public class Field2Schema {
             nullable = true;
             creatable = false;
             updatable = false;
-            queryable = false;
-        } else if (EntityHelper.AutoId.equalsIgnoreCase(fieldName)) {
-            repeatable = false;
+            queryable = true;
+        }else if (EntityHelper.QuickCode.equalsIgnoreCase(fieldName)) {
+            creatable = false;
             queryable = false;
         }
 

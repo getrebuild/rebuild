@@ -144,6 +144,10 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             if (dt == DisplayType.ID) {
                 field.addAttribute("queryable", "false");
             }
+            // bugfix
+            else if (dt == DisplayType.BARCODE) {
+                field.addAttribute("queryable", "true");
+            }
 
             // 字段扩展配置
             JSONObject extraAttrs;

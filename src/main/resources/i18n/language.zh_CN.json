@@ -558,7 +558,7 @@
   "BarCode": "条形码",
   "QrCode": "二维码",
   "CodeFormat": "编码规则",
-  "BarCodeFormatTips": "可使用固定值、本实体字段 (内部标示) 或他们的组合，字段变量使用 **{}** 包裹",
+  "BarCodeFormatTips": "可使用固定值、内置变量或他们的组合。例如 **{ID}** (ID 为字段内部标识)",
   "AllowNullable": "允许为空",
   "AllowCreatable": "允许创建",
   "AllowUpdatable": "允许更新",

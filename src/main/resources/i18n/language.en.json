@@ -558,7 +558,7 @@
   "BarCode": "Bar Code",
   "QrCode": "QR Code",
   "CodeFormat": "Coding Rules",
-  "BarCodeFormatTips": "Fixed values, this entity field (identification), or their combination can be used, and field variables can be wrapped in **{}**",
+  "BarCodeFormatTips": "You can use fixed values, built-in variables, or a combination of them. For example **{ID}** (ID is the identifier of the field)",
   "AllowNullable": "Nullable",
   "AllowCreatable": "Creatable",
   "AllowUpdatable": "Updatable",

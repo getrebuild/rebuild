@@ -471,12 +471,11 @@ class RbFormElement extends React.Component {
    * 渲染视图
    */
   renderViewElement() {
-    let text = arguments.length > 0 ? arguments[0] : this.state.value
-    if (text && $empty(text)) text = null
-
+    let value = arguments.length > 0 ? arguments[0] : this.state.value
+    if (value && $empty(value)) value = null
     return (
       <React.Fragment>
-        <div className="form-control-plaintext">{text || <span className="text-muted">{$L('Null')}</span>}</div>
+        <div className="form-control-plaintext">{value || <span className="text-muted">{$L('Null')}</span>}</div>
       </React.Fragment>
     )
   }
@@ -559,8 +558,21 @@ class RbFormElement extends React.Component {
    *
    * @param {*} mode
    */
-  toggleEditMode(mode) {
-    this.setState({ editMode: mode }, () => {
+  toggleEditMode(editMode) {
+    // if (editMode) {
+    //   this.setState({ editMode: editMode }, () => {
+    //     this.onEditModeChanged()
+    //     this._fieldValue && this._fieldValue.focus()
+    //   })
+    // } else {
+    //   const newValue = arguments.length > 1 ? arguments[1] : this.state.newValue === undefined ? this.props.value : this.state.newValue
+    //   const state = { editMode: editMode, value: newValue, newValue: newValue || null }
+    //
+    //   this.onEditModeChanged(true)
+    //   this.setState(state)
+    // }
+
+    this.setState({ editMode: editMode }, () => {
       if (this.state.editMode) {
         this.onEditModeChanged()
         this._fieldValue && this._fieldValue.focus()
@@ -1416,8 +1428,9 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   renderViewElement() {
-    const value = this.state.value
+    let value = this.state.value
     if (!value) return super.renderViewElement()
+    if (typeof value === 'object') value = value.id
 
     return (
       <div className="form-control-plaintext">

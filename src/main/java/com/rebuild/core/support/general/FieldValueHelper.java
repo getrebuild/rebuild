@@ -19,6 +19,7 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
@@ -88,7 +89,8 @@ public class FieldValueHelper {
      * @see EasyField#wrapValue(Object)
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
-        if (!field.isQueryable()) return SECURE_TEXT;
+        if (!field.isQueryable() &&
+                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) return SECURE_TEXT;
 
         if (value == null || StringUtils.isBlank(value.toString())) {
             // 审批
