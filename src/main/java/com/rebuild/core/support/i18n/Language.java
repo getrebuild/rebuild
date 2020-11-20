@@ -149,6 +149,10 @@ public class Language implements Initialization {
      * @return
      */
     public String available(String locale) {
+        if (StringUtils.isBlank(locale)) {
+            locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
+        }
+
         String[] lc = locale.split("[-_]");
         locale = lc[0].toLowerCase();
         if (lc.length > 1) locale += "_" + lc[1].toUpperCase();

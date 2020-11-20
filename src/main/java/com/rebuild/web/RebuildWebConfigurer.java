@@ -138,11 +138,11 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         if (request.getRequestURI().contains("/assets/")) return null;
 
         ModelAndView error;
-        if (AppUtils.isHtmlRequest(request)) {
+        if (ServletUtils.isAjaxRequest(request)) {
+            error = new ModelAndView(new FastJsonJsonView());
+        } else {
             error = new ModelAndView("/error/error");
             error.getModelMap().put(WebConstants.$BUNDLE, AppUtils.getReuqestBundle(request));
-        } else {
-            error = new ModelAndView(new FastJsonJsonView());
         }
 
         int errorCode = status.value();
