@@ -1218,6 +1218,9 @@
   "EtcXItems": "等 %d 项",
   "TargetFieldReadonly": "目标字段只读",
   "Unsupport": "暂不支持",
+  "NoPrivViewTask": "你无权查看该任务",
+  "NoProjects": "没有可用项目",
+  "TaskTag": "标签",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

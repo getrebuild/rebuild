@@ -483,7 +483,7 @@
         <field name="relationId" type="primary"/>
         <field name="taskId" type="reference" ref-entity="ProjectTask" nullable="false" updatable="false" cascade="delete"/>
         <field name="tagId" type="reference" ref-entity="ProjectTaskTag" nullable="false" updatable="false" cascade="delete"/>
-        <index field-list="taskId,tagId"/>
+        <index field-list="taskId,tagId" type="unique"/>
     </entity>
 
 </metadata-config>

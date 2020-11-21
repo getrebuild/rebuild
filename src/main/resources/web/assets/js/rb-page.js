@@ -99,6 +99,9 @@ $(function () {
   if ($('.J_notifications-top').length > 0) {
     setTimeout(_checkMessage, 2000)
     $('.J_notifications-top').on('shown.bs.dropdown', _loadMessages)
+    $('.rb-notifications').click(function (e) {
+      e.stopPropagation()
+    })
   }
 
   var bosskey = 0
@@ -521,7 +524,7 @@ var $initReferenceSelect2 = function (el, field) {
         return $L('Clean')
       },
     },
-    theme: 'default ' + (field.appendClass || '')
+    theme: 'default ' + (field.appendClass || ''),
   })
 }
 

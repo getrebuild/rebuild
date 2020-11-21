@@ -225,8 +225,12 @@ public class Language implements Initialization {
             }
         }
 
-        return StringUtils.defaultIfBlank(
-                getCurrentBundle().getLangBase(langKey), entityOrField.getDescription());
+        String metaLabel = getCurrentBundle().getLangBase(langKey);
+        if (StringUtils.isBlank(metaLabel)) {
+            metaLabel = StringUtils.defaultIfBlank(
+                    entityOrField.getDescription(), entityOrField.getName().toUpperCase());
+        }
+        return metaLabel;
     }
 
     /**

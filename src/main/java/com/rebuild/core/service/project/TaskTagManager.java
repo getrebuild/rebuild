@@ -1,0 +1,93 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+package com.rebuild.core.service.project;
+
+import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONArray;
+import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.configuration.ConfigManager;
+import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.utils.JSONUtils;
+
+import java.io.Serializable;
+
+/**
+ * 任务标签管理
+ *
+ * @author devezhao
+ * @since 2020/11/21
+ */
+public class TaskTagManager implements ConfigManager {
+
+    public static final TaskTagManager instance = new TaskTagManager();
+
+    private TaskTagManager() {
+    }
+
+    /**
+     * @param projectId
+     * @return
+     */
+    public JSONArray getTagList(ID projectId) {
+        final String cKey = "TASKTAG-" + projectId;
+
+        Serializable value = Application.getCommonsCache().getx(cKey);
+        if (value != null) {
+            return (JSONArray) value;
+        }
+
+        Object[][] array = Application.createQuery(
+                "select tagId,tagName,color from ProjectTaskTag where projectId = ? order by tagName")
+                .setParameter(1, projectId)
+                .array();
+
+        value = JSONUtils.toJSONObjectArray(
+                new String[] { "id", "name", "color" }, array);
+
+        Application.getCommonsCache().putx(cKey, value);
+        return (JSONArray) value;
+    }
+
+    /**
+     * @param tagName
+     * @param projectId
+     * @return
+     */
+    public ID findTagByName(String tagName, ID projectId) {
+        Object[] exists = Application.createQuery(
+                "select tagId from ProjectTaskTag where projectId = ? and tagName = ?")
+                .setParameter(1, projectId)
+                .setParameter(2, tagName)
+                .unique();
+        return exists == null ? null : (ID) exists[0];
+    }
+
+    /**
+     * @param taskId
+     * @param tagId
+     * @return
+     */
+    public ID createRelated(ID taskId, ID tagId) {
+        RecordBuilder builder = RecordBuilder
+                .builder(EntityHelper.ProjectTaskTagRelation)
+                .add("taskId", taskId)
+                .add("tagId", tagId);
+
+        return Application.getCommonsService()
+                .create(builder.build(UserContextHolder.getUser()))
+                .getPrimary();
+    }
+
+    @Override
+    public void clean(Object projectId) {
+        final String cKey = "TASKTAG-" + projectId;
+        Application.getCommonsCache().evict(cKey);
+    }
+}

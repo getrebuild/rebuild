@@ -247,7 +247,9 @@ a.btn {
   line-height: 2.7rem;
 }
 
+.input-group .btn,
 .input-group-sm .btn {
+  width: auto;
   min-width: 2.8rem;
 }
 
@@ -3655,4 +3657,8 @@ a.select-lang {
 a.select-lang:hover {
   border: 1px solid #4285f4;
   background-color: #e6eff8;
+}
+
+.zmdi.icon {
+  font-size: 1.231rem;
 }

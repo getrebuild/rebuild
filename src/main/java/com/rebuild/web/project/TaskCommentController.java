@@ -16,28 +16,25 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
+import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 /**
- * 任务凭论
+ * 任务评论
  *
  * @author devezhao
  * @since 2020/6/29
  */
-@RequestMapping("/project/comments/")
-@Controller
-public class ProjectCommentController extends BaseController {
+@RestController
+public class TaskCommentController extends BaseController {
 
-    @GetMapping("list")
-    public void commentList(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        ID taskId = getIdParameterNotNull(request, "task");
+    @GetMapping("/project/comments/list")
+    public JSON commentList(@IdParam(name = "task") ID taskId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
 
         Object[][] array = Application.createQueryNoFilter(
                 "select commentId,content,attachments,createdOn,createdBy,createdBy" +
@@ -58,6 +55,6 @@ public class ProjectCommentController extends BaseController {
                     o);
             ret.add(item);
         }
-        writeSuccess(response, ret);
+        return ret;
     }
 }

@@ -100,6 +100,12 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
+            <i className="icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45 mt-1" /> {$L('TaskTag')}
+          </label>
+          <div className="col-12 col-sm-9">{this.state.projectId && <ValueTags tags={this.state.tags} projectId={this.state.projectId} taskid={this.props.id} $$$parent={this} />}</div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">
             <i className="icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45 mt-1" /> {$L('Attachment')}
           </label>
           <div className="col-12 col-sm-9">
@@ -283,8 +289,7 @@ class ValueExecutor extends ValueComp {
                   style={{
                     height: 30,
                     display: 'inline-block',
-                  }}
-                >
+                  }}>
                   {this._renderValue()}
                 </span>
               }
@@ -401,9 +406,7 @@ class ValueDescription extends ValueComp {
 
   renderViewElement() {
     return (
-      <div className="form-control-plaintext desc">
-        {this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('Null')}</span>}
-      </div>
+      <div className="form-control-plaintext desc">{this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('Null')}</span>}</div>
     )
   }
 
@@ -546,6 +549,211 @@ class ValueAttachments extends ValueComp {
   }
 }
 
+// 标签
+class ValueTags extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (
+      <div className="form-control-plaintext task-tags">
+        <React.Fragment>
+          {(this.state.tags || []).map((item) => {
+            const _color = { color: item.color, borderColor: item.color }
+            return (
+              <span className="tag-value" key={item.id} style={_color}>
+                {item.name}
+                <a title={$L('Remove')} onClick={() => this._delRelated(item.rid)}>
+                  <i className="zmdi zmdi-close"></i>
+                </a>
+              </span>
+            )
+          })}
+        </React.Fragment>
+        <span className="dropdown" ref={(c) => (this._dropdown = c)}>
+          <a className="tag-add" title={$L('ClickAdd')} data-toggle="dropdown">
+            <i className="zmdi zmdi-plus"></i>
+          </a>
+          <div className="dropdown-menu tags">{<ValueTagsEditor ref={(c) => (this._ValueTagsEditor = c)} projectId={this.props.projectId} taskid={this.props.taskid} />}</div>
+        </span>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+    $(this._dropdown).on({
+      'hide.bs.dropdown': function (e) {
+        if (!e.clickEvent || !e.clickEvent.target) return
+        const $target = $(e.clickEvent.target)
+        if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
+          return false
+        }
+      },
+      'hiden.bs.dropdown': function () {
+        that._ValueTagsEditor.toggleEditMode(false)
+      },
+    })
+  }
+
+  _delRelated(rid) {
+    $.post(`/project/tags/related-del?relation=${rid}`, (res) => {
+      if (res.error_code === 0) {
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
+class ValueTagsEditor extends React.Component {
+  static _COLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335']
+
+  state = { ...this.props, editMode: false, useColor: ValueTagsEditor._COLORS[0] }
+
+  render() {
+    return (
+      <div>
+        {this._renderList()}
+        {this._renderEditor()}
+      </div>
+    )
+  }
+
+  _renderList() {
+    return (
+      <div className={`tags-list ${this.state.editMode ? 'hide' : ''}`}>
+        <div className="search-tag pt-2 pb-2 pl-3 pr-3">
+          <div className="input-group">
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder={$L('Search')}
+              ref={(c) => (this._searchTagName = c)}
+              value={this.state.searchTagName || ''}
+              onChange={(e) => this.setState({ searchTagName: e.target.value })}
+            />
+            <span className="input-group-append">
+              <button className="btn btn-secondary" type="button" onClick={() => this.setState({ editMode: true })}>
+                <i className="icon zmdi zmdi-plus"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div className="rb-scroller" ref={(c) => (this._scroller = c)}>
+          {(this.state.tagList || []).map((item) => {
+            if (!this.state.searchTagName || item.name.includes(this.state.searchTagName)) {
+              return (
+                <li className="dropdown-item" key={item.id} onClick={() => this._saveRelated(item.id)}>
+                  {item.name}
+                  <a onClick={() => this.toggleEditMode(true, item)} title={$L('Edit')}>
+                    <i className="zmdi zmdi-edit"></i>
+                  </a>
+                </li>
+              )
+            } else {
+              return null
+            }
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  _renderEditor() {
+    return (
+      <div className={`tags-editor ${this.state.editMode ? '' : 'hide'}`}>
+        <h5 className="pt-2 pb-2 pl-3 pr-3 m-0">
+          <a onClick={() => this.toggleEditMode(false)}>
+            <i className="zmdi zmdi-chevron-left" />
+          </a>
+          {$L(this.state.tagId ? 'EditSome,TaskTag' : 'AddSome,TaskTag')}
+        </h5>
+        <div className="p-3 pt-0">
+          <div>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              ref={(c) => (this._createTagName = c)}
+              value={this.state.createTagName || ''}
+              onChange={(e) => this.setState({ createTagName: e.target.value })}
+            />
+          </div>
+          <div className="colors pt-2 pb-2 text-center">
+            {ValueTagsEditor._COLORS.map((color) => {
+              return (
+                <a key={color} style={{ backgroundColor: color }} onClick={() => this.setState({ useColor: color })}>
+                  {this.state.useColor === color && <i className="zmdi zmdi-check" />}
+                </a>
+              )
+            })}
+          </div>
+          <div>
+            <button typeof="button" className="btn btn-primary w-100" onClick={() => this.saveTag()}>
+              {$L('Confirm')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  toggleEditMode(editMode, tag) {
+    let state = { editMode: editMode }
+    if (typeof tag === 'object') {
+      state = { ...state, tagId: tag.id, createTagName: tag.name, useColor: tag.color }
+    }
+
+    this.setState(state)
+    setTimeout(() => {
+      if (this.state.editMode) $(this._createTagName).focus()
+      else $(this._searchTagName).focus()
+    }, 100)
+  }
+
+  componentDidMount() {
+    $(this._scroller).perfectScrollbar()
+    setTimeout(() => {
+      $(this._searchTagName).focus()
+    }, 1000)
+
+    this.fetchTags()
+  }
+
+  fetchTags() {
+    $.get(`/project/tags/list?project=${this.props.projectId}`, (res) => {
+      this.setState({ tagList: res.data || [] })
+    })
+  }
+
+  saveTag() {
+    const data = {
+      tagName: this.state.createTagName,
+      color: this.state.useColor,
+      projectId: this.props.projectId,
+      metadata: { entity: 'ProjectTaskTag', id: this.state.tagId },
+    }
+
+    $.post(`/project/tags/create?task=${this.props.taskId2}`, JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        this.fetchTags()
+        this.toggleEditMode(false)
+        this.setState({ createTagName: null, useColor: ValueTagsEditor._COLORS[0] })
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  _saveRelated(tagId) {
+    $.post(`/project/tags/related-add?task=${this.props.taskid}&tag=${tagId}`, (res) => {
+      if (res.error_code === 0) {
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
 // --
 
 // 评论列表
@@ -582,13 +790,13 @@ class TaskCommentsList extends React.Component {
                       <ul className="list-unstyled m-0">
                         {item.self && (
                           <li className="list-inline-item mr-2">
-                            <a href="#reply" onClick={() => this._handleDelete(item)} className="fixed-icon">
+                            <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon">
                               <i className="zmdi zmdi-delete" /> {$L('Delete')}
                             </a>
                           </li>
                         )}
                         <li className="list-inline-item">
-                          <a href="#reply" onClick={() => this._handleReply(item)} className="fixed-icon">
+                          <a href="#" onClick={() => this._handleReply(item)} className="fixed-icon">
                             <i className="zmdi zmdi-mail-reply" /> {$L('Reply')}
                           </a>
                         </li>
