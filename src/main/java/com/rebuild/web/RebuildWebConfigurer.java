@@ -131,7 +131,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
      * @param request
      * @param ex
      * @return
-     * @see AppUtils#isHtmlRequest(HttpServletRequest)
      */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
@@ -148,15 +147,18 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         int errorCode = status.value();
         String errorMsg = AppUtils.getErrorMessage(request, ex);
 
+        String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
+                "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
+                "\nIP      : " + ServletUtils.getRemoteAddr(request) +
+                "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
+                "\nURL(s)  : " + getRequestUrls(request) +
+                "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "") +
+                "\n";
+
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
+            LOG.warn(errorLog);
         } else {
-            String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
-                    "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
-                    "\nIP      : " + ServletUtils.getRemoteAddr(request) +
-                    "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
-                    "\nURL(s)  : " + getRequestUrls(request) +
-                    "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "");
             LOG.error(errorLog, ex);
         }
 
