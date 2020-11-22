@@ -1224,6 +1224,7 @@
   "ProjectPrincipalTips": "負責人擁有對任務的管理權限",
   "MsgAtYouInProjectTask": "@%s 在任務中提到了你",
   "MsgNewProjectTaskToYou": "有一個新任務分派給你",
+  "JustNow": "剛剛",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

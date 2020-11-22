@@ -672,13 +672,14 @@ var $converEmoji = function (text) {
   return text
 }
 
-/**
- */
-var $fromNow = function (date) {
-  if (!date || !window.moment) return null
-  return moment(date.split('UTC')[0].trim()).fromNow()
-}
-
+!(function () {
+  if (window.moment) {
+    moment.fn.fromNowOrNow = function (a) {
+      if (Math.abs(moment().diff(this)) < 60000) return $L('JustNow')
+      else return this.fromNow(a)
+    }
+  }
+})()
 /**
  * Use momentjs
  */
@@ -686,7 +687,11 @@ var $moment = function (date) {
   if (!date || !window.moment) return null
   return moment(date.split('UTC')[0].trim())
 }
-
+/**
+ */
+var $fromNow = function (date) {
+  return $moment(date).fromNowOrNow()
+}
 /**
  * 是否过期
  */

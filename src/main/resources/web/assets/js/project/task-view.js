@@ -18,7 +18,7 @@ let __TaskContent
 let __TaskComment
 
 $(document).ready(() => {
-  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} manageable={wpc.isManageable} />, 'task-contents', function () {
+  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} isManageable={wpc.isManageable} />, 'task-contents', function () {
     __TaskContent = this
   })
   if (wpc.isMember) {
@@ -45,7 +45,7 @@ class TaskForm extends React.Component {
           <div className="col-10">
             <ValueTaskName taskName={this.state.taskName} $$$parent={this} />
           </div>
-          {this.props.editable && this.props.manageable && (
+          {this.props.editable && this.props.isManageable && (
             <div className="col-2 text-right">
               <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">
                 {$L('Operation')} <i className="icon zmdi zmdi-more-vert"></i>
@@ -222,7 +222,7 @@ class ValueTaskName extends ValueComp {
   renderViewElement() {
     const editable = this.props.$$$parent.props.editable
     return (
-      <div className={`task-title ${editable ? 'hover' : ''}`} onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
+      <div className={`task-title text-break ${editable ? 'hover' : ''}`} onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
         {this.state.taskName}
       </div>
     )
@@ -464,7 +464,7 @@ class ValuePriority extends ValueComp {
   renderViewElement() {
     return (
       <div className="form-control-plaintext">
-        <span className={`tag-value arrow priority-${this.state.priority}`} data-toggle="dropdown">
+        <span className={`tag-value arrow priority-${this.state.priority}`}>
           {__PRIORITIES[this.state.priority]}
         </span>
       </div>
@@ -855,9 +855,9 @@ class TaskCommentsList extends React.Component {
                       </div>
                       {this.props.editable && (
                         <ul className="list-unstyled m-0">
-                          {item.self && (
+                          {item.isManageable && (
                             <li className="list-inline-item mr-2">
-                              <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon">
+                              <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon danger-hover">
                                 <i className="zmdi zmdi-delete" /> {$L('Delete')}
                               </a>
                             </li>

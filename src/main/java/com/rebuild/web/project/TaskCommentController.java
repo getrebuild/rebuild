@@ -52,7 +52,7 @@ public class TaskCommentController extends BaseController {
             o[5] = ProjectHelper.isManageable(taskId, user);
 
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[]{"id", "content", "attachments", "createdOn", "createdBy", "manageable"},
+                    new String[]{"id", "content", "attachments", "createdOn", "createdBy", "isManageable"},
                     o);
             ret.add(item);
         }

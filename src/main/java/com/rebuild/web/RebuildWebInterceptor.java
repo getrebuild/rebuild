@@ -189,6 +189,10 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                 ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
                 ServletUtils.addCookie(response, AppUtils.CK_LOCALE, locale,
                         CommonsCache.TS_DAY * 90, null, StringUtils.defaultIfBlank(AppUtils.getContextPath(), "/"));
+
+                if (Application.devMode()) {
+                    Application.getLanguage().refresh();
+                }
             }
         }
         if (locale != null) return locale;
