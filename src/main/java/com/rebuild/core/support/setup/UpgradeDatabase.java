@@ -52,7 +52,7 @@ public final class UpgradeDatabase {
                     continue;
                 }
 
-                LOG.info("Upgrade SQL(#" + (upgradeVer + 1) + ") > \n" + StringUtils.join(sql, "\n"));
+                LOG.info("\n>> UPGRADE SQL (#" + (upgradeVer + 1) + ") >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n" + StringUtils.join(sql, "\n"));
                 Application.getSqlExecutor().executeBatch(sql, 60 * 2);
                 upgradeVer++;
             }

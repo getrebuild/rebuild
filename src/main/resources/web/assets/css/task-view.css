@@ -136,8 +136,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   float: none;
   position: absolute;
   margin-left: 6px;
-  margin-top: 4px;
+  margin-top: 6px;
   display: none;
+  font-size: 1.231rem;
 }
 
 .task-form .executor-show:hover > a.close {
@@ -188,13 +189,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-height: 200px;
 }
 
+.task-tags.form-control-plaintext {
+  padding-top: 3px;
+}
+
 .task-tags > span.tag-value {
   color: #4285f4;
   border: 1px solid #4285f4;
   background-color: #fff;
-  padding: 4px 9px;
-  margin-right: 6px;
+  padding: 3px 9px 4px;
+  margin-right: 5px;
+  margin-top: 5px;
   cursor: default;
+  display: inline-block;
+  line-height: 1;
 }
 
 .task-tags > span.tag-value > a {
@@ -204,7 +212,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 0;
   overflow: hidden;
   text-align: right;
-  transform: translateY(4px);
+  transform: translateY(2px);
   transition: width 0.2s;
 }
 .task-tags > span.tag-value:hover > a {
@@ -213,7 +221,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .task-tags > span.tag-value:hover > a:hover {
-  color: #404040;
+  color: rgb(64, 64, 64);
 }
 
 .task-tags a.tag-add {
@@ -223,6 +231,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 1.231rem;
   background-color: #eee;
   border-radius: 50%;
+  margin-top: 3px;
 }
 
 .task-tags a.tag-add:hover {
@@ -285,22 +294,37 @@ See LICENSE and COMMERCIAL in the project root for license information.
   max-height: 205px;
 }
 
-.tags-list .dropdown-item {
-  padding: 8px 15px;
-  cursor: default;
-  position: relative;
-  z-index: 0;
-}
-
 .rb-scroller .ps-scrollbar-x-rail,
 .rb-scroller .ps-scrollbar-y-rail {
   z-index: 1;
+}
+
+.tags-list .dropdown-item {
+  padding: 8px 15px;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  clear: both;
 }
 
 .tags-list .dropdown-item:hover,
 .tags-list .dropdown-item:active {
   background-color: #eee !important;
   color: #212529 !important;
+}
+
+.tags-list .dropdown-item > i {
+  float: left;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #ccc;
+  margin-top: 5px;
+}
+
+.tags-list .dropdown-item > span {
+  margin-left: 6px;
 }
 
 .tags-list .dropdown-item > a {

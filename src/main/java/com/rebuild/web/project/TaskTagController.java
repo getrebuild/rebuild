@@ -72,12 +72,13 @@ public class TaskTagController extends BaseController {
     public JSON createRelated(@IdParam(name = "task") ID taskId,
                               @IdParam(name = "tag") ID tagId) {
         ID relatedId = TaskTagManager.instance.createRelated(taskId, tagId);
-        return JSONUtils.toJSONObject("relation", relatedId);
+        // `relatedId` 可能为空
+        return JSONUtils.toJSONObject("rid", relatedId);
     }
 
     @RequestMapping("related-del")
-    public RespBody deleteRelated(@IdParam(name = "relation") ID relationId) {
-        Application.getCommonsService().delete(relationId);
+    public RespBody deleteRelated(@IdParam(name = "rid") ID relatedId) {
+        Application.getCommonsService().delete(relatedId);
         return RespBody.ok();
     }
 }

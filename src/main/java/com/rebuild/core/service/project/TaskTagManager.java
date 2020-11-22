@@ -15,6 +15,7 @@ import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.Serializable;
 
@@ -24,6 +25,7 @@ import java.io.Serializable;
  * @author devezhao
  * @since 2020/11/21
  */
+@Slf4j
 public class TaskTagManager implements ConfigManager {
 
     public static final TaskTagManager instance = new TaskTagManager();
@@ -75,6 +77,16 @@ public class TaskTagManager implements ConfigManager {
      * @return
      */
     public ID createRelated(ID taskId, ID tagId) {
+        Object[] exists = Application.createQueryNoFilter(
+                "select relationId from ProjectTaskTagRelation where taskId = ? and tagId = ?")
+                .setParameter(1, taskId)
+                .setParameter(2, tagId)
+                .unique();
+        if (exists != null) {
+            log.debug("ProjectTaskTagRelation exists : {} <> {}", taskId, tagId);
+            return null;
+        }
+
         RecordBuilder builder = RecordBuilder
                 .builder(EntityHelper.ProjectTaskTagRelation)
                 .add("taskId", taskId)
