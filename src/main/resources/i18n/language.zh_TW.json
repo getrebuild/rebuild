@@ -1218,6 +1218,10 @@
   "EtcXItems": "等 %d 項",
   "TargetFieldReadonly": "目標字段只讀",
   "Unsupport": "暫不支持",
+  "NoPrivViewTask": "你無權查看該任務",
+  "NoProjects": "沒有可用項目",
+  "TaskTag": "標籤",
+  "ProjectPrincipalTips": "負責人擁有對任務的管理權限",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

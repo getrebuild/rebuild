@@ -11,10 +11,12 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.service.project.ProjectTaskTagService;
 import com.rebuild.core.service.project.TaskTagManager;
 import com.rebuild.utils.JSONUtils;
@@ -36,8 +38,17 @@ import javax.servlet.http.HttpServletRequest;
 public class TaskTagController extends BaseController {
 
     @GetMapping("list")
-    public JSON listTags(@IdParam(name = "project") ID projectId) {
-        return TaskTagManager.instance.getTagList(projectId);
+    public JSON listTags(@IdParam(name = "project") ID projectId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
+        JSONArray array = TaskTagManager.instance.getTagList(projectId);
+
+        for (Object o : array) {
+            JSONObject item = (JSONObject) o;
+            ID tagId = ID.valueOf(item.getString("id"));
+            item.put("isManageable", ProjectHelper.isManageable(tagId, user));
+        }
+        return array;
     }
 
     @PostMapping("create")
@@ -80,5 +91,24 @@ public class TaskTagController extends BaseController {
     public RespBody deleteRelated(@IdParam(name = "rid") ID relatedId) {
         Application.getCommonsService().delete(relatedId);
         return RespBody.ok();
+    }
+
+    @GetMapping("task-tags")
+    public JSON getTagsById(@IdParam(name = "task") ID taskId) {
+        return getTaskTags(taskId);
+    }
+
+    /**
+     * 获取任务标签
+     *
+     * @param taskId
+     * @return
+     */
+    static JSONArray getTaskTags(ID taskId) {
+        Object[][] tags = Application.createQueryNoFilter(
+                "select tagId.tagName,tagId.color,relationId from ProjectTaskTagRelation where taskId = ? order by createdOn")
+                .setParameter(1, taskId)
+                .array();
+        return JSONUtils.toJSONObjectArray(new String[] { "name", "color" , "rid" }, tags);
     }
 }

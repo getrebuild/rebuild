@@ -64,7 +64,7 @@ class PlanList extends React.Component {
                 <a onClick={() => this._handleEdit(item)}>
                   <i className="zmdi zmdi-edit"></i>
                 </a>
-                <a onClick={() => this._handleDelete(item[0])} className="danger">
+                <a onClick={() => this._handleDelete(item[0])} className="danger danger-hover">
                   <i className="zmdi zmdi-delete"></i>
                 </a>
               </div>

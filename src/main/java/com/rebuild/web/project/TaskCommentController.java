@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -48,10 +49,10 @@ public class TaskCommentController extends BaseController {
             if (o[2] != null) o[2] = JSON.parse((String) o[2]);
             o[3] = I18nUtils.formatDate((Date) o[3]);
             o[4] = new Object[]{o[4], UserHelper.getName((ID) o[4])};
-            o[5] = user.equals(o[5]);
+            o[5] = ProjectHelper.isManageable(taskId, user);
 
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[]{"id", "content", "attachments", "createdOn", "createdBy", "self"},
+                    new String[]{"id", "content", "attachments", "createdOn", "createdBy", "manageable"},
                     o);
             ret.add(item);
         }

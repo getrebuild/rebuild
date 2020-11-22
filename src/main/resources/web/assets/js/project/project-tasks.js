@@ -39,9 +39,19 @@ $(document).ready(() => {
 
   // 搜索
   const $search = $('.J_search .input-search')
-  $('.J_search').on('show.bs.dropdown', () => {
-    setTimeout(() => $search.find('input')[0].focus(), 100)
+  $('.J_search').on({
+    'hide.bs.dropdown': function (e) {
+      if (!e.clickEvent || !e.clickEvent.target) return
+      const $target = $(e.clickEvent.target)
+      if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
+        return false
+      }
+    },
+    'shown.bs.dropdown': function () {
+      $search.find('input')[0].focus()
+    },
   })
+
   $search.find('.btn').click(() => {
     const s = $search.find('input').val()
     __PlanBoxes.setState({ search: s })
@@ -385,6 +395,19 @@ class Task extends React.Component {
                   <span className={`badge badge-${$expired(this.state.deadline) ? 'danger' : 'primary'}`}>
                     {$L('Deadline')} <DateShow date={this.state.deadline} />
                   </span>
+                </div>
+              )}
+              {(this.state.tags || []).length > 0 && (
+                <div className="task-tags">
+                  {this.state.tags.map((item) => {
+                    const colorStyle1 = { color: item.color }
+                    const colorStyle2 = { backgroundColor: item.color }
+                    return (
+                      <a key={item.rid} style={colorStyle1}>
+                        <i style={colorStyle2}></i> {item.name}
+                      </a>
+                    )
+                  })}
                 </div>
               )}
               <div className="task-extras">

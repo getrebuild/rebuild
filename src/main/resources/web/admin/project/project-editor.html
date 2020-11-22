@@ -26,6 +26,9 @@
       .plan-boxes.card-list .card:last-child {
         margin-right: 20px;
       }
+      #principal, #members {
+        min-height: 37px;
+      }
     </style>
   </head>
   <body>
@@ -61,6 +64,7 @@
                   <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('Principal')}]]</label>
                   <div class="col-12 col-lg-9">
                     <div id="principal"></div>
+                    <p class="form-text">[[${bundle.L('ProjectPrincipalTips')}]]</p>
                   </div>
                 </div>
                 <div class="form-group row">

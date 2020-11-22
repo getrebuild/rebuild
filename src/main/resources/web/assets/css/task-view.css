@@ -23,7 +23,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   width: 100%;
 }
 
-.task-form .col-form-label > .icon {
+.task-form .col-form-label > .icon,
+.label-icon {
   color: #999;
   width: 30px;
   float: left;
@@ -71,11 +72,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-form .tag-value {
   position: relative;
   height: 26px;
-  padding: 5px 10px;
+  padding: 4px 10px 0;
   border: 0 none;
   border-radius: 99px;
-  line-height: 18px;
   transition: padding 0.2s;
+  line-height: 18px;
+  display: inline-block;
+  margin-top: -3px;
 }
 
 .task-form a.tag-value.arrow:hover {
@@ -172,8 +175,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .comment-list-wrap h4 {
-  font-size: 1.4rem;
-  font-weight: normal;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 .status-checkbox > .custom-checkbox {
@@ -194,27 +197,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .task-tags > span.tag-value {
-  color: #4285f4;
-  border: 1px solid #4285f4;
   background-color: #fff;
-  padding: 3px 9px 4px;
+  border: 1px solid transparent;
+  padding: 4px 9px 0;
   margin-right: 5px;
   margin-top: 5px;
-  cursor: default;
-  display: inline-block;
-  line-height: 1;
 }
 
 .task-tags > span.tag-value > a {
   color: #999;
-  font-size: 1.1rem;
-  display: inline-block;
+  transition: width 0.2s;
+  transform: translateY(2px);
   width: 0;
   overflow: hidden;
+  display: inline-block;
+  line-height: 1;
   text-align: right;
-  transform: translateY(2px);
-  transition: width 0.2s;
 }
+
 .task-tags > span.tag-value:hover > a {
   width: 12px;
   margin-left: 2px;

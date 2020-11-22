@@ -130,6 +130,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-content-wrapper .task-content .badge {
   font-weight: normal;
   font-size: 12px;
+  padding: 0.07692rem 0.38rem;
 }
 
 .task-content .task-title {
@@ -142,13 +143,38 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #999;
 }
 
+.task-content .task-tags {
+  margin: 0 0 4px;
+  word-wrap: break-word !important;
+  word-break: break-all !important;
+  white-space: normal !important;
+}
+
+.task-content .task-tags > a {
+  font-size: 12px;
+  display: inline-block;
+  margin-top: 4px;
+  margin-right: 8px;
+}
+
+.task-content .task-tags > a > i {
+  float: left;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #ccc;
+  margin-right: 4px;
+  transform: translateY(4px);
+}
+
 .task-content .task-extras {
   margin-top: 4px;
 }
 
 .task-content .task-extras > .avatar img {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
 }
 
 .task-content .task-extras > .badge {
@@ -183,6 +209,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-card.priority-2:hover {
   border-color: #f7b904;
+  border-width: 6px;
 }
 
 .task-card.priority-3 {
@@ -192,6 +219,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-card.priority-3:hover {
   border-color: #ea3f30;
+  border-width: 6px;
 }
 
 .task-card.status-1:hover {
@@ -208,6 +236,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-card.status-1 .custom-control-input:checked ~ .custom-control-label::after,
 .status-checkbox .custom-control-input:checked ~ .custom-control-label::after {
   color: #8c8c8c;
+  border-color: #fff !important;
 }
 
 .task-card.status-1 .custom-control-input ~ .custom-control-label::before,

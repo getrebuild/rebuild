@@ -1221,6 +1221,7 @@
   "NoPrivViewTask": "你无权查看该任务",
   "NoProjects": "没有可用项目",
   "TaskTag": "标签",
+  "ProjectPrincipalTips": "负责人拥有对任务的管理权限",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

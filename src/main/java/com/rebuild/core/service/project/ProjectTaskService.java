@@ -97,9 +97,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public int delete(ID taskId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(taskId, user)) {
-            throw new PrivilegesException("不能删除他人任务");
-        }
+        if (!ProjectHelper.isManageable(taskId, user)) throw new PrivilegesException("DELETETASK");
 
         int d = super.delete(taskId);
         ProjectManager.instance.clean(taskId);

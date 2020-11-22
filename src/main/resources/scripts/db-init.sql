@@ -683,10 +683,12 @@ create table if not exists `project_task_comment` (
 create table if not exists `project_task_tag` (
   `TAG_ID`             char(20) not null,
   `PROJECT_ID`         char(20) not null comment '所属项目',
-  `TAG_NAME`           varchar(100) not null comment '标签名',
+  `TAG_NAME`           varchar(100) not null comment '标签',
   `COLOR`              varchar(20) comment '颜色',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`TAG_ID`),
-  index IX0_project_task_tag (`PROJECT_ID`)
+  index IX0_project_task_tag (`TAG_NAME`, `PROJECT_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectTaskTagRelation] DDL ************
@@ -694,8 +696,11 @@ create table if not exists `project_task_tag_relation` (
   `RELATION_ID`        char(20) not null,
   `TASK_ID`            char(20) not null,
   `TAG_ID`             char(20) not null,
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`RELATION_ID`),
-  index IX0_project_task_tag_relation (`TASK_ID`, `TAG_ID`)
+  unique index UIX0_project_task_tag_relation (`TASK_ID`, `TAG_ID`),
+  index IX1_project_task_tag_relation (`CREATED_ON`)
 )Engine=InnoDB;
 
 

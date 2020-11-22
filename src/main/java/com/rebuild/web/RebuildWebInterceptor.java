@@ -48,7 +48,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        request.getSession(true);
+//        TODO request.getSession(true);
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE);
 
         REQUEST_TIME.set(System.currentTimeMillis());

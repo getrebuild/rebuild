@@ -107,6 +107,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
      */
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        // URL 参数
         resolvers.add(new IdParamMethodArgumentResolver());
         resolvers.add(new EntityParamMethodArgumentResolver());
     }
@@ -157,7 +158,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
-            LOG.warn(errorLog);
+            LOG.warn(errorLog, ex);
         } else {
             LOG.error(errorLog, ex);
         }

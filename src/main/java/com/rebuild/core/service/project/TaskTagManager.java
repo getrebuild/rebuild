@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.project;
 
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
@@ -41,20 +42,18 @@ public class TaskTagManager implements ConfigManager {
         final String cKey = "TASKTAG-" + projectId;
 
         Serializable value = Application.getCommonsCache().getx(cKey);
-        if (value != null) {
-            return (JSONArray) value;
+        if (value == null) {
+            Object[][] array = Application.createQueryNoFilter(
+                    "select tagId,tagName,color,createdBy from ProjectTaskTag where projectId = ? order by tagName")
+                    .setParameter(1, projectId)
+                    .array();
+
+            value = JSONUtils.toJSONObjectArray(
+                    new String[] { "id", "name", "color", "createdBy" }, array);
+            Application.getCommonsCache().putx(cKey, value);
         }
 
-        Object[][] array = Application.createQuery(
-                "select tagId,tagName,color from ProjectTaskTag where projectId = ? order by tagName")
-                .setParameter(1, projectId)
-                .array();
-
-        value = JSONUtils.toJSONObjectArray(
-                new String[] { "id", "name", "color" }, array);
-
-        Application.getCommonsCache().putx(cKey, value);
-        return (JSONArray) value;
+        return (JSONArray) JSONUtils.clone((JSON) value);
     }
 
     /**
@@ -63,7 +62,7 @@ public class TaskTagManager implements ConfigManager {
      * @return
      */
     public ID findTagByName(String tagName, ID projectId) {
-        Object[] exists = Application.createQuery(
+        Object[] exists = Application.createQueryNoFilter(
                 "select tagId from ProjectTaskTag where projectId = ? and tagName = ?")
                 .setParameter(1, projectId)
                 .setParameter(2, tagName)

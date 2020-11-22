@@ -55,9 +55,7 @@ public class ProjectCommentService extends BaseTaskService {
     @Override
     public int delete(ID commentId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(commentId, user)) {
-            throw new PrivilegesException("不能删除他人评论");
-        }
+        if (!ProjectHelper.isManageable(commentId, user)) throw new PrivilegesException("DELETECOMMENT");
 
         return super.delete(commentId);
     }

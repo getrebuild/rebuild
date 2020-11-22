@@ -474,16 +474,21 @@
     <entity name="ProjectTaskTag" type-code="055" description="任务标签" queryable="false" parent="false">
         <field name="tagId" type="primary"/>
         <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" cascade="delete" description="所属项目"/>
-        <field name="tagName" type="string" max-length="100" nullable="false" description="标签名"/>
+        <field name="tagName" type="string" max-length="100" nullable="false" description="标签"/>
         <field name="color" type="string" max-length="20" description="颜色"/>
-        <index field-list="projectId"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
+        <index field-list="tagName,projectId"/>
     </entity>
 
     <entity name="ProjectTaskTagRelation" type-code="056" description="任务标签关系" queryable="false" parent="false">
         <field name="relationId" type="primary"/>
         <field name="taskId" type="reference" ref-entity="ProjectTask" nullable="false" updatable="false" cascade="delete"/>
         <field name="tagId" type="reference" ref-entity="ProjectTaskTag" nullable="false" updatable="false" cascade="delete"/>
+        <field name="createdBy" type="reference" ref-entity="User" nullable="false" creatable="false" updatable="false" description="创建人"/>
+        <field name="createdOn" type="timestamp" nullable="false" creatable="false" updatable="false" description="创建时间"/>
         <index field-list="taskId,tagId" type="unique"/>
+        <index field-list="createdOn"/>
     </entity>
 
 </metadata-config>

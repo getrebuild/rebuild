@@ -117,7 +117,7 @@ public class ProjectTaskController extends BaseController {
                 "select " + BASE_FIELDS + " from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
-        return formatTask(task, false);
+        return formatTask(task, true);
     }
 
     @GetMapping("tasks/details")
@@ -155,15 +155,7 @@ public class ProjectTaskController extends BaseController {
                 new Object[] { o[2], taskNumber, o[3], createdOn, deadline, executor, o[7], o[8], o[9], endTime });
 
         if (appendTags) {
-            Object[][] tags = Application.createQueryNoFilter(
-                    "select tagId.tagName,tagId.color,relationId from ProjectTaskTagRelation where taskId = ?")
-                    .setParameter(1, o[2])
-                    .array();
-
-            if (tags.length > 0) {
-                data.put("tags",
-                        JSONUtils.toJSONObjectArray(new String[] { "name", "color" , "rid" }, tags));
-            }
+            data.put("tags", TaskTagController.getTaskTags((ID) o[2]));
         }
 
         return data;
