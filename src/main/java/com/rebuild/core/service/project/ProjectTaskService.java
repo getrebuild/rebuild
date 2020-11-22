@@ -18,6 +18,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
 /**
@@ -179,7 +180,7 @@ public class ProjectTaskService extends BaseTaskService {
      */
     private void sendNotification(ID taskId) {
         Object[] task = Application.getQueryFactory().uniqueNoFilter(taskId, "executor", "taskName");
-        String msg = "有一个新任务分派给你 \n> " + task[1];
+        String msg = Language.L("MsgNewProjectTaskToYou") + " \n> " + task[1];
         Application.getNotifications().send(
                 MessageBuilder.createMessage((ID) task[0], msg, Message.TYPE_PROJECT, taskId));
     }

@@ -1222,6 +1222,8 @@
   "NoProjects": "No projects available",
   "TaskTag": "Tag",
   "ProjectPrincipalTips": "The principa has management rights to tasks",
+  "MsgAtYouInProjectTask": "@%s mentioned you in the task",
+  "MsgNewProjectTaskToYou": "A new task assigned to you",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
