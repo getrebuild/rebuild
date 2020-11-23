@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.project;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -46,6 +47,10 @@ import java.util.Set;
 @RequestMapping("/project/")
 public class ProjectTaskController extends BaseController {
 
+    private static final JSONObject NO_TASKS = JSONUtils.toJSONObject(
+            new String[] { "count", "tasks" },
+            new Object[] { 0, new Object[0] });
+
     @GetMapping("task/{taskId}")
     public ModelAndView pageTask(@PathVariable String taskId,
                                  HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -73,12 +78,12 @@ public class ProjectTaskController extends BaseController {
 
     @RequestMapping("tasks/list")
     public JSON taskList(@IdParam(name = "plan") ID planId, HttpServletRequest request) {
-        String querySql = "select " + BASE_FIELDS + " from ProjectTask where projectPlanId = ?";
+        String queryWhere = "projectPlanId = ?";
 
         // 关键词搜索
         String search = getParameter(request, "search");
         if (StringUtils.isNotBlank(search)) {
-            querySql += " and taskName like '%" + StringEscapeUtils.escapeSql(search) + "%'";
+            queryWhere += " and taskName like '%" + StringEscapeUtils.escapeSql(search) + "%'";
         }
 
         // 高级查询
@@ -86,7 +91,23 @@ public class ProjectTaskController extends BaseController {
         if (advFilter != null) {
             String filterSql = new AdvFilterParser((JSONObject) advFilter).toSqlWhere();
             if (filterSql != null) {
-                querySql += " and (" + filterSql + ")";
+                queryWhere += " and (" + filterSql + ")";
+            }
+        }
+
+        int pageNo = getIntParameter(request, "pageNo", 1);
+        int pageSize = getIntParameter(request, "pageSize", 40);
+
+        int count = -1;
+        if (pageNo == 1) {
+            String countSql = "select count(taskId) from ProjectTask where " + queryWhere;
+            Object[] count2 = Application.createQueryNoFilter(countSql)
+                    .setParameter(1, planId)
+                    .unique();
+            count = ObjectUtils.toInt(count2[0]);
+
+            if (count == 0) {
+                return NO_TASKS;
             }
         }
 
@@ -95,10 +116,12 @@ public class ProjectTaskController extends BaseController {
         if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
         else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
         else sort = "seq asc";
-        querySql += " order by " + sort;
+        queryWhere += " order by " + sort;
 
+        String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
         Object[][] tasks = Application.createQueryNoFilter(querySql)
                 .setParameter(1, planId)
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
         JSONArray alist = new JSONArray();
@@ -108,7 +131,7 @@ public class ProjectTaskController extends BaseController {
 
         return JSONUtils.toJSONObject(
                 new String[] { "count", "tasks" },
-                new Object[] { tasks.length, alist });
+                new Object[] { count, alist });
     }
 
     @GetMapping("tasks/get")

@@ -33,6 +33,9 @@ public class ProjectTaskService extends BaseTaskService {
     // 中值法排序
     private static final int MID_VALUE = 1000;
 
+    // 最后
+    private static final int SEQ_ATLAST = -1;
+
     protected ProjectTaskService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
     }
@@ -82,7 +85,7 @@ public class ProjectTaskService extends BaseTaskService {
 
         } else if (record.hasValue("seq")) {
             int seq = record.getInt("seq");
-            if (seq == -1) {
+            if (seq == SEQ_ATLAST) {
                 record.setInt("seq", getSeqInStatus(record.getPrimary(), true));
             }
         }

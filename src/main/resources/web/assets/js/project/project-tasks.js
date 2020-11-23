@@ -39,19 +39,6 @@ $(document).ready(() => {
 
   // 搜索
   const $search = $('.J_search .input-search')
-  $('.J_search').on({
-    'hide.bs.dropdown': function (e) {
-      if (!e.clickEvent || !e.clickEvent.target) return
-      const $target = $(e.clickEvent.target)
-      if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
-        return false
-      }
-    },
-    'shown.bs.dropdown': function () {
-      $search.find('input')[0].focus()
-    },
-  })
-
   $search.find('.btn').click(() => {
     const s = $search.find('input').val()
     __PlanBoxes.setState({ search: s })
@@ -60,14 +47,20 @@ $(document).ready(() => {
     e.keyCode === 13 && $search.find('.btn').trigger('click')
   })
 
+  $unhideDropdown('.J_search').on({
+    'shown.bs.dropdown': function () {
+      $search.find('input')[0].focus()
+    },
+  })
+
   // 高级查询
-  const onFilter = function (s) {
+  const confirmFilter = function (s) {
     __PlanBoxes.setState({ filter: s })
   }
   $('.J_filter').click(() => {
     if (__AdvFilter) __AdvFilter.show()
     else
-      renderRbcomp(<AdvFilter title={$L('AdvFilter')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={onFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('AdvFilter')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={confirmFilter} />, null, function () {
         __AdvFilter = this
       })
   })
@@ -150,9 +143,12 @@ class PlanBoxes extends React.Component {
           const taskid = $item.data('taskid')
           const prevTaskId = $itemPrev.attr('data-taskid')
 
-          const prevSeq = ~~($itemPrev.attr('data-seq') || 0)
-          const nextSeq = ~~($itemNext.attr('data-seq') || -1) // At last
-          const seq = nextSeq === -1 ? -1 : ~~(prevSeq + (nextSeq - prevSeq) / 2)
+          const prevSeq = ~~($itemPrev.attr('data-seq') || 0) // 0 = At first
+          const nextSeq = ~~($itemNext.attr('data-seq') || -1) // -1 = At last
+          let seq
+          if (nextSeq === -1) seq = -1
+          else if (prevSeq === 0) seq = nextSeq * 2
+          else seq = ~~(prevSeq + (nextSeq - prevSeq) / 2)
 
           // Use state of react for move
           let $itemholder
@@ -180,16 +176,24 @@ class PlanBoxes extends React.Component {
     if (prevState.sort !== this.state.sort) {
       $('.task-list').sortable('option', 'disabled', this.state.sort !== 'seq')
     }
-    if (this.state.search || this.state.filter) $('.J_search .indicator-primary').removeClass('hide')
-    else $('.J_search .indicator-primary').addClass('hide')
+
+    if (this.state.search || this.state.filter) {
+      $('.J_search .indicator-primary').removeClass('hide')
+    } else {
+      $('.J_search .indicator-primary').addClass('hide')
+    }
   }
 }
 
 // 任务面板
 class PlanBox extends React.Component {
   state = { ...this.props }
+
   creatableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly
   performableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly
+
+  pageNo = 0
+  pageSize = 10
 
   render() {
     return (
@@ -216,6 +220,8 @@ class PlanBox extends React.Component {
                       className="form-control form-control-sm row2x"
                       placeholder={$L('InputNameAndNewTask')}
                       ref={(c) => (this._taskName = c)}
+                      maxLength="190"
+                      autoFocus
                       onKeyDown={(e) => {
                         if (e.keyCode === 13) {
                           this._handleCreateTask()
@@ -223,7 +229,6 @@ class PlanBox extends React.Component {
                           return false
                         }
                       }}
-                      autoFocus
                     />
                   </div>
                   <div>
@@ -260,9 +265,22 @@ class PlanBox extends React.Component {
 
   componentDidMount() {
     __PlanRefs[this.props.id] = this
-    this.refreshTasks()
+    this.refreshTasks(true)
 
     const $scroller = $(this._scroller).perfectScrollbar()
+    // 滚动加载
+    $scroller.on('ps-scroll-down', () => {
+      // 全部已加载
+      if (this.state.tasks.length >= this.state.taskNum) return
+
+      const scrollerHeight = $scroller[0].scrollHeight
+      const top = $scroller.scrollTop() + $scroller.height()
+      console.log(scrollerHeight, top)
+      if (top + 222 > scrollerHeight) {
+        $setTimeout(() => this.refreshTasks(true), 200, 'tasks-load-more')
+      }
+    })
+
     $addResizeHandler(() => {
       $scroller.css({ 'max-height': $(window).height() - 210 + (this.creatableTask ? 0 : 44) })
       $scroller.perfectScrollbar('update')
@@ -274,21 +292,36 @@ class PlanBox extends React.Component {
   }
 
   // 加载任务列表
-  refreshTasks(scroll2bottom) {
-    $.post(`/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}`, JSON.stringify(this.props.filter), (res) => {
-      if (res.error_code === 0)
-        this.setState({ tasks: res.data.tasks, taskNum: res.data.count }, () => {
-          if (scroll2bottom) this._scroller.scrollTop = 99999
+  refreshTasks(isAppend) {
+    if (isAppend) {
+      this.pageNo++
+    } else {
+      this.pageNo = 1
+      this.pageSize = this.state.tasks.length
+    }
+
+    const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${this.pageNo}&pageSize=${this.pageSize}`
+    $.post(url, JSON.stringify(this.props.filter), (res) => {
+      if (res.error_code === 0) {
+        const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
+        const _state = { tasks: ns }
+        if (res.data.count > -1) _state.taskNum = res.data.count
+
+        this.setState(_state, () => {
+          $(this._scroller).perfectScrollbar('update')
+          // this._scroller.scrollTop = 99999
         })
-      else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 
   removeTask(taskid) {
-    const taskData = this.state.tasks.find((item) => item.id === taskid)
+    const removedTask = this.state.tasks.find((item) => item.id === taskid)
     const ns = this.state.tasks.filter((item) => item.id !== taskid)
-    this.setState({ tasks: ns, taskNum: ns.length }, () => $(this._scroller).perfectScrollbar('update'))
-    return taskData
+    this.setState({ tasks: ns, taskNum: this.state.taskNum - 1 }, () => $(this._scroller).perfectScrollbar('update'))
+    return removedTask
   }
 
   addTask(taskData, prevTaskId, $itemholder) {
@@ -304,7 +337,7 @@ class PlanBox extends React.Component {
       this.state.tasks.forEach((item) => ns.push(item))
     }
 
-    this.setState({ tasks: ns, taskNum: ns.length }, () => {
+    this.setState({ tasks: ns, taskNum: this.state.taskNum + 1 }, () => {
       $itemholder && $itemholder.remove()
       __TaskRefs[taskData.id].refresh()
       $(this._scroller).perfectScrollbar('update')
@@ -339,7 +372,7 @@ class PlanBox extends React.Component {
     const $btn = $(this._btn).button('loading')
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        this.refreshTasks(true)
+        this.refreshTasks()
 
         // reset
         this._executor.clearSelection()
@@ -413,7 +446,7 @@ class Task extends React.Component {
               <div className="task-extras">
                 {this.state.executor && (
                   <a className="avatar float-left" title={`${$L('Executor')} ${this.state.executor[1]}`}>
-                    <img src={`${rb.baseUrl}/account/user-avatar/${this.state.executor[0]}`} />
+                    <img src={`${rb.baseUrl}/account/user-avatar/${this.state.executor[0]}`} alt="Avatar" />
                   </a>
                 )}
                 <span className="badge float-right">{this.state.taskNumber}</span>
@@ -493,7 +526,7 @@ const __draggable = function () {
 
 // --
 
-// 与实体视图兼容
+// 与实体视图兼容（提供给 TaskView 用）
 // eslint-disable-next-line no-unused-vars
 const RbViewModal = {
   // 获取当前视图
@@ -527,7 +560,6 @@ class TaskViewModal extends React.Component {
 
   componentDidMount() {
     const $dlg = $(this._dlg)
-    $dlg
       .on('shown.bs.modal', () => {
         $dlg.find('.modal-content').css('margin-right', 0)
         location.hash = '#!/View/ProjectTask/' + this.props.taskid
@@ -566,7 +598,7 @@ class TaskViewModal extends React.Component {
   static __HOLDER
 
   /**
-   * @param {TaskId} id
+   * @param {*} id
    */
   static create(id) {
     renderRbcomp(<TaskViewModal taskid={id} />, null, function () {

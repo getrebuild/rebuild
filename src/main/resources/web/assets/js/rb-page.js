@@ -35,8 +35,7 @@ $(function () {
 
   var hasNotification = $('.J_top-notifications')
   if (hasNotification.length > 0) {
-    $unhideDropdown(hasNotification)
-      .on('shown.bs.dropdown', _loadMessages)
+    $unhideDropdown(hasNotification).on('shown.bs.dropdown', _loadMessages)
     setTimeout(_checkMessage, 2000)
   }
 
@@ -749,6 +748,6 @@ var $unhideDropdown = function (dp) {
       if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
         return false
       }
-    }
+    },
   })
 }
