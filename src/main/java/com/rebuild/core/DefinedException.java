@@ -10,10 +10,13 @@ package com.rebuild.core;
 import com.rebuild.api.Controller;
 
 /**
+ * 已知的业务警告
+ *
  * @author devezhao
  * @since 2020/10/13
  */
 public class DefinedException extends RebuildException {
+    private static final long serialVersionUID = 2504578210264915700L;
 
     // 错误码
     private int errorCode = Controller.CODE_ERROR;

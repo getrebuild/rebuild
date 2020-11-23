@@ -98,6 +98,17 @@ public class RespBody implements JSONable {
     }
 
     /**
+     * @param errorMsgLang
+     * @param phValues
+     * @return
+     * @see Language#LF(String, Object...)
+     */
+    public static RespBody errorlf(String errorMsgLang, Object ... phValues) {
+        String lang = Language.LF(errorMsgLang, phValues);
+        return error(lang, Controller.CODE_ERROR);
+    }
+
+    /**
      * @param errorCode
      * @return
      */

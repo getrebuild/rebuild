@@ -21,8 +21,4 @@ public class InvalidParameterException extends DefinedException {
     public InvalidParameterException(String msg) {
         super(msg);
     }
-
-    public InvalidParameterException(int errorCode, String msg) {
-        super(errorCode, msg);
-    }
 }

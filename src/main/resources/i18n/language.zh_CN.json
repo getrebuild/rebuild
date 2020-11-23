@@ -1218,6 +1218,13 @@
   "EtcXItems": "等 %d 项",
   "TargetFieldReadonly": "目标字段只读",
   "Unsupport": "暂不支持",
+  "NoPrivViewTask": "你无权查看该任务",
+  "NoProjects": "没有可用项目",
+  "TaskTag": "标签",
+  "ProjectPrincipalTips": "负责人拥有对任务的管理权限",
+  "MsgAtYouInProjectTask": "@%s 在任务中提到了你",
+  "MsgNewProjectTaskToYou": "有一个新任务分派给你",
+  "JustNow": "刚刚",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

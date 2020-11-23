@@ -15,21 +15,21 @@ import com.rebuild.core.Application;
 import com.rebuild.core.DefinedException;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.web.commons.LanguageController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Locale;
 
 /**
  * 请求拦截
@@ -40,16 +40,15 @@ import java.util.Locale;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-24
  */
+@Slf4j
 public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements InstallState {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RebuildWebInterceptor.class);
 
     private static final ThreadLocal<Long> REQUEST_TIME = new NamedThreadLocal<>("Request time start");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        request.getSession(true);
+//        TODO request.getSession(true);
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE);
 
         REQUEST_TIME.set(System.currentTimeMillis());
@@ -60,18 +59,19 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         final String requestUri = request.getRequestURI()
                 + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
-        final boolean htmlRequest = AppUtils.isHtmlRequest(request);
+        final boolean ajaxRequest = ServletUtils.isAjaxRequest(request);
 
         // Locale
-        final String locale = detectLocale(request);
+        final String locale = detectLocale(request, response);
         UserContextHolder.setLocale(locale);
 
-        if (htmlRequest) {
+        if (!ajaxRequest) {
             request.setAttribute(WebConstants.LOCALE, locale);
             request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(locale));
 
             // TODO CSRF
-            request.setAttribute(WebConstants.CSRF_TOKEN, CodecUtils.randomCode(60));
+            String csrfToken = CodecUtils.randomCode(60);
+            request.setAttribute(WebConstants.CSRF_TOKEN, csrfToken);
 
             // Side collapsed
             String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
@@ -89,7 +89,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             boolean gotError = requestUri.endsWith("/error") || requestUri.contains("/error/");
 
             if (checkInstalled()) {
-                LOG.error("Server Unavailable : " + requestUri);
+                log.error("Server Unavailable : " + requestUri);
                 if (gotError) {
                     return true;
                 } else {
@@ -113,17 +113,17 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
         if (requestUser != null) {
             // 管理后台访问
             if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
-                if (htmlRequest) {
-                    sendRedirect(response, "/user/admin-verify", requestUri);
-                } else {
+                if (ajaxRequest) {
                     ServletUtils.writeJson(response, RespBody.error(401).toString());
+                } else {
+                    sendRedirect(response, "/user/admin-verify", requestUri);
                 }
                 return false;
             }
 
             UserContextHolder.setUser(requestUser);
 
-            if (htmlRequest) {
+            if (!ajaxRequest) {
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
 
@@ -134,18 +134,23 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             }
 
         } else if (!isIgnoreAuth(requestUri)) {
-            LOG.warn("Unauthorized access {} via {}",
+            log.warn("Unauthorized access {} via {}",
                     RebuildWebConfigurer.getRequestUrls(request), ServletUtils.getRemoteAddr(request));
 
-            if (htmlRequest) {
-                sendRedirect(response, "/user/login", requestUri);
-            } else {
+            if (ajaxRequest) {
                 ServletUtils.writeJson(response, RespBody.error(403).toString());
+            } else {
+                sendRedirect(response, "/user/login", requestUri);
             }
             return false;
         }
 
         return true;
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        super.postHandle(request, response, handler, modelAndView);
     }
 
     @Override
@@ -159,25 +164,44 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         time = System.currentTimeMillis() - time;
         if (time > 1000) {
-            LOG.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
+            log.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
     }
 
     /**
+     * 语言探测
+     *
      * @param request
+     * @param response
      * @return
      */
-    private String detectLocale(HttpServletRequest request) {
+    private String detectLocale(HttpServletRequest request, HttpServletResponse response) {
         // 0. Session
         String locale = (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
+
+        String urlLocale = request.getParameter("locale");
+        if (StringUtils.isNotBlank(urlLocale) && !urlLocale.equals(locale)) {
+            urlLocale = Application.getLanguage().available(urlLocale);
+
+            if (urlLocale != null) {
+                locale = urlLocale;
+
+                ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
+                ServletUtils.addCookie(response, AppUtils.CK_LOCALE, locale,
+                        CommonsCache.TS_DAY * 90, null, StringUtils.defaultIfBlank(AppUtils.getContextPath(), "/"));
+
+                if (Application.devMode()) {
+                    Application.getLanguage().refresh();
+                }
+            }
+        }
         if (locale != null) return locale;
 
         // 1. Cookie
-        locale = ServletUtils.readCookie(request, LanguageController.CK_LOCALE);
+        locale = ServletUtils.readCookie(request, AppUtils.CK_LOCALE);
         if (locale == null) {
             // 2. User-Local
-            Locale userLocale = request.getLocale();
-            locale = String.format("%s_%s", userLocale.getLanguage(), userLocale.getCountry());
+            locale = request.getLocale().toString();
         }
 
         // 3. Default

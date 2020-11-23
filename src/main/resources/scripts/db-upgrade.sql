@@ -1,6 +1,14 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #32 (v.21) TaskTag
+alter table `project_task_tag`
+  add column `CREATED_BY` char(20) not null comment '创建人',
+  add column `CREATED_ON` timestamp not null default current_timestamp comment '创建时间';
+alter table `project_task_tag_relation`
+  add column `CREATED_BY` char(20) not null comment '创建人',
+  add column `CREATED_ON` timestamp not null default current_timestamp comment '创建时间';
+
 -- #31 (v2.1)
 -- ************ Entity [TransformConfig] DDL ************
 create table if not exists `transform_config` (

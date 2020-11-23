@@ -52,12 +52,11 @@ public abstract class BaseConfigurationService extends BaseService {
 
     /**
      * @param cfgid
+     * @throws DataSpecificationException
      */
-    protected void throwIfNotSelf(ID cfgid) {
+    protected void throwIfNotSelf(ID cfgid) throws DataSpecificationException {
         final ID user = UserContextHolder.getUser();
-        if (UserHelper.isAdmin(user)) {
-            return;
-        }
+        if (UserHelper.isAdmin(user)) return;
 
         if (!ShareToManager.isSelf(user, cfgid)) {
             throw new DataSpecificationException(Language.L("NotOpOtherUserSome", "Conf"));

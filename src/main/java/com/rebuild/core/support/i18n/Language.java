@@ -149,6 +149,10 @@ public class Language implements Initialization {
      * @return
      */
     public String available(String locale) {
+        if (StringUtils.isBlank(locale)) {
+            locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
+        }
+
         String[] lc = locale.split("[-_]");
         locale = lc[0].toLowerCase();
         if (lc.length > 1) locale += "_" + lc[1].toUpperCase();
@@ -221,8 +225,12 @@ public class Language implements Initialization {
             }
         }
 
-        return StringUtils.defaultIfBlank(
-                getCurrentBundle().getLangBase(langKey), entityOrField.getDescription());
+        String metaLabel = getCurrentBundle().getLangBase(langKey);
+        if (StringUtils.isBlank(metaLabel)) {
+            metaLabel = StringUtils.defaultIfBlank(
+                    entityOrField.getDescription(), entityOrField.getName().toUpperCase());
+        }
+        return metaLabel;
     }
 
     /**

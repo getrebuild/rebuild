@@ -97,7 +97,7 @@
               <div class="mt-2">
                 <a class="select-lang dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span></a>
                 <div class="dropdown-menu">
-                  <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="|@{/language/select?nexturl=install&locale=}${lang[0]}|">[[${lang[1]}]]</a>
+                  <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="${'?locale=' + lang[0]}">[[${lang[1]}]]</a>
                 </div>
               </div>
             </div>

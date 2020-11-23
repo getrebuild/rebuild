@@ -13,31 +13,29 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
+import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 /**
- * 任务凭论
+ * 任务评论
  *
  * @author devezhao
  * @since 2020/6/29
  */
-@RequestMapping("/project/comments/")
-@Controller
-public class ProjectCommentController extends BaseController {
+@RestController
+public class TaskCommentController extends BaseController {
 
-    @GetMapping("list")
-    public void commentList(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        ID taskId = getIdParameterNotNull(request, "task");
+    @GetMapping("/project/comments/list")
+    public JSON commentList(@IdParam(name = "task") ID taskId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
 
         Object[][] array = Application.createQueryNoFilter(
                 "select commentId,content,attachments,createdOn,createdBy,createdBy" +
@@ -51,13 +49,13 @@ public class ProjectCommentController extends BaseController {
             if (o[2] != null) o[2] = JSON.parse((String) o[2]);
             o[3] = I18nUtils.formatDate((Date) o[3]);
             o[4] = new Object[]{o[4], UserHelper.getName((ID) o[4])};
-            o[5] = user.equals(o[5]);
+            o[5] = ProjectHelper.isManageable(taskId, user);
 
             JSONObject item = JSONUtils.toJSONObject(
-                    new String[]{"id", "content", "attachments", "createdOn", "createdBy", "self"},
+                    new String[]{"id", "content", "attachments", "createdOn", "createdBy", "isManageable"},
                     o);
             ret.add(item);
         }
-        writeSuccess(response, ret);
+        return ret;
     }
 }

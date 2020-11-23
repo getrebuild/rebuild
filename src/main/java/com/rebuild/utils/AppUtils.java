@@ -21,7 +21,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
@@ -35,20 +34,15 @@ import java.sql.DataTruncation;
  */
 public class AppUtils {
 
-    /**
-     * 移动端 UA 前缀
-     */
+    // 移动端 UA 前缀
     public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
 
-    /**
-     * 移动端 Token Header
-     */
+    // 移动端 Token Header
     public static final String MOBILE_HF_AUTHTOKEN = "X-AuthToken";
 
-    /**
-     * 语言
-     */
+    // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
+    public static final String CK_LOCALE = "rb.locale";
 
     /**
      * @return
@@ -188,26 +182,5 @@ public class AppUtils {
     public static boolean isRbMobile(HttpServletRequest request) {
         String UA = request.getHeader("user-agent");
         return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
-    }
-
-    /**
-     * 是否 HTML 请求
-     *
-     * @param request
-     * @return
-     */
-    public static boolean isHtmlRequest(HttpServletRequest request) {
-        if (ServletUtils.isAjaxRequest(request)) return false;
-
-        MediaType mediaType = null;
-        try {
-            String contentType = request.getContentType();
-            if (contentType == null) {
-                contentType = request.getHeader("Accept").split(",")[0];
-            }
-            mediaType = MediaType.valueOf(contentType);
-        } catch (Exception ignore) {
-        }
-        return MediaType.TEXT_HTML.equals(mediaType) || MediaType.APPLICATION_XHTML_XML.equals(mediaType);
     }
 }

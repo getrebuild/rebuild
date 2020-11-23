@@ -11,16 +11,15 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.project.ProjectConfigService;
 import com.rebuild.core.service.project.ProjectPlanConfigService;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.rebuild.web.IdParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,19 +32,20 @@ import java.io.IOException;
  * @author devezhao
  * @since 2020/6/30
  */
-@Controller
+@RestController
+@RequestMapping("/admin/")
 public class ProjectAdminController extends BaseController {
 
-    @GetMapping("/admin/projects")
+    @GetMapping("projects")
     public ModelAndView pageList() {
         return createModelAndView("/admin/project/project-list");
     }
 
-    @GetMapping("/admin/project/{projectId}")
+    @GetMapping("project/{projectId}")
     public ModelAndView pageEditor(@PathVariable String projectId, HttpServletResponse response) throws IOException {
         ID projectId2 = ID.isId(projectId) ? ID.valueOf(projectId) : null;
         if (projectId2 == null) {
-            response.sendError(404, "无效项目");
+            response.sendError(404);
             return null;
         }
 
@@ -62,26 +62,23 @@ public class ProjectAdminController extends BaseController {
         return mv;
     }
 
-    @RequestMapping("/admin/projects/list")
-    public void listProjects(HttpServletResponse resp) {
-        Object[][] array = Application.createQuery(
+    @GetMapping("projects/list")
+    public Object listProjects() {
+        return Application.createQuery(
                 "select configId,projectName,projectCode,iconName from ProjectConfig order by projectName")
                 .array();
-        writeSuccess(resp, array);
     }
 
-    @RequestMapping("/admin/projects/plan-list")
-    public void listPlans(HttpServletRequest req, HttpServletResponse resp) {
-        ID projectId = getIdParameterNotNull(req, "project");
-        Object[][] array = Application.createQuery(
+    @GetMapping("projects/plan-list")
+    public Object listPlans(@IdParam(name = "project") ID projectId) {
+        return Application.createQuery(
                 "select configId,planName,flowStatus,flowNexts,seq from ProjectPlanConfig where projectId = ? order by seq")
                 .setParameter(1, projectId)
                 .array();
-        writeSuccess(resp, array);
     }
 
-    @RequestMapping("/admin/projects/post")
-    public void postProject(HttpServletRequest req, HttpServletResponse resp) {
+    @PostMapping("projects/post")
+    public RespBody postProject(HttpServletRequest req) {
         final ID user = getRequestUser(req);
         JSONObject data = (JSONObject) ServletUtils.getRequestJson(req);
 
@@ -98,8 +95,7 @@ public class ProjectAdminController extends BaseController {
                     .setParameter(1, projectCode)
                     .unique();
             if (exists != null) {
-                writeFailure(resp, "项目 ID 重复");
-                return;
+                return RespBody.errorl("SomeDuplicate,ProjectCode");
             }
 
             project = Application.getBean(ProjectConfigService.class).createProject(project, useTemplate);
@@ -108,6 +104,6 @@ public class ProjectAdminController extends BaseController {
             Application.getBean(ProjectPlanConfigService.class).update(project);
         }
 
-        writeSuccess(resp, JSONUtils.toJSONObject("id", project.getPrimary()));
+        return RespBody.ok(JSONUtils.toJSONObject("id", project.getPrimary()));
     }
 }

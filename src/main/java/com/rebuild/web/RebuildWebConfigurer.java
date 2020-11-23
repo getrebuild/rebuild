@@ -86,11 +86,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         converters.add(0, new FastJsonHttpMessageConverter4());
     }
 
-    /**
-     * 请求拦截
-     *
-     * @param registry
-     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RebuildWebInterceptor())
@@ -100,22 +95,13 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 .excludePathPatterns("/*.txt");
     }
 
-    /**
-     * 参数解析器
-     *
-     * @param resolvers
-     */
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        // URL 参数
         resolvers.add(new IdParamMethodArgumentResolver());
         resolvers.add(new EntityParamMethodArgumentResolver());
     }
 
-    /**
-     * 异常处理
-     *
-     * @param resolvers
-     */
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
         resolvers.add((request, response, handler, ex)
@@ -131,32 +117,34 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
      * @param request
      * @param ex
      * @return
-     * @see AppUtils#isHtmlRequest(HttpServletRequest)
      */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
         if (request.getRequestURI().contains("/assets/")) return null;
 
         ModelAndView error;
-        if (AppUtils.isHtmlRequest(request)) {
+        if (ServletUtils.isAjaxRequest(request)) {
+            error = new ModelAndView(new FastJsonJsonView());
+        } else {
             error = new ModelAndView("/error/error");
             error.getModelMap().put(WebConstants.$BUNDLE, AppUtils.getReuqestBundle(request));
-        } else {
-            error = new ModelAndView(new FastJsonJsonView());
         }
 
         int errorCode = status.value();
         String errorMsg = AppUtils.getErrorMessage(request, ex);
 
+        String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
+                "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
+                "\nIP      : " + ServletUtils.getRemoteAddr(request) +
+                "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
+                "\nURL(s)  : " + getRequestUrls(request) +
+                "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "") +
+                "\n";
+
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
+            LOG.warn(errorLog, ex);
         } else {
-            String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
-                    "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
-                    "\nIP      : " + ServletUtils.getRemoteAddr(request) +
-                    "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
-                    "\nURL(s)  : " + getRequestUrls(request) +
-                    "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "");
             LOG.error(errorLog, ex);
         }
 

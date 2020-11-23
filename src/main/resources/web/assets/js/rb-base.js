@@ -187,11 +187,13 @@ var $setTimeout__timers = {}
  */
 var $setTimeout = function (e, t, id) {
   if (id && $setTimeout__timers[id]) {
+    if (rb.env === 'dev') console.warn('Clear prev setTimeout : ' + id)
     clearTimeout($setTimeout__timers[id])
     $setTimeout__timers[id] = null
   }
   var timer = setTimeout(e, t)
   if (id) $setTimeout__timers[id] = timer
+  return timer
 }
 
 /**
@@ -436,7 +438,7 @@ var $gotoSection = function (top, target) {
 /**
  * 节流函数
  */
-var $throttle = function (fn, interval) {
+var $throttle = function (fn, delay) {
   var __self = fn,
     timer,
     firstTime = true
@@ -455,7 +457,7 @@ var $throttle = function (fn, interval) {
       clearTimeout(timer)
       timer = null
       __self.apply(__me, args)
-    }, interval || 200)
+    }, delay || 200)
   }
 }
 

@@ -9,6 +9,8 @@ package com.rebuild.web.notification;
 
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -17,13 +19,12 @@ import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
 
 /**
@@ -33,7 +34,7 @@ import java.util.Date;
  * @see com.rebuild.core.service.notification.Message
  * @since 11/01/2018
  */
-@Controller
+@RestController
 public class NotificationController extends BaseController {
 
     @GetMapping("/notifications")
@@ -47,14 +48,14 @@ public class NotificationController extends BaseController {
     }
 
     @GetMapping("/notification/check-state")
-    public void checkMessage(HttpServletRequest request, HttpServletResponse response) {
+    public JSON checkMessage(HttpServletRequest request) {
         int unread = Application.getNotifications().getUnreadMessage(getRequestUser(request));
-        writeSuccess(response, JSONUtils.toJSONObject("unread", unread));
+        return JSONUtils.toJSONObject("unread", unread);
     }
 
     @RequestMapping("/notification/make-read")
-    public void toggleUnread(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public RespBody toggleUnread(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         String ids = getParameter(request, "id");
 
         if ("ALL".equalsIgnoreCase(ids)) {
@@ -77,12 +78,13 @@ public class NotificationController extends BaseController {
             record.setBoolean("unread", false);
             Application.getNotifications().update(record);
         }
-        writeSuccess(response);
+
+        return RespBody.ok();
     }
 
     @GetMapping("/notification/messages")
-    public void listMessage(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public Object[][] listMessage(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         int pn = getIntParameter(request, "pageNo", 1);
         int ps = getIntParameter(request, "pageSize", 40);
         int type = getIntParameter(request, "type", 0);
@@ -109,12 +111,13 @@ public class NotificationController extends BaseController {
             m[2] = I18nUtils.formatDate((Date) m[2]);
             array[i] = m;
         }
-        writeSuccess(response, array);
+
+        return array;
     }
 
     @GetMapping("/notification/approvals")
-    public void listApprovals(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public Object[][] listApprovals(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         int pn = getIntParameter(request, "pageNo", 1);
         int ps = getIntParameter(request, "pageSize", 40);
 
@@ -153,6 +156,7 @@ public class NotificationController extends BaseController {
 
             array[i] = m;
         }
-        writeSuccess(response, array);
+
+        return array;
     }
 }

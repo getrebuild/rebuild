@@ -18,7 +18,7 @@ let __TaskContent
 let __TaskComment
 
 $(document).ready(() => {
-  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} manageable={wpc.isManageable} />, 'task-contents', function () {
+  renderRbcomp(<TaskForm id={wpc.taskId} editable={wpc.isMember} isManageable={wpc.isManageable} />, 'task-contents', function () {
     __TaskContent = this
   })
   if (wpc.isMember) {
@@ -45,7 +45,7 @@ class TaskForm extends React.Component {
           <div className="col-10">
             <ValueTaskName taskName={this.state.taskName} $$$parent={this} />
           </div>
-          {this.props.editable && this.props.manageable && (
+          {this.props.editable && this.props.isManageable && (
             <div className="col-2 text-right">
               <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">
                 {$L('Operation')} <i className="icon zmdi zmdi-more-vert"></i>
@@ -100,13 +100,19 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
+            <i className="icon zmdi zmdi-label" /> {$L('TaskTag')}
+          </label>
+          <div className="col-12 col-sm-9">{this.state.projectId && <ValueTags tags={this.state.tags} projectId={this.state.projectId} taskid={this.props.id} $$$parent={this} />}</div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">
             <i className="icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45 mt-1" /> {$L('Attachment')}
           </label>
           <div className="col-12 col-sm-9">
             <ValueAttachments attachments={this.state.attachments} $$$parent={this} />
           </div>
         </div>
-        <TaskCommentsList taskid={this.props.id} ref={(c) => (this._TaskCommentsList = c)} />
+        <TaskCommentsList taskid={this.props.id} ref={(c) => (this._TaskCommentsList = c)} editable={this.props.editable} />
       </div>
     )
   }
@@ -185,7 +191,9 @@ class ValueComp extends React.Component {
       if (res.error_code === 0) {
         __TaskViewer.refreshTask && __TaskViewer.refreshTask(name === 'projectPlanId' ? value : null)
         typeof call === 'function' && call(true)
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }
@@ -214,7 +222,7 @@ class ValueTaskName extends ValueComp {
   renderViewElement() {
     const editable = this.props.$$$parent.props.editable
     return (
-      <div className={`task-title ${editable ? 'hover' : ''}`} onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
+      <div className={`task-title text-break ${editable ? 'hover' : ''}`} onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
         {this.state.taskName}
       </div>
     )
@@ -283,15 +291,14 @@ class ValueExecutor extends ValueComp {
                   style={{
                     height: 30,
                     display: 'inline-block',
-                  }}
-                >
+                  }}>
                   {this._renderValue()}
                 </span>
               }
               onSelectItem={(s) => this.handleChange(s)}
             />
-            <a className="close" onClick={() => this.handleChange(null)} title={$L('RemoveSome,Executor')}>
-              &times;
+            <a className="close" onClick={() => this.handleChange(null)} title={$L('Remove')}>
+              <i className="zmdi zmdi-close" />
             </a>
           </div>
         ) : (
@@ -320,7 +327,11 @@ class ValueExecutor extends ValueComp {
   }
 
   _renderValue(call) {
-    return typeof this.state.executor === 'object' && <UserShow id={this.state.executor[0]} name={this.state.executor[1]} showName onClick={() => typeof call === 'function' && call()} />
+    if (this.state.executor && typeof this.state.executor === 'object') {
+      return <UserShow id={this.state.executor[0]} name={this.state.executor[1]} showName onClick={() => typeof call === 'function' && call()} />
+    } else {
+      return null
+    }
   }
 
   handleChange(value) {
@@ -346,7 +357,7 @@ class ValueDeadline extends ValueComp {
   }
 
   renderViewElement() {
-    return this._renderValue(<div className="form-control-plaintext text-muted">{$L('Null')}</div>)
+    return this.state.deadline ? <div className="form-control-plaintext">{this._renderValue()}</div> : <div className="form-control-plaintext text-muted">{$L('Null')}</div>
   }
 
   _renderValue(defaultValue) {
@@ -401,9 +412,7 @@ class ValueDescription extends ValueComp {
 
   renderViewElement() {
     return (
-      <div className="form-control-plaintext desc">
-        {this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('Null')}</span>}
-      </div>
+      <div className="form-control-plaintext desc">{this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('Null')}</span>}</div>
     )
   }
 
@@ -455,7 +464,7 @@ class ValuePriority extends ValueComp {
   renderViewElement() {
     return (
       <div className="form-control-plaintext">
-        <span className={`tag-value arrow priority-${this.state.priority}`} data-toggle="dropdown">
+        <span className={`tag-value arrow priority-${this.state.priority}`}>
           {__PRIORITIES[this.state.priority]}
         </span>
       </div>
@@ -500,8 +509,8 @@ class ValueAttachments extends ValueComp {
                 <i className="file-icon" data-type={$fileExtName(fileName)} />
                 <span>{fileName}</span>
                 {del && (
-                  <b title={$L('Delete')} onClick={(e) => this._deleteAttachment(item, e)}>
-                    <span className="zmdi zmdi-delete"></span>
+                  <b title={$L('Remove')} onClick={(e) => this._deleteAttachment(item, e)}>
+                    <span className="zmdi zmdi-close"></span>
                   </b>
                 )}
               </a>
@@ -546,6 +555,265 @@ class ValueAttachments extends ValueComp {
   }
 }
 
+// 标签
+class ValueTags extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    return this._render(true)
+  }
+
+  renderViewElement() {
+    return this._render(false)
+  }
+
+  _render(editable) {
+    return (
+      <div className="form-control-plaintext task-tags">
+        <React.Fragment>
+          {(this.state.tags || []).map((item) => {
+            const colorStyle = { color: item.color, borderColor: item.color }
+            return (
+              <span className="tag-value" key={item.rid} style={colorStyle}>
+                {item.name}
+                {editable && (
+                  <a title={$L('Remove')} onClick={() => this._delRelated(item.rid)}>
+                    <i className="zmdi zmdi-close"></i>
+                  </a>
+                )}
+              </span>
+            )
+          })}
+        </React.Fragment>
+        {editable && (
+          <span className="dropdown" ref={(c) => (this._dropdown = c)}>
+            <a className="tag-add" title={$L('ClickAdd')} data-toggle="dropdown">
+              <i className="zmdi zmdi-plus"></i>
+            </a>
+            <div className="dropdown-menu dropdown-menu-right tags">
+              {<ValueTagsEditor ref={(c) => (this._ValueTagsEditor = c)} projectId={this.props.projectId} taskid={this.props.taskid} $$$parent={this} />}
+            </div>
+          </span>
+        )}
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const that = this
+
+    $unhideDropdown(this._dropdown).on({
+      'hiden.bs.dropdown': function () {
+        that._ValueTagsEditor.toggleEditMode(false)
+      },
+    })
+  }
+
+  _delRelated(rid) {
+    $.post(`/project/tags/related-del?rid=${rid}`, (res) => {
+      if (res.error_code === 0) {
+        const tagsNew = this.state.tags.filter((item) => item.rid !== rid)
+        this.setState({ tags: tagsNew })
+        this.refreshTags()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  refreshTags() {
+    $.get(`/project/tags/task-tags?task=${this.props.taskid}`, (res) => {
+      this.setState({ tags: res.data || [] })
+    })
+    __TaskViewer.refreshTask && __TaskViewer.refreshTask()
+  }
+}
+
+class ValueTagsEditor extends React.Component {
+  static _COLORS = ['#4285f4', '#34a853', '#6a70b8', '#009c95', '#fbbc05', '#ea4335']
+
+  state = { ...this.props, editMode: false, useColor: ValueTagsEditor._COLORS[0] }
+
+  render() {
+    return (
+      <div>
+        {this._renderList()}
+        {this._renderEditor()}
+      </div>
+    )
+  }
+
+  _renderList() {
+    return (
+      <div className={`tags-list ${this.state.editMode ? 'hide' : ''}`}>
+        <div className="search-tag pt-2 pb-2 pl-3 pr-3">
+          <div className="input-group input-search w-100">
+            <input
+              type="text"
+              className="form-control"
+              maxLength="20"
+              placeholder={$L('Search')}
+              ref={(c) => (this._searchTagName = c)}
+              value={this.state.searchTagName || ''}
+              onChange={(e) => this.setState({ searchTagName: e.target.value })}
+              onKeyDown={(e) => e.keyCode === 13 && this.toggleEditMode(true)}
+            />
+            <span className="input-group-btn">
+              <button className="btn btn-secondary" type="button" onClick={() => this.toggleEditMode(true)}>
+                <i className="icon zmdi zmdi-plus text-primary"></i>
+              </button>
+            </span>
+          </div>
+        </div>
+        <div className="rb-scroller" ref={(c) => (this._scroller = c)}>
+          {(this.state.tagList || []).map((item) => {
+            if (!this.state.searchTagName || item.name.includes(this.state.searchTagName)) {
+              const colorStyle = { backgroundColor: item.color }
+              return (
+                <li className="dropdown-item" key={item.id} onClick={() => this._saveRelated(item)}>
+                  <i style={colorStyle}></i>
+                  <span>{item.name}</span>
+                  {item.isManageable &&
+                    <a onClick={() => this.toggleEditMode(true, item)} title={$L('Edit')}>
+                      <i className="zmdi zmdi-edit"></i>
+                    </a>
+                  }
+                </li>
+              )
+            } else {
+              return null
+            }
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  _renderEditor() {
+    return (
+      <div className={`tags-editor ${this.state.editMode ? '' : 'hide'}`}>
+        <h5 className="pt-2 pb-2 pl-3 pr-3 m-0">
+          <a onClick={() => this.toggleEditMode(false)}>
+            <i className="zmdi zmdi-chevron-left" />
+          </a>
+          {$L(this.state.tagId ? 'EditSome,TaskTag' : 'AddSome,TaskTag')}
+        </h5>
+        <div className="p-3 pt-0">
+          <div>
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              maxLength="20"
+              ref={(c) => (this._createTagName = c)}
+              value={this.state.createTagName || ''}
+              onChange={(e) => this.setState({ createTagName: e.target.value })}
+              onKeyDown={(e) => e.keyCode === 13 && this._saveTag()}
+            />
+          </div>
+          <div className="colors pt-2 pb-2 text-center">
+            {ValueTagsEditor._COLORS.map((color) => {
+              return (
+                <a key={color} style={{ backgroundColor: color }} onClick={() => this.setState({ useColor: color })}>
+                  {this.state.useColor === color && <i className="zmdi zmdi-check" />}
+                </a>
+              )
+            })}
+          </div>
+          <div className="row">
+            <div className="col">
+              <button typeof="button" className="btn btn-primary w-100" onClick={() => this._saveTag()}>
+                {$L('Confirm')}
+              </button>
+            </div>
+            {this.state.tagId && (
+              <div className="col pl-0">
+                <button typeof="button" className="btn btn-danger btn-outline w-100" onClick={() => this._deleteTag(this.state.tagId)}>
+                  {$L('Delete')}
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  toggleEditMode(editMode, tag) {
+    let state = { editMode: editMode }
+    if (typeof tag === 'object') {
+      state = { ...state, createTagName: tag.name, tagId: tag.id, useColor: tag.color }
+    } else {
+      state = { ...state, createTagName: this.state.searchTagName || '', tagId: null, useColor: ValueTagsEditor._COLORS[0] }
+    }
+
+    this.setState(state)
+    setTimeout(() => {
+      if (this.state.editMode) $(this._createTagName).focus()
+      else $(this._searchTagName).focus()
+    }, 100)
+  }
+
+  componentDidMount() {
+    $(this._scroller).perfectScrollbar()
+    setTimeout(() => {
+      $(this._searchTagName).focus()
+    }, 1000)
+
+    this.fetchTags()
+  }
+
+  fetchTags() {
+    $.get(`/project/tags/list?project=${this.props.projectId}`, (res) => {
+      this.setState({ tagList: res.data || [] })
+    })
+  }
+
+  _deleteTag(tagId) {
+    const that = this
+    RbAlert.create($L('DeleteSomeConfirm,TaskTag'), {
+      confirm: function () {
+        this.disabled(true)
+        $.post(`/app/entity/common-delete?id=${tagId}`, () => {
+          that.fetchTags()
+          that.toggleEditMode(false)
+          that.props.$$$parent.refreshTags()
+          this.hide()
+        })
+      },
+    })
+  }
+
+  _saveTag() {
+    const data = {
+      tagName: this.state.createTagName,
+      color: this.state.useColor,
+      projectId: this.props.projectId,
+      metadata: { entity: 'ProjectTaskTag', id: this.state.tagId },
+    }
+
+    $.post(`/project/tags/create?task2=${this.props.taskId}`, JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        this.fetchTags()
+        this.toggleEditMode(false)
+        this.props.$$$parent.refreshTags()
+        this.setState({ createTagName: null, useColor: ValueTagsEditor._COLORS[0] })
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+
+  _saveRelated(tag) {
+    $.post(`/project/tags/related-add?task=${this.props.taskid}&tag=${tag.id}`, (res) => {
+      if (res.error_code === 0) {
+        res.data.rid && this.props.$$$parent.refreshTags()
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
+    })
+  }
+}
+
 // --
 
 // 评论列表
@@ -556,7 +824,7 @@ class TaskCommentsList extends React.Component {
     if ((this.state.comments || []).length === 0) return null
     return (
       <div className="comment-list-wrap">
-        <h4>{$L('SomeList,Comment')}</h4>
+        <h4><i className="zmdi zmdi-comments label-icon down-2"></i> {$L('SomeList,Comment')}</h4>
         <div className="feeds-list comment-list">
           {this.state.comments.map((item) => {
             const id = `comment-${item.id}`
@@ -579,20 +847,22 @@ class TaskCommentsList extends React.Component {
                       <div className="float-left text-muted fs-12 time">
                         <DateShow date={item.createdOn} />
                       </div>
-                      <ul className="list-unstyled m-0">
-                        {item.self && (
-                          <li className="list-inline-item mr-2">
-                            <a href="#reply" onClick={() => this._handleDelete(item)} className="fixed-icon">
-                              <i className="zmdi zmdi-delete" /> {$L('Delete')}
+                      {this.props.editable && (
+                        <ul className="list-unstyled m-0">
+                          {item.isManageable && (
+                            <li className="list-inline-item mr-2">
+                              <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon danger-hover">
+                                <i className="zmdi zmdi-delete" /> {$L('Delete')}
+                              </a>
+                            </li>
+                          )}
+                          <li className="list-inline-item">
+                            <a href="#" onClick={() => this._handleReply(item)} className="fixed-icon">
+                              <i className="zmdi zmdi-mail-reply" /> {$L('Reply')}
                             </a>
                           </li>
-                        )}
-                        <li className="list-inline-item">
-                          <a href="#reply" onClick={() => this._handleReply(item)} className="fixed-icon">
-                            <i className="zmdi zmdi-mail-reply" /> {$L('Reply')}
-                          </a>
-                        </li>
-                      </ul>
+                        </ul>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -611,7 +881,7 @@ class TaskCommentsList extends React.Component {
   }
 
   _handleReply(item) {
-    __TaskComment.commentState(true, `@${item.createdBy[1]} `)
+    __TaskComment.commentState(true, `@${item.createdBy[1]} : `)
   }
 
   _handleDelete(item) {

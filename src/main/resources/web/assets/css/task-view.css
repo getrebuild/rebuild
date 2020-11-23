@@ -1,0 +1,340 @@
+/*
+Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights reserved.
+
+rebuild is dual-licensed under commercial and open source licenses (GPLv3).
+See LICENSE and COMMERCIAL in the project root for license information.
+*/
+
+#task-contents {
+  background-color: #fff;
+  height: 100%;
+  padding-bottom: 65px;
+}
+
+.view-body.readonly #task-contents {
+  padding-bottom: 0;
+}
+
+#task-comment {
+  background-color: #f5f5f5;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.task-form .col-form-label > .icon,
+.label-icon {
+  color: #999;
+  width: 30px;
+  float: left;
+  font-size: 1.35rem;
+  margin-top: -2px;
+}
+
+.task-form .hover:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.task-form .user-selector,
+.task-form .form-control,
+.task-form .input-group {
+  max-width: 400px;
+}
+
+.task-form .task-title {
+  border: 0 none;
+  outline: none;
+  appearance: none;
+  width: 100%;
+  height: 2.9rem;
+  font-size: 1.4rem;
+  padding: 5px 0;
+  cursor: pointer;
+  border-radius: 3px;
+  line-height: 1.5;
+  transition: padding 0.2s;
+}
+
+.task-form .task-title:focus {
+  background-color: #f7f7f7;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
+.task-form div.task-title {
+  height: auto;
+  min-height: 2.9rem;
+  cursor: default;
+}
+
+.task-form .tag-value {
+  position: relative;
+  height: 26px;
+  padding: 4px 10px 0;
+  border: 0 none;
+  border-radius: 99px;
+  transition: padding 0.2s;
+  line-height: 18px;
+  display: inline-block;
+  margin-top: -3px;
+}
+
+.task-form a.tag-value.arrow:hover {
+  padding-right: 22px;
+}
+
+.task-form a.tag-value.arrow:hover::after {
+  font: normal normal normal 16px/1 'Material-Design-Iconic-Font';
+  content: '\f2f9';
+  position: absolute;
+  right: 9px;
+}
+
+.task-form .tag-value.plaintext,
+.task-form .tag-value.placeholder {
+  background-color: #fff;
+  color: #404040;
+  border: 1px solid #ccc;
+  padding: 4px 10px;
+}
+
+.task-form .tag-value.placeholder {
+  color: #aaa;
+}
+
+.task-form .tag-value.priority-0,
+.task-form .tag-value.priority-1,
+.task-form .tag-value.priority-2,
+.task-form .tag-value.priority-3 {
+  background-color: #aaa;
+  color: #fff !important;
+}
+
+.task-form .tag-value.priority-1 {
+  background-color: #4285f4;
+}
+
+.task-form .tag-value.priority-2 {
+  background-color: #f7b904;
+}
+
+.task-form .tag-value.priority-3 {
+  background-color: #ea3f30;
+}
+
+.task-form .tag-value.upload {
+  background-color: rgba(66, 133, 244, 0.1);
+  color: #4285f4 !important;
+}
+
+.task-form .executor-show {
+  margin-top: 3px;
+  padding-right: 20px;
+  display: inline-block;
+}
+
+.task-form .executor-show > a.close {
+  float: none;
+  position: absolute;
+  margin-left: 6px;
+  margin-top: 6px;
+  display: none;
+  font-size: 1.231rem;
+}
+
+.task-form .executor-show:hover > a.close {
+  display: inline-block;
+}
+
+.file-field.attachments > .img-thumbnail {
+  width: 49.5%;
+  display: inline-block;
+}
+
+.file-field.attachments > .img-thumbnail:nth-child(even) {
+  margin-left: 1%;
+}
+
+.file-field.attachments > .img-thumbnail b {
+  top: 0;
+  right: 0;
+  left: unset;
+  width: 28px;
+  padding-top: 12px;
+}
+
+#task-comment .comments,
+#task-comment .comments .comment-reply {
+  margin: 0;
+}
+
+#task-comment .comments .comment-reply {
+  padding: 15px 25px;
+}
+
+.comment-list-wrap h4 {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.status-checkbox > .custom-checkbox {
+  margin: -2px 10px 0 0;
+  padding: 0 0 0 30px;
+}
+
+.form-control-plaintext.desc .rich-content > .texts {
+  margin: 0;
+}
+
+.rich-editor textarea {
+  max-height: 200px;
+}
+
+.task-tags.form-control-plaintext {
+  padding-top: 3px;
+}
+
+.task-tags > span.tag-value {
+  background-color: #fff;
+  border: 1px solid transparent;
+  padding: 4px 9px 0;
+  margin-right: 5px;
+  margin-top: 5px;
+}
+
+.task-tags > span.tag-value > a {
+  color: #999;
+  transition: width 0.2s;
+  transform: translateY(2px);
+  width: 0;
+  overflow: hidden;
+  display: inline-block;
+  line-height: 1;
+  text-align: right;
+}
+
+.task-tags > span.tag-value:hover > a {
+  width: 12px;
+  margin-left: 2px;
+}
+
+.task-tags > span.tag-value:hover > a:hover {
+  color: rgb(64, 64, 64);
+}
+
+.task-tags a.tag-add {
+  color: #999;
+  display: inline-block;
+  padding: 0 6px;
+  font-size: 1.231rem;
+  background-color: #eee;
+  border-radius: 50%;
+  margin-top: 3px;
+}
+
+.task-tags a.tag-add:hover {
+  color: rgb(66, 133, 244);
+}
+
+.tags-editor h5 {
+  border-bottom: 1px solid #eee;
+  line-height: 1.2;
+  font-weight: bold;
+  text-align: center;
+}
+
+.tags-editor h5 > a {
+  float: left;
+  font-size: 1.5rem;
+  transform: translateY(-2px);
+  padding-right: 4px;
+}
+
+.tags-editor h5 > a:hover {
+  opacity: 0.8;
+}
+
+.tags-editor .colors > a {
+  width: 28px;
+  height: 28px;
+  display: inline-block;
+  background-color: #ccc;
+  border-radius: 50%;
+  color: #fff;
+  overflow: hidden;
+  font-size: 1.3rem;
+  padding-top: 6px;
+}
+
+.tags-editor .colors > a:hover {
+  opacity: 0.8;
+}
+
+.tags-editor .colors > a + a {
+  margin-left: 8px;
+}
+
+.tags-editor .colors > a > i {
+  color: #fff !important;
+}
+
+.dropdown-menu.tags {
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  padding: 0;
+  width: 260px;
+}
+
+.tags-list .search-tag {
+  border-bottom: 1px solid #eee;
+}
+
+.tags-list .rb-scroller {
+  max-height: 205px;
+}
+
+.rb-scroller .ps-scrollbar-x-rail,
+.rb-scroller .ps-scrollbar-y-rail {
+  z-index: 1;
+}
+
+.tags-list .dropdown-item {
+  padding: 8px 15px;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  clear: both;
+}
+
+.tags-list .dropdown-item:hover,
+.tags-list .dropdown-item:active {
+  background-color: #eee !important;
+  color: #212529 !important;
+}
+
+.tags-list .dropdown-item > i {
+  float: left;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #ccc;
+  margin-top: 5px;
+}
+
+.tags-list .dropdown-item > span {
+  margin-left: 6px;
+}
+
+.tags-list .dropdown-item > a {
+  float: right;
+  color: #999;
+  padding-left: 4px;
+  font-size: 1.1rem;
+  display: none;
+}
+
+.tags-list .dropdown-item:hover > a {
+  display: inline-block;
+}
