@@ -1,7 +1,7 @@
 {
   "name": "rebuild-lint",
   "version": "1.0.0",
-  "description": "Lint the web",
+  "description": "Lint the src/main/resources/web/",
   "main": ".eslintrc.js",
   "scripts": {
     "lint": "eslint --ext .js assets/js/* &"
