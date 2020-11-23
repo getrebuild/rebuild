@@ -33,6 +33,18 @@ $(function () {
     setTimeout(_globalSearch, 200)
   }
 
+  var hasNotification = $('.J_top-notifications')
+  if (hasNotification.length > 0) {
+    $unhideDropdown(hasNotification)
+      .on('shown.bs.dropdown', _loadMessages)
+    setTimeout(_checkMessage, 2000)
+  }
+
+  var hasUser = $('.J_top-user')
+  if (hasUser.length > 0) {
+    $unhideDropdown(hasUser)
+  }
+
   if (rb.isAdminUser) {
     var topPopover = function (el, content) {
       var pop_show_timer
@@ -94,14 +106,6 @@ $(function () {
     })
   } else {
     $('.admin-show, .admin-danger').remove()
-  }
-
-  if ($('.J_notifications-top').length > 0) {
-    setTimeout(_checkMessage, 2000)
-    $('.J_notifications-top').on('shown.bs.dropdown', _loadMessages)
-    $('.rb-notifications').click(function (e) {
-      e.stopPropagation()
-    })
   }
 
   var bosskey = 0
@@ -253,9 +257,10 @@ var _checkMessage__state = 0
 var _checkMessage = function () {
   $.get('/notification/check-state', function (res) {
     if (res.error_code > 0) return
-    $('.J_notifications-top .badge').text(res.data.unread)
-    if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
-    else $('.J_notifications-top .indicator').addClass('hide')
+
+    $('.J_top-notifications .badge').text(res.data.unread)
+    if (res.data.unread > 0) $('.J_top-notifications .indicator').removeClass('hide')
+    else $('.J_top-notifications .indicator').addClass('hide')
 
     if (_checkMessage__state !== res.data.unread) {
       _checkMessage__state = res.data.unread
@@ -731,4 +736,19 @@ var _$L = function (key) {
     lang = '[' + key.toUpperCase() + ']'
   }
   return lang
+}
+
+/**
+ * 点击 Dropdown-Menu 不隐藏
+ */
+var $unhideDropdown = function (dp) {
+  return $(dp).on({
+    'hide.bs.dropdown': function (e) {
+      if (!e.clickEvent || !e.clickEvent.target) return
+      var $target = $(e.clickEvent.target)
+      if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
+        return false
+      }
+    }
+  })
 }

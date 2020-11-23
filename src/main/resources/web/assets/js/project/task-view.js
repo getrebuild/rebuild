@@ -601,14 +601,8 @@ class ValueTags extends ValueComp {
 
   componentDidMount() {
     const that = this
-    $(this._dropdown).on({
-      'hide.bs.dropdown': function (e) {
-        if (!e.clickEvent || !e.clickEvent.target) return
-        const $target = $(e.clickEvent.target)
-        if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
-          return false
-        }
-      },
+
+    $unhideDropdown(this._dropdown).on({
       'hiden.bs.dropdown': function () {
         that._ValueTagsEditor.toggleEditMode(false)
       },
@@ -653,7 +647,7 @@ class ValueTagsEditor extends React.Component {
     return (
       <div className={`tags-list ${this.state.editMode ? 'hide' : ''}`}>
         <div className="search-tag pt-2 pb-2 pl-3 pr-3">
-          <div className="input-group input-search">
+          <div className="input-group input-search w-100">
             <input
               type="text"
               className="form-control"

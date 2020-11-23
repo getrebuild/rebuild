@@ -86,11 +86,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         converters.add(0, new FastJsonHttpMessageConverter4());
     }
 
-    /**
-     * 请求拦截
-     *
-     * @param registry
-     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RebuildWebInterceptor())
@@ -100,11 +95,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 .excludePathPatterns("/*.txt");
     }
 
-    /**
-     * 参数解析器
-     *
-     * @param resolvers
-     */
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         // URL 参数
@@ -112,11 +102,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         resolvers.add(new EntityParamMethodArgumentResolver());
     }
 
-    /**
-     * 异常处理
-     *
-     * @param resolvers
-     */
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
         resolvers.add((request, response, handler, ex)

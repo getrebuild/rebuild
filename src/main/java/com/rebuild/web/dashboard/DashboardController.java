@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.dashboard.DashboardConfigService;
 import com.rebuild.core.service.dashboard.DashboardManager;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
@@ -52,8 +53,13 @@ import java.util.Iterator;
 public class DashboardController extends BaseController {
 
     @GetMapping("/home")
-    public ModelAndView pageHome() {
-        return createModelAndView("/dashboard/home");
+    public ModelAndView pageHome(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
+        ModelAndView mav = createModelAndView("/dashboard/home");
+        mav.getModelMap().put(ZeroEntry.AllowCustomChart.name(),
+                Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomChart));
+        return mav;
     }
 
     @GetMapping("/dash-gets")
