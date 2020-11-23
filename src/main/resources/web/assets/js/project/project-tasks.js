@@ -188,7 +188,7 @@ class PlanBoxes extends React.Component {
 }
 
 // 任务面板
-const __DEFAULT_PAGE_SIZE = 10
+const __DEFAULT_PAGE_SIZE = 40
 class PlanBox extends React.Component {
   state = { ...this.props }
 
