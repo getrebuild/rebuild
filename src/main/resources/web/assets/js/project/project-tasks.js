@@ -393,6 +393,13 @@ class Task extends React.Component {
   state = { ...this.props }
 
   render() {
+    let deadlineState = -1
+    if (!this.state.endTime && this.state.deadline) {
+      if ($expired(this.state.deadline)) deadlineState = 2
+      else if ($expired(this.state.deadline, -60 * 60 * 24)) deadlineState = 1
+      else deadlineState = 0
+    }
+
     return (
       <div
         className={`task-card content status-${this.state.status} priority-${this.state.priority}`}
@@ -425,9 +432,9 @@ class Task extends React.Component {
               <div className="task-time">
                 {$L('f.createdOn')} <DateShow date={this.state.createdOn} />
               </div>
-              {!this.state.endTime && this.state.deadline && (
+              {deadlineState > -1 && (
                 <div className="task-time">
-                  <span className={`badge badge-${$expired(this.state.deadline) ? 'danger' : 'primary'}`}>
+                  <span className={`badge badge-${deadlineState === 2 ? 'danger' : (deadlineState === 1 ? 'warning' : 'primary')}`}>
                     {$L('Deadline')} <DateShow date={this.state.deadline} />
                   </span>
                 </div>
@@ -469,7 +476,7 @@ class Task extends React.Component {
     if (prevState && prevState.status !== this.state.status) {
       $(this._status).prop('checked', this.state.status === 1)
     }
-    __TaskRefs[this.props.id] = this
+    // __TaskRefs[this.props.id] = this
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {

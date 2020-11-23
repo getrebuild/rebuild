@@ -68,7 +68,7 @@ $(function () {
             $pop.popover('hide')
           }, 200)
         })
-        .on('shown.bs.popover', function (e) {
+        .on('shown.bs.popover', function () {
           $('#' + $(this).attr('aria-describedby'))
             .find('.popover-body')
             .off('mouseenter')
@@ -676,14 +676,6 @@ var $converEmoji = function (text) {
   return text
 }
 
-!(function () {
-  if (window.moment) {
-    moment.fn.fromNowOrNow = function (a) {
-      if (Math.abs(moment().diff(this)) < 60000) return $L('JustNow')
-      else return this.fromNow(a)
-    }
-  }
-})()
 /**
  * Use momentjs
  */
@@ -692,15 +684,19 @@ var $moment = function (date) {
   return moment(date.split('UTC')[0].trim())
 }
 /**
+ * 友好时间显示
  */
 var $fromNow = function (date) {
-  return $moment(date).fromNowOrNow()
+  var m = $moment(date)
+  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow'): m.fromNow()
 }
 /**
  * 是否过期
  */
-var $expired = function (date) {
-  return $moment(date).isBefore(moment())
+var $expired = function (date, offset) {
+  var m = $moment(date)
+  if (offset) m.add(offset, 's')
+  return m.isBefore(moment())
 }
 
 /**
