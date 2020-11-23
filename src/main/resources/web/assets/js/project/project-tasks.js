@@ -58,11 +58,13 @@ $(document).ready(() => {
     __PlanBoxes.setState({ filter: s })
   }
   $('.J_filter').click(() => {
-    if (__AdvFilter) __AdvFilter.show()
-    else
+    if (__AdvFilter) {
+      __AdvFilter.show()
+    } else {
       renderRbcomp(<AdvFilter title={$L('AdvFilter')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={confirmFilter} />, null, function () {
         __AdvFilter = this
       })
+    }
   })
 })
 
@@ -186,6 +188,7 @@ class PlanBoxes extends React.Component {
 }
 
 // 任务面板
+const __DEFAULT_PAGE_SIZE = 10
 class PlanBox extends React.Component {
   state = { ...this.props }
 
@@ -193,7 +196,7 @@ class PlanBox extends React.Component {
   performableTask = (this.props.flowStatus === 1 || this.props.flowStatus === 3) && !this.props.readonly
 
   pageNo = 0
-  pageSize = 10
+  pageSize = __DEFAULT_PAGE_SIZE
 
   render() {
     return (
@@ -255,7 +258,7 @@ class PlanBox extends React.Component {
               </div>
             ) : (
               <div className="task-card newbtn" onClick={() => this._handleAddTask()}>
-                <i className="zmdi zmdi-plus"></i>
+                <i className="zmdi zmdi-plus"/>
               </div>
             ))}
         </div>
@@ -275,7 +278,6 @@ class PlanBox extends React.Component {
 
       const scrollerHeight = $scroller[0].scrollHeight
       const top = $scroller.scrollTop() + $scroller.height()
-      console.log(scrollerHeight, top)
       if (top + 222 > scrollerHeight) {
         $setTimeout(() => this.refreshTasks(true), 200, 'tasks-load-more')
       }
@@ -297,7 +299,7 @@ class PlanBox extends React.Component {
       this.pageNo++
     } else {
       this.pageNo = 1
-      this.pageSize = this.state.tasks.length
+      this.pageSize = Math.max(this.state.tasks.length + 1, __DEFAULT_PAGE_SIZE)
     }
 
     const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${this.pageNo}&pageSize=${this.pageSize}`
@@ -410,7 +412,7 @@ class Task extends React.Component {
                   disabled={!this.props.$$$parent.performableTask}
                   ref={(c) => (this._status = c)}
                 />
-                <span className="custom-control-label"></span>
+                <span className="custom-control-label"/>
               </label>
             </div>
             <div className="task-content">
@@ -437,7 +439,7 @@ class Task extends React.Component {
                     const colorStyle2 = { backgroundColor: item.color }
                     return (
                       <a key={item.rid} style={colorStyle1}>
-                        <i style={colorStyle2}></i> {item.name}
+                        <i style={colorStyle2}/> {item.name}
                       </a>
                     )
                   })}
@@ -450,7 +452,7 @@ class Task extends React.Component {
                   </a>
                 )}
                 <span className="badge float-right">{this.state.taskNumber}</span>
-                <div className="clearfix"></div>
+                <div className="clearfix"/>
               </div>
             </div>
           </div>
@@ -467,6 +469,7 @@ class Task extends React.Component {
     if (prevState && prevState.status !== this.state.status) {
       $(this._status).prop('checked', this.state.status === 1)
     }
+    __TaskRefs[this.props.id] = this
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -474,7 +477,15 @@ class Task extends React.Component {
   }
 
   refresh() {
-    $.get(`/project/tasks/get?task=${this.props.id}`, (res) => this.setState({ ...res.data }))
+    $.get(`/project/tasks/get?task=${this.props.id}`, (res) => {
+      const ns = []
+      this.props.$$$parent.state.tasks.forEach((item) => {
+        if (item.id === res.data.id) ns.push(res.data)
+        else ns.push(item)
+      })
+      // 委托父级刷新
+      this.props.$$$parent.setState({ tasks: ns })
+    })
   }
 
   _toggleStatus(e) {
@@ -549,7 +560,7 @@ class TaskViewModal extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state._taskUrl || ''} frameBorder="0" scrolling="no"></iframe>
+              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state._taskUrl || ''} frameBorder="0" scrolling="no"/>
               <RbSpinner />
             </div>
           </div>

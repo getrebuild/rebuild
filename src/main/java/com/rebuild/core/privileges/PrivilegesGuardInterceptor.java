@@ -23,10 +23,9 @@ import com.rebuild.core.service.CommonsService;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
@@ -38,9 +37,8 @@ import java.security.Guard;
  * @author devezhao
  * @since 10/12/2018
  */
+@Slf4j
 public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PrivilegesGuardInterceptor.class);
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
@@ -57,7 +55,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
 
         final ID caller = UserContextHolder.getUser();
         if (Application.devMode()) {
-            LOG.info("User [ " + caller + " ] calls : " + invocation.getMethod());
+            log.info("User [ " + caller + " ] call : " + invocation.getMethod());
         }
 
         Class<?> invocationClass = invocation.getThis().getClass();
@@ -80,7 +78,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             BulkContext context = (BulkContext) firstArgument;
             Entity entity = context.getMainEntity();
             if (!Application.getPrivilegesManager().allow(caller, entity.getEntityCode(), context.getAction())) {
-                LOG.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
+                log.error("User [ " + caller + " ] not allowed execute action [ " + context.getAction() + " ]. Entity : " + context.getMainEntity());
                 throw new AccessDeniedException(formatHumanMessage(context.getAction(), entity, null));
             }
             return;
@@ -131,11 +129,11 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         // 无权限操作
         if (!allowed && PrivilegesGuardContextHolder.getSkipGuardOnce() != null) {
             allowed = true;
-            LOG.warn("Allow no permission(" + action.getName() + ") passed once : " + recordId);
+            log.warn("Allow no permission(" + action.getName() + ") passed once : " + recordId);
         }
 
         if (!allowed) {
-            LOG.error("User [ " + caller + " ] not allowed execute action [ " + action + " ]. "
+            log.error("User [ " + caller + " ] not allowed execute action [ " + action + " ]. "
                     + (recordId == null ? "Entity : " + entity : "Record : " + recordId));
             throw new AccessDeniedException(formatHumanMessage(action, entity, recordId));
         }
