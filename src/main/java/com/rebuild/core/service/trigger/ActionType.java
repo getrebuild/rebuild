@@ -7,7 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger;
 
-import com.rebuild.core.service.trigger.impl.*;
+import com.rebuild.core.service.trigger.impl.AutoApproval;
+import com.rebuild.core.service.trigger.impl.AutoAssign;
+import com.rebuild.core.service.trigger.impl.AutoShare;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
+import com.rebuild.core.service.trigger.impl.FieldWriteback;
+import com.rebuild.core.service.trigger.impl.HookUrl;
+import com.rebuild.core.service.trigger.impl.SendNotification;
 import org.springframework.cglib.core.ReflectUtils;
 
 import java.lang.reflect.Constructor;
@@ -26,6 +32,7 @@ public enum ActionType {
     AUTOSHARE("自动共享", AutoShare.class),
     AUTOASSIGN("自动分派", AutoAssign.class),
     AUTOAPPROVAL("自动审批", AutoApproval.class),
+    HOOKURL("回调 URL", HookUrl.class),
 
     ;
 

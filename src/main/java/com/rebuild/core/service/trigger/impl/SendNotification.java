@@ -58,7 +58,7 @@ public class SendNotification implements TriggerAction {
         ThreadPool.exec(() -> {
             try {
                 // 等待事物完成
-                ThreadPool.waitFor(3000);
+                ThreadPool.waitFor(5000);
 
                 executeAsync();
             } catch (Exception ex) {
@@ -68,9 +68,9 @@ public class SendNotification implements TriggerAction {
     }
 
     /**
-     *
+     * 异步执行
      */
-    private void executeAsync() {
+    protected void executeAsync() {
         final JSONObject content = (JSONObject) context.getActionContent();
 
         Set<ID> toUsers = UserHelper.parseUsers(content.getJSONArray("sendTo"), context.getSourceRecord());
