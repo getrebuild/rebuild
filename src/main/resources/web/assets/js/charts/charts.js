@@ -23,13 +23,13 @@ class BaseChart extends React.Component {
         <a title={$L('Refresh')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a title={$L('FullScreen')} onClick={() => this.toggleFullscreen()}>
+        <a className="J_fullscreen" title={$L('FullScreen')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
         {this.props.editable && (
           <React.Fragment>
             {!this.props.builtin && (
-              <a title={$L('Edit')} className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+              <a className="J_chart-edit" title={$L('Edit')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
                 <i className="zmdi zmdi-edit" />
               </a>
             )}
@@ -657,8 +657,8 @@ class ApprovalList extends BaseChart {
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th style={{ minWidth: 150 }}>{$L('Submitter')}</th>
-                <th style={{ minWidth: 150 }}>{$L('RecordId')}</th>
+                <th style={{ minWidth: 140 }}>{$L('Submitter')}</th>
+                <th style={{ minWidth: 140 }}>{$L('ApprovalRecord')}</th>
                 <th width="90"></th>
               </tr>
             </thead>
@@ -677,7 +677,7 @@ class ApprovalList extends BaseChart {
                       <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
                       <span className="cell-detail-description">{item[6]}</span>
                     </td>
-                    <td className="actions text-right">
+                    <td className="actions text-right text-nowrap">
                       {this.state.viewState === 1 && (
                         <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
                           {$L('Approve')}
@@ -764,8 +764,8 @@ class FeedsSchedule extends BaseChart {
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th>{$L('ScheduleContent')}</th>
-                <th width="140">{$L('ScheduleTime')}</th>
+                <th style={{ minWidth: 140 }}>{$L('ScheduleContent')}</th>
+                <th style={{ minWidth: 140 }}>{$L('ScheduleTime')}</th>
                 <th width="90"></th>
               </tr>
             </thead>
@@ -776,7 +776,7 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a title={$L('ViewDetails')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a title={$L('ViewDetails')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -785,7 +785,7 @@ class FeedsSchedule extends BaseChart {
                         {_expired && ` (${$L('Expires')})`}
                       </span>
                     </td>
-                    <td className="actions text-right">
+                    <td className="actions text-right text-nowrap">
                       <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
                         {$L('Finish')}
                       </button>

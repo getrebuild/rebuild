@@ -1227,6 +1227,7 @@
   "JustNow": "刚刚",
   "ChartShare": "共享图表",
   "ChartShareTips": "共享后其他用户也可以添加使用",
+  "ApprovalRecord": "审批记录",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

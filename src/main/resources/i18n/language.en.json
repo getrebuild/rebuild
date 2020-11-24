@@ -1227,6 +1227,7 @@
   "JustNow": "just now",
   "ChartShare": "Share chart",
   "ChartShareTips": "After sharing, other users can also add and use",
+  "ApprovalRecord": "Approval record",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

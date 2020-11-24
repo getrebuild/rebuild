@@ -1288,7 +1288,7 @@ i.dividing.ui-draggable-dragging {
   max-width: 1000px;
 }
 
-.data-list .table td.td-min {
+.data-list .table td.td-sm {
   padding: 3px 10px;
 }
 
@@ -3295,6 +3295,10 @@ form {
   padding-top: 10px;
 }
 
+#asideWidgets .chart-box .chart-head {
+  background-color: transparent;
+}
+
 #asideWidgets .chart-box .chart-title {
   margin-right: 60px;
 }
@@ -3303,12 +3307,17 @@ form {
   display: block;
 }
 
-#asideWidgets .chart-box:hover .chart-oper a.chart-edit {
+#asideWidgets .chart-box:hover .chart-oper a.J_fullscreen,
+#asideWidgets .chart-box:hover .chart-oper a.J_chart-edit {
   display: none !important;
 }
 
 #asideWidgets .charts-wrap > div {
   margin-bottom: 25px;
+}
+
+#asideWidgets .charts-wrap .ui-sortable-helper {
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
 }
 
 #asideWidgets .chart-box.INDEX {
@@ -3324,8 +3333,17 @@ form {
   height: 160px;
 }
 
-#asideWidgets .chart-box.ApprovalList .chart-head {
+#asideWidgets .chart-box.ApprovalList .chart-head,
+#asideWidgets .chart-box.FeedsSchedule .chart-head {
   margin: 0;
+}
+
+#asideWidgets .chart.ApprovalList .table td,
+#asideWidgets .chart.ApprovalList .table th,
+#asideWidgets .chart.FeedsSchedule .table td,
+#asideWidgets .chart.FeedsSchedule .table th {
+  padding-left: 6px !important;
+  padding-right: 6px !important;
 }
 
 #asideWidgets .chart-box.ApprovalList .progress-wrap {
@@ -3334,14 +3352,9 @@ form {
   padding-right: 0;
 }
 
-#asideWidgets .chart.ApprovalList .table td,
-#asideWidgets .chart.ApprovalList .table th {
-  padding-left: 6px !important;
-  padding-right: 6px !important;
-}
-
-#asideWidgets .charts-wrap .ui-sortable-helper {
-  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1), 0 16px 24px 0 rgba(81, 129, 228, 0.1);
+#asideWidgets .chart.FeedsSchedule td > .content {
+  min-height: auto;
+  padding: 0;
 }
 
 @media screen and (max-width: 767px) {

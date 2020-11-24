@@ -132,10 +132,10 @@ public class ChartManager implements ConfigManager {
      * 丰富图表数据 title, type
      *
      * @param charts
-     * @param user
+     * @param user [可选]
      */
     public void richingCharts(JSONArray charts, ID user) {
-        boolean isAdmin = UserHelper.isAdmin(user);
+        boolean isAdmin = user != null && UserHelper.isAdmin(user);
 
         for (Iterator<Object> iter = charts.iterator(); iter.hasNext(); ) {
             JSONObject ch = (JSONObject) iter.next();

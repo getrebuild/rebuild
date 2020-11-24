@@ -523,7 +523,7 @@ CellRenders.addRender('IMAGE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-min">
+    <td key={k} className="td-sm">
       <div className="column-imgs" style={s} title={$L('EtcXItems').replace('%d', vLen)}>
         {v.map((item, idx) => {
           if (idx > 2) return null
@@ -544,7 +544,7 @@ CellRenders.addRender('FILE', function (v, s, k) {
   v = v || []
   const vLen = v.length
   return (
-    <td key={k} className="td-min">
+    <td key={k} className="td-sm">
       <div style={s} className="column-files">
         <ul className="list-unstyled" title={$L('EtcXItems').replace('%d', vLen)}>
           {v.map((item, idx) => {
@@ -642,7 +642,7 @@ CellRenders.addRender('STATE', function (v, s, k) {
   if (k.endsWith('.approvalState')) {
     const badge = APPROVAL_STATE_CLAZZs[v]
     return (
-      <td key={k} className="td-min column-state">
+      <td key={k} className="td-sm column-state">
         <div style={s} title={v}>
           <span className={badge ? 'badge badge-' + badge : ''}>{v}</span>
         </div>
@@ -669,7 +669,7 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
 
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
   return (
-    <td key={k} className="td-min column-multi">
+    <td key={k} className="td-sm column-multi">
       <div style={s} title={v}>
         {(v.text || []).map((item) => {
           return (
@@ -1247,7 +1247,7 @@ const ChartsWidget = {
   renderChart: function (chart, append) {
     const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
     // eslint-disable-next-line no-undef
-    renderRbcomp(detectChart(chart, chart.chart), $w, function () {
+    renderRbcomp(detectChart({ ...chart, isManageable: true }, chart.chart, true), $w, function () {
       if (append) ChartsWidget.saveWidget()
     })
   },
