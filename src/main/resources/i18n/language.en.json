@@ -970,7 +970,7 @@
   "ChartOption": "Chart Option",
   "ChartNoOptionTips": "Current chart has no options",
   "ChartUseAllData": "Use all data",
-  "ChartUseAllDataTips": "If not enabled, only data within role privileges can be used",
+  "ChartUseAllDataTips": "If not enabled, only view data within user permissions",
   "ChartNotUseNullData": "Exclude empty data (value 0 does not show)",
   "ChartShowLine": "Show line number",
   "ChartShowCount": "Show summary",
@@ -1225,6 +1225,8 @@
   "MsgAtYouInProjectTask": "@%s mentioned you in the task",
   "MsgNewProjectTaskToYou": "A new task assigned to you",
   "JustNow": "just now",
+  "ChartShare": "Share chart",
+  "ChartShareTips": "After sharing, other users can also add and use",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

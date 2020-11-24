@@ -15,8 +15,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,7 +41,7 @@ public class WidgetController extends BaseController implements ShareTo {
         ID user = getRequestUser(request);
         JSON config = ServletUtils.getRequestJson(request);
         ID cfgid = getIdParameter(request, "id");
-        if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
+        if (cfgid != null && !UserHelper.isSelf(user, cfgid)) {
             cfgid = null;
         }
 

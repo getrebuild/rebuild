@@ -19,7 +19,6 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -65,9 +64,9 @@ public class ShowFieldsController extends BaseController implements ShareTo {
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个
-        if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
+        if (cfgid != null && !UserHelper.isSelf(user, cfgid)) {
             ID useList = DataListManager.instance.detectUseConfig(user, entity, DataListManager.TYPE_DATALIST);
-            if (useList != null && ShareToManager.isSelf(user, useList)) {
+            if (useList != null && UserHelper.isSelf(user, useList)) {
                 cfgid = useList;
             } else {
                 cfgid = null;

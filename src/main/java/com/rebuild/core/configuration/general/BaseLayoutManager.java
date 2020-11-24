@@ -87,7 +87,7 @@ public class BaseLayoutManager extends ShareToManager {
 
         // 补充图表信息
         JSONArray charts = (JSONArray) e.getJSON("config");
-        ChartManager.instance.richingCharts(charts);
+        ChartManager.instance.richingCharts(charts, null);
         return e.set("config", charts)
                 .set("shareTo", null);
     }

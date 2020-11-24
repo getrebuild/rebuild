@@ -15,12 +15,14 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.RebuildConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
@@ -43,6 +45,7 @@ import java.util.*;
  * @author devezhao
  * @since 10/14/2018
  */
+@Slf4j
 public class UserHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserHelper.class);
@@ -447,5 +450,48 @@ public class UserHelper {
         Set<ID> set = new HashSet<>();
         for (Object[] o : array) set.add((ID) o[0]);
         return set;
+    }
+
+    /**
+     * 是否是最自己的（管理员有特殊处理）
+     *
+     * @param user
+     * @param anyRecordId
+     * @return
+     */
+    public static boolean isSelf(ID user, ID anyRecordId) {
+        ID createdBy = anyRecordId;
+        if (anyRecordId.getEntityCode() != EntityHelper.User) {
+            createdBy = getCreatedBy(anyRecordId);
+            if (createdBy == null) return false;
+        }
+
+        if (createdBy.equals(user)) return true;
+
+        // 所有管理员被视为同一用户
+        return isAdmin(createdBy) && isAdmin(user);
+    }
+
+    private static ID getCreatedBy(ID anyRecordId) {
+        final String ckey = "CreatedBy-" + anyRecordId;
+        ID createdBy = (ID) Application.getCommonsCache().getx(ckey);
+        if (createdBy != null) {
+            return createdBy;
+        }
+
+        Entity entity = MetadataHelper.getEntity(anyRecordId.getEntityCode());
+        if (!entity.containsField(EntityHelper.CreatedBy)) {
+            log.warn("No [createdBy] field in [{}]", entity.getEntityCode());
+            return null;
+        }
+
+        Object[] c = Application.getQueryFactory().uniqueNoFilter(anyRecordId, EntityHelper.CreatedBy);
+        if (c == null) {
+            throw new RebuildException("No record found : " + anyRecordId);
+        }
+
+        createdBy = (ID) c[0];
+        Application.getCommonsCache().putx(ckey, createdBy);
+        return createdBy;
     }
 }

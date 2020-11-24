@@ -667,7 +667,7 @@ class ApprovalList extends BaseChart {
                 return (
                   <tr key={'approval-' + idx}>
                     <td className="user-avatar cell-detail user-info">
-                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} />
+                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
                         <DateShow date={item[2]} />
@@ -1021,7 +1021,7 @@ class ChartScatter extends BaseChart {
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id, editable) {
-  const props = { config: cfg, id: id, title: cfg.title, editable: editable !== false, type: cfg.type }
+  const props = { config: cfg, id: id, title: cfg.title, editable: editable !== false && cfg.isManageable, type: cfg.type }
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
   } else if (cfg.type === 'TABLE') {
@@ -1072,7 +1072,7 @@ class ChartSelect extends RbModalHandler {
                   {$L('CurrentEntity')}
                 </a>
               )}
-              <a href="#myself" onClick={this.switchTab} className={`nav-link hide ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
+              <a href="#myself" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
                 {$L('Myself')}
               </a>
               <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>
@@ -1085,20 +1085,19 @@ class ChartSelect extends RbModalHandler {
               {this.state.chartList && this.state.chartList.length === 0 && <p className="text-muted">{$L('NoAnySome,Chart')}</p>}
               {(this.state.chartList || []).map((item) => {
                 return (
-                  <div key={'k-' + item[0]}>
+                  <div key={`chart-${item.id}`}>
                     <span className="float-left chart-icon">
-                      <i className={item[2]}></i>
+                      <i className={item.type}></i>
                     </span>
                     <span className="float-left title">
-                      <strong>{item[1]}</strong>
+                      <strong>{item.title}</strong>
                       <p className="text-muted fs-12">
-                        {item[4] && <span>{item[4]}</span>}
-                        {item[3] && <DateShow date={item[3]} />}
+                        {item.entityLabel && <span>{item.entityLabel}</span>}
                       </p>
                     </span>
                     <span className="float-right">
-                      {this.state.appended.includes(item[0]) ? (
-                        <a className="btn disabled" data-id={item[0]}>
+                      {this.state.appended.includes(item.id) ? (
+                        <a className="btn disabled" data-id={item.id}>
                           {$L('Added')}
                         </a>
                       ) : (
@@ -1107,10 +1106,10 @@ class ChartSelect extends RbModalHandler {
                         </a>
                       )}
                     </span>
-                    {!this.props.entity && item[3] && (
+                    {item.isManageable && !this.props.entity && (
                       <span className="float-right">
-                        <a className="delete" onClick={() => this.deleteChart(item[0])}>
-                          <i className="zmdi zmdi-delete"></i>
+                        <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
+                          <i className="zmdi zmdi-delete"/>
                         </a>
                       </span>
                     )}
@@ -1135,9 +1134,9 @@ class ChartSelect extends RbModalHandler {
 
   selectChart(item) {
     const s = this.state.appended
-    s.push(item[0])
+    s.push(item.id)
     this.setState({ appended: s })
-    typeof this.props.select === 'function' && this.props.select({ chart: item[0], title: item[1], type: item[2] })
+    typeof this.props.select === 'function' && this.props.select({ ...item, chart: item.id })
   }
 
   deleteChart(id) {

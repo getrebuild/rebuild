@@ -16,19 +16,7 @@ import com.rebuild.core.RebuildException;
 public class ApprovalException extends RebuildException {
     private static final long serialVersionUID = 7876166915760948592L;
 
-    public ApprovalException() {
-        super();
-    }
-
-    public ApprovalException(String msg, Throwable cause) {
-        super(msg, cause);
-    }
-
     public ApprovalException(String msg) {
         super(msg);
-    }
-
-    public ApprovalException(Throwable cause) {
-        super(cause);
     }
 }

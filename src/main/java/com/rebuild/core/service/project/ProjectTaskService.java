@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.project;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -16,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.Language;
@@ -101,7 +101,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public int delete(ID taskId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(taskId, user)) throw new PrivilegesException("DELETETASK");
+        if (!ProjectHelper.isManageable(taskId, user)) throw new OperationDeniedException("DELETE TASK");
 
         int d = super.delete(taskId);
         ProjectManager.instance.clean(taskId);

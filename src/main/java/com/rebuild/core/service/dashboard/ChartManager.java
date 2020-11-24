@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dashboard;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -14,9 +15,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
+import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.service.dashboard.charts.builtin.BuiltinChart;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.ArrayUtils;
 
 import java.util.Iterator;
 
@@ -68,11 +74,69 @@ public class ChartManager implements ConfigManager {
     }
 
     /**
+     * 获取用户可用的图表列表
+     *
+     * @param user
+     * @param specEntity [指定实体的]
+     * @param onlySelf [自己的]
+     * @return
+     */
+    public JSONArray getChartList(ID user, String[] specEntity, boolean onlySelf) {
+        final String ckey = "Charts-ALL";
+
+        Object[][] value = (Object[][]) Application.getCommonsCache().getx(ckey);
+        if (value == null) {
+            value = Application.createQueryNoFilter(
+                    "select createdBy,belongEntity,config,chartId,title,chartType from ChartConfig")
+                    .array();
+            Application.getCommonsCache().putx(ckey, value);
+        }
+
+        final boolean isAdmin = UserHelper.isAdmin(user);
+
+        JSONArray charts = new JSONArray();
+        for (Object[] o : value) {
+            ID createdBy = (ID) o[0];
+            String belongEntity = (String) o[1];
+            if (!MetadataHelper.containsEntity(belongEntity)) continue;
+
+            // 过滤实体
+            if (specEntity != null && !ArrayUtils.contains(specEntity, belongEntity)) continue;
+
+            Entity entity = MetadataHelper.getEntity(belongEntity);
+
+            // 权限不允许
+            if (!Application.getPrivilegesManager().allowRead(user, entity.getEntityCode())) continue;
+
+            boolean self = (isAdmin && UserHelper.isAdmin(createdBy)) || user.equals(createdBy);
+            if (!self) {
+                // 只要自己的
+                if (onlySelf) continue;
+
+                JSONObject config = JSONUtils.wellFormat((String) o[2]) ? JSON.parseObject((String) o[2]) : null;
+                JSONObject chartOption = config == null ? null : config.getJSONObject("option");
+                if (chartOption == null
+                        || !chartOption.containsKey("shareChart") || !chartOption.getBoolean("shareChart")) {
+                    continue;
+                }
+            }
+
+            charts.add(JSONUtils.toJSONObject(
+                    new String[] { "id", "title", "type", "entityLabel", "isManageable" },
+                    new Object[] { o[3], o[4], o[5], EasyMetaFactory.getLabel(entity), self }));
+        }
+        return charts;
+    }
+
+    /**
      * 丰富图表数据 title, type
      *
      * @param charts
+     * @param user
      */
-    public void richingCharts(JSONArray charts) {
+    public void richingCharts(JSONArray charts, ID user) {
+        boolean isAdmin = UserHelper.isAdmin(user);
+
         for (Iterator<Object> iter = charts.iterator(); iter.hasNext(); ) {
             JSONObject ch = (JSONObject) iter.next();
             ID chartid = ID.valueOf(ch.getString("chart"));
@@ -84,11 +148,19 @@ public class ChartManager implements ConfigManager {
 
             ch.put("title", e.getString("title"));
             ch.put("type", e.getString("type"));
+
+            if (user != null) {
+                ID createdBy = e.getID("createdBy");
+                boolean self = (isAdmin && UserHelper.isAdmin(createdBy)) || user.equals(createdBy);
+                ch.put("isManageable", self);
+            }
         }
     }
 
     @Override
     public void clean(Object chartId) {
+        final String ckey = "Charts-ALL";
+        Application.getCommonsCache().evict(ckey);
         Application.getCommonsCache().evict("Chart-" + chartId);
     }
 }

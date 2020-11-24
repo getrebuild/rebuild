@@ -7,13 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.project;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
@@ -56,7 +56,7 @@ public class ProjectCommentService extends BaseTaskService {
     @Override
     public int delete(ID commentId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(commentId, user)) throw new PrivilegesException("DELETECOMMENT");
+        if (!ProjectHelper.isManageable(commentId, user)) throw new OperationDeniedException("DELETE COMMENT");
 
         return super.delete(commentId);
     }

@@ -10,7 +10,7 @@ package com.rebuild.core;
 import com.rebuild.api.Controller;
 
 /**
- * 已知的业务警告
+ * 已知的业务异常（非系统错误）
  *
  * @author devezhao
  * @since 2020/10/13

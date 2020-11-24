@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -57,7 +58,7 @@ public class ChartsFactory {
 
         Entity entity = MetadataHelper.getEntity(e);
         if (user == null || !Application.getPrivilegesManager().allowRead(user, entity.getEntityCode())) {
-            throw new ChartsException(Language.LF("NoReadEntity", EasyMetaFactory.getLabel(entity)));
+            throw new DefinedException(Language.LF("NoReadEntity", EasyMetaFactory.getLabel(entity)));
         }
 
         String type = config.getString("type");

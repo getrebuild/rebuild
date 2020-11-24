@@ -15,7 +15,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.NavManager;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
@@ -50,9 +49,9 @@ public class NavSettings extends BaseController implements ShareTo {
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个
-        if (cfgid != null && !ShareToManager.isSelf(user, cfgid)) {
+        if (cfgid != null && !UserHelper.isSelf(user, cfgid)) {
             ID useNav = NavManager.instance.detectUseConfig(user, null, NavManager.TYPE_NAV);
-            if (useNav != null && ShareToManager.isSelf(user, useNav)) {
+            if (useNav != null && UserHelper.isSelf(user, useNav)) {
                 cfgid = useNav;
             } else {
                 cfgid = null;
