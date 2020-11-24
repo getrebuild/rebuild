@@ -1020,8 +1020,8 @@ class ChartScatter extends BaseChart {
 
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
-const detectChart = function (cfg, id, editable) {
-  const props = { config: cfg, id: id, title: cfg.title, editable: editable !== false && cfg.isManageable, type: cfg.type }
+const detectChart = function (cfg, id) {
+  const props = { config: cfg, id: id, title: cfg.title, editable: cfg.isManageable, type: cfg.type }
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
   } else if (cfg.type === 'TABLE') {
@@ -1091,9 +1091,7 @@ class ChartSelect extends RbModalHandler {
                     </span>
                     <span className="float-left title">
                       <strong>{item.title}</strong>
-                      <p className="text-muted fs-12">
-                        {item.entityLabel && <span>{item.entityLabel}</span>}
-                      </p>
+                      <p className="text-muted fs-12">{item.entityLabel && <span>{item.entityLabel}</span>}</p>
                     </span>
                     <span className="float-right">
                       {this.state.appended.includes(item.id) ? (
@@ -1109,7 +1107,7 @@ class ChartSelect extends RbModalHandler {
                     {item.isManageable && !this.props.entity && (
                       <span className="float-right">
                         <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
-                          <i className="zmdi zmdi-delete"/>
+                          <i className="zmdi zmdi-delete" />
                         </a>
                       </span>
                     )}

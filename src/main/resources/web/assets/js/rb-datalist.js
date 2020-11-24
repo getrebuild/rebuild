@@ -1247,7 +1247,7 @@ const ChartsWidget = {
   renderChart: function (chart, append) {
     const $w = $(`<div id="chart-${chart.chart}"></div>`).appendTo('.charts-wrap')
     // eslint-disable-next-line no-undef
-    renderRbcomp(detectChart({ ...chart, isManageable: true }, chart.chart, true), $w, function () {
+    renderRbcomp(detectChart({ ...chart, isManageable: true }, chart.chart), $w, function () {
       if (append) ChartsWidget.saveWidget()
     })
   },

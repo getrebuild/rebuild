@@ -62,7 +62,10 @@ $(document).ready(function () {
       }
     }
 
-    if (dash_editable !== true) $('.J_dash-edit, .J_chart-adds').remove()
+    if (dash_editable !== true) {
+      $('.J_dash-edit, .J_chart-adds').remove()
+      $('.chart-grid').addClass('uneditable')
+    }
 
     $('.J_dash-new').click(() => dlgShow('DlgDashAdd'))
     $('.J_dash-edit').click(() => dlgShow('DlgDashSettings', { title: d[4], shareTo: d[1] }))
@@ -239,7 +242,7 @@ const add_widget = function (item) {
     gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 12)
   }
   // eslint-disable-next-line no-undef
-  renderRbcomp(detectChart(item, item.chart, dash_editable), chid, function () {
+  renderRbcomp(detectChart(item, item.chart), chid, function () {
     rendered_charts.push(this)
   })
 }
