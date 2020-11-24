@@ -67,7 +67,7 @@ public class ChartManager implements ConfigManager {
         entry = new ConfigBean()
                 .set("title", o[0])
                 .set("type", o[1])
-                .set("config", o[2] instanceof JSON ? (JSON) o[2] : JSON.parse((String) o[2]))
+                .set("config", o[2] instanceof JSON ? o[2] : JSON.parse((String) o[2]))
                 .set("createdBy", o[3]);
         Application.getCommonsCache().putx(ckey, entry);
         return entry.clone();
@@ -92,8 +92,6 @@ public class ChartManager implements ConfigManager {
             Application.getCommonsCache().putx(ckey, value);
         }
 
-        final boolean isAdmin = UserHelper.isAdmin(user);
-
         JSONArray charts = new JSONArray();
         for (Object[] o : value) {
             ID createdBy = (ID) o[0];
@@ -108,7 +106,7 @@ public class ChartManager implements ConfigManager {
             // 权限不允许
             if (!Application.getPrivilegesManager().allowRead(user, entity.getEntityCode())) continue;
 
-            boolean self = (isAdmin && UserHelper.isAdmin(createdBy)) || user.equals(createdBy);
+            boolean self = UserHelper.isSelf (user, createdBy);
             if (!self) {
                 // 只要自己的
                 if (onlySelf) continue;
@@ -135,8 +133,6 @@ public class ChartManager implements ConfigManager {
      * @param user [可选]
      */
     public void richingCharts(JSONArray charts, ID user) {
-        boolean isAdmin = user != null && UserHelper.isAdmin(user);
-
         for (Iterator<Object> iter = charts.iterator(); iter.hasNext(); ) {
             JSONObject ch = (JSONObject) iter.next();
             ID chartid = ID.valueOf(ch.getString("chart"));
@@ -151,8 +147,7 @@ public class ChartManager implements ConfigManager {
 
             if (user != null) {
                 ID createdBy = e.getID("createdBy");
-                boolean self = (isAdmin && UserHelper.isAdmin(createdBy)) || user.equals(createdBy);
-                ch.put("isManageable", self);
+                ch.put("isManageable", UserHelper.isSelf(user, createdBy));
             }
         }
     }

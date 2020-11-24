@@ -77,10 +77,9 @@ public abstract class ShareToManager implements ConfigManager {
         }
 
         // 1.优先使用自己的
-        boolean isAdmin = UserHelper.isAdmin(user);
         for (Object[] d : alls) {
             ID createdBy = (ID) d[2];
-            if (user.equals(createdBy) || (isAdmin && UserHelper.isAdmin(createdBy))) {
+            if (UserHelper.isSelf(user, createdBy)) {
                 return (ID) d[0];
             }
         }
@@ -106,10 +105,9 @@ public abstract class ShareToManager implements ConfigManager {
     protected Object[][] getUsesConfig(ID user, String belongEntity, String applyType) {
         Object[][] cached = getAllConfig(belongEntity, applyType);
         List<Object[]> canUses = new ArrayList<>();
-        boolean isAdmin = UserHelper.isAdmin(user);
         for (Object[] d : cached) {
             ID createdBy = (ID) d[2];
-            if (user.equals(createdBy) || (isAdmin && UserHelper.isAdmin(createdBy)) || isShareTo((String) d[1], user)) {
+            if (UserHelper.isSelf(user, createdBy) || isShareTo((String) d[1], user)) {
                 canUses.add(d);
             }
         }
