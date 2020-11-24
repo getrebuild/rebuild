@@ -143,7 +143,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
-            LOG.warn(errorLog, ex);
+            LOG.warn(errorLog, Application.devMode() ? ex : null);
         } else {
             LOG.error(errorLog, ex);
         }

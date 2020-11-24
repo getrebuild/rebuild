@@ -65,9 +65,9 @@ public class DashboardManager extends ShareToManager {
         // 补充图表标题
         for (int i = 0; i < canUses.length; i++) {
             JSONArray charts = JSON.parseArray((String) canUses[i][3]);
-            ChartManager.instance.richingCharts(charts);
+            ChartManager.instance.richingCharts(charts, user);
             canUses[i][3] = charts;
-            canUses[i][2] = isSelf(user, (ID) canUses[i][2]);
+            canUses[i][2] = UserHelper.isSelf(user, (ID) canUses[i][2]);
         }
 
         Arrays.sort(canUses, Comparator.comparing(o -> o[4].toString()));

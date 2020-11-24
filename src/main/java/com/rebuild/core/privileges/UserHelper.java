@@ -15,27 +15,38 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.RebuildConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.*;
+import java.util.Set;
 
 /**
  * 用户帮助类
@@ -43,9 +54,8 @@ import java.util.*;
  * @author devezhao
  * @since 10/14/2018
  */
+@Slf4j
 public class UserHelper {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserHelper.class);
 
     /**
      * 是否管理员
@@ -57,7 +67,7 @@ public class UserHelper {
         try {
             return Application.getUserStore().getUser(userId).isAdmin();
         } catch (NoMemberFoundException ex) {
-            LOG.error("No User found : " + userId);
+            log.error("No User found : " + userId);
         }
         return false;
     }
@@ -92,7 +102,7 @@ public class UserHelper {
             }
 
         } catch (NoMemberFoundException ex) {
-            LOG.error("No bizz found : " + bizzId);
+            log.error("No bizz found : " + bizzId);
         }
         return false;
     }
@@ -108,7 +118,7 @@ public class UserHelper {
             User u = Application.getUserStore().getUser(userId);
             return u.getOwningDept();
         } catch (NoMemberFoundException ex) {
-            LOG.error("No User found : " + userId);
+            log.error("No User found : " + userId);
         }
         return null;
     }
@@ -148,7 +158,7 @@ public class UserHelper {
             }
 
         } catch (NoMemberFoundException ex) {
-            LOG.error("No bizz found : " + bizzId);
+            log.error("No bizz found : " + bizzId);
         }
         return null;
     }
@@ -177,7 +187,7 @@ public class UserHelper {
             }
 
         } catch (NoMemberFoundException ex) {
-            LOG.error("No group found : " + groupId);
+            log.error("No group found : " + groupId);
         }
 
         if (ms == null || ms.isEmpty()) {
@@ -344,7 +354,7 @@ public class UserHelper {
                 font = font.deriveFont((float) 81.0);
                 return font;
             } catch (Exception ex) {
-                LOG.warn("Cannot create Font: SourceHanSansK-Regular.ttf", ex);
+                log.warn("Cannot create Font: SourceHanSansK-Regular.ttf", ex);
             }
         }
         // Use default
@@ -447,5 +457,48 @@ public class UserHelper {
         Set<ID> set = new HashSet<>();
         for (Object[] o : array) set.add((ID) o[0]);
         return set;
+    }
+
+    /**
+     * 是否是自己的（管理员有特殊处理）
+     *
+     * @param user
+     * @param otherUserOrAnyRecordId
+     * @return
+     */
+    public static boolean isSelf(ID user, ID otherUserOrAnyRecordId) {
+        ID createdBy = otherUserOrAnyRecordId;
+        if (otherUserOrAnyRecordId.getEntityCode() != EntityHelper.User) {
+            createdBy = getCreatedBy(otherUserOrAnyRecordId);
+            if (createdBy == null) return false;
+        }
+
+        if (createdBy.equals(user)) return true;
+
+        // 所有管理员被视为同一用户
+        return isAdmin(createdBy) && isAdmin(user);
+    }
+
+    private static ID getCreatedBy(ID anyRecordId) {
+        final String ckey = "CreatedBy-" + anyRecordId;
+        ID createdBy = (ID) Application.getCommonsCache().getx(ckey);
+        if (createdBy != null) {
+            return createdBy;
+        }
+
+        Entity entity = MetadataHelper.getEntity(anyRecordId.getEntityCode());
+        if (!entity.containsField(EntityHelper.CreatedBy)) {
+            log.warn("No [createdBy] field in [{}]", entity.getEntityCode());
+            return null;
+        }
+
+        Object[] c = Application.getQueryFactory().uniqueNoFilter(anyRecordId, EntityHelper.CreatedBy);
+        if (c == null) {
+            throw new RebuildException("No record found : " + anyRecordId);
+        }
+
+        createdBy = (ID) c[0];
+        Application.getCommonsCache().putx(ckey, createdBy);
+        return createdBy;
     }
 }

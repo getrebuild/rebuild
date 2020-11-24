@@ -14,6 +14,7 @@ package com.rebuild.core.service;
  * @since 2019/9/26
  */
 public class DataSpecificationNoRollbackException extends DataSpecificationException {
+    private static final long serialVersionUID = 6665988665858333848L;
 
     public DataSpecificationNoRollbackException() {
         super();

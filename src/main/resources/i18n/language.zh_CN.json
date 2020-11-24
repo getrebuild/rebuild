@@ -970,7 +970,7 @@
   "ChartOption": "图表选项",
   "ChartNoOptionTips": "当前图表无选项",
   "ChartUseAllData": "使用全部数据",
-  "ChartUseAllDataTips": "不启用则仅能使用角色权限范围内的数据",
+  "ChartUseAllDataTips": "不启用则仅能查看用户权限内的数据",
   "ChartNotUseNullData": "排除空数据 (数值为 0 不显示)",
   "ChartShowLine": "显示行号",
   "ChartShowCount": "显示汇总",
@@ -1225,6 +1225,9 @@
   "MsgAtYouInProjectTask": "@%s 在任务中提到了你",
   "MsgNewProjectTaskToYou": "有一个新任务分派给你",
   "JustNow": "刚刚",
+  "ChartShare": "共享图表",
+  "ChartShareTips": "共享后其他用户也可以添加使用",
+  "ApprovalRecord": "审批记录",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

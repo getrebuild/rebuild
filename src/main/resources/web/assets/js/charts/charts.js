@@ -23,13 +23,13 @@ class BaseChart extends React.Component {
         <a title={$L('Refresh')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a title={$L('FullScreen')} onClick={() => this.toggleFullscreen()}>
+        <a className="J_fullscreen" title={$L('FullScreen')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
         {this.props.editable && (
           <React.Fragment>
             {!this.props.builtin && (
-              <a title={$L('Edit')} className="chart-edit" href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+              <a className="J_chart-edit" title={$L('Edit')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
                 <i className="zmdi zmdi-edit" />
               </a>
             )}
@@ -657,8 +657,8 @@ class ApprovalList extends BaseChart {
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th style={{ minWidth: 150 }}>{$L('Submitter')}</th>
-                <th style={{ minWidth: 150 }}>{$L('RecordId')}</th>
+                <th style={{ minWidth: 140 }}>{$L('Submitter')}</th>
+                <th style={{ minWidth: 140 }}>{$L('ApprovalRecord')}</th>
                 <th width="90"></th>
               </tr>
             </thead>
@@ -667,7 +667,7 @@ class ApprovalList extends BaseChart {
                 return (
                   <tr key={'approval-' + idx}>
                     <td className="user-avatar cell-detail user-info">
-                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} />
+                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
                       <span>{item[1]}</span>
                       <span className="cell-detail-description">
                         <DateShow date={item[2]} />
@@ -677,7 +677,7 @@ class ApprovalList extends BaseChart {
                       <a href={`${rb.baseUrl}/app/list-and-view?id=${item[3]}`}>{item[4]}</a>
                       <span className="cell-detail-description">{item[6]}</span>
                     </td>
-                    <td className="actions text-right">
+                    <td className="actions text-right text-nowrap">
                       {this.state.viewState === 1 && (
                         <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
                           {$L('Approve')}
@@ -764,8 +764,8 @@ class FeedsSchedule extends BaseChart {
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th>{$L('ScheduleContent')}</th>
-                <th width="140">{$L('ScheduleTime')}</th>
+                <th style={{ minWidth: 140 }}>{$L('ScheduleContent')}</th>
+                <th style={{ minWidth: 140 }}>{$L('ScheduleTime')}</th>
                 <th width="90"></th>
               </tr>
             </thead>
@@ -776,7 +776,7 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a title={$L('ViewDetails')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a title={$L('ViewDetails')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -785,7 +785,7 @@ class FeedsSchedule extends BaseChart {
                         {_expired && ` (${$L('Expires')})`}
                       </span>
                     </td>
-                    <td className="actions text-right">
+                    <td className="actions text-right text-nowrap">
                       <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
                         {$L('Finish')}
                       </button>
@@ -1020,8 +1020,8 @@ class ChartScatter extends BaseChart {
 
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
-const detectChart = function (cfg, id, editable) {
-  const props = { config: cfg, id: id, title: cfg.title, editable: editable !== false, type: cfg.type }
+const detectChart = function (cfg, id) {
+  const props = { config: cfg, id: id, title: cfg.title, editable: cfg.isManageable, type: cfg.type }
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
   } else if (cfg.type === 'TABLE') {
@@ -1072,7 +1072,7 @@ class ChartSelect extends RbModalHandler {
                   {$L('CurrentEntity')}
                 </a>
               )}
-              <a href="#myself" onClick={this.switchTab} className={`nav-link hide ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
+              <a href="#myself" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
                 {$L('Myself')}
               </a>
               <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>
@@ -1085,20 +1085,17 @@ class ChartSelect extends RbModalHandler {
               {this.state.chartList && this.state.chartList.length === 0 && <p className="text-muted">{$L('NoAnySome,Chart')}</p>}
               {(this.state.chartList || []).map((item) => {
                 return (
-                  <div key={'k-' + item[0]}>
+                  <div key={`chart-${item.id}`}>
                     <span className="float-left chart-icon">
-                      <i className={item[2]}></i>
+                      <i className={item.type}></i>
                     </span>
                     <span className="float-left title">
-                      <strong>{item[1]}</strong>
-                      <p className="text-muted fs-12">
-                        {item[4] && <span>{item[4]}</span>}
-                        {item[3] && <DateShow date={item[3]} />}
-                      </p>
+                      <strong>{item.title}</strong>
+                      <p className="text-muted fs-12">{item.entityLabel && <span>{item.entityLabel}</span>}</p>
                     </span>
                     <span className="float-right">
-                      {this.state.appended.includes(item[0]) ? (
-                        <a className="btn disabled" data-id={item[0]}>
+                      {this.state.appended.includes(item.id) ? (
+                        <a className="btn disabled" data-id={item.id}>
                           {$L('Added')}
                         </a>
                       ) : (
@@ -1107,10 +1104,10 @@ class ChartSelect extends RbModalHandler {
                         </a>
                       )}
                     </span>
-                    {!this.props.entity && item[3] && (
+                    {item.isManageable && !this.props.entity && (
                       <span className="float-right">
-                        <a className="delete" onClick={() => this.deleteChart(item[0])}>
-                          <i className="zmdi zmdi-delete"></i>
+                        <a className="delete danger-hover" onClick={() => this.deleteChart(item.id)}>
+                          <i className="zmdi zmdi-delete" />
                         </a>
                       </span>
                     )}
@@ -1135,9 +1132,9 @@ class ChartSelect extends RbModalHandler {
 
   selectChart(item) {
     const s = this.state.appended
-    s.push(item[0])
+    s.push(item.id)
     this.setState({ appended: s })
-    typeof this.props.select === 'function' && this.props.select({ chart: item[0], title: item[1], type: item[2] })
+    typeof this.props.select === 'function' && this.props.select({ ...item, chart: item.id })
   }
 
   deleteChart(id) {

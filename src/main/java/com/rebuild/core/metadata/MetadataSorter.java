@@ -54,14 +54,17 @@ public class MetadataSorter {
         List<BaseMeta> entities = new ArrayList<>();
         for (Entity e : MetadataHelper.getEntities()) {
             if (!e.isQueryable()) continue;
-            if (e.getMainEntity() != null && !usesDetail) continue;
+            if (!usesDetail && e.getMainEntity() != null) continue;
 
             EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
             if (easyEntity.isBuiltin() && !easyEntity.isPlainEntity()) continue;
 
-            if (user == null || !MetadataHelper.hasPrivilegesField(e)) {
+            Entity checkEntity = e;
+            if (usesDetail && e.getMainEntity() != null) checkEntity = e.getMainEntity();
+
+            if (user == null || !MetadataHelper.hasPrivilegesField(checkEntity)) {
                 entities.add(e);
-            } else if (Application.getPrivilegesManager().allow(user, e.getEntityCode(), BizzPermission.READ)) {
+            } else if (Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) {
                 entities.add(e);
             }
         }

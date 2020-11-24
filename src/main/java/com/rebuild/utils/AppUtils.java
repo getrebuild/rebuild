@@ -165,10 +165,6 @@ public class AppUtils {
             exception = ThrowableUtils.getRootCause(exception);
             String errorMsg = exception.getLocalizedMessage();
             if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("Error500");
-
-            if (Application.devMode() && !(exception instanceof DataSpecificationException)) {
-                errorMsg += " (" + exception.getClass().getSimpleName() + ")";
-            }
             return errorMsg;
         }
     }
