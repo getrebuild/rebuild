@@ -165,11 +165,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
         if (!(_READY = ServerStatus.checkAll())) {
             log.error(RebuildBanner.formatBanner(
-                    "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW logS FOR MORE DETAILS."));
+                    "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
         }
-
-        License.isRbvAttached();
 
         // 升级数据库
         new UpgradeDatabase().upgradeQuietly();
@@ -207,6 +205,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         for (Initialization bean : _CONTEXT.getBeansOfType(Initialization.class).values()) {
             bean.init();
         }
+        License.isRbvAttached();
 
         return true;
     }

@@ -8,15 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.commons.ReflectUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
@@ -27,8 +24,6 @@ import java.util.Locale;
  * @since 2019-08-23
  */
 public final class License {
-
-    private static final Logger LOG = LoggerFactory.getLogger(License.class);
 
     private static final String OSA_KEY = "IjkMHgq94T7s7WkP";
 
@@ -110,14 +105,15 @@ public final class License {
     }
 
     /**
+     * 增值模块已装载
+     *
      * @return
      */
     public static boolean isRbvAttached() {
         if (USE_RBV != null) return USE_RBV;
 
         try {
-            Object RBV = ReflectUtils.classForName("com.rebuild.Rbv").getDeclaredConstructor().newInstance();
-            LOG.info("Attached " + RBV);
+            Application.getContext().getBean("@rbv");
             USE_RBV = true;
         } catch (Exception norbv) {
             USE_RBV = false;

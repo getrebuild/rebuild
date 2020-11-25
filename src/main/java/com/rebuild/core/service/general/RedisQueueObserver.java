@@ -19,7 +19,9 @@ import redis.clients.jedis.JedisPool;
  *
  * @author ZHAO
  * @since 2020/4/6
+ * @deprecated Use trigger HookUrl
  */
+@Deprecated
 public class RedisQueueObserver extends OperatingObserver {
 
     /**

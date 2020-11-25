@@ -77,6 +77,7 @@ public enum ConfigurationItem {
     DefaultLanguage("zh_CN"),
 
     // 激活 Redis 队列
+    @Deprecated
     RedisQueueEnable(false);
 
     private Object defaultVal;

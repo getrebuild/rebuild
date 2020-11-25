@@ -94,6 +94,7 @@ public class FieldWriteback extends FieldAggregation {
             }
 
             Field sourceField = MetadataHelper.getLastJoinField(sourceEntity, e.getValue());
+            if (sourceField == null) continue;
             Field targetField = targetEntity.getField(e.getKey());
 
             Object newValue;

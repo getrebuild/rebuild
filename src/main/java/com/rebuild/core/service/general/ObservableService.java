@@ -25,9 +25,10 @@ import org.springframework.util.Assert;
 
 import java.util.Iterator;
 import java.util.Observable;
+import java.util.Observer;
 
 /**
- * 可注入观察者的服务
+ * 可注入观察者的服务（）
  *
  * @author devezhao
  * @see OperatingObserver
@@ -49,15 +50,16 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      */
     protected ObservableService(PersistManagerFactory aPMFactory) {
         this.delegateService = new BaseServiceImpl(aPMFactory);
-        this.initObservers();
-    }
 
-    /**
-     * 初始化监听者
-     */
-    protected void initObservers() {
+        // 默认监听者
         addObserver(new RevisionHistoryObserver());
         addObserver(new AttachmentAwareObserver());
+    }
+
+    @Override
+    public synchronized void addObserver(Observer o) {
+        super.addObserver(o);
+        LOG.info("Add observer : {}", o);
     }
 
     @Override

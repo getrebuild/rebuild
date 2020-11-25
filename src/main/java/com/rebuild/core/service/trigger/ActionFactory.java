@@ -34,19 +34,10 @@ public class ActionFactory {
      * @return
      */
     public static TriggerAction createAction(String type, ActionContext context) {
-        return createAction(ActionType.valueOf(type), context);
-    }
-
-    /**
-     * @param type
-     * @param context
-     * @return
-     */
-    public static TriggerAction createAction(ActionType type, ActionContext context) {
         try {
-            return type.newInstance(context);
-        } catch (NoSuchMethodException ex) {
-            throw new TriggerException("Unknown trigger type : " + type);
+            return ActionType.valueOf(type).newInstance(context);
+        } catch (ReflectiveOperationException ex) {
+            throw new TriggerException("Unknown trigger type : " + type, ex);
         }
     }
 }
