@@ -21,12 +21,12 @@ import java.lang.reflect.Constructor;
  */
 public enum ActionType {
 
-    FIELDAGGREGATION("数据聚合", FieldAggregation.class.getName()),
-    FIELDWRITEBACK("数据转写", FieldWriteback.class.getName()),
-    SENDNOTIFICATION("发送通知", SendNotification.class.getName()),
-    AUTOSHARE("自动共享", AutoShare.class.getName()),
-    AUTOASSIGN("自动分派", AutoAssign.class.getName()),
-    AUTOAPPROVAL("自动审批", AutoApproval.class.getName()),
+    FIELDAGGREGATION("数据聚合", FieldAggregation.class),
+    FIELDWRITEBACK("数据转写", FieldWriteback.class),
+    SENDNOTIFICATION("发送通知", SendNotification.class),
+    AUTOSHARE("自动共享", AutoShare.class),
+    AUTOASSIGN("自动分派", AutoAssign.class),
+    AUTOAPPROVAL("自动审批", AutoApproval.class),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
 
     ;
@@ -38,6 +38,10 @@ public enum ActionType {
     ActionType(String displayName, String actionClass) {
         this.displayName = displayName;
         this.actionClass = actionClass;
+    }
+
+    ActionType(String displayName, Class<? extends TriggerAction> actionClass) {
+        this(displayName, actionClass.getName());
     }
 
     /**
@@ -58,7 +62,7 @@ public enum ActionType {
     /**
      * @param context
      * @return
-     * @throws NoSuchMethodException
+     * @throws ReflectiveOperationException
      */
     public TriggerAction newInstance(ActionContext context) throws ReflectiveOperationException {
         Class<?> clazz = ClassUtils.getClass(getActionClass());

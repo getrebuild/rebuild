@@ -22,7 +22,6 @@ public class ActionFactory {
         public ActionType getType() {
             throw new UnsupportedOperationException();
         }
-
         @Override
         public void execute(OperatingContext operatingContext) throws TriggerException {
             throw new UnsupportedOperationException();

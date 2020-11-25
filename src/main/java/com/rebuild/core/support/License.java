@@ -14,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
+import org.springframework.beans.BeansException;
 
 import java.util.Locale;
 
@@ -119,7 +120,7 @@ public final class License {
         try {
             Application.getContext().getBean("@rbv");
             USE_RBV = true;
-        } catch (Exception norbv) {
+        } catch (BeansException norbv) {
             USE_RBV = false;
         }
         return USE_RBV;

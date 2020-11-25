@@ -28,7 +28,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * 可注入观察者的服务（）
+ * 可注入观察者的服务
  *
  * @author devezhao
  * @see OperatingObserver
