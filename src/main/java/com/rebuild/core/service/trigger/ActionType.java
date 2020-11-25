@@ -41,10 +41,9 @@ public enum ActionType {
     }
 
     /**
+     * Use i18n
      * @return
-     * @deprecated Use i18n
      */
-    @Deprecated
     public String getDisplayName() {
         return displayName;
     }

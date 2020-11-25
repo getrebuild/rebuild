@@ -260,3 +260,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .on-timers .input-group {
   width: 320px;
 }
+
+.code-panel {
+  border: 0;
+  padding: 20px;
+  margin-bottom: 0;
+  max-height: 400px;
+  overflow: auto;
+}
+
+.code-panel,
+.code-panel pre {
+  background-color: #4f4a68;
+  color: #edebe6;
+}

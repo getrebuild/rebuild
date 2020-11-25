@@ -111,6 +111,10 @@ public final class License {
      */
     public static boolean isRbvAttached() {
         if (USE_RBV != null) return USE_RBV;
+        if (!isCommercial()) {
+            USE_RBV = false;
+            return false;
+        }
 
         try {
             Application.getContext().getBean("@rbv");

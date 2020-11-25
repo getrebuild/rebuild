@@ -31,6 +31,10 @@ body {
   min-width: 340px;
 }
 
+code {
+  color: #e83e8c;
+}
+
 /* 1280 */
 .container-smart {
   max-width: 1160px;

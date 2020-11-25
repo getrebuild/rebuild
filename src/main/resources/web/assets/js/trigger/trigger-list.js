@@ -187,13 +187,16 @@ class TriggerEdit extends ConfigFormDlg {
     } else {
       data = { ...data, actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
       if (!data.actionType || !data.belongEntity) {
-        RbHighbar.create($L('PlsSelectSome,SourceEntity'))
-        return
+        return RbHighbar.create($L('PlsSelectSome,SourceEntity'))
       }
     }
     data.metadata = {
       entity: 'RobotTriggerConfig',
       id: this.props.id || null,
+    }
+
+    if (rb.commercial < 1 && data.actionType === 'HOOKURL') {
+      return RbHighbar.error($L('FreeVerNotSupportted,HOOKURL'))
     }
 
     this.disabled(true)

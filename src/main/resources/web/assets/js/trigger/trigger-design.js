@@ -48,6 +48,9 @@ $(document).ready(() => {
       when += ~~$(this).val()
     })
     const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
+    if (rb.commercial < 1 && (when & 512) !== 0) {
+      return RbHighbar.error($L('FreeVerNotSupportted,JobExecution'))
+    }
 
     const content = contentComp.buildContent()
     if (content === false) return

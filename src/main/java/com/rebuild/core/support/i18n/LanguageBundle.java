@@ -49,6 +49,8 @@ public class LanguageBundle implements JSONable {
     private static final Pattern BR_PATT = Pattern.compile("\\[]");
     // 加粗
     private static final Pattern BOLD_PATT = Pattern.compile("\\*\\*(.*?)\\*\\*");
+    // 代码
+    private static final Pattern CODE_PATT = Pattern.compile("`(.*?)`");
 
     // Match `"{xx}"`
     private static final Pattern PATT_LANG_KEY = Pattern.compile("\"\\{([0-9a-zA-Z._]+)}\"");
@@ -116,6 +118,13 @@ public class LanguageBundle implements JSONable {
             String text = matcher.group(1);
             String bold = "<b>%s</b>";
             bundleString = bundleString.replace(String.format("**%s**", text), String.format(bold, text));
+        }
+
+        matcher = CODE_PATT.matcher(bundleString);
+        while (matcher.find()) {
+            String text = matcher.group(1);
+            String code = "<code>%s</code>";
+            bundleString = bundleString.replace(String.format("`%s`", text), String.format(code, text));
         }
 
         this.bundleHash = EncryptUtils.toMD5Hex(bundleString);
