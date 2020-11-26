@@ -77,7 +77,9 @@ public class RecycleRestore {
 
         final List<ID> recycleIds = new ArrayList<>();
 
-        final List<Record> willRestores = new ArrayList<>(conver2Record(JSON.parseObject((String) main[0]), (ID) main[1]));
+        final List<Record> willRestores = new ArrayList<>(
+                conver2Record(JSON.parseObject((String) main[0]), (ID) main[1]));
+
         if (willRestores.isEmpty()) {
             throw new RebuildException("Record entity not exists");
         }

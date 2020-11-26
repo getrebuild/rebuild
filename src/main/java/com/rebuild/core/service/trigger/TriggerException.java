@@ -19,4 +19,8 @@ public class TriggerException extends RebuildException {
     public TriggerException(String msg) {
         super(msg);
     }
+
+    public TriggerException(String msg, Throwable cause) {
+        super(msg, cause);
+    }
 }

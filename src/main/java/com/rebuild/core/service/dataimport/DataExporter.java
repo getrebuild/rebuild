@@ -23,7 +23,11 @@ import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +63,8 @@ public class DataExporter extends SetUser {
      * @return
      */
     public File export() {
-        File tmp = RebuildConfiguration.getFileOfTemp(String.format("EXPORT-%d.csv", System.currentTimeMillis()));
+        File tmp = RebuildConfiguration.getFileOfTemp(
+                String.format("EXPORT-%d.csv", System.currentTimeMillis()));
         export(tmp);
         return tmp;
     }
@@ -100,8 +105,10 @@ public class DataExporter extends SetUser {
             if (b) b = false;
             else sb.append(", ");
 
-            if (s.contains(",")) sb.append("\"").append(s).append("\"");
-            else sb.append(s);
+            if (s.contains(",")) {
+                s = s.replace(",", "，");
+            }
+            sb.append(s);
         }
         return sb.toString();
     }
@@ -146,22 +153,31 @@ public class DataExporter extends SetUser {
 
                 Field field = headFields.get(cellIndex++);
                 EasyField easyField = EasyMetaFactory.valueOf(field);
-
                 DisplayType dt = easyField.getDisplayType();
+
                 if (cellVal == null) {
                     cellVal = StringUtils.EMPTY;
-                } else if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
+                }
+
+                if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
                     cellVal = String.format("[%s]", Language.L("NoPrivileges"));
+
                 } else if (dt == DisplayType.FILE
                         || dt == DisplayType.IMAGE
                         || dt == DisplayType.AVATAR
                         || dt == DisplayType.BARCODE) {
                     cellVal = String.format("[%s]", Language.L("Unsupport"));
-                }  else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
+
+                } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位
+
+                } else if (dt == DisplayType.ID) {
+                    cellVal = ((JSONObject) cellVal).getString("id");
+
                 }
 
-                if (cellVal instanceof JSONObject || cellVal instanceof JSONArray) {
+                if (easyField instanceof MixValue &&
+                        (cellVal instanceof JSONObject || cellVal instanceof JSONArray)) {
                     cellVal = ((MixValue) easyField).unpackWrapValue(cellVal);
                 }
 

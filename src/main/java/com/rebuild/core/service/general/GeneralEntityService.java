@@ -58,25 +58,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      */
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
+
+        // 通知
+        addObserver(new NotificationObserver());
+        // 触发器
+        addObserver(new RobotTriggerObserver());
+
+        // Redis 队列（Redis 可用才有效）
+        if (RebuildConfiguration.getBool(ConfigurationItem.RedisQueueEnable)) {
+            addObserver(new RedisQueueObserver());
+        }
     }
 
     @Override
     public int getEntityCode() {
         return 0;
-    }
-
-    @Override
-    protected void initObservers() {
-        super.initObservers();
-
-        addObserver(new NotificationObserver());
-        addObserver(new RobotTriggerObserver());
-
-        // Redis 可用才有效
-        if (RebuildConfiguration.getBool(ConfigurationItem.RedisQueueEnable)) {
-            addObserver(new RedisQueueObserver());
-        }
-        LOG.info("Added {} observers", countObservers());
     }
 
     @Override

@@ -22,7 +22,6 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;

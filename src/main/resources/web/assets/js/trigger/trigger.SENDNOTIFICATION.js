@@ -88,7 +88,7 @@ class ContentSendNotification extends ActionContentSpec {
       content: $(this._content).val(),
     }
     if (!_data.sendTo || _data.sendTo.length === 0) {
-      RbHighbar.create($L('PlsSelectSone,SendToWho'))
+      RbHighbar.create($L('PlsSelectSome,SendToWho'))
       return false
     }
     if (!_data.content) {
