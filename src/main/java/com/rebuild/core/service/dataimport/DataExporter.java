@@ -105,8 +105,10 @@ public class DataExporter extends SetUser {
             if (b) b = false;
             else sb.append(", ");
 
-            if (s.contains(",")) sb.append("\"").append(s).append("\"");
-            else sb.append(s);
+            if (s.contains(",")) {
+                s = s.replace(",", "，");
+            }
+            sb.append(s);
         }
         return sb.toString();
     }
@@ -155,8 +157,9 @@ public class DataExporter extends SetUser {
 
                 if (cellVal == null) {
                     cellVal = StringUtils.EMPTY;
+                }
 
-                } else if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
+                if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
                     cellVal = String.format("[%s]", Language.L("NoPrivileges"));
 
                 } else if (dt == DisplayType.FILE
