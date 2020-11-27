@@ -420,7 +420,7 @@
   "FolderName": "目录名称",
   "ViewScope": "可见范围",
   "ViewScopeTips": "目录可见范围将影响子目录以及目录内的文件",
-  "Public": "公共",
+  "Public": "公开",
   "Private": "私有",
   "Current": "当前",
   "PrivateTips": "私有 (仅自己可见)",
@@ -1232,6 +1232,7 @@
   "HookSecret": "安全码",
   "HookSecretTips": "填写后，系统在调用时会携带在请求头 Header 中，Header 名称为 `X-RBHOOK-SECRET`",
   "HookRequestError": "请求失败 : %s",
+  "ModifyFileFolder": "修改文件目录",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

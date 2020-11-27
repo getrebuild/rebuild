@@ -103,23 +103,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   display: inline-block;
   font-size: 12px;
   line-height: 1;
+  float: left;
 }
 
-.file-list-item > div.detail > .extras > span.op {
+.file-list-item > div.detail > .extras > span.fsize {
+  padding-top: 4px;
+}
+
+.file-list-item > div.detail > .extras > span.fop {
   display: none;
 }
 
-.file-list-item:hover > div.detail > .extras > span.op {
+.file-list-item:hover > div.detail > .extras > span.fop {
   display: inline-block;
 }
 
-.file-list-item > div.detail > .extras > span.op > a {
+.file-list-item > div.detail > .extras > span.fop > a {
   color: #999;
   display: inline-block;
   padding: 0 8px;
 }
 
-.file-list-item > div.detail > .extras > span.op > a:hover {
+.file-list-item > div.detail > .extras > span.fop > a:hover {
   color: #555;
 }
 
@@ -130,7 +135,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .file-list-item > div.detail .extras > span + span::before {
   content: '·';
-  margin: 0 7px;
+  margin: 0 3px 0 10px;
 }
 
 .file-list-item > div.detail a:hover {

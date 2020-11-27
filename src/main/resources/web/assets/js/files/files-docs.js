@@ -13,7 +13,7 @@ let __FolderData = []
 // 渲染目录
 const _renderOption = function (item, idx, disabledItem) {
   idx = idx || 0
-  if (item.id === 1) item = { text: $L('None') }
+  if (item.id === __DEFAULT_ALL) item = { text: $L('Null') }
   let options = [
     <option
       key={`opt-${item.id}`}
@@ -224,7 +224,7 @@ class FileMoveDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('ModifySome,Folder')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('ModifyFileFolder')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('ChangToFolder')}</label>
@@ -348,23 +348,20 @@ class FolderTree extends React.Component {
 }
 
 // eslint-disable-next-line no-undef
-class FilesList2 extends FilesList {
+class FilesList4Docs extends FilesList {
   state = { ...this.props }
   __lastEntry = __DEFAULT_ALL
 
   renderExtras(item) {
     return (
       <React.Fragment>
-        {super.renderExtras(item)}
-        <span className="op">
+        <span className="fop">
           <a title={$L('Download')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
-            <i className="icon zmdi zmdi-download fs-15 down-2"></i>
+            <i className="icon zmdi zmdi-download down-2"></i>
           </a>
           {rb.fileSharable && (
             <a title={$L('Share')} onClick={(e) => this._share(item, e)}>
-              <span>
-                <i className="icon zmdi zmdi-share fs-14 down-1"></i>
-              </span>
+              <i className="icon zmdi zmdi-share fs-14 down-1"></i>
             </a>
           )}
         </span>
@@ -404,7 +401,7 @@ $(document).ready(() => {
   renderRbcomp(<FolderTree call={clickNav} />, 'navTree', function () {
     filesNav = this
   })
-  renderRbcomp(<FilesList2 />, $('.file-viewport'), function () {
+  renderRbcomp(<FilesList4Docs />, $('.file-viewport'), function () {
     // eslint-disable-next-line no-global-assign
     filesList = this
   })

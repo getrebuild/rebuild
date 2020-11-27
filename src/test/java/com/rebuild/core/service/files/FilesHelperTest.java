@@ -16,8 +16,6 @@ import com.rebuild.core.privileges.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
 /**
  * @author devezhao
  * @since 2019/11/15
@@ -46,7 +44,7 @@ public class FilesHelperTest extends TestSupport {
         folder.setString("scope", FilesHelper.SCOPE_SELF);
         folder = Application.getService(EntityHelper.AttachmentFolder).create(folder);
 
-        System.out.println(Arrays.toString(FilesHelper.getPrivateFolders(SIMPLE_USER)));
+        System.out.println(FilesHelper.getPrivateFolders(SIMPLE_USER));
         Application.getService(EntityHelper.AttachmentFolder).delete(folder.getPrimary());
     }
 }
