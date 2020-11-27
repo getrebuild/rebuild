@@ -359,7 +359,7 @@
         <index field-list="locale,name"/>
     </entity>
 
-    <entity name="TransformConfig" type-code="037" description="记录转换映射" queryable="false">
+    <entity name="TransformConfig" type-code="037" description="记录转换" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="源实体"/>
         <field name="targetEntity" type="string" max-length="100" nullable="false" updatable="false" description="目标实体"/>

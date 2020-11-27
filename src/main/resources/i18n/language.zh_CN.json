@@ -1205,7 +1205,7 @@
   "ImportUserTips": "请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)",
   "ImportUserOkTips": "成功导入 %d 用户",
   "ImportUserAndNotify": "导入成功后发送邮件通知用户",
-  "TransformConfig": "记录转换映射",
+  "TransformConfig": "记录转换",
   "YouHaveXSchedule": "你有 %d 条日程提醒",
   "InitEntity": "初始业务实体",
   "NoInitEntityTips": "暂无可用业务实体。此安装步骤不是必须的，你仍可以继续安装",
@@ -1233,6 +1233,7 @@
   "HookSecretTips": "填写后，系统在调用时会携带在请求头 Header 中，Header 名称为 `X-RBHOOK-SECRET`",
   "HookRequestError": "请求失败 : %s",
   "ModifyFileFolder": "修改文件目录",
+  "AdminSettings": "管理员后台",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

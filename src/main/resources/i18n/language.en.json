@@ -1233,6 +1233,7 @@
   "HookSecretTips": "After filling in, system will carry it in the header of the request when it is called. The header name is `X-RBHOOK-SECRET`",
   "HookRequestError": "Request failed : %s",
   "ModifyFileFolder": "Modify file folder",
+  "AdminSettings": "Admin Settings",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
