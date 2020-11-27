@@ -59,7 +59,7 @@ public class ProjectController extends BaseController {
         try {
             p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
         } catch (ConfigurationException ex) {
-            response.sendError(404, ex.getLocalizedMessage());
+            response.sendError(403, ex.getLocalizedMessage());
             return null;
         }
 
