@@ -42,7 +42,7 @@ class EntityTree extends React.Component {
   loadData() {
     $.get('/files/list-entity', (res) => {
       let _list = res.data || []
-      _list.unshift({ id: __DEFAULT_ALL, text: '全部' })
+      _list.unshift({ id: __DEFAULT_ALL, text: $L('All') })
       this.setState({ list: _list })
     })
   }

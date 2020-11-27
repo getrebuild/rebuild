@@ -50,11 +50,12 @@ public class ProjectManager implements ConfigManager {
     public ConfigBean[] getAvailable(ID user) {
         ConfigBean[] projects = getAllProjects();
 
-        // TODO 管理员可见全部？
+        // 管理员可见全部
+        boolean isAdmin = UserHelper.isAdmin(user);
 
         List<ConfigBean> alist = new ArrayList<>();
         for (ConfigBean e : projects) {
-            if (e.getInteger("scope") == ProjectConfigService.SCOPE_ALL
+            if (isAdmin || e.getInteger("scope") == ProjectConfigService.SCOPE_ALL
                     || e.get("members", Set.class).contains(user)) {
                 alist.add(e.clone());
             }

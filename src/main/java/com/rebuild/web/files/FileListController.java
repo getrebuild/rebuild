@@ -11,14 +11,15 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.service.project.ProjectManager;
@@ -26,26 +27,25 @@ import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author devezhao
  * @since 2019/11/12
  */
-@Controller
+@RestController
 @RequestMapping("/files/")
 public class FileListController extends BaseController {
 
@@ -71,7 +71,7 @@ public class FileListController extends BaseController {
     }
 
     @RequestMapping("list-file")
-    public void listFile(HttpServletRequest request, HttpServletResponse response) {
+    public JSON listFile(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 100);
@@ -81,12 +81,14 @@ public class FileListController extends BaseController {
 
         // Entity or Folder
         String entry = getParameter(request, "entry");
-        int entity = 0;
-        ID inFolder = null;
+
+        int useEntity = 0;
+        ID useFolder = null;
+
         if (NumberUtils.isNumber(entry)) {
-            entity = NumberUtils.toInt(entry);
+            useEntity = NumberUtils.toInt(entry);
         } else if (ID.isId(entry)) {
-            inFolder = ID.valueOf(entry);
+            useFolder = ID.valueOf(entry);
         }
 
         List<String> sqlWhere = new ArrayList<>();
@@ -95,20 +97,20 @@ public class FileListController extends BaseController {
         }
 
         // 附件还是文档
-        if (entity > 0) {
-            if (entity == EntityHelper.Feeds) {
+        if (useEntity > 0) {
+            if (useEntity == EntityHelper.Feeds) {
                 sqlWhere.add(String.format(
-                        "(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.FeedsComment));
-            } else if (entity == EntityHelper.ProjectTask) {
+                        "(belongEntity = %d or belongEntity = %d)", useEntity, EntityHelper.FeedsComment));
+            } else if (useEntity == EntityHelper.ProjectTask) {
                 sqlWhere.add(String.format(
-                        "(belongEntity = %d or belongEntity = %d)", entity, EntityHelper.ProjectTaskComment));
-            } else if (entity > 1) {
-                Entity entityMeta = MetadataHelper.getEntity(entity);
+                        "(belongEntity = %d or belongEntity = %d)", useEntity, EntityHelper.ProjectTaskComment));
+            } else if (useEntity > 1) {
+                Entity entityMeta = MetadataHelper.getEntity(useEntity);
                 if (entityMeta.getDetailEntity() != null) {
                     sqlWhere.add(String.format(
-                            "(belongEntity = %d or belongEntity = %d)", entity, entityMeta.getDetailEntity().getEntityCode()));
+                            "(belongEntity = %d or belongEntity = %d)", useEntity, entityMeta.getDetailEntity().getEntityCode()));
                 } else {
-                    sqlWhere.add("belongEntity = " + entity);
+                    sqlWhere.add("belongEntity = " + useEntity);
                 }
 
             } else {
@@ -124,14 +126,21 @@ public class FileListController extends BaseController {
 
         } else {
             sqlWhere.add("belongEntity = 0");
-            if (inFolder != null) {
-                sqlWhere.add("inFolder = '" + inFolder + "'");
-            } else {
-                ID[] ps = FilesHelper.getPrivateFolders(user);
-                if (ps.length > 0) {
-                    sqlWhere.add(String.format("(inFolder is null or inFolder not in ('%s'))",
-                            StringUtils.join(ps, "','")));
-                }
+
+            Set<ID> ps = FilesHelper.getPrivateFolders(user);
+
+            if (useFolder != null) {
+                Set<ID> fs = new HashSet<>();
+                fs.add(useFolder);
+                fs.addAll(FilesHelper.getChildFolders(useFolder));
+                Collection<ID> fs2 = CollectionUtils.removeAll(fs, ps);
+
+                sqlWhere.add(String.format(
+                        "inFolder in ('%s')", StringUtils.join(fs2, "','")));
+
+            } else if (!ps.isEmpty()) {
+                sqlWhere.add(String.format(
+                        "(inFolder is null or inFolder not in ('%s'))", StringUtils.join(ps, "','")));
             }
         }
 
@@ -168,29 +177,25 @@ public class FileListController extends BaseController {
 
             files.add(item);
         }
-        writeSuccess(response, files);
+        return files;
     }
 
-    // 文档目录
+    // 文档树（目录）
     @RequestMapping("list-folder")
-    public void listFolder(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        JSONArray folders = FilesHelper.getFolders(user);
-        writeSuccess(response, folders);
+    public JSON listFolder(HttpServletRequest request) {
+        return FilesHelper.getFolders(getRequestUser(request));
     }
 
-    /**
-     * @see FileManagerController#checkReadable(HttpServletRequest, HttpServletResponse)
-     */
+    // 实体树
     @RequestMapping("list-entity")
-    public void listEntity(HttpServletRequest request, HttpServletResponse response) {
+    public JSON listEntity(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
         JSONArray ret = new JSONArray();
         for (int entity : getAllowEntities(user, false)) {
             ret.add(formatEntityJson(MetadataHelper.getEntity(entity)));
         }
-        writeSuccess(response, ret);
+        return ret;
     }
 
     private Integer[] getAllowEntities(ID user, boolean inQuery) {
