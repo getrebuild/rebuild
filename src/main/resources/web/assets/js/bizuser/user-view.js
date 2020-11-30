@@ -69,8 +69,8 @@ $(document).ready(function () {
         return
       }
 
-      $('.J_changeRole').click(() => renderRbcomp(<DlgEnableUser user={userId} role={res.data.role} roleAppends={res.data.roleAppends} />))
-      $('.J_changeDept').click(() => renderRbcomp(<DlgEnableUser user={userId} dept={res.data.dept} />))
+      $('.J_changeRole').click(() => renderRbcomp(<DlgEnableUser user={userId} roleSet={true} role={res.data.role} roleAppends={res.data.roleAppends} />))
+      $('.J_changeDept').click(() => renderRbcomp(<DlgEnableUser user={userId} deptSet={true} dept={res.data.dept} />))
 
       if (res.data.disabled === true) {
         $('.J_disable').remove()
@@ -78,7 +78,7 @@ $(document).ready(function () {
         if (!res.data.role || !res.data.dept) {
           $('.J_enable')
             .off('click')
-            .click(() => renderRbcomp(<DlgEnableUser user={userId} enable={true} role={res.data.role} roleAppends={res.data.roleAppends} dept={res.data.dept} />))
+            .click(() => renderRbcomp(<DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />))
         }
       } else {
         $('.J_enable').remove()
@@ -145,7 +145,7 @@ class DlgEnableUser extends RbModalHandler {
     return (
       <RbModal title={this._title} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
-          {this.props.dept && (
+          {this.props.deptSet && (
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,f.owningDept')}</label>
               <div className="col-sm-7">
@@ -153,7 +153,7 @@ class DlgEnableUser extends RbModalHandler {
               </div>
             </div>
           )}
-          {this.props.role && (
+          {this.props.roleSet && (
             <React.Fragment>
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,Role')}</label>
@@ -163,7 +163,7 @@ class DlgEnableUser extends RbModalHandler {
               </div>
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">
-                  {$L('AppendRoles')} ({$L('Optional')})
+                  {$L('AppendRoles')} ({$L('Optional')}) <sup className="rbv">V</sup>
                 </label>
                 <div className="col-sm-7">
                   <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} defaultValue={this.props.roleAppends} ref={(c) => (this._roleAppends = c)} />
