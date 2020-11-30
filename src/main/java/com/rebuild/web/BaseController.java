@@ -99,6 +99,7 @@ public abstract class BaseController extends Controller {
     /**
      * @param response
      * @param message
+     * @param errorCode
      */
     protected void writeFailure(HttpServletResponse response, String message, int errorCode) {
         writeJSON(response, formatFailure(message, errorCode));
