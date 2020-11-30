@@ -16,6 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -154,7 +155,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     private Field[] getValidFields(JSONObject item) {
         String fieldName = item.getString("field");
         if (MetadataHelper.getLastJoinField(getSourceEntity(), fieldName) == null) {
-            throw new ChartsException(Language.LF("ReConfChartTips", fieldName.toUpperCase()));
+            throw new DefinedException(Language.LF("ReConfChartTips", fieldName.toUpperCase()));
         }
 
         Field[] fields = new Field[2];

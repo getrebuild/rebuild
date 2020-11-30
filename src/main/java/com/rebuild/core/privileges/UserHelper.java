@@ -306,6 +306,7 @@ public class UserHelper {
      * @throws IOException
      */
     public static File generateAvatar(String name, boolean reload) throws IOException {
+        if (StringUtils.isBlank(name)) name = "RB";
         File avatarFile = RebuildConfiguration.getFileOfData("avatar-" + name + ".jpg");
         if (avatarFile.exists()) {
             if (reload) {

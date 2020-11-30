@@ -186,7 +186,7 @@ public class ApprovalController extends BaseController {
                     .approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup);
             writeSuccess(response);
         } catch (DataSpecificationNoRollbackException ex) {
-            writeJSON(response, formatFailure(ex.getMessage(), 499));
+            writeFailure(response, ex.getMessage(), 499);
         } catch (ApprovalException ex) {
             writeFailure(response, ex.getMessage());
         }

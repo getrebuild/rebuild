@@ -42,6 +42,15 @@ public class DefinedException extends RebuildException {
         this.errorCode = errorCode;
     }
 
+    public DefinedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public DefinedException(int errorCode, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+        this.errorCode = errorCode;
+    }
+
     public int getErrorCode() {
         return errorCode;
     }

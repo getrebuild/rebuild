@@ -39,16 +39,14 @@ public class EntityParamMethodArgumentResolver implements HandlerMethodArgumentR
         String value = webRequest.getParameter(param.name());
         if (StringUtils.isBlank(value)) {
             if (param.required()) {
-                throw new InvalidParameterException(
-                        Language.L("BadRequestParams") + String.format(" [ %s=%s ]", param.name(), value));
-            } else {
-                return null;
+                throw new InvalidParameterException(Language.LF("BadRequestParamsSome", param.name(), value));
             }
+            return null;
         }
 
         if (MetadataHelper.containsEntity(value)) {
             return MetadataHelper.getEntity(value);
         }
-        throw new InvalidParameterException("");
+        throw new InvalidParameterException(Language.L("BadRequestParams"));
     }
 }

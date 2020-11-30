@@ -104,7 +104,7 @@ public class ClassificationController extends BaseController {
             }
             item.setInt("level", level);
         } else {
-            return RespBody.errorl("InvalidParams");
+            return RespBody.errorl("BadRequestParams");
         }
 
         String code = getParameter(request, "code");
@@ -146,7 +146,7 @@ public class ClassificationController extends BaseController {
                     .setParameter(1, dataId)
                     .array();
         } else {
-            return RespBody.errorl("InvalidParams");
+            return RespBody.errorl("BadRequestParams");
         }
 
         return RespBody.ok(child);

@@ -7,30 +7,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core;
 
-import org.apache.commons.lang.exception.NestableRuntimeException;
-
 /**
  * RB Root Exception
  *
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
-public class RebuildException extends NestableRuntimeException {
+public class RebuildException extends RuntimeException {
     private static final long serialVersionUID = -889444005870894361L;
 
     public RebuildException() {
-        super();
     }
 
-    public RebuildException(String msg, Throwable cause) {
-        super(msg, cause);
+    public RebuildException(String message) {
+        super(message);
     }
 
-    public RebuildException(String msg) {
-        super(msg);
+    public RebuildException(String message, Throwable cause) {
+        super(message, cause);
     }
 
     public RebuildException(Throwable cause) {
         super(cause);
+    }
+
+    public RebuildException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }
