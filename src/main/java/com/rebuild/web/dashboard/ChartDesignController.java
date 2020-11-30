@@ -92,7 +92,7 @@ public class ChartDesignController extends EntityController {
             mv.getModel().put("chartOwningAdmin", UserHelper.isAdmin(user));
 
         } else {
-            throw new InvalidParameterException(Language.L("InvalidParams"));
+            throw new InvalidParameterException(Language.L("BadRequestParams"));
         }
 
         if (!Application.getPrivilegesManager().allowRead(getRequestUser(request), entity.getEntityCode())) {

@@ -19,6 +19,6 @@ public class InvalidParameterException extends DefinedException {
     private static final long serialVersionUID = 1104144276994648297L;
 
     public InvalidParameterException(String msg) {
-        super(msg);
+        super(msg, null, false, false);
     }
 }
