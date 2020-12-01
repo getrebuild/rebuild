@@ -8,12 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
@@ -66,8 +64,7 @@ public class AutoAssign implements TriggerAction {
 
     @Override
     public boolean isUsableSourceEntity(int entityCode) {
-        Entity entity = MetadataHelper.getEntity(entityCode);
-        return entity.containsField(EntityHelper.OwningUser) && entity.containsField(EntityHelper.OwningDept);
+        return MetadataHelper.hasPrivilegesField(MetadataHelper.getEntity(entityCode));
     }
 
     @Override

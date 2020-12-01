@@ -40,7 +40,7 @@ public class AutoApproval implements TriggerAction {
 
     @Override
     public boolean isUsableSourceEntity(int entityCode) {
-        return MetadataHelper.hasPrivilegesField(MetadataHelper.getEntity(entityCode));
+        return MetadataHelper.hasApprovalField(MetadataHelper.getEntity(entityCode));
     }
 
     @Override
