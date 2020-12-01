@@ -33,7 +33,10 @@ class FilesList extends React.Component {
               </div>
               <div className="detail">
                 <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
-                <div className="extras">{this.renderExtras(item)}</div>
+                <div className="extras">
+                  <span className="fsize">{item.fileSize}</span>
+                  {this.renderExtras(item)}
+                </div>
               </div>
               <div className="info">
                 <DateShow date={item.uploadOn} />
@@ -73,18 +76,7 @@ class FilesList extends React.Component {
   }
 
   renderExtras(item) {
-    return (
-      <React.Fragment>
-        <span>{item.fileSize}</span>
-        {item.relatedRecord && (
-          <span>
-            <a title={$L('ClickViewReleated')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>
-              {item.relatedRecord[1]}
-            </a>
-          </span>
-        )}
-      </React.Fragment>
-    )
+    return null
   }
 
   componentDidMount = () => this.loadData()
@@ -116,7 +108,9 @@ const previewFile = function (e, path, checkId) {
       if (res.data) RbPreview.create(path)
       else RbHighbar.error($L('NoPermissionReadFile'))
     })
-  } else RbPreview.create(path)
+  } else {
+    RbPreview.create(path)
+  }
 }
 
 var currentSearch

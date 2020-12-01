@@ -11,8 +11,7 @@ import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.util.Assert;
 
@@ -23,13 +22,12 @@ import org.springframework.util.Assert;
  * @author devezhao
  * @since 2020/9/27
  */
+@Slf4j
 public class UserContextHolder {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserContextHolder.class);
 
     private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("Current user");
 
-    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current locale of user");
+    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current locale");
 
     private UserContextHolder() { }
 
@@ -43,13 +41,6 @@ public class UserContextHolder {
     }
 
     /**
-     */
-    public static void clear() {
-        CALLER.remove();
-        LOCALE.remove();
-    }
-
-    /**
      * @param user
      */
     public static void setUser(ID user) {
@@ -57,7 +48,7 @@ public class UserContextHolder {
 
         ID exists = getUser(true);
         if (exists != null) {
-            LOG.warn("Replace user to current session (thread) : " + exists + " > " + user);
+            log.warn("Replace user in current session (thread) : " + exists + " > " + user);
             CALLER.remove();
         }
         CALLER.set(user);
@@ -101,5 +92,24 @@ public class UserContextHolder {
 
         // Use default
         return RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
+    }
+
+    /**
+     */
+    public static void clear() {
+        clearUser();
+        clearLocale();
+    }
+
+    /**
+     */
+    public static void clearUser() {
+        CALLER.remove();
+    }
+
+    /**
+     */
+    public static void clearLocale() {
+        LOCALE.remove();
     }
 }

@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.io.FilenameUtils;
@@ -114,21 +115,22 @@ public class FilesHelper {
     /**
      * 获取所有私有目录 ID
      *
-     * @param user 排除指定用户
+     * @param excludesUser 排除指定用户
      * @return
      */
-    public static ID[] getPrivateFolders(ID user) {
+    public static Set<ID> getPrivateFolders(ID excludesUser) {
         Object[][] array = Application.createQueryNoFilter(
-                "select folderId,createdBy from AttachmentFolder where scope = '" + SCOPE_SELF + "'")
+                "select folderId,createdBy from AttachmentFolder where scope = ?")
+                .setParameter(1, SCOPE_SELF)
                 .array();
         Set<ID> set = new HashSet<>();
         for (Object[] o : array) {
-            if (user == null || !user.equals(o[1])) {
+            if (excludesUser == null || !excludesUser.equals(o[1])) {
                 set.add((ID) o[0]);
                 set.addAll(getChildFolders((ID) o[0]));
             }
         }
-        return set.toArray(new ID[0]);
+        return set;
     }
 
     /**
@@ -137,7 +139,7 @@ public class FilesHelper {
      * @param parent
      * @return
      */
-    private static Set<ID> getChildFolders(ID parent) {
+    public static Set<ID> getChildFolders(ID parent) {
         Object[][] array = Application.createQueryNoFilter(
                 "select folderId,createdBy from AttachmentFolder where parent = ?")
                 .setParameter(1, parent)
@@ -172,5 +174,16 @@ public class FilesHelper {
         } else {
             return false;
         }
+    }
+
+    /**
+     * 是否允许操作文件（管理员与创建人允许）
+     *
+     * @param user
+     * @param fileId
+     * @return
+     */
+    public static boolean isManageable(ID user, ID fileId) {
+        return UserHelper.isAdmin(user) || UserHelper.isSelf(user, fileId);
     }
 }

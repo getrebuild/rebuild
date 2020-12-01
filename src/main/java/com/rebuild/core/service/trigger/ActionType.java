@@ -8,7 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import com.rebuild.core.service.trigger.impl.*;
-import org.springframework.cglib.core.ReflectUtils;
+import org.apache.commons.lang.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Constructor;
 
@@ -26,22 +27,27 @@ public enum ActionType {
     AUTOSHARE("自动共享", AutoShare.class),
     AUTOASSIGN("自动分派", AutoAssign.class),
     AUTOAPPROVAL("自动审批", AutoApproval.class),
+    HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
 
     ;
 
     private String displayName;
-    private Class<? extends TriggerAction> actionClazz;
+    // extends TriggerAction
+    private String actionClass;
 
-    ActionType(String displayName, Class<? extends TriggerAction> actionClazz) {
+    ActionType(String displayName, String actionClass) {
         this.displayName = displayName;
-        this.actionClazz = actionClazz;
+        this.actionClass = actionClass;
+    }
+
+    ActionType(String displayName, Class<? extends TriggerAction> actionClass) {
+        this(displayName, actionClass.getName());
     }
 
     /**
+     * Use i18n
      * @return
-     * @deprecated Use i18n
      */
-    @Deprecated
     public String getDisplayName() {
         return displayName;
     }
@@ -49,17 +55,18 @@ public enum ActionType {
     /**
      * @return
      */
-    public Class<? extends TriggerAction> getActionClazz() {
-        return actionClazz;
+    public String getActionClass() {
+        return actionClass;
     }
 
     /**
      * @param context
      * @return
-     * @throws NoSuchMethodException
+     * @throws ReflectiveOperationException
      */
-    public TriggerAction newInstance(ActionContext context) throws NoSuchMethodException {
-        Constructor<? extends TriggerAction> c = getActionClazz().getConstructor(ActionContext.class);
-        return (TriggerAction) ReflectUtils.newInstance(c, new Object[]{context});
+    public TriggerAction newInstance(ActionContext context) throws ReflectiveOperationException {
+        Class<?> clazz = ClassUtils.getClass(getActionClass());
+        Constructor<?> c = ReflectionUtils.accessibleConstructor(clazz, ActionContext.class);
+        return (TriggerAction) c.newInstance(context);
     }
 }

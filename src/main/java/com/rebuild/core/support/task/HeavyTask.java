@@ -25,7 +25,7 @@ import java.util.Date;
  * @see TaskExecutors
  * @since 09/29/2018
  */
-public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runnable {
+public abstract class HeavyTask<T> extends SetUser implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeavyTask.class);
 
@@ -37,8 +37,11 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
      */
     private ID threadUser;
 
+    // 要处理的数据总数量
     private int total = -1;
+    // 完成数量
     private int completed = 0;
+    // 成功数量
     private int succeeded = 0;
 
     final private Date beginTime;
@@ -51,7 +54,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
     }
 
     @Override
-    public HeavyTask<T> setUser(ID user) {
+    public SetUser setUser(ID user) {
         this.threadUser = user;
         return super.setUser(user);
     }
@@ -149,7 +152,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
         return errorMessage;
     }
 
-    // 中断处理。是否允许中断由子类决定
+    // 中断处理。是否允许中断由子类决定（实现）
 
     public void interrupt() {
         this.interrupt = true;
@@ -198,7 +201,7 @@ public abstract class HeavyTask<T> extends SetUser<HeavyTask<T>> implements Runn
     protected void completedAfter() {
         this.completedTime = CalendarUtils.now();
         if (this.threadUser != null) {
-            UserContextHolder.clear();
+            UserContextHolder.clearUser();
         }
     }
 }

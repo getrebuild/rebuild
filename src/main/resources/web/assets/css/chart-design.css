@@ -90,7 +90,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .axis .axis-head {
   color: #777;
   float: left;
-  width: 65px;
+  width: 80px;
   cursor: default;
 }
 
@@ -101,7 +101,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .axis .axis-target {
-  margin-left: 65px;
+  margin-left: 80px;
   min-height: 30px;
   margin-top: -6px;
   margin-bottom: -6px;

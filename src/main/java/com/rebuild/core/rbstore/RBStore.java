@@ -52,7 +52,7 @@ public class RBStore {
     }
 
     /**
-     * for BusinessModel
+     * for BusinessModel (暂未用)
      *
      * @param fileUri
      * @return

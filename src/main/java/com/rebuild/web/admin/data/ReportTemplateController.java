@@ -14,7 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
@@ -143,7 +143,7 @@ public class ReportTemplateController extends BaseController {
 
         Object[][] array = Application.createQuery(sql).setLimit(500).array();
         for (Object[] o : array) {
-            o[2] = EasyMeta.getLabel(MetadataHelper.getEntity((String) o[2]));
+            o[2] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[2]));
             o[5] = CalendarUtils.getUTCDateTimeFormat().format(o[5]);
         }
         return array;

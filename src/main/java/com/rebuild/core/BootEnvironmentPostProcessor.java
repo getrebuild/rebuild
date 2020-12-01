@@ -12,9 +12,8 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AES;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.impl.StaticLoggerBinder;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
@@ -33,9 +32,8 @@ import java.util.Properties;
  * @since 08/28/2020
  */
 @Component
+@Slf4j
 public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, InstallState {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BootEnvironmentPostProcessor.class);
 
     private static final String V2_PREFIX = "rebuild.";
 
@@ -54,7 +52,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         // 从安装文件
         File file = getInstallFile();
         if (file != null && file.exists()) {
-            LOG.info("Use installation file : " + file);
+            log.info("Use installation file : " + file);
 
             try {
                 Properties temp = PropertiesLoaderUtils.loadProperties(new FileSystemResource(file));
@@ -95,10 +93,20 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
             if (value != null) confPs.put(name, value);
         }
 
+        String dbUrl = env.getProperty("db.url");
+
         // `application-bean.xml` 占位符必填
-        if (env.getProperty("db.url") == null) confPs.put("db.url", "jdbc:mysql://127.0.0.1:3306/rebuild20");
+        if (dbUrl == null) {
+            dbUrl = "jdbc:mysql://127.0.0.1:3306/rebuild20?characterEncoding=UTF8";
+            confPs.put("db.url", dbUrl);
+        }
         if (env.getProperty("db.user") == null) confPs.put("db.user", "rebuild");
         if (env.getProperty("db.passwd") == null) confPs.put("db.passwd", "rebuild");
+
+        // start: V2.1
+        if (dbUrl.contains("jdbc:mysql") && !dbUrl.contains("serverTimezone")) {
+            confPs.put("db.url", dbUrl + "&serverTimezone=GMT");
+        }
 
         aesDecrypt(confPs);
         env.getPropertySources().addFirst(new PropertiesPropertySource(".configuration", confPs));
@@ -120,7 +128,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
                 String newValue = AES.decryptQuietly(value);
                 if (newValue == null) {
                     newValue = StringUtils.EMPTY;
-                    LOG.warn("Decrypting error (Use blank string) : " + name);
+                    log.warn("Decrypting error (Use blank string) : " + name);
                 }
                 ps.put(name, newValue);
             }

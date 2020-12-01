@@ -13,6 +13,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public class AdvFilterManager extends ShareToManager {
         for (Object[] c : canUses) {
             ConfigBean e = new ConfigBean()
                     .set("id", c[0])
-                    .set("editable", isSelf(user, (ID) c[2]))
+                    .set("editable", UserHelper.isSelf(user, (ID) c[2]))
                     .set("name", c[4]);
             ces.add(e);
         }

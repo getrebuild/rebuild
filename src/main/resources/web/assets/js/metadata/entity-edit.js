@@ -42,6 +42,7 @@ $(document).ready(function () {
 
     const quickFields = $('#quickFields').val().join(',')
     if (quickFields !== wpc.extConfig.quickFields) {
+      if (rb.commercial < 1) return RbHighbar.error($L('FreeVerNotSupportted,QuickQueryField'))
       data.extConfig = {
         quickFields: quickFields,
       }

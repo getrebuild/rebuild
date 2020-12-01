@@ -19,8 +19,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
@@ -41,11 +41,25 @@ import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
 
 /**
  * 高级查询解析器
+ * <pre>
+ * {
+ *     [entity]: 'xxx',
+ *     [type]: 'xxx',
+ *     [equation]: 'xxx',
+ *     items: [
+ *       { field:'xxx', op: 'xxx', value: 'xxx' },
+ *       ...
+ *     ],
+ *     [values]: [
+ *       'xxx', ...
+ *     ]
+ * }
+ * </pre>
  *
  * @author devezhao
  * @since 09/29/2018
  */
-public class AdvFilterParser extends SetUser<AdvFilterParser> {
+public class AdvFilterParser extends SetUser {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdvFilterParser.class);
 
@@ -82,15 +96,17 @@ public class AdvFilterParser extends SetUser<AdvFilterParser> {
 
         // 快速搜索模式，自动确定查询项
         if ("QUICK".equalsIgnoreCase(filterExp.getString("type"))) {
-            JSONArray items = buildQuickFilterItems(filterExp.getString("quickFields"));
-            this.filterExp.put("items", items);
+            JSONArray quickItems = buildQuickFilterItems(filterExp.getString("quickFields"));
+            this.filterExp.put("items", quickItems);
         }
 
         JSONArray items = filterExp.getJSONArray("items");
-        JSONObject values = filterExp.getJSONObject("values");
-        String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
         items = items == null ? JSONUtils.EMPTY_ARRAY : items;
+
+        JSONObject values = filterExp.getJSONObject("values");
         values = values == null ? JSONUtils.EMPTY_OBJECT : values;
+
+        String equation = StringUtils.defaultIfBlank(filterExp.getString("equation"), "OR");
 
         Map<Integer, String> indexItemSqls = new LinkedHashMap<>();
         int incrIndex = 1;
@@ -187,7 +203,7 @@ public class AdvFilterParser extends SetUser<AdvFilterParser> {
             return null;
         }
 
-        DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+        DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
         if (dt == DisplayType.CLASSIFICATION) {
             field = "&" + field;
         } else if (hasNameFlag) {
@@ -198,7 +214,7 @@ public class AdvFilterParser extends SetUser<AdvFilterParser> {
 
             // 转化为名称字段
             fieldMeta = fieldMeta.getReferenceEntity().getNameField();
-            dt = EasyMeta.getDisplayType(fieldMeta);
+            dt = EasyMetaFactory.getDisplayType(fieldMeta);
             field += "." + fieldMeta.getName();
         }
 

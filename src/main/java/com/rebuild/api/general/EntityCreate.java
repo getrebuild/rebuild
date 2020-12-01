@@ -19,7 +19,7 @@ import com.rebuild.api.BaseApi;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -59,7 +59,7 @@ public class EntityCreate extends BaseApi {
                     ApiInvokeException.ERR_DATASPEC);
         }
 
-        recordNew = Application.getService(useEntity.getEntityCode()).create(recordNew);
+        recordNew = Application.getEntityService(useEntity.getEntityCode()).create(recordNew);
 
         return formatSuccess(JSONUtils.toJSONObject("id", recordNew.getPrimary()));
     }
@@ -82,7 +82,7 @@ public class EntityCreate extends BaseApi {
         }
 
         Entity entity = MetadataHelper.getEntity(useEntity);
-        if (!entity.isQueryable() || MetadataHelper.isBizzEntity(entity.getEntityCode())) {
+        if (!entity.isQueryable() || MetadataHelper.isBizzEntity(entity)) {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Unsupportted operator for entity : " + useEntity);
         }
         return entity;
@@ -104,7 +104,7 @@ public class EntityCreate extends BaseApi {
             Field field = record.getEntity().getField(fieldName);
             if (field.getType() == FieldType.PRIMARY) continue;
 
-            repeatedFields.add(EasyMeta.getLabel(field));
+            repeatedFields.add(EasyMetaFactory.getLabel(field));
         }
         return repeatedFields;
     }

@@ -13,11 +13,11 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -32,6 +32,8 @@ import java.util.Set;
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
+@SuppressWarnings("unused")
+@Deprecated
 public class EasyMeta implements BaseMeta {
     private static final long serialVersionUID = -6463919098111506968L;
 
@@ -119,6 +121,7 @@ public class EasyMeta implements BaseMeta {
      *
      * @param name
      * @return
+     * @see EasyFieldConfigProps
      */
     public String getExtraAttr(String name) {
         return getExtraAttrs().getString(name);
@@ -269,6 +272,8 @@ public class EasyMeta implements BaseMeta {
             }
         } else if (ft == FieldType.ANY_REFERENCE) {
             return DisplayType.ANYREFERENCE;
+        } else if (ft == FieldType.REFERENCE_LIST) {
+            return DisplayType.N2NREFERENCE;
         } else if (ft == FieldType.TIMESTAMP) {
             return DisplayType.DATETIME;
         } else if (ft == FieldType.DATE) {
@@ -285,86 +290,5 @@ public class EasyMeta implements BaseMeta {
             return DisplayType.DECIMAL;
         }
         return null;
-    }
-
-    // -- QUICK
-
-    /**
-     * @param entityOrField
-     * @return
-     */
-    public static EasyMeta valueOf(BaseMeta entityOrField) {
-        return new EasyMeta(entityOrField);
-    }
-
-    /**
-     * @param entityCode
-     * @return
-     */
-    public static EasyMeta valueOf(int entityCode) {
-        return valueOf(MetadataHelper.getEntity(entityCode));
-    }
-
-    /**
-     * @param entityName
-     * @return
-     */
-    public static EasyMeta valueOf(String entityName) {
-        return valueOf(MetadataHelper.getEntity(entityName));
-    }
-
-    /**
-     * @param field
-     * @return
-     */
-    public static DisplayType getDisplayType(Field field) {
-        return valueOf(field).getDisplayType();
-    }
-
-    /**
-     * @param entityOrField
-     * @return
-     */
-    public static String getLabel(BaseMeta entityOrField) {
-        return valueOf(entityOrField).getLabel();
-    }
-
-    /**
-     * 获取字段 Label（支持两级字段，如 owningUser.fullName）
-     *
-     * @param entity
-     * @param fieldPath
-     * @return
-     */
-    public static String getLabel(Entity entity, String fieldPath) {
-        String[] fieldPathSplit = fieldPath.split("\\.");
-        Field firstField = entity.getField(fieldPathSplit[0]);
-        if (fieldPathSplit.length == 1) {
-            return getLabel(firstField);
-        }
-
-        Entity refEntity = firstField.getReferenceEntity();
-        Field secondField = refEntity.getField(fieldPathSplit[1]);
-        return String.format("%s.%s", getLabel(firstField), getLabel(secondField));
-    }
-
-    /**
-     *
-     * @param entity
-     * @return Retuens { entity:xxx, entityLabel:xxx, icon:xxx }
-     */
-    public static JSON getEntityShow(Entity entity) {
-        EasyMeta easy = valueOf(entity);
-        return JSONUtils.toJSONObject(
-                new String[] { "entity", "entityLabel", "icon" },
-                new String[] { easy.getName(), easy.getLabel(), easy.getIcon() });
-    }
-
-    /**
-     * @param entity
-     * @return
-     */
-    public static boolean isPlainEntity(Entity entity) {
-        return EasyMeta.valueOf(entity).isPlainEntity();
     }
 }

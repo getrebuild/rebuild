@@ -55,6 +55,8 @@
                         <button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
                         <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
                           <a class="dropdown-item J_new-dept"><i class="icon zmdi zmdi-accounts-add"></i> [[${bundle.L('NewSome,Department')}]]</a>
+                          <div class="dropdown-divider"></div>
+                          <a class="dropdown-item J_imports"><i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('ImportUser')}]] <sup class="rbv">V</sup></a>
                         </div>
                       </div>
                       <div class="btn-group btn-space">
@@ -83,39 +85,13 @@
         privileges: _$unthy('[[${entityPrivileges}]]'),
         listConfig: _$unthy('[[${DataListConfig}]]'),
         advFilter: false,
+        serviceMail: '[[${serviceMail}]]'
       }
     </script>
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.exts.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/bizuser/dept-tree.js}"></script>
-    <script type="text/babel">
-      const RbForm_postAfter = RbForm.postAfter
-
-      let formPostType = 1
-      RbForm.postAfter = function () {
-        if (formPostType == 1) RbForm_postAfter()
-        else loadDeptTree()
-      }
-
-      $(document).ready(function () {
-        loadDeptTree()
-        $('.J_new').click(function () {
-          formPostType = 1
-        })
-        $('.J_new-dept').click(function () {
-          formPostType = 2
-          RbFormModal.create({ title: $L('NewSome,Department'), entity: 'Department', icon: 'accounts' })
-        })
-      })
-
-      clickDept = function (depts) {
-        if (depts[0] == '$ALL$') depts = []
-        let exp = { items: [], values: {} }
-        exp.items.push({ op: 'in', field: 'deptId', value: '{2}' })
-        exp.values['2'] = depts
-        RbListPage._RbList.search(depts.length == 0 ? {} : exp)
-      }
-    </script>
+    <script th:src="@{/assets/js/bizuser/user-list.js}" type="text/babel"></script>
   </body>
 </html>

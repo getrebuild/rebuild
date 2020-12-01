@@ -15,6 +15,7 @@ import com.rebuild.core.support.distributed.DistributedJobLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import java.util.concurrent.*;
  * @see org.springframework.core.task.AsyncTaskExecutor
  * @since 09/29/2018
  */
+@Component
 public class TaskExecutors extends DistributedJobLock {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskExecutors.class);
@@ -41,7 +43,7 @@ public class TaskExecutors extends DistributedJobLock {
     private static final Map<String, HeavyTask<?>> TASKS = new ConcurrentHashMap<>();
 
     /**
-     * 提交给任务调度（异步执行）
+     * 异步执行（提交给任务调度）
      *
      * @param task
      * @param execUser 执行用户。因为是在线程中执行，所以必须指定
@@ -79,7 +81,7 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
-     * 直接执行此方法（同步方式），无返回值
+     * 同步执行
      *
      * @param task
      */
@@ -88,18 +90,7 @@ public class TaskExecutors extends DistributedJobLock {
     }
 
     /**
-     * 直接执行此方法（同步方式），有返回值。
-     * 需要自行处理异常、需自行处理线程用户问题
-     *
-     * @param task
-     * @see HeavyTask#run()
-     */
-    public static Object exec(HeavyTask<?> task) throws Exception {
-        return task.exec();
-    }
-
-    /**
-     * 停止任务
+     * 停止任务执行器
      */
     public static void shutdown() {
         List<Runnable> runs = EXECS.shutdownNow();
@@ -110,7 +101,7 @@ public class TaskExecutors extends DistributedJobLock {
 
     // --
 
-    @Scheduled(cron = "0 15,35,55 * * * ?")
+    @Scheduled(fixedRate = 300000, initialDelay = 300000)
     public void executeJob() {
         if (TASKS.isEmpty() || !tryLock()) return;
 

@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.service.BaseService;
+import com.rebuild.core.service.ServiceSpec;
 import org.springframework.stereotype.Service;
 
 /**
@@ -42,38 +43,40 @@ public class MetaEntityService extends BaseService implements AdminGuard {
                 "select entityName from MetaEntity where entityId = ?")
                 .setParameter(1, recordId)
                 .unique();
-        final Entity entity = MetadataHelper.getEntity((String) entityRecord[0]);
+        final Entity delEntity = MetadataHelper.getEntity((String) entityRecord[0]);
 
-        // 删除此实体的相关配置记录
+        // 删除实体的相关配置
         // Field: belongEntity
-        String[] whoUsed = new String[]{
+        String[] confEntities = new String[]{
                 "MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig",
                 "Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig",
-                "DataReportConfig",
+                "DataReportConfig", "TransformConfig"
         };
         int del = 0;
-        for (String who : whoUsed) {
-            Entity whichEntity = MetadataHelper.getEntity(who);
-            if (!whichEntity.containsField("belongEntity")) {
-                continue;
-            }
+        for (String conf : confEntities) {
+            Entity confEntity = MetadataHelper.getEntity(conf);
 
-            String ql = String.format("select %s from %s where belongEntity = '%s'",
-                    whichEntity.getPrimaryField().getName(), whichEntity.getName(), entity.getName());
-            if (whichEntity.getEntityCode() == EntityHelper.Attachment) {
-                ql = ql.split(" belongEntity ")[0] + " belongEntity = " + whichEntity.getEntityCode();
+            String ql = String.format("select %s from %s where belongEntity = ",
+                    confEntity.getPrimaryField().getName(), confEntity.getName());
+            if (confEntity.getEntityCode() == EntityHelper.Attachment) {
+                ql += delEntity.getEntityCode();
+            } else {
+                ql += String.format("'%s'", delEntity.getName());
+
+                if (confEntity.getEntityCode() == EntityHelper.TransformConfig) {
+                    ql += String.format(" or targetEntity = '%s'", delEntity.getName());
+                }
             }
 
             Object[][] usedArray = getPersistManagerFactory().createQuery(ql).array();
+
+            ServiceSpec ss = Application.getService(confEntity.getEntityCode());
             for (Object[] used : usedArray) {
-                if ("MetaField".equalsIgnoreCase(who)) {
-                    del += Application.getBean(MetaFieldService.class).delete((ID) used[0]);
-                } else {
-                    del += super.delete((ID) used[0]);
-                }
+                ss.delete((ID) used[0]);
             }
+
             if (usedArray.length > 0) {
-                LOG.warn("deleted configuration of entity [ " + entity.getName() + " ] in [ " + who + " ] : " + usedArray.length);
+                LOG.warn("deleted configuration of entity [ " + delEntity.getName() + " ] in [ " + conf + " ] : " + usedArray.length);
             }
         }
 

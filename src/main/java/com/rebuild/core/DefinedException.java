@@ -10,10 +10,13 @@ package com.rebuild.core;
 import com.rebuild.api.Controller;
 
 /**
+ * 已知的业务异常（非系统错误）
+ *
  * @author devezhao
  * @since 2020/10/13
  */
 public class DefinedException extends RebuildException {
+    private static final long serialVersionUID = 2504578210264915700L;
 
     // 错误码
     private int errorCode = Controller.CODE_ERROR;
@@ -36,6 +39,15 @@ public class DefinedException extends RebuildException {
 
     public DefinedException(int errorCode, String msg) {
         super(msg);
+        this.errorCode = errorCode;
+    }
+
+    public DefinedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public DefinedException(int errorCode, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
         this.errorCode = errorCode;
     }
 

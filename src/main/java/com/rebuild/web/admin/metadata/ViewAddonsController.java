@@ -19,7 +19,7 @@ import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
@@ -84,9 +84,9 @@ public class ViewAddonsController extends BaseController {
                 continue;
             }
 
-            String label = EasyMeta.getLabel(e);
+            String label = EasyMetaFactory.getLabel(e);
             if (mfRefs.contains(e)) {
-                label = EasyMeta.getLabel(field) + " (" + label + ")";
+                label = EasyMetaFactory.getLabel(field) + " (" + label + ")";
             }
             refs.add(new String[]{e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label});
         }

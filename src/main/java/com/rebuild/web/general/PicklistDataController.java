@@ -16,8 +16,8 @@ import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
@@ -44,7 +44,7 @@ public class PicklistDataController extends BaseController {
         String field = getParameterNotNull(request, "field");
 
         Field fieldMeta = getRealField(entity, field);
-        DisplayType dt = EasyMeta.getDisplayType(fieldMeta);
+        DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
 
         JSON options;
         if (dt == DisplayType.STATE) {

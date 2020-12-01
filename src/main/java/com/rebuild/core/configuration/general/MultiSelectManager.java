@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class MultiSelectManager extends PickListManager {
      * @param field
      * @return
      */
-    public String[] getLabel(long maskValue, Field field) {
+    public String[] getLabels(long maskValue, Field field) {
         if (maskValue <= 0) {
             return new String[0];
         }
@@ -77,6 +78,21 @@ public class MultiSelectManager extends PickListManager {
             }
         }
         return maskValue == 0 ? null : maskValue;
+    }
+
+    /**
+     * @param labelValue
+     * @param field
+     * @return
+     */
+    public long findMultiItemByLabel(String labelValue, Field field) {
+        ConfigBean[] items = getPickListRaw(field, true);
+        for (ConfigBean item : items) {
+            if (StringUtils.equalsIgnoreCase(item.getString("text"), labelValue)) {
+                return item.getLong("mask");
+            }
+        }
+        return 0;
     }
 
     @Override

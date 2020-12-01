@@ -9,8 +9,8 @@ package com.rebuild.core.support.state;
 
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.service.approval.ApprovalState;
 import org.apache.commons.lang.ClassUtils;
 import org.springframework.util.Assert;
@@ -48,7 +48,7 @@ public class StateHelper {
             return ApprovalState.class;
         }
 
-        String stateClass = new EasyMeta(stateField).getExtraAttr(FieldExtConfigProps.STATE_STATECLASS);
+        String stateClass = EasyMetaFactory.valueOf(stateField).getExtraAttr(EasyFieldConfigProps.STATE_CLASS);
         return getSatetClass(stateClass);
     }
 
@@ -98,8 +98,7 @@ public class StateHelper {
     public static StateSpec valueOf(Class<?> stateClass, int state) throws IllegalArgumentException {
         Assert.notNull(stateClass, "[stateClass] cannot be null");
 
-        Object[] constants = stateClass.getEnumConstants();
-        for (Object c : constants) {
+        for (Object c : stateClass.getEnumConstants()) {
             if (((StateSpec) c).getState() == state) {
                 return (StateSpec) c;
             }

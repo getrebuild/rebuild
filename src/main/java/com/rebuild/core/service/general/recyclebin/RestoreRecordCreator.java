@@ -12,10 +12,10 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
+import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -23,32 +23,39 @@ import java.util.Map;
  * @author devezhao
  * @since 2019/8/21
  */
+@Slf4j
 public class RestoreRecordCreator extends JsonRecordCreator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RestoreRecordCreator.class);
 
     public RestoreRecordCreator(Entity entity, JSONObject source) {
         super(entity, source);
     }
 
+    // ignoreNullValueWhenNew always true
     @Override
-    public Record create(boolean ignoreNullValue) {
+    public Record create(boolean ignoreNullValueWhenNew) {
         Record record = new StandardRecord(entity, null);
 
         for (Map.Entry<String, Object> e : source.entrySet()) {
             String fileName = e.getKey();
             if (!entity.containsField(fileName)) {
-                LOG.warn("Unable found field [ " + entity.getName() + '#' + fileName + " ], will ignore");
+                log.warn("Cannot found field [ " + entity.getName() + '#' + fileName + " ], will ignore");
                 continue;
             }
 
             Field field = entity.getField(fileName);
             Object value = e.getValue();
-            if (ignoreNullValue && (value == null || StringUtils.isEmpty(value.toString()))) {
+            if (value == null || StringUtils.isEmpty(value.toString())) {
                 continue;
             }
-            setValue(field, value == null ? null : value.toString(), record);
+
+            setFieldValue(field, value.toString(), record);
         }
         return record;
+    }
+
+    @Override
+    public boolean onSetFieldValueWarn(Field field, String value, Record record) {
+        RecordVisitor.setValueByLiteral(field, value, record);
+        return true;
     }
 }

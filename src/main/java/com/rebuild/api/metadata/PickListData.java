@@ -15,8 +15,8 @@ import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 /**
  * 下拉列表数据
@@ -38,7 +38,7 @@ public class PickListData extends BaseApi {
         final String field = context.getParameterNotBlank("field");
 
         Field picklistField = MetadataHelper.getField(entity, field);
-        if (EasyMeta.getDisplayType(picklistField) != DisplayType.PICKLIST) {
+        if (EasyMetaFactory.getDisplayType(picklistField) != DisplayType.PICKLIST) {
             throw new ApiInvokeException("Non picklist field : " + entity + "." + field);
         }
 

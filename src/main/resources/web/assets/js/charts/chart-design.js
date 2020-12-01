@@ -7,13 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 
-let esourceFilter
-$(document).ready(() => {
-  $(window).trigger('resize')
+let dataFilter
 
+$(document).ready(() => {
   $('.chart-type>a, .chart-option .zicon').tooltip({ html: true, container: '.config-aside' })
   if (wpc.chartOwningAdmin !== true) $('.admin-show').remove()
 
+  // 字段拖动
   let dragIsNum = false
   let dargOnSort = false
   $('.fields a')
@@ -40,7 +40,7 @@ $(document).ready(() => {
       },
     })
     .disableSelection()
-  // 排序
+  // 字段排序
   $('.axis-target')
     .sortable({
       axis: 'x',
@@ -58,17 +58,18 @@ $(document).ready(() => {
     .disableSelection()
 
   const saveFilter = function (filter) {
-    esourceFilter = filter
+    dataFilter = filter
     render_preview()
   }
+
   $('.J_filter').click(() => {
-    renderRbcomp(<AdvFilter title={$L('DataFilter')} entity={wpc.sourceEntity} filter={esourceFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
+    renderRbcomp(<AdvFilter title={$L('DataFilter')} entity={wpc.sourceEntity} filter={dataFilter} inModal={true} confirm={saveFilter} canNoFilters={true} />)
   })
 
-  const cts = $('.chart-type > a').click(function () {
+  const $cts = $('.chart-type > a').click(function () {
     const $this = $(this)
     if ($this.hasClass('active') === false) return
-    cts.removeClass('select')
+    $cts.removeClass('select')
     $this.addClass('select')
     render_option()
   })
@@ -108,35 +109,35 @@ $(document).ready(() => {
     $(wpc.chartConfig.axis.dimension).each((idx, item) => add_axis('.J_axis-dim', item))
     $(wpc.chartConfig.axis.numerical).each((idx, item) => add_axis('.J_axis-num', item))
     $('.chart-type>a[data-type="' + wpc.chartConfig.type + '"]').trigger('click')
-    esourceFilter = wpc.chartConfig.filter
+    dataFilter = wpc.chartConfig.filter
 
     const option = wpc.chartConfig.option || {}
     for (let k in option) {
       const opt = $('.chart-option input[data-name=' + k + ']')
       if (opt.length > 0) {
         if (opt.attr('type') === 'checkbox') {
-          if (option[k] === 'true' || option[k] === true) opt.trigger('click')
+          if ($isTrue(option[k])) opt.trigger('click')
         } else {
           opt.val(option[k])
         }
       }
     }
   }
-  if (!wpc.chartId) $(`<h4 class="chart-undata must-center">${$L('ChartNodata')}</h4>`).appendTo('#chart-preview')
 
-  window.onbeforeunload = function () {
-    const ccfg = build_config()
-    if (!ccfg && !wpc.chartId);
-    else if (
-      JSON.stringify(ccfg) === JSON.stringify(wpc.chartConfig) // Unchanged
-    );
-    else return false
+  if (!wpc.chartId) {
+    $(`<h4 class="chart-undata must-center">${$L('ChartNodata')}</h4>`).appendTo('#chart-preview')
   }
 
   $addResizeHandler(() => {
     $('#chart-preview').height($(window).height() - 170)
     if (render_preview_chart && render_preview_chart.resize) render_preview_chart.resize()
-  })
+  })()
+
+  window.onbeforeunload = function () {
+    const cfg = build_config()
+    if ((!cfg && !wpc.chartId) || $same(cfg, wpc.chartConfig)) return undefined
+    return '关闭提示'
+  }
 })
 
 const CTs = {
@@ -196,7 +197,7 @@ const add_axis = (target, axis) => {
   fieldLabel = fieldLabel || '[' + fieldName.toUpperCase() + ']'
 
   if (isNumAxis) {
-    $dropdown.find('.J_date, .J_clazz').remove()
+    $dropdown.find('.J_text, .J_date, .J_clazz').remove()
     if (fieldType !== 'num') $dropdown.find('.J_num').remove()
   } else {
     $dropdown.find('.J_text, .J_num').remove()
@@ -238,11 +239,13 @@ const add_axis = (target, axis) => {
         render_preview()
       }
 
-      if (dlgAxisProps) dlgAxisProps.show(state)
-      else
+      if (dlgAxisProps) {
+        dlgAxisProps.show(state)
+      } else {
         renderRbcomp(<DlgAxisProps {...state} />, null, function () {
           dlgAxisProps = this
         })
+      }
     }
   })
 
@@ -283,7 +286,7 @@ const render_option = () => {
   const ct = $select.data('type')
   // Option
   $('.chart-option>div').addClass('hide')
-  const ctOpt = $('.J_opt-' + ct)
+  const ctOpt = $(`.J_opt-ALL, .J_opt-${ct}`)
   if (ctOpt.length === 0) $('.J_opt-UNDEF').removeClass('hide')
   else ctOpt.removeClass('hide')
 
@@ -318,11 +321,13 @@ const render_preview = () => {
       $('#chart-preview').empty()
       // eslint-disable-next-line no-undef
       const c = detectChart(cfg)
-      if (c)
+      if (c) {
         renderRbcomp(c, 'chart-preview', function () {
           render_preview_chart = this
         })
-      else $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('UnsupportChartType')}</h4>`)
+      } else {
+        $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('UnsupportChartType')}</h4>`)
+      }
     },
     400,
     'chart-preview'
@@ -349,7 +354,7 @@ const build_config = () => {
   })
   cfg.option = opts
 
-  if (esourceFilter) cfg.filter = esourceFilter
+  if (dataFilter) cfg.filter = dataFilter
   // eslint-disable-next-line no-console
   if (rb.env === 'dev') console.log(cfg)
   return cfg
@@ -386,7 +391,7 @@ class DlgAxisProps extends RbFormHandler {
               <input className="form-control form-control-sm" placeholder={$L('Default')} data-id="label" value={this.state.label || ''} onChange={this.handleChange} />
             </div>
           </div>
-          {this.state.isNumAxis !== true ? null : (
+          {this.state.isNumAxis && (
             <div className="form-group row">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('DecimalLength')}</label>
               <div className="col-sm-7">

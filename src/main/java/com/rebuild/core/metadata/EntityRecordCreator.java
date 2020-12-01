@@ -17,11 +17,11 @@ import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -68,9 +68,72 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     @Override
-    protected void afterCreate(Record record, boolean isNew) {
-        super.afterCreate(record, isNew);
-        bindCommonsFieldsValue(record, isNew);
+    public boolean onSetFieldValueWarn(Field field, String value, Record record) {
+        // TODO 非系统级字段是否予以通过
+        return false;
+    }
+
+    @Override
+    protected void afterCreate(Record record) {
+        bindCommonsFieldsValue(record, record.getPrimary() == null);
+        verify(record);
+    }
+
+    @Override
+    public void verify(Record record) {
+        List<String> notAllowed = new ArrayList<>();
+        // 新建
+        if (record.getPrimary() == null) {
+            // 自动只读字段可以忽略非空检查
+            final Set<String> roAutos = EasyMetaFactory.getAutoReadonlyFields(record.getEntity().getName());
+
+            for (Field field : entity.getFields()) {
+                if (MetadataHelper.isSystemField(field) || roAutos.contains(field.getName())) {
+                    continue;
+                }
+
+                final EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (easyField.getDisplayType() == DisplayType.SERIES) {
+                    continue;
+                }
+
+                Object hasVal = record.getObjectValue(field.getName());
+                if ((hasVal == null || NullValue.is(hasVal)) && !field.isNullable()) {
+                    notAllowed.add(easyField.getLabel());
+                }
+            }
+
+            if (!notAllowed.isEmpty()) {
+                throw new DataSpecificationException(
+                        Language.LF("XNotNull", StringUtils.join(notAllowed, " / ")));
+            }
+        }
+        // 更新
+        else {
+            for (String fieldName : record.getAvailableFields()) {
+                Field field = record.getEntity().getField(fieldName);
+                if (EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName)
+                        || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName)
+                        || field.getType() == FieldType.PRIMARY) {
+                    continue;
+                }
+
+                final EasyField easyField = EasyMetaFactory.valueOf(field);
+                if (!easyField.isUpdatable()) {
+                    if (strictMode) {
+                        notAllowed.add(easyField.getLabel());
+                    } else {
+                        record.removeValue(fieldName);
+                        LOG.warn("Remove non-updatable field : " + fieldName);
+                    }
+                }
+            }
+
+            if (!notAllowed.isEmpty()) {
+                throw new DataSpecificationException(
+                        Language.LF("XNotModify", StringUtils.join(notAllowed, " / ")));
+            }
+        }
     }
 
     /**
@@ -103,63 +166,6 @@ public class EntityRecordCreator extends JsonRecordCreator {
             if (entity.containsField(EntityHelper.OwningDept)) {
                 User user = Application.getUserStore().getUser(r.getEditor());
                 r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
-            }
-        }
-    }
-
-    @Override
-    public void verify(Record record, boolean isNew) {
-        List<String> notAllowed = new ArrayList<>();
-        // 新建
-        if (isNew) {
-            // 自动只读字段可以忽略非空检查
-            final Set<String> roFieldsByTrigger = RobotTriggerManager.instance.getAutoReadonlyFields(record.getEntity().getName());
-
-            for (Field field : entity.getFields()) {
-                if (MetadataHelper.isSystemField(field) || roFieldsByTrigger.contains(field.getName())) {
-                    continue;
-                }
-
-                final EasyMeta easyField = EasyMeta.valueOf(field);
-                if (easyField.getDisplayType() == DisplayType.SERIES) {
-                    continue;
-                }
-
-                Object hasVal = record.getObjectValue(field.getName());
-                if ((hasVal == null || NullValue.is(hasVal)) && !field.isNullable()) {
-                    notAllowed.add(easyField.getLabel());
-                }
-            }
-
-            if (!notAllowed.isEmpty()) {
-                throw new DataSpecificationException(
-                        Language.LF("XNotNull", StringUtils.join(notAllowed, " / ")));
-            }
-        }
-        // 更新
-        else {
-            for (String fieldName : record.getAvailableFields()) {
-                Field field = record.getEntity().getField(fieldName);
-                if (EntityHelper.ModifiedOn.equalsIgnoreCase(fieldName)
-                        || EntityHelper.ModifiedBy.equalsIgnoreCase(fieldName)
-                        || field.getType() == FieldType.PRIMARY) {
-                    continue;
-                }
-
-                final EasyMeta easyField = EasyMeta.valueOf(field);
-                if (!easyField.isUpdatable()) {
-                    if (strictMode) {
-                        notAllowed.add(easyField.getLabel());
-                    } else {
-                        record.removeValue(fieldName);
-                        LOG.warn("Remove non-updatable field : " + fieldName);
-                    }
-                }
-            }
-
-            if (!notAllowed.isEmpty()) {
-                throw new DataSpecificationException(
-                        Language.LF("XNotModify", StringUtils.join(notAllowed, " / ")));
             }
         }
     }

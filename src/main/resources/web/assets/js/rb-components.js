@@ -706,12 +706,12 @@ const renderRbcomp = function (jsx, target, call) {
     target = null
   }
 
-  target = target || $random('react-comps-')
+  target = target || $random('react-container-')
   if ($.type(target) === 'string') {
     // element id
     const container = document.getElementById(target)
     if (!container) {
-      if (!target.startsWith('react-comps-')) throw 'No element found : ' + target
+      if (!target.startsWith('react-container-')) throw 'No element found : ' + target
       else target = $(`<div id="${target}"></div>`).appendTo(document.body)[0]
     } else {
       target = container

@@ -16,6 +16,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 
+import java.util.Set;
+
 /**
  * @author devezhao
  * @since 2020/7/30
@@ -42,24 +44,32 @@ public class ProjectHelper {
     }
 
     /**
-     * 对任务/评论是否有管理权
+     * 对 任务/评论/标签 是否有管理权
      *
-     * @param taskOrComment
+     * @param taskOrCommentOrTag
      * @param user
      * @return
      */
-    public static boolean isManageable(ID taskOrComment, ID user) {
-        if (taskOrComment.getEntityCode() == EntityHelper.ProjectTask) {
-            // 管理员
-            if (UserHelper.isAdmin(user)) return true;
+    public static boolean isManageable(ID taskOrCommentOrTag, ID user) {
+        // 管理员
+        if (UserHelper.isAdmin(user)) return true;
 
-            // 负责人
-            ConfigBean cfg = ProjectManager.instance.getProjectByTask(convert2Task(taskOrComment), null);
-            if (user.equals(cfg.getID("principal"))) return true;
+        // 项目配置信息
+        ConfigBean pcfg;
+        if (taskOrCommentOrTag.getEntityCode() == EntityHelper.ProjectTaskTag) {
+            Object[] projectId = Application.getQueryFactory().uniqueNoFilter(taskOrCommentOrTag, "projectId");
+            pcfg = ProjectManager.instance.getProject((ID) projectId[0], null);
+        } else {
+            pcfg = ProjectManager.instance.getProjectByTask(convert2Task(taskOrCommentOrTag), null);
         }
 
+        // 负责人
+        if (user.equals(pcfg.getID("principal"))) return true;
+        // 非成员
+        if (!pcfg.get("members", Set.class).contains(user)) return false;
+
         // 创建人
-        Object[] createdBy = Application.getQueryFactory().uniqueNoFilter(taskOrComment, "createdBy");
+        Object[] createdBy = Application.getQueryFactory().uniqueNoFilter(taskOrCommentOrTag, "createdBy");
         return createdBy != null && createdBy[0].equals(user);
     }
 

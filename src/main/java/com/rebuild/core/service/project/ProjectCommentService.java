@@ -7,16 +7,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.project;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.service.feeds.FeedsHelper;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -55,9 +56,7 @@ public class ProjectCommentService extends BaseTaskService {
     @Override
     public int delete(ID commentId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(commentId, user)) {
-            throw new PrivilegesException("不能删除他人评论");
-        }
+        if (!ProjectHelper.isManageable(commentId, user)) throw new OperationDeniedException("DELETE COMMENT");
 
         return super.delete(commentId);
     }
@@ -72,7 +71,7 @@ public class ProjectCommentService extends BaseTaskService {
     private int checkAtUserAndNotification(Record record, String content) {
         if (StringUtils.isBlank(content)) return 0;
 
-        final String msg = "@" + record.getEditor() + " 在任务中提到了你 \n> " + content;
+        final String msg = Language.LF("MsgAtYouInProjectTask", record.getEditor()) + " \n> " + content;
 
         ID[] atUsers = FeedsHelper.findMentions(content);
         int send = 0;

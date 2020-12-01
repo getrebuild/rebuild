@@ -27,7 +27,7 @@ class AnnouncementModal extends React.Component {
                 <span className="float-right">
                   <a href={`${rb.baseUrl}/app/list-and-view?id=${this.props.id}`}>{$L('GoFeedsView')}</a>
                 </span>
-                <span className="clearfi"></span>
+                <span className="clearfix"></span>
               </div>
             </div>
           </div>
@@ -49,6 +49,9 @@ class AnnouncementModal extends React.Component {
 }
 
 var $showAnnouncement = function () {
+  const $aw = $('.announcement-wrapper')
+  if ($aw.length === 0) return
+
   $.get('/commons/announcements', (res) => {
     if (res.error_code !== 0 || !res.data || res.data.length === 0) return
     const as = res.data.map((item, idx) => {
@@ -59,7 +62,7 @@ var $showAnnouncement = function () {
         </div>
       )
     })
-    renderRbcomp(<React.Fragment>{as}</React.Fragment>, $('.announcement-wrapper'), function () {
+    renderRbcomp(<React.Fragment>{as}</React.Fragment>, $aw, function () {
       $(this)
         .find('p>a[href]')
         .click((e) => e.stopPropagation())

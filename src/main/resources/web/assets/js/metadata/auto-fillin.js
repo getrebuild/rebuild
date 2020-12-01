@@ -16,29 +16,32 @@ $(document).ready(() => {
 })
 
 const loadRules = () => {
-  $.get('../auto-fillin-list?field=' + wpc.fieldName, (res) => {
-    const tbody = $('#dataList tbody').empty()
+  $.get(`../auto-fillin-list?field=${wpc.fieldName}`, (res) => {
+    const $tbody = $('#dataList tbody').empty()
     $(res.data).each(function () {
-      let tr = $('<tr></tr>').appendTo(tbody)
-      $('<td><div>' + this.targetFieldLabel + '</div></td>').appendTo(tr)
-      $('<td>' + this.sourceFieldLabel + '</div></td>').appendTo(tr)
-      const extc = this.extConfig
-      let extcLabel = []
-      if (extc.whenCreate) extcLabel.push($L('WhenCreate'))
-      if (extc.whenUpdate) extcLabel.push($L('WhenUpdate'))
-      if (extc.fillinForce) extcLabel.push($L('ForceFillback'))
-      $('<td>' + extcLabel.join(', ') + '</div></td>').appendTo(tr)
-      const $act = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon"><i class="zmdi zmdi-delete"></i></a></td>').appendTo(tr)
-      $act.find('a:eq(0)').click(() => {
-        renderRbcomp(<DlgRuleEdit {...bProps} {...extc} id={this.id} sourceField={this.sourceField} targetField={this.targetField} />)
+      const $tr = $('<tr></tr>').appendTo($tbody)
+      $('<td><div>' + this.targetFieldLabel + '</div></td>').appendTo($tr)
+      $('<td>' + this.sourceFieldLabel + '</div></td>').appendTo($tr)
+
+      const ruleLabels = []
+      if (this.extConfig.whenCreate) ruleLabels.push($L('WhenCreate'))
+      if (this.extConfig.whenUpdate) ruleLabels.push($L('WhenUpdate'))
+      if (this.extConfig.fillinForce) ruleLabels.push($L('ForceFillback'))
+      if (this.extConfig.readonlyTargetField) ruleLabels.push($L('TargetFieldReadonly'))
+      $('<td>' + ruleLabels.join(', ') + '</div></td>').appendTo($tr)
+
+      const $btns = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a></td>').appendTo($tr)
+      $btns.find('a:eq(0)').click(() => {
+        renderRbcomp(<DlgRuleEdit {...bProps} {...this.extConfig} id={this.id} sourceField={this.sourceField} targetField={this.targetField} />)
       })
-      const configId = this.id
-      $act.find('a:eq(1)').click(() => {
-        RbAlert.create($L('DeleteSomeConfirm,Fillback'), {
+
+      const cfgid = this.id
+      $btns.find('a:eq(1)').click(() => {
+        RbAlert.create($L('DeleteSomeConfirm,FillbackRule'), {
           type: 'danger',
           confirm: function () {
             this.disabled(true)
-            $.post(`/app/entity/record-delete?id=${configId}`, (res) => {
+            $.post(`/app/entity/common-delete?id=${cfgid}`, (res) => {
               if (res.error_code === 0) {
                 this.hide()
                 loadRules()
@@ -63,7 +66,7 @@ class DlgRuleEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title="回填规则" ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('FillbackRule')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('SourceField')}</label>
@@ -115,6 +118,15 @@ class DlgRuleEdit extends RbFormHandler {
               </label>
             </div>
           </div>
+          <div className="form-group row pt-1">
+            <label className="col-sm-3 col-form-label text-sm-right pt-1"></label>
+            <div className="col-sm-7">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <input className="custom-control-input" type="checkbox" checked={this.state.readonlyTargetField === true} data-id="readonlyTargetField" onChange={this.handleChange} />
+                <span className="custom-control-label">{$L('SetTargetFieldReadonly')}</span>
+              </label>
+            </div>
+          </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
@@ -150,7 +162,7 @@ class DlgRuleEdit extends RbFormHandler {
               placeholder: $L('SelectSome,Field'),
               allowClear: false,
             })
-            .on('change', (e) => this.__renderTargetFields(e.target.value))
+            .on('change', (e) => this._renderTargetFields(e.target.value))
           this.__select2.push(s2source)
 
           if (this.props.sourceField) {
@@ -168,47 +180,19 @@ class DlgRuleEdit extends RbFormHandler {
       })
     })
   }
-  __renderTargetFields(s) {
-    const source = this.__sourceFieldsCache.find((x) => {
-      return s === x.name
-    })
-    let canFillinByType = CAN_FILLIN_MAPPINGS[source.type] || []
-    canFillinByType.push('TEXT')
-    canFillinByType.push('NTEXT')
+
+  _renderTargetFields(s) {
+    const source = this.__sourceFieldsCache.find((x) => s === x.name)
 
     // 显示兼容的目标字段
-    let tFields = []
+    const targetFields = []
     $(this.__targetFieldsCache).each(function () {
-      if (
-        !this.creatable ||
-        this.name === wpc.fieldName ||
-        this.type === 'SERIES' ||
-        this.type === 'MULTISELECT' ||
-        this.type === 'PICKLIST' ||
-        (source.type === 'FILE' && this.type !== 'FILE') ||
-        (source.type === 'IMAGE' && this.type !== 'IMAGE') ||
-        (source.type === 'AVATAR' && this.type !== 'AVATAR')
-      )
-        return
-
-      if (source.type === this.type || canFillinByType.includes(this.type)) {
-        if (source.type === 'REFERENCE') {
-          if (source.ref && this.ref && source.ref[0] === this.ref[0]) tFields.push(this)
-        } else if (source.type === 'STATE') {
-          if (source.stateClass && source.stateClass === this.stateClass) tFields.push(this)
-        } else {
-          tFields.push(this)
-        }
+      if (this.creatable && this.name !== wpc.fieldName && this.type !== 'SERIES' && $fieldIsCompatible(source, this)) {
+        targetFields.push(this)
       }
     })
-    this.setState({ targetFields: tFields })
-  }
-
-  handleChange(e) {
-    super.handleChange(e, () => {
-      if (this.state.whenCreate === false && this.state.whenUpdate === false) {
-        this.setState({ whenCreate: true })
-      }
+    this.setState({ targetFields: targetFields }, () => {
+      if (targetFields.length > 0) this.__select2[0].val(targetFields[0].name)
     })
   }
 
@@ -224,6 +208,7 @@ class DlgRuleEdit extends RbFormHandler {
       whenCreate: this.state.whenCreate,
       whenUpdate: this.state.whenUpdate,
       fillinForce: this.state.fillinForce,
+      readonlyTargetField: this.state.readonlyTargetField,
     }
     if (this.props.id) _data.id = this.props.id
 
@@ -236,11 +221,4 @@ class DlgRuleEdit extends RbFormHandler {
       this.disabled()
     })
   }
-}
-
-const CAN_FILLIN_MAPPINGS = {
-  NUMBER: ['DECIMAL'],
-  DECIMAL: ['NUMBER'],
-  DATE: ['DATETIME'],
-  DATETIME: ['DATE'],
 }

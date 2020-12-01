@@ -25,9 +25,9 @@ $(document).ready(function () {
       if (this.field === DIVIDER_LINE) {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
       } else if (!field) {
-        const $item = $(
-          `<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('SomeDeleted,Field')}</span></div></div>`
-        ).appendTo('.form-preview')
+        const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('SomeDeleted,Field')}</span></div></div>`).appendTo(
+          '.form-preview'
+        )
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
         $action.find('a').click(function () {
           $item.remove()
@@ -222,7 +222,15 @@ class DlgEditField extends RbAlert {
       <form className="field-attr">
         <div className="form-group">
           <label>{$L('InputTips')}</label>
-          <input type="text" className="form-control form-control-sm" name="fieldTips" value={this.state.fieldTips || ''} onChange={this.handleChange} placeholder={$L('InputSome,InputTips')} />
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            name="fieldTips"
+            value={this.state.fieldTips || ''}
+            onChange={this.handleChange}
+            placeholder={$L('InputSome,InputTips')}
+            maxLength="200"
+          />
         </div>
         <div className="form-group">
           <label>
@@ -235,6 +243,7 @@ class DlgEditField extends RbAlert {
             value={this.state.fieldLabel || ''}
             onChange={this.handleChange}
             placeholder={this.props.fieldLabelOld || $L('ModifySome,FieldName')}
+            maxLength="100"
           />
         </div>
         <div className="form-group mb-1">
@@ -270,14 +279,7 @@ class DlgEditDivider extends DlgEditField {
       <form className="field-attr">
         <div className="form-group">
           <label>{$L('DividerName')}</label>
-          <input
-            type="text"
-            className="form-control form-control-sm"
-            name="dividerName"
-            value={this.state.dividerName || ''}
-            onChange={this.handleChange}
-            placeholder={$L('InputSome,DividerName')}
-          />
+          <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('InputSome,DividerName')} />
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>

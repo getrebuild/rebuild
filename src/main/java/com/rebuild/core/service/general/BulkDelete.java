@@ -28,7 +28,7 @@ public class BulkDelete extends BulkOperator {
     }
 
     @Override
-    protected Integer exec() {
+    public Integer exec() {
         final ID[] records = prepareRecords();
         this.setTotal(records.length);
 

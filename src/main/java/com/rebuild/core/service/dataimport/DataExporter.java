@@ -12,15 +12,22 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.general.DataListWrapper;
+import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +39,7 @@ import java.util.List;
  * @see DataListBuilderImpl
  * @since 2019/11/18
  */
-public class DataExporter extends SetUser<DataExporter> {
+public class DataExporter extends SetUser {
 
     /**
      * 最大行数
@@ -56,7 +63,8 @@ public class DataExporter extends SetUser<DataExporter> {
      * @return
      */
     public File export() {
-        File tmp = RebuildConfiguration.getFileOfTemp(String.format("EXPORT-%d.csv", System.currentTimeMillis()));
+        File tmp = RebuildConfiguration.getFileOfTemp(
+                String.format("EXPORT-%d.csv", System.currentTimeMillis()));
         export(tmp);
         return tmp;
     }
@@ -97,8 +105,10 @@ public class DataExporter extends SetUser<DataExporter> {
             if (b) b = false;
             else sb.append(", ");
 
-            if (s.contains(",")) sb.append("\"").append(s).append("\"");
-            else sb.append(s);
+            if (s.contains(",")) {
+                s = s.replace(",", "，");
+            }
+            sb.append(s);
         }
         return sb.toString();
     }
@@ -113,7 +123,7 @@ public class DataExporter extends SetUser<DataExporter> {
         List<String> headList = new ArrayList<>();
         for (String field : control.getQueryParser().getQueryFields()) {
             headFields.add(MetadataHelper.getLastJoinField(control.getEntity(), field));
-            String fieldLabel = EasyMeta.getLabel(control.getEntity(), field);
+            String fieldLabel = EasyMetaFactory.getLabel(control.getEntity(), field);
             headList.add(fieldLabel);
         }
         return headList;
@@ -142,21 +152,35 @@ public class DataExporter extends SetUser<DataExporter> {
                 }
 
                 Field field = headFields.get(cellIndex++);
-                DisplayType dt = EasyMeta.getDisplayType(field);
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                DisplayType dt = easyField.getDisplayType();
+
                 if (cellVal == null) {
                     cellVal = StringUtils.EMPTY;
-                } else if (dt == DisplayType.FILE || dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
-                        || dt == DisplayType.ANYREFERENCE || dt == DisplayType.BARCODE) {
-                    cellVal = "[暂不支持" + dt.getDisplayName() + "字段]";
-                } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
-                    cellVal = cellVal.toString().replace(",", "");  // 移除千分位
                 }
 
-                if (cellVal instanceof JSONObject) {
-                    cellVal = ((JSONObject) cellVal).getString("text");
-                } else if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
-                    cellVal = "[无权限]";
+                if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
+                    cellVal = String.format("[%s]", Language.L("NoPrivileges"));
+
+                } else if (dt == DisplayType.FILE
+                        || dt == DisplayType.IMAGE
+                        || dt == DisplayType.AVATAR
+                        || dt == DisplayType.BARCODE) {
+                    cellVal = String.format("[%s]", Language.L("Unsupport"));
+
+                } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
+                    cellVal = cellVal.toString().replace(",", "");  // 移除千分位
+
+                } else if (dt == DisplayType.ID) {
+                    cellVal = ((JSONObject) cellVal).getString("id");
+
                 }
+
+                if (easyField instanceof MixValue &&
+                        (cellVal instanceof JSONObject || cellVal instanceof JSONArray)) {
+                    cellVal = ((MixValue) easyField).unpackWrapValue(cellVal);
+                }
+
                 cellVals.add(cellVal.toString());
             }
             into.add(cellVals);

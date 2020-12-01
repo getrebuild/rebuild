@@ -1,5 +1,5 @@
 # !!! `db.*` ONLY FOR DEV MODE !!!
-db.url: jdbc:mysql://127.0.0.1:3306/rebuild20?useUnicode=true&characterEncoding=UTF8&zeroDateTimeBehavior=convertToNull&useSSL=false&sessionVariables=default_storage_engine=InnoDB
+db.url: jdbc:mysql://127.0.0.1:3306/rebuild20?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT
 db.user: rebuild
 db.passwd: rebuild
 # Use built-in ehcache if redis not defined or unavailable
@@ -23,40 +23,8 @@ rebuild:
   MailPassword: AES(vRnLDh4PVen2faMH+itQuFjzwBcWtCTO6qslkF36VAoKxKZT7YVYoWKjP8gPrEIS)
   MailAddr: hi@smtp.getrebuild.com
   MailName: REBUILD
-  # Language
-  SuportLanguages: zh_CN,en
 
-# TOMCAT (Built-in)
-server:
-  port: 18080
-  servlet:
-    context-path: /rebuild
-    encoding:
-      charset: UTF-8
-      force: true
-    session:
-      tracking-modes: cookie
-  error:
-    whitelabel.enabled: true
-  tomcat:
-    uri-encoding: UTF-8
-    threads.max: 200
-  max-http-header-size: 32KB
-
-# SPRING
-spring:
-  mvc:
-    static-path-pattern: /assets/**
-  resources:
-    static-locations: classpath:/web/assets
-  servlet:
-    multipart.enabled: false
-  thymeleaf:
-    prefix: classpath:/web
-    cache: false
-    enable-spring-el-compiler: false
-  quartz:
-    scheduler-name: rbScheduler
-    startup-delay: 15s
-  main:
-    banner-mode: off
+# DEV
+server.servlet.context-path: /rebuild
+spring.thymeleaf.cache: false
+spring.main.banner-mode: console

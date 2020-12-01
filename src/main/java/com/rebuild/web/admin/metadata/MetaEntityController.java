@@ -17,7 +17,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.metadata.impl.MetaEntityService;
 import com.rebuild.core.privileges.UserHelper;
@@ -59,23 +60,28 @@ public class MetaEntityController extends BaseController {
     }
 
     @GetMapping("entity/{entity}/base")
-    public ModelAndView pageBase(@PathVariable String entity) {
+    public ModelAndView pageBase(@PathVariable String entity, HttpServletResponse response) throws IOException {
+        Entity metaEntity = MetadataHelper.getEntity(entity);
+        if (!(MetadataHelper.isBusinessEntity(metaEntity) || MetadataHelper.isBizzEntity(metaEntity))) {
+            response.sendError(403);
+            return null;
+        }
+
         ModelAndView mv = createModelAndView("/admin/metadata/entity-edit");
         setEntityBase(mv, entity);
 
-        Entity entityMeta = MetadataHelper.getEntity(entity);
-        mv.getModel().put("nameField", MetadataHelper.getNameField(entityMeta).getName());
+        mv.getModel().put("nameField", MetadataHelper.getNameField(metaEntity).getName());
 
-        if (entityMeta.getMainEntity() != null) {
-            mv.getModel().put("mainEntity", entityMeta.getMainEntity().getName());
-            mv.getModel().put("detailEntity", entityMeta.getName());
-        } else if (entityMeta.getDetailEntity() != null) {
-            mv.getModel().put("mainEntity", entityMeta.getName());
-            mv.getModel().put("detailEntity", entityMeta.getDetailEntity().getName());
+        if (metaEntity.getMainEntity() != null) {
+            mv.getModel().put("mainEntity", metaEntity.getMainEntity().getName());
+            mv.getModel().put("detailEntity", metaEntity.getName());
+        } else if (metaEntity.getDetailEntity() != null) {
+            mv.getModel().put("mainEntity", metaEntity.getName());
+            mv.getModel().put("detailEntity", metaEntity.getDetailEntity().getName());
         }
 
         // 扩展配置
-        mv.getModel().put("entityExtConfig", EasyMeta.valueOf(entityMeta).getExtraAttrs(true));
+        mv.getModel().put("entityExtConfig", EasyMetaFactory.valueOf(metaEntity).getExtraAttrs(true));
 
         return mv;
     }
@@ -98,7 +104,7 @@ public class MetaEntityController extends BaseController {
 
         List<Map<String, Object>> ret = new ArrayList<>();
         for (Entity entity : MetadataSorter.sortEntities(null, usesBizz, usesDetail)) {
-            EasyMeta easyMeta = new EasyMeta(entity);
+            EasyEntity easyMeta = EasyMetaFactory.valueOf(entity);
             Map<String, Object> map = new HashMap<>();
             map.put("entityName", easyMeta.getName());
             map.put("entityLabel", easyMeta.getLabel());
@@ -239,8 +245,8 @@ public class MetaEntityController extends BaseController {
      * @param entity
      * @return
      */
-    protected static EasyMeta setEntityBase(ModelAndView mv, String entity) {
-        EasyMeta entityMeta = EasyMeta.valueOf(entity);
+    static EasyEntity setEntityBase(ModelAndView mv, String entity) {
+        EasyEntity entityMeta = EasyMetaFactory.valueOf(entity);
         mv.getModel().put("entityMetaId", entityMeta.getMetaId());
         mv.getModel().put("entityName", entityMeta.getName());
         mv.getModel().put("entityLabel", entityMeta.getLabel());

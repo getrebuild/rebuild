@@ -14,7 +14,7 @@ class RbViewForm extends React.Component {
     super(props)
     this.state = { ...props }
 
-    this.onViewEditable = wpc.onViewEditable === false ? false : true
+    this.onViewEditable = wpc.onViewEditable !== false
     this.__FormData = {}
   }
 
@@ -131,7 +131,9 @@ class RbViewForm extends React.Component {
       } else if (res.error_code === 499) {
         // 有重复
         renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }
@@ -446,6 +448,7 @@ const RbViewPage = {
     )
     $('.J_assign').click(() => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').click(() => DlgShare.create({ entity: entity[0], ids: [id] }))
+    $('.J_report').click(() => SelectReport.create(entity[0], id))
     $('.J_add-detail').click(function () {
       const iv = { $MAINID$: id }
       const $this = $(this)
@@ -456,7 +459,13 @@ const RbViewPage = {
         initialValue: iv,
       })
     })
-    $('.J_report').click(() => SelectReport.create(entity[0], id))
+
+    if (wpc.transformTos && wpc.transformTos.length > 0) {
+      this.initTrans(wpc.transformTos)
+      $('.J_trans').removeClass('hide')
+    } else {
+      $('.J_trans').remove()
+    }
 
     // Privileges
     if (ep) {
@@ -464,8 +473,10 @@ const RbViewPage = {
       if (ep.U === false) $('.J_edit, .J_add-detail').remove()
       if (ep.A !== true) $('.J_assign').remove()
       if (ep.S !== true) $('.J_share').remove()
-      that.cleanViewActionButton()
     }
+
+    // Clean
+    that.cleanViewActionButton()
   },
 
   // 元数据
@@ -479,7 +490,7 @@ const RbViewPage = {
 
       for (let k in res.data) {
         const v = res.data[k]
-        if (!v || v === undefined) return
+        if (!v) return
         const $el = $('.J_' + k)
         if ($el.length === 0) return
 
@@ -585,21 +596,52 @@ const RbViewPage = {
       })
       $('.J_adds .dropdown-divider').before($item)
     })
-    this.cleanViewActionButton()
+  },
+
+  // 转换
+  initTrans(config) {
+    const that = this
+    config.forEach((item) => {
+      const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
+      $item.click(() => {
+        const alert = $L('TransformAsTips').replace('%s', `[ ${item.entityLabel} ]`)
+        RbAlert.create(alert, {
+          confirm: function () {
+            this.disabled(true)
+            $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {
+              this.hide()
+              if (res.error_code === 0) {
+                RbHighbar.success($L('SomeSuccess,Transform'))
+                setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
+              } else if (res.error_code === 400) {
+                RbHighbar.create(res.error_msg)
+              } else {
+                RbHighbar.error(res.error_msg)
+              }
+            })
+          },
+        })
+      })
+      $('.J_trans .dropdown-divider').before($item)
+    })
   },
 
   // 通过父级页面打开
-  clickView(el) {
+  clickView(target) {
     if (parent && parent.RbViewModal) {
-      let viewUrl = $(el).attr('href') // /View/{entity}/{id}
-      viewUrl = viewUrl.split('/')
-      parent.RbViewModal.create({ entity: viewUrl[2], id: viewUrl[3] }, true)
+      // `#!/View/{entity}/{id}`
+      const viewUrl = typeof target === 'string' ? target : $(target).attr('href')
+      if (!viewUrl) {
+        console.warn('Bad view target : ', target)
+        return
+      }
+      const urlSpec = viewUrl.split('/')
+      parent.RbViewModal.create({ entity: urlSpec[2], id: urlSpec[3] }, true)
     }
     return false
   },
   clickViewUser(id) {
-    if (parent && parent.RbViewModal) parent.RbViewModal.create({ entity: 'User', id: id }, true)
-    return false
+    return this.clickView('#!/View/User/' + id)
   },
 
   // 清理操作按钮
@@ -608,6 +650,7 @@ const RbViewPage = {
       () => {
         $cleanMenu('.view-action .J_mores')
         $cleanMenu('.view-action .J_adds')
+        $cleanMenu('.view-action .J_trans')
         $('.view-action .col-lg-6').each(function () {
           if ($(this).children().length === 0) $(this).remove()
         })

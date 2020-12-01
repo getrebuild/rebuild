@@ -14,12 +14,12 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.UserContextHolder;
-import com.rebuild.core.metadata.DefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardInterceptor;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
@@ -58,25 +58,21 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      */
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
+
+        // 通知
+        addObserver(new NotificationObserver());
+        // 触发器
+        addObserver(new RobotTriggerObserver());
+
+        // Redis 队列（Redis 可用才有效）
+        if (RebuildConfiguration.getBool(ConfigurationItem.RedisQueueEnable)) {
+            addObserver(new RedisQueueObserver());
+        }
     }
 
     @Override
     public int getEntityCode() {
         return 0;
-    }
-
-    @Override
-    protected void initObservers() {
-        super.initObservers();
-
-        addObserver(new NotificationObserver());
-        addObserver(new RobotTriggerObserver());
-
-        // Redis 可用才有效
-        if (RebuildConfiguration.getBool(ConfigurationItem.RedisQueueEnable)) {
-            addObserver(new RedisQueueObserver());
-        }
-        LOG.info("Added {} observers", countObservers());
     }
 
     @Override
@@ -287,7 +283,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     public int bulk(BulkContext context) {
         BulkOperator operator = buildBulkOperator(context);
         try {
-            return (int) TaskExecutors.exec(operator);
+            return operator.exec();
         } catch (RebuildException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -445,26 +441,27 @@ public class GeneralEntityService extends ObservableService implements EntitySer
      * 补充默认值
      *
      * @param recordOfNew
-     * @see DefaultValueHelper
      */
     private void appendDefaultValue(Record recordOfNew) {
         Assert.isNull(recordOfNew.getPrimary(), "Must be new record");
 
         Entity entity = recordOfNew.getEntity();
-        if (MetadataHelper.isBizzEntity(entity.getEntityCode()) || !MetadataHelper.hasPrivilegesField(entity)) {
+        if (MetadataHelper.isBizzEntity(entity) || !MetadataHelper.hasPrivilegesField(entity)) {
             return;
         }
 
         for (Field field : entity.getFields()) {
             if (MetadataHelper.isCommonsField(field)
-                    || recordOfNew.hasValue(field.getName(), true)
-                    || EasyMeta.getDisplayType(field) == DisplayType.SERIES) {
+                    || recordOfNew.hasValue(field.getName(), true)) {
                 continue;
             }
 
-            Object defVal = DefaultValueHelper.exprDefaultValue(field, (String) field.getDefaultValue());
-            if (defVal != null) {
-                recordOfNew.setObjectValue(field.getName(), defVal);
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (easyField.getDisplayType() == DisplayType.SERIES) continue;
+
+            Object defaultValue = easyField.exprDefaultValue();
+            if (defaultValue != null) {
+                recordOfNew.setObjectValue(field.getName(), defaultValue);
             }
         }
     }
@@ -513,19 +510,13 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     public List<Record> getCheckRepeated(Record record, int maxReturns) {
         final Entity entity = record.getEntity();
 
-        // 仅处理业务实体
-        if (!(MetadataHelper.hasPrivilegesField(record.getEntity())
-                || EasyMeta.valueOf(record.getEntity()).isPlainEntity())) {
-            return Collections.emptyList();
-        }
-
         List<String> checkFields = new ArrayList<>();
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             Field field = entity.getField(iter.next());
             if (field.isRepeatable()
                     || !record.hasValue(field.getName(), false)
                     || MetadataHelper.isCommonsField(field)
-                    || EasyMeta.getDisplayType(field) == DisplayType.SERIES) {
+                    || EasyMetaFactory.getDisplayType(field) == DisplayType.SERIES) {
                 continue;
             }
             checkFields.add(field.getName());

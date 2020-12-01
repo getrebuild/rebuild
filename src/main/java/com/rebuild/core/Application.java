@@ -43,9 +43,7 @@ import com.rebuild.utils.codec.RbDateCodec;
 import com.rebuild.utils.codec.RbRecordCodec;
 import com.rebuild.web.OnlineSessionStore;
 import com.rebuild.web.RebuildWebConfigurer;
-import org.h2.Driver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -60,24 +58,23 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 05/18/2018
  */
+@Slf4j
 public class Application implements ApplicationListener<ApplicationStartedEvent> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.0.1";
+    public static final String VER = "2.1.0-beta1";
     /**
      * Rebuild Build
      */
-    public static final int BUILD = 20001;
+    public static final int BUILD = 20100;
 
     static {
         // Driver for DB
         try {
-            Class.forName(com.mysql.jdbc.Driver.class.getName());
-            Class.forName(Driver.class.getName());
+            Class.forName(com.mysql.cj.jdbc.Driver.class.getName());
+            Class.forName(org.h2.Driver.class.getName());
         } catch (ClassNotFoundException ex) {
             throw new RebuildException(ex);
         }
@@ -130,17 +127,17 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                             "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
                             "License   : " + License.queryAuthority(false).values(),
                             "Local URL : " + localUrl);
-                    LOG.info(banner);
+                    log.info(banner);
                 }
 
             } else {
-                LOG.warn(RebuildBanner.formatBanner(
+                log.warn(RebuildBanner.formatBanner(
                         "REBUILD IS WAITING FOR INSTALL ...", "Install : " + localUrl + "/setup/install"));
             }
 
         } catch (Exception ex) {
             _READY = false;
-            LOG.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
+            log.error(RebuildBanner.formatBanner("REBUILD INITIALIZATION FILAED !!!"), ex);
 
         } finally {
             if (!started) {
@@ -149,7 +146,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     _CONTEXT.getBean(RebuildWebConfigurer.class).init();
                     _CONTEXT.getBean(Language.class).init();
                 } catch (Exception ex) {
-                    LOG.error("STARTUP FAILED", ex);
+                    log.error("STARTUP FAILED", ex);
                 }
             }
 
@@ -164,15 +161,13 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      */
     public static boolean init() throws Exception {
         if (_READY) throw new IllegalStateException("Rebuild already started");
-        LOG.info("Initializing Rebuild context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
+        log.info("Initializing Rebuild context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
 
         if (!(_READY = ServerStatus.checkAll())) {
-            LOG.error(RebuildBanner.formatBanner(
+            log.error(RebuildBanner.formatBanner(
                     "REBUILD STARTUP FILAED DURING THE STATUS CHECK.", "PLEASE VIEW LOGS FOR MORE DETAILS."));
             return false;
         }
-
-        License.isRbvAttached();
 
         // 升级数据库
         new UpgradeDatabase().upgradeQuietly();
@@ -180,7 +175,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         // 版本升级会清除缓存
         int lastBuild = ObjectUtils.toInt(RebuildConfiguration.get(ConfigurationItem.AppBuild, true), 0);
         if (lastBuild < BUILD) {
-            LOG.warn("CLEAR ALL CACHE AFTER THE FIRST UPGRADE : " + BUILD);
+            log.warn("Clean up the cache once when upgrading : " + BUILD);
             Installer.clearAllCache();
             RebuildConfiguration.set(ConfigurationItem.AppBuild, BUILD);
         }
@@ -191,7 +186,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         // 加载自定义实体
-        LOG.info("Loading customized/business entities ...");
+        log.info("Loading customized/business entities ...");
         ((DynamicMetadataFactory) _CONTEXT.getBean(PersistManagerFactory.class).getMetadataFactory()).refresh(false);
 
         // 实体对应的服务类
@@ -201,7 +196,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             if (s.getEntityCode() > 0) {
                 _ESS.put(s.getEntityCode(), s);
                 if (devMode()) {
-                    LOG.info("Service specification : " + s.getClass().getName() + " for <" + s.getEntityCode() + ">");
+                    log.info("Service specification : " + s.getClass().getName() + " for <" + s.getEntityCode() + ">");
                 }
             }
         }
@@ -210,6 +205,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         for (Initialization bean : _CONTEXT.getBeansOfType(Initialization.class).values()) {
             bean.init();
         }
+        License.isRbvAttached();
 
         return true;
     }
@@ -275,6 +271,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return getBean(PrivilegesManager.class);
     }
 
+    public static NotificationService getNotifications() {
+        return getBean(NotificationService.class);
+    }
+
     public static QueryFactory getQueryFactory() {
         return getBean(QueryFactory.class);
     }
@@ -295,16 +295,39 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return getBean(SqlExecutor.class);
     }
 
+    /**
+     * 非业务实体使用
+     * @see #getCommonsService()
+     */
     public static ServiceSpec getService(int entityCode) {
         if (_ESS != null && _ESS.containsKey(entityCode)) {
-            return _ESS.get(entityCode);
+            ServiceSpec es = _ESS.get(entityCode);
+            if (EntityService.class.isAssignableFrom(es.getClass())) {
+                log.warn("Use the #getEntityService is recommended");
+            }
+            return es;
+
         } else {
-            return getGeneralEntityService();
+            // default
+            return getCommonsService();
         }
     }
 
+    /**
+     * 业务实体使用
+     * @see #getGeneralEntityService()
+     */
     public static EntityService getEntityService(int entityCode) {
-        ServiceSpec es = getService(entityCode);
+        ServiceSpec es = null;
+        if (_ESS != null && _ESS.containsKey(entityCode)) {
+            es = _ESS.get(entityCode);
+        }
+
+        if (es == null) {
+            // default
+            return getGeneralEntityService();
+        }
+
         if (EntityService.class.isAssignableFrom(es.getClass())) {
             return (EntityService) es;
         }
@@ -317,9 +340,5 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     public static CommonsService getCommonsService() {
         return getBean(CommonsService.class);
-    }
-
-    public static NotificationService getNotifications() {
-        return getBean(NotificationService.class);
     }
 }

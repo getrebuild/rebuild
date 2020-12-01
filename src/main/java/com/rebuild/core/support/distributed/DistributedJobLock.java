@@ -37,6 +37,9 @@ public abstract class DistributedJobLock {
      * @return
      */
     protected boolean tryLock() {
+        // 系统待安装
+        if (!Application.isReady()) return false;
+
         if (Installer.isUseRedis()) {
             JedisPool pool = Application.getCommonsCache().getJedisPool();
             String jobKey = getClass().getName() + LOCK_KEY;
@@ -44,15 +47,13 @@ public abstract class DistributedJobLock {
             try (Jedis jedis = pool.getResource()) {
                 String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_TIME);
                 if (tryLock == null) {
-                    LOG.info("The job has been executed by another instance : " + getClass().getName());
+                    LOG.warn("The job [ {} ] has been executed by another instance", getClass().getSimpleName());
                     return false;
                 }
             }
         }
 
-        if (LOG.isDebugEnabled()) {
-            LOG.error("Job " + getClass().getName() + " can be safe execution");
-        }
+        LOG.info("The job [ {} ] will be executed safely ...", getClass().getSimpleName());
         return true;
     }
 }

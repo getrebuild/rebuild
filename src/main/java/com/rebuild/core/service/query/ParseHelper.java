@@ -13,8 +13,9 @@ import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -164,21 +165,28 @@ public class ParseHelper {
      * @return
      */
     public static String useQuickFilter(Field field) {
-        return useQuickFilter(EasyMeta.valueOf(field));
+        return useQuickFilter(EasyMetaFactory.valueOf(field));
     }
 
     /**
      * @param field
      * @return
      */
-    public static String useQuickFilter(EasyMeta field) {
+    public static String useQuickFilter(EasyField field) {
         DisplayType dt = field.getDisplayType();
 
         // 引用字段不能作为名称字段（前端限制），此处的处理是因为某些系统实体有用到
         // 主要要保证其兼容 LIKE 条件的语法要求
-        if (dt == DisplayType.REFERENCE || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
+        if (dt == DisplayType.REFERENCE
+                || dt == DisplayType.PICKLIST
+                || dt == DisplayType.CLASSIFICATION) {
             return QueryCompiler.NAME_FIELD_PREFIX + field.getName();
-        } else if (dt == DisplayType.TEXT || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE || dt == DisplayType.SERIES) {
+
+        } else if (dt == DisplayType.TEXT
+                || dt == DisplayType.EMAIL
+                || dt == DisplayType.URL
+                || dt == DisplayType.PHONE
+                || dt == DisplayType.SERIES) {
             return field.getName();
         } else {
             return null;
@@ -195,7 +203,7 @@ public class ParseHelper {
 
         // 未指定则使用系统配置的
         if (StringUtils.isBlank(quickFields)) {
-            quickFields = EasyMeta.valueOf(entity).getExtraAttr("quickFields");
+            quickFields = EasyMetaFactory.valueOf(entity).getExtraAttr("quickFields");
         }
 
         // 验证

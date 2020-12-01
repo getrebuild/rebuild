@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.privileges;
 
+import cn.devezhao.bizz.BizzException;
 import cn.devezhao.bizz.privileges.DepthEntry;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.Privileges;
@@ -21,7 +22,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.*;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.EntityService;
@@ -199,7 +200,7 @@ public class PrivilegesManager {
      */
     public boolean allow(ID user, int entity, Permission action) {
         // PlainEntity: CRUD
-        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(entity).isPlainEntity()) {
+        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(entity).isPlainEntity()) {
             return true;
         }
         // Feeds: R
@@ -251,7 +252,7 @@ public class PrivilegesManager {
      */
     public boolean allow(ID user, ID target, Permission action) {
         // PlainEntity: CRUD
-        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMeta.valueOf(target.getEntityCode()).isPlainEntity()) {
+        if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(target.getEntityCode()).isPlainEntity()) {
             return true;
         }
 
@@ -470,5 +471,31 @@ public class PrivilegesManager {
             return RoleBaseQueryFilter.ALLOWED;
         }
         return new RoleBaseQueryFilter(theUser, action);
+    }
+
+    // --
+
+    // 权限动作集合
+    private static final Permission[] RB_PERMISSIONS = new Permission[] {
+            BizzPermission.CREATE,
+            BizzPermission.DELETE,
+            BizzPermission.UPDATE,
+            BizzPermission.READ,
+            BizzPermission.ASSIGN,
+            BizzPermission.SHARE,
+            EntityService.UNSHARE
+    };
+
+    /**
+     * @param name
+     * @return
+     */
+    public static Permission parse(String name) {
+        for (Permission p : RB_PERMISSIONS) {
+            if (p.getName().equalsIgnoreCase(name)) {
+                return p;
+            }
+        }
+        throw new BizzException("Unknown Permission : " + name);
     }
 }

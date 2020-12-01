@@ -12,31 +12,32 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.privileges.DepartmentService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.web.EntityController;
-import org.springframework.stereotype.Controller;
+import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author devezhao
  * @since 10/08/2018
  */
-@Controller
+@RestController
 @RequestMapping("/admin/bizuser/")
 public class DepartmentController extends EntityController {
 
     @GetMapping("departments")
     public ModelAndView pageList(HttpServletRequest request) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
         ModelAndView mv = createModelAndView("/admin/bizuser/dept-list", "Department", user);
 
         JSON config = DataListManager.instance.getFieldsLayout("Department", user);
@@ -45,28 +46,22 @@ public class DepartmentController extends EntityController {
     }
 
     @PostMapping("dept-delete")
-    public void deptDelete(HttpServletRequest request, HttpServletResponse response) {
-        ID dept = getIdParameterNotNull(request, "id");
+    public RespBody deptDelete(@IdParam ID deptId, HttpServletRequest request) {
         ID transfer = getIdParameter(request, "transfer");  // TODO 转移到新部门
 
-        Application.getBean(DepartmentService.class).deleteAndTransfer(dept, transfer);
-        writeSuccess(response);
+        Application.getBean(DepartmentService.class).deleteAndTransfer(deptId, transfer);
+        return RespBody.ok();
     }
 
     @RequestMapping("dept-tree")
-    public void deptTreeGet(HttpServletResponse response) {
+    public JSON deptTreeGet() {
         JSONArray dtree = new JSONArray();
         for (Department root : Application.getUserStore().getTopDepartments()) {
             dtree.add(recursiveDeptTree(root));
         }
-        writeSuccess(response, dtree);
+        return dtree;
     }
 
-    /**
-     * 部门结构
-     *
-     * @param parent
-     */
     private JSONObject recursiveDeptTree(Department parent) {
         JSONObject parentJson = new JSONObject();
         parentJson.put("id", parent.getIdentity());

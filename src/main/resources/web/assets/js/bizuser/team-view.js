@@ -125,7 +125,7 @@ $(document).ready(() => {
         confirmText: $L('Delete'),
         confirm: function () {
           this.disabled(true)
-          $.post(`/app/entity/record-delete?id=${teamId}`, (res) => {
+          $.post(`/app/entity/common-delete?id=${teamId}`, (res) => {
             if (res.error_code === 0) {
               parent.location.hash = '!/View/'
               parent.location.reload()

@@ -9,10 +9,10 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -31,31 +31,45 @@ public class GeneralEntityServiceTest extends TestSupport {
 
     @Test
     public void getServiceSpec() {
-        ServiceSpec ies = Application.getService(EntityHelper.User);
-        Assertions.assertEquals(ies.getEntityCode(), EntityHelper.User);
+        ServiceSpec ss = Application.getService(EntityHelper.User);
+        Assertions.assertTrue(ss instanceof UserService);
+
+        EntityService es = Application.getEntityService(MetadataHelper.getEntity(TestAllFields).getEntityCode());
+        Assertions.assertTrue(es instanceof GeneralEntityService);
+
+        boolean exThrows = false;
+        try {
+            Application.getEntityService(EntityHelper.User);
+        } catch (RebuildException ok) {
+            exThrows = true;
+        }
+        Assertions.assertTrue(exThrows);
     }
 
     @Test
     public void CRUD() {
         UserContextHolder.setUser(UserService.ADMIN_USER);
 
-        // 新建
-        Record record = EntityHelper.forNew(EntityHelper.Role, UserService.ADMIN_USER);
-        record.setString("name", "测试角色");
-        record = Application.getService(EntityHelper.Role).create(record);
+        int testEntityCode = MetadataHelper.getEntity(TestAllFields).getEntityCode();
 
-        ID roleId = record.getPrimary();
-        System.out.println(Application.getUserStore().getRole(roleId).getName());
+        // 新建
+        Record record = EntityHelper.forNew(testEntityCode, UserService.ADMIN_USER);
+        record.setString("TestAllFieldsName", "测试实体-1");
+        record = Application.getEntityService(testEntityCode).create(record);
+
+        Object create = Application.createQuery(
+                "select TestAllFieldsName from TestAllFields where TestAllFieldsId = ?")
+                .setParameter(1, record.getPrimary())
+                .unique();
+        Assertions.assertNotNull(create);
 
         // 更新
-        record = EntityHelper.forUpdate(roleId, UserService.ADMIN_USER);
-        record.setString("name", "测试角色-2");
-        Application.getService(EntityHelper.Role).createOrUpdate(record);
-
-        System.out.println(Application.getUserStore().getRole(roleId).getName());
+        record = EntityHelper.forUpdate(record.getPrimary(), UserService.ADMIN_USER);
+        record.setString("TestAllFieldsName", "测试实体-1-1");
+        Application.getEntityService(testEntityCode).createOrUpdate(record);
 
         // 删除
-        Application.getService(EntityHelper.Role).delete(roleId);
+        Application.getEntityService(testEntityCode).delete(record.getPrimary());
     }
 
     @Test

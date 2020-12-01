@@ -198,7 +198,7 @@ class SimpleNode extends NodeSpec {
 
     const descs = data.users && data.users.length > 0 ? [UTs[data.users[0]] || `${$L('SpecUser')}(${data.users.length})`] : [NT[2]]
 
-    if (data.selfSelecting) descs.push($L('AllowSelfSelect'))
+    if (data.selfSelecting && data.users.length > 0) descs.push($L('AllowSelfSelect'))
     if (data.ccAutoShare) descs.push($L('AutoShare'))
     if (this.nodeType === 'approver') descs.push($L(data.signMode === 'AND' ? 'SignAnd' : data.signMode === 'ALL' ? 'SignAll' : 'SignOr'))
 
@@ -580,7 +580,7 @@ class ApproverNodeConfig extends StartNodeConfig {
           )}
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting} onChange={this.handleChange} />
+              <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={this.handleChange} />
               <span className="custom-control-label">{$L('AllowSelfSelectYet')}</span>
             </label>
           </div>
@@ -610,7 +610,7 @@ class ApproverNodeConfig extends StartNodeConfig {
                         <td>{this.__fieldLabel(item.field)}</td>
                         <td width="100">
                           <label className="custom-control custom-control-sm custom-checkbox">
-                            <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull} data-field={item.field} />
+                            <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} data-field={item.field} />
                             <span className="custom-control-label">{$L('Required')}</span>
                           </label>
                         </td>
@@ -716,11 +716,11 @@ class CCNodeConfig extends StartNodeConfig {
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
-              <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting} onChange={(e) => this.handleChange(e)} />
+              <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={(e) => this.handleChange(e)} />
               <span className="custom-control-label">{$L('AllowSelfSelectYet')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="ccAutoShare" checked={this.state.ccAutoShare} onChange={(e) => this.handleChange(e)} />
+              <input className="custom-control-input" type="checkbox" name="ccAutoShare" checked={this.state.ccAutoShare === true} onChange={(e) => this.handleChange(e)} />
               <span className="custom-control-label">{$L('ApprovalCcAutoShare')}</span>
             </label>
           </div>
@@ -828,7 +828,7 @@ class RbFlowCanvas extends NodeGroupSpec {
       const noApproverNode = !data.includes('"approver"')
 
       $btns.button('loading')
-      $.post('/app/entity/record-save', data, (res) => {
+      $.post('/app/entity/common-save', data, (res) => {
         if (res.error_code === 0) {
           RbAlert.create($L('SaveAndPublishSuccess') + (noApproverNode ? `(${$L('NoAnyNodesTips')})` : ''), {
             cancelText: $L('ReturnList'),

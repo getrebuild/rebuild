@@ -11,33 +11,30 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
-import cn.devezhao.persist4j.dialect.editor.BoolEditor;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.metadata.DefaultValueHelper;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
-import com.rebuild.core.metadata.impl.FieldExtConfigProps;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.trigger.RobotTriggerManager;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -48,9 +45,8 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/03
  */
+@Slf4j
 public class FormsBuilder extends FormsManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FormsBuilder.class);
 
     public static final FormsBuilder instance = new FormsBuilder();
 
@@ -101,6 +97,9 @@ public class FormsBuilder extends FormsManager {
         Assert.notNull(user, "[user] cannot be null");
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
+        if (record != null) {
+            Assert.isTrue(entityMeta.getEntityCode().equals(record.getEntityCode()), "[entity] and [record] do not match");
+        }
 
         // 明细实体
         final Entity mainEntity = entityMeta.getMainEntity();
@@ -174,11 +173,11 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        // 触发器自动只读
-        Set<String> roViaTriggers = RobotTriggerManager.instance.getAutoReadonlyFields(entity);
+        // 自动只读
+        Set<String> roAutos = EasyMetaFactory.getAutoReadonlyFields(entity);
         for (Object o : elements) {
             JSONObject field = (JSONObject) o;
-            if (roViaTriggers.contains(field.getString("field"))) {
+            if (roAutos.contains(field.getString("field"))) {
                 field.put("readonly", true);
             }
         }
@@ -192,9 +191,10 @@ public class FormsBuilder extends FormsManager {
         // 主/明细实体处理
         if (entityMeta.getMainEntity() != null) {
             model.set("isDetail", true);
+            model.set("mainMeta", EasyMetaFactory.toJSON(entityMeta.getMainEntity()));
         } else if (entityMeta.getDetailEntity() != null) {
             model.set("isMain", true);
-            model.set("detailMeta", EasyMeta.getEntityShow(entityMeta.getDetailEntity()));
+            model.set("detailMeta", EasyMetaFactory.toJSON(entityMeta.getDetailEntity()));
         }
 
         if (data != null && data.hasValue(EntityHelper.ModifiedOn)) {
@@ -254,7 +254,7 @@ public class FormsBuilder extends FormsManager {
      * @param user
      */
     public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
-        final User currentUser = Application.getUserStore().getUser(user);
+        final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
         final boolean hideUncreate = RebuildConfiguration.getBool(ConfigurationItem.FormHideUncreateField) && data == null;
 
@@ -273,21 +273,21 @@ public class FormsBuilder extends FormsManager {
                 continue;
             }
 
-            // 触发器自动只读
-            final boolean roViaTriggers = el.getBooleanValue("readonly");
+            // 自动只读
+            final boolean roViaAuto = el.getBooleanValue("readonly");
 
             final Field fieldMeta = entity.getField(fieldName);
-            if (hideUncreate && (!fieldMeta.isCreatable() || roViaTriggers)) {
+            if (hideUncreate && (!fieldMeta.isCreatable() || roViaAuto)) {
                 iter.remove();
                 continue;
             }
 
-            final EasyMeta easyField = new EasyMeta(fieldMeta);
+            final EasyField easyField = EasyMetaFactory.valueOf(fieldMeta);
             final DisplayType dt = easyField.getDisplayType();
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
             // 不可更新字段
-            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaTriggers);
+            el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaAuto);
 
             // 优先使用指定值
             final Boolean nullable = el.getBoolean("nullable");
@@ -305,28 +305,26 @@ public class FormsBuilder extends FormsManager {
 
             // 不同字段类型的处理
 
-            int dateLength = -1;
-
             if (dt == DisplayType.PICKLIST) {
                 JSONArray options = PickListManager.instance.getPickList(fieldMeta);
                 el.put("options", options);
             } else if (dt == DisplayType.STATE) {
                 JSONArray options = StateManager.instance.getStateOptions(fieldMeta);
                 el.put("options", options);
-                el.remove(FieldExtConfigProps.STATE_STATECLASS);
+                el.remove(EasyFieldConfigProps.STATE_CLASS);
             } else if (dt == DisplayType.MULTISELECT) {
                 JSONArray options = MultiSelectManager.instance.getSelectList(fieldMeta);
                 el.put("options", options);
             } else if (dt == DisplayType.DATETIME) {
-                if (!el.containsKey("datetimeFormat")) {
-                    el.put("datetimeFormat", DisplayType.DATETIME.getDefaultFormat());
-                }
-                dateLength = el.getString("datetimeFormat").length();
+                String format = StringUtils.defaultIfBlank(
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATETIME_FORMAT),
+                        easyField.getDisplayType().getDefaultFormat());
+                el.put(EasyFieldConfigProps.DATETIME_FORMAT, format);
             } else if (dt == DisplayType.DATE) {
-                if (!el.containsKey("dateFormat")) {
-                    el.put("dateFormat", DisplayType.DATE.getDefaultFormat());
-                }
-                dateLength = el.getString("dateFormat").length();
+                String format = StringUtils.defaultIfBlank(
+                        easyField.getExtraAttr(EasyFieldConfigProps.DATE_FORMAT),
+                        easyField.getDisplayType().getDefaultFormat());
+                el.put(EasyFieldConfigProps.DATE_FORMAT, format);
             } else if (dt == DisplayType.CLASSIFICATION) {
                 el.put("openLevel", ClassificationManager.instance.getOpenLevel(fieldMeta));
             }
@@ -350,15 +348,15 @@ public class FormsBuilder extends FormsManager {
                         case EntityHelper.CreatedBy:
                         case EntityHelper.ModifiedBy:
                         case EntityHelper.OwningUser:
-                            el.put("value", FieldValueWrapper.wrapMixValue(currentUser.getId(), currentUser.getFullName()));
+                            el.put("value", FieldValueHelper.wrapMixValue(formUser.getId(), formUser.getFullName()));
                             break;
                         case EntityHelper.OwningDept:
-                            Department dept = currentUser.getOwningDept();
-                            Assert.notNull(dept, "Department of user is unset : " + currentUser.getId());
-                            el.put("value", FieldValueWrapper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
+                            Department dept = formUser.getOwningDept();
+                            Assert.notNull(dept, "Department of user is unset : " + formUser.getId());
+                            el.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
                             break;
                         case EntityHelper.ApprovalId:
-                            el.put("value", FieldValueWrapper.wrapMixValue(null, Language.L("UnSubmit")));
+                            el.put("value", FieldValueHelper.wrapMixValue(null, Language.L("UnSubmit")));
                             break;
                         case EntityHelper.ApprovalState:
                             el.put("value", ApprovalState.DRAFT.getState());
@@ -368,34 +366,36 @@ public class FormsBuilder extends FormsManager {
                     }
                 }
 
+                // 默认值
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES) {
                         el.put("value", autoValue);
-                    } else if (dt == DisplayType.BOOL) {
-                        el.put("value", BoolEditor.FALSE);
                     } else {
-                        String defaultVal = DefaultValueHelper.exprDefaultValueToString(fieldMeta);
-                        if (defaultVal != null) {
-                            if (dateLength > -1) {
-                                defaultVal = defaultVal.substring(0, dateLength);
-                            }
-                            el.put("value", defaultVal);
+                        Object defaultValue = easyField.exprDefaultValue();
+                        if (defaultValue != null) {
+                            el.put("value", easyField.wrapValue(defaultValue));
                         }
                     }
                 }
 
-                if (roViaTriggers && el.get("value") == null) {
-                    if (dt == DisplayType.REFERENCE || dt == DisplayType.CLASSIFICATION) {
-                        el.put("value", FieldValueWrapper.wrapMixValue(null, autoValue));
-                    } else if (dt == DisplayType.TEXT || dt == DisplayType.NTEXT
-                            || dt == DisplayType.EMAIL || dt == DisplayType.URL || dt == DisplayType.PHONE
-                            || dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL
-                            || dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
+                // 触发器自动值
+                if (roViaAuto && el.get("value") == null) {
+                    if (dt == DisplayType.EMAIL
+                            || dt == DisplayType.PHONE
+                            || dt == DisplayType.URL
+                            || dt == DisplayType.DATE
+                            || dt == DisplayType.DATETIME
+                            || dt == DisplayType.NUMBER
+                            || dt == DisplayType.DECIMAL
+                            || dt == DisplayType.SERIES
+                            || dt == DisplayType.TEXT
+                            || dt == DisplayType.NTEXT) {
                         el.put("value", autoValue);
                     }
                 }
-            }
-        }
+
+            }  // end 新建记录
+        }  // end for
     }
 
     /**
@@ -419,7 +419,7 @@ public class FormsBuilder extends FormsManager {
             }
 
             // REFERENCE
-            if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+            if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
                 sql.append('&').append(field).append(',');
             }
             sql.append(field).append(',');
@@ -445,32 +445,15 @@ public class FormsBuilder extends FormsManager {
      * @param data
      * @param field
      * @return
-     * @see FieldValueWrapper
+     * @see EasyField#wrapValue(Object)
+     * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
      */
-    public Object wrapFieldValue(Record data, EasyMeta field) {
-        final String fieldName = field.getName();
-
-        // No value
-        if (!data.hasValue(fieldName, false)) {
-            if (EntityHelper.ApprovalId.equalsIgnoreCase(fieldName)) {
-                return FieldValueWrapper.wrapMixValue(null, Language.L(ApprovalState.DRAFT));
-            } else if (field.getDisplayType() == DisplayType.BARCODE) {
-                return FieldValueWrapper.instance.wrapBarcode(data.getPrimary(), field);
-            }
-            return null;
+    public Object wrapFieldValue(Record data, EasyField field) {
+        Object value = data.getObjectValue(field.getName());
+        if (field.getDisplayType() == DisplayType.BARCODE) {
+            value = data.getPrimary();
         }
-
-        final DisplayType dt = field.getDisplayType();
-        final Object fieldValue = data.getObjectValue(fieldName);
-
-        if (dt == DisplayType.MULTISELECT || dt == DisplayType.PICKLIST || dt == DisplayType.AVATAR
-                || dt == DisplayType.STATE || dt == DisplayType.LOCATION) {
-            return fieldValue.toString();
-        } else if (dt == DisplayType.BOOL) {
-            return (Boolean) fieldValue ? BoolEditor.TRUE : BoolEditor.FALSE;
-        } else {
-            return FieldValueWrapper.instance.wrapFieldValue(fieldValue, field);
-        }
+        return FieldValueHelper.wrapFieldValue(value, field);
     }
 
     /**
@@ -509,7 +492,7 @@ public class FormsBuilder extends FormsManager {
 
             // 引用字段值如 `&User`
             if (field.startsWith(DV_REFERENCE_PREFIX)) {
-                Object mixValue = readyReferenceValue(value);
+                Object mixValue = getReferenceMixValue(value);
                 if (mixValue != null) {
                     Entity source = MetadataHelper.getEntity(field.substring(1));
                     Field[] reftoFields = MetadataHelper.getReferenceToFields(source, entity);
@@ -518,30 +501,33 @@ public class FormsBuilder extends FormsManager {
                         initialValReady.put(refto.getName(), inFormFields.contains(refto.getName()) ? mixValue : value);
                     }
                 }
+
             }
             // 主实体字段
             else if (field.equals(DV_MAINID)) {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
-                Object mixValue = inFormFields.contains(dtmField.getName()) ? readyReferenceValue(value) : value;
+                Object mixValue = inFormFields.contains(dtmField.getName()) ? getReferenceMixValue(value) : value;
                 if (mixValue != null) {
                     initialValReady.put(dtmField.getName(), mixValue);
                     initialValKeeps.add(dtmField.getName());
                 }
-            } else if (entity.containsField(field)) {
-                if (EasyMeta.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
-                    Object mixValue = inFormFields.contains(field) ? readyReferenceValue(value) : value;
+
+            }
+            // 其他
+            else if (entity.containsField(field)) {
+                if (EasyMetaFactory.getDisplayType(entity.getField(field)) == DisplayType.REFERENCE) {
+                    Object mixValue = inFormFields.contains(field) ? getReferenceMixValue(value) : value;
                     if (mixValue != null) {
                         initialValReady.put(field, mixValue);
                     }
                 }
+
             } else {
-                LOG.warn("Unknown value pair : " + field + " = " + value);
+                log.warn("Unknown value pair : " + field + " = " + value);
             }
         }
 
-        if (initialValReady.isEmpty()) {
-            return;
-        }
+        if (initialValReady.isEmpty()) return;
 
         // 已布局的移除
         for (Object o : elements) {
@@ -563,19 +549,17 @@ public class FormsBuilder extends FormsManager {
     /**
      * 引用字段值
      *
-     * @param idVal
+     * @param idValue
      * @return returns [ID, LABEL]
      */
-    private JSON readyReferenceValue(String idVal) {
-        if (!ID.isId(idVal)) {
-            return null;
-        }
+    private JSON getReferenceMixValue(String idValue) {
+        if (!ID.isId(idValue)) return null;
 
         try {
-            String idLabel = FieldValueWrapper.getLabel(ID.valueOf(idVal));
-            return FieldValueWrapper.wrapMixValue(ID.valueOf(idVal), idLabel);
+            String idLabel = FieldValueHelper.getLabel(ID.valueOf(idValue));
+            return FieldValueHelper.wrapMixValue(ID.valueOf(idValue), idLabel);
         } catch (NoRecordFoundException ex) {
-            LOG.error("No record found : " + idVal);
+            log.error("No record found : " + idValue);
             return null;
         }
     }

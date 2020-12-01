@@ -13,6 +13,7 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.privileges.bizz.Department;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -55,5 +56,11 @@ public class UserHelperTest extends TestSupport {
         Set<ID> users = UserHelper.parseUsers(userDefs, null, true);
 
         System.out.println(Arrays.toString(users.toArray(new ID[0])));
+    }
+
+    @Test
+    public void isSelf() {
+        Assertions.assertTrue(
+                UserHelper.isSelf(SIMPLE_USER, addRecordOfTestAllFields(SIMPLE_USER)));
     }
 }

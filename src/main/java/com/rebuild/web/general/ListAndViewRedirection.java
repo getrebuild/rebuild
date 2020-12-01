@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
 import com.rebuild.web.BaseController;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -40,9 +39,11 @@ public class ListAndViewRedirection extends BaseController {
 
             if (entity.getEntityCode() == EntityHelper.Feeds) {
                 url = "../feeds/home#s=" + anyId;
+
             } else if (entity.getEntityCode() == EntityHelper.FeedsComment) {
                 ID found = findFeedsId(anyId);
                 if (found != null) url = "../feeds/home#s=" + found;
+
             } else if (entity.getEntityCode() == EntityHelper.ProjectTask
                     || entity.getEntityCode() == EntityHelper.ProjectTaskComment) {
                 Object[] found = findProjectAndTaskId(anyId);
@@ -50,11 +51,12 @@ public class ListAndViewRedirection extends BaseController {
                     url = MessageFormat.format(
                             "../project/{0}/tasks#!/View/ProjectTask/{1}", found[1], found[0]);
                 }
+
             } else if (entity.getEntityCode() == EntityHelper.User) {
                 url = MessageFormat.format(
                         "../admin/bizuser/users#!/View/{0}/{1}", entity.getName(), anyId);
-            } else if (MetadataHelper.hasPrivilegesField(entity)
-                    || EasyMeta.valueOf(anyId.getEntityCode()).isPlainEntity()) {
+
+            } else if (MetadataHelper.isBusinessEntity(entity)) {
                 url = MessageFormat.format("{0}/list#!/View/{0}/{1}", entity.getName(), anyId);
             }
         }

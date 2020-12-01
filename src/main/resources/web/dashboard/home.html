@@ -52,7 +52,7 @@
                     <i class="zmdi zmdi-plus icon"></i> [[${bundle.L('AddSome,Chart')}]]
                   </button>
                   <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item J_chart-new">[[${bundle.L('AddNewChart')}]]</a>
+                    <a th:if="${AllowCustomChart}" class="dropdown-item J_chart-new">[[${bundle.L('AddNewChart')}]]</a>
                     <a class="dropdown-item J_chart-select">[[${bundle.L('AddExistsChart')}]]</a>
                   </div>
                 </div>

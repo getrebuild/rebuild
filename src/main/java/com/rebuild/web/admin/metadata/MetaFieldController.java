@@ -16,32 +16,39 @@ import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.*;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.metadata.impl.Field2Schema;
+import com.rebuild.core.metadata.impl.MetaFieldService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.rebuild.web.EntityParam;
+import com.rebuild.web.IdParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaofang123@gmail.com
  * @since 08/19/2018
  */
-@Controller
+@RestController
 @RequestMapping("/admin/entity/")
 public class MetaFieldController extends BaseController {
 
@@ -57,17 +64,12 @@ public class MetaFieldController extends BaseController {
     }
 
     @RequestMapping("list-field")
-    public void listField(HttpServletRequest request, HttpServletResponse response) {
-        Entity entity = MetadataHelper.getEntity(getParameterNotNull(request, "entity"));
-
-        List<Field> allFields = new ArrayList<>();
-        Collections.addAll(allFields, entity.getFields());
-
-        List<Map<String, Object>> ret = new ArrayList<>();
-        for (Field field : MetadataSorter.sortFields(allFields.toArray(new Field[0]))) {
+    public List<Map<String, Object>> listField(@EntityParam Entity entity) {
+        List<Map<String, Object>> fieldList = new ArrayList<>();
+        for (Field field : MetadataSorter.sortFields(entity)) {
             if (MetadataHelper.isSystemField(field)) continue;
 
-            EasyMeta easyMeta = EasyMeta.valueOf(field);
+            EasyField easyMeta = EasyMetaFactory.valueOf(field);
             Map<String, Object> map = new HashMap<>();
             if (easyMeta.getMetaId() != null) {
                 map.put("fieldId", easyMeta.getMetaId());
@@ -79,25 +81,19 @@ public class MetaFieldController extends BaseController {
             map.put("nullable", field.isNullable());
             map.put("builtin", easyMeta.isBuiltin());
             map.put("creatable", field.isCreatable());
-            ret.add(map);
+            fieldList.add(map);
         }
-
-        writeSuccess(response, ret);
+        return fieldList;
     }
 
     @GetMapping("{entity}/field/{field}")
     public ModelAndView pageEntityField(@PathVariable String entity, @PathVariable String field,
-                                        HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!MetadataHelper.checkAndWarnField(entity, field)) {
-            response.sendError(404, getLang(request, "SomeInvalid", "Field"));
-            return null;
-        }
-
+                                        HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/admin/metadata/field-edit");
-        EasyMeta easyEntity = MetaEntityController.setEntityBase(mv, entity);
+        EasyEntity easyEntity = MetaEntityController.setEntityBase(mv, entity);
 
-        Field fieldMeta = ((Entity) easyEntity.getBaseMeta()).getField(field);
-        EasyMeta easyField = new EasyMeta(fieldMeta);
+        Field fieldMeta = easyEntity.getRawMeta().getField(field);
+        EasyField easyField = EasyMetaFactory.valueOf(fieldMeta);
 
         mv.getModel().put("fieldMetaId", easyField.getMetaId());
         mv.getModel().put("fieldName", easyField.getName());
@@ -115,8 +111,8 @@ public class MetaFieldController extends BaseController {
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
 
         // 明细实体
-        if (((Entity) easyEntity.getBaseMeta()).getMainEntity() != null) {
-            Field dtmField = MetadataHelper.getDetailToMainField((Entity) easyEntity.getBaseMeta());
+        if (easyEntity.getRawMeta().getMainEntity() != null) {
+            Field dtmField = MetadataHelper.getDetailToMainField(easyEntity.getRawMeta());
             mv.getModel().put("isDetailToMainField", dtmField.equals(fieldMeta));
         } else {
             mv.getModel().put("isDetailToMainField", false);
@@ -124,10 +120,10 @@ public class MetaFieldController extends BaseController {
 
         // 字段类型相关
         Type ft = fieldMeta.getType();
-        if (ft == FieldType.REFERENCE) {
-            Entity refentity = fieldMeta.getReferenceEntities()[0];
-            mv.getModel().put("fieldRefentity", refentity.getName());
-            mv.getModel().put("fieldRefentityLabel", new EasyMeta(refentity).getLabel());
+        if (ft == FieldType.REFERENCE || ft == FieldType.REFERENCE_LIST) {
+            Entity refEntity = fieldMeta.getReferenceEntity();
+            mv.getModel().put("fieldRefentity", refEntity.getName());
+            mv.getModel().put("fieldRefentityLabel", EasyMetaFactory.getLabel(refEntity));
         }
 
         // 扩展配置
@@ -136,9 +132,9 @@ public class MetaFieldController extends BaseController {
         return mv;
     }
 
-    @RequestMapping("field-new")
-    public void fieldNew(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    @PostMapping("field-new")
+    public RespBody fieldNew(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
 
         String entityName = reqJson.getString("entity");
@@ -155,38 +151,38 @@ public class MetaFieldController extends BaseController {
         JSON extConfig = null;
         if (dt == DisplayType.CLASSIFICATION) {
             ID dataId = ID.valueOf(refClassification);
-            extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.CLASSIFICATION_USE, dataId);
+            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.CLASSIFICATION_USE, dataId);
+
         } else if (dt == DisplayType.STATE) {
             if (!StateHelper.isStateClass(stateClass)) {
-                writeFailure(response, getLang(request, "SomeInvalid,StateClass"));
-                return;
+                return RespBody.errorl("SomeInvalid,StateClass");
             }
-            extConfig = JSONUtils.toJSONObject(FieldExtConfigProps.STATE_STATECLASS, stateClass);
+
+            extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.STATE_CLASS, stateClass);
         }
 
-        String fieldName;
         try {
-            fieldName = new Field2Schema(user).createField(entity, label, dt, comments, refEntity, extConfig);
-            writeSuccess(response, fieldName);
+            String fieldName = new Field2Schema(user).createField(entity, label, dt, comments, refEntity, extConfig);
+            return RespBody.ok(fieldName);
+
         } catch (Exception ex) {
-            writeFailure(response, ex.getLocalizedMessage());
+            return RespBody.error(ex.getLocalizedMessage());
         }
     }
 
     @RequestMapping("field-update")
-    public void fieldUpdate(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public RespBody fieldUpdate(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse((JSONObject) formJson, user);
 
         Application.getBean(MetaFieldService.class).update(record);
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     @RequestMapping("field-drop")
-    public void fieldDrop(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        ID fieldId = getIdParameterNotNull(request, "id");
+    public RespBody fieldDrop(@IdParam ID fieldId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
 
         Object[] fieldRecord = Application.createQueryNoFilter(
                 "select belongEntity,fieldName from MetaField where fieldId = ?")
@@ -195,7 +191,6 @@ public class MetaFieldController extends BaseController {
         Field field = MetadataHelper.getEntity((String) fieldRecord[0]).getField((String) fieldRecord[1]);
 
         boolean drop = new Field2Schema(user).dropField(field, false);
-        if (drop) writeSuccess(response);
-        else writeFailure(response);
+        return drop ? RespBody.ok() : RespBody.error();
     }
 }

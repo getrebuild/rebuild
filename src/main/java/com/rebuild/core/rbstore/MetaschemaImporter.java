@@ -19,6 +19,8 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.EntityRecordCreator;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.*;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
@@ -83,7 +85,8 @@ public class MetaschemaImporter extends HeavyTask<String> {
 
         for (Object o : entity.getJSONArray("fields")) {
             JSONObject field = (JSONObject) o;
-            if (DisplayType.REFERENCE.name().equalsIgnoreCase(field.getString("displayType"))) {
+            String dt = field.getString("displayType");
+            if (DisplayType.REFERENCE.name().equals(dt) || DisplayType.N2NREFERENCE.name().equals(dt)) {
                 String refEntity = field.getString("refEntity");
                 if (!entityName.equals(refEntity) && !MetadataHelper.containsEntity(refEntity)) {
                     return Language.L("MissRefEntity") + " : " + field.getString("fieldLabel") + " (" + refEntity + ")";
@@ -182,7 +185,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
-        Record needUpdate = EntityHelper.forUpdate(EasyMeta.valueOf(entity).getMetaId(), this.getUser(), false);
+        Record needUpdate = EntityHelper.forUpdate(EasyMetaFactory.valueOf(entity).getMetaId(), this.getUser(), false);
 
         String nameField = schemaEntity.getString("nameField");
         if (nameField != null) {

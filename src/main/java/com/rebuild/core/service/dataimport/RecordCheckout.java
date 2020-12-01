@@ -18,8 +18,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.support.state.StateManager;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -82,7 +82,7 @@ public class RecordCheckout {
      * @return
      */
     protected Object checkoutFieldValue(Field field, Cell cell, boolean validate) {
-        final DisplayType dt = EasyMeta.getDisplayType(field);
+        final DisplayType dt = EasyMetaFactory.getDisplayType(field);
         if (dt == DisplayType.NUMBER) {
             return cell.asLong();
         } else if (dt == DisplayType.DECIMAL) {
@@ -101,20 +101,24 @@ public class RecordCheckout {
             return checkoutStateValue(field, cell);
         }
 
+        String string = cell.asString();
+        if (string != null) string = string.trim();
+
         // 格式验证
         if (validate) {
             if (dt == DisplayType.EMAIL) {
-                String email = cell.asString();
-                return RegexUtils.isEMail(email) ? email : null;
+                string = cell.asString();
+                return RegexUtils.isEMail(string) ? string : null;
             } else if (dt == DisplayType.URL) {
-                String url = cell.asString();
-                return RegexUtils.isUrl(url) ? url : null;
+                string = cell.asString();
+                return RegexUtils.isUrl(string) ? string : null;
             } else if (dt == DisplayType.PHONE) {
-                String tel = cell.asString();
-                return RegexUtils.isCNMobile(tel) || RegexUtils.isTel(tel) ? tel : null;
+                string = cell.asString();
+                return RegexUtils.isCNMobile(string) || RegexUtils.isTel(string) ? string : null;
             }
         }
-        return cell.asString();
+
+        return string;
     }
 
     /**

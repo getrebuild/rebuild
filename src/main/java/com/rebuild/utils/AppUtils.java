@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
-import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -22,7 +21,6 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.http.MediaType;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
@@ -36,20 +34,15 @@ import java.sql.DataTruncation;
  */
 public class AppUtils {
 
-    /**
-     * 移动端 UA 前缀
-     */
+    // 移动端 UA 前缀
     public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
 
-    /**
-     * 移动端 Token Header
-     */
+    // 移动端 Token Header
     public static final String MOBILE_HF_AUTHTOKEN = "X-AuthToken";
 
-    /**
-     * 语言
-     */
+    // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
+    public static final String CK_LOCALE = "rb.locale";
 
     /**
      * @return
@@ -64,10 +57,23 @@ public class AppUtils {
      *
      * @param request
      * @return null or UserID
-     * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
      */
     public static ID getRequestUser(HttpServletRequest request) {
+        return getRequestUser(request, false);
+    }
+
+    /**
+     * 获取当前请求用户
+     *
+     * @param request
+     * @return null or UserID
+     * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
+     */
+    public static ID getRequestUser(HttpServletRequest request, boolean refreshToken) {
         Object user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
+        if (user == null) {
+            user = getRequestUserViaRbMobile(request, refreshToken);
+        }
         return user == null ? null : (ID) user;
     }
 
@@ -95,17 +101,6 @@ public class AppUtils {
      * @param request
      * @return
      */
-    public static User getRequestUserBean(HttpServletRequest request) {
-        ID user = getRequestUser(request);
-        if (user == null) user = getRequestUserViaRbMobile(request, false);
-        if (user == null) return null;
-        return Application.getUserStore().getUser(user);
-    }
-
-    /**
-     * @param request
-     * @return
-     */
     public static LanguageBundle getReuqestBundle(HttpServletRequest request) {
         return Application.getLanguage().getBundle(getReuqestLocale(request));
     }
@@ -127,8 +122,7 @@ public class AppUtils {
      * @return
      */
     public static boolean isAdminVerified(HttpServletRequest request) {
-        Object verified = ServletUtils.getSessionAttribute(request, AdminVerfiyController.KEY_VERIFIED);
-        return verified != null;
+        return ServletUtils.getSessionAttribute(request, AdminVerfiyController.KEY_VERIFIED) != null;
     }
 
     /**
@@ -171,10 +165,6 @@ public class AppUtils {
             exception = ThrowableUtils.getRootCause(exception);
             String errorMsg = exception.getLocalizedMessage();
             if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("Error500");
-
-            if (Application.devMode() && !(exception instanceof DataSpecificationException)) {
-                errorMsg += " (" + exception.getClass().getSimpleName() + ")";
-            }
             return errorMsg;
         }
     }
@@ -188,26 +178,5 @@ public class AppUtils {
     public static boolean isRbMobile(HttpServletRequest request) {
         String UA = request.getHeader("user-agent");
         return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
-    }
-
-    /**
-     * 是否 HTML 请求
-     *
-     * @param request
-     * @return
-     */
-    public static boolean isHtmlRequest(HttpServletRequest request) {
-        if (ServletUtils.isAjaxRequest(request)) return false;
-
-        MediaType mediaType = null;
-        try {
-            String contentType = request.getContentType();
-            if (contentType == null) {
-                contentType = request.getHeader("Accept").split(",")[0];
-            }
-            mediaType = MediaType.valueOf(contentType);
-        } catch (Exception ignore) {
-        }
-        return MediaType.TEXT_HTML.equals(mediaType) || MediaType.APPLICATION_XHTML_XML.equals(mediaType);
     }
 }

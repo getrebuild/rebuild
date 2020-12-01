@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.project;
 
-import cn.devezhao.bizz.privileges.PrivilegesException;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
@@ -16,8 +15,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
 /**
@@ -31,6 +32,9 @@ public class ProjectTaskService extends BaseTaskService {
 
     // 中值法排序
     private static final int MID_VALUE = 1000;
+
+    // 最后
+    private static final int SEQ_ATLAST = -1;
 
     protected ProjectTaskService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
@@ -81,7 +85,7 @@ public class ProjectTaskService extends BaseTaskService {
 
         } else if (record.hasValue("seq")) {
             int seq = record.getInt("seq");
-            if (seq == -1) {
+            if (seq == SEQ_ATLAST) {
                 record.setInt("seq", getSeqInStatus(record.getPrimary(), true));
             }
         }
@@ -97,9 +101,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public int delete(ID taskId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(taskId, user)) {
-            throw new PrivilegesException("不能删除他人任务");
-        }
+        if (!ProjectHelper.isManageable(taskId, user)) throw new OperationDeniedException("DELETE TASK");
 
         int d = super.delete(taskId);
         ProjectManager.instance.clean(taskId);
@@ -181,7 +183,7 @@ public class ProjectTaskService extends BaseTaskService {
      */
     private void sendNotification(ID taskId) {
         Object[] task = Application.getQueryFactory().uniqueNoFilter(taskId, "executor", "taskName");
-        String msg = "有一个新任务分派给你 \n> " + task[1];
+        String msg = Language.L("MsgNewProjectTaskToYou") + " \n> " + task[1];
         Application.getNotifications().send(
                 MessageBuilder.createMessage((ID) task[0], msg, Message.TYPE_PROJECT, taskId));
     }

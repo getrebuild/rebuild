@@ -7,35 +7,35 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.metadata;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.metadata.MetadataHelper;
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.service.general.SeriesReindexTask;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
+import com.rebuild.web.EntityParam;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author devezhao
  * @since 2020/4/30
  */
-@Controller
+@RestController
 @RequestMapping("/admin/field/")
 public class SeriesController extends BaseController {
 
     @RequestMapping("series-reindex")
-    public void seriesReindex(HttpServletRequest request, HttpServletResponse response) {
-        String entity = getParameterNotNull(request, "entity");
+    public JSON seriesReindex(@EntityParam Entity entity, HttpServletRequest request) {
         String field = getParameterNotNull(request, "field");
+        Field metaField = entity.getField(field);
 
-        Field metaField = MetadataHelper.getField(entity, field);
         SeriesReindexTask seriesReindexTask = new SeriesReindexTask(metaField);
         seriesReindexTask.setUser(getRequestUser(request));
 
         int reindex = seriesReindexTask.exec();
-        writeJSON(response, JSONUtils.toJSONObject("reindex", reindex));
+        return JSONUtils.toJSONObject("reindex", reindex);
     }
 }

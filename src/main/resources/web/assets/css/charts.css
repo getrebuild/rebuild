@@ -217,8 +217,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box.ApprovalList .progress-wrap {
-  padding: 10px 25px;
-  padding-bottom: 15px;
+  padding: 10px 25px 15px;
   background-color: #fff;
 }
 

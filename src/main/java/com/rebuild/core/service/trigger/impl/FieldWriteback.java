@@ -14,6 +14,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyDateTime;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import org.apache.commons.lang.StringUtils;
@@ -90,8 +94,19 @@ public class FieldWriteback extends FieldAggregation {
             }
 
             Field sourceField = MetadataHelper.getLastJoinField(sourceEntity, e.getValue());
+            if (sourceField == null) continue;
             Field targetField = targetEntity.getField(e.getKey());
-            Object newValue = new CompatibleValueConversion(sourceField, targetField).conversion(value, exprsMap.get(e.getKey()));
+
+            Object newValue;
+            EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceField);
+            if (sourceFieldEasy.getDisplayType() == DisplayType.DATETIME
+                    || sourceFieldEasy.getDisplayType() == DisplayType.DATE) {
+                newValue = ((EasyDateTime) sourceFieldEasy)
+                        .convertCompatibleValue(value, EasyMetaFactory.valueOf(targetField), exprsMap.get(e.getKey()));
+            } else {
+                newValue = sourceFieldEasy.convertCompatibleValue(value, EasyMetaFactory.valueOf(targetField));
+            }
+
             if (newValue != null) {
                 record.setObjectValue(targetField.getName(), newValue);
             }

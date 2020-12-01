@@ -15,11 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author devezhao
@@ -44,6 +46,13 @@ public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         // Controller send status of error
         int statusCode = ((ServletServerHttpResponse) serverHttpResponse).getServletResponse().getStatus();
         if (statusCode != 200) {
+            if (o instanceof Map) {
+                String path404 = (String) ((Map<?, ?>) o).get("path");
+                if (path404 != null && path404.endsWith(".map")) {
+                    return o;
+                }
+            }
+
             LOG.warn("Response Error Status : " + o);
             return o;
         }
@@ -51,6 +60,9 @@ public class ControllerResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         // 强转为 JSON Herader
         // @ResponseBody 方法返回 `null` `String` 时 mediaType=TEXT_PLAIN
         if (MediaType.TEXT_PLAIN.equals(mediaType)) {
+            // @Deprecated
+            LOG.warn("Force conversion TEXT_PLAIN : {}",
+                    ((ServletServerHttpRequest) serverHttpRequest).getServletRequest().getRequestURI());
             serverHttpResponse.getHeaders().add("Content-Type", MediaType.APPLICATION_JSON_VALUE);
         }
 

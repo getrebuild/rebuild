@@ -26,7 +26,7 @@ public class FormsBuilderTest extends TestSupport {
 
     @Test
     public void testModel() {
-        JSON newModel = FormsBuilder.instance.buildForm("User", UserService.ADMIN_USER, null);
+        JSON newModel = FormsBuilder.instance.buildForm(TestAllFields, UserService.ADMIN_USER, null);
         System.out.println(newModel);
 
         JSON editModel = FormsBuilder.instance.buildForm("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
@@ -38,7 +38,6 @@ public class FormsBuilderTest extends TestSupport {
         JSON viewModel = FormsBuilder.instance.buildView("User", UserService.ADMIN_USER, UserService.SYSTEM_USER);
         System.out.println(viewModel);
     }
-
 
     @Test
     public void testSetFormInitialValue() {

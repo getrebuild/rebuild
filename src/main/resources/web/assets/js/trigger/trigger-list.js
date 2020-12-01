@@ -187,8 +187,7 @@ class TriggerEdit extends ConfigFormDlg {
     } else {
       data = { ...data, actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
       if (!data.actionType || !data.belongEntity) {
-        RbHighbar.create($L('PlsSelectSome,SourceEntity'))
-        return
+        return RbHighbar.create($L('PlsSelectSome,SourceEntity'))
       }
     }
     data.metadata = {
@@ -196,8 +195,12 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
+    if (rb.commercial < 1 && data.actionType === 'HOOKURL') {
+      return RbHighbar.error($L('FreeVerNotSupportted,HOOKURL'))
+    }
+
     this.disabled(true)
-    $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
         if (this.props.id) location.reload()
         else location.href = 'trigger/' + res.data.id

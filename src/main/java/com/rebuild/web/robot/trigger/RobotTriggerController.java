@@ -12,7 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
@@ -20,10 +20,10 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.data.ReportTemplateController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,7 +36,7 @@ import java.util.List;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
  */
-@Controller
+@RestController
 @RequestMapping("/admin/robot/")
 public class RobotTriggerController extends BaseController {
 
@@ -54,7 +54,7 @@ public class RobotTriggerController extends BaseController {
                 .setParameter(1, configId)
                 .unique();
         if (config == null) {
-            response.sendError(404, "触发器不存在");
+            response.sendError(404);
             return null;
         }
 
@@ -64,7 +64,7 @@ public class RobotTriggerController extends BaseController {
         ModelAndView mv = createModelAndView("/admin/robot/trigger-design");
         mv.getModel().put("configId", configId);
         mv.getModel().put("sourceEntity", sourceEntity.getName());
-        mv.getModel().put("sourceEntityLabel", EasyMeta.getLabel(sourceEntity));
+        mv.getModel().put("sourceEntityLabel", EasyMetaFactory.getLabel(sourceEntity));
         mv.getModel().put("actionType", actionType.name());
         mv.getModel().put("actionTypeLabel", getLang(request, actionType.name()));
         mv.getModel().put("when", config[2]);
@@ -76,32 +76,31 @@ public class RobotTriggerController extends BaseController {
         return mv;
     }
 
-    @RequestMapping("trigger/available-actions")
-    public void getAvailableActions(HttpServletRequest request, HttpServletResponse response) {
-        ActionType[] ts = ActionFactory.getAvailableActions();
-        List<String[]> list = new ArrayList<>();
-        for (ActionType t : ts) {
-            list.add(new String[]{t.name(), getLang(request, t.name())});
+    @GetMapping("trigger/available-actions")
+    public List<String[]> getAvailableActions(HttpServletRequest request) {
+        List<String[]> alist = new ArrayList<>();
+        for (ActionType t : ActionFactory.getAvailableActions()) {
+            alist.add(new String[]{t.name(), getLang(request, t.name())});
         }
-        writeSuccess(response, list);
+        return alist;
     }
 
-    @RequestMapping("trigger/available-entities")
-    public void getAvailableEntities(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("trigger/available-entities")
+    public List<String[]> getAvailableEntities(HttpServletRequest request) {
         String actionType = getParameterNotNull(request, "action");
         TriggerAction action = ActionFactory.createAction(actionType);
 
-        List<String[]> list = new ArrayList<>();
+        List<String[]> alist = new ArrayList<>();
         for (Entity e : MetadataSorter.sortEntities(null, false, true)) {
             if (action.isUsableSourceEntity(e.getEntityCode())) {
-                list.add(new String[]{e.getName(), EasyMeta.getLabel(e)});
+                alist.add(new String[]{e.getName(), EasyMetaFactory.getLabel(e)});
             }
         }
-        writeSuccess(response, list);
+        return alist;
     }
 
-    @RequestMapping("trigger/list")
-    public void triggerList(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("trigger/list")
+    public Object[][] triggerList(HttpServletRequest request) {
         String belongEntity = getParameter(request, "entity");
         String q = getParameter(request, "q");
         String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType from RobotTriggerConfig" +
@@ -112,6 +111,6 @@ public class RobotTriggerController extends BaseController {
         for (Object[] o : array) {
             o[7] = getLang(request, (String) o[7]);
         }
-        writeSuccess(response, array);
+        return array;
     }
 }

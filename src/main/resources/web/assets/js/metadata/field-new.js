@@ -20,7 +20,7 @@ $(document).ready(function () {
       return
     }
 
-    if (type === 'REFERENCE' && !refEntity) {
+    if ((type === 'REFERENCE' || type === 'N2NREFERENCE') && !refEntity) {
       RbHighbar.create('PlsSelectSome,RefEntity')
       return
     } else if (type === 'CLASSIFICATION' && !refClassification) {
@@ -66,11 +66,11 @@ $(document).ready(function () {
   $('#type').change(function () {
     parent.RbModal.resize()
 
-    $('.J_dt-REFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
+    $('.J_dt-REFERENCE, .J_dt-N2NREFERENCE, .J_dt-CLASSIFICATION, .J_dt-STATE').addClass('hide')
     const dt = $(this).val()
     $('.J_dt-' + dt).removeClass('hide')
 
-    if (dt === 'REFERENCE') {
+    if (dt === 'REFERENCE' || dt === 'N2NREFERENCE') {
       if (referenceLoaded === false) {
         referenceLoaded = true
         $.get('/admin/entity/entity-list?detail=true', (res) => {

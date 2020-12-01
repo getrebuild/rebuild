@@ -54,7 +54,7 @@ public class EntityUpdate extends EntityCreate {
                     ApiInvokeException.ERR_DATASPEC);
         }
 
-        recordUpdate = Application.getService(useEntity.getEntityCode()).update(recordUpdate);
+        recordUpdate = Application.getEntityService(useEntity.getEntityCode()).update(recordUpdate);
 
         return formatSuccess(JSONUtils.toJSONObject("id", recordUpdate.getPrimary()));
     }

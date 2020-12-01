@@ -19,7 +19,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.AutoFillinConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
@@ -41,13 +42,12 @@ public class AutoFillinController extends BaseController {
     @RequestMapping("{field}/auto-fillin")
     public ModelAndView page(@PathVariable String entity, @PathVariable String field) {
         ModelAndView mv = createModelAndView("/admin/metadata/auto-fillin");
-        EasyMeta easyMeta = MetaEntityController.setEntityBase(mv, entity);
+        EasyEntity easyEntity = MetaEntityController.setEntityBase(mv, entity);
 
-        Field fieldMeta = ((Entity) easyMeta.getBaseMeta()).getField(field);
-        EasyMeta fieldEasyMeta = new EasyMeta(fieldMeta);
-        mv.getModel().put("fieldName", fieldEasyMeta.getName());
+        Field fieldMeta = easyEntity.getRawMeta().getField(field);
+        mv.getModel().put("fieldName", fieldMeta.getName());
         mv.getModel().put("referenceEntity", fieldMeta.getReferenceEntity().getName());
-        mv.getModel().put("referenceEntityLabel", EasyMeta.getLabel(fieldMeta.getReferenceEntity()));
+        mv.getModel().put("referenceEntityLabel", EasyMetaFactory.getLabel(fieldMeta.getReferenceEntity()));
         return mv;
     }
 
@@ -116,10 +116,10 @@ public class AutoFillinController extends BaseController {
             }
 
             JSON rule = JSONUtils.toJSONObject(
-                    new String[]{"id", "sourceField", "sourceFieldLabel", "targetField", "targetFieldLabel", "extConfig"},
-                    new Object[]{o[0],
-                            sourceField, EasyMeta.getLabel(sourceEntity.getField(sourceField)),
-                            targetField, EasyMeta.getLabel(targetEntity.getField(targetField)),
+                    new String[]{ "id", "sourceField", "sourceFieldLabel", "targetField", "targetFieldLabel", "extConfig" },
+                    new Object[]{ o[0],
+                            sourceField, EasyMetaFactory.getLabel(sourceEntity.getField(sourceField)),
+                            targetField, EasyMetaFactory.getLabel(targetEntity.getField(targetField)),
                             JSON.parse((String) o[3])});
             rules.add(rule);
         }

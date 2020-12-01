@@ -9,13 +9,21 @@ package com.rebuild.core.configuration;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.RecordBuilder;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
@@ -43,26 +51,31 @@ public class NavBuilder extends NavManager {
     private NavBuilder() {
     }
 
+    // 导航项属性
+    private static final String[] NAV_ITEM_PROPS = new String[] { "icon", "text", "type", "value" };
+
     // 默认导航
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
-            new String[]{"icon", "text", "type", "value"},
-            new Object[][]{
-                    new Object[]{"chart-donut", "{Feeds}", "BUILTIN", NAV_FEEDS},
-                    new Object[]{"shape", "{Project}", "BUILTIN", NAV_PROJECT},
-                    new Object[]{"folder", "{File}", "BUILTIN", NAV_FILEMRG}
+            NAV_ITEM_PROPS,
+            new Object[][] {
+                    new Object[] { "chart-donut", "{Feeds}", "BUILTIN", NAV_FEEDS },
+                    new Object[] { "shape", "{Project}", "BUILTIN", NAV_PROJECT },
+                    new Object[] { "folder", "{File}", "BUILTIN", NAV_FILEMRG }
             });
 
     // 新建项目
     private static final JSONObject NAV_PROJECT__ADD = JSONUtils.toJSONObject(
-            new String[]{"icon", "text", "type", "value"},
-            new String[]{"plus", "{AddProject}", "BUILTIN", NAV_PROJECT + "--add"}
+            NAV_ITEM_PROPS,
+            new String[] { "plus", "{AddProject}", "BUILTIN", NAV_PROJECT + "--add" }
     );
 
     /**
+     * 获取指定用户的导航菜单
+     *
      * @param user
      * @return
      */
-    public JSONArray getNavPortal(ID user) {
+    public JSONArray getUserNav(ID user) {
         ConfigBean config = getLayoutOfNav(user);
         if (config == null) {
             JSONArray useDefault = (JSONArray) NAVS_DEFAULT.clone();
@@ -79,7 +92,7 @@ public class NavBuilder extends NavManager {
             if (subNavs != null && !subNavs.isEmpty()) {
                 for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
                     JSONObject subNav = (JSONObject) subIter.next();
-                    if (isFilterNav(subNav, user)) {
+                    if (isFilterNavItem(subNav, user)) {
                         subIter.remove();
                     }
                 }
@@ -88,7 +101,7 @@ public class NavBuilder extends NavManager {
                 if (subNavs.isEmpty()) {
                     iter.remove();
                 }
-            } else if (isFilterNav(nav, user)) {
+            } else if (isFilterNavItem(nav, user)) {
                 iter.remove();
             } else if (NAV_PROJECT.equals(nav.getString("value"))) {
                 nav.put("sub", getAvailableProjects(user));
@@ -104,7 +117,7 @@ public class NavBuilder extends NavManager {
      * @param user
      * @return
      */
-    private boolean isFilterNav(JSONObject nav, ID user) {
+    private boolean isFilterNavItem(JSONObject nav, ID user) {
         String type = nav.getString("type");
         if ("ENTITY".equalsIgnoreCase(type)) {
             String entity = nav.getString("value");
@@ -135,8 +148,8 @@ public class NavBuilder extends NavManager {
         JSONArray navsOfProjects = new JSONArray();
         for (ConfigBean e : projects) {
             navsOfProjects.add(JSONUtils.toJSONObject(
-                    new String[]{"type", "text", "icon", "value"},
-                    new Object[]{NAV_PROJECT, e.getString("projectName"), e.getString("iconName"), e.getID("id")}));
+                    NAV_ITEM_PROPS,
+                    new Object[] { e.getString("iconName"), e.getString("projectName"), NAV_PROJECT, e.getID("id") }));
         }
 
         // 管理员显示新建项目入口
@@ -146,7 +159,37 @@ public class NavBuilder extends NavManager {
         return navsOfProjects;
     }
 
-    // --
+    /**
+     * @param initEntity
+     */
+    public void addInitNavOnInstall(String[] initEntity) {
+        JSONArray initNav = (JSONArray) Language.getCurrentBundle().replaceLangKey(NAVS_DEFAULT);
+
+        for (String e : initEntity) {
+            EasyEntity entity = EasyMetaFactory.valueOf(e);
+
+            JSONObject navItem = JSONUtils.toJSONObject(
+                    NAV_ITEM_PROPS,
+                    new String[] { entity.getIcon(), entity.getLabel(), "ENTITY", entity.getName() });
+            initNav.add(navItem);
+        }
+
+        Record record = RecordBuilder.builder(EntityHelper.LayoutConfig)
+                .add("belongEntity", "N")
+                .add("shareTo", SHARE_ALL)
+                .add("applyType", TYPE_NAV)
+                .add("config", initNav.toJSONString())
+                .build(UserService.SYSTEM_USER);
+
+        UserContextHolder.setUser(UserService.SYSTEM_USER);
+        try {
+            Application.getService(EntityHelper.LayoutConfig).create(record);
+        } finally {
+            UserContextHolder.clear();
+        }
+    }
+
+    // -- PORTAL RENDER
 
     /**
      * @param request
@@ -156,7 +199,7 @@ public class NavBuilder extends NavManager {
     public static String renderNav(HttpServletRequest request, String activeNav) {
         if (activeNav == null) activeNav = "dashboard-home";
 
-        JSONArray navs = NavBuilder.instance.getNavPortal(AppUtils.getRequestUser(request));
+        JSONArray navs = NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request));
         navs = (JSONArray) AppUtils.getReuqestBundle(request).replaceLangKey(navs);
 
         StringBuilder navsHtml = new StringBuilder();

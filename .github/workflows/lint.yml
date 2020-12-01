@@ -10,7 +10,5 @@ jobs:
     - uses: actions/setup-node@v1
     - name: npm-install
       run: npm install
-      working-directory: ./src/main/resources/web
     - name: npm-run-lint
       run: npm run lint
-      working-directory: ./src/main/resources/web

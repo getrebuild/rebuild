@@ -27,13 +27,13 @@ public class BuiltinChartsTest extends TestSupport {
     public void testApprovalList() {
         Map<String, Object> params = new HashMap<>();
         params.put("state", ApprovalState.APPROVED.getState());
-        JSON ret = new ApprovalList().setUser(SIMPLE_USER).setExtraParams(params).build();
+        JSON ret = ((ApprovalList) new ApprovalList().setUser(SIMPLE_USER)).setExtraParams(params).build();
         System.out.println(ret);
     }
 
     @Test
     public void testFeedsSchedule() {
-        JSON ret = new FeedsSchedule().setUser(SIMPLE_USER).build();
+        JSON ret = ((FeedsSchedule) new FeedsSchedule().setUser(SIMPLE_USER)).build();
         System.out.println(ret);
     }
 }

@@ -18,7 +18,7 @@ class RbFormModal extends React.Component {
       this.state.isDestroy !== true && (
         <div className="modal-wrapper">
           <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-            <div className="modal-dialog">
+            <div className="modal-dialog modal-lg">
               <div className="modal-content">
                 <div className="modal-header modal-header-colored">
                   {this.state.icon && <span className={'icon zmdi zmdi-' + this.state.icon} />}
@@ -156,6 +156,7 @@ class RbFormModal extends React.Component {
   // -- Usage
   /**
    * @param {*} props
+   * @param {*} newDlg
    */
   static create(props, newDlg) {
     if (newDlg === true) {
@@ -418,7 +419,7 @@ class RbFormElement extends React.Component {
           {editable && this.state.editMode && (
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
-                <button type="button" className="btn btn-secondary" onClick={this.handleEditConfirm}>
+                <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()}>
                   <i className="icon zmdi zmdi-check"></i>
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)}>
@@ -432,7 +433,23 @@ class RbFormElement extends React.Component {
     )
   }
 
-  // 渲染表单
+  componentDidMount() {
+    const props = this.props
+    if (!props.onView) {
+      // 必填字段
+      if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('SomeNotEmpty').replace('{0}', props.label))
+      props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
+    }
+    if (!props.onView) this.onEditModeChanged()
+  }
+
+  componentWillUnmount() {
+    this.onEditModeChanged(true)
+  }
+
+  /**
+   * 渲染表单
+   */
   renderElement() {
     const value = arguments.length > 0 ? arguments[0] : this.state.value
     return (
@@ -445,36 +462,82 @@ class RbFormElement extends React.Component {
         onChange={this.handleChange}
         onBlur={this.props.readonly ? null : this.checkValue}
         readOnly={this.props.readonly}
-        maxLength="255"
+        maxLength={this.props.maxLength || 200}
       />
     )
   }
 
-  // 渲染视图
+  /**
+   * 渲染视图
+   */
   renderViewElement() {
-    let text = arguments.length > 0 ? arguments[0] : this.state.value
-    if (text && $empty(text)) text = null
+    let value = arguments.length > 0 ? arguments[0] : this.state.value
+    if (value && $empty(value)) value = null
     return (
       <React.Fragment>
-        <div className="form-control-plaintext">{text || <span className="text-muted">无</span>}</div>
+        <div className="form-control-plaintext">{value || <span className="text-muted">{$L('Null')}</span>}</div>
       </React.Fragment>
     )
   }
 
-  componentDidMount() {
-    const props = this.props
-    if (!props.onView) {
-      // 必填字段
-      if (!props.nullable && !props.readonly && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('SomeNotEmpty').replace('{0}', props.label))
-      props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
+  /**
+   * 修改值（表单组件（字段）值变化应调用此方法）
+   *
+   * @param {*} e
+   * @param {*} checkValue
+   */
+  handleChange(e, checkValue) {
+    const val = e.target.value
+    this.setState({ value: val }, () => checkValue === true && this.checkValue())
+  }
+
+  /**
+   * 清空值
+   */
+  handleClear() {
+    this.setState({ value: '' }, () => this.checkValue())
+  }
+
+  /**
+   * 检查值
+   */
+  checkValue() {
+    const err = this.isValueError()
+    const errMsg = err ? this.props.label + err : null
+
+    if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
+      if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
+      else this.props.$$$parent.setFieldUnchanged(this.props.field)
+    } else {
+      this.setState({ hasError: err })
+      this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
     }
-    if (!props.onView && !this.props.readonly) this.onEditModeChanged()
   }
 
-  componentWillUnmount() {
-    this.onEditModeChanged(true)
+  /**
+   * 无效值检查
+   */
+  isValueError() {
+    if (this.props.nullable === false) {
+      const v = this.state.value
+      if (v && $.type(v) === 'array') return v.length === 0 ? $L('SomeNotEmpty').replace('{0}', '') : null
+      else return !v ? $L('SomeNotEmpty').replace('{0}', '') : null
+    }
   }
 
+  /**
+   * 是否未修改
+   */
+  isValueUnchanged() {
+    const oldv = this.state.newValue === undefined ? this.props.value : this.state.newValue
+    return $same(oldv, this.state.value)
+  }
+
+  /**
+   * 视图编辑-编辑状态改变
+   *
+   * @param {*} destroy
+   */
   onEditModeChanged(destroy) {
     if (destroy) {
       if (this.__select2) {
@@ -490,20 +553,26 @@ class RbFormElement extends React.Component {
     }
   }
 
-  // 修改值（表单组件（字段）值变化应调用此方法）
-  handleChange(e, checkValue) {
-    const val = e.target.value
-    this.setState({ value: val }, () => checkValue === true && this.checkValue())
-  }
+  /**
+   * 视图编辑-编辑模式
+   *
+   * @param {*} mode
+   */
+  toggleEditMode(editMode) {
+    // if (editMode) {
+    //   this.setState({ editMode: editMode }, () => {
+    //     this.onEditModeChanged()
+    //     this._fieldValue && this._fieldValue.focus()
+    //   })
+    // } else {
+    //   const newValue = arguments.length > 1 ? arguments[1] : this.state.newValue === undefined ? this.props.value : this.state.newValue
+    //   const state = { editMode: editMode, value: newValue, newValue: newValue || null }
+    //
+    //   this.onEditModeChanged(true)
+    //   this.setState(state)
+    // }
 
-  // 清空值
-  handleClear() {
-    this.setState({ value: '' }, () => this.checkValue())
-  }
-
-  // 编辑单个字段值
-  toggleEditMode(mode) {
-    this.setState({ editMode: mode }, () => {
+    this.setState({ editMode: editMode }, () => {
       if (this.state.editMode) {
         this.onEditModeChanged()
         this._fieldValue && this._fieldValue.focus()
@@ -514,44 +583,18 @@ class RbFormElement extends React.Component {
     })
   }
 
-  handleEditConfirm = () => {
+  /**
+   * 视图编辑-确认
+   */
+  handleEditConfirm() {
     this.props.$$$parent.saveSingleFieldValue && this.props.$$$parent.saveSingleFieldValue(this)
   }
 
-  // 检查值
-  checkValue() {
-    const err = this.isValueError()
-    const errMsg = err ? this.props.label + err : null
-
-    if (this.isValueUnchanged() && !this.props.$$$parent.isNew) {
-      if (err) this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
-      else this.props.$$$parent.setFieldUnchanged(this.props.field)
-    } else {
-      this.setState({ hasError: err })
-      this.props.$$$parent.setFieldValue(this.props.field, this.state.value, errMsg)
-    }
-  }
-
-  // 无效值检查
-  isValueError() {
-    if (this.props.nullable === false) {
-      const v = this.state.value
-      if (v && $.type(v) === 'array') return v.length === 0 ? $L('SomeNotEmpty').replace('{0}', '') : null
-      else return !v ? $L('SomeNotEmpty').replace('{0}', '') : null
-    }
-  }
-
-  // 未修改
-  isValueUnchanged() {
-    const oldv = this.state.newValue === undefined ? this.props.value : this.state.newValue
-    return $same(oldv, this.state.value)
-  }
-
-  // Getter / Setter
+  // Setter
   setValue(val) {
     this.handleChange({ target: { value: val } }, true)
   }
-
+  // Getter
   getValue() {
     return this.state.value
   }
@@ -570,7 +613,8 @@ class RbFormUrl extends RbFormText {
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
-    const clickUrl = rb.baseUrl + '/commons/url-safe?url=' + encodeURIComponent(this.state.value)
+
+    const clickUrl = `${rb.baseUrl}/commons/url-safe?url=${encodeURIComponent(this.state.value)}`
     return (
       <div className="form-control-plaintext">
         <a href={clickUrl} className="link" target="_blank" rel="noopener noreferrer">
@@ -594,9 +638,10 @@ class RbFormEMail extends RbFormText {
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
+
     return (
       <div className="form-control-plaintext">
-        <a title={$L('SendEmail')} href={'mailto:' + this.state.value} className="link">
+        <a title={$L('SendEmail')} href={`mailto:${this.state.value}`} className="link">
           {this.state.value}
         </a>
       </div>
@@ -617,9 +662,10 @@ class RbFormPhone extends RbFormText {
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
+
     return (
       <div className="form-control-plaintext">
-        <a title="拨打电话" href={'tel:' + this.state.value} className="link">
+        <a title={$L('DialPhone')} href={`tel:${this.state.value}`} className="link">
           {this.state.value}
         </a>
       </div>
@@ -646,7 +692,6 @@ class RbFormNumber extends RbFormText {
     if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('SomeNotNegative').replace('{0}', '')
     return null
   }
-
   _isValueError() {
     return super.isValueError()
   }
@@ -664,7 +709,7 @@ class RbFormNumber extends RbFormText {
         onChange={this.handleChange}
         onBlur={this.props.readonly ? null : this.checkValue}
         readOnly={this.props.readonly}
-        maxLength="30"
+        maxLength="29"
       />
     )
   }
@@ -700,13 +745,14 @@ class RbFormTextarea extends RbFormElement {
         onChange={this.handleChange}
         onBlur={this.props.readonly ? null : this.checkValue}
         readOnly={this.props.readonly}
-        maxLength="3000"
+        maxLength="6000"
       />
     )
   }
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
+
     return (
       <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
         {this.state.value.split('\n').map((line, idx) => {
@@ -736,8 +782,9 @@ class RbFormDateTime extends RbFormElement {
 
   renderElement() {
     if (this.props.readonly) return super.renderElement()
+
     return (
-      <div className="input-group datetime-field">
+      <div className="input-group has-append">
         <input
           ref={(c) => (this._fieldValue = c)}
           className={'form-control form-control-sm ' + (this.state.hasError ? 'is-invalid' : '')}
@@ -746,6 +793,7 @@ class RbFormDateTime extends RbFormElement {
           value={this.state.value || ''}
           onChange={this.handleChange}
           onBlur={this.checkValue}
+          maxLength="20"
         />
         <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
         <div className="input-group-append">
@@ -782,6 +830,7 @@ class RbFormDateTime extends RbFormElement {
           const val = $(this).val()
           that.handleChange({ target: { value: val } }, true)
         })
+
       $(this._fieldValue__icon).click(() => this.__datetimepicker.datetimepicker('show'))
     }
   }
@@ -811,7 +860,7 @@ class RbFormImage extends RbFormElement {
           return (
             <span key={'img-' + item}>
               <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
                 {!this.props.readonly && (
                   <b title={$L('Remove')} onClick={() => this.removeItem(item)}>
                     <span className="zmdi zmdi-close"></span>
@@ -844,7 +893,7 @@ class RbFormImage extends RbFormElement {
           return (
             <span key={'img-' + item}>
               <a title={$fileCutName(item)} onClick={() => (parent || window).RbPreview.create(value, idx)} className="img-thumbnail img-upload zoom-in">
-                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+                <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
               </a>
             </span>
           )
@@ -977,15 +1026,13 @@ class RbFormPickList extends RbFormElement {
   }
 
   renderElement() {
-    if (this.props.readonly) return super.renderElement(__findOptionText(this.state.options, this.props.value))
-
-    const name = `${this.state.field}-opt-`
+    const keyName = `${this.state.field}-opt-`
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
         <option value=""></option>
         {this.state.options.map((item) => {
           return (
-            <option key={`${name}${item.id}`} value={item.id}>
+            <option key={`${keyName}${item.id}`} value={item.id}>
               {item.text}
             </option>
           )
@@ -1013,6 +1060,8 @@ class RbFormPickList extends RbFormElement {
           that.handleChange({ target: { value: val } }, true)
         })
         .trigger('change')
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -1022,6 +1071,7 @@ class RbFormPickList extends RbFormElement {
   }
 
   setValue(val) {
+    if (typeof val === 'object') val = val.id
     this.__select2.val(val).trigger('change')
   }
 }
@@ -1032,17 +1082,17 @@ class RbFormReference extends RbFormElement {
   }
 
   renderElement() {
-    if (this.props.readonly) return super.renderElement(this.props.value ? this.props.value.text : null)
-
     const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
     return (
-      <div className="input-group datetime-field">
-        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={hasDataFilter ? $L('FieldUseDataFilter') : null} />
-        <div className="input-group-append">
-          <button className="btn btn-secondary" type="button" onClick={this.showSearcher}>
-            <i className="icon zmdi zmdi-search" />
-          </button>
-        </div>
+      <div className="input-group has-append">
+        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={hasDataFilter ? $L('FieldUseDataFilter') : null} multiple={this._multiple === true} />
+        {!this.props.readonly && (
+          <div className="input-group-append">
+            <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
+              <i className="icon zmdi zmdi-search" />
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -1053,6 +1103,7 @@ class RbFormReference extends RbFormElement {
 
     if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
     if (!value.id) return <div className="form-control-plaintext">{value.text}</div>
+
     return (
       <div className="form-control-plaintext">
         <a href={`#!/View/${value.entity}/${value.id}`} onClick={this._clickView}>
@@ -1060,6 +1111,9 @@ class RbFormReference extends RbFormElement {
         </a>
       </div>
     )
+  }
+  _renderViewElement() {
+    return super.renderViewElement()
   }
 
   _clickView = (e) => window.RbViewPage && window.RbViewPage.clickView(e.target)
@@ -1088,19 +1142,22 @@ class RbFormReference extends RbFormElement {
 
       const val = this.state.value
       if (val) {
-        const o = new Option(val.text, val.id, true, true)
-        this.__select2.append(o).trigger('change')
+        this.setValue(val)
+        // const o = new Option(val.text, val.id, true, true)
+        // this.__select2.append(o).trigger('change')
       }
 
       const that = this
       this.__select2.on('change', function (e) {
-        const v = e.target.value
-        if (v) {
+        const v = $(e.target).val()
+        if (v && typeof v === 'string') {
           $.post(`/commons/search/recently-add?id=${v}`)
           that.triggerAutoFillin(v)
         }
         that.handleChange({ target: { value: v } }, true)
       })
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -1120,33 +1177,125 @@ class RbFormReference extends RbFormElement {
   }
 
   setValue(val) {
+    // // TODO 只读模式下（回填）
+    // if (this.props.readonly && val) {
+    //   this.handleChange({ target: { value: val.id } })
+    //   $(this._fieldValue).val(val.text)
+    //   return
+    // }
+
     if (val) {
       const o = new Option(val.text, val.id, true, true)
       this.__select2.append(o)
       this.handleChange({ target: { value: val.id } }, true)
-    } else this.__select2.val(null).trigger('change')
+    } else {
+      this.__select2.val(null).trigger('change')
+    }
   }
 
-  showSearcher = () => {
+  // getValue() {
+  //   let val = super.getValue()
+  //   if (typeof val === 'object') val = val.id
+  //   return val
+  // }
+
+  showSearcher() {
     const that = this
-    referenceSearch__call = function (selected) {
-      selected = selected[0]
-      if ($(that._fieldValue).find(`option[value="${selected}"]`).length > 0) {
-        that.__select2.val(selected).trigger('change')
-      } else {
-        $.get(`/commons/search/read-labels?ids=${selected}`, (res) => {
-          const o = new Option(res.data[selected], selected, true, true)
-          that.__select2.append(o).trigger('change')
-        })
-      }
+    window.referenceSearch__call = function (selected) {
+      that.showSearcher_call(selected, that)
       that.__searcher.hide()
     }
 
-    if (this.__searcher) this.__searcher.show()
-    else {
+    if (this.__searcher) {
+      this.__searcher.show()
+    } else {
       const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}`
+      // eslint-disable-next-line react/jsx-no-undef
       renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('SelectSome').replace('{0}', this.props.label)} />, function () {
         that.__searcher = this
+      })
+    }
+  }
+
+  showSearcher_call(selected, that) {
+    const first = selected[0]
+    if ($(that._fieldValue).find(`option[value="${first}"]`).length > 0) {
+      that.__select2.val(first).trigger('change')
+    } else {
+      $.get(`/commons/search/read-labels?ids=${first}`, (res) => {
+        const o = new Option(res.data[first], first, true, true)
+        that.__select2.append(o).trigger('change')
+      })
+    }
+  }
+}
+
+class RbFormN2NReference extends RbFormReference {
+  constructor(props) {
+    super(props)
+    this._multiple = true
+  }
+
+  renderViewElement() {
+    const value = this.state.value
+    if ($empty(value)) return super._renderViewElement()
+    if (typeof value === 'string') return <div className="form-control-plaintext">{value}</div>
+
+    return (
+      <div className="form-control-plaintext">
+        {value.map((item) => {
+          return (
+            <a key={`o-${item.id}`} href={`#!/View/${item.entity}/${item.id}`} onClick={this._clickView}>
+              {item.text}
+            </a>
+          )
+        })}
+      </div>
+    )
+  }
+
+  isValueUnchanged() {
+    let oldvArray = this.state.newValue || this.props.value || []
+    let oldv = []
+    oldvArray.forEach((s) => oldv.push(s.id))
+    return $same(oldv.join(','), this.state.value)
+  }
+
+  handleChange(e, checkValue) {
+    let val = e.target.value
+    if (typeof val === 'object') val = val.join(',')
+    this.setState({ value: val }, () => checkValue === true && this.checkValue())
+  }
+
+  setValue(val) {
+    if (val && val.length > 0) {
+      const ids = []
+      val.forEach((item) => {
+        const o = new Option(item.text, item.id, true, true)
+        this.__select2.append(o)
+        ids.push(item.id)
+      })
+      this.handleChange({ target: { value: ids.join(',') } }, true)
+    } else {
+      this.__select2.val(null).trigger('change')
+    }
+  }
+
+  showSearcher_call(selected, that) {
+    $.get(`/commons/search/read-labels?ids=${selected.join(',')}`, (res) => {
+      const val = []
+      for (let k in res.data) {
+        val.push({ id: k, text: res.data[k] })
+      }
+      that.setValue(val)
+    })
+  }
+
+  onEditModeChanged(destroy) {
+    super.onEditModeChanged(destroy)
+    if (!destroy && this.__select2) {
+      this.__select2.on('select2:select', function (e) {
+        $.post(`/commons/search/recently-add?id=${e.params.data.id}`)
       })
     }
   }
@@ -1158,15 +1307,16 @@ class RbFormClassification extends RbFormElement {
   }
 
   renderElement() {
-    if (this.props.readonly) return super.renderElement(this.props.value ? this.props.value.text : null)
     return (
-      <div className="input-group datetime-field">
+      <div className="input-group has-append">
         <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" />
-        <div className="input-group-append">
-          <button className="btn btn-secondary" type="button" onClick={this.showSelector}>
-            <i className="icon zmdi zmdi-search" />
-          </button>
-        </div>
+        {!this.props.readonly && (
+          <div className="input-group-append">
+            <button className="btn btn-secondary" type="button" onClick={this.showSelector}>
+              <i className="icon zmdi zmdi-search" />
+            </button>
+          </div>
+        )}
       </div>
     )
   }
@@ -1192,13 +1342,15 @@ class RbFormClassification extends RbFormElement {
       })
 
       const value = this.state.value
-      value && this.setClassificationValue(value)
+      value && this._setClassificationValue(value)
 
       this.__select2.on('change', () => {
         const v = this.__select2.val()
         if (v) $.post(`/commons/search/recently-add?id=${v}&type=d${this.props.classification}`)
         this.handleChange({ target: { value: v } }, true)
       })
+
+      if (this.props.readonly) $(this._fieldValue).attr('disabled', true)
     }
   }
 
@@ -1208,7 +1360,7 @@ class RbFormClassification extends RbFormElement {
   }
 
   setValue(val) {
-    if (val && val.id) this.setClassificationValue(val)
+    if (val && val.id) this._setClassificationValue(val)
     else this.__select2.val(null).trigger('change')
   }
 
@@ -1217,16 +1369,22 @@ class RbFormClassification extends RbFormElement {
     else {
       const p = this.props
       const that = this
-      renderRbcomp(<ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} $$$parent={this} />, null, function () {
-        that.__selector = this
-      })
+      renderRbcomp(
+        // eslint-disable-next-line react/jsx-no-undef
+        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen={true} />,
+        null,
+        function () {
+          that.__selector = this
+        }
+      )
     }
   }
 
-  setClassificationValue(s) {
+  _setClassificationValue(s) {
     if (!s.id) return
 
     const data = this.__cached || {}
+
     if (data[s.id]) {
       this.__select2.val(s.id).trigger('change')
     } else if (this._fieldValue) {
@@ -1241,19 +1399,20 @@ class RbFormClassification extends RbFormElement {
 class RbFormMultiSelect extends RbFormElement {
   constructor(props) {
     super(props)
+    if (props.value) this.state.value = props.value.id || 0
   }
 
   renderElement() {
-    const name = `checkbox-${this.props.field}`
+    const keyName = `checkbox-${this.props.field}-`
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
-        {(this.props.options || []).length === 0 && <div className="text-danger">{$L('NoData')}</div>}
+        {(this.props.options || []).length === 0 && <div className="text-danger">{$L('UnConf')}</div>}
         {(this.props.options || []).map((item) => {
           return (
-            <label key={name + item.mask} className="custom-control custom-checkbox custom-control-inline">
+            <label key={keyName + item.mask} className="custom-control custom-checkbox custom-control-inline">
               <input
                 className="custom-control-input"
-                name={name}
+                name={keyName}
                 type="checkbox"
                 checked={(this.state.value & item.mask) !== 0}
                 value={item.mask}
@@ -1269,8 +1428,10 @@ class RbFormMultiSelect extends RbFormElement {
   }
 
   renderViewElement() {
-    const value = this.state.value
+    let value = this.state.value
     if (!value) return super.renderViewElement()
+    if (typeof value === 'object') value = value.id
+
     return (
       <div className="form-control-plaintext">
         {__findMultiTexts(this.props.options, value).map((item) => {
@@ -1291,15 +1452,17 @@ class RbFormMultiSelect extends RbFormElement {
       .each(function () {
         maskValue += ~~$(this).val()
       })
+
     this.handleChange({ target: { value: maskValue === 0 ? null : maskValue } }, true)
   }
 }
 
-const BoolOptions = {
-  T: $L('True'),
-  F: $L('False'),
-}
 class RbFormBool extends RbFormElement {
+  _Options = {
+    T: $L('True'),
+    F: $L('False'),
+  }
+
   constructor(props) {
     super(props)
   }
@@ -1312,31 +1475,31 @@ class RbFormBool extends RbFormElement {
             className="custom-control-input"
             name={'radio-' + this.props.field}
             type="radio"
-            checked={this.state.value === 'T'}
+            checked={$isTrue(this.state.value)}
             data-value="T"
             onChange={this.changeValue}
             disabled={this.props.readonly}
           />
-          <span className="custom-control-label">{$L('True')}</span>
+          <span className="custom-control-label">{this._Options['T']}</span>
         </label>
         <label className="custom-control custom-radio custom-control-inline">
           <input
             className="custom-control-input"
             name={'radio-' + this.props.field}
             type="radio"
-            checked={this.state.value === 'F'}
+            checked={!$isTrue(this.state.value)}
             data-value="F"
             onChange={this.changeValue}
             disabled={this.props.readonly}
           />
-          <span className="custom-control-label">{$L('False')}</span>
+          <span className="custom-control-label">{this._Options['F']}</span>
         </label>
       </div>
     )
   }
 
   renderViewElement() {
-    return super.renderViewElement(this.state.value ? BoolOptions[this.state.value] : null)
+    return super.renderViewElement(this.state.value ? this._Options[this.state.value] : null)
   }
 
   changeValue = (e) => {
@@ -1363,6 +1526,7 @@ class RbFormBarcode extends RbFormElement {
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
+
     const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
@@ -1371,6 +1535,63 @@ class RbFormBarcode extends RbFormElement {
         </a>
       </div>
     )
+  }
+}
+
+class RbFormAvatar extends RbFormElement {
+  constructor(props) {
+    super(props)
+  }
+
+  renderElement() {
+    const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    return (
+      <div className="img-field avatar">
+        <span title={this.props.readonly ? null : $L('SelectSome,Avatar')}>
+          {!this.props.readonly && (
+            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/png,image/jpeg,image/gif" data-maxsize="10240000" />
+          )}
+          <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
+            <img src={aUrl} alt={$L('Avatar')} />
+          </label>
+        </span>
+      </div>
+    )
+  }
+
+  renderViewElement() {
+    const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
+    return (
+      <div className="img-field avatar">
+        <a className="img-thumbnail img-upload">
+          <img src={aUrl} alt="Avatar" />
+        </a>
+      </div>
+    )
+  }
+
+  onEditModeChanged(destroy) {
+    if (destroy) {
+      // NOOP
+    } else {
+      let mp
+      const mp_end = function () {
+        if (mp) mp.end()
+        mp = null
+      }
+      $createUploader(
+        this._fieldValue__input,
+        (res) => {
+          if (!mp) mp = new Mprogress({ template: 1, start: true })
+          mp.set(res.percent / 100) // 0.x
+        },
+        (res) => {
+          mp_end()
+          this.handleChange({ target: { value: res.key } }, true)
+        },
+        () => mp_end()
+      )
+    }
   }
 }
 
@@ -1398,12 +1619,12 @@ class RbFormDivider extends React.Component {
   render() {
     return (
       <div className="form-line hover" ref={(c) => (this._element = c)}>
-        <fieldset>{this.props.label && <legend onClick={this.toggle}>{this.props.label}</legend>}</fieldset>
+        <fieldset>{this.props.label && <legend onClick={() => this.toggle()}>{this.props.label}</legend>}</fieldset>
       </div>
     )
   }
 
-  toggle = () => {
+  toggle() {
     if (this.props.onView) {
       let $next = $(this._element).parent()
       while (($next = $next.next()).length > 0) {
@@ -1423,12 +1644,8 @@ class RbFormDivider extends React.Component {
 const TYPE_DIVIDER = '$DIVIDER$'
 
 // 确定元素类型
-const detectElement = function (item) {
+var detectElement = function (item) {
   if (!item.key) item.key = 'field-' + (item.field === TYPE_DIVIDER ? $random() : item.field)
-
-  // 扩展组件
-  const extElement = detectElementExt(item)
-  if (extElement) return extElement
 
   if (item.type === 'TEXT' || item.type === 'SERIES') {
     return <RbFormText {...item} />
@@ -1437,9 +1654,9 @@ const detectElement = function (item) {
   } else if (item.type === 'URL') {
     return <RbFormUrl {...item} />
   } else if (item.type === 'EMAIL') {
-    return <RbFormEMail {...item} />
+    return <RbFormEMail {...item} maxLength="100" />
   } else if (item.type === 'PHONE') {
-    return <RbFormPhone {...item} />
+    return <RbFormPhone {...item} maxLength="40" />
   } else if (item.type === 'NUMBER') {
     return <RbFormNumber {...item} />
   } else if (item.type === 'DECIMAL') {
@@ -1454,6 +1671,8 @@ const detectElement = function (item) {
     return <RbFormPickList {...item} />
   } else if (item.type === 'REFERENCE') {
     return <RbFormReference {...item} />
+  } else if (item.type === 'N2NREFERENCE') {
+    return <RbFormN2NReference {...item} />
   } else if (item.type === 'CLASSIFICATION') {
     return <RbFormClassification {...item} />
   } else if (item.type === 'MULTISELECT') {
@@ -1464,15 +1683,13 @@ const detectElement = function (item) {
     return <RbFormState {...item} />
   } else if (item.type === 'BARCODE') {
     return <RbFormBarcode {...item} readonly={true} />
+  } else if (item.type === 'AVATAR') {
+    return <RbFormAvatar {...item} />
   } else if (item.field === TYPE_DIVIDER || item.field === '$LINE$') {
     return <RbFormDivider {...item} />
   } else {
     return <RbFormUnsupportted {...item} />
   }
-}
-// eslint-disable-next-line no-unused-vars
-var detectElementExt = function (item) {
-  return null
 }
 
 // 获取选项型字段显示值
@@ -1492,292 +1709,6 @@ const __findMultiTexts = function (options, maskValue) {
     if ((maskValue & item.mask) !== 0) texts.push(item.text)
   })
   return texts
-}
-
-// 分类数据选择
-class ClassificationSelector extends React.Component {
-  constructor(props) {
-    super(props)
-
-    this._select = []
-    this._select2 = []
-    this.state = { openLevel: props.openLevel || 0, datas: [] }
-  }
-
-  render() {
-    return (
-      <div className="modal selector" ref={(c) => (this._dlg = c)} tabIndex="-1">
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('SelectSome').replace('{0}', this.props.label)}</h5>
-              <div>
-                <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
-                  {(this.state.datas[0] || []).map((item) => {
-                    return (
-                      <option key={'item-' + item[0]} value={item[0]}>
-                        {item[1]}
-                      </option>
-                    )
-                  })}
-                </select>
-              </div>
-              {this.state.openLevel >= 1 && (
-                <div>
-                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
-                    {(this.state.datas[1] || []).map((item) => {
-                      return (
-                        <option key={'item-' + item[0]} value={item[0]}>
-                          {item[1]}
-                        </option>
-                      )
-                    })}
-                  </select>
-                </div>
-              )}
-              {this.state.openLevel >= 2 && (
-                <div>
-                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
-                    {(this.state.datas[2] || []).map((item) => {
-                      return (
-                        <option key={'item-' + item[0]} value={item[0]}>
-                          {item[1]}
-                        </option>
-                      )
-                    })}
-                  </select>
-                </div>
-              )}
-              {this.state.openLevel >= 3 && (
-                <div>
-                  <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
-                    {(this.state.datas[3] || []).map((item) => {
-                      return (
-                        <option key={'item-' + item[0]} value={item[0]}>
-                          {item[1]}
-                        </option>
-                      )
-                    })}
-                  </select>
-                </div>
-              )}
-              <div>
-                <button className="btn btn-primary w-100" onClick={() => this.confirm()}>
-                  {$L('Confirm')}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    const m = this.show()
-    m.on('hidden.bs.modal', () => {
-      $(document.body).addClass('modal-open') // keep scroll
-    })
-
-    const that = this
-    $(this._select).each(function (idx) {
-      const s = $(this)
-        .select2({
-          placeholder: $L('SelectSome').replace('{0}', $L('XLevelClass').replace('%d', idx + 1)),
-          allowClear: false,
-        })
-        .on('change', () => {
-          const p = $(s).val()
-          if (p) {
-            if (s.__level < that.state.openLevel) {
-              that.loadData(s.__level + 1, p) // Load next-level
-            }
-          }
-        })
-      s.__level = idx
-      that._select2.push(s)
-    })
-    this.loadData(0)
-  }
-
-  loadData(level, p) {
-    $.get(`/commons/metadata/classification?entity=${this.props.entity}&field=${this.props.field}&parent=${p || ''}`, (res) => {
-      const s = this.state.datas
-      s[level] = res.data
-      this.setState({ datas: s }, () => this._select2[level].trigger('change'))
-    })
-  }
-
-  confirm() {
-    const last = this._select2[this.state.openLevel]
-    const v = last.val()
-    if (!v) {
-      RbHighbar.create($L('PlsSelectSome').replace('{0}', this.props.label))
-    } else {
-      const text = []
-      $(this._select2).each(function () {
-        text.push(this.select2('data')[0].text)
-      })
-      this.props.$$$parent.setClassificationValue({ id: v, text: text.join('.') })
-      this.hide()
-    }
-  }
-
-  show() {
-    return $(this._dlg).modal({ show: true, keyboard: true })
-  }
-
-  hide(dispose) {
-    $(this._dlg).modal('hide')
-    if (dispose === true) $unmount($(this._dlg).parent())
-  }
-}
-
-// see `reference-search.html`
-// eslint-disable-next-line no-unused-vars
-var referenceSearch__call = function (selected) {
-  /* NOOP */
-}
-// eslint-disable-next-line no-unused-vars
-var referenceSearch__dialog
-
-class ReferenceSearcher extends RbModal {
-  constructor(props) {
-    super(props)
-  }
-
-  render() {
-    return (
-      <div className="modal rbmodal colored-header colored-header-primary" ref={(c) => (this._rbmodal = c)}>
-        <div className="modal-dialog modal-lg">
-          <div className="modal-content">
-            <div className="modal-header modal-header-colored">
-              <h3 className="modal-title">{this.props.title || $L('Query')}</h3>
-              <button className="close" type="button" onClick={() => this.hide()}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body iframe">
-              <iframe src={this.props.url} frameBorder="0" style={{ minHeight: 368 }} />
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-    // eslint-disable-next-line no-unused-vars
-    referenceSearch__dialog = this
-  }
-}
-
-// 删除确认
-// eslint-disable-next-line no-unused-vars
-class DeleteConfirm extends RbAlert {
-  constructor(props) {
-    super(props)
-    this.state = { enableCascades: false }
-  }
-
-  render() {
-    let message = this.props.message
-    if (!message) message = this.props.ids ? $L('DeleteSelectedSomeConfirm').replace('%d', this.props.ids.length) : $L('DeleteRecordConfirm')
-
-    return (
-      <div className="modal rbalert" ref={(c) => (this._dlg = c)} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()}>
-                <span className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="text-center ml-6 mr-6">
-                <div className="text-danger">
-                  <span className="modal-main-icon zmdi zmdi-alert-triangle" />
-                </div>
-                <div className="mt-3 text-bold">{message}</div>
-                {!this.props.entity ? null : (
-                  <div className="mt-2">
-                    <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
-                      <input className="custom-control-input" type="checkbox" checked={this.state.enableCascade === true} onChange={() => this.enableCascade()} />
-                      <span className="custom-control-label"> {$L('DeleteCasTips')}</span>
-                    </label>
-                    <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
-                      <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)} multiple>
-                        {(this.state.cascadesEntity || []).map((item) => {
-                          return (
-                            <option key={'option-' + item[0]} value={item[0]}>
-                              {item[1]}
-                            </option>
-                          )
-                        })}
-                      </select>
-                    </div>
-                  </div>
-                )}
-                <div className="mt-4 mb-3" ref={(c) => (this._btns = c)}>
-                  <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
-                    {$L('Cancel')}
-                  </button>
-                  <button className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()}>
-                    {$L('Delete')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  enableCascade() {
-    this.setState({ enableCascade: !this.state.enableCascade })
-    if (!this.state.cascadesEntity) {
-      $.get(`/commons/metadata/references?entity=${this.props.entity}&permission=D`, (res) => {
-        this.setState({ cascadesEntity: res.data }, () => {
-          this.__select2 = $(this._cascades)
-            .select2({
-              placeholder: $L('SelectCasEntity'),
-              width: '88%',
-            })
-            .val(null)
-            .trigger('change')
-        })
-      })
-    }
-  }
-
-  handleDelete() {
-    let ids = this.props.ids || this.props.id
-    if (!ids || ids.length === 0) return
-    if (typeof ids === 'object') ids = ids.join(',')
-    const cascades = this.__select2 ? this.__select2.val().join(',') : ''
-
-    const btns = $(this._btns).find('.btn').button('loading')
-    $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
-      if (res.error_code === 0) {
-        if (res.data.deleted === res.data.requests) RbHighbar.success($L('SomeSuccess', 'Delete'))
-        else if (res.data.deleted === 0) RbHighbar.error($L('NotDeleteTips'))
-        else RbHighbar.success($L('SuccessDeletedXItems').replace('%d', res.data.deleted))
-
-        this.hide()
-        typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()
-      } else {
-        RbHighbar.error(res.error_msg)
-        btns.button('reset')
-      }
-    })
-  }
 }
 
 // ~ 重复记录查看
@@ -1803,7 +1734,7 @@ class RepeatedViewer extends RbModalHandler {
           <tbody>
             {data.map((item, idx) => {
               if (idx === 0) return null
-              return this.renderLine(item, idx)
+              return this.renderRow(item, idx)
             })}
           </tbody>
         </table>
@@ -1811,7 +1742,7 @@ class RepeatedViewer extends RbModalHandler {
     )
   }
 
-  renderLine(item, idx) {
+  renderRow(item, idx) {
     return (
       <tr key={`row-${idx}`}>
         {item.map((o, i) => {

@@ -16,8 +16,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.configuration.general.AdvFilterService;
-import com.rebuild.core.configuration.general.ShareToManager;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -47,7 +47,7 @@ public class AdvFilterController extends BaseController implements ShareTo {
         String filterName = getParameter(request, "name");
 
         // 不是自己的就另存为
-        if (filterId != null && !ShareToManager.isSelf(user, filterId)) {
+        if (filterId != null && !UserHelper.isSelf(user, filterId)) {
             if (StringUtils.isBlank(filterName)) {
                 ConfigBean o = AdvFilterManager.instance.getAdvFilter(filterId);
                 if (o != null) {

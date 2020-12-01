@@ -106,7 +106,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
   border-left: 6px solid #4285f4;
   padding-left: 8px !important;
-  border-left-width: 6px !important;
 }
 
 .task-content-wrapper {
@@ -131,6 +130,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-content-wrapper .task-content .badge {
   font-weight: normal;
   font-size: 12px;
+  padding: 0.07692rem 0.38rem;
 }
 
 .task-content .task-title {
@@ -143,13 +143,38 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #999;
 }
 
+.task-content .task-tags {
+  margin: 0 0 4px;
+  word-wrap: break-word !important;
+  word-break: break-all !important;
+  white-space: normal !important;
+}
+
+.task-content .task-tags > a {
+  font-size: 12px;
+  display: inline-block;
+  margin-top: 4px;
+  margin-right: 8px;
+}
+
+.task-content .task-tags > a > i {
+  float: left;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: #ccc;
+  margin-right: 4px;
+  transform: translateY(4px);
+}
+
 .task-content .task-extras {
   margin-top: 4px;
 }
 
 .task-content .task-extras > .avatar img {
-  width: 26px;
-  height: 26px;
+  width: 24px;
+  height: 24px;
 }
 
 .task-content .task-extras > .badge {
@@ -184,6 +209,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-card.priority-2:hover {
   border-color: #f7b904;
+  border-width: 6px;
 }
 
 .task-card.priority-3 {
@@ -193,6 +219,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .task-card.priority-3:hover {
   border-color: #ea3f30;
+  border-width: 6px;
 }
 
 .task-card.status-1:hover {
@@ -209,6 +236,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .task-card.status-1 .custom-control-input:checked ~ .custom-control-label::after,
 .status-checkbox .custom-control-input:checked ~ .custom-control-label::after {
   color: #8c8c8c;
+  border-color: #fff !important;
 }
 
 .task-card.status-1 .custom-control-input ~ .custom-control-label::before,
@@ -254,195 +282,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-top: 12px;
 }
 
-/* View */
-
 .modal.rbview.task .modal-dialog .modal-content {
   width: 888px;
   margin-right: -1000px;
-}
-
-#task-contents {
-  background-color: #fff;
-  height: 100%;
-  padding-bottom: 65px;
-}
-
-.view-body.readonly #task-contents {
-  padding-bottom: 0;
-}
-
-#task-comment {
-  background-color: #f5f5f5;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-}
-
-.task-form .col-form-label > .icon {
-  color: #999;
-  width: 30px;
-  float: left;
-  font-size: 1.35rem;
-  margin-top: -2px;
-}
-
-.task-form .hover:hover {
-  cursor: pointer;
-  opacity: 0.8;
-}
-
-.task-form .user-selector,
-.task-form .form-control,
-.task-form .input-group {
-  max-width: 400px;
-}
-
-.task-form .task-title {
-  border: 0 none;
-  outline: none;
-  appearance: none;
-  width: 100%;
-  height: 2.9rem;
-  font-size: 1.4rem;
-  padding: 5px 0;
-  cursor: pointer;
-  border-radius: 3px;
-  line-height: 1.5;
-  transition: padding 0.2s;
-}
-
-.task-form .task-title:focus {
-  background-color: #f7f7f7;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
-.task-form div.task-title {
-  height: auto;
-  min-height: 2.9rem;
-  cursor: default;
-}
-
-.task-form .tag-value {
-  position: relative;
-  height: 26px;
-  padding: 5px 10px;
-  border: 0 none;
-  border-radius: 99px;
-  line-height: 18px;
-  transition: padding 0.2s;
-}
-
-.task-form a.tag-value.arrow:hover {
-  padding-right: 22px;
-}
-
-.task-form a.tag-value.arrow:hover::after {
-  font: normal normal normal 16px/1 'Material-Design-Iconic-Font';
-  content: '\f2f9';
-  position: absolute;
-  right: 9px;
-}
-
-.task-form .tag-value.plaintext,
-.task-form .tag-value.placeholder {
-  background-color: #fff;
-  color: #404040;
-  border: 1px solid #ccc;
-  padding: 4px 10px;
-}
-
-.task-form .tag-value.placeholder {
-  color: #aaa;
-}
-
-.task-form .tag-value.priority-0,
-.task-form .tag-value.priority-1,
-.task-form .tag-value.priority-2,
-.task-form .tag-value.priority-3 {
-  background-color: #aaa;
-  color: #fff !important;
-}
-
-.task-form .tag-value.priority-1 {
-  background-color: #4285f4;
-}
-
-.task-form .tag-value.priority-2 {
-  background-color: #f7b904;
-}
-
-.task-form .tag-value.priority-3 {
-  background-color: #ea3f30;
-}
-
-.task-form .tag-value.upload {
-  background-color: rgba(66, 133, 244, 0.1);
-  color: #4285f4 !important;
-}
-
-.task-form .executor-show {
-  margin-top: 3px;
-  padding-right: 20px;
-  display: inline-block;
-}
-
-.task-form .executor-show > a.close {
-  float: none;
-  position: absolute;
-  margin-left: 6px;
-  margin-top: 4px;
-  display: none;
-}
-
-.task-form .executor-show:hover > a.close {
-  display: inline-block;
-}
-
-.file-field.attachments > .img-thumbnail {
-  width: 49.5%;
-  display: inline-block;
-}
-
-.file-field.attachments > .img-thumbnail:nth-child(even) {
-  margin-left: 1%;
-}
-
-.file-field.attachments > .img-thumbnail b {
-  top: 0;
-  right: 0;
-  left: unset;
-  width: 28px;
-  padding-top: 12px;
-}
-
-#task-comment .comments,
-#task-comment .comments .comment-reply {
-  margin: 0;
-}
-
-#task-comment .comments .comment-reply {
-  padding: 15px 25px;
-}
-
-.comment-list-wrap h4 {
-  font-size: 1.4rem;
-  font-weight: normal;
-}
-
-.status-checkbox > .custom-checkbox {
-  margin: 0;
-  padding: 0;
-  margin-top: -2px;
-  margin-right: 10px;
-  padding-left: 30px;
-}
-
-.form-control-plaintext.desc .rich-content > .texts {
-  margin: 0;
-}
-
-.rich-editor textarea {
-  max-height: 200px;
 }

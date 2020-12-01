@@ -15,6 +15,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.service.project.ProjectManager;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
@@ -37,7 +38,7 @@ import java.util.regex.Pattern;
  * @since 2020/6/29
  */
 @Controller
-@RequestMapping("/project")
+@RequestMapping("/project/")
 public class ProjectController extends BaseController {
 
     // 项目 ID
@@ -46,18 +47,19 @@ public class ProjectController extends BaseController {
     @GetMapping("{projectId}/tasks")
     public ModelAndView pageProject(@PathVariable String projectId,
                                     HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final ID user = getRequestUser(request);
         final ID projectId2 = ID.isId(projectId) ? ID.valueOf(projectId) : null;
         if (projectId2 == null) {
             response.sendError(404);
             return null;
         }
 
+        final ID user = getRequestUser(request);
+
         ConfigBean p;
         try {
             p = ProjectManager.instance.getProject(projectId2, getRequestUser(request));
         } catch (ConfigurationException ex) {
-            response.sendError(404, ex.getLocalizedMessage());
+            response.sendError(403, ex.getLocalizedMessage());
             return null;
         }
 
@@ -79,7 +81,7 @@ public class ProjectController extends BaseController {
     }
 
     @GetMapping("search")
-    public ModelAndView searchProject(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void searchProject(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String gs = getParameter(request, "gs");
         String baseUrl = AppUtils.getContextPath() + "/project/";
 
@@ -107,18 +109,17 @@ public class ProjectController extends BaseController {
                 }
 
                 response.sendRedirect(projectUrl);
-                return null;
+                return;
             }
         }
 
         // 未找到就跳转到第一个项目
         ConfigBean[] ee = ProjectManager.instance.getAvailable(getRequestUser(request));
         if (ee.length == 0) {
-            response.sendError(404, "没有可用项目");
+            response.sendError(404, Language.L("NoProjects"));
         } else {
             String projectUrl = baseUrl + ee[0].getID("id") + "/tasks#gs=" + CodecUtils.urlEncode(gs);
             response.sendRedirect(projectUrl);
         }
-        return null;
     }
 }

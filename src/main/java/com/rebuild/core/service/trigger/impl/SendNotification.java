@@ -19,11 +19,10 @@ import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
-import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.integration.SMSender;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -31,9 +30,8 @@ import java.util.Set;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/25
  */
+@Slf4j
 public class SendNotification implements TriggerAction {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SendNotification.class);
 
     // 通知
     private static final int TYPE_NOTIFICATION = 1;
@@ -57,19 +55,16 @@ public class SendNotification implements TriggerAction {
     public void execute(OperatingContext operatingContext) {
         ThreadPool.exec(() -> {
             try {
-                // 等待事物完成
+                // FIXME 等待事物完成
                 ThreadPool.waitFor(3000);
 
                 executeAsync();
             } catch (Exception ex) {
-                LOG.error(null, ex);
+                log.error(null, ex);
             }
         });
     }
 
-    /**
-     *
-     */
     private void executeAsync() {
         final JSONObject content = (JSONObject) context.getActionContent();
 
@@ -80,10 +75,10 @@ public class SendNotification implements TriggerAction {
 
         final int type = content.getIntValue("type");
         if (type == TYPE_MAIL && !SMSender.availableMail()) {
-            LOG.warn("Could not send because email-service is unavailable");
+            log.warn("Could not send because email-service is unavailable");
             return;
         } else if (type == TYPE_SMS && !SMSender.availableSMS()) {
-            LOG.warn("Could not send because sms-service is unavailable");
+            log.warn("Could not send because sms-service is unavailable");
             return;
         }
 

@@ -17,8 +17,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
@@ -129,7 +129,8 @@ public class FieldAggregation implements TriggerAction {
 
             // 会关联触发下一触发器（如有）
             TRIGGER_CHAIN_DEPTH.set(depth + 1);
-            if (MetadataHelper.hasPrivilegesField(targetEntity)) {
+
+            if (MetadataHelper.isBusinessEntity(targetEntity)) {
                 Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
             } else {
                 Application.getService(targetEntity.getEntityCode()).update(targetRecord);
@@ -156,7 +157,7 @@ public class FieldAggregation implements TriggerAction {
                 continue;
             }
 
-            DisplayType dt = EasyMeta.getDisplayType(targetEntity.getField(targetField));
+            DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
             if (dt == DisplayType.NUMBER) {
                 record.setLong(targetField, ObjectUtils.toLong(evalValue));
             } else if (dt == DisplayType.DECIMAL) {

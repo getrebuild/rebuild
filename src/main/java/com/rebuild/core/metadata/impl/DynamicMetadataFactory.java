@@ -16,7 +16,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
@@ -87,6 +87,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             } else {
                 extraAttrs = JSON.parseObject((String) c[9]);
             }
+
             extraAttrs.put("metaId", c[4]);
             extraAttrs.put("comments", c[5]);
             extraAttrs.put("icon", c[6]);
@@ -126,17 +127,26 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             if (fieldName.equals(EntityHelper.AutoId)) {
                 field.addAttribute("auto-value", "true");
             }
+
             if (dt == DisplayType.DECIMAL) {
                 field.addAttribute("decimal-scale", "8");
             }
-            if (dt == DisplayType.ANYREFERENCE || dt == DisplayType.REFERENCE
-                    || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION) {
+
+            if (dt == DisplayType.ANYREFERENCE
+                    || dt == DisplayType.N2NREFERENCE
+                    || dt == DisplayType.REFERENCE
+                    || dt == DisplayType.PICKLIST
+                    || dt == DisplayType.CLASSIFICATION) {
                 field.addAttribute("ref-entity", (String) c[10])
                         .addAttribute("cascade", (String) c[11]);
             }
-            if (dt == DisplayType.BARCODE || dt == DisplayType.ID
-                    || MetadataHelper.isSystemField(fieldName)) {
+
+            if (dt == DisplayType.ID) {
                 field.addAttribute("queryable", "false");
+            }
+            // bugfix
+            else if (dt == DisplayType.BARCODE) {
+                field.addAttribute("queryable", "true");
             }
 
             // 字段扩展配置
@@ -146,6 +156,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             } else {
                 extraAttrs = JSON.parseObject((String) c[14]);
             }
+
             extraAttrs.put("metaId", c[12]);
             extraAttrs.put("comments", c[13]);
             extraAttrs.put("displayType", dt.name());

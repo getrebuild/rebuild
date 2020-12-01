@@ -21,6 +21,7 @@ import com.rebuild.core.privileges.bizz.CombinedRole;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroPrivileges;
+import com.rebuild.core.support.License;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -505,6 +506,7 @@ public class UserStore implements Initialization {
      * @param user
      */
     private void refreshUserRoleAppends(User user) {
+        if (!License.isCommercial()) return;
         // 最高权限无需合并
         if (user.getMainRole().getIdentity().equals(RoleService.ADMIN_ROLE)) {
             return;

@@ -12,27 +12,30 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
-import org.apache.commons.lang.ArrayUtils;
+import com.rebuild.web.EntityParam;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,22 +51,19 @@ import java.util.*;
  * @see RecentlyUsedSearchController
  * @since 08/24/2018
  */
-@Controller
+@RestController
 @RequestMapping("/commons/search/")
 public class ReferenceSearchController extends EntityController {
 
     // 快速搜索引用字段
     @GetMapping({"reference", "quick"})
-    public void referenceSearch(HttpServletRequest request, HttpServletResponse response) {
+    public JSON referenceSearch(@EntityParam Entity entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final String entity = getParameterNotNull(request, "entity");
         final String field = getParameterNotNull(request, "field");
 
-        Entity metaEntity = MetadataHelper.getEntity(entity);
-        Field referenceField = metaEntity.getField(field);
-        if (referenceField.getType() != FieldType.REFERENCE) {
-            writeSuccess(response, JSONUtils.EMPTY_ARRAY);
-            return;
+        Field referenceField = entity.getField(field);
+        if (!(referenceField.getType() == FieldType.REFERENCE || referenceField.getType() == FieldType.REFERENCE_LIST)) {
+            return JSONUtils.EMPTY_ARRAY;
         }
 
         // 查询引用字段的实体
@@ -83,59 +83,49 @@ public class ReferenceSearchController extends EntityController {
             }
 
             if (recently == null || recently.length == 0) {
-                writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+                return JSONUtils.EMPTY_ARRAY;
             } else {
-                writeSuccess(response, RecentlyUsedSearchController.formatSelect2(recently, null));
+                return RecentlyUsedSearchController.formatSelect2(recently, null);
             }
-            return;
         }
 
-        // 查询字段
-        Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, getParameter(request, "quickFields"));
-        if (searchFields.isEmpty()) {
-            LOG.warn("No fields of search found : " + searchEntity);
-            writeSuccess(response, JSONUtils.EMPTY_ARRAY);
-            return;
-        }
-
-        q = StringEscapeUtils.escapeSql(q);
-        String like = " like '%" + q + "%'";
-        String searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
-        if (protocolFilter != null) {
-            searchWhere = "(" + searchWhere + ") and (" + protocolFilter + ')';
-        }
-
-        List<Object> result = resultSearch(searchWhere, searchEntity, true);
-        writeSuccess(response, result);
+        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q);
     }
 
     // 搜索指定实体的指定字段
     @GetMapping("search")
-    public void search(HttpServletRequest request, HttpServletResponse response) {
+    public JSON search(@EntityParam Entity searchEntity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final String entity = getParameterNotNull(request, "entity");
 
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {
             String type = getParameter(request, "type");
-            ID[] recently = RecentlyUsedHelper.gets(user, entity, type);
+            ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
             if (recently.length == 0) {
-                writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+                return JSONUtils.EMPTY_ARRAY;
             } else {
-                writeSuccess(response, RecentlyUsedSearchController.formatSelect2(recently, null));
+                return RecentlyUsedSearchController.formatSelect2(recently, null);
             }
-            return;
         }
 
-        final Entity searchEntity = MetadataHelper.getEntity(entity);
+        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q);
+    }
 
+    /**
+     * 构建查询
+     *
+     * @param searchEntity
+     * @param quickFields
+     * @param q
+     * @return
+     */
+    private JSON buildResultSearch(Entity searchEntity, String quickFields, String q) {
         // 查询字段
-        Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, getParameter(request, "quickFields"));
+        Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, quickFields);
         if (searchFields.isEmpty()) {
             LOG.warn("No fields of search found : " + searchEntity);
-            writeSuccess(response, ArrayUtils.EMPTY_STRING_ARRAY);
-            return;
+            return JSONUtils.EMPTY_ARRAY;
         }
 
         q = StringEscapeUtils.escapeSql(q);
@@ -143,17 +133,16 @@ public class ReferenceSearchController extends EntityController {
         String searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
 
         List<Object> result = resultSearch(searchWhere, searchEntity, true);
-        writeSuccess(response, result);
+        return (JSON) JSON.toJSON(result);
     }
 
     // 搜索分类字段
     @GetMapping("classification")
-    public void searchClassification(HttpServletRequest request, HttpServletResponse response) {
+    public JSON searchClassification(@EntityParam Entity entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        final String entity = getParameterNotNull(request, "entity");
         final String field = getParameterNotNull(request, "field");
 
-        Field fieldMeta = MetadataHelper.getField(entity, field);
+        Field fieldMeta = entity.getField(field);
         ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, false);
 
         String q = getParameter(request, "q");
@@ -162,12 +151,12 @@ public class ReferenceSearchController extends EntityController {
             String type = "d" + useClassification;
             ID[] recently = RecentlyUsedHelper.gets(user, "ClassificationData", type);
             if (recently.length == 0) {
-                writeSuccess(response, JSONUtils.EMPTY_ARRAY);
+                return JSONUtils.EMPTY_ARRAY;
             } else {
-                writeSuccess(response, RecentlyUsedSearchController.formatSelect2(recently, null));
+                return RecentlyUsedSearchController.formatSelect2(recently, null);
             }
-            return;
         }
+
         q = StringEscapeUtils.escapeSql(q);
 
         int openLevel = ClassificationManager.instance.getOpenLevel(fieldMeta);
@@ -176,7 +165,7 @@ public class ReferenceSearchController extends EntityController {
                 useClassification.toLiteral(), openLevel, q, q);
 
         List<Object> result = resultSearch(sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), false);
-        writeSuccess(response, result);
+        return (JSON) JSON.toJSON(result);
     }
 
     /**
@@ -193,7 +182,7 @@ public class ReferenceSearchController extends EntityController {
                 entity.getPrimaryField().getName(), nameField.getName(), entity.getName(), sqlWhere);
 
         if (!sqlWhere.contains(" order by ")) {
-            DisplayType dt = EasyMeta.getDisplayType(nameField);
+            DisplayType dt = EasyMetaFactory.getDisplayType(nameField);
             if (dt != DisplayType.ID) {
                 sql += " order by " + nameField.getName();
             } else if (entity.containsField(EntityHelper.ModifiedOn)) {
@@ -208,38 +197,50 @@ public class ReferenceSearchController extends EntityController {
         List<Object> result = new ArrayList<>();
         for (Object[] o : array) {
             ID recordId = (ID) o[0];
-            if (MetadataHelper.isBizzEntity(entity.getEntityCode())
+            if (MetadataHelper.isBizzEntity(entity)
                     && (!UserHelper.isActive(recordId) || recordId.equals(UserService.SYSTEM_USER))) {
                 continue;
             }
 
-            String label = (String) FieldValueWrapper.instance.wrapFieldValue(o[1], nameField, true);
+            String label = (String) FieldValueHelper.wrapFieldValue(o[1], nameField, true);
             if (StringUtils.isBlank(label)) {
-                label = FieldValueWrapper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
+                label = FieldValueHelper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
             }
-            result.add(FieldValueWrapper.wrapMixValue(recordId, label));
+            result.add(FieldValueHelper.wrapMixValue(recordId, label));
         }
         return result;
     }
 
     // 获取记录的名称字段值
     @GetMapping("read-labels")
-    public void referenceLabel(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody referenceLabel(HttpServletRequest request) {
         String ids = getParameter(request, "ids", null);
-        if (ids == null) {
-            writeSuccess(response);
-            return;
+        if (StringUtils.isBlank(ids)) {
+            return RespBody.ok();
         }
 
+        // 不存在的记录不返回
+        boolean ignoreMiss = getBoolParameter(request, "ignoreMiss", false);
+
         Map<String, String> labels = new HashMap<>();
-        for (String id : ids.split("\\|")) {
-            if (!ID.isId(id)) {
-                continue;
+        for (String id : ids.split("[|,]")) {
+            if (!ID.isId(id)) continue;
+
+            String label;
+            if (ignoreMiss) {
+                try {
+                    label = FieldValueHelper.getLabel(ID.valueOf(id));
+                    labels.put(id, label);
+                } catch (NoRecordFoundException ignored) {
+                }
+
+            } else {
+                label = FieldValueHelper.getLabelNotry(ID.valueOf(id));
+                labels.put(id, label);
             }
-            String label = FieldValueWrapper.getLabelNotry(ID.valueOf(id));
-            labels.put(id, label);
         }
-        writeSuccess(response, labels);
+
+        return RespBody.ok(labels);
     }
 
     /**
@@ -253,6 +254,8 @@ public class ReferenceSearchController extends EntityController {
             return null;
         }
 
+        final ID user = getRequestUser(request);
+
         Entity entity = MetadataHelper.getEntity(fieldAndEntity[1]);
         Field field = entity.getField(fieldAndEntity[0]);
         Entity searchEntity = field.getReferenceEntity();
@@ -260,16 +263,21 @@ public class ReferenceSearchController extends EntityController {
         ModelAndView mv = createModelAndView("/general/reference-search");
         putEntityMeta(mv, searchEntity);
 
-        JSON config = DataListManager.instance.getFieldsLayout(searchEntity.getName(), getRequestUser(request));
+        JSON config = DataListManager.instance.getFieldsLayout(searchEntity.getName(), user);
         mv.getModel().put("DataListConfig", JSON.toJSONString(config));
 
+        // 可新建
+        mv.getModel().put("canCreate",
+                Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
+
         // 是否启用了字段过滤
-        String referenceDataFilter = EasyMeta.valueOf(field).getExtraAttr("referenceDataFilter");
+        String referenceDataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
         if (referenceDataFilter != null && referenceDataFilter.length() > 10) {
             mv.getModel().put("referenceFilter", "ref:" + getParameter(request, "field"));
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
         }
+
         return mv;
     }
 }

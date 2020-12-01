@@ -13,13 +13,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.ChartData;
-import com.rebuild.core.service.dashboard.charts.ChartsException;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -32,45 +32,34 @@ import java.util.Map;
  * @author devezhao
  * @since 12/15/2018
  */
-@Controller
+@RestController
 @RequestMapping("/dashboard")
 public class ChartDataController extends BaseController {
 
     @RequestMapping("/chart-data")
-    public void data(HttpServletRequest request, HttpServletResponse response) {
-        ID chartid = getIdParameterNotNull(request, "id");
+    public JSON data(@IdParam ID chartId, HttpServletRequest request) {
         Map<String, Object> paramMap = new HashMap<>();
         for (Map.Entry<String, String[]> e : request.getParameterMap().entrySet()) {
             paramMap.put(e.getKey(), StringUtils.join(e.getValue(), ","));
         }
 
-        JSON data;
-        try {
-            ChartData chart = ChartsFactory.create(chartid);
-            data = chart.setExtraParams(paramMap).build();
-        } catch (ChartsException ex) {
-            writeFailure(response, ex.getLocalizedMessage());
-            return;
-        }
-
-        writeSuccess(response, data);
+        ChartData chart = ChartsFactory.create(chartId);
+        return chart.setExtraParams(paramMap).build();
     }
 
     /**
-     * @param request
      * @param response
      * @throws IOException
      * @see DataListBuilderImpl
      */
-    @RequestMapping("view-chart-sources")
-    public void viewChartSources(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        ID id = getIdParameterNotNull(request, "id");
+    @RequestMapping("view-chart-source")
+    public void viewChartSource(@IdParam ID chartId, HttpServletResponse response) throws IOException {
+        ConfigBean configEntry = ChartManager.instance.getChart(chartId);
 
-        ConfigBean configEntry = ChartManager.instance.getChart(id);
         JSONObject config = (JSONObject) configEntry.getJSON("config");
         String sourceEntity = config.getString("entity");
 
-        String url = MessageFormat.format("../app/{0}/list#via={1}", sourceEntity, id);
+        String url = MessageFormat.format("../app/{0}/list#via={1}", sourceEntity, chartId);
         response.sendRedirect(url);
     }
 }

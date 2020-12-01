@@ -15,7 +15,8 @@ import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.core.metadata.MetadataSorter;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 /**
  * 获取实体列表
@@ -40,21 +41,20 @@ public class EntityList extends BaseApi {
     }
 
     private JSONObject buildEntity(Entity entity) {
-        JSONObject o = new JSONObject();
-        o.put("type_code", entity.getEntityCode());
-        o.put("entity_name", entity.getName());
-        o.put("entity_label", EasyMeta.getLabel(entity));
+        final EasyEntity easyEntity = EasyMetaFactory.valueOf(entity);
 
+        JSONObject o = (JSONObject) easyEntity.toJSON();
+        o.put("code", entity.getEntityCode());
         o.put("creatable", entity.isCreatable());
         o.put("updatable", entity.isUpdatable());
         o.put("queryable", entity.isQueryable());
         o.put("deletable", entity.isDeletable());
 
         if (entity.getMainEntity() != null) {
-            o.put("main_entity", entity.getMainEntity().getName());
+            o.put("mainEntity", entity.getMainEntity().getName());
         }
         if (entity.getDetailEntity() != null) {
-            o.put("detail_entity", entity.getDetailEntity().getName());
+            o.put("detailEntity", entity.getDetailEntity().getName());
         }
         return o;
     }

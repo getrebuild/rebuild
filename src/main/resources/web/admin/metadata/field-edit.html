@@ -60,9 +60,9 @@
       .dt-PICKLIST .default .dd-handle::before {
         content: '\f269';
       }
-      .form-text.help code {
-        cursor: help;
-        font-weight: bold;
+      .form-text.help b {
+        font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        color: #4285f4;
       }
       .calc-expr {
         border-radius: 3px;
@@ -72,6 +72,24 @@
       .calc-expr .col-4 {
         padding-left: 10px;
         padding-right: 10px;
+      }
+      .J_defaultValue[readonly] {
+        background-color: #fff;
+        cursor: default;
+      }
+      .J_defaultValue-clear {
+        position: absolute;
+        display: inline-block;
+        height: 32px;
+        width: 16px;
+        font-size: 1.2rem;
+        right: 40px;
+        top: 2px;
+        text-align: center;
+        padding-top: 6px;
+      }
+      .J_defaultValue-clear:hover {
+        opacity: 0.8;
       }
     </style>
   </head>
@@ -129,7 +147,7 @@
                     <input class="form-control form-control-sm" type="text" readonly="readonly" th:value="${fieldTypeLabel}" />
                   </div>
                 </div>
-                <div class="form-group row J_for-DECIMAL hide">
+                <div th:if="${fieldType == 'DECIMAL'}" class="form-group row J_for-DECIMAL">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DecimalLength')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="decimalFormat">
@@ -142,22 +160,24 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group row J_for-REFERENCE hide pt-0 pb-0">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('RefEntity')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8">
-                    <div class="form-control-plaintext">
-                      <a class="J_referenceEntity" th:data-refentity="${fieldRefentity}" th:href="|../../${fieldRefentity}/base|">[[${fieldRefentityLabel}]] ([[${fieldRefentity}]])</a>
+                <div th:if="${fieldType == 'REFERENCE' or fieldType == 'N2NREFERENCE'}" class="J_for-REFERENCE J_for-N2NREFERENCE">
+                  <div class="form-group row pt-0 pb-0">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('RefEntity')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <div class="form-control-plaintext">
+                        <a class="J_referenceEntity" th:data-refentity="${fieldRefentity}" th:href="|../../${fieldRefentity}/base|">[[${fieldRefentityLabel}]] ([[${fieldRefentity}]])</a>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group row pt-0 pb-1 J_for-REFERENCE-filter">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('ClickSet')}]]</a>
+                      <p class="form-text mb-0 mt-0">[[${bundle.L('RefEntityUseTips')}]]</p>
                     </div>
                   </div>
                 </div>
-                <div class="form-group row J_for-REFERENCE hide pt-0 pb-1">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8">
-                    <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('ClickSet')}]]</a>
-                    <p class="form-text mb-0 mt-0">[[${bundle.L('RefEntityUseTips')}]]</p>
-                  </div>
-                </div>
-                <div class="form-group row J_for-DATE hide">
+                <div th:if="${fieldType == 'DATE'}" class="form-group row J_for-DATE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Format')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="dateFormat">
@@ -167,7 +187,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group row J_for-DATETIME hide">
+                <div th:if="${fieldType == 'DATETIME'}" class="form-group row J_for-DATETIME">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Format')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="datetimeFormat">
@@ -177,7 +197,7 @@
                     </select>
                   </div>
                 </div>
-                <div class="form-group row J_for-IMAGE J_for-FILE hide">
+                <div th:if="${fieldType == 'IMAGE' or fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('AllowUploadNum')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
                     <input
@@ -193,7 +213,7 @@
                     <div class="form-text J_minmax" th:utext="${bundle.L('AllowUploadNumTips')}"></div>
                   </div>
                 </div>
-                <div class="form-group row J_for-PICKLIST J_for-MULTISELECT hide">
+                <div th:if="${fieldType == 'PICKLIST' or fieldType == 'MULTISELECT'}" class="form-group row J_for-PICKLIST J_for-MULTISELECT">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('OptionList')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div th:class="|rb-scroller sortable-box autoh dt-${fieldType}|">
@@ -204,7 +224,7 @@
                     <button type="button" class="btn btn-secondary btn-sm J_picklist-edit"><i class="zmdi zmdi-settings"></i> [[${bundle.L('SetOptionList')}]]</button>
                   </div>
                 </div>
-                <div class="J_for-SERIES hide">
+                <div th:if="${fieldType == 'SERIES'}" class="J_for-SERIES">
                   <div class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SeriesFormat')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
@@ -224,7 +244,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-group row J_for-CLASSIFICATION pt-0 pb-0 hide">
+                <div th:if="${fieldType == 'CLASSIFICATION'}" class="form-group row J_for-CLASSIFICATION pt-0 pb-0">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Classification')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div class="form-control-plaintext" id="useClassification">
@@ -233,26 +253,7 @@
                     </div>
                   </div>
                 </div>
-                <div class="form-group row J_for-TEXT J_for-NTEXT J_for-EMAIL J_for-PHONE J_for-URL J_for-NUMBER J_for-DECIMAL J_for-DATE J_for-DATETIME hide">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DefaultValue')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8">
-                    <div class="input-group">
-                      <input
-                        class="form-control form-control-sm"
-                        type="text"
-                        id="defaultValue"
-                        th:value="${fieldDefaultValue}"
-                        th:data-o="${fieldDefaultValue}"
-                        th:placeholder="${bundle.L('Null')}"
-                        autocomplete="off"
-                      />
-                      <div class="input-group-append hide">
-                        <button class="btn btn-secondary mw-auto" th:title="${bundle.L('DateFormula')}" type="button"><i class="icon zmdi zmdi-settings-square"></i></button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="form-group row J_for-DECIMAL J_for-NUMBER hide">
+                <div th:if="${fieldType == 'DECIMAL' or fieldType == 'NUMBER'}" class="form-group row J_for-DECIMAL J_for-NUMBER">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('AllowNegative')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -260,13 +261,13 @@
                     </label>
                   </div>
                 </div>
-                <div class="form-group row J_for-STATE pt-0 pb-0 hide">
+                <div th:if="${fieldType == 'STATE'}" class="form-group row J_for-STATE pt-0 pb-0">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('StateClass')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div class="form-control-plaintext code text-danger" id="stateClass"></div>
                   </div>
                 </div>
-                <div class="J_for-BARCODE hide">
+                <div th:if="${fieldType == 'BARCODE'}" class="J_for-BARCODE">
                   <div class="form-group row">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Style')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
@@ -286,14 +287,36 @@
                     </div>
                   </div>
                 </div>
+                <div th:if="${!fieldBuildin}" class="form-group row" id="defaultValue">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DefaultValue')}]]</label>
+                  <div th:switch="${fieldType}" class="col-md-12 col-xl-6 col-lg-8">
+                    <select th:case="'BOOL'" class="form-control form-control-sm J_defaultValue" th:data-o="${fieldDefaultValue}">
+                      <option value="T">[[${bundle.L('True')}]]</option>
+                      <option value="F" selected>[[${bundle.L('False')}]]</option>
+                    </select>
+                    <div th:case="*" class="input-group">
+                      <input
+                        type="text"
+                        autocomplete="off"
+                        maxlength="420"
+                        class="form-control form-control-sm J_defaultValue"
+                        th:data-o="${fieldDefaultValue}"
+                        th:value="${fieldDefaultValue}"
+                        th:placeholder="${bundle.L('Null')}"
+                      />
+                      <div class="input-group-append J_defaultValue-append"></div>
+                      <a class="J_defaultValue-clear hide" th:title="${bundle.L('Clear')}"><i class="icon zmdi zmdi-close"></i></a>
+                    </div>
+                  </div>
+                </div>
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Remark')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${fieldComments}" th:placeholder="${bundle.L('Optional')}">[[${fieldComments}]]</textarea>
                   </div>
                 </div>
-                <div class="form-group row">
-                  <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4 J_options">
+                <div class="form-group row J_fieldAttrs">
+                  <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="fieldNullable" th:data-o="${fieldNullable}" />
                       <span class="custom-control-label"> [[${bundle.L('AllowNullable')}]]</span>
@@ -318,12 +341,12 @@
                 </div>
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
-                    <div class="J_action hide">
+                    <div th:if="${!fieldBuildin}" class="J_action">
                       <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('Save')}]]</button>
                       <button class="btn btn-danger btn-outline btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('Delete')}]]</button>
-                      <button th:if="${fieldType == 'SERIES'}" class="btn btn-secondary btn-space J_series-reindex" type="button">[[${bundle.L('AppendSeries')}]]</button>
+                      <button th:if="${fieldType == 'SERIES'}" class="btn btn-warning btn-outline btn-space J_series-reindex" type="button">[[${bundle.L('AppendSeries')}]]</button>
                     </div>
-                    <div class="alert alert-warning alert-icon hide mb-0">
+                    <div th:if="${fieldBuildin}" class="alert alert-warning alert-icon mb-0">
                       <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
                       <div class="message">[[${bundle.L('BuiltInNotModify')}]]</div>
                     </div>
@@ -350,6 +373,7 @@
     </script>
     <script th:src="@{/assets/lib/widget/bootstrap-slider.min.js}"></script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-edit.js}" type="text/babel"></script>
   </body>
 </html>

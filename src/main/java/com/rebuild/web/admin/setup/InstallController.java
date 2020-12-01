@@ -10,8 +10,11 @@ package com.rebuild.web.admin.setup;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AppUtils;
@@ -19,10 +22,10 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -40,7 +43,7 @@ import java.sql.SQLException;
  * @author devezhao
  * @since 2019/11/25
  */
-@Controller
+@RestController
 @RequestMapping("/setup/")
 public class InstallController extends BaseController implements InstallState {
 
@@ -61,38 +64,49 @@ public class InstallController extends BaseController implements InstallState {
     }
 
     @PostMapping("test-connection")
-    public void testConnection(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody testConnection(HttpServletRequest request) {
         JSONObject dbProps = (JSONObject) ServletUtils.getRequestJson(request);
         JSONObject props = JSONUtils.toJSONObject("databaseProps", dbProps);
 
-        try (Connection conn = new Installer(props).getConnection(null)) {
+        Installer checker = new Installer(props);
+        try (Connection conn = checker.getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
-            String msg = formatLang(request,
-                    "ConnectionSucceed", dmd.getDatabaseProductName() + " " + dmd.getDatabaseProductVersion());
+            String okMsg = formatLang(request, "ConnectionSucceed",
+                    dmd.getDatabaseProductName() + " " + dmd.getDatabaseProductVersion());
 
             // 查询表
-            try (ResultSet rs = dmd.getTables(null, null, null, new String[]{"TABLE"})) {
+            try (ResultSet rs = dmd.getTables(conn.getCatalog(), conn.getSchema(), null, new String[]{"TABLE"})) {
                 if (rs.next()) {
                     String hasTable = rs.getString("TABLE_NAME");
                     if (hasTable != null) {
-                        msg += " (" + getLang(request, "NoneEmptyDbTips") + ")";
+                        // 挂载模式
+                        if (checker.isRbDatabase()) {
+                            okMsg += String.format(" (%s)",
+                                    formatLang(request, "NoneEmptyDbTips", dbProps.getString("dbName")));
+                            okMsg = "1#" + okMsg;
+                        } else {
+                            return RespBody.errorl("NoneEmptyDbError");
+                        }
                     }
                 }
             } catch (SQLException ignored) {
             }
 
-            writeSuccess(response, msg);
+            return RespBody.ok(okMsg);
+
         } catch (SQLException ex) {
             if (ex.getLocalizedMessage().contains("Unknown database")) {
-                writeSuccess(response, getLang(request, "ConnectionSucceedEmptyDbTips"));
+                String okMsg = formatLang(request, "ConnectionSucceedEmptyDbTips",
+                        dbProps.getString("dbName"));
+                return RespBody.ok(okMsg);
             } else {
-                writeFailure(response, formatLang(request, "ConnectionError", ex.getLocalizedMessage()));
+                return RespBody.error(formatLang(request, "ConnectionError", ex.getLocalizedMessage()));
             }
         }
     }
 
     @PostMapping("test-cache")
-    public void testCache(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody testCache(HttpServletRequest request) {
         JSONObject cacheProps = (JSONObject) ServletUtils.getRequestJson(request);
 
         JedisPool pool = new JedisPool(new JedisPoolConfig(),
@@ -100,6 +114,7 @@ public class InstallController extends BaseController implements InstallState {
                 ObjectUtils.toInt(cacheProps.getString("CachePort"), 6379),
                 3000,
                 StringUtils.defaultIfBlank(cacheProps.getString("CachePassword"), null));
+
         try (Jedis client = pool.getResource()) {
             String info = client.info("server");
             if (info.length() > 80) {
@@ -107,22 +122,35 @@ public class InstallController extends BaseController implements InstallState {
             }
             pool.destroy();
 
-            writeSuccess(response, formatLang(request, "ConnectionSucceed", info));
+            return RespBody.ok(formatLang(request, "ConnectionSucceed", info));
+
         } catch (Exception ex) {
-            writeFailure(response, formatLang(request, "ConnectionError", ThrowableUtils.getRootCause(ex).getLocalizedMessage()));
+            return RespBody.error(
+                    formatLang(request, "ConnectionError", ThrowableUtils.getRootCause(ex).getLocalizedMessage()));
+        }
+    }
+
+    @GetMapping("init-entity")
+    public JSONAware getInitModels() {
+        try {
+            return RBStore.fetchMetaschema("index-2.0.json");
+        } catch (Exception ex) {
+            LOG.warn(null, ex);
+            return RespBody.errorl("NoInitEntityTips");
         }
     }
 
     @PostMapping("install-rebuild")
-    public void installExec(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody installExec(HttpServletRequest request) {
         JSONObject installProps = (JSONObject) ServletUtils.getRequestJson(request);
 
         try {
             new Installer(installProps).install();
-            writeSuccess(response);
+            return RespBody.ok();
         } catch (Exception ex) {
-            LOG.error("An error occurred during installation", ex);
-            writeFailure(response, getLang(request, "InstallFailed") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            LOG.error("An error occurred during install", ex);
+            return RespBody.error(
+                    getLang(request, "InstallFailed") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
     }
 }

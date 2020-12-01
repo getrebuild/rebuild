@@ -11,7 +11,7 @@
       </div>
       <div class="rb-right-navbar">
         <ul class="nav navbar-nav float-right rb-user-nav">
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown J_top-user">
             <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
               <img th:src="@{/account/user-avatar}" alt="Avatar" />
               <span class="user-name" th:text="${user.getFullName()}">[[${bundle.L('FullName')}]]</span>
@@ -34,16 +34,16 @@
           <li class="nav-item dropdown page-help">
             <a class="nav-link" href="https://getrebuild.com/docs/" th:title="${bundle.L('ViewPageHelp')}" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
           </li>
-          <li class="nav-item dropdown admin-show admin-settings">
+          <li class="nav-item dropdown admin-show admin-settings" th:title="${bundle.L('AdminSettings')}">
             <a class="nav-link" th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i></a>
           </li>
-          <li class="nav-item dropdown J_notifications-top">
+          <li class="nav-item dropdown J_top-notifications">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" th:href="@{/notifications}">
               <i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span>
             </a>
             <ul class="dropdown-menu rb-notifications">
               <li>
-                <div class="title">[[${bundle.L('Unread')}]] <span class="badge badge-pill">0</span></div>
+                <div class="title text-uppercase">[[${bundle.L('Unread')}]] <span class="badge badge-pill">0</span></div>
                 <div class="list">
                   <div class="rb-scroller">
                     <div class="content">

@@ -19,6 +19,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
@@ -138,7 +141,7 @@ public class Entity2Schema extends Field2Schema {
             // 明细实体关联字段
             // 明细实体无所属用户或部门，使用主实体的
             if (isDetail) {
-                String mainLabel = EasyMeta.valueOf(mainEntity).getLabel();
+                String mainLabel = EasyMetaFactory.valueOf(mainEntity).getLabel();
                 String mainPrimary = mainEntity + "Id";
                 createBuiltinField(tempEntity, mainPrimary, mainLabel, DisplayType.REFERENCE, Language.L("RefMainRecord"), mainEntity, CascadeModel.Delete);
             } else {
@@ -183,7 +186,7 @@ public class Entity2Schema extends Field2Schema {
             throw new MetadataModificationException(Language.L("OnlyAdminCanSome", "DeleteEntity"));
         }
 
-        EasyMeta easy = EasyMeta.valueOf(entity);
+        EasyEntity easy = EasyMetaFactory.valueOf(entity);
         ID metaRecordId = easy.getMetaId();
         if (easy.isBuiltin() || metaRecordId == null) {
             throw new MetadataModificationException(Language.L("BuiltInNotDelete"));
@@ -208,7 +211,8 @@ public class Entity2Schema extends Field2Schema {
 
         for (Field whoRef : entity.getReferenceToFields(true)) {
             if (!whoRef.getOwnEntity().equals(entity)) {
-                throw new MetadataModificationException(Language.LF("DeleteEntityHasRefs", EasyMeta.getLabel(whoRef.getOwnEntity())));
+                throw new MetadataModificationException(
+                        Language.LF("DeleteEntityHasRefs", EasyMetaFactory.getLabel(whoRef.getOwnEntity())));
             }
         }
 

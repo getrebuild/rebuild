@@ -9,7 +9,6 @@ package com.rebuild.utils;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONAware;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import java.io.Serializable;
 
@@ -36,7 +35,6 @@ public interface JSONable extends JSONAware, Serializable {
 
     @Override
     default String toJSONString() {
-        return JSON.toJSONString(toJSON(),
-                SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteMapNullValue);
+        return JSON.toJSONString(toJSON());
     }
 }

@@ -18,6 +18,7 @@ import com.rebuild.utils.JSONable;
  *
  * @author ZHAO
  * @since 2020/8/28
+ * @see com.rebuild.web.ControllerResponseBodyAdvice
  */
 public class RespBody implements JSONable {
 
@@ -93,6 +94,17 @@ public class RespBody implements JSONable {
      */
     public static RespBody errorl(String errorMsgLang, String ... phKeys) {
         String lang = Language.L(errorMsgLang, phKeys);
+        return error(lang, Controller.CODE_ERROR);
+    }
+
+    /**
+     * @param errorMsgLang
+     * @param phValues
+     * @return
+     * @see Language#LF(String, Object...)
+     */
+    public static RespBody errorlf(String errorMsgLang, Object ... phValues) {
+        String lang = Language.LF(errorMsgLang, phValues);
         return error(lang, Controller.CODE_ERROR);
     }
 

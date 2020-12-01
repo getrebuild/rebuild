@@ -48,6 +48,9 @@ $(document).ready(() => {
       when += ~~$(this).val()
     })
     const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
+    if (rb.commercial < 1 && (when & 512) !== 0) {
+      return RbHighbar.error($L('FreeVerNotSupportted,JobExecution'))
+    }
 
     const content = contentComp.buildContent()
     if (content === false) return
@@ -58,7 +61,7 @@ $(document).ready(() => {
     _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
 
     $btn.button('loading')
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) location.href = '../triggers'
       else RbHighbar.error(res.error_msg)
       $btn.button('reset')

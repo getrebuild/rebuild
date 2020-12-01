@@ -19,7 +19,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Filter;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import org.apache.commons.lang.StringUtils;
@@ -95,7 +95,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         Entity useMain = null;
         if (!MetadataHelper.hasPrivilegesField(entity)) {
             // NOTE BIZZ 实体全部用户可见
-            if (MetadataHelper.isBizzEntity(entity.getEntityCode()) || EasyMeta.valueOf(entity).isPlainEntity()) {
+            if (MetadataHelper.isBizzEntity(entity) || EasyMetaFactory.valueOf(entity).isPlainEntity()) {
                 return ALLOWED.evaluate(null);
             } else if (entity.getMainEntity() != null) {
                 useMain = entity.getMainEntity();

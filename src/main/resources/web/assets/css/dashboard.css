@@ -79,8 +79,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 @media (max-width: 768px) {
   .chart-grid {
     overflow: hidden;
-    padding: 2px 15px 25px 15px;
-    padding-bottom: 0;
+    padding: 2px 15px 0;
   }
 
   .grid-stack > .grid-stack-item > .grid-stack-item-content {
@@ -186,4 +185,8 @@ body.fullscreen .rb-wrapper > .rb-content {
 
 body.fullscreen .J_dash-fullscreen .zmdi-fullscreen::before {
   content: '\f16c';
+}
+
+.chart-grid.uneditable .chart-box .chart-head .chart-title {
+  cursor: default;
 }

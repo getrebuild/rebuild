@@ -15,7 +15,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.metadata.EntityHelper;
 import org.dom4j.Element;
-import org.springframework.boot.test.context.SpringBootTest;
 
 /**
  * 根据 METADATA 生成表的创建语句
@@ -32,7 +31,7 @@ public class SchemaGenerator {
         PMF = Application.getPersistManagerFactory();
 
 //        generate();
-        generate(EntityHelper.Language);
+        generate(EntityHelper.TransformConfig);
 
         System.exit(0);
     }

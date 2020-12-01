@@ -10,8 +10,8 @@ package com.rebuild.web;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.rebuild.api.Controller;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -32,15 +32,12 @@ public abstract class BaseController extends Controller {
     /**
      * @param request
      * @return
+     * @see AppUtils#getRequestUser(HttpServletRequest)
      */
     protected ID getRequestUser(HttpServletRequest request) {
         ID user = AppUtils.getRequestUser(request);
         if (user == null) {
-            user = AppUtils.getRequestUserViaRbMobile(request, false);
-        }
-
-        if (user == null) {
-            throw new InvalidParameterException(getLang(request, "BadRequestUser"));
+            throw new InvalidParameterException(Language.L("BadRequestUser"));
         }
         return user;
     }
@@ -51,6 +48,7 @@ public abstract class BaseController extends Controller {
      * @param phKey
      * @return
      * @see AppUtils#getReuqestBundle(HttpServletRequest)
+     * @see Language#L(String, String...) 
      */
     protected String getLang(HttpServletRequest request, String key, String... phKey) {
         return AppUtils.getReuqestBundle(request).getLang(key, phKey);
@@ -62,6 +60,7 @@ public abstract class BaseController extends Controller {
      * @param phValues
      * @return
      * @see AppUtils#getReuqestBundle(HttpServletRequest)
+     * @see Language#LF(String, Object...)
      */
     protected String formatLang(HttpServletRequest request, String key, Object... phValues) {
         return AppUtils.getReuqestBundle(request).formatLang(key, phValues);
@@ -99,20 +98,19 @@ public abstract class BaseController extends Controller {
 
     /**
      * @param response
-     * @param aJson
+     * @param message
+     * @param errorCode
      */
-    protected void writeJSON(HttpServletResponse response, Object aJson) {
-        if (aJson == null) {
-            throw new IllegalArgumentException();
-        }
+    protected void writeFailure(HttpServletResponse response, String message, int errorCode) {
+        writeJSON(response, formatFailure(message, errorCode));
+    }
 
+    private void writeJSON(HttpServletResponse response, Object aJson) {
         String aJsonString;
         if (aJson instanceof String) {
             aJsonString = (String) aJson;
         } else {
-            // fix: $ref.xxx
-            aJsonString = JSON.toJSONString(aJson,
-                    SerializerFeature.DisableCircularReferenceDetect, SerializerFeature.WriteMapNullValue);
+            aJsonString = JSON.toJSONString(aJson);
         }
         ServletUtils.writeJson(response, aJsonString);
     }
@@ -144,7 +142,7 @@ public abstract class BaseController extends Controller {
     protected String getParameterNotNull(HttpServletRequest request, String name) {
         String v = request.getParameter(name);
         if (StringUtils.isEmpty(v)) {
-            throw new InvalidParameterException(getLang(request, "BadRequestParams") + " [" + name + "=" + v + "]");
+            throw new InvalidParameterException(Language.LF("BadRequestParamsSome", name, v));
         }
         return v;
     }
@@ -215,7 +213,7 @@ public abstract class BaseController extends Controller {
     protected ID getIdParameterNotNull(HttpServletRequest request, String name) {
         String v = request.getParameter(name);
         if (ID.isId(v)) return ID.valueOf(v);
-        throw new InvalidParameterException(getLang(request, "BadRequestParams") + " [" + name + "=" + v + "]");
+        throw new InvalidParameterException(Language.LF("BadRequestParamsSome", name, v));
     }
 
     /**

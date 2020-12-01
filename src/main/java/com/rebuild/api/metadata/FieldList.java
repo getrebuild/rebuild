@@ -15,12 +15,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.ApiContext;
 import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
-import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 /**
  * 获取字段列表
@@ -54,33 +54,19 @@ public class FieldList extends BaseApi {
     }
 
     private JSONObject buildField(Field field) {
-        final EasyMeta easyMeta = EasyMeta.valueOf(field);
-        final DisplayType dt = easyMeta.getDisplayType();
+        final EasyField easyField = EasyMetaFactory.valueOf(field);
+        final DisplayType dt = easyField.getDisplayType();
 
-        JSONObject o = new JSONObject();
-        o.put("field_name", field.getName());
-        o.put("field_label", easyMeta.getLabel());
-        o.put("display_type", dt.name());
-
-        o.put("creatable", field.isCreatable());
-        o.put("updatable", field.isUpdatable());
-        o.put("nullable", field.isNullable());
+        JSONObject o = (JSONObject) easyField.toJSON();
         o.put("repeatable", field.isRepeatable());
-        o.put("queryable", field.isQueryable());
+        o.put("queryable", easyField.isQueryable());
 
-        if (dt == DisplayType.REFERENCE) {
-            o.put("reference_entity", field.getReferenceEntity().getName());
-        }
-        if (dt == DisplayType.CLASSIFICATION) {
-            o.put("use_classification", ClassificationManager.instance.getUseClassification(field, true));
-        }
         if (dt == DisplayType.MULTISELECT) {
             o.put("options", MultiSelectManager.instance.getSelectList(field));
         }
         if (dt == DisplayType.PICKLIST) {
             o.put("options", PickListManager.instance.getPickList(field));
         }
-
         return o;
     }
 }

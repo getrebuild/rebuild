@@ -64,7 +64,7 @@ class PlanList extends React.Component {
                 <a onClick={() => this._handleEdit(item)}>
                   <i className="zmdi zmdi-edit"></i>
                 </a>
-                <a onClick={() => this._handleDelete(item[0])} className="danger">
+                <a onClick={() => this._handleDelete(item[0])} className="danger danger-hover">
                   <i className="zmdi zmdi-delete"></i>
                 </a>
               </div>
@@ -135,7 +135,7 @@ class PlanList extends React.Component {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        $.post(`/app/entity/record-delete?id=${planId}`, (res) => {
+        $.post(`/app/entity/common-delete?id=${planId}`, (res) => {
           this.hide()
           if (res.error_code === 0) {
             that.loadPlans()
@@ -238,10 +238,10 @@ class PlanEdit extends RbFormHandler {
     _data.metadata = { entity: 'ProjectPlanConfig', id: this.props.id || null }
 
     this.disabled(true)
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        RbHighbar.success('面板已保存')
+        RbHighbar.success($L('SomeSuccess,Save'))
         _PlanList.loadPlans()
       } else {
         RbHighbar.error(res.error_msg)

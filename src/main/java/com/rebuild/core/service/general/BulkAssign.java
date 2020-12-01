@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.service.dataimport.DataImporter;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.notification.NotificationOnce;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ public class BulkAssign extends BulkOperator {
     }
 
     @Override
-    protected Integer exec() {
+    public Integer exec() {
         final ID[] records = prepareRecords();
         this.setTotal(records.length);
 

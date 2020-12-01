@@ -14,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -116,18 +117,18 @@ public class PickListManager implements ConfigManager {
     }
 
     /**
-     * @param label
+     * @param labelValue
      * @param field
      * @return
      */
-    public ID findItemByLabel(String label, Field field) {
-        Object[] o = Application.createQueryNoFilter(
-                "select itemId from PickList where belongEntity = ? and belongField = ? and text = ?")
-                .setParameter(1, field.getOwnEntity().getName())
-                .setParameter(2, field.getName())
-                .setParameter(3, label)
-                .unique();
-        return o == null ? null : (ID) o[0];
+    public ID findItemByLabel(String labelValue, Field field) {
+        ConfigBean[] items = getPickListRaw(field, true);
+        for (ConfigBean item : items) {
+            if (StringUtils.equalsIgnoreCase(item.getString("text"), labelValue)) {
+                return item.getID("id");
+            }
+        }
+        return null;
     }
 
     /**

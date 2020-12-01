@@ -35,7 +35,7 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/06/24
  */
-public class ApprovalProcessor extends SetUser<ApprovalProcessor> {
+public class ApprovalProcessor extends SetUser {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApprovalProcessor.class);
 

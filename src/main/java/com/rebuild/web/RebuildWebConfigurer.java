@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -55,11 +56,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     private ThymeleafViewResolver thymeleafViewResolver;
 
     @Override
-    public void configureViewResolvers(ViewResolverRegistry registry) {
-        WebMvcConfigurer.super.configureViewResolvers(registry);
-    }
-
-    @Override
     public void init() {
         Assert.notNull(thymeleafViewResolver, "[thymeleafViewResolver] is null");
 
@@ -81,15 +77,15 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        WebMvcConfigurer.super.configureViewResolvers(registry);
+    }
+
+    @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
         converters.add(0, new FastJsonHttpMessageConverter4());
     }
 
-    /**
-     * 请求拦截
-     *
-     * @param registry
-     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new RebuildWebInterceptor())
@@ -99,11 +95,13 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 .excludePathPatterns("/*.txt");
     }
 
-    /**
-     * 异常处理
-     *
-     * @param resolvers
-     */
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        // URL 参数
+        resolvers.add(new IdParamMethodArgumentResolver());
+        resolvers.add(new EntityParamMethodArgumentResolver());
+    }
+
     @Override
     public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
         resolvers.add((request, response, handler, ex)
@@ -119,32 +117,34 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
      * @param request
      * @param ex
      * @return
-     * @see AppUtils#isHtmlRequest(HttpServletRequest)
      */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
         if (request.getRequestURI().contains("/assets/")) return null;
 
         ModelAndView error;
-        if (AppUtils.isHtmlRequest(request)) {
+        if (ServletUtils.isAjaxRequest(request)) {
+            error = new ModelAndView(new FastJsonJsonView());
+        } else {
             error = new ModelAndView("/error/error");
             error.getModelMap().put(WebConstants.$BUNDLE, AppUtils.getReuqestBundle(request));
-        } else {
-            error = new ModelAndView(new FastJsonJsonView());
         }
 
         int errorCode = status.value();
         String errorMsg = AppUtils.getErrorMessage(request, ex);
 
+        String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
+                "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
+                "\nIP      : " + ServletUtils.getRemoteAddr(request) +
+                "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
+                "\nURL(s)  : " + getRequestUrls(request) +
+                "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "") +
+                "\n";
+
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
+            LOG.warn(errorLog, Application.devMode() ? ex : null);
         } else {
-            String errorLog = "\n++ EXECUTE REQUEST ERROR(s) TRACE +++++++++++++++++++++++++++++++++++++++++++++" +
-                    "\nUser    : " + ObjectUtils.defaultIfNull(AppUtils.getRequestUser(request), "-") +
-                    "\nIP      : " + ServletUtils.getRemoteAddr(request) +
-                    "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
-                    "\nURL(s)  : " + request.getRequestURL() + " [ " + StringUtils.defaultIfBlank(ServletUtils.getReferer(request), "-") + " ]" +
-                    "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "");
             LOG.error(errorLog, ex);
         }
 
@@ -156,5 +156,20 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         }
 
         return error;
+    }
+
+    /**
+     * 获取请求/引用地址
+     *
+     * @param request
+     * @return
+     */
+    static String getRequestUrls(HttpServletRequest request) {
+        String reqUrl = request.getRequestURL().toString();
+        String refUrl = ServletUtils.getReferer(request);
+
+        if (refUrl == null) return reqUrl;
+        else if (reqUrl.endsWith("/error")) return refUrl;
+        else return reqUrl + " [ " + refUrl + " ]";
     }
 }

@@ -46,7 +46,7 @@ $(document).ready(function () {
     if (workphone || workphone === '') _data.workphone = workphone
     if (avatarUrl) _data.avatarUrl = avatarUrl
 
-    $.post('/app/entity/record-save', JSON.stringify(_data), (res) => {
+    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) location.reload()
       else RbHighbar.create(res.error_msg)
     })

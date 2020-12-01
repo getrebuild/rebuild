@@ -70,11 +70,11 @@
                               ></span>
                             </label>
                           </div>
-                          <div class="mt-1" th:if="${commercial > 0}">
+                          <div class="mt-1">
                             <div>
                               <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                                 <input class="custom-control-input" type="checkbox" value="512" onclick="_handle512Change()" />
-                                <span class="custom-control-label"> [[${bundle.L('JobExecution')}]]</span>
+                                <span class="custom-control-label"> [[${bundle.L('JobExecution')}]] <sup class="rbv">V</sup></span>
                               </label>
                             </div>
                             <div class="on-timers mt-1 hide">
@@ -164,7 +164,8 @@
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-compatible.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/trigger/trigger-design.js}" type="text/babel"></script>
-    <script th:src="|${baseUrl}/assets/js/trigger/trigger.${actionType}.js?v=2.0.0|" type="text/babel"></script>
+    <script th:src="|${baseUrl}/assets/js/trigger/trigger.${actionType}.js?v=2.1.0|" type="text/babel"></script>
   </body>
 </html>

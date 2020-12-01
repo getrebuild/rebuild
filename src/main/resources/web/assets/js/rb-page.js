@@ -33,6 +33,17 @@ $(function () {
     setTimeout(_globalSearch, 200)
   }
 
+  var hasNotification = $('.J_top-notifications')
+  if (hasNotification.length > 0) {
+    $unhideDropdown(hasNotification).on('shown.bs.dropdown', _loadMessages)
+    setTimeout(_checkMessage, 2000)
+  }
+
+  var hasUser = $('.J_top-user')
+  if (hasUser.length > 0) {
+    $unhideDropdown(hasUser)
+  }
+
   if (rb.isAdminUser) {
     var topPopover = function (el, content) {
       var pop_show_timer
@@ -57,7 +68,7 @@ $(function () {
             $pop.popover('hide')
           }, 200)
         })
-        .on('shown.bs.popover', function (e) {
+        .on('shown.bs.popover', function () {
           $('#' + $(this).attr('aria-describedby'))
             .find('.popover-body')
             .off('mouseenter')
@@ -94,11 +105,6 @@ $(function () {
     })
   } else {
     $('.admin-show, .admin-danger').remove()
-  }
-
-  if ($('.J_notifications-top').length > 0) {
-    setTimeout(_checkMessage, 2000)
-    $('.J_notifications-top').on('shown.bs.dropdown', _loadMessages)
   }
 
   var bosskey = 0
@@ -250,9 +256,10 @@ var _checkMessage__state = 0
 var _checkMessage = function () {
   $.get('/notification/check-state', function (res) {
     if (res.error_code > 0) return
-    $('.J_notifications-top .badge').text(res.data.unread)
-    if (res.data.unread > 0) $('.J_notifications-top .indicator').removeClass('hide')
-    else $('.J_notifications-top .indicator').addClass('hide')
+
+    $('.J_top-notifications .badge').text(res.data.unread)
+    if (res.data.unread > 0) $('.J_top-notifications .indicator').removeClass('hide')
+    else $('.J_top-notifications .indicator').addClass('hide')
 
     if (_checkMessage__state !== res.data.unread) {
       _checkMessage__state = res.data.unread
@@ -353,10 +360,8 @@ var _globalSearch = function () {
         _tryActive($active, $active.next())
       } else if (e.keyCode === 13) {
         var s = $('.search-input-gs').val()
-        if (s) {
-          var $active = $('.search-models .active')
-          location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
-        }
+        var $active = $('.search-models .active')
+        location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
       }
     })
 }
@@ -492,9 +497,9 @@ var $unmount = function (container, delay, keepContainer) {
 var $initReferenceSelect2 = function (el, field) {
   var search_input = null
   return $(el).select2({
-    placeholder: $L('SelectSome').replace('{0}', field.label),
+    placeholder: field.placeholder || $L('SelectSome').replace('{0}', field.label),
     minimumInputLength: 0,
-    maximumSelectionLength: 2,
+    maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
     ajax: {
       url: '/commons/search/' + (field.searchType || 'reference'),
       delay: 300,
@@ -523,7 +528,7 @@ var $initReferenceSelect2 = function (el, field) {
         return $L('Clean')
       },
     },
-    theme: 'default ' + (field.appendClass || '')
+    theme: 'default ' + (field.appendClass || ''),
   })
 }
 
@@ -672,25 +677,26 @@ var $converEmoji = function (text) {
 }
 
 /**
- */
-var $fromNow = function (date) {
-  if (!date || !window.moment) return null
-  return moment(date.split('UTC')[0].trim()).fromNow()
-}
-
-/**
  * Use momentjs
  */
 var $moment = function (date) {
   if (!date || !window.moment) return null
   return moment(date.split('UTC')[0].trim())
 }
-
+/**
+ * 友好时间显示
+ */
+var $fromNow = function (date) {
+  var m = $moment(date)
+  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow'): m.fromNow()
+}
 /**
  * 是否过期
  */
-var $expired = function (date) {
-  return $moment(date).isBefore(moment())
+var $expired = function (date, offset) {
+  var m = $moment(date)
+  if (offset) m.add(offset, 's')
+  return m.isBefore(moment())
 }
 
 /**
@@ -725,4 +731,19 @@ var _$L = function (key) {
     lang = '[' + key.toUpperCase() + ']'
   }
   return lang
+}
+
+/**
+ * 点击 Dropdown-Menu 不隐藏
+ */
+var $unhideDropdown = function (dp) {
+  return $(dp).on({
+    'hide.bs.dropdown': function (e) {
+      if (!e.clickEvent || !e.clickEvent.target) return
+      var $target = $(e.clickEvent.target)
+      if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
+        return false
+      }
+    },
+  })
 }

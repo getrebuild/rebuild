@@ -13,7 +13,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.JSONSerializer;
 import com.alibaba.fastjson.serializer.ObjectSerializer;
 import com.alibaba.fastjson.serializer.SerializeWriter;
-import com.rebuild.core.support.general.FieldValueWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -43,7 +43,7 @@ public class RbRecordCodec implements ObjectSerializer {
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             String field = iter.next();
             Object value = record.getObjectValue(field);
-            value = FieldValueWrapper.instance.wrapFieldValue(value, entity.getField(field), false);
+            value = FieldValueHelper.wrapFieldValue(value, entity.getField(field), false);
             map.put(field, value);
         }
         out.write(map.toJSONString());

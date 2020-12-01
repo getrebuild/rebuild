@@ -7,23 +7,27 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.impl.DisplayType;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 
 import java.text.Collator;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * 元数据辅助类，注意此类返回的数据会过滤和排序
  *
  * @author devezhao
- * @see EasyMeta
+ * @see EasyMetaFactory
  * @see MetadataHelper
  * @since 09/30/2018
  */
@@ -39,7 +43,7 @@ public class MetadataSorter {
     }
 
     /**
-     * 用户权限内可用实体
+     * 用户权限内*可读*实体
      *
      * @param user
      * @param usesBizz 是否包括内建 BIZZ 实体
@@ -50,14 +54,17 @@ public class MetadataSorter {
         List<BaseMeta> entities = new ArrayList<>();
         for (Entity e : MetadataHelper.getEntities()) {
             if (!e.isQueryable()) continue;
-            if (e.getMainEntity() != null && !usesDetail) continue;
+            if (!usesDetail && e.getMainEntity() != null) continue;
 
-            EasyMeta easyEntity = EasyMeta.valueOf(e);
+            EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
             if (easyEntity.isBuiltin() && !easyEntity.isPlainEntity()) continue;
 
-            if (user == null || !MetadataHelper.hasPrivilegesField(e)) {
+            Entity checkEntity = e;
+            if (usesDetail && e.getMainEntity() != null) checkEntity = e.getMainEntity();
+
+            if (user == null || !MetadataHelper.hasPrivilegesField(checkEntity)) {
                 entities.add(e);
-            } else if (Application.getPrivilegesManager().allowRead(user, e.getEntityCode())) {
+            } else if (Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) {
                 entities.add(e);
             }
         }
@@ -94,16 +101,14 @@ public class MetadataSorter {
     public static Field[] sortFields(Field[] fields, DisplayType... usesTypes) {
         List<BaseMeta> fieldsList = new ArrayList<>();
         for (Field field : fields) {
-            if (!field.isQueryable() || field.getType() == FieldType.PRIMARY) continue;
+            if (MetadataHelper.isSystemField(field)) continue;
 
             if (usesTypes.length == 0) {
                 fieldsList.add(field);
             } else {
-                DisplayType fieldDt = EasyMeta.getDisplayType(field);
-                for (DisplayType dt : usesTypes) {
-                    if (dt == fieldDt) {
-                        fieldsList.add(field);
-                    }
+                DisplayType dt = EasyMetaFactory.getDisplayType(field);
+                for (DisplayType use : usesTypes) {
+                    if (dt == use) fieldsList.add(field);
                 }
             }
         }
@@ -156,8 +161,8 @@ public class MetadataSorter {
     static void sortByLabel(List<BaseMeta> metas) {
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         metas.sort((foo, bar) -> {
-            String fooLetter = EasyMeta.getLabel(foo);
-            String barLetter = EasyMeta.getLabel(bar);
+            String fooLetter = EasyMetaFactory.getLabel(foo);
+            String barLetter = EasyMetaFactory.getLabel(bar);
             return comparator.compare(fooLetter, barLetter);
         });
     }

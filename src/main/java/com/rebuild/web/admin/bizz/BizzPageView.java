@@ -28,34 +28,34 @@ import javax.servlet.http.HttpServletRequest;
 public class BizzPageView extends EntityController {
 
     @GetMapping("User/view/{id}")
-    public ModelAndView userView(@PathVariable String id, HttpServletRequest request) {
-        ID record = ID.valueOf(id);
-        ModelAndView mv = createModelAndView("/admin/bizuser/user-view", "User", getRequestUser(request));
-        mv.getModel().put("id", record);
+    public ModelAndView userView(@PathVariable ID id, HttpServletRequest request) {
+        ModelAndView mv = createModelAndView(
+                "/admin/bizuser/user-view", "User", getRequestUser(request));
+        mv.getModel().put("id", id);
         return mv;
     }
 
     @GetMapping("Department/view/{id}")
-    public ModelAndView deptView(@PathVariable String id, HttpServletRequest request) {
-        ID record = ID.valueOf(id);
-        ModelAndView mv = createModelAndView("/admin/bizuser/dept-view", "Department", getRequestUser(request));
-        mv.getModel().put("id", record);
+    public ModelAndView deptView(@PathVariable ID id, HttpServletRequest request) {
+        ModelAndView mv = createModelAndView(
+                "/admin/bizuser/dept-view", "Department", getRequestUser(request));
+        mv.getModel().put("id", id);
         return mv;
     }
 
     @GetMapping("Role/view/{id}")
-    public ModelAndView roleView(@PathVariable String id, HttpServletRequest request) {
-        ID record = ID.valueOf(id);
-        ModelAndView mv = createModelAndView("/admin/bizuser/role-view", "Role", getRequestUser(request));
-        mv.getModel().put("id", record);
+    public ModelAndView roleView(@PathVariable ID id, HttpServletRequest request) {
+        ModelAndView mv = createModelAndView(
+                "/admin/bizuser/role-view", "Role", getRequestUser(request));
+        mv.getModel().put("id", id);
         return mv;
     }
 
     @GetMapping("Team/view/{id}")
-    public ModelAndView teamView(@PathVariable String id, HttpServletRequest request) {
-        ID record = ID.valueOf(id);
-        ModelAndView mv = createModelAndView("/admin/bizuser/team-view", "Team", getRequestUser(request));
-        mv.getModel().put("id", record);
+    public ModelAndView teamView(@PathVariable ID id, HttpServletRequest request) {
+        ModelAndView mv = createModelAndView(
+                "/admin/bizuser/team-view", "Team", getRequestUser(request));
+        mv.getModel().put("id", id);
         return mv;
     }
 }

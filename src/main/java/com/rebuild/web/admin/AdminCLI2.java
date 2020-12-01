@@ -78,7 +78,7 @@ public class AdminCLI2 {
      * @see #C_HELP
      */
     protected String execHelp() {
-        return " Usage : \ncache ACTION \nsyscfg NAME VALUE";
+        return " Usage : \ncache ACTION \nsyscfg NAME [VALUE]";
     }
 
     /**
@@ -106,12 +106,17 @@ public class AdminCLI2 {
      * @see ConfigurationItem
      */
     protected String execSyscfg() {
-        if (commands.length < 3) return "Bad arguments";
+        if (commands.length < 2) return "Bad arguments";
 
         String name = commands[1];
-        String value = commands[2];
         try {
             ConfigurationItem item = ConfigurationItem.valueOf(name);
+            // Get
+            if (commands.length <= 2) {
+                return RebuildConfiguration.get(item);
+            }
+
+            String value = commands[2];
             RebuildConfiguration.set(item, value);
             return "OK";
 

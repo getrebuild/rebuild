@@ -10,7 +10,7 @@ package com.rebuild.core.metadata.entity;
 import cn.devezhao.persist4j.Entity;
 import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.impl.EasyMeta;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -22,8 +22,8 @@ public class EasyMetaTest extends TestSupport {
     @Test
     public void getLabel() {
         Entity user = MetadataHelper.getEntity("User");
-        EasyMeta.getLabel(user, "roleId.name");
-        System.out.println(EasyMeta.getEntityShow(user));
+        EasyMetaFactory.getLabel(user, "roleId.name");
+        System.out.println(EasyMetaFactory.toJSON(user));
     }
 
     @Test

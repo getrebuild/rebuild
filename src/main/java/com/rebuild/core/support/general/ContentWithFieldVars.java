@@ -38,17 +38,18 @@ public class ContentWithFieldVars {
             return content;
         }
 
-        Map<String, String> fieldVars = new HashMap<>();
         Entity entity = MetadataHelper.getEntity(record.getEntityCode());
+        // 主键
+        content = content.replace("{ID}", String.format("{%s}", entity.getPrimaryField().getName()));
+
+        Map<String, String> fieldVars = new HashMap<>();
         for (String field : matchsVars(content)) {
             if (MetadataHelper.getLastJoinField(entity, field) != null) {
                 fieldVars.put(field, null);
             }
         }
 
-        if (fieldVars.isEmpty()) {
-            return content;
-        }
+        if (fieldVars.isEmpty()) return content;
 
         String sql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(fieldVars.keySet(), ","), entity.getName(), entity.getPrimaryField().getName());
@@ -56,7 +57,7 @@ public class ContentWithFieldVars {
         if (o != null) {
             for (String field : fieldVars.keySet()) {
                 Object value = o.getObjectValue(field);
-                value = FieldValueWrapper.instance.wrapFieldValue(value, MetadataHelper.getLastJoinField(entity, field), true);
+                value = FieldValueHelper.wrapFieldValue(value, MetadataHelper.getLastJoinField(entity, field), true);
                 if (value != null) {
                     fieldVars.put(field, value.toString());
                 }

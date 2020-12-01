@@ -13,12 +13,14 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.Entity2Schema;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.core.support.task.TaskExecutors;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * @author devezhao-mbp zhaofang123@gmail.com
@@ -27,7 +29,7 @@ import java.io.File;
 public class MetaschemaImporterTest extends TestSupport {
 
     @Test
-    public void testImport() throws Exception {
+    void testImport() throws Exception {
         File file = ResourceUtils.getFile("classpath:metaschema-test.json");
         String text = FileUtils.readFileToString(file, "utf-8");
         JSONObject data = JSON.parseObject(text);
@@ -39,6 +41,15 @@ public class MetaschemaImporterTest extends TestSupport {
         }
 
         MetaschemaImporter importer = new MetaschemaImporter(data);
-        TaskExecutors.run(importer.setUser(UserService.ADMIN_USER));
+        TaskExecutors.run((HeavyTask<?>) importer.setUser(UserService.ADMIN_USER));
+    }
+
+    @Test
+    void verfiy() throws IOException {
+        File file = ResourceUtils.getFile("classpath:metaschema-test.json");
+        String text = FileUtils.readFileToString(file, "utf-8");
+        JSONObject data = JSON.parseObject(text);
+
+        System.out.println(new MetaschemaImporter(data).verfiy());
     }
 }

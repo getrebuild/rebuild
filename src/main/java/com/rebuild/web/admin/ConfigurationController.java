@@ -11,12 +11,15 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.core.Application;
-import com.rebuild.core.support.*;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
@@ -34,7 +37,10 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Map;
 
 /**
  * 系统配置
@@ -55,13 +61,8 @@ public class ConfigurationController extends BaseController {
             mv.getModel().put(item.name(), RebuildConfiguration.get(item));
         }
 
-        // Available lang
-        JSONObject langsJson = new JSONObject();
-        for (String locale : Application.getLanguage().availableLocales()) {
-            Locale inst = Locale.forLanguageTag(locale.split("[_-]")[0]);
-            langsJson.put(locale, inst.getDisplayName(inst) + " (" + locale + ")");
-        }
-        mv.getModel().put("availableLangs", langsJson);
+        // Available langs
+        mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
 
         JSONObject auth = License.queryAuthority(false);
         mv.getModel().put("LicenseType",

@@ -39,6 +39,12 @@ public enum ZeroEntry {
      * 允许自定义列表显示列
      */
     AllowCustomDataList(true),
+    /**
+     * 允许自定义图表
+     */
+    AllowCustomChart(true),
+
+    // NOTE 对于新增权限都应该设置默认值为 true 以保持老版本兼容
 
     ;
 

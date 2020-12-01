@@ -7,19 +7,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.ConfigManager;
-import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 可共享的配置
@@ -78,10 +77,9 @@ public abstract class ShareToManager implements ConfigManager {
         }
 
         // 1.优先使用自己的
-        boolean isAdmin = UserHelper.isAdmin(user);
         for (Object[] d : alls) {
             ID createdBy = (ID) d[2];
-            if (user.equals(createdBy) || (isAdmin && UserHelper.isAdmin(createdBy))) {
+            if (UserHelper.isSelf(user, createdBy)) {
                 return (ID) d[0];
             }
         }
@@ -107,10 +105,9 @@ public abstract class ShareToManager implements ConfigManager {
     protected Object[][] getUsesConfig(ID user, String belongEntity, String applyType) {
         Object[][] cached = getAllConfig(belongEntity, applyType);
         List<Object[]> canUses = new ArrayList<>();
-        boolean isAdmin = UserHelper.isAdmin(user);
         for (Object[] d : cached) {
             ID createdBy = (ID) d[2];
-            if (user.equals(createdBy) || (isAdmin && UserHelper.isAdmin(createdBy)) || isShareTo((String) d[1], user)) {
+            if (UserHelper.isSelf(user, createdBy) || isShareTo((String) d[1], user)) {
                 canUses.add(d);
             }
         }
@@ -187,43 +184,5 @@ public abstract class ShareToManager implements ConfigManager {
         return String.format("%s-%s-%s.V6", getConfigEntity(),
                 StringUtils.defaultIfBlank(belongEntity, "N"),
                 StringUtils.defaultIfBlank(applyType, "N")).toUpperCase();
-    }
-
-    // --
-
-    /**
-     * 是否是自己的配置（不是自己的只读）
-     *
-     * @param user
-     * @param configOrUser 配置ID 或 用戶ID
-     * @return
-     */
-    public static boolean isSelf(ID user, ID configOrUser) {
-        if (configOrUser.getEntityCode() != EntityHelper.User) {
-            configOrUser = getCreatedBy(configOrUser);
-        }
-        return user.equals(configOrUser) || (UserHelper.isAdmin(user) && UserHelper.isAdmin(configOrUser));
-    }
-
-    private static final Map<ID, ID> CREATEDBYs = new HashMap<>();
-
-    /**
-     * @param cfgid
-     * @return
-     */
-    private static ID getCreatedBy(ID cfgid) {
-        if (CREATEDBYs.containsKey(cfgid)) {
-            return CREATEDBYs.get(cfgid);
-        }
-
-        Entity e = MetadataHelper.getEntity(cfgid.getEntityCode());
-        String ql = String.format("select createdBy from %s where %s = ?", e.getName(), e.getPrimaryField().getName());
-        Object[] c = Application.createQueryNoFilter(ql).setParameter(1, cfgid).unique();
-        if (c == null) {
-            throw new RebuildException("No config found : " + cfgid);
-        }
-
-        CREATEDBYs.put(cfgid, (ID) c[0]);
-        return (ID) c[0];
     }
 }

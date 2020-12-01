@@ -63,7 +63,7 @@ class GridList extends React.Component {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        $.post(`/app/entity/record-delete?id=${projectId}`, (res) => {
+        $.post(`/app/entity/common-delete?id=${projectId}`, (res) => {
           this.hide()
           if (res.error_code === 0) {
             RbHighbar.success($L('SomeDeleted,Project'))
