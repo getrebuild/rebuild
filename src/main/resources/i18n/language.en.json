@@ -1228,7 +1228,7 @@
   "ChartShare": "Share chart",
   "ChartShareTips": "After sharing, other users can also add and use",
   "ApprovalRecord": "Approval record",
-  "HOOKURL": "Hook URL (V)",
+  "HOOKURL": "Hook URL",
   "HookSecret": "Secret",
   "HookSecretTips": "After filling in, system will carry it in the header of the request when it is called. The header name is `X-RBHOOK-SECRET`",
   "HookRequestError": "Request failed : %s",

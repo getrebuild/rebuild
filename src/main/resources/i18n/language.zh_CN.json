@@ -1228,7 +1228,7 @@
   "ChartShare": "共享图表",
   "ChartShareTips": "共享后其他用户也可以添加使用",
   "ApprovalRecord": "审批记录",
-  "HOOKURL": "回调URL (V)",
+  "HOOKURL": "回调URL",
   "HookSecret": "安全码",
   "HookSecretTips": "填写后，系统在调用时会携带在请求头 Header 中，Header 名称为 `X-RBHOOK-SECRET`",
   "HookRequestError": "请求失败 : %s",
