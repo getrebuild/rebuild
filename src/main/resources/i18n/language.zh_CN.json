@@ -1234,6 +1234,7 @@
   "HookRequestError": "请求失败 : %s",
   "ModifyFileFolder": "修改文件目录",
   "AdminSettings": "管理员后台",
+  "EntityUnexistsNotRestore": "所属实体已经不存在，无法恢复",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

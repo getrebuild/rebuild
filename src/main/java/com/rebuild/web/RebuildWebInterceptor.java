@@ -24,6 +24,8 @@ import com.rebuild.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -59,13 +61,14 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         final String requestUri = request.getRequestURI()
                 + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
-        final boolean ajaxRequest = ServletUtils.isAjaxRequest(request);
+        final boolean isHtmlRequest = !ServletUtils.isAjaxRequest(request)
+                && MimeTypeUtils.TEXT_HTML.equals(AppUtils.parseMimeType(request));
 
         // Locale
         final String locale = detectLocale(request, response);
         UserContextHolder.setLocale(locale);
 
-        if (!ajaxRequest) {
+        if (isHtmlRequest) {
             request.setAttribute(WebConstants.LOCALE, locale);
             request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(locale));
 
@@ -113,17 +116,18 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
         if (requestUser != null) {
             // 管理后台访问
             if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
-                if (ajaxRequest) {
-                    ServletUtils.writeJson(response, RespBody.error(401).toString());
-                } else {
+                if (isHtmlRequest) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
+                } else {
+                    ServletUtils.writeJson(response, RespBody.error(HttpStatus.FORBIDDEN.value()).toJSONString());
                 }
                 return false;
             }
 
             UserContextHolder.setUser(requestUser);
 
-            if (!ajaxRequest) {
+
+            if (isHtmlRequest) {
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
 
@@ -137,10 +141,10 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             log.warn("Unauthorized access {} via {}",
                     RebuildWebConfigurer.getRequestUrls(request), ServletUtils.getRemoteAddr(request));
 
-            if (ajaxRequest) {
-                ServletUtils.writeJson(response, RespBody.error(403).toString());
-            } else {
+            if (isHtmlRequest) {
                 sendRedirect(response, "/user/login", requestUri);
+            } else {
+                ServletUtils.writeJson(response, RespBody.error(HttpStatus.FORBIDDEN.value()).toJSONString());
             }
             return false;
         }

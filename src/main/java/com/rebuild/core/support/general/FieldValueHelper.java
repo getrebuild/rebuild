@@ -27,6 +27,7 @@ import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -41,6 +42,7 @@ import java.util.regex.Pattern;
  * @author zhaofang123@gmail.com
  * @since 09/23/2018
  */
+@Slf4j
 public class FieldValueHelper {
 
     /**
@@ -119,7 +121,11 @@ public class FieldValueHelper {
         JSONObject mixValue = JSONUtils.toJSONObject(
                 new String[] { "id", "text" }, new Object[] { id, text });
         if (id != null) {
-            mixValue.put("entity", MetadataHelper.getEntityName(id));
+            if (MetadataHelper.containsEntity(id.getEntityCode())) {
+                mixValue.put("entity", MetadataHelper.getEntityName(id));
+            } else {
+                log.warn("Entity no longer exists : {}", id);
+            }
         }
         return mixValue;
     }

@@ -1234,6 +1234,7 @@
   "HookRequestError": "Request failed : %s",
   "ModifyFileFolder": "Modify file folder",
   "AdminSettings": "Admin Settings",
+  "EntityUnexistsNotRestore": "The owning entity no longer exists and cannot be restored",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

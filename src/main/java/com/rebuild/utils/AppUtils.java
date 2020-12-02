@@ -14,13 +14,14 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
-import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
@@ -178,5 +179,21 @@ public class AppUtils {
     public static boolean isRbMobile(HttpServletRequest request) {
         String UA = request.getHeader("user-agent");
         return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
+    }
+
+    /**
+     * 请求类型
+     *
+     * @param request
+     * @return
+     * @see MimeTypeUtils#parseMimeType(String)
+     */
+    public static MimeType parseMimeType(HttpServletRequest request) {
+        try {
+            String acceptType = request.getHeader("Accept").split(",")[0];
+            return MimeTypeUtils.parseMimeType(acceptType);
+        } catch (Exception ignore) {
+        }
+        return null;
     }
 }

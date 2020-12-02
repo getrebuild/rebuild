@@ -18,6 +18,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.general.FieldValueHelper;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.LinkedList;
@@ -88,7 +89,7 @@ public class RecycleStore {
             JSONObject recordContent = (JSONObject) o[1];
             String recordName = recordContent.getString(belongEntity.getNameField().getName());
             if (StringUtils.isBlank(recordName)) {
-                recordName = recordId.toLiteral().toUpperCase();
+                recordName = FieldValueHelper.NO_LABEL_PREFIX + recordId.toLiteral().toUpperCase();
             }
 
             clone.setID("recordId", recordId);
