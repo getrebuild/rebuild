@@ -7,10 +7,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.exception.jdbc.SqlSyntaxException;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.BaseConfigurationService;
@@ -60,7 +62,16 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
 
     @Override
     public int delete(ID recordId) {
-        int inUsed = ApprovalHelper.checkInUsed(recordId);
+        int inUsed = 0;
+        try {
+            inUsed = ApprovalHelper.checkInUsed(recordId);
+        } catch (SqlSyntaxException sqlex) {
+            // fix: 表已不存在
+            if (!ThrowableUtils.getRootCause(sqlex).getLocalizedMessage().contains("doesn't exist")) {
+                throw sqlex;
+            }
+        }
+
         if (inUsed > 0) {
             throw new DataSpecificationException(Language.LF("DeleteApprovalInUsedOnX", inUsed));
         }

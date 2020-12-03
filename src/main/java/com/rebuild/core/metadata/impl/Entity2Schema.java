@@ -192,10 +192,11 @@ public class Entity2Schema extends Field2Schema {
             throw new MetadataModificationException(Language.L("BuiltInNotDelete"));
         }
 
-        // 强制删除先删除主实体
+        // 强制删除先删除明细实体
+
         if (entity.getDetailEntity() != null) {
             if (force) {
-                LOG.warn("Force drop detail entity : " + entity.getDetailEntity().getName());
+                LOG.warn("Force drop detail entity first : " + entity.getDetailEntity().getName());
                 boolean dropDetail = this.dropEntity(entity.getDetailEntity(), true);
                 if (dropDetail) {
                     entity = MetadataHelper.getEntity(entity.getEntityCode());
@@ -224,13 +225,7 @@ public class Entity2Schema extends Field2Schema {
             }
         }
 
-        String ddl = String.format("drop table if exists `%s`", entity.getPhysicalName());
-        try {
-            Application.getSqlExecutor().execute(ddl, 10 * 60);
-        } catch (Throwable ex) {
-            LOG.error("DDL ERROR : \n" + ddl, ex);
-            return false;
-        }
+        // 先删配置
 
         final ID sessionUser = UserContextHolder.getUser(true);
         if (sessionUser == null) UserContextHolder.setUser(user);
@@ -239,6 +234,16 @@ public class Entity2Schema extends Field2Schema {
             Application.getBean(MetaEntityService.class).delete(metaRecordId);
         } finally {
             if (sessionUser == null) UserContextHolder.clear();
+        }
+
+        // 最后删表
+
+        String ddl = String.format("drop table if exists `%s`", entity.getPhysicalName());
+        try {
+            Application.getSqlExecutor().execute(ddl, 10 * 60);
+        } catch (Throwable ex) {
+            LOG.error("DDL ERROR : \n" + ddl, ex);
+            return false;
         }
 
         MetadataHelper.getMetadataFactory().refresh(false);
