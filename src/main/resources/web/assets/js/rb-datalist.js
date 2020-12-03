@@ -1045,7 +1045,7 @@ $(document).ready(() => {
   const via = $urlp('via', location.hash)
   if (via) {
     wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $(`<div class="badge badge-border filter-tips">${$L('DatasFiltered')}<a class="close" title="${$L('ViewAllDatas')}">&times;</a></div>`).appendTo('.dataTables_filter')
+    const $cleanVia = $(`<div class="badge filter-badge">${$L('DatasFiltered')}<a class="close" title="${$L('ViewAllDatas')}">&times;</a></div>`).appendTo('.dataTables_filter')
     $cleanVia.find('a').click(() => {
       wpc.protocolFilter = null
       RbListPage.reload()
