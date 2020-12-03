@@ -144,6 +144,9 @@ public class ReferenceSearchController extends EntityController {
 
         Field fieldMeta = entity.getField(field);
         ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, false);
+        if (useClassification == null) {
+            return JSONUtils.EMPTY_ARRAY;
+        }
 
         String q = getParameter(request, "q");
         // 为空则加载最近使用的

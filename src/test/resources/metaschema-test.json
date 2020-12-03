@@ -1,11 +1,20 @@
 {
   "entity": "TESTALLFIELDS999",
-  "entityIcon": "fire",
+  "entityIcon": "texture",
   "entityLabel": "TESTALLFIELDS999",
-  "comments": "test metaschema import",
+  "comments": "1",
   "nameField": "TESTALLFIELDSName",
-  "quickFields": "EMAIL1,PHONE",
+  "quickFields": "",
   "fields": [
+    {
+      "field": "URL1",
+      "fieldLabel": "URL1",
+      "displayType": "URL",
+      "nullable": true,
+      "updatable": true,
+      "repeatable": true,
+      "queryable": true
+    },
     {
       "field": "PHONE",
       "fieldLabel": "PHONE",
@@ -25,12 +34,19 @@
       "queryable": true,
       "items": [
         [
-          "P1",
-          false
+          "PP1",
+          false,
+          0
         ],
         [
-          "P2",
-          true
+          "PP2",
+          false,
+          0
+        ],
+        [
+          "PP3",
+          false,
+          0
         ]
       ]
     },
@@ -41,7 +57,10 @@
       "nullable": true,
       "updatable": true,
       "repeatable": true,
-      "queryable": false
+      "queryable": true,
+      "extConfig": {
+        "classification": "018-0000000000000001"
+      }
     },
     {
       "field": "AVATAR1",
@@ -50,21 +69,12 @@
       "nullable": true,
       "updatable": true,
       "repeatable": true,
-      "queryable": false
+      "queryable": true
     },
     {
       "field": "DECIMAL",
       "fieldLabel": "DECIMAL",
       "displayType": "DECIMAL",
-      "nullable": true,
-      "updatable": true,
-      "repeatable": true,
-      "queryable": true
-    },
-    {
-      "field": "rbURL2",
-      "fieldLabel": "URL",
-      "displayType": "URL",
       "nullable": true,
       "updatable": true,
       "repeatable": true,
@@ -78,6 +88,16 @@
       "updatable": true,
       "repeatable": true,
       "queryable": true
+    },
+    {
+      "field": "N2NREFERENCE",
+      "fieldLabel": "N2NREFERENCE",
+      "displayType": "N2NREFERENCE",
+      "nullable": true,
+      "updatable": true,
+      "repeatable": true,
+      "queryable": true,
+      "refEntity": "TESTALLFIELDS999"
     },
     {
       "field": "EMAIL1",
@@ -113,7 +133,7 @@
       "nullable": true,
       "updatable": false,
       "repeatable": true,
-      "queryable": false
+      "queryable": true
     },
     {
       "field": "SERIES",
@@ -143,14 +163,19 @@
       "queryable": true,
       "items": [
         [
-          "M1",
+          "1哈哈",
           false,
           1
         ],
         [
-          "M2",
+          "2Abc",
           true,
           2
+        ],
+        [
+          "3",
+          true,
+          4
         ]
       ]
     },
@@ -188,11 +213,7 @@
       "nullable": true,
       "updatable": true,
       "repeatable": true,
-      "queryable": true,
-      "defaultValue": "{NOW + 1D}",
-      "extConfig": {
-        "dateFormat": "yyyy-MM-dd"
-      }
+      "queryable": true
     },
     {
       "field": "DATETIME",
@@ -223,8 +244,7 @@
       "updatable": true,
       "repeatable": true,
       "queryable": true,
-      "refEntity": "TESTALLFIELDS999",
-      "refEntityLabel": "TESTALLFIELDS999"
+      "refEntity": "TESTALLFIELDS999"
     }
   ]
 }

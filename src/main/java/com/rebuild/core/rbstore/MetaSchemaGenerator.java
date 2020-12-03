@@ -9,6 +9,7 @@ package com.rebuild.core.rbstore;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -89,7 +90,8 @@ public class MetaSchemaGenerator {
         // 字段
         JSONArray metaFields = new JSONArray();
         for (Field field : entity.getFields()) {
-            if (MetadataHelper.isCommonsField(field)
+            if (field.getType() == FieldType.PRIMARY
+                    || MetadataHelper.isCommonsField(field)
                     || (isDetail && MetadataHelper.getDetailToMainField(entity).equals(field))) {
                 continue;
             }

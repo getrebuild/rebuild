@@ -153,9 +153,9 @@ const CTs = {
   D: $L('CalcDateD'),
   H: $L('CalcDateH'),
   L1: $L('CalcClass1Level'),
-  L2: $L('CalcClass1Leve2'),
-  L3: $L('CalcClass1Leve3'),
-  L4: $L('CalcClass1Leve4'),
+  L2: $L('CalcClass2Level'),
+  L3: $L('CalcClass3Level'),
+  L4: $L('CalcClass4Level'),
 }
 
 let dlgAxisProps
@@ -197,8 +197,9 @@ const add_axis = (target, axis) => {
   fieldLabel = fieldLabel || '[' + fieldName.toUpperCase() + ']'
 
   if (isNumAxis) {
-    $dropdown.find('.J_text, .J_date, .J_clazz').remove()
-    if (fieldType !== 'num') $dropdown.find('.J_num').remove()
+    $dropdown.find('.J_date, .J_clazz').remove()
+    if (fieldType === 'num') $dropdown.find('.J_text').remove()
+    else $dropdown.find('.J_num').remove()
   } else {
     $dropdown.find('.J_text, .J_num').remove()
     if (fieldType !== 'date') $dropdown.find('.J_date').remove()
