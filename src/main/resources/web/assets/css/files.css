@@ -64,7 +64,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .file-list-item > div.info {
   color: #aaa;
-  font-size: 12px;
   text-align: right;
   width: 120px;
 }
@@ -104,9 +103,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 12px;
   line-height: 1;
   float: left;
-}
-
-.file-list-item > div.detail > .extras > span.fsize {
   padding-top: 4px;
 }
 
@@ -121,7 +117,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .file-list-item > div.detail > .extras > span.fop > a {
   color: #999;
   display: inline-block;
-  padding: 0 8px;
+  padding: 0 10px 0 4px;
 }
 
 .file-list-item > div.detail > .extras > span.fop > a:hover {
@@ -135,7 +131,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .file-list-item > div.detail .extras > span + span::before {
   content: '·';
-  margin: 0 3px 0 10px;
+  margin: 0 8px 0 10px;
 }
 
 .file-list-item > div.detail a:hover {
