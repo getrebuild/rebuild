@@ -20,7 +20,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.NoRecordFoundException;
@@ -69,19 +68,17 @@ public class ReferenceSearchController extends EntityController {
         // 查询引用字段的实体
         Entity searchEntity = referenceField.getReferenceEntity();
 
-        // NOTE 引用字段数据过滤仅在搜索时有效，并非强限制
-        String protocolFilter = new ProtocolFilterParser(null).parseRef(field + "." + entity);
+        // 引用字段数据过滤
+        // 启用数据过滤后最近搜索将不可用
+        String protocolFilter = new ProtocolFilterParser(null).parseRef(field + "." + entity.getName());
 
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {
-            if (isDataFilterOn(referenceField)) return JSONUtils.EMPTY_ARRAY;
+            if (protocolFilter != null) return JSONUtils.EMPTY_ARRAY;
 
-            ID[] recently = null;
-            if (protocolFilter == null) {
-                String type = getParameter(request, "type");
-                recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
-            }
+            String type = getParameter(request, "type");
+            ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
 
             if (recently == null || recently.length == 0) {
                 return JSONUtils.EMPTY_ARRAY;
@@ -90,7 +87,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q);
+        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q, protocolFilter);
     }
 
     // 搜索指定实体的指定字段
@@ -111,7 +108,7 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q);
+        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q, null);
     }
 
     /**
@@ -120,9 +117,10 @@ public class ReferenceSearchController extends EntityController {
      * @param searchEntity
      * @param quickFields
      * @param q
+     * @param appendWhere
      * @return
      */
-    private JSON buildResultSearch(Entity searchEntity, String quickFields, String q) {
+    private JSON buildResultSearch(Entity searchEntity, String quickFields, String q, String appendWhere) {
         // 查询字段
         Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, quickFields);
         if (searchFields.isEmpty()) {
@@ -133,6 +131,9 @@ public class ReferenceSearchController extends EntityController {
         q = StringEscapeUtils.escapeSql(q);
         String like = " like '%" + q + "%'";
         String searchWhere = StringUtils.join(searchFields.iterator(), like + " or ") + like;
+        if (appendWhere != null) {
+            searchWhere = String.format("(%s) and (%s)", appendWhere, searchWhere);
+        }
 
         List<Object> result = resultSearch(searchWhere, searchEntity, true);
         return (JSON) JSON.toJSON(result);
@@ -275,23 +276,12 @@ public class ReferenceSearchController extends EntityController {
         mv.getModel().put("canCreate",
                 Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
 
-        if (isDataFilterOn(field)) {
+        if (ProtocolFilterParser.getFieldDataFilter(field) != null) {
             mv.getModel().put("referenceFilter", "ref:" + getParameter(request, "field"));
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
         }
 
         return mv;
-    }
-
-    /**
-     * 引用字段启用了数据过滤后最近搜索将不可用
-     *
-     * @param field
-     * @return
-     */
-    private boolean isDataFilterOn(Field field) {
-        String dataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
-        return JSONUtils.wellFormat(dataFilter) && dataFilter.length() > 10;
     }
 }

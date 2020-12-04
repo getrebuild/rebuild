@@ -84,12 +84,22 @@ public class ProtocolFilterParser {
         }
 
         Field field = MetadataHelper.getField(fieldAndEntity[1], fieldAndEntity[0]);
-        String referenceDataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
+        JSONObject advFilter = getFieldDataFilter(field);
+        return advFilter == null ? null :  new AdvFilterParser(advFilter).toSqlWhere();
+    }
 
-        if (JSONUtils.wellFormat(referenceDataFilter)) {
-            JSONObject advFilter = JSON.parseObject(referenceDataFilter);
-            if (advFilter.get("items") != null && !advFilter.getJSONArray("items").isEmpty()) {
-                return new AdvFilterParser(advFilter).toSqlWhere();
+    /**
+     * 是否启用了数据过滤
+     *
+     * @param field
+     * @return
+     */
+    public static JSONObject getFieldDataFilter(Field field) {
+        String dataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
+        if (JSONUtils.wellFormat(dataFilter) && dataFilter.length() > 10) {
+            JSONObject advFilter = JSON.parseObject(dataFilter);
+            if (advFilter.get("items") != null && !advFilter.getJSONArray ("items").isEmpty()) {
+                return advFilter;
             }
         }
         return null;
