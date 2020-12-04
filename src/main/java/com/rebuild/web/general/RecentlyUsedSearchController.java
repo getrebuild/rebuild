@@ -46,10 +46,16 @@ public class RecentlyUsedSearchController extends BaseController {
 
     @PostMapping("recently-add")
     public RespBody addRecently(HttpServletRequest request) {
-        ID id = getIdParameterNotNull(request, "id");
+        final ID user = getRequestUser(request);
+        String ids = getParameterNotNull(request, "id");
         String type = getParameter(request, "type");
 
-        RecentlyUsedHelper.add(getRequestUser(request), id, type);
+        for (String id : ids.split(",")) {
+            if (ID.isId(id)) {
+                RecentlyUsedHelper.add(user, ID.valueOf(id), type);
+            }
+        }
+
         return RespBody.ok();
     }
 

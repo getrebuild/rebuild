@@ -69,13 +69,14 @@ public class ReferenceSearchController extends EntityController {
         // 查询引用字段的实体
         Entity searchEntity = referenceField.getReferenceEntity();
 
-        // 引用字段数据过滤仅在搜索时有效
-        // 启用数据过滤后最近搜索将不可用
+        // NOTE 引用字段数据过滤仅在搜索时有效，并非强限制
         String protocolFilter = new ProtocolFilterParser(null).parseRef(field + "." + entity);
 
         String q = getParameter(request, "q");
         // 为空则加载最近使用的
         if (StringUtils.isBlank(q)) {
+            if (isDataFilterOn(referenceField)) return JSONUtils.EMPTY_ARRAY;
+
             ID[] recently = null;
             if (protocolFilter == null) {
                 String type = getParameter(request, "type");
@@ -102,6 +103,7 @@ public class ReferenceSearchController extends EntityController {
         if (StringUtils.isBlank(q)) {
             String type = getParameter(request, "type");
             ID[] recently = RecentlyUsedHelper.gets(user, searchEntity.getName(), type);
+
             if (recently.length == 0) {
                 return JSONUtils.EMPTY_ARRAY;
             } else {
@@ -273,14 +275,23 @@ public class ReferenceSearchController extends EntityController {
         mv.getModel().put("canCreate",
                 Application.getPrivilegesManager().allowCreate(user, searchEntity.getEntityCode()));
 
-        // 是否启用了字段过滤
-        String referenceDataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
-        if (referenceDataFilter != null && referenceDataFilter.length() > 10) {
+        if (isDataFilterOn(field)) {
             mv.getModel().put("referenceFilter", "ref:" + getParameter(request, "field"));
         } else {
             mv.getModel().put("referenceFilter", StringUtils.EMPTY);
         }
 
         return mv;
+    }
+
+    /**
+     * 引用字段启用了数据过滤后最近搜索将不可用
+     *
+     * @param field
+     * @return
+     */
+    private boolean isDataFilterOn(Field field) {
+        String dataFilter = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.REFERENCE_DATAFILTER);
+        return JSONUtils.wellFormat(dataFilter) && dataFilter.length() > 10;
     }
 }

@@ -1712,11 +1712,18 @@ th.column-fixed {
 .modal.rbview .modal-dialog .modal-content {
   border-radius: 0;
   max-width: 100%;
-  width: 1220px;
-  margin: 0 -1301px 0 0;
+  width: 1404px;
+  margin: 0 -1414px 0 0;
   float: right;
   position: relative;
   height: 100%;
+}
+
+@media screen and (max-width: 1464px) {
+  .modal.rbview .modal-dialog .modal-content {
+    width: 1220px;
+    margin: 0 -1230px 0 0;
+  }
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {

@@ -811,7 +811,7 @@ class RbFormDateTime extends RbFormElement {
         this.__datetimepicker.datetimepicker('remove')
         this.__datetimepicker = null
       }
-    } else {
+    } else if (!this.props.readonly) {
       const format = (this.props.datetimeFormat || this.props.dateFormat).replace('mm', 'ii').toLowerCase()
       let minView = 0
       let startView = 'month'
@@ -1278,22 +1278,27 @@ class RbFormN2NReference extends RbFormReference {
   }
 
   showSearcher_call(selected, that) {
-    $.get(`/commons/search/read-labels?ids=${selected.join(',')}`, (res) => {
+    const ids = selected.join(',')
+    $.get(`/commons/search/read-labels?ids=${ids}`, (res) => {
       const val = []
       for (let k in res.data) {
         val.push({ id: k, text: res.data[k] })
       }
       that.setValue(val, true)
     })
+    this._recentlyAdd(ids)
   }
 
   onEditModeChanged(destroy) {
     super.onEditModeChanged(destroy)
     if (!destroy && this.__select2) {
-      this.__select2.on('select2:select', function (e) {
-        $.post(`/commons/search/recently-add?id=${e.params.data.id}`)
-      })
+      this.__select2.on('select2:select', (e) => this._recentlyAdd(e.params.data.id))
     }
+  }
+
+  _recentlyAdd(id) {
+    if (!id) return
+    $.post(`/commons/search/recently-add?id=${id}`)
   }
 }
 
