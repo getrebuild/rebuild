@@ -1177,13 +1177,6 @@ class RbFormReference extends RbFormElement {
   }
 
   setValue(val) {
-    // // TODO 只读模式下（回填）
-    // if (this.props.readonly && val) {
-    //   this.handleChange({ target: { value: val.id } })
-    //   $(this._fieldValue).val(val.text)
-    //   return
-    // }
-
     if (val) {
       const o = new Option(val.text, val.id, true, true)
       this.__select2.append(o)
@@ -1192,12 +1185,6 @@ class RbFormReference extends RbFormElement {
       this.__select2.val(null).trigger('change')
     }
   }
-
-  // getValue() {
-  //   let val = super.getValue()
-  //   if (typeof val === 'object') val = val.id
-  //   return val
-  // }
 
   showSearcher() {
     const that = this
@@ -1267,15 +1254,24 @@ class RbFormN2NReference extends RbFormReference {
     this.setState({ value: val }, () => checkValue === true && this.checkValue())
   }
 
-  setValue(val) {
+  setValue(val, isAppend) {
     if (val && val.length > 0) {
+      const currentValue = this.state.value || ''
       const ids = []
       val.forEach((item) => {
-        const o = new Option(item.text, item.id, true, true)
-        this.__select2.append(o)
-        ids.push(item.id)
+        if (!currentValue.includes(item.id)) {
+          const o = new Option(item.text, item.id, true, true)
+          this.__select2.append(o)
+          ids.push(item.id)
+        }
       })
-      this.handleChange({ target: { value: ids.join(',') } }, true)
+
+      if (ids.length > 0) {
+        let ss = ids.join(',')
+        if (isAppend && (currentValue && currentValue !== '')) ss = currentValue + ',' + ss
+        this.handleChange({ target: { value: ss } }, true)
+      }
+
     } else {
       this.__select2.val(null).trigger('change')
     }
@@ -1287,7 +1283,7 @@ class RbFormN2NReference extends RbFormReference {
       for (let k in res.data) {
         val.push({ id: k, text: res.data[k] })
       }
-      that.setValue(val)
+      that.setValue(val, true)
     })
   }
 

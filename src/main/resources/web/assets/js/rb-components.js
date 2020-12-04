@@ -259,6 +259,7 @@ class RbAlert extends React.Component {
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', () => {
+        $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
       })
