@@ -89,6 +89,7 @@ public class NavBuilder extends NavManager {
             JSONObject nav = (JSONObject) iter.next();
             JSONArray subNavs = nav.getJSONArray("sub");
 
+            // 父级菜单
             if (subNavs != null && !subNavs.isEmpty()) {
                 for (Iterator<Object> subIter = subNavs.iterator(); subIter.hasNext(); ) {
                     JSONObject subNav = (JSONObject) subIter.next();
@@ -98,9 +99,8 @@ public class NavBuilder extends NavManager {
                 }
 
                 // 无子级，移除主菜单
-                if (subNavs.isEmpty()) {
-                    iter.remove();
-                }
+                if (subNavs.isEmpty()) iter.remove();
+
             } else if (isFilterNavItem(nav, user)) {
                 iter.remove();
             } else if (NAV_PROJECT.equals(nav.getString("value"))) {
@@ -121,6 +121,7 @@ public class NavBuilder extends NavManager {
         String type = nav.getString("type");
         if ("ENTITY".equalsIgnoreCase(type)) {
             String entity = nav.getString("value");
+
             if (NAV_PARENT.equals(entity)) {
                 return true;
             } else if (NAV_FEEDS.equals(entity) || NAV_FILEMRG.equals(entity) || NAV_PROJECT.equals(entity)) {
@@ -160,6 +161,8 @@ public class NavBuilder extends NavManager {
     }
 
     /**
+     * 首次安装添加菜单
+     *
      * @param initEntity
      */
     public void addInitNavOnInstall(String[] initEntity) {
@@ -276,7 +279,7 @@ public class NavBuilder extends NavManager {
                 navText);
         StringBuilder navHtml = new StringBuilder(navItemHtml);
 
-        if (subNavs != null) {
+        if (subNavs != null && !subNavs.isEmpty()) {
             StringBuilder subHtml = new StringBuilder()
                     .append("<ul class=\"sub-menu\"><li class=\"title\">")
                     .append(navText)
