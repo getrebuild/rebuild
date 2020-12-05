@@ -186,12 +186,17 @@ public class AppUtils {
      */
     public static MimeType parseMimeType(HttpServletRequest request) {
         try {
-            String acceptType = StringUtils.defaultIfEmpty(request.getHeader("Accept"), request.getContentType());
-            if (StringUtils.isBlank(acceptType)) return null;
+            String acceptType = request.getHeader("Accept");
+            if (acceptType == null) acceptType = request.getContentType();
 
-            acceptType = acceptType.split(",")[0];
+            // Via Spider?
+            if (acceptType == null) return MimeTypeUtils.TEXT_HTML;
+
+            acceptType = acceptType.split("[,;]")[0];
+            // Accpet ALL?
             if ("*/*".equals(acceptType)) return MimeTypeUtils.TEXT_HTML;
-            else return MimeTypeUtils.parseMimeType(acceptType);
+
+            return MimeTypeUtils.parseMimeType(acceptType);
 
         } catch (Exception ignore) {
         }

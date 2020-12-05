@@ -1235,6 +1235,7 @@
   "ModifyFileFolder": "修改文件目錄",
   "AdminSettings": "管理員後台",
   "EntityUnexistsNotRestore": "所屬實體已經不存在，無法恢復",
+  "Department0": "部門",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",
