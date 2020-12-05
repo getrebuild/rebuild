@@ -22,7 +22,7 @@
   <meta name="rb.storageUrl" th:content="${storageUrl}" />
   <meta name="rb.fileSharable" th:content="${fileSharable}" />
   <meta name="rb.csrfToken" th:content="${csrfToken}" />
-  <meta name="rb.accessToken" th:content="${accessToken}" />
+  <meta name="rb.authToken" th:content="${authToken}" />
   <th:block th:if="${user != null}">
     <meta name="rb.currentUser" th:content="${user.getId()}" />
     <meta name="rb.isAdminUser" th:content="${user.isAdmin()}" />

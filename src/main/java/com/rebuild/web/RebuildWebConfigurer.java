@@ -19,10 +19,9 @@ import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -47,10 +46,9 @@ import java.util.Map;
  * @author devezhao
  * @since 2020/8/26
  */
+@Slf4j
 @Component
 public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver, Initialization {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RebuildWebConfigurer.class);
 
     @Resource(name = "thymeleafViewResolver")
     private ThymeleafViewResolver thymeleafViewResolver;
@@ -143,9 +141,9 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         if (ex instanceof DefinedException) {
             errorCode = ((DefinedException) ex).getErrorCode();
-            LOG.warn(errorLog, Application.devMode() ? ex : null);
+            log.warn(errorLog, Application.devMode() ? ex : null);
         } else {
-            LOG.error(errorLog, ex);
+            log.error(errorLog, ex);
         }
 
         error.getModel().put("error_code", errorCode);
@@ -170,6 +168,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
         if (refUrl == null) return reqUrl;
         else if (reqUrl.endsWith("/error")) return refUrl;
-        else return reqUrl + " [ " + refUrl + " ]";
+        else return reqUrl + " via " + refUrl;
     }
 }
