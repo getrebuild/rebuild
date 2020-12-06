@@ -51,17 +51,23 @@ function compileCss(m) {
 
 const _assetsHexCached = {}
 
-function _assetsHex(file, m) {
+function _useAssetsHex(file) {
   let hex = _assetsHexCached[file]
   if (!hex) {
     try {
-      hex = revHash(fs.readFileSync(`${WEB_ROOT || m}${file}`))
-    } catch (err) {
-      console.log('Cannot #revHash : ' + file, err)
-      // Use date
-      const d = new Date()
-      hex = [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('')
+      hex = revHash(fs.readFileSync(`${WEB_ROOT}${file}`))
+    } catch (err0) {
+      try {
+        hex = revHash(fs.readFileSync(`${RBV_ROOT}${file}`))
+      } catch (err) {
+        console.log('Cannot #revHash : ' + file, err)
+
+        // Use date
+        const d = new Date()
+        hex = [d.getFullYear(), d.getMonth() + 1, d.getDate()].join('')
+      }
     }
+
     _assetsHexCached[file] = hex
   }
   return hex
@@ -86,7 +92,7 @@ function compileHtml(m) {
           if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
           return '<script th:src="@{' + file + '}"></script>'
         } else {
-          file += '?v=' + _assetsHex(file.split('?')[0], m)
+          file += '?v=' + _useAssetsHex(file.split('?')[0], m)
           return '<script th:src="@{' + file + '}"></script>'
         }
       })
@@ -104,7 +110,7 @@ function compileHtml(m) {
         if (file.includes('/lib/')) {
           return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         } else {
-          file += '?v=' + _assetsHex(file.split('?')[0], m)
+          file += '?v=' + _useAssetsHex(file.split('?')[0], m)
           return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         }
       })
