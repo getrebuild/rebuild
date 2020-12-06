@@ -17,17 +17,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ActionFactory {
 
-    private static final TriggerAction NORBV_FOUND = new TriggerAction() {
-        @Override
-        public ActionType getType() {
-            throw new UnsupportedOperationException();
-        }
-        @Override
-        public void execute(OperatingContext operatingContext) throws TriggerException {
-            throw new UnsupportedOperationException();
-        }
-    };
-
     /**
      * @return
      */
@@ -49,16 +38,42 @@ public class ActionFactory {
      * @return
      */
     public static TriggerAction createAction(String type, ActionContext context) {
+        ActionType actionType = null;
         try {
-            return ActionType.valueOf(type).newInstance(context);
+            actionType = ActionType.valueOf(type);
+            return actionType.newInstance(context);
         } catch (ClassNotFoundException rbv) {
+
             if (rbv.getLocalizedMessage().contains(".rbv.")) {
-                return NORBV_FOUND;
+                return new NoRbv(actionType);
             } else {
                 throw new TriggerException("Unknown trigger type : " + type, rbv);
             }
+
         } catch (ReflectiveOperationException ex) {
             throw new TriggerException("Unknown trigger type : " + type, ex);
+        }
+    }
+
+    /**
+     * RBV 功能
+     */
+    private static class NoRbv implements TriggerAction {
+
+        private ActionType actionType;
+        NoRbv(ActionType actionType) {
+            this.actionType = actionType;
+        }
+
+        @Override
+        public ActionType getType() {
+            if (actionType == null) throw new UnsupportedOperationException();
+            else return actionType;
+        }
+
+        @Override
+        public void execute(OperatingContext operatingContext) throws TriggerException {
+            log.warn("Unsupportted @rbv feature");
         }
     }
 }

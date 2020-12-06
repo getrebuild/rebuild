@@ -64,7 +64,7 @@ public enum ActionType {
      * @return
      * @throws ReflectiveOperationException
      */
-    public TriggerAction newInstance(ActionContext context) throws ReflectiveOperationException {
+    protected TriggerAction newInstance(ActionContext context) throws ReflectiveOperationException {
         Class<?> clazz = ClassUtils.getClass(getActionClass());
         Constructor<?> c = ReflectionUtils.accessibleConstructor(clazz, ActionContext.class);
         return (TriggerAction) c.newInstance(context);
