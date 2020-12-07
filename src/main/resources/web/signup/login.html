@@ -54,7 +54,9 @@
     <div class="rb-wrapper rb-login">
       <div class="rb-bgimg"></div>
       <div class="rb-content">
-        <div class="announcement-wrapper"></div>
+        <div class="announcement-wrapper">
+          <div class="bg-danger" th:if="${UsersMsg != null}"><i class="icon zmdi zmdi-alert-octagon"></i><p th:utext="${UsersMsg}"></p></div>
+        </div>
         <div class="main-content container-fluid">
           <div class="splash-container mb-1">
             <div class="card card-border-color card-border-color-primary">
@@ -139,10 +141,10 @@
           if (!!vcode) url += '&vcode=' + vcode
 
           $.post(url, passwd, function (res) {
-            if (res.error_code == 0) {
+            if (res.error_code === 0) {
               if (res.data && res.data.danger) alert(res.data.danger)
               location.replace($decode($urlp('nexturl') || '../dashboard/home'))
-            } else if (res.error_msg == 'VCODE') {
+            } else if (res.error_msg === 'VCODE') {
               location.reload()
             } else {
               $('.vcode-row img').trigger('click')
@@ -154,7 +156,7 @@
         })
 
         $.get('/user/live-wallpaper', (res) => {
-          if (res.error_code != 0 || !res.data) return
+          if (res.error_code !== 0 || !res.data) return
           const bgimg = new Image()
           bgimg.src = res.data
           bgimg.onload = function () {
