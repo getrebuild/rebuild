@@ -23,7 +23,7 @@ class ContentAutoApproval extends ActionContentSpec {
                 <option value="">{$L('NotUse')}</option>
                 {(this.state.approvalList || []).map((item) => {
                   return (
-                    <option key={item.id} value={item.id}>
+                    <option key={item.id} value={item.id} disabled={item.disabled === true}>
                       {item.text}
                     </option>
                   )

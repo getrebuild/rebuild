@@ -116,10 +116,8 @@ class ApprovalEdit extends ConfigFormDlg {
 
   confirm = () => {
     const post = { name: this.state['name'] }
-    if (!post.name) {
-      RbHighbar.create($L('PlsInputSome,Name'))
-      return
-    }
+    if (!post.name) return RbHighbar.create($L('PlsInputSome,Name'))
+
     if (!this.props.id) {
       post.belongEntity = this.__select2.val()
       if (!post.belongEntity) {
