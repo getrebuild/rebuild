@@ -771,7 +771,6 @@
   "CasOperation": "Association operation",
   "DirectOperation": "Direct operation",
   "NoHistoryDetails": "No change details",
-  "SelectNoHistoryDetails": "Selected record no change details",
   "UpdateBefore": "Before Change",
   "UpdateAfter": "After Change",
   "LastActive": "Last Active",
@@ -1238,6 +1237,7 @@
   "AUTOTRANSFORM": "Automatic record transform",
   "UseTransform": "Use record transform",
   "EntityNotExists": "The entity %s no longer exists, please check the configuration",
+  "MultipleSessions": "Allow users to login multiple places",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

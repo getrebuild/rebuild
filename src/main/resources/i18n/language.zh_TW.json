@@ -771,7 +771,6 @@
   "CasOperation": "關聯操作",
   "DirectOperation": "直接操作",
   "NoHistoryDetails": "無變更詳情",
-  "SelectNoHistoryDetails": "選中紀錄無變更詳情",
   "UpdateBefore": "變更前",
   "UpdateAfter": "變更後",
   "LastActive": "最近活躍",
@@ -1238,6 +1237,7 @@
   "AUTOTRANSFORM": "自動記錄轉換",
   "UseTransform": "使用記錄轉換映射",
   "EntityNotExists": "實體 %s 已經不存在，請檢查配置",
+  "MultipleSessions": "同一用戶允許多地登錄",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",
