@@ -259,6 +259,7 @@ class RbAlert extends React.Component {
     const $root = $(this._dlg)
       .modal({ show: true, keyboard: true })
       .on('hidden.bs.modal', () => {
+        $keepModalOpen()
         $root.modal('dispose')
         $unmount($root.parent())
       })
@@ -406,7 +407,7 @@ class UserSelector extends React.Component {
     this._cached = {}
     this._useTabs = []
     if (props.hideUser !== true) this._useTabs.push(['User', $L('User')])
-    if (props.hideDepartment !== true) this._useTabs.push(['Department', $L('Department')])
+    if (props.hideDepartment !== true) this._useTabs.push(['Department', $L('Department0')])
     if (props.hideRole !== true) this._useTabs.push(['Role', $L('Role')])
     if (props.hideTeam !== true) this._useTabs.push(['Team', $L('Team')])
 
@@ -608,6 +609,7 @@ class UserSelector extends React.Component {
       const $prev = $active.length === 0 ? null : $active.prev()
       this._tryActive($active, $prev)
     } else if (e.keyCode === 13) {
+      e.preventDefault()
       const $active = $(this._scroller).find('li.active')
       if ($active.length === 1) {
         $active.trigger('click')

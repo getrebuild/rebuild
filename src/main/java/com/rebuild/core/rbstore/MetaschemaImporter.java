@@ -169,7 +169,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
             List<Field> fieldsList = new ArrayList<>();
             for (Object field : fields) {
                 Field unsafe = performField((JSONObject) field, entity);
-                fieldsList.add(unsafe);
+                if (unsafe != null) fieldsList.add(unsafe);
             }
 
             // 同步字段到数据库
@@ -267,6 +267,10 @@ public class MetaschemaImporter extends HeavyTask<String> {
         JSON extConfig = schemaField.getJSONObject("extConfig");
 
         DisplayType dt = DisplayType.valueOf(displayType);
+        if (dt == DisplayType.ID || MetadataHelper.isCommonsField(fieldName)) {
+            return null;
+        }
+
         Field unsafeField = new Field2Schema(this.getUser()).createUnsafeField(
                 belong, fieldName, fieldLabel, dt,
                 schemaField.getBooleanValue("nullable"),

@@ -80,6 +80,9 @@ public class ProjectController extends BaseController {
         return mv;
     }
 
+    /**
+     * @see com.rebuild.web.general.ListAndViewRedirection
+     */
     @GetMapping("search")
     public void searchProject(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String gs = getParameter(request, "gs");
@@ -114,11 +117,12 @@ public class ProjectController extends BaseController {
         }
 
         // 未找到就跳转到第一个项目
-        ConfigBean[] ee = ProjectManager.instance.getAvailable(getRequestUser(request));
-        if (ee.length == 0) {
+        ConfigBean[] ccc = ProjectManager.instance.getAvailable(getRequestUser(request));
+        if (ccc.length == 0) {
             response.sendError(404, Language.L("NoProjects"));
         } else {
-            String projectUrl = baseUrl + ee[0].getID("id") + "/tasks#gs=" + CodecUtils.urlEncode(gs);
+            String projectUrl = baseUrl + ccc[0].getID("id") + "/tasks#gs=";
+            if (gs != null) projectUrl += CodecUtils.urlEncode(gs);
             response.sendRedirect(projectUrl);
         }
     }

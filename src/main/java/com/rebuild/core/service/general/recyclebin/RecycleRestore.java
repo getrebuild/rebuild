@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
+import com.rebuild.core.DefinedException;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -22,12 +23,12 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.OperatingContext;
+import com.rebuild.core.support.i18n.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.TransactionStatus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -135,7 +136,7 @@ public class RecycleRestore {
      */
     private List<Record> conver2Record(JSONObject content, ID recordId) {
         if (!MetadataHelper.containsEntity(recordId.getEntityCode())) {
-            return Collections.emptyList();
+            throw new DefinedException(Language.L("EntityUnexistsNotRestore"));
         }
 
         JSONArray detailList = content.getJSONArray(RecycleBean.NAME_DETAILLIST);

@@ -52,8 +52,7 @@ class FilesList extends React.Component {
               onClick={(e) => {
                 this.loadData(null, this.__pageNo + 1)
                 e.preventDefault()
-              }}
-            >
+              }}>
               {$L('LoadMore')}
             </a>
           </div>

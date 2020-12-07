@@ -47,8 +47,6 @@ public class BootApplication extends SpringBootServletInitializer {
 
     private static String CONTEXT_PATH = null;
 
-    private static boolean DEBUG = false;
-
     /**
      * @return
      */
@@ -64,13 +62,12 @@ public class BootApplication extends SpringBootServletInitializer {
      * @return
      */
     public static boolean devMode() {
-        return DEBUG || BooleanUtils.toBoolean(System.getProperty("rbdev"));
+        return BooleanUtils.toBoolean(System.getProperty("rbdev"));
     }
 
     // ---------------------------------------- USE BOOT
 
     public static void main(String[] args) {
-        DEBUG = args.length > 0 && args[0].contains("rbdev=true");
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
         // kill -15 `cat ~/.rebuild/rebuild.pid`

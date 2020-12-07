@@ -156,6 +156,13 @@ class TriggerEdit extends ConfigFormDlg {
           .select2({
             placeholder: $L('SelectSome,TriggerType'),
             allowClear: false,
+            templateResult: function (s) {
+              if (s.id === 'HOOKURL') {
+                return $(`<span>${s.text} <sup class="rbv">V</sup></span>`)
+              } else {
+                return s.text
+              }
+            }
           })
           .on('change', () => {
             this.__getEntitiesByAction(s2ot.val())

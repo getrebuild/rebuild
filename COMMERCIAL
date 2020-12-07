@@ -1,50 +1,40 @@
 REBUILD 商业许可协议
-09/03/2019 初版
-09/29/2020 修订-1（生效中）
 
 概述
 
 1. 本协议是对 REBUILD 商业许可的说明。
-2. REBUILD 使用开源（GPL-3.0）和商用双重许可授权，适用何种授权取决于您使用 REBUILD 的目的。
+2. REBUILD 使用开源 GPL-3.0 和商用双重许可授权。
 3. 在您使用 REBUILD 前应当认真阅读并同意本协议之内容/条款。如您不同意本协议之内容/条款，应该立即停止使用。继续使用 REBUILD 则视为同意本协议之全部内容/条款。
-4. REBUILD 已通过国家版权局的著作权申请，受《世界版权公约》和《中华人民共和国著作权法》保护，滥用必究。
-5. 请特别注意，无论使用何种授权，都不得以任何形式中断/破坏 REBUILD 的授权检测机制。
+4. REBUILD 为上海锐昉科技有限公司旗下产品，已通过中国版权保护中心/中华版权代理中心著作权申请，受《世界版权公约》和《中华人民共和国著作权法》保护。
+5. 请特别注意，无论使用何种授权，都不得以任何形式中断/破坏 REBUILD 的授权监测机制。
 
-符合以下情况可以免费使用
+符合以下条件可免费使用：
 
 1. 仍旧作为开源项目（需采用 GPL-3.0 开源协议）。
-2. 出于非商业/非盈利目的的使用。
-3. 个人/企业内部/组织内部使用，不限制是否出于商业目的，但不能对 REBUILD 进行任何形式的销售/赠与/分发。
+2. 出于非商业/非盈利目的的使用（如 NPO 组织）。
+3. 个人/企业/组织内部使用，不限制是否出于商业目的，但不能对 REBUILD 进行任何形式的销售/赠与/分发，且不可派生（即基于 REBUILD 开发派生产品使用）。
 
-有偿使用
+不符合上述免费使用条件的需要付费使用。
 
-1. 如果您希望对 REBUILD 进行 OEM 或任何形式的销售/赠与/分发。
-2. 如果您希望获得 REBUILD 的官方售后服务和技术支持。
-
-如您对本协议有任何异议，请联系我们 https://getrebuild.com/
+如您对本协议有任何异议，请联系我们 https://getrebuild.com/ 或立即停止使用。
 
 
 REBUILD Commercial License Agreement (English version)
-09/03/2019 First edition
-09/29/2020 Revision-1 (EFFECTIVE)
 
 Overview
 
 1. This agreement describes the commercial license of REBUILD.
-2. REBUILD uses both open source (GPL-3.0) and commercial dual-licensing authorizations. Which authorization is applicable depends on your purpose of using REBUILD.
-3. You should carefully read and agree to the content/terms of this agreement before using REBUILD. If you do not agree with the content/terms of this agreement, you should stop using it immediately. Continuing to use REBUILD is deemed to agree to all the contents/terms of this agreement.
-4. REBUILD has passed the copyright application of the National Copyright Administration and is protected by the Universal Copyright Convention and the Copyright Law of the People's Republic of China. Abuse must be investigated.
-5. Please pay special attention that no matter what kind of authorization is used, the authorization detection mechanism of REBUILD cannot be interrupted/damaged in any way.
+2. REBUILD uses the open source GPL-3.0 and commercial dual license authorization.
+3. You should carefully read and agree to the content/terms of this agreement before using REBUILD. If you do not agree to the content/terms of this agreement, you should stop using it immediately. Continuing to use REBUILD is deemed to agree to all the content/terms of this agreement.
+4. REBUILD is a product of Shanghai Ruifang Technology Co., Ltd. It has passed the copyright application of China Copyright Protection Center/China Copyright Agency Center, and is protected by the "Universal Copyright Convention" and "The Copyright Law of the People's Republic of China".
+5. Please pay special attention that no matter what kind of authorization is used, the REBUILD authorization monitoring mechanism cannot be interrupted/undermined in any way.
 
-It can be used for free if it meets the following conditions
+It can be used for free if the following conditions are met:
 
 1. Still as an open source project (GPL-3.0 open source agreement is required).
-2. Use for non-commercial/non-profit purposes.
-3. For personal/enterprise/organizational use, there is no restriction on whether it is for commercial purposes, but REBUILD cannot be sold/gifted/distributed in any form.
+2. Use for non-commercial/non-profit purposes (such as NPO organizations).
+3. For internal use by individuals/enterprises/organizations, there is no restriction on whether it is for commercial purposes, but REBUILD cannot be sold/gifted/distributed in any form, and it cannot be derived (that is, use of derived products based on REBUILD development).
 
-Paid use
+Those who do not meet the above free use conditions need to pay for use.
 
-1. If you wish to OEM or any form of sale/gift/distribution of REBUILD.
-2. If you want to get official after-sales service and technical support from REBUILD.
-
-If you have any objections to this agreement, please contact us https://getrebuild.com/
+If you have any objections to this agreement, please contact us https://getrebuild.com/ or stop using it immediately.

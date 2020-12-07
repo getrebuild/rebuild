@@ -1045,7 +1045,7 @@ $(document).ready(() => {
   const via = $urlp('via', location.hash)
   if (via) {
     wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $(`<div class="badge badge-border filter-tips">${$L('DatasFiltered')}<a class="close" title="${$L('ViewAllDatas')}">&times;</a></div>`).appendTo('.dataTables_filter')
+    const $cleanVia = $(`<div class="badge filter-badge">${$L('DatasFiltered')}<a class="close" title="${$L('ViewAllDatas')}">&times;</a></div>`).appendTo('.dataTables_filter')
     $cleanVia.find('a').click(() => {
       wpc.protocolFilter = null
       RbListPage.reload()
@@ -1067,8 +1067,8 @@ class RbViewModal extends React.Component {
   constructor(props) {
     super(props)
     this.state = { ...props, inLoad: true, isHide: true, isDestroy: false }
-    this.mcWidth = this.props.subView === true ? 1170 : 1220
-    if ($(window).width() < 1280) this.mcWidth -= 100
+    this.mcWidth = this.props.subView === true ? 1344 : 1404
+    if ($(window).width() < 1464) this.mcWidth -= 184
   }
 
   render() {

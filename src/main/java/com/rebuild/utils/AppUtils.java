@@ -14,13 +14,14 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
-import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.MimeType;
+import org.springframework.util.MimeTypeUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
@@ -37,8 +38,8 @@ public class AppUtils {
     // 移动端 UA 前缀
     public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
 
-    // 移动端 Token Header
-    public static final String MOBILE_HF_AUTHTOKEN = "X-AuthToken";
+    // Token 认证
+    public static final String HF_AUTHTOKEN = "X-AuthToken";
 
     // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
@@ -53,7 +54,7 @@ public class AppUtils {
     }
 
     /**
-     * 获取当前请求用户
+     * 获取当前 Session 请求用户
      *
      * @param request
      * @return null or UserID
@@ -63,38 +64,34 @@ public class AppUtils {
     }
 
     /**
-     * 获取当前请求用户
+     * 获取当前 Session 请求用户
      *
      * @param request
      * @return null or UserID
-     * @see #getRequestUserViaRbMobile(HttpServletRequest, boolean)
+     * @see #getRequestUserViaToken(HttpServletRequest, boolean)
      */
     public static ID getRequestUser(HttpServletRequest request, boolean refreshToken) {
         Object user = request.getSession().getAttribute(WebUtils.CURRENT_USER);
         if (user == null) {
-            user = getRequestUserViaRbMobile(request, refreshToken);
+            user = getRequestUserViaToken(request, refreshToken);
         }
         return user == null ? null : (ID) user;
     }
 
     /**
-     * 获取 APP 请求用户
+     * 从 Header[X-AuthToken] 中获取请求用户
      *
      * @param request
      * @param refreshToken 是否需要刷新 Token 有效期
-     * @return
-     * @see #isRbMobile(HttpServletRequest)
+     * @return null or UserID
      */
-    public static ID getRequestUserViaRbMobile(HttpServletRequest request, boolean refreshToken) {
-        if (isRbMobile(request)) {
-            String xAuthToken = request.getHeader(MOBILE_HF_AUTHTOKEN);
-            ID user = AuthTokenManager.verifyToken(xAuthToken, false);
-            if (user != null && refreshToken) {
-                AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
-            }
-            return user;
+    public static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
+        String xAuthToken = request.getHeader(HF_AUTHTOKEN);
+        ID user = AuthTokenManager.verifyToken(xAuthToken, false);
+        if (user != null && refreshToken) {
+            AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
         }
-        return null;
+        return user;
     }
 
     /**
@@ -170,7 +167,7 @@ public class AppUtils {
     }
 
     /**
-     * 是否 APP
+     * 是否 APP 请求
      *
      * @param request
      * @return
@@ -178,5 +175,31 @@ public class AppUtils {
     public static boolean isRbMobile(HttpServletRequest request) {
         String UA = request.getHeader("user-agent");
         return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
+    }
+
+    /**
+     * 请求类型
+     *
+     * @param request
+     * @return
+     * @see MimeTypeUtils#parseMimeType(String)
+     */
+    public static MimeType parseMimeType(HttpServletRequest request) {
+        try {
+            String acceptType = request.getHeader("Accept");
+            if (acceptType == null) acceptType = request.getContentType();
+
+            // Via Spider?
+            if (acceptType == null) return MimeTypeUtils.TEXT_HTML;
+
+            acceptType = acceptType.split("[,;]")[0];
+            // Accpet ALL?
+            if ("*/*".equals(acceptType)) return MimeTypeUtils.TEXT_HTML;
+
+            return MimeTypeUtils.parseMimeType(acceptType);
+
+        } catch (Exception ignore) {
+        }
+        return null;
     }
 }

@@ -49,7 +49,9 @@ public class TestSupport {
         LOG.warn("TESTING Setup ...");
 
         try {
-            BootApplication.main(new String[] { "-Drbdev=true -Dserver.port=0" });
+            System.setProperty("spring.main.web-application-type", "none");  // No Web
+            System.setProperty("rbdev", "true");  // dev/debug mode
+            BootApplication.main(new String[0]);
             RebuildReady = true;
 
             DynamicMetadataContextHolder.setSkipLanguageRefresh();

@@ -63,9 +63,9 @@ public class WebConstants {
     public static final String CSRF_TOKEN = "csrfToken";
 
     /**
-     * Access-Token
+     * Auth-Token
      */
-    public static final String ACCESS_TOKEN = "accessToken";
+    public static final String AUTH_TOKEN = "authToken";
 
     // Object
 

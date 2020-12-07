@@ -48,14 +48,29 @@ class EntityTree extends React.Component {
   }
 }
 
+// eslint-disable-next-line no-undef
+class FilesList4Atts extends FilesList {
+  state = { ...this.props }
+
+  renderExtras(item) {
+    return item.relatedRecord ? (
+      <span>
+        <a title={$L('ClickViewReleated')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>
+          {item.relatedRecord[1]}
+        </a>
+      </span>
+    ) : null
+  }
+}
+
 $(document).ready(() => {
-  let clickNav = function (item) {
+  const clickNav = function (item) {
     filesList && filesList.loadData(item.id)
     $('.file-path .active').text(item.text)
   }
   renderRbcomp(<EntityTree call={clickNav} />, 'navTree')
-  // eslint-disable-next-line react/jsx-no-undef
-  renderRbcomp(<FilesList />, $('.file-viewport'), function () {
+
+  renderRbcomp(<FilesList4Atts />, $('.file-viewport'), function () {
     // eslint-disable-next-line no-global-assign
     filesList = this
   })

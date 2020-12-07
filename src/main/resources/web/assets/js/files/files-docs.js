@@ -357,11 +357,11 @@ class FilesList4Docs extends FilesList {
       <React.Fragment>
         <span className="fop">
           <a title={$L('Download')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
-            <i className="icon zmdi zmdi-download down-2"></i>
+            <i className="icon zmdi zmdi-download"></i>
           </a>
           {rb.fileSharable && (
-            <a title={$L('Share')} onClick={(e) => this._share(item, e)}>
-              <i className="icon zmdi zmdi-share fs-14 down-1"></i>
+            <a title={$L('Share0')} onClick={(e) => this._share(item, e)}>
+              <i className="icon zmdi zmdi-share"></i>
             </a>
           )}
         </span>

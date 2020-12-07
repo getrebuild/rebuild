@@ -68,9 +68,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $.ajaxSetup({
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
-      'X-Client': 'RB/WEB-2.0',
+      'X-Client': 'RB/WEB-2.1',
       'X-Csrf-Token': rb.csrfToken || '',
-      'X-Access-Token': rb.accessToken || '',
+      'X-Auth-Token': rb.authToken || '',
     },
     cache: false,
     complete: function (xhr) {

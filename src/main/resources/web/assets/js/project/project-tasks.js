@@ -13,8 +13,11 @@ let __AdvFilter
 $(document).ready(() => {
   // $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
   const gs = $decode($urlp('gs', location.hash))
-  if (gs) $('.search-input-gs, .J_search .input-search input').val(gs)
-
+  if (gs) {
+    $('.search-input-gs, .J_search .input-search input').val(gs)
+    $('.J_search .indicator-primary').removeClass('hide')
+  }
+  
   renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} search={gs} />, 'plan-boxes', function () {
     __PlanBoxes = this
     __draggable()

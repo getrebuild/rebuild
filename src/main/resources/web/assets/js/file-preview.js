@@ -26,19 +26,19 @@ class RbPreview extends React.Component {
   render() {
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
-    const downloadUrl = this.__buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
+    const downloadUrl = this._buildAbsoluteUrl(currentUrl, 'attname=' + $encode(fileName))
 
     let previewContent = null
-    if (this.__isImg(fileName)) previewContent = this.renderImgs()
-    else if (this.__isDoc(fileName)) previewContent = this.renderDoc()
-    else if (this.__isText(fileName)) previewContent = this.renderText()
-    else if (this.__isAudio(fileName)) previewContent = this.renderAudio()
-    else if (this.__isVideo(fileName)) previewContent = this.renderVideo()
+    if (this._isImg(fileName)) previewContent = this.renderImgs()
+    else if (this._isDoc(fileName)) previewContent = this.renderDoc()
+    else if (this._isText(fileName)) previewContent = this.renderText()
+    else if (this._isAudio(fileName)) previewContent = this.renderAudio()
+    else if (this._isVideo(fileName)) previewContent = this.renderVideo()
 
     // Has error
     if (this.state.errorMsg || !previewContent) {
       previewContent = (
-        <div className="unsupports shadow-lg rounded bg-light" onClick={this.__stopEvent}>
+        <div className="unsupports shadow-lg rounded bg-light" onClick={this._stopEvent}>
           <h4 className="mt-0">{this.state.errorMsg || $L('UpsupportPreviewTips')}</h4>
           <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>
             {$L('DownloadFile')}
@@ -90,21 +90,24 @@ class RbPreview extends React.Component {
           )}
           <img
             className={!this.state.imgRendered ? 'hide' : ''}
-            src={this.__buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
+            src={this._buildAbsoluteUrl(null, 'imageView2/2/w/1000/interlace/1/q/100')}
             alt="Loading"
             onLoad={() => this.setState({ imgRendered: true })}
-            onError={() => RbHighbar.error($L('LoadImgError'))}
+            onError={() => {
+              RbHighbar.error($L('LoadImgError'))
+              this.hide()
+            }}
           />
         </div>
         {this.props.urls.length > 1 && (
-          <div className="oper-box" onClick={this.__stopEvent}>
-            <a className="arrow float-left" onClick={this.__previmg}>
+          <div className="oper-box" onClick={this._stopEvent}>
+            <a className="arrow float-left" onClick={this._previmg}>
               <i className="zmdi zmdi-chevron-left" />
             </a>
             <span>
               {this.state.currentIndex + 1} / {this.props.urls.length}
             </span>
-            <a className="arrow float-right" onClick={this.__nextimg}>
+            <a className="arrow float-right" onClick={this._nextimg}>
               <i className="zmdi zmdi-chevron-right" />
             </a>
           </div>
@@ -116,7 +119,7 @@ class RbPreview extends React.Component {
   renderDoc() {
     return (
       <div className="container fp-content">
-        <div className="iframe" onClick={this.__stopEvent}>
+        <div className="iframe" onClick={this._stopEvent}>
           {!this.state.docRendered && (
             <div className="must-center">
               <RbSpinner fully={true} />
@@ -131,7 +134,7 @@ class RbPreview extends React.Component {
   renderText() {
     return (
       <div className="container fp-content">
-        <div className="iframe text" onClick={this.__stopEvent}>
+        <div className="iframe text" onClick={this._stopEvent}>
           {this.state.previewText || this.state.previewText === '' ? (
             <pre>{this.state.previewText || <i className="text-muted">{$L('Null')}</i>}</pre>
           ) : (
@@ -147,8 +150,8 @@ class RbPreview extends React.Component {
   renderAudio() {
     return (
       <div className="container fp-content">
-        <div className="audio must-center" onClick={this.__stopEvent}>
-          <audio src={this.__buildAbsoluteUrl()} controls>
+        <div className="audio must-center" onClick={this._stopEvent}>
+          <audio src={this._buildAbsoluteUrl()} controls>
             {$L('YourBrowserUnsupport')}
           </audio>
         </div>
@@ -159,8 +162,8 @@ class RbPreview extends React.Component {
   renderVideo() {
     return (
       <div className="container fp-content">
-        <div className="video must-center" onClick={this.__stopEvent}>
-          <video src={this.__buildAbsoluteUrl()} height="500" controls>
+        <div className="video must-center" onClick={this._stopEvent}>
+          <video src={this._buildAbsoluteUrl()} height="500" controls>
             {$L('YourBrowserUnsupport')}
           </video>
         </div>
@@ -173,10 +176,11 @@ class RbPreview extends React.Component {
     if (!this.__modalOpen) $(document.body).addClass('modal-open')
     this.setState({ inLoad: false })
 
+    const that = this
+
     const currentUrl = this.props.urls[this.state.currentIndex]
     const fileName = $fileCutName(currentUrl)
-    if (this.__isDoc(fileName)) {
-      const that = this
+    if (this._isDoc(fileName)) {
       const setPreviewUrl = function (url) {
         const previewUrl = fileName.toLowerCase().endsWith('.pdf') ? url : `https://view.officeapps.live.com/op/embed.aspx?src=${$encode(url)}`
         that.setState({ previewUrl: previewUrl, errorMsg: null })
@@ -190,7 +194,7 @@ class RbPreview extends React.Component {
           else setPreviewUrl(res.data.publicUrl)
         })
       }
-    } else if (this.__isText(fileName)) {
+    } else if (this._isText(fileName)) {
       const textUrl = currentUrl.startsWith('http://') || currentUrl.startsWith('https://') ? currentUrl : `/filex/download/${currentUrl}`
       $.ajax({
         url: textUrl,
@@ -199,10 +203,12 @@ class RbPreview extends React.Component {
         success: function (res) {
           that.setState({ previewText: res })
         },
+        error: function () {
+          that.hide()
+        },
       })
     }
 
-    const that = this
     $(document)
       .unbind('keyup')
       .keyup(function (event) {
@@ -222,7 +228,7 @@ class RbPreview extends React.Component {
     if (!this.__modalOpen) $(document.body).removeClass('modal-open')
   }
 
-  __buildAbsoluteUrl(url, params) {
+  _buildAbsoluteUrl(url, params) {
     if (!url) url = this.props.urls[this.state.currentIndex]
     if (!(url.startsWith('http://') || url.startsWith('https://'))) {
       url = `${rb.baseUrl}/filex/${(params || '').includes('imageView2') ? 'img' : 'download'}/${url}`
@@ -234,27 +240,27 @@ class RbPreview extends React.Component {
     return url
   }
 
-  __isImg(url) {
-    return this.__isType(url, TYPE_IMGS)
+  _isImg(url) {
+    return this._isType(url, TYPE_IMGS)
   }
 
-  __isDoc(url) {
-    return this.__isType(url, TYPE_DOCS)
+  _isDoc(url) {
+    return this._isType(url, TYPE_DOCS)
   }
 
-  __isAudio(url) {
-    return this.__isType(url, TYPE_AUDIOS)
+  _isAudio(url) {
+    return this._isType(url, TYPE_AUDIOS)
   }
 
-  __isVideo(url) {
-    return this.__isType(url, TYPE_VIDEOS)
+  _isVideo(url) {
+    return this._isType(url, TYPE_VIDEOS)
   }
 
-  __isText(url) {
-    return this.__isType(url, TYPE_TEXTS)
+  _isText(url) {
+    return this._isType(url, TYPE_TEXTS)
   }
 
-  __isType(url, types) {
+  _isType(url, types) {
     url = url.toLowerCase()
     for (let i = 0; i < types.length; i++) {
       if (url.endsWith(types[i])) return true
@@ -262,19 +268,19 @@ class RbPreview extends React.Component {
     return false
   }
 
-  __previmg = (e) => {
-    this.__stopEvent(e)
+  _previmg = (e) => {
+    this._stopEvent(e)
     let ci = this.state.currentIndex
     if (ci <= 0) ci = this.props.urls.length
     this.setState({ currentIndex: ci - 1, imgRendered: false })
   }
-  __nextimg = (e) => {
-    this.__stopEvent(e)
+  _nextimg = (e) => {
+    this._stopEvent(e)
     let ci = this.state.currentIndex
     if (ci + 1 >= this.props.urls.length) ci = -1
     this.setState({ currentIndex: ci + 1, imgRendered: false })
   }
-  __stopEvent = (e) => e && e.stopPropagation()
+  _stopEvent = (e) => e && e.stopPropagation()
 
   hide = () => {
     if (!this.props.unclose) $unmount($(this._dlg).parent(), 1)
@@ -330,7 +336,7 @@ class FileShare extends RbModalHandler {
               {EXPIRES_TIME.map((item) => {
                 return (
                   <li key={`time-${item[0]}`} className={`list-inline-item ${this.state.time === item[0] && 'active'}`}>
-                    <a onClick={this.changTime} data-time={item[0]} _title={$L('Validity')}>
+                    <a onClick={this._changeTime} data-time={item[0]} _title={$L('Validity')}>
                       {item[1]}&nbsp;
                     </a>
                   </li>
@@ -345,7 +351,7 @@ class FileShare extends RbModalHandler {
 
   componentDidMount() {
     $(this._dlg._rbmodal).css({ zIndex: 1099 })
-    this.changTime()
+    this._changeTime()
 
     const that = this
     const initCopy = function () {
@@ -365,7 +371,7 @@ class FileShare extends RbModalHandler {
     }
   }
 
-  changTime = (e) => {
+  _changeTime = (e) => {
     const t = e ? ~~e.target.dataset.time : 5
     if (this.state.time === t) return
     this.setState({ time: t }, () => {

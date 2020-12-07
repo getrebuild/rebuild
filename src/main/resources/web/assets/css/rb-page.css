@@ -495,12 +495,33 @@ div.dataTables_wrapper div.dataTables_filter {
   content: '\f2fb';
 }
 
-div.dataTables_filter .filter-tips.badge {
+div.dataTables_filter .filter-badge {
   float: left;
   margin-left: 5px;
-  margin-top: 4px;
-  background-color: #fff8f2;
+  background-color: #fff;
   color: #a04100;
+  border: 1px solid #ddd;
+  padding: 6px 12px;
+  font-size: 1rem;
+  font-weight: normal;
+  border-radius: 99px;
+  margin-top: 1px;
+}
+
+div.dataTables_filter .filter-badge .close {
+  opacity: 1;
+  text-shadow: none;
+  font-weight: normal;
+  color: #bbb;
+  margin-left: 7px;
+}
+
+div.dataTables_filter .filter-badge:hover {
+  border-color: #fbbc05;
+}
+
+div.dataTables_filter .filter-badge:hover .close {
+  color: #fbbc05;
 }
 
 .adv-search,
@@ -1386,6 +1407,7 @@ i.dividing.ui-draggable-dragging {
 
 div.link a:hover,
 p.link a:hover,
+li.link a:hover,
 a.link:hover,
 a.column-url:hover {
   text-decoration: underline;
@@ -1691,11 +1713,18 @@ th.column-fixed {
 .modal.rbview .modal-dialog .modal-content {
   border-radius: 0;
   max-width: 100%;
-  width: 1220px;
-  margin: 0 -1301px 0 0;
+  width: 1404px;
+  margin: 0 -1414px 0 0;
   float: right;
   position: relative;
   height: 100%;
+}
+
+@media screen and (max-width: 1464px) {
+  .modal.rbview .modal-dialog .modal-content {
+    width: 1220px;
+    margin: 0 -1230px 0 0;
+  }
 }
 
 .modal.rbview .modal-dialog .modal-content .modal-header {
@@ -3583,36 +3612,6 @@ a.icon-link > .zmdi {
   margin-left: -15px;
 }
 
-.badge-border {
-  display: inline-block;
-  border-color: #fbbc05;
-  color: #fbbc05;
-  font-size: 1rem;
-  font-weight: normal;
-  position: relative;
-  padding: 4px 30px 3px 6px;
-  cursor: default;
-  overflow: hidden;
-}
-
-.badge-border .close {
-  position: absolute;
-  height: 100%;
-  width: 24px;
-  border-left: 1px solid #fbbc05;
-  top: 0;
-  right: 0;
-  padding-top: 4px;
-  opacity: 1;
-  text-shadow: none;
-  font-weight: normal;
-}
-
-.badge-border:hover .close {
-  background-color: #fbbc05;
-  color: #fff !important;
-}
-
 a.avatar.x26 img {
   width: 26px;
   height: 26px;
@@ -3674,10 +3673,6 @@ a.select-lang {
 a.select-lang:hover {
   border: 1px solid #4285f4;
   background-color: #e6eff8;
-}
-
-.zmdi.icon {
-  font-size: 1.231rem;
 }
 
 .rbv {

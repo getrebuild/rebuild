@@ -21,9 +21,12 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
+import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.NamedThreadLocal;
+import org.springframework.http.HttpStatus;
+import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
@@ -34,114 +37,112 @@ import java.io.IOException;
 /**
  * 请求拦截
  * - 检查授权
- * - 设置前端页面变量
- * - 设置请求用户（线程量）
+ * - 设置前端页面公用变量
+ * - 设置请求用户、语言（线程量）
  *
  * @author Zhao Fangfang
- * @since 1.0, 2013-6-24
+ * @since 2.0
  */
 @Slf4j
 public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements InstallState {
 
-    private static final ThreadLocal<Long> REQUEST_TIME = new NamedThreadLocal<>("Request time start");
+    private static final ThreadLocal<RequestEntry> REQUEST_ENTRY = new NamedThreadLocal<>("RequestEntry");
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-//        TODO request.getSession(true);
-        response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE);
-
-        REQUEST_TIME.set(System.currentTimeMillis());
+        response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
 
         if (Application.isWaitLoads()) {
             throw new DefinedException(600, "Please wait while REBUILD starting up ...");
         }
 
-        final String requestUri = request.getRequestURI()
-                + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
-        final boolean ajaxRequest = ServletUtils.isAjaxRequest(request);
-
         // Locale
         final String locale = detectLocale(request, response);
         UserContextHolder.setLocale(locale);
 
-        if (!ajaxRequest) {
-            request.setAttribute(WebConstants.LOCALE, locale);
-            request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(locale));
+        final RequestEntry requestEntry = new RequestEntry(request, locale);
+        REQUEST_ENTRY.set(requestEntry);
 
-            // TODO CSRF
-            String csrfToken = CodecUtils.randomCode(60);
-            request.setAttribute(WebConstants.CSRF_TOKEN, csrfToken);
-
-            // Side collapsed
-            String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
-            String sideCollapsedClazz = "false".equals(sidebarCollapsed) ? "" : "rb-collapsible-sidebar-collapsed";
-            // Aside
-            if (!(requestUri.contains("/admin/") || requestUri.contains("/setup/"))) {
-                String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
-                if (!"false".equals(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
-            }
-            request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
+        // 页面变量
+        // 请求页面时如果是非 HTML 请求头可能导致失败，因为页面中需要用到语言包变量
+        if (requestEntry.isHtmlRequest()) {
+            // Lang
+            request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
+            request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
         }
 
-        // 服务状态
-        if (!Application.isReady()) {
-            boolean gotError = requestUri.endsWith("/error") || requestUri.contains("/error/");
+        final String requestUri = requestEntry.getRequestUri();
 
+        // 服务暂不可用
+        if (!Application.isReady()) {
+            // 已安装
             if (checkInstalled()) {
-                log.error("Server Unavailable : " + requestUri);
-                if (gotError) {
+                log.error("Server Unavailable : " + requestEntry);
+
+                if (requestUri.endsWith("/error") || requestUri.contains("/error/")) {
                     return true;
                 } else {
                     sendRedirect(response, "/error/server-status", null);
-                    return false;
                 }
-
-            } else if (!requestUri.contains("/setup/")) {
-                sendRedirect(response, "/setup/install", null);
-                return false;
-
-            } else {
-                return true;
             }
+            // 未安装
+            else if (!requestUri.contains("/setup/")) {
+                sendRedirect(response, "/setup/install", null);
+            }
+
+            return false;
         }
 
+        final ID requestUser = requestEntry.getRequestUser();
+
         // 用户验证
-
-        final ID requestUser = AppUtils.getRequestUser(request, true);
-
         if (requestUser != null) {
-            // 管理后台访问
+
+            // 管理员后台
             if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
-                if (ajaxRequest) {
-                    ServletUtils.writeJson(response, RespBody.error(401).toString());
-                } else {
+                if (requestEntry.isHtmlRequest()) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
+                } else {
+                    ServletUtils.writeJson(response, RespBody.error(HttpStatus.FORBIDDEN.value()).toJSONString());
                 }
                 return false;
             }
 
             UserContextHolder.setUser(requestUser);
 
-            if (!ajaxRequest) {
+            // 页面变量（登录后）
+            if (requestEntry.isHtmlRequest()) {
                 // Last active
                 Application.getSessionStore().storeLastActive(request);
 
-                // 前端使用
+                // User
                 request.setAttribute(WebConstants.$USER, Application.getUserStore().getUser(requestUser));
                 request.setAttribute(ZeroEntry.AllowCustomNav.name(),
                         Application.getPrivilegesManager().allow(requestUser, ZeroEntry.AllowCustomNav));
+
+                // Side collapsed
+                String sidebarCollapsed = ServletUtils.readCookie(request, "rb.sidebarCollapsed");
+                String sideCollapsedClazz = "false".equals(sidebarCollapsed) ? "" : "rb-collapsible-sidebar-collapsed";
+                // Aside
+                if (!(requestEntry.getRequestUri().contains("/admin/") || requestEntry.getRequestUri().contains("/setup/"))) {
+                    String asideCollapsed = ServletUtils.readCookie(request, "rb.asideCollapsed");
+                    if (!"false".equals(asideCollapsed)) sideCollapsedClazz += " rb-aside-collapsed";
+                }
+                request.setAttribute("sideCollapsedClazz", sideCollapsedClazz);
+
             }
 
         } else if (!isIgnoreAuth(requestUri)) {
             log.warn("Unauthorized access {} via {}",
                     RebuildWebConfigurer.getRequestUrls(request), ServletUtils.getRemoteAddr(request));
 
-            if (ajaxRequest) {
-                ServletUtils.writeJson(response, RespBody.error(403).toString());
-            } else {
+            if (requestEntry.isHtmlRequest()) {
                 sendRedirect(response, "/user/login", requestUri);
+            } else {
+                ServletUtils.writeJson(response, RespBody.error(HttpStatus.FORBIDDEN.value()).toJSONString());
             }
+
             return false;
         }
 
@@ -158,11 +159,11 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
         // 清理用户
         UserContextHolder.clear();
 
-        // 打印处理时间
-        Long time = REQUEST_TIME.get();
-        REQUEST_TIME.remove();
+        RequestEntry requestEntry = REQUEST_ENTRY.get();
+        REQUEST_ENTRY.remove();
 
-        time = System.currentTimeMillis() - time;
+        // 打印处理时间
+        long time = requestEntry == null ? 0 : (System.currentTimeMillis() - requestEntry.getRequestTime());
         if (time > 1000) {
             log.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
@@ -249,5 +250,34 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                 || requestUri.startsWith("/commons/announcements")
                 || requestUri.startsWith("/commons/url-safe")
                 || requestUri.startsWith("/commons/barcode/render");
+    }
+
+    /**
+     * 请求参数封装
+     */
+    @Data
+    private static class RequestEntry {
+        final long requestTime;
+        final ID requestUser;
+        final String requestUri;
+        final boolean htmlRequest;
+        final String locale;
+
+        RequestEntry(HttpServletRequest request, String locale) {
+            this.requestTime = System.currentTimeMillis();
+
+            this.requestUri = request.getRequestURI()
+                    + (request.getQueryString() != null ? ("?" + request.getQueryString()) : "");
+            this.htmlRequest = !ServletUtils.isAjaxRequest(request)
+                    && MimeTypeUtils.TEXT_HTML.equals(AppUtils.parseMimeType(request));
+
+            this.locale = locale;
+            this.requestUser = AppUtils.getRequestUser(request, true);
+        }
+
+        @Override
+        public String toString() {
+            return requestUri;
+        }
     }
 }

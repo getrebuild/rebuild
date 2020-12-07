@@ -116,7 +116,7 @@ class FieldsMapping extends React.Component {
 
         $this
           .select2({
-            placeholder: $L('SelectSome,SourceField') + (targetField.nullable ? '' : ` (${$L('Optional')})`),
+            placeholder: $L('SelectSome,SourceField'),
             allowClear: true,
             data: sourceFields,
             language: {
@@ -154,7 +154,7 @@ class FieldsMapping extends React.Component {
           return (
             <div className="row" key={`t-${item.name}`}>
               <div className="col-7">
-                <select className="form-control form-control-sm" data-field={item.name}></select>
+                <select className="form-control form-control-sm" data-field={item.name} data-req={!item.nullable}></select>
               </div>
               <div className="col-5">
                 <span className={`badge ${item.nullable ? '' : 'req'}`}>{item.label}</span>

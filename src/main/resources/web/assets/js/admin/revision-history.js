@@ -106,14 +106,14 @@ CellRenders.renderSimple = function (v, s, k) {
       <React.Fragment>
         {$L('CasOperation')}
         <span className="badge text-id ml-1" title={$L('CasMainId')}>
-          {v}
+          {v.id}
         </span>
       </React.Fragment>
     ) : (
       $L('DirectOperation')
     )
   } else if (k.endsWith('.recordId')) {
-    v = <span className="badge text-id">{v}</span>
+    v = <span className="badge text-id">{v.id}</span>
   } else if (k.endsWith('.belongEntity')) {
     v = _ENTITIES[v] || `[${v.toUpperCase()}]`
   } else if (k.endsWith('.revisionType')) {

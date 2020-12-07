@@ -119,13 +119,13 @@ CellRenders.renderSimple = function (v, s, k) {
       <React.Fragment>
         {$L('CasDelete')}
         <span className="badge text-id ml-1" title={$L('CasMainId')}>
-          {v.toUpperCase()}
+          {v.id}
         </span>
       </React.Fragment>
     ) : (
       $L('DirectDelete')
     )
-  else if (k.endsWith('.recordId')) v = <span className="badge text-id">{v.toUpperCase()}</span>
+  else if (k.endsWith('.recordId')) v = <span className="badge text-id">{v.id}</span>
   else if (k.endsWith('.belongEntity')) v = _entities[v] || `[${v.toUpperCase()}]`
   return (
     <td key={k}>

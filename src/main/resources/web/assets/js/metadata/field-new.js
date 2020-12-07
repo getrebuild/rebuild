@@ -73,11 +73,17 @@ $(document).ready(function () {
     if (dt === 'REFERENCE' || dt === 'N2NREFERENCE') {
       if (referenceLoaded === false) {
         referenceLoaded = true
-        $.get('/admin/entity/entity-list?detail=true', (res) => {
-          $(res.data).each(function () {
+        $.get('/admin/entity/entity-list?detail=true&bizz=false', (res) => {
+          const _data = res.data || []
+          _data.push({ entityName: 'User', entityLabel: $L('e.User') })
+          _data.push({ entityName: 'Department', entityLabel: $L('e.Department') })
+          // _data.push({ entityName: 'Team', entityLabel: $L('e.Team') })
+          // _data.push({ entityName: 'Role', entityLabel: $L('e.Role') })
+
+          $(_data).each(function () {
             $(`<option value="${this.entityName}">${this.entityLabel}${this.mainEntity ? ' (' + $L('DetailEntity') + ')' : ''}</option>`).appendTo('#refEntity')
           })
-          if (res.data.length === 0) $(`<option value="">${$L('NoAnySome,Entity')}</option>`).appendTo('#refEntity')
+          if (_data.length === 0) $(`<option value="">${$L('NoAnySome,Entity')}</option>`).appendTo('#refEntity')
         })
       }
     } else if (dt === 'CLASSIFICATION') {
