@@ -106,10 +106,10 @@ class TransformEdit extends ConfigFormDlg {
         )}
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">
-            {$L('Name')} ({$L('Optional')})
+            {$L('Name')}
           </label>
           <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} placeholder={$L('Unname')} />
+            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
         {this.props.id && (
@@ -143,6 +143,8 @@ class TransformEdit extends ConfigFormDlg {
 
   confirm = () => {
     const post = { name: this.state['name'] }
+    if (!post.name) return RbHighbar.create($L('PlsInputSome,Name'))
+
     if (!this.props.id) {
       post.belongEntity = this._$source.val()
       if (!post.belongEntity) return RbHighbar.create($L('PlsSelectSome,SourceEntity'))

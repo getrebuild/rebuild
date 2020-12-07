@@ -1205,7 +1205,7 @@
   "ImportUserTips": "请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)",
   "ImportUserOkTips": "成功导入 %d 用户",
   "ImportUserAndNotify": "导入成功后发送邮件通知用户",
-  "TransformConfig": "记录转换",
+  "TransformConfig": "记录转换映射",
   "YouHaveXSchedule": "你有 %d 条日程提醒",
   "InitEntity": "初始业务实体",
   "NoInitEntityTips": "暂无可用业务实体。此安装步骤不是必须的，你仍可以继续安装",
