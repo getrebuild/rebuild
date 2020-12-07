@@ -1237,6 +1237,7 @@
   "Department0": "Dept",
   "AUTOTRANSFORM": "Automatic record transform",
   "UseTransform": "Use record transform",
+  "EntityNotExists": "The entity %s no longer exists, please check the configuration",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

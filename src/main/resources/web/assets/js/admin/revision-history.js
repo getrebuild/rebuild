@@ -35,6 +35,7 @@ const ListConfig = {
     { field: 'channelWith', label: $L('RevisionChannel'), unsort: true },
     { field: 'recordId', label: $L('RecordId'), unsort: true },
   ],
+  sort: 'revisionOn:desc'
 }
 
 // 操作类型
