@@ -47,7 +47,7 @@ class ContentAutoShare extends ActionContentSpec {
       .find('.custom-control-input')
       .each(function () {
         const v = ~~$(this).val()
-        if (!(v === 1 || v === 4 || v >= 128)) $(this).attr('disabled', true)
+        if (v === 2 || v === 32 || v === 64) $(this).attr('disabled', true)
       })
 
     const content = this.props.content || {}

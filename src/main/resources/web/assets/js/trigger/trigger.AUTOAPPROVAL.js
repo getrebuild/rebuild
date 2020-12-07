@@ -41,7 +41,7 @@ class ContentAutoApproval extends ActionContentSpec {
       .find('.custom-control-input')
       .each(function () {
         const v = ~~$(this).val()
-        if (v !== 1 && v !== 4) $(this).attr('disabled', true)
+        if (!(v === 1 || v === 4 || v === 512)) $(this).attr('disabled', true)
       })
 
     const content = this.props.content || {}
