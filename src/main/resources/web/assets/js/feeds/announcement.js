@@ -50,7 +50,7 @@ class AnnouncementModal extends React.Component {
 
 var $showAnnouncement = function () {
   const $aw = $('.announcement-wrapper')
-  if ($aw.length === 0) return
+  if ($aw.length === 0 || $aw.find('div').length > 0) return
 
   $.get('/commons/announcements', (res) => {
     if (res.error_code !== 0 || !res.data || res.data.length === 0) return

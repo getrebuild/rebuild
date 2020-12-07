@@ -11,15 +11,12 @@ import cn.devezhao.commons.*;
 import cn.devezhao.commons.runtime.MemoryInformation;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.cache.CommonsCache;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -194,16 +191,6 @@ public final class ServerStatus {
     }
 
     // --
-
-    /**
-     * @return
-     */
-    public static String checkValidity() {
-        if (Application.devMode()) return null;
-        JSONObject echo = License.siteApi("api/authority/echo?once=" +  STARTUP_ONCE, true);
-        String error = echo == null ? null : echo.getString("error");
-        return StringUtils.defaultIfBlank(error, null);
-    }
 
     /**
      * 内存用量

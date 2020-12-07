@@ -21,8 +21,4 @@ class PerHourJobTest extends TestSupport {
         new PerHourJob().doCleanTempFiles();
     }
 
-    @Test
-    void doCheckAdminDangers() {
-        new PerHourJob().doCheckAdminDangers();
-    }
 }
