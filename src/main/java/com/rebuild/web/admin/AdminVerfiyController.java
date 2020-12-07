@@ -15,7 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.service.PerHourJob;
+import com.rebuild.core.support.CheckDangers;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.web.BaseController;
@@ -29,7 +29,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.LinkedHashMap;
 
 /**
  * @author devezhao
@@ -80,18 +79,12 @@ public class AdminVerfiyController extends BaseController {
         return RespBody.ok();
     }
 
-    @SuppressWarnings("unchecked")
     @RequestMapping("/user/admin-dangers")
     public RespBody adminDangers() {
         if (!RebuildConfiguration.getBool(ConfigurationItem.AdminDangers)) {
             return RespBody.ok();
         }
-
-        LinkedHashMap<String, Object> dangers = (LinkedHashMap<String, Object>) Application.getCommonsCache().getx(PerHourJob.CKEY_ADMIN_DANGERS);
-        if (dangers == null || dangers.isEmpty()) {
-            return RespBody.ok();
-        }
-        return RespBody.ok(dangers.values());
+        return RespBody.ok(CheckDangers.getAdminDangers());
     }
 
     // -- CLI

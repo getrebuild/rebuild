@@ -20,21 +20,16 @@ import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.api.user.LoginToken;
 import com.rebuild.core.Application;
-import com.rebuild.core.ServerStatus;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.License;
-import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.VerfiyCode;
+import com.rebuild.core.support.*;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.UserAgent;
@@ -128,6 +123,7 @@ public class LoginController extends BaseController {
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));
 
+        mv.getModelMap().put("UsersMsg", CheckDangers.getUserDanger());
         return mv;
     }
 
@@ -160,13 +156,7 @@ public class LoginController extends BaseController {
         // 清理
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
-
-        String danger = ServerStatus.checkValidity();
-        if (danger != null) {
-            return RespBody.ok(JSONUtils.toJSONObject("danger", danger));
-        } else {
-            return RespBody.ok();
-        }
+        return RespBody.ok();
     }
 
     /**
