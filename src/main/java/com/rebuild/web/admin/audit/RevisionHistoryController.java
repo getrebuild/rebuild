@@ -14,23 +14,22 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.web.EntityController;
-import org.springframework.stereotype.Controller;
+import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Iterator;
 
 /**
- * TODO 修改历史
- *
  * @author devezhao
  * @since 11/01/2018
  */
-@Controller
+@RestController
 @RequestMapping("/admin/audit/")
 public class RevisionHistoryController extends EntityController {
 
@@ -40,30 +39,38 @@ public class RevisionHistoryController extends EntityController {
     }
 
     @RequestMapping("revision-history/details")
-    public void details(HttpServletRequest request, HttpServletResponse response) {
-        ID id = getIdParameterNotNull(request, "id");
+    public JSON details(@IdParam ID revId) {
         Object[] rev = Application.createQueryNoFilter(
                 "select revisionContent,belongEntity from RevisionHistory where revisionId = ?")
-                .setParameter(1, id)
+                .setParameter(1, revId)
                 .unique();
+        JSONArray contents = JSON.parseArray((String) rev[0]);
 
-        JSONArray data = JSON.parseArray((String) rev[0]);
-
-        // 字段名称
+        // 补充字段名称
         if (MetadataHelper.containsEntity((String) rev[1])) {
             Entity entity = MetadataHelper.getEntity((String) rev[1]);
-            for (Object o : data) {
-                JSONObject item = (JSONObject) o;
-                String field = item.getString("field");
-                if (entity.containsField(field)) {
-                    field = EasyMetaFactory.getLabel(entity.getField(field));
+
+            for (Iterator<Object> iter = contents.iterator(); iter.hasNext(); ) {
+                JSONObject item = (JSONObject) iter.next();
+                String fieldName = item.getString("field");
+
+                if (entity.containsField(fieldName)) {
+                    EasyField easyField = EasyMetaFactory.valueOf(entity.getField(fieldName));
+                    // 排除不可查询字段
+                    if (!easyField.isQueryable()) {
+                        iter.remove();
+                        continue;
+                    }
+
+                    fieldName = easyField.getLabel();
+
                 } else {
-                    field = "[" + field.toUpperCase() + "]";
+                    fieldName = "[" + fieldName.toUpperCase() + "]";
                 }
-                item.put("field", field);
+                item.put("field", fieldName);
             }
         }
 
-        writeSuccess(response, data);
+        return contents;
     }
 }

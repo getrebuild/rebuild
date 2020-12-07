@@ -44,9 +44,10 @@ class TriggerList extends ConfigList {
           return (
             <tr key={'k-' + item[0]}>
               <td>
-                <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
+                <a href={`trigger/${item[0]}`}>{item[3] || (item[2] + ' · ' + item[7])}</a>
               </td>
               <td>{item[2] || item[1]}</td>
+              <td>{item[7]}</td>
               <td>{item[6] > 0 ? $L('WhenXTime').replace('%s', formatWhen(item[6])) : <span className="text-warning">({$L('NoTriggerAction')})</span>}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
               <td>{item[5]}</td>
@@ -125,10 +126,10 @@ class TriggerEdit extends ConfigFormDlg {
         )}
         <div className="form-group row">
           <label className="col-sm-3 col-form-label text-sm-right">
-            {$L('Name')} ({$L('Optional')})
+            {$L('Name')}
           </label>
           <div className="col-sm-7">
-            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} placeholder={$L('Unname')} />
+            <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
         </div>
         {this.props.id && (
@@ -157,7 +158,7 @@ class TriggerEdit extends ConfigFormDlg {
             placeholder: $L('SelectSome,TriggerType'),
             allowClear: false,
             templateResult: function (s) {
-              if (s.id === 'HOOKURL') {
+              if (s.id === 'HOOKURL' || s.id === 'AUTOTRANSFORM') {
                 return $(`<span>${s.text} <sup class="rbv">V</sup></span>`)
               } else {
                 return s.text
@@ -188,7 +189,9 @@ class TriggerEdit extends ConfigFormDlg {
   }
 
   confirm = () => {
-    let data = { name: this.state['name'] || '' }
+    let data = { name: this.state['name'] }
+    if (!data.name) return RbHighbar.create($L('PlsInputSome,Name'))
+
     if (this.props.id) {
       data.isDisabled = this.state.isDisabled === true
     } else {
@@ -202,8 +205,8 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
-    if (rb.commercial < 1 && data.actionType === 'HOOKURL') {
-      return RbHighbar.error($L('FreeVerNotSupportted,HOOKURL'))
+    if (rb.commercial < 1 && (data.actionType === 'HOOKURL' || data.actionType === 'AUTOTRANSFORM')) {
+      return RbHighbar.error($L(`FreeVerNotSupportted,${data.actionType}`))
     }
 
     this.disabled(true)

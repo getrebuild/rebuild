@@ -73,6 +73,10 @@
                         </td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('MultipleSessions')}]]</td>
+                        <td data-id="MultipleSessions" th:data-value="${MultipleSessions}">[[${bundle.L(MultipleSessions ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('FileSharable')}]]</td>
                         <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.L(FileSharable ? 'True' : 'False')}]]</td>
                       </tr>
@@ -125,7 +129,7 @@
       })
 
       useEditComp = function (name, value) {
-        if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable'].includes(name)) {
+        if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions'].includes(name)) {
           return (
             <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
               <option value="true">{$L('True')}</option>

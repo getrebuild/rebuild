@@ -17,6 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.GhostEntity;
+import com.rebuild.core.support.i18n.Language;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -97,7 +98,15 @@ public class MetadataHelper {
      * @throws MetadataException If not exists
      */
     public static Entity getEntity(String entityName) throws MetadataException {
-        return getMetadataFactory().getEntity(entityName);
+        try {
+            return getMetadataFactory().getEntity(entityName);
+        } catch (MetadataException ex) {
+            if (ex.getLocalizedMessage().contains("dose not exists")) {
+                throw new MetadataException(Language.LF("EntityNotExists", entityName.toUpperCase()));
+            } else {
+                throw ex;
+            }
+        }
     }
 
     /**
@@ -106,7 +115,15 @@ public class MetadataHelper {
      * @throws MetadataException If not exists
      */
     public static Entity getEntity(int entityCode) throws MetadataException {
-        return getMetadataFactory().getEntity(entityCode);
+        try {
+            return getMetadataFactory().getEntity(entityCode);
+        } catch (MetadataException ex) {
+            if (ex.getLocalizedMessage().contains("dose not exists")) {
+                throw new MetadataException(Language.LF("EntityNotExists", entityCode + ""));
+            } else {
+                throw ex;
+            }
+        }
     }
 
     /**

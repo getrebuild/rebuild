@@ -31,7 +31,7 @@ class OnlineUserViewer extends RbModalHandler {
                     <span className="pt-1">{item.fullName}</span>
                   </td>
                   <td className="cell-detail">
-                    <code className="text-break">{item.activeUrl || $L('None')}</code>
+                    <code className="text-break text-primary">{item.activeUrl || 'n/a'}</code>
                     <span className="cell-detail-description"><DateShow date={item.activeTime} /></span>
                   </td>
                   <td className="actions text-right">

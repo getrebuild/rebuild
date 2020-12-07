@@ -28,6 +28,7 @@ const ListConfig = {
     { field: 'channelWith', label: $L('DeleteChannel'), unsort: true },
     { field: 'recordId', label: $L('RecordId'), unsort: true },
   ],
+  sort: 'deletedOn:desc'
 }
 
 class DataList extends React.Component {

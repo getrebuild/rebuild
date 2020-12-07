@@ -28,6 +28,7 @@ public enum ActionType {
     AUTOASSIGN("自动分派", AutoAssign.class),
     AUTOAPPROVAL("自动审批", AutoApproval.class),
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
+    AUTOTRANSFORM("自动记录转换", "com.rebuild.rbv.trigger.AutoTransform"),
 
     ;
 

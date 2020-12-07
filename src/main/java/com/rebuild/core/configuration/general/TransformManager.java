@@ -84,15 +84,15 @@ public class TransformManager implements ConfigManager {
     }
 
     @SuppressWarnings("unchecked")
-    protected List<ConfigBean> getRawTransforms(String sourceEntity) {
-        final String cKey = "TransformManager-" + sourceEntity;
+    public List<ConfigBean> getRawTransforms(String sourceEntity) {
+        final String cKey = "TransformManager2.2-" + sourceEntity;
         Object cached = Application.getCommonsCache().getx(cKey);
         if (cached != null) {
             return (List<ConfigBean>) cached;
         }
 
         Object[][] array = Application.createQueryNoFilter(
-                "select belongEntity,targetEntity,configId,config,isDisabled from TransformConfig where belongEntity = ?")
+                "select belongEntity,targetEntity,configId,config,isDisabled,name from TransformConfig where belongEntity = ?")
                 .setParameter(1, sourceEntity)
                 .array();
 
@@ -102,7 +102,8 @@ public class TransformManager implements ConfigManager {
                     .set("source", o[0])
                     .set("target", o[1])
                     .set("id", o[2])
-                    .set("disabled", ObjectUtils.toBool(o[4], false));
+                    .set("disabled", ObjectUtils.toBool(o[4], false))
+                    .set("name", o[5]);
 
             JSON config = JSON.parseObject((String) o[3]);
             entry.set("config", config);
@@ -128,7 +129,7 @@ public class TransformManager implements ConfigManager {
 
     @Override
     public void clean(Object cfgid) {
-        String cKey = "TransformManager-" + getBelongEntity((ID) cfgid);
+        String cKey = "TransformManager2.2-" + getBelongEntity((ID) cfgid);
         Application.getCommonsCache().evict(cKey);
     }
 }
