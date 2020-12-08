@@ -51,9 +51,12 @@
               <li th:class="${active == 'report-templates'} ? 'active'">
                 <a th:href="@{/admin/data/report-templates}"><i class="icon zmdi zmdi-map"></i><span>[[${bundle.L('ReportTemplate')}]]</span></a>
               </li>
-              <li class="divider">[[${bundle.L('Project')}]]</li>
+              <li class="divider">[[${bundle.L('AdvFeature')}]]</li>
               <li th:class="${active == 'projects'} ? 'active'">
                 <a th:href="@{/admin/projects}"><i class="icon zmdi zmdi-shape"></i><span>[[${bundle.L('NavProject')}]]</span></a>
+              </li>
+              <li th:class="${active == 'extforms'} ? 'active'">
+                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('ExtForms')}]]</span></a>
               </li>
               <li class="divider">[[${bundle.L('User')}]]</li>
               <li th:class="${active == 'users'} ? 'active'">

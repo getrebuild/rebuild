@@ -408,7 +408,7 @@
   "Integration": "服务集成",
   "IntegrationStorage": "云存储",
   "IntegrationMsgs": "短信 & 邮件",
-  "BizAndEntity": "业务 & 实体",
+  "BizAndEntity": "业务实体",
   "SomeManage": "{0}管理",
   "DataImport": "数据导入",
   "DataExport": "数据导出",
@@ -1238,6 +1238,8 @@
   "UseTransform": "使用记录转换映射",
   "EntityNotExists": "实体 %s 已经不存在，请检查配置",
   "MultipleSessions": "同一用户允许多地登录",
+  "AdvFeature": "高级功能",
+  "ExtForms": "外部表单",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
