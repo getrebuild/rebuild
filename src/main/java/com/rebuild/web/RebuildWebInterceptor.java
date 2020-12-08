@@ -84,14 +84,17 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                     return true;
                 } else {
                     sendRedirect(response, "/error/server-status", null);
+                    return false;
                 }
             }
             // 未安装
             else if (!requestUri.contains("/setup/")) {
                 sendRedirect(response, "/setup/install", null);
+                return false;
             }
-
-            return false;
+            else {
+                return true;
+            }
         }
 
         final ID requestUser = requestEntry.getRequestUser();
