@@ -21,10 +21,10 @@ import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.support.general.BatchOperatorQuery;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -78,7 +78,7 @@ public class ReportsController extends BaseController {
     @RequestMapping("export/submit")
     public RespBody export(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        Assert.isTrue(
+        RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport),
                 getLang(request, "NoOpPrivileges"));
 

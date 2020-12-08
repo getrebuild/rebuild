@@ -109,7 +109,7 @@ class TriggerEdit extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SourceEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,SourceEntity')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._sourceEntity = c)}>
                   {(this.state.sourceEntities || []).map((item) => {
