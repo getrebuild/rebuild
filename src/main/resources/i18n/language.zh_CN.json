@@ -1240,6 +1240,11 @@
   "MultipleSessions": "同一用户允许多地登录",
   "AdvFeature": "高级功能",
   "ExtForms": "外部表单",
+  "FormEntity": "表单实体",
+  "ValidPeriod": "有效期",
+  "DataBindUser": "数据绑定用户",
+  "DataBindUserTips": "经此表单所提交的数据所属用户，不选择则默认为系统用户",
+  "ValidPeriodTips": "不在时间范围将不可填写/提交，不选择则不设有效期",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

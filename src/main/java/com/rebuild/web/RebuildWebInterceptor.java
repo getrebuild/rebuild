@@ -245,7 +245,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         return requestUri.length() < 3
                 || requestUri.endsWith("/error") || requestUri.contains("/error/")
-                || requestUri.startsWith("/t/") || requestUri.startsWith("/s/")
+                || requestUri.startsWith("/f/") || requestUri.startsWith("/s/")
                 || requestUri.startsWith("/setup/")
                 || requestUri.startsWith("/gw/")
                 || requestUri.startsWith("/language/")
