@@ -500,21 +500,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         return (ID) o[0];
     }
 
-    /**
-     * 检查/获取重复字段值
-     *
-     * @param record
-     * @param maxReturns
-     * @return
-     */
-    public List<Record> getCheckRepeated(Record record, int maxReturns) {
-        final Entity entity = record.getEntity();
+    @Override
+    public List<Record> getAndCheckRepeated(Record checkRecord, int limit) {
+        final Entity entity = checkRecord.getEntity();
 
         List<String> checkFields = new ArrayList<>();
-        for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
+        for (Iterator<String> iter = checkRecord.getAvailableFieldIterator(); iter.hasNext(); ) {
             Field field = entity.getField(iter.next());
             if (field.isRepeatable()
-                    || !record.hasValue(field.getName(), false)
+                    || !checkRecord.hasValue(field.getName(), false)
                     || MetadataHelper.isCommonsField(field)
                     || EasyMetaFactory.getDisplayType(field) == DisplayType.SERIES) {
                 continue;
@@ -537,18 +531,18 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
 
         // 排除自己
-        if (record.getPrimary() != null) {
+        if (checkRecord.getPrimary() != null) {
             checkSql.append(" and ").append(entity.getPrimaryField().getName())
                     .append(" <> ")
-                    .append(String.format("'%s'", record.getPrimary().toLiteral()));
+                    .append(String.format("'%s'", checkRecord.getPrimary().toLiteral()));
         }
 
         Query query = ((BaseService) delegateService).getPersistManagerFactory().createQuery(checkSql.toString());
 
         int index = 1;
         for (String field : checkFields) {
-            query.setParameter(index++, record.getObjectValue(field));
+            query.setParameter(index++, checkRecord.getObjectValue(field));
         }
-        return query.setLimit(maxReturns).list();
+        return query.setLimit(limit).list();
     }
 }

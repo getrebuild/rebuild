@@ -41,7 +41,7 @@ public class EntityCreate extends BaseApi {
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
         final Entity useEntity = getUseEntity(context);
-        if (!useEntity.isQueryable() || !useEntity.isCreatable()) {
+        if (!useEntity.isCreatable()) {
             throw new ApiInvokeException("Unsupportted operation for entity : " + useEntity.getName());
         }
 
@@ -52,7 +52,7 @@ public class EntityCreate extends BaseApi {
             return formatFailure("Non-creatable record");
         }
 
-        Collection<String> repeatedFields = checkRepeated(recordNew);
+        Collection<String> repeatedFields = checkAndGetRepeated(recordNew);
         if (!repeatedFields.isEmpty()) {
             return formatFailure(
                     "There are duplicate field values : " + StringUtils.join(repeatedFields, "/"),
@@ -82,19 +82,19 @@ public class EntityCreate extends BaseApi {
         }
 
         Entity entity = MetadataHelper.getEntity(useEntity);
-        if (!entity.isQueryable() || MetadataHelper.isBizzEntity(entity)) {
+        if (!entity.isQueryable() || !MetadataHelper.isBusinessEntity(entity)) {
             throw new ApiInvokeException(ApiInvokeException.ERR_BADPARAMS, "Unsupportted operator for entity : " + useEntity);
         }
         return entity;
     }
 
     /**
-     * 检查重复值
-     *
      * @param record
+     * @see com.rebuild.core.service.general.EntityService#getAndCheckRepeated(Record, int)
      */
-    protected Collection<String> checkRepeated(Record record) {
-        List<Record> repeated = Application.getGeneralEntityService().getCheckRepeated(record, 1);
+    protected Collection<String> checkAndGetRepeated(Record record) {
+        List<Record> repeated = Application.getEntityService(record.getEntity().getEntityCode())
+                .getAndCheckRepeated(record, 1);
         if (repeated.isEmpty()) return Collections.emptySet();
 
         // 重复字段

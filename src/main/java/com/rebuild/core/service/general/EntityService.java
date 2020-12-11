@@ -9,9 +9,12 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
+import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.support.task.TaskExecutors;
+
+import java.util.List;
 
 /**
  * 业务实体用
@@ -29,7 +32,7 @@ public interface EntityService extends ServiceSpec {
     Permission UNSHARE = new BizzPermission("UNSHARE", 1 << 6, true);
 
     /**
-     * 删除
+     * 删除（带级联）
      *
      * @param record
      * @param cascades 需要级联删除的实体
@@ -67,7 +70,7 @@ public interface EntityService extends ServiceSpec {
     int unshare(ID record, ID accessId);
 
     /**
-     * 批量大操作
+     * 批量操作
      *
      * @param context
      * @return
@@ -75,11 +78,20 @@ public interface EntityService extends ServiceSpec {
     int bulk(BulkContext context);
 
     /**
-     * 批量大操作（异步）
+     * 批量操作（异步）
      *
      * @param context
      * @return 任务 ID
      * @see TaskExecutors
      */
     String bulkAsync(BulkContext context);
+
+    /**
+     * 检查并获取（如有）重复记录
+     *
+     * @param checkRecord
+     * @param limit
+     * @return
+     */
+    List<Record> getAndCheckRepeated(Record checkRecord, int limit);
 }

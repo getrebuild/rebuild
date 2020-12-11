@@ -36,7 +36,7 @@ public class EntityUpdate extends EntityCreate {
     @Override
     public JSON execute(ApiContext context) throws ApiInvokeException {
         final Entity useEntity = getUseEntity(context);
-        if (!useEntity.isQueryable() || !useEntity.isUpdatable()) {
+        if (!useEntity.isUpdatable()) {
             throw new ApiInvokeException("Unsupportted operation for entity : " + useEntity.getName());
         }
 
@@ -47,7 +47,7 @@ public class EntityUpdate extends EntityCreate {
             return formatFailure("Non-updatable record");
         }
 
-        Collection<String> repeatedFields = checkRepeated(recordUpdate);
+        Collection<String> repeatedFields = checkAndGetRepeated(recordUpdate);
         if (!repeatedFields.isEmpty()) {
             return formatFailure(
                     "There are duplicate field values : " + StringUtils.join(repeatedFields, "/"),
