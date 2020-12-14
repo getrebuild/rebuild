@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.admin.data;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -19,6 +18,7 @@ import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.service.datareport.TemplateExtractor;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
@@ -32,6 +32,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -144,7 +145,7 @@ public class ReportTemplateController extends BaseController {
         Object[][] array = Application.createQuery(sql).setLimit(500).array();
         for (Object[] o : array) {
             o[2] = EasyMetaFactory.getLabel(MetadataHelper.getEntity((String) o[2]));
-            o[5] = CalendarUtils.getUTCDateTimeFormat().format(o[5]);
+            o[5] = I18nUtils.formatDate((Date) o[5]);
         }
         return array;
     }
