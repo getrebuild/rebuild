@@ -1257,6 +1257,13 @@
   "FormUrlQrTips": "手机扫描二维码可打开表单链接",
   "ReadonlyFieldFiltered": "只读字段已过滤",
   "Forever": "永远",
+  "InputAllRequired": "请完成所有必填项后提交",
+  "NotStarted": "未开始",
+  "BadReportTemplate": "无效模板文件 (未找到有效字段)",
+  "NoRecordForPreview": "无法预览 (未找到可供预览的记录)",
+  "NoFileForPreview": "无法预览 (报表模板文件不存在)",
+  "BadField": "无效字段",
+  "UnsupportSome": "暂不支持%s",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

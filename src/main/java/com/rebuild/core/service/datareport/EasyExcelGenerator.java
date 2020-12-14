@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
@@ -177,6 +178,8 @@ public class EasyExcelGenerator extends SetUser {
     protected Map<String, Object> buildData(Record record, Map<String, String> varsMap, boolean isDetail) {
         final Entity entity = record.getEntity();
 
+        final String badFieldTip = String.format("[%s]", Language.L("BadField"));
+
         final Map<String, Object> data = new HashMap<>();
         // 无效字段填充
         for (Map.Entry<String, String> e : varsMap.entrySet()) {
@@ -184,21 +187,23 @@ public class EasyExcelGenerator extends SetUser {
                 String varName = e.getKey();
                 if (isDetail) {
                     if (varName.startsWith(TemplateExtractor.DETAIL_PREFIX)) {
-                        data.put(varName.substring(1), "[无效字段]");
+                        data.put(varName.substring(1), badFieldTip);
                     }
                 } else {
-                    data.put(varName, "[无效字段]");
+                    data.put(varName, badFieldTip);
                 }
             }
         }
 
         for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
             final String fieldName = iter.next();
-            EasyField easyMeta = EasyMetaFactory.valueOf(MetadataHelper.getLastJoinField(entity, fieldName));
+            EasyField easyMeta = EasyMetaFactory.valueOf(
+                    Objects.requireNonNull(MetadataHelper.getLastJoinField(entity, fieldName)));
             DisplayType dt = easyMeta.getDisplayType();
+
             if (dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
                     || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
-                data.put(fieldName, "[暂不支持" + dt.getDisplayName() + "]");
+                data.put(fieldName, String.format("[%s]", Language.LF("UnsupportSome", Language.L(dt))));
                 continue;
             }
 

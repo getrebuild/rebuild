@@ -75,7 +75,7 @@ public class ReportTemplateController extends BaseController {
 
         Map<String, String> vars = new TemplateExtractor(template, true).transformVars(entityMeta);
         if (vars.isEmpty()) {
-            writeFailure(response, "无效模板文件 (未找到任何字段)");
+            writeFailure(response, getLang(request, "BadReportTemplate"));
             return;
         }
 
@@ -87,7 +87,7 @@ public class ReportTemplateController extends BaseController {
         }
 
         if (invalidVars.size() >= vars.size()) {
-            writeFailure(response, "无效模板文件 (未找到有效字段)");
+            writeFailure(response, getLang(request, "BadReportTemplate"));
             return;
         }
 
@@ -108,7 +108,7 @@ public class ReportTemplateController extends BaseController {
                 entity.getPrimaryField().getName(), entity.getName());
         Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
-            response.sendError(400, "无法预览。未找到可供预览的记录");
+            response.sendError(400, getLang(request, "NoRecordForPreview"));
             return;
         }
 
@@ -117,7 +117,7 @@ public class ReportTemplateController extends BaseController {
             File template = DataReportManager.instance.getTemplateFile(entity, reportId);
             file = new EasyExcelGenerator(template, (ID) random[0]).generate();
         } catch (ConfigurationException ex) {
-            response.sendError(400, "无法预览。报表模板文件不存在");
+            response.sendError(400, getLang(request, "NoFileForPreview"));
             return;
         }
 
