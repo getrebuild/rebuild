@@ -2500,6 +2500,10 @@ form {
   font-size: 12px;
 }
 
+.card-list .card-body > p + p {
+  margin-top: 4px;
+}
+
 .card-list .card-footer {
   padding: 4px 15px;
 }
