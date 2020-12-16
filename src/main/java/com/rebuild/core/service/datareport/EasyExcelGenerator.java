@@ -178,7 +178,8 @@ public class EasyExcelGenerator extends SetUser {
     protected Map<String, Object> buildData(Record record, Map<String, String> varsMap, boolean isDetail) {
         final Entity entity = record.getEntity();
 
-        final String badFieldTip = String.format("[%s]", Language.L("BadField"));
+        final String badFieldTip = String.format("[%s]", Language.L("BadField")).toUpperCase();
+        final String unsupportFieldTip = String.format("[%s]", Language.L("Unsupport")).toUpperCase();
 
         final Map<String, Object> data = new HashMap<>();
         // 无效字段填充
@@ -203,7 +204,7 @@ public class EasyExcelGenerator extends SetUser {
 
             if (dt == DisplayType.IMAGE || dt == DisplayType.AVATAR
                     || dt == DisplayType.FILE || dt == DisplayType.LOCATION) {
-                data.put(fieldName, String.format("[%s]", Language.LF("UnsupportSome", Language.L(dt))));
+                data.put(fieldName, unsupportFieldTip);
                 continue;
             }
 

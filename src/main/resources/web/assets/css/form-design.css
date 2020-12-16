@@ -208,6 +208,7 @@ form.field-attr label > span {
   padding: 10px;
   bottom: 0;
   width: 265px;
+  white-space: nowrap;
 }
 
 .field-legend > span {
