@@ -69,6 +69,14 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     @Override
     public boolean onSetFieldValueWarn(Field field, String value, Record record) {
+        boolean isNew = record.getPrimary() == null;
+
+        // 明细关联主记录 ID
+        if (isNew && field.getType() == FieldType.REFERENCE && record.getEntity().getMainEntity() != null) {
+            Field dtf = MetadataHelper.getDetailToMainField(record.getEntity());
+            return field.equals(dtf);
+        }
+
         // TODO 非系统级字段是否予以通过
         return false;
     }
