@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <name>rebuild</name>
     <description>RB V2 use SpringBoot</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -257,7 +257,7 @@
         <dependency>
             <groupId>com.github.devezhao</groupId>
             <artifactId>persist4j</artifactId>
-            <version>1.5.1</version>
+            <version>1.5.2</version>
         </dependency>
         <dependency>
             <groupId>cglib</groupId>
