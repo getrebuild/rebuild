@@ -129,7 +129,7 @@ const step_import = () => {
     if (item.nullable === true || !!item.defaultValue) {
       // Not be must
     } else if (fm[item.name] === undefined) {
-      RbHighbar.create(item.label + ' ' + $L('SomeRequiredField'))
+      RbHighbar.create($L('XRequiredField').replace('%s', item.label))
       fm = null
       return false
     }
