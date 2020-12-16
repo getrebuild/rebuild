@@ -183,7 +183,7 @@
   "NoPermissionReadFile": "你沒有查看此檔案的許可權",
   "BadRequestUser": "無效請求用戶",
   "BadRequestParams": "無效請求參數",
-  "BadRequestParamsSome": "無效請求參數 [%s=%s]",
+  "BadRequestParamsSome": "無效請求參數 (%s=%s)",
   "RequestsTooFrequent": "請求過於頻繁，請稍後重試",
   "Error0": "調用成功",
   "Error401": "未授權訪問",

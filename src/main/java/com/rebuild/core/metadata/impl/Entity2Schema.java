@@ -210,7 +210,7 @@ public class Entity2Schema extends Field2Schema {
             }
         }
 
-        for (Field whoRef : entity.getReferenceToFields(true)) {
+        for (Field whoRef : entity.getReferenceToFields(false)) {
             if (!whoRef.getOwnEntity().equals(entity)) {
                 throw new MetadataModificationException(
                         Language.LF("DeleteEntityHasRefs", EasyMetaFactory.getLabel(whoRef.getOwnEntity())));
