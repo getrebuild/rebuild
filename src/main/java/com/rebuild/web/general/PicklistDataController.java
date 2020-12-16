@@ -11,21 +11,21 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.MultiSelectManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 下拉列表型字段值列表
@@ -33,13 +33,13 @@ import javax.servlet.http.HttpServletResponse;
  * @author ZHAO
  * @since 2019/12/1
  */
-@Controller
+@RestController
 @RequestMapping("/commons/metadata/")
 public class PicklistDataController extends BaseController {
 
     // for PickList/MultiSelect/State
     @GetMapping({"picklist", "field-options"})
-    public void fetchPicklist(HttpServletRequest request, HttpServletResponse response) {
+    public JSON fetchPicklist(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         String field = getParameterNotNull(request, "field");
 
@@ -55,20 +55,19 @@ public class PicklistDataController extends BaseController {
             options = PickListManager.instance.getPickList(fieldMeta);
         }
 
-        writeSuccess(response, options);
+        return options;
     }
 
     // for Classification
     @RequestMapping("classification")
-    public void fetchClassification(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody fetchClassification(HttpServletRequest request) {
         String entity = getParameterNotNull(request, "entity");
         String field = getParameterNotNull(request, "field");
 
         Field fieldMeta = getRealField(entity, field);
         ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, true);
         if (useClassification == null) {
-            writeFailure(response, "分类字段配置有误");
-            return;
+            return RespBody.errorl("SomeConfigError,t.CLASSIFICATION");
         }
 
         ID parent = getIdParameter(request, "parent");
@@ -84,7 +83,7 @@ public class PicklistDataController extends BaseController {
                 .setLimit(500)  // 最多显示
                 .array();
 
-        writeSuccess(response, data);
+        return RespBody.ok(data);
     }
 
     private Field getRealField(String entity, String fieldPath) {

@@ -1264,6 +1264,9 @@
   "NoFileForPreview": "无法预览 (报表模板文件不存在)",
   "BadField": "无效字段",
   "UnsupportSome": "暂不支持%s",
+  "SomeConfigError": "%s配置有误",
+  "ExtFormNotStarted": "表单未开始",
+  "ExtFormExpires": "表单已过期",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
