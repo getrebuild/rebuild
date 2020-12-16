@@ -183,7 +183,7 @@
   "NoPermissionReadFile": "你没有查看此文件的权限",
   "BadRequestUser": "无效请求用户",
   "BadRequestParams": "无效请求参数",
-  "BadRequestParamsSome": "无效请求参数 [%s=%s]",
+  "BadRequestParamsSome": "无效请求参数 (%s=%s)",
   "RequestsTooFrequent": "请求过于频繁，请稍后重试",
   "Error0": "调用成功",
   "Error401": "未授权访问",
