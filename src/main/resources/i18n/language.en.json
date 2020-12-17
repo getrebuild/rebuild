@@ -182,7 +182,7 @@
   "NoPermissionReadFile": "You do not have permission to view this file",
   "BadRequestUser": "Invalid request user",
   "BadRequestParams": "Invalid request parameters",
-  "BadRequestParamsSome": "Invalid request parameters [%s=%s]",
+  "BadRequestParamsSome": "Invalid request parameters (%s=%s)",
   "RequestsTooFrequent": "Requests are too frequent, please try again later",
   "Error0": "Succeeded",
   "Error401": "Unauthorized access",
