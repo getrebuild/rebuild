@@ -106,4 +106,11 @@ public class ConfigBean implements Serializable, Cloneable, JSONable {
         }
         return (JSONObject) JSON.toJSON(map);
     }
+
+    /**
+     * @return
+     */
+    public Map<String, Object> toMap() {
+        return data;
+    }
 }

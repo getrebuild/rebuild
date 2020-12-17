@@ -78,12 +78,14 @@ public class GeneralModelController extends EntityController {
     public JSON entityForm(@PathVariable String entity, @IdParam(required = false) ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        final Entity metaEntity = MetadataHelper.getEntity(entity);
 
         JSON initialVal = null;
         if (id == null) {
             initialVal = ServletUtils.getRequestJson(request);
+
             if (initialVal != null) {
-                // 创建明细实体必须指定主实体，以便验证权限
+                // 新建明细记录时必须指定主实体
                 String mainid = ((JSONObject) initialVal).getString(FormsBuilder.DV_MAINID);
                 if (ID.isId(mainid)) {
                     FormBuilderContextHolder.setMainIdOfDetail(ID.valueOf(mainid));
@@ -96,7 +98,7 @@ public class GeneralModelController extends EntityController {
 
             // 填充前端设定的初始值
             if (id == null && initialVal != null) {
-                FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+                FormsBuilder.instance.setFormInitialValue(metaEntity, model, (JSONObject) initialVal);
             }
 
             return model;
@@ -118,7 +120,7 @@ public class GeneralModelController extends EntityController {
 
         String sql = "select createdOn,modifiedOn from %s where %s = '%s'";
         if (MetadataHelper.hasPrivilegesField(entity)) {
-            sql = sql.replaceFirst("modifiedOn", "modifiedOn,owningUser");
+            sql = sql.replace(",modifiedOn", ",modifiedOn,owningUser");
         }
 
         sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);

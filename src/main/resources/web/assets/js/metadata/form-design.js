@@ -82,6 +82,7 @@ $(document).ready(function () {
       }
       formElements.push(item)
     })
+
     if (formElements.length === 0) {
       RbHighbar.create($L('PlsLayout1FieldsLeast'))
       return
@@ -102,7 +103,7 @@ $(document).ready(function () {
   })
 
   $addResizeHandler(() => {
-    $setTimeout(() => $('.field-aside .rb-scroller').height($(window).height() - 123), 200, 'FeildAslide-resize')
+    $('.field-aside .rb-scroller').height($(window).height() - 123)
   })()
 
   $('.J_new-field').click(() => {

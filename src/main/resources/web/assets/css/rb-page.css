@@ -2500,13 +2500,17 @@ form {
   font-size: 12px;
 }
 
+.card-list .card-body > p + p {
+  margin-top: 4px;
+}
+
 .card-list .card-footer {
   padding: 4px 15px;
 }
 
 .card-list .card-footer a {
   color: #999;
-  font-size: 1.3rem;
+  font-size: 1.23rem;
   display: inline-block;
   padding: 0 3px;
   margin-right: 6px;
@@ -3682,4 +3686,16 @@ a.select-lang:hover {
   font-style: italic;
   cursor: help;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
+}
+
+body.dark-mode {
+  background-color: rgb(13, 17, 23);
+  color: rgb(201, 209, 217);
+}
+
+.rb-fullcontent,
+.rb-fullcontent .rb-wrapper,
+.rb-fullcontent .rb-wrapper .rb-content,
+.rb-fullcontent .rb-wrapper .main-content {
+  height: 100%;
 }

@@ -132,6 +132,17 @@ $(function () {
   // Help link in page
   var helpLink = $('meta[name="page-help"]').attr('content')
   if (helpLink) $('.page-help>a').attr('href', helpLink)
+
+  // 内容区自适应高度
+  $('div[data-fullcontent]').each(function () {
+    var $this = $(this)
+    var offset = ~~$this.data('fullcontent')
+    if (offset > 0) {
+      $addResizeHandler(function () {
+        $this.css('min-height', $(window).height() - offset)
+      })()
+    }
+  })
 })
 
 var $addResizeHandler__calls = []
@@ -705,6 +716,7 @@ var $expired = function (date, offset) {
 var _$unthy = function (text) {
   if (!text) return null
   text = text.replace(/&quot;/g, '"')
+  text = text.replace(/\n/g, ' ')
   return $.parseJSON(text)
 }
 

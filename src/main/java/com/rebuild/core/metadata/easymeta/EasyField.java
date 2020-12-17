@@ -86,6 +86,22 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         return getClass().getSimpleName() + "#" + getRawMeta().toString();
     }
 
+    /**
+     * @return
+     * @see Field#isNullable()
+     */
+    public boolean isNullable() {
+        return getRawMeta().isNullable();
+    }
+
+    /**
+     * @return
+     * @see Field#isRepeatable()
+     */
+    public boolean isRepeatable() {
+        return getRawMeta().isRepeatable();
+    }
+
     // --
 
     /**

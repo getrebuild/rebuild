@@ -21,6 +21,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.EntityParam;
 import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -93,10 +94,8 @@ public class UsersGetting extends BaseController {
      * @see UserHelper#parseUsers(JSONArray, ID)
      */
     @RequestMapping("user-selector")
-    public JSON parseUserSelectorRaw(HttpServletRequest request) {
-        String entity = getParameter(request, "entity");
+    public JSON parseUserSelectorRaw(HttpServletRequest request, @EntityParam(required = false) Entity useEntity) {
         JSON users = ServletUtils.getRequestJson(request);
-        Entity hadEntity = MetadataHelper.containsEntity(entity) ? MetadataHelper.getEntity(entity) : null;
 
         JSONArray formatted = new JSONArray();
         String[] keys = new String[] {"id", "text"};
@@ -108,8 +107,9 @@ public class UsersGetting extends BaseController {
                 if (name != null) {
                     formatted.add(JSONUtils.toJSONObject(keys, new String[]{idOrField, name}));
                 }
-            } else if (hadEntity != null && hadEntity.containsField(idOrField.split("//.")[0])) {
-                String fullLabel = EasyMetaFactory.getLabel(hadEntity, idOrField);
+
+            } else if (useEntity != null && MetadataHelper.getLastJoinField(useEntity, idOrField) != null) {
+                String fullLabel = EasyMetaFactory.getLabel(useEntity, idOrField);
                 formatted.add(JSONUtils.toJSONObject(keys, new String[]{idOrField, fullLabel}));
             }
         }

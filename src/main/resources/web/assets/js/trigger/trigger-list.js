@@ -50,7 +50,7 @@ class TriggerList extends ConfigList {
               <td>{item[7]}</td>
               <td>{item[6] > 0 ? $L('WhenXTime').replace('%s', formatWhen(item[6])) : <span className="text-warning">({$L('NoTriggerAction')})</span>}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
-              <td>{item[5]}</td>
+              <td><DateShow date={item[5]}/></td>
               <td className="actions">
                 <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
@@ -109,7 +109,7 @@ class TriggerEdit extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SourceEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,SourceEntity')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._sourceEntity = c)}>
                   {(this.state.sourceEntities || []).map((item) => {

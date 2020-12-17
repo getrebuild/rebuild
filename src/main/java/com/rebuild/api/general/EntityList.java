@@ -40,7 +40,7 @@ public class EntityList extends EntityGet {
     public JSON execute(ApiContext context) throws ApiInvokeException {
         final String entity = context.getParameterNotBlank("entity");
         final Entity useEntity = MetadataHelper.getEntity(entity);
-        if (!useEntity.isQueryable()) {
+        if (!useEntity.isQueryable() || !MetadataHelper.isBusinessEntity(useEntity)) {
             throw new ApiInvokeException("Unsupportted operation for entity : " + entity);
         }
 
@@ -57,7 +57,6 @@ public class EntityList extends EntityGet {
 
         if (StringUtils.isBlank(sortBy)) {
             sortBy = EntityHelper.ModifiedOn + ":desc";
-
         } else if (!useEntity.containsField(sortBy.split(":")[0])) {
             return formatFailure("Invalid sort field : " + sortBy.split(":")[0]);
         }

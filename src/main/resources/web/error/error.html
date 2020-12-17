@@ -33,7 +33,7 @@
           <div class="error-container">
             <div class="error-number mb-0"><i class="zmdi zmdi-alert-circle text-danger" th:classappend="${'err' + error_code}"></i></div>
             <div class="error-description" th:utext="${error_msg}"></div>
-            <div class="error-description text-left"><pre th:utext="${error_stack}"></pre></div>
+            <div th:if="${error_stack != null}" class="error-description text-left"><pre th:utext="${error_stack}"></pre></div>
             <div class="error-goback-button">
               <a class="btn btn-xl btn-space btn-secondary" th:href="@{/dashboard/home}" id="goHome">[[${bundle.L('ReturnHome')}]]</a>
               <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.L('Retry')}]]</button>
@@ -46,14 +46,16 @@
       </div>
     </div>
     <script>
+      var $btn = document.getElementById('goHome')
       if (self != top) {
-        var $btn = document.getElementById('goHome')
         $btn.parentNode.removeChild($btn)
         if (parent && parent.RbViewModal) {
           try {
             parent.RbViewModal.currentHolder().hideLoading()
           } catch (ignore) {}
         }
+      } else if (location.href.indexOf('/f/') > -1) {
+        $btn.parentNode.removeChild($btn)
       }
     </script>
   </body>

@@ -28,7 +28,7 @@ public class ClassificationManager implements ConfigManager {
     private ClassificationManager() {
     }
 
-    private static final int BAD_CLASSIFICATION = -1;
+    public static final int BAD_CLASSIFICATION = -1;
 
     /**
      * 获取名称

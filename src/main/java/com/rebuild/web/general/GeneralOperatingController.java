@@ -80,8 +80,10 @@ public class GeneralOperatingController extends BaseController {
             return CommonOperatingController.saveRecord(record);
         }
 
+        final EntityService ies = Application.getEntityService(record.getEntity().getEntityCode());
+
         // 检查重复值
-        List<Record> repeated = Application.getGeneralEntityService().getCheckRepeated(record, 100);
+        List<Record> repeated = ies.getAndCheckRepeated(record, 100);
         if (!repeated.isEmpty()) {
             JSONObject map = new JSONObject();
             map.put("error_code", CODE_REPEATED_VALUES);
@@ -91,7 +93,7 @@ public class GeneralOperatingController extends BaseController {
         }
 
         try {
-            record = Application.getEntityService(record.getEntity().getEntityCode()).createOrUpdate(record);
+            record = ies.createOrUpdate(record);
 
         } catch (AccessDeniedException | DataSpecificationException known) {
             return RespBody.error(known.getLocalizedMessage());

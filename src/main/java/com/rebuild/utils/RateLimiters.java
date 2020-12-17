@@ -26,43 +26,34 @@ import java.util.Set;
 public class RateLimiters {
 
     /**
-     * 1 分钟
-     */
-    public static final long MINUTE = 60;
-
-    /**
-     * 1 小时
-     */
-    public static final long HOUR = MINUTE * 60;
-
-    /**
      * for 登陆
      */
     public static final RequestRateLimiter RRL_LOGIN = createRateLimiter(
-            new long[]{RateLimiters.MINUTE / 2, RateLimiters.MINUTE, RateLimiters.HOUR},
-            new int[]{5, 10, 30});
+            new int[] { 30, 60, 3600 },
+            new int[] { 5, 10, 100 });
 
     /**
      * @param seconds
      * @param limit
      * @return
      */
-    public static RequestRateLimiter createRateLimiter(long seconds, int limit) {
-        Set<RequestLimitRule> rules = Collections.singleton(RequestLimitRule.of(Duration.ofSeconds(seconds), limit));
+    public static RequestRateLimiter createRateLimiter(int seconds, int limit) {
+        Set<RequestLimitRule> rules = Collections.singleton(
+                RequestLimitRule.of(Duration.ofSeconds(seconds), limit));
         return new InMemorySlidingWindowRequestRateLimiter(rules);
     }
 
     /**
      * @param seconds
-     * @param limit
+     * @param limits
      * @return
      */
-    public static RequestRateLimiter createRateLimiter(long[] seconds, int[] limit) {
-        Assert.isTrue(seconds.length == limit.length, "Rule pair not matchs");
+    public static RequestRateLimiter createRateLimiter(int[] seconds, int[] limits) {
+        Assert.isTrue(seconds.length == limits.length, "Rule pair not matchs");
 
         Set<RequestLimitRule> rules = new HashSet<>();
         for (int i = 0; i < seconds.length; i++) {
-            rules.add(RequestLimitRule.of(Duration.ofSeconds(seconds[i]), limit[i]));
+            rules.add(RequestLimitRule.of(Duration.ofSeconds(seconds[i]), limits[i]));
         }
         return new InMemorySlidingWindowRequestRateLimiter(rules);
     }

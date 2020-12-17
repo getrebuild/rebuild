@@ -491,4 +491,16 @@
         <index field-list="createdOn"/>
     </entity>
 
+    <entity name="ExtformConfig" type-code="060" description="外部表单" queryable="false">
+        <field name="configId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
+        <field name="portalConfig" type="text" description="表单配置 (JSON Map)"/>
+        <field name="startTime" type="timestamp" description="开始时间"/>
+        <field name="endTime" type="timestamp" description="结束时间"/>
+        <field name="bindUser" type="reference" ref-entity="User" description="数据绑定用户"/>
+        <field name="hookUrl" type="string" max-length="300" description="回调地址"/>
+        <field name="hookSecret" type="string" max-length="300" description="回调安全码"/>
+    </entity>
+
 </metadata-config>

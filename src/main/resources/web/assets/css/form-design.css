@@ -65,7 +65,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .dd-list .dd-item .dd-action {
   float: right;
   cursor: default;
-  margin-top: 13px;
+  margin-top: 12px;
   margin-right: 6px;
   display: none;
 }
@@ -186,7 +186,6 @@ form.field-attr label {
 
 form.field-attr label > span {
   font-weight: normal;
-  color: #777;
 }
 
 .dd-list .dd-item .dd-handle span > i {
@@ -208,6 +207,7 @@ form.field-attr label > span {
   padding: 10px;
   bottom: 0;
   width: 265px;
+  white-space: nowrap;
 }
 
 .field-legend > span {

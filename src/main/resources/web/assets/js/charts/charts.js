@@ -77,7 +77,7 @@ class BaseChart extends React.Component {
 
   resize() {
     if (this.__echarts) {
-      $setTimeout(() => this.__echarts.resize(), 400, 'resize-chart-' + this.state.id)
+      $setTimeout(() => this.__echarts.resize(), 400, 'resize-chart-' + (this.state.id || ''))
     }
   }
 

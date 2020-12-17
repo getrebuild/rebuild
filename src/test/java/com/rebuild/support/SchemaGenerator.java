@@ -27,11 +27,14 @@ public class SchemaGenerator {
     private static PersistManagerFactory PMF;
 
     public static void main(String[] args) {
-        BootApplication.main(new String[] { "-Drbdev=true" });
+        System.setProperty("spring.main.web-application-type", "none");  // No Web
+        System.setProperty("rbdev", "true");  // dev/debug mode
+        BootApplication.main(new String[0]);
+
         PMF = Application.getPersistManagerFactory();
 
 //        generate();
-        generate(EntityHelper.TransformConfig);
+        generate(EntityHelper.ExtformConfig);
 
         System.exit(0);
     }

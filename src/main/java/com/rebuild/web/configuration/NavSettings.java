@@ -19,10 +19,10 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +43,7 @@ public class NavSettings extends BaseController implements ShareTo {
     @PostMapping("nav-settings")
     public void sets(HttpServletRequest request, HttpServletResponse response) {
         final ID user = getRequestUser(request);
-        Assert.isTrue(
+        RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomNav),
                 getLang(request, "NoOpPrivileges"));
 

@@ -5,6 +5,13 @@
         <a class="navbar-brand" th:href="@{/dashboard/home}"></a>
         <a class="rb-toggle-left-sidebar" th:title="${bundle.L('Toggle')}"><span class="icon zmdi zmdi-menu"></span></a>
       </div>
+      <!--
+      <div class="navbar-collapse collapse">
+        <ul class="navbar-nav">
+          <li class="nav-item"><a class="nav-link">TOP-MENU</a></li>
+        </ul>
+      </div>
+      -->
       <div class="search-container">
         <input class="form-control form-control-sm search-input-gs" type="text" name="search" maxlength="100" th:placeholder="${bundle.L('Search')}" autocomplete="off" />
         <div class="search-models animated fadeIn faster"></div>

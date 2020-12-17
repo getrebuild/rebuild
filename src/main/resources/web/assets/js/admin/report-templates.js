@@ -25,10 +25,10 @@ class ReportList extends ConfigList {
               <td>{item[3]}</td>
               <td>{item[2] || item[1]}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-normal">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
-              <td>{item[5]}</td>
+              <td><DateShow date={item[5]}/></td>
               <td className="actions">
                 <a className="icon" title={$L('Preview')} href={`${rb.baseUrl}/admin/data/report-templates/preview?id=${item[0]}`} target="_blank">
-                  <i className="zmdi zmdi-eye" />
+                  <i className="zmdi zmdi-open-in-new" />
                 </a>
                 <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
