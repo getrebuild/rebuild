@@ -485,6 +485,7 @@ const CellRenders = {
     if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
     else if (k.endsWith('.approvalId') && !v) v = $L('UnSubmit')
     else if (k.endsWith('.approvalState') && !v) v = $L('s.ApprovalState.DRAFT')
+
     return (
       <td key={k}>
         <div style={s} title={v}>

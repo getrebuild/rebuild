@@ -38,11 +38,11 @@
           ph && ph.hideLoading()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)
-            return
+          } else {
+            // @see `wpc` in approval-design.js
+            wpc = { ...res.data, preview: true }
+            renderRbcomp(<RbFlowCanvas />, 'rbflow')
           }
-          // @see `wpc` in approval-design.js
-          wpc = { ...res.data, preview: true }
-          renderRbcomp(<RbFlowCanvas />, 'rbflow')
         })
       })
     </script>

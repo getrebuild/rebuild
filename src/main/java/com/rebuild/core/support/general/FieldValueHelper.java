@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.approval.ApprovalStepService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -156,6 +157,8 @@ public class FieldValueHelper {
             }
             return hasValue;
 
+        } else if (id.equals(ApprovalStepService.APPROVAL_NOID)) {
+            return Language.L("AUTOAPPROVAL");
         }
 
         Field nameField = MetadataHelper.getNameField(entity);

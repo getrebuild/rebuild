@@ -67,7 +67,7 @@ public class PicklistDataController extends BaseController {
         Field fieldMeta = getRealField(entity, field);
         ID useClassification = ClassificationManager.instance.getUseClassification(fieldMeta, true);
         if (useClassification == null) {
-            return RespBody.errorl("SomeConfigError,t.CLASSIFICATION");
+            return RespBody.errorl("SomeAdminConfInvalid,t.CLASSIFICATION");
         }
 
         ID parent = getIdParameter(request, "parent");

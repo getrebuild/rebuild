@@ -1262,7 +1262,6 @@
   "NoRecordForPreview": "无法预览 (未找到可供预览的记录)",
   "NoFileForPreview": "无法预览 (报表模板文件不存在)",
   "BadField": "无效字段",
-  "SomeConfigError": "{0}配置有误",
   "ExtFormNotStarted": "表单未开始",
   "ExtFormExpires": "表单已过期",
   "ExtFormReferenceTips": "引用字段通过填写名称字段值或自动编号值进行匹配，当填写的值无法匹配到任何引用记录时如何处理？",
@@ -1270,6 +1269,8 @@
   "AutoCreateIfNotFound": "自动创建",
   "NotSubmitIfNotFound": "禁止提交",
   "ExtformSubmitted": "提交成功",
+  "SomeAdminConfInvalid": "无效{0}，请联系管理员配置",
+  "BadOrDeleteApproval": "无效审批流程，可能已被删除",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

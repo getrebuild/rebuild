@@ -1262,7 +1262,6 @@
   "NoRecordForPreview": "Cannot preview (no record for preview found)",
   "NoFileForPreview": "Cannot preview (the report template file does not exist)",
   "BadField": "Invalid Field",
-  "SomeConfigError": "{0} configuration error",
   "ExtFormNotStarted": "Not started",
   "ExtFormExpires": "Has expired",
   "ExtFormReferenceTips": "The reference field is matched by filling in the name field value or the auto-number value. What to do when the filled value cannot match any reference record?",
@@ -1270,6 +1269,8 @@
   "AutoCreateIfNotFound": "Auto create",
   "NotSubmitIfNotFound": "Prohibited to submit",
   "ExtformSubmitted": "Submitted successfully",
+  "SomeAdminConfInvalid": "Invalid {0}, please contact the administrator to configure",
+  "BadOrDeleteApproval": "Invalid approval, may have been deleted",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

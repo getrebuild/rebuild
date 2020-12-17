@@ -16,12 +16,19 @@ import com.rebuild.core.support.License;
  */
 public class RbAssert {
 
+    /**
+     * @param message
+     */
     public static void isCommercial(String message) {
         if (!License.isCommercial()) {
             throw new DefinedException(message);
         }
     }
 
+    /**
+     * @param expression
+     * @param message
+     */
     public static void isAllow(boolean expression, String message) {
         if (!expression) {
             throw new DefinedException(message);

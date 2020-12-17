@@ -12,6 +12,7 @@ import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.service.ServiceSpec;
+import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.support.task.TaskExecutors;
 
 import java.util.List;
@@ -94,4 +95,12 @@ public interface EntityService extends ServiceSpec {
      * @return
      */
     List<Record> getAndCheckRepeated(Record checkRecord, int limit);
+
+    /**
+     * 审批
+     *
+     * @param record
+     * @param state 只接受通过或撤销
+     */
+    void approve(ID record, ApprovalState state);
 }
