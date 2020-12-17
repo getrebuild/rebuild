@@ -3687,3 +3687,15 @@ a.select-lang:hover {
   cursor: help;
   text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.4);
 }
+
+body.dark-mode {
+  background-color: rgb(13, 17, 23);
+  color: rgb(201, 209, 217);
+}
+
+.rb-fullcontent,
+.rb-fullcontent .rb-wrapper,
+.rb-fullcontent .rb-wrapper .rb-content,
+.rb-fullcontent .rb-wrapper .main-content {
+  height: 100%;
+}

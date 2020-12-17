@@ -31,8 +31,6 @@ $(document).ready(() => {
       activeNode = null
     }
   })
-
-  $addResizeHandler(() => $('#rbflow').css('min-height', $(window).height() - 217))()
 })
 
 // 画布准备完毕
