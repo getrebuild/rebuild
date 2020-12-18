@@ -25,6 +25,7 @@ import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.commons.FileDownloader;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,7 +45,7 @@ import java.io.IOException;
 @RequestMapping("/app/{entity}/")
 public class ReportsController extends BaseController {
 
-    // 报表
+    // 报表模板
 
     @RequestMapping("report/available")
     public JSON availableReports(@PathVariable String entity) {
@@ -64,8 +65,10 @@ public class ReportsController extends BaseController {
 
         } else {
             String attname = request.getParameter("attname");
-            if (attname == null) {
+            if (StringUtils.isBlank(attname)) {
                 attname = report.getName();
+            } else {
+                attname += (report.getName().endsWith(".xlsx") ? ".xlsx" : "xls");
             }
 
             FileDownloader.setDownloadHeaders(request, response, attname);
