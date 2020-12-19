@@ -138,18 +138,19 @@ public class FileDownloader extends BaseController {
             filePath = filePath.split("/filex/download/")[1];
         }
 
-        boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
-        String fileName = QiniuCloud.parseFileName(filePath);
+        boolean temp = getBoolParameter(request, "temp");
+        String attname = getParameter(request, "attname");
+        if (StringUtils.isBlank(attname)) attname = QiniuCloud.parseFileName(filePath);
 
         ServletUtils.setNoCacheHeaders(response);
 
         // Local storage || temp
         if (!QiniuCloud.instance().available() || temp) {
-            setDownloadHeaders(request, response, fileName);
+            setDownloadHeaders(request, response, attname);
             writeLocalFile(filePath, temp, response);
         } else {
             String privateUrl = QiniuCloud.instance().url(filePath);
-            privateUrl += "&attname=" + fileName;
+            privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         }
     }
@@ -211,6 +212,10 @@ public class FileDownloader extends BaseController {
      * @param attname
      */
     public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
+        // 特殊字符处理
+        attname = attname.replace(" ", "-");
+        attname = attname.replace("%", "-");
+
         // 火狐 Safari 中文名乱码问题
         String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
         if (UA.contains("FIREFOX") || UA.contains("SAFARI")) {

@@ -182,7 +182,7 @@ public class ReferenceSearchController extends EntityController {
      * @return
      */
     private List<Object> resultSearch(String sqlWhere, Entity entity, boolean usePrivileges) {
-        Field nameField = MetadataHelper.getNameField(entity);
+        Field nameField = entity.getNameField();
 
         String sql = MessageFormat.format("select {0},{1} from {2} where {3}",
                 entity.getPrimaryField().getName(), nameField.getName(), entity.getName(), sqlWhere);

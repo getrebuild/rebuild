@@ -394,7 +394,7 @@ class FormulaCalc extends RbAlert {
   }
 
   confirm() {
-    let vvv = []
+    const vvv = []
     $(this._$formula)
       .find('i')
       .each(function () {

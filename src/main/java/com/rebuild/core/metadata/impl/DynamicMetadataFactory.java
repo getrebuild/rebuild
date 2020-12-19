@@ -9,7 +9,7 @@ package com.rebuild.core.metadata.impl;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.dialect.Dialect;
-import cn.devezhao.persist4j.metadata.MetadataException;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.XmlHelper;
 import com.alibaba.fastjson.JSON;
@@ -17,20 +17,18 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author zhaofang123@gmail.com
  * @since 08/04/2018
  */
+@Slf4j
 public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
     private static final long serialVersionUID = -5709281079615412347L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(DynamicMetadataFactory.class);
 
     public DynamicMetadataFactory(String configLocation, Dialect dialect) {
         super(configLocation, dialect);
@@ -73,7 +71,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
                     .addAttribute("physical-name", (String) c[2])
                     .addAttribute("description", (String) c[3])
                     .addAttribute("parent", "false")
-                    .addAttribute("name-field", (String) c[7])
+                    .addAttribute("name-field", StringUtils.defaultIfBlank((String) c[7], EntityHelper.CreatedOn))
                     .addAttribute("main", (String) c[8])
                     .addAttribute("creatable", "true")
                     .addAttribute("updatable", "true")
@@ -103,7 +101,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             String fieldName = (String) c[1];
             Element entityElement = (Element) rootElement.selectSingleNode("entity[@name='" + entityName + "']");
             if (entityElement == null) {
-                LOG.warn("No entity found : " + entityName + "." + fieldName);
+                log.warn("No entity found : " + entityName + "." + fieldName);
                 continue;
             }
 
@@ -163,7 +161,7 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
             field.addAttribute("extra-attrs", extraAttrs.toJSONString());
         }
 
-        if (LOG.isDebugEnabled()) {
+        if (log.isDebugEnabled()) {
             XmlHelper.dump(rootElement);
         }
     }
@@ -172,11 +170,11 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
     protected Entity getEntityNoLock(String name) {
         try {
             return super.getEntityNoLock(name);
-        } catch (MetadataException notExists) {
+        } catch (MissingMetaExcetion noexist) {
             if (DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
                 return new GhostEntity(name);
             } else {
-                throw notExists;
+                throw noexist;
             }
         }
     }

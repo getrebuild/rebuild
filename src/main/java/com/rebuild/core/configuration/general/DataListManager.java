@@ -73,7 +73,7 @@ public class DataListManager extends BaseLayoutManager {
     public JSON formatFieldsLayout(String entity, ID user, boolean filter, ConfigBean config) {
         List<Map<String, Object>> columnList = new ArrayList<>();
         Entity entityMeta = MetadataHelper.getEntity(entity);
-        Field namedField = MetadataHelper.getNameField(entityMeta);
+        Field namedField = entityMeta.getNameField();
 
         // 默认配置
         if (config == null) {

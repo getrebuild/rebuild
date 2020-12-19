@@ -14,7 +14,6 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.query.compiler.SelectItem;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -76,7 +75,7 @@ public class DataListWrapper {
      * @return
      */
     public JSON toJson() {
-        final Field nameFiled = MetadataHelper.getNameField(entity);
+        final Field nameFiled = entity.getNameField();
         final int joinFieldsLen = queryJoinFields == null ? 0 : queryJoinFields.size();
         final int selectFieldsLen = selectFields.length - joinFieldsLen;
 

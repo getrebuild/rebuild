@@ -23,9 +23,8 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,13 +37,10 @@ import java.util.Set;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-26
  */
+@Slf4j
 public class EntityRecordCreator extends JsonRecordCreator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EntityRecordCreator.class);
-
-    /**
-     * 更新时。是移除不允许更新的字段还是抛出异常
-     */
+    // 严格模式
     private boolean strictMode;
 
     /**
@@ -77,8 +73,11 @@ public class EntityRecordCreator extends JsonRecordCreator {
             return field.equals(dtf);
         }
 
-        // TODO 非系统级字段是否予以通过
-        return false;
+        if (strictMode) {
+            return false;
+        } else {
+            return !MetadataHelper.isCommonsField(field);
+        }
     }
 
     @Override
@@ -132,7 +131,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                         notAllowed.add(easyField.getLabel());
                     } else {
                         record.removeValue(fieldName);
-                        LOG.warn("Remove non-updatable field : " + fieldName);
+                        log.warn("Remove non-updatable field : " + fieldName);
                     }
                 }
             }

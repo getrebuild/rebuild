@@ -11,8 +11,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 位置工具
@@ -20,9 +19,8 @@ import org.slf4j.LoggerFactory;
  * @author devezhao
  * @since 2019/8/28
  */
+@Slf4j
 public class LocationUtils {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LocationUtils.class);
 
     /**
      * 获取 IP 所在位置
@@ -66,7 +64,7 @@ public class LocationUtils {
 
         if (result.getString("country") == null) {
             loc = getJSON(String.format("http://ip-api.com/json/%s", ip));
-            LOG.warn("Use backup IP location service : " + loc);
+            log.warn("Use backup IP location service : " + loc);
 
             if (loc != null) {
                 String message = loc.getString("message");
@@ -84,7 +82,7 @@ public class LocationUtils {
             result.put("country", "N");
         }
 
-        Application.getCommonsCache().putx("IPLocation2" + ip, result, CommonsCache.TS_WEEK);
+        Application.getCommonsCache().putx("IPLocation2" + ip, result, CommonsCache.TS_DAY * 90);
         return result;
     }
 
@@ -96,7 +94,7 @@ public class LocationUtils {
         try {
             return JSON.parseObject(HttpUtils.get(url));
         } catch (Exception e) {
-            LOG.debug("Error occured : " + url + " >> " + e);
+            log.debug("Error occured : " + url + " >> " + e);
         }
         return null;
     }

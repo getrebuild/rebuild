@@ -74,7 +74,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .field-writeback .col-5 > .zmdi {
   position: absolute;
   left: -5px;
-  color: #4c8bf5;
   color: #fbbc05;
   margin-top: 10px;
   font-size: 1.1rem;
@@ -186,12 +185,16 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .form-control-plaintext.formula {
   border: 1px dotted #4c8bf5 !important;
-  border-radius: 2px;
+  border-radius: 4px;
   background-color: #fff;
-  padding: 8px 10px;
-  padding-top: 9px;
+  padding: 9px 10px 8px;
   min-height: 37px !important;
   cursor: text;
+}
+
+.form-control-plaintext.formula:empty::after {
+  content: attr(_title);
+  color: #878787;
 }
 
 .form-control-plaintext.formula i {
@@ -229,16 +232,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 12px 0 rgba(170, 182, 206, 0.36);
   border-radius: 0;
   padding: 3px 0;
+  z-index: 1000;
 }
 
 .form-control-plaintext.formula > .field .dropdown-menu .dropdown-item {
   padding: 6px 14px;
   cursor: default;
-}
-
-.form-control-plaintext.formula:empty::after {
-  content: attr(_title);
-  color: #999;
 }
 
 .auto-assign .select2-selection__rendered,

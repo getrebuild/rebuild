@@ -5,94 +5,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%AD%97%E6%AE%B5" />
     <title>[[${bundle.L('FieldInfo')}]]</title>
-    <style type="text/css">
-      .col-form-label {
-        padding-bottom: 8px;
-      }
-      .sortable-box {
-        height: 208px;
-        max-width: 300px;
-      }
-      .sortable-box .dd-list {
-        height: 200px;
-      }
-      .sortable-box .dd-list .dd-item,
-      .sortable-box .dd-list .dd-handle {
-        background-color: #fff !important;
-        color: #404040 !important;
-        border-color: #dedede !important;
-      }
-      .sortable-box .no-item {
-        padding: 9px;
-        text-align: center;
-        color: #999;
-      }
-      .sortable-box.autoh,
-      .sortable-box.autoh .dd-list {
-        height: auto;
-      }
-      .sortable-box .default .dd-handle {
-        background-color: #dedede !important;
-      }
-      .sortable-box .default .dd-handle::before {
-        color: #4285f4;
-      }
-      .dt-MULTISELECT .dd-handle,
-      .dt-PICKLIST .dd-handle {
-        padding-left: 31px !important;
-      }
-      .dt-MULTISELECT .dd-handle::before,
-      .dt-PICKLIST .dd-handle::before {
-        position: absolute;
-        font-family: 'Material-Design-Iconic-Font';
-        font-size: 20px;
-        color: #bbb;
-        left: 10px;
-        content: '\f279';
-      }
-      .dt-MULTISELECT .default .dd-handle::before {
-        content: '\f26a';
-      }
-      .dt-PICKLIST .dd-handle::before {
-        font-size: 18px;
-        margin-top: -1px;
-        content: '\f26c';
-      }
-      .dt-PICKLIST .default .dd-handle::before {
-        content: '\f269';
-      }
-      .form-text.help b {
-        font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-        color: #4285f4;
-      }
-      .calc-expr {
-        border-radius: 3px;
-        padding: 10px 0;
-        background-color: #eee;
-      }
-      .calc-expr .col-4 {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-      .J_defaultValue[readonly] {
-        background-color: #fff;
-        cursor: default;
-      }
-      .J_defaultValue-clear {
-        position: absolute;
-        display: inline-block;
-        height: 32px;
-        width: 16px;
-        font-size: 1.2rem;
-        right: 40px;
-        top: 2px;
-        text-align: center;
-        padding-top: 6px;
-      }
-      .J_defaultValue-clear:hover {
-        opacity: 0.8;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -139,13 +52,13 @@
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('MetaName')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <input class="form-control form-control-sm" type="text" readonly="readonly" th:value="${fieldName}" />
+                    <input class="form-control form-control-sm" type="text" readonly th:value="${fieldName}" />
                   </div>
                 </div>
                 <div class="form-group row">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Type')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <input class="form-control form-control-sm" type="text" readonly="readonly" th:value="${fieldTypeLabel}" />
+                    <input class="form-control form-control-sm" type="text" readonly th:value="${fieldTypeLabel}" />
                   </div>
                 </div>
                 <div th:if="${fieldType == 'DECIMAL'}" class="form-group row J_for-DECIMAL">
@@ -162,7 +75,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'REFERENCE' or fieldType == 'N2NREFERENCE'}" class="J_for-REFERENCE J_for-N2NREFERENCE">
-                  <div class="form-group row pt-0 pb-0">
+                  <div class="form-group row pt-1 pb-1">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('RefEntity')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <div class="form-control-plaintext">
@@ -170,7 +83,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="form-group row pt-0 pb-1 J_for-REFERENCE-filter">
+                  <div class="form-group row pt-0 pb-2 J_for-REFERENCE-filter">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('ClickSet')}]]</a>
@@ -200,7 +113,7 @@
                 </div>
                 <div th:if="${fieldType == 'IMAGE' or fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('AllowUploadNum')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                  <div class="col-md-12 col-xl-6 col-lg-8 pt-1 pb-1">
                     <input
                       class="bslider form-control"
                       id="uploadNumber"
@@ -245,7 +158,7 @@
                     </div>
                   </div>
                 </div>
-                <div th:if="${fieldType == 'CLASSIFICATION'}" class="form-group row J_for-CLASSIFICATION pt-0 pb-0">
+                <div th:if="${fieldType == 'CLASSIFICATION'}" class="form-group row J_for-CLASSIFICATION pt-1 pb-1">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Classification')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div class="form-control-plaintext" id="useClassification">
@@ -308,6 +221,14 @@
                       <div class="input-group-append J_defaultValue-append"></div>
                       <a class="J_defaultValue-clear hide" th:title="${bundle.L('Clear')}"><i class="icon zmdi zmdi-close"></i></a>
                     </div>
+                  </div>
+                </div>
+                <div th:if="${fieldType == 'DECIMAL' or fieldType == 'NUMBER'}" class="form-group row J_for-DECIMAL J_for-NUMBER">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('FormCalcFormula')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <input type="hidden" class="form-control" id="calcFormula" />
+                    <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('Null')}">[[${calcFormula ?: calcFormula}]]</div>
+                    <p class="form-text" th:utext="${bundle.L('FormCalcFormulaTips')}"></p>
                   </div>
                 </div>
                 <div class="form-group row">

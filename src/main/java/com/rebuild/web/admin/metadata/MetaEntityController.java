@@ -70,7 +70,7 @@ public class MetaEntityController extends BaseController {
         ModelAndView mv = createModelAndView("/admin/metadata/entity-edit");
         setEntityBase(mv, entity);
 
-        mv.getModel().put("nameField", MetadataHelper.getNameField(metaEntity).getName());
+        mv.getModel().put("nameField", metaEntity.getNameField().getName());
 
         if (metaEntity.getMainEntity() != null) {
             mv.getModel().put("mainEntity", metaEntity.getMainEntity().getName());

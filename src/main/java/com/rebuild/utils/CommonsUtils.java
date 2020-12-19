@@ -7,10 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -24,9 +23,8 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 01/31/2019
  */
+@Slf4j
 public class CommonsUtils {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CommonsUtils.class);
 
     private static final Pattern PATT_PLAINTEXT = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 
@@ -49,22 +47,43 @@ public class CommonsUtils {
      * @return
      */
     public static String stars(String text) {
-        if (StringUtils.isBlank(text)) {
-            return text;
-        }
+        if (StringUtils.isBlank(text)) return text;
 
         int textLen = text.length();
         if (textLen <= 3) {
-            return text.substring(0, 1) + "**";
+            return text.charAt(0) + "**";
         } else if (textLen <= 20) {
-            return text.substring(0, 1) + "**" + text.substring(textLen - 1);
+            return text.charAt(0) + "***" + text.substring(textLen - 1);
         } else if (textLen <= 30) {
-            return text.substring(0, 2) + "****" + text.substring(textLen - 2);
+            return text.substring(0, 2) + "*****" + text.substring(textLen - 2);
         } else if (textLen <= 40) {
             return text.substring(0, 4) + "**********" + text.substring(textLen - 4);
         } else {
             return text.substring(0, 4) + "********************" + text.substring(textLen - 4);
         }
+    }
+
+    /**
+     * @param phone
+     * @return
+     */
+    public static String starsPhone(String phone) {
+        if (StringUtils.isBlank(phone)) return phone;
+
+        if (phone.length() <= 7) return phone.substring(0, 3) + "****";
+        return phone.substring(0, 3) + "****" + phone.substring(7);
+    }
+
+    /**
+     * @param email
+     * @return
+     */
+    public static String starsEmail(String email) {
+        if (StringUtils.isBlank(email)) return email;
+
+        String[] ss = email.split("@");
+        if (ss[0].length() <= 4) return ss[0].charAt(0) + "****@" + ss[1];
+        return ss[0].substring(0, 4) + "****@" + ss[1];
     }
 
     /**
@@ -116,7 +135,7 @@ public class CommonsUtils {
         try (InputStream is = getStreamOfRes(file)) {
             return IOUtils.toString(is, "utf-8");
         } catch (IOException ex) {
-            LOG.error("Cannot load file of res : " + file);
+            log.error("Cannot load file of res : " + file);
             return null;
         }
     }

@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
-import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -42,20 +41,18 @@ public class RestoreRecordCreator extends JsonRecordCreator {
                 continue;
             }
 
-            Field field = entity.getField(fileName);
             Object value = e.getValue();
             if (value == null || StringUtils.isEmpty(value.toString())) {
                 continue;
             }
 
-            setFieldValue(field, value.toString(), record);
+            setFieldValue(entity.getField(fileName), value.toString(), record);
         }
         return record;
     }
 
     @Override
     public boolean onSetFieldValueWarn(Field field, String value, Record record) {
-        RecordVisitor.setValueByLiteral(field, value, record);
         return true;
     }
 }

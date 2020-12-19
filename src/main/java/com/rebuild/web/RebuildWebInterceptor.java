@@ -57,6 +57,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             throw new DefinedException(600, "Please wait while REBUILD starting up ...");
         }
 
+        UserContextHolder.setReqip(ServletUtils.getRemoteAddr(request));
+
         // Locale
         final String locale = detectLocale(request, response);
         UserContextHolder.setLocale(locale);
