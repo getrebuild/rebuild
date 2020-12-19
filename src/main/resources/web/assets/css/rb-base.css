@@ -21531,7 +21531,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   line-height: 2rem;
   font-family: Roboto, Arial, sans-serif;
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-size: 1rem;
   color: #999;
 }

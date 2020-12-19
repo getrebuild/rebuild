@@ -1272,6 +1272,8 @@
   "ExtformSubmitted": "提交成功",
   "SomeAdminConfInvalid": "无效{0}，请联系管理员配置",
   "BadOrDeleteApproval": "无效审批流程，可能已被删除",
+  "FormCalcFormula": "表单计算公式",
+  "FormCalcFormulaTips": "如公式中所用字段未布局/未显示，则无法进行计算。通过 [触发器 (数据聚合)](/admin/robot/triggers) 可以实现更加强大的计算规则",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

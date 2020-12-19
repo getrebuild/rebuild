@@ -49,7 +49,7 @@ $(document).ready(function () {
       const k = $(this).attr('id')
       extConfigNew[k] = $val(this)
     })
-    // 单选
+    // 单选型
     $(`.J_for-${dt} .custom-radio .custom-control-input:checked`).each(function () {
       const k = $(this).attr('name')
       extConfigNew[k] = $val(this)
@@ -130,6 +130,8 @@ $(document).ready(function () {
     if ($dv.data('o')) $dv.val($dv.data('o'))
   } else if (dt === 'BARCODE') {
     $('.J_fieldAttrs input').attr('disabled', true)
+  } else if (dt === 'NUMBER' || dt === 'DECIMAL') {
+    _handleNumber(extConfig.calcFormula)
   }
 
   // 显示重复值选项
@@ -298,7 +300,8 @@ const _handleDate = function (dt) {
   $('.J_defaultValue').datetimepicker({
     format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
     minView: dt === 'DATE' ? 2 : 0,
-  })
+    clearBtn: true
+  }).attr('readonly', true)
 
   $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('DateFormula')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')
@@ -476,5 +479,122 @@ const _loadRefsLabel = function ($dv, $dvClear) {
     })
 
     $dvClear && $dvClear.removeClass('hide')
+  }
+}
+
+let FIELDS_CACHE = []
+const _handleNumber = function (calcFormula) {
+  const $el = $('#calcFormula2')
+  function _call(s) {
+    $('#calcFormula').val(s || '')
+    $el.text(FormulaCalc.textFormula(s))
+  }
+
+  if (FIELDS_CACHE) {
+    $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
+      const fs = []
+      res.data.forEach((item) => {
+        if ((item.type === 'NUMBER' || item.type === 'DECIMAL') && item.name !== wpc.fieldName) {
+          fs.push([item.name, item.label])
+        }
+      })
+      FIELDS_CACHE = fs
+
+      if (calcFormula) {
+        _call(calcFormula)
+      }
+    })
+  }
+
+  $el.click(() => renderRbcomp(<FormulaCalc call={_call} />))
+}
+
+// ~ 公式计算器
+// @see trigger.FIELDAGGREGATION.js
+const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('Back'), $L('Clear')]
+class FormulaCalc extends RbAlert {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  renderContent() {
+    return (
+      <div className="formula-calc">
+        <div className="form-control-plaintext formula mb-2" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)}></div>
+        <div className="row">
+          <div className="col-6">
+            <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
+              <ul className="list-unstyled mb-0">
+                {FIELDS_CACHE.map((item) => {
+                  return (
+                    <li key={item[0]}>
+                      <a onClick={() => this.handleInput(item)}>{item[1]}</a>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          </div>
+          <div className="col-6 pl-0">
+            <ul className="list-unstyled numbers mb-0">
+              {INPUT_KEYS.map((item) => {
+                return (
+                  <li className="list-inline-item" key={`flag-${item}`}>
+                    <a onClick={() => this.handleInput(item)}>{item}</a>
+                  </li>
+                )
+              })}
+              <li className="list-inline-item">
+                <a onClick={() => this.confirm()} className="confirm">
+                  {$L('Confirm')}
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+    $(this._$fields).perfectScrollbar()
+  }
+
+  handleInput(v) {
+    if (v === $L('Back')) {
+      $(this._$formula).find('.v:last').remove()
+    } else if (v === $L('Clear')) {
+      $(this._$formula).empty()
+    } else if (typeof v === 'object') {
+      const $field = $(`<i class="v field" data-v="{${v[0]}}">{${v[1]}}</i>`)
+      $field.appendTo(this._$formula)
+    } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
+      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
+    } else {
+      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
+    }
+  }
+
+  confirm() {
+    const vvv = []
+    $(this._$formula)
+      .find('i')
+      .each(function () {
+        vvv.push($(this).data('v'))
+      })
+    typeof this.props.call === 'function' && this.props.call(vvv.join(''))
+    this.hide()
+  }
+
+  static textFormula(formula) {
+    if (!formula) return ''
+
+    for (let i = 0; i < FIELDS_CACHE.length; i++) {
+      const item = FIELDS_CACHE[i]
+      formula = formula.replace(new RegExp(`{${item[0]}}`, 'ig'), `{${item[1]}}`)
+    }
+    return formula.toUpperCase()
   }
 }

@@ -297,6 +297,7 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
+    if (!error) RbForm.__FIELDVALUECHANGE_CALLS.forEach((c) => c({ name: field, value: value }))
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
   }
@@ -304,6 +305,7 @@ class RbForm extends React.Component {
   // 避免无意义更新
   setFieldUnchanged(field) {
     delete this.__FormData[field]
+    RbForm.__FIELDVALUECHANGE_CALLS.forEach((c) => c({ name: field }))
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
   }
@@ -382,6 +384,12 @@ class RbForm extends React.Component {
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload()
     if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
+  }
+
+  static __FIELDVALUECHANGE_CALLS = []
+  // 字段值变化回调
+  static onFieldValueChange(call) {
+    RbForm.__FIELDVALUECHANGE_CALLS.push(call)
   }
 }
 
@@ -712,6 +720,42 @@ class RbFormNumber extends RbFormText {
         maxLength="29"
       />
     )
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // 表单计算
+    if (this.props.calcFormula) {
+      const calcFormula = this.props.calcFormula.replace(new RegExp('×', 'ig'), '*').replace(new RegExp('÷', 'ig'), '/')
+      const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
+      this.calcFormula__values = {}
+
+      // 小数位
+      const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
+
+      RbForm.onFieldValueChange((s) => {
+        if (watchFields.includes(`{${s.name}}`)) {
+          this.calcFormula__values[s.name] = s.value
+
+          // 尝试计算
+          let formula = calcFormula
+          for (let key in this.calcFormula__values) {
+            formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
+          }
+          console.log('formula : ', formula)
+          if (formula.includes('{')) return
+
+          try {
+            let calcv
+            eval(`calcv = ${formula}`)
+            if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
+          } catch (err) {
+            if (rb.env === 'dev') console.log(err)
+          }
+        }
+      })
+    }
   }
 }
 
@@ -1268,10 +1312,9 @@ class RbFormN2NReference extends RbFormReference {
 
       if (ids.length > 0) {
         let ss = ids.join(',')
-        if (isAppend && (currentValue && currentValue !== '')) ss = currentValue + ',' + ss
+        if (isAppend && currentValue && currentValue !== '') ss = currentValue + ',' + ss
         this.handleChange({ target: { value: ss } }, true)
       }
-
     } else {
       this.__select2.val(null).trigger('change')
     }

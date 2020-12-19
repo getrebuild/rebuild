@@ -23,6 +23,10 @@ public class EasyFieldConfigProps {
      * 格式
      */
     public static final String NUMBER_FORMAT = "numberFormat";
+    /**
+     * 表单公式
+     */
+    public static final String NUMBER_CALC_FORMULA = "calcFormula";
 
     /**
      * 是否允许负数
@@ -32,6 +36,10 @@ public class EasyFieldConfigProps {
      * 格式
      */
     public static final String DECIMAL_FORMAT = "decimalFormat";
+    /**
+     * 表单公式
+     */
+    public static final String DECIMAL_CALC_FORMULA = NUMBER_CALC_FORMULA;
 
     /**
      * 日期格式

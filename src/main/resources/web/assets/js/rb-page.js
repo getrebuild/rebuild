@@ -717,7 +717,9 @@ var _$unthy = function (text) {
   if (!text) return null
   text = text.replace(/&quot;/g, '"')
   text = text.replace(/\n/g, ' ')
-  return $.parseJSON(text)
+  var s = $.parseJSON(text)
+  if (rb.env === 'dev') console.log(s)
+  return s
 }
 
 /**
