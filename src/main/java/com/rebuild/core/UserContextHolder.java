@@ -27,7 +27,9 @@ public class UserContextHolder {
 
     private static final ThreadLocal<ID> CALLER = new NamedThreadLocal<>("Current user");
 
-    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Current locale");
+    private static final ThreadLocal<String> LOCALE = new NamedThreadLocal<>("Request locale");
+
+    private static final ThreadLocal<String> REQIP = new NamedThreadLocal<>("Request IP");
 
     private UserContextHolder() { }
 
@@ -59,7 +61,6 @@ public class UserContextHolder {
      */
     public static void setLocale(String locale) {
         Assert.notNull(locale, "[locale] cannot be null");
-
         LOCALE.set(locale);
     }
 
@@ -99,6 +100,7 @@ public class UserContextHolder {
     public static void clear() {
         clearUser();
         clearLocale();
+        REQIP.remove();
     }
 
     /**
@@ -111,5 +113,22 @@ public class UserContextHolder {
      */
     public static void clearLocale() {
         LOCALE.remove();
+    }
+
+    // --
+
+    /**
+     * @param reqip
+     */
+    public static void setReqip(String reqip) {
+        Assert.notNull(reqip, "[reqip] cannot be null");
+        REQIP.set(reqip);
+    }
+
+    /**
+     * @return
+     */
+    public static String getReqip() {
+        return REQIP.get();
     }
 }
