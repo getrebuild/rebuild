@@ -161,7 +161,7 @@ public class FieldValueHelper {
             return Language.L("AUTOAPPROVAL");
         }
 
-        Field nameField = MetadataHelper.getNameField(entity);
+        Field nameField = entity.getNameField();
         Object[] nameValue = Application.getQueryFactory().uniqueNoFilter(id, nameField.getName());
         if (nameValue == null) {
             throw new NoRecordFoundException("No record found by id : " + id);

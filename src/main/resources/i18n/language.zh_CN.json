@@ -1238,6 +1238,7 @@
   "AUTOTRANSFORM": "自动记录转换",
   "UseTransform": "使用记录转换映射",
   "EntityNotExists": "实体 %s 已经不存在，请检查配置",
+  "FieldNotExists": "字段 %s 已经不存在，请检查配置",
   "MultipleSessions": "同一用户允许多地登录",
   "AdvFeature": "高级功能",
   "ExtForms": "外部表单",

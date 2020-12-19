@@ -25,10 +25,9 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 创建实体
@@ -36,9 +35,8 @@ import org.slf4j.LoggerFactory;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
+@Slf4j
 public class Entity2Schema extends Field2Schema {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Entity2Schema.class);
 
     /**
      * @param user
@@ -153,7 +151,7 @@ public class Entity2Schema extends Field2Schema {
                 createBuiltinField(tempEntity, EntityHelper.OwningDept, Language.L("f.owningDept"), DisplayType.REFERENCE, null, "Department", null);
             }
         } catch (Throwable ex) {
-            LOG.error(null, ex);
+            log.error(null, ex);
             Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
             throw new MetadataModificationException(Language.L("NotCreateMetasToDb") + " : " + ex.getLocalizedMessage());
         }
@@ -196,7 +194,7 @@ public class Entity2Schema extends Field2Schema {
 
         if (entity.getDetailEntity() != null) {
             if (force) {
-                LOG.warn("Force drop detail entity first : " + entity.getDetailEntity().getName());
+                log.warn("Force drop detail-entity first : " + entity.getDetailEntity().getName());
                 boolean dropDetail = this.dropEntity(entity.getDetailEntity(), true);
                 if (dropDetail) {
                     entity = MetadataHelper.getEntity(entity.getEntityCode());
@@ -242,7 +240,7 @@ public class Entity2Schema extends Field2Schema {
         try {
             Application.getSqlExecutor().execute(ddl, 10 * 60);
         } catch (Throwable ex) {
-            LOG.error("DDL ERROR : \n" + ddl, ex);
+            log.error("DDL ERROR : \n" + ddl, ex);
             return false;
         }
 
@@ -277,7 +275,7 @@ public class Entity2Schema extends Field2Schema {
         try {
             Application.getSqlExecutor().executeBatch(ddls);
         } catch (Throwable ex) {
-            LOG.error("DDL Error : \n" + StringUtils.join(ddls, "\n"), ex);
+            log.error("DDL Error : \n" + StringUtils.join(ddls, "\n"), ex);
             return false;
         }
         return true;

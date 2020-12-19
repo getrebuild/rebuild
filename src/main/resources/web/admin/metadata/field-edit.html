@@ -162,7 +162,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'REFERENCE' or fieldType == 'N2NREFERENCE'}" class="J_for-REFERENCE J_for-N2NREFERENCE">
-                  <div class="form-group row pt-0 pb-0">
+                  <div class="form-group row pt-1 pb-1">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('RefEntity')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <div class="form-control-plaintext">
@@ -170,7 +170,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="form-group row pt-0 pb-1 J_for-REFERENCE-filter">
+                  <div class="form-group row pt-0 pb-2 J_for-REFERENCE-filter">
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('ClickSet')}]]</a>
@@ -200,7 +200,7 @@
                 </div>
                 <div th:if="${fieldType == 'IMAGE' or fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('AllowUploadNum')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
+                  <div class="col-md-12 col-xl-6 col-lg-8 pt-1 pb-1">
                     <input
                       class="bslider form-control"
                       id="uploadNumber"
@@ -245,7 +245,7 @@
                     </div>
                   </div>
                 </div>
-                <div th:if="${fieldType == 'CLASSIFICATION'}" class="form-group row J_for-CLASSIFICATION pt-0 pb-0">
+                <div th:if="${fieldType == 'CLASSIFICATION'}" class="form-group row J_for-CLASSIFICATION pt-1 pb-1">
                   <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Classification')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div class="form-control-plaintext" id="useClassification">
