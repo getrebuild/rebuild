@@ -77,8 +77,11 @@ public class EntityRecordCreator extends JsonRecordCreator {
             return field.equals(dtf);
         }
 
-        // TODO 非系统级字段是否予以通过
-        return false;
+        if (strictMode) {
+            return false;
+        } else {
+            return !MetadataHelper.isCommonsField(field);
+        }
     }
 
     @Override
