@@ -297,11 +297,13 @@ const _handleSeries = function () {
 }
 
 const _handleDate = function (dt) {
-  $('.J_defaultValue').datetimepicker({
-    format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
-    minView: dt === 'DATE' ? 2 : 0,
-    clearBtn: true
-  }).attr('readonly', true)
+  $('.J_defaultValue')
+    .datetimepicker({
+      format: dt === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
+      minView: dt === 'DATE' ? 2 : 0,
+      clearBtn: true,
+    })
+    .attr('readonly', true)
 
   $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('DateFormula')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')

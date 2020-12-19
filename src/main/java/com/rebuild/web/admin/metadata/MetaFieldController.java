@@ -57,7 +57,7 @@ public class MetaFieldController extends BaseController {
         ModelAndView mv = createModelAndView("/admin/metadata/fields");
         EasyEntity easyEntity = MetaEntityController.setEntityBase(mv, entity);
 
-        mv.getModel().put("nameField", easyEntity.getRawMeta().getNameField());
+        mv.getModel().put("nameField", easyEntity.getRawMeta().getNameField().getName());
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
         return mv;
     }

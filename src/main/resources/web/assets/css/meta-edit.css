@@ -6,208 +6,208 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 .col-form-label {
-    padding-bottom: 8px;
+  padding-bottom: 8px;
 }
 
 .sortable-box {
-    height: 208px;
-    max-width: 300px;
+  height: 208px;
+  max-width: 300px;
 }
 
 .sortable-box .dd-list {
-    height: 200px;
+  height: 200px;
 }
 
 .sortable-box .dd-list .dd-item,
 .sortable-box .dd-list .dd-handle {
-    background-color: #fff !important;
-    color: #404040 !important;
-    border-color: #dedede !important;
+  background-color: #fff !important;
+  color: #404040 !important;
+  border-color: #dedede !important;
 }
 
 .sortable-box .no-item {
-    padding: 9px;
-    text-align: center;
-    color: #999;
+  padding: 9px;
+  text-align: center;
+  color: #999;
 }
 
 .sortable-box.autoh,
 .sortable-box.autoh .dd-list {
-    height: auto;
+  height: auto;
 }
 
 .sortable-box .default .dd-handle {
-    background-color: #dedede !important;
+  background-color: #dedede !important;
 }
 
 .sortable-box .default .dd-handle::before {
-    color: #4285f4;
+  color: #4285f4;
 }
 
 .dt-MULTISELECT .dd-handle,
 .dt-PICKLIST .dd-handle {
-    padding-left: 31px !important;
+  padding-left: 31px !important;
 }
 
 .dt-MULTISELECT .dd-handle::before,
 .dt-PICKLIST .dd-handle::before {
-    position: absolute;
-    font-family: 'Material-Design-Iconic-Font';
-    font-size: 20px;
-    color: #bbb;
-    left: 10px;
-    content: '\f279';
+  position: absolute;
+  font-family: 'Material-Design-Iconic-Font';
+  font-size: 20px;
+  color: #bbb;
+  left: 10px;
+  content: '\f279';
 }
 
 .dt-MULTISELECT .default .dd-handle::before {
-    content: '\f26a';
+  content: '\f26a';
 }
 
 .dt-PICKLIST .dd-handle::before {
-    font-size: 18px;
-    margin-top: -1px;
-    content: '\f26c';
+  font-size: 18px;
+  margin-top: -1px;
+  content: '\f26c';
 }
 
 .dt-PICKLIST .default .dd-handle::before {
-    content: '\f269';
+  content: '\f269';
 }
 
 .form-text.help b {
-    font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
-    color: #4285f4;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  color: #4285f4;
 }
 
 .calc-expr {
-    border-radius: 3px;
-    padding: 10px 0;
-    background-color: #eee;
+  border-radius: 3px;
+  padding: 10px 0;
+  background-color: #eee;
 }
 
 .calc-expr .col-4 {
-    padding-left: 10px;
-    padding-right: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .J_defaultValue[readonly] {
-    background-color: #fff;
-    cursor: text;
+  background-color: #fff;
+  cursor: text;
 }
 
 .J_defaultValue-clear {
-    position: absolute;
-    display: inline-block;
-    height: 32px;
-    width: 16px;
-    font-size: 1.2rem;
-    right: 40px;
-    top: 2px;
-    text-align: center;
-    padding-top: 6px;
+  position: absolute;
+  display: inline-block;
+  height: 32px;
+  width: 16px;
+  font-size: 1.2rem;
+  right: 40px;
+  top: 2px;
+  text-align: center;
+  padding-top: 6px;
 }
 
 .J_defaultValue-clear:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 
 .form-control-plaintext.formula {
-    border: 1px dotted #4c8bf5 !important;
-    border-radius: 4px;
-    background-color: #fff;
-    padding: 9px 10px 8px;
-    min-height: 37px !important;
-    cursor: text;
+  border: 1px dotted #4c8bf5 !important;
+  border-radius: 4px;
+  background-color: #fff;
+  padding: 9px 10px 8px;
+  min-height: 37px !important;
+  cursor: text;
 }
 
 .form-control-plaintext.formula:empty::after {
-    content: attr(_title);
-    color: #878787;
+  content: attr(_title);
+  color: #878787;
 }
 
 /* FormulaCalc */
 
 .formula-calc ul li {
-    width: 23%;
-    display: inline-block;
-    font-size: 0;
-    padding: 0;
-    margin: 1% !important;
+  width: 23%;
+  display: inline-block;
+  font-size: 0;
+  padding: 0;
+  margin: 1% !important;
 }
 
 .formula-calc ul li > a {
-    display: inline-block;
-    width: 100%;
-    padding: 6px 5px;
-    font-weight: bold;
-    text-align: center;
-    background-color: #eee;
-    border-radius: 2px;
-    font-size: 1rem;
+  display: inline-block;
+  width: 100%;
+  padding: 6px 5px;
+  font-weight: bold;
+  text-align: center;
+  background-color: #eee;
+  border-radius: 2px;
+  font-size: 1rem;
 }
 
 .formula-calc ul li > a:hover {
-    background-color: #ccc;
+  background-color: #ccc;
 }
 
 .formula-calc ul li > a.confirm {
-    background-color: #4c8bf5;
-    color: #fff !important;
+  background-color: #4c8bf5;
+  color: #fff !important;
 }
 
 .formula-calc .fields {
-    max-height: 186px;
+  max-height: 186px;
 }
 
 .formula-calc .fields ul li {
-    width: 100%;
-    margin: 1% 0 !important;
+  width: 100%;
+  margin: 1% 0 !important;
 }
 
 .formula-calc .fields ul li > a {
-    font-weight: normal;
-    text-align: left;
-    padding-left: 10px;
+  font-weight: normal;
+  text-align: left;
+  padding-left: 10px;
 }
 
 .formula-calc .numbers {
-    margin-right: -1.1%;
+  margin-right: -1.1%;
 }
 
 .form-control-plaintext.formula i {
-    font-style: normal;
+  font-style: normal;
 }
 
 .form-control-plaintext.formula > .oper {
-    padding: 0 4px;
+  padding: 0 4px;
 }
 
 .form-control-plaintext.formula > .field {
-    border-radius: 2px;
-    padding: 1px 2px;
-    cursor: pointer;
+  border-radius: 2px;
+  padding: 1px 2px;
+  cursor: pointer;
 }
 
 .form-control-plaintext.formula > .field:hover {
-    background-color: #4c8bf5;
-    color: #fff;
+  background-color: #4c8bf5;
+  color: #fff;
 }
 
 /* for Entity */
 a#entityIcon {
-    display: inline-block;
-    width: 36px;
-    height: 36px;
-    background-color: #e3e3e3;
-    text-align: center;
-    border-radius: 2px;
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background-color: #e3e3e3;
+  text-align: center;
+  border-radius: 2px;
 }
 
 a#entityIcon .icon {
-    font-size: 26px;
-    color: #555;
-    line-height: 36px;
+  font-size: 26px;
+  color: #555;
+  line-height: 36px;
 }
 
 a#entityIcon:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }
