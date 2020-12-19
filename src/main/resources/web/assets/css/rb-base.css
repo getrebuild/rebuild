@@ -107,9 +107,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-sizing: border-box;
 }
 
+html, body {
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+}
+
 html {
-  font-family: sans-serif;
-  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui', 'microsoft yahei', sans-serif;
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -136,7 +138,6 @@ section {
 
 body {
   margin: 0;
-  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-size: 1rem;
   font-weight: 400;
   line-height: 1.428571;
@@ -6240,7 +6241,7 @@ button.close {
   z-index: 1060;
   display: block;
   max-width: 276px;
-  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.428571;
@@ -14300,8 +14301,7 @@ a.avatar.x48 img {
 }
 
 .rb-sub-header .navbar-nav > .nav-item > .nav-link {
-  font-family: Roboto, Arial, sans-serif;
-  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
   font-size: 1.1rem;
   line-height: 40px;
   min-width: 100px;
@@ -21531,7 +21531,7 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   line-height: 2rem;
   font-family: Roboto, Arial, sans-serif;
-  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif
   font-size: 1rem;
   color: #999;
 }
