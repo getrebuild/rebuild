@@ -50,16 +50,16 @@ public class CommonsUtils {
         if (StringUtils.isBlank(text)) return text;
 
         int textLen = text.length();
-        if (textLen <= 3) {
-            return text.charAt(0) + "**";
-        } else if (textLen <= 20) {
-            return text.charAt(0) + "***" + text.substring(textLen - 1);
-        } else if (textLen <= 30) {
-            return text.substring(0, 2) + "*****" + text.substring(textLen - 2);
-        } else if (textLen <= 40) {
-            return text.substring(0, 4) + "**********" + text.substring(textLen - 4);
+        if (textLen == 1) {
+            return "*";
+        } else if (textLen <= 3) {
+            return text.charAt(0) + StringUtils.repeat("*", textLen - 1);
         } else {
-            return text.substring(0, 4) + "********************" + text.substring(textLen - 4);
+            int len3 = Math.min(textLen / 3, 10);
+            int starLen = textLen - len3 * 2;
+            return text.substring(0, len3)
+                    + StringUtils.repeat("*", Math.min(starLen, 20))
+                    + text.substring(len3 * 2);
         }
     }
 
@@ -70,8 +70,11 @@ public class CommonsUtils {
     public static String starsPhone(String phone) {
         if (StringUtils.isBlank(phone)) return phone;
 
-        if (phone.length() <= 7) return phone.substring(0, 3) + "****";
-        return phone.substring(0, 3) + "****" + phone.substring(7);
+        if (phone.length() <= 7) {
+            return phone.substring(0, 3) + StringUtils.repeat("*", phone.length() - 3);
+        } else {
+            return phone.substring(0, 3) + "****" + phone.substring(7);
+        }
     }
 
     /**
@@ -81,9 +84,14 @@ public class CommonsUtils {
     public static String starsEmail(String email) {
         if (StringUtils.isBlank(email)) return email;
 
-        String[] ss = email.split("@");
-        if (ss[0].length() <= 4) return ss[0].charAt(0) + "****@" + ss[1];
-        return ss[0].substring(0, 4) + "****@" + ss[1];
+        String[] nd = email.split("@");
+        int nLen = nd[0].length();
+        if (nd[0].length() <= 3) {
+            nd[0] = nd[0].charAt(0) + StringUtils.repeat("*", nLen - 1);
+        } else {
+            nd[0] = nd[0].substring(0, 3) + StringUtils.repeat("*", Math.min(nLen - 3, 20));
+        }
+        return nd[0] + "@" + nd[1];
     }
 
     /**

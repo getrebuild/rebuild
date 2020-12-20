@@ -3442,13 +3442,13 @@ a.icon-link > .zmdi {
   margin-bottom: 0;
 }
 
-.syscfg .card .card-header-divider > a {
+.syscfg .card .card-header > a {
   font-size: 1rem;
   margin-top: 4px;
   display: none;
 }
 
-.syscfg .card:hover .card-header-divider > a {
+.syscfg .card:hover .card-header > a {
   display: inline-block;
 }
 
