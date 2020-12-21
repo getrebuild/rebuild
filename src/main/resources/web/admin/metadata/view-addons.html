@@ -22,6 +22,12 @@
         </div>
       </div>
       <div class="dialog-footer">
+        <span th:if="${param.type == 'TAB'}" class="float-left">
+          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+            <input class="custom-control-input" type="checkbox" id="autoLogin" />
+            <span class="custom-control-label">[[${bundle.L('RelatedAutoExpand')}]]</span>
+          </label>
+        </span>
         <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
         <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('Cancel')}]]</button>
       </div>
@@ -32,7 +38,7 @@
       $(document).ready(function () {
         const entity = $urlp('entity'),
           type = $urlp('type')
-        const _url = '/admin/entity/' + entity + '/view-addons?type=' + type
+        const _url = `/admin/entity/${entity}/view-addons?type=${type}`
 
         $.get(_url, function (res) {
           $(res.data.refs).each(function () {
@@ -41,7 +47,10 @@
           $(res.data.config).each(function () {
             $('.unset-list li[data-key="' + this + '"]').trigger('click')
           })
-          if (!res.data.refs || res.data.refs.length === 0) $(`<li class="dd-item nodata">${$L('NoData')}</li>`).appendTo('.unset-list')
+
+          if (!res.data.refs || res.data.refs.length === 0) {
+            $(`<li class="dd-item nodata">${$L('NoData')}</li>`).appendTo('.unset-list')
+          }
         })
 
         const $btn = $('.J_save').click(function () {
@@ -54,6 +63,7 @@
           $.post(_url, JSON.stringify(config), function (res) {
             $btn.button('reset')
             if (res.error_code === 0) parent.location.reload()
+            else RbHighbar.error(res.error_msg)
           })
         })
       })
