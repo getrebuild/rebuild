@@ -1276,6 +1276,7 @@
   "FormCalcFormulaTips": "如公式中所用字段未布局/未显示，则无法进行计算。通过 [触发器 (数据聚合)](/admin/robot/triggers) 可以实现更加强大的计算规则",
   "DataBackup": "数据备份",
   "DataMssking": "数据脱敏",
+  "RelatedAutoExpand": "自动展开显示项记录",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

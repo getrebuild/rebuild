@@ -60,10 +60,11 @@ public class GeneralModelController extends EntityController {
         } else {
             mv = createModelAndView("/general/record-view", id, user);
 
-            JSON vtab = ViewAddonsManager.instance.getViewTab(entity, user);
-            mv.getModel().put("ViewTabs", vtab);
-            JSON vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
-            mv.getModel().put("ViewAdds", vadd);
+            JSONObject vtab = ViewAddonsManager.instance.getViewTab(entity, user);
+            mv.getModel().put("ViewTabs", vtab.getJSONArray("items"));
+            mv.getModel().put("ViewTabsAutoExpand", vtab.getBooleanValue("autoExpand"));
+            JSONObject vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
+            mv.getModel().put("ViewAdds", vadd.getJSONArray("items"));
         }
 
         // 记录转换

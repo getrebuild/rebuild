@@ -249,7 +249,7 @@ class RelatedList extends React.Component {
         )}
         {(this.state.list || []).map((item) => {
           return (
-            <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={`rr-${item[0]}`}>
+            <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={item[0]} ref={`item-${item[0]}`}>
               <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
                 <div className="col-10">
                   <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
@@ -284,11 +284,21 @@ class RelatedList extends React.Component {
   fetchList(append) {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
-    const pageSize = 20
+    const pageSize = 5
+
     $.get(`/app/entity/related-list?mainid=${this.props.main}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
-      const _data = res.data.data || []
-      const _list = (this.state.list || []).concat(_data)
-      this.setState({ list: _list, showMores: _data.length >= pageSize })
+      const data = res.data.data || []
+      const list = (this.state.list || []).concat(data)
+
+      this.setState({ list: list, showMores: data.length >= pageSize }, () => {
+        if (this.props.autoExpand) {
+          data.forEach((item) => {
+            // eslint-disable-next-line react/no-string-refs
+            const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
+            if ($H.length > 0) $H[0].click()
+          })
+        }
+      })
     })
   }
 
@@ -551,7 +561,7 @@ const RbViewPage = {
       const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
       const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
       tabNav.find('a').click(function () {
-        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} main={that.__id} />, tabPane)
+        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} main={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, tabPane)
       })
     })
     this.updateVTabs()

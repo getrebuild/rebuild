@@ -140,13 +140,12 @@ body {
 
 .related-list .card {
   border: 1px solid #ebebeb;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
   padding: 0;
   margin-bottom: 9px;
 }
 
 .related-list .card:hover {
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 .related-list .card .header-title {
