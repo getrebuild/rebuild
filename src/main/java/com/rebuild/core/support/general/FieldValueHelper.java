@@ -93,7 +93,9 @@ public class FieldValueHelper {
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
         if (!field.isQueryable() &&
-                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) return SECURE_TEXT;
+                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) {
+            return SECURE_TEXT;
+        }
 
         if (value == null || StringUtils.isBlank(value.toString())) {
             // 审批
