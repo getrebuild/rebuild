@@ -28,9 +28,13 @@ import java.util.Set;
  */
 public abstract class ShareToManager implements ConfigManager {
 
-    // 共享给全部
+    /**
+     * 共享给全部
+     */
     public static final String SHARE_ALL = "ALL";
-    // 私有
+    /**
+     * 私有
+     */
     public static final String SHARE_SELF = "SELF";
 
     /**
@@ -72,9 +76,7 @@ public abstract class ShareToManager implements ConfigManager {
      */
     public ID detectUseConfig(ID user, String belongEntity, String applyType) {
         final Object[][] alls = getAllConfig(belongEntity, applyType);
-        if (alls.length == 0) {
-            return null;
-        }
+        if (alls.length == 0) return null;
 
         // 1.优先使用自己的
         for (Object[] d : alls) {
@@ -134,7 +136,8 @@ public abstract class ShareToManager implements ConfigManager {
                 sqlWhere.add(String.format("applyType = '%s'", applyType));
             }
 
-            String ql = String.format("select %s from %s where (1=1) order by modifiedOn desc", getConfigFields(), getConfigEntity());
+            String ql = String.format(
+                    "select %s from %s where (1=1) order by modifiedOn desc", getConfigFields(), getConfigEntity());
             if (!sqlWhere.isEmpty()) {
                 ql = ql.replace("(1=1)", StringUtils.join(sqlWhere.iterator(), " and "));
             }

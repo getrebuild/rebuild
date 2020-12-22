@@ -22,9 +22,9 @@
         </div>
       </div>
       <div class="dialog-footer">
-        <span th:if="${param.type == 'TAB'}" class="float-left">
+        <span th:if="${param.type[0] == 'TAB'}" class="float-left">
           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
-            <input class="custom-control-input" type="checkbox" id="autoLogin" />
+            <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
             <span class="custom-control-label">[[${bundle.L('RelatedAutoExpand')}]]</span>
           </label>
         </span>
@@ -44,9 +44,13 @@
           $(res.data.refs).each(function () {
             render_unset(this)
           })
-          $(res.data.config).each(function () {
-            $('.unset-list li[data-key="' + this + '"]').trigger('click')
-          })
+
+          if (res.data.config) {
+            $(res.data.config.items).each(function () {
+              $('.unset-list li[data-key="' + this + '"]').trigger('click')
+            })
+            $('#relatedAutoExpand').attr('checked', res.data.config.autoExpand === true)
+          }
 
           if (!res.data.refs || res.data.refs.length === 0) {
             $(`<li class="dd-item nodata">${$L('NoData')}</li>`).appendTo('.unset-list')
@@ -54,10 +58,14 @@
         })
 
         const $btn = $('.J_save').click(function () {
-          const config = []
+          let config = []
           $('.J_config>li').each(function () {
             config.push($(this).data('key'))
           })
+          config = {
+            items: config,
+            autoExpand: $val('#relatedAutoExpand'),
+          }
 
           $btn.button('loading')
           $.post(_url, JSON.stringify(config), function (res) {
