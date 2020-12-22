@@ -9,7 +9,6 @@ package com.rebuild.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
@@ -38,52 +37,6 @@ public class CommonsUtils {
      */
     public static boolean isPlainText(String text) {
         return !text.contains(" ") && PATT_PLAINTEXT.matcher(text).matches();
-    }
-
-    /**
-     * 给敏感文本加星号/打码
-     *
-     * @param text
-     * @return
-     */
-    public static String stars(String text) {
-        if (StringUtils.isBlank(text)) return text;
-
-        int textLen = text.length();
-        if (textLen <= 3) {
-            return text.charAt(0) + "**";
-        } else if (textLen <= 20) {
-            return text.charAt(0) + "***" + text.substring(textLen - 1);
-        } else if (textLen <= 30) {
-            return text.substring(0, 2) + "*****" + text.substring(textLen - 2);
-        } else if (textLen <= 40) {
-            return text.substring(0, 4) + "**********" + text.substring(textLen - 4);
-        } else {
-            return text.substring(0, 4) + "********************" + text.substring(textLen - 4);
-        }
-    }
-
-    /**
-     * @param phone
-     * @return
-     */
-    public static String starsPhone(String phone) {
-        if (StringUtils.isBlank(phone)) return phone;
-
-        if (phone.length() <= 7) return phone.substring(0, 3) + "****";
-        return phone.substring(0, 3) + "****" + phone.substring(7);
-    }
-
-    /**
-     * @param email
-     * @return
-     */
-    public static String starsEmail(String email) {
-        if (StringUtils.isBlank(email)) return email;
-
-        String[] ss = email.split("@");
-        if (ss[0].length() <= 4) return ss[0].charAt(0) + "****@" + ss[1];
-        return ss[0].substring(0, 4) + "****@" + ss[1];
     }
 
     /**

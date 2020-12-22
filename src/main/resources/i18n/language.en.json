@@ -439,7 +439,7 @@
   "HomeUrlTips": "All external links will be prefixed with this",
   "OpenSignUp": "Open Signup",
   "LiveWallpaper": "Login page picture of the day",
-  "SysSecure": "System safety",
+  "SysSecure": "System Safety",
   "PasswordPolicy": "Login password level",
   "PasswordPolicyL1": "Low (minimum 6 bits, no character type limit)",
   "PasswordPolicyL2": "Medium (minimum 6 bits, must contain both numbers and letters)",
@@ -1274,6 +1274,8 @@
   "BadOrDeleteApproval": "Invalid approval, may have been deleted",
   "FormCalcFormula": "Form Calculation Formula",
   "FormCalcFormulaTips": "If the fields used in the formula are not layout/displayed, calculations cannot be performed. More powerful calculation rules can be achieved through [Trigger (Data Aggregation)](/admin/robot/triggers)",
+  "DataBackup": "Data Backup",
+  "DataMssking": "Data Masking",
   "RelatedAutoExpand": "Automatically expand tab records",
 
   "s.__": "STATE",

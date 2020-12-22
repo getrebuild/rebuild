@@ -25,11 +25,36 @@
           <div class="row">
             <div class="col-lg-9 col-12">
               <div class="card">
-                <div class="card-header card-header-divider">
+                <div class="card-header pb-1">
                   [[${bundle.L('Submail')}]]
                   <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('Modify')}]]</a>
                 </div>
                 <div class="card-body">
+                  <h5>[[${bundle.L('SomeService,Sms')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                    <tr>
+                      <td width="40%">APPID</td>
+                      <td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[0]}]]</td>
+                    </tr>
+                    <tr>
+                      <td>APPKEY</td>
+                      <td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[1]}]]</td>
+                    </tr>
+                    <tr>
+                      <td>[[${bundle.L('SmsSign')}]]</td>
+                      <td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[2]}]]</td>
+                    </tr>
+                    <tr class="show-on-edit">
+                      <td></td>
+                      <td><button class="btn btn-primary btn-outline J_test-sms">[[${bundle.L('SendTest')}]]</button></td>
+                    </tr>
+                    </tbody>
+                  </table>
+                  <div th:if="${smsAccount == null}" class="alert alert-danger alert-icon mt-6">
+                    <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
+                    <div class="message">[[${bundle.L('SomeServiceUnsetTips,Sms')}]]</div>
+                  </div>
                   <h5>[[${bundle.L('SomeService,Mail')}]]</h5>
                   <table class="table">
                     <tbody>
@@ -61,31 +86,6 @@
                   <div th:if="${mailAccount == null}" class="alert alert-danger alert-icon mt-6 mb-6">
                     <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
                     <div class="message">[[${bundle.L('SomeServiceUnsetTips,Mail')}]]</div>
-                  </div>
-                  <h5>[[${bundle.L('SomeService,Sms')}]]</h5>
-                  <table class="table">
-                    <tbody>
-                      <tr>
-                        <td width="40%">APPID</td>
-                        <td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[0]}]]</td>
-                      </tr>
-                      <tr>
-                        <td>APPKEY</td>
-                        <td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[1]}]]</td>
-                      </tr>
-                      <tr>
-                        <td>[[${bundle.L('SmsSign')}]]</td>
-                        <td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[2]}]]</td>
-                      </tr>
-                      <tr class="show-on-edit">
-                        <td></td>
-                        <td><button class="btn btn-primary btn-outline J_test-sms">[[${bundle.L('SendTest')}]]</button></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div th:if="${smsAccount == null}" class="alert alert-danger alert-icon mt-6">
-                    <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
-                    <div class="message">[[${bundle.L('SomeServiceUnsetTips,Sms')}]]</div>
                   </div>
                   <div class="edit-footer">
                     <button class="btn btn-link">[[${bundle.L('Cancel')}]]</button>

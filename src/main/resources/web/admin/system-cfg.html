@@ -21,7 +21,7 @@
           <div class="row">
             <div class="col-lg-9 col-12">
               <div class="card">
-                <div class="card-header card-header-divider">
+                <div class="card-header pb-1">
                   [[${bundle.L('SomeConf,General')}]]
                   <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('Modify')}]]</a>
                 </div>
@@ -52,10 +52,6 @@
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('OpenSignUp')}]]</td>
-                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${bundle.L(OpenSignUp ? 'True' : 'False')}]]</td>
-                      </tr>
-                      <tr>
                         <td>[[${bundle.L('LiveWallpaper')}]]</td>
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.L(LiveWallpaper ? 'True' : 'False')}]]</td>
                       </tr>
@@ -65,7 +61,11 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('PasswordPolicy')}]]</td>
+                        <td width="40%">[[${bundle.L('OpenSignUp')}]]</td>
+                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${bundle.L(OpenSignUp ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('PasswordPolicy')}]]</td>
                         <td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
                           <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.L('PasswordPolicyL1')}]]</th:block>
                           <th:block th:if="${PasswordPolicy == '2'}">[[${bundle.L('PasswordPolicyL2')}]]</th:block>
@@ -77,15 +77,20 @@
                         <td data-id="MultipleSessions" th:data-value="${MultipleSessions}">[[${bundle.L(MultipleSessions ? 'True' : 'False')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('FileSharable')}]]</td>
-                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.L(FileSharable ? 'True' : 'False')}]]</td>
-                      </tr>
-                      <tr>
                         <td>[[${bundle.L('MarkWatermark')}]]</td>
                         <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${bundle.L(MarkWatermark ? 'True' : 'False')}]]</td>
                       </tr>
                       <tr>
-                        <td>
+                        <td>[[${bundle.L('FileSharable')}]]</td>
+                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.L(FileSharable ? 'True' : 'False')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('DataBackup')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">
                           [[${bundle.L('DBBackupsEnable')}]]
                           <p>[[${bundle.L('DBBackupsEnableTips')}]]</p>
                         </td>
@@ -146,7 +151,12 @@
           )
         } else if ('DefaultLanguage' === name) {
           const options = []
-          for (let k in _LANGS) options.push(<option value={k} key={k}>{_LANGS[k]}</option>)
+          for (let k in _LANGS)
+            options.push(
+              <option value={k} key={k}>
+                {_LANGS[k]}
+              </option>
+            )
           return (
             <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
               {options}

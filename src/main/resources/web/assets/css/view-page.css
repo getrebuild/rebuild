@@ -348,9 +348,8 @@ body {
 .rbview-form .form-group.row.editable a.edit::before {
   font-family: 'Material-Design-Iconic-Font';
   content: '\f158';
-  font-size: 14px;
+  font-size: 16px;
   display: inline-block;
-  margin-top: 1px;
 }
 
 .rbview-form .form-group.row.editable a.edit:hover {

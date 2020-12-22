@@ -1274,6 +1274,8 @@
   "BadOrDeleteApproval": "無效審批流程，可能已被刪除",
   "FormCalcFormula": "表單計算公式",
   "FormCalcFormulaTips": "如公式中所用字段未佈局/未顯示，則無法進行計算。通過 [觸發器（數據聚合](/admin/robot/triggers) 可以實現更加強大的計算規則",
+  "DataBackup": "數據備份",
+  "DataMssking": "數據脫敏",
   "RelatedAutoExpand": "自動展開顯示項記錄",
 
   "s.__": "狀態",

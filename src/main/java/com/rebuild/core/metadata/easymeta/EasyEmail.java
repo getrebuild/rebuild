@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
+import com.rebuild.core.support.DataMasking;
 
 /**
  * @author devezhao
@@ -18,5 +19,11 @@ public class EasyEmail extends EasyField {
 
     protected EasyEmail(Field field, DisplayType displayType) {
         super(field, displayType);
+    }
+
+    @Override
+    public Object wrapValue(Object value) {
+        Object email = super.wrapValue(value);
+        return isUseMasking() ? DataMasking.maskingEmail((String) email) : email;
     }
 }

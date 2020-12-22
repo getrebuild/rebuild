@@ -9,7 +9,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 公共部分
 
 $(document).ready(() => {
-  $('.card-header-divider>a').click((e) => {
+  $('.card-header>a').click((e) => {
     e.preventDefault()
     editMode()
   })

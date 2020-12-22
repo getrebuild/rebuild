@@ -529,6 +529,9 @@ class Pagination extends React.Component {
   }
 }
 
+// 视图页
+const _inView = window.__PageConfig && window.__PageConfig.type === 'RecordView'
+
 // 渲染动态内容
 function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
@@ -561,9 +564,13 @@ function __renderRichContent(e) {
               <i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} />
               {` ${e.relatedRecord.entityLabel} : `}
             </span>
-            <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('ClickViewReleated')}>
-              {e.relatedRecord.text}
-            </a>
+            {_inView ? (
+              <a>{e.relatedRecord.text}</a>
+            ) : (
+              <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('ClickViewReleated')}>
+                {e.relatedRecord.text}
+              </a>
+            )}
           </div>
         )}
         {e.type === 3 && (
