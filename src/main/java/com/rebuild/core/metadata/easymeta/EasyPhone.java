@@ -8,9 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.CommonsUtils;
+import com.rebuild.core.support.DataMasking;
 
 /**
  * @author devezhao
@@ -26,11 +24,6 @@ public class EasyPhone extends EasyField {
     @Override
     public Object wrapValue(Object value) {
         Object phone = super.wrapValue(value);
-        if (RebuildConfiguration.getBool(ConfigurationItem.DataMasking)) {
-            if (phone == null) return null;
-            else return CommonsUtils.starsPhone((String) phone);
-        } else {
-            return phone;
-        }
+        return isUseMasking() ? DataMasking.maskingPhone((String) phone) : phone;
     }
 }

@@ -18,11 +18,11 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.DataMasking;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -262,7 +262,7 @@ public class ConfigurationController extends BaseController {
             return null;
         }
         for (int i : index) {
-            account[i] = CommonsUtils.stars(account[i]);
+            account[i] = DataMasking.masking(account[i]);
         }
         return account;
     }
