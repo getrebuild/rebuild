@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.LayoutConfigService;
@@ -20,16 +22,12 @@ import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,18 +37,18 @@ import java.util.Set;
  * @author devezhao
  * @since 10/23/2018
  */
-@Controller
+@RestController
 @RequestMapping("/admin/entity/")
 public class ViewAddonsController extends BaseController {
 
     @PostMapping("{entity}/view-addons")
-    public void sets(@PathVariable String entity,
-                     HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public RespBody sets(@PathVariable String entity, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
         JSON config = ServletUtils.getRequestJson(request);
 
         ID configId = ViewAddonsManager.instance.detectUseConfig(user, entity, applyType);
+
         Record record;
         if (configId == null) {
             record = EntityHelper.forNew(EntityHelper.LayoutConfig, user);
@@ -63,18 +61,22 @@ public class ViewAddonsController extends BaseController {
         record.setString("config", config.toJSONString());
         Application.getBean(LayoutConfigService.class).createOrUpdate(record);
 
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     @GetMapping("{entity}/view-addons")
-    public void gets(@PathVariable String entity,
-                     HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public JSON gets(@PathVariable String entity, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         String applyType = getParameter(request, "type", ViewAddonsManager.TYPE_TAB);
 
-        Entity entityMeta = MetadataHelper.getEntity(entity);
         ConfigBean config = ViewAddonsManager.instance.getLayout(user, entity, applyType);
+        // fix: v2.2 兼容
+        JSON configJson = config == null ? null : config.getJSON("config");
+        if (configJson instanceof JSONArray) {
+            configJson = JSONUtils.toJSONObject("items", configJson);
+        }
 
+        Entity entityMeta = MetadataHelper.getEntity(entity);
         Set<Entity> mfRefs = ViewAddonsManager.hasMultiFieldsReferenceTo(entityMeta);
 
         Set<String[]> refs = new HashSet<>();
@@ -88,17 +90,16 @@ public class ViewAddonsController extends BaseController {
             if (mfRefs.contains(e)) {
                 label = EasyMetaFactory.getLabel(field) + " (" + label + ")";
             }
-            refs.add(new String[]{e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label});
+            refs.add(new String[] { e.getName() + ViewAddonsManager.EF_SPLIT + field.getName(), label });
         }
 
         // 跟进（动态）
         if (ViewAddonsManager.TYPE_TAB.equalsIgnoreCase(applyType)) {
-            refs.add(new String[]{"Feeds.relatedRecord", "跟进"});
+            refs.add(new String[] { "Feeds.relatedRecord", Language.L("e.Feeds") });
         }
 
-        JSON ret = JSONUtils.toJSONObject(
-                new String[]{"config", "refs"},
-                new Object[]{config == null ? null : config.getJSON("config"), refs});
-        writeSuccess(response, ret);
+        return JSONUtils.toJSONObject(
+                new String[] { "config", "refs" },
+                new Object[] { configJson, refs });
     }
 }
