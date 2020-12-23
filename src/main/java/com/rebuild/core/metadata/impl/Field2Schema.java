@@ -8,6 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.impl;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -29,11 +30,10 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.BlockList;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.HashSet;
@@ -45,9 +45,8 @@ import java.util.Set;
  * @author zhaofang123@gmail.com
  * @since 08/13/2018
  */
+@Slf4j
 public class Field2Schema {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Field2Schema.class);
 
     // 小数位真实长度
     private static final int DECIMAL_SCALE = 8;
@@ -128,8 +127,12 @@ public class Field2Schema {
         try {
             Application.getSqlExecutor().execute(ddl, 10 * 60);
         } catch (Throwable ex) {
-            LOG.error("DDL ERROR : \n" + ddl, ex);
-            return false;
+            if (ThrowableUtils.getRootCause(ex).getLocalizedMessage().contains("exists")) {
+                log.warn("Column not exists? " + ex.getLocalizedMessage());
+            } else {
+                log.error("DDL ERROR : \n" + ddl, ex);
+                return false;
+            }
         }
 
         Application.getBean(MetaFieldService.class).delete(metaRecordId);
@@ -166,7 +169,7 @@ public class Field2Schema {
                 try {
                     Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, 10 * 60);
                 } catch (Throwable ex) {
-                    LOG.error("DDL ERROR : \n" + ddl, ex);
+                    log.error("DDL ERROR : \n" + ddl, ex);
                     return false;
                 }
             }
@@ -185,7 +188,7 @@ public class Field2Schema {
         try {
             Application.getSqlExecutor().executeBatch(new String[]{ddl.toString()}, 10 * 60);
         } catch (Throwable ex) {
-            LOG.error("DDL ERROR : \n" + ddl, ex);
+            log.error("DDL ERROR : \n" + ddl, ex);
             return false;
         }
         return true;

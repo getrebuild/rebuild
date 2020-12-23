@@ -70,15 +70,9 @@ public enum ConfigurationItem {
     // 默认语言
     DefaultLanguage("zh_CN"),
 
-    // 数据脱敏（实验功能!!! 仅 PHONE 字段）
+    // 数据脱敏（实验功能!!! 仅 PHONE/EMAIL 字段）
     DataMasking(false),
 
-    // 新建记录表单不显示不可创建字段 (since = "2.2")
-    @Deprecated
-    FormHideUncreateField(false),
-    // 管理员警告 (since = "2.2")
-    @Deprecated
-    AdminDangers(true),
     // 激活 Redis 队列 (since = "2.1")
     @Deprecated
     RedisQueueEnable(false);

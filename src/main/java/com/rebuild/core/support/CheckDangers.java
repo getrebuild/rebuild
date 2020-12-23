@@ -28,6 +28,9 @@ public class CheckDangers {
     /**
      */
     public void checks() {
+        // Status
+        ServerStatus.getLastStatus(true);
+
         LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
         if (dangers == null) {
             dangers = new LinkedHashMap<>();

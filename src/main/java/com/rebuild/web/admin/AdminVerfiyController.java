@@ -16,8 +16,6 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.CheckDangers;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,9 +79,6 @@ public class AdminVerfiyController extends BaseController {
 
     @RequestMapping("/user/admin-dangers")
     public RespBody adminDangers() {
-        if (!RebuildConfiguration.getBool(ConfigurationItem.AdminDangers)) {
-            return RespBody.ok();
-        }
         return RespBody.ok(CheckDangers.getAdminDangers());
     }
 

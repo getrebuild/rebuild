@@ -9,16 +9,17 @@ package com.rebuild.core.service.query;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.dialect.FieldType;
+import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,9 +28,8 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/9/29
  */
+@Slf4j
 public class ParseHelper {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ParseHelper.class);
 
     // -- 可选操作符
 
@@ -194,6 +194,8 @@ public class ParseHelper {
     }
 
     /**
+     * 获取快速查询字段
+     *
      * @param entity
      * @param quickFields
      * @return
@@ -217,7 +219,7 @@ public class ParseHelper {
                     }
 
                 } else {
-                    LOG.warn("No field found by QuickFilter : " + field + " in " + entity.getName());
+                    log.warn("No field found by QuickFilter : " + field + " in " + entity.getName());
                 }
             }
         }
@@ -225,7 +227,12 @@ public class ParseHelper {
         if (usesFields.isEmpty()) {
             // 名称字段
             if (entity.getNameField() != null) {
-                usesFields.add(entity.getNameField().getName());
+                Type type = entity.getNameField().getType();
+                if (type == FieldType.PRIMARY || type == FieldType.DATE || type == FieldType.TIMESTAMP) {
+                    log.warn("Cannot use name-field for QuickQuery : {} ({})", entity.getNameField(), type.getName());
+                } else {
+                    usesFields.add(entity.getNameField().getName());
+                }
             }
             // 自动编号字段
             for (Field field : MetadataSorter.sortFields(entity, DisplayType.SERIES)) {
