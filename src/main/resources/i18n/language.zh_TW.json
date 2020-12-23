@@ -1277,6 +1277,9 @@
   "DataBackup": "數據備份",
   "DataMssking": "數據脫敏",
   "RelatedAutoExpand": "自動展開顯示項記錄",
+  "FormAdvControl": "高級控制",
+  "Display": "顯示",
+  "BatchSelect": "批量選擇",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

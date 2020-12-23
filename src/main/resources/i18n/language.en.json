@@ -1277,6 +1277,9 @@
   "DataBackup": "Data Backup",
   "DataMssking": "Data Masking",
   "RelatedAutoExpand": "Automatically expand tab records",
+  "FormAdvControl": "Advanced Control",
+  "Display": "Display",
+  "BatchSelect": "Batch select",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

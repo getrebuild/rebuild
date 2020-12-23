@@ -52,21 +52,59 @@
           </div>
         </div>
         <div class="main-content container-fluid">
-          <div style="min-width: 400px">
-            <div class="float-right" style="margin-top: -1px">
+          <div>
+            <div class="float-right">
               <a class="btn btn-link J_add-divider">+ [[${bundle.L('AddSome,Divider')}]]</a>
               <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
             </div>
             <div class="tab-container">
               <ul class="nav nav-tabs nav-tabs-classic">
-                <li class="nav-item"><a class="nav-link active" href="#form-design">[[${bundle.L('FormAndViewLayout')}]]</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#form-design" data-toggle="tab">[[${bundle.L('FormAndViewLayout')}]]</a></li>
+                <li class="nav-item"><a class="nav-link" href="#adv-control" data-toggle="tab">[[${bundle.L('FormAdvControl')}]] <sup class="rbv">V</sup></a></li>
               </ul>
               <div class="tab-content mb-5">
-                <div class="tab-pane active">
+                <div class="tab-pane active" id="form-design">
                   <div class="form-preview view-preview dd-list">
                     <div class="nodata">[[${bundle.L('ClickFieldLayoutTips')}]]</div>
                   </div>
                   <div class="clearfix"></div>
+                </div>
+                <div class="tab-pane" id="adv-control">
+                  <table th:if="${commercial > 0}" class="table table-hover table-p">
+                    <thead>
+                      <tr>
+                        <th>[[${bundle.L('Field')}]]</th>
+                        <th>[[${bundle.L('Display')}]]</th>
+                        <th>[[${bundle.L('Required')}]]</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr class="J_template">
+                        <td>TEMPLATE</td>
+                        <td>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="displayOnCreate" checked />
+                            <span class="custom-control-label">[[${bundle.L('WhenCreate')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="displayOnUpdate" checked />
+                            <span class="custom-control-label">[[${bundle.L('WhenUpdate')}]]</span>
+                          </label>
+                        </td>
+                        <td>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="requiredOnCreate" />
+                            <span class="custom-control-label">[[${bundle.L('WhenCreate')}]]</span>
+                          </label>
+                          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                            <input class="custom-control-input" type="checkbox" name="requiredOnUpdate" />
+                            <span class="custom-control-label">[[${bundle.L('WhenUpdate')}]]</span>
+                          </label>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="nodata">[[${bundle.L('ClickFieldLayoutTips')}]]</div>
                 </div>
               </div>
             </div>

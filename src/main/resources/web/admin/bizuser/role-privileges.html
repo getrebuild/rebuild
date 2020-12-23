@@ -5,6 +5,30 @@
     <meta name="page-help" content="https://getrebuild.com/docs/admin/privileges" />
     <title>[[${bundle.L('RolePrivileges')}]]</title>
     <style type="text/css">
+      .table.table-priv {
+        table-layout: fixed;
+        border: 0 none;
+        border-bottom: 1px solid #dee2e6;
+      }
+      .table.table-priv td,
+      .table.table-priv th {
+        padding: 9px 6px;
+        vertical-align: middle;
+        text-align: center;
+        line-height: 1;
+        font-weight: normal;
+      }
+      .table.table-priv th {
+        border-top: 0 none;
+        color: #777;
+      }
+      .table.table-priv th a:hover,
+      .table.table-priv .name a:hover {
+        opacity: 0.8;
+      }
+      .table.table-priv td.name {
+        text-align: left;
+      }
       .priv {
         width: 36px;
         height: 18px;
@@ -26,26 +50,6 @@
       }
       .R4 {
         background-image: url([[${baseUrl}]]/assets/img/role/role_4.gif);
-      }
-      .table-priv.table {
-        table-layout: fixed;
-        border: 0 none;
-        border-bottom: 1px solid #dee2e6;
-      }
-      .table-priv.table td,
-      .table-priv.table th {
-        padding: 9px 6px;
-        vertical-align: middle;
-        line-height: 1;
-      }
-      .table-priv.table th {
-        border-top: 0 none;
-        font-weight: normal;
-        color: #777;
-      }
-      .table-priv.table th a:hover,
-      .table-priv.table .name a:hover {
-        opacity: 0.8;
       }
       .legend {
         border: 1px solid #dee2e6;
@@ -103,29 +107,29 @@
               <li class="nav-item"><a data-toggle="tab" href="#priv-entity" class="nav-link active">[[${bundle.L('EntityPrivileges')}]]</a></li>
               <li class="nav-item"><a data-toggle="tab" href="#priv-zero" class="nav-link">[[${bundle.L('ZeroPrivileges')}]]</a></li>
             </ul>
-            <div class="tab-content mb-0" style="border-top: 0px solid #4285f4">
+            <div class="tab-content mb-0">
               <div class="tab-pane active" id="priv-entity">
                 <table class="table table-hover table-priv">
                   <thead>
                     <tr>
-                      <th width="25%">[[${bundle.L('BizEntity')}]]</th>
-                      <th class="text-center unselect"><a data-action="C">[[${bundle.L('Create')}]]</a></th>
-                      <th class="text-center unselect"><a data-action="R">[[${bundle.L('Read')}]]</a></th>
-                      <th class="text-center unselect"><a data-action="U">[[${bundle.L('Update')}]]</a></th>
-                      <th class="text-center unselect"><a data-action="D">[[${bundle.L('Delete')}]]</a></th>
-                      <th class="text-center unselect"><a data-action="A">[[${bundle.L('Assign')}]]</a></th>
-                      <th class="text-center unselect"><a data-action="S">[[${bundle.L('Share')}]]</a></th>
+                      <th class="text-left" width="25%">[[${bundle.L('BizEntity')}]]</th>
+                      <th><a data-action="C" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Create')}]]</a></th>
+                      <th><a data-action="R" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Read')}]]</a></th>
+                      <th><a data-action="U" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Update')}]]</a></th>
+                      <th><a data-action="D" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Delete')}]]</a></th>
+                      <th><a data-action="A" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Assign')}]]</a></th>
+                      <th><a data-action="S" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Share')}]]</a></th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr th:each="entity : ${Entities}">
-                      <td class="name"><a th:data-name="${entity[0]}">[[${entity[1]}]]</a></td>
-                      <td class="text-center"><i data-action="C" class="priv R0"></i></td>
-                      <td class="text-center"><i data-action="R" class="priv R0"></i></td>
-                      <td class="text-center"><i data-action="U" class="priv R0"></i></td>
-                      <td class="text-center"><i data-action="D" class="priv R0"></i></td>
-                      <td class="text-center"><i data-action="A" class="priv R0"></i></td>
-                      <td class="text-center"><i data-action="S" class="priv R0"></i></td>
+                      <td class="name"><a th:data-name="${entity[0]}" th:title="${bundle.L('BatchSelect')}">[[${entity[1]}]]</a></td>
+                      <td><i data-action="C" class="priv R0"></i></td>
+                      <td><i data-action="R" class="priv R0"></i></td>
+                      <td><i data-action="U" class="priv R0"></i></td>
+                      <td><i data-action="D" class="priv R0"></i></td>
+                      <td><i data-action="A" class="priv R0"></i></td>
+                      <td><i data-action="S" class="priv R0"></i></td>
                     </tr>
                   </tbody>
                 </table>
@@ -144,9 +148,9 @@
                 <table class="table table-hover table-priv">
                   <thead>
                     <tr>
-                      <th width="25%">[[${bundle.L('PermissionItem')}]]</th>
-                      <th class="text-center unselect"><a data-action="Z">[[${bundle.L('Allow')}]]</a></th>
-                      <th>[[${bundle.L('PrePermission')}]]</th>
+                      <th class="text-left" width="25%">[[${bundle.L('PermissionItem')}]]</th>
+                      <th><a data-action="Z">[[${bundle.L('Allow')}]]</a></th>
+                      <th class="text-left">[[${bundle.L('PrePermission')}]]</th>
                       <th></th>
                       <th></th>
                       <th></th>
@@ -156,38 +160,38 @@
                   <tbody>
                     <tr>
                       <td class="name"><a data-name="AllowLogin">[[${bundle.L('AllowSome,Login')}]]</a></td>
-                      <td class="text-center"><i data-action="Z" class="priv R4"></i></td>
-                      <td colspan="5" class="text-muted">[[${bundle.L('Null')}]]</td>
+                      <td><i data-action="Z" class="priv R4"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('Null')}]]</td>
                     </tr>
                     <tr>
                       <td class="name"><a data-name="AllowCustomNav">[[${bundle.L('AllowSetSome,NavMenu')}]]</a></td>
-                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted">[[${bundle.L('Null')}]]</td>
+                      <td><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('Null')}]]</td>
                     </tr>
                     <tr>
                       <td class="name"><a data-name="AllowCustomChart">[[${bundle.L('AllowSetSome,Chart')}]]</a></td>
-                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted">[[${bundle.L('Null')}]]</td>
+                      <td><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('Null')}]]</td>
                     </tr>
                     <tr>
                       <td class="name"><a data-name="AllowCustomDataList">[[${bundle.L('AllowSetSome,FieldShow')}]]</a></td>
-                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted">[[${bundle.L('AllowSetSomePrePermission,Read')}]]</td>
+                      <td><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Read')}]]</td>
                     </tr>
                     <tr>
                       <td class="name"><a data-name="AllowBatchUpdate">[[${bundle.L('AllowSome,BatchUpdate')}]]</a></td>
-                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted">[[${bundle.L('AllowSetSomePrePermission,Update')}]]</td>
+                      <td><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Update')}]]</td>
                     </tr>
                     <tr class="hide">
                       <td class="name"><a data-name="AllowDataImport">[[${bundle.L('AllowSome,DataImport')}]]</a></td>
-                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted">[[${bundle.L('AllowSetSomePrePermission,Create')}]]</td>
+                      <td><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Create')}]]</td>
                     </tr>
                     <tr>
                       <td class="name"><a data-name="AllowDataExport">[[${bundle.L('AllowSome,DataExport')}]]</a></td>
-                      <td class="text-center"><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted">[[${bundle.L('AllowSetSomePrePermission,Read')}]]</td>
+                      <td><i data-action="Z" class="priv R0"></i></td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Read')}]]</td>
                     </tr>
                   </tbody>
                 </table>
