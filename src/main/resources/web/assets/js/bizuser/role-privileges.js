@@ -30,15 +30,14 @@ $(document).ready(function () {
   // 批量操作
   $('#priv-entity thead th>a').click(function () {
     const action = $(this).data('action')
-    const $privCol = $('#priv-entity tbody .priv[data-action="' + action + '"]')
-    clickPriv($privCol, action)
+    const $items = $('#priv-entity tbody .priv[data-action="' + action + '"]')
+    clickPriv($items, action)
   })
   // 批量操作
   $('#priv-entity tbody .name>a').click(function () {
-    const $privRow = $(this).parent().parent().find('.priv')
-    const clz = ['R0']
-    if ($privRow.eq(0).hasClass('R0')) clz.push('R4')
-    $privRow.removeClass('R0 R1 R2 R3 R4').addClass(clz.join(' '))
+    const $items = $(this).parent().parent().find('.priv')
+    const clz = $items.eq(0).hasClass('R0') ? 'R4' : 'R0'
+    $items.removeClass('R0 R1 R2 R3 R4').addClass(clz)
   })
 
   // ZERO

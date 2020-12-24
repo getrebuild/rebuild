@@ -32,12 +32,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 0 20px;
 }
 
-.dd-list {
+.tab-pane {
   min-height: 200px;
 }
 
-.dd-list .nodata {
-  padding: 12px 0;
+div.nodata {
+  padding: 10px 0;
   color: #999;
   border: 1px dotted #dedede;
   text-align: center;
@@ -214,4 +214,29 @@ form.field-attr label > span {
   padding-left: 4px;
   font-size: 12px;
   margin-left: 10px;
+}
+
+.table.table-p {
+  table-layout: fixed;
+  border: 0 none;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.table.table-p td,
+.table.table-p th {
+  padding: 9px 6px;
+  vertical-align: middle;
+  line-height: 1;
+  font-weight: normal;
+}
+
+.table.table-p th {
+  border-top: 0 none;
+  font-weight: normal;
+  color: #777;
+}
+
+.table.table-p .custom-control {
+  padding-left: 1.9377rem;
+  margin-right: 1.385rem;
 }

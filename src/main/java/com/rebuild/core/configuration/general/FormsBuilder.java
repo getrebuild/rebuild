@@ -28,8 +28,6 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -50,7 +48,7 @@ public class FormsBuilder extends FormsManager {
 
     public static final FormsBuilder instance = new FormsBuilder();
 
-    private FormsBuilder() {
+    protected FormsBuilder() {
     }
 
     // 分割线
@@ -182,7 +180,7 @@ public class FormsBuilder extends FormsManager {
             }
         }
 
-        buildModelElements(elements, entityMeta, data, user);
+        buildModelElements(elements, entityMeta, data, user, !viewMode);
 
         if (elements.isEmpty()) {
             return formatModelError(Language.L("FormUnLayoutTips"));
@@ -252,11 +250,11 @@ public class FormsBuilder extends FormsManager {
      * @param entity
      * @param data
      * @param user
+     * @param useAdvControl
      */
-    public void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
+    protected void buildModelElements(JSONArray elements, Entity entity, Record data, ID user, boolean useAdvControl) {
         final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
-        final boolean hideUncreate = RebuildConfiguration.getBool(ConfigurationItem.FormHideUncreateField) && data == null;
 
         final String autoValue = Language.L("AutoValue");
 
@@ -273,20 +271,40 @@ public class FormsBuilder extends FormsManager {
                 continue;
             }
 
-            // 自动只读
+            // v2.2 高级控制
+            Object displayOnCreate = el.remove("displayOnCreate");
+            Object displayOnUpdate = el.remove("displayOnUpdate");
+            Object requiredOnCreate = el.remove("requiredOnCreate");
+            Object requiredOnUpdate = el.remove("requiredOnUpdate");
+            if (useAdvControl) {
+                // 显示
+                if (displayOnCreate != null && !(Boolean) displayOnCreate && data == null) {
+                    iter.remove();
+                    continue;
+                }
+                if (displayOnUpdate != null && !(Boolean) displayOnUpdate && data != null) {
+                    iter.remove();
+                    continue;
+                }
+
+                // 必填
+                if (requiredOnCreate != null && (Boolean) requiredOnCreate && data == null) {
+                    el.put("nullable", false);
+                }
+                if (requiredOnUpdate != null && (Boolean) requiredOnUpdate && data != null) {
+                    el.put("nullable", false);
+                }
+            }
+
+            // 自动只读的
             final boolean roViaAuto = el.getBooleanValue("readonly");
 
             final Field fieldMeta = entity.getField(fieldName);
-            if (hideUncreate && (!fieldMeta.isCreatable() || roViaAuto)) {
-                iter.remove();
-                continue;
-            }
-
             final EasyField easyField = EasyMetaFactory.valueOf(fieldMeta);
             final DisplayType dt = easyField.getDisplayType();
             el.put("label", easyField.getLabel());
             el.put("type", dt.name());
-            // 不可更新字段
+
             el.put("readonly", (data != null && !fieldMeta.isUpdatable()) || roViaAuto);
 
             // 优先使用指定值
