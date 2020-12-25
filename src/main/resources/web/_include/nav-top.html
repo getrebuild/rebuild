@@ -30,6 +30,18 @@
               </div>
               <a class="dropdown-item" th:href="@{/settings/user}"><i class="icon zmdi zmdi-account-box"></i>[[${bundle.L('UserSet')}]]</a>
               <a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('Exit')}]]</a>
+              <div class="dropdown-divider"></div>
+              <div class="user-theme">
+                <div>[[${bundle.L('UserTheme')}]] <sup class="rbv">V</sup></div>
+                <ul class="list-inline list-unstyled mt-1">
+                  <li><a class="theme-default"></a></li>
+                  <li><a class="theme-white"></a></li>
+                  <li><a class="theme-red"></a></li>
+                  <li><a class="theme-green"></a></li>
+                  <li><a class="theme-blue"></a></li>
+                  <li><a class="theme-purple"></a></li>
+                </ul>
+              </div>
             </div>
           </li>
         </ul>

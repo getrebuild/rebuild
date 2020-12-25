@@ -3698,3 +3698,27 @@ body.dark-mode {
 .rb-fullcontent .rb-wrapper .main-content {
   height: 100%;
 }
+
+.user-theme {
+  padding: 8px 15px;
+}
+
+.user-theme ul li {
+  display: inline-block;
+  width: 15%;
+}
+
+.user-theme ul li a {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background-color: #e6e6e6;
+}
+
+.user-theme ul li a:hover {
+  opacity: 0.9;
+}
+
+.user-theme ul li a.theme-purple {
+  background-color: #9b52de !important;
+}

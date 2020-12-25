@@ -1280,6 +1280,7 @@
   "FormAdvControl": "高级控制",
   "Display": "显示",
   "BatchSelect": "批量选择",
+  "UserTheme": "选择主题",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

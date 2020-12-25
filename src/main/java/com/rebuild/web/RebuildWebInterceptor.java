@@ -254,7 +254,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                 || requestUri.startsWith("/filex/access/")
                 || requestUri.startsWith("/commons/announcements")
                 || requestUri.startsWith("/commons/url-safe")
-                || requestUri.startsWith("/commons/barcode/render");
+                || requestUri.startsWith("/commons/barcode/render")
+                || requestUri.startsWith("/commons/user-theme");
     }
 
     /**
