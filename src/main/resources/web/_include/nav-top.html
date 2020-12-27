@@ -34,12 +34,13 @@
               <div class="user-theme">
                 <div>[[${bundle.L('UserTheme')}]] <sup class="rbv">V</sup></div>
                 <ul class="list-inline list-unstyled mt-1">
-                  <li><a class="theme-default"></a></li>
-                  <li><a class="theme-white"></a></li>
-                  <li><a class="theme-red"></a></li>
-                  <li><a class="theme-green"></a></li>
-                  <li><a class="theme-blue"></a></li>
-                  <li><a class="theme-purple"></a></li>
+                  <li><a th:title="${bundle.L('ThemeDefault')}" class="theme-default" data-theme="default"></a></li>
+                  <li><a th:title="${bundle.L('ThemeDark')}" class="theme-dark" data-theme="dark"></a></li>
+                  <li><a th:title="${bundle.L('ThemeRed')}" class="theme-red" data-theme="red"></a></li>
+                  <li><a th:title="${bundle.L('ThemeGreen')}" class="theme-green" data-theme="green"></a></li>
+                  <li><a th:title="${bundle.L('ThemeBlue')}" class="theme-blue" data-theme="blue"></a></li>
+                  <li><a th:title="${bundle.L('ThemePurple')}" class="theme-purple" data-theme="purple"></a></li>
+                  <li><a th:title="${bundle.L('ThemeRandom')}" class="theme-random" data-theme="_"></a></li>
                 </ul>
               </div>
             </div>

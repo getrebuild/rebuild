@@ -83,4 +83,9 @@ public class WebConstants {
      */
     public static final String $USER = "user";
 
+    /**
+     * 主题
+     */
+    public static final String USER_THEME = "userTheme";
+
 }

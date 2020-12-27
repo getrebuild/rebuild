@@ -59,6 +59,8 @@ public class LoginController extends BaseController {
 
     private static final String SK_NEED_VCODE = "needLoginVCode";
 
+    public static final String SK_USER_THEME = "useUserTheme";
+
     private static final String DEFAULT_HOME = "../dashboard/home";
 
     @GetMapping("login")
@@ -201,6 +203,8 @@ public class LoginController extends BaseController {
         createLoginLog(request, user);
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
+        ServletUtils.setSessionAttribute(request, SK_USER_THEME,
+                RebuildConfiguration.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
     }
 

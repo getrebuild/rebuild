@@ -14,7 +14,7 @@
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/jquery-ui.min.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
-  <link th:if="${commercial > 0}" rel="stylesheet" type="text/css" th:href="@{/commons/user-theme}" />
+  <link th:if="${user != null && userTheme}" rel="stylesheet" type="text/css" th:href="@{/commons/user-theme}" />
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.commercial" th:content="${commercial}" />
   <meta name="rb.locale" th:content="${locale}" />
