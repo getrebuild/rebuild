@@ -19,6 +19,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.admin.ConfigurationController;
 import com.rebuild.web.commons.FileDownloader;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Controller;
@@ -116,17 +117,18 @@ public class UserAvatar extends BaseController {
     @RequestMapping("/user-avatar-update")
     @ResponseBody
     public String avatarUpdate(HttpServletRequest request) throws IOException {
+        final ID user = getRequestUser(request);
         String avatarRaw = getParameterNotNull(request, "avatar");
         String xywh = getParameterNotNull(request, "xywh");
 
         File avatarFile = RebuildConfiguration.getFileOfTemp(avatarRaw);
         String uploadName = avatarCrop(avatarFile, xywh);
 
-        ID user = getRequestUser(request);
         Record record = EntityHelper.forUpdate(user, user);
         record.setString("avatarUrl", uploadName);
         Application.getBean(UserService.class).update(record);
 
+        ServletUtils.setSessionAttribute(request, ConfigurationController.SK_DIMG_TIME, System.currentTimeMillis());
         return uploadName;
     }
 

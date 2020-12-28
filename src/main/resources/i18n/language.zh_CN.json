@@ -1281,7 +1281,7 @@
   "FormAdvControl": "高级控制",
   "Display": "显示",
   "BatchSelect": "批量选择",
-  "UserTheme": "选择主题",
+  "UseTheme": "选择主题",
   "ThemeDefault": "默认",
   "ThemeDark": "深色",
   "ThemeBlue": "蓝色",
@@ -1289,7 +1289,7 @@
   "ThemeRed": "红色",
   "ThemePurple": "紫色",
   "ThemeRandom": "随机",
-  "UploadLogoTips": "请分别上传深色与白色 LOGO，透明背景，长宽为 268 × 54",
+  "UploadLogoTips": "请分别上传深色与白色 LOGO，透明背景，宽高为 268 × 54",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

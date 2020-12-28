@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.File;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -52,6 +51,9 @@ import java.util.Map;
 @RestController
 @RequestMapping("/admin/")
 public class ConfigurationController extends BaseController {
+
+    // 动态图片时间戳
+    public static final String SK_DIMG_TIME = "dimgTime";
 
     @GetMapping("systems")
     public ModelAndView pageSystems() {
@@ -72,7 +74,7 @@ public class ConfigurationController extends BaseController {
     }
 
     @PostMapping("systems")
-    public RespBody postSystems(@RequestBody JSONObject data) {
+    public RespBody postSystems(@RequestBody JSONObject data, HttpServletRequest request) {
         String dHomeURL = defaultIfBlank(data, ConfigurationItem.HomeURL);
         if (!RegexUtils.isUrl(dHomeURL)) {
             return RespBody.errorl("SomeInvalid", "HomeUrl");
@@ -92,12 +94,9 @@ public class ConfigurationController extends BaseController {
         }
 
         String dLOGO = data.getString("LOGO");
-        if (dLOGO != null) {
-            data.put("LOGO", renameLogo(dLOGO));
-        }
         String dLOGOWhite = data.getString("LOGOWhite");
-        if (dLOGOWhite != null) {
-            data.put("LOGOWhite", renameLogo(dLOGOWhite));
+        if (dLOGO != null || dLOGOWhite != null) {
+            ServletUtils.setSessionAttribute(request, SK_DIMG_TIME, System.currentTimeMillis());
         }
 
         setValues(data);
@@ -275,12 +274,5 @@ public class ConfigurationController extends BaseController {
                 LOG.error("Invalid item : " + e.getKey() + " = " + e.getValue());
             }
         }
-    }
-
-    private String renameLogo(String filepath) {
-        File file = RebuildConfiguration.getFileOfTemp(filepath);
-        File dest = RebuildConfiguration.getFileOfData("logo-" + (System.currentTimeMillis() / 1000) + file.getName());
-        file.renameTo(dest);
-        return dest.getName();
     }
 }

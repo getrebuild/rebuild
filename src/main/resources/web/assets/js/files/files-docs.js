@@ -137,7 +137,7 @@ class FileUploadDlg extends RbFormHandler {
               </div>
               <label className="upload-box">
                 {$L('DragToUpload')}
-                <input type="file" ref={(c) => (this._upload = c)} className="hide" data-maxsize="102400000" />
+                <input type="file" ref={(c) => (this._upload = c)} className="hide" />
               </label>
             </div>
           </div>

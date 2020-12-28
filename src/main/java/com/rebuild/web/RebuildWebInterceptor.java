@@ -73,7 +73,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             // Lang
             request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
             request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
-            request.setAttribute(WebConstants.USER_THEME,
+
+            request.setAttribute(WebConstants.USE_THEME,
                     !requestEntry.getRequestUri().contains("/admin/") && License.isCommercial());
         }
 

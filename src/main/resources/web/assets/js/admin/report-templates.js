@@ -25,7 +25,9 @@ class ReportList extends ConfigList {
               <td>{item[3]}</td>
               <td>{item[2] || item[1]}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-normal">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
-              <td><DateShow date={item[5]}/></td>
+              <td>
+                <DateShow date={item[5]} />
+              </td>
               <td className="actions">
                 <a className="icon" title={$L('Preview')} href={`${rb.baseUrl}/admin/data/report-templates/preview?id=${item[0]}`} target="_blank">
                   <i className="zmdi zmdi-open-in-new" />
@@ -91,7 +93,7 @@ class ReporEdit extends ConfigFormDlg {
               <div className="col-sm-9">
                 <div className="float-left">
                   <div className="file-select">
-                    <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="5000000" ref={(c) => (this.__upload = c)} />
+                    <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="true" ref={(c) => (this.__upload = c)} />
                     <label htmlFor="upload-input" className="btn-secondary">
                       <i className="zmdi zmdi-upload"></i>
                       <span>{$L('SelectFile')}</span>
@@ -103,9 +105,7 @@ class ReporEdit extends ConfigFormDlg {
                 </div>
                 <div className="clearfix"></div>
                 <p className="form-text mt-0 mb-1 link" dangerouslySetInnerHTML={{ __html: $L('HowWriteTemplateTips') }}></p>
-                {(this.state.invalidVars || []).length > 0 && (
-                  <p className="form-text text-danger mt-0 mb-1">{$L('ExistsInvalidFieldsX').replace('%s', `{${this.state.invalidVars.join('} {')}}`)}</p>
-                )}
+                {(this.state.invalidVars || []).length > 0 && <p className="form-text text-danger mt-0 mb-1">{$L('ExistsInvalidFieldsX').replace('%s', `{${this.state.invalidVars.join('} {')}}`)}</p>}
               </div>
             </div>
           </React.Fragment>
@@ -138,23 +138,22 @@ class ReporEdit extends ConfigFormDlg {
 
     const that = this
     if (this.__upload) {
-      $(this.__upload).html5Uploader({
-        postUrl: rb.baseUrl + '/filex/upload',
-        onSelectError: function (field, error) {
-          if (error === 'ErrorType') RbHighbar.create($L('PlsUploadSomeFile').replace('%s', ' EXCEL '))
-          else if (error === 'ErrorMaxSize') RbHighbar.create($L('ExceedMaxLimit') + ' (5MB)')
+      let mp = false
+      $createUploader(
+        this.__upload,
+        () => {
+          if (!mp) {
+            $mp.start()
+            mp = true
+          }
         },
-        onClientLoad: function () {
-          $mp.start()
-        },
-        onSuccess: function (d) {
-          d = JSON.parse(d.currentTarget.response)
-          if (d.error_code === 0) {
-            that.__lastFile = d.data
-            that.checkTemplate()
-          } else RbHighbar.error($L('ErrorUpload'))
-        },
-      })
+        (res) => {
+          $mp.end()
+          mp = false
+          that.__lastFile = res.key
+          that.checkTemplate()
+        }
+      )
     }
   }
 

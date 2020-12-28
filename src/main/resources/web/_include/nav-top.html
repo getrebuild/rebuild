@@ -20,7 +20,7 @@
         <ul class="nav navbar-nav float-right rb-user-nav">
           <li class="nav-item dropdown J_top-user">
             <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
-              <img th:src="@{/account/user-avatar}" alt="Avatar" />
+              <img th:src="|${baseUrl}/account/user-avatar?${session.dimgTime}|" alt="Avatar" />
               <span class="user-name" th:text="${user.getFullName()}">[[${bundle.L('FullName')}]]</span>
             </a>
             <div class="dropdown-menu">
@@ -32,7 +32,7 @@
               <a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('Exit')}]]</a>
               <div class="dropdown-divider"></div>
               <div class="use-theme">
-                <div>[[${bundle.L('UserTheme')}]] <sup class="rbv"></sup></div>
+                <div>[[${bundle.L('UseTheme')}]] <sup class="rbv"></sup></div>
                 <ul class="list-inline list-unstyled mt-1">
                   <li><a th:title="${bundle.L('ThemeDefault')}" class="theme-default" data-theme="default"></a></li>
                   <li><a th:title="${bundle.L('ThemeDark')}" class="theme-dark" data-theme="dark"></a></li>

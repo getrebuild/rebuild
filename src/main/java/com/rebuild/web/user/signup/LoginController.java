@@ -59,7 +59,7 @@ public class LoginController extends BaseController {
 
     private static final String SK_NEED_VCODE = "needLoginVCode";
 
-    public static final String SK_USER_THEME = "useUserTheme";
+    public static final String SK_USER_THEME = "currentUseTheme";
 
     private static final String DEFAULT_HOME = "../dashboard/home";
 

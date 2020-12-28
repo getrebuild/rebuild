@@ -55,7 +55,7 @@ const _toggleLogo = function () {
   let $current
   const $input = $logo.find('input')
   $initUploader($input, null, (res) => {
-    const $img = $current.find('i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key}?temp=true)`)
+    const $img = $current.find('i').css('background-image', `url(${rb.baseUrl}/filex/img/${res.key})`)
     changeValue({ target: { name: $img.hasClass('white') ? 'LOGOWhite' : 'LOGO', value: res.key } })
   })
 

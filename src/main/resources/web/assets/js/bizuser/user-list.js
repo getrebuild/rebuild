@@ -54,7 +54,7 @@ class UserImport extends RbModalHandler {
             <div className="col-sm-9">
               <div className="float-left">
                 <div className="file-select">
-                  <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-maxsize="5000000" data-temp="true" ref={(c) => (this._upload = c)} />
+                  <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="temp" ref={(c) => (this._upload = c)} />
                   <label htmlFor="upload-input" className="btn-secondary">
                     <i className="zmdi zmdi-upload"></i>
                     <span>{$L('SelectFile')}</span>

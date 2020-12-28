@@ -146,8 +146,9 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
+    if (rb.commercial < 1) return RbHighbar.error($L('FreeVerNotSupportted,UseTheme'))
     var theme = $(this).data('theme')
-    $.get(`/commons/set-use-theme?theme=${theme}`, function (res) {
+    $.get(`/commons/theme/set-use-theme?theme=${theme}`, function () {
       location.reload()
     })
   })
@@ -435,8 +436,10 @@ var $fileExtName = function (fileName) {
 var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
   var imgOnly = input.attr('accept') === 'image/*'
-  var temp = input.data('temp') // Temp file
-  if (window.qiniu && rb.storageUrl && !temp) {
+  var local = input.data('local')
+  if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100)  // default 100M
+
+  if (window.qiniu && rb.storageUrl && !local) {
     input.on('change', function () {
       var file = this.files[0]
       if (!file) return
@@ -470,7 +473,7 @@ var $createUploader = function (input, next, complete, error) {
   } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (temp || ''),
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp'),
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create($L(imgOnly ? 'PlsUploadImg' : 'FileTypeError'))
@@ -487,7 +490,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          if (!temp && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
           complete({ key: e.data })
         } else {
           RbHighbar.error($L('ErrorUpload'))
