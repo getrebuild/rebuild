@@ -31,8 +31,8 @@
               <a class="dropdown-item" th:href="@{/settings/user}"><i class="icon zmdi zmdi-account-box"></i>[[${bundle.L('UserSet')}]]</a>
               <a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('Exit')}]]</a>
               <div class="dropdown-divider"></div>
-              <div class="user-theme">
-                <div>[[${bundle.L('UserTheme')}]] <sup class="rbv">V</sup></div>
+              <div class="use-theme">
+                <div>[[${bundle.L('UserTheme')}]] <sup class="rbv"></sup></div>
                 <ul class="list-inline list-unstyled mt-1">
                   <li><a th:title="${bundle.L('ThemeDefault')}" class="theme-default" data-theme="default"></a></li>
                   <li><a th:title="${bundle.L('ThemeDark')}" class="theme-dark" data-theme="dark"></a></li>
@@ -51,11 +51,11 @@
           <li class="nav-item dropdown admin-danger hide">
             <a class="nav-link" href="javascript:;"><i class="icon zmdi zmdi-alert-octagon text-danger"></i></a>
           </li>
-          <li class="nav-item dropdown page-help">
-            <a class="nav-link" href="https://getrebuild.com/docs/" th:title="${bundle.L('ViewPageHelp')}" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
-          </li>
           <li class="nav-item dropdown admin-show admin-settings" th:title="${bundle.L('AdminSettings')}">
             <a class="nav-link" th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i></a>
+          </li>
+          <li class="nav-item dropdown page-help">
+            <a class="nav-link" href="https://getrebuild.com/docs/" th:title="${bundle.L('ViewPageHelp')}" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
           </li>
           <li class="nav-item dropdown J_top-notifications">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" th:href="@{/notifications}">

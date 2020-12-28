@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -75,6 +76,8 @@ public class UserAvatar extends BaseController {
             response.sendRedirect(AppUtils.getContextPath() + "/assets/img/avatar.png");
             return;
         }
+
+        ServletUtils.addCacheHead(response, 10);
 
         String avatarUrl = realUser.getAvatarUrl();
         avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
@@ -145,7 +148,7 @@ public class UserAvatar extends BaseController {
         Thumbnails.Builder<File> builder = Thumbnails.of(avatar)
                 .sourceRegion(x, y, width, height);
 
-        String destName = System.currentTimeMillis() + avatar.getName();
+        String destName = "avatar-" + (System.currentTimeMillis() / 1000) + avatar.getName();
         File dest;
         if (QiniuCloud.instance().available()) {
             dest = RebuildConfiguration.getFileOfTemp(destName);

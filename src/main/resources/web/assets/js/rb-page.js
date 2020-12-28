@@ -145,9 +145,9 @@ $(function () {
   })
 
   // Theme
-  $('.user-theme a').click(function () {
+  $('.use-theme a').click(function () {
     var theme = $(this).data('theme')
-    $.get(`/commons/set-user-theme?theme=${theme}`, function (res) {
+    $.get(`/commons/set-use-theme?theme=${theme}`, function (res) {
       location.reload()
     })
   })
@@ -266,6 +266,10 @@ var _initNavs = function () {
       $('.page-aside .aside-nav').toggleClass('show')
     })
   }
+
+  setTimeout(function () {
+    $('.rbv').attr('title', $L('CommercialFeat'))
+  }, 400)
 }
 
 var _checkMessage__state = 0
@@ -497,6 +501,7 @@ var $createUploader = function (input, next, complete, error) {
     })
   }
 }
+var $initUploader = $createUploader
 
 /**
  * 卸载 React 组件
