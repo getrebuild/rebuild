@@ -31,7 +31,7 @@ useEditComp = function (name, value) {
     )
   } else if ('DefaultLanguage' === name) {
     // 借用贵宝地
-    _toggleLogo()
+    if (rb.commercial > 0) _toggleLogo()
 
     const options = []
     for (let k in wpc._LANGS)
@@ -49,7 +49,7 @@ useEditComp = function (name, value) {
 }
 
 const _toggleLogo = function () {
-  const $logo = $('.applogo')
+  const $logo = $('.applogo').addClass('edit')
   $logo.find('p').removeClass('hide')
 
   let $current

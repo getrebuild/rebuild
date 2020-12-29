@@ -10,8 +10,8 @@
         background-color: #fff;
         cursor: default;
       }
-      .syscfg.edit a.img-thumbnail,
-      .syscfg.edit a.img-thumbnail .logo-img {
+      .applogo.edit a.img-thumbnail,
+      .applogo.edit a.img-thumbnail .logo-img {
         cursor: pointer;
       }
     </style>
@@ -35,7 +35,7 @@
                     <tbody>
                       <tr>
                         <td width="40%">[[${bundle.L('Name')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial >= 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
+                        <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
                         <td>LOGO <sup class="rbv"></sup></td>
