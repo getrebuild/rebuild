@@ -30,7 +30,7 @@ public enum DisplayType {
     SERIES(EasySeries.class, "自动编号", FieldType.STRING, 40, "{YYYYMMDD}-{0000}"),
     IMAGE(EasyImage.class, "图片", FieldType.STRING, 700, null),
     FILE(EasyFile.class, "附件", FieldType.STRING, 700, null),
-    PICKLIST(EasyPickList.class, "列表", FieldType.REFERENCE, -1, null),
+    PICKLIST(EasyPickList.class, "选项", FieldType.REFERENCE, -1, null),
     CLASSIFICATION(EasyClassification.class, "分类", FieldType.REFERENCE, -1, null),
     REFERENCE(EasyReference.class, "引用", FieldType.REFERENCE, -1, null),
     AVATAR(EasyAvatar.class, "头像", FieldType.STRING, 300, null),

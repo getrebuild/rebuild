@@ -10,13 +10,11 @@ package com.rebuild.core.service.query;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
-import cn.devezhao.persist4j.dialect.Type;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -161,24 +159,22 @@ public class ParseHelper {
     // --
 
     /**
+     * 字段是否可用于快速查询
+     *
      * @param field
      * @return
      */
-    public static String useQuickFilter(Field field) {
-        return useQuickFilter(EasyMetaFactory.valueOf(field));
-    }
+    public static String useQuickField(Field field) {
+        DisplayType dt = EasyMetaFactory.getDisplayType(field);
 
-    /**
-     * @param field
-     * @return
-     */
-    public static String useQuickFilter(EasyField field) {
-        DisplayType dt = field.getDisplayType();
+        // 引用字段要保证其兼容 LIKE 条件的语法要求
+        if (dt == DisplayType.REFERENCE) {
+            Field nameField = field.getOwnEntity().getNameField();
 
-        // 引用字段不能作为名称字段（前端限制），此处的处理是因为某些系统实体有用到
-        // 主要要保证其兼容 LIKE 条件的语法要求
-        if (dt == DisplayType.REFERENCE
-                || dt == DisplayType.PICKLIST
+            if (nameField.getType() == FieldType.REFERENCE) return null;
+            else return useQuickField(nameField);
+
+        } else if (dt == DisplayType.PICKLIST
                 || dt == DisplayType.CLASSIFICATION) {
             return QueryCompiler.NAME_FIELD_PREFIX + field.getName();
 
@@ -188,13 +184,14 @@ public class ParseHelper {
                 || dt == DisplayType.PHONE
                 || dt == DisplayType.SERIES) {
             return field.getName();
+
         } else {
             return null;
         }
     }
 
     /**
-     * 获取快速查询字段
+     * 获取/构建快速查询字段
      *
      * @param entity
      * @param quickFields
@@ -213,27 +210,27 @@ public class ParseHelper {
             for (String field : quickFields.split(",")) {
                 Field validField = MetadataHelper.getLastJoinField(entity, field);
                 if (validField != null) {
-                    String can = useQuickFilter(validField);
+                    String can = useQuickField(validField);
                     if (can != null) {
                         usesFields.add(field);
                     }
 
                 } else {
-                    log.warn("No field found by QuickFilter : " + field + " in " + entity.getName());
+                    log.warn("No field found in `quickFields` : " + field + " in " + entity.getName());
                 }
             }
         }
 
         if (usesFields.isEmpty()) {
             // 名称字段
-            if (entity.getNameField() != null) {
-                Type type = entity.getNameField().getType();
-                if (type == FieldType.PRIMARY || type == FieldType.DATE || type == FieldType.TIMESTAMP) {
-                    log.warn("Cannot use name-field for QuickQuery : {} ({})", entity.getNameField(), type.getName());
-                } else {
-                    usesFields.add(entity.getNameField().getName());
-                }
+            Field nameField = entity.getNameField();
+            String can = useQuickField(nameField);
+            if (can != null) {
+                usesFields.add(can);
+            } else {
+                log.warn("Cannot use name-field for QuickField : {} ({})", nameField, nameField.getType());
             }
+
             // 自动编号字段
             for (Field field : MetadataSorter.sortFields(entity, DisplayType.SERIES)) {
                 usesFields.add(field.getName());

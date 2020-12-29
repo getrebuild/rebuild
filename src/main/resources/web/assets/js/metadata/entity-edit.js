@@ -30,15 +30,10 @@ $(document).ready(function () {
       nameField: $val('#nameField'),
       comments: $val('#comments'),
     }
-    if (data.label === '') {
-      RbHighbar.create($L('PlsInoutSome,EntityName'))
-      return
-    }
+    if (data.entityLabel === '') return RbHighbar.create($L('PlsInputSome,EntityName'))
 
     const icon = $val('#entityIcon')
-    if (icon) {
-      data.icon = icon
-    }
+    if (icon) data.icon = icon
 
     const quickFields = $('#quickFields').val().join(',')
     if (quickFields !== wpc.extConfig.quickFields) {
@@ -69,12 +64,22 @@ $(document).ready(function () {
     RbModal.create('/p/commons/search-icon', $L('SelectSome,Icon'))
   })
 
+  // 排序
+  function sortFields(fields) {
+    const ss = []
+    fields.forEach((item) => {
+      if (item.disabled === false) ss.push(item)
+    })
+    fields.forEach((item) => {
+      if (item.disabled === true) ss.push(item)
+    })
+    return ss
+  }
+
   $.get(`/commons/metadata/fields?deep=1&entity=${wpc.entity}`, function (d) {
     // 名称字段
-    const rsName = d.data.map((item) => {
+    const cNameFields = d.data.map((item) => {
       const canName =
-        item.type === 'NUMBER' ||
-        item.type === 'DECIMAL' ||
         item.type === 'TEXT' ||
         item.type === 'EMAIL' ||
         item.type === 'URL' ||
@@ -88,41 +93,47 @@ $(document).ready(function () {
         id: item.name,
         text: item.label,
         disabled: canName === false,
-        title: canName === false ? $L('NotBeNameFieldTips') : item.label,
+        title: canName === false ? $L('FieldNotApply') : item.label,
       }
-    })
-
-    const rsNameSorted = []
-    rsName.forEach((item) => {
-      if (item.disabled === false) rsNameSorted.push(item)
-    })
-    rsName.forEach((item) => {
-      if (item.disabled === true) rsNameSorted.push(item)
     })
 
     $('#nameField')
       .select2({
         placeholder: $L('SelectSome,Field'),
         allowClear: false,
-        data: rsNameSorted,
+        data: sortFields(cNameFields),
       })
       .val(wpc.nameField)
       .trigger('change')
 
     // 快速查询
-    const rsQuick = []
-    d.data.forEach((x) => {
-      if (x.type === 'TEXT' || x.type === 'EMAIL' || x.type === 'URL' || x.type === 'PHONE' || x.type === 'SERIES' || x.type === 'PICKLIST' || x.type === 'CLASSIFICATION') {
-        rsQuick.push({ id: x.name, text: x.label })
+    const cQuickFields = d.data.map((item) => {
+      const canQuick =
+        item.type === 'TEXT' ||
+        item.type === 'EMAIL' ||
+        item.type === 'URL' ||
+        item.type === 'PHONE' ||
+        item.type === 'SERIES' ||
+        item.type === 'PICKLIST' ||
+        item.type === 'CLASSIFICATION' ||
+        // item.type === 'DATE' ||
+        // item.type === 'DATETIME'
+        (item.type === 'REFERENCE' && item.creatable) // 非系统级引用字段
+
+      return {
+        id: item.name,
+        text: item.label,
+        disabled: canQuick === false,
+        title: canQuick === false ? $L('FieldNotApply') : item.label,
       }
     })
 
     $('#quickFields').select2({
       placeholder: $L('SelectSome,Field'),
       allowClear: true,
+      data: sortFields(cQuickFields),
       multiple: true,
       maximumSelectionLength: 5,
-      data: rsQuick,
     })
     if (wpc.extConfig.quickFields) {
       $('#quickFields').val(wpc.extConfig.quickFields.split(',')).trigger('change')
