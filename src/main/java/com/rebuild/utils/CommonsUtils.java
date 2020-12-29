@@ -14,6 +14,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -91,5 +92,14 @@ public class CommonsUtils {
             log.error("Cannot load file of res : " + file);
             return null;
         }
+    }
+
+    /**
+     * 随机 Hex(32)
+     *
+     * @return
+     */
+    public static String randomHex() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 }

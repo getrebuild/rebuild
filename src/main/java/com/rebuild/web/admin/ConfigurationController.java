@@ -18,6 +18,7 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataMasking;
 import com.rebuild.core.support.License;
@@ -25,6 +26,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -52,9 +54,6 @@ import java.util.Map;
 @RequestMapping("/admin/")
 public class ConfigurationController extends BaseController {
 
-    // 动态图片时间戳
-    public static final String SK_DIMG_TIME = "dimgTime";
-
     @GetMapping("systems")
     public ModelAndView pageSystems() {
         ModelAndView mv = createModelAndView("/admin/system-cfg");
@@ -74,7 +73,7 @@ public class ConfigurationController extends BaseController {
     }
 
     @PostMapping("systems")
-    public RespBody postSystems(@RequestBody JSONObject data, HttpServletRequest request) {
+    public RespBody postSystems(@RequestBody JSONObject data) {
         String dHomeURL = defaultIfBlank(data, ConfigurationItem.HomeURL);
         if (!RegexUtils.isUrl(dHomeURL)) {
             return RespBody.errorl("SomeInvalid", "HomeUrl");
@@ -96,7 +95,7 @@ public class ConfigurationController extends BaseController {
         String dLOGO = data.getString("LOGO");
         String dLOGOWhite = data.getString("LOGOWhite");
         if (dLOGO != null || dLOGOWhite != null) {
-            ServletUtils.setSessionAttribute(request, SK_DIMG_TIME, System.currentTimeMillis());
+            Application.getCommonsCache().put("dimgLogoTime", CommonsUtils.randomHex(), CommonsCache.TS_DAY);
         }
 
         setValues(data);

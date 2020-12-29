@@ -19,7 +19,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
-import com.rebuild.web.admin.ConfigurationController;
 import com.rebuild.web.commons.FileDownloader;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Controller;
@@ -128,7 +127,7 @@ public class UserAvatar extends BaseController {
         record.setString("avatarUrl", uploadName);
         Application.getBean(UserService.class).update(record);
 
-        ServletUtils.setSessionAttribute(request, ConfigurationController.SK_DIMG_TIME, System.currentTimeMillis());
+        ServletUtils.setSessionAttribute(request, "davatarTime", System.currentTimeMillis());
         return uploadName;
     }
 

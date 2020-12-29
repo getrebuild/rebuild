@@ -148,8 +148,8 @@ $(function () {
   $('.use-theme a').click(function () {
     if (rb.commercial < 1) return RbHighbar.error($L('FreeVerNotSupportted,UseTheme'))
     var theme = $(this).data('theme')
-    $.get(`/commons/theme/set-use-theme?theme=${theme}`, function () {
-      location.reload()
+    $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
+      location.reload(true)
     })
   })
 })
@@ -437,7 +437,7 @@ var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
   var imgOnly = input.attr('accept') === 'image/*'
   var local = input.data('local')
-  if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100)  // default 100M
+  if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
 
   if (window.qiniu && rb.storageUrl && !local) {
     input.on('change', function () {
@@ -715,7 +715,7 @@ var $moment = function (date) {
  */
 var $fromNow = function (date) {
   var m = $moment(date)
-  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow'): m.fromNow()
+  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow') : m.fromNow()
 }
 /**
  * 是否过期

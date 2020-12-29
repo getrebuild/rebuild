@@ -51,7 +51,7 @@ public class FileDownloader extends BaseController {
             return;
         }
 
-        ServletUtils.addCacheHead(response, 30);
+        ServletUtils.addCacheHead(response, 60);
 
         final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
         String imageView2 = request.getQueryString();
