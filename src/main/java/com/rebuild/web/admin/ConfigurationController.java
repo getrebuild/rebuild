@@ -10,7 +10,6 @@ package com.rebuild.web.admin;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
-import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
@@ -172,8 +171,7 @@ public class ConfigurationController extends BaseController {
     }
 
     @PostMapping("integration/submail/test")
-    public RespBody testSubmail(HttpServletRequest request) {
-        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+    public RespBody testSubmail(@RequestBody JSONObject data, HttpServletRequest request) {
         String type = getParameterNotNull(request, "type");
         String receiver = getParameterNotNull(request, "receiver");
 
@@ -187,7 +185,7 @@ public class ConfigurationController extends BaseController {
                     data.getString("SmsUser"), data.getString("SmsPassword"),
                     data.getString("SmsSign")
             };
-            if (specAccount[1].contains("**********")) {
+            if (specAccount[1].contains("******")) {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.SmsPassword);
             }
 
@@ -203,7 +201,7 @@ public class ConfigurationController extends BaseController {
                     data.getString("MailUser"), data.getString("MailPassword"),
                     data.getString("MailAddr"), data.getString("MailName")
             };
-            if (specAccount[1].contains("**********")) {
+            if (specAccount[1].contains("******")) {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.MailPassword);
             }
 
