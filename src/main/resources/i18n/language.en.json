@@ -1290,6 +1290,7 @@
   "ThemeRandom": "Random",
   "UploadLogoTips": "Please upload a dark and white LOGO, transparent background, width and height 268 × 54",
   "FieldNotApply": "Field (type) is not applicable",
+  "AutoTransformOnce": "Transform only once (after the transform, it will not be transformed even if the conditions are met)",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

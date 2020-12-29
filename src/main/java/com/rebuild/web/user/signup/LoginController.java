@@ -204,7 +204,7 @@ public class LoginController extends BaseController {
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
         ServletUtils.setSessionAttribute(request, SK_USER_THEME,
-                RebuildConfiguration.getCustomValue("THEME." + user));
+                KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
     }
 

@@ -60,7 +60,7 @@ public class RecordTransfomer extends SetUser {
      * @see #checkFilter(ID)
      */
     public ID transform(ID sourceRecordId) {
-        // 事务
+        // 手动事务，因为可能要转换多条记录
         TransactionStatus tx = TransactionManual.newTransaction();
 
         try {
