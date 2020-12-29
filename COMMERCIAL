@@ -1,3 +1,7 @@
+更新时间：2020-12-24
+生效时间：2020-12-24
+
+
 REBUILD 商业许可协议
 
 概述
@@ -12,7 +16,7 @@ REBUILD 商业许可协议
 
 1. 仍旧作为开源项目（需采用 GPL-3.0 开源协议）。
 2. 出于非商业/非盈利目的的使用（如 NPO 组织）。
-3. 个人/企业/组织内部使用，不限制是否出于商业目的，但不能对 REBUILD 进行任何形式的销售/赠与/分发，且不可派生（即基于 REBUILD 开发派生产品使用）。
+3. 个人/企业/组织内部使用，不限制是否出于商业目的。但禁止对 REBUILD 进行任何形式的分发（包括但不限于销售、赠与、转卖），且不可基于 REBUILD 开发派生产品（符合本节第 1 条除外）。
 
 不符合上述免费使用条件的需要付费使用。
 
@@ -33,7 +37,7 @@ It can be used for free if the following conditions are met:
 
 1. Still as an open source project (GPL-3.0 open source agreement is required).
 2. Use for non-commercial/non-profit purposes (such as NPO organizations).
-3. For internal use by individuals/enterprises/organizations, there is no restriction on whether it is for commercial purposes, but REBUILD cannot be sold/gifted/distributed in any form, and it cannot be derived (that is, use of derived products based on REBUILD development).
+3. Individual/enterprise/organizational use is not restricted for commercial purposes. However, it is prohibited to distribute REBUILD in any form (including but not limited to sale, gift, resale), and it is not allowed to develop derivative products based on REBUILD (except in accordance with Article 1 of this section).
 
 Those who do not meet the above free use conditions need to pay for use.
 

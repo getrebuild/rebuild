@@ -20,7 +20,7 @@
         <ul class="nav navbar-nav float-right rb-user-nav">
           <li class="nav-item dropdown J_top-user">
             <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
-              <img th:src="@{/account/user-avatar}" alt="Avatar" />
+              <img th:src="|${baseUrl}/account/user-avatar?${session.davatarTime}|" alt="Avatar" />
               <span class="user-name" th:text="${user.getFullName()}">[[${bundle.L('FullName')}]]</span>
             </a>
             <div class="dropdown-menu">
@@ -30,6 +30,19 @@
               </div>
               <a class="dropdown-item" th:href="@{/settings/user}"><i class="icon zmdi zmdi-account-box"></i>[[${bundle.L('UserSet')}]]</a>
               <a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('Exit')}]]</a>
+              <div class="dropdown-divider"></div>
+              <div class="use-theme">
+                <div>[[${bundle.L('UseTheme')}]] <sup class="rbv"></sup></div>
+                <ul class="list-inline list-unstyled mt-1">
+                  <li><a th:title="${bundle.L('ThemeDefault')}" class="theme-default" data-theme="default"></a></li>
+                  <li><a th:title="${bundle.L('ThemeDark')}" class="theme-dark" data-theme="dark"></a></li>
+                  <li><a th:title="${bundle.L('ThemeRed')}" class="theme-red" data-theme="red"></a></li>
+                  <li><a th:title="${bundle.L('ThemeGreen')}" class="theme-green" data-theme="green"></a></li>
+                  <li><a th:title="${bundle.L('ThemeBlue')}" class="theme-blue" data-theme="blue"></a></li>
+                  <li><a th:title="${bundle.L('ThemePurple')}" class="theme-purple" data-theme="purple"></a></li>
+                  <li><a th:title="${bundle.L('ThemeRandom')}" class="theme-random" data-theme="_"></a></li>
+                </ul>
+              </div>
             </div>
           </li>
         </ul>
@@ -38,11 +51,11 @@
           <li class="nav-item dropdown admin-danger hide">
             <a class="nav-link" href="javascript:;"><i class="icon zmdi zmdi-alert-octagon text-danger"></i></a>
           </li>
-          <li class="nav-item dropdown page-help">
-            <a class="nav-link" href="https://getrebuild.com/docs/" th:title="${bundle.L('ViewPageHelp')}" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
-          </li>
           <li class="nav-item dropdown admin-show admin-settings" th:title="${bundle.L('AdminSettings')}">
             <a class="nav-link" th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i></a>
+          </li>
+          <li class="nav-item dropdown page-help">
+            <a class="nav-link" href="https://getrebuild.com/docs/" th:title="${bundle.L('ViewPageHelp')}" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
           </li>
           <li class="nav-item dropdown J_top-notifications">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" th:href="@{/notifications}">

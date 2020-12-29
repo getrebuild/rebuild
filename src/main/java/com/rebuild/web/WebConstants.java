@@ -67,6 +67,11 @@ public class WebConstants {
      */
     public static final String AUTH_TOKEN = "authToken";
 
+    /**
+     * 主题
+     */
+    public static final String USE_THEME = "useTheme";
+
     // Object
 
     /**
@@ -82,5 +87,4 @@ public class WebConstants {
      * @see com.rebuild.core.privileges.bizz.User
      */
     public static final String $USER = "user";
-
 }

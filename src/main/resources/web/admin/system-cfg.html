@@ -10,6 +10,10 @@
         background-color: #fff;
         cursor: default;
       }
+      .syscfg.edit a.img-thumbnail,
+      .syscfg.edit a.img-thumbnail .logo-img {
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -30,14 +34,16 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('Name')}]]</td>
-                        <td th:data-id="${commercial >= 20 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
+                        <td width="40%">[[${bundle.L('Name')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial >= 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
-                        <td>LOGO</td>
-                        <td class="fs-0">
+                        <td>LOGO <sup class="rbv"></sup></td>
+                        <td class="fs-0 applogo">
                           <a class="img-thumbnail"><i class="logo-img"></i></a>
                           <a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
+                          <input type="file" class="hide" accept="image/*" data-maxsize="5000000" data-local="true" />
+                          <p class="mt-2 text-dark hide">[[${bundle.L('UploadLogoTips')}]]</p>
                         </td>
                       </tr>
                       <tr>
@@ -126,43 +132,10 @@
     </div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
-    <script type="text/babel">
-      const _LANGS = _$unthy('[[${availableLangs}]]')
-      $(document).ready(() => {
-        const $L = $('#_DefaultLanguage')
-        $L.text(_LANGS[$L.text()] || 'UNKONWN')
-      })
-
-      useEditComp = function (name, value) {
-        if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions'].includes(name)) {
-          return (
-            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-              <option value="true">{$L('True')}</option>
-              <option value="false">{$L('False')}</option>
-            </select>
-          )
-        } else if ('PasswordPolicy' === name) {
-          return (
-            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-              <option value="1">{$L('PasswordPolicyL1')}</option>
-              <option value="2">{$L('PasswordPolicyL2')}</option>
-              <option value="3">{$L('PasswordPolicyL3')}</option>
-            </select>
-          )
-        } else if ('DefaultLanguage' === name) {
-          const options = []
-          for (let k in _LANGS)
-            options.push(
-              <option value={k} key={k}>
-                {_LANGS[k]}
-              </option>
-            )
-          return (
-            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-              {options}
-            </select>
-          )
-        }
+    <script th:src="@{/assets/js/admin/syscfg-g.js}" type="text/babel"></script>
+    <script>
+      window.__PageConfig = {
+        _LANGS: _$unthy('[[${availableLangs}]]'),
       }
     </script>
   </body>

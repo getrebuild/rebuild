@@ -18,6 +18,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
@@ -72,6 +73,9 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             // Lang
             request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
             request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
+
+            request.setAttribute(WebConstants.USE_THEME,
+                    !requestEntry.getRequestUri().contains("/admin/") && License.isCommercial());
         }
 
         final String requestUri = requestEntry.getRequestUri();
@@ -254,7 +258,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
                 || requestUri.startsWith("/filex/access/")
                 || requestUri.startsWith("/commons/announcements")
                 || requestUri.startsWith("/commons/url-safe")
-                || requestUri.startsWith("/commons/barcode/render");
+                || requestUri.startsWith("/commons/barcode/render")
+                || requestUri.startsWith("/commons/theme/");
     }
 
     /**

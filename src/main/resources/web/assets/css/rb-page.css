@@ -3687,9 +3687,12 @@ a.select-lang:hover {
   cursor: help;
 }
 
-body.dark-mode {
-  background-color: rgb(13, 17, 23);
-  color: rgb(201, 209, 217);
+.rbv::after {
+  content: 'V';
+}
+
+.rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements .rbv {
+  margin-left: -10px;
 }
 
 .rb-fullcontent,
@@ -3697,4 +3700,66 @@ body.dark-mode {
 .rb-fullcontent .rb-wrapper .rb-content,
 .rb-fullcontent .rb-wrapper .main-content {
   height: 100%;
+}
+
+.use-theme {
+  padding: 8px 15px 10px;
+}
+
+.use-theme ul, .use-theme ul li, .use-theme ul li a {
+  font-size: 0;
+  margin: 0;
+  padding: 0;
+  line-height: 1;
+}
+
+.use-theme ul li {
+  display: inline-block;
+  height: 24px;
+  margin-right: 3.5px;
+}
+
+.use-theme ul li:last-child {
+  margin-right: 0
+}
+
+.use-theme ul li a {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  background-color: #ddd;
+  opacity: 0.9;
+}
+
+.use-theme ul li a:hover {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+  opacity: 0.8;
+}
+
+.use-theme ul li a.theme-default {
+  background-color: #ddd !important;
+}
+
+.use-theme ul li a.theme-purple {
+  background-color: #9b52de !important;
+}
+
+.use-theme ul li a.theme-red {
+  background-color: #f7615e !important;
+}
+
+.use-theme ul li a.theme-dark {
+  background-color: #112034 !important;
+}
+
+.use-theme ul li a.theme-blue {
+  background-color: #278ee6 !important;
+}
+
+.use-theme ul li a.theme-green {
+  background-color: #16a88f !important;
+}
+
+.use-theme ul li a.theme-random {
+  background-image: linear-gradient(135deg, #16a88f 0%, #16a88f 50%, #9b52de 51%, #9b52de 100%) !important;
 }

@@ -247,8 +247,8 @@ class FeedsEditor extends React.Component {
           </div>
         )}
         <span className="hide">
-          <input type="file" ref={(c) => (this._fileInput = c)} data-maxsize="102400000" />
-          <input type="file" ref={(c) => (this._imageInput = c)} accept="image/*" data-maxsize="10240000" />
+          <input type="file" ref={(c) => (this._fileInput = c)} />
+          <input type="file" ref={(c) => (this._imageInput = c)} accept="image/*" />
         </span>
       </React.Fragment>
     )

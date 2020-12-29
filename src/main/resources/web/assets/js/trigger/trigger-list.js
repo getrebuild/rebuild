@@ -159,7 +159,7 @@ class TriggerEdit extends ConfigFormDlg {
             allowClear: false,
             templateResult: function (s) {
               if (s.id === 'HOOKURL' || s.id === 'AUTOTRANSFORM') {
-                return $(`<span>${s.text} <sup class="rbv">V</sup></span>`)
+                return $(`<span>${s.text} <sup class="rbv"></sup></span>`)
               } else {
                 return s.text
               }

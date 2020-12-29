@@ -916,7 +916,7 @@ class RbFormImage extends RbFormElement {
         })}
         {showUpload && (
           <span title={$L('UploadImgNeedX').replace('%d', `${this.__minUpload}~${this.__maxUpload}`)}>
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" data-maxsize="10240000" />
+            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
             <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
               <span className="zmdi zmdi-image-alt"></span>
             </label>
@@ -1014,7 +1014,7 @@ class RbFormFile extends RbFormImage {
         })}
         {showUpload && (
           <div className="file-select">
-            <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} data-maxsize="102400000" />
+            <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
             <label htmlFor={`${this.props.field}-input`} title={$L('UploadFileNeedX').replace('%d', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
               <i className="zmdi zmdi-upload"></i>
               <span>{$L('UploadFile')}</span>
@@ -1593,7 +1593,7 @@ class RbFormAvatar extends RbFormElement {
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('SelectSome,Avatar')}>
           {!this.props.readonly && (
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/png,image/jpeg,image/gif" data-maxsize="10240000" />
+            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
           )}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
             <img src={aUrl} alt={$L('Avatar')} />

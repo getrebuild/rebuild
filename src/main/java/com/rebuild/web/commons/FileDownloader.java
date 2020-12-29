@@ -51,7 +51,7 @@ public class FileDownloader extends BaseController {
             return;
         }
 
-        ServletUtils.addCacheHead(response, 30);
+        ServletUtils.addCacheHead(response, 60);
 
         final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
         String imageView2 = request.getQueryString();
@@ -191,17 +191,27 @@ public class FileDownloader extends BaseController {
         response.setHeader("Content-Length", String.valueOf(size));
 
         try (InputStream fis = new FileInputStream(file)) {
-            response.setContentLength(fis.available());
-
-            OutputStream os = response.getOutputStream();
-            int count;
-            byte[] buffer = new byte[1024 * 1024];
-            while ((count = fis.read(buffer)) != -1) {
-                os.write(buffer, 0, count);
-            }
-            os.flush();
-            return true;
+            return writeStream(fis, response);
         }
+    }
+
+    /**
+     * @param is
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    public static boolean writeStream(InputStream is, HttpServletResponse response) throws IOException {
+        response.setContentLength(is.available());
+
+        OutputStream os = response.getOutputStream();
+        int count;
+        byte[] buffer = new byte[1024 * 1024];
+        while ((count = is.read(buffer)) != -1) {
+            os.write(buffer, 0, count);
+        }
+        os.flush();
+        return true;
     }
 
     /**

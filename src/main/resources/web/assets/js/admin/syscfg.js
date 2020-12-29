@@ -13,6 +13,7 @@ $(document).ready(() => {
     e.preventDefault()
     editMode()
   })
+
   $('.edit-footer>.btn-link').click(() => location.reload())
   $('.edit-footer>.btn-primary').click(() => post(__data))
 })
@@ -58,9 +59,9 @@ const post = function (data) {
     }
   }
 
-  const btn = $('.edit-footer>.btn-primary').button('loading')
+  const $btn = $('.edit-footer>.btn-primary').button('loading')
   $.post(location.href, JSON.stringify(data), (res) => {
-    btn.button('reset')
+    $btn.button('reset')
     if (res.error_code === 0) location.reload()
     else RbHighbar.error(res.error_msg)
   })
