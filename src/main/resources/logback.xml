@@ -29,6 +29,7 @@
     <logger name="cn.devezhao.persist4j" level="WARN" />
     <logger name="org.apache.commons.digester" level="ERROR" />
     <logger name="com.rebuild.core" level="INFO" />
+<!--    <logger name="cn.devezhao.persist4j.query.AjqlResultImpl" level="DEBUG" />-->
 <!--    <logger name="org.springframework.transaction.support" level="DEBUG" />-->
 <!--    <logger name="org.springframework.jdbc.datasource" level="DEBUG" />-->
 

@@ -107,6 +107,8 @@ $(document).ready(function () {
       .trigger('change')
 
     // 快速查询
+    // 非系统级引用字段
+    const _SYS_REF_FIELDS = ['createdBy', 'modifiedBy', 'owningUser', 'owningDept', 'approvalId']
     const cQuickFields = d.data.map((item) => {
       const canQuick =
         item.type === 'TEXT' ||
@@ -118,7 +120,7 @@ $(document).ready(function () {
         item.type === 'CLASSIFICATION' ||
         // item.type === 'DATE' ||
         // item.type === 'DATETIME'
-        (item.type === 'REFERENCE' && item.creatable) // 非系统级引用字段
+        (item.type === 'REFERENCE' && _SYS_REF_FIELDS.indexOf(item.name) === -1)
 
       return {
         id: item.name,
