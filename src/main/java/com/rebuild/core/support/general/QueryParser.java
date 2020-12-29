@@ -215,15 +215,14 @@ public class QueryParser {
         }
 
         this.sql = fullSql.toString();
-        this.countSql = new StringBuilder("select ")
-                .append("count(").append(pkName).append(')')
-                .append(" from ").append(entity.getName())
-                .append(" where ").append(sqlWhere)
-                .toString();
+        this.countSql = "select " +
+                "count(" + pkName + ')' +
+                " from " + entity.getName() +
+                " where " + sqlWhere;
 
         int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
         int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 20);
-        this.limit = new int[]{pageSize, pageNo * pageSize - pageSize};
+        this.limit = new int[] { pageSize, pageNo * pageSize - pageSize };
         this.reload = limit[1] == 0;
         if (!reload) {
             reload = BooleanUtils.toBoolean(queryExpr.getString("reload"));

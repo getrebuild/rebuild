@@ -19,8 +19,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.GhostEntity;
 import com.rebuild.core.support.i18n.Language;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -33,9 +32,8 @@ import java.util.List;
  * @see EasyMetaFactory
  * @since 08/13/2018
  */
+@Slf4j
 public class MetadataHelper {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MetadataHelper.class);
 
     /**
      * 元数据工厂
@@ -349,7 +347,7 @@ public class MetadataHelper {
             return true;
         }
 
-        LOG.warn("Unknown field `" + fieldName + "` in `" + entity + "`");
+        log.warn("Unknown field `" + fieldName + "` in `" + entity.getName() + "`");
         return false;
     }
 

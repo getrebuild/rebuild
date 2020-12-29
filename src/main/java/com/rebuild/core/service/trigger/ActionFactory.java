@@ -73,7 +73,7 @@ public class ActionFactory {
 
         @Override
         public void execute(OperatingContext operatingContext) throws TriggerException {
-            log.warn("Unsupportted @rbv feature");
+            log.warn("@rbv not attached");
         }
     }
 }
