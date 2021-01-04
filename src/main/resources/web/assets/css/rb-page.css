@@ -3715,8 +3715,8 @@ a.select-lang:hover {
 
 .use-theme ul li {
   display: inline-block;
-  height: 24px;
-  margin-right: 3.5px;
+  height: auto;
+  margin-right: 3px;
 }
 
 .use-theme ul li:last-child {
@@ -3729,11 +3729,11 @@ a.select-lang:hover {
   display: inline-block;
   background-color: #ddd;
   opacity: 0.9;
+  border: 1px solid #fff;
 }
 
 .use-theme ul li a:hover {
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-  opacity: 0.8;
+  outline: 2px solid #4285f4;
 }
 
 .use-theme ul li a.theme-default {

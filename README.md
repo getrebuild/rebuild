@@ -1,9 +1,8 @@
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
 [![Build Status](https://travis-ci.org/getrebuild/rebuild.svg?branch=master)](https://travis-ci.org/getrebuild/rebuild)
-[![Crowdin](https://badges.crowdin.net/rebuild/localized.svg)](https://crowdin.com/project/rebuild)
-[![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](https://getrebuild.com/license/LICENSE.txt)
-[![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](https://getrebuild.com/license/COMMERCIAL.txt)
+[![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
+[![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
 
 ## REBUILD 2.1 新特性
 
@@ -30,13 +29,15 @@
 
 #### 1. 使用已发布版本
 
-_生产环境强烈推荐使用此方式！_
+_生产环境强烈推荐使用此方式 !!!_
 
 进入 [releases](https://github.com/getrebuild/rebuild/releases) 页面选择适合的安装包下载。从 2.0 版本开始，我们同时提供 `boot` 与 `standalone` 两种安装包。`boot` 为 Spring Boot 的 `jar` 独立运行模式，`standalone` 为外置 Tomcat 运行模式，两种模式在功能上并无区别。
 
 更多信息请参考 [安装文档](https://getrebuild.com/docs/admin/install)
 
 #### 2. 通过源码编译
+
+_注意 !!! 生产环境请使用 `master` 分支（即默认分支），其他分支为开发分支，功能存在不确定性_
 
 ```
 # 拉取
