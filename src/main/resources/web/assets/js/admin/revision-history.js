@@ -135,7 +135,7 @@ class DlgDetails extends RbAlert {
   }
 
   renderContent() {
-    const _data = (this.state.data || []).filter(item => !$same(item.after, item.before))
+    const _data = (this.state.data || []).filter((item) => !$same(item.after, item.before))
     if (_data.length === 0) return <div className="m-3 text-center text-muted">{$L('NoHistoryDetails')}</div>
 
     return (

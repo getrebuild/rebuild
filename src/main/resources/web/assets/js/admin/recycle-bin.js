@@ -5,12 +5,12 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-const _entities = {}
+const _ENTITIES = {}
 $(document).ready(() => {
   $.get('/commons/metadata/entities?detail=true', (res) => {
     $(res.data).each(function () {
       $(`<option value="${this.name}">${this.label}</option>`).appendTo('#belongEntity')
-      _entities[this.name] = this.label
+      _ENTITIES[this.name] = this.label
     })
 
     renderRbcomp(<DataList />, 'react-list')
@@ -28,7 +28,7 @@ const ListConfig = {
     { field: 'channelWith', label: $L('DeleteChannel'), unsort: true },
     { field: 'recordId', label: $L('RecordId'), unsort: true },
   ],
-  sort: 'deletedOn:desc'
+  sort: 'deletedOn:desc',
 }
 
 class DataList extends React.Component {
@@ -115,7 +115,7 @@ class DataList extends React.Component {
 
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
-  if (k.endsWith('.channelWith'))
+  if (k.endsWith('.channelWith')) {
     v = v ? (
       <React.Fragment>
         {$L('CasDelete')}
@@ -126,8 +126,12 @@ CellRenders.renderSimple = function (v, s, k) {
     ) : (
       $L('DirectDelete')
     )
-  else if (k.endsWith('.recordId')) v = <span className="badge text-id">{v.id}</span>
-  else if (k.endsWith('.belongEntity')) v = _entities[v] || `[${v.toUpperCase()}]`
+  } else if (k.endsWith('.recordId')) {
+    v = <span className="badge text-id">{v.id}</span>
+  } else if (k.endsWith('.belongEntity')) {
+    v = _ENTITIES[v] || `[${v.toUpperCase()}]`
+  }
+
   return (
     <td key={k}>
       <div style={s}>{v || ''}</div>

@@ -1291,6 +1291,7 @@
   "UploadLogoTips": "請分別上傳深色與白色 LOGO，透明背景，寬高為 268 × 54",
   "FieldNotApply": "字段 (類型) 不適用",
   "AutoTransformOnce": "只轉換一次 (轉換後即使符合條件也不再轉換)",
+  "LoginUser": "登陸用戶",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",
