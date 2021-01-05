@@ -100,6 +100,7 @@ class DataList extends React.Component {
   }
 }
 
+const CellRenders_renderSimple = CellRenders.renderSimple
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.channelWith')) {
@@ -121,11 +122,7 @@ CellRenders.renderSimple = function (v, s, k) {
     v = RevTypes[v] || 'N'
   }
 
-  return (
-    <td key={k}>
-      <div style={s}>{v || ''}</div>
-    </td>
-  )
+  return CellRenders_renderSimple(v, s, k)
 }
 
 // ~~ 变更详情

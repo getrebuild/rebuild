@@ -113,6 +113,7 @@ class DataList extends React.Component {
   }
 }
 
+const CellRenders_renderSimple = CellRenders.renderSimple
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.channelWith')) {
@@ -132,9 +133,5 @@ CellRenders.renderSimple = function (v, s, k) {
     v = _ENTITIES[v] || `[${v.toUpperCase()}]`
   }
 
-  return (
-    <td key={k}>
-      <div style={s}>{v || ''}</div>
-    </td>
-  )
+  return CellRenders_renderSimple(v, s, k)
 }

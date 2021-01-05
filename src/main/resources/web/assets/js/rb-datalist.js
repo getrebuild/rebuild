@@ -489,7 +489,7 @@ const CellRenders = {
 
     return (
       <td key={k}>
-        <div style={s} title={v}>
+        <div style={s} title={typeof v === 'string' ? v : null}>
           {v || ''}
         </div>
       </td>
