@@ -497,6 +497,7 @@ create table if not exists `revision_history` (
   `REVISION_BY`        char(20) not null comment '操作人',
   `REVISION_ON`        timestamp not null default current_timestamp comment '操作时间',
   `CHANNEL_WITH`       char(20) comment '变更渠道 (空为直接, 否则为关联)',
+  `IP_ADDR`            varchar(100) comment 'IP地址',
   primary key  (`REVISION_ID`),
   index IX0_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
   index IX1_revision_history (`RECORD_ID`, `CHANNEL_WITH`)
@@ -764,4 +765,4 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 33);
+  values ('021-9000000000000001', 'DBVer', 34);

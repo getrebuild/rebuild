@@ -337,6 +337,7 @@
         <field name="revisionBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
         <field name="revisionOn" type="timestamp" nullable="false" updatable="false" description="操作时间"/>
         <field name="channelWith" type="any-reference" updatable="false" description="变更渠道 (空为直接, 否则为关联)" cascade="ignore"/>
+        <field name="ipAddr" type="string" max-length="100" description="IP地址"/>
         <index field-list="belongEntity,revisionType,revisionBy,revisionOn"/>
         <index field-list="recordId,channelWith"/>
     </entity>

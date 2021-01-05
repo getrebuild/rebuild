@@ -10,6 +10,7 @@ package com.rebuild.core.service.general;
 import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.UserContextHolder;
 import org.springframework.util.Assert;
 
 /**
@@ -28,21 +29,26 @@ public class OperatingContext {
 
     final private ID[] affected;
 
+    final private String operationIp;
+
     /**
      * @param operator
      * @param action
      * @param beforeRecord
      * @param afterRecord
      * @param affected
+     * @param operationIp
      */
-    private OperatingContext(ID operator, Permission action, Record beforeRecord, Record afterRecord, ID[] affected) {
+    private OperatingContext(ID operator, Permission action, Record beforeRecord, Record afterRecord, ID[] affected, String operationIp) {
+        Assert.isTrue(beforeRecord != null || afterRecord != null,
+                "At least one of `beforeRecord` or `afterRecord` is not null");
+
         this.operator = operator;
         this.action = action;
-
-        Assert.isTrue(beforeRecord != null || afterRecord != null, "'beforeRecord' 或 'afterRecord' 至少有一个不为空");
         this.beforeRecord = beforeRecord;
         this.afterRecord = afterRecord;
         this.affected = affected == null ? new ID[]{getAnyRecord().getPrimary()} : affected;
+        this.operationIp = operationIp;
     }
 
     /**
@@ -89,9 +95,18 @@ public class OperatingContext {
         return affected;
     }
 
+    /**
+     * 操作 IP（如有）
+     *
+     * @return
+     */
+    public String getOperationIp() {
+        return operationIp;
+    }
+
     @Override
     public String toString() {
-        String clearTxt = "{ Operator: %s, Action: %s, Record(s): %s(%d) }";
+        String clearTxt = "{ Operator: %s (), Action: %s, Record(s): %s(%d) }";
         return String.format(clearTxt,
                 getOperator(), getAction().getName(), getAnyRecord().getPrimary(), getAffected().length);
     }
@@ -117,6 +132,6 @@ public class OperatingContext {
      * @return
      */
     public static OperatingContext create(ID operator, Permission action, Record before, Record after, ID[] affected) {
-        return new OperatingContext(operator, action, before, after, affected);
+        return new OperatingContext(operator, action, before, after, affected, UserContextHolder.getReqip());
     }
 }
