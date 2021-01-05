@@ -16,7 +16,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * 记录操作观察者。子类复写需要关注的操作即可，注意必须是无状态的
+ * 记录操作观察者。子类复写需要关注的操作即可，**注意实现必须是无状态的**
  *
  * @author devezhao
  * @see ObservableService

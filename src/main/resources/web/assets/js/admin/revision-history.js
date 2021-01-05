@@ -100,6 +100,7 @@ class DataList extends React.Component {
   }
 }
 
+const CellRenders_renderSimple = CellRenders.renderSimple
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.channelWith')) {
@@ -121,11 +122,7 @@ CellRenders.renderSimple = function (v, s, k) {
     v = RevTypes[v] || 'N'
   }
 
-  return (
-    <td key={k}>
-      <div style={s}>{v || ''}</div>
-    </td>
-  )
+  return CellRenders_renderSimple(v, s, k)
 }
 
 // ~~ 变更详情
@@ -135,7 +132,7 @@ class DlgDetails extends RbAlert {
   }
 
   renderContent() {
-    const _data = (this.state.data || []).filter(item => !$same(item.after, item.before))
+    const _data = (this.state.data || []).filter((item) => !$same(item.after, item.before))
     if (_data.length === 0) return <div className="m-3 text-center text-muted">{$L('NoHistoryDetails')}</div>
 
     return (
