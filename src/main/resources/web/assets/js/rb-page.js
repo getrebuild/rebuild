@@ -739,22 +739,31 @@ var _$unthy = function (text) {
 }
 
 /**
- * 获取语言
+ * 获取语言（PH_KEY）
  */
 var $L = function () {
   var args = arguments.length === 1 ? arguments[0].split(',') : arguments
-  var lang = _$L(args[0])
+  return _$L(args, true)
+}
+/**
+ * 获取语言（PH_VALUE）
+ */
+var $LF = function () {
+  var args = arguments.length === 1 ? arguments[0].split(',') : arguments
+  return _$L(args, false)
+}
+var _$L = function (args, isPhKey) {
+  var lang = _getLang(args[0])
   if (args.length < 2) return lang
 
   for (var i = 1; i < args.length; i++) {
-    if (args[i]) {
-      var phLang = _$L(args[i])
-      lang = lang.replace('{' + (i - 1) + '}', phLang)
-    }
+    var phKey = isPhKey ? '{' + (i - 1) + '}' : '%s'
+    var phLang = isPhKey ? _getLang(args[i]) : args[i]
+    lang = lang.replace(phKey, phLang)
   }
   return lang
 }
-var _$L = function (key) {
+var _getLang = function (key) {
   var lang = (window._LANGBUNDLE || {})[key]
   if (!lang) {
     console.warn('Missing lang-key `' + key + '`')
