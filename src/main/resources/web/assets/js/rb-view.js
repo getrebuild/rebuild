@@ -73,7 +73,7 @@ class RbViewForm extends React.Component {
   // 脏数据检查
   checkDrityData(handle) {
     if (!this.__lastModified || !this.state.id) return
-    $.get(`/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+    $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           handle && handle.showLoading()
@@ -485,13 +485,16 @@ const RbViewPage = {
       if (ep.S !== true) $('.J_share').remove()
     }
 
-    // Clean
+    // Clean buttons
     that.cleanViewActionButton()
+
+    that.initRecordMeta()
+    that.initHistory()
   },
 
   // 元数据
   initRecordMeta() {
-    $.get(`/app/entity/record-meta?id=${this.__id}`, (res) => {
+    $.get(`/app/entity/extras/record-meta?id=${this.__id}`, (res) => {
       // 如果出错就清空操作区
       if (res.error_code !== 0) {
         $('.view-operating').empty()
@@ -500,24 +503,24 @@ const RbViewPage = {
 
       for (let k in res.data) {
         const v = res.data[k]
-        if (!v) return
-        const $el = $('.J_' + k)
-        if ($el.length === 0) return
+        if (!v) continue
+        const $el = $(`.J_${k}`)
+        if ($el.length === 0) continue
 
         if (k === 'owningUser') {
           renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
         } else if (k === 'sharingList') {
-          const list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
-          const _this = this
+          const $list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo($('.J_sharingList').empty())
+          const that = this
           $(v).each(function () {
-            const $v = this
-            const item = $('<li class="list-inline-item"></li>').appendTo(list)
-            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} onClick={() => _this.clickViewUser($v[0])} />, item[0])
+            const _this = this
+            const $item = $('<li class="list-inline-item"></li>').appendTo($list)
+            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} onClick={() => that.clickViewUser(_this[0])} />, $item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {
-            const item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            if (v.length === 0)
+            const $op = $('<li class="list-inline-item"></li>').appendTo($list)[0]
+            if (v.length === 0) {
               renderRbcomp(
                 <UserShow
                   name={$L('AddSome,Share')}
@@ -526,24 +529,51 @@ const RbViewPage = {
                     $('.J_share').trigger('click')
                   }}
                 />,
-                item_op
+                $op
               )
-            else renderRbcomp(<UserShow name={$L('SomeManage,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, item_op)
+            } else {
+              renderRbcomp(<UserShow name={$L('SomeManage,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, $op)
+            }
           } else if (v.length > 0) {
-            const item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name={$L('ViewSome,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, item_op)
+            const $op = $('<li class="list-inline-item"></li>').appendTo($list)[0]
+            renderRbcomp(<UserShow name={$L('ViewSome,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, $op)
           } else {
             $('.J_sharingList').parent().remove()
           }
         } else if (k === 'createdOn' || k === 'modifiedOn') {
           renderRbcomp(<DateShow date={v} />, $el[0])
         } else {
-          $('<span>' + v + '</span>').appendTo($el)
+          $(`<span>${v}</span>`).appendTo($el.empty())
         }
       }
 
       // If PlainEntity
       if (!res.data.owningUser) $('.view-user').remove()
+    })
+  },
+
+  // 修改历史
+  initHistory() {
+    const $into = $('.view-history .view-history-items')
+    if ($into.length === 0) return
+
+    $.get(`/app/entity/extras/record-history?id=${this.__id}`, (res) => {
+      if (res.error_code !== 0) return
+      $into.empty()
+      res.data.forEach((item, idx) => {
+        const content = $LF('ViewHistoryContent', $fromNow(item.revisionOn)).replace('$USER$', item.revisionBy[1]).replace('$ACTION$', item.revisionType)
+        const $item = $(`<li>${content}</li>`).appendTo($into)
+        $item.find('b:eq(0)').attr('title', item.revisionOn)
+        if (idx > 9) $item.addClass('hide')
+      })
+
+      if (res.data.length > 10) {
+        $into.after(`<a href="javascript:;" class="J_mores">${$L('LoadMore')}</a>`)
+        $('.view-history .J_mores').click(function () {
+          $into.find('li.hide').removeClass('hide')
+          $(this).addClass('hide')
+        })
+      }
     })
   },
 
@@ -702,7 +732,6 @@ const RbViewPage = {
 $(document).ready(function () {
   if (wpc.entity) {
     RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
-    RbViewPage.initRecordMeta()
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
     if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
   }

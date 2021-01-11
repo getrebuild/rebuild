@@ -216,7 +216,7 @@ body {
 }
 
 .view-operating > div.view-user {
-  margin-bottom: 0 !important;
+  margin-bottom: 5px !important;
 }
 
 .view-date .col-lg-4,
@@ -249,6 +249,7 @@ body {
 .view-user .row ul > li {
   margin-bottom: 0;
   margin-right: 7px;
+  line-height: 1;
 }
 
 .view-user .row ul > li:last-child {
@@ -259,6 +260,10 @@ body {
   margin-bottom: 0;
   margin-top: 18px;
   min-height: 36.5px;
+}
+
+.view-user .user-show {
+  line-height: 1;
 }
 
 .sharing-list ul {
@@ -473,4 +478,45 @@ body {
 
 .feeds-list.inview .feeds > .content .rich-content > .appends {
   font-size: 12px;
+}
+
+.view-history .view-history-items {
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.view-history .view-history-items::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 20px;
+  width: 2px;
+  background: #ddd;
+  left: 6px;
+}
+
+.view-history .view-history-items > li {
+  position: relative;
+  padding-left: 24px;
+  height: 28px;
+  color: #777;
+}
+
+.view-history .view-history-items > li::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 1px;
+  width: 12px;
+  height: 12px;
+  background-color: #ddd;
+  border-radius: 50px;
+  border: 2px solid #fff;
+}
+
+.view-history .view-history-items > li b:first-child {
+  font-weight: normal;
+  min-width: 60px;
+  display: inline-block;
 }
