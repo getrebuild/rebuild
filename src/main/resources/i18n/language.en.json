@@ -1292,6 +1292,7 @@
   "FieldNotApply": "Field (type) is not applicable",
   "AutoTransformOnce": "Transform only once (after the transform, it will not be transformed even if the conditions are met)",
   "ViewHistory": "Modification History",
+  "ViewHistoryTip": "The modification history details can be viewed in the Admin Settings (Data History)",
   "ViewHistoryContent": "**%s** $ACTION$ by $USER$",
   "Unknown": "Unknown",
 

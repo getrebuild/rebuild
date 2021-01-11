@@ -506,12 +506,13 @@ body {
 .view-history .view-history-items > li::before {
   content: '';
   position: absolute;
-  top: 4px;
-  left: 2px;
-  width: 10px;
-  height: 10px;
+  top: 2px;
+  left: 1px;
+  width: 12px;
+  height: 12px;
   background-color: #ddd;
   border-radius: 50px;
+  border: 2px solid #fff;
 }
 
 .view-history .view-history-items > li b:first-child {
@@ -519,4 +520,3 @@ body {
   min-width: 60px;
   display: inline-block;
 }
-
