@@ -1295,6 +1295,7 @@
   "ViewHistoryTip": "修改歷史明細可至管理員後台 (變更歷史) 查看",
   "ViewHistoryContent": "**%s** 由 $USER$ $ACTION$",
   "Unknown": "未知",
+  "LoginUser": "登陸用戶",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

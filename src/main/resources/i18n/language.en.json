@@ -1295,6 +1295,7 @@
   "ViewHistoryTip": "The modification history details can be viewed in the Admin Settings (Data History)",
   "ViewHistoryContent": "**%s** $ACTION$ by $USER$",
   "Unknown": "Unknown",
+  "LoginUser": "Login User",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

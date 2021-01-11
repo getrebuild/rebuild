@@ -97,7 +97,9 @@ public class ApiGateway extends Controller implements Initialization {
             final BaseApi api = createApi(apiName);
             context = verfiy(request, api);
 
+            UserContextHolder.setReqip(remoteIp);
             UserContextHolder.setUser(context.getBindUser());
+
             JSON result = api.execute(context);
             logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, result);
 

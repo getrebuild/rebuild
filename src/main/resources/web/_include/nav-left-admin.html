@@ -69,14 +69,14 @@
                 <a th:href="@{/admin/bizuser/teams}"><i class="icon zmdi zmdi-case"></i><span>[[${bundle.L('BizTeam')}]]</span></a>
               </li>
               <li class="divider">[[${bundle.L('Audit')}]]</li>
+              <li th:class="${active == 'login-logs'} ? 'active'">
+                <a th:href="@{/admin/audit/login-logs}"><i class="icon zmdi zmdi-pin-account"></i><span>[[${bundle.L('LoginLog')}]]</span></a>
+              </li>
               <li th:class="${active == 'revision-history'} ? 'active'">
                 <a th:href="@{/admin/audit/revision-history}"><i class="icon zmdi zmdi-wrap-text"></i><span>[[${bundle.L('RevisionHistory')}]]</span></a>
               </li>
               <li th:class="${active == 'recycle-bin'} ? 'active'">
                 <a th:href="@{/admin/audit/recycle-bin}"><i class="icon zmdi zmdi-delete fs-16"></i><span>[[${bundle.L('RecycleBin')}]]</span></a>
-              </li>
-              <li th:class="${active == 'login-logs'} ? 'active'">
-                <a th:href="@{/admin/audit/login-logs}"><i class="icon zmdi zmdi-pin-account"></i><span>[[${bundle.L('LoginLog')}]]</span></a>
               </li>
             </ul>
           </div>

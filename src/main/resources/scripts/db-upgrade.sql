@@ -1,6 +1,10 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #34 (v2.2)
+alter table `revision_history`
+  add column `IP_ADDR` varchar(100) comment 'IP地址';
+
 -- #33 (v2.2)
 -- ************ Entity [ExtformConfig] DDL ************
 create table if not exists `extform_config` (
