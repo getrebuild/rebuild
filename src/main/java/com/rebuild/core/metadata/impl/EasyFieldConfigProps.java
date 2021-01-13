@@ -90,4 +90,9 @@ public class EasyFieldConfigProps {
      * @see #REFERENCE_DATAFILTER
      */
     public static final String N2NREFERENCE_DATAFILTER = REFERENCE_DATAFILTER;
+
+    /**
+     * 多行文本使用 MD 编辑器
+     */
+    public static final String NTEXT_USE_MDEDIT = "useMdedit";
 }

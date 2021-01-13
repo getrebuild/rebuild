@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global SimpleMDE */
 
 // ~~ 表单窗口
 class RbFormModal extends React.Component {
@@ -808,14 +809,96 @@ class RbFormTextarea extends RbFormElement {
 
   componentDidMount() {
     super.componentDidMount()
-    this.onEditModeChanged(true)
+    this.props.onView && this.onEditModeChanged(true)
+  }
+
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
+    // destroy
+    if (this.state.editMode && !nextState.editMode) {
+      if (this._simplemde) {
+        this._simplemde.toTextArea()
+        this._simplemde = null
+      }
+    }
   }
 
   onEditModeChanged(destroy) {
     if (this._textarea) {
-      if (destroy) $(this._textarea).perfectScrollbar()
-      else $(this._textarea).perfectScrollbar('destroy')
+      if (destroy) {
+        $(this._textarea).perfectScrollbar()
+      } else {
+        $(this._textarea).perfectScrollbar('destroy')
+      }
     }
+
+    if (this.props.useMdedit && !destroy) {
+      this._initMde()
+    }
+  }
+
+  _initMde() {
+    const mde = new SimpleMDE({
+      element: this._fieldValue,
+      status: false,
+      autoDownloadFontAwesome: false,
+      spellChecker: false,
+      toolbar: [
+        {
+          name: 'bold',
+          action: SimpleMDE.toggleBold,
+          className: 'zmdi zmdi-format-bold',
+          title: $L('MdeditBold'),
+        },
+        {
+          name: 'italic',
+          action: SimpleMDE.toggleItalic,
+          className: 'zmdi zmdi-format-italic',
+          title: $L('MdeditItalic'),
+        },
+        {
+          name: 'strikethrough',
+          action: SimpleMDE.toggleStrikethrough,
+          className: 'zmdi zmdi-format-strikethrough',
+          title: $L('MdeditStrikethrough'),
+        },
+        '|',
+        {
+          name: 'heading',
+          action: SimpleMDE.toggleHeadingSmaller,
+          className: 'zmdi zmdi-format-size',
+          title: $L('MdeditHeading'),
+        },
+        {
+          name: 'unordered-list',
+          action: SimpleMDE.toggleUnorderedList,
+          className: 'zmdi zmdi-format-list-bulleted',
+          title: $L('MdeditUnorderedList'),
+        },
+        {
+          name: 'ordered-list',
+          action: SimpleMDE.toggleOrderedList,
+          className: 'zmdi zmdi-format-list-numbered',
+          title: $L('MdeditOrderedList'),
+        },
+        '|',
+        {
+          name: 'preview',
+          action: SimpleMDE.togglePreview,
+          className: 'zmdi zmdi-eye',
+          title: $L('MdeditTogglePreview'),
+        },
+        {
+          name: 'guide',
+          action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+          className: 'zmdi zmdi-help-outline',
+          title: $L('MdeditGuide'),
+        },
+      ],
+    })
+    mde.codemirror.on('blur', () => {
+      this.setState({ value: mde.value() }, this.checkValue)
+    })
+    this._simplemde = mde
   }
 }
 
@@ -1592,9 +1675,7 @@ class RbFormAvatar extends RbFormElement {
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('SelectSome,Avatar')}>
-          {!this.props.readonly && (
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
-          )}
+          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
             <img src={aUrl} alt={$L('Avatar')} />
           </label>

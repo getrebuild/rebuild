@@ -23,7 +23,7 @@ public enum DisplayType {
     DATE(EasyDate.class, "日期", FieldType.DATE, -1, "yyyy-MM-dd"),
     DATETIME(EasyDateTime.class, "日期时间", FieldType.TIMESTAMP, -1, "yyyy-MM-dd HH:mm:ss"),
     TEXT(EasyText.class, "文本", FieldType.STRING, 200, null),
-    NTEXT(EasyNText.class, "多行文本", FieldType.TEXT, 6000, null),
+    NTEXT(EasyNText.class, "多行文本", FieldType.TEXT, 30000, null),
     EMAIL(EasyEmail.class, "邮箱", FieldType.STRING, 100, null),
     URL(EasyUrl.class, "链接", FieldType.STRING, 200, null),
     PHONE(EasyPhone.class, "电话", FieldType.STRING, 40, null),

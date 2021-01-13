@@ -3706,7 +3706,9 @@ a.select-lang:hover {
   padding: 8px 15px 10px;
 }
 
-.use-theme ul, .use-theme ul li, .use-theme ul li a {
+.use-theme ul,
+.use-theme ul li,
+.use-theme ul li a {
   font-size: 0;
   margin: 0;
   padding: 0;
@@ -3720,7 +3722,7 @@ a.select-lang:hover {
 }
 
 .use-theme ul li:last-child {
-  margin-right: 0
+  margin-right: 0;
 }
 
 .use-theme ul li a {
@@ -3762,4 +3764,38 @@ a.select-lang:hover {
 
 .use-theme ul li a.theme-random {
   background-image: linear-gradient(135deg, #16a88f 0%, #16a88f 50%, #9b52de 51%, #9b52de 100%) !important;
+}
+
+/* for MDE */
+
+.editor-toolbar {
+  border-top-left-radius: 2px;
+  border-top-right-radius: 2px;
+  border-color: #d5d8de;
+  opacity: 1;
+}
+
+.editor-toolbar a {
+  border-radius: 2px;
+  font-size: 17px;
+  font-weight: normal;
+}
+
+.editor-toolbar i.separator {
+  transform: translateY(-2px);
+}
+
+.CodeMirror {
+  border-bottom-left-radius: 2px;
+  border-bottom-right-radius: 2px;
+  border-color: #d5d8de;
+}
+
+.CodeMirror,
+.CodeMirror-scroll {
+  min-height: 130px;
+}
+
+.CodeMirror .CodeMirror-code {
+  line-height: 1.6;
 }
