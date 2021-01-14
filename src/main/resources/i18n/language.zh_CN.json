@@ -1305,6 +1305,10 @@
   "MdeditOrderedList": "数字列表",
   "MdeditTogglePreview": "预览",
   "MdeditGuide": "编辑器帮助",
+  "MdeditImage": "图片",
+  "MdeditLink": "链接",
+  "MdeditTable": "表格",
+  "MdeditFullScreen": "全屏",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

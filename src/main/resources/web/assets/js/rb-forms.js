@@ -781,16 +781,19 @@ class RbFormTextarea extends RbFormElement {
 
   renderElement() {
     return (
-      <textarea
-        ref={(c) => (this._fieldValue = c)}
-        className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''}`}
-        title={this.state.hasError}
-        value={this.state.value || ''}
-        onChange={this.handleChange}
-        onBlur={this.props.readonly ? null : this.checkValue}
-        readOnly={this.props.readonly}
-        maxLength="6000"
-      />
+      <React.Fragment>
+        <textarea
+          ref={(c) => (this._fieldValue = c)}
+          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''}`}
+          title={this.state.hasError}
+          value={this.state.value || ''}
+          onChange={this.handleChange}
+          onBlur={this.props.readonly ? null : this.checkValue}
+          readOnly={this.props.readonly}
+          maxLength="6000"
+        />
+        {this.props.useMdedit && <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />}
+      </React.Fragment>
     )
   }
 
@@ -865,12 +868,23 @@ class RbFormTextarea extends RbFormElement {
           className: 'zmdi zmdi-format-strikethrough',
           title: $L('MdeditStrikethrough'),
         },
-        '|',
+        {
+          name: 'image',
+          action: () => this._fieldValue__upload.click(),
+          className: 'zmdi zmdi-image-o',
+          title: $L('MdeditImage'),
+        },
         {
           name: 'heading',
           action: SimpleMDE.toggleHeadingSmaller,
           className: 'zmdi zmdi-format-size',
           title: $L('MdeditHeading'),
+        },
+        {
+          name: 'table',
+          action: SimpleMDE.drawTable,
+          className: 'zmdi zmdi-border-all',
+          title: $L('MdeditTable'),
         },
         {
           name: 'unordered-list',
@@ -884,7 +898,19 @@ class RbFormTextarea extends RbFormElement {
           className: 'zmdi zmdi-format-list-numbered',
           title: $L('MdeditOrderedList'),
         },
+        {
+          name: 'link',
+          action: SimpleMDE.drawLink,
+          className: 'zmdi zmdi-link',
+          title: $L('MdeditLink'),
+        },
         '|',
+        {
+          name: 'fullscreen',
+          action: SimpleMDE.toggleFullScreen,
+          className: 'zmdi zmdi-fullscreen no-disable',
+          title: $L('MdeditFullScreen'),
+        },
         {
           name: 'preview',
           action: SimpleMDE.togglePreview,
@@ -903,6 +929,12 @@ class RbFormTextarea extends RbFormElement {
       this.setState({ value: mde.value() }, this.checkValue)
     })
     this._simplemde = mde
+
+    $createUploader(this._fieldValue__upload, null, (res) => {
+      const pos = mde.codemirror.getCursor()
+      mde.codemirror.setSelection(pos, pos)
+      mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+    })
   }
 }
 

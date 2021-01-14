@@ -1305,6 +1305,10 @@
   "MdeditOrderedList": "Number List",
   "MdeditTogglePreview": "Preview",
   "MdeditGuide": "Guide",
+  "MdeditImage": "Image",
+  "MdeditLink": "Link",
+  "MdeditTable": "Table",
+  "MdeditFullScreen": "Full screen",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

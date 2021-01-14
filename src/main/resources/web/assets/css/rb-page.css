@@ -3804,12 +3804,30 @@ a.select-lang:hover {
   line-height: 1.6;
 }
 
-.mdedit-content p {
+.mdedit-content p,
+.mdedit-content ul,
+.mdedit-content ol,
+.mdedit-content table,
+.editor-preview p,
+.editor-preview ul,
+.editor-preview ol,
+.editor-preview table {
   margin-bottom: 1em;
   line-height: 1.6;
 }
 
-.mdedit-content p:last-child,
-.editor-preview p:last-child {
+.mdedit-content *:last-child,
+.editor-preview *:last-child {
   margin-bottom: 0;
+}
+
+.mdedit-content img,
+.editor-preview img {
+  max-width: 100%;
+}
+
+.mdedit-content th,
+.mdedit-content td {
+  border: 1px solid #ddd;
+  padding: 5px;
 }

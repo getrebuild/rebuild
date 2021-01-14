@@ -524,3 +524,11 @@ body {
   min-width: 60px;
   display: inline-block;
 }
+
+.CodeMirror-fullscreen {
+  top: 110px;
+}
+
+.editor-toolbar.fullscreen {
+  top: 60px;
+}
