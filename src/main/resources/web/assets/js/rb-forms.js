@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global SimpleMDE */
 
 // ~~ 表单窗口
 class RbFormModal extends React.Component {
@@ -743,7 +744,6 @@ class RbFormNumber extends RbFormText {
           for (let key in this.calcFormula__values) {
             formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
           }
-          console.log('formula : ', formula)
           if (formula.includes('{')) return
 
           try {
@@ -781,40 +781,169 @@ class RbFormTextarea extends RbFormElement {
 
   renderElement() {
     return (
-      <textarea
-        ref={(c) => (this._fieldValue = c)}
-        className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''}`}
-        title={this.state.hasError}
-        value={this.state.value || ''}
-        onChange={this.handleChange}
-        onBlur={this.props.readonly ? null : this.checkValue}
-        readOnly={this.props.readonly}
-        maxLength="6000"
-      />
+      <React.Fragment>
+        <textarea
+          ref={(c) => (this._fieldValue = c)}
+          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
+          title={this.state.hasError}
+          value={this.state.value || ''}
+          onChange={this.handleChange}
+          onBlur={this.props.readonly ? null : this.checkValue}
+          readOnly={this.props.readonly}
+          maxLength="6000"
+        />
+        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />}
+      </React.Fragment>
     )
   }
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    return (
-      <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
-        {this.state.value.split('\n').map((line, idx) => {
-          return <p key={'kl-' + idx}>{line}</p>
-        })}
-      </div>
-    )
+    if (this.props.useMdedit) {
+      const md2html = SimpleMDE.prototype.markdown(this.state.value)
+      return <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} dangerouslySetInnerHTML={{ __html: md2html }} />
+    } else {
+      return (
+        <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
+          {this.state.value.split('\n').map((line, idx) => {
+            return <p key={'kl-' + idx}>{line}</p>
+          })}
+        </div>
+      )
+    }
   }
 
   componentDidMount() {
     super.componentDidMount()
-    this.onEditModeChanged(true)
+    this.props.onView && this.onEditModeChanged(true)
+  }
+
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
+    // destroy
+    if (this.state.editMode && !nextState.editMode) {
+      if (this._simplemde) {
+        this._simplemde.toTextArea()
+        this._simplemde = null
+      }
+    }
   }
 
   onEditModeChanged(destroy) {
     if (this._textarea) {
-      if (destroy) $(this._textarea).perfectScrollbar()
-      else $(this._textarea).perfectScrollbar('destroy')
+      if (destroy) {
+        $(this._textarea).perfectScrollbar()
+      } else {
+        $(this._textarea).perfectScrollbar('destroy')
+      }
+    }
+
+    if (this.props.useMdedit && !destroy) this._initMde()
+  }
+
+  setValue(val) {
+    super.setValue(val)
+    if (this.props.useMdedit) this._simplemde.value(val)
+  }
+
+  _initMde() {
+    const _MDE_TOOLBAR = [
+      {
+        name: 'bold',
+        action: SimpleMDE.toggleBold,
+        className: 'zmdi zmdi-format-bold',
+        title: $L('MdeditBold'),
+      },
+      {
+        name: 'italic',
+        action: SimpleMDE.toggleItalic,
+        className: 'zmdi zmdi-format-italic',
+        title: $L('MdeditItalic'),
+      },
+      {
+        name: 'strikethrough',
+        action: SimpleMDE.toggleStrikethrough,
+        className: 'zmdi zmdi-format-strikethrough',
+        title: $L('MdeditStrikethrough'),
+      },
+      {
+        name: 'image',
+        action: () => this._fieldValue__upload.click(),
+        className: 'zmdi zmdi-image-o',
+        title: $L('MdeditImage'),
+      },
+      {
+        name: 'heading',
+        action: SimpleMDE.toggleHeadingSmaller,
+        className: 'zmdi zmdi-format-size',
+        title: $L('MdeditHeading'),
+      },
+      {
+        name: 'table',
+        action: SimpleMDE.drawTable,
+        className: 'zmdi zmdi-border-all',
+        title: $L('MdeditTable'),
+      },
+      {
+        name: 'unordered-list',
+        action: SimpleMDE.toggleUnorderedList,
+        className: 'zmdi zmdi-format-list-bulleted',
+        title: $L('MdeditUnorderedList'),
+      },
+      {
+        name: 'ordered-list',
+        action: SimpleMDE.toggleOrderedList,
+        className: 'zmdi zmdi-format-list-numbered',
+        title: $L('MdeditOrderedList'),
+      },
+      {
+        name: 'link',
+        action: SimpleMDE.drawLink,
+        className: 'zmdi zmdi-link',
+        title: $L('MdeditLink'),
+      },
+      '|',
+      {
+        name: 'fullscreen',
+        action: SimpleMDE.toggleFullScreen,
+        className: 'zmdi zmdi-fullscreen no-disable',
+        title: $L('MdeditFullScreen'),
+      },
+      {
+        name: 'preview',
+        action: SimpleMDE.togglePreview,
+        className: 'zmdi zmdi-eye no-disable',
+        title: $L('MdeditTogglePreview'),
+      },
+      {
+        name: 'guide',
+        action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+        className: 'zmdi zmdi-help-outline no-disable',
+        title: $L('MdeditGuide'),
+      },
+    ]
+
+    const mde = new SimpleMDE({
+      element: this._fieldValue,
+      status: false,
+      autoDownloadFontAwesome: false,
+      spellChecker: false,
+      toolbar: this.props.readonly ? false : _MDE_TOOLBAR,
+    })
+    this._simplemde = mde
+
+    if (this.props.readonly) {
+      mde.codemirror.setOption('readOnly', true)
+    } else {
+      mde.codemirror.on('blur', () => {
+        this.setState({ value: mde.value() }, this.checkValue)
+      })
+
+      $createUploader(this._fieldValue__upload, null, (res) => {
+        const pos = mde.codemirror.getCursor()
+        mde.codemirror.setSelection(pos, pos)
+        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+      })
     }
   }
 }
@@ -1592,9 +1721,7 @@ class RbFormAvatar extends RbFormElement {
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('SelectSome,Avatar')}>
-          {!this.props.readonly && (
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
-          )}
+          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
             <img src={aUrl} alt={$L('Avatar')} />
           </label>
