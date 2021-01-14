@@ -784,7 +784,7 @@ class RbFormTextarea extends RbFormElement {
       <React.Fragment>
         <textarea
           ref={(c) => (this._fieldValue = c)}
-          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''}`}
+          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={this.handleChange}
@@ -792,7 +792,7 @@ class RbFormTextarea extends RbFormElement {
           readOnly={this.props.readonly}
           maxLength="6000"
         />
-        {this.props.useMdedit && <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />}
+        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />}
       </React.Fragment>
     )
   }
@@ -838,103 +838,113 @@ class RbFormTextarea extends RbFormElement {
       }
     }
 
-    if (this.props.useMdedit && !destroy) {
-      this._initMde()
-    }
+    if (this.props.useMdedit && !destroy) this._initMde()
+  }
+
+  setValue(val) {
+    super.setValue(val)
+    if (this.props.useMdedit) this._simplemde.value(val)
   }
 
   _initMde() {
+    const _MDE_TOOLBAR = [
+      {
+        name: 'bold',
+        action: SimpleMDE.toggleBold,
+        className: 'zmdi zmdi-format-bold',
+        title: $L('MdeditBold'),
+      },
+      {
+        name: 'italic',
+        action: SimpleMDE.toggleItalic,
+        className: 'zmdi zmdi-format-italic',
+        title: $L('MdeditItalic'),
+      },
+      {
+        name: 'strikethrough',
+        action: SimpleMDE.toggleStrikethrough,
+        className: 'zmdi zmdi-format-strikethrough',
+        title: $L('MdeditStrikethrough'),
+      },
+      {
+        name: 'image',
+        action: () => this._fieldValue__upload.click(),
+        className: 'zmdi zmdi-image-o',
+        title: $L('MdeditImage'),
+      },
+      {
+        name: 'heading',
+        action: SimpleMDE.toggleHeadingSmaller,
+        className: 'zmdi zmdi-format-size',
+        title: $L('MdeditHeading'),
+      },
+      {
+        name: 'table',
+        action: SimpleMDE.drawTable,
+        className: 'zmdi zmdi-border-all',
+        title: $L('MdeditTable'),
+      },
+      {
+        name: 'unordered-list',
+        action: SimpleMDE.toggleUnorderedList,
+        className: 'zmdi zmdi-format-list-bulleted',
+        title: $L('MdeditUnorderedList'),
+      },
+      {
+        name: 'ordered-list',
+        action: SimpleMDE.toggleOrderedList,
+        className: 'zmdi zmdi-format-list-numbered',
+        title: $L('MdeditOrderedList'),
+      },
+      {
+        name: 'link',
+        action: SimpleMDE.drawLink,
+        className: 'zmdi zmdi-link',
+        title: $L('MdeditLink'),
+      },
+      '|',
+      {
+        name: 'fullscreen',
+        action: SimpleMDE.toggleFullScreen,
+        className: 'zmdi zmdi-fullscreen no-disable',
+        title: $L('MdeditFullScreen'),
+      },
+      {
+        name: 'preview',
+        action: SimpleMDE.togglePreview,
+        className: 'zmdi zmdi-eye no-disable',
+        title: $L('MdeditTogglePreview'),
+      },
+      {
+        name: 'guide',
+        action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+        className: 'zmdi zmdi-help-outline no-disable',
+        title: $L('MdeditGuide'),
+      },
+    ]
+
     const mde = new SimpleMDE({
       element: this._fieldValue,
       status: false,
       autoDownloadFontAwesome: false,
       spellChecker: false,
-      toolbar: [
-        {
-          name: 'bold',
-          action: SimpleMDE.toggleBold,
-          className: 'zmdi zmdi-format-bold',
-          title: $L('MdeditBold'),
-        },
-        {
-          name: 'italic',
-          action: SimpleMDE.toggleItalic,
-          className: 'zmdi zmdi-format-italic',
-          title: $L('MdeditItalic'),
-        },
-        {
-          name: 'strikethrough',
-          action: SimpleMDE.toggleStrikethrough,
-          className: 'zmdi zmdi-format-strikethrough',
-          title: $L('MdeditStrikethrough'),
-        },
-        {
-          name: 'image',
-          action: () => this._fieldValue__upload.click(),
-          className: 'zmdi zmdi-image-o',
-          title: $L('MdeditImage'),
-        },
-        {
-          name: 'heading',
-          action: SimpleMDE.toggleHeadingSmaller,
-          className: 'zmdi zmdi-format-size',
-          title: $L('MdeditHeading'),
-        },
-        {
-          name: 'table',
-          action: SimpleMDE.drawTable,
-          className: 'zmdi zmdi-border-all',
-          title: $L('MdeditTable'),
-        },
-        {
-          name: 'unordered-list',
-          action: SimpleMDE.toggleUnorderedList,
-          className: 'zmdi zmdi-format-list-bulleted',
-          title: $L('MdeditUnorderedList'),
-        },
-        {
-          name: 'ordered-list',
-          action: SimpleMDE.toggleOrderedList,
-          className: 'zmdi zmdi-format-list-numbered',
-          title: $L('MdeditOrderedList'),
-        },
-        {
-          name: 'link',
-          action: SimpleMDE.drawLink,
-          className: 'zmdi zmdi-link',
-          title: $L('MdeditLink'),
-        },
-        '|',
-        {
-          name: 'fullscreen',
-          action: SimpleMDE.toggleFullScreen,
-          className: 'zmdi zmdi-fullscreen no-disable',
-          title: $L('MdeditFullScreen'),
-        },
-        {
-          name: 'preview',
-          action: SimpleMDE.togglePreview,
-          className: 'zmdi zmdi-eye no-disable',
-          title: $L('MdeditTogglePreview'),
-        },
-        {
-          name: 'guide',
-          action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-          className: 'zmdi zmdi-help-outline no-disable',
-          title: $L('MdeditGuide'),
-        },
-      ],
-    })
-    mde.codemirror.on('blur', () => {
-      this.setState({ value: mde.value() }, this.checkValue)
+      toolbar: this.props.readonly ? false : _MDE_TOOLBAR,
     })
     this._simplemde = mde
 
-    $createUploader(this._fieldValue__upload, null, (res) => {
-      const pos = mde.codemirror.getCursor()
-      mde.codemirror.setSelection(pos, pos)
-      mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
-    })
+    if (this.props.readonly) {
+      mde.codemirror.setOption('readOnly', true)
+    } else {
+      mde.codemirror.on('blur', () => {
+        this.setState({ value: mde.value() }, this.checkValue)
+      })
+
+      $createUploader(this._fieldValue__upload, null, (res) => {
+        const pos = mde.codemirror.getCursor()
+        mde.codemirror.setSelection(pos, pos)
+        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+      })
+    }
   }
 }
 
