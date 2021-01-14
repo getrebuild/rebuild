@@ -744,7 +744,6 @@ class RbFormNumber extends RbFormText {
           for (let key in this.calcFormula__values) {
             formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
           }
-          console.log('formula : ', formula)
           if (formula.includes('{')) return
 
           try {
@@ -798,13 +797,18 @@ class RbFormTextarea extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    return (
-      <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
-        {this.state.value.split('\n').map((line, idx) => {
-          return <p key={'kl-' + idx}>{line}</p>
-        })}
-      </div>
-    )
+    if (this.props.useMdedit) {
+      const md2html = SimpleMDE.prototype.markdown(this.state.value)
+      return <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} dangerouslySetInnerHTML={{ __html: md2html }} />
+    } else {
+      return (
+        <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
+          {this.state.value.split('\n').map((line, idx) => {
+            return <p key={'kl-' + idx}>{line}</p>
+          })}
+        </div>
+      )
+    }
   }
 
   componentDidMount() {
@@ -884,13 +888,13 @@ class RbFormTextarea extends RbFormElement {
         {
           name: 'preview',
           action: SimpleMDE.togglePreview,
-          className: 'zmdi zmdi-eye',
+          className: 'zmdi zmdi-eye no-disable',
           title: $L('MdeditTogglePreview'),
         },
         {
           name: 'guide',
           action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-          className: 'zmdi zmdi-help-outline',
+          className: 'zmdi zmdi-help-outline no-disable',
           title: $L('MdeditGuide'),
         },
       ],

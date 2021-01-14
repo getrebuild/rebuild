@@ -3799,3 +3799,17 @@ a.select-lang:hover {
 .CodeMirror .CodeMirror-code {
   line-height: 1.6;
 }
+
+.editor-preview p {
+  line-height: 1.6;
+}
+
+.mdedit-content p {
+  margin-bottom: 1em;
+  line-height: 1.6;
+}
+
+.mdedit-content p:last-child,
+.editor-preview p:last-child {
+  margin-bottom: 0;
+}

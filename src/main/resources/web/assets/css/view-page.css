@@ -90,6 +90,10 @@ body {
   position: relative;
 }
 
+.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content {
+  max-height: 134px;
+}
+
 .rbview-form .type-NTEXT .form-control-plaintext > p {
   margin: 0;
   line-height: 1.428571;
