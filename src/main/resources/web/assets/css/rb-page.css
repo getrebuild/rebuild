@@ -3823,7 +3823,8 @@ a.select-lang:hover {
 
 .mdedit-content img,
 .editor-preview img {
-  max-width: 100%;
+  max-width: 100% !important;
+  max-height: 100% !important;
 }
 
 .mdedit-content th,
