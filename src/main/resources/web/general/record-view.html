@@ -93,7 +93,7 @@
               <dd class="col-12 col-lg-8 J_modifiedOn"></dd>
             </dl>
           </div>
-          <div class="view-history">
+          <div class="view-history" th:if="${ShowViewHistory}">
             <div class="form-line">
               <fieldset><legend>[[${bundle.L('ViewHistory')}]] <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('ViewHistoryTip')}"></i></legend></fieldset>
             </div>

@@ -1309,6 +1309,11 @@
   "MdeditLink": "Link",
   "MdeditTable": "Table",
   "MdeditFullScreen": "Full screen",
+  "ShowViewHistory": "Show modification history on view page",
+  "LoginCaptchaPolicy": "Login CAPTCHA display mode",
+  "LoginCaptchaPolicy1": "Automatic",
+  "LoginCaptchaPolicy2": "Always display",
+  "DBBackupsKeepingDays": "Backup retention time",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

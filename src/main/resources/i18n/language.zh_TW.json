@@ -1309,6 +1309,11 @@
   "MdeditLink": "鏈接",
   "MdeditTable": "表格",
   "MdeditFullScreen": "全屏",
+  "ShowViewHistory": "在視圖頁顯示修改歷史",
+  "LoginCaptchaPolicy": "登錄驗證碼顯示模式",
+  "LoginCaptchaPolicy1": "自動",
+  "LoginCaptchaPolicy2": "總是顯示",
+  "DBBackupsKeepingDays": "備份保留時間",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",
