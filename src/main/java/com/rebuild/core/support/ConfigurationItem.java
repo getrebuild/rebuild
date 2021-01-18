@@ -75,7 +75,15 @@ public enum ConfigurationItem {
 
     // 激活 Redis 队列 (since = "2.1")
     @Deprecated
-    RedisQueueEnable(false);
+    RedisQueueEnable(false),
+
+    // 视图页显示修改历史
+    ShowViewHistory(true),
+
+    // 登录验证码显示策略（1为自动，2为总是）
+    LoginCaptchaPolicy(1),
+
+    ;
 
     private Object defaultVal;
 

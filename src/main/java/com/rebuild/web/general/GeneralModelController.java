@@ -19,6 +19,8 @@ import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.*;
@@ -61,6 +63,9 @@ public class GeneralModelController extends EntityController {
         // 记录转换
         JSON trans = TransformManager.instance.getTransforms(entity, user);
         mv.getModel().put("TransformTos", trans);
+
+        // 显示历史
+        mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
 
         mv.getModel().put("id", id);
         return mv;

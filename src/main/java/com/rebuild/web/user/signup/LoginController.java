@@ -125,6 +125,11 @@ public class LoginController extends BaseController {
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));
 
+        // 验证码
+        if (RebuildConfiguration.getInt(ConfigurationItem.LoginCaptchaPolicy) == 2) {
+            ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
+        }
+
         mv.getModelMap().put("UsersMsg", CheckDangers.getUserDanger());
         return mv;
     }
@@ -158,6 +163,7 @@ public class LoginController extends BaseController {
         // 清理
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
+
         return RespBody.ok();
     }
 

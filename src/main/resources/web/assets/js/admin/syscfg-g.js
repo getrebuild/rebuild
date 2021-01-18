@@ -14,7 +14,7 @@ $(document).ready(() => {
 })
 
 useEditComp = function (name, value) {
-  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions'].includes(name)) {
+  if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory'].includes(name)) {
     return (
       <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
         <option value="true">{$L('True')}</option>
@@ -34,15 +34,23 @@ useEditComp = function (name, value) {
     if (rb.commercial > 0) _toggleLogo()
 
     const options = []
-    for (let k in wpc._LANGS)
+    for (let k in wpc._LANGS) {
       options.push(
         <option value={k} key={k}>
           {wpc._LANGS[k]}
         </option>
       )
+    }
     return (
       <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
         {options}
+      </select>
+    )
+  } else if ('LoginCaptchaPolicy' === name) {
+    return (
+      <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
+        <option value="1">{$L('LoginCaptchaPolicy1')}</option>
+        <option value="2">{$L('LoginCaptchaPolicy2')}</option>
       </select>
     )
   }

@@ -79,6 +79,13 @@
                         </td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('LoginCaptchaPolicy')}]]</td>
+                        <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
+                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('LoginCaptchaPolicy1')}]]</th:block>
+                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('LoginCaptchaPolicy2')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('MultipleSessions')}]]</td>
                         <td data-id="MultipleSessions" th:data-value="${MultipleSessions}">[[${bundle.L(MultipleSessions ? 'True' : 'False')}]]</td>
                       </tr>
@@ -89,6 +96,10 @@
                       <tr>
                         <td>[[${bundle.L('FileSharable')}]]</td>
                         <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.L(FileSharable ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('ShowViewHistory')}]]</td>
+                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${bundle.L(ShowViewHistory ? 'True' : 'False')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -101,6 +112,10 @@
                           <p>[[${bundle.L('DBBackupsEnableTips')}]]</p>
                         </td>
                         <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${bundle.L(DBBackupsEnable ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('DBBackupsKeepingDays')}]]</td>
+                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('Day0')}]]</td>
                       </tr>
                     </tbody>
                   </table>
