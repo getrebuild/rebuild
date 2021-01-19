@@ -18,16 +18,16 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.HttpUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.HashMap;
@@ -39,9 +39,8 @@ import java.util.Map;
  * @author devezhao
  * @since 01/03/2019
  */
+@Slf4j
 public class SMSender {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SMSender.class);
 
     private static final String STATUS_OK = "success";
 
@@ -55,7 +54,7 @@ public class SMSender {
             try {
                 sendMail(to, subject, content);
             } catch (Exception ex) {
-                LOG.error("Mail failed to send : " + to + " < " + subject, ex);
+                log.error("Mail failed to send : " + to + " < " + subject, ex);
             }
         });
     }
@@ -115,7 +114,7 @@ public class SMSender {
             String r = HttpUtils.post("https://api.mysubmail.com/mail/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            LOG.error("Mail failed to send : " + to + " > " + subject, ex);
+            log.error("Mail failed to send : " + to + " > " + subject, ex);
             return null;
         }
 
@@ -128,22 +127,34 @@ public class SMSender {
             return sendId;
 
         } else {
-            LOG.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
+            log.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
 
             createLog(to, scontent, 2, null, rJson.getString("msg"));
             return null;
         }
     }
 
+    private static Element MT_CACHE = null;
     /**
      * @return
      */
     protected static Element getMailTemplate() {
+        if (MT_CACHE != null && !Application.devMode()) return MT_CACHE.clone();
+
         String content = CommonsUtils.getStringOfRes("i18n/email.zh_CN.html");
         Assert.notNull(content, "Cannot load template of email");
 
+        // 生硬替换
+        if (Application.isReady() && License.getCommercialType() > 10) {
+            content = content.replace("REBUILD", RebuildConfiguration.get(ConfigurationItem.AppName));
+            content = content.replace("https://getrebuild.com/img/logo.png", RebuildConfiguration.getHomeUrl("commons/theme/use-logo"));
+            content = content.replace("https://getrebuild.com/", RebuildConfiguration.getHomeUrl());
+        }
+
         Document html = Jsoup.parse(content);
-        return html.body();
+        MT_CACHE = html.body();
+
+        return MT_CACHE.clone();
     }
 
     /**
@@ -155,7 +166,7 @@ public class SMSender {
             try {
                 sendSMS(to, content);
             } catch (Exception ex) {
-                LOG.error("SMS failed to send : " + to, ex);
+                log.error("SMS failed to send : " + to, ex);
             }
         });
     }
@@ -199,7 +210,7 @@ public class SMSender {
             String r = HttpUtils.post("https://api.mysubmail.com/message/send.json", params);
             rJson = JSON.parseObject(r);
         } catch (Exception ex) {
-            LOG.error("SMS failed to send : " + to + " > " + content, ex);
+            log.error("SMS failed to send : " + to + " > " + content, ex);
             return null;
         }
 
@@ -209,7 +220,7 @@ public class SMSender {
             return sendId;
 
         } else {
-            LOG.error("SMS failed to send : " + to + " > " + content + "\nError : " + rJson);
+            log.error("SMS failed to send : " + to + " > " + content + "\nError : " + rJson);
 
             createLog(to, content, 1, null, rJson.getString("msg"));
             return null;

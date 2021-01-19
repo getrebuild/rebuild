@@ -1314,6 +1314,7 @@
   "LoginCaptchaPolicy1": "Automatic",
   "LoginCaptchaPolicy2": "Always display",
   "DBBackupsKeepingDays": "Backup retention time",
+  "RebuildPowered": "Powered by [REBUILD](https://getrebuild.com/)",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

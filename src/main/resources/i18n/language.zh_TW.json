@@ -1314,6 +1314,7 @@
   "LoginCaptchaPolicy1": "自動",
   "LoginCaptchaPolicy2": "總是顯示",
   "DBBackupsKeepingDays": "備份保留時間",
+  "RebuildPowered": "[REBUILD](https://getrebuild.com/) 強力驅動",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

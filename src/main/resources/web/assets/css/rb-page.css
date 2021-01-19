@@ -3129,6 +3129,10 @@ form {
   text-align: center;
 }
 
+.copyright > a {
+  color: #999;
+}
+
 .copyright.fixed {
   position: fixed;
   bottom: 15px;
