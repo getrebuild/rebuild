@@ -510,7 +510,7 @@ body {
 .view-history .view-history-items > li::before {
   content: '';
   position: absolute;
-  top: 2px;
+  top: 3px;
   left: 1px;
   width: 12px;
   height: 12px;
