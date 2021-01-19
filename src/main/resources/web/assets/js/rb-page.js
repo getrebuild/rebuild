@@ -259,7 +259,7 @@ var _initNavs = function () {
       $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
       $('.left-sidebar-spacer').toggleClass('open')
     })
-    .text($('.rb-right-navbar .page-title').text())
+    .text($('.left-sidebar-content li.active>a:last').text() || 'REBUILD')
 
   if ($('.page-aside .aside-header').length > 0) {
     $('.page-aside .aside-header').click(function () {
