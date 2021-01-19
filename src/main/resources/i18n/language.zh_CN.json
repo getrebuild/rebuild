@@ -466,7 +466,7 @@
   "SendTest": "发送测试",
   "SomeServiceUnsetTips": "{0}服务未配置，相关功能不可用",
   "SmsSign": "短信签名",
-  "SentCount": "发送量",
+  "SentCount": "发送统计",
   "CloudStorage": "云存储",
   "StorageDomain": "访问域名",
   "StorageBucket": "存储空间",
