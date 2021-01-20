@@ -87,8 +87,9 @@ $(function () {
 
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
-    if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified) {
+    if (location.href.indexOf('/admin/') > -1) {
+      $('.admin-settings').remove()
+    } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
       topPopover($('.admin-settings a'), '<div class="p-1">' + $L('CancelYourAdminAccess').replace('#', 'javascript:_cancelAdmin()') + '</div>')
     }
