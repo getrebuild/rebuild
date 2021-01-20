@@ -3129,6 +3129,10 @@ form {
   text-align: center;
 }
 
+.copyright > a {
+  color: #999;
+}
+
 .copyright.fixed {
   position: fixed;
   bottom: 15px;
@@ -3836,4 +3840,16 @@ a.select-lang:hover {
 .cm-readonly ~ .CodeMirror {
   background-color: #eee;
   cursor: default;
+}
+
+.popover {
+  max-width: 300px;
+}
+
+.admin-danger-list > div {
+  padding: 12px 0;
+}
+
+.admin-danger-list > div + div {
+  border-top: 1px solid #eee;
 }

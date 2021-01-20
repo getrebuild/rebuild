@@ -81,6 +81,11 @@ public class Language implements Initialization {
         }
     }
 
+    @Override
+    public int getOrder() {
+        return HIGHEST_PRECEDENCE;
+    }
+
     /**
      * 刷新语言包
      */

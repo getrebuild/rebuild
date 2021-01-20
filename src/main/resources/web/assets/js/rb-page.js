@@ -87,8 +87,9 @@ $(function () {
 
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
-    if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified) {
+    if (location.href.indexOf('/admin/') > -1) {
+      $('.admin-settings').remove()
+    } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
       topPopover($('.admin-settings a'), '<div class="p-1">' + $L('CancelYourAdminAccess').replace('#', 'javascript:_cancelAdmin()') + '</div>')
     }
@@ -96,10 +97,11 @@ $(function () {
     $.get('/user/admin-dangers', function (res) {
       if ((res.data || []).length > 0) {
         $('.admin-danger').removeClass('hide')
-        var dd = []
+        var dd = ['<div class="admin-danger-list">']
         $(res.data).each(function () {
-          dd.push('<div class="p-1">' + this + '</div>')
+          dd.push('<div>' + this + '</div>')
         })
+        dd.push('</div>')
         topPopover($('.admin-danger a'), dd.join(''))
       }
     })
@@ -259,7 +261,7 @@ var _initNavs = function () {
       $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
       $('.left-sidebar-spacer').toggleClass('open')
     })
-    .text($('.rb-right-navbar .page-title').text())
+    .text($('.left-sidebar-content li.active>a:last').text() || 'REBUILD')
 
   if ($('.page-aside .aside-header').length > 0) {
     $('.page-aside .aside-header').click(function () {

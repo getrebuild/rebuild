@@ -466,7 +466,7 @@
   "SendTest": "发送测试",
   "SomeServiceUnsetTips": "{0}服务未配置，相关功能不可用",
   "SmsSign": "短信签名",
-  "SentCount": "发送量",
+  "SentCount": "发送统计",
   "CloudStorage": "云存储",
   "StorageDomain": "访问域名",
   "StorageBucket": "存储空间",
@@ -1314,6 +1314,8 @@
   "LoginCaptchaPolicy1": "自动",
   "LoginCaptchaPolicy2": "总是显示",
   "DBBackupsKeepingDays": "备份保留时间",
+  "RebuildPowered": "[REBUILD](https://getrebuild.com/) 强力驱动",
+  "CommercialNoRbvTip": "系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

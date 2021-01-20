@@ -24,7 +24,7 @@
     <div class="sharebox must-center">
       <i class="zmdi zmdi-share"></i>
     </div>
-    <div class="copyright fixed">&copy; [[${appName}]]</div>
+    <div class="copyright fixed link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('RebuildPowered')}"/></div>
     <th:block th:replace="~{/_include/footer}" />
     <script type="text/babel">
       window.__PageConfig = {

@@ -1314,6 +1314,8 @@
   "LoginCaptchaPolicy1": "Automatic",
   "LoginCaptchaPolicy2": "Always display",
   "DBBackupsKeepingDays": "Backup retention time",
+  "RebuildPowered": "Powered by [REBUILD](https://getrebuild.com/)",
+  "CommercialNoRbvTip": "System has detected the commercial feature package is not installed, and the relevant commercial feature may not be available. Please contact the REBUILD to obtain it",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
