@@ -79,7 +79,7 @@ public class AdminVerfiyController extends BaseController {
 
     @RequestMapping("/user/admin-dangers")
     public RespBody adminDangers() {
-        return RespBody.ok(CheckDangers.getAdminDangers());
+        return RespBody.ok(CheckDangers.getAdminDanger());
     }
 
     // -- CLI

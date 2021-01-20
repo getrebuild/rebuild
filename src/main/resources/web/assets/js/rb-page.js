@@ -96,10 +96,11 @@ $(function () {
     $.get('/user/admin-dangers', function (res) {
       if ((res.data || []).length > 0) {
         $('.admin-danger').removeClass('hide')
-        var dd = []
+        var dd = ['<div class="admin-danger-list">']
         $(res.data).each(function () {
-          dd.push('<div class="p-1">' + this + '</div>')
+          dd.push('<div>' + this + '</div>')
         })
+        dd.push('</div>')
         topPopover($('.admin-danger a'), dd.join(''))
       }
     })

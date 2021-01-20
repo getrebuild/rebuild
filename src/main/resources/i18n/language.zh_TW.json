@@ -1315,6 +1315,7 @@
   "LoginCaptchaPolicy2": "總是顯示",
   "DBBackupsKeepingDays": "備份保留時間",
   "RebuildPowered": "[REBUILD](https://getrebuild.com/) 強力驅動",
+  "CommercialNoRbvTip": "系統檢測到增值功能包未安裝，相關增值功能可能無法使用。請聯繫 REBUILD 服務人員獲取",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

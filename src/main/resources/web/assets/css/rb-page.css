@@ -3841,3 +3841,15 @@ a.select-lang:hover {
   background-color: #eee;
   cursor: default;
 }
+
+.popover {
+  max-width: 300px;
+}
+
+.admin-danger-list > div {
+  padding: 12px 0;
+}
+
+.admin-danger-list > div + div {
+  border-top: 1px solid #eee;
+}

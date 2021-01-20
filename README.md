@@ -4,18 +4,18 @@
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
 [![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
 
-## REBUILD 2.1 新特性
+## REBUILD 2.2 新特性
 
 本次更新为你带来众多新功能与优化。
 
-1. [新增] 繁体中文支持
-2. [新增] 记录转换映射
-3. [新增] 多引用字段
-4. [新增] 支持批量导入用户
-5. [优化] 所有字段均提供默认值支持
+1. [新增] 外部表单
+2. [新增] 界面主题选择
+3. [新增] 数字型字段计算公式
+4. [新增] 多行文本字段富文本编辑器
+5. [新增] 高级表单控制
 6. ...
 
-更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog)
+更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.2)
 
 ## 在线体验
 

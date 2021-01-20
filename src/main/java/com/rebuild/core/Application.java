@@ -63,7 +63,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.2.0-dev";
+    public static final String VER = "2.2.0-beta1";
     /**
      * Rebuild Build
      */

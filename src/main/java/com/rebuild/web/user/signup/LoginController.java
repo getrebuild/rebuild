@@ -130,7 +130,7 @@ public class LoginController extends BaseController {
             ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
         }
 
-        mv.getModelMap().put("UsersMsg", CheckDangers.getUserDanger());
+        mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
         return mv;
     }
 
