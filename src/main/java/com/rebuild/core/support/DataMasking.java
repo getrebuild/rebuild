@@ -60,6 +60,7 @@ public class DataMasking {
      */
     public static String maskingEmail(String email) {
         if (StringUtils.isBlank(email)) return email;
+        if (!email.contains("@")) return masking(email);
 
         String[] nd = email.split("@");
         int nLen = nd[0].length();

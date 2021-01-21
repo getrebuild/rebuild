@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.dialect.Dialect;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.CascadeModel;
 import cn.devezhao.persist4j.util.support.Table;
@@ -209,10 +210,10 @@ public class Entity2Schema extends Field2Schema {
         }
 
         for (Field whoRef : entity.getReferenceToFields(false)) {
-            if (!whoRef.getOwnEntity().equals(entity)) {
-                throw new MetadataModificationException(
-                        Language.LF("DeleteEntityHasRefs", EasyMetaFactory.getLabel(whoRef.getOwnEntity())));
-            }
+            if (whoRef.getOwnEntity().equals(entity)) continue;
+            if (whoRef.getType() == FieldType.ANY_REFERENCE) continue;
+            throw new MetadataModificationException(
+                    Language.LF("DeleteEntityHasRefs", EasyMetaFactory.getLabel(whoRef.getOwnEntity())));
         }
 
         // 有记录的强删
