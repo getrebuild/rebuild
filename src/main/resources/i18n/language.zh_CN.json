@@ -1274,7 +1274,7 @@
   "BadOrDeleteApproval": "无效审批流程，可能已被删除",
   "FormCalcFormula": "表单计算公式",
   "FormCalcFormulaTips": "如公式中所用字段未布局/未显示，则无法进行计算。通过 [触发器 (数据聚合)](/admin/robot/triggers) 可以实现更加强大的计算规则",
-  "DataBackup": "数据备份",
+  "DataSecure": "数据安全",
   "DataMssking": "数据脱敏",
   "RelatedAutoExpand": "自动展开显示项记录",
   "FormAdvControl": "高级控制",
@@ -1316,6 +1316,8 @@
   "DBBackupsKeepingDays": "备份保留时间",
   "RebuildPowered": "[REBUILD](https://getrebuild.com/) 强力驱动",
   "CommercialNoRbvTip": "系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取",
+  "RevisionHistoryKeepingDays": "变更历史保留时间",
+  "RecycleBinKeepingDays": "回收站保留时间",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

@@ -935,8 +935,10 @@ class RbFormTextarea extends RbFormElement {
     if (this.props.readonly) {
       mde.codemirror.setOption('readOnly', true)
     } else {
-      mde.codemirror.on('blur', () => {
-        this.setState({ value: mde.value() }, this.checkValue)
+      mde.codemirror.on('changes', () => {
+        $setTimeout(() => {
+          this.setState({ value: mde.value() }, this.checkValue)
+        }, 200, 'mde-update-event')
       })
 
       $createUploader(this._fieldValue__upload, null, (res) => {

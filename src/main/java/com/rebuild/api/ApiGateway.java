@@ -24,6 +24,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.util.AntPathMatcher;
@@ -41,6 +42,7 @@ import java.util.*;
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
+@Slf4j
 @org.springframework.stereotype.Controller
 public class ApiGateway extends Controller implements Initialization {
 
@@ -65,7 +67,7 @@ public class ApiGateway extends Controller implements Initialization {
             API_CLASSES.put(apiName, (Class<? extends BaseApi>) c);
         }
 
-        LOG.info("Added {} APIs", API_CLASSES.size());
+        log.info("Added {} APIs", API_CLASSES.size());
     }
 
     @CrossOrigin
@@ -84,7 +86,7 @@ public class ApiGateway extends Controller implements Initialization {
 
         if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
             JSON error = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
-            LOG.error("{} : {}", requestId, error.toJSONString());
+            log.error("{} : {}", requestId, error.toJSONString());
             ServletUtils.writeJson(response, error.toJSONString());
             return;
         }
@@ -125,7 +127,7 @@ public class ApiGateway extends Controller implements Initialization {
         } catch (Exception ignored) {
         }
 
-        LOG.error("{} : {}", requestId, error.toJSONString());
+        log.error("{} : {}", requestId, error.toJSONString());
         ServletUtils.writeJson(response, error.toJSONString());
     }
 

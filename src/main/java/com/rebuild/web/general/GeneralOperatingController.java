@@ -37,6 +37,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,6 +57,7 @@ import java.util.*;
  * @see Application#getEntityService(int)
  * @see CommonOperatingController
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/entity/")
 public class GeneralOperatingController extends BaseController {
@@ -72,6 +74,7 @@ public class GeneralOperatingController extends BaseController {
         try {
             record = EntityHelper.parse((JSONObject) formJson, user);
         } catch (DataSpecificationException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
 
@@ -96,6 +99,7 @@ public class GeneralOperatingController extends BaseController {
             record = ies.createOrUpdate(record);
 
         } catch (AccessDeniedException | DataSpecificationException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
 
         } catch (GenericJdbcException ex) {
@@ -103,7 +107,7 @@ public class GeneralOperatingController extends BaseController {
                 return RespBody.errorl("DataTruncation");
             }
 
-            LOG.error(null, ex);
+            log.error(null, ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
 
@@ -157,6 +161,7 @@ public class GeneralOperatingController extends BaseController {
             }
 
         } catch (AccessDeniedException | DataSpecificationException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
 
@@ -191,6 +196,7 @@ public class GeneralOperatingController extends BaseController {
             }
 
         } catch (AccessDeniedException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
 
@@ -231,6 +237,7 @@ public class GeneralOperatingController extends BaseController {
             }
 
         } catch (AccessDeniedException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
 
@@ -261,6 +268,7 @@ public class GeneralOperatingController extends BaseController {
             }
 
         } catch (AccessDeniedException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
 
@@ -321,6 +329,7 @@ public class GeneralOperatingController extends BaseController {
             }
 
         } catch (AccessDeniedException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
 
@@ -404,7 +413,7 @@ public class GeneralOperatingController extends BaseController {
             if (MetadataHelper.containsEntity(c)) {
                 casList.add(c);
             } else {
-                LOG.warn("Unknown entity in cascades : " + c);
+                log.warn("Unknown entity in cascades : " + c);
             }
         }
         return casList.toArray(new String[0]);

@@ -3706,8 +3706,15 @@ a.select-lang:hover {
   height: 100%;
 }
 
+/* page: /admin/ */
+.rb-color-header .use-theme {
+  display: none;
+}
+
 .use-theme {
-  padding: 8px 15px 10px;
+  border-top: 1px solid #eee;
+  margin-top: 6px;
+  padding: 14px 15px 10px;
 }
 
 .use-theme ul,

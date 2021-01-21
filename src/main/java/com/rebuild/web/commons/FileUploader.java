@@ -13,6 +13,7 @@ import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -34,6 +35,7 @@ import java.io.File;
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
+@Slf4j
 @Controller
 @RequestMapping("/filex/")
 public class FileUploader extends BaseController {
@@ -76,7 +78,7 @@ public class FileUploader extends BaseController {
             }
 
         } catch (Exception ex) {
-            LOG.error(null, ex);
+            log.error(null, ex);
             uploadName = null;
         }
 

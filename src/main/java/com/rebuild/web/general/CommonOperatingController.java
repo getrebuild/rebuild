@@ -21,6 +21,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +36,7 @@ import javax.servlet.http.HttpServletRequest;
  * @see com.rebuild.core.Application#getService(int)
  * @see GeneralOperatingController
  */
+@Slf4j
 @RestController
 @RequestMapping("/app/entity/")
 public class CommonOperatingController extends BaseController {
@@ -47,6 +49,7 @@ public class CommonOperatingController extends BaseController {
         try {
             record = EntityHelper.parse((JSONObject) formJson, getRequestUser(request));
         } catch (DataSpecificationException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
 
@@ -67,6 +70,7 @@ public class CommonOperatingController extends BaseController {
             record = Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
             return JSONUtils.toJSONObject("id", record.getPrimary());
         } catch (DataSpecificationException | AccessDeniedException known) {
+            log.warn(">>>>> {}", known.getLocalizedMessage());
             return RespBody.error(known.getLocalizedMessage());
         }
     }
