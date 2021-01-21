@@ -22,6 +22,8 @@ const WHENS = {
   512: `(${$L('JobExecution')})`,
 }
 
+const RBV_TRIGGERS = ['HOOKURL', 'AUTOTRANSFORM']
+
 const formatWhen = function (maskVal) {
   const as = []
   for (let k in WHENS) {
@@ -44,13 +46,15 @@ class TriggerList extends ConfigList {
           return (
             <tr key={'k-' + item[0]}>
               <td>
-                <a href={`trigger/${item[0]}`}>{item[3] || (item[2] + ' · ' + item[7])}</a>
+                <a href={`trigger/${item[0]}`}>{item[3] || item[2] + ' · ' + item[7]}</a>
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{item[7]}</td>
               <td>{item[6] > 0 ? $L('WhenXTime').replace('%s', formatWhen(item[6])) : <span className="text-warning">({$L('NoTriggerAction')})</span>}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
-              <td><DateShow date={item[5]}/></td>
+              <td>
+                <DateShow date={item[5]} />
+              </td>
               <td className="actions">
                 <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
@@ -125,9 +129,7 @@ class TriggerEdit extends ConfigFormDlg {
           </React.Fragment>
         )}
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">
-            {$L('Name')}
-          </label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
@@ -158,12 +160,12 @@ class TriggerEdit extends ConfigFormDlg {
             placeholder: $L('SelectSome,TriggerType'),
             allowClear: false,
             templateResult: function (s) {
-              if (s.id === 'HOOKURL' || s.id === 'AUTOTRANSFORM') {
+              if (RBV_TRIGGERS.includes(s.id)) {
                 return $(`<span>${s.text} <sup class="rbv"></sup></span>`)
               } else {
                 return s.text
               }
-            }
+            },
           })
           .on('change', () => {
             this.__getEntitiesByAction(s2ot.val())
@@ -205,7 +207,7 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
-    if (rb.commercial < 1 && (data.actionType === 'HOOKURL' || data.actionType === 'AUTOTRANSFORM')) {
+    if (rb.commercial < 1 && RBV_TRIGGERS.includes(data.actionType)) {
       return RbHighbar.error($L(`FreeVerNotSupportted,${data.actionType}`))
     }
 

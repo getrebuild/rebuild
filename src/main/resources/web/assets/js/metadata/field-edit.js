@@ -527,7 +527,7 @@ class FormulaCalc extends RbAlert {
         <div className="row">
           <div className="col-6">
             <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
-              <ul className="list-unstyled mb-0">
+              <ul className="list-unstyled mb-0" _title={$L('NoUsesField')}>
                 {FIELDS_CACHE.map((item) => {
                   return (
                     <li key={item[0]}>

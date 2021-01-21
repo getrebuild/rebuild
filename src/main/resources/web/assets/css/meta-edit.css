@@ -126,6 +126,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 /* FormulaCalc */
 
+.formula-calc .fields ul:empty::after {
+  content: attr(_title);
+  color: #999;
+}
+
 .formula-calc ul li {
   width: 23%;
   display: inline-block;
@@ -193,6 +198,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 /* for Entity */
+
 a#entityIcon {
   display: inline-block;
   width: 36px;

@@ -60,8 +60,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .field-aggregation p {
-  margin: 0;
-  margin-top: 3px;
+  margin: 3px 0 0;
   color: #777;
   font-size: 12px;
 }
@@ -134,6 +133,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .field-aggregation .items > div:hover a.del {
   display: inline-block;
+}
+
+.formula-calc .fields ul:empty::after {
+  content: attr(_title);
+  color: #999;
 }
 
 .formula-calc ul li {
