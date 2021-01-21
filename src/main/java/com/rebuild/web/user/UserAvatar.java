@@ -20,6 +20,7 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,7 @@ import java.io.IOException;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/08
  */
+@Slf4j
 @Controller
 @RequestMapping("/account")
 public class UserAvatar extends BaseController {
@@ -103,7 +105,7 @@ public class UserAvatar extends BaseController {
                 avatarFile = UserHelper.generateAvatar(fullName, false);
 
             } catch (IOException ex) {
-                LOG.warn("Cannot generate avatar", ex);
+                log.warn("Cannot generate avatar", ex);
 
                 response.sendRedirect(AppUtils.getContextPath() + "/assets/img/avatar.png");
                 return;

@@ -33,6 +33,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.UserAgent;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,6 +52,7 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/user/")
 public class LoginController extends BaseController {
@@ -104,7 +106,7 @@ public class LoginController extends BaseController {
 
             } catch (Exception ex) {
                 ServletUtils.readCookie(request, CK_AUTOLOGIN);
-                LOG.error("Cannot decode User from alt : " + useAlt, ex);
+                log.error("Cannot decode User from alt : " + useAlt, ex);
             }
 
             if (altUser != null && Application.getUserStore().existsUser(altUser)) {
@@ -231,7 +233,7 @@ public class LoginController extends BaseController {
                 UA = String.format("%s-%s (%s)",
                         uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
             } catch (Exception ex) {
-                LOG.warn("Unknown user-agent : " + UA);
+                log.warn("Unknown user-agent : " + UA);
                 UA = "UNKNOW";
             }
         }

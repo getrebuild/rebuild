@@ -24,6 +24,7 @@ import com.rebuild.core.service.approval.*;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -35,6 +36,7 @@ import java.util.Map;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/07/05
  */
+@Slf4j
 @RestController
 @RequestMapping({"/app/entity/approval/", "/app/RobotApprovalConfig/"})
 public class ApprovalController extends BaseController {
@@ -171,6 +173,7 @@ public class ApprovalController extends BaseController {
             try {
                 addedRecord = EntityHelper.parse(aformData, getRequestUser(request));
             } catch (DataSpecificationException known) {
+                log.warn(">>>>> {}", known.getLocalizedMessage());
                 return RespBody.error(known.getLocalizedMessage());
             }
         }

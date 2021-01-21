@@ -19,9 +19,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.dataimport.DataFileParser;
 import com.rebuild.core.service.dataimport.DataImporter;
 import com.rebuild.core.service.dataimport.ImportRule;
@@ -29,6 +29,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,6 +47,7 @@ import java.util.Map;
  * @author devezhao
  * @since 01/03/2019
  */
+@Slf4j
 @Controller
 @RequestMapping("/admin/data/")
 public class DataImportController extends BaseController {
@@ -72,7 +74,7 @@ public class DataImportController extends BaseController {
             parser = new DataFileParser(tmp);
             preview = parser.parse(11);
         } catch (Exception ex) {
-            LOG.error("Parse excel error : " + file, ex);
+            log.error("Parse excel error : " + file, ex);
             writeFailure(response, getLang(request, "NotParseDataFile"));
             return;
         }

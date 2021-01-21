@@ -29,6 +29,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Controller;
@@ -48,6 +49,7 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
+@Slf4j
 @Controller
 @RequestMapping("/admin/")
 public class MetaEntityController extends BaseController {
@@ -153,7 +155,7 @@ public class MetaEntityController extends BaseController {
                     .createEntity(label, comments, mainEntity, getBoolParameter(request, "nameField"));
             writeSuccess(response, entityName);
         } catch (Exception ex) {
-            LOG.error("entity-new", ex);
+            log.error("entity-new", ex);
             writeFailure(response, ex.getLocalizedMessage());
         }
     }
@@ -202,7 +204,7 @@ public class MetaEntityController extends BaseController {
             else writeFailure(response);
 
         } catch (Exception ex) {
-            LOG.error("entity-drop", ex);
+            log.error("entity-drop", ex);
             writeFailure(response, ex.getLocalizedMessage());
         }
     }

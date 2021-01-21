@@ -26,6 +26,7 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +44,7 @@ import java.util.Set;
  * @author devezhao
  * @since 10/08/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/admin/bizuser/")
 public class UserController extends EntityController {
@@ -163,7 +165,7 @@ public class UserController extends EntityController {
         if (!enUser.isActive()) {
             HttpSession s = Application.getSessionStore().getSession(enUser.getId());
             if (s != null) {
-                LOG.warn("Force destroy user session : " + enUser.getId());
+                log.warn("Force destroy user session : " + enUser.getId());
                 s.invalidate();
             }
         }

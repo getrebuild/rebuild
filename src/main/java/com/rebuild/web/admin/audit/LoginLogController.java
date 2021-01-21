@@ -21,6 +21,7 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.LocationUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.OnlineSessionStore;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,6 +35,7 @@ import java.util.Date;
  * @author devezhao-mac zhaofang123@gmail.com
  * @since 2019/02/16
  */
+@Slf4j
 @RestController
 public class LoginLogController extends EntityController {
 
@@ -75,7 +77,7 @@ public class LoginLogController extends EntityController {
 
         HttpSession s = Application.getSessionStore().getSession(user);
         if (s != null) {
-            LOG.warn("Kill session via admin : " + user + " < " + s.getId());
+            log.warn("Kill session via admin : " + user + " < " + s.getId());
             try {
                 s.invalidate();
             } catch (Exception ignored) {

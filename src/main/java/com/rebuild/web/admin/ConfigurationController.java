@@ -29,6 +29,7 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -49,6 +50,7 @@ import java.util.Map;
  * @see ConfigurationItem
  * @since 09/20/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/admin/")
 public class ConfigurationController extends BaseController {
@@ -268,7 +270,7 @@ public class ConfigurationController extends BaseController {
                 ConfigurationItem item = ConfigurationItem.valueOf(e.getKey());
                 RebuildConfiguration.set(item, e.getValue());
             } catch (Exception ex) {
-                LOG.error("Invalid item : " + e.getKey() + " = " + e.getValue());
+                log.error("Invalid item : " + e.getKey() + " = " + e.getValue());
             }
         }
     }

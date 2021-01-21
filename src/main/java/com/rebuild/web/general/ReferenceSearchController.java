@@ -30,6 +30,7 @@ import com.rebuild.core.support.general.ProtocolFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +51,7 @@ import java.util.*;
  * @see RecentlyUsedSearchController
  * @since 08/24/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/commons/search/")
 public class ReferenceSearchController extends EntityController {
@@ -124,7 +126,7 @@ public class ReferenceSearchController extends EntityController {
         // 查询字段
         Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, quickFields);
         if (searchFields.isEmpty()) {
-            LOG.warn("No fields of search found : " + searchEntity);
+            log.warn("No fields of search found : " + searchEntity);
             return JSONUtils.EMPTY_ARRAY;
         }
 

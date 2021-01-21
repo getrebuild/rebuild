@@ -21,6 +21,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.user.signup.LoginController;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,6 +44,7 @@ import java.sql.SQLException;
  * @author devezhao
  * @since 2019/11/25
  */
+@Slf4j
 @RestController
 @RequestMapping("/setup/")
 public class InstallController extends BaseController implements InstallState {
@@ -135,7 +137,7 @@ public class InstallController extends BaseController implements InstallState {
         try {
             return RBStore.fetchMetaschema("index-2.0.json");
         } catch (Exception ex) {
-            LOG.warn(null, ex);
+            log.warn(null, ex);
             return RespBody.errorl("NoInitEntityTips");
         }
     }
@@ -148,7 +150,7 @@ public class InstallController extends BaseController implements InstallState {
             new Installer(installProps).install();
             return RespBody.ok();
         } catch (Exception ex) {
-            LOG.error("An error occurred during install", ex);
+            log.error("An error occurred during install", ex);
             return RespBody.error(
                     getLang(request, "InstallFailed") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
