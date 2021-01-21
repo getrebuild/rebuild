@@ -1274,7 +1274,7 @@
   "BadOrDeleteApproval": "Invalid approval, may have been deleted",
   "FormCalcFormula": "Form Calculation Formula",
   "FormCalcFormulaTips": "If the fields used in the formula are not layout/displayed, calculations cannot be performed. More powerful calculation rules can be achieved through [Trigger (Data Aggregation)](/admin/robot/triggers)",
-  "DataBackup": "Data Backup",
+  "DataSecure": "Data Security",
   "DataMssking": "Data Masking",
   "RelatedAutoExpand": "Automatically expand tab records",
   "FormAdvControl": "Advanced Control",
@@ -1316,6 +1316,8 @@
   "DBBackupsKeepingDays": "Backup retention time",
   "RebuildPowered": "Powered by [REBUILD](https://getrebuild.com/)",
   "CommercialNoRbvTip": "System has detected the commercial feature package is not installed, and the relevant commercial feature may not be available. Please contact the REBUILD to obtain it",
+  "RevisionHistoryKeepingDays": "Data History retention time",
+  "RecycleBinKeepingDays": "Recycle Bin retention time",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
