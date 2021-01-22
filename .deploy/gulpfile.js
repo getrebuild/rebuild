@@ -32,7 +32,7 @@ function compileJs(m) {
     .pipe(babel(BABEL_OPTIONS))
     .pipe(
       debug({
-        title: 'Compiled : ',
+        title: 'Compiled .js : ',
       })
     )
     .pipe(dest(`${OUT_ROOT}/assets/js`))
@@ -43,7 +43,7 @@ function compileCss(m) {
     .pipe(cleanCSS())
     .pipe(
       debug({
-        title: 'Compiled : ',
+        title: 'Compiled .css : ',
       })
     )
     .pipe(dest(`${OUT_ROOT}/assets/css`))
@@ -74,7 +74,7 @@ function _useAssetsHex(file) {
 }
 
 function compileHtml(m) {
-  return src(`${WEB_ROOT || m}/**/*.html`)
+  return src(`${m || WEB_ROOT}/**/*.html`)
     .pipe(filter((file) => !/node_modules/.test(file.path)))
     .pipe(
       replace(/<script type="text\/babel">([\s\S]*)<\/script>/gim, (m, p) => {
@@ -117,7 +117,7 @@ function compileHtml(m) {
     )
     .pipe(
       debug({
-        title: 'Compiled : ',
+        title: 'Compiled .html : ',
       })
     )
     .pipe(dest(OUT_ROOT))

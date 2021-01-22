@@ -12,19 +12,15 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.api.RespBody;
-import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.FormBuilderContextHolder;
 import com.rebuild.core.configuration.general.FormsBuilder;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
-import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.core.support.i18n.I18nUtils;
-import com.rebuild.utils.JSONUtils;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +29,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 /**
  * 表单/视图
@@ -60,15 +53,19 @@ public class GeneralModelController extends EntityController {
         } else {
             mv = createModelAndView("/general/record-view", id, user);
 
-            JSON vtab = ViewAddonsManager.instance.getViewTab(entity, user);
-            mv.getModel().put("ViewTabs", vtab);
-            JSON vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
-            mv.getModel().put("ViewAdds", vadd);
+            JSONObject vtab = ViewAddonsManager.instance.getViewTab(entity, user);
+            mv.getModel().put("ViewTabs", vtab.getJSONArray("items"));
+            mv.getModel().put("ViewTabsAutoExpand", vtab.getBooleanValue("autoExpand"));
+            JSONObject vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
+            mv.getModel().put("ViewAdds", vadd.getJSONArray("items"));
         }
 
         // 记录转换
         JSON trans = TransformManager.instance.getTransforms(entity, user);
         mv.getModel().put("TransformTos", trans);
+
+        // 显示历史
+        mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
 
         mv.getModel().put("id", id);
         return mv;
@@ -78,12 +75,14 @@ public class GeneralModelController extends EntityController {
     public JSON entityForm(@PathVariable String entity, @IdParam(required = false) ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
+        final Entity metaEntity = MetadataHelper.getEntity(entity);
 
         JSON initialVal = null;
         if (id == null) {
             initialVal = ServletUtils.getRequestJson(request);
+
             if (initialVal != null) {
-                // 创建明细实体必须指定主实体，以便验证权限
+                // 新建明细记录时必须指定主实体
                 String mainid = ((JSONObject) initialVal).getString(FormsBuilder.DV_MAINID);
                 if (ID.isId(mainid)) {
                     FormBuilderContextHolder.setMainIdOfDetail(ID.valueOf(mainid));
@@ -96,7 +95,7 @@ public class GeneralModelController extends EntityController {
 
             // 填充前端设定的初始值
             if (id == null && initialVal != null) {
-                FormsBuilder.instance.setFormInitialValue(MetadataHelper.getEntity(entity), model, (JSONObject) initialVal);
+                FormsBuilder.instance.setFormInitialValue(metaEntity, model, (JSONObject) initialVal);
             }
 
             return model;
@@ -110,64 +109,6 @@ public class GeneralModelController extends EntityController {
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
         return FormsBuilder.instance.buildView(entity, getRequestUser(request), id);
-    }
-
-    @GetMapping("record-meta")
-    public JSONAware fetchRecordMeta(@IdParam ID id) {
-        final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-
-        String sql = "select createdOn,modifiedOn from %s where %s = '%s'";
-        if (MetadataHelper.hasPrivilegesField(entity)) {
-            sql = sql.replaceFirst("modifiedOn", "modifiedOn,owningUser");
-        }
-
-        sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
-        Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
-        if (recordMeta == null) {
-            return RespBody.errorl("RecordNotExists");
-        }
-
-        recordMeta[0] = I18nUtils.formatDate((Date) recordMeta[0]);
-        recordMeta[1] = I18nUtils.formatDate((Date) recordMeta[1]);
-
-        String[] owning = null;
-        List<String[]> sharingList = null;
-        if (recordMeta.length == 3) {
-            User user = Application.getUserStore().getUser((ID) recordMeta[2]);
-            String dept = user.getOwningDept() == null ? null : user.getOwningDept().getName();
-            owning = new String[]{user.getIdentity().toString(), user.getFullName(), dept};
-
-            Object[][] shareTo = Application.createQueryNoFilter(
-                    "select shareTo from ShareAccess where belongEntity = ? and recordId = ?")
-                    .setParameter(1, entity.getName())
-                    .setParameter(2, id)
-                    .setLimit(9)  // 最多显示9个
-                    .array();
-            sharingList = new ArrayList<>();
-            for (Object[] st : shareTo) {
-                sharingList.add(new String[]{st[0].toString(), UserHelper.getName((ID) st[0])});
-            }
-        }
-
-        return JSONUtils.toJSONObject(
-                new String[] { "createdOn", "modifiedOn", "owningUser", "sharingList" },
-                new Object[] { recordMeta[0], recordMeta[1], owning, sharingList });
-    }
-
-    @GetMapping("record-lastModified")
-    public JSONAware fetchRecordLastModified(@IdParam ID id) {
-        final Entity entity = MetadataHelper.getEntity(id.getEntityCode());
-
-        String sql = String.format("select modifiedOn from %s where %s = '%s'",
-                entity.getName(), entity.getPrimaryField().getName(), id);
-        Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
-        if (recordMeta == null) {
-            return RespBody.errorl("RecordNotExists");
-        }
-
-        return JSONUtils.toJSONObject(
-                new String[] { "lastModified"},
-                new Object[] { ((Date) recordMeta[0]).getTime() });
     }
 
     // 打印视图

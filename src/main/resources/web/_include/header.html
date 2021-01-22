@@ -12,8 +12,10 @@
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/select2.min.css?v=4.0.13}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/mprogress.min.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/jquery-ui.min.css}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/simplemde.min.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
+  <link th:if="${user != null && useTheme}" rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" />
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.commercial" th:content="${commercial}" />
   <meta name="rb.locale" th:content="${locale}" />
@@ -37,4 +39,14 @@
       location.href = '[[${baseUrl}]]/error/unsupported-browser'
     </script>
   <![endif]-->
+  <style th:if="${commercial > 0}" type="text/css">
+    .logo-img,
+    .rb-top-header .rb-navbar-header .navbar-brand {
+      background-image: url('[[${baseUrl}]]/commons/theme/use-logo');
+    }
+    .logo-img.white,
+    .rb-color-header .rb-top-header .rb-navbar-header .navbar-brand {
+      background-image: url('[[${baseUrl}]]/commons/theme/use-logo-white');
+    }
+  </style>
 </th:block>

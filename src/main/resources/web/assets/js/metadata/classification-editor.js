@@ -362,7 +362,7 @@ class DlgImports extends RbModalHandler {
                   <div className="col-sm-7">
                     <div className="float-left">
                       <div className="file-select">
-                        <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-maxsize="20971520" data-temp="true" ref={(c) => (this._uploadInput = c)} />
+                        <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._uploadInput = c)} />
                         <label htmlFor="upload-input" className="btn-secondary">
                           <i className="zmdi zmdi-upload"></i>
                           <span>{$L('SelectSome,File')}</span>

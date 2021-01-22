@@ -24,6 +24,7 @@ import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.BlockList;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.math.RandomUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -42,6 +43,7 @@ import java.io.IOException;
  * @author devezhao
  * @since 11/01/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/user/")
 public class SignUpController extends BaseController {
@@ -73,7 +75,7 @@ public class SignUpController extends BaseController {
         String content = String.format(getLang(request, "YourVCode", "Signup"), vcode);
         String sentid = SMSender.sendMail(email, getLang(request, "SignupVcode"), content);
 
-        LOG.warn(email + " >> " + content);
+        log.warn(email + " >>>>> " + content);
         if (sentid != null) {
             return RespBody.ok();
         } else {

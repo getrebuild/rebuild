@@ -13,16 +13,18 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.MessageFormat;
 
 /**
+ * 列表落地页跳转
+ *
  * @author ZHAO
  * @since 2020/7/28
  */
@@ -30,10 +32,9 @@ import java.text.MessageFormat;
 public class ListAndViewRedirection extends BaseController {
 
     @GetMapping("/app/list-and-view")
-    public void redirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final ID anyId = getIdParameterNotNull(request, "id");
-
+    public void redirect(@IdParam ID anyId, HttpServletResponse response) throws IOException {
         String url = null;
+
         if (MetadataHelper.containsEntity(anyId.getEntityCode())) {
             Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
 

@@ -80,7 +80,7 @@ class DlgEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={`${$L(this.props.id ? 'Modify' : 'Add')}${$L('Project')}`} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L(this.props.id ? 'ModifySome,Project' : 'AddSome,Project')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('Icon')}</label>

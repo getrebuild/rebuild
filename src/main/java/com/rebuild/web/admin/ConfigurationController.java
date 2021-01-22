@@ -10,33 +10,33 @@ package com.rebuild.web.admin;
 import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.ThrowableUtils;
-import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.qiniu.common.QiniuException;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
+import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.DataMasking;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -50,7 +50,8 @@ import java.util.Map;
  * @see ConfigurationItem
  * @since 09/20/2018
  */
-@Controller
+@Slf4j
+@RestController
 @RequestMapping("/admin/")
 public class ConfigurationController extends BaseController {
 
@@ -73,17 +74,14 @@ public class ConfigurationController extends BaseController {
     }
 
     @PostMapping("systems")
-    public void postSystems(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
-
+    public RespBody postSystems(@RequestBody JSONObject data) {
         String dHomeURL = defaultIfBlank(data, ConfigurationItem.HomeURL);
         if (!RegexUtils.isUrl(dHomeURL)) {
-            writeFailure(response, getLang(request, "SomeInvalid", "HomeUrl"));
-            return;
+            return RespBody.errorl("SomeInvalid", "HomeUrl");
         }
 
         // 验证数字参数
-        ConfigurationItem[] validNumbers = new ConfigurationItem[]{
+        ConfigurationItem[] validNumbers = new ConfigurationItem[] {
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
                 ConfigurationItem.DBBackupsKeepingDays
@@ -95,10 +93,16 @@ public class ConfigurationController extends BaseController {
             }
         }
 
+        String dLOGO = data.getString("LOGO");
+        String dLOGOWhite = data.getString("LOGOWhite");
+        if (dLOGO != null || dLOGOWhite != null) {
+            Application.getCommonsCache().put("dimgLogoTime", CommonsUtils.randomHex(), CommonsCache.TS_DAY);
+        }
+
         setValues(data);
         Application.getBean(RebuildWebConfigurer.class).init();
 
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     @GetMapping("integration/storage")
@@ -118,9 +122,7 @@ public class ConfigurationController extends BaseController {
     }
 
     @PostMapping("integration/storage")
-    public void postIntegrationStorage(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
-
+    public RespBody postIntegrationStorage(@RequestBody JSONObject data) {
         String dStorageURL = defaultIfBlank(data, ConfigurationItem.StorageURL);
         String dStorageBucket = defaultIfBlank(data, ConfigurationItem.StorageBucket);
         String dStorageApiKey = defaultIfBlank(data, ConfigurationItem.StorageApiKey);
@@ -130,8 +132,7 @@ public class ConfigurationController extends BaseController {
             dStorageURL = "https:" + dStorageURL;
         }
         if (!RegexUtils.isUrl(dStorageURL)) {
-            writeFailure(response, getLang(request, "SomeInvalid", "StorageDomain"));
-            return;
+            return RespBody.errorl("SomeInvalid", "StorageDomain");
         }
 
         try {
@@ -141,12 +142,12 @@ public class ConfigurationController extends BaseController {
             bucketManager.getBucketInfo(dStorageBucket);
 
             setValues(data);
-            writeSuccess(response);
+            return RespBody.ok();
 
         } catch (QiniuException ex) {
-            writeFailure(response, getLang(request, "ConfInvalid") + " : " + ex.response.error);
+            return RespBody.error(Language.L("ConfInvalid") + " : " + ex.response.error);
         } catch (Exception ex) {
-            writeFailure(response, ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return RespBody.error(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
     }
 
@@ -161,37 +162,32 @@ public class ConfigurationController extends BaseController {
     }
 
     @PostMapping("integration/submail")
-    public void postIntegrationSubmail(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
-
+    public RespBody postIntegrationSubmail(@RequestBody JSONObject data) {
         String dMailAddr = defaultIfBlank(data, ConfigurationItem.MailAddr);
         if (!RegexUtils.isEMail(dMailAddr)) {
-            writeFailure(response, getLang(request, "SomeInvalid", "MailServAddr"));
-            return;
+            return RespBody.errorl("SomeInvalid", "MailServAddr");
         }
 
         setValues(data);
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     @PostMapping("integration/submail/test")
-    public void testSubmail(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject data = (JSONObject) ServletUtils.getRequestJson(request);
+    public RespBody testSubmail(@RequestBody JSONObject data, HttpServletRequest request) {
         String type = getParameterNotNull(request, "type");
         String receiver = getParameterNotNull(request, "receiver");
 
         String sent = null;
         if ("SMS".equalsIgnoreCase(type)) {
             if (!RegexUtils.isCNMobile(receiver)) {
-                writeFailure(response, getLang(request, "SomeInvalid", "Mobile"));
-                return;
+                return RespBody.errorl("SomeInvalid", "Mobile");
             }
 
             String[] specAccount = new String[]{
                     data.getString("SmsUser"), data.getString("SmsPassword"),
                     data.getString("SmsSign")
             };
-            if (specAccount[1].contains("**********")) {
+            if (specAccount[1].contains("******")) {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.SmsPassword);
             }
 
@@ -200,15 +196,14 @@ public class ConfigurationController extends BaseController {
 
         } else if ("EMAIL".equalsIgnoreCase(type)) {
             if (!RegexUtils.isEMail(receiver)) {
-                writeFailure(response, getLang(request, "SomeInvalid", "Email"));
-                return;
+                return RespBody.errorl("SomeInvalid", "Email");
             }
 
             String[] specAccount = new String[]{
                     data.getString("MailUser"), data.getString("MailPassword"),
                     data.getString("MailAddr"), data.getString("MailName")
             };
-            if (specAccount[1].contains("**********")) {
+            if (specAccount[1].contains("******")) {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.MailPassword);
             }
 
@@ -217,14 +212,14 @@ public class ConfigurationController extends BaseController {
         }
 
         if (sent != null) {
-            writeSuccess(response, sent);
+            return RespBody.ok(sent);
         } else {
-            writeFailure(response, getLang(request, "SendTestError"));
+            return RespBody.errorl("SendTestError");
         }
     }
 
-    @RequestMapping(value = "integration/submail/stats")
-    public void statsSubmail(HttpServletResponse response) {
+    @GetMapping(value = "integration/submail/stats")
+    public JSON statsSubmail() {
         final Date xday = CalendarUtils.clearTime(CalendarUtils.addDay(-90));
         final String sql = "select date_format(sendTime,'%Y-%m-%d'),count(sendId) from SmsendLog" +
                 " where type = ? and sendTime > ? group by date_format(sendTime,'%Y-%m-%d')";
@@ -251,18 +246,16 @@ public class ConfigurationController extends BaseController {
                 .setParameter(1, 2)
                 .unique();
 
-        JSONObject data = JSONUtils.toJSONObject(
-                new String[]{"sms", "email", "smsCount", "emailCount"},
-                new Object[]{sms, email, smsCount, emailCount});
-        writeSuccess(response, data);
+        return JSONUtils.toJSONObject(
+                new String[] { "sms", "email", "smsCount", "emailCount" },
+                new Object[] { sms, email, smsCount, emailCount });
     }
 
     private String[] starsAccount(String[] account, int... index) {
-        if (account == null) {
-            return null;
-        }
+        if (account == null || account.length == 0) return null;
+
         for (int i : index) {
-            account[i] = CommonsUtils.stars(account[i]);
+            account[i] = DataMasking.masking(account[i]);
         }
         return account;
     }
@@ -277,7 +270,7 @@ public class ConfigurationController extends BaseController {
                 ConfigurationItem item = ConfigurationItem.valueOf(e.getKey());
                 RebuildConfiguration.set(item, e.getValue());
             } catch (Exception ex) {
-                LOG.error("Invalid item : " + e.getKey() + " = " + e.getValue());
+                log.error("Invalid item : " + e.getKey() + " = " + e.getValue());
             }
         }
     }

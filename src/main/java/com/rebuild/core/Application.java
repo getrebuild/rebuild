@@ -47,10 +47,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
+import org.springframework.core.OrderComparator;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 后台入口类
@@ -64,11 +63,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.1.1";
+    public static final String VER = "2.2.0-beta1";
     /**
      * Rebuild Build
      */
-    public static final int BUILD = 20101;
+    public static final int BUILD = 20200;
 
     static {
         // Driver for DB
@@ -202,7 +201,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         }
 
         // 初始化业务组件
-        for (Initialization bean : _CONTEXT.getBeansOfType(Initialization.class).values()) {
+        List<Initialization> ordered = new ArrayList<>(_CONTEXT.getBeansOfType(Initialization.class).values());
+        OrderComparator.sort(ordered);
+        for (Initialization bean : ordered) {
             bean.init();
         }
         License.isRbvAttached();
@@ -236,7 +237,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
 
     public static ApplicationContext getContext() {
         if (_CONTEXT == null) throw new IllegalStateException("Rebuild unstarted");
-        return _CONTEXT;
+        else return _CONTEXT;
     }
 
     public static <T> T getBean(Class<T> beanClazz) {

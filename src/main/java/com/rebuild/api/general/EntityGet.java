@@ -16,6 +16,7 @@ import com.rebuild.api.ApiInvokeException;
 import com.rebuild.api.BaseApi;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ import java.util.List;
  * @author devezhao
  * @since 2020/5/21
  */
+@Slf4j
 public class EntityGet extends BaseApi {
 
     @Override
@@ -38,7 +40,7 @@ public class EntityGet extends BaseApi {
     public JSON execute(ApiContext context) throws ApiInvokeException {
         final ID queryId = context.getParameterAsId("id");
         final Entity useEntity = MetadataHelper.getEntity(queryId.getEntityCode());
-        if (!useEntity.isQueryable()) {
+        if (!useEntity.isQueryable() || !MetadataHelper.isBusinessEntity(useEntity)) {
             throw new ApiInvokeException("Unsupportted operation for entity/id : " + queryId);
         }
 
@@ -74,7 +76,7 @@ public class EntityGet extends BaseApi {
             if (entity.containsField(field) && !MetadataHelper.isSystemField(field)) {
                 validFields.add(field);
             } else {
-                LOG.warn("Filtered invalid field of query : " + field);
+                log.warn("Filtered invalid field of query : " + field);
             }
         }
 

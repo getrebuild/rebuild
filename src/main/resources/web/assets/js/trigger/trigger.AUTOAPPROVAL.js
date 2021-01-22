@@ -23,7 +23,7 @@ class ContentAutoApproval extends ActionContentSpec {
                 <option value="">{$L('NotUse')}</option>
                 {(this.state.approvalList || []).map((item) => {
                   return (
-                    <option key={item.id} value={item.id}>
+                    <option key={item.id} value={item.id} disabled={item.disabled === true}>
                       {item.text}
                     </option>
                   )
@@ -41,7 +41,7 @@ class ContentAutoApproval extends ActionContentSpec {
       .find('.custom-control-input')
       .each(function () {
         const v = ~~$(this).val()
-        if (v !== 1 && v !== 4) $(this).attr('disabled', true)
+        if (!(v === 1 || v === 4 || v === 512)) $(this).attr('disabled', true)
       })
 
     const content = this.props.content || {}

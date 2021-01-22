@@ -497,6 +497,7 @@ create table if not exists `revision_history` (
   `REVISION_BY`        char(20) not null comment '操作人',
   `REVISION_ON`        timestamp not null default current_timestamp comment '操作时间',
   `CHANNEL_WITH`       char(20) comment '变更渠道 (空为直接, 否则为关联)',
+  `IP_ADDR`            varchar(100) comment 'IP地址',
   primary key  (`REVISION_ID`),
   index IX0_revision_history (`BELONG_ENTITY`, `REVISION_TYPE`, `REVISION_BY`, `REVISION_ON`),
   index IX1_revision_history (`RECORD_ID`, `CHANNEL_WITH`)
@@ -703,6 +704,24 @@ create table if not exists `project_task_tag_relation` (
   index IX1_project_task_tag_relation (`CREATED_ON`)
 )Engine=InnoDB;
 
+-- ************ Entity [ExtformConfig] DDL ************
+create table if not exists `extform_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `NAME`               varchar(100) not null comment '名称',
+  `PORTAL_CONFIG`      text(21845) comment '表单配置 (JSON Map)',
+  `START_TIME`         timestamp null default null comment '开始时间',
+  `END_TIME`           timestamp null default null comment '结束时间',
+  `BIND_USER`          char(20) comment '数据绑定用户',
+  `HOOK_URL`           varchar(300) comment '回调地址',
+  `HOOK_SECRET`        varchar(300) comment '回调安全码',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
 
 -- #3 datas
 
@@ -736,8 +755,7 @@ insert into `layout_config` (`CONFIG_ID`, `BELONG_ENTITY`, `CONFIG`, `APPLY_TYPE
   ('013-9000000000000001', 'Department', '[{"field":"name","isFull":false},{"field":"parentDept","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   ('013-9000000000000002', 'User', '[{"field":"fullName","isFull":false},{"field":"email","isFull":false},{"field":"loginName","isFull":false},{"field":"password","isFull":false},{"field":"$DIVIDER$","isFull":true},{"field":"deptId","isFull":false},{"field":"roleId","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   ('013-9000000000000003', 'Role', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000004', 'Team', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
-  ('013-9000000000000005', 'LoginLog', '[{"field":"user"},{"field":"loginTime"},{"field":"userAgent"},{"field":"ipAddr"},{"field":"logoutTime"}]', 'DATALIST', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
+  ('013-9000000000000004', 'Team', '[{"field":"name","isFull":false},{"field":"isDisabled","isFull":false}]', 'FORM', 'ALL', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
 
 -- Classifications (No data)
 insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `IS_DISABLED`, `CREATED_ON`, `CREATED_BY`, `MODIFIED_ON`, `MODIFIED_BY`)
@@ -747,4 +765,4 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 32);
+  values ('021-9000000000000001', 'DBVer', 34);

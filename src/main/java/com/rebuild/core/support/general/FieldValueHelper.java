@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.approval.ApprovalStepService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -92,7 +93,9 @@ public class FieldValueHelper {
      */
     public static Object wrapFieldValue(Object value, EasyField field) {
         if (!field.isQueryable() &&
-                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) return SECURE_TEXT;
+                (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) {
+            return SECURE_TEXT;
+        }
 
         if (value == null || StringUtils.isBlank(value.toString())) {
             // 审批
@@ -156,9 +159,11 @@ public class FieldValueHelper {
             }
             return hasValue;
 
+        } else if (id.equals(ApprovalStepService.APPROVAL_NOID)) {
+            return Language.L("AUTOAPPROVAL");
         }
 
-        Field nameField = MetadataHelper.getNameField(entity);
+        Field nameField = entity.getNameField();
         Object[] nameValue = Application.getQueryFactory().uniqueNoFilter(id, nameField.getName());
         if (nameValue == null) {
             throw new NoRecordFoundException("No record found by id : " + id);

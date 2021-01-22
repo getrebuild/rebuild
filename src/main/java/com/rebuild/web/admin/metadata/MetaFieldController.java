@@ -55,10 +55,9 @@ public class MetaFieldController extends BaseController {
     @GetMapping("{entity}/fields")
     public ModelAndView page(@PathVariable String entity, HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/admin/metadata/fields");
-        MetaEntityController.setEntityBase(mv, entity);
+        EasyEntity easyEntity = MetaEntityController.setEntityBase(mv, entity);
 
-        String nameField = MetadataHelper.getNameField(entity).getName();
-        mv.getModel().put("nameField", nameField);
+        mv.getModel().put("nameField", easyEntity.getRawMeta().getNameField().getName());
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
         return mv;
     }

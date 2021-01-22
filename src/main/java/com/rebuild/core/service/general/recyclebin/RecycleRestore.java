@@ -24,8 +24,7 @@ import com.rebuild.core.service.TransactionManual;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.support.i18n.Language;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.TransactionStatus;
 
 import java.util.ArrayList;
@@ -37,9 +36,8 @@ import java.util.List;
  * @author devezhao
  * @since 2019/8/21
  */
+@Slf4j
 public class RecycleRestore {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RecycleRestore.class);
 
     private ID recycleId;
 
@@ -72,7 +70,7 @@ public class RecycleRestore {
                 .unique();
         // 可能已经（关联）恢复了
         if (main == null) {
-            LOG.warn("No recycle found! Maybe restored : " + this.recycleId);
+            log.warn("No recycle found! Maybe restored : " + this.recycleId);
             return 0;
         }
 

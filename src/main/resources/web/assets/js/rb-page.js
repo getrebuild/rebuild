@@ -87,8 +87,9 @@ $(function () {
 
     $('html').addClass('admin')
     if (rb.isAdminVerified !== true) $('.admin-verified').remove()
-    if (location.href.indexOf('/admin/') > -1) $('.admin-settings').remove()
-    else if (rb.isAdminVerified) {
+    if (location.href.indexOf('/admin/') > -1) {
+      $('.admin-settings').remove()
+    } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
       topPopover($('.admin-settings a'), '<div class="p-1">' + $L('CancelYourAdminAccess').replace('#', 'javascript:_cancelAdmin()') + '</div>')
     }
@@ -96,10 +97,11 @@ $(function () {
     $.get('/user/admin-dangers', function (res) {
       if ((res.data || []).length > 0) {
         $('.admin-danger').removeClass('hide')
-        var dd = []
+        var dd = ['<div class="admin-danger-list">']
         $(res.data).each(function () {
-          dd.push('<div class="p-1">' + this + '</div>')
+          dd.push('<div>' + this + '</div>')
         })
+        dd.push('</div>')
         topPopover($('.admin-danger a'), dd.join(''))
       }
     })
@@ -132,6 +134,26 @@ $(function () {
   // Help link in page
   var helpLink = $('meta[name="page-help"]').attr('content')
   if (helpLink) $('.page-help>a').attr('href', helpLink)
+
+  // 内容区自适应高度
+  $('div[data-fullcontent]').each(function () {
+    var $this = $(this)
+    var offset = ~~$this.data('fullcontent')
+    if (offset > 0) {
+      $addResizeHandler(function () {
+        $this.css('min-height', $(window).height() - offset)
+      })()
+    }
+  })
+
+  // Theme
+  $('.use-theme a').click(function () {
+    if (rb.commercial < 1) return RbHighbar.error($L('FreeVerNotSupportted,UseTheme'))
+    var theme = $(this).data('theme')
+    $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
+      location.reload(true)
+    })
+  })
 })
 
 var $addResizeHandler__calls = []
@@ -239,7 +261,7 @@ var _initNavs = function () {
       $('.rb-collapsible-sidebar').toggleClass('rb-collapsible-sidebar-collapsed')
       $('.left-sidebar-spacer').toggleClass('open')
     })
-    .text($('.rb-right-navbar .page-title').text())
+    .text($('.left-sidebar-content li.active>a:last').text() || 'REBUILD')
 
   if ($('.page-aside .aside-header').length > 0) {
     $('.page-aside .aside-header').click(function () {
@@ -247,6 +269,10 @@ var _initNavs = function () {
       $('.page-aside .aside-nav').toggleClass('show')
     })
   }
+
+  setTimeout(function () {
+    $('.rbv').attr('title', $L('CommercialFeat'))
+  }, 400)
 }
 
 var _checkMessage__state = 0
@@ -412,8 +438,10 @@ var $fileExtName = function (fileName) {
 var $createUploader = function (input, next, complete, error) {
   input = $(input).off('change')
   var imgOnly = input.attr('accept') === 'image/*'
-  var temp = input.data('temp') // Temp file
-  if (window.qiniu && rb.storageUrl && !temp) {
+  var local = input.data('local')
+  if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
+
+  if (window.qiniu && rb.storageUrl && !local) {
     input.on('change', function () {
       var file = this.files[0]
       if (!file) return
@@ -447,7 +475,7 @@ var $createUploader = function (input, next, complete, error) {
   } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (temp || ''),
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp'),
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create($L(imgOnly ? 'PlsUploadImg' : 'FileTypeError'))
@@ -464,7 +492,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          if (!temp && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
           complete({ key: e.data })
         } else {
           RbHighbar.error($L('ErrorUpload'))
@@ -478,6 +506,7 @@ var $createUploader = function (input, next, complete, error) {
     })
   }
 }
+var $initUploader = $createUploader
 
 /**
  * 卸载 React 组件
@@ -688,7 +717,7 @@ var $moment = function (date) {
  */
 var $fromNow = function (date) {
   var m = $moment(date)
-  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow'): m.fromNow()
+  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow') : m.fromNow()
 }
 /**
  * 是否过期
@@ -705,26 +734,38 @@ var $expired = function (date, offset) {
 var _$unthy = function (text) {
   if (!text) return null
   text = text.replace(/&quot;/g, '"')
-  return $.parseJSON(text)
+  text = text.replace(/\n/g, '\\n')
+  var s = $.parseJSON(text)
+  if (rb.env === 'dev') console.log(s)
+  return s
 }
 
 /**
- * 获取语言
+ * 获取语言（PH_KEY）
  */
 var $L = function () {
   var args = arguments.length === 1 ? arguments[0].split(',') : arguments
-  var lang = _$L(args[0])
+  return _$L(args, true)
+}
+/**
+ * 获取语言（PH_VALUE）
+ */
+var $LF = function () {
+  var args = arguments.length === 1 ? arguments[0].split(',') : arguments
+  return _$L(args, false)
+}
+var _$L = function (args, isPhKey) {
+  var lang = _getLang(args[0])
   if (args.length < 2) return lang
 
   for (var i = 1; i < args.length; i++) {
-    if (args[i]) {
-      var phLang = _$L(args[i])
-      lang = lang.replace('{' + (i - 1) + '}', phLang)
-    }
+    var phKey = isPhKey ? '{' + (i - 1) + '}' : '%s'
+    var phLang = isPhKey ? _getLang(args[i]) : args[i]
+    lang = lang.replace(phKey, phLang)
   }
   return lang
 }
-var _$L = function (key) {
+var _getLang = function (key) {
   var lang = (window._LANGBUNDLE || {})[key]
   if (!lang) {
     console.warn('Missing lang-key `' + key + '`')

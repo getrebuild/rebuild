@@ -58,6 +58,7 @@
             <tx:method name="unshare*" no-rollback-for="DataSpecificationNoRollbackException"/>
             <tx:method name="bulk*" no-rollback-for="DataSpecificationNoRollbackException"/>
             <tx:method name="tx*" no-rollback-for="DataSpecificationNoRollbackException"/>
+            <tx:method name="approve" no-rollback-for="DataSpecificationNoRollbackException"/>
             <tx:method name="*" propagation="SUPPORTS"/>
         </tx:attributes>
     </tx:advice>
@@ -66,8 +67,8 @@
 
     <aop:config>
         <aop:pointcut id="servicesPoint"
-                      expression="execution(* com.rebuild.core..*Service.*(..))
-                      &amp;&amp; !execution(* com.rebuild.core..*Service.get*(..))"/>
+                      expression="execution(* com.rebuild..*Service.*(..))
+                       and !execution(* com.rebuild..*Service.get*(..))"/>
         <aop:advisor pointcut-ref="servicesPoint" advice-ref="privilegesGuard"/>
         <aop:advisor pointcut-ref="servicesPoint" advice-ref="txAdvice"/>
     </aop:config>

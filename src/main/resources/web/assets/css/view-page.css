@@ -90,6 +90,10 @@ body {
   position: relative;
 }
 
+.rbview-form .type-NTEXT .form-control-plaintext.mdedit-content {
+  max-height: 134px;
+}
+
 .rbview-form .type-NTEXT .form-control-plaintext > p {
   margin: 0;
   line-height: 1.428571;
@@ -140,13 +144,12 @@ body {
 
 .related-list .card {
   border: 1px solid #ebebeb;
-  box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.04);
   padding: 0;
   margin-bottom: 9px;
 }
 
 .related-list .card:hover {
-  box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
 .related-list .card .header-title {
@@ -217,7 +220,7 @@ body {
 }
 
 .view-operating > div.view-user {
-  margin-bottom: 0 !important;
+  margin-bottom: 5px !important;
 }
 
 .view-date .col-lg-4,
@@ -250,6 +253,7 @@ body {
 .view-user .row ul > li {
   margin-bottom: 0;
   margin-right: 7px;
+  line-height: 1;
 }
 
 .view-user .row ul > li:last-child {
@@ -260,6 +264,10 @@ body {
   margin-bottom: 0;
   margin-top: 18px;
   min-height: 36.5px;
+}
+
+.view-user .user-show {
+  line-height: 1;
 }
 
 .sharing-list ul {
@@ -349,9 +357,8 @@ body {
 .rbview-form .form-group.row.editable a.edit::before {
   font-family: 'Material-Design-Iconic-Font';
   content: '\f158';
-  font-size: 14px;
+  font-size: 16px;
   display: inline-block;
-  margin-top: 1px;
 }
 
 .rbview-form .form-group.row.editable a.edit:hover {
@@ -475,4 +482,53 @@ body {
 
 .feeds-list.inview .feeds > .content .rich-content > .appends {
   font-size: 12px;
+}
+
+.view-history .view-history-items {
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.view-history .view-history-items::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 20px;
+  width: 2px;
+  background: #ddd;
+  left: 6px;
+}
+
+.view-history .view-history-items > li {
+  position: relative;
+  padding-left: 24px;
+  height: 28px;
+  color: #777;
+}
+
+.view-history .view-history-items > li::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 1px;
+  width: 12px;
+  height: 12px;
+  background-color: #ddd;
+  border-radius: 50px;
+  border: 2px solid #fff;
+}
+
+.view-history .view-history-items > li b:first-child {
+  font-weight: normal;
+  min-width: 60px;
+  display: inline-block;
+}
+
+.CodeMirror-fullscreen {
+  top: 110px;
+}
+
+.editor-toolbar.fullscreen {
+  top: 60px;
 }

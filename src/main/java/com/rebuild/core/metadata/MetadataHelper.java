@@ -12,13 +12,14 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MetadataException;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.query.compiler.QueryCompiler;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.GhostEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -31,9 +32,8 @@ import java.util.List;
  * @see EasyMetaFactory
  * @since 08/13/2018
  */
+@Slf4j
 public class MetadataHelper {
-
-    private static final Logger LOG = LoggerFactory.getLogger(MetadataHelper.class);
 
     /**
      * 元数据工厂
@@ -60,7 +60,7 @@ public class MetadataHelper {
     public static boolean containsEntity(String entityName) {
         try {
             return !(getEntity(entityName) instanceof GhostEntity);
-        } catch (MetadataException ex) {
+        } catch (MissingMetaExcetion ex) {
             return false;
         }
     }
@@ -73,7 +73,7 @@ public class MetadataHelper {
         try {
             getEntity(entityCode);
             return true;
-        } catch (MetadataException ex) {
+        } catch (MissingMetaExcetion ex) {
             return false;
         }
     }
@@ -86,7 +86,7 @@ public class MetadataHelper {
     public static boolean containsField(String entityName, String fieldName) {
         try {
             return getEntity(entityName).containsField(fieldName);
-        } catch (MetadataException ex) {
+        } catch (MissingMetaExcetion ex) {
             return false;
         }
     }
@@ -94,19 +94,27 @@ public class MetadataHelper {
     /**
      * @param entityName
      * @return
-     * @throws MetadataException If not exists
+     * @throws MissingMetaExcetion If not exists
      */
-    public static Entity getEntity(String entityName) throws MetadataException {
-        return getMetadataFactory().getEntity(entityName);
+    public static Entity getEntity(String entityName) throws MissingMetaExcetion {
+        try {
+            return getMetadataFactory().getEntity(entityName);
+        } catch (MissingMetaExcetion ex) {
+            throw new MissingMetaExcetion(Language.LF("EntityNotExists", "[" + entityName + "]"));
+        }
     }
 
     /**
      * @param entityCode
      * @return
-     * @throws MetadataException If not exists
+     * @throws MissingMetaExcetion If not exists
      */
-    public static Entity getEntity(int entityCode) throws MetadataException {
-        return getMetadataFactory().getEntity(entityCode);
+    public static Entity getEntity(int entityCode) throws MissingMetaExcetion {
+        try {
+            return getMetadataFactory().getEntity(entityCode);
+        } catch (MissingMetaExcetion ex) {
+            throw new MissingMetaExcetion(Language.LF("EntityNotExists", "[" + entityCode + "]"));
+        }
     }
 
     /**
@@ -121,36 +129,15 @@ public class MetadataHelper {
      * @param entityName
      * @param fieldName
      * @return
+     * @throws MissingMetaExcetion If field not exists
      */
-    public static Field getField(String entityName, String fieldName) {
-        return getEntity(entityName).getField(fieldName);
-    }
-
-    /**
-     * {@link Entity#getNameField()} 有可能返回空，应优先使用此方法
-     *
-     * @param entity
-     * @return
-     */
-    public static Field getNameField(Entity entity) {
-        Field hasName = entity.getNameField();
-        if (hasName != null) {
-            return hasName;
+    public static Field getField(String entityName, String fieldName) throws MissingMetaExcetion {
+        try {
+            return getEntity(entityName).getField(fieldName);
+        } catch (MissingMetaExcetion ex) {
+            throw new MissingMetaExcetion(Language.LF(
+                    "FieldNotExists", ("[" + entityName + "#" + fieldName + "]").toUpperCase()));
         }
-        if (entity.containsField(EntityHelper.CreatedOn)) {
-            return entity.getField(EntityHelper.CreatedOn);
-        }
-        return entity.getPrimaryField();
-    }
-
-    /**
-     * {@link Entity#getNameField()} 有可能返回空，应优先使用此方法
-     *
-     * @param entity
-     * @return
-     */
-    public static Field getNameField(String entity) {
-        return getNameField(getEntity(entity));
     }
 
     /**
@@ -311,7 +298,7 @@ public class MetadataHelper {
                 return field;
             }
         }
-        throw new MetadataException("Bad detail entity (No DTM)");
+        throw new MetadataException("Bad detail-entity (No DTM)");
     }
 
     /**
@@ -359,7 +346,8 @@ public class MetadataHelper {
         if (entity.containsField(fieldName)) {
             return true;
         }
-        LOG.warn("Unknown field '" + fieldName + "' in '" + entity + "'");
+
+        log.warn("Unknown field `" + fieldName + "` in `" + entity.getName() + "`");
         return false;
     }
 

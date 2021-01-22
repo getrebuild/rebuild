@@ -35,6 +35,7 @@ const ListConfig = {
     { field: 'channelWith', label: $L('RevisionChannel'), unsort: true },
     { field: 'recordId', label: $L('RecordId'), unsort: true },
   ],
+  sort: 'revisionOn:desc',
 }
 
 // 操作类型
@@ -99,6 +100,7 @@ class DataList extends React.Component {
   }
 }
 
+const CellRenders_renderSimple = CellRenders.renderSimple
 // eslint-disable-next-line react/display-name
 CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.channelWith')) {
@@ -120,20 +122,19 @@ CellRenders.renderSimple = function (v, s, k) {
     v = RevTypes[v] || 'N'
   }
 
-  return (
-    <td key={k}>
-      <div style={s}>{v || ''}</div>
-    </td>
-  )
+  return CellRenders_renderSimple(v, s, k)
 }
 
+// ~~ 变更详情
 class DlgDetails extends RbAlert {
   constructor(props) {
     super(props)
   }
 
   renderContent() {
-    if (!this.state.data || this.state.data.length === 0) return <div>{$L('NoHistoryDetails')}</div>
+    const _data = (this.state.data || []).filter((item) => !$same(item.after, item.before))
+    if (_data.length === 0) return <div className="m-3 text-center text-muted">{$L('NoHistoryDetails')}</div>
+
     return (
       <table className="table table-fixed">
         <thead>
@@ -144,9 +145,9 @@ class DlgDetails extends RbAlert {
           </tr>
         </thead>
         <tbody>
-          {this.state.data.map((item) => {
+          {_data.map((item) => {
             return (
-              <tr key={`fk-${item.field}`}>
+              <tr key={item.field}>
                 <td>{item.field}</td>
                 <td>
                   <div>{item.before || <span className="text-muted">{$L('Empty')}</span>}</div>
@@ -165,7 +166,7 @@ class DlgDetails extends RbAlert {
   componentDidMount() {
     $.get(`/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
       if (res.data.length === 0) {
-        RbHighbar.create($L('SelectNoHistoryDetails'))
+        RbHighbar.create($L('NoHistoryDetails'))
         this.hide()
       } else {
         super.componentDidMount()

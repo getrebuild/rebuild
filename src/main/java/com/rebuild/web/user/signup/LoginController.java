@@ -33,6 +33,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
 import eu.bitwalker.useragentutils.UserAgent;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,6 +52,7 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
+@Slf4j
 @RestController
 @RequestMapping("/user/")
 public class LoginController extends BaseController {
@@ -58,6 +60,8 @@ public class LoginController extends BaseController {
     public static final String CK_AUTOLOGIN = "rb.alt";
 
     private static final String SK_NEED_VCODE = "needLoginVCode";
+
+    public static final String SK_USER_THEME = "currentUseTheme";
 
     private static final String DEFAULT_HOME = "../dashboard/home";
 
@@ -102,7 +106,7 @@ public class LoginController extends BaseController {
 
             } catch (Exception ex) {
                 ServletUtils.readCookie(request, CK_AUTOLOGIN);
-                LOG.error("Cannot decode User from alt : " + useAlt, ex);
+                log.error("Cannot decode User from alt : " + useAlt, ex);
             }
 
             if (altUser != null && Application.getUserStore().existsUser(altUser)) {
@@ -123,7 +127,12 @@ public class LoginController extends BaseController {
         // 切换语言
         putLocales(mv, AppUtils.getReuqestLocale(request));
 
-        mv.getModelMap().put("UsersMsg", CheckDangers.getUserDanger());
+        // 验证码
+        if (RebuildConfiguration.getInt(ConfigurationItem.LoginCaptchaPolicy) == 2) {
+            ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
+        }
+
+        mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
         return mv;
     }
 
@@ -156,6 +165,7 @@ public class LoginController extends BaseController {
         // 清理
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
+
         return RespBody.ok();
     }
 
@@ -201,6 +211,8 @@ public class LoginController extends BaseController {
         createLoginLog(request, user);
 
         ServletUtils.setSessionAttribute(request, WebUtils.CURRENT_USER, user);
+        ServletUtils.setSessionAttribute(request, SK_USER_THEME,
+                KVStorage.getCustomValue("THEME." + user));
         Application.getSessionStore().storeLoginSuccessed(request);
     }
 
@@ -221,7 +233,7 @@ public class LoginController extends BaseController {
                 UA = String.format("%s-%s (%s)",
                         uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
             } catch (Exception ex) {
-                LOG.warn("Unknown user-agent : " + UA);
+                log.warn("Unknown user-agent : " + UA);
                 UA = "UNKNOW";
             }
         }

@@ -8,12 +8,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support;
 
 import com.rebuild.core.RebuildException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -27,9 +26,8 @@ import java.util.List;
  * @see com.rebuild.core.BootEnvironmentPostProcessor
  * @since 10/14/2018
  */
+@Slf4j
 public class RebuildConfiguration extends KVStorage {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RebuildConfiguration.class);
 
     /**
      * 获取数据目录下的文件（或目录）
@@ -47,7 +45,7 @@ public class RebuildConfiguration extends KVStorage {
         if (StringUtils.isNotBlank(d)) {
             data = new File(d);
             if (!data.exists() && !data.mkdirs()) {
-                LOG.error("Cannot mkdirs for data : " + data);
+                log.error("Cannot mkdirs for data : " + data);
             }
         }
 
@@ -55,7 +53,7 @@ public class RebuildConfiguration extends KVStorage {
             data = FileUtils.getUserDirectory();
             data = new File(data, ".rebuild");
             if (!data.exists() && !data.mkdirs()) {
-                LOG.error("Cannot mkdirs for data : " + data);
+                log.error("Cannot mkdirs for data : " + data);
             }
         }
 

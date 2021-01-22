@@ -23,6 +23,10 @@ public class EasyFieldConfigProps {
      * 格式
      */
     public static final String NUMBER_FORMAT = "numberFormat";
+    /**
+     * 表单公式
+     */
+    public static final String NUMBER_CALC_FORMULA = "calcFormula";
 
     /**
      * 是否允许负数
@@ -32,6 +36,10 @@ public class EasyFieldConfigProps {
      * 格式
      */
     public static final String DECIMAL_FORMAT = "decimalFormat";
+    /**
+     * 表单公式
+     */
+    public static final String DECIMAL_CALC_FORMULA = NUMBER_CALC_FORMULA;
 
     /**
      * 日期格式
@@ -82,4 +90,9 @@ public class EasyFieldConfigProps {
      * @see #REFERENCE_DATAFILTER
      */
     public static final String N2NREFERENCE_DATAFILTER = REFERENCE_DATAFILTER;
+
+    /**
+     * 多行文本使用 MD 编辑器
+     */
+    public static final String NTEXT_USE_MDEDIT = "useMdedit";
 }

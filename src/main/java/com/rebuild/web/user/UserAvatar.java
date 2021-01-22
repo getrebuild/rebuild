@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.user;
 
+import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -19,6 +20,7 @@ import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
+import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +39,7 @@ import java.io.IOException;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/05/08
  */
+@Slf4j
 @Controller
 @RequestMapping("/account")
 public class UserAvatar extends BaseController {
@@ -76,6 +79,8 @@ public class UserAvatar extends BaseController {
             return;
         }
 
+        ServletUtils.addCacheHead(response, 10);
+
         String avatarUrl = realUser.getAvatarUrl();
         avatarUrl = QiniuCloud.encodeUrl(avatarUrl);
         if (avatarUrl != null) {
@@ -100,7 +105,7 @@ public class UserAvatar extends BaseController {
                 avatarFile = UserHelper.generateAvatar(fullName, false);
 
             } catch (IOException ex) {
-                LOG.warn("Cannot generate avatar", ex);
+                log.warn("Cannot generate avatar", ex);
 
                 response.sendRedirect(AppUtils.getContextPath() + "/assets/img/avatar.png");
                 return;
@@ -113,17 +118,18 @@ public class UserAvatar extends BaseController {
     @RequestMapping("/user-avatar-update")
     @ResponseBody
     public String avatarUpdate(HttpServletRequest request) throws IOException {
+        final ID user = getRequestUser(request);
         String avatarRaw = getParameterNotNull(request, "avatar");
         String xywh = getParameterNotNull(request, "xywh");
 
         File avatarFile = RebuildConfiguration.getFileOfTemp(avatarRaw);
         String uploadName = avatarCrop(avatarFile, xywh);
 
-        ID user = getRequestUser(request);
         Record record = EntityHelper.forUpdate(user, user);
         record.setString("avatarUrl", uploadName);
         Application.getBean(UserService.class).update(record);
 
+        ServletUtils.setSessionAttribute(request, "davatarTime", System.currentTimeMillis());
         return uploadName;
     }
 
@@ -145,7 +151,7 @@ public class UserAvatar extends BaseController {
         Thumbnails.Builder<File> builder = Thumbnails.of(avatar)
                 .sourceRegion(x, y, width, height);
 
-        String destName = System.currentTimeMillis() + avatar.getName();
+        String destName = "avatar-" + (System.currentTimeMillis() / 1000) + avatar.getName();
         File dest;
         if (QiniuCloud.instance().available()) {
             dest = RebuildConfiguration.getFileOfTemp(destName);

@@ -18,6 +18,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
@@ -57,6 +58,8 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             throw new DefinedException(600, "Please wait while REBUILD starting up ...");
         }
 
+        UserContextHolder.setReqip(ServletUtils.getRemoteAddr(request));
+
         // Locale
         final String locale = detectLocale(request, response);
         UserContextHolder.setLocale(locale);
@@ -70,6 +73,9 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             // Lang
             request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
             request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
+
+            request.setAttribute(WebConstants.USE_THEME,
+                    !requestEntry.getRequestUri().contains("/admin/") && License.isCommercial());
         }
 
         final String requestUri = requestEntry.getRequestUri();
@@ -245,14 +251,15 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
         return requestUri.length() < 3
                 || requestUri.endsWith("/error") || requestUri.contains("/error/")
-                || requestUri.startsWith("/t/") || requestUri.startsWith("/s/")
+                || requestUri.startsWith("/f/") || requestUri.startsWith("/s/")
                 || requestUri.startsWith("/setup/")
                 || requestUri.startsWith("/gw/")
                 || requestUri.startsWith("/language/")
                 || requestUri.startsWith("/filex/access/")
                 || requestUri.startsWith("/commons/announcements")
                 || requestUri.startsWith("/commons/url-safe")
-                || requestUri.startsWith("/commons/barcode/render");
+                || requestUri.startsWith("/commons/barcode/render")
+                || requestUri.startsWith("/commons/theme/");
     }
 
     /**

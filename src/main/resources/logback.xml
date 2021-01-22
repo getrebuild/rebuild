@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <define name="LOGS_HOME" class="com.rebuild.core.support.LogbackHomePropertyDefiner" />
+    <define name="LOGS_HOME" class="com.rebuild.utils.log.LogbackHomePropertyDefiner" />
+    <conversionRule conversionWord="reqid" converterClass="com.rebuild.utils.log.LogbackReqidConverter" />
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{HH:mm:ss.SSS} %-5level [%-20thread] %logger{36}:%line - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %highlight(%-5level) [%-20thread] [%reqid] %cyan(%logger{36}:%line) - %msg%n</pattern>
         </encoder>
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-20thread] %logger{36}:%line - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%-20thread] [%reqid] %logger{36}:%line - %msg%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
             <fileNamePattern>${LOGS_HOME}/rebuild.%d{yyyy-MM-dd}-%i.log</fileNamePattern>
@@ -28,6 +29,8 @@
     <logger name="cn.devezhao.persist4j" level="WARN" />
     <logger name="org.apache.commons.digester" level="ERROR" />
     <logger name="com.rebuild.core" level="INFO" />
+    <logger name="com.rebuild.rbv" level="INFO" />
+<!--    <logger name="cn.devezhao.persist4j.query.AjqlResultImpl" level="DEBUG" />-->
 <!--    <logger name="org.springframework.transaction.support" level="DEBUG" />-->
 <!--    <logger name="org.springframework.jdbc.datasource" level="DEBUG" />-->
 

@@ -8,8 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.api;
 
 import com.alibaba.fastjson.JSON;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 请求控制器
@@ -34,11 +32,6 @@ public abstract class Controller {
      * 服务错误
      */
     public static final int CODE_SERV_ERROR = 500;
-
-    /**
-     * Logging
-     */
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     /**
      * @param data

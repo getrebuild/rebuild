@@ -25,9 +25,18 @@ public class CheckDangers {
 
     private static final String CKEY_DANGERS = "_DANGERS";
 
+    // 检查项
+    private static final String HasUpdate = "HasUpdate";
+    private static final String AdminMsg = "AdminMsg";
+    private static final String UsersMsg = "UsersMsg";
+    private static final String CommercialNoRbv = "CommercialNoRbv";
+
     /**
      */
     public void checks() {
+        // Status
+        ServerStatus.getLastStatus(true);
+
         LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
         if (dangers == null) {
             dangers = new LinkedHashMap<>();
@@ -35,27 +44,24 @@ public class CheckDangers {
 
         JSONObject checkBuild = License.siteApi("api/authority/check-build", true);
         if (checkBuild != null && checkBuild.getIntValue("build") > Application.BUILD) {
-            String hasUpdate = Language.LF(
-                    "NewVersion", checkBuild.getString("version"), checkBuild.getString("releaseUrl"));
-            hasUpdate = hasUpdate.replace("<a ", "<a target='_blank' class='link' ");
-            dangers.put("HasUpdate", hasUpdate);
+            dangers.put(HasUpdate, checkBuild.getString("version") + "$$$$" + checkBuild.getString("releaseUrl"));
         } else {
-            dangers.remove("HasUpdate");
+            dangers.remove(HasUpdate);
         }
 
         JSONObject echoValidity = License.siteApi("api/authority/echo?once=" + ServerStatus.STARTUP_ONCE, false);
         if (echoValidity != null && !echoValidity.isEmpty()) {
             String adminMsg = echoValidity.getString("adminMsg");
-            if (adminMsg == null) dangers.remove("AdminMsg");
-            else dangers.put("AdminMsg", adminMsg);
+            if (adminMsg == null) dangers.remove(AdminMsg);
+            else dangers.put(AdminMsg, adminMsg);
 
             String usersMsg = echoValidity.getString("usersMsg");
-            if (usersMsg == null) dangers.remove("UsersMsg");
-            else dangers.put("UsersMsg", usersMsg);
+            if (usersMsg == null) dangers.remove(UsersMsg);
+            else dangers.put(UsersMsg, usersMsg);
 
         } else {
-            dangers.remove("AdminMsg");
-            dangers.remove("UsersMsg");
+            dangers.remove(AdminMsg);
+            dangers.remove(UsersMsg);
         }
 
         // 放入缓存
@@ -67,25 +73,40 @@ public class CheckDangers {
     /**
      * @return
      */
-    public static Collection<String> getAdminDangers() {
+    public static Collection<String> getAdminDanger() {
         LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
+
+        if (License.isCommercial() && !License.isRbvAttached()) {
+            if (dangers == null) dangers = new LinkedHashMap<>();
+            dangers.put(CommercialNoRbv, Language.L("CommercialNoRbvTip"));
+        }
+
         if (dangers == null || dangers.isEmpty()) {
             return null;
         }
 
         dangers = (LinkedHashMap<String, String>) dangers.clone();
-        dangers.remove("UsersMsg");
+        dangers.remove(UsersMsg);
+
+        String hasUpdate = dangers.get(HasUpdate);
+        if (hasUpdate != null && hasUpdate.contains("$$$$")) {
+            String[] ss = hasUpdate.split("\\$\\$\\$\\$");
+            hasUpdate = Language.LF("NewVersion", ss[0], ss[1]);
+            hasUpdate = hasUpdate.replace("<a ", "<a target=\"_blank\" ");
+            dangers.put(HasUpdate, hasUpdate);
+        }
+
         return dangers.values();
     }
 
     /**
      * @return
      */
-    public static String getUserDanger() {
+    public static String getUsersDanger() {
         LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
         if (dangers == null || dangers.isEmpty()) {
             return null;
         }
-        return dangers.get("UsersMsg");
+        return dangers.get(UsersMsg);
     }
 }

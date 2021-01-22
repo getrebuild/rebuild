@@ -15,10 +15,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.core.Application;
-import com.rebuild.core.Initialization;
-import com.rebuild.core.RebuildException;
-import com.rebuild.core.UserContextHolder;
+import com.rebuild.core.*;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.RebuildApiManager;
 import com.rebuild.core.metadata.EntityHelper;
@@ -27,6 +24,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.RateLimiters;
 import es.moki.ratelimitj.core.limiter.request.RequestRateLimiter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.cglib.core.ReflectUtils;
 import org.springframework.util.AntPathMatcher;
@@ -44,10 +42,14 @@ import java.util.*;
  * @author zhaofang123@gmail.com
  * @since 05/19/2018
  */
+@Slf4j
 @org.springframework.stereotype.Controller
 public class ApiGateway extends Controller implements Initialization {
 
-    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(1, 200);
+    // 基于 ip 限流
+    private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
+            new int[] { 10, 60 },
+            new int[] { 200, 600 });
 
     private static final Map<String, Class<? extends BaseApi>> API_CLASSES = new HashMap<>();
 
@@ -65,7 +67,7 @@ public class ApiGateway extends Controller implements Initialization {
             API_CLASSES.put(apiName, (Class<? extends BaseApi>) c);
         }
 
-        LOG.info("Added {} APIs", API_CLASSES.size());
+        log.info("Added {} APIs", API_CLASSES.size());
     }
 
     @CrossOrigin
@@ -79,12 +81,12 @@ public class ApiGateway extends Controller implements Initialization {
         final String remoteIp = ServletUtils.getRemoteAddr(request);
         final String requestId = UUID.randomUUID().toString();
 
-        response.setHeader("X-Powered", "RB/API-" + Application.VER);
+        response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
         response.setHeader("X-Request-Id", requestId);
 
         if (RRL.overLimitWhenIncremented("ip:" + remoteIp)) {
             JSON error = formatFailure("Request frequency exceeded", ApiInvokeException.ERR_FREQUENCY);
-            LOG.error("{} : {}", requestId, error.toJSONString());
+            log.error("{} : {}", requestId, error.toJSONString());
             ServletUtils.writeJson(response, error.toJSONString());
             return;
         }
@@ -97,7 +99,9 @@ public class ApiGateway extends Controller implements Initialization {
             final BaseApi api = createApi(apiName);
             context = verfiy(request, api);
 
+            UserContextHolder.setReqip(remoteIp);
             UserContextHolder.setUser(context.getBindUser());
+
             JSON result = api.execute(context);
             logRequestAsync(reuqestTime, remoteIp, requestId, apiName, context, result);
 
@@ -123,7 +127,7 @@ public class ApiGateway extends Controller implements Initialization {
         } catch (Exception ignored) {
         }
 
-        LOG.error("{} : {}", requestId, error.toJSONString());
+        log.error("{} : {}", requestId, error.toJSONString());
         ServletUtils.writeJson(response, error.toJSONString());
     }
 

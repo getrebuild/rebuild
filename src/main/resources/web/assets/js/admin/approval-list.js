@@ -27,7 +27,7 @@ class ApprovalList extends ConfigList {
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
-              <td>{item[5]}</td>
+              <td><DateShow date={item[5]}/></td>
               <td className="actions">
                 <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
@@ -116,10 +116,8 @@ class ApprovalEdit extends ConfigFormDlg {
 
   confirm = () => {
     const post = { name: this.state['name'] }
-    if (!post.name) {
-      RbHighbar.create($L('PlsInputSome,Name'))
-      return
-    }
+    if (!post.name) return RbHighbar.create($L('PlsInputSome,Name'))
+
     if (!this.props.id) {
       post.belongEntity = this.__select2.val()
       if (!post.belongEntity) {

@@ -149,8 +149,12 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         }
 
         String action = invocation.getMethod().getName();
-        return action.startsWith("create") || action.startsWith("update") || action.startsWith("delete")
-                || action.startsWith("assign") || action.startsWith("share") || action.startsWith("unshare")
+        return action.startsWith("create")
+                || action.startsWith("delete")
+                || action.startsWith("update")
+                || action.startsWith("assign")
+                || action.startsWith("share")
+                || action.startsWith("unshare")
                 || action.startsWith("bulk");
     }
 
@@ -165,11 +169,11 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             return isNew ? BizzPermission.CREATE : BizzPermission.UPDATE;
         } else if (action.startsWith("create")) {
             return BizzPermission.CREATE;
-        } else if (action.startsWith("update")) {
-            return BizzPermission.UPDATE;
         } else if (action.startsWith("delete")) {
             return BizzPermission.DELETE;
-        } else if (action.startsWith("assign")) {
+        } else if (action.startsWith("update")) {
+            return BizzPermission.UPDATE;
+        }  else if (action.startsWith("assign")) {
             return BizzPermission.ASSIGN;
         } else if (action.startsWith("share")) {
             return BizzPermission.SHARE;
@@ -189,10 +193,10 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         String actionKey = null;
         if (action == BizzPermission.CREATE) {
             actionKey = "Create";
-        } else if (action == BizzPermission.UPDATE) {
-            actionKey = "Update";
         } else if (action == BizzPermission.DELETE) {
             actionKey = "Delete";
+        } else if (action == BizzPermission.UPDATE) {
+            actionKey = "Update";
         } else if (action == BizzPermission.ASSIGN) {
             actionKey = "Assign";
         } else if (action == BizzPermission.SHARE) {

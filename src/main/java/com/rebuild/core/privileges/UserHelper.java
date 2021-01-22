@@ -251,6 +251,8 @@ public class UserHelper {
                 bizzs.add(ID.valueOf(def));
             } else if (entity != null && MetadataHelper.getLastJoinField(entity, def) != null) {
                 fromFields.add(def);
+            } else {
+                log.warn("Invalid id or field : " + def);
             }
         }
 

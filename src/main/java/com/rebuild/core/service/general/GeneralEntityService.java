@@ -20,7 +20,7 @@ import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.PrivilegesGuardInterceptor;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
@@ -30,6 +30,7 @@ import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
+import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
@@ -42,10 +43,12 @@ import org.springframework.util.Assert;
 import java.util.*;
 
 /**
- * 业务实体服务，所有业务实体都应该使用此类
+ * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
  * <br>- 有业务验证
- * <br>- 会带有系统设置规则的执行，详见 {@link PrivilegesGuardInterceptor}
- * <br>- 会开启一个事务，详见 <tt>application-ctx.xml</tt> 配置
+ * <br>- 会带有系统设置规则的执行
+ * <br>- 会开启一个事务，详见 <tt>application-bean.xml</tt> 配置
+ *
+ * 如有需要，其他实体可根据自身业务集成并实现/改写实现
  *
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
@@ -500,21 +503,15 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         return (ID) o[0];
     }
 
-    /**
-     * 检查/获取重复字段值
-     *
-     * @param record
-     * @param maxReturns
-     * @return
-     */
-    public List<Record> getCheckRepeated(Record record, int maxReturns) {
-        final Entity entity = record.getEntity();
+    @Override
+    public List<Record> getAndCheckRepeated(Record checkRecord, int limit) {
+        final Entity entity = checkRecord.getEntity();
 
         List<String> checkFields = new ArrayList<>();
-        for (Iterator<String> iter = record.getAvailableFieldIterator(); iter.hasNext(); ) {
+        for (Iterator<String> iter = checkRecord.getAvailableFieldIterator(); iter.hasNext(); ) {
             Field field = entity.getField(iter.next());
             if (field.isRepeatable()
-                    || !record.hasValue(field.getName(), false)
+                    || !checkRecord.hasValue(field.getName(), false)
                     || MetadataHelper.isCommonsField(field)
                     || EasyMetaFactory.getDisplayType(field) == DisplayType.SERIES) {
                 continue;
@@ -537,18 +534,45 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         checkSql.delete(checkSql.length() - 4, checkSql.length()).append(" )");
 
         // 排除自己
-        if (record.getPrimary() != null) {
+        if (checkRecord.getPrimary() != null) {
             checkSql.append(" and ").append(entity.getPrimaryField().getName())
                     .append(" <> ")
-                    .append(String.format("'%s'", record.getPrimary().toLiteral()));
+                    .append(String.format("'%s'", checkRecord.getPrimary().toLiteral()));
         }
 
         Query query = ((BaseService) delegateService).getPersistManagerFactory().createQuery(checkSql.toString());
 
         int index = 1;
         for (String field : checkFields) {
-            query.setParameter(index++, record.getObjectValue(field));
+            query.setParameter(index++, checkRecord.getObjectValue(field));
         }
-        return query.setLimit(maxReturns).list();
+        return query.setLimit(limit).list();
+    }
+
+    @Override
+    public void approve(ID record, ApprovalState state) {
+        Assert.isTrue(
+                state == ApprovalState.REVOKED || state == ApprovalState.APPROVED,
+                "Only REVOKED or APPROVED allowed");
+
+        Record approvalRecord = EntityHelper.forUpdate(record, UserService.SYSTEM_USER, false);
+        approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
+        super.update(approvalRecord);
+
+        // 触发器
+
+        ID opUser = UserContextHolder.getUser();
+        Record before = approvalRecord.clone();
+        RobotTriggerManual triggerManual = new RobotTriggerManual();
+
+        if (state == ApprovalState.REVOKED) {
+            before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
+            triggerManual.onRevoked(
+                    OperatingContext.create(opUser, BizzPermission.UPDATE, before, approvalRecord));
+        } else {
+            before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
+            triggerManual.onApproved(
+                    OperatingContext.create(opUser, BizzPermission.UPDATE, before, approvalRecord));
+        }
     }
 }

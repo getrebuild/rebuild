@@ -1,7 +1,30 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
--- #32 (v.21) TaskTag
+-- #34 (v2.2)
+alter table `revision_history`
+  add column `IP_ADDR` varchar(100) comment 'IP地址';
+
+-- #33 (v2.2)
+-- ************ Entity [ExtformConfig] DDL ************
+create table if not exists `extform_config` (
+  `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `NAME`               varchar(100) not null comment '名称',
+  `PORTAL_CONFIG`      text(21845) comment '表单配置 (JSON Map)',
+  `START_TIME`         timestamp null default null comment '开始时间',
+  `END_TIME`           timestamp null default null comment '结束时间',
+  `BIND_USER`          char(20) comment '数据绑定用户',
+  `HOOK_URL`           varchar(300) comment '回调地址',
+  `HOOK_SECRET`        varchar(300) comment '回调安全码',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  primary key  (`CONFIG_ID`)
+)Engine=InnoDB;
+
+-- #32 (v2.1) TaskTag
 alter table `project_task_tag`
   add column `CREATED_BY` char(20) not null comment '创建人',
   add column `CREATED_ON` timestamp not null default current_timestamp comment '创建时间';

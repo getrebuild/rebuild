@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 const wpc = window.__PageConfig
 $(document).ready(() => {
-  console.log(JSON.stringify(wpc.content))
   renderRbcomp(<PreviewTable data={wpc.content} />, 'preview-table')
 })
 
@@ -111,13 +110,19 @@ class PreviewTable extends React.Component {
         </div>
       )
     } else if (item.type === 'NTEXT') {
-      return (
-        <React.Fragment>
-          {item.value.split('\n').map((line, idx) => {
-            return <p key={'kl-' + idx}>{line}</p>
-          })}
-        </React.Fragment>
-      )
+      if (item.useMdedit) {
+        // eslint-disable-next-line no-undef
+        const md2html = SimpleMDE.prototype.markdown(item.value)
+        return <div className="mdedit-content" dangerouslySetInnerHTML={{ __html: md2html }} />
+      } else {
+        return (
+          <React.Fragment>
+            {item.value.split('\n').map((line, idx) => {
+              return <p key={'kl-' + idx}>{line}</p>
+            })}
+          </React.Fragment>
+        )
+      }
     } else if (item.type === 'BOOL') {
       return $L(item.value === 'T' ? 'True' : 'False')
     } else if (item.type === 'MULTISELECT') {

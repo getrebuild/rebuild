@@ -7,15 +7,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /**
@@ -24,9 +23,8 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 01/31/2019
  */
+@Slf4j
 public class CommonsUtils {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CommonsUtils.class);
 
     private static final Pattern PATT_PLAINTEXT = Pattern.compile("[A-Za-z0-9_\\-\\u4e00-\\u9fa5]+");
 
@@ -40,31 +38,6 @@ public class CommonsUtils {
      */
     public static boolean isPlainText(String text) {
         return !text.contains(" ") && PATT_PLAINTEXT.matcher(text).matches();
-    }
-
-    /**
-     * 给敏感文本加星号/打码
-     *
-     * @param text
-     * @return
-     */
-    public static String stars(String text) {
-        if (StringUtils.isBlank(text)) {
-            return text;
-        }
-
-        int textLen = text.length();
-        if (textLen <= 3) {
-            return text.substring(0, 1) + "**";
-        } else if (textLen <= 20) {
-            return text.substring(0, 1) + "**" + text.substring(textLen - 1);
-        } else if (textLen <= 30) {
-            return text.substring(0, 2) + "****" + text.substring(textLen - 2);
-        } else if (textLen <= 40) {
-            return text.substring(0, 4) + "**********" + text.substring(textLen - 4);
-        } else {
-            return text.substring(0, 4) + "********************" + text.substring(textLen - 4);
-        }
     }
 
     /**
@@ -116,8 +89,17 @@ public class CommonsUtils {
         try (InputStream is = getStreamOfRes(file)) {
             return IOUtils.toString(is, "utf-8");
         } catch (IOException ex) {
-            LOG.error("Cannot load file of res : " + file);
+            log.error("Cannot load file of res : " + file);
             return null;
         }
+    }
+
+    /**
+     * 随机 Hex(32)
+     *
+     * @return
+     */
+    public static String randomHex() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 }

@@ -17,7 +17,7 @@
                   <div class="col-12 col-md-6">
                     <div class="dataTables_filter">
                       <div class="input-group input-search">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('Query')}" maxlength="40" data-quickFields="user.loginName,&user,user.email,ipAddr" />
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('Query')}" maxlength="40" data-quickFields="user.loginName,user.email,&user,ipAddr" />
                         <span class="input-group-btn">
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
@@ -26,13 +26,7 @@
                   </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-space btn-secondary J_view-online" type="button"><i class="icon zmdi zmdi-accounts"></i> [[${bundle.L('ViewOnlineUsers')}]]</button>
-                      <div class="btn-group btn-space">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                          <a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('FieldShow')}]]</a>
-                        </div>
-                      </div>
+                      <button class="btn btn-space btn-secondary J_view-online" type="button"><i class="icon zmdi zmdi-accounts-outline"></i> [[${bundle.L('ViewOnlineUsers')}]]</button>
                     </div>
                   </div>
                 </div>
@@ -46,44 +40,7 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script>
-      window.__PageConfig = {
-        type: 'RecordList',
-        entity: ['LoginLog', $L('LoginLog'), 'assignment-account'],
-        listConfig: _$unthy('[[${DataListConfig}]]'),
-        advFilter: false,
-      }
-    </script>
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/admin/online-users.js}" type="text/babel"></script>
-    <script type="text/babel">
-      RbList.renderAfter = function () {
-        let ipAddrIndex = -1
-        $('.rb-datatable-body th.sortable').each(function (idx) {
-          if ($(this).data('field') === 'ipAddr') {
-            ipAddrIndex = idx
-            return false
-          }
-        })
-        if (ipAddrIndex === -1) return
-
-        ipAddrIndex += 1
-        $('.rb-datatable-body tbody>tr').each(function () {
-          let ipAddr = $(this).find('td:eq(' + ipAddrIndex + ') div')
-          let ip = (ipAddr.text() || '').split('(')[0].trim()
-          $.get('/commons/ip-location?ip=' + ip, (res) => {
-            if (res.error_code === 0 && res.data.country !== 'N') {
-              const L = res.data.country === 'R' ? $L('LAN') : [res.data.region, res.data.country].join(', ')
-              ipAddr.text(ip + ' (' + L + ')')
-            }
-          })
-        })
-      }
-      $(document).ready(() => {
-        $('.J_view-online').click(() => renderRbcomp(<OnlineUserViewer />))
-      })
-    </script>
+    <script th:src="@{/assets/js/admin/login-logs.js}" type="text/babel"></script>
   </body>
 </html>

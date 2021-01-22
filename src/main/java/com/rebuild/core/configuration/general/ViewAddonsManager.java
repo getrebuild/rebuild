@@ -20,8 +20,13 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.JSONUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 视图-相关项/新建相关
@@ -43,12 +48,14 @@ public class ViewAddonsManager extends BaseLayoutManager {
     public static final String EF_SPLIT = ".";
 
     /**
+     * 显示项
+     *
      * @param entity
      * @param user
      * @return
      */
-    public JSON getViewTab(String entity, ID user) {
-        JSON tabs = getViewAddons(entity, user, TYPE_TAB);
+    public JSONObject getViewTab(String entity, ID user) {
+        JSONObject vtabs = getViewAddons(entity, user, TYPE_TAB);
 
         // 添加明细实体到第一个
         Entity entityMeta = MetadataHelper.getEntity(entity);
@@ -56,18 +63,20 @@ public class ViewAddonsManager extends BaseLayoutManager {
             JSON detail = EasyMetaFactory.toJSON(entityMeta.getDetailEntity());
             JSONArray tabsFluent = new JSONArray();
             tabsFluent.add(detail);
-            tabsFluent.fluentAddAll((Collection<?>) tabs);
-            tabs = tabsFluent;
+            tabsFluent.fluentAddAll(vtabs.getJSONArray("items"));
+            vtabs.put("items", tabsFluent);
         }
-        return tabs;
+        return vtabs;
     }
 
     /**
+     * 新建项
+     *
      * @param entity
      * @param user
      * @return
      */
-    public JSON getViewAdd(String entity, ID user) {
+    public JSONObject getViewAdd(String entity, ID user) {
         return getViewAddons(entity, user, TYPE_ADD);
     }
 
@@ -77,35 +86,35 @@ public class ViewAddonsManager extends BaseLayoutManager {
      * @param applyType
      * @return
      */
-    private JSON getViewAddons(String entity, ID user, String applyType) {
+    private JSONObject getViewAddons(String entity, ID user, String applyType) {
         final ConfigBean config = getLayout(user, entity, applyType);
         final Permission useAction = TYPE_TAB.equals(applyType) ? BizzPermission.READ : BizzPermission.CREATE;
 
         final Entity entityMeta = MetadataHelper.getEntity(entity);
         final Set<Entity> mfRefs = hasMultiFieldsReferenceTo(entityMeta);
 
-        // 未配置则使用全部相关项
+        // 未配置则使用全部
         if (config == null) {
-            JSONArray refs = new JSONArray();
+            JSONArray useRefs = new JSONArray();
             for (Field field : entityMeta.getReferenceToFields(true)) {
                 Entity e = field.getOwnEntity();
                 if (e.getMainEntity() == null &&
                         Application.getPrivilegesManager().allow(user, e.getEntityCode(), useAction)) {
-                    refs.add(getEntityShow(field, mfRefs, applyType));
+                    useRefs.add(getEntityShow(field, mfRefs, applyType));
                 }
             }
 
-            // 动态（跟进）
-//			if (TYPE_TAB.equalsIgnoreCase(applyType)) {
-//				Field relatedRecordOfFeeds = MetadataHelper.getField("Feeds", "relatedRecord");
-//				refs.add(getEntityShow(relatedRecordOfFeeds, Collections.emptySet(), applyType));
-//			}
+            return JSONUtils.toJSONObject("items", useRefs);
+        }
 
-            return refs;
+        // fix: v2.2 兼容
+        JSON configJson = config.getJSON("config");
+        if (configJson instanceof JSONArray) {
+            configJson = JSONUtils.toJSONObject("items", configJson);
         }
 
         JSONArray addons = new JSONArray();
-        for (Object o : (JSONArray) config.getJSON("config")) {
+        for (Object o : ((JSONObject) configJson).getJSONArray ("items")) {
             // Entity.Field (v1.9)
             String[] e = ((String) o).split("\\.");
             if (!MetadataHelper.containsEntity(e[0])) {
@@ -125,7 +134,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
                 }
             }
         }
-        return addons;
+
+        return JSONUtils.toJSONObject(
+                new String[] { "items", "autoExpand" },
+                new Object[] { addons, ((JSONObject) configJson).getBooleanValue("autoExpand") });
     }
 
     /**
@@ -157,10 +169,6 @@ public class ViewAddonsManager extends BaseLayoutManager {
     }
 
     /**
-     * @param field
-     * @param mfRefs
-     * @param applyType
-     * @return
      * @see EasyMetaFactory#toJSON(Entity)
      */
     private JSONObject getEntityShow(Field field, Set<Entity> mfRefs, String applyType) {
@@ -174,7 +182,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
                     : String.format("%s (%s)", show.getString("entityLabel"), EasyMetaFactory.getLabel(field));
             show.put("entityLabel", entityLabel);
         } else if (fieldEntity.getEntityCode() == EntityHelper.Feeds) {
-            show.put("entityLabel", "跟进");
+            show.put("entityLabel", Language.L("e.Feeds"));
         }
         return show;
     }

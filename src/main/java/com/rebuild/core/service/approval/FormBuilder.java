@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
+import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -37,8 +38,18 @@ public class FormBuilder {
      * @return
      */
     public JSONArray build(JSONArray elements) {
-        Record data = FormsBuilder.instance.findRecord(record, user, elements);
-        FormsBuilder.instance.buildModelElements(elements, data.getEntity(), data, user);
+        Record data = UseFormsBuilder.instance.findRecord(record, user, elements);
+        UseFormsBuilder.instance.buildModelElements(elements, data.getEntity(), data, user);
         return elements;
+    }
+
+    /**
+     */
+    static class UseFormsBuilder extends FormsBuilder {
+        public static final UseFormsBuilder instance = new UseFormsBuilder();
+
+        protected void buildModelElements(JSONArray elements, Entity entity, Record data, ID user) {
+            super.buildModelElements(elements, entity, data, user, false);
+        }
     }
 }

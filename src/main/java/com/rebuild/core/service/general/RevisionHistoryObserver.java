@@ -121,6 +121,10 @@ public class RevisionHistoryObserver extends OperatingObserver {
             record.setID("channelWith", source.getAnyRecord().getPrimary());
         }
 
+        if (context.getOperationIp() != null) {
+            record.setString("ipAddr", context.getOperationIp());
+        }
+
         return record;
     }
 

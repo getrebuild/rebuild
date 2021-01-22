@@ -484,7 +484,7 @@ class ValueAttachments extends ValueComp {
     return (
       <React.Fragment>
         <div className="form-control-plaintext">
-          <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} data-maxsize="102400000" />
+          <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} />
           <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1 }}>
             <a className="tag-value upload hover">+ {$L('Upload')}</a>
           </label>
@@ -1035,7 +1035,7 @@ class TextEditor extends React.Component {
           </div>
         )}
         <span className="hide">
-          <input type="file" ref={(c) => (this._fileInput = c)} data-maxsize="102400000" />
+          <input type="file" ref={(c) => (this._fileInput = c)} />
         </span>
       </React.Fragment>
     )

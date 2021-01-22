@@ -29,8 +29,8 @@ import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -50,7 +50,7 @@ public class BatchUpdateController extends BaseController {
     @PostMapping("submit")
     public RespBody submit(@PathVariable String entity, HttpServletRequest request) {
         final ID user = getRequestUser(request);
-        Assert.isTrue(
+        RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate),
                 getLang(request, "NoOpPrivileges"));
 

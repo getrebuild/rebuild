@@ -21,15 +21,15 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.text.MessageFormat;
 import java.util.*;
 
@@ -39,19 +39,17 @@ import java.util.*;
  * @author devezhao
  * @since 10/22/2018
  */
-@Controller
+@RestController
 @RequestMapping("/app/entity/")
 public class RelatedListController extends BaseController {
 
     @GetMapping("related-list")
-    public void relatedList(HttpServletRequest request, HttpServletResponse response) {
-        ID mainid = getIdParameterNotNull(request, "mainid");
+    public JSON relatedList(@IdParam(name = "mainid") ID mainid, HttpServletRequest request) {
         String related = getParameterNotNull(request, "related");
-
         String sql = buildMainSql(mainid, related, false);
 
-        String[] e = related.split("\\.");
-        Field nameField = MetadataHelper.getNameField(e[0]);
+        String[] ef = related.split("\\.");
+        Field nameField = MetadataHelper.getEntity(ef[0]).getNameField();
 
         int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
         int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
@@ -67,15 +65,13 @@ public class RelatedListController extends BaseController {
             o[2] = I18nUtils.formatDate((Date) o[2]);
         }
 
-        JSON ret = JSONUtils.toJSONObject(
-                new String[]{"total", "data"},
-                new Object[]{0, array});
-        writeSuccess(response, ret);
+        return JSONUtils.toJSONObject(
+                new String[] { "total", "data" },
+                new Object[] { 0, array });
     }
 
     @GetMapping("related-counts")
-    public void relatedCounts(HttpServletRequest request, HttpServletResponse response) {
-        ID mainid = getIdParameterNotNull(request, "mainid");
+    public Map<String, Integer> relatedCounts(@IdParam(name = "mainid") ID mainid, HttpServletRequest request) {
         String[] relateds = getParameterNotNull(request, "relateds").split(",");
 
         Map<String, Integer> countMap = new HashMap<>();
@@ -86,7 +82,7 @@ public class RelatedListController extends BaseController {
                 countMap.put(related, ObjectUtils.toInt(count[0]));
             }
         }
-        writeSuccess(response, countMap);
+        return  countMap;
     }
 
     /**
@@ -97,13 +93,13 @@ public class RelatedListController extends BaseController {
      */
     private String buildMainSql(ID recordOfMain, String relatedExpr, boolean count) {
         // Entity.Field
-        String[] e = relatedExpr.split("\\.");
-        Entity relatedEntity = MetadataHelper.getEntity(e[0]);
+        String[] ef = relatedExpr.split("\\.");
+        Entity relatedEntity = MetadataHelper.getEntity(ef[0]);
 
         Set<String> relatedFields = new HashSet<>();
 
-        if (e.length > 1) {
-            relatedFields.add(e[1]);
+        if (ef.length > 1) {
+            relatedFields.add(ef[1]);
         } else {
             // v1.9 之前会把所有相关的查出来
             Entity mainEntity = MetadataHelper.getEntity(recordOfMain.getEntityCode());
@@ -129,7 +125,7 @@ public class RelatedListController extends BaseController {
         String baseSql = "select %s from " + relatedEntity.getName() + " where " + mainWhere;
 
         Field primaryField = relatedEntity.getPrimaryField();
-        Field namedField = MetadataHelper.getNameField(relatedEntity);
+        Field namedField = relatedEntity.getNameField();
 
         if (count) {
             baseSql = String.format(baseSql, "count(" + primaryField.getName() + ")");

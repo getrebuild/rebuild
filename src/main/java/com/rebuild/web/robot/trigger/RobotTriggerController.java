@@ -105,7 +105,7 @@ public class RobotTriggerController extends BaseController {
         String q = getParameter(request, "q");
         String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn,when,actionType from RobotTriggerConfig" +
                 " where (1=1) and (2=2)" +
-                " order by name, modifiedOn desc";
+                " order by modifiedOn desc, name";
 
         Object[][] array = ReportTemplateController.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : array) {

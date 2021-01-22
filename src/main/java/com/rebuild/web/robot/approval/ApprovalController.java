@@ -10,8 +10,10 @@ package com.rebuild.web.robot.approval;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -21,13 +23,12 @@ import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.approval.*;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import com.rebuild.web.IdParam;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,27 +36,26 @@ import java.util.Map;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/07/05
  */
-@Controller
+@Slf4j
+@RestController
 @RequestMapping({"/app/entity/approval/", "/app/RobotApprovalConfig/"})
 public class ApprovalController extends BaseController {
 
-    @RequestMapping("workable")
-    public void getWorkable(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("workable")
+    public JSON getWorkable(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final ID user = getRequestUser(request);
-        final ID recordId = getIdParameterNotNull(request, "record");
 
         FlowDefinition[] defs = RobotApprovalManager.instance.getFlowDefinitions(recordId, user);
         JSONArray data = new JSONArray();
         for (FlowDefinition d : defs) {
             data.add(d.toJSON("id", "name"));
         }
-        writeSuccess(response, data);
+        return data;
     }
 
-    @RequestMapping("state")
-    public void getApprovalState(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("state")
+    public Map<String, Object> getApprovalState(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final ID user = getRequestUser(request);
-        final ID recordId = getIdParameterNotNull(request, "record");
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
 
         Map<String, Object> data = new HashMap<>();
@@ -89,14 +89,14 @@ public class ApprovalController extends BaseController {
                 }
             }
         }
-        writeSuccess(response, data);
+
+        return data;
     }
 
-    @RequestMapping("fetch-nextstep")
-    public void fetchNextStep(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("fetch-nextstep")
+    public JSON fetchNextStep(HttpServletRequest request,
+                              @IdParam(name = "record") ID recordId, @IdParam(name = "approval") ID approvalId) {
         final ID user = getRequestUser(request);
-        final ID recordId = getIdParameterNotNull(request, "record");
-        final ID approvalId = getIdParameterNotNull(request, "approval");
 
         ApprovalProcessor approvalProcessor = new ApprovalProcessor(recordId, approvalId);
         FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
@@ -105,6 +105,7 @@ public class ApprovalController extends BaseController {
         for (ID o : nextNodes.getApproveUsers(user, recordId, null)) {
             approverList.add(new Object[]{o, UserHelper.getName(o)});
         }
+
         JSONArray ccList = new JSONArray();
         for (ID o : nextNodes.getCcUsers(user, recordId, null)) {
             ccList.add(new Object[]{o, UserHelper.getName(o)});
@@ -128,39 +129,35 @@ public class ApprovalController extends BaseController {
             }
         }
 
-        writeSuccess(response, data);
+        return data;
     }
 
-    @RequestMapping("fetch-workedsteps")
-    public void fetchWorkedSteps(HttpServletRequest request, HttpServletResponse response) {
-        ID recordId = getIdParameterNotNull(request, "record");
-        JSONArray allSteps = new ApprovalProcessor(recordId).getWorkedSteps();
-        writeSuccess(response, allSteps);
+    @GetMapping("fetch-workedsteps")
+    public JSON fetchWorkedSteps(@IdParam(name = "record") ID recordId) {
+        return new ApprovalProcessor(recordId).getWorkedSteps();
     }
 
-    @RequestMapping("submit")
-    public void doSubmit(HttpServletRequest request, HttpServletResponse response) {
-        final ID recordId = getIdParameterNotNull(request, "record");
-        final ID approvalId = getIdParameterNotNull(request, "approval");
-
+    @PostMapping("submit")
+    public RespBody doSubmit(HttpServletRequest request,
+                             @IdParam(name = "record") ID recordId, @IdParam(name = "approval") ID approvalId) {
         JSONObject selectUsers = (JSONObject) ServletUtils.getRequestJson(request);
 
         try {
             boolean success = new ApprovalProcessor(recordId, approvalId).submit(selectUsers);
             if (success) {
-                writeSuccess(response);
+                return RespBody.ok();
             } else {
-                writeFailure(response, "无效审批流程，请联系管理员配置");
+                return RespBody.errorl("SomeAdminConfInvalid,ApprovalConfig");
             }
+
         } catch (ApprovalException ex) {
-            writeFailure(response, ex.getMessage());
+            return RespBody.error(ex.getMessage());
         }
     }
 
-    @RequestMapping("approve")
-    public void doApprove(HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping("approve")
+    public RespBody doApprove(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
         final ID approver = getRequestUser(request);
-        final ID recordId = getIdParameterNotNull(request, "record");
         final int state = getIntParameter(request, "state", ApprovalState.REJECTED.getState());
 
         JSONObject post = (JSONObject) ServletUtils.getRequestJson(request);
@@ -176,67 +173,69 @@ public class ApprovalController extends BaseController {
             try {
                 addedRecord = EntityHelper.parse(aformData, getRequestUser(request));
             } catch (DataSpecificationException known) {
-                writeFailure(response, known.getLocalizedMessage());
-                return;
+                log.warn(">>>>> {}", known.getLocalizedMessage());
+                return RespBody.error(known.getLocalizedMessage());
             }
         }
 
         try {
-            new ApprovalProcessor(recordId)
-                    .approve(approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup);
-            writeSuccess(response);
+            new ApprovalProcessor(recordId).approve(
+                    approver, (ApprovalState) ApprovalState.valueOf(state), remark, selectUsers, addedRecord, useGroup);
+            return RespBody.ok();
+
         } catch (DataSpecificationNoRollbackException ex) {
-            writeFailure(response, ex.getMessage(), 499);
+            return RespBody.error(ex.getLocalizedMessage(), 499);
         } catch (ApprovalException ex) {
-            writeFailure(response, ex.getMessage());
+            return RespBody.error(ex.getLocalizedMessage());
         }
     }
 
     @RequestMapping("cancel")
-    public void doCancel(HttpServletRequest request, HttpServletResponse response) {
-        ID recordId = getIdParameterNotNull(request, "record");
+    public RespBody doCancel(@IdParam(name = "record") ID recordId) {
         try {
             new ApprovalProcessor(recordId).cancel();
-            writeSuccess(response);
+            return RespBody.ok();
+
         } catch (ApprovalException ex) {
-            writeFailure(response, ex.getMessage());
+            return RespBody.error(ex.getMessage());
         }
     }
 
     @RequestMapping("revoke")
-    public void doRevoke(HttpServletRequest request, HttpServletResponse response) {
-        ID recordId = getIdParameterNotNull(request, "record");
+    public RespBody doRevoke(@IdParam(name = "record") ID recordId) {
         try {
             new ApprovalProcessor(recordId).revoke();
-            writeSuccess(response);
+            return RespBody.ok();
+
         } catch (ApprovalException ex) {
-            writeFailure(response, ex.getMessage());
+            return RespBody.error(ex.getMessage());
         }
     }
 
-    @RequestMapping("flow-definition")
-    public void getFlowDefinition(HttpServletRequest request, HttpServletResponse response) {
-        final ID approvalId = getIdParameterNotNull(request, "id");
+    @GetMapping("flow-definition")
+    public RespBody getFlowDefinition(@IdParam ID approvalId) {
+        if (ApprovalStepService.APPROVAL_NOID.equals(approvalId)) {
+            return RespBody.ok();
+        }
 
         Object[] belongEntity = Application.createQueryNoFilter(
                 "select belongEntity from RobotApprovalConfig where configId = ?")
                 .setParameter(1, approvalId)
                 .unique();
         if (belongEntity == null) {
-            writeFailure(response, "无效审批流程，可能已被删除");
-            return;
+            return RespBody.errorl("BadOrDeleteApproval");
         }
 
         FlowDefinition def = RobotApprovalManager.instance
                 .getFlowDefinition(MetadataHelper.getEntity((String) belongEntity[0]), approvalId);
 
-        JSONObject ret = JSONUtils.toJSONObject(
-                new String[]{"applyEntity", "flowDefinition"},
-                new Object[]{belongEntity[0], def.getJSON("flowDefinition")});
-        writeSuccess(response, ret);
+        JSONObject data = JSONUtils.toJSONObject(
+                new String[] { "applyEntity", "flowDefinition" },
+                new Object[] { belongEntity[0], def.getJSON("flowDefinition") });
+        return RespBody.ok(data);
     }
 
-    @RequestMapping("view/{id}")
+    @GetMapping("view/{id}")
     public ModelAndView pageView(@PathVariable String id) {
         ModelAndView mv = createModelAndView("/entity/approval/approval-view");
         mv.getModel().put("approvalId", id);

@@ -87,11 +87,11 @@
                       <div class="col-md-4 col-12">
                         <div class="avatar-wrap">
                           <div class="avatar text-center">
-                            <img alt="Avatar" id="avatar-img" th:src="@{/account/user-avatar?w=200}" />
+                            <img alt="Avatar" id="avatar-img" th:src="|${baseUrl}/account/user-avatar?w=200&${session.davatarTime}|" />
                             <label>
                               <i class="zmdi zmdi-camera"></i>
                               <br />[[${bundle.L('ModifySome,Avatar')}]]
-                              <input type="file" id="avatar-input" accept="image/png,image/jpeg,image/gif" data-temp="true" />
+                              <input type="file" id="avatar-input" accept="image/*" data-local="temp" data-maxsize="10000000" />
                             </label>
                           </div>
                         </div>

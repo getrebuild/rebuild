@@ -39,6 +39,7 @@ class RbList extends React.Component {
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
     this.advFilterId = $storage.get(this.__defaultFilterKey)
+    this.fixedColumns = supportFixedColumns && this.props.uncheckbox !== true
   }
 
   render() {
@@ -66,7 +67,7 @@ class RbList extends React.Component {
                     {this.state.fields.map((item, idx) => {
                       const cWidth = item.width || that.__defaultColumnWidth
                       const styles = { width: cWidth + 'px' }
-                      const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && supportFixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
+                      const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
                         <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={styles}>
@@ -248,7 +249,7 @@ class RbList extends React.Component {
     }
 
     const c = CellRenders.render(cellVal, type, width, cellKey + '.' + field.field)
-    if (index === 0 && supportFixedColumns) {
+    if (index === 0 && this.fixedColumns) {
       return React.cloneElement(c, { className: `${c.props.className || ''} column-fixed column-fixed-2nd` })
     }
     return c
@@ -485,9 +486,10 @@ const CellRenders = {
     if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
     else if (k.endsWith('.approvalId') && !v) v = $L('UnSubmit')
     else if (k.endsWith('.approvalState') && !v) v = $L('s.ApprovalState.DRAFT')
+
     return (
       <td key={k}>
-        <div style={s} title={v}>
+        <div style={s} title={typeof v === 'string' ? v : null}>
           {v || ''}
         </div>
       </td>

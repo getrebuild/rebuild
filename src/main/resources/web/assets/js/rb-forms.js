@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global SimpleMDE */
 
 // ~~ 表单窗口
 class RbFormModal extends React.Component {
@@ -127,7 +128,7 @@ class RbFormModal extends React.Component {
 
   checkDrityData() {
     if (!this.__lastModified || !this.state.id) return
-    $.get(`/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+    $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           // this.setState({ alertMessage: <p>记录已由其他用户编辑过，<a onClick={() => this.__refresh()}>点击此处</a>查看最新数据</p> })
@@ -297,6 +298,7 @@ class RbForm extends React.Component {
   // 设置字段值
   setFieldValue(field, value, error) {
     this.__FormData[field] = { value: value, error: error }
+    if (!error) RbForm.__FIELDVALUECHANGE_CALLS.forEach((c) => c({ name: field, value: value }))
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV1 ... ' + JSON.stringify(this.__FormData))
   }
@@ -304,6 +306,7 @@ class RbForm extends React.Component {
   // 避免无意义更新
   setFieldUnchanged(field) {
     delete this.__FormData[field]
+    RbForm.__FIELDVALUECHANGE_CALLS.forEach((c) => c({ name: field }))
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log('FV2 ... ' + JSON.stringify(this.__FormData))
   }
@@ -382,6 +385,12 @@ class RbForm extends React.Component {
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload()
     if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
+  }
+
+  static __FIELDVALUECHANGE_CALLS = []
+  // 字段值变化回调
+  static onFieldValueChange(call) {
+    RbForm.__FIELDVALUECHANGE_CALLS.push(call)
   }
 }
 
@@ -713,6 +722,41 @@ class RbFormNumber extends RbFormText {
       />
     )
   }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    // 表单计算
+    if (this.props.calcFormula) {
+      const calcFormula = this.props.calcFormula.replace(new RegExp('×', 'ig'), '*').replace(new RegExp('÷', 'ig'), '/')
+      const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
+      this.calcFormula__values = {}
+
+      // 小数位
+      const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
+
+      RbForm.onFieldValueChange((s) => {
+        if (watchFields.includes(`{${s.name}}`)) {
+          this.calcFormula__values[s.name] = s.value
+
+          // 尝试计算
+          let formula = calcFormula
+          for (let key in this.calcFormula__values) {
+            formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
+          }
+          if (formula.includes('{')) return
+
+          try {
+            let calcv
+            eval(`calcv = ${formula}`)
+            if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
+          } catch (err) {
+            if (rb.env === 'dev') console.log(err)
+          }
+        }
+      })
+    }
+  }
 }
 
 class RbFormDecimal extends RbFormNumber {
@@ -737,40 +781,171 @@ class RbFormTextarea extends RbFormElement {
 
   renderElement() {
     return (
-      <textarea
-        ref={(c) => (this._fieldValue = c)}
-        className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''}`}
-        title={this.state.hasError}
-        value={this.state.value || ''}
-        onChange={this.handleChange}
-        onBlur={this.props.readonly ? null : this.checkValue}
-        readOnly={this.props.readonly}
-        maxLength="6000"
-      />
+      <React.Fragment>
+        <textarea
+          ref={(c) => (this._fieldValue = c)}
+          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
+          title={this.state.hasError}
+          value={this.state.value || ''}
+          onChange={this.handleChange}
+          onBlur={this.props.readonly ? null : this.checkValue}
+          readOnly={this.props.readonly}
+          maxLength="6000"
+        />
+        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />}
+      </React.Fragment>
     )
   }
 
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    return (
-      <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
-        {this.state.value.split('\n').map((line, idx) => {
-          return <p key={'kl-' + idx}>{line}</p>
-        })}
-      </div>
-    )
+    if (this.props.useMdedit) {
+      const md2html = SimpleMDE.prototype.markdown(this.state.value)
+      return <div className="form-control-plaintext mdedit-content" ref={(c) => (this._textarea = c)} dangerouslySetInnerHTML={{ __html: md2html }} />
+    } else {
+      return (
+        <div className="form-control-plaintext" ref={(c) => (this._textarea = c)}>
+          {this.state.value.split('\n').map((line, idx) => {
+            return <p key={'kl-' + idx}>{line}</p>
+          })}
+        </div>
+      )
+    }
   }
 
   componentDidMount() {
     super.componentDidMount()
-    this.onEditModeChanged(true)
+    this.props.onView && this.onEditModeChanged(true)
+  }
+
+  UNSAFE_componentWillUpdate(nextProps, nextState) {
+    // destroy
+    if (this.state.editMode && !nextState.editMode) {
+      if (this._simplemde) {
+        this._simplemde.toTextArea()
+        this._simplemde = null
+      }
+    }
   }
 
   onEditModeChanged(destroy) {
     if (this._textarea) {
-      if (destroy) $(this._textarea).perfectScrollbar()
-      else $(this._textarea).perfectScrollbar('destroy')
+      if (destroy) {
+        $(this._textarea).perfectScrollbar()
+      } else {
+        $(this._textarea).perfectScrollbar('destroy')
+      }
+    }
+
+    if (this.props.useMdedit && !destroy) this._initMde()
+  }
+
+  setValue(val) {
+    super.setValue(val)
+    if (this.props.useMdedit) this._simplemde.value(val)
+  }
+
+  _initMde() {
+    const _MDE_TOOLBAR = [
+      {
+        name: 'bold',
+        action: SimpleMDE.toggleBold,
+        className: 'zmdi zmdi-format-bold',
+        title: $L('MdeditBold'),
+      },
+      {
+        name: 'italic',
+        action: SimpleMDE.toggleItalic,
+        className: 'zmdi zmdi-format-italic',
+        title: $L('MdeditItalic'),
+      },
+      {
+        name: 'strikethrough',
+        action: SimpleMDE.toggleStrikethrough,
+        className: 'zmdi zmdi-format-strikethrough',
+        title: $L('MdeditStrikethrough'),
+      },
+      {
+        name: 'image',
+        action: () => this._fieldValue__upload.click(),
+        className: 'zmdi zmdi-image-o',
+        title: $L('MdeditImage'),
+      },
+      {
+        name: 'heading',
+        action: SimpleMDE.toggleHeadingSmaller,
+        className: 'zmdi zmdi-format-size',
+        title: $L('MdeditHeading'),
+      },
+      {
+        name: 'table',
+        action: SimpleMDE.drawTable,
+        className: 'zmdi zmdi-border-all',
+        title: $L('MdeditTable'),
+      },
+      {
+        name: 'unordered-list',
+        action: SimpleMDE.toggleUnorderedList,
+        className: 'zmdi zmdi-format-list-bulleted',
+        title: $L('MdeditUnorderedList'),
+      },
+      {
+        name: 'ordered-list',
+        action: SimpleMDE.toggleOrderedList,
+        className: 'zmdi zmdi-format-list-numbered',
+        title: $L('MdeditOrderedList'),
+      },
+      {
+        name: 'link',
+        action: SimpleMDE.drawLink,
+        className: 'zmdi zmdi-link',
+        title: $L('MdeditLink'),
+      },
+      '|',
+      {
+        name: 'fullscreen',
+        action: SimpleMDE.toggleFullScreen,
+        className: 'zmdi zmdi-fullscreen no-disable',
+        title: $L('MdeditFullScreen'),
+      },
+      {
+        name: 'preview',
+        action: SimpleMDE.togglePreview,
+        className: 'zmdi zmdi-eye no-disable',
+        title: $L('MdeditTogglePreview'),
+      },
+      {
+        name: 'guide',
+        action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+        className: 'zmdi zmdi-help-outline no-disable',
+        title: $L('MdeditGuide'),
+      },
+    ]
+
+    const mde = new SimpleMDE({
+      element: this._fieldValue,
+      status: false,
+      autoDownloadFontAwesome: false,
+      spellChecker: false,
+      toolbar: this.props.readonly ? false : _MDE_TOOLBAR,
+    })
+    this._simplemde = mde
+
+    if (this.props.readonly) {
+      mde.codemirror.setOption('readOnly', true)
+    } else {
+      mde.codemirror.on('changes', () => {
+        $setTimeout(() => {
+          this.setState({ value: mde.value() }, this.checkValue)
+        }, 200, 'mde-update-event')
+      })
+
+      $createUploader(this._fieldValue__upload, null, (res) => {
+        const pos = mde.codemirror.getCursor()
+        mde.codemirror.setSelection(pos, pos)
+        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+      })
     }
   }
 }
@@ -872,7 +1047,7 @@ class RbFormImage extends RbFormElement {
         })}
         {showUpload && (
           <span title={$L('UploadImgNeedX').replace('%d', `${this.__minUpload}~${this.__maxUpload}`)}>
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" data-maxsize="10240000" />
+            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
             <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
               <span className="zmdi zmdi-image-alt"></span>
             </label>
@@ -970,7 +1145,7 @@ class RbFormFile extends RbFormImage {
         })}
         {showUpload && (
           <div className="file-select">
-            <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} data-maxsize="102400000" />
+            <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
             <label htmlFor={`${this.props.field}-input`} title={$L('UploadFileNeedX').replace('%d', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
               <i className="zmdi zmdi-upload"></i>
               <span>{$L('UploadFile')}</span>
@@ -1268,10 +1443,9 @@ class RbFormN2NReference extends RbFormReference {
 
       if (ids.length > 0) {
         let ss = ids.join(',')
-        if (isAppend && (currentValue && currentValue !== '')) ss = currentValue + ',' + ss
+        if (isAppend && currentValue && currentValue !== '') ss = currentValue + ',' + ss
         this.handleChange({ target: { value: ss } }, true)
       }
-
     } else {
       this.__select2.val(null).trigger('change')
     }
@@ -1549,9 +1723,7 @@ class RbFormAvatar extends RbFormElement {
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('SelectSome,Avatar')}>
-          {!this.props.readonly && (
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/png,image/jpeg,image/gif" data-maxsize="10240000" />
-          )}
+          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
             <img src={aUrl} alt={$L('Avatar')} />
           </label>

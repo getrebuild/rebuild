@@ -77,9 +77,11 @@ public class KVStorage {
 
         if (Application.isReady()) {
             // 0. 从缓存
-            value = Application.getCommonsCache().get(key);
-            if (value != null && !noCache) {
-                return value;
+            if (!noCache) {
+                value = Application.getCommonsCache().get(key);
+                if (value != null) {
+                    return value;
+                }
             }
 
             // 1. 从数据库

@@ -10,6 +10,10 @@
         background-color: #fff;
         cursor: default;
       }
+      .applogo.edit a.img-thumbnail,
+      .applogo.edit a.img-thumbnail .logo-img {
+        cursor: pointer;
+      }
     </style>
   </head>
   <body>
@@ -21,7 +25,7 @@
           <div class="row">
             <div class="col-lg-9 col-12">
               <div class="card">
-                <div class="card-header card-header-divider">
+                <div class="card-header pb-1">
                   [[${bundle.L('SomeConf,General')}]]
                   <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('Modify')}]]</a>
                 </div>
@@ -30,14 +34,16 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('Name')}]]</td>
-                        <td th:data-id="${commercial >= 20 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
+                        <td width="40%">[[${bundle.L('Name')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
-                        <td>LOGO</td>
-                        <td class="fs-0">
+                        <td>LOGO <sup class="rbv"></sup></td>
+                        <td class="fs-0 applogo">
                           <a class="img-thumbnail"><i class="logo-img"></i></a>
                           <a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
+                          <input type="file" class="hide" accept="image/*" data-maxsize="5000000" data-local="true" />
+                          <p class="mt-2 text-dark hide">[[${bundle.L('UploadLogoTips')}]]</p>
                         </td>
                       </tr>
                       <tr>
@@ -52,10 +58,6 @@
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('OpenSignUp')}]]</td>
-                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${bundle.L(OpenSignUp ? 'True' : 'False')}]]</td>
-                      </tr>
-                      <tr>
                         <td>[[${bundle.L('LiveWallpaper')}]]</td>
                         <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.L(LiveWallpaper ? 'True' : 'False')}]]</td>
                       </tr>
@@ -65,7 +67,11 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('PasswordPolicy')}]]</td>
+                        <td width="40%">[[${bundle.L('OpenSignUp')}]]</td>
+                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${bundle.L(OpenSignUp ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('PasswordPolicy')}]]</td>
                         <td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
                           <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.L('PasswordPolicyL1')}]]</th:block>
                           <th:block th:if="${PasswordPolicy == '2'}">[[${bundle.L('PasswordPolicyL2')}]]</th:block>
@@ -73,19 +79,51 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('FileSharable')}]]</td>
-                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.L(FileSharable ? 'True' : 'False')}]]</td>
+                        <td>[[${bundle.L('LoginCaptchaPolicy')}]]</td>
+                        <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
+                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('LoginCaptchaPolicy1')}]]</th:block>
+                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('LoginCaptchaPolicy2')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('MultipleSessions')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${bundle.L(MultipleSessions ? 'True' : 'False')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('MarkWatermark')}]]</td>
                         <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${bundle.L(MarkWatermark ? 'True' : 'False')}]]</td>
                       </tr>
                       <tr>
-                        <td>
+                        <td>[[${bundle.L('FileSharable')}]]</td>
+                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.L(FileSharable ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('ShowViewHistory')}]]</td>
+                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${bundle.L(ShowViewHistory ? 'True' : 'False')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('DataSecure')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">
                           [[${bundle.L('DBBackupsEnable')}]]
                           <p>[[${bundle.L('DBBackupsEnableTips')}]]</p>
                         </td>
                         <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${bundle.L(DBBackupsEnable ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('DBBackupsKeepingDays')}]]</td>
+                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('Day0')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('RevisionHistoryKeepingDays')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'RevisionHistoryKeepingDays' : ''}" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('Day0')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('RecycleBinKeepingDays')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'RecycleBinKeepingDays' : ''}" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('Day0')}]]</td>
                       </tr>
                     </tbody>
                   </table>
@@ -116,40 +154,12 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
-    <script type="text/babel">
-      const _LANGS = _$unthy('[[${availableLangs}]]')
-      $(document).ready(() => {
-        const $L = $('#_DefaultLanguage')
-        $L.text(_LANGS[$L.text()] || 'UNKONWN')
-      })
-
-      useEditComp = function (name, value) {
-        if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable'].includes(name)) {
-          return (
-            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-              <option value="true">{$L('True')}</option>
-              <option value="false">{$L('False')}</option>
-            </select>
-          )
-        } else if ('PasswordPolicy' === name) {
-          return (
-            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-              <option value="1">{$L('PasswordPolicyL1')}</option>
-              <option value="2">{$L('PasswordPolicyL2')}</option>
-              <option value="3">{$L('PasswordPolicyL3')}</option>
-            </select>
-          )
-        } else if ('DefaultLanguage' === name) {
-          const options = []
-          for (let k in _LANGS) options.push(<option value={k} key={k}>{_LANGS[k]}</option>)
-          return (
-            <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-              {options}
-            </select>
-          )
-        }
+    <script>
+      window.__PageConfig = {
+        _LANGS: _$unthy('[[${availableLangs}]]'),
       }
     </script>
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/syscfg-g.js}" type="text/babel"></script>
   </body>
 </html>

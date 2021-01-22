@@ -73,7 +73,7 @@ class RbViewForm extends React.Component {
   // 脏数据检查
   checkDrityData(handle) {
     if (!this.__lastModified || !this.state.id) return
-    $.get(`/app/entity/record-lastModified?id=${this.state.id}`, (res) => {
+    $.get(`/app/entity/extras/record-last-modified?id=${this.state.id}`, (res) => {
       if (res.error_code === 0) {
         if (res.data.lastModified !== this.__lastModified) {
           handle && handle.showLoading()
@@ -190,7 +190,7 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}`
+                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}&attname=${$encode(item.name)}`
                     return (
                       <li key={'r-' + item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate">
@@ -249,7 +249,7 @@ class RelatedList extends React.Component {
         )}
         {(this.state.list || []).map((item) => {
           return (
-            <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={`rr-${item[0]}`}>
+            <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={item[0]} ref={`item-${item[0]}`}>
               <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
                 <div className="col-10">
                   <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
@@ -284,11 +284,21 @@ class RelatedList extends React.Component {
   fetchList(append) {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
-    const pageSize = 20
+    const pageSize = 5
+
     $.get(`/app/entity/related-list?mainid=${this.props.main}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
-      const _data = res.data.data || []
-      const _list = (this.state.list || []).concat(_data)
-      this.setState({ list: _list, showMores: _data.length >= pageSize })
+      const data = res.data.data || []
+      const list = (this.state.list || []).concat(data)
+
+      this.setState({ list: list, showMores: data.length >= pageSize }, () => {
+        if (this.props.autoExpand) {
+          data.forEach((item) => {
+            // eslint-disable-next-line react/no-string-refs
+            const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
+            if ($H.length > 0) $H[0].click()
+          })
+        }
+      })
     })
   }
 
@@ -339,7 +349,7 @@ class ReducedFeedsList extends FeedsList {
         {this.state.data && this.state.data.length === 0 && (
           <div className="list-nodata">
             <span className="zmdi zmdi-chart-donut" />
-            <p>{$L('NoData')}</p>
+            <p>{$L('NoSome,FeedsType2')}</p>
           </div>
         )}
         <div className="feeds-list inview">
@@ -376,9 +386,9 @@ class ReducedFeedsList extends FeedsList {
     const pageSize = 20
 
     $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&sort=&type=&foucs=&pageSize=${pageSize}`, JSON.stringify(filter), (res) => {
-      const _data = (res.data || {}).data || []
-      const _list = (this.state.data || []).concat(_data)
-      this.setState({ data: _list, showMores: _data.length >= pageSize })
+      const data = (res.data || {}).data || []
+      const list = (this.state.data || []).concat(data)
+      this.setState({ data: list, showMores: data.length >= pageSize })
     })
   }
 
@@ -475,13 +485,16 @@ const RbViewPage = {
       if (ep.S !== true) $('.J_share').remove()
     }
 
-    // Clean
+    // Clean buttons
     that.cleanViewActionButton()
+
+    that.initRecordMeta()
+    that.initHistory()
   },
 
   // 元数据
   initRecordMeta() {
-    $.get(`/app/entity/record-meta?id=${this.__id}`, (res) => {
+    $.get(`/app/entity/extras/record-meta?id=${this.__id}`, (res) => {
       // 如果出错就清空操作区
       if (res.error_code !== 0) {
         $('.view-operating').empty()
@@ -490,24 +503,24 @@ const RbViewPage = {
 
       for (let k in res.data) {
         const v = res.data[k]
-        if (!v) return
-        const $el = $('.J_' + k)
-        if ($el.length === 0) return
+        if (!v) continue
+        const $el = $(`.J_${k}`)
+        if ($el.length === 0) continue
 
         if (k === 'owningUser') {
           renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
         } else if (k === 'sharingList') {
-          const list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo('.J_sharingList')
-          const _this = this
+          const $list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo($('.J_sharingList').empty())
+          const that = this
           $(v).each(function () {
-            const $v = this
-            const item = $('<li class="list-inline-item"></li>').appendTo(list)
-            renderRbcomp(<UserShow id={$v[0]} name={$v[1]} onClick={() => _this.clickViewUser($v[0])} />, item[0])
+            const _this = this
+            const $item = $('<li class="list-inline-item"></li>').appendTo($list)
+            renderRbcomp(<UserShow id={_this[0]} name={_this[1]} onClick={() => that.clickViewUser(_this[0])} />, $item[0])
           })
 
           if (this.__ep && this.__ep.S === true) {
-            const item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            if (v.length === 0)
+            const $op = $('<li class="list-inline-item"></li>').appendTo($list)[0]
+            if (v.length === 0) {
               renderRbcomp(
                 <UserShow
                   name={$L('AddSome,Share')}
@@ -516,24 +529,51 @@ const RbViewPage = {
                     $('.J_share').trigger('click')
                   }}
                 />,
-                item_op
+                $op
               )
-            else renderRbcomp(<UserShow name={$L('SomeManage,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, item_op)
+            } else {
+              renderRbcomp(<UserShow name={$L('SomeManage,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, $op)
+            }
           } else if (v.length > 0) {
-            const item_op = $('<li class="list-inline-item"></li>').appendTo(list)[0]
-            renderRbcomp(<UserShow name={$L('ViewSome,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, item_op)
+            const $op = $('<li class="list-inline-item"></li>').appendTo($list)[0]
+            renderRbcomp(<UserShow name={$L('ViewSome,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, $op)
           } else {
             $('.J_sharingList').parent().remove()
           }
         } else if (k === 'createdOn' || k === 'modifiedOn') {
           renderRbcomp(<DateShow date={v} />, $el[0])
         } else {
-          $('<span>' + v + '</span>').appendTo($el)
+          $(`<span>${v}</span>`).appendTo($el.empty())
         }
       }
 
       // If PlainEntity
       if (!res.data.owningUser) $('.view-user').remove()
+    })
+  },
+
+  // 修改历史
+  initHistory() {
+    const $into = $('.view-history .view-history-items')
+    if ($into.length === 0) return
+
+    $.get(`/app/entity/extras/record-history?id=${this.__id}`, (res) => {
+      if (res.error_code !== 0) return
+      $into.empty()
+      res.data.forEach((item, idx) => {
+        const content = $LF('ViewHistoryContent', $fromNow(item.revisionOn)).replace('$USER$', item.revisionBy[1]).replace('$ACTION$', item.revisionType)
+        const $item = $(`<li>${content}</li>`).appendTo($into)
+        $item.find('b:eq(0)').attr('title', item.revisionOn)
+        if (idx > 9) $item.addClass('hide')
+      })
+
+      if (res.data.length > 10) {
+        $into.after(`<a href="javascript:;" class="J_mores">${$L('LoadMore')}</a>`)
+        $('.view-history .J_mores').click(function () {
+          $into.find('li.hide').removeClass('hide')
+          $(this).addClass('hide')
+        })
+      }
     })
   },
 
@@ -551,7 +591,7 @@ const RbViewPage = {
       const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
       const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
       tabNav.find('a').click(function () {
-        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} main={that.__id} />, tabPane)
+        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} main={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, tabPane)
       })
     })
     this.updateVTabs()
@@ -692,7 +732,6 @@ const RbViewPage = {
 $(document).ready(function () {
   if (wpc.entity) {
     RbViewPage.init(wpc.recordId, wpc.entity, wpc.privileges)
-    RbViewPage.initRecordMeta()
     if (wpc.viewTabs) RbViewPage.initVTabs(wpc.viewTabs)
     if (wpc.viewAdds) RbViewPage.initVAdds(wpc.viewAdds)
   }

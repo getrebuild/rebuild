@@ -186,4 +186,8 @@ public class EntityHelper {
     public static final int ProjectTaskComment = 54;
     public static final int ProjectTaskTag = 55;
     public static final int ProjectTaskTagRelation = 56;
+
+    // 外部表单
+
+    public static final int ExtformConfig = 60;
 }

@@ -51,7 +51,7 @@ public class FileDownloader extends BaseController {
             return;
         }
 
-        ServletUtils.addCacheHead(response, 30);
+        ServletUtils.addCacheHead(response, 60);
 
         final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
         String imageView2 = request.getQueryString();
@@ -138,18 +138,19 @@ public class FileDownloader extends BaseController {
             filePath = filePath.split("/filex/download/")[1];
         }
 
-        boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
-        String fileName = QiniuCloud.parseFileName(filePath);
+        boolean temp = getBoolParameter(request, "temp");
+        String attname = getParameter(request, "attname");
+        if (StringUtils.isBlank(attname)) attname = QiniuCloud.parseFileName(filePath);
 
         ServletUtils.setNoCacheHeaders(response);
 
         // Local storage || temp
         if (!QiniuCloud.instance().available() || temp) {
-            setDownloadHeaders(request, response, fileName);
+            setDownloadHeaders(request, response, attname);
             writeLocalFile(filePath, temp, response);
         } else {
             String privateUrl = QiniuCloud.instance().url(filePath);
-            privateUrl += "&attname=" + fileName;
+            privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         }
     }
@@ -190,17 +191,27 @@ public class FileDownloader extends BaseController {
         response.setHeader("Content-Length", String.valueOf(size));
 
         try (InputStream fis = new FileInputStream(file)) {
-            response.setContentLength(fis.available());
-
-            OutputStream os = response.getOutputStream();
-            int count;
-            byte[] buffer = new byte[1024 * 1024];
-            while ((count = fis.read(buffer)) != -1) {
-                os.write(buffer, 0, count);
-            }
-            os.flush();
-            return true;
+            return writeStream(fis, response);
         }
+    }
+
+    /**
+     * @param is
+     * @param response
+     * @return
+     * @throws IOException
+     */
+    public static boolean writeStream(InputStream is, HttpServletResponse response) throws IOException {
+        response.setContentLength(is.available());
+
+        OutputStream os = response.getOutputStream();
+        int count;
+        byte[] buffer = new byte[1024 * 1024];
+        while ((count = is.read(buffer)) != -1) {
+            os.write(buffer, 0, count);
+        }
+        os.flush();
+        return true;
     }
 
     /**
@@ -211,6 +222,10 @@ public class FileDownloader extends BaseController {
      * @param attname
      */
     public static void setDownloadHeaders(HttpServletRequest request, HttpServletResponse response, String attname) {
+        // 特殊字符处理
+        attname = attname.replace(" ", "-");
+        attname = attname.replace("%", "-");
+
         // 火狐 Safari 中文名乱码问题
         String UA = StringUtils.defaultIfBlank(request.getHeader("user-agent"), "").toUpperCase();
         if (UA.contains("FIREFOX") || UA.contains("SAFARI")) {

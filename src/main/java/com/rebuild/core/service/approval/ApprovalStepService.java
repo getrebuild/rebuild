@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
@@ -20,9 +19,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
-import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.notification.MessageBuilder;
-import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
@@ -165,8 +162,8 @@ public class ApprovalStepService extends BaseService {
             // 拒绝了，同一节点的其他审批人全部作废
             cancelAliveSteps(recordId, approvalId, currentNode, stepRecordId, true);
 
-            // 更新主记录
-            Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
+            // 更新主记录状态
+            Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
             super.update(recordOfMain);
 
@@ -219,13 +216,13 @@ public class ApprovalStepService extends BaseService {
 
         // 最终状态（审批通过）
         if (goNextNode && (nextApprovers == null || nextNode == null)) {
-            approved(recordId, approver, null, null);
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED);
             return;
         }
 
         // 进入下一步
         if (goNextNode) {
-            Record recordOfMain = EntityHelper.forUpdate(recordId, UserContextHolder.getUser(), false);
+            Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
             recordOfMain.setString(EntityHelper.ApprovalStepNode, nextNode);
             super.update(recordOfMain);
         }
@@ -249,7 +246,7 @@ public class ApprovalStepService extends BaseService {
      * @param recordId
      * @param approvalId
      * @param currentNode
-     * @param isRevoke    是否撤销，这是针对审批完成的
+     * @param isRevoke 是否为撤销（仅针对审批完成的）
      */
     public void txCancel(ID recordId, ID approvalId, String currentNode, boolean isRevoke) {
         final ID opUser = UserContextHolder.getUser();
@@ -264,15 +261,13 @@ public class ApprovalStepService extends BaseService {
         step.setString("prevNode", currentNode);
         super.create(step);
 
-        final Record recordOfMain = EntityHelper.forUpdate(recordId, opUser);
-        recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
-        super.update(recordOfMain);
-
-        // 撤销时触发器
+        // 撤销
         if (isRevoke) {
-            Record before = recordOfMain.clone();
-            before.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
-            new RobotTriggerManual().onRevoked(OperatingContext.create(opUser, BizzPermission.UPDATE, before, recordOfMain));
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.REVOKED);
+        } else {
+            Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
+            recordOfMain.setInt(EntityHelper.ApprovalState, useState.getState());
+            super.update(recordOfMain);
         }
     }
 
@@ -308,6 +303,7 @@ public class ApprovalStepService extends BaseService {
             step.setString("prevNode", prevNode);
         }
         step = super.create(step);
+
         return step.getPrimary();
     }
 
@@ -340,6 +336,7 @@ public class ApprovalStepService extends BaseService {
             if (excludeStep != null && excludeStep.equals(o[0])) {
                 continue;
             }
+
             Record step = EntityHelper.forUpdate((ID) o[0], UserContextHolder.getUser());
             step.setBoolean("isCanceled", true);
             super.update(step);
@@ -373,29 +370,7 @@ public class ApprovalStepService extends BaseService {
     }
 
     /**
-     * 审批通过
-     *
-     * @param recordId
-     * @param approver
-     * @param useApproval [自动审批时需要]
-     * @param useNode     [自动审批时需要]
-     */
-    private void approved(ID recordId, ID approver, ID useApproval, String useNode) {
-        // 审批通过
-        final Record recordOfMain = EntityHelper.forUpdate(recordId, approver, false);
-        recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.APPROVED.getState());
-        if (useApproval != null) recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
-        if (useNode != null) recordOfMain.setString(EntityHelper.ApprovalStepNode, useNode);
-        super.update(recordOfMain);
-
-        // 触发器
-        Record before = recordOfMain.clone();
-        before.setInt(EntityHelper.ApprovalState, ApprovalState.PROCESSING.getState());
-        new RobotTriggerManual().onApproved(OperatingContext.create(approver, BizzPermission.UPDATE, before, recordOfMain));
-    }
-
-    /**
-     * 自动审批
+     * 自动审批/一键审批
      *
      * @param recordId
      * @param useApprover
@@ -418,7 +393,13 @@ public class ApprovalStepService extends BaseService {
             step.setString("remark", Language.L("AUTOAPPROVAL"));
             super.update(step);
 
-            approved(recordId, useApprover, useApproval, FlowNode.NODE_AUTOAPPROVAL);
+            // 更新记录审批状态
+            Record recordOfMain = EntityHelper.forUpdate(recordId, UserService.SYSTEM_USER, false);
+            recordOfMain.setID(EntityHelper.ApprovalId, useApproval);
+            recordOfMain.setString(EntityHelper.ApprovalStepNode, FlowNode.NODE_AUTOAPPROVAL);
+            super.update(recordOfMain);
+            Application.getEntityService(recordId.getEntityCode()).approve(recordId, ApprovalState.APPROVED);
+
             return true;
         }
         return false;

@@ -37,9 +37,6 @@ public enum ConfigurationItem {
     // 短信
     SmsUser, SmsPassword, SmsSign(AppName),
 
-    // 新建记录表单不显示不可创建字段
-    FormHideUncreateField(false),
-
     // 开放注册
     OpenSignUp(true),
 
@@ -67,18 +64,26 @@ public enum ConfigurationItem {
     // 数据备份保留时间
     DBBackupsKeepingDays(180),
 
-    // 管理员警告
-    AdminDangers(true),
-
     // 允许同一用户多个会话
     MultipleSessions(true),
 
     // 默认语言
     DefaultLanguage("zh_CN"),
 
-    // 激活 Redis 队列
+    // 数据脱敏（实验功能!!! 仅 PHONE/EMAIL 字段）
+    DataMasking(false),
+
+    // 激活 Redis 队列 (since = "2.1")
     @Deprecated
-    RedisQueueEnable(false);
+    RedisQueueEnable(false),
+
+    // 视图页显示修改历史
+    ShowViewHistory(true),
+
+    // 登录验证码显示策略（1为自动，2为总是）
+    LoginCaptchaPolicy(1),
+
+    ;
 
     private Object defaultVal;
 

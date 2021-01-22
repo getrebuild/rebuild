@@ -31,11 +31,11 @@ import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
 import com.rebuild.web.InvalidParameterException;
-import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,7 +61,7 @@ public class ChartDesignController extends EntityController {
                                    @EntityParam(name = "source", required = false) Entity entity,
                                    HttpServletRequest request, HttpServletResponse response) throws IOException {
         final ID user = getRequestUser(request);
-        Assert.isTrue(
+        RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomChart),
                 getLang(request, "NoOpPrivileges"));
 

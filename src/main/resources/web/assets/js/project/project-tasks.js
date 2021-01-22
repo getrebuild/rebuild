@@ -286,8 +286,12 @@ class PlanBox extends React.Component {
       }
     })
 
+    const $boxes = document.getElementById('plan-boxes')
     $addResizeHandler(() => {
-      $scroller.css({ 'max-height': $(window).height() - 210 + (this.creatableTask ? 0 : 44) })
+      let mh = $(window).height() - 210 + (this.creatableTask ? 0 : 44)
+      if ($boxes.scrollWidth > $boxes.clientWidth) mh -= 5  // 横向滚动条高度
+
+      $scroller.css({ 'max-height': mh })
       $scroller.perfectScrollbar('update')
     })()
   }

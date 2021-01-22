@@ -163,7 +163,7 @@ class DlgEnableUser extends RbModalHandler {
               </div>
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">
-                  {$L('AppendRoles')} ({$L('Optional')}) <sup className="rbv">V</sup>
+                  {$L('AppendRoles')} ({$L('Optional')}) <sup className="rbv"></sup>
                 </label>
                 <div className="col-sm-7">
                   <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} defaultValue={this.props.roleAppends} ref={(c) => (this._roleAppends = c)} />

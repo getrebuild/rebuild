@@ -334,7 +334,7 @@ class FormulaCalc extends RbAlert {
         <div className="row">
           <div className="col-6">
             <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
-              <ul className="list-unstyled mb-0">
+              <ul className="list-unstyled mb-0" _title={$L('NoUsesField')}>
                 {this.props.fields.map((item) => {
                   return (
                     <li key={`flag-${item}`}>
@@ -394,7 +394,7 @@ class FormulaCalc extends RbAlert {
   }
 
   confirm() {
-    let vvv = []
+    const vvv = []
     $(this._$formula)
       .find('i')
       .each(function () {

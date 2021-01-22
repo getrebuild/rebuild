@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 
 /**
@@ -60,9 +59,8 @@ public class EasyReference extends EasyField implements MixValue {
         JSONObject map = (JSONObject) super.toJSON();
 
         Entity refEntity = getRawMeta().getReferenceEntity();
-        Field nameField = MetadataHelper.getNameField(refEntity);
-        map.put("ref",
-                new String[] { refEntity.getName(), EasyMetaFactory.getDisplayType(nameField).name() });
+        map.put("ref", new String[] { refEntity.getName(),
+                EasyMetaFactory.getDisplayType(refEntity.getNameField()).name() });
         return map;
     }
 }

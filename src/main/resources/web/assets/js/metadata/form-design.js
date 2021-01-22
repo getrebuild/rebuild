@@ -15,9 +15,21 @@ $(document).ready(function () {
     $(wpc.formConfig.elements).each(function () {
       configFields.push(this.field)
     })
+
+    const $advControls = $('#adv-control tbody')
+    const template = $advControls.find('tr').html()
+    $advControls.find('tr').remove()
+
     $(res.data).each(function () {
       validFields[this.fieldName] = this
       if (configFields.includes(this.fieldName) === false) render_unset(this, '.field-list')
+
+      // Adv control
+      const $control = $(`<tr data-field="${this.fieldName}">${template}</tr>`).appendTo($advControls)
+      $control.find('td:eq(0)').text(this.fieldLabel)
+      const $req = $control.find('td:eq(2)')
+      if (this.builtin) $req.empty()
+      else if (!this.nullable) $req.find('input').attr({ disabled: true, checked: true })
     })
 
     $(wpc.formConfig.elements).each(function () {
@@ -35,6 +47,7 @@ $(document).ready(function () {
         })
       } else {
         render_item({ ...field, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
+        AdvControl.set(this)
       }
     })
 
@@ -50,8 +63,11 @@ $(document).ready(function () {
   })
 
   $('.J_add-divider').click(function () {
+    $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', isFull: true }, '.form-preview')
   })
+
+  // SAVE
 
   const _handleSave = function (elements) {
     const data = { belongEntity: wpc.entityName, applyType: 'FORM', config: JSON.stringify(elements) }
@@ -69,6 +85,7 @@ $(document).ready(function () {
     $('.form-preview .J_field').each(function () {
       const $this = $(this)
       if (!$this.data('field')) return
+
       const item = { field: $this.data('field') }
       if (item.field === DIVIDER_LINE) {
         item.isFull = true
@@ -79,9 +96,12 @@ $(document).ready(function () {
         if (tip) item.tip = tip
         item.__newLabel = $this.find('span').text()
         if (item.__newLabel === $this.data('label')) delete item.__newLabel
+
+        AdvControl.append(item)
       }
       formElements.push(item)
     })
+
     if (formElements.length === 0) {
       RbHighbar.create($L('PlsLayout1FieldsLeast'))
       return
@@ -102,7 +122,7 @@ $(document).ready(function () {
   })
 
   $addResizeHandler(() => {
-    $setTimeout(() => $('.field-aside .rb-scroller').height($(window).height() - 123), 200, 'FeildAslide-resize')
+    $('.field-aside .rb-scroller').height($(window).height() - 123)
   })()
 
   $('.J_new-field').click(() => {
@@ -111,6 +131,26 @@ $(document).ready(function () {
     } else {
       RbHighbar.error($L('OnlyAdminCanSome,AddField'))
     }
+  })
+
+  $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
+    if (rb.commercial < 1) {
+      e.preventDefault()
+      RbHighbar.error($L('FreeVerNotSupportted,FormAdvControl'))
+      return false
+    }
+
+    // 只显示布局的
+    const shows = []
+    $('.form-preview .J_field').each(function () {
+      shows.push($(this).data('field') || '')
+    })
+
+    $('#adv-control tbody>tr').each(function () {
+      const $tr = $(this)
+      if (shows.indexOf($tr.data('field')) > -1) $tr.removeClass('hide')
+      else $tr.addClass('hide')
+    })
   })
 })
 
@@ -195,6 +235,7 @@ const render_unset = function (data) {
   else if (data.nullable === false) item.find('.dd-handle').addClass('not-nullable')
 
   item.click(function () {
+    $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item(data)
     item.remove()
     check_empty()
@@ -203,11 +244,13 @@ const render_unset = function (data) {
 }
 
 const check_empty = function () {
-  if ($('.field-list .dd-item').length === 0) $('.field-list .nodata').show()
-  else $('.field-list .nodata').hide()
+  let $nodata = $('.field-list .nodata')
+  if ($('.field-list .dd-item').length === 0) $nodata.show()
+  else $nodata.hide()
 
-  if ($('.form-preview .dd-item').length === 0) $('.form-preview .nodata').show()
-  else $('.form-preview .nodata').hide()
+  $nodata = $('.form-preview .nodata, #adv-control .nodata')
+  if ($('.form-preview .dd-item').length === 0) $nodata.show()
+  else $nodata.hide()
 }
 
 // 字段属性
@@ -305,4 +348,24 @@ const add2Layout = function (add, fieldName) {
   })
 
   RbModal.hide()
+}
+
+// 高级控制
+const AdvControl = {
+  $controls: $('#adv-control tbody'),
+
+  append: function (item) {
+    this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
+      const $this = $(this)
+      item[$this.attr('name')] = $this.prop('checked')
+    })
+  },
+
+  set: function (item) {
+    this.$controls.find(`tr[data-field="${item.field}"] input`).each(function () {
+      const $this = $(this)
+      const v = item[$this.attr('name')]
+      if (v === true || v === false) $this.attr('checked', v)
+    })
+  },
 }

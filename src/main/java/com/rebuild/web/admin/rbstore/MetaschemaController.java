@@ -12,6 +12,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,7 @@ import java.util.Map;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/04/28
  */
+@Slf4j
 @RestController
 public class MetaschemaController extends BaseController {
 
@@ -55,7 +57,7 @@ public class MetaschemaController extends BaseController {
             }
 
         } catch (Exception ex) {
-            LOG.error("Cannot import entity : " + mainKey, ex);
+            log.error("Cannot import entity : " + mainKey, ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }

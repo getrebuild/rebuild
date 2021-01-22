@@ -24,7 +24,6 @@
       .safe-tips .url .icon {
         width: 40px;
         height: 40px;
-        line-height: 40px;
         background-color: #bcc6d8;
         border-radius: 2px;
         text-align: center;
@@ -32,6 +31,7 @@
         color: #f3f3f3;
         float: left;
         margin-right: 10px;
+        padding-top: 1px;
       }
       .safe-tips .url .text {
         height: 40px;
@@ -61,7 +61,7 @@
         </div>
       </div>
     </div>
-    <div class="copyright fixed">&copy; [[${appName}]]</div>
+    <div class="copyright fixed link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('RebuildPowered')}"/></div>
     <th:block th:replace="~{/_include/footer}" />
   </body>
 </html>
