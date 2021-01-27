@@ -53,12 +53,13 @@
           <li class="nav-item dropdown admin-show admin-settings" th:title="${bundle.L('AdminSettings')}">
             <a class="nav-link" th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i></a>
           </li>
-          <li class="nav-item dropdown page-help">
-            <a class="nav-link" href="https://getrebuild.com/docs/" th:title="${bundle.L('ViewPageHelp')}" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
+          <li class="nav-item dropdown page-help" th:title="${bundle.L('ViewPageHelp')}">
+            <a class="nav-link" href="https://getrebuild.com/docs/" target="_blank"><i class="icon zmdi zmdi-help"></i></a>
           </li>
-          <li class="nav-item dropdown J_top-notifications">
+          <li class="nav-item dropdown J_top-notifications" th:title="${bundle.L('Notification')}">
             <a class="nav-link dropdown-toggle" data-toggle="dropdown" th:href="@{/notifications}">
-              <i class="icon zmdi zmdi-notifications"></i><span class="indicator hide"></span>
+              <i class="icon zmdi zmdi-notifications"></i>
+              <span class="indicator hide"></span>
             </a>
             <ul class="dropdown-menu rb-notifications">
               <li>

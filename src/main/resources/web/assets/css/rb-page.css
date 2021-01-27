@@ -28,7 +28,7 @@ html.admin .admin-show.row {
 
 html,
 body {
-  min-width: 340px;
+  min-width: 360px;
 }
 
 code {
@@ -318,14 +318,6 @@ a.btn {
 
 .rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
   color: rgba(255, 255, 255, 0.6);
-}
-
-.rb-wrapper .rb-icons-nav .page-help {
-  display: none;
-}
-
-.rb-wrapper.rb-color-header .rb-icons-nav .page-help {
-  display: block;
 }
 
 .rb-color-header .dropdown > a > .icon {
