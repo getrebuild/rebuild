@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 /**
+ * 配置参数
+ *
  * @author zhaofang123@gmail.com
  * @since 08/28/2020
  */
@@ -152,7 +154,6 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
         String value = null;
         if (ConfigurationItem.DataDirectory.name().equalsIgnoreCase(name)) {
             value = System.getProperty("DataDirectory");
-
         } else if (ENV_HOLD != null) {
             if (!(name.startsWith(V2_PREFIX) || name.contains("."))) {
                 name = V2_PREFIX + name;

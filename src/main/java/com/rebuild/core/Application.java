@@ -159,7 +159,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
      * @throws Exception
      */
     public static boolean init() throws Exception {
-        if (_READY) throw new IllegalStateException("Rebuild already started");
+        if (_READY) throw new IllegalStateException("REBUILD ALREADY STARTED");
         log.info("Initializing Rebuild context [ {} ] ...", _CONTEXT.getClass().getSimpleName());
 
         if (!(_READY = ServerStatus.checkAll())) {

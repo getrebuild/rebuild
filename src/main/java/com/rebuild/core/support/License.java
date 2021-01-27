@@ -37,6 +37,7 @@ public final class License {
      */
     public static String SN() {
         if (USE_SN != null) return USE_SN;
+
         String SN = RebuildConfiguration.get(ConfigurationItem.SN, true);
         if (SN != null) {
             USE_SN = SN;
