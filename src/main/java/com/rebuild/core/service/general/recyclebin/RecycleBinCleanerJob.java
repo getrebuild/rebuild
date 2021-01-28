@@ -15,6 +15,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -26,6 +27,7 @@ import java.util.Date;
  * @author devezhao
  * @since 2019/8/21
  */
+@Slf4j
 @Component
 public class RecycleBinCleanerJob extends DistributedJobLock {
 
@@ -40,7 +42,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
 
         final int rbDays = RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays);
         if (rbDays < KEEPING_FOREVER) {
-            LOG.info("RecycleBin clean running ... " + rbDays);
+            log.info("RecycleBin clean running ... " + rbDays);
 
             Entity entity = MetadataHelper.getEntity(EntityHelper.RecycleBin);
             Date before = CalendarUtils.addDay(-rbDays);
@@ -50,7 +52,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                     entity.getField("deletedOn").getPhysicalName(),
                     CalendarUtils.getUTCDateFormat().format(before));
             int del = Application.getSqlExecutor().execute(delSql, 120);
-            LOG.warn("RecycleBin cleaned : " + del);
+            log.warn("RecycleBin cleaned : " + del);
 
             // TODO 相关引用也在此时一并删除，因为记录已经彻底删除了
 
@@ -60,7 +62,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
 
         final int rhDays = RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays);
         if (rhDays < KEEPING_FOREVER) {
-            LOG.info("RevisionHistory clean running ... " + rhDays);
+            log.info("RevisionHistory clean running ... " + rhDays);
 
             Entity entity = MetadataHelper.getEntity(EntityHelper.RevisionHistory);
             Date before = CalendarUtils.addDay(-rhDays);
@@ -70,7 +72,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
                     entity.getField("revisionOn").getPhysicalName(),
                     CalendarUtils.getUTCDateFormat().format(before));
             int del = Application.getSqlExecutor().execute(delSql, 120);
-            LOG.warn("RevisionHistory cleaned : " + del);
+            log.warn("RevisionHistory cleaned : " + del);
         }
     }
 }

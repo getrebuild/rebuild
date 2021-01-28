@@ -9,8 +9,7 @@ package com.rebuild.core.support.distributed;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.support.setup.Installer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
@@ -21,9 +20,8 @@ import redis.clients.jedis.JedisPool;
  * @author ZHAO
  * @since 2020/4/5
  */
+@Slf4j
 public abstract class DistributedJobLock {
-
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     private static final String SET_IF_NOT_EXIST = "NX";
     private static final String SET_WITH_EXPIRE_TIME = "EX";
@@ -37,8 +35,10 @@ public abstract class DistributedJobLock {
      * @return
      */
     protected boolean tryLock() {
-        // 系统待安装
-        if (!Application.isReady()) return false;
+        if (Application.isWaitLoad()) {
+            log.warn("Job [ {} ] ignored while REBUILD starting up.", getClass().getSimpleName());
+            return false;
+        }
 
         if (Installer.isUseRedis()) {
             JedisPool pool = Application.getCommonsCache().getJedisPool();
@@ -47,13 +47,13 @@ public abstract class DistributedJobLock {
             try (Jedis jedis = pool.getResource()) {
                 String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_TIME);
                 if (tryLock == null) {
-                    LOG.warn("The job [ {} ] has been executed by another instance", getClass().getSimpleName());
+                    log.warn("The job [ {} ] has been executed by another instance", getClass().getSimpleName());
                     return false;
                 }
             }
         }
 
-        LOG.info("The job [ {} ] will be executed safely ...", getClass().getSimpleName());
+        log.info("The job [ {} ] will be executed safely ...", getClass().getSimpleName());
         return true;
     }
 }

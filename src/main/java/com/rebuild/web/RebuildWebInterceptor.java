@@ -54,7 +54,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             throws Exception {
         response.addHeader("X-RB-Server", ServerStatus.STARTUP_ONCE + "/" + Application.BUILD);
 
-        if (Application.isWaitLoads()) {
+        if (Application.isWaitLoad()) {
             throw new DefinedException(600, "Please wait while REBUILD starting up ...");
         }
 

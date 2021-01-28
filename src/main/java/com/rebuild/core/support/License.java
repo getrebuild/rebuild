@@ -14,22 +14,22 @@ import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeansException;
 
 import java.util.Locale;
 
 /**
- * 授权许可
- *
  * @author ZHAO
  * @since 2019-08-23
  */
+@Slf4j
 public final class License {
 
     private static final String OSA_KEY = "IjkMHgq94T7s7WkP";
+    private static final String TEMP_SN = "SN-000000-00000000000000";
 
     private static String USE_SN;
-
     private static Boolean USE_RBV;
 
     /**
@@ -44,25 +44,12 @@ public final class License {
             return SN;
         }
 
-        if (!Application.isReady()) {
-            return "SN-000000-0000000000";
-        }
+        if (!Application.isReady()) return TEMP_SN;
 
-        try {
-            String apiUrl = String.format("https://getrebuild.com/api/authority/new?ver=%s&k=%s", Application.VER, OSA_KEY);
-            String result = HttpUtils.get(apiUrl);
-
-            if (JSONUtils.wellFormat(result)) {
-                JSONObject o = JSON.parseObject(result);
-                SN = o.getString("sn");
-
-                if (SN != null) {
-                    RebuildConfiguration.set(ConfigurationItem.SN, SN);
-                }
-            }
-
-        } catch (Exception ignored) {
-            // UNCATCHABLE
+        JSONObject newsn = siteApi("api/authority/new?ver=" + Application.VER, false);
+        SN = newsn == null ? null : newsn.getString("sn");
+        if (SN != null) {
+            RebuildConfiguration.set(ConfigurationItem.SN, SN);
         }
 
         if (SN == null) {
@@ -141,8 +128,8 @@ public final class License {
             }
         }
 
-        String apiUrl = "https://getrebuild.com/" + api;
-        apiUrl += (api.contains("?") ? "&" : "?") + "k=" + OSA_KEY + "&sn=" + SN();
+        String apiUrl = "https://getrebuild.com/" + api + (api.contains("?") ? "&" : "?") + "k=" + OSA_KEY;
+        if (!api.contains("/authority/new")) apiUrl += "&sn=" + SN();
 
         try {
             String result = HttpUtils.get(apiUrl);
@@ -151,8 +138,8 @@ public final class License {
                 Application.getCommonsCache().putx(api, o, CommonsCache.TS_DAY);
                 return o;
             }
-        } catch (Exception ignored) {
-            // UNCATCHABLE
+        } catch (Exception ex) {
+            log.error("Call site api error : " + api, ex);
         }
         return null;
     }

@@ -90,10 +90,10 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         JSON.DEFAULT_GENERATE_FEATURE |= SerializerFeature.WriteMapNullValue.getMask();
     }
 
-    // 服务启动状态
+    // 系统状态
     private static boolean _READY;
-    // 等待系统组件装载
-    private static boolean _WAITLOADS = true;
+    // 业务组件已装载
+    private static boolean _WAITLOAD = true;
 
     // SPRING
     private static ApplicationContext _CONTEXT;
@@ -145,11 +145,11 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     _CONTEXT.getBean(RebuildWebConfigurer.class).init();
                     _CONTEXT.getBean(Language.class).init();
                 } catch (Exception ex) {
-                    log.error("STARTUP FAILED", ex);
+                    log.error("REBUILD STARTUP FAILED", ex);
                 }
             }
 
-            _WAITLOADS = false;
+            _WAITLOAD = false;
         }
     }
 
@@ -211,28 +211,16 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         return true;
     }
 
-    /**
-     * 是否开发模式
-     * @return
-     */
     public static boolean devMode() {
         return BootApplication.devMode();
     }
 
-    /**
-     * 已启动（不含组件装载）
-     * @return
-     */
     public static boolean isReady() {
         return _READY && _CONTEXT != null;
     }
 
-    /**
-     * 等待系统组件装载完毕
-     * @return
-     */
-    public static boolean isWaitLoads() {
-        return _WAITLOADS && _CONTEXT != null;
+    public static boolean isWaitLoad() {
+        return _WAITLOAD && _CONTEXT != null;
     }
 
     public static ApplicationContext getContext() {
