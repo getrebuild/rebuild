@@ -4,6 +4,8 @@
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
 [![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
 
+> **福利：欢迎加入 REBUILD QQ 交流群 819865721**
+
 ## REBUILD 2.2 新特性
 
 本次更新为你带来众多新功能与优化。
