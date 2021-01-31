@@ -65,7 +65,7 @@ public class HttpUtils {
      * @throws IOException
      */
     public static String get(String url) throws IOException {
-        return get(url, Collections.singletonMap(HttpHeaders.USER_AGENT, RB_UA));
+        return get(url, null);
     }
 
     /**
@@ -78,7 +78,7 @@ public class HttpUtils {
      */
     public static String get(String url, Map<String, String> headers) throws IOException {
         Request.Builder builder = new Request.Builder().url(url);
-        Request request = setHeaders(builder, headers).build();
+        Request request = useHeaders(builder, headers).build();
 
         try (Response response = getHttpClient().newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
@@ -94,7 +94,7 @@ public class HttpUtils {
      * @throws IOException
      */
     public static String post(String url, Map<String, Object> formData) throws IOException {
-        return post(url, formData, Collections.singletonMap(HttpHeaders.USER_AGENT, RB_UA));
+        return post(url, formData, null);
     }
 
     /**
@@ -116,7 +116,7 @@ public class HttpUtils {
         }
 
         Request.Builder builder = new Request.Builder().url(url);
-        Request request = setHeaders(builder, headers)
+        Request request = useHeaders(builder, headers)
                 .post(formBuilder.build())
                 .build();
 
@@ -149,7 +149,7 @@ public class HttpUtils {
      */
     public static boolean readBinary(String url, File dest, Map<String, String> headers) throws IOException {
         Request.Builder builder = new Request.Builder().url(url);
-        Request request = setHeaders(builder, headers).build();
+        Request request = useHeaders(builder, headers).build();
 
         try (Response response = getHttpClient().newCall(request).execute()) {
             try (InputStream is = Objects.requireNonNull(response.body()).byteStream()) {
@@ -168,7 +168,9 @@ public class HttpUtils {
         return true;
     }
 
-    private static Request.Builder setHeaders(Request.Builder builder, Map<String, String> headers) {
+    private static Request.Builder useHeaders(Request.Builder builder, Map<String, String> headers) {
+        builder.addHeader(HttpHeaders.USER_AGENT, RB_UA);
+
         if (headers != null && !headers.isEmpty()) {
             for (Map.Entry<String, String> e : headers.entrySet()) {
                 builder.addHeader(e.getKey(), e.getValue());

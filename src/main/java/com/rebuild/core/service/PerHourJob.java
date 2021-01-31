@@ -13,6 +13,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
 import com.rebuild.core.support.setup.DatabaseBackup;
 import com.rebuild.utils.FileFilterByLastModified;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ import java.util.Calendar;
  * @author devezhao
  * @since 2020/2/4
  */
+@Slf4j
 @Component
 public class PerHourJob extends DistributedJobLock {
 
@@ -54,7 +56,7 @@ public class PerHourJob extends DistributedJobLock {
         try {
             new DatabaseBackup().backup();
         } catch (Exception e) {
-            LOG.error("Executing [DatabaseBackup] failed : " + e);
+            log.error("Executing [DatabaseBackup] failed : " + e);
         }
     }
 

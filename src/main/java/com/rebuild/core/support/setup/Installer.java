@@ -26,11 +26,10 @@ import com.rebuild.core.support.distributed.UseRedis;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -48,9 +47,8 @@ import static com.rebuild.core.support.ConfigurationItem.*;
  * @author devezhao
  * @since 2019/11/25
  */
+@Slf4j
 public class Installer implements InstallState {
-
-    private static final Logger LOG = LoggerFactory.getLogger(Installer.class);
 
     public static final String CONF_PREFIX = "db.";
 
@@ -104,7 +102,7 @@ public class Installer implements InstallState {
             FileUtils.deleteQuietly(dest);
             try (OutputStream os = new FileOutputStream(dest)) {
                 installProps.store(os, "INSTALL FILE FOR REBUILD (v2). DON'T DELETE OR MODIFY IT!!!");
-                LOG.info("Saved installation file : " + dest);
+                log.info("Saved installation file : " + dest);
             }
 
         } catch (IOException e) {
@@ -126,7 +124,7 @@ public class Installer implements InstallState {
         try {
             this.installModel();
         } catch (Exception ex) {
-            LOG.error("Install model error", ex);
+            log.error("Error installing business module", ex);
         }
     }
 
@@ -178,7 +176,7 @@ public class Installer implements InstallState {
             Properties props = new Properties();
             dbName = StringUtils.defaultIfBlank(dbName, "H2DB");
             File dbFile = RebuildConfiguration.getFileOfData(dbName);
-            LOG.warn("Use H2 database : " + dbFile);
+            log.warn("Use H2 database : " + dbFile);
 
             props.put("db.url", String.format("jdbc:h2:file:%s;MODE=MYSQL;DATABASE_TO_LOWER=TRUE;IGNORECASE=TRUE",
                     dbFile.getAbsolutePath()));
@@ -210,7 +208,7 @@ public class Installer implements InstallState {
     protected void installDatabase() {
         // 本身就是 RB 数据库，无需创建
         if (isRbDatabase()) {
-            LOG.warn("Use RB database without create");
+            log.warn("Use RB database without create");
             return;
         }
 
@@ -230,7 +228,7 @@ public class Installer implements InstallState {
                 try (Connection conn = getConnection("mysql")) {
                     try (Statement stmt = conn.createStatement()) {
                         stmt.executeUpdate(createDb);
-                        LOG.warn("Database created : " + createDb);
+                        log.warn("Database created : " + createDb);
                     }
 
                 } catch (SQLException sqlex) {
@@ -248,7 +246,7 @@ public class Installer implements InstallState {
                     affetced++;
                 }
             }
-            LOG.info("Schemes of database created : " + affetced);
+            log.info("Schemes of database created : " + affetced);
 
         } catch (SQLException | IOException e) {
             throw new SetupException(e);
@@ -334,7 +332,7 @@ public class Installer implements InstallState {
             }
 
         } catch (SQLException sqlex) {
-            LOG.error("Cannot execute SQL : " + sql, sqlex);
+            log.error("Cannot execute SQL : " + sql, sqlex);
         }
     }
 
@@ -378,14 +376,14 @@ public class Installer implements InstallState {
                 try (ResultSet rs = stmt.executeQuery(rbSql)) {
                     if (rs.next()) {
                         String dbVer = rs.getString(1);
-                        LOG.info("Check RB database version : " + dbVer);
+                        log.info("Check RB database version : " + dbVer);
                         return true;
                     }
                 }
             }
 
         } catch (SQLException ex) {
-            LOG.warn("Check RB database error : " + ex.getLocalizedMessage());
+            log.warn("Check RB database error : " + ex.getLocalizedMessage());
         }
         return false;
     }

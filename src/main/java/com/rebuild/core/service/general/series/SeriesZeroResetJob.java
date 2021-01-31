@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.support.distributed.DistributedJobLock;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +28,7 @@ import java.util.Calendar;
  * @author devezhao
  * @since 12/25/2018
  */
+@Slf4j
 @Component
 public class SeriesZeroResetJob extends DistributedJobLock {
 
@@ -51,13 +53,13 @@ public class SeriesZeroResetJob extends DistributedJobLock {
                     String zeroMode = easyField.getExtraAttr(EasyFieldConfigProps.SERIES_ZERO);
                     if ("D".equalsIgnoreCase(zeroMode)) {
                         SeriesGeneratorFactory.zero(field);
-                        LOG.info("Zero field by [D] : " + field);
+                        log.info("Zero field by [D] : " + field);
                     } else if ("M".equalsIgnoreCase(zeroMode) && isFirstDayOfMonth) {
                         SeriesGeneratorFactory.zero(field);
-                        LOG.info("Zero field by [M] : " + field);
+                        log.info("Zero field by [M] : " + field);
                     } else if ("Y".equalsIgnoreCase(zeroMode) && isFirstDayOfYear) {
                         SeriesGeneratorFactory.zero(field);
-                        LOG.info("Zero field by [Y] : " + field);
+                        log.info("Zero field by [Y] : " + field);
                     }
                 }
             }
