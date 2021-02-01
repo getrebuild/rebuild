@@ -31,7 +31,4 @@ public class AuthTokenManagerTest extends TestSupport {
         AuthTokenManager.verifyToken(newToken, true);
         Assertions.assertNull(AuthTokenManager.verifyToken(newToken, false));
     }
-
-
-
 }
