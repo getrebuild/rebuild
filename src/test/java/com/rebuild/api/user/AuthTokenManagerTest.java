@@ -5,9 +5,10 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.api;
+package com.rebuild.api.user;
 
 import com.rebuild.TestSupport;
+import com.rebuild.api.user.AuthTokenManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
