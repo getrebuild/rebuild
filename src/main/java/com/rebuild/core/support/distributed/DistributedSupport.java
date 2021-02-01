@@ -10,8 +10,6 @@ package com.rebuild.core.support.distributed;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import redis.clients.jedis.JedisPool;
 
 import java.util.ArrayList;
@@ -29,8 +27,6 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class DistributedSupport implements UseRedis {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DistributedSupport.class);
-
     private RedissonClient redissonClient;
 
     public DistributedSupport(JedisPool jedisPool) {
@@ -46,7 +42,7 @@ public class DistributedSupport implements UseRedis {
         return false;
     }
 
-    // useSingleServer
+    // NOTE: useSingleServer
     private Config createConfig(KnownJedisPool kjp) {
         Config config = new Config();
         config.useSingleServer()

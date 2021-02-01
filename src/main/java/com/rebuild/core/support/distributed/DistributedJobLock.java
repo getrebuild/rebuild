@@ -12,6 +12,7 @@ import com.rebuild.core.support.setup.Installer;
 import lombok.extern.slf4j.Slf4j;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.params.SetParams;
 
 /**
  * 分布式环境下（多 RB 实例），避免一个 Job 多个实例都运行。
@@ -22,9 +23,6 @@ import redis.clients.jedis.JedisPool;
  */
 @Slf4j
 public abstract class DistributedJobLock {
-
-    private static final String SET_IF_NOT_EXIST = "NX";
-    private static final String SET_WITH_EXPIRE_TIME = "EX";
 
     private static final String LOCK_KEY = "#RBJOBLOCK";
     private static final int LOCK_TIME = 2;  // 2s offset
@@ -45,7 +43,7 @@ public abstract class DistributedJobLock {
             String jobKey = getClass().getName() + LOCK_KEY;
 
             try (Jedis jedis = pool.getResource()) {
-                String tryLock = jedis.set(jobKey, LOCK_KEY, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, LOCK_TIME);
+                String tryLock = jedis.set(jobKey, LOCK_KEY, SetParams.setParams().nx().ex(LOCK_TIME));
                 if (tryLock == null) {
                     log.warn("The job [ {} ] has been executed by another instance", getClass().getSimpleName());
                     return false;
