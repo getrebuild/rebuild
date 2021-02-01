@@ -56,7 +56,11 @@ public class ApiGateway extends Controller implements Initialization {
     @SuppressWarnings("unchecked")
     @Override
     public void init() throws Exception {
-        Set<Class<?>> apiClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses("com.rebuild", BaseApi.class);
+        Set<Class<?>> apiClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses(
+                BaseApi.class.getPackage().getName(), BaseApi.class);
+        apiClasses.addAll(cn.devezhao.commons.ReflectUtils.getAllSubclasses(
+                "com.rebuild.rbv.openapi", BaseApi.class));
+
         for (Class<?> c : apiClasses) {
             BaseApi api = (BaseApi) ReflectUtils.newInstance(c);
             String apiName = api.getApiName();
