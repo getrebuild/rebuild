@@ -46,7 +46,7 @@ import java.util.*;
 @org.springframework.stereotype.Controller
 public class ApiGateway extends Controller implements Initialization {
 
-    // 基于 ip 限流
+    // 基于 IP 限流
     private static final RequestRateLimiter RRL = RateLimiters.createRateLimiter(
             new int[] { 10, 60 },
             new int[] { 200, 600 });
@@ -57,7 +57,10 @@ public class ApiGateway extends Controller implements Initialization {
     @Override
     public void init() throws Exception {
         Set<Class<?>> apiClasses = cn.devezhao.commons.ReflectUtils.getAllSubclasses(
-                ApiGateway.class.getPackage().getName(), BaseApi.class);
+                BaseApi.class.getPackage().getName(), BaseApi.class);
+        apiClasses.addAll(cn.devezhao.commons.ReflectUtils.getAllSubclasses(
+                "com.rebuild.rbv.openapi", BaseApi.class));
+
         for (Class<?> c : apiClasses) {
             BaseApi api = (BaseApi) ReflectUtils.newInstance(c);
             String apiName = api.getApiName();

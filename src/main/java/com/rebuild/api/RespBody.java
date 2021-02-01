@@ -21,6 +21,7 @@ import com.rebuild.utils.JSONable;
  * @see com.rebuild.web.ControllerResponseBodyAdvice
  */
 public class RespBody implements JSONable {
+    private static final long serialVersionUID = 7858909284223713830L;
 
     private int errorCode;
     private String errorMsg;

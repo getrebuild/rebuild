@@ -45,10 +45,10 @@ public class LoginToken extends BaseApi {
         User loginUser = Application.getUserStore().getUser(user);
         String loginToken = AuthTokenManager.generateToken(loginUser.getId(), 60);
 
-        JSON ret = JSONUtils.toJSONObject(
-                new String[]{"login_token", "login_url"},
-                new String[]{loginToken, RebuildConfiguration.getHomeUrl("user/login")});
-        return formatSuccess(ret);
+        JSON data = JSONUtils.toJSONObject(
+                new String[] { "login_token", "login_url" },
+                new String[] { loginToken, RebuildConfiguration.getHomeUrl("user/login") });
+        return formatSuccess(data);
     }
 
     // --

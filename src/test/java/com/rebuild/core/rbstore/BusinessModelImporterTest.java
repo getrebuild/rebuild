@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.rbstore;
 
-import junit.framework.TestCase;
+import com.rebuild.TestSupport;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -16,7 +16,7 @@ import java.util.Map;
  * @author ZHAO
  * @since 2020/11/12
  */
-class BusinessModelImporterTest extends TestCase {
+class BusinessModelImporterTest extends TestSupport {
 
     @Test
     void findRefs() {

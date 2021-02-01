@@ -5,11 +5,11 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.api;
+package com.rebuild.api.user;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.TestSupport;
-import com.rebuild.api.user.LoginToken;
+import com.rebuild.api.ApiContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

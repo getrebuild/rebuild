@@ -32,7 +32,7 @@ public class AuthTokenManager {
      * 生成并存储 Token
      *
      * @param user
-     * @param expires
+     * @param expires seconds
      * @return
      */
     public static String generateToken(ID user, int expires) {
