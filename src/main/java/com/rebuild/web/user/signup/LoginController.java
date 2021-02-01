@@ -17,8 +17,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
-import com.rebuild.api.user.AuthTokenManager;
-import com.rebuild.api.user.LoginToken;
+import com.rebuild.api.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
@@ -154,7 +153,7 @@ public class LoginController extends BaseController {
             return RespBody.error("VCODE");
         }
 
-        String hasError = LoginToken.checkUser(user, password);
+        String hasError = AuthTokenManager.checkUser(user, password);
         if (hasError != null) {
             return RespBody.error(hasError);
         }

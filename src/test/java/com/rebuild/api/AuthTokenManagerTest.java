@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.api;
 
 import com.rebuild.TestSupport;
-import com.rebuild.api.user.AuthTokenManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,4 +30,7 @@ public class AuthTokenManagerTest extends TestSupport {
         AuthTokenManager.verifyToken(newToken, true);
         Assertions.assertNull(AuthTokenManager.verifyToken(newToken, false));
     }
+
+
+
 }

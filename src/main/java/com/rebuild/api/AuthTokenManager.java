@@ -5,11 +5,15 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.api.user;
+package com.rebuild.api;
 
 import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -32,7 +36,7 @@ public class AuthTokenManager {
      * 生成并存储 Token
      *
      * @param user
-     * @param expires
+     * @param expires seconds
      * @return
      */
     public static String generateToken(ID user, int expires) {
@@ -77,5 +81,38 @@ public class AuthTokenManager {
 
         Application.getCommonsCache().putx(TOKEN_PREFIX + token, user, expires);
         return user;
+    }
+
+    // --
+
+    /**
+     * 检查用户登录
+     *
+     * @param user
+     * @param password
+     * @return
+     */
+    public static String checkUser(String user, String password) {
+        if (!Application.getUserStore().existsUser(user)) {
+            return Language.L("SomeError", "UsernameOrPassword");
+        }
+
+        User loginUser = Application.getUserStore().getUser(user);
+        if (!loginUser.isActive()
+                || !Application.getPrivilegesManager().allow(loginUser.getId(), ZeroEntry.AllowLogin)) {
+            return Language.L("UnactiveUser");
+        }
+
+        Object[] foundUser = Application.createQueryNoFilter(
+                "select password from User where loginName = ? or email = ?")
+                .setParameter(1, user)
+                .setParameter(2, user)
+                .unique();
+        if (foundUser != null && foundUser[0].equals(EncryptUtils.toSHA256Hex(password))) {
+            // Okay
+            return null;
+        } else {
+            return Language.L("SomeError", "UsernameOrPassword");
+        }
     }
 }
