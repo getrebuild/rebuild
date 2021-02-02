@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.2</version>
+        <version>2.3.4.RELEASE</version>
         <relativePath/>
     </parent>
     <groupId>com.rebuild</groupId>
@@ -226,7 +226,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>5.3.3</version>
+            <version>5.2.9.RELEASE</version>
         </dependency>
 
         <dependency>
@@ -393,7 +393,7 @@
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>0.4.13</version>re
+            <version>0.4.13</version>
         </dependency>
         <dependency>
             <groupId>es.moki.ratelimitj</groupId>

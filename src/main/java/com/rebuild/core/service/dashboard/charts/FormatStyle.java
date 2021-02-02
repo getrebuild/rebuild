@@ -15,9 +15,9 @@ package com.rebuild.core.service.dashboard.charts;
  */
 public class FormatStyle {
 
-    private String fontsize = "";
-    private String fontcolor = "";
-    private String formatted = "";
+    private String fontsize;
+    private String fontcolor;
+    private String formatted;
 
     public FormatStyle(String fontsize, String fontcolor, String formatted) {
         this.fontsize = fontsize;

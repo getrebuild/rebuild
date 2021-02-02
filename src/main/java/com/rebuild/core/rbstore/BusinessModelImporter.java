@@ -13,8 +13,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -25,9 +24,8 @@ import java.util.*;
  * @author devezhao
  * @since 2020/9/29
  */
+@Slf4j
 public class BusinessModelImporter extends HeavyTask<Integer> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BusinessModelImporter.class);
 
     private String[] modelFiles;
 
@@ -62,7 +60,8 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
 
             String created = new MetaschemaImporter(data).exec();
             createdEntity.add(created);
-            LOG.info("Entity created : " + created);
+            log.info("Entity created : " + created);
+
             this.addCompleted();
             this.addSucceeded();
         }
