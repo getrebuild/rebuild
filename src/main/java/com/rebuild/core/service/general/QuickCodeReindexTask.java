@@ -68,6 +68,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
             List<Record> records = Application.createQueryNoFilter(sql)
                     .setLimit(PAGE_SIZE, pageNo * PAGE_SIZE - PAGE_SIZE)
                     .list();
+            pageNo++;
 
             this.setTotal(records.size() + this.getTotal() + 1);
             for (Record o : records) {
