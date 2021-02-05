@@ -18,6 +18,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.CsrfToken;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
@@ -28,8 +29,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.core.NamedThreadLocal;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MimeTypeUtils;
+import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -45,7 +46,7 @@ import java.io.IOException;
  * @since 2.0
  */
 @Slf4j
-public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements InstallState {
+public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallState {
 
     private static final ThreadLocal<RequestEntry> REQUEST_ENTRY = new NamedThreadLocal<>("RequestEntry");
 
@@ -143,6 +144,11 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
             }
 
         } else if (!isIgnoreAuth(requestUri)) {
+            // 外部表单特殊处理（媒体字段上传/预览）
+            if (requestUri.contains("/filex/") && CsrfToken.verify(request, false)) {
+                return true;
+            }
+
             log.warn("Unauthorized access {} via {}",
                     RebuildWebConfigurer.getRequestUrls(request), ServletUtils.getRemoteAddr(request));
 
@@ -160,7 +166,7 @@ public class RebuildWebInterceptor extends HandlerInterceptorAdapter implements 
 
     @Override
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
-        super.postHandle(request, response, handler, modelAndView);
+        // Notings
     }
 
     @Override

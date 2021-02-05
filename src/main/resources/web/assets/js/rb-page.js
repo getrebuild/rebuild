@@ -441,13 +441,15 @@ var $createUploader = function (input, next, complete, error) {
   var local = input.data('local')
   if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
 
+  var useToken = rb.csrfToken ? ('&_token=' + rb.csrfToken) : ''
+
   if (window.qiniu && rb.storageUrl && !local) {
     input.on('change', function () {
       var file = this.files[0]
       if (!file) return
 
       var putExtra = imgOnly ? { mimeType: ['image/png', 'image/jpeg', 'image/gif', 'image/bmp'] } : null
-      $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name), function (res) {
+      $.get('/filex/qiniu/upload-keys?file=' + $encode(file.name) + useToken, function (res) {
         var o = qiniu.upload(file, res.data.key, res.data.token, putExtra)
         o.subscribe({
           next: function (res) {
@@ -466,7 +468,7 @@ var $createUploader = function (input, next, complete, error) {
             return false
           },
           complete: function (res) {
-            if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key))
+            if (file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(res.key) + useToken)
             typeof complete === 'function' && complete({ key: res.key })
           },
         })
@@ -475,7 +477,7 @@ var $createUploader = function (input, next, complete, error) {
   } else {
     input.html5Uploader({
       name: input.attr('id') || input.attr('name') || 'H5Upload',
-      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp'),
+      postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
           RbHighbar.create($L(imgOnly ? 'PlsUploadImg' : 'FileTypeError'))
@@ -492,7 +494,7 @@ var $createUploader = function (input, next, complete, error) {
       onSuccess: function (e, file) {
         e = $.parseJSON(e.currentTarget.response)
         if (e.error_code === 0) {
-          if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data))
+          if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
           complete({ key: e.data })
         } else {
           RbHighbar.error($L('ErrorUpload'))
