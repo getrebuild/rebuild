@@ -1318,6 +1318,8 @@
   "CommercialNoRbvTip": "System has detected the commercial feature package is not installed, and the relevant commercial feature may not be available. Please contact the REBUILD to obtain it",
   "RevisionHistoryKeepingDays": "Data History retention time",
   "RecycleBinKeepingDays": "Recycle Bin retention time",
+  "BindUser": "Data Binding User",
+  "BindUserTip": "The user who belongs to the data submitted through this form. If not specified, the system-user will be the default. You can assign the data to different users through [Trigger (Auto Assign)](/admin/robot/triggers)" ,
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

@@ -24,7 +24,7 @@ import com.rebuild.core.service.trigger.TriggerException;
  */
 public class AutoApproval implements TriggerAction {
 
-    final protected ActionContext context;
+    final private ActionContext context;
 
     /**
      * @param context

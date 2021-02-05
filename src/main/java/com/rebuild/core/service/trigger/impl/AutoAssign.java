@@ -21,10 +21,9 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.support.KVStorage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -32,9 +31,8 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/8/23
  */
+@Slf4j
 public class AutoAssign implements TriggerAction {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AutoAssign.class);
 
     final protected ActionContext context;
 
@@ -74,7 +72,7 @@ public class AutoAssign implements TriggerAction {
 
         if (!allowNoPermissionAssign
                 && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), recordId, BizzPermission.ASSIGN)) {
-            LOG.warn("No permission to assign record of target: " + recordId);
+            log.warn("No permission to assign record of target: " + recordId);
             return;
         }
 

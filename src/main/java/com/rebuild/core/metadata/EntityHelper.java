@@ -7,14 +7,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.record.FieldValueException;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
+
+import java.util.Date;
 
 /**
  * @author Zhao Fangfang
@@ -47,7 +51,7 @@ public class EntityHelper {
 
         EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
         Record record = creator.create(false);
-        EntityRecordCreator.bindCommonsFieldsValue(record, record.getPrimary() == null);
+        bindCommonsFieldsValue(record, record.getPrimary() == null);
         return record;
     }
 
@@ -74,7 +78,7 @@ public class EntityHelper {
         Record record = new StandardRecord(entity, user);
         record.setID(entity.getPrimaryField().getName(), recordId);
         if (bindCommons) {
-            EntityRecordCreator.bindCommonsFieldsValue(record, false);
+            bindCommonsFieldsValue(record, false);
         }
         return record;
     }
@@ -108,9 +112,43 @@ public class EntityHelper {
 
         Record record = new StandardRecord(entity, user);
         if (bindCommons) {
-            EntityRecordCreator.bindCommonsFieldsValue(record, true);
+            bindCommonsFieldsValue(record, true);
         }
         return record;
+    }
+
+    /**
+     * 绑定公用/权限字段值
+     *
+     * @param r
+     * @param isNew
+     */
+    public static void bindCommonsFieldsValue(Record r, boolean isNew) {
+        final Date now = CalendarUtils.now();
+        final Entity entity = r.getEntity();
+
+        if (entity.containsField(EntityHelper.ModifiedOn)) {
+            r.setDate(EntityHelper.ModifiedOn, now);
+        }
+        if (entity.containsField(EntityHelper.ModifiedBy)) {
+            r.setID(EntityHelper.ModifiedBy, r.getEditor());
+        }
+
+        if (isNew) {
+            if (entity.containsField(EntityHelper.CreatedOn)) {
+                r.setDate(EntityHelper.CreatedOn, now);
+            }
+            if (entity.containsField(EntityHelper.CreatedBy)) {
+                r.setID(EntityHelper.CreatedBy, r.getEditor());
+            }
+            if (entity.containsField(EntityHelper.OwningUser)) {
+                r.setID(EntityHelper.OwningUser, r.getEditor());
+            }
+            if (entity.containsField(EntityHelper.OwningDept)) {
+                com.rebuild.core.privileges.bizz.User user = Application.getUserStore().getUser(r.getEditor());
+                r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
+            }
+        }
     }
 
     // 公共字段/保留字段

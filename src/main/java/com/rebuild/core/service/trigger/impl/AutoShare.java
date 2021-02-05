@@ -18,9 +18,8 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
@@ -28,9 +27,8 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/8/23
  */
+@Slf4j
 public class AutoShare extends AutoAssign {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AutoShare.class);
 
     // 允许无权限共享
     final private boolean allowNoPermissionShare;
@@ -63,7 +61,7 @@ public class AutoShare extends AutoAssign {
 
         if (!allowNoPermissionShare
                 && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), recordId, BizzPermission.SHARE)) {
-            LOG.warn("No permission to share record of target: " + recordId);
+            log.warn("No permission to share record of target: " + recordId);
             return;
         }
 
