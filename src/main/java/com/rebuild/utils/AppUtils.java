@@ -187,10 +187,10 @@ public class AppUtils {
     public static MimeType parseMimeType(HttpServletRequest request) {
         try {
             String acceptType = request.getHeader("Accept");
-            if (acceptType == null) acceptType = request.getContentType();
+            if (acceptType == null || "*/*".equals(acceptType)) acceptType = request.getContentType();
 
             // Via Spider?
-            if (acceptType == null) return MimeTypeUtils.TEXT_HTML;
+            if (StringUtils.isBlank(acceptType)) return MimeTypeUtils.TEXT_HTML;
 
             acceptType = acceptType.split("[,;]")[0];
             // Accpet ALL?

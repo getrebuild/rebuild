@@ -21,6 +21,7 @@ import com.rebuild.utils.JSONable;
  * @since 2020/1/17
  */
 public class RecordBuilder implements JSONable {
+    private static final long serialVersionUID = -1255623355715103385L;
 
     /**
      * @param entity

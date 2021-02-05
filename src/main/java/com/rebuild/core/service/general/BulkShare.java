@@ -14,8 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.notification.NotificationOnce;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
 
@@ -25,9 +24,8 @@ import java.util.Set;
  * @author devezhao
  * @since 09/29/2018
  */
+@Slf4j
 public class BulkShare extends BulkOperator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BulkShare.class);
 
     public BulkShare(BulkContext context, GeneralEntityService ges) {
         super(context, ges);
@@ -50,7 +48,7 @@ public class BulkShare extends BulkOperator {
                     }
                 }
             } else {
-                LOG.warn("No have privileges to SHARE : " + context.getOpUser() + " > " + id);
+                log.warn("No have privileges to SHARE : " + context.getOpUser() + " > " + id);
             }
             this.addCompleted();
         }

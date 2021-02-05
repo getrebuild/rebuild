@@ -21,6 +21,8 @@
         <argLine>-Dfile.encoding=UTF-8</argLine>
         <java.version>1.8</java.version>
         <skipTests>true</skipTests>
+        <!-- https://github.com/spring-projects/spring-boot/issues/24602 -->
+        <thymeleaf.version>3.0.11.RELEASE</thymeleaf.version>
     </properties>
 
     <build>
@@ -393,7 +395,7 @@
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>0.4.13</version>re
+            <version>0.4.13</version>
         </dependency>
         <dependency>
             <groupId>es.moki.ratelimitj</groupId>

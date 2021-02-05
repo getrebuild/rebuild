@@ -20135,12 +20135,11 @@ label {
   z-index: -1;
 }
 
-.inputfile + label {
+.inputfile + label, .inputfile-label {
   padding: 0 12px;
   font-size: 1rem;
   line-height: 30px;
-  border: 1px solid transparent;
-  border-color: #d5d8de;
+  border: 1px solid #d5d8de;
   border-radius: 2px;
   display: inline-block;
   cursor: pointer;

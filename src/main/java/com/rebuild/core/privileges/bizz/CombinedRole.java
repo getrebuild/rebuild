@@ -27,6 +27,7 @@ import java.util.*;
  * @since 09/16/2018
  */
 public class CombinedRole extends Role {
+    private static final long serialVersionUID = 2668222642910366512L;
 
     /**
      * 权限掩码

@@ -1318,6 +1318,8 @@
   "CommercialNoRbvTip": "系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取",
   "RevisionHistoryKeepingDays": "变更历史保留时间",
   "RecycleBinKeepingDays": "回收站保留时间",
+  "BindUser": "数据绑定用户",
+  "BindUserTip": "经此表单提交的数据的所属用户，不指定则默认为系统用户。你可以通过 [触发器 (自动分派)](/admin/robot/triggers) 将数据分派给不同的用户",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

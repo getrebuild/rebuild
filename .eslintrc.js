@@ -55,6 +55,7 @@ module.exports = {
     $fileExtName: true,
     $gotoSection: true,
     $createUploader: true,
+    $initUploader: true,
     $cleanMenu: true,
     $cleanMap: true,
     $pages: true,

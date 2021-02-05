@@ -45,7 +45,7 @@ public class SqlExecutor {
 
     /**
      * @param sql
-     * @param timeout
+     * @param timeout in seconds
      * @return
      */
     public int execute(String sql, int timeout) {
