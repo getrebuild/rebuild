@@ -74,6 +74,9 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         try {
             Class.forName(com.mysql.cj.jdbc.Driver.class.getName());
             Class.forName(org.h2.Driver.class.getName());
+
+            // fix https://github.com/alibaba/druid/issues/3991
+            System.setProperty("druid.mysql.usePingMethod", "false");
         } catch (ClassNotFoundException ex) {
             throw new RebuildException(ex);
         }
