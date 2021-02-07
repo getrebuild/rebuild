@@ -1214,7 +1214,7 @@
   "UnConf": "未配置",
   "SomeUnConf": "{0}未配置",
   "RecentlyUsed": "最近使用",
-  "EtcXItems": "等 %d 项",
+  "EtcXItems": "共 %d 项",
   "TargetFieldReadonly": "目标字段只读",
   "Unsupport": "暂不支持",
   "NoPrivViewTask": "你无权查看该任务",

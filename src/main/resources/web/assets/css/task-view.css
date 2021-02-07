@@ -184,10 +184,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 0 0 0 30px;
 }
 
-.form-control-plaintext.desc .rich-content > .texts {
-  margin: 0;
-}
-
 .rich-editor textarea {
   max-height: 200px;
 }
@@ -337,4 +333,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .tags-list .dropdown-item:hover > a {
   display: inline-block;
+}
+
+.CodeMirror,
+.CodeMirror-scroll {
+  min-height: 70px;
 }

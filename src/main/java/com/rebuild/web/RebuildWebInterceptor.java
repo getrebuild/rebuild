@@ -149,8 +149,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 return true;
             }
 
-            log.warn("Unauthorized access {} via {}",
-                    RebuildWebConfigurer.getRequestUrls(request), ServletUtils.getRemoteAddr(request));
+            log.warn("Unauthorized access {}", RebuildWebConfigurer.getRequestUrls(request));
 
             if (requestEntry.isHtmlRequest()) {
                 sendRedirect(response, "/user/login", requestUri);

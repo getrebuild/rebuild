@@ -299,8 +299,8 @@
         <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID"/>
         <field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源IP"/>
         <field name="requestUrl" type="string" max-length="300" nullable="false" updatable="false" description="请求URL"/>
-        <field name="requestBody" type="text" updatable="false" max-length="10000" description="请求数据"/>
-        <field name="responseBody" type="text" nullable="false" max-length="10000" updatable="false" description="响应数据"/>
+        <field name="requestBody" type="text" updatable="false" description="请求数据"/>
+        <field name="responseBody" type="text" nullable="false" updatable="false" description="响应数据"/>
         <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间"/>
         <field name="responseTime" type="timestamp" nullable="false" updatable="false" description="响应时间"/>
         <index field-list="appId,remoteIp,requestTime"/>
@@ -311,7 +311,7 @@
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="应用实体"/>
         <field name="name" type="string" max-length="100" nullable="false" description="报表名称"/>
         <field name="templateFile" type="string" max-length="200" description="模板文件"/>
-        <field name="templateContent" type="text" max-length="20000" description="模板内容"/>
+        <field name="templateContent" type="text" description="模板内容"/>
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
@@ -373,8 +373,8 @@
     <entity name="Feeds" type-code="040" description="动态" name-field="content" extra-attrs="{icon:'chart-donut'}">
         <field name="feedsId" type="primary"/>
         <field name="type" type="small-int" nullable="false" updatable="false" default-value="1" description="类型"/>
-        <field name="content" type="text" nullable="false" max-length="3000" description="内容"/>
-        <field name="contentMore" type="text" max-length="3000" description="不同类型的扩展内容 (JSON Map)" queryable="false"/>
+        <field name="content" type="text" nullable="false" description="内容"/>
+        <field name="contentMore" type="text" description="不同类型的扩展内容 (JSON Map)" queryable="false"/>
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="relatedRecord" type="any-reference" description="相关业务记录" cascade="ignore"/>
@@ -389,7 +389,7 @@
     <entity name="FeedsComment" type-code="041" description="动态评论" name-field="content">
         <field name="commentId" type="primary"/>
         <field name="feedsId" type="reference" ref-entity="Feeds" nullable="false" updatable="false" description="相关动态" cascade="delete"/>
-        <field name="content" type="text" nullable="false" max-length="3000" description="内容"/>
+        <field name="content" type="text" nullable="false" description="内容"/>
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <index field-list="feedsId"/>
@@ -420,7 +420,7 @@
         <field name="principal" type="reference" ref-entity="User" description="负责人"/>
         <field name="members" type="string" max-length="420" description="项目成员 ($MemberID)"/>
         <field name="scope" type="small-int" default-value="1" description="可见范围 (1=公开 2=成员)"/>
-        <field name="extraDefinition" type="text" max-length="1000" description="扩展配置 (JSON Map)"/>
+        <field name="extraDefinition" type="text" description="扩展配置 (JSON Map)"/>
         <index field-list="projectCode" type="unique"/>
     </entity>
 
@@ -448,7 +448,7 @@
         <field name="deadline" type="timestamp" description="截至时间"/>
         <field name="startTime" type="timestamp" description="开始时间"/>
         <field name="endTime" type="timestamp" description="完成时间"/>
-        <field name="description" type="text" max-length="10000" description="备注" queryable="false"/>
+        <field name="description" type="text" description="备注" queryable="false"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" queryable="false"/>
         <field name="seq" type="int" default-value="0" description="排序 (小到大)" queryable="false"/>
@@ -467,7 +467,7 @@
     <entity name="ProjectTaskComment" type-code="054" description="任务评论">
         <field name="commentId" type="primary"/>
         <field name="taskId" type="reference" ref-entity="ProjectTask" nullable="false" updatable="false" cascade="delete" description="相关任务"/>
-        <field name="content" type="text" nullable="false" max-length="3000" description="评论内容"/>
+        <field name="content" type="text" nullable="false" description="评论内容"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <index field-list="taskId"/>
     </entity>

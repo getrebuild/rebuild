@@ -847,104 +847,39 @@ class RbFormTextarea extends RbFormElement {
   }
 
   _initMde() {
-    const _MDE_TOOLBAR = [
-      {
-        name: 'bold',
-        action: SimpleMDE.toggleBold,
-        className: 'zmdi zmdi-format-bold',
-        title: $L('MdeditBold'),
-      },
-      {
-        name: 'italic',
-        action: SimpleMDE.toggleItalic,
-        className: 'zmdi zmdi-format-italic',
-        title: $L('MdeditItalic'),
-      },
-      {
-        name: 'strikethrough',
-        action: SimpleMDE.toggleStrikethrough,
-        className: 'zmdi zmdi-format-strikethrough',
-        title: $L('MdeditStrikethrough'),
-      },
-      {
-        name: 'image',
-        action: () => this._fieldValue__upload.click(),
-        className: 'zmdi zmdi-image-o',
-        title: $L('MdeditImage'),
-      },
-      {
-        name: 'heading',
-        action: SimpleMDE.toggleHeadingSmaller,
-        className: 'zmdi zmdi-format-size',
-        title: $L('MdeditHeading'),
-      },
-      {
-        name: 'table',
-        action: SimpleMDE.drawTable,
-        className: 'zmdi zmdi-border-all',
-        title: $L('MdeditTable'),
-      },
-      {
-        name: 'unordered-list',
-        action: SimpleMDE.toggleUnorderedList,
-        className: 'zmdi zmdi-format-list-bulleted',
-        title: $L('MdeditUnorderedList'),
-      },
-      {
-        name: 'ordered-list',
-        action: SimpleMDE.toggleOrderedList,
-        className: 'zmdi zmdi-format-list-numbered',
-        title: $L('MdeditOrderedList'),
-      },
-      {
-        name: 'link',
-        action: SimpleMDE.drawLink,
-        className: 'zmdi zmdi-link',
-        title: $L('MdeditLink'),
-      },
-      '|',
-      {
-        name: 'fullscreen',
-        action: SimpleMDE.toggleFullScreen,
-        className: 'zmdi zmdi-fullscreen no-disable',
-        title: $L('MdeditFullScreen'),
-      },
-      {
-        name: 'preview',
-        action: SimpleMDE.togglePreview,
-        className: 'zmdi zmdi-eye no-disable',
-        title: $L('MdeditTogglePreview'),
-      },
-      {
-        name: 'guide',
-        action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-        className: 'zmdi zmdi-help-outline no-disable',
-        title: $L('MdeditGuide'),
-      },
-    ]
-
     const mde = new SimpleMDE({
       element: this._fieldValue,
       status: false,
       autoDownloadFontAwesome: false,
       spellChecker: false,
-      toolbar: this.props.readonly ? false : _MDE_TOOLBAR,
+      // eslint-disable-next-line no-undef
+      toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR,
     })
     this._simplemde = mde
 
     if (this.props.readonly) {
       mde.codemirror.setOption('readOnly', true)
     } else {
-      mde.codemirror.on('changes', () => {
-        $setTimeout(() => {
-          this.setState({ value: mde.value() }, this.checkValue)
-        }, 200, 'mde-update-event')
-      })
-
       $createUploader(this._fieldValue__upload, null, (res) => {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
         mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+      })
+      if (this.props.onView) {
+        setTimeout(() => {
+          mde.codemirror.focus()
+          mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
+        }, 100)
+      }
+
+      mde.codemirror.on('changes', () => {
+        $setTimeout(
+          () => {
+            this.setState({ value: mde.value() }, this.checkValue)
+          },
+          200,
+          'mde-update-event'
+        )
       })
     }
   }

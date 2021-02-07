@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global autosize, EMOJIS */
+/* global autosize, EMOJIS, SimpleMDE */
 
 const wpc = window.__PageConfig
 
@@ -390,7 +390,8 @@ class ValueDescription extends ValueComp {
     if (this.state.editMode) {
       return (
         <div className="form-control-plaintext">
-          <TextEditor hideToolbar={true} ref={(c) => (this._editor = c)} />
+          <textarea value={this.state.description || ''} ref={(c) => (this._editor = c)} />
+          <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />
           <div className="mt-2 text-right">
             <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
               {$L('Cancel')}
@@ -402,26 +403,66 @@ class ValueDescription extends ValueComp {
         </div>
       )
     } else {
+      const ps = {
+        className: 'form-control-plaintext mdedit-content hover',
+        onClick: () => this._handleEditMode(true),
+      }
+
+      if (this.state.description) {
+        return <div {...ps} dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+      } else {
+        return (
+          <div {...ps}>
+            <span className="text-muted">{$L('Null')}</span>
+          </div>
+        )
+      }
+    }
+  }
+
+  renderViewElement() {
+    if (this.state.description) {
+      return <div className="form-control-plaintext mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+    } else {
       return (
-        <div className="form-control-plaintext desc hover" onClick={() => this._handleEditMode(true)}>
-          {this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('ClickAdd')}</span>}
+        <div className="form-control-plaintext mdedit-content">
+          <span className="text-muted">{$L('Null')}</span>
         </div>
       )
     }
   }
 
-  renderViewElement() {
-    return (
-      <div className="form-control-plaintext desc">{this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('Null')}</span>}</div>
-    )
-  }
-
   _handleEditMode(editMode) {
-    this.setState({ editMode: editMode }, () => this.state.editMode && this._editor.focus(this.state.description))
+    if (!editMode && this._simplemde) {
+      this._simplemde.toTextArea()
+      this._simplemde = null
+    }
+
+    this.setState({ editMode: editMode }, () => {
+      if (this.state.editMode) {
+        const mde = new SimpleMDE({
+          element: this._editor,
+          status: false,
+          autoDownloadFontAwesome: false,
+          spellChecker: false,
+          // eslint-disable-next-line no-undef
+          toolbar: DEFAULT_MDE_TOOLBAR,
+        })
+        this._simplemde = mde
+
+        $createUploader(this._fieldValue__upload, null, (res) => {
+          const pos = mde.codemirror.getCursor()
+          mde.codemirror.setSelection(pos, pos)
+          mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+        })
+        mde.codemirror.focus()
+        mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
+      }
+    })
   }
 
   handleChange() {
-    const value = this._editor.val()
+    const value = this._simplemde.value()
     super.handleChange({ target: { name: 'description', value: value } }, () => this.setState({ description: value, editMode: false }))
   }
 }
@@ -464,9 +505,7 @@ class ValuePriority extends ValueComp {
   renderViewElement() {
     return (
       <div className="form-control-plaintext">
-        <span className={`tag-value arrow priority-${this.state.priority}`}>
-          {__PRIORITIES[this.state.priority]}
-        </span>
+        <span className={`tag-value arrow priority-${this.state.priority}`}>{__PRIORITIES[this.state.priority]}</span>
       </div>
     )
   }
@@ -673,11 +712,11 @@ class ValueTagsEditor extends React.Component {
                 <li className="dropdown-item" key={item.id} onClick={() => this._saveRelated(item)}>
                   <i style={colorStyle}></i>
                   <span>{item.name}</span>
-                  {item.isManageable &&
+                  {item.isManageable && (
                     <a onClick={() => this.toggleEditMode(true, item)} title={$L('Edit')}>
                       <i className="zmdi zmdi-edit"></i>
                     </a>
-                  }
+                  )}
                 </li>
               )
             } else {
@@ -824,7 +863,9 @@ class TaskCommentsList extends React.Component {
     if ((this.state.comments || []).length === 0) return null
     return (
       <div className="comment-list-wrap">
-        <h4><i className="zmdi zmdi-comments label-icon down-2"></i> {$L('SomeList,Comment')}</h4>
+        <h4>
+          <i className="zmdi zmdi-comments label-icon down-2"></i> {$L('SomeList,Comment')}
+        </h4>
         <div className="feeds-list comment-list">
           {this.state.comments.map((item) => {
             const id = `comment-${item.id}`
