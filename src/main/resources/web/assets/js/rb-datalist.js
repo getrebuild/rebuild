@@ -672,10 +672,10 @@ CellRenders.addRender('DECIMAL', function (v, s, k) {
 CellRenders.addRender('MULTISELECT', function (v, s, k) {
   return (
     <td key={k} className="td-sm column-multi">
-      <div style={s} title={v}>
+      <div style={s}>
         {(v.text || []).map((item) => {
           return (
-            <span key={'opt-' + item} className="badge">
+            <span key={'opt-' + item} className="badge" title={item}>
               {item}
             </span>
           )

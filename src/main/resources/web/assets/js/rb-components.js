@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
+/* global SimpleMDE */
 
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {
@@ -694,6 +695,83 @@ const UserShow = function (props) {
 const DateShow = function (props) {
   return props.date ? <span title={props.date}>{$fromNow(props.date)}</span> : null
 }
+
+// ~~ 默认 SimpleMDE 工具栏
+const DEFAULT_MDE_TOOLBAR = [
+  {
+    name: 'bold',
+    action: SimpleMDE.toggleBold,
+    className: 'zmdi zmdi-format-bold',
+    title: $L('MdeditBold'),
+  },
+  {
+    name: 'italic',
+    action: SimpleMDE.toggleItalic,
+    className: 'zmdi zmdi-format-italic',
+    title: $L('MdeditItalic'),
+  },
+  {
+    name: 'strikethrough',
+    action: SimpleMDE.toggleStrikethrough,
+    className: 'zmdi zmdi-format-strikethrough',
+    title: $L('MdeditStrikethrough'),
+  },
+  {
+    name: 'heading',
+    action: SimpleMDE.toggleHeadingSmaller,
+    className: 'zmdi zmdi-format-size',
+    title: $L('MdeditHeading'),
+  },
+  {
+    name: 'unordered-list',
+    action: SimpleMDE.toggleUnorderedList,
+    className: 'zmdi zmdi-format-list-bulleted',
+    title: $L('MdeditUnorderedList'),
+  },
+  {
+    name: 'ordered-list',
+    action: SimpleMDE.toggleOrderedList,
+    className: 'zmdi zmdi-format-list-numbered',
+    title: $L('MdeditOrderedList'),
+  },
+  {
+    name: 'link',
+    action: SimpleMDE.drawLink,
+    className: 'zmdi zmdi-link',
+    title: $L('MdeditLink'),
+  },
+  {
+    name: 'image',
+    action: () => this._fieldValue__upload.click(),
+    className: 'zmdi zmdi-image-o',
+    title: $L('MdeditImage'),
+  },
+  {
+    name: 'table',
+    action: SimpleMDE.drawTable,
+    className: 'zmdi zmdi-border-all',
+    title: $L('MdeditTable'),
+  },
+  '|',
+  {
+    name: 'fullscreen',
+    action: SimpleMDE.toggleFullScreen,
+    className: 'zmdi zmdi-fullscreen no-disable',
+    title: $L('MdeditFullScreen'),
+  },
+  {
+    name: 'preview',
+    action: SimpleMDE.togglePreview,
+    className: 'zmdi zmdi-eye no-disable',
+    title: $L('MdeditTogglePreview'),
+  },
+  {
+    name: 'guide',
+    action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+    className: 'zmdi zmdi-help-outline no-disable',
+    title: $L('MdeditGuide'),
+  },
+]
 
 /**
  * JSX 组件渲染

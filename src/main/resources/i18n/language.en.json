@@ -1214,7 +1214,7 @@
   "UnConf": "Not configured",
   "SomeUnConf": "{0} not configured",
   "RecentlyUsed": "Recently Used",
-  "EtcXItems": "etc. %d items",
+  "EtcXItems": "%d items",
   "TargetFieldReadonly": "Target field is read-only",
   "Unsupport": "Unsupported",
   "NoPrivViewTask": "You are not authorized to view this task",
