@@ -47,7 +47,7 @@ public class LoginToken extends BaseApi {
 
         JSON ret = JSONUtils.toJSONObject(
                 new String[]{"login_token", "login_url"},
-                new String[]{loginToken, RebuildConfiguration.getHomeUrl("user/login")});
+                new String[]{loginToken, RebuildConfiguration.getHomeUrl("user/login?token=" + loginToken)});
         return formatSuccess(ret);
     }
 
