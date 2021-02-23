@@ -1,44 +1,78 @@
-更新时间：2020-12-24
-生效时间：2020-12-24
+更新时间：2021-02-19
+生效时间：2021-02-19
 
 
-REBUILD 商业许可协议
+REBUILD 商业授权协议
 
 概述
 
-1. 本协议是对 REBUILD 商业许可的说明。
-2. REBUILD 使用开源 GPL-3.0 和商用双重许可授权。
-3. 在您使用 REBUILD 前应当认真阅读并同意本协议之内容/条款。如您不同意本协议之内容/条款，应该立即停止使用。继续使用 REBUILD 则视为同意本协议之全部内容/条款。
-4. REBUILD 为上海锐昉科技有限公司旗下产品，已通过中国版权保护中心/中华版权代理中心著作权申请，受《世界版权公约》和《中华人民共和国著作权法》保护。
-5. 请特别注意，无论使用何种授权，都不得以任何形式中断/破坏 REBUILD 的授权监测机制。
+1. 本协议是对 REBUILD 商业授权的说明。
+2. REBUILD 使用开源 GPL-3.0 和商业双重授权许可，在您使用 REBUILD 前应当认真阅读并同意本协议之内容/条款。如不同意应该立即停止使用，继续使用 REBUILD 则视为同意本协议之全部内容/条款。
+3. REBUILD 为上海锐昉科技有限公司旗下产品，已通过中国版权保护中心/中华版权代理中心著作权申请，受《世界版权公约》和《中华人民共和国著作权法》保护。
+4. 本协议带有英文译本，如中英文本存在歧义，以中文文本为准。
 
-符合以下条件可免费使用：
+双重授权
+
+1. REBUILD 有两种授权，"免费授权"和"商业授权"。
+2. 免费授权即 REBUILD 的开源免费版本（遵循 GPL-3.0 协议）。
+3. 商业授权即 REBUILD 的商业收费版本。
+4. 无论使用何种授权，都不得以任何形式中断/破坏 REBUILD 的授权监测机制。
+
+商业授权的权利和义务
+
+1. 商业授权可享有本协议及 REBUILD 官网（getrebuild.com）所列之权利，包括但不限于：
+1.1. 增值安装包。
+1.2. 商业授权用户服务手册。
+1.3. 官方专业技术支持。
+1.4. 所购商业授权（企业版、旗舰版等）之对应权利（可通过官网 getrebuild.com 查阅）。
+2. 商业授权用户明确同意其所拥有的权利不可共享给第三方，否则将视为违反协议之行为，一切后果需自行承担。
+3. 介于软件产品的可复制等特性，一经购买无法办理退款。
+4. 如有未尽事宜，本着友好的原则协商解决。
+
+附：免费授权的使用
 
 1. 仍旧作为开源项目（需采用 GPL-3.0 开源协议）。
 2. 出于非商业/非盈利目的的使用（如 NPO 组织）。
-3. 个人/企业/组织内部使用，不限制是否出于商业目的。但禁止对 REBUILD 进行任何形式的分发（包括但不限于销售、赠与、转卖），且不可基于 REBUILD 开发派生产品（符合本节第 1 条除外）。
+3. 个人学习/企业内部使用，不限制是否出于商业目的。但禁止对 REBUILD 进行任何形式的分发（包括但不限于销售、赠与、转卖）。
 
-不符合上述免费使用条件的需要付费使用。
+不符合上述免费条件的请购买商业授权使用。
 
-如您对本协议有任何异议，请联系我们 https://getrebuild.com/ 或立即停止使用。
+如您对本协议有任何异议，请通过 getrebuild.com 联系我们或立即停止使用。REBUILD 及其所属公司上海锐昉科技有限公司对本协议拥有最终解释权。
 
 
-REBUILD Commercial License Agreement (English version)
+REBUILD Commercial License Agreement (English translation)
 
 Overview
 
-1. This agreement describes the commercial license of REBUILD.
-2. REBUILD uses the open source GPL-3.0 and commercial dual license authorization.
-3. You should carefully read and agree to the content/terms of this agreement before using REBUILD. If you do not agree to the content/terms of this agreement, you should stop using it immediately. Continuing to use REBUILD is deemed to agree to all the content/terms of this agreement.
-4. REBUILD is a product of Shanghai Ruifang Technology Co., Ltd. It has passed the copyright application of China Copyright Protection Center/China Copyright Agency Center, and is protected by the "Universal Copyright Convention" and "The Copyright Law of the People's Republic of China".
-5. Please pay special attention that no matter what kind of authorization is used, the REBUILD authorization monitoring mechanism cannot be interrupted/undermined in any way.
+1. This agreement is a description of REBUILD's commercial license.
+2. REBUILD uses the open source GPL-3.0 and commercial dual license, you should carefully read and agree to the content/terms of this agreement before using REBUILD. If you do not agree that you should stop using it immediately, and continue to use REBUILD, you will be deemed to agree to all the content/terms of this agreement.
+3. REBUILD is a product of Shanghai Ruifang Technology Co., Ltd. It has passed the copyright application of China Copyright Protection Center/China Copyright Agency Center, and is protected by the "Universal Copyright Convention" and "The Copyright Law of the People's Republic of China".
+4. This agreement has an English translation. If there is any discrepancy between the Chinese and English versions, the Chinese version shall prevail.
 
-It can be used for free if the following conditions are met:
+Dual license
+
+1. REBUILD has two types of license, "free license" and "commercial license".
+2. Free license is the open source and free version of REBUILD (following the GPL-3.0 agreement).
+3. Commercial license is the commercial charged version of REBUILD.
+4. Regardless of the license used, the license monitoring mechanism of REBUILD shall not be interrupted/undermined in any form.
+
+Rights and obligations of commercial license
+
+1. Commercial license can enjoy the rights listed in this agreement and REBUILD official website (getrebuild.com), including but not limited to:
+1.1. Value-added installation package.
+1.2. Commercial user service manual.
+1.3. Official professional technical support.
+1.4. The corresponding rights of the purchased commercial license (enterprise version, flagship version, etc.) (available through the official website getrebuild.com).
+2. Commercial authorized users expressly agree that their rights cannot be shared with third parties, otherwise they will be regarded as a violation of the agreement, and all consequences shall be borne by themselves.
+3. Due to the duplication of software products, no refunds can be made once purchased.
+4. If there are any outstanding issues, they should be resolved through negotiation based on friendly principles.
+
+Attachment: the use of free license
 
 1. Still as an open source project (GPL-3.0 open source agreement is required).
 2. Use for non-commercial/non-profit purposes (such as NPO organizations).
-3. Individual/enterprise/organizational use is not restricted for commercial purposes. However, it is prohibited to distribute REBUILD in any form (including but not limited to sale, gift, resale), and it is not allowed to develop derivative products based on REBUILD (except in accordance with Article 1 of this section).
+3. Personal learning/internal use of the enterprise, there is no restriction on whether it is for commercial purposes. However, any form of distribution (including but not limited to sale, gift, resale) of REBUILD is prohibited.
 
-Those who do not meet the above free use conditions need to pay for use.
+Those who do not meet the above free conditions, please purchase a commercial license.
 
-If you have any objections to this agreement, please contact us https://getrebuild.com/ or stop using it immediately.
+If you have any objections to this agreement, please contact us via getrebuild.com or stop using it immediately. REBUILD and its subsidiary Shanghai Ruifang Technology Co., Ltd. have the final right to interpret this agreement.
