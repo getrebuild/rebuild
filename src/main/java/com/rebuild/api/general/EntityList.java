@@ -73,6 +73,9 @@ public class EntityList extends EntityGet {
             useFilter = quickFilter;
         }
 
+        // 补充 `entity`
+        ((JSONObject) useFilter).put("entity", useEntity.getName());
+
         JSONObject queryEntry = new JSONObject();
         queryEntry.put("entity", useEntity.getName());
         queryEntry.put("fields", fields);
