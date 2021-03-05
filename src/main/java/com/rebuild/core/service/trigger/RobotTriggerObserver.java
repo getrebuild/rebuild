@@ -23,6 +23,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RobotTriggerObserver extends OperatingObserver {
 
+    private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
+    private static final ThreadLocal<ID> TRIGGER_SOURCE_LAST_ID = new ThreadLocal<>();
+
     @Override
     protected void onCreate(OperatingContext context) {
         execAction(context, TriggerWhen.CREATE);
@@ -86,41 +89,44 @@ public class RobotTriggerObserver extends OperatingObserver {
     protected void execAction(OperatingContext context, TriggerWhen when) {
         final ID primary = context.getAnyRecord().getPrimary();
 
-        TriggerAction[] actions = when == TriggerWhen.DELETE ?
+        TriggerAction[] beExecuted = when == TriggerWhen.DELETE ?
                 DELETE_ACTION_HOLDS.get(primary) : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
-        if (actions == null || actions.length == 0) {
+        if (beExecuted == null || beExecuted.length == 0) {
             return;
         }
 
-        final boolean cleanSource = getTriggerSource() == null;
+        final boolean originalTriggerSource = getTriggerSource() == null;
         // 设置原始触发源
-        if (cleanSource) {
-            setTriggerSource(context);
+        if (originalTriggerSource) {
+            TRIGGER_SOURCE.set(context);
         }
         // 自己触发自己，避免无限执行
-        else if (getTriggerSource().getAnyRecord().getPrimary().equals(primary)) {
+        else if (primary.equals(getTriggerSource().getAnyRecord().getPrimary())
+                || primary.equals(TRIGGER_SOURCE_LAST_ID.get())) {
             return;
         }
 
+        TRIGGER_SOURCE_LAST_ID.set(primary);
+
         try {
-            for (TriggerAction action : actions) {
+            for (TriggerAction action : beExecuted) {
                 LOG.info("Trigger [ {} ] executing on record ({}) : {}", action.getType(), when.name(), primary);
 
                 try {
                     action.execute(context);
                 } catch (Exception ex) {
-                    LOG.error("Failed triggers : " + action + " << " + context, ex);
+                    LOG.error("Failed trigger : " + action + " << " + context, ex);
                     throw ex;
                 } finally {
-                    if (cleanSource) {
+                    if (originalTriggerSource) {
                         action.clean();
                     }
                 }
             }
 
         } finally {
-            if (cleanSource) {
-                setTriggerSource(null);
+            if (originalTriggerSource) {
+                TRIGGER_SOURCE.remove();
             }
         }
     }
@@ -139,25 +145,8 @@ public class RobotTriggerObserver extends OperatingObserver {
         return effectId;
     }
 
-    // -- 当前线程触发源
-
-    private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
-
     /**
-     * 设置触发器触发源，供其他功能使用
-     *
-     * @param source
-     */
-    private static void setTriggerSource(OperatingContext source) {
-        if (source == null) {
-            TRIGGER_SOURCE.remove();
-        } else {
-            TRIGGER_SOURCE.set(source);
-        }
-    }
-
-    /**
-     * 获取当前（线程）触发源（如有），即原始触发记录
+     * 获取当前（线程）触发源（如有）
      *
      * @return
      */
