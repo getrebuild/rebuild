@@ -24,6 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
+    private static final ThreadLocal<ID> TRIGGER_SOURCE_LAST_ID = new ThreadLocal<>();
 
     @Override
     protected void onCreate(OperatingContext context) {
@@ -88,40 +89,43 @@ public class RobotTriggerObserver extends OperatingObserver {
     protected void execAction(OperatingContext context, TriggerWhen when) {
         final ID primary = context.getAnyRecord().getPrimary();
 
-        TriggerAction[] actions = when == TriggerWhen.DELETE ?
+        TriggerAction[] beExecuted = when == TriggerWhen.DELETE ?
                 DELETE_ACTION_HOLDS.get(primary) : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
-        if (actions == null || actions.length == 0) {
+        if (beExecuted == null || beExecuted.length == 0) {
             return;
         }
 
-        final boolean cleanTriggerSource = getTriggerSource() == null;
+        final boolean originalTriggerSource = getTriggerSource() == null;
+        // 设置原始触发源
+        if (originalTriggerSource) {
+            TRIGGER_SOURCE.set(context);
+        }
         // 自己触发自己，避免无限执行
-        if (!cleanTriggerSource
-                && getTriggerSource().getAnyRecord().getPrimary().equals(primary)) {
+        else if (primary.equals(getTriggerSource().getAnyRecord().getPrimary())
+                || primary.equals(TRIGGER_SOURCE_LAST_ID.get())) {
             return;
         }
 
-        // 设置触发源
-        TRIGGER_SOURCE.set(context);
+        TRIGGER_SOURCE_LAST_ID.set(primary);
 
         try {
-            for (TriggerAction action : actions) {
+            for (TriggerAction action : beExecuted) {
                 LOG.info("Trigger [ {} ] executing on record ({}) : {}", action.getType(), when.name(), primary);
 
                 try {
                     action.execute(context);
                 } catch (Exception ex) {
-                    LOG.error("Failed triggers : " + action + " << " + context, ex);
+                    LOG.error("Failed trigger : " + action + " << " + context, ex);
                     throw ex;
                 } finally {
-                    if (cleanTriggerSource) {
+                    if (originalTriggerSource) {
                         action.clean();
                     }
                 }
             }
 
         } finally {
-            if (cleanTriggerSource) {
+            if (originalTriggerSource) {
                 TRIGGER_SOURCE.remove();
             }
         }

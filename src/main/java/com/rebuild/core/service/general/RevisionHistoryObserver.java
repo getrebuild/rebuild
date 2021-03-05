@@ -128,8 +128,9 @@ public class RevisionHistoryObserver extends OperatingObserver {
         return record;
     }
 
+    // TODO 异步无法获知是否关联操作
     @Override
     protected boolean isAsync() {
-        return true;
+        return false;
     }
 }
