@@ -142,7 +142,7 @@ const detectViewElement = function (item) {
   if (!window.detectElement) throw 'detectElement undef'
   item.onView = true
   item.editMode = false
-  item.key = 'col-' + (item.field === '$DIVIDER$' ? $random() : item.field)
+  item.key = `col-${item.field === '$DIVIDER$' ? $random() : item.field}`
   return (
     <div className={`col-12 col-sm-${item.isFull ? 12 : 6}`} key={item.key}>
       {window.detectElement(item)}
