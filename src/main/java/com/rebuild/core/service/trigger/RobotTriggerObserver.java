@@ -23,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RobotTriggerObserver extends OperatingObserver {
 
+    private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
+
     @Override
     protected void onCreate(OperatingContext context) {
         execAction(context, TriggerWhen.CREATE);
@@ -92,15 +94,15 @@ public class RobotTriggerObserver extends OperatingObserver {
             return;
         }
 
-        final boolean cleanSource = getTriggerSource() == null;
-        // 设置原始触发源
-        if (cleanSource) {
-            setTriggerSource(context);
-        }
+        final boolean cleanTriggerSource = getTriggerSource() == null;
         // 自己触发自己，避免无限执行
-        else if (getTriggerSource().getAnyRecord().getPrimary().equals(primary)) {
+        if (!cleanTriggerSource
+                && getTriggerSource().getAnyRecord().getPrimary().equals(primary)) {
             return;
         }
+
+        // 设置触发源
+        TRIGGER_SOURCE.set(context);
 
         try {
             for (TriggerAction action : actions) {
@@ -112,15 +114,15 @@ public class RobotTriggerObserver extends OperatingObserver {
                     LOG.error("Failed triggers : " + action + " << " + context, ex);
                     throw ex;
                 } finally {
-                    if (cleanSource) {
+                    if (cleanTriggerSource) {
                         action.clean();
                     }
                 }
             }
 
         } finally {
-            if (cleanSource) {
-                setTriggerSource(null);
+            if (cleanTriggerSource) {
+                TRIGGER_SOURCE.remove();
             }
         }
     }
@@ -139,25 +141,8 @@ public class RobotTriggerObserver extends OperatingObserver {
         return effectId;
     }
 
-    // -- 当前线程触发源
-
-    private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
-
     /**
-     * 设置触发器触发源，供其他功能使用
-     *
-     * @param source
-     */
-    private static void setTriggerSource(OperatingContext source) {
-        if (source == null) {
-            TRIGGER_SOURCE.remove();
-        } else {
-            TRIGGER_SOURCE.set(source);
-        }
-    }
-
-    /**
-     * 获取当前（线程）触发源（如有），即原始触发记录
+     * 获取当前（线程）触发源（如有）
      *
      * @return
      */
