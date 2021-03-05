@@ -17,8 +17,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
@@ -27,9 +27,8 @@ import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,9 +41,8 @@ import java.util.List;
  * @see com.rebuild.core.service.trigger.RobotTriggerObserver
  * @since 2019/05/29
  */
+@Slf4j
 public class FieldAggregation implements TriggerAction {
-
-    private static final Logger LOG = LoggerFactory.getLogger(FieldAggregation.class);
 
     /**
      * 归集到自己
@@ -118,7 +116,7 @@ public class FieldAggregation implements TriggerAction {
         // 如果当前用户对目标记录无修改权限
         if (!allowNoPermissionUpdate
                 && !Application.getPrivilegesManager().allow(operatingContext.getOperator(), targetRecordId, BizzPermission.UPDATE)) {
-            LOG.warn("No permission to update record of target: " + this.targetRecordId);
+            log.warn("No permission to update record of target: " + this.targetRecordId);
             return;
         }
 
