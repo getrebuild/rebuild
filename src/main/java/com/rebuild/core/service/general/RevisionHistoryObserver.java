@@ -116,9 +116,9 @@ public class RevisionHistoryObserver extends OperatingObserver {
             record.setString("revisionContent", JSONUtils.EMPTY_ARRAY_STR);
         }
 
-        OperatingContext source = RobotTriggerObserver.getTriggerSource();
-        if (source != null) {
-            record.setID("channelWith", source.getAnyRecord().getPrimary());
+        OperatingContext triggerSource = RobotTriggerObserver.getTriggerSource();
+        if (triggerSource != null) {
+            record.setID("channelWith", triggerSource.getAnyRecord().getPrimary());
         }
 
         if (context.getOperationIp() != null) {
@@ -128,8 +128,9 @@ public class RevisionHistoryObserver extends OperatingObserver {
         return record;
     }
 
+    // TODO 异步无法获知是否关联操作
     @Override
     protected boolean isAsync() {
-        return true;
+        return false;
     }
 }

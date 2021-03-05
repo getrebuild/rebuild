@@ -28,6 +28,10 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 字段归集可能存在的问题。
@@ -53,7 +57,7 @@ public class FieldAggregation implements TriggerAction {
 
     // 此触发器可能产生连锁反应
     // 如触发器 A 调用 B，而 B 又调用了 C ... 以此类推。此处记录其深度
-    private static final ThreadLocal<Integer> TRIGGER_CHAIN_DEPTH = new ThreadLocal<>();
+    private static final ThreadLocal<List<ID>> TRIGGER_CHAIN_DEPTH = new ThreadLocal<>();
 
     // 源实体
     protected Entity sourceEntity;
@@ -89,12 +93,19 @@ public class FieldAggregation implements TriggerAction {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        Integer depth = TRIGGER_CHAIN_DEPTH.get();
-        if (depth == null) {
-            depth = 1;
+        List<ID> tchain = TRIGGER_CHAIN_DEPTH.get();
+        if (tchain == null) {
+            tchain = new ArrayList<>();
+        } else {
+            // 同一触发器不能连续触发
+            ID lastTrigger = tchain.get(tchain.size() - 1);
+            if (context.getConfigId().equals(lastTrigger)) {
+                return;
+            }
         }
-        if (depth > maxTriggerDepth) {
-            throw new TriggerException("Too many trigger chains : " + depth);
+
+        if (tchain.size() >= maxTriggerDepth) {
+            throw new TriggerException("Exceed the maximum trigger depth : " + StringUtils.join(tchain, " > "));
         }
 
         this.prepare(operatingContext);
@@ -126,7 +137,8 @@ public class FieldAggregation implements TriggerAction {
             }
 
             // 会关联触发下一触发器（如有）
-            TRIGGER_CHAIN_DEPTH.set(depth + 1);
+            tchain.add(context.getConfigId());
+            TRIGGER_CHAIN_DEPTH.set(tchain);
 
             if (MetadataHelper.isBusinessEntity(targetEntity)) {
                 Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
