@@ -287,7 +287,7 @@ class RbForm extends React.Component {
     const that = this
     data.forEach((item) => {
       // eslint-disable-next-line react/no-string-refs
-      const fieldComp = that.refs['fieldcomp-' + item.target]
+      const fieldComp = that.refs[`fieldcomp-${item.target}`]
       if (fieldComp) {
         if (!item.fillinForce && fieldComp.getValue()) return
         if ((that.isNew && item.whenCreate) || (!that.isNew && item.whenUpdate)) fieldComp.setValue(item.value)
@@ -726,8 +726,8 @@ class RbFormNumber extends RbFormText {
   componentDidMount() {
     super.componentDidMount()
 
-    // 表单计算
-    if (this.props.calcFormula) {
+    // 表单计算（视图下无效）
+    if (this.props.calcFormula && !this.props.onView) {
       const calcFormula = this.props.calcFormula.replace(new RegExp('×', 'ig'), '*').replace(new RegExp('÷', 'ig'), '/')
       const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
       this.calcFormula__values = {}
