@@ -174,7 +174,7 @@ class FeedsList extends React.Component {
             </li>
           </ul>
         </div>
-        <span className={`${!item.shownComments && 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
+        <span className={`${item.shownComments ? '' : 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
       </div>
     )
   }

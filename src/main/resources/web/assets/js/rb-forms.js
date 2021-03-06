@@ -730,29 +730,36 @@ class RbFormNumber extends RbFormText {
     if (this.props.calcFormula && !this.props.onView) {
       const calcFormula = this.props.calcFormula.replace(new RegExp('×', 'ig'), '*').replace(new RegExp('÷', 'ig'), '/')
       const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
+
       this.calcFormula__values = {}
+      // 初始值
+      watchFields.forEach((item) => {
+        const name = item.substr(1, item.length - 2)
+        const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
+        if (fieldComp && fieldComp.state.value) {
+          this.calcFormula__values[name] = fieldComp.state.value
+        }
+      })
 
       // 小数位
       const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
 
       RbForm.onFieldValueChange((s) => {
-        if (watchFields.includes(`{${s.name}}`)) {
-          this.calcFormula__values[s.name] = s.value
+        if (!watchFields.includes(`{${s.name}}`)) return
+        this.calcFormula__values[s.name] = s.value
 
-          // 尝试计算
-          let formula = calcFormula
-          for (let key in this.calcFormula__values) {
-            formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
-          }
-          if (formula.includes('{')) return
+        let formula = calcFormula
+        for (let key in this.calcFormula__values) {
+          formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
+        }
+        if (formula.includes('{')) return
 
-          try {
-            let calcv
-            eval(`calcv = ${formula}`)
-            if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
-          } catch (err) {
-            if (rb.env === 'dev') console.log(err)
-          }
+        try {
+          let calcv
+          eval(`calcv = ${formula}`)
+          if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
+        } catch (err) {
+          if (rb.env === 'dev') console.log(err)
         }
       })
     }

@@ -126,7 +126,6 @@ public class ReferenceSearchController extends EntityController {
         // 查询字段
         Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, quickFields);
         if (searchFields.isEmpty()) {
-            log.warn("No fields of search found : " + searchEntity);
             return JSONUtils.EMPTY_ARRAY;
         }
 

@@ -1320,6 +1320,9 @@
   "RecycleBinKeepingDays": "回收站保留時間",
   "BindUser": "數據綁定用戶",
   "BindUserTip": "經此表單提交的數據的所屬用戶，不指定則默認為系統用戶。你可以通過 [觸發器 (自動分派)](/admin/robot/triggers) 將數據分派給不同的用戶" ,
+  "SortByModified": "最近修改",
+  "SortByCreated": "最近創建",
+  "SortByCreatedAsc": "最早創建",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

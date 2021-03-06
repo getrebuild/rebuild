@@ -173,6 +173,15 @@ body {
   padding-right: 30px;
 }
 
+.related-list .related-toolbar {
+  margin-bottom: 13px;
+}
+
+.related-list .related-toolbar.feeds {
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 13px;
+}
+
 .view-operating > div {
   margin-bottom: 15px !important;
 }
@@ -467,13 +476,10 @@ body {
   border-top: 1px solid #eee;
 }
 
-.feeds-list.inview .actions {
+.feeds-list.inview .feeds + .actions {
   border: 0 none;
-  margin: 0;
   padding: 0;
-  position: absolute;
-  right: 0;
-  bottom: 0;
+  margin: -32px 0 0;
 }
 
 .feeds-list.inview .feeds > .content .rich-content {
@@ -482,6 +488,14 @@ body {
 
 .feeds-list.inview .feeds > .content .rich-content > .appends {
   font-size: 12px;
+}
+
+.feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
+  cursor: default;
+}
+
+.modal-body .feed-options.related {
+  display: none;
 }
 
 .view-history .view-history-items {

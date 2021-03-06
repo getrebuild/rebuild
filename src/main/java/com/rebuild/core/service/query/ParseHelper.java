@@ -169,7 +169,7 @@ public class ParseHelper {
 
         // 引用字段要保证其兼容 LIKE 条件的语法要求
         if (dt == DisplayType.REFERENCE) {
-            Field nameField = field.getOwnEntity().getNameField();
+            Field nameField = field.getReferenceEntity().getNameField();
             if (nameField.getType() == FieldType.REFERENCE) {
                 log.warn("Quick field cannot be circular reference : " + nameField);
                 return null;
@@ -246,6 +246,9 @@ public class ParseHelper {
             usesFields.add(EntityHelper.QuickCode);
         }
 
+        if (usesFields.isEmpty()) {
+            log.warn("No fields of search found : " + usesFields);
+        }
         return usesFields;
     }
 }

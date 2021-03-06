@@ -701,7 +701,7 @@ class FeedsEditDlg extends RbModalHandler {
       contentMore: this.props.contentMore,
     }
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('EditSome,e.Feeds')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L(`${this.props.id ? 'EditSome' : 'NewSome'},e.Feeds`)} disposeOnHide={true}>
         <div className="m-1">
           <FeedsEditor ref={(c) => (this._editor = c)} {..._data} />
         </div>
@@ -720,10 +720,9 @@ class FeedsEditDlg extends RbModalHandler {
   _post = () => {
     const _data = this._editor.vals()
     if (!_data) return
-    if (!_data.content) {
-      RbHighbar.create($L('PlsInputSome,FeedsContent'))
-      return
-    }
+    if (!_data.content) return RbHighbar.create($L('PlsInputSome,FeedsContent'))
+    if (!this.props.id && this.props.type) _data.type = this.props.type
+
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
     const btns = $(this._btns).find('.btn').button('loading')

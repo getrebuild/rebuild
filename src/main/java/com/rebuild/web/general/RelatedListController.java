@@ -17,12 +17,14 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.feeds.FeedsType;
+import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +48,11 @@ public class RelatedListController extends BaseController {
     @GetMapping("related-list")
     public JSON relatedList(@IdParam(name = "mainid") ID mainid, HttpServletRequest request) {
         String related = getParameterNotNull(request, "related");
-        String sql = buildMainSql(mainid, related, false);
+        String q = getParameter(request, "q");
+        String sort = getParameter(request, "sort", "modifiedOn:desc");
+
+        String sql = buildMainSql(mainid, related, q, false);
+        sql += " order by " + sort.replace(":", " ");
 
         String[] ef = related.split("\\.");
         Field nameField = MetadataHelper.getEntity(ef[0]).getNameField();
@@ -76,7 +82,7 @@ public class RelatedListController extends BaseController {
 
         Map<String, Integer> countMap = new HashMap<>();
         for (String related : relateds) {
-            String sql = buildMainSql(mainid, related, true);
+            String sql = buildMainSql(mainid, related, null, true);
             if (sql != null) {
                 Object[] count = Application.createQuery(sql).unique();
                 countMap.put(related, ObjectUtils.toInt(count[0]));
@@ -85,13 +91,7 @@ public class RelatedListController extends BaseController {
         return  countMap;
     }
 
-    /**
-     * @param recordOfMain
-     * @param relatedExpr
-     * @param count
-     * @return
-     */
-    private String buildMainSql(ID recordOfMain, String relatedExpr, boolean count) {
+    private String buildMainSql(ID recordOfMain, String relatedExpr, String q, boolean count) {
         // Entity.Field
         String[] ef = relatedExpr.split("\\.");
         Entity relatedEntity = MetadataHelper.getEntity(ef[0]);
@@ -122,17 +122,29 @@ public class RelatedListController extends BaseController {
                     FeedsType.FOLLOWUP.getMask(), FeedsType.SCHEDULE.getMask());
         }
 
-        String baseSql = "select %s from " + relatedEntity.getName() + " where " + mainWhere;
+        if (StringUtils.isNotBlank(q)) {
+            Set<String> searchFields = ParseHelper.buildQuickFields(relatedEntity, null);
+
+            if (!searchFields.isEmpty()) {
+                String like = " like '%" + StringEscapeUtils.escapeSql(q) + "%'";
+                String searchWhere = " and ( " + StringUtils.join(searchFields.iterator(), like + " or ") + like + " )";
+                mainWhere += searchWhere;
+            }
+        }
 
         Field primaryField = relatedEntity.getPrimaryField();
         Field namedField = relatedEntity.getNameField();
 
+        StringBuilder sql = new StringBuilder("select ");
         if (count) {
-            baseSql = String.format(baseSql, "count(" + primaryField.getName() + ")");
+            sql.append("count(").append(primaryField.getName()).append(")");
         } else {
-            baseSql = String.format(baseSql, primaryField.getName() + "," + namedField.getName() + "," + EntityHelper.ModifiedOn);
-            baseSql += " order by modifiedOn desc";
+            sql.append(primaryField.getName()).append(",")
+                    .append(namedField.getName()).append(",")
+                    .append(EntityHelper.ModifiedOn);
         }
-        return baseSql;
+
+        sql.append(" from ").append(relatedEntity.getName()).append(" where ").append(mainWhere);
+        return sql.toString();
     }
 }

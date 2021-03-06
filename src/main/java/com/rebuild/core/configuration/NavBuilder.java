@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.configuration;
 
 import cn.devezhao.commons.CodecUtils;
-import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
@@ -26,12 +25,11 @@ import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Iterator;
@@ -42,9 +40,8 @@ import java.util.Iterator;
  * @author devezhao
  * @since 2020/6/16
  */
+@Slf4j
 public class NavBuilder extends NavManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(NavBuilder.class);
 
     public static final NavBuilder instance = new NavBuilder();
 
@@ -68,6 +65,9 @@ public class NavBuilder extends NavManager {
             NAV_ITEM_PROPS,
             new String[] { "plus", "{AddProject}", "BUILTIN", NAV_PROJECT + "--add" }
     );
+
+    // URL 绑定实体权限
+    private static final String URL_BIND_PRIVI = "::";
 
     /**
      * 获取指定用户的导航菜单
@@ -119,21 +119,33 @@ public class NavBuilder extends NavManager {
      */
     private boolean isFilterNavItem(JSONObject nav, ID user) {
         String type = nav.getString("type");
-        if ("ENTITY".equalsIgnoreCase(type)) {
-            String entity = nav.getString("value");
+        String value = nav.getString("value");
 
-            if (NAV_PARENT.equals(entity)) {
+        if ("ENTITY".equalsIgnoreCase(type)) {
+            if (NAV_PARENT.equals(value)) {
                 return true;
-            } else if (NAV_FEEDS.equals(entity) || NAV_FILEMRG.equals(entity) || NAV_PROJECT.equals(entity)) {
+            } else if (NAV_FEEDS.equals(value) || NAV_FILEMRG.equals(value) || NAV_PROJECT.equals(value)) {
                 return false;
-            } else if (!MetadataHelper.containsEntity(entity)) {
-                LOG.warn("Unknown entity in nav : " + entity);
+            } else if (!MetadataHelper.containsEntity(value)) {
+                log.warn("Unknown entity in nav : " + value);
                 return true;
             }
 
-            Entity entityMeta = MetadataHelper.getEntity(entity);
-            return !Application.getPrivilegesManager().allowRead(user, entityMeta.getEntityCode());
+            return !Application.getPrivilegesManager().allowRead(user,
+                    MetadataHelper.getEntity(value).getEntityCode());
+
+        } else if ("URL".equals(type)) {
+            String[] split = value.split(URL_BIND_PRIVI);
+            if (split.length != 2) return false;
+
+            String bindPriviEntity = split[1];
+            if (MetadataHelper.containsEntity(bindPriviEntity)) {
+                nav.put("value", split[0]);
+                return !Application.getPrivilegesManager().allowRead(user,
+                        MetadataHelper.getEntity(bindPriviEntity).getEntityCode());
+            }
         }
+
         return false;
     }
 
@@ -279,7 +291,7 @@ public class NavBuilder extends NavManager {
                 navText);
         StringBuilder navHtml = new StringBuilder(navItemHtml);
 
-        if (subNavs != null && !subNavs.isEmpty()) {
+        if (subNavs != null) {
             StringBuilder subHtml = new StringBuilder()
                     .append("<ul class=\"sub-menu\"><li class=\"title\">")
                     .append(navText)

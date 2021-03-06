@@ -241,6 +241,48 @@ class RelatedList extends React.Component {
     return (
       <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
         {!this.state.list && <RbSpinner />}
+        {this.state.showToolbar && (
+          <div className="related-toolbar">
+            <div className="row">
+              <div className="col">
+                <div className="input-group input-search">
+                  <input
+                    className="form-control"
+                    type="text"
+                    placeholder={$L('QuickQuery')}
+                    maxLength="40"
+                    ref={(c) => (this._quickSearch = c)}
+                    onKeyDown={(e) => e.keyCode === 13 && this._search()}
+                  />
+                  <span className="input-group-btn">
+                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                      <i className="icon zmdi zmdi-search" />
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div className="col text-right">
+                <div className="btn-group">
+                  <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" aria-expanded="false">
+                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+                    <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
+                      {$L('SortByModified')}
+                    </a>
+                    <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
+                      {$L('SortByCreated')}
+                    </a>
+                    <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
+                      {$L('SortByCreatedAsc')}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {this.state.list && this.state.list.length === 0 && (
           <div className="list-nodata">
             <span className="zmdi zmdi-info-outline" />
@@ -284,11 +326,17 @@ class RelatedList extends React.Component {
   fetchList(append) {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
-    const pageSize = 5
+    const pageSize = 20
 
-    $.get(`/app/entity/related-list?mainid=${this.props.main}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
+    const url = `/app/entity/related-list?mainid=${this.props.main}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`
+    $.get(`${url}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
       const data = res.data.data || []
-      const list = (this.state.list || []).concat(data)
+      const list = append ? (this.state.list || []).concat(data) : data
+
+      // 数据少不显示
+      if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
 
       this.setState({ list: list, showMores: data.length >= pageSize }, () => {
         if (this.props.autoExpand) {
@@ -334,6 +382,19 @@ class RelatedList extends React.Component {
       })
     }
   }
+
+  _search(e) {
+    let sort = null
+    if (e && e.currentTarget) {
+      sort = $(e.currentTarget).data('sort')
+      this.setState({ sortDisplayText: $(e.currentTarget).text() })
+    }
+
+    this.__searchSort = sort || this.__searchSort
+    this.__searchKey = $(this._quickSearch).val() || ''
+    this.__pageNo = 1
+    this.fetchList()
+  }
 }
 
 const FeedsList = window.FeedsList || React.Component
@@ -346,6 +407,41 @@ class ReducedFeedsList extends FeedsList {
     return (
       <div className={`related-list ${!this.state.data ? 'rb-loading rb-loading-active' : ''}`}>
         {!this.state.data && <RbSpinner />}
+        {this.state.showToolbar && (
+          <div className="related-toolbar feeds">
+            <div className="row">
+              <div className="col">
+                <div className="input-group input-search">
+                  <input className="form-control" type="text" placeholder={$L('Keyword')} maxLength="40" ref={(c) => (this._quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
+                  <span className="input-group-btn">
+                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                      <i className="icon zmdi zmdi-search" />
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div className="col text-right">
+                <div className="btn-group">
+                  <button type="button" className="btn btn-link" data-toggle="dropdown" aria-expanded="false">
+                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+                    <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
+                      {$L('FeedsSortNewer')}
+                    </a>
+                    <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
+                      {$L('FeedsSortOlder')}
+                    </a>
+                    <a className="dropdown-item" data-sort="modified" onClick={(e) => this._search(e)}>
+                      {$L('FeedsSortModified')}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {this.state.data && this.state.data.length === 0 && (
           <div className="list-nodata">
             <span className="zmdi zmdi-chart-donut" />
@@ -380,20 +476,43 @@ class ReducedFeedsList extends FeedsList {
         { field: 'relatedRecord', op: 'EQ', value: wpc.recordId },
       ],
     }
+    if (this.__searchKey) {
+      filter.equation = '(1 OR 2) AND 3 AND 4'
+      filter.items.push({ field: 'content', op: 'LK', value: this.__searchKey })
+    }
 
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
     const pageSize = 20
 
-    $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&sort=&type=&foucs=&pageSize=${pageSize}`, JSON.stringify(filter), (res) => {
+    $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&type=&foucs=`, JSON.stringify(filter), (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
       const data = (res.data || {}).data || []
-      const list = (this.state.data || []).concat(data)
+      const list = append ? (this.state.data || []).concat(data) : data
+
+      // 数据少不显示
+      if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+
       this.setState({ data: list, showMores: data.length >= pageSize })
     })
   }
 
-  _toggleComment(feeds) {
-    return window.open(`${rb.baseUrl}/app/list-and-view?id=${feeds}`)
+  // _toggleComment(feeds) {
+  //   window.open(`${rb.baseUrl}/app/list-and-view?id=${feeds}`)
+  // }
+
+  _search(e) {
+    let sort = null
+    if (e && e.currentTarget) {
+      sort = $(e.currentTarget).data('sort')
+      this.setState({ sortDisplayText: $(e.currentTarget).text() })
+    }
+
+    this.__searchSort = sort || this.__searchSort
+    this.__searchKey = $(this._quickSearch).val() || ''
+    this.__pageNo = 1
+    this.fetchFeeds()
   }
 }
 
@@ -620,7 +739,7 @@ const RbViewPage = {
     })
   },
 
-  // 新建
+  // 新建相关
   initVAdds(config) {
     const that = this
     $(config).each(function () {
@@ -628,11 +747,21 @@ const RbViewPage = {
       const title = $L('NewSome').replace('{0}', e.entityLabel)
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${e.icon}"></i>${title}</a>`)
       $item.click(function () {
-        const iv = {}
-        const entity = e.entity.split('.')
-        if (entity.length > 1) iv[entity[1]] = that.__id
-        else iv['&' + that.__entity[0]] = that.__id
-        RbFormModal.create({ title: `${title}`, entity: entity[0], icon: e.icon, initialValue: iv })
+        if (e.entity === 'Feeds.relatedRecord') {
+          const data = {
+            content: '',
+            type: 2,
+            relatedRecord: { id: that.__id, entity: that.__entity[0] },
+          }
+          // eslint-disable-next-line react/jsx-no-undef
+          renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
+        } else {
+          const iv = {}
+          const entity = e.entity.split('.')
+          if (entity.length > 1) iv[entity[1]] = that.__id
+          else iv['&' + that.__entity[0]] = that.__id
+          RbFormModal.create({ title: `${title}`, entity: entity[0], icon: e.icon, initialValue: iv })
+        }
       })
       $('.J_adds .dropdown-divider').before($item)
     })
