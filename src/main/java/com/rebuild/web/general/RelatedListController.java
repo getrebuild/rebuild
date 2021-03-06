@@ -14,14 +14,12 @@ import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
-import com.rebuild.core.DefinedException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -126,7 +124,7 @@ public class RelatedListController extends BaseController {
 
         if (StringUtils.isNotBlank(q)) {
             Set<String> searchFields = ParseHelper.buildQuickFields(relatedEntity, null);
-            
+
             if (!searchFields.isEmpty()) {
                 String like = " like '%" + StringEscapeUtils.escapeSql(q) + "%'";
                 String searchWhere = " and ( " + StringUtils.join(searchFields.iterator(), like + " or ") + like + " )";
