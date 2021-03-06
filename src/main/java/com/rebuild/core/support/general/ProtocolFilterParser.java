@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
+import com.rebuild.core.configuration.general.AdvFilterManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
@@ -62,15 +63,20 @@ public class ProtocolFilterParser {
         final ID anyId = ID.isId(content) ? ID.valueOf(content) : null;
         if (anyId == null) return null;
 
+        JSONObject filterExp = null;
+
         // via Charts
         if (anyId.getEntityCode() == EntityHelper.ChartConfig) {
             ConfigBean chart = ChartManager.instance.getChart(anyId);
-            if (chart == null) return null;
-            JSONObject filterExp = ((JSONObject) chart.getJSON("config")).getJSONObject("filter");
-            return filterExp == null ? null : new AdvFilterParser(filterExp).toSqlWhere();
+            if (chart != null) filterExp = ((JSONObject) chart.getJSON("config")).getJSONObject("filter");
+        }
+        // via AdvFilter
+        else if (anyId.getEntityCode() == EntityHelper.FilterConfig) {
+            ConfigBean filter = AdvFilterManager.instance.getAdvFilter(anyId);
+            if (filter != null) filterExp = (JSONObject) filter.getJSON("filter");
         }
 
-        return null;
+        return filterExp == null ? null : new AdvFilterParser(filterExp).toSqlWhere();
     }
 
     /**

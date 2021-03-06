@@ -273,6 +273,18 @@ var _initNavs = function () {
   setTimeout(function () {
     $('.rbv').attr('title', $L('CommercialFeat'))
   }, 400)
+
+  // Active URL Nav
+  var urls = location.href.split('/')
+  var navUrl = '/' + urls.slice(3).join('/')
+  var $navHit = $('.sidebar-elements a[href="' + navUrl + '"]')
+  if ($navHit.length > 0 && !$navHit.parent().hasClass('active')) {
+    $navHit.parent().addClass('active')
+    if ($navHit.parents('li.parent').length > 0) {
+      $navHit.parents('li.parent').addClass('active').first().trigger('click')
+      $(document.body).trigger('click')
+    }
+  }
 }
 
 var _checkMessage__state = 0
