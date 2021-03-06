@@ -392,9 +392,9 @@ class ReducedFeedsList extends FeedsList {
     })
   }
 
-  _toggleComment(feeds) {
-    return window.open(`${rb.baseUrl}/app/list-and-view?id=${feeds}`)
-  }
+  // _toggleComment(feeds) {
+  //   window.open(`${rb.baseUrl}/app/list-and-view?id=${feeds}`)
+  // }
 }
 
 class MixRelatedList extends React.Component {

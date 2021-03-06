@@ -467,13 +467,10 @@ body {
   border-top: 1px solid #eee;
 }
 
-.feeds-list.inview .actions {
+.feeds-list.inview .feeds + .actions {
   border: 0 none;
-  margin: 0;
   padding: 0;
-  position: absolute;
-  right: 0;
-  bottom: 0;
+  margin: -32px 0 0;
 }
 
 .feeds-list.inview .feeds > .content .rich-content {
@@ -482,6 +479,10 @@ body {
 
 .feeds-list.inview .feeds > .content .rich-content > .appends {
   font-size: 12px;
+}
+
+.feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
+  cursor: default;
 }
 
 .view-history .view-history-items {
