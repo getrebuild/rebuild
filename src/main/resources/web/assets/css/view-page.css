@@ -177,6 +177,11 @@ body {
   margin-bottom: 13px;
 }
 
+.related-list .related-toolbar.feeds {
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 13px;
+}
+
 .view-operating > div {
   margin-bottom: 15px !important;
 }
@@ -487,6 +492,10 @@ body {
 
 .feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
   cursor: default;
+}
+
+.modal-body .feed-options.related {
+  display: none;
 }
 
 .view-history .view-history-items {

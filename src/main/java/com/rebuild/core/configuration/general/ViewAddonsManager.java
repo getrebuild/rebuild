@@ -104,6 +104,9 @@ public class ViewAddonsManager extends BaseLayoutManager {
                 }
             }
 
+            // 跟进（动态）
+            useRefs.add(getEntityShow(MetadataHelper.getField("Feeds", "relatedRecord"), mfRefs, applyType));
+
             return JSONUtils.toJSONObject("items", useRefs);
         }
 
