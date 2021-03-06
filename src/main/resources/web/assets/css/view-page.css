@@ -173,6 +173,10 @@ body {
   padding-right: 30px;
 }
 
+.related-list .related-toolbar {
+  margin-bottom: 13px;
+}
+
 .view-operating > div {
   margin-bottom: 15px !important;
 }

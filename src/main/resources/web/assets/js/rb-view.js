@@ -241,6 +241,48 @@ class RelatedList extends React.Component {
     return (
       <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
         {!this.state.list && <RbSpinner />}
+        {this.state.showToolbar && (
+          <div className="related-toolbar">
+            <div className="row">
+              <div className="col">
+                <div className="input-group input-search">
+                  <input
+                    className="form-control"
+                    type="text"
+                    placeholder={$L('QuickQuery')}
+                    maxLength="40"
+                    ref={(c) => (this._quickSearch = c)}
+                    onKeyDown={(e) => e.keyCode === 13 && this._search()}
+                  />
+                  <span className="input-group-btn">
+                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                      <i className="icon zmdi zmdi-search"/>
+                    </button>
+                  </span>
+                </div>
+              </div>
+              <div className="col text-right">
+                <div className="btn-group">
+                  <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" aria-expanded="false">
+                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                  </button>
+                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+                    <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
+                      {$L('SortByModified')}
+                    </a>
+                    <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
+                      {$L('SortByCreated')}
+                    </a>
+                    <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
+                      {$L('SortByCreatedAsc')}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {this.state.list && this.state.list.length === 0 && (
           <div className="list-nodata">
             <span className="zmdi zmdi-info-outline" />
@@ -284,11 +326,17 @@ class RelatedList extends React.Component {
   fetchList(append) {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
-    const pageSize = 5
+    const pageSize = 20
 
-    $.get(`/app/entity/related-list?mainid=${this.props.main}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`, (res) => {
+    const url = `/app/entity/related-list?mainid=${this.props.main}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`
+    $.get(`${url}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
       const data = res.data.data || []
-      const list = (this.state.list || []).concat(data)
+      const list = append ? (this.state.list || []).concat(data) : data
+
+      // 数据少不显示
+      if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
 
       this.setState({ list: list, showMores: data.length >= pageSize }, () => {
         if (this.props.autoExpand) {
@@ -333,6 +381,19 @@ class RelatedList extends React.Component {
         this.setState({ viewComponents: viewComponents })
       })
     }
+  }
+
+  _search(e) {
+    let sort = null
+    if (e && e.currentTarget) {
+      sort = $(e.currentTarget).data('sort')
+      this.setState({ sortDisplayText: $(e.currentTarget).text() })
+    }
+
+    this.__searchSort = sort || this.__searchSort
+    this.__searchKey = $(this._quickSearch).val() || ''
+    this.__pageNo = 1
+    this.fetchList()
   }
 }
 
