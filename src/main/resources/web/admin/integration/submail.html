@@ -14,6 +14,16 @@
       .row.stats .col-4 {
         height: 48px;
       }
+      .smtp .smtp-hide,
+      .smtp-show {
+        display: none;
+      }
+      .smtp .smtp-show {
+        display: inline-block;
+      }
+      .smtp tr.smtp-show {
+        display: table-row;
+      }
     </style>
   </head>
   <body>
@@ -30,46 +40,33 @@
                   <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('Modify')}]]</a>
                 </div>
                 <div class="card-body">
-                  <h5>[[${bundle.L('SomeService,Sms')}]]</h5>
-                  <table class="table">
-                    <tbody>
-                    <tr>
-                      <td width="40%">APPID</td>
-                      <td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[0]}]]</td>
-                    </tr>
-                    <tr>
-                      <td>APPKEY</td>
-                      <td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[1]}]]</td>
-                    </tr>
-                    <tr>
-                      <td>[[${bundle.L('SmsSign')}]]</td>
-                      <td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[2]}]]</td>
-                    </tr>
-                    <tr class="show-on-edit">
-                      <td></td>
-                      <td><button class="btn btn-primary btn-outline J_test-sms">[[${bundle.L('SendTest')}]]</button></td>
-                    </tr>
-                    </tbody>
-                  </table>
-                  <div th:if="${smsAccount == null}" class="alert alert-danger alert-icon mt-6">
-                    <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
-                    <div class="message">[[${bundle.L('SomeServiceUnsetTips,Sms')}]]</div>
-                  </div>
                   <h5>[[${bundle.L('SomeService,Mail')}]]</h5>
-                  <table class="table">
+                  <table class="table email-set">
                     <tbody>
+                      <tr class="smtp-show">
+                        <td width="40%">[[${bundle.L('SmtpServer')}]]</td>
+                        <td data-id="MailSmtpServer" data-ignore="true" th:data-value="${mailAccount == null ? '' : mailAccount[4]}">
+                          [[${mailAccount == null ? bundle.L('Unset') : mailAccount[4]}]]
+                        </td>
+                      </tr>
                       <tr>
-                        <td width="40%">APPID</td>
+                        <td width="40%">
+                          <span class="smtp-hide">APPID</span>
+                          <span class="smtp-show">[[${bundle.L('SmtpUser')}]]</span>
+                        </td>
                         <td data-id="MailUser" th:data-value="${mailAccount == null ? '' : mailAccount[0]}">[[${mailAccount == null ? bundle.L('Unset') : mailAccount[0]}]]</td>
                       </tr>
                       <tr>
-                        <td>APPKEY</td>
+                        <td>
+                          <span class="smtp-hide">APPKEY</span>
+                          <span class="smtp-show">[[${bundle.L('SmtpPassword')}]]</span>
+                        </td>
                         <td data-id="MailPassword" th:data-value="${mailAccount == null ? '' : mailAccount[1]}">[[${mailAccount == null ? bundle.L('Unset') : mailAccount[1]}]]</td>
                       </tr>
                       <tr>
                         <td>
                           [[${bundle.L('MailServAddr')}]]
-                          <p>[[${bundle.L('MailServAddrTips')}]]</p>
+                          <p class="smtp-hide">[[${bundle.L('MailServAddrTips')}]]</p>
                         </td>
                         <td data-id="MailAddr" th:data-value="${mailAccount == null ? '' : mailAccount[2]}">[[${mailAccount == null ? bundle.L('Unset') : mailAccount[2]}]]</td>
                       </tr>
@@ -79,13 +76,42 @@
                       </tr>
                       <tr class="show-on-edit">
                         <td></td>
-                        <td><button class="btn btn-primary btn-outline J_test-email">[[${bundle.L('SendTest')}]]</button></td>
+                        <td>
+                          <button class="btn btn-primary btn-outline J_test-email">[[${bundle.L('SendTest')}]]</button>
+                          <button class="btn btn-link J_switch-email-set smtp-hide">[[${bundle.L('SwitchEmailSmtp')}]]</button>
+                          <button class="btn btn-link J_switch-email-set smtp-show">[[${bundle.L('SwitchEmailSubmail')}]]</button>
+                        </td>
                       </tr>
                     </tbody>
                   </table>
-                  <div th:if="${mailAccount == null}" class="alert alert-danger alert-icon mt-6 mb-6">
+                  <div th:if="${mailAccount == null}" class="alert alert-danger alert-icon mt-6">
                     <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
                     <div class="message">[[${bundle.L('SomeServiceUnsetTips,Mail')}]]</div>
+                  </div>
+                  <h5>[[${bundle.L('SomeService,Sms')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">APPID</td>
+                        <td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[0]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>APPKEY</td>
+                        <td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[1]}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('SmsSign')}]]</td>
+                        <td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">[[${smsAccount == null ? bundle.L('Unset') : smsAccount[2]}]]</td>
+                      </tr>
+                      <tr class="show-on-edit">
+                        <td></td>
+                        <td><button class="btn btn-primary btn-outline J_test-sms">[[${bundle.L('SendTest')}]]</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div th:if="${smsAccount == null}" class="alert alert-danger alert-icon mt-6 mb-6">
+                    <div class="icon"><span class="zmdi zmdi-close-circle-o"></span></div>
+                    <div class="message">[[${bundle.L('SomeServiceUnsetTips,Sms')}]]</div>
                   </div>
                   <div class="edit-footer">
                     <button class="btn btn-link">[[${bundle.L('Cancel')}]]</button>
