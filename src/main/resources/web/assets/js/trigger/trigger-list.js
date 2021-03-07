@@ -208,7 +208,7 @@ class TriggerEdit extends ConfigFormDlg {
     }
 
     if (rb.commercial < 1 && RBV_TRIGGERS.includes(data.actionType)) {
-      return RbHighbar.error($L(`FreeVerNotSupportted,${data.actionType}`))
+      return RbHighbar.create($L(`FreeVerNotSupportted,${data.actionType}`), { type: 'danger', html: true, timeout: 6000 })
     }
 
     this.disabled(true)

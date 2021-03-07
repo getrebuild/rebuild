@@ -19,7 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @since 2020/12/8
  */
 @RestController
-public class ExtformAdminControll extends BaseController {
+public class ExtformAdminController extends BaseController {
 
     @GetMapping("/admin/extforms")
     public ModelAndView pageList() {

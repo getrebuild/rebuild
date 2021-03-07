@@ -136,7 +136,7 @@ $(document).ready(function () {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
       e.preventDefault()
-      RbHighbar.error($L('FreeVerNotSupportted,FormAdvControl'))
+      RbHighbar.create($L('FreeVerNotSupportted,FormAdvControl'), { type: 'danger', html: true, timeout: 6000 })
       return false
     }
 

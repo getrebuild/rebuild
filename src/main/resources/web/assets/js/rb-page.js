@@ -148,7 +148,8 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 1) return RbHighbar.error($L('FreeVerNotSupportted,UseTheme'))
+    if (rb.commercial < 1) return RbHighbar.create($L('FreeVerNotSupportted,UseTheme'), { type: 'danger', html: true, timeout: 6000 })
+
     var theme = $(this).data('theme')
     $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
       location.reload(true)

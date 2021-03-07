@@ -206,7 +206,7 @@ class DlgEnableUser extends RbModalHandler {
     if (this._roleAppends) {
       data.roleAppends = this._roleAppends.val().join(',')
       if (data.roleAppends && rb.commercial < 1) {
-        return RbHighbar.error($L('FreeVerNotSupportted,AppendRoles'))
+        return RbHighbar.create($L('FreeVerNotSupportted,AppendRoles'), { type: 'danger', html: true, timeout: 6000 })
       }
     }
 

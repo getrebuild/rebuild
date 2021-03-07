@@ -1137,6 +1137,7 @@ a {
 
 .rbhighbar > .alert > .message a {
   color: #fff;
+  text-decoration: underline;
 }
 
 .ui-mprogress .bar-bg,
