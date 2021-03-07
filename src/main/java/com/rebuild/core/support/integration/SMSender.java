@@ -178,6 +178,7 @@ public class SMSender {
         email.setHostName(hostPort[0]);
         if (hostPort.length > 1) email.setSmtpPort(Integer.parseInt(hostPort[1]));
 
+        email.setCharset("UTF-8");
         return email.send();
     }
 
