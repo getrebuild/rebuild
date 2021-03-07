@@ -33,6 +33,7 @@ public enum ConfigurationItem {
 
     // 邮件
     MailUser, MailPassword, MailAddr, MailName(AppName),
+    MailSmtpServer,
 
     // 短信
     SmsUser, SmsPassword, SmsSign(AppName),

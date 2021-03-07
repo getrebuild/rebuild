@@ -5,9 +5,33 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+// eslint-disable-next-line no-undef
+postBefore = function (data) {
+  const isSmtp = $('.email-set').hasClass('smtp')
+  if (isSmtp) {
+    data['MailSmtpServer'] = $('input[name="MailSmtpServer"]').val()
+    if (!data['MailSmtpServer']) {
+      RbHighbar.create($L('SomeNotEmpty,SmtpServer'))
+      return false
+    }
+  } else {
+    data['MailSmtpServer'] = ''
+  }
+  return data
+}
+
 $(document).ready(() => {
   $('.J_test-email').click(() => renderRbcomp(<TestSend type="email" />))
   $('.J_test-sms').click(() => renderRbcomp(<TestSend type="sms" />))
+
+  // Use SMTP
+  if ($('td[data-id="MailSmtpServer"]').attr('data-value')) {
+    $('.email-set').addClass('smtp')
+  }
+  // Switch SMTP
+  $('.J_switch-email-set').click(() => {
+    $('.email-set').toggleClass('smtp')
+  })
 
   $.get('./submail/stats', (res) => {
     let $el = $('.J_stats-sms')
