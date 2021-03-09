@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
+/* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 /*! https://github.com/carhartl/jquery-cookie */
 // eslint-disable-next-line
@@ -98,8 +99,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
     },
   })
 
+  if (rb.commercial < 10) $('.rbv-hide').removeClass('rbv-hide')
+  if (rb.env === 'dev') $('.dev-show').removeClass('dev-show')
+
   if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
-  if (rb.env === 'dev') $('html').addClass('dev')
   setTimeout(function () {
     $(document.body).addClass('rb-animate')
   }, 1000)

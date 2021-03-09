@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
+/* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 // PAGE INITIAL
 $(function () {
@@ -454,7 +455,7 @@ var $createUploader = function (input, next, complete, error) {
   var local = input.data('local')
   if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
 
-  var useToken = rb.csrfToken ? ('&_token=' + rb.csrfToken) : ''
+  var useToken = rb.csrfToken ? '&_token=' + rb.csrfToken : ''
 
   if (window.qiniu && rb.storageUrl && !local) {
     input.on('change', function () {

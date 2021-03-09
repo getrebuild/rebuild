@@ -2,7 +2,7 @@
   "Rebuild": "Building your business-systems freely",
   "RebuildRights": "[REBUILD](https://getrebuild.com/) use Open Source [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) and [COMMERCIAL](https://getrebuild.com/license/COMMERCIAL.txt) double licensing. Installation/use means that you have read and agreed to the license.",
   "NewVersion": "A new version of REBUILD (%s) update is available [(see details)](%s)",
-  "FreeVerNotSupportted": "The free version does not support {0} feature. [Upgrade Now](https://getrebuild.com/#pricing-plans)",
+  "FreeVerNotSupportted": "The free version does not support {0} feature [(see details)](https://getrebuild.com/docs/rbv-features)",
   "CommercialFeat": "Commercial feature",
   "SomeError": "{0} error",
   "SomeInvalid": "Invalid {0}",

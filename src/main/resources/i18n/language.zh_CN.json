@@ -2,7 +2,7 @@
   "Rebuild": "高度可定制化的企业管理系统",
   "RebuildRights": "[REBUILD](https://getrebuild.com/) 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。",
   "NewVersion": "有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)",
-  "FreeVerNotSupportted": "免费版不支持{0}功能 [立即升级](https://getrebuild.com/#pricing-plans)",
+  "FreeVerNotSupportted": "免费版不支持{0}功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)",
   "CommercialFeat": "增值功能",
   "SomeError": "{0}错误",
   "SomeInvalid": "{0}无效",

@@ -6,24 +6,24 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 .bosskey-show,
-.dev-show,
 .admin-show {
   display: none;
 }
 
-html.dev .dev-show,
 html.admin .admin-show {
   display: block;
 }
 
-html.dev .dev-show.inline,
 html.admin .admin-show.inline {
   display: inline-block;
 }
 
-html.dev .dev-show.row,
 html.admin .admin-show.row {
   display: flex;
+}
+
+.rbv-hide, .dev-show {
+  display: none;
 }
 
 html,
@@ -1137,7 +1137,6 @@ a {
 
 .rbhighbar > .alert > .message a {
   color: #fff;
-  text-decoration: underline;
 }
 
 .ui-mprogress .bar-bg,
