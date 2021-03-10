@@ -49,7 +49,7 @@ $(document).ready(() => {
     })
     const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
     if (rb.commercial < 1 && (when & 512) !== 0) {
-      return RbHighbar.error($L('FreeVerNotSupportted,JobExecution'))
+      return RbHighbar.create($L('FreeVerNotSupportted,JobExecution'), { type: 'danger', html: true, timeout: 6000 })
     }
 
     const content = contentComp.buildContent()

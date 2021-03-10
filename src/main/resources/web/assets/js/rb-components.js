@@ -84,25 +84,25 @@ class RbModal extends React.Component {
   /**
    * @param {*} url
    * @param {*} title
-   * @param {*} ext
+   * @param {*} options
    */
-  static create(url, title, ext) {
+  static create(url, title, options) {
     // URL prefix
     if (url.substr(0, 1) === '/' && rb.baseUrl) url = rb.baseUrl + url
 
-    ext = ext || {}
-    ext.disposeOnHide = ext.disposeOnHide === true // default false
+    options = options || {}
+    options.disposeOnHide = options.disposeOnHide === true // default false
     this.__HOLDERs = this.__HOLDERs || {}
 
     const that = this
-    if (ext.disposeOnHide === false && !!that.__HOLDERs[url]) {
+    if (options.disposeOnHide === false && !!that.__HOLDERs[url]) {
       that.__HOLDER = that.__HOLDERs[url]
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />, null, function () {
+      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} />, null, function () {
         that.__HOLDER = this
-        if (ext.disposeOnHide === false) that.__HOLDERs[url] = this
+        if (options.disposeOnHide === false) that.__HOLDERs[url] = this
       })
     }
   }
@@ -281,20 +281,20 @@ class RbAlert extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} titleOrExt
-   * @param {*} ext
+   * @param {*} titleOrOptions
+   * @param {*} options
    */
-  static create(message, titleOrExt, ext) {
-    if (typeof titleOrExt === 'object') {
-      ext = titleOrExt
-      titleOrExt = null
+  static create(message, titleOrOptions, options) {
+    if (typeof titleOrOptions === 'object') {
+      options = titleOrOptions
+      titleOrOptions = null
     }
 
-    ext = ext || {}
-    const props = { ...ext, title: titleOrExt }
-    if (ext.html === true) props.htmlMessage = message
+    options = options || {}
+    const props = { ...options, title: titleOrOptions }
+    if (options.html === true) props.htmlMessage = message
     else props.message = message
-    renderRbcomp(<RbAlert {...props} />, null, ext.call)
+    renderRbcomp(<RbAlert {...props} />, null, options.call)
   }
 }
 
@@ -334,16 +334,15 @@ class RbHighbar extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} type
-   * @param {*} ext
+   * @param {*} options
    */
-  static create(message, type, ext) {
+  static create(message, options) {
     if (top !== self && parent.RbHighbar) {
-      parent.RbHighbar.create(message, type, ext)
+      parent.RbHighbar.create(message, options)
     } else {
-      ext = ext || {}
-      if (ext.html === true) renderRbcomp(<RbHighbar htmlMessage={message} type={type} timeout={ext.timeout} />)
-      else renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
+      options = options || {}
+      if (options.html === true) renderRbcomp(<RbHighbar htmlMessage={message} type={options.type} timeout={options.timeout} />)
+      else renderRbcomp(<RbHighbar message={message} type={options.type} timeout={options.timeout} />)
     }
   }
 
@@ -351,14 +350,14 @@ class RbHighbar extends React.Component {
    * @param {*} message
    */
   static success(message) {
-    RbHighbar.create(message || $L('SomeSuccess,Operation'), 'success', { timeout: 2000 })
+    RbHighbar.create(message || $L('SomeSuccess,Operation'), { type: 'success', timeout: 2000 })
   }
 
   /**
    * @param {*} message
    */
   static error(message) {
-    RbHighbar.create(message || $L('Error500'), 'danger', { timeout: 4000 })
+    RbHighbar.create(message || $L('Error500'), { type: 'danger', timeout: 4000 })
   }
 }
 

@@ -108,6 +108,6 @@ module.exports = {
     $LF: true,
     $isTrue: true,
     $fieldIsCompatible: true,
-    $unhideDropdown: true
+    $unhideDropdown: true,
   },
 }
