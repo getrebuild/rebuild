@@ -33,8 +33,8 @@ public abstract class DistributedJobLock {
      * @return
      */
     protected boolean tryLock() {
-        if (Application.isWaitLoad()) {
-            log.warn("Job [ {} ] ignored while REBUILD starting up.", getClass().getSimpleName());
+        if (!Application.isReady() || Application.isWaitLoad()) {
+            log.info("Job [ {} ] ignored while REBUILD starting up.", getClass().getSimpleName());
             return false;
         }
 

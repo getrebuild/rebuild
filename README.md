@@ -27,7 +27,7 @@
 
 ## 使用
 
-开始使用 RB 非常简单，你不需要搭建复杂的运行环境，甚至不需要安装 JDK（`standalone` 安装包自带）。零依赖快速部署，就是那么简单！
+开始使用 REBUILD 非常简单，你不需要搭建复杂的运行环境，甚至不需要安装 JDK（`standalone` 安装包自带）。零依赖快速部署，就是那么简单！
 
 #### 1. 使用已发布版本
 
@@ -79,4 +79,4 @@ REBUILD uses both open source ([GPL-3.0](LICENSE)) and [commercial](COMMERCIAL) 
 
 ## 购买商业版
 
-从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 RB 对贵司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
+从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 REBUILD 对贵司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！

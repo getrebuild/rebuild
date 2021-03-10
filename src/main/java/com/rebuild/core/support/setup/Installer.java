@@ -208,7 +208,7 @@ public class Installer implements InstallState {
     protected void installDatabase() {
         // 本身就是 RB 数据库，无需创建
         if (isRbDatabase()) {
-            log.warn("Use RB database without create");
+            log.warn("Use REBUILD database without create");
             return;
         }
 
@@ -376,14 +376,14 @@ public class Installer implements InstallState {
                 try (ResultSet rs = stmt.executeQuery(rbSql)) {
                     if (rs.next()) {
                         String dbVer = rs.getString(1);
-                        log.info("Check RB database version : " + dbVer);
+                        log.info("Check REBUILD database version : " + dbVer);
                         return true;
                     }
                 }
             }
 
         } catch (SQLException ex) {
-            log.warn("Check RB database error : " + ex.getLocalizedMessage());
+            log.warn("Check REBUILD database error : " + ex.getLocalizedMessage());
         }
         return false;
     }
