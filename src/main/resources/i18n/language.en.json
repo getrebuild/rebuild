@@ -1328,6 +1328,7 @@
   "SwitchEmailSubmail": "Use SUBMAIL",
   "UnknownFieldInFilterTips": "There is an invalid field, which may have been deleted by the administrator. It is recommended that you adjust and save it again",
   "SysConf": "System",
+  "ViewInList": "View on List",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
