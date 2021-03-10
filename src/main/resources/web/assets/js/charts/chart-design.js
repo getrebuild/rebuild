@@ -306,6 +306,13 @@ const render_option = () => {
 // 生成预览
 let render_preview_chart = null
 const render_preview = () => {
+  const $fs = $('a.J_filter > span')
+  if (dataFilter && (dataFilter.items || []).length > 0) {
+    $fs.text(`${$L('SetAdvFiletr')} (${dataFilter.items.length})`)
+  } else {
+    $fs.text($L('SetAdvFiletr'))
+  }
+
   $setTimeout(
     () => {
       if (render_preview_chart) {

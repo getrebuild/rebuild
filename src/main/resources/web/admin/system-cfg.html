@@ -38,7 +38,7 @@
                         <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
-                        <td>LOGO <sup class="rbv"></sup></td>
+                        <td>Logo <sup class="rbv"></sup></td>
                         <td class="fs-0 applogo">
                           <a class="img-thumbnail"><i class="logo-img"></i></a>
                           <a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
@@ -57,13 +57,9 @@
                         <td>[[${bundle.L('DefaultLanguage')}]]</td>
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
-                      <tr>
-                        <td>[[${bundle.L('LiveWallpaper')}]]</td>
-                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.L(LiveWallpaper ? 'True' : 'False')}]]</td>
-                      </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('SysSecure')}]]</h5>
+                  <h5>[[${bundle.L('SysConf')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
@@ -88,6 +84,10 @@
                       <tr>
                         <td>[[${bundle.L('MultipleSessions')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${bundle.L(MultipleSessions ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('LiveWallpaper')}]]</td>
+                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.L(LiveWallpaper ? 'True' : 'False')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('MarkWatermark')}]]</td>

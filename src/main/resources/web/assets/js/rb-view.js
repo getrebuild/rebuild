@@ -238,6 +238,9 @@ class RelatedList extends React.Component {
   state = { ...this.props, viewOpens: {}, viewComponents: {} }
 
   render() {
+    const entity = this.props.entity.split('.')[0]
+    const openListUrl = `${rb.baseUrl}/app/${entity}/list?via=${this.props.mainid}:${this.props.entity}`
+
     return (
       <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
         {!this.state.list && <RbSpinner />}
@@ -245,7 +248,7 @@ class RelatedList extends React.Component {
           <div className="related-toolbar">
             <div className="row">
               <div className="col">
-                <div className="input-group input-search">
+                <div className="input-group input-search float-left">
                   <input
                     className="form-control"
                     type="text"
@@ -260,6 +263,9 @@ class RelatedList extends React.Component {
                     </button>
                   </span>
                 </div>
+                <a className="btn btn-link" href={openListUrl} target="_blank">
+                  <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('ViewInList')}
+                </a>
               </div>
               <div className="col text-right">
                 <div className="btn-group">
@@ -294,7 +300,7 @@ class RelatedList extends React.Component {
             <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={item[0]} ref={`item-${item[0]}`}>
               <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
                 <div className="col-10">
-                  <a href={`#!/View/${this.props.entity.split('.')[0]}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
+                  <a href={`#!/View/${entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
                     {item[1]}
                   </a>
                 </div>
@@ -328,7 +334,7 @@ class RelatedList extends React.Component {
     if (append) this.__pageNo += append
     const pageSize = 20
 
-    const url = `/app/entity/related-list?mainid=${this.props.main}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`
+    const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`
     $.get(`${url}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`, (res) => {
       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
@@ -336,7 +342,8 @@ class RelatedList extends React.Component {
       const list = append ? (this.state.list || []).concat(data) : data
 
       // 数据少不显示
-      if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
 
       this.setState({ list: list, showMores: data.length >= pageSize }, () => {
         if (this.props.autoExpand) {
@@ -492,7 +499,8 @@ class ReducedFeedsList extends FeedsList {
       const list = append ? (this.state.data || []).concat(data) : data
 
       // 数据少不显示
-      if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
 
       this.setState({ data: list, showMores: data.length >= pageSize })
     })
@@ -710,7 +718,7 @@ const RbViewPage = {
       const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
       const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
       tabNav.find('a').click(function () {
-        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} main={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, tabPane)
+        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, tabPane)
       })
     })
     this.updateVTabs()
