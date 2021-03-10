@@ -338,8 +338,7 @@ a.btn {
   background-image: url(../img/logo-white.png);
 }
 
-.alert-sm > .icon,
-.alert-icon.min > .icon {
+.alert-sm > .icon {
   width: 42px;
   font-size: 1.6rem;
 }
@@ -348,15 +347,17 @@ a.btn {
   right: -7px;
 }
 
-.alert-sm > .message,
-.alert-icon.min > .message {
+.alert-sm > .message {
   padding: 0.8rem 0.8rem 0.8rem 1.3rem;
   line-height: 22px;
 }
 
-.alert-sm .close,
-.alert.min .close {
+.alert-sm .close {
   padding: 0.95rem 0;
+}
+
+.alert:not(.alert-icon-border) > .message {
+  padding-left: 0.2rem;
 }
 
 .input-search,
@@ -3703,7 +3704,7 @@ a.select-lang:hover {
   display: none;
 }
 
-.use-theme {
+.use-theme, .use-language {
   border-top: 1px solid #eee;
   margin-top: 6px;
   padding: 14px 15px 10px;

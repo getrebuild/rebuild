@@ -54,6 +54,14 @@ class AdvFilter extends React.Component {
 
     const advFilter = (
       <div className={'adv-filter-wrap ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
+        {this.state.hasErrorTip && (
+          <div className="alert alert-warning alert-sm">
+            <div className="icon">
+              <i className="zmdi zmdi-alert-triangle" />
+            </div>
+            <div className="message">{this.state.hasErrorTip}</div>
+          </div>
+        )}
         <div className="adv-filter">
           <div className="filter-items" onKeyPress={this.searchByKey}>
             {(this.state.items || []).map((item) => {
@@ -148,9 +156,13 @@ class AdvFilter extends React.Component {
       if (this.__items) {
         this.__items.forEach((item) => {
           if (item.field.substr(0, 1) === NAME_FLAG) item.field = item.field.substr(1)
-          if (valideFs.includes(item.field)) this.addItem(item)
-          // eslint-disable-next-line no-console
-          else if (rb.env === 'dev') console.warn('Unkonw field : ' + JSON.stringify(item))
+          if (valideFs.includes(item.field)) {
+            this.addItem(item)
+          } else {
+            this.setState({ hasErrorTip: $L('UnknownFieldInFilterTips') })
+            // eslint-disable-next-line no-console
+            if (rb.env === 'dev') console.warn('Unkonw field : ' + JSON.stringify(item))
+          }
         })
       }
     })
@@ -232,23 +244,14 @@ class AdvFilter extends React.Component {
       if (!item) hasError = true
       else filters.push(item)
     }
-    if (hasError) {
-      RbHighbar.create($L('HasInvalidFilterItems'))
-      return
-    }
-    if (filters.length === 0 && canNoFilters !== true) {
-      RbHighbar.create($L('Pls1FilterItemLeast'))
-      return
-    }
+    if (hasError) return RbHighbar.create($L('HasInvalidFilterItems'))
+    if (filters.length === 0 && canNoFilters !== true) return RbHighbar.create($L('Pls1FilterItemLeast'))
 
     const adv = { entity: this.props.entity, items: filters }
     if (this.state.useEquation === 'AND') {
       adv.equation = 'AND'
     } else if (this.state.useEquation === '9999') {
-      if (this.state.equationError === true) {
-        RbHighbar.create($L('SomeInvalid,AdvOperator'))
-        return
-      }
+      if (this.state.equationError === true) return RbHighbar.create($L('SomeInvalid,AdvOperator'))
       adv.equation = this.state.equation
     }
 

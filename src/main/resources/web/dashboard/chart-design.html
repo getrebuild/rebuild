@@ -67,6 +67,12 @@
               <div class="pl-1 mt-3 chart-option">
                 <div class="J_opt-UNDEF">[[${bundle.L('ChartNoOptionTips')}]]</div>
                 <div class="hide J_opt-ALL">
+                  <label>
+                    <a class="J_filter" href="javascript:;">
+                      <i class="zmdi zmdi-filter-list down-2" style="font-size: 1.43rem; width: 23px; padding-left: 2px; color: #888"></i>
+                      <span>[[${bundle.L('SetAdvFiletr')}]]</span>
+                    </a>
+                  </label>
                   <label class="custom-control custom-control-sm custom-checkbox mb-2 admin-show">
                     <input class="custom-control-input" type="checkbox" data-name="noPrivileges" />
                     <span class="custom-control-label"> [[${bundle.L('ChartUseAllData')}]] <i class="zmdi zmdi-help zicon" th:title="${bundle.L('ChartUseAllDataTips')}"></i></span>
@@ -116,14 +122,14 @@
           <div class="axis-editor">
             <div class="axis J_dimension">
               <div class="axis-head">
-                <span class="text-uppercase">[[${bundle.L('ChartDimension')}]]</span>
+                <span>[[${bundle.L('ChartDimension')}]]</span>
                 <a><i class="zmdi zmdi-edit"></i></a>
               </div>
               <div class="axis-target J_axis-dim"></div>
             </div>
             <div class="axis J_numerical">
               <div class="axis-head">
-                <span class="text-uppercase">[[${bundle.L('ChartNumerical')}]]</span>
+                <span>[[${bundle.L('ChartNumerical')}]]</span>
                 <a><i class="zmdi zmdi-edit"></i></a>
               </div>
               <div class="axis-target J_axis-num"></div>
