@@ -336,7 +336,8 @@ class RelatedList extends React.Component {
       const list = append ? (this.state.list || []).concat(data) : data
 
       // 数据少不显示
-      if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
 
       this.setState({ list: list, showMores: data.length >= pageSize }, () => {
         if (this.props.autoExpand) {
@@ -492,7 +493,8 @@ class ReducedFeedsList extends FeedsList {
       const list = append ? (this.state.data || []).concat(data) : data
 
       // 数据少不显示
-      if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
 
       this.setState({ data: list, showMores: data.length >= pageSize })
     })

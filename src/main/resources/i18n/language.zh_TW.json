@@ -439,7 +439,6 @@
   "HomeUrlTips": "所有外部連結將以此作為首碼",
   "OpenSignUp": "公開註册",
   "LiveWallpaper": "登入頁每日一圖",
-  "SysSecure": "系統安全",
   "PasswordPolicy": "登入密碼等級",
   "PasswordPolicyL1": "低 (最低6位，無字元類型限制)",
   "PasswordPolicyL2": "中 (最低6位，必須同時包含數位、字母)",
@@ -1328,6 +1327,7 @@
   "SwitchEmailSmtp": "使用 SMTP",
   "SwitchEmailSubmail": "使用賽郵",
   "UnknownFieldInFilterTips": "存在無效字段，可能已被管理員刪除，建議你調整後重新保存",
+  "SysConf": "系統選項",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

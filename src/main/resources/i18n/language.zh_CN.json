@@ -439,7 +439,6 @@
   "HomeUrlTips": "所有外部链接将以此作为前缀",
   "OpenSignUp": "公开注册",
   "LiveWallpaper": "登录页每日一图",
-  "SysSecure": "系统安全",
   "PasswordPolicy": "登录密码等级",
   "PasswordPolicyL1": "低 (最低6位，无字符类型限制)",
   "PasswordPolicyL2": "中 (最低6位，必须同时包含数字、字母)",
@@ -1328,6 +1327,7 @@
   "SwitchEmailSmtp": "使用 SMTP",
   "SwitchEmailSubmail": "使用赛邮",
   "UnknownFieldInFilterTips": "存在无效字段，可能已被管理员删除，建议你调整后重新保存",
+  "SysConf": "系统选项",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
