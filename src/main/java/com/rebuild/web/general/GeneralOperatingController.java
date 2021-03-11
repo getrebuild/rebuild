@@ -88,11 +88,8 @@ public class GeneralOperatingController extends BaseController {
         // 检查重复值
         List<Record> repeated = ies.getAndCheckRepeated(record, 100);
         if (!repeated.isEmpty()) {
-            JSONObject map = new JSONObject();
-            map.put("error_code", CODE_REPEATED_VALUES);
-            map.put("error_msg", getLang(request, "RecordRepeated"));
-            map.put("data", buildRepeatedData(repeated));
-            return map;
+            return new RespBody(CODE_REPEATED_VALUES,
+                    getLang(request, "RecordRepeated"), buildRepeatedData(repeated));
         }
 
         try {
