@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
+import lombok.Data;
 
 /**
  * 统一请求返回消息体
@@ -20,7 +21,9 @@ import com.rebuild.utils.JSONable;
  * @since 2020/8/28
  * @see com.rebuild.web.ControllerResponseBodyAdvice
  */
+@Data
 public class RespBody implements JSONable {
+    private static final long serialVersionUID = 536528838531527195L;
 
     private int errorCode;
     private String errorMsg;
@@ -30,27 +33,6 @@ public class RespBody implements JSONable {
         this.errorCode = errorCode;
         this.errorMsg = errorMsg;
         this.data = data;
-    }
-
-    /**
-     * @return
-     */
-    public int getErrorCode() {
-        return errorCode;
-    }
-
-    /**
-     * @return
-     */
-    public String getErrorMsg() {
-        return errorMsg;
-    }
-
-    /**
-     * @return
-     */
-    public Object getData() {
-        return data;
     }
 
     @Override
@@ -87,28 +69,6 @@ public class RespBody implements JSONable {
     }
 
     /**
-     * @param errorMsgLang
-     * @param phKeys
-     * @return
-     * @see Language#L(String, String...)
-     */
-    public static RespBody errorl(String errorMsgLang, String ... phKeys) {
-        String lang = Language.L(errorMsgLang, phKeys);
-        return error(lang, Controller.CODE_ERROR);
-    }
-
-    /**
-     * @param errorMsgLang
-     * @param phValues
-     * @return
-     * @see Language#LF(String, Object...)
-     */
-    public static RespBody errorlf(String errorMsgLang, Object ... phValues) {
-        String lang = Language.LF(errorMsgLang, phValues);
-        return error(lang, Controller.CODE_ERROR);
-    }
-
-    /**
      * @param errorCode
      * @return
      */
@@ -133,8 +93,29 @@ public class RespBody implements JSONable {
                 errorMsg = Language.L("Error500");
             }
         }
-
         return new RespBody(errorCode, errorMsg, null);
+    }
+
+    /**
+     * @param errorMsgLang
+     * @param phKeys
+     * @return
+     * @see Language#L(String, String...)
+     */
+    public static RespBody errorl(String errorMsgLang, String ... phKeys) {
+        String lang = Language.L(errorMsgLang, phKeys);
+        return error(lang, Controller.CODE_ERROR);
+    }
+
+    /**
+     * @param errorMsgLang
+     * @param phValues
+     * @return
+     * @see Language#LF(String, Object...)
+     */
+    public static RespBody errorlf(String errorMsgLang, Object ... phValues) {
+        String lang = Language.LF(errorMsgLang, phValues);
+        return error(lang, Controller.CODE_ERROR);
     }
 
     /**
