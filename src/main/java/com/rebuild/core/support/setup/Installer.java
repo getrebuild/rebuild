@@ -81,6 +81,18 @@ public class Installer implements InstallState {
             installProps.put("db.passwd", String.format("AES(%s)", AES.encrypt(dbPasswd)));
         }
 
+        if (!quickMode) {
+            try (Connection conn = getConnection(null)) {
+                if (conn.getMetaData().getDatabaseMajorVersion() >= 8) {
+                    String mysql8ServerTimezone = TimeZone.getDefault().getID();
+                    String dbUrl = (String) installProps.remove("db.url");
+                    installProps.put("db.url", dbUrl.replace(
+                            "serverTimezone=UTC", "serverTimezone=" + mysql8ServerTimezone));
+                    log.warn("MySQL 8.0 or above use serverTimezone : " + mysql8ServerTimezone);
+                }
+            }
+        }
+
         // Redis
         JSONObject cacheProps = this.installProps.getJSONObject("cacheProps");
         if (cacheProps != null && !cacheProps.isEmpty()) {
@@ -187,7 +199,7 @@ public class Installer implements InstallState {
 
         Assert.notNull(dbProps, "[databaseProps] cannot be null");
         String dbUrl = String.format(
-                "jdbc:mysql://%s:%d/%s?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT",
+                "jdbc:mysql://%s:%d/%s?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC",
                 dbProps.getString("dbHost"),
                 dbProps.getIntValue("dbPort"),
                 dbName);
