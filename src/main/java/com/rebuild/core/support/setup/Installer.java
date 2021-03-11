@@ -81,6 +81,18 @@ public class Installer implements InstallState {
             installProps.put("db.passwd", String.format("AES(%s)", AES.encrypt(dbPasswd)));
         }
 
+        if (!quickMode) {
+            try (Connection conn = getConnection(null)) {
+                if (conn.getMetaData().getDatabaseMajorVersion() >= 8) {
+                    String mysql8ServerTimezone = TimeZone.getDefault().getID();
+                    String dbUrl = (String) installProps.remove("db.url");
+                    installProps.put("db.url", dbUrl.replace(
+                            "serverTimezone=UTC", "serverTimezone=" + mysql8ServerTimezone));
+                    log.warn("MySQL 8.0 or above use serverTimezone : " + mysql8ServerTimezone);
+                }
+            }
+        }
+
         // Redis
         JSONObject cacheProps = this.installProps.getJSONObject("cacheProps");
         if (cacheProps != null && !cacheProps.isEmpty()) {
@@ -187,7 +199,7 @@ public class Installer implements InstallState {
 
         Assert.notNull(dbProps, "[databaseProps] cannot be null");
         String dbUrl = String.format(
-                "jdbc:mysql://%s:%d/%s?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT",
+                "jdbc:mysql://%s:%d/%s?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC",
                 dbProps.getString("dbHost"),
                 dbProps.getIntValue("dbPort"),
                 dbName);
@@ -208,7 +220,7 @@ public class Installer implements InstallState {
     protected void installDatabase() {
         // 本身就是 RB 数据库，无需创建
         if (isRbDatabase()) {
-            log.warn("Use RB database without create");
+            log.warn("Use REBUILD database without create");
             return;
         }
 
@@ -376,14 +388,14 @@ public class Installer implements InstallState {
                 try (ResultSet rs = stmt.executeQuery(rbSql)) {
                     if (rs.next()) {
                         String dbVer = rs.getString(1);
-                        log.info("Check RB database version : " + dbVer);
+                        log.info("Check REBUILD database version : " + dbVer);
                         return true;
                     }
                 }
             }
 
         } catch (SQLException ex) {
-            log.warn("Check RB database error : " + ex.getLocalizedMessage());
+            log.warn("Check REBUILD database error : " + ex.getLocalizedMessage());
         }
         return false;
     }
