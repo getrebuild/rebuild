@@ -1,5 +1,5 @@
 # !!! `db.*` ONLY FOR DEV MODE !!!
-db.url: jdbc:mysql://127.0.0.1:3308/rebuild20?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
+db.url: jdbc:mysql://127.0.0.1:3306/rebuild20?characterEncoding=UTF8&useUnicode=true&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=UTC
 db.user: rebuild
 db.passwd: rebuild
 # Use built-in ehcache if redis not defined or unavailable
