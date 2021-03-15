@@ -264,7 +264,8 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 || requestUri.startsWith("/commons/announcements")
                 || requestUri.startsWith("/commons/url-safe")
                 || requestUri.startsWith("/commons/barcode/render")
-                || requestUri.startsWith("/commons/theme/");
+                || requestUri.startsWith("/commons/theme/")
+                || requestUri.startsWith("/account/user-avatar/");
     }
 
     /**

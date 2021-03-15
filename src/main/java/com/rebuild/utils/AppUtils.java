@@ -35,11 +35,10 @@ import java.sql.DataTruncation;
  */
 public class AppUtils {
 
-    // 移动端 UA 前缀
-    public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
-
     // Token 认证
     public static final String HF_AUTHTOKEN = "X-AuthToken";
+    // Csrf 认证
+    public static final String HF_CSRFTOKEN = "X-CsrfToken";
 
     // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
@@ -167,14 +166,14 @@ public class AppUtils {
     }
 
     /**
-     * 是否 APP 请求
+     * 是否移动端请求
      *
      * @param request
      * @return
      */
     public static boolean isRbMobile(HttpServletRequest request) {
-        String UA = request.getHeader("user-agent");
-        return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
+        String UA = request.getHeader("X-Client");
+        return UA != null && UA.contains("RB/Mobile-");
     }
 
     /**

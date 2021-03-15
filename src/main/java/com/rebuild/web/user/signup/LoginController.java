@@ -166,7 +166,13 @@ public class LoginController extends BaseController {
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
 
-        return RespBody.ok();
+        if (AppUtils.isRbMobile(request)) {
+            request.getSession().invalidate();
+            String authToken = AuthTokenManager.generateToken(loginUser.getId(), AuthTokenManager.TOKEN_EXPIRES * 12);
+            return RespBody.ok(authToken);
+        } else {
+            return RespBody.ok();
+        }
     }
 
     /**

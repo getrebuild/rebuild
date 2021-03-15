@@ -60,8 +60,8 @@ public class CsrfToken {
      * @return
      */
     public static boolean verify(HttpServletRequest request, boolean destroy) {
-        String token = request.getHeader("X-Csrf-Token");
-        if (token == null) token = request.getParameter("_token");
+        String token = request.getHeader(AppUtils.HF_CSRFTOKEN);
+        if (token == null) token = request.getParameter("_csrfToken");
         return verify(token, destroy);
     }
 }

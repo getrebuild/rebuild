@@ -455,7 +455,7 @@ var $createUploader = function (input, next, complete, error) {
   var local = input.data('local')
   if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
 
-  var useToken = rb.csrfToken ? '&_token=' + rb.csrfToken : ''
+  var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
 
   if (window.qiniu && rb.storageUrl && !local) {
     input.on('change', function () {
