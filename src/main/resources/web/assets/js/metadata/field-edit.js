@@ -207,7 +207,7 @@ const checkDefaultValue = function (v, t) {
 class AdvDateDefaultValue extends RbAlert {
   constructor(props) {
     super(props)
-    this.state = { calcNum: 1, calcUnit: 'Y' }
+    this.state = { calcNum: 1, calcUnit: 'D' }
   }
 
   renderContent() {
