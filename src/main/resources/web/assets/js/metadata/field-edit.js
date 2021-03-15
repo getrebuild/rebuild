@@ -234,9 +234,9 @@ class AdvDateDefaultValue extends RbAlert {
               onChange={(e) => this.setState({ calcNum: e.target.value })}
             />
             <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
-              <option value="D">{$L('Year')}</option>
+              <option value="D">{$L('Day')}</option>
               <option value="M">{$L('Month')}</option>
-              <option value="Y">{$L('Day')}</option>
+              <option value="Y">{$L('Year')}</option>
               {this.props.type === 'DATETIME' && (
                 <React.Fragment>
                   <option value="H">{$L('Hour')}</option>
