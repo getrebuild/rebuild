@@ -27,7 +27,7 @@ class AdvFilter extends React.Component {
       this.__items = props.filter.items
     }
 
-    this.state = { ...props, ...ext }
+    this.state = { ...props, ...ext, hasErrorTip: '43243' }
     this.childrenRef = []
   }
 
@@ -59,7 +59,7 @@ class AdvFilter extends React.Component {
             <div className="icon">
               <i className="zmdi zmdi-alert-triangle" />
             </div>
-            <div className="message">{this.state.hasErrorTip}</div>
+            <div className="message pl-0">{this.state.hasErrorTip}</div>
           </div>
         )}
         <div className="adv-filter">
