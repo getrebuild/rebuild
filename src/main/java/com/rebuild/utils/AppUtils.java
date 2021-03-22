@@ -173,7 +173,7 @@ public class AppUtils {
      */
     public static boolean isRbMobile(HttpServletRequest request) {
         String UA = request.getHeader("X-Client");
-        return UA != null && UA.contains("RB/Mobile-");
+        return UA != null && UA.startsWith("RB/Mobile-");
     }
 
     /**

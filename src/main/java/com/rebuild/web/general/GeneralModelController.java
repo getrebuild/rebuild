@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.utils.AppUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.*;
@@ -71,7 +72,7 @@ public class GeneralModelController extends EntityController {
         return mv;
     }
 
-    @PostMapping("form-model")
+    @RequestMapping("form-model")
     public JSON entityForm(@PathVariable String entity, @IdParam(required = false) ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
@@ -108,7 +109,12 @@ public class GeneralModelController extends EntityController {
     @GetMapping("view-model")
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
-        return FormsBuilder.instance.buildView(entity, getRequestUser(request), id);
+        ID user = getRequestUser(request);
+        JSONObject model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
+        if (AppUtils.isRbMobile(request)) {
+            model.put("entityPrivileges", buildEntityPrivileges(id, user));
+        }
+        return model;
     }
 
     // 打印视图

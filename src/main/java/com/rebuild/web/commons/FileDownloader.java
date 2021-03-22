@@ -9,10 +9,14 @@ package com.rebuild.web.commons;
 
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.web.ServletUtils;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
+import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import net.coobird.thumbnailator.Thumbnails;
 import org.apache.commons.io.FileUtils;
@@ -43,6 +47,8 @@ public class FileDownloader extends BaseController {
 
     @GetMapping("img/**")
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
+
         String filePath = request.getRequestURI();
         filePath = filePath.split("/filex/img/")[1];
 
@@ -135,6 +141,7 @@ public class FileDownloader extends BaseController {
 
             filePath = filePath.split("/filex/access/")[1];
         } else {
+            RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
             filePath = filePath.split("/filex/download/")[1];
         }
 
@@ -153,6 +160,17 @@ public class FileDownloader extends BaseController {
             privateUrl += "&attname=" + CodecUtils.urlEncode(attname);
             response.sendRedirect(privateUrl);
         }
+    }
+
+    private ID checkUser(HttpServletRequest request) {
+        ID user = AppUtils.getRequestUser(request);
+        if (user == null) {
+            String authToken = request.getParameter("_authToken");
+            if (authToken != null) {
+                user = AuthTokenManager.verifyToken(authToken, false);
+            }
+        }
+        return user;
     }
 
     // --

@@ -10,6 +10,7 @@ package com.rebuild.api.user;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -36,7 +37,8 @@ public class AuthTokenManager {
      * @return
      */
     public static String generateToken(ID user, int expires) {
-        String token = String.format("%s,%d,v1", user, System.currentTimeMillis());
+        String token = String.format("%s,%d,%s,v1",
+                user, System.currentTimeMillis(), CodecUtils.randomCode(10));
         token = CodecUtils.base64UrlEncode(token);
         Application.getCommonsCache().putx(TOKEN_PREFIX + token, user, expires);
         return token;
