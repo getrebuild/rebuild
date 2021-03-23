@@ -10,7 +10,6 @@ package com.rebuild.api.user;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import com.rebuild.utils.AES;
 import org.apache.commons.lang.StringUtils;
 
 /**

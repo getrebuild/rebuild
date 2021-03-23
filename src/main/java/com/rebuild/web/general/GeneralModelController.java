@@ -21,10 +21,12 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.utils.AppUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -111,9 +113,7 @@ public class GeneralModelController extends EntityController {
                            HttpServletRequest request) {
         ID user = getRequestUser(request);
         JSONObject model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
-        if (AppUtils.isRbMobile(request)) {
-            model.put("entityPrivileges", buildEntityPrivileges(id, user));
-        }
+        model.put("entityPrivileges", buildEntityPrivileges(id, user));
         return model;
     }
 

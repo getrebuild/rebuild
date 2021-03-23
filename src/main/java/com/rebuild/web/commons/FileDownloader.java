@@ -61,7 +61,9 @@ public class FileDownloader extends BaseController {
 
         final boolean temp = BooleanUtils.toBoolean(request.getParameter("temp"));
         String imageView2 = request.getQueryString();
-        if (imageView2 != null && !imageView2.startsWith("imageView2")) {
+        if (imageView2 != null && imageView2.contains("imageView2/")) {
+            imageView2 = "imageView2/" + imageView2.split("imageView2/")[1].split("&")[0];
+        } else {
             imageView2 = null;
         }
 
