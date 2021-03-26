@@ -27,7 +27,7 @@ class AdvFilter extends React.Component {
       this.__items = props.filter.items
     }
 
-    this.state = { ...props, ...ext, hasErrorTip: '43243' }
+    this.state = { ...props, ...ext }
     this.childrenRef = []
   }
 
