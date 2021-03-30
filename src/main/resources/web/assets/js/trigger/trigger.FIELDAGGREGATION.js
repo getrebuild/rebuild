@@ -45,7 +45,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
-                  <i className="zmdi zmdi-alert-triangle fs-16 down-1"></i>
+                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
                   {$L('TriggerTargetEntityTips')}
                 </div>
               )}
@@ -109,9 +109,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <div className="col-5">
                   <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
                     <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)} onClick={this.showFormula}></div>
-                    <p>
-                      {$L('CalcFORMULA')} ({$L('SourceField')})
-                    </p>
+                    <p>{$L('CalcFORMULA')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
                     <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>

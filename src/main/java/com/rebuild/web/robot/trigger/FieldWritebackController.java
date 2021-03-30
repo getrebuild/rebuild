@@ -77,7 +77,7 @@ public class FieldWritebackController extends BaseController {
             for (Field field : MetadataSorter.sortFields(targetEntity)) {
                 EasyField easyField = EasyMetaFactory.valueOf(field);
                 DisplayType dt = easyField.getDisplayType();
-                if (dt == DisplayType.SERIES || easyField.isBuiltin()) {
+                if (dt == DisplayType.SERIES || dt == DisplayType.BARCODE || easyField.isBuiltin()) {
                     continue;
                 }
                 targetFields.add(EasyMetaFactory.toJSON(field));

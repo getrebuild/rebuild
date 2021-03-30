@@ -30,6 +30,8 @@ public enum ActionType {
     HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
     AUTOTRANSFORM("自动记录转换", "com.rebuild.rbv.trigger.AutoTransform"),
 
+    AUTOUPDATE("自动更新", AutoUpdate.class),
+
     ;
 
     private String displayName;

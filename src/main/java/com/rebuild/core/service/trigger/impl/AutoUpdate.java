@@ -12,7 +12,6 @@ import cn.devezhao.persist4j.Record;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
@@ -26,28 +25,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 数据撰写
- *
  * @author devezhao
- * @see AutoFillinManager
- * @since 2020/2/7
- * @deprecated Use {@link AutoUpdate}
+ * @since 2021/3/30
  */
-@Deprecated
-public class FieldWriteback extends FieldAggregation {
+public class AutoUpdate extends FieldAggregation {
 
     private static final String EXPR_SPLIT = "#";
 
-    /**
-     * @param context
-     */
-    public FieldWriteback(ActionContext context) {
+    public AutoUpdate(ActionContext context) {
         super(context, Boolean.TRUE, 5);
     }
 
     @Override
     public ActionType getType() {
-        return ActionType.FIELDWRITEBACK;
+        return ActionType.AUTOUPDATE;
     }
 
     @Override

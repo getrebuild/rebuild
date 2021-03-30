@@ -39,7 +39,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
-                  <i className="zmdi zmdi-alert-triangle fs-16 down-1"></i>
+                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
                   {$L('TriggerTargetEntityTips')}
                 </div>
               )}

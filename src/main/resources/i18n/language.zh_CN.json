@@ -1330,6 +1330,10 @@
   "SysConf": "系统选项",
   "ViewInList": "列表页查看",
   "FormAdvRequiredTip": "本选项仅做前端效验",
+  "UpdateRule": "更新规则",
+  "UpdateMode": "更新方式",
+  "UpdateByField": "字段值",
+  "UpdateByValue": "固定值",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
