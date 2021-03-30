@@ -1329,6 +1329,7 @@
   "UnknownFieldInFilterTips": "存在无效字段，可能已被管理员删除，建议你调整后重新保存",
   "SysConf": "系统选项",
   "ViewInList": "列表页查看",
+  "FormAdvRequiredTip": "本选项仅做前端效验",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
