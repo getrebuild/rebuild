@@ -10,7 +10,6 @@ package com.rebuild.core.support;
 import cn.devezhao.commons.CodecUtils;
 import com.rebuild.core.Application;
 import com.rebuild.core.cache.CommonsCache;
-import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +19,10 @@ import javax.servlet.http.HttpServletRequest;
  * @since 2020/12/15
  */
 public class CsrfToken {
+
+    // Csrf 认证
+    public static final String HF_CSRFTOKEN = "X-CsrfToken";
+    public static final String URL_CSRFTOKEN = "_csrfToken";
 
     // Token 存储前缀
     private static final String TOKEN_PREFIX = "RBCSRF.";
@@ -40,15 +43,15 @@ public class CsrfToken {
      * 验证 Token
      *
      * @param token
-     * @param destroy
+     * @param verifyAfterDestroy
      * @return
      */
-    public static boolean verify(String token, boolean destroy) {
+    public static boolean verify(String token, boolean verifyAfterDestroy) {
         if (StringUtils.isBlank(token)) return false;
 
         token = TOKEN_PREFIX + token;
         Object exists = Application.getCommonsCache().getx(token);
-        if (exists != null && destroy) {
+        if (exists != null && verifyAfterDestroy) {
             Application.getCommonsCache().evict(token);
         }
         return exists != null;
@@ -60,8 +63,8 @@ public class CsrfToken {
      * @return
      */
     public static boolean verify(HttpServletRequest request, boolean destroy) {
-        String token = request.getHeader(AppUtils.HF_CSRFTOKEN);
-        if (token == null) token = request.getParameter("_csrfToken");
+        String token = request.getHeader(HF_CSRFTOKEN);
+        if (token == null) token = request.getParameter(URL_CSRFTOKEN);
         return verify(token, destroy);
     }
 }

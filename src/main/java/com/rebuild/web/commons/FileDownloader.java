@@ -167,10 +167,8 @@ public class FileDownloader extends BaseController {
     private ID checkUser(HttpServletRequest request) {
         ID user = AppUtils.getRequestUser(request);
         if (user == null) {
-            String authToken = request.getParameter("_authToken");
-            if (authToken != null) {
-                user = AuthTokenManager.verifyToken(authToken, false);
-            }
+            String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
+            user = AuthTokenManager.verifyToken(authToken, false);
         }
         return user;
     }

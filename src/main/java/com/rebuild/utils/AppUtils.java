@@ -37,8 +37,7 @@ public class AppUtils {
 
     // Token 认证
     public static final String HF_AUTHTOKEN = "X-AuthToken";
-    // Csrf 认证
-    public static final String HF_CSRFTOKEN = "X-CsrfToken";
+    public static final String URL_AUTHTOKEN = "_authToken";
 
     // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
@@ -85,10 +84,10 @@ public class AppUtils {
      * @return null or UserID
      */
     public static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
-        String xAuthToken = request.getHeader(HF_AUTHTOKEN);
-        ID user = AuthTokenManager.verifyToken(xAuthToken, false);
+        String authToken = request.getHeader(HF_AUTHTOKEN);
+        ID user = AuthTokenManager.verifyToken(authToken, false);
         if (user != null && refreshToken) {
-            AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
+            AuthTokenManager.refreshToken(authToken, AuthTokenManager.TOKEN_EXPIRES);
         }
         return user;
     }
