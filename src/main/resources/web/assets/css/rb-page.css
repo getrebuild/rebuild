@@ -356,10 +356,6 @@ a.btn {
   padding: 0.95rem 0;
 }
 
-.alert:not(.alert-icon-border) > .message {
-  padding-left: 0.2rem;
-}
-
 .input-search,
 .input-search input {
   height: 2.8rem;

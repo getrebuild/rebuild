@@ -91,6 +91,10 @@ public class UserAvatar extends BaseController {
                 avatarUrl = QiniuCloud.instance().url(avatarUrl, 30 * 60);
             } else {
                 avatarUrl = AppUtils.getContextPath() + "/filex/img/" + avatarUrl;
+                String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
+                if (authToken != null) {
+                    avatarUrl += String.format("&%s=%s", AppUtils.URL_AUTHTOKEN, authToken);
+                }
             }
             response.sendRedirect(avatarUrl);
 

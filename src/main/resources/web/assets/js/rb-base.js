@@ -70,8 +70,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
       'X-Client': 'RB/WEB-2.1',
-      'X-Csrf-Token': rb.csrfToken || '',
-      'X-Auth-Token': rb.authToken || '',
+      'X-CsrfToken': rb.csrfToken || '',
+      'X-AuthToken': rb.authToken || '',
     },
     cache: false,
     complete: function (xhr) {

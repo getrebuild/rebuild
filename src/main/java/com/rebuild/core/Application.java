@@ -115,7 +115,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         long time = System.currentTimeMillis();
         boolean started = false;
 
-        final Timer timer = new Timer("Boot-Guide-Timer");
+        final Timer timer = new Timer("Boot-Timer");
 
         try {
             if (Installer.isInstalled()) {
