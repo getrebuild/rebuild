@@ -59,11 +59,13 @@ public class WebConstants {
 
     /**
      * CSRF-Token
+     * @see com.rebuild.core.support.CsrfToken
      */
     public static final String CSRF_TOKEN = "csrfToken";
 
     /**
      * Auth-Token
+     * @see com.rebuild.utils.AppUtils#HF_AUTHTOKEN
      */
     public static final String AUTH_TOKEN = "authToken";
 

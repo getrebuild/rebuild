@@ -169,7 +169,7 @@ public abstract class BaseController extends Controller {
         try {
             return Integer.parseInt(v);
         } catch (NumberFormatException ignored) {
-            return null;
+            return defaultValue;
         }
     }
 

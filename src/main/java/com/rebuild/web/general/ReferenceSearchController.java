@@ -89,7 +89,9 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q, protocolFilter);
+        int pageSize = getIntParameter(request, "pageSize", 10);
+        return buildResultSearch(
+                searchEntity, getParameter(request, "quickFields"), q, protocolFilter, pageSize);
     }
 
     // 搜索指定实体的指定字段
@@ -110,19 +112,12 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        return buildResultSearch(searchEntity, getParameter(request, "quickFields"), q, null);
+        int pageSize = getIntParameter(request, "pageSize", 10);
+        return buildResultSearch(
+                searchEntity, getParameter(request, "quickFields"), q, null, pageSize);
     }
 
-    /**
-     * 构建查询
-     *
-     * @param searchEntity
-     * @param quickFields
-     * @param q
-     * @param appendWhere
-     * @return
-     */
-    private JSON buildResultSearch(Entity searchEntity, String quickFields, String q, String appendWhere) {
+    private JSON buildResultSearch(Entity searchEntity, String quickFields, String q, String appendWhere, int maxResults) {
         // 查询字段
         Set<String> searchFields = ParseHelper.buildQuickFields(searchEntity, quickFields);
         if (searchFields.isEmpty()) {
@@ -136,7 +131,7 @@ public class ReferenceSearchController extends EntityController {
             searchWhere = String.format("(%s) and (%s)", appendWhere, searchWhere);
         }
 
-        List<Object> result = resultSearch(searchWhere, searchEntity, true);
+        List<Object> result = resultSearch(searchWhere, searchEntity, true, maxResults);
         return (JSON) JSON.toJSON(result);
     }
 
@@ -171,18 +166,12 @@ public class ReferenceSearchController extends EntityController {
                 "dataId = '%s' and level = %d and (fullName like '%%%s%%' or quickCode like '%%%s%%') order by fullName",
                 useClassification.toLiteral(), openLevel, q, q);
 
-        List<Object> result = resultSearch(sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), false);
+        List<Object> result = resultSearch(
+                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), false, 10);
         return (JSON) JSON.toJSON(result);
     }
 
-    /**
-     * 封装查询结果
-     *
-     * @param sqlWhere
-     * @param entity
-     * @return
-     */
-    private List<Object> resultSearch(String sqlWhere, Entity entity, boolean usePrivileges) {
+    private List<Object> resultSearch(String sqlWhere, Entity entity, boolean usePrivileges, int maxResults) {
         Field nameField = entity.getNameField();
 
         String sql = MessageFormat.format("select {0},{1} from {2} where {3}",
@@ -198,7 +187,7 @@ public class ReferenceSearchController extends EntityController {
         }
 
         Object[][] array = (usePrivileges ? Application.createQueryNoFilter(sql) : Application.createQuery(sql))
-                .setLimit(10)
+                .setLimit(maxResults)
                 .array();
 
         List<Object> result = new ArrayList<>();

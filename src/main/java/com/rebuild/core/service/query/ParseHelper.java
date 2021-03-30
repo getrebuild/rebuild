@@ -56,9 +56,9 @@ public class ParseHelper {
     public static final String SFU = "SFU";
     public static final String SFB = "SFB";
     public static final String SFD = "SFD";
-    public static final String YTA = "YTA";
-    public static final String TDA = "TDA";
-    public static final String TTA = "TTA";
+    public static final String YTA = "YTA";  // 昨天
+    public static final String TDA = "TDA";  // 今天
+    public static final String TTA = "TTA";  // 明天
     // 位运算
     public static final String BAND = "BAND";
     public static final String NBAND = "NBAND";
@@ -67,12 +67,12 @@ public class ParseHelper {
      * my.ini 配置分词大小 ngram_token_size=2
      * 创建索引时使用 `PARSER ngram`
      */
-    public static final String FT = "FT";
+    public static final String FT = "FT";    // 全文索引（暂未用）
 
-    public static final String CUW = "CUW";
-    public static final String CUM = "CUM";
-    public static final String CUQ = "CUQ";
-    public static final String CUY = "CUY";
+    public static final String CUW = "CUW";  // 本周
+    public static final String CUM = "CUM";  // 本月
+    public static final String CUQ = "CUQ";  // 本季度
+    public static final String CUY = "CUY";  // 本年
 
     // 日期时间
 

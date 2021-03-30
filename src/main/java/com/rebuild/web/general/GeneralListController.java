@@ -69,7 +69,6 @@ public class GeneralListController extends EntityController {
     @PostMapping("data-list")
     public JSON dataList(@PathVariable String entity, HttpServletRequest request) {
         JSONObject query = (JSONObject) ServletUtils.getRequestJson(request);
-
         DataListBuilder builder = new DataListBuilderImpl(query, getRequestUser(request));
         return builder.getJSONResult();
     }
