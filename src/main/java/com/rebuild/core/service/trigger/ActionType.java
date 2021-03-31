@@ -23,14 +23,14 @@ public enum ActionType {
 
     FIELDAGGREGATION("数据聚合", FieldAggregation.class),
     FIELDWRITEBACK("数据转写", FieldWriteback.class),
-    SENDNOTIFICATION("发送通知", SendNotification.class),
+    AUTOUPDATE("自动更新", AutoUpdate.class),
+    AUTOCREATE("自动创建", AutoCreate.class),
     AUTOSHARE("自动共享", AutoShare.class),
     AUTOASSIGN("自动分派", AutoAssign.class),
     AUTOAPPROVAL("自动审批", AutoApproval.class),
-    HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
     AUTOTRANSFORM("自动记录转换", "com.rebuild.rbv.trigger.AutoTransform"),
-
-    AUTOUPDATE("自动更新", AutoUpdate.class),
+    SENDNOTIFICATION("发送通知", SendNotification.class),
+    HOOKURL("回调 URL", "com.rebuild.rbv.trigger.HookUrl"),
 
     ;
 

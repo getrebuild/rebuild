@@ -60,6 +60,7 @@ module.exports = {
     $cleanMap: true,
     $pages: true,
     $same: true,
+    $is: true,
     $unmount: true,
     $initReferenceSelect2: true,
     $keepModalOpen: true,

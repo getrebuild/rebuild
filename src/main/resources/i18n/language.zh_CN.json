@@ -699,6 +699,8 @@
   "AUTOSHARE": "自动共享",
   "AUTOASSIGN": "自动分派",
   "AUTOAPPROVAL": "自动审批",
+  "AUTOUPDATE": "自动更新",
+  "AUTOCREATE": "自动创建",
   "HowWriteTemplateTips": "如何编写模板文件？[查看帮助](https://getrebuild.com/docs/admin/excel-admin)",
   "ExistsInvalidFieldsX": "存在无效字段 %s 建议修改",
   "FieldMapping": "字段映射",

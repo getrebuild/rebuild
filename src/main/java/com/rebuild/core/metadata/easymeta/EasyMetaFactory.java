@@ -20,7 +20,6 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Constructor;
 import java.util.HashSet;
