@@ -358,7 +358,7 @@ FieldFormula.formatText = function (formula, fields) {
   if (formula.includes('#')) {
     const fs = formula.split('#')
     const field = fields.find((x) => x.name === fs[0])
-    return `{${field.label}}` + (fs[1] || '')
+    return `{${field ? field.label : `[${fs[0].toUpperCase()}]`}}` + (fs[1] || '')
   }
   // NUM
   else {
