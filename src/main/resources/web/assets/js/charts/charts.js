@@ -26,17 +26,15 @@ class BaseChart extends React.Component {
         <a className="J_fullscreen d-none d-md-inline-block" title={$L('FullScreen')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
+        {this.props.isManageable && !this.props.builtin && (
+          <a className="J_chart-edit d-none d-md-inline-block" title={$L('Edit')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+            <i className="zmdi zmdi-edit" />
+          </a>
+        )}
         {this.props.editable && (
-          <React.Fragment>
-            {!this.props.builtin && (
-              <a className="J_chart-edit d-none d-md-inline-block" title={$L('Edit')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
-                <i className="zmdi zmdi-edit" />
-              </a>
-            )}
-            <a title={$L('Remove')} onClick={() => this.remove()}>
-              <i className="zmdi zmdi-close" />
-            </a>
-          </React.Fragment>
+          <a title={$L('Remove')} onClick={() => this.remove()}>
+            <i className="zmdi zmdi-close" />
+          </a>
         )}
       </div>
     )
@@ -1021,7 +1019,9 @@ class ChartScatter extends BaseChart {
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
-  const props = { config: cfg, id: id, title: cfg.title, editable: cfg.isManageable, type: cfg.type }
+  // isManageable = 图表可编辑
+  // editable = 仪表盘可编辑
+  const props = { config: cfg, id: id, title: cfg.title, type: cfg.type, isManageable: cfg.isManageable, editable: cfg.editable }
   if (cfg.type === 'INDEX') {
     return <ChartIndex {...props} />
   } else if (cfg.type === 'TABLE') {

@@ -99,7 +99,7 @@ $(document).ready(function () {
 
     let dlgChartSelect
     $('.J_chart-select').click(() => {
-      let appended = []
+      const appended = []
       $('.grid-stack-item-content').each(function () {
         appended.push($(this).attr('id').substr(6))
       })
@@ -110,12 +110,12 @@ $(document).ready(function () {
         return
       }
 
-      const select = function (chart) {
+      const _select = function (chart) {
         chart.w = chart.h = 4
         add_widget(chart)
       }
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ChartSelect key="ChartSelect" select={select} />, null, function () {
+      renderRbcomp(<ChartSelect key="ChartSelect" select={_select} />, null, function () {
         dlgChartSelect = this
         this.setState({ appended: appended })
       })
@@ -157,25 +157,29 @@ const dlgRefs = {}
 const dlgShow = (t, props) => {
   props = props || {}
   props.dashid = props.dashid || dashid
-  if (dlgRefs[t]) dlgRefs[t].show()
-  else if (t === 'DlgAddChart') {
-    if (dash_editable)
+  if (dlgRefs[t]) {
+    dlgRefs[t].show()
+  } else if (t === 'DlgAddChart') {
+    if (dash_editable) {
       renderRbcomp(<DlgAddChart {...props} />, null, function () {
         dlgRefs[t] = this
       })
-    else RbHighbar.create($L('NoPrivilegesAddChartToDashTips'))
-  } else if (t === 'DlgDashAdd')
+    } else {
+      RbHighbar.create($L('NoPrivilegesAddChartToDashTips'))
+    }
+  } else if (t === 'DlgDashAdd') {
     renderRbcomp(<DlgDashAdd {...props} />, null, function () {
       dlgRefs[t] = this
     })
-  else if (t === 'DlgDashSettings')
+  } else if (t === 'DlgDashSettings') {
     renderRbcomp(<DlgDashSettings {...props} />, null, function () {
       dlgRefs[t] = this
     })
-  else if (t === 'DashSelect')
+  } else if (t === 'DashSelect') {
     renderRbcomp(<DashSelect {...props} />, null, function () {
       dlgRefs[t] = this
     })
+  }
 }
 
 let gridstack
@@ -241,6 +245,8 @@ const add_widget = function (item) {
   } else {
     gridstack.addWidget(gsi, item.x, item.y, item.w, item.h, item.x === undefined, 2, 12, 2, 12)
   }
+
+  item.editable = dash_editable
   // eslint-disable-next-line no-undef
   renderRbcomp(detectChart(item, item.chart), chid, function () {
     rendered_charts.push(this)
@@ -267,8 +273,7 @@ const save_dashboard = function () {
   $setTimeout(
     () => {
       $.post('/dashboard/dash-config?id=' + dashid, JSON.stringify(gridstack_serialize), () => {
-        // eslint-disable-next-line no-console
-        if (rb.env === 'dev') console.log('Saved dashboard: ' + JSON.stringify(gridstack_serialize))
+        if (rb.env === 'dev') console.log('Saved dashboard : ' + JSON.stringify(gridstack_serialize))
       })
     },
     500,
@@ -305,12 +310,12 @@ class DlgAddChart extends RbFormHandler {
   }
 
   componentDidMount() {
-    const entity_el = $(this.refs['entity'])
+    const $entity = $(this.refs['entity'])
     $.get('/commons/metadata/entities?detail=true', (res) => {
       $(res.data).each(function () {
-        $('<option value="' + this.name + '">' + this.label + '</option>').appendTo(entity_el)
+        $('<option value="' + this.name + '">' + this.label + '</option>').appendTo($entity)
       })
-      this.__select2 = entity_el.select2({
+      this.__select2 = $entity.select2({
         allowClear: false,
         placeholder: $L('SelectSome,DataSource'),
       })
