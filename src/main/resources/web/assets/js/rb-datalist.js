@@ -38,7 +38,7 @@ class RbList extends React.Component {
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
-    this.advFilterId = $storage.get(this.__defaultFilterKey)
+    this.advFilterId = wpc.advFilter === false ? null : $storage.get(this.__defaultFilterKey)
     this.fixedColumns = supportFixedColumns && this.props.uncheckbox !== true
   }
 

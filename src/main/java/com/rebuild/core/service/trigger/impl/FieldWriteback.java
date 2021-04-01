@@ -73,23 +73,17 @@ public class FieldWriteback extends FieldAggregation {
             }
             t2sMap.put(targetField, sourceField);
         }
+        if (t2sMap.isEmpty()) return;
 
-        if (t2sMap.isEmpty()) {
-            return;
-        }
+        String sql = String.format("select %s from %s where %s = '%s'",
+                StringUtils.join(t2sMap.values(), ","), sourceEntity.getName(),
+                sourceEntity.getPrimaryField().getName(), context.getSourceRecord());
 
-        String sql = String.format("select %s from %s where %s = ?",
-                StringUtils.join(t2sMap.values(), ","), sourceEntity.getName(), followSourceField);
-
-        final Record o = Application.createQueryNoFilter(sql)
-                .setParameter(1, targetRecordId)
-                .record();
-        if (o == null) {
-            return;
-        }
+        final Record useSourceData = Application.createQueryNoFilter(sql).record();
+        if (useSourceData == null) return;
 
         for (Map.Entry<String, String> e : t2sMap.entrySet()) {
-            Object value = o.getObjectValue(e.getValue());
+            Object value = useSourceData.getObjectValue(e.getValue());
             // NOTE 忽略空值
             if (value == null) {
                 continue;

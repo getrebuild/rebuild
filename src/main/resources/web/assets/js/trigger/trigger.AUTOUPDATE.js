@@ -9,8 +9,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const UPDATE_MODES = {
   FIELD: $L('UpdateByField'),
   VFIXED: $L('UpdateByValue'),
-  FORMULA: $L('CalcFORMULA'),
   VNULL: $L('BatchUpdateOpNULL'),
+  FORMULA: $L('CalcFORMULA'),
 }
 
 // ~~ 自动更新（字段）
@@ -186,7 +186,9 @@ class ContentAutoUpdate extends ActionContentSpec {
       this.__sourceFieldsCache = res.data.source
 
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target })
+        this.setState({ targetFields: res.data.target }, () => {
+          $(this._targetField).trigger('change')
+        })
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           const $s2tf = $(this._targetField)
@@ -200,7 +202,6 @@ class ContentAutoUpdate extends ActionContentSpec {
           const $s2sf = $(this._sourceField).select2({ placeholder: $L('SelectSome,SourceField') })
 
           $s2tf.trigger('change')
-
           this.__select2.push($s2tf)
           this.__select2.push($s2um)
           this.__select2.push($s2sf)
@@ -214,8 +215,9 @@ class ContentAutoUpdate extends ActionContentSpec {
   }
 
   _changeTargetField() {
-    const fieldName = $(this._targetField).val()
-    const targetField = this.state.targetFields.find((x) => x.name === fieldName)
+    const tf = $(this._targetField).val()
+    if (!tf) return
+    const targetField = this.state.targetFields.find((x) => x.name === tf)
 
     // 获取可回填字段（兼容的）
     const sourceFields = []
@@ -244,12 +246,15 @@ class ContentAutoUpdate extends ActionContentSpec {
       // 目标字段=源字段
       const tfFull = `${$(this._targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
       if (tfFull === sourceAny) return RbHighbar.create($L('TargetAndSourceNotSame'))
+    } else if (mode === 'FORMULA') {
+      sourceAny = $(this._sourceFormula).attr('data-value')
+      if (!sourceAny) return RbHighbar.create($L('PlsInputSome,CalcFORMULA'))
     } else if (mode === 'VFIXED') {
       sourceAny = this._sourceValue.val()
       if (!sourceAny) return
-    } else if (mode === 'FORMULA') {
-      sourceAny = $(this._sourceFormula).attr('data-value')
-      if (!sourceAny) return RbHighbar.create('填写公式')
+    } else if (mode === 'VNULL') {
+      const tf2 = this.state.targetFields.find((x) => x.name === tf)
+      if (!tf2.nullable) return RbHighbar.create($L('SomeNotEmpty').replace('{0}', tf2.label))
     }
 
     const items = this.state.items || []
@@ -293,6 +298,11 @@ const _getFieldLabel = function (fields, fieldName) {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
+  // 禁用`删除`
+  $('.J_when .custom-control-input').each(function () {
+    if (~~$(this).val() === 2) $(this).attr('disabled', true)
+  })
+
   renderRbcomp(<ContentAutoUpdate {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
