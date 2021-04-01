@@ -8,10 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 字段值设置
 // eslint-disable-next-line no-unused-vars
 class FieldValueSet extends React.Component {
-  constructor(props) {
-    super(props)
-    console.log(JSON.stringify(this.props.field))
-  }
 
   render() {
     const field = this.props.field
