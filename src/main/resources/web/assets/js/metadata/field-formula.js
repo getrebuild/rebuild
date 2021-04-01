@@ -138,7 +138,6 @@ class FormulaDate extends RbAlert {
             <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
               <option value="D">{$L('Day')}</option>
               <option value="M">{$L('Month')}</option>
-              <option value="Q">{$L('Quarter')}</option>
               <option value="Y">{$L('Year')}</option>
               {this.props.type === 'DATETIME' && (
                 <React.Fragment>
