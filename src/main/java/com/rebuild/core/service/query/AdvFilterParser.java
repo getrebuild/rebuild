@@ -242,12 +242,17 @@ public class AdvFilterParser extends SetUser {
 
             } else if (ParseHelper.CUW.equalsIgnoreCase(op) || ParseHelper.CUM.equalsIgnoreCase(op)
                     || ParseHelper.CUQ.equalsIgnoreCase(op) || ParseHelper.CUY.equalsIgnoreCase(op)) {
-                Date date = Moment.moment().startOf(op.substring(2)).date();
-                value = CalendarUtils.getUTCDateFormat().format(date);
+                Date begin = Moment.moment().startOf(op.substring(2)).date();
+                value = CalendarUtils.getUTCDateFormat().format(begin);
+
+                Date end = Moment.moment(begin).endOf(op.substring(2)).date();
+                valueEnd = CalendarUtils.getUTCDateFormat().format(end);
 
                 if (dt == DisplayType.DATETIME) {
                     value += ParseHelper.ZERO_TIME;
+                    valueEnd += ParseHelper.FULL_TIME;
                 }
+                op = ParseHelper.BW;
 
             } else if (ParseHelper.EQ.equalsIgnoreCase(op)
                     && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
