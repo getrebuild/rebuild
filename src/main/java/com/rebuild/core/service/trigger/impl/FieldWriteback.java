@@ -31,9 +31,7 @@ import java.util.Map;
  * @author devezhao
  * @see AutoFillinManager
  * @since 2020/2/7
- * @deprecated Use {@link AutoUpdate}
  */
-@Deprecated
 public class FieldWriteback extends FieldAggregation {
 
     private static final String EXPR_SPLIT = "#";

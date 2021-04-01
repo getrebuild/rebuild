@@ -190,12 +190,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: -1.1%;
 }
 
+.form-control-plaintext {
+  min-height: 37px !important;
+}
+
 .form-control-plaintext.formula {
   border: 1px dotted #4c8bf5 !important;
   border-radius: 4px;
   background-color: #fff;
   padding: 9px 10px 8px;
-  min-height: 37px !important;
   cursor: text;
 }
 

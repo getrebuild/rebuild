@@ -33,11 +33,27 @@ import java.util.regex.Matcher;
 public class AggregationEvaluator {
 
     private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
-
     static {
         // 强制使用 BigDecimal/BigInteger 运算
         AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
     }
+
+    /**
+     * 算数计算
+     *
+     * @param formual
+     * @return
+     */
+    protected static Object calc(String formual) {
+        try {
+            return AVIATOR.execute(formual);
+        } catch (ExpressionSyntaxErrorException ex) {
+            log.error("Bad formula : {}", formual, ex);
+            return null;
+        }
+    }
+
+    // --
 
     final private Entity sourceEntity;
     final private JSONObject item;
@@ -140,11 +156,6 @@ public class AggregationEvaluator {
             newFormual = newFormual.replace(replace.toUpperCase(), v.toString());
         }
 
-        try {
-            return AVIATOR.execute(newFormual);
-        } catch (ExpressionSyntaxErrorException ex) {
-            log.error("Bad formula : " + formula + " > " + newFormual, ex);
-            return null;
-        }
+        return calc(newFormual);
     }
 }

@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet */
+/* global FieldValueSet, FormulaCalc */
 
 const UPDATE_MODES = {
   FIELD: $L('UpdateByField'),
@@ -70,7 +70,7 @@ class ContentAutoUpdate extends ActionContentSpec {
                           <div className="col-5 del-wrap">
                             {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceAny)}</span>}
                             {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceAny, field)}</span>}
-                            {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{item.sourceAny}</span>}
+                            {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceAny, this.__sourceFieldsCache)}</span>}
                             <a className="del" title={$L('Remove')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
                             </a>
@@ -121,11 +121,14 @@ class ContentAutoUpdate extends ActionContentSpec {
                   </div>
                   <div className={this.state.updateMode === 'VFIXED' ? '' : 'hide'}>
                     {this.state.updateMode === 'VFIXED' && this.state.targetField && (
-                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder="固定值" ref={(c) => (this._sourceValue = c)} />
+                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('UpdateByValue')} ref={(c) => (this._sourceValue = c)} />
                     )}
+                    <p>{$L('UpdateByValue')}</p>
                   </div>
                   <div className={this.state.updateMode === 'FORMULA' ? '' : 'hide'}>
-                    <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._sourceFormula = c)} onClick={this.showFormula}></div>
+                    {this.state.updateMode === 'FORMULA' && this.state.targetField && (
+                      <FieldFormula fields={this.__sourceFieldsCache} field={this.state.targetField} ref={(c) => (this._sourceFormula = c)} />
+                    )}
                     <p>{$L('CalcFORMULA')}</p>
                   </div>
                 </div>
@@ -229,9 +232,9 @@ class ContentAutoUpdate extends ActionContentSpec {
 
     this.setState({ targetField: null, sourceFields: sourceFields }, () => {
       if (sourceFields.length > 0) $(this._sourceField).val(sourceFields[0].name)
+      // 强制销毁后再渲染
+      this.setState({ targetField: targetField })
     })
-    // 强制销毁后再渲染
-    setTimeout(() => this.setState({ targetField: targetField }), 200)
   }
 
   addItem() {
@@ -247,7 +250,7 @@ class ContentAutoUpdate extends ActionContentSpec {
       const tfFull = `${$(this._targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
       if (tfFull === sourceAny) return RbHighbar.create($L('TargetAndSourceNotSame'))
     } else if (mode === 'FORMULA') {
-      sourceAny = $(this._sourceFormula).attr('data-value')
+      sourceAny = this._sourceFormula.val()
       if (!sourceAny) return RbHighbar.create($L('PlsInputSome,CalcFORMULA'))
     } else if (mode === 'VFIXED') {
       sourceAny = this._sourceValue.val()
@@ -294,6 +297,90 @@ const _getFieldLabel = function (fields, fieldName) {
   let found = fields.find((x) => x.name === fieldName)
   if (found) found = found.label
   return found || '[' + fieldName.toUpperCase() + ']'
+}
+
+// 公式
+class FieldFormula extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    const fieldType = this.state.field.type
+    if (fieldType === 'DATE' || fieldType === 'DATETIME' || fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
+      return <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._formula = c)} onClick={() => this.showFormula()}></div>
+    } else {
+      return <div className="form-control-plaintext text-danger">{$L('Unsupport')}</div>
+    }
+  }
+
+  showFormula() {
+    const fieldType = this.state.field.type
+    if (fieldType === 'DATE' || fieldType === 'DATETIME') {
+      const fieldVars = []
+      this.props.fields.forEach((item) => {
+        if (item.name !== this.state.field.name && (item.type === 'DATE' || item.type === 'DATETIME')) {
+          fieldVars.push([item.name, item.label])
+        }
+      })
+
+      renderRbcomp(<FormulaDate2 base={fieldVars} type={fieldType} onConfirm={(expr) => this._confirm(expr)} />)
+    } else if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
+      const fieldVars = []
+      this.props.fields.forEach((item) => {
+        if (item.name !== this.state.field.name && (item.type === 'NUMBER' || item.type === 'DECIMAL')) {
+          fieldVars.push([item.name, item.label])
+        }
+      })
+
+      renderRbcomp(<FormulaCalc fields={fieldVars} onConfirm={(expr) => this._confirm(expr)} />)
+    }
+  }
+
+  _confirm(expr) {
+    this._value = expr
+    $(this._formula).text(FieldFormula.formatText(expr, this.props.fields))
+  }
+
+  val() {
+    return this._value
+  }
+}
+
+FieldFormula.formatText = function (formula, fields) {
+  if (!formula) return
+
+  // DATE
+  if (formula.includes('#')) {
+    const fs = formula.split('#')
+    const field = fields.find((x) => x.name === fs[0])
+    return `{${field.label}}` + (fs[1] || '')
+  }
+  // NUM
+  else {
+    const fs = []
+    fields.forEach((item) => fs.push([item.name, item.label]))
+    return FormulaCalc.textFormula(formula, fs)
+  }
+}
+
+// eslint-disable-next-line no-undef
+class FormulaDate2 extends FormulaDate {
+  confirm() {
+    let expr = $(this._base).val()
+    if (!expr) return
+
+    if (this.state.calcOp) {
+      if (isNaN(this.state.calcNum) || this.state.calcNum < 1) {
+        return RbHighbar.create($L('PlsInputSome,Number'))
+      }
+      expr += `#${this.state.calcOp}${this.state.calcNum}${this.state.calcUnit}`
+    }
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
+    this.hide()
+  }
 }
 
 // eslint-disable-next-line no-undef

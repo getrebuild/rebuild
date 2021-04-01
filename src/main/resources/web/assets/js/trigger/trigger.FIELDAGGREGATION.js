@@ -228,7 +228,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   showFormula = () => {
-    renderRbcomp(<FormulaCalc fields={this.state.sourceFields} call={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
+    renderRbcomp(<FormulaCalc fields={this.state.sourceFields} onConfirm={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
   }
 
   _dataAdvFilter = () => {
@@ -309,7 +309,6 @@ const _getFieldLabel = function (fields, field) {
 
 // ~公式计算器
 const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('Back'), $L('Clear')]
-
 class FormulaCalc extends RbAlert {
   constructor(props) {
     super(props)
@@ -393,7 +392,7 @@ class FormulaCalc extends RbAlert {
         else vv.push(v)
       })
 
-    typeof this.props.call === 'function' && this.props.call(vv.join(''))
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(vv.join(''))
     this.hide()
   }
 }

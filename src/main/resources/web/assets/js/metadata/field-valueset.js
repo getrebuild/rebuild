@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 字段值设置
 // eslint-disable-next-line no-unused-vars
 class FieldValueSet extends React.Component {
-
   render() {
     const field = this.props.field
     if (field.type === 'ID' || field.type === 'AVATAR' || field.type === 'IMAGE' || field.type === 'FILE' || field.type === 'BARCODE' || field.type === 'SERIES') {
