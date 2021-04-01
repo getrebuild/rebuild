@@ -48,7 +48,7 @@ public class FileShareController extends BaseController {
     // URL of share
     @GetMapping("/filex/make-share")
     @ResponseBody
-    public JSON viewSharedFile(HttpServletRequest request) {
+    public JSON makeSharedFile(HttpServletRequest request) {
         Assert.isTrue(
                 RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
                 getLang(request, "FileSharableDeny"));
@@ -85,11 +85,11 @@ public class FileShareController extends BaseController {
     private String makePublicUrl(String fileUrl) {
         String publicUrl;
         if (QiniuCloud.instance().available()) {
-            publicUrl = QiniuCloud.instance().url(fileUrl, 120);
+            publicUrl = QiniuCloud.instance().url(fileUrl, 300);
         } else {
             // @see FileDownloader#download
             String e = CodecUtils.randomCode(40);
-            Application.getCommonsCache().put(e, "rb", 120);
+            Application.getCommonsCache().put(e, "rb", 300);
 
             publicUrl = "filex/access/" + fileUrl + "?e=" + e;
             publicUrl = RebuildConfiguration.getHomeUrl(publicUrl);
