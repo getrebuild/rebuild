@@ -80,9 +80,6 @@ public class RobotTriggerController extends BaseController {
     public List<String[]> getAvailableActions(HttpServletRequest request) {
         List<String[]> alist = new ArrayList<>();
         for (ActionType t : ActionFactory.getAvailableActions()) {
-            if (!Application.devMode() && (t == ActionType.FIELDWRITEBACK || t == ActionType.AUTOCREATE)) {
-                continue;
-            }
             alist.add(new String[] { t.name(), getLang(request, t.name()) });
         }
         return alist;

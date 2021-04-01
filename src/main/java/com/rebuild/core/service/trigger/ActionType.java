@@ -23,8 +23,6 @@ public enum ActionType {
 
     FIELDAGGREGATION("数据聚合", FieldAggregation.class),
     FIELDWRITEBACK("自动更新 (数据转写)", FieldWriteback.class),
-    AUTOUPDATE("自动更新", AutoUpdate.class),
-    AUTOCREATE("自动创建", AutoCreate.class),
     AUTOSHARE("自动共享", AutoShare.class),
     AUTOASSIGN("自动分派", AutoAssign.class),
     AUTOAPPROVAL("自动审批", AutoApproval.class),

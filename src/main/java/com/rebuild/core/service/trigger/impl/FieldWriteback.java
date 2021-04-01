@@ -7,8 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -21,12 +23,13 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
 
 /**
- * 数据撰写
+ * 数据转写（自动更新）
  *
  * @author devezhao
  * @see AutoFillinManager
@@ -34,13 +37,10 @@ import java.util.Map;
  */
 public class FieldWriteback extends FieldAggregation {
 
-    private static final String EXPR_SPLIT = "#";
+    private static final String DATE_EXPR = "#";
 
-    /**
-     * @param context
-     */
     public FieldWriteback(ActionContext context) {
-        super(context, Boolean.TRUE, 5);
+        super(context);
     }
 
     @Override
@@ -50,59 +50,120 @@ public class FieldWriteback extends FieldAggregation {
 
     @Override
     protected void buildTargetRecord(Record record, String dataFilterSql) {
-        Map<String, String> exprsMap = new HashMap<>();
+        final JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 
-        JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
-        Map<String, String> t2sMap = new HashMap<>();
+        Set<String> fieldVars = new HashSet<>();
+        for (Object o : items) {
+            JSONObject item = (JSONObject) o;
+            String sourceField = item.getString("sourceField");
+            String updateMode = item.getString("updateMode");
+            // fix: v2.2
+            if (updateMode == null) {
+                updateMode = sourceField.contains(DATE_EXPR) ? "FORMULA" : "FIELD";
+            }
+
+            if ("FIELD".equalsIgnoreCase(updateMode)) {
+                fieldVars.add(sourceField);
+            } else if ("FORMULA".equalsIgnoreCase(updateMode)) {
+                if (sourceField.contains(DATE_EXPR)) {
+                    fieldVars.add(sourceField.split(DATE_EXPR)[0]);
+                } else {
+                    Matcher m = FieldAggregation.PATT_FIELD.matcher(sourceField);
+                    while (m.find()) {
+                        String field = m.group(1);
+                        if (MetadataHelper.getLastJoinField(sourceEntity, field) != null) {
+                            fieldVars.add(field);
+                        }
+                    }
+                }
+            }
+        }
+
+        // 变量值
+        Record useSourceData = null;
+        if (!fieldVars.isEmpty()) {
+            String sql = String.format("select %s from %s where %s = '%s'",
+                    StringUtils.join(fieldVars, ","), sourceEntity.getName(),
+                    sourceEntity.getPrimaryField().getName(), context.getSourceRecord());
+            useSourceData = Application.createQueryNoFilter(sql).record();
+        }
+
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
+            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
+                continue;
+            }
+
+            EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
+
+            String updateMode = item.getString("updateMode");
             String sourceField = item.getString("sourceField");
 
+            // 置空
+            if ("VNULL".equalsIgnoreCase(updateMode)) {
+                record.setNull(targetField);
+            }
+
+            // 固定值
+            else if ("VFIXED".equalsIgnoreCase(updateMode)) {
+                RecordVisitor.setValueByLiteral(targetField, sourceField, record);
+            }
+
+            // 字段
+            else if ("FIELD".equalsIgnoreCase(updateMode)) {
+                Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, sourceField);
+                if (sourceField2 == null) continue;
+
+                Object value = Objects.requireNonNull(useSourceData).getObjectValue(sourceField);
+                Object newValue = value == null ? null : EasyMetaFactory.valueOf(sourceField2)
+                        .convertCompatibleValue(value, targetFieldEasy);
+                if (newValue != null) {
+                    record.setObjectValue(targetField, newValue);
+                }
+            }
+
             // 公式
-            if (sourceField.contains(EXPR_SPLIT)) {
-                exprsMap.put(targetField, sourceField.split(EXPR_SPLIT)[1]);
-                sourceField = sourceField.split(EXPR_SPLIT)[0];
-            }
+            else if ("FORMULA".equalsIgnoreCase(updateMode)) {
+                Assert.notNull(useSourceData, "[useSourceData] not be null");
 
-            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)
-                    || MetadataHelper.getLastJoinField(sourceEntity, sourceField) == null) {
-                continue;
-            }
-            t2sMap.put(targetField, sourceField);
-        }
-        if (t2sMap.isEmpty()) return;
+                // 日期
+                if (sourceField.contains(DATE_EXPR)) {
+                    String fieldName = sourceField.split(DATE_EXPR)[0];
+                    Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
+                    if (sourceField2 == null) continue;
 
-        String sql = String.format("select %s from %s where %s = '%s'",
-                StringUtils.join(t2sMap.values(), ","), sourceEntity.getName(),
-                sourceEntity.getPrimaryField().getName(), context.getSourceRecord());
+                    Object value = useSourceData.getObjectValue(fieldName);
+                    Object newValue = value == null ? null : ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2))
+                            .convertCompatibleValue(value, targetFieldEasy, sourceField);
+                    if (newValue != null) {
+                        record.setObjectValue(targetField, newValue);
+                    }
+                }
 
-        final Record useSourceData = Application.createQueryNoFilter(sql).record();
-        if (useSourceData == null) return;
+                // 数字
+                else {
+                    String realFormual = sourceField.toUpperCase()
+                            .replace("×", "*")
+                            .replace("÷", "/");
+                    for (String fieldName : useSourceData.getAvailableFields()) {
+                        String replace = "{" + fieldName.toUpperCase() + "}";
+                        if (realFormual.contains(replace)) {
+                            Object value = useSourceData.getObjectValue(fieldName);
+                            realFormual = realFormual.replace(replace, value == null ? "0" : value.toString());
+                        }
+                    }
 
-        for (Map.Entry<String, String> e : t2sMap.entrySet()) {
-            Object value = useSourceData.getObjectValue(e.getValue());
-            // NOTE 忽略空值
-            if (value == null) {
-                continue;
-            }
-
-            Field sourceField = MetadataHelper.getLastJoinField(sourceEntity, e.getValue());
-            if (sourceField == null) continue;
-            Field targetField = targetEntity.getField(e.getKey());
-
-            Object newValue;
-            EasyField sourceFieldEasy = EasyMetaFactory.valueOf(sourceField);
-            if (sourceFieldEasy.getDisplayType() == DisplayType.DATETIME
-                    || sourceFieldEasy.getDisplayType() == DisplayType.DATE) {
-                newValue = ((EasyDateTime) sourceFieldEasy)
-                        .convertCompatibleValue(value, EasyMetaFactory.valueOf(targetField), exprsMap.get(e.getKey()));
-            } else {
-                newValue = sourceFieldEasy.convertCompatibleValue(value, EasyMetaFactory.valueOf(targetField));
-            }
-
-            if (newValue != null) {
-                record.setObjectValue(targetField.getName(), newValue);
+                    Object newValue = AggregationEvaluator.calc(realFormual);
+                    if (newValue != null) {
+                        DisplayType dt = targetFieldEasy.getDisplayType();
+                        if (dt == DisplayType.NUMBER) {
+                            record.setLong(targetField, ObjectUtils.toLong(newValue));
+                        } else if (dt == DisplayType.DECIMAL) {
+                            record.setDouble(targetField, ObjectUtils.toDouble(newValue));
+                        }
+                    }
+                }
             }
         }
     }
