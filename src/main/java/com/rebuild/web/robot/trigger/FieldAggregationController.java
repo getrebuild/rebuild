@@ -69,14 +69,12 @@ public class FieldAggregationController extends BaseController {
         String target = getParameter(request, "target");
         Entity targetEntity = StringUtils.isBlank(target) ? null : MetadataHelper.getEntity(target);
 
-        final DisplayType[] usesTypes = new DisplayType[] { DisplayType.NUMBER, DisplayType.DECIMAL };
-
         List<String[]> sourceFields = new ArrayList<>();
         List<String[]> targetFields = new ArrayList<>();
 
         // 源字段
 
-        for (Field field : MetadataSorter.sortFields(sourceEntity, usesTypes)) {
+        for (Field field : MetadataSorter.sortFields(sourceEntity)) {
             sourceFields.add(buildField(field));
         }
 
@@ -84,7 +82,7 @@ public class FieldAggregationController extends BaseController {
         for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
             String fieldRefName = fieldRef.getName() + ".";
             String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
-            for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity(), usesTypes)) {
+            for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity())) {
                 String[] build = buildField(field);
                 build[0] = fieldRefName + build[0];
                 build[1] = fieldRefLabel + build[1];
@@ -95,7 +93,7 @@ public class FieldAggregationController extends BaseController {
         // 目标字段
 
         if (targetEntity != null) {
-            for (Field field : MetadataSorter.sortFields(targetEntity, usesTypes)) {
+            for (Field field : MetadataSorter.sortFields(targetEntity, DisplayType.NUMBER, DisplayType.DECIMAL)) {
                 if (EasyMetaFactory.valueOf(field).isBuiltin()) {
                     continue;
                 }
@@ -117,6 +115,6 @@ public class FieldAggregationController extends BaseController {
 
     private String[] buildField(Field field) {
         EasyField easyField = EasyMetaFactory.valueOf(field);
-        return new String[] { field.getName(), easyField.getLabel() };
+        return new String[] { field.getName(), easyField.getLabel(), easyField.getDisplayType().name() };
     }
 }
