@@ -99,6 +99,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   text-align: left;
 }
 
+.field-aggregation .items > div .badge.badge-light {
+  padding: 2px 10px;
+}
+
 .field-aggregation .items > div .col-2 > .zmdi {
   margin-top: 6px;
 }
@@ -117,14 +121,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .field-aggregation .items .del-wrap a.del {
   position: absolute;
-  display: inline-block;
   font-size: 1.2rem;
   padding: 3px 6px;
   color: #999;
   font-weight: bold;
   right: 15px;
   display: none;
-  top: 2px;
+  top: 1px;
 }
 
 .field-aggregation .items .del-wrap a.del:hover {
@@ -187,12 +190,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: -1.1%;
 }
 
+.form-control-plaintext {
+  min-height: 37px !important;
+}
+
 .form-control-plaintext.formula {
   border: 1px dotted #4c8bf5 !important;
   border-radius: 4px;
   background-color: #fff;
   padding: 9px 10px 8px;
-  min-height: 37px !important;
   cursor: text;
 }
 

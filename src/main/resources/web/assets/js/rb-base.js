@@ -401,9 +401,12 @@ var $same = function (a, b) {
   if (a === b) return true
   if (a === 0) a = '0'
   if (b === 0) b = '0'
+  if (a === true || a === false) a = a + ''
+  if (b === true || b === false) b = b + ''
   // eslint-disable-next-line eqeqeq
   return a == b
 }
+var $is = $same
 
 /**
  * 是否为空。兼容对象或数组

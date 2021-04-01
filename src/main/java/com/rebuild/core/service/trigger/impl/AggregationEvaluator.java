@@ -16,14 +16,12 @@ import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 归集计算
@@ -31,18 +29,31 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2020/1/16
  */
+@Slf4j
 public class AggregationEvaluator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AggregationEvaluator.class);
-
-    private static final Pattern FIELD_PATT = Pattern.compile("\\{(.*?)}");
-
     private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
-
     static {
         // 强制使用 BigDecimal/BigInteger 运算
         AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
     }
+
+    /**
+     * 算数计算
+     *
+     * @param formual
+     * @return
+     */
+    protected static Object calc(String formual) {
+        try {
+            return AVIATOR.execute(formual);
+        } catch (ExpressionSyntaxErrorException ex) {
+            log.error("Bad formula : {}", formual, ex);
+            return null;
+        }
+    }
+
+    // --
 
     final private Entity sourceEntity;
     final private JSONObject item;
@@ -101,7 +112,7 @@ public class AggregationEvaluator {
      */
     private Object evalFormula(ID triggerRecord) {
         String formula = item.getString("sourceFormula");
-        Matcher m = FIELD_PATT.matcher(formula);
+        Matcher m = FieldAggregation.PATT_FIELD.matcher(formula);
 
         final List<String[]> fields = new ArrayList<>();
         while (m.find()) {
@@ -110,9 +121,7 @@ public class AggregationEvaluator {
                 fields.add(fieldAndFunc);
             }
         }
-        if (fields.isEmpty()) {
-            return null;
-        }
+        if (fields.isEmpty()) return null;
 
         StringBuilder sql = new StringBuilder("select ");
         for (String[] field : fields) {
@@ -147,11 +156,6 @@ public class AggregationEvaluator {
             newFormual = newFormual.replace(replace.toUpperCase(), v.toString());
         }
 
-        try {
-            return AVIATOR.execute(newFormual);
-        } catch (ExpressionSyntaxErrorException ex) {
-            LOG.error("Bad formula : " + formula + " > " + newFormual, ex);
-            return null;
-        }
+        return calc(newFormual);
     }
 }

@@ -338,7 +338,7 @@ class FolderTree extends React.Component {
   componentDidMount = () => this.loadData()
 
   loadData() {
-    $.get('/files/list-folder', (res) => {
+    $.get('/files/tree-folder', (res) => {
       const data = res.data || []
       data.unshift({ id: __DEFAULT_ALL, text: $L('All') })
       this.setState({ list: data })

@@ -4,21 +4,26 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global FieldValueSet, FormulaCalc */
 
-// @see trigger.FIELDAGGREGATION.js auto-fillin.js
+const UPDATE_MODES = {
+  FIELD: $L('UpdateByField'),
+  VFIXED: $L('UpdateByValue'),
+  VNULL: $L('BatchUpdateOpNULL'),
+  FORMULA: $L('CalcFORMULA'),
+}
 
-const EXPR_SPLIT = '#'
-
-// ~~ 数据转写
+// ~~ 数据转写（自动更新）
 // eslint-disable-next-line no-undef
 class ContentFieldWriteback extends ActionContentSpec {
   constructor(props) {
     super(props)
+    this.state.updateMode = 'FIELD'
   }
 
   render() {
     return (
-      <div className="field-aggregation field-writeback">
+      <div className="field-aggregation">
         <form className="simple">
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('TargetEntity')}</label>
@@ -39,27 +44,36 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
-                  <i className="zmdi zmdi-alert-triangle fs-16 down-1"></i>
+                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
                   {$L('TriggerTargetEntityTips')}
                 </div>
               )}
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('WritebackRule')}</label>
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('UpdateRule')}</label>
             <div className="col-md-12 col-lg-9">
               <div className="items">
                 {(this.state.items || []).length > 0 &&
                   this.state.items.map((item) => {
+                    // fix: v2.2
+                    if (!item.updateMode) item.updateMode = item.sourceField.includes('#') ? 'FORMULA' : 'FIELD'
+
+                    const field = item.updateMode === 'VFIXED' ? this.state.targetFields.find((x) => x.name === item.targetField) : null
                     return (
-                      <div key={'item-' + item.targetField}>
+                      <div key={item.targetField}>
                         <div className="row">
                           <div className="col-5">
-                            <span className="badge badge-warning">{this._getFieldLabel(this.__targetFieldsCache, item.targetField)}</span>
+                            <span className="badge badge-warning">{_getFieldLabel(this.state.targetFields, item.targetField)}</span>
+                          </div>
+                          <div className="col-2">
+                            <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                            <span className="badge badge-warning">{UPDATE_MODES[item.updateMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
-                            <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                            <span className="badge badge-warning">{this._getFieldLabel(this.state.sourceFields, item.sourceField)}</span>
+                            {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
+                            {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
+                            {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
                             <a className="del" title={$L('Remove')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
                             </a>
@@ -74,7 +88,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                   <select className="form-control form-control-sm" ref={(c) => (this._targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
                       return (
-                        <option key={'tf-' + item.name} value={item.name}>
+                        <option key={item.name} value={item.name}>
                           {item.label}
                         </option>
                       )
@@ -82,26 +96,45 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </select>
                   <p>{$L('TargetField')}</p>
                 </div>
-                <div className="col-5">
+                <div className="col-2 pr-0">
                   <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                  <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
-                    {(this.state.sourceFields || []).map((item) => {
+                  <select className="form-control form-control-sm" ref={(c) => (this._updateMode = c)}>
+                    {Object.keys(UPDATE_MODES).map((item) => {
                       return (
-                        <option key={'sf-' + item.name} value={item.name}>
-                          {item.label}
+                        <option key={item} value={item}>
+                          {UPDATE_MODES[item]}
                         </option>
                       )
                     })}
                   </select>
-                  <p>{$L('SourceField')}</p>
+                  <p>{$L('UpdateMode')}</p>
                 </div>
-                {this.state.showDateExpr && (
-                  <div className="col-2 pl-0" style={{ marginLeft: -13 }}>
-                    <button type="button" ref={(c) => (this._btnDateExpr = c)} title={$L('DateFormula')} className="btn btn-secondary mw-auto" onClick={(e) => this._renderDateExpr(e)}>
-                      <i className="zmdi zmdi-settings-square icon" />
-                    </button>
+                <div className="col-5">
+                  <div className={this.state.updateMode === 'FIELD' ? '' : 'hide'}>
+                    <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
+                      {(this.state.sourceFields || []).map((item) => {
+                        return (
+                          <option key={item.name} value={item.name}>
+                            {item.label}
+                          </option>
+                        )
+                      })}
+                    </select>
+                    <p>{$L('SourceField')}</p>
                   </div>
-                )}
+                  <div className={this.state.updateMode === 'VFIXED' ? '' : 'hide'}>
+                    {this.state.updateMode === 'VFIXED' && this.state.targetField && (
+                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('UpdateByValue')} ref={(c) => (this._sourceValue = c)} />
+                    )}
+                    <p>{$L('UpdateByValue')}</p>
+                  </div>
+                  <div className={this.state.updateMode === 'FORMULA' ? '' : 'hide'}>
+                    {this.state.updateMode === 'FORMULA' && this.state.targetField && (
+                      <FieldFormula fields={this.__sourceFieldsCache} field={this.state.targetField} ref={(c) => (this._sourceFormula = c)} />
+                    )}
+                    <p>{$L('CalcFORMULA')}</p>
+                  </div>
+                </div>
               </div>
               <div className="mt-1">
                 <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()}>
@@ -110,7 +143,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
             </div>
           </div>
-          <div className="form-group row">
+          <div className="form-group row pb-0">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -125,28 +158,21 @@ class ContentFieldWriteback extends ActionContentSpec {
   }
 
   componentDidMount() {
-    $('.J_when')
-      .find('.custom-control-input')
-      .each(function () {
-        const v = ~~$(this).val()
-        if (v === 2) $(this).attr('disabled', true)
-      })
-
     const content = this.props.content
     this.__select2 = []
-    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}&self=false`, (res) => {
+    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
-        const s2te = $(this._targetEntity)
+        const $s2te = $(this._targetEntity)
           .select2({ placeholder: $L('SelectSome,TargetEntity') })
-          .on('change', () => this.changeTargetEntity())
+          .on('change', () => this._changeTargetEntity())
 
         if (content && content.targetEntity) {
-          s2te.val(content.targetEntity)
-          if (rb.env !== 'dev') s2te.attr('disabled', true)
+          $s2te.val(content.targetEntity)
+          if (rb.env !== 'dev') $s2te.attr('disabled', true)
         }
 
-        s2te.trigger('change')
-        this.__select2.push(s2te)
+        $s2te.trigger('change')
+        this.__select2.push($s2te)
       })
     })
 
@@ -155,34 +181,36 @@ class ContentFieldWriteback extends ActionContentSpec {
     }
   }
 
-  changeTargetEntity() {
+  _changeTargetEntity() {
     const te = ($(this._targetEntity).val() || '').split('.')[1]
     if (!te) return
     // 清空现有规则
-    this.setState({ items: [] })
+    this.setState({ targetEntity: te, items: [] })
 
     $.get(`/admin/robot/trigger/field-writeback-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.setState({ hadApproval: res.data.hadApproval })
-      this.__targetFieldsCache = res.data.target
+      this.__sourceFieldsCache = res.data.source
 
       if (this.state.targetFields) {
-        this.setState({ targetFields: this.selectTargetFields() })
+        this.setState({ targetFields: res.data.target }, () => {
+          $(this._targetField).trigger('change')
+        })
       } else {
-        this.setState({ sourceFields: res.data.source, targetFields: [] }, () => {
-          const s2tf = $(this._targetField).select2({ placeholder: $L('SelectSome,TargetField') })
-
-          const s2sf = $(this._sourceField)
-            .select2({ placeholder: $L('SelectSome,SourceField') })
-            .on('change', () => {
-              const targetFields = this.selectTargetFields()
-              this.setState({ targetFields: targetFields }, () => {
-                if (targetFields.length > 0) s2tf.val(targetFields[0].name)
-              })
+        this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
+          const $s2tf = $(this._targetField)
+            .select2({ placeholder: $L('SelectSome,TargetField') })
+            .on('change', () => this._changeTargetField())
+          const $s2um = $(this._updateMode)
+            .select2({ placeholder: $L('SelectSome,UpdateMode') })
+            .on('change', (e) => {
+              this.setState({ updateMode: e.target.value })
             })
-          s2sf.trigger('change')
+          const $s2sf = $(this._sourceField).select2({ placeholder: $L('SelectSome,SourceField') })
 
-          this.__select2.push(s2sf)
-          this.__select2.push(s2tf)
+          $s2tf.trigger('change')
+          this.__select2.push($s2tf)
+          this.__select2.push($s2um)
+          this.__select2.push($s2sf)
         })
 
         if (this.props.content) {
@@ -192,84 +220,62 @@ class ContentFieldWriteback extends ActionContentSpec {
     })
   }
 
-  _getFieldLabel(fields, field) {
-    const fexp = field.split(EXPR_SPLIT)
-    field = fexp[0]
-    const found = fields.find((x) => x.name === field)
+  _changeTargetField() {
+    const tf = $(this._targetField).val()
+    if (!tf) return
+    const targetField = this.state.targetFields.find((x) => x.name === tf)
 
-    const label = found ? found.label : `[${field.toUpperCase()}]`
-    return fexp[1] ? `${label} {${fexp[1]}}` : label
-  }
-
-  // 获取可回填字段（兼容的）
-  selectTargetFields() {
-    const fieldName = $(this._sourceField).val()
-    const sourceField = this.state.sourceFields.find((x) => x.name === fieldName)
-
-    // 显示日期高级表达式
-    this.setState({ showDateExpr: sourceField.type === 'DATE' || sourceField.type === 'DATETIME' })
-
-    const targetFields = []
-    $(this.__targetFieldsCache).each(function () {
-      if ($fieldIsCompatible(sourceField, this)) {
-        targetFields.push(this)
+    // 获取可回填字段（兼容的）
+    const sourceFields = []
+    $(this.__sourceFieldsCache).each(function () {
+      if ($fieldIsCompatible(this, targetField)) {
+        sourceFields.push(this)
       }
     })
-    return targetFields
-  }
 
-  _renderDateExpr() {
-    const fieldName = $(this._sourceField).val()
-    const found = this.state.sourceFields.find((x) => x.name === fieldName)
-
-    const $btn = $(this._btnDateExpr)
-    renderRbcomp(
-      <AdvDateValue
-        field={[found.name, found.label, found.type]}
-        call={(expr) => {
-          if (expr === null) $btn.html('<i class="zmdi zmdi-settings-square icon"></i>').removeAttr('data-expr')
-          else $btn.html(`{${expr}}`).attr('data-expr', expr)
-        }}
-      />
-    )
+    this.setState({ targetField: null, sourceFields: sourceFields }, () => {
+      if (sourceFields.length > 0) $(this._sourceField).val(sourceFields[0].name)
+      // 强制销毁后再渲染
+      this.setState({ targetField: targetField })
+    })
   }
 
   addItem() {
     const tf = $(this._targetField).val()
-    const sf = $(this._sourceField).val()
-    if (!tf) {
-      RbHighbar.create($L('PlsSelectSome,TargetField'))
-      return false
-    }
-    if (!sf) {
-      RbHighbar.create($L('PlsSelectSome,SourceField'))
-      return false
-    }
+    const mode = $(this._updateMode).val()
+    if (!tf) return RbHighbar.create($L('PlsSelectSome,TargetField'))
 
-    // 目标字段=源字段
-    if (sf === $(this._targetEntity).val().split('.')[0] + '.' + tf) {
-      RbHighbar.create($L('TargetAndSourceNotSame'))
-      return false
+    let sourceField = null
+    if (mode === 'FIELD') {
+      sourceField = $(this._sourceField).val()
+
+      // 目标字段=源字段
+      const tfFull = `${$(this._targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
+      if (tfFull === sourceField) return RbHighbar.create($L('TargetAndSourceNotSame'))
+    } else if (mode === 'FORMULA') {
+      sourceField = this._sourceFormula.val()
+      if (!sourceField) return RbHighbar.create($L('PlsInputSome,CalcFORMULA'))
+    } else if (mode === 'VFIXED') {
+      sourceField = this._sourceValue.val()
+      if (!sourceField) return
+    } else if (mode === 'VNULL') {
+      const tf2 = this.state.targetFields.find((x) => x.name === tf)
+      if (!tf2.nullable) return RbHighbar.create($L('SomeNotEmpty').replace('{0}', tf2.label))
     }
 
     const items = this.state.items || []
-    const found = items.find((x) => x.targetField === tf)
-    if (found) {
-      RbHighbar.create($L('SomeDuplicate,TargetField'))
-      return false
-    }
+    const exists = items.find((x) => x.targetField === tf)
+    if (exists) return RbHighbar.create($L('SomeDuplicate,TargetField'))
 
-    const dateExpr = this.state.showDateExpr ? $(this._btnDateExpr).attr('data-expr') : null
-
-    items.push({ targetField: tf, sourceField: sf + (dateExpr ? `${EXPR_SPLIT}${dateExpr}` : '') })
+    items.push({ targetField: tf, updateMode: mode, sourceField: sourceField })
     this.setState({ items: items })
   }
 
   delItem(targetField) {
-    const items = (this.state.items || []).filter((item) => {
+    const itemsNew = (this.state.items || []).filter((item) => {
       return item.targetField !== targetField
     })
-    this.setState({ items: items })
+    this.setState({ items: itemsNew })
   }
 
   buildContent() {
@@ -283,82 +289,112 @@ class ContentFieldWriteback extends ActionContentSpec {
       return false
     }
     if (content.items.length === 0) {
-      RbHighbar.create($L('PlsAdd1WritebackRuleLeast'))
+      RbHighbar.create($L('PlsAdd1AggregationRuleLeast'))
       return false
     }
     return content
   }
 }
 
+const _getFieldLabel = function (fields, fieldName) {
+  let found = fields.find((x) => x.name === fieldName)
+  if (found) found = found.label
+  return found || '[' + fieldName.toUpperCase() + ']'
+}
+
+// 公式
+class FieldFormula extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+  }
+
+  render() {
+    const fieldType = this.state.field.type
+    if (fieldType === 'DATE' || fieldType === 'DATETIME' || fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
+      return <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._formula = c)} onClick={() => this.showFormula()}></div>
+    } else {
+      return <div className="form-control-plaintext text-danger">{$L('Unsupport')}</div>
+    }
+  }
+
+  showFormula() {
+    const fieldType = this.state.field.type
+    if (fieldType === 'DATE' || fieldType === 'DATETIME') {
+      const fieldVars = []
+      this.props.fields.forEach((item) => {
+        if (item.name !== this.state.field.name && (item.type === 'DATE' || item.type === 'DATETIME')) {
+          fieldVars.push([item.name, item.label])
+        }
+      })
+
+      renderRbcomp(<FormulaDate2 base={fieldVars} type={fieldType} onConfirm={(expr) => this._confirm(expr)} />)
+    } else if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
+      const fieldVars = []
+      this.props.fields.forEach((item) => {
+        if (item.name !== this.state.field.name && (item.type === 'NUMBER' || item.type === 'DECIMAL')) {
+          fieldVars.push([item.name, item.label])
+        }
+      })
+
+      renderRbcomp(<FormulaCalc fields={fieldVars} onConfirm={(expr) => this._confirm(expr)} />)
+    }
+  }
+
+  _confirm(expr) {
+    this._value = expr
+    $(this._formula).text(FieldFormula.formatText(expr, this.props.fields))
+  }
+
+  val() {
+    return this._value
+  }
+}
+
+FieldFormula.formatText = function (formula, fields) {
+  if (!formula) return
+
+  // DATE
+  if (formula.includes('#')) {
+    const fs = formula.split('#')
+    const field = fields.find((x) => x.name === fs[0])
+    return `{${field.label}}` + (fs[1] || '')
+  }
+  // NUM
+  else {
+    const fs = []
+    fields.forEach((item) => fs.push([item.name, item.label]))
+    return FormulaCalc.textFormula(formula, fs)
+  }
+}
+
+// eslint-disable-next-line no-undef
+class FormulaDate2 extends FormulaDate {
+  confirm() {
+    let expr = $(this._base).val()
+    if (!expr) return
+
+    if (this.state.calcOp) {
+      if (isNaN(this.state.calcNum) || this.state.calcNum < 1) {
+        return RbHighbar.create($L('PlsInputSome,Number'))
+      }
+      expr += `#${this.state.calcOp}${this.state.calcNum}${this.state.calcUnit}`
+    }
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
+    this.hide()
+  }
+}
+
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
+  // 禁用`删除`
+  $('.J_when .custom-control-input').each(function () {
+    if (~~$(this).val() === 2) $(this).attr('disabled', true)
+  })
+
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
   })
-}
-
-// see: field-edit.js#AdvDateDefaultValue
-// ~~ 日期高级表达式
-class AdvDateValue extends RbAlert {
-  constructor(props) {
-    super(props)
-    this._refs = []
-  }
-
-  renderContent() {
-    return (
-      <form className="ml-6 mr-6">
-        <div className="form-group">
-          <label className="text-bold">{$L('SetSome,DateFormula')}</label>
-          <div className="input-group">
-            <select className="form-control form-control-sm" ref={(c) => (this._refs[0] = c)}>
-              <option value={this.props.field[0]}>{this.props.field[1]}</option>
-            </select>
-            <select className="form-control form-control-sm ml-1" ref={(c) => (this._refs[1] = c)}>
-              <option value="+">{$L('CalcPlus')}</option>
-              <option value="-">{$L('CalcMinus')}</option>
-            </select>
-            <input type="number" min="1" max="999999" className="form-control form-control-sm ml-1" defaultValue="1" ref={(c) => (this._refs[2] = c)} />
-            <select className="form-control form-control-sm ml-1" ref={(c) => (this._refs[3] = c)}>
-              <option value="D">{$L('Day')}</option>
-              <option value="M">{$L('Month')}</option>
-              <option value="Y">{$L('Year')}</option>
-              {this.props.field[2] === 'DATETIME' && (
-                <React.Fragment>
-                  <option value="H">{$L('Hour')}</option>
-                  <option value="I">{$L('Minte')}</option>
-                </React.Fragment>
-              )}
-            </select>
-          </div>
-        </div>
-        <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
-            {$L('Confirm')}
-          </button>
-          <button type="button" className="btn btn-space btn-secondary" onClick={this.clean}>
-            {$L('Clear')}
-          </button>
-        </div>
-      </form>
-    )
-  }
-
-  confirm = () => {
-    const num = $(this._refs[2]).val() || 1
-    if (isNaN(num)) {
-      RbHighbar.create($L('PlsInputSome,Number'))
-      return
-    }
-
-    const expr = `${$(this._refs[1]).val()}${num}${$(this._refs[3]).val()}`
-    typeof this.props.call === 'function' && this.props.call(expr)
-    this.hide()
-  }
-
-  clean = () => {
-    typeof this.props.call === 'function' && this.props.call(null)
-    this.hide()
-  }
 }

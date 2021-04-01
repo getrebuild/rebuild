@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * 字段归集可能存在的问题。
@@ -44,6 +45,10 @@ import java.util.List;
 @Slf4j
 public class FieldAggregation implements TriggerAction {
 
+    /**
+     * 变量包裹
+     */
+    public static final Pattern PATT_FIELD = Pattern.compile("\\{(.*?)}");
     /**
      * 归集到自己
      */
@@ -64,9 +69,9 @@ public class FieldAggregation implements TriggerAction {
     // 目标实体
     protected Entity targetEntity;
     // 关联字段
-    protected String followSourceField;
+    private String followSourceField;
     // 触发记录
-    protected ID targetRecordId;
+    private ID targetRecordId;
 
     /**
      * @param context
@@ -149,6 +154,8 @@ public class FieldAggregation implements TriggerAction {
     }
 
     /**
+     * 构建目标记录数据
+     *
      * @param record
      * @param dataFilterSql
      */

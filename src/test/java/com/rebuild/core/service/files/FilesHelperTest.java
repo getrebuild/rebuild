@@ -33,7 +33,7 @@ public class FilesHelperTest extends TestSupport {
         folder.setString("name", "123456");
         folder = Application.getService(EntityHelper.AttachmentFolder).create(folder);
 
-        System.out.println(FilesHelper.getFolders(SIMPLE_USER));
+        System.out.println(FilesHelper.getFolders(SIMPLE_USER, null));
         Application.getService(EntityHelper.AttachmentFolder).delete(folder.getPrimary());
     }
 

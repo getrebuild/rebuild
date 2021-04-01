@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global FieldValueSet */
 // 列表附加操作，可在其他页面独立引入
 
 // ~~ 列表记录批量操作
@@ -21,7 +22,7 @@ class BatchOperator extends RbFormHandler {
     const queryRows = _listRef.getLastQueryTotal()
 
     return (
-      <RbModal title={this.state.title} disposeOnHide={true} ref={(c) => (this._dlg = c)}>
+      <RbModal title={this._title} disposeOnHide={true} ref={(c) => (this._dlg = c)}>
         <div className="form batch-form">
           <div className="form-group">
             <label className="text-bold">{$L('SelectDataRange')}</label>
@@ -85,7 +86,7 @@ class BatchOperator extends RbFormHandler {
 class DataExport extends BatchOperator {
   constructor(props) {
     super(props)
-    this.state.title = $L('DataExport')
+    this._title = $L('DataExport')
   }
 
   confirm = () => {
@@ -109,7 +110,7 @@ class DataExport extends BatchOperator {
 class BatchUpdate extends BatchOperator {
   constructor(props) {
     super(props)
-    this.state.title = $L('BatchUpdate')
+    this._title = $L('BatchUpdate')
   }
 
   componentDidMount() {
@@ -123,19 +124,20 @@ class BatchUpdate extends BatchOperator {
         <div>
           <div className="batch-contents">
             {(this.state.updateContents || []).map((item) => {
+              const fieldObj = this.state.fields.find((x) => item.field === x.name)
               return (
-                <div key={`update-${item.field}`}>
+                <div key={item.field}>
                   <div className="row">
                     <div className="col-4">
-                      <a className="del" onClick={() => this.removeItem(item.field)} title={$L('Remove')}>
+                      <a className="del" onClick={() => this.delItem(item.field)} title={$L('Remove')}>
                         <i className="zmdi zmdi-close"></i>
                       </a>
-                      <span className="badge badge-light">{this._fieldLabel(item.field)}</span>
+                      <span className="badge badge-light">{fieldObj.label}</span>
                     </div>
                     <div className="col-2 pl-0 pr-0">
                       <span className="badge badge-light">{BUE_OPTYPES[item.op]}</span>
                     </div>
-                    <div className="col-6">{item.op !== 'NULL' && <span className="badge badge-light text-break text-left">{item.text || item.value}</span>}</div>
+                    <div className="col-6">{item.op !== 'NULL' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.value, fieldObj)}</span>}</div>
                   </div>
                 </div>
               )
@@ -154,22 +156,13 @@ class BatchUpdate extends BatchOperator {
     )
   }
 
-  _fieldLabel(fieldName) {
-    const field = this.state.fields.find((item) => {
-      return fieldName === item.name
-    })
-    return field ? field.label : `[${fieldName.toUpperCase()}]`
-  }
-
   addItem = () => {
     const item = this._editor.buildItem()
     if (!item) return
 
     const contents = this.state.updateContents || []
-    const found = contents.find((x) => {
-      return item.field === x.field
-    })
-    if (found) {
+    const exists = contents.find((x) => item.field === x.field)
+    if (exists) {
       RbHighbar.create($L('UpdateFieldExists'))
       return
     }
@@ -178,7 +171,7 @@ class BatchUpdate extends BatchOperator {
     this.setState({ updateContents: contents })
   }
 
-  removeItem(fieldName) {
+  delItem(fieldName) {
     const contents = []
     this.state.updateContents.forEach((item) => {
       if (fieldName !== item.field) contents.push(item)
@@ -191,7 +184,11 @@ class BatchUpdate extends BatchOperator {
       RbHighbar.create($L('PlsAddSome,UpdateContents'))
       return
     }
-    const _data = { queryData: this.getQueryData(), updateContents: this.state.updateContents }
+
+    const _data = {
+      queryData: this.getQueryData(),
+      updateContents: this.state.updateContents,
+    }
     // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
@@ -257,28 +254,28 @@ class BatchUpdateEditor extends React.Component {
   state = { ...this.props, selectOp: 'SET' }
 
   componentDidMount() {
-    const field2s = $(this._field)
+    const $field2s = $(this._field)
       .select2({
         allowClear: false,
       })
       .on('change', () => {
-        this.setState({ selectField: field2s.val() })
+        this.setState({ selectField: $field2s.val() }, () => this._renderFieldValueSet())
       })
-    const op2s = $(this._op)
+    const $op2s = $(this._op)
       .select2({
         allowClear: false,
       })
       .on('change', () => {
-        this.setState({ selectOp: op2s.val() })
+        this.setState({ selectOp: $op2s.val() })
       })
-    field2s.trigger('change')
-    this.__select2 = [field2s, op2s]
+
+    $field2s.trigger('change')
+    this.__select2 = [$field2s, $op2s]
   }
 
   componentWillUnmount() {
     this.__select2.forEach((item) => item.select2('destroy'))
     this.__select2 = null
-    this._destroyLastValueComp()
   }
 
   render() {
@@ -292,103 +289,41 @@ class BatchUpdateEditor extends React.Component {
           <select className="form-control form-control-sm" ref={(c) => (this._field = c)}>
             {this.props.fields.map((item) => {
               return (
-                <option value={item.name} key={`field-${item.name}`}>
+                <option value={item.name} key={item.name}>
                   {item.label}
                 </option>
               )
             })}
           </select>
         </div>
-        <div className="col-2 pl-0 pr-0">{this.renderOp()}</div>
+        <div className="col-2 pl-0 pr-0">
+          <select className="form-control form-control-sm" ref={(c) => (this._op = c)}>
+            <option value="SET">{BUE_OPTYPES['SET']}</option>
+            <option value="NULL">{BUE_OPTYPES['NULL']}</option>
+          </select>
+        </div>
         <div className="col-6">
-          <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>{this.state.selectField && this.state.selectOp && this.renderValue()}</div>
+          <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
+            {this.state.selectFieldObj && <FieldValueSet entity={this.props.entity} field={this.state.selectFieldObj} placeholder={$L('NewValue')} ref={(c) => (this._valueComp = c)} />}
+          </div>
         </div>
       </div>
     )
   }
 
-  renderOp() {
-    return (
-      <select className="form-control form-control-sm" ref={(c) => (this._op = c)}>
-        <option value="SET">{BUE_OPTYPES['SET']}</option>
-        <option value="NULL">{BUE_OPTYPES['NULL']}</option>
-      </select>
-    )
-  }
-
-  renderValue() {
-    if (this.state.selectOp === 'NULL' || !this.state.selectField) return null // set Null
-
-    const field = this.props.fields.find((item) => {
-      return this.state.selectField === item.name
-    })
-    const fieldKey = `fv-${field.name}`
-    if (field.type === 'PICKLIST' || field.type === 'STATE' || field.type === 'MULTISELECT' || field.type === 'BOOL' || field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
-      return (
-        <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT'} ref={(c) => (this._value = c)} key={fieldKey}>
-          {(field.options || []).map((item) => {
-            let itemId = item.id || item.mask
-            if (item.id === false) itemId = 'false' // for BOOL
-            return (
-              <option key={`value-${itemId}`} value={itemId}>
-                {item.text}
-              </option>
-            )
-          })}
-        </select>
-      )
-    } else {
-      return <input className="form-control form-control-sm" placeholder={$L('NewValue')} ref={(c) => (this._value = c)} key={fieldKey} maxLength="255" />
-    }
-  }
-
-  _destroyLastValueComp() {
-    if (this.__lastSelect2) {
-      this.__lastSelect2.select2('destroy')
-      this.__lastSelect2 = null
-    }
-    if (this.__lastDatetimepicker) {
-      this.__lastDatetimepicker.datetimepicker('remove')
-      this.__lastDatetimepicker = null
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // Unchanged
-    if (prevState.selectField === this.state.selectField && prevState.selectOp === this.state.selectOp) return
-    if (this.state.selectOp === 'NULL') return
-    this._destroyLastValueComp()
-
-    const field = this.props.fields.find((item) => {
-      return this.state.selectField === item.name
-    })
-    if (this._value.tagName === 'SELECT') {
-      if (field.type === 'REFERENCE' || field.type === 'CLASSIFICATION') {
-        this.__lastSelect2 = $initReferenceSelect2(this._value, {
-          name: field.name,
-          placeholder: $L('NewValue'),
-          entity: this.props.entity,
-          searchType: field.type === 'CLASSIFICATION' ? 'classification' : null,
-        })
-      } else {
-        this.__lastSelect2 = $(this._value).select2({
-          placeholder: $L('NewValue'),
-        })
-      }
-      this.__lastSelect2.val(null).trigger('change')
-    } else if (field.type === 'DATE' || field.type === 'DATETIME') {
-      this.__lastDatetimepicker = $(this._value).datetimepicker({
-        format: field.type === 'DATE' ? 'yyyy-mm-dd' : 'yyyy-mm-dd hh:ii:ss',
-        minView: field.type === 'DATE' ? 'month' : 0,
-      })
-    }
+  _renderFieldValueSet() {
+    if (this.state.selectOp === 'NULL') return null // set Null
+    const field = this.props.fields.find((item) => this.state.selectField === item.name)
+    this.setState({ selectFieldObj: null }, () => this.setState({ selectFieldObj: field }))
   }
 
   buildItem() {
-    const item = { field: this.state.selectField, op: this.state.selectOp }
-    const field = this.props.fields.find((item) => {
-      return this.state.selectField === item.name
-    })
+    const item = {
+      field: this.state.selectField,
+      op: this.state.selectOp,
+    }
+
+    const field = this.props.fields.find((item) => this.state.selectField === item.name)
     if (item.op === 'NULL') {
       if (!field.nullable) {
         RbHighbar.create($L('SomeNotEmpty').replace('{0}', field.label))
@@ -398,52 +333,8 @@ class BatchUpdateEditor extends React.Component {
       }
     }
 
-    item.value = $(this._value).val()
-    if (!item.value || item.value.length === 0) {
-      RbHighbar.create($L('SomeNotEmpty,ModifyValue'))
-      return null
-    }
-
-    if (field.type === 'MULTISELECT') {
-      let maskTotal = 0
-      item.value.forEach((mask) => (maskTotal += ~~mask))
-      item.value = maskTotal
-    } else if (field.type === 'NUMBER' || field.type === 'DECIMAL') {
-      if (isNaN(item.value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
-        return null
-      } else if ($isTrue(field.notNegative) && ~~item.value < 0) {
-        RbHighbar.create($L('SomeNotBeNegative').replace('{0}', field.label))
-        return null
-      }
-    } else if (field.type === 'EMAIL') {
-      if (!$regex.isMail(item.value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
-        return null
-      }
-    } else if (field.type === 'URL') {
-      if (!$regex.isUrl(item.value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
-        return null
-      }
-    } else if (field.type === 'PHONE') {
-      if (!$regex.isTel(item.value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
-        return null
-      }
-    }
-
-    if (this._value.tagName === 'SELECT') {
-      const texts = $(this._value)
-        .select2('data')
-        .map((o) => {
-          return o.text
-        })
-      item.text = texts.join(', ')
-      $(this._value).val(null).trigger('change')
-    } else {
-      $(this._value).val('')
-    }
-    return item
+    item.value = this._valueComp.val()
+    if (!item.value) return null
+    else return item
   }
 }
