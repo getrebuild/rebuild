@@ -38,7 +38,7 @@ class RbList extends React.Component {
 
     this.pageNo = 1
     this.pageSize = $storage.get('ListPageSize') || 20
-    this.advFilterId = wpc.advFilter === false ? null : $storage.get(this.__defaultFilterKey)
+    this.advFilterId = wpc.advFilter !== true ? null : $storage.get(this.__defaultFilterKey) // 无高级查询
     this.fixedColumns = supportFixedColumns && this.props.uncheckbox !== true
   }
 
@@ -411,6 +411,7 @@ class RbList extends React.Component {
     el = $(el || '.input-search>input')
     const q = el.val()
     if (!q && !this.lastFilter) return null
+
     return {
       entity: this.props.config.entity,
       type: 'QUICK',
@@ -429,6 +430,7 @@ class RbList extends React.Component {
       .each(function () {
         selected.push($(this).parents('tr').data('id'))
       })
+
     if (selected.length === 0 && noWarn !== true) RbHighbar.create($L('UnselectAnySome,Record'))
     return selected
   }
@@ -1162,21 +1164,24 @@ class RbViewModal extends React.Component {
    */
   static create(props, subView) {
     this.__HOLDERs = this.__HOLDERs || {}
+    this.__HOLDERs2 = this.__HOLDERs2 || []
     const that = this
     const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
     if (subView) {
-      renderRbcomp(<RbViewModal url={viewUrl} disposeOnHide={true} id={props.id} subView={true} />, null, function () {
+      renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide={true} subView={true} />, null, function () {
         that.__HOLDERs[props.id] = this
+        that.__HOLDERs2.push(this)
       })
     } else {
       if (this.__HOLDER) {
         this.__HOLDER.show(viewUrl)
         this.__HOLDERs[props.id] = this.__HOLDER
       } else {
-        renderRbcomp(<RbViewModal url={viewUrl} />, null, function () {
-          that.__HOLDER = this
+        renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, null, function () {
           that.__HOLDERs[props.id] = this
+          that.__HOLDERs2.push(this)
+          that.__HOLDER = this
         })
       }
     }
@@ -1188,14 +1193,23 @@ class RbViewModal extends React.Component {
    * @param {*} action [DISPOSE|HIDE|LOADING]
    */
   static holder(id, action) {
-    if (action === 'DISPOSE') this.__HOLDERs[id] = null
-    if (action === 'HIDE') this.__HOLDERs[id] && this.__HOLDERs[id].hide()
-    if (action === 'LOADING') this.__HOLDERs[id] && this.__HOLDERs[id].showLoading()
-    else return this.__HOLDERs[id]
+    if (action === 'DISPOSE') {
+      delete this.__HOLDERs[id]
+      this.__HOLDERs2.pop()  // 销毁后替换
+      this.__HOLDERs2.forEach((x) => {
+        if (x.props.id === id) this.__HOLDERs[id] = x
+      })
+    } else if (action === 'HIDE') {
+      this.__HOLDERs[id] && this.__HOLDERs[id].hide()
+    } else if (action === 'LOADING') {
+      this.__HOLDERs[id] && this.__HOLDERs[id].showLoading()
+    } else {
+      return this.__HOLDERs[id]
+    }
   }
 
   /**
-   * 当前激活视图
+   * 当前激活主视图
    */
   static currentHolder(reload) {
     if (reload && this.__HOLDER) {
