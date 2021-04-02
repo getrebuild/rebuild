@@ -341,7 +341,7 @@ class RelatedList extends React.Component {
       const data = res.data.data || []
       const list = append ? (this.state.list || []).concat(data) : data
 
-      // 数据少不显示
+      // FIXME 数据少不显示
       // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
 
@@ -350,7 +350,7 @@ class RelatedList extends React.Component {
           data.forEach((item) => {
             // eslint-disable-next-line react/no-string-refs
             const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
-            if ($H.length > 0) $H[0].click()
+            if ($H.length > 0 && !$H.parent().hasClass('active')) $H[0].click()
           })
         }
       })

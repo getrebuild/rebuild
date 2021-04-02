@@ -112,7 +112,7 @@ public class AggregationEvaluator {
 
     /**
      * 公式
-     * 
+     *
      * @param triggerRecord
      * @return
      */
