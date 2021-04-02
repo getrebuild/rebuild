@@ -22,10 +22,13 @@ import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 /**
@@ -158,7 +161,7 @@ public class FieldWriteback extends FieldAggregation {
                     if (newValue != null) {
                         DisplayType dt = targetFieldEasy.getDisplayType();
                         if (dt == DisplayType.NUMBER) {
-                            record.setLong(targetField, ObjectUtils.toLong(newValue));
+                            record.setLong(targetField, CommonsUtils.toLongHalfUp(newValue));
                         } else if (dt == DisplayType.DECIMAL) {
                             record.setDouble(targetField, ObjectUtils.toDouble(newValue));
                         }

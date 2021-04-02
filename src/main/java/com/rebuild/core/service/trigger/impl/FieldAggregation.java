@@ -27,6 +27,7 @@ import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -176,7 +177,7 @@ public class FieldAggregation implements TriggerAction {
 
             DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
             if (dt == DisplayType.NUMBER) {
-                record.setLong(targetField, ObjectUtils.toLong(evalValue));
+                record.setLong(targetField, CommonsUtils.toLongHalfUp(evalValue));
             } else if (dt == DisplayType.DECIMAL) {
                 record.setDouble(targetField, ObjectUtils.toDouble(evalValue));
             }
