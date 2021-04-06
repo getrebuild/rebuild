@@ -134,7 +134,7 @@ class PreviewTable extends React.Component {
       return (
         <div className="img-field barcode">
           <span className="img-thumbnail">
-            <img src={`${rb.baseUrl}/commons/barcode/render${item.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(item.value)}`} alt={item.value} />
+            <img src={`${rb.baseUrl}/commons/barcode/render${item.barcodeType === 'BARCODE' ? '' : '-qr'}?t=${$encode(item.value)}`} alt={item.value} />
           </span>
         </div>
       )

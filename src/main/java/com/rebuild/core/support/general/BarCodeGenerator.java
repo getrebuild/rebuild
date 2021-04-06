@@ -17,6 +17,7 @@ import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.metadata.easymeta.EasyBarCode;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.support.RebuildConfiguration;
 import org.apache.commons.lang.StringUtils;
@@ -57,10 +58,11 @@ public class BarCodeGenerator {
         String content = getBarCodeContent(field, record);
         String barcodeType = EasyMetaFactory.valueOf(field).getExtraAttr("barcodeType");
 
-        if ("QRCODE".equalsIgnoreCase(barcodeType)) {
-            return createQRCode(content);
-        } else {
+        // 默认为二维码
+        if (EasyBarCode.BT_BARCODE.equalsIgnoreCase(barcodeType)) {
             return createBarCode(content);
+        } else {
+            return createQRCode(content);
         }
     }
 
@@ -71,7 +73,7 @@ public class BarCodeGenerator {
      * @return
      */
     public static BufferedImage createQRCode(String content) {
-        BitMatrix bitMatrix = createBarCode(content, BarcodeFormat.QR_CODE, 320);
+        BitMatrix bitMatrix = createCode(content, BarcodeFormat.QR_CODE, 320);
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 
@@ -82,7 +84,7 @@ public class BarCodeGenerator {
      * @return
      */
     public static BufferedImage createBarCode(String content) {
-        BitMatrix bitMatrix = createBarCode(content, BarcodeFormat.CODE_128, 320);
+        BitMatrix bitMatrix = createCode(content, BarcodeFormat.CODE_128, 320);
         return MatrixToImageWriter.toBufferedImage(bitMatrix);
     }
 
@@ -92,7 +94,7 @@ public class BarCodeGenerator {
      * @param height
      * @return
      */
-    public static BitMatrix createBarCode(String content, BarcodeFormat format, int height) {
+    public static BitMatrix createCode(String content, BarcodeFormat format, int height) {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.CHARACTER_SET, "utf-8");
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
@@ -114,8 +116,8 @@ public class BarCodeGenerator {
      * @param height
      * @return
      */
-    public static File saveBarCode(String content, BarcodeFormat format, int height) {
-        BitMatrix bitMatrix = createBarCode(content, format, height);
+    public static File saveCode(String content, BarcodeFormat format, int height) {
+        BitMatrix bitMatrix = createCode(content, format, height);
 
         String fileName = String.format("BarCode-%d.png", System.currentTimeMillis());
         File dest = RebuildConfiguration.getFileOfTemp(fileName);
