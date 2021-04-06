@@ -27,8 +27,8 @@ import java.io.IOException;
 public class CommonPageView extends BaseController {
 
     @GetMapping("/")
-    public String index() {
-        return "redirect:/user/login";
+    public void index(HttpServletResponse response) throws IOException {
+        response.sendRedirect("user/login");
     }
 
     @GetMapping("/*.txt")
