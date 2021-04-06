@@ -7,9 +7,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
-import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 
@@ -36,7 +36,7 @@ public class EasyDecimal extends EasyField {
         }
 
         if (targetType == DisplayType.NUMBER) {
-            return ObjectUtils.toLong(value);
+            return CommonsUtils.toLongHalfUp(value);
         }
 
         return super.convertCompatibleValue(value, targetField);

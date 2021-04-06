@@ -69,7 +69,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
-                              {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : _getFieldLabel(this.state.sourceFields, item.sourceField)}
+                              {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : _getFieldLabel(this.__sourceFieldsCache, item.sourceField)}
                             </span>
                             <a className="del" title={$L('Remove')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
@@ -115,7 +115,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                     <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
                         return (
-                          <option key={'sf-' + item[0]} value={item[0]}>
+                          <option key={item[0]} value={item[0]}>
                             {item[1]}
                           </option>
                         )
@@ -188,16 +188,31 @@ class ContentFieldAggregation extends ActionContentSpec {
 
     $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       this.setState({ hadApproval: res.data.hadApproval })
+      this.__sourceFieldsCache = res.data.source
 
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target })
+        this.setState({ targetFields: res.data.target }, () => {
+          $(this._calcMode).trigger('change')
+        })
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           const $s2sf = $(this._sourceField).select2({ placeholder: $L('SelectSome,SourceField') })
           const $s2cm = $(this._calcMode)
             .select2({ placeholder: $L('SelectSome,AggregationMethod') })
-            .on('change', (e) => this.setState({ calcMode: e.target.value }))
+            .on('change', (e) => {
+              this.setState({ calcMode: e.target.value })
+
+              if (e.target.value === 'COUNT' || e.target.value === 'COUNT2') {
+                this.setState({ sourceFields: this.__sourceFieldsCache })
+              } else {
+                // 仅数字字段
+                const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
+                this.setState({ sourceFields: fs })
+              }
+            })
           const $s2tf = $(this._targetField).select2({ placeholder: $L('SelectSome,TargetField') })
+
+          $s2cm.trigger('change')
 
           this.__select2.push($s2sf)
           this.__select2.push($s2cm)
@@ -212,7 +227,7 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   textFormula(formula) {
-    const fs = this.state.sourceFields
+    const fs = this.__sourceFieldsCache
     for (let i = 0; i < fs.length; i++) {
       const field = fs[i]
       formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
@@ -228,7 +243,8 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   showFormula = () => {
-    renderRbcomp(<FormulaCalc fields={this.state.sourceFields} onConfirm={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
+    const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
+    renderRbcomp(<FormulaCalc fields={fs} onConfirm={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
   }
 
   _dataAdvFilter = () => {

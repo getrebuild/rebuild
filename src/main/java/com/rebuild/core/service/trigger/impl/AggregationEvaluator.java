@@ -15,6 +15,7 @@ import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.rebuild.core.Application;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +48,9 @@ public class AggregationEvaluator {
     protected static Object calc(String formual) {
         try {
             return AVIATOR.execute(formual);
+        } catch (ArithmeticException ex) {
+            log.error("Bad formula : {}", formual, ex);
+            throw new RebuildException("FORMULA ERROR : " + ex.getLocalizedMessage().toUpperCase());
         } catch (ExpressionSyntaxErrorException ex) {
             log.error("Bad formula : {}", formual, ex);
             return null;
@@ -107,6 +111,8 @@ public class AggregationEvaluator {
     }
 
     /**
+     * 公式
+     *
      * @param triggerRecord
      * @return
      */

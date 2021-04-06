@@ -1644,7 +1644,7 @@ class RbFormBarcode extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(this.state.value)}`
+    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'BARCODE' ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
         <a className="img-thumbnail" title={this.state.value}>

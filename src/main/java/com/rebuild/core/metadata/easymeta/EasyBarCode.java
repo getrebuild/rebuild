@@ -20,6 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 public class EasyBarCode extends EasyField {
     private static final long serialVersionUID = 5175455130040618922L;
 
+    // 二维码（默认）
+    public static final String BT_QRCODE = "QRCODE";
+    // 条码
+    public static final String BT_BARCODE = "BARCODE";
+
     protected EasyBarCode(Field field, DisplayType displayType) {
         super(field, displayType);
     }
