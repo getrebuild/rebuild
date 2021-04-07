@@ -110,5 +110,6 @@ module.exports = {
     $isTrue: true,
     $fieldIsCompatible: true,
     $unhideDropdown: true,
+    AnyRecordSelector: true,
   },
 }

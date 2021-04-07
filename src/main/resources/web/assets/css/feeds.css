@@ -569,19 +569,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-top-right-radius: 0;
 }
 
-.feed-options.related .related-record {
-  width: 295px;
-}
-
-@media (max-width: 1280px) {
-  .feed-options.related .related-record {
-    width: 245px;
-  }
-}
-
-/* in edit */
-.modal-body .feed-options.related .related-record {
-  width: 250px;
+.feed-options.related {
+  padding-right: 16px;
 }
 
 .rich-content > .appends {

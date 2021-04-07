@@ -451,9 +451,11 @@
         <field name="description" type="text" description="备注" queryable="false"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" queryable="false"/>
+        <field name="relatedRecord" type="any-reference" description="相关业务记录" cascade="ignore"/>
         <field name="seq" type="int" default-value="0" description="排序 (小到大)" queryable="false"/>
         <index field-list="projectId,projectPlanId,seq"/>
         <index field-list="projectId,taskNumber,taskName,status"/>
+        <index field-list="relatedRecord,projectId"/>
     </entity>
 
     <entity name="ProjectTaskRelation" type-code="053" description="任务关系" queryable="false" parent="false">
