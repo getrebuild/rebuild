@@ -25,7 +25,7 @@ class RbFormModal extends React.Component {
                   {this.state.icon && <span className={'icon zmdi zmdi-' + this.state.icon} />}
                   <h3 className="modal-title">{this.state.title || $L('New')}</h3>
                   {rb.isAdminUser && (
-                    <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title={$L('ConfSome,FormLayout')} target="_blank">
+                    <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title={$L('FormLayout')} target="_blank">
                       <span className="zmdi zmdi-settings"></span>
                     </a>
                   )}

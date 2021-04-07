@@ -16,19 +16,15 @@ $(document).ready(function () {
       refClassification = $val('#refClassification'),
       stateClass = $val('#stateClass') || 'com.rebuild.core.support.state.HowtoState'
     if (!fieldLabel) {
-      RbHighbar.create($L('PlsInputSome,FieldName'))
-      return
+      return RbHighbar.create($L('PlsInputSome,FieldName'))
     }
 
     if ((type === 'REFERENCE' || type === 'N2NREFERENCE') && !refEntity) {
-      RbHighbar.create('PlsSelectSome,RefEntity')
-      return
+      return RbHighbar.create('PlsSelectSome,RefEntity')
     } else if (type === 'CLASSIFICATION' && !refClassification) {
-      RbHighbar.create('PlsSelectSome,Classification')
-      return
+      return RbHighbar.create('PlsSelectSome,Classification')
     } else if (type === 'STATE' && !stateClass) {
-      RbHighbar.create('PlsInputSome,StateClass')
-      return
+      return RbHighbar.create('PlsInputSome,StateClass')
     }
 
     const data = {
@@ -50,10 +46,11 @@ $(document).ready(function () {
           $('#fieldLabel, #comments').val('')
           $('#type').val('TEXT').trigger('change')
           $('#fieldLabel').focus()
+
           // @see `field-new.html`
           parent && parent.loadFields && parent.loadFields()
           // @see `form-design.js`
-          parent && parent.add2Layout && parent.add2Layout($val('#add2Layout'), res.data)
+          parent && parent.add2Layout && parent.add2Layout(res.data)
         } else {
           parent.location.href = `${rb.baseUrl}/admin/entity/${entity}/field/${res.data}`
         }
@@ -105,8 +102,11 @@ $(document).ready(function () {
     }
   })
 
-  if ($urlp('ref') === 'form-design') {
-    $('#add2Layout').parent().removeClass('hide')
-    $('#saveAndNew').attr('checked', true).parent().addClass('hide')
+  const designType = $urlp('type')
+  if (designType) {
+    $('#type').val(designType).trigger('change').parents('.form-group').addClass('hide')
+    $('#saveAndNew').attr('checked', true).parents('.form-group').addClass('hide')
   }
+
+  $('#fieldLabel')[0].focus()
 })
