@@ -181,7 +181,7 @@ class SelectReport extends React.Component {
                 <p className="text-muted">
                   {$L('NoAnySome,Report')}
                   {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/datas/data-reports`}>
+                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
                       <i className="zmdi zmdi-settings"></i> {$L('ClickConf')}
                     </a>
                   )}

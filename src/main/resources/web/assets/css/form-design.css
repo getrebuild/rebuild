@@ -132,18 +132,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .form-preview:empty::after,
-.field-list:empty::after {
+.field-list:empty::after,
+.form-fields:empty::after {
   content: attr(_title);
   color: #999;
   text-align: center;
-  padding: 8px;
+  padding: 9px;
   border: 1px dotted #dedede;
   width: 100%;
   display: block;
 }
 
 .field-list,
-.type-list {
+.type-list,
+.form-fields {
   padding: 16px 20px;
 }
 
