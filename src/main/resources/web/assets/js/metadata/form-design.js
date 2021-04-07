@@ -43,7 +43,6 @@ $(document).ready(function () {
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
         $action.find('a').click(function () {
           $item.remove()
-          check_empty()
         })
       } else {
         render_item({ ...field, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
@@ -51,13 +50,11 @@ $(document).ready(function () {
       }
     })
 
-    check_empty()
     $('.form-preview')
       .sortable({
         cursor: 'move',
         placeholder: 'dd-placeholder',
         cancel: '.nodata',
-        stop: check_empty,
       })
       .disableSelection()
   })
@@ -67,11 +64,43 @@ $(document).ready(function () {
     render_item({ fieldName: DIVIDER_LINE, fieldLabel: '', isFull: true }, '.form-preview')
   })
 
+  // @see field-new.html
+  const FIELD_TYPES = [
+    'TEXT',
+    'NTEXT',
+    'PHONE',
+    'EMAIL',
+    'URL',
+    'NUMBER',
+    'DECIMAL',
+    'DATE',
+    'DATETIME',
+    'PICKLIST',
+    'CLASSIFICATION',
+    'MULTISELECT',
+    'REFERENCE',
+    'N2NREFERENCE',
+    'FILE',
+    'IMAGE',
+    'AVATAR',
+    'SERIES',
+    'BARCODE',
+    'BOOL',
+  ]
+  FIELD_TYPES.forEach((type) => render_type(type))
+
   // SAVE
 
   const _handleSave = function (elements) {
-    const data = { belongEntity: wpc.entityName, applyType: 'FORM', config: JSON.stringify(elements) }
-    data.metadata = { entity: 'LayoutConfig', id: wpc.formConfig.id || null }
+    const data = {
+      belongEntity: wpc.entityName,
+      applyType: 'FORM',
+      config: JSON.stringify(elements),
+      metadata: {
+        entity: 'LayoutConfig',
+        id: wpc.formConfig.id || null,
+      },
+    }
 
     $('.J_save').button('loading')
     $.post('form-update', JSON.stringify(data), function (res) {
@@ -102,10 +131,7 @@ $(document).ready(function () {
       formElements.push(item)
     })
 
-    if (formElements.length === 0) {
-      RbHighbar.create($L('PlsLayout1FieldsLeast'))
-      return
-    }
+    if (formElements.length === 0) return RbHighbar.create($L('PlsLayout1FieldsLeast'))
 
     if ($('.field-list .not-nullable').length > 0) {
       RbAlert.create($L('HasRequiredFieldUnLayoutConfirm'), {
@@ -122,16 +148,8 @@ $(document).ready(function () {
   })
 
   $addResizeHandler(() => {
-    $('.field-aside .rb-scroller').height($(window).height() - 123)
+    $('.field-aside .rb-scroller').height($(window).height() - 130)
   })()
-
-  $('.J_new-field').click(() => {
-    if (wpc.isSuperAdmin) {
-      RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&ref=form-design`, $L('AddField'))
-    } else {
-      RbHighbar.error($L('OnlyAdminCanSome,AddField'))
-    }
-  })
 
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
@@ -155,43 +173,44 @@ $(document).ready(function () {
 })
 
 const render_item = function (data) {
-  const item = $('<div class="dd-item"></div>').appendTo('.form-preview')
-  if (data.isFull === true) item.addClass('w-100')
+  const $item = $('<div class="dd-item"></div>').appendTo('.form-preview')
+  if (data.isFull === true) $item.addClass('w-100')
 
-  const handle = $(`<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('Divider')}">${data.fieldLabel}</span></div>`).appendTo(item)
-  if (data.creatable === false) handle.addClass('readonly')
-  else if (data.nullable === false) handle.addClass('not-nullable')
+  const $handle = $(`<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('Divider')}">${data.fieldLabel}</span></div>`).appendTo($item)
+  if (data.creatable === false) $handle.addClass('readonly')
+  else if (data.nullable === false) $handle.addClass('not-nullable')
   // 填写提示
-  if (data.tip) $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo(handle.find('span')).attr('title', data.tip)
+  if (data.tip) $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($handle.find('span')).attr('title', data.tip)
 
-  const action = $('<div class="dd-action"></div>').appendTo(handle)
+  const $action = $('<div class="dd-action"></div>').appendTo($handle)
   if (data.displayType) {
-    $('<span class="ft">' + data.displayType + '</span>').appendTo(item)
+    $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
     $(`<a class="rowspan mr-1" title="${$L('Column1Or2')}"><i class="zmdi zmdi-unfold-more"></i></a>`)
-      .appendTo(action)
+      .appendTo($action)
       .click(function () {
-        item.toggleClass('w-100')
+        $item.toggleClass('w-100')
       })
     $(`<a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a>`)
-      .appendTo(action)
+      .appendTo($action)
       .click(function () {
         const call = function (nv) {
           // 字段名
-          if (nv.fieldLabel) item.find('.dd-handle>span').text(nv.fieldLabel)
-          else item.find('.dd-handle>span').text(item.find('.dd-handle').data('label'))
+          if (nv.fieldLabel) $item.find('.dd-handle>span').text(nv.fieldLabel)
+          else $item.find('.dd-handle>span').text($item.find('.dd-handle').data('label'))
 
           // 填写提示
-          let $tip = item.find('.dd-handle>span>i')
-          if (!nv.fieldTips) $tip.remove()
-          else {
-            if ($tip.length === 0) $tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo(item.find('.dd-handle span'))
+          let $tip = $item.find('.dd-handle>span>i')
+          if (!nv.fieldTips) {
+            $tip.remove()
+          } else {
+            if ($tip.length === 0) $tip = $('<i class="J_tip zmdi zmdi-info-outline"></i>').appendTo($item.find('.dd-handle span'))
             $tip.attr('title', nv.fieldTips)
           }
         }
         const ov = {
-          fieldTips: item.find('.dd-handle>span>i').attr('title'),
-          fieldLabel: item.find('.dd-handle>span').text(),
-          fieldLabelOld: item.find('.dd-handle').data('label'),
+          fieldTips: $item.find('.dd-handle>span>i').attr('title'),
+          fieldLabel: $item.find('.dd-handle>span').text(),
+          fieldLabelOld: $item.find('.dd-handle').data('label'),
         }
         if (ov.fieldLabelOld === ov.fieldLabel) ov.fieldLabel = null
 
@@ -199,58 +218,54 @@ const render_item = function (data) {
       })
 
     $(`<a title="${$L('Remove')}"><i class="zmdi zmdi-close"></i></a>`)
-      .appendTo(action)
+      .appendTo($action)
       .click(function () {
         render_unset(data)
-        item.remove()
-        check_empty()
+        $item.remove()
       })
   }
 
   if (data.fieldName === DIVIDER_LINE) {
-    item.addClass('divider')
+    $item.addClass('divider')
     $(`<a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a>`)
-      .appendTo(action)
+      .appendTo($action)
       .click(function () {
         const call = function (nv) {
-          item.find('.dd-handle span').text(nv.dividerName || '')
+          $item.find('.dd-handle span').text(nv.dividerName || '')
         }
-        const ov = item.find('.dd-handle span').text()
+        const ov = $item.find('.dd-handle span').text()
         renderRbcomp(<DlgEditDivider call={call} dividerName={ov || ''} />)
       })
 
     $(`<a title="${$L('Remove')}"><i class="zmdi zmdi-close"></i></a>`)
-      .appendTo(action)
+      .appendTo($action)
       .click(function () {
-        item.remove()
-        check_empty()
+        $item.remove()
       })
   }
 }
 
 const render_unset = function (data) {
-  const item = $(`<li class="dd-item"><div class="dd-handle">${data.fieldLabel}</div></li>`).appendTo('.field-list')
-  $(`<span class="ft">${data.displayType}</span>`).appendTo(item)
-  if (data.creatable === false) item.find('.dd-handle').addClass('readonly')
-  else if (data.nullable === false) item.find('.dd-handle').addClass('not-nullable')
+  const $item = $(`<li class="dd-item"><div class="dd-handle">${data.fieldLabel}</div></li>`).appendTo('.field-list')
+  $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
+  if (data.creatable === false) $item.find('.dd-handle').addClass('readonly')
+  else if (data.nullable === false) $item.find('.dd-handle').addClass('not-nullable')
 
-  item.click(function () {
+  $item.click(function () {
     $('.nav-tabs-classic a[href="#form-design"]').tab('show')
     render_item(data)
-    item.remove()
-    check_empty()
+    $item.remove()
   })
-  return item
+  return $item
 }
 
-const check_empty = function () {
-  let $nodata = $('.field-list .nodata')
-  if ($('.field-list .dd-item').length === 0) $nodata.show()
-  else $nodata.hide()
-
-  $nodata = $('.form-preview .nodata, #adv-control .nodata')
-  if ($('.form-preview .dd-item').length === 0) $nodata.show()
-  else $nodata.hide()
+const render_type = function (fieldType) {
+  const $item = $(`<li class="dd-item"><div class="dd-handle">${$L(`t.${fieldType}`)}</div></li>`).appendTo('.type-list')
+  $item.click(function () {
+    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType}`, $L('AddField'))
+    else RbHighbar.error($L('OnlyAdminCanSome,AddField'))
+  })
+  return $item
 }
 
 // 字段属性
@@ -336,12 +351,11 @@ class DlgEditDivider extends DlgEditField {
 
 // 追加到布局
 // eslint-disable-next-line no-unused-vars
-const add2Layout = function (add, fieldName) {
+const add2Layout = function (fieldName) {
   $.get(`../list-field?entity=${wpc.entityName}`, function (res) {
     $(res.data).each(function () {
       if (this.fieldName === fieldName) {
-        if (add) render_item({ ...this, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
-        else render_unset(this, '.field-list')
+        render_item({ ...this, isFull: this.isFull || false, tip: this.tip || null }, '.form-preview')
         return false
       }
     })

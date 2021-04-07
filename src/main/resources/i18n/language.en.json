@@ -514,7 +514,7 @@
   "ImportEntityTips1": "Importing this entity will also import **%s** and others dependent entities.",
   "ImportEntityTips2": "You can make appropriate adjustments after importing. Start importing?",
   "BasicInfo": "Basic",
-  "FormLayout": "Form Layout",
+  "FormLayout": "Form Design",
   "AdvConf": "Advanced",
   "MetaName": "Identification",
   "XNotModify": "%s does not allow modifications",

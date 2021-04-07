@@ -13,6 +13,8 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
+import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.support.CsrfToken;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
@@ -47,7 +49,7 @@ public class FileDownloader extends BaseController {
 
     @GetMapping("img/**")
     public void viewImg(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
+        RbAssert.isAllow(checkUser(request, true), "Unauthorized access");
 
         String filePath = request.getRequestURI();
         filePath = filePath.split("/filex/img/")[1];
@@ -143,7 +145,7 @@ public class FileDownloader extends BaseController {
 
             filePath = filePath.split("/filex/access/")[1];
         } else {
-            RbAssert.isAllow(checkUser(request) != null, "Unauthorized access");
+            RbAssert.isAllow(checkUser(request, false), "Unauthorized access");
             filePath = filePath.split("/filex/download/")[1];
         }
 
@@ -164,13 +166,20 @@ public class FileDownloader extends BaseController {
         }
     }
 
-    private ID checkUser(HttpServletRequest request) {
+    private boolean checkUser(HttpServletRequest request, boolean allowCsrf) {
         ID user = AppUtils.getRequestUser(request);
+        // authToken
         if (user == null) {
             String authToken = request.getParameter(AppUtils.URL_AUTHTOKEN);
             user = AuthTokenManager.verifyToken(authToken, false);
         }
-        return user;
+        // csrfToken
+        if (user == null && allowCsrf) {
+            if (CsrfToken.verify(request, false)) {
+                user = UserService.SYSTEM_USER;
+            }
+        }
+        return user != null;
     }
 
     // --

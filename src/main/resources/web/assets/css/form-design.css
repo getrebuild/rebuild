@@ -27,22 +27,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin: 0;
 }
 
-.field-head {
-  height: 44px;
-  padding: 0 20px;
-}
-
 .tab-pane {
   min-height: 200px;
-}
-
-div.nodata {
-  padding: 10px 0;
-  color: #999;
-  border: 1px dotted #dedede;
-  text-align: center;
-  display: none;
-  margin: 0;
 }
 
 .dd-list .dd-item {
@@ -145,11 +131,26 @@ div.nodata {
   cursor: move !important;
 }
 
-.field-list {
-  padding: 0 20px 35px;
+.form-preview:empty::after,
+.field-list:empty::after,
+.form-fields:empty::after {
+  content: attr(_title);
+  color: #999;
+  text-align: center;
+  padding: 9px;
+  border: 1px dotted #dedede;
+  width: 100%;
+  display: block;
 }
 
-.field-list .dd-item .dd-handle {
+.field-list,
+.type-list,
+.form-fields {
+  padding: 16px 20px;
+}
+
+.field-list .dd-item .dd-handle,
+.type-list .dd-item .dd-handle {
   cursor: pointer;
 }
 
@@ -169,9 +170,9 @@ div.nodata {
   right: 32px;
 }
 
-.field-list .nodata {
-  margin-top: 5px;
-  background-color: #fff;
+.type-list .dd-item .dd-handle:hover {
+  background-color: transparent;
+  color: #4285f4;
 }
 
 form.field-attr {
@@ -239,4 +240,8 @@ form.field-attr label > span {
 .table.table-p .custom-control {
   padding-left: 1.9377rem;
   margin-right: 1.385rem;
+}
+
+.field-aside .nav.nav-tabs {
+  margin-top: 7px;
 }
