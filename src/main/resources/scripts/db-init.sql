@@ -646,6 +646,7 @@ create table if not exists `project_task` (
   `DESCRIPTION`        text(32767) comment '备注',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `PARENT_TASK_ID`     char(20) comment '父级任务',
+  `RELATED_RECORD`     char(20) comment '相关业务记录',
   `SEQ`                int(11) default '0' comment '排序 (小到大)',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -653,7 +654,8 @@ create table if not exists `project_task` (
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`TASK_ID`),
   index IX0_project_task (`PROJECT_ID`, `PROJECT_PLAN_ID`, `SEQ`),
-  index IX1_project_task (`PROJECT_ID`, `TASK_NUMBER`, `TASK_NAME`, `STATUS`)
+  index IX1_project_task (`PROJECT_ID`, `TASK_NUMBER`, `TASK_NAME`, `STATUS`),
+  index IX2_project_task (`RELATED_RECORD`, `PROJECT_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectTaskRelation] DDL ************
@@ -765,4 +767,4 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 34);
+  values ('021-9000000000000001', 'DBVer', 35);
