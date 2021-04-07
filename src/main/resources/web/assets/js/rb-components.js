@@ -695,6 +695,119 @@ const DateShow = function (props) {
   return props.date ? <span title={props.date}>{$fromNow(props.date)}</span> : null
 }
 
+// ~~ 任意记录选择
+class AnyRecordSelector extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (
+      <div className="row">
+        <div className="col-4 pr-0">
+          <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
+            {(this.state.entities || []).map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="col-8 pl-2">
+          <select className="form-control form-control-sm float-left" ref={(c) => (this._record = c)} />
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get('/commons/metadata/entities', (res) => {
+      if ((res.data || []).length === 0) $(this._record).attr('disabled', true)
+
+      this.setState({ entities: res.data || [] }, () => {
+        $(this._entity)
+          .select2({
+            placeholder: $L('NoAnySome,Entity'),
+            allowClear: false,
+          })
+          .on('change', () => {
+            $(this._record).val(null).trigger('change')
+          })
+
+        // 编辑时
+        const iv = this.props.initValue
+        if (iv) {
+          $(this._entity).val(iv.entity).trigger('change')
+          const option = new Option(iv.text, iv.id, true, true)
+          $(this._record).append(option)
+        }
+      })
+    })
+
+    const that = this
+    let search_input = null
+    $(this._record)
+      .select2({
+        placeholder: `${$L('SelectSome,Record')}`,
+        minimumInputLength: 0,
+        maximumSelectionLength: 1,
+        ajax: {
+          url: '/commons/search/search',
+          delay: 300,
+          data: function (params) {
+            search_input = params.term
+            return {
+              entity: $(that._entity).val(),
+              q: params.term,
+            }
+          },
+          processResults: function (data) {
+            return {
+              results: data.data,
+            }
+          },
+        },
+        language: {
+          noResults: () => {
+            return (search_input || '').length > 0 ? $L('NoResults') : $L('InputForSearch')
+          },
+          inputTooShort: () => {
+            return $L('InputForSearch')
+          },
+          searching: () => {
+            return $L('Searching')
+          },
+          maximumSelected: () => {
+            return $L('OnlyXSelected').replace('%d', 1)
+          },
+        },
+      })
+      .on('change', (e) => {
+        typeof that.props.onSelect === 'function' && that.props.onSelect(e.target.value)
+      })
+  }
+
+  // return `id`
+  val() {
+    return $(this._record).val()
+  }
+
+  // return `{ id:xx, text:xx, entity:xx }`
+  value() {
+    const val = this.val()
+    if (!val) return null
+    return {
+      entity: $(this._entity).val(),
+      id: val,
+      text: $(this._record).select2('data')[0].text,
+    }
+  }
+
+  reset() {
+    $(this._record).val(null).trigger('change')
+  }
+}
+
 // ~~ 默认 SimpleMDE 工具栏
 const DEFAULT_MDE_TOOLBAR = [
   {

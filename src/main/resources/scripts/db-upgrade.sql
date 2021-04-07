@@ -1,6 +1,11 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #35 (v2.3)
+alter table `project_task`
+  add column `RELATED_RECORD` char(20) comment '相关业务记录',
+  add index IX92_project_task (`RELATED_RECORD`, `PROJECT_ID`);
+
 -- #34 (v2.2)
 alter table `revision_history`
   add column `IP_ADDR` varchar(100) comment 'IP地址';
