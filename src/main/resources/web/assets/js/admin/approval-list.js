@@ -48,6 +48,7 @@ class ApprovalList extends ConfigList {
   }
 
   handleDelete(id) {
+    const that = this
     const handle = super.handleDelete
     RbAlert.create($L('DeleteApprovalConfirm'), {
       html: true,
@@ -55,7 +56,10 @@ class ApprovalList extends ConfigList {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        handle(id)
+        handle(id, () => {
+          this.hide()
+          that.loadData()
+        })
       },
     })
   }

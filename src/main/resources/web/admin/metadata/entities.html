@@ -94,10 +94,10 @@
         $.get('/admin/entity/entity-list?bizz=true', function (res) {
           $('#entityList').empty()
           $(res.data).each(function () {
-            if (this.builtin == true) render_entity(this)
+            if (this.builtin) render_entity(this)
           })
           $(res.data).each(function () {
-            if (this.builtin == false) render_entity(this)
+            if (!this.builtin) render_entity(this)
           })
 
           const $new = render_entity({
@@ -121,7 +121,7 @@
         $t.find('.icon').addClass('zmdi-' + item.icon)
         $t.find('span').text(item.entityLabel)
         $t.find('p').text(item.comments || '-')
-        if (item.builtin == true) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('BuiltIn')}</i>`).appendTo($t.find('a.card'))
+        if (item.builtin) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('BuiltIn')}</i>`).appendTo($t.find('a.card'))
         if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('Detail')}</i>`).appendTo($t.find('a.card'))
         return $t
       }
