@@ -1136,6 +1136,10 @@ a {
   color: #fff;
 }
 
+.rbhighbar > .alert > .message a[target=_blank]:hover {
+  text-decoration: underline;
+}
+
 .ui-mprogress .bar-bg,
 .ui-mprogress .buffer-bg {
   z-index: 1051;
