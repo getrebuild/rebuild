@@ -7,16 +7,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core;
 
-import cn.devezhao.commons.*;
-import cn.devezhao.commons.runtime.MemoryInformation;
+import cn.devezhao.commons.CalendarUtils;
+import cn.devezhao.commons.CodecUtils;
+import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.runtime.MemoryInformationBean;
-import com.alibaba.fastjson.JSON;
 import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.setup.Installer;
-import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import oshi.SystemInfo;
+import oshi.hardware.GlobalMemory;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -165,19 +167,15 @@ public final class ServerStatus {
             }
         }
 
-        public JSON toJson() {
-            return JSONUtils.toJSONObject(name, success ? true : error);
-        }
-
         private Status(String name, boolean success, String error) {
             this.name = name;
             this.success = success;
             this.error = error;
 
             if (success) {
-                log.debug("Checking " + toString());
+                log.debug("Checking " + this);
             } else {
-                log.error("Checking " + toString());
+                log.error("Checking " + this);
             }
         }
 
@@ -192,20 +190,21 @@ public final class ServerStatus {
 
     // --
 
+    private static final SystemInfo SI = new SystemInfo();
+
     /**
      * 内存用量
      *
      * @return [总计M, 已用%]
      */
     public static double[] getHeapMemoryUsed() {
-        for (MemoryInformation i : SystemUtils.getMemoryStatistics(false)) {
-            if ("Heap".equalsIgnoreCase(i.getName())) {
-                double t = i.getTotal();
-                double p = ObjectUtils.round(i.getUsed() * 100 / t, 2);
-                return new double[]{(int) (t / MemoryInformationBean.MEGABYTES), p};
-            }
-        }
-        return new double[]{0, 0};
+        GlobalMemory memory = SI.getHardware().getMemory();
+        long memoryTotal = memory.getTotal();
+        double memoryUsage = (memoryTotal - memory.getAvailable()) * 1.0 / memoryTotal;
+        return new double[] {
+                (int) (memoryTotal / MemoryInformationBean.MEGABYTES),
+                ObjectUtils.round(memoryUsage * 100, 2)
+        };
     }
 
     /**
@@ -214,7 +213,7 @@ public final class ServerStatus {
      * @return
      */
     public static double getSystemLoad() {
-        double load = SystemUtils.getRuntimeInformation().getSystemLoad();
-        return load < 0 ? 0 : ObjectUtils.round(load, 2);
+        double[] loadAverages = SI.getHardware().getProcessor().getSystemLoadAverage(2);
+        return ObjectUtils.round(loadAverages[1], 2);
     }
 }

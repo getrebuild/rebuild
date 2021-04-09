@@ -8,12 +8,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web.commons;
 
 import cn.devezhao.commons.web.ServletUtils;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,12 +43,9 @@ public class ErrorPageView extends BaseController {
         ModelAndView mv = createModelAndView("/error/server-status");
         mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isReady());
         mv.getModel().put("status", ServerStatus.getLastStatus(realtime));
-
         mv.getModel().put("MemoryUsage", ServerStatus.getHeapMemoryUsed());
         mv.getModel().put("SystemLoad", ServerStatus.getSystemLoad());
-
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
-
         return mv;
     }
 
@@ -58,24 +53,24 @@ public class ErrorPageView extends BaseController {
     public void apiServerStatus(HttpServletRequest request, HttpServletResponse response) {
         boolean realtime = "1".equals(request.getParameter("check"));
 
-        JSONObject state = new JSONObject();
-        state.put("ok", ServerStatus.isStatusOK());
-        JSONArray stats = new JSONArray();
-        state.put("status", stats);
-        for (ServerStatus.Status s : ServerStatus.getLastStatus(realtime)) {
-            stats.add(s.toJson());
-        }
+        JSONObject s = new JSONObject();
+        s.put("ok", ServerStatus.isStatusOK() && Application.isReady());
+        s.put("uptime", System.currentTimeMillis() - ServerStatus.STARTUP_TIME.getTime());
 
-        stats.add(JSONUtils.toJSONObject("MemoryUsage", ServerStatus.getHeapMemoryUsed()[1]));
-        stats.add(JSONUtils.toJSONObject("SystemLoad", ServerStatus.getSystemLoad()));
-        ServletUtils.writeJson(response, state.toJSONString());
+        JSONObject status = new JSONObject();
+        s.put("status", status);
+        for (ServerStatus.Status item : ServerStatus.getLastStatus(realtime)) {
+            status.put(item.name, item.success ? true : item.error);
+        }
+        status.put("MemoryUsage", ServerStatus.getHeapMemoryUsed()[1]);
+        status.put("SystemLoad", ServerStatus.getSystemLoad());
+
+        ServletUtils.writeJson(response, s.toJSONString());
     }
 
     @GetMapping({"/gw/server-status", "/gw/server-status.json"})
     public String v1Fix(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-
-        if (uri.endsWith("/server-status.json")) {
+        if (request.getRequestURI().contains("server-status.json")) {
             return "redirect:/error/server-status.json";
         } else {
             return "redirect:/error/server-status";
