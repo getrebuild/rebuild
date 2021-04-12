@@ -109,7 +109,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </select>
                   <p>{$L('UpdateMode')}</p>
                 </div>
-                <div className="col-5">
+                <div className={`col-5 ${this.state.targetField ? '' : 'hide'}`}>
                   <div className={this.state.updateMode === 'FIELD' ? '' : 'hide'}>
                     <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
