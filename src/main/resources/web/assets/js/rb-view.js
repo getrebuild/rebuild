@@ -452,7 +452,7 @@ class ReducedFeedsList extends FeedsList {
         {this.state.data && this.state.data.length === 0 && (
           <div className="list-nodata">
             <span className="zmdi zmdi-chart-donut" />
-            <p>{$L('NoSome,FeedsType2')}</p>
+            <p>{$L('NoSome,e.Feeds')}</p>
           </div>
         )}
         <div className="feeds-list inview">

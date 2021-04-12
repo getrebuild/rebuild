@@ -17,6 +17,7 @@
     "gulp-clean-css": "^4.3.0",
     "gulp-debug": "^4.0.0",
     "gulp-filter": "^6.0.0",
+    "gulp-javascript-obfuscator": "^1.1.6",
     "gulp-replace": "^1.0.0",
     "rev-hash": "^3.0.0"
   }

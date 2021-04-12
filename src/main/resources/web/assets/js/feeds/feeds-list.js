@@ -174,7 +174,7 @@ class FeedsList extends React.Component {
             </li>
           </ul>
         </div>
-        <span className={`${item.shownComments ? '' : 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} />}</span>
+        <span className={`${item.shownComments ? '' : 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} $$$parent={this} />}</span>
       </div>
     )
   }
@@ -399,13 +399,13 @@ class FeedsComments extends React.Component {
     const btn = $(this._btn).button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
       btn.button('reset')
-      if (res.error_msg > 0) {
-        RbHighbar.error(res.error_msg)
-        return
-      }
+      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+
       this._editor.reset()
       this._commentState(false)
       this._fetchComments()
+
+      _updateCommentsNum(this.props.feeds, this.props.$$$parent, 1)
     })
   }
 
@@ -444,6 +444,8 @@ class FeedsComments extends React.Component {
               if (id === item.id) item.deleted = true
             })
             that.setState({ data: _data })
+
+            _updateCommentsNum(that.props.feeds, that.props.$$$parent, -1)
           })
         })
       },
@@ -650,4 +652,13 @@ function _handleLike(id, comp) {
     })
     comp.setState({ data: _data })
   })
+}
+
+// 更新评论数
+function _updateCommentsNum(id, comp, num) {
+  const _data = comp.state.data
+  _data.forEach((item) => {
+    if (id === item.id) item.numComments = item.numComments + num
+  })
+  comp.setState({ data: _data })
 }

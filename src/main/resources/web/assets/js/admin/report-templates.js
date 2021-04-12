@@ -51,13 +51,17 @@ class ReportList extends ConfigList {
   }
 
   handleDelete(id) {
+    const that = this
     const handle = super.handleDelete
     RbAlert.create($L('DeleteSomeConfirm,ReportTemplate'), {
       type: 'danger',
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        handle(id)
+        handle(id, () => {
+          this.hide()
+          that.loadData()
+        })
       },
     })
   }
