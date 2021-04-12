@@ -379,7 +379,7 @@ class FormulaCalc2 extends FormulaCalc {
               DATESUB
             </a>
             <div className="dropdown-divider"></div>
-            <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)">
+            <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)%20~~v2.3">
               {$L('FuncHelp')}
             </a>
           </div>

@@ -1334,6 +1334,9 @@
   "UpdateMode": "Update Mode",
   "UpdateByField": "Field Value",
   "UpdateByValue": "Fixed Value",
+  "Func": "Func",
+  "FuncUnit": "Unit",
+  "FuncHelp": "How to use functions",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
