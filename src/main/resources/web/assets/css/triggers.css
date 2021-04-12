@@ -166,6 +166,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background-color: #ccc;
 }
 
+.formula-calc ul li.empty-1 > a {
+  background-color: #eee !important;
+  cursor: default !important;
+}
+
 .formula-calc ul li > a.confirm {
   background-color: #4c8bf5;
   color: #fff !important;
@@ -216,13 +221,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 0 4px;
 }
 
+.form-control-plaintext.formula > .oper + .oper {
+  padding-left: 0;
+}
+
 .form-control-plaintext.formula > .field {
   border-radius: 2px;
   padding: 1px 2px;
-  cursor: pointer;
 }
 
-.form-control-plaintext.formula > .field:hover {
+.form-control-plaintext.formula > .field.hover:hover {
+  cursor: pointer;
   background-color: #4c8bf5;
   color: #fff;
 }
@@ -234,11 +243,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #4c8bf5;
 }
 
-.form-control-plaintext.formula > .field:hover > i::after {
+.form-control-plaintext.formula > .field.hover:hover > i::after {
   color: #fff;
 }
 
-.form-control-plaintext.formula > .field .dropdown-menu {
+.formula-calc .dropdown-menu {
   min-width: 120px;
   box-shadow: 0 0 6px 0 rgba(0, 0, 0, 0.1), 0 10px 12px 0 rgba(170, 182, 206, 0.36);
   border-radius: 0;
@@ -246,9 +255,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   z-index: 1000;
 }
 
-.form-control-plaintext.formula > .field .dropdown-menu .dropdown-item {
+.formula-calc .dropdown-menu .dropdown-item {
   padding: 6px 14px;
   cursor: default;
+}
+
+.formula-calc .dropdown-menu .dropdown-divider {
+  margin: 3px 0;
 }
 
 .auto-assign .select2-selection__rendered,
@@ -283,4 +296,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .code-panel pre {
   background-color: #4f4a68;
   color: #edebe6;
+}
+
+.fields ul li.flag-DECIMAL > a::before,
+.fields ul li.flag-NUMBER > a::before,
+.fields ul li.flag-DATE > a::before,
+.fields ul li.flag-DATETIME > a::before {
+  content: 'N';
+  width: 15px;
+  display: inline-block;
+  color: #4285f4;
+  font-size: 0.9rem;
+}
+
+.fields ul li.flag-DATE > a::before,
+.fields ul li.flag-DATETIME > a::before {
+  content: 'D';
 }

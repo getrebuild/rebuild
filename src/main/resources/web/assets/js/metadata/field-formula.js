@@ -5,11 +5,9 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-// 字段公式
-
-// ~ 数字公式
-// @see trigger.FIELDAGGREGATION.js
+// ~ 公式编辑器
 const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('Back'), $L('Clear')]
+// eslint-disable-next-line no-unused-vars
 class FormulaCalc extends RbAlert {
   constructor(props) {
     super(props)
@@ -19,14 +17,15 @@ class FormulaCalc extends RbAlert {
   renderContent() {
     return (
       <div className="formula-calc">
-        <div className="form-control-plaintext formula mb-2" _title={$L('CalcFORMULA')} ref={(c) => (this._formula = c)}></div>
-        <div className="row">
+        <div className="form-control-plaintext formula mb-2" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)}></div>
+        <input className="form-control-plaintext formula mb-2 bosskey-show" ref={(c) => (this._$formulaInput = c)} />
+        <div className="row unselect">
           <div className="col-6">
-            <div className="fields rb-scroller" ref={(c) => (this._fields = c)}>
+            <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
               <ul className="list-unstyled mb-0" _title={$L('NoUsesField')}>
                 {this.props.fields.map((item) => {
                   return (
-                    <li key={item[0]}>
+                    <li key={item[0]} className={item[2] ? `flag-${item[2]}` : ''}>
                       <a onClick={() => this.handleInput(item)}>{item[1]}</a>
                     </li>
                   )
@@ -36,6 +35,7 @@ class FormulaCalc extends RbAlert {
           </div>
           <div className="col-6 pl-0">
             <ul className="list-unstyled numbers mb-0">
+              {this.renderExtraKeys()}
               {INPUT_KEYS.map((item) => {
                 return (
                   <li className="list-inline-item" key={`N-${item}`}>
@@ -57,44 +57,51 @@ class FormulaCalc extends RbAlert {
 
   componentDidMount() {
     super.componentDidMount()
-    $(this._fields).perfectScrollbar()
+    $(this._$fields).perfectScrollbar()
+  }
+
+  renderExtraKeys() {
+    return null
   }
 
   handleInput(v) {
     if (v === $L('Back')) {
-      $(this._formula).find('.v:last').remove()
+      $(this._$formula).find('.v:last').remove()
     } else if (v === $L('Clear')) {
-      $(this._formula).empty()
+      $(this._$formula).empty()
     } else if (typeof v === 'object') {
-      $(`<i class="v field" data-v="{${v[0]}}">{${v[1]}}</i>`).appendTo(this._formula)
+      $(`<i class="v field" data-v="{${v[0]}}">{${v[1]}}</i>`).appendTo(this._$formula)
     } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
-      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._formula)
+      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
     } else {
-      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._formula)
+      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
     }
   }
 
   confirm() {
-    const expr = []
-    $(this._formula)
+    let expr = []
+    $(this._$formula)
       .find('i')
       .each(function () {
         expr.push($(this).data('v'))
       })
 
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr.join(''))
+    expr = expr.join('')
+    if ($(this._$formulaInput).val()) expr = $(this._$formulaInput).val()
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
     this.hide()
   }
-}
 
-// 公式文本化
-FormulaCalc.textFormula = function (formula, fields) {
-  if (!formula) return ''
-  for (let i = 0; i < fields.length; i++) {
-    const item = fields[i]
-    formula = formula.replace(new RegExp(`{${item[0]}}`, 'ig'), `{${item[1]}}`)
+  // 公式文本化
+  static textFormula(formula, fields) {
+    if (!formula) return ''
+    for (let i = 0; i < fields.length; i++) {
+      const item = fields[i]
+      formula = formula.replace(new RegExp(`{${item[0]}}`, 'ig'), `{${item[1]}}`)
+    }
+    return formula.toUpperCase()
   }
-  return formula.toUpperCase()
 }
 
 // ~~ 日期公式

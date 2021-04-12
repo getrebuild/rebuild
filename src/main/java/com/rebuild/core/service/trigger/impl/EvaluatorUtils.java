@@ -171,7 +171,7 @@ public class EvaluatorUtils {
 
         @Override
         public String getName() {
-            return "datediff";
+            return "DATEDIFF";
         }
     }
 
@@ -211,7 +211,7 @@ public class EvaluatorUtils {
 
         @Override
         public String getName() {
-            return "dateadd";
+            return "DATEADD";
         }
     }
 
@@ -226,7 +226,7 @@ public class EvaluatorUtils {
 
         @Override
         public String getName() {
-            return "datesub";
+            return "DATESUB";
         }
     }
 }

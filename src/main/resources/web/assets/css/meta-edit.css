@@ -124,7 +124,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #878787;
 }
 
-/* FormulaCalc */
+/* for Entity */
+
+a#entityIcon {
+  display: inline-block;
+  width: 36px;
+  height: 36px;
+  background-color: #e3e3e3;
+  text-align: center;
+  border-radius: 2px;
+}
+
+a#entityIcon .icon {
+  font-size: 26px;
+  color: #555;
+  line-height: 36px;
+}
+
+a#entityIcon:hover {
+  opacity: 0.8;
+}
+
+/* `FormulaCalc` @see triggers.css */
 
 .formula-calc .fields ul:empty::after {
   content: attr(_title);
@@ -161,6 +182,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .formula-calc .fields {
   max-height: 186px;
+  margin-top: 1px;
 }
 
 .formula-calc .fields ul li {
@@ -189,31 +211,4 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .form-control-plaintext.formula > .field {
   border-radius: 2px;
   padding: 1px 2px;
-  cursor: pointer;
-}
-
-.form-control-plaintext.formula > .field:hover {
-  background-color: #4c8bf5;
-  color: #fff;
-}
-
-/* for Entity */
-
-a#entityIcon {
-  display: inline-block;
-  width: 36px;
-  height: 36px;
-  background-color: #e3e3e3;
-  text-align: center;
-  border-radius: 2px;
-}
-
-a#entityIcon .icon {
-  font-size: 26px;
-  color: #555;
-  line-height: 36px;
-}
-
-a#entityIcon:hover {
-  opacity: 0.8;
 }

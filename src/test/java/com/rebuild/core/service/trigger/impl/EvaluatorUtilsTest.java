@@ -26,6 +26,7 @@ class EvaluatorUtilsTest {
     @Test
     void validate() {
         System.out.println(EvaluatorUtils.validate("1 + The bad syntax"));
+        System.out.println(EvaluatorUtils.validate("'2021-01-01 16:17:00' + 1"));
     }
 
     @Test
