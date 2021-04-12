@@ -10,12 +10,7 @@ package com.rebuild.core.service.trigger.impl;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
-import com.googlecode.aviator.Options;
-import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -32,32 +27,6 @@ import java.util.regex.Matcher;
  */
 @Slf4j
 public class AggregationEvaluator {
-
-    private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
-    static {
-        // 强制使用 BigDecimal/BigInteger 运算
-        AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
-    }
-
-    /**
-     * 算数计算
-     *
-     * @param formual
-     * @return
-     */
-    protected static Object calc(String formual) {
-        try {
-            return AVIATOR.execute(formual);
-        } catch (ArithmeticException ex) {
-            log.error("Bad formula : {}", formual, ex);
-            throw new RebuildException("FORMULA ERROR : " + ex.getLocalizedMessage().toUpperCase());
-        } catch (ExpressionSyntaxErrorException ex) {
-            log.error("Bad formula : {}", formual, ex);
-            return null;
-        }
-    }
-
-    // --
 
     final private Entity sourceEntity;
     final private JSONObject item;
@@ -162,6 +131,6 @@ public class AggregationEvaluator {
             newFormual = newFormual.replace(replace.toUpperCase(), v.toString());
         }
 
-        return calc(newFormual);
+        return EvaluatorUtils.eval(newFormual);
     }
 }

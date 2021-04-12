@@ -173,6 +173,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .formula-calc .fields {
   max-height: 186px;
+  margin-top: 1px;
 }
 
 .formula-calc .fields ul li {
@@ -233,7 +234,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   color: #4c8bf5;
 }
 
-.form-control-plaintext.formula > .field > i:hover::after {
+.form-control-plaintext.formula > .field:hover > i::after {
   color: #fff;
 }
 

@@ -157,7 +157,7 @@ public class FieldWriteback extends FieldAggregation {
                         }
                     }
 
-                    Object newValue = AggregationEvaluator.calc(realFormual);
+                    Object newValue = EvaluatorUtils.eval(realFormual);
                     if (newValue != null) {
                         DisplayType dt = targetFieldEasy.getDisplayType();
                         if (dt == DisplayType.NUMBER) {
