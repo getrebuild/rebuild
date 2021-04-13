@@ -7,9 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -26,9 +28,7 @@ import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 
 /**
@@ -74,9 +74,10 @@ public class FieldWriteback extends FieldAggregation {
                     Matcher m = FieldAggregation.PATT_FIELD.matcher(sourceField);
                     while (m.find()) {
                         String field = m.group(1);
-                        if (MetadataHelper.getLastJoinField(sourceEntity, field) != null) {
-                            fieldVars.add(field);
+                        if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
+                            throw new MissingMetaExcetion(field, sourceEntity.getName());
                         }
+                        fieldVars.add(field);
                     }
                 }
             }
@@ -94,8 +95,8 @@ public class FieldWriteback extends FieldAggregation {
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
-            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
-                continue;
+            if (MetadataHelper.getLastJoinField(targetEntity, targetField) == null) {
+                throw new MissingMetaExcetion(targetField, targetEntity.getName());
             }
 
             EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
@@ -130,7 +131,7 @@ public class FieldWriteback extends FieldAggregation {
             else if ("FORMULA".equalsIgnoreCase(updateMode)) {
                 Assert.notNull(useSourceData, "[useSourceData] not be null");
 
-                // 日期
+                // 日期兼容 fix: v2.2
                 if (sourceField.contains(DATE_EXPR)) {
                     String fieldName = sourceField.split(DATE_EXPR)[0];
                     Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
@@ -144,26 +145,35 @@ public class FieldWriteback extends FieldAggregation {
                     }
                 }
 
-                // 数字
+                // 公式
                 else {
-                    String realFormual = sourceField.toUpperCase()
+                    String clearFormual = sourceField.toUpperCase()
                             .replace("×", "*")
-                            .replace("÷", "/");
+                            .replace("÷", "/")
+                            .replace("`", "'");
+
                     for (String fieldName : useSourceData.getAvailableFields()) {
                         String replace = "{" + fieldName.toUpperCase() + "}";
-                        if (realFormual.contains(replace)) {
+                        if (clearFormual.contains(replace)) {
                             Object value = useSourceData.getObjectValue(fieldName);
-                            realFormual = realFormual.replace(replace, value == null ? "0" : value.toString());
+                            if (value instanceof Date) {
+                                value = CalendarUtils.getUTCDateTimeFormat().format(value);
+                            } else {
+                                value = value == null ? "0" : value.toString();
+                            }
+                            clearFormual = clearFormual.replace(replace, (String) value);
                         }
                     }
 
-                    Object newValue = AggregationEvaluator.calc(realFormual);
+                    Object newValue = EvaluatorUtils.eval(clearFormual);
                     if (newValue != null) {
                         DisplayType dt = targetFieldEasy.getDisplayType();
                         if (dt == DisplayType.NUMBER) {
                             record.setLong(targetField, CommonsUtils.toLongHalfUp(newValue));
                         } else if (dt == DisplayType.DECIMAL) {
                             record.setDouble(targetField, ObjectUtils.toDouble(newValue));
+                        } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
+                            record.setDate(targetField, (Date) newValue);
                         }
                     }
                 }

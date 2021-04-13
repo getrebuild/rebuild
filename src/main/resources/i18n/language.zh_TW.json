@@ -1336,6 +1336,9 @@
   "UpdateByValue": "固定值",
   "NoAnyApprovers": "當前審批流程無可用審批人",
   "JoinedTeams": "所在團隊",
+  "Func": "函數",
+  "FuncUnit": "單位",
+  "FuncHelp": "如何使用函數",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

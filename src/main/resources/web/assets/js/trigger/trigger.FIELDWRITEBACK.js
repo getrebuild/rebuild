@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global FieldValueSet, FormulaCalc */
+/* global FieldValueSet */
 
 const UPDATE_MODES = {
   FIELD: $L('UpdateByField'),
@@ -109,7 +109,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </select>
                   <p>{$L('UpdateMode')}</p>
                 </div>
-                <div className="col-5">
+                <div className={`col-5 ${this.state.targetField ? '' : 'hide'}`}>
                   <div className={this.state.updateMode === 'FIELD' ? '' : 'hide'}>
                     <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
@@ -319,26 +319,14 @@ class FieldFormula extends React.Component {
   }
 
   showFormula() {
-    const fieldType = this.state.field.type
-    if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      const fieldVars = []
-      this.props.fields.forEach((item) => {
-        if (item.name !== this.state.field.name && (item.type === 'DATE' || item.type === 'DATETIME')) {
-          fieldVars.push([item.name, item.label])
-        }
-      })
+    const fieldVars = []
+    this.props.fields.forEach((item) => {
+      if (item.name !== this.state.field.name && ['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)) {
+        fieldVars.push([item.name, item.label, item.type])
+      }
+    })
 
-      renderRbcomp(<FormulaDate2 base={fieldVars} type={fieldType} onConfirm={(expr) => this._confirm(expr)} />)
-    } else if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
-      const fieldVars = []
-      this.props.fields.forEach((item) => {
-        if (item.name !== this.state.field.name && (item.type === 'NUMBER' || item.type === 'DECIMAL')) {
-          fieldVars.push([item.name, item.label])
-        }
-      })
-
-      renderRbcomp(<FormulaCalc fields={fieldVars} onConfirm={(expr) => this._confirm(expr)} />)
-    }
+    renderRbcomp(<FormulaCalc2 fields={fieldVars} onConfirm={(expr) => this._confirm(expr)} />)
   }
 
   _confirm(expr) {
@@ -364,25 +352,81 @@ FieldFormula.formatText = function (formula, fields) {
   else {
     const fs = []
     fields.forEach((item) => fs.push([item.name, item.label]))
-    return FormulaCalc.textFormula(formula, fs)
+    return FormulaCalc2.textFormula(formula, fs)
   }
 }
 
+// ~ 公式编辑器
 // eslint-disable-next-line no-undef
-class FormulaDate2 extends FormulaDate {
-  confirm() {
-    let expr = $(this._base).val()
-    if (!expr) return
+class FormulaCalc2 extends FormulaCalc {
+  constructor(props) {
+    super(props)
+  }
 
-    if (this.state.calcOp) {
-      if (isNaN(this.state.calcNum) || this.state.calcNum < 1) {
-        return RbHighbar.create($L('PlsInputSome,Number'))
+  renderExtraKeys() {
+    return (
+      <React.Fragment>
+        <li className="list-inline-item">
+          <a data-toggle="dropdown">{$L('Func')}</a>
+          <div className="dropdown-menu">
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title="DATEDIFF($DATE1, $DATE2, [H|D|M|Y])">
+              DATEDIFF
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATEADD')} title="DATEADD($DATE, $NUMBER[H|D|M|Y])">
+              DATEADD
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('DATESUB')} title="DATESUB($DATE, $NUMBER[H|D|M|Y])">
+              DATESUB
+            </a>
+            <div className="dropdown-divider"></div>
+            <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)%20~~v2.3">
+              {$L('FuncHelp')}
+            </a>
+          </div>
+        </li>
+        <li className="list-inline-item">
+          <a data-toggle="dropdown">{$L('FuncUnit')}</a>
+          <div className="dropdown-menu">
+            <a className="dropdown-item" onClick={() => this.handleInput('H')}>
+              H ({$L('Hour')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('D')}>
+              D ({$L('Day')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('M')}>
+              M ({$L('Month')})
+            </a>
+            <a className="dropdown-item" onClick={() => this.handleInput('Y')}>
+              Y ({$L('Year')})
+            </a>
+          </div>
+        </li>
+        <li className="list-inline-item">
+          <a onClick={() => this.handleInput('`')}>`</a>
+        </li>
+        <li className="list-inline-item">
+          <a onClick={() => this.handleInput(',')}>,</a>
+        </li>
+      </React.Fragment>
+    )
+  }
+
+  componentDidMount() {
+    $(this._$fields).css('max-height', 221)
+    super.componentDidMount()
+  }
+
+  handleInput(v) {
+    if (['DATEDIFF', 'DATEADD', 'DATESUB', ',', '`'].includes(v)) {
+      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
+
+      if (['DATEDIFF', 'DATEADD', 'DATESUB'].includes(v)) {
+        setTimeout(() => this.handleInput('('), 400)
+        setTimeout(() => this.handleInput('`'), 600)
       }
-      expr += `#${this.state.calcOp}${this.state.calcNum}${this.state.calcUnit}`
+    } else {
+      super.handleInput(v)
     }
-
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
-    this.hide()
   }
 }
 

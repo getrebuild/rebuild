@@ -1336,6 +1336,9 @@
   "UpdateByValue": "Fixed Value",
   "NoAnyApprovers": "No approvers available for the current approval process",
   "JoinedTeams": "Owning Teams",
+  "Func": "Func",
+  "FuncUnit": "Unit",
+  "FuncHelp": "How to use functions",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

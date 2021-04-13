@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -159,14 +160,15 @@ public class FieldAggregation implements TriggerAction {
      *
      * @param record
      * @param dataFilterSql
+     * @throws MissingMetaExcetion
      */
-    protected void buildTargetRecord(Record record, String dataFilterSql) {
+    protected void buildTargetRecord(Record record, String dataFilterSql) throws MissingMetaExcetion {
         JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String targetField = item.getString("targetField");
-            if (!MetadataHelper.checkAndWarnField(targetEntity, targetField)) {
-                continue;
+            if (MetadataHelper.getLastJoinField(targetEntity, targetField) == null) {
+                throw new MissingMetaExcetion(targetField, targetEntity.getName());
             }
 
             Object evalValue = new AggregationEvaluator(item, sourceEntity, followSourceField, dataFilterSql)

@@ -1336,6 +1336,9 @@
   "UpdateByValue": "固定值",
   "NoAnyApprovers": "当前审批流程无可用审批人",
   "JoinedTeams": "所在团队",
+  "Func": "函数",
+  "FuncUnit": "单位",
+  "FuncHelp": "如何使用函数",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",
