@@ -509,11 +509,9 @@ class StartNodeConfig extends RbFormHandler {
               <span className="custom-control-label">{$L('NodeUserSpec')}</span>
             </label>
           </div>
-          {this.state.users === 'SPEC' && (
-            <div className="form-group">
-              <UserSelector selected={this.state.selectedUsers} ref={(c) => (this._UserSelector = c)} />
-            </div>
-          )}
+          <div className={`form-group ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
+            <UserSelector ref={(c) => (this._UserSelector = c)} />
+          </div>
         </div>
         {this.renderButton()}
       </div>
@@ -535,11 +533,8 @@ class StartNodeConfig extends RbFormHandler {
 
   componentDidMount() {
     if (this.state.users === 'SPEC' && this.props.users) {
-      // $.post('/commons/search/user-selector', JSON.stringify(this.props.users), (res) => {
-      //   if (res.data.length > 0) this.setState({ selectedUsers: res.data })
-      // })
       $.post(`/admin/robot/approval/user-fields-show?entity=${this.props.entity || wpc.applyEntity}`, JSON.stringify(this.props.users), (res) => {
-        if (res.data.length > 0) this.setState({ selectedUsers: res.data })
+        if ((res.data || []).length > 0) this._UserSelector.setState({ selected: res.data })
       })
     }
   }
@@ -591,11 +586,9 @@ class ApproverNodeConfig extends StartNodeConfig {
               <span className="custom-control-label">{$L('StartApproverSpec')}</span>
             </label>
           </div>
-          {this.state.users === 'SPEC' && (
-            <div className="form-group mb-3">
-              <UserSelectorWithField selected={this.state.selectedUsers} ref={(c) => (this._UserSelector = c)} />
-            </div>
-          )}
+          <div className={`form-group mb-3 ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
+            <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
+          </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={this.handleChange} />
@@ -732,7 +725,7 @@ class CCNodeConfig extends StartNodeConfig {
         <div className="form">
           <div className="form-group mb-3">
             <label className="text-bold">{$L('ApprovalCcToWho')}</label>
-            <UserSelectorWithField selected={this.state.selectedUsers} ref={(c) => (this._UserSelector = c)} />
+            <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
