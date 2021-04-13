@@ -1329,7 +1329,6 @@
   "UnknownFieldInFilterTips": "存在无效字段，可能已被管理员删除，建议你调整后重新保存",
   "SysConf": "系统选项",
   "ViewInList": "列表页查看",
-  "FormAdvRequiredTip": "本选项仅做前端验证",
   "UpdateRule": "更新规则",
   "UpdateMode": "更新方式",
   "UpdateByField": "字段值",
@@ -1340,6 +1339,7 @@
   "FuncUnit": "单位",
   "FuncHelp": "如何使用函数",
   "ShareWithUpdate": "允许编辑 (默认仅共享读取)",
+  "OnlyFormEffectiveTip": "本选项仅针对表单有效",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

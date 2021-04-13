@@ -1329,7 +1329,6 @@
   "UnknownFieldInFilterTips": "There is an invalid field, which may have been deleted by the administrator. It is recommended that you adjust and save it again",
   "SysConf": "System",
   "ViewInList": "View on List",
-  "FormAdvRequiredTip": "This option is only for front-end validation",
   "UpdateRule": "Update Rule",
   "UpdateMode": "Update Mode",
   "UpdateByField": "Field Value",
@@ -1340,6 +1339,7 @@
   "FuncUnit": "Unit",
   "FuncHelp": "How to use functions",
   "ShareWithUpdate": "Allow edit (Only shared read by default)",
+  "OnlyFormEffectiveTip": "This option is only valid for forms",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

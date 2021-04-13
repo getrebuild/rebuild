@@ -58,8 +58,7 @@ public class BatchUpdateController extends BaseController {
 
         requestData.put("_dataRange", getIntParameter(request, "dr", 2));
         requestData.put("entity", entity);
-        BulkContext bulkContext = new BulkContext(user, BizzPermission.UPDATE);
-        bulkContext.addExtraParam("customData", requestData);
+        BulkContext bulkContext = new BulkContext(user, BizzPermission.UPDATE, requestData);
 
         Entity entityMeta = MetadataHelper.getEntity(entity);
         String taskid = Application.getEntityService(entityMeta.getEntityCode()).bulkAsync(bulkContext);

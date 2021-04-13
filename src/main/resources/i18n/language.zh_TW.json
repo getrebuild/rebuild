@@ -1329,7 +1329,6 @@
   "UnknownFieldInFilterTips": "存在無效字段，可能已被管理員刪除，建議你調整後重新保存",
   "SysConf": "系統選項",
   "ViewInList": "列表頁查看",
-  "FormAdvRequiredTip": "本選項僅做前端驗證",
   "UpdateRule": "更新規則",
   "UpdateMode": "更新方式",
   "UpdateByField": "字段值",
@@ -1340,6 +1339,7 @@
   "FuncUnit": "單位",
   "FuncHelp": "如何使用函數",
   "ShareWithUpdate": "允許編輯 (默認僅共享讀取)",
+  "OnlyFormEffectiveTip": "本選項僅針對錶單有效",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

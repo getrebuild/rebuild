@@ -148,7 +148,10 @@ class ContentFieldWriteback extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
-                <span className="custom-control-label">{$L('SetTargetFieldReadonly')}</span>
+                <span className="custom-control-label">
+                  {$L('SetTargetFieldReadonly')}
+                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('OnlyFormEffectiveTip')} />
+                </span>
               </label>
             </div>
           </div>
@@ -440,5 +443,6 @@ renderContentComp = function (props) {
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
+    $('#react-content [data-toggle="tooltip"]').tooltip()
   })
 }
