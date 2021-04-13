@@ -31,7 +31,7 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} />, null, function () {
         advFilter = this
       })
     }

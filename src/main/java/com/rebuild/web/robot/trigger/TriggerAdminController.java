@@ -38,7 +38,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/robot/")
-public class RobotTriggerController extends BaseController {
+public class TriggerAdminController extends BaseController {
 
     @GetMapping("triggers")
     public ModelAndView pageList() {

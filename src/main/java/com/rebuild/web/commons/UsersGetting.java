@@ -25,10 +25,13 @@ import com.rebuild.web.EntityParam;
 import com.rebuild.web.InvalidParameterException;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 用户/部门/角色/团队 获取
@@ -93,26 +96,26 @@ public class UsersGetting extends BaseController {
      * @param request
      * @see UserHelper#parseUsers(JSONArray, ID)
      */
-    @RequestMapping("user-selector")
+    @PostMapping("user-selector")
     public JSON parseUserSelectorRaw(HttpServletRequest request, @EntityParam(required = false) Entity useEntity) {
-        JSON users = ServletUtils.getRequestJson(request);
+        final JSON users = ServletUtils.getRequestJson(request);
 
-        JSONArray formatted = new JSONArray();
-        String[] keys = new String[] {"id", "text"};
-
+        List<String[]> shows = new ArrayList<>();
         for (Object item : (JSONArray) users) {
             String idOrField = (String) item;
             if (ID.isId(idOrField)) {
                 String name = UserHelper.getName(ID.valueOf(idOrField));
                 if (name != null) {
-                    formatted.add(JSONUtils.toJSONObject(keys, new String[]{idOrField, name}));
+                    shows.add(new String[] { idOrField, name });
                 }
 
             } else if (useEntity != null && MetadataHelper.getLastJoinField(useEntity, idOrField) != null) {
-                String fullLabel = EasyMetaFactory.getLabel(useEntity, idOrField);
-                formatted.add(JSONUtils.toJSONObject(keys, new String[]{idOrField, fullLabel}));
+                String fieldLabel = EasyMetaFactory.getLabel(useEntity, idOrField);
+                shows.add(new String[] { idOrField, fieldLabel });
             }
         }
-        return formatted;
+
+        return JSONUtils.toJSONObjectArray(
+                new String[] {  "id", "text" }, shows.toArray(new String[0][]));
     }
 }

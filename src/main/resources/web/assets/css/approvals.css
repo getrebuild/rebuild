@@ -58,6 +58,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 #config-side .header > input:focus {
   background-color: #fff;
+  padding: 0 8px;
 }
 
 #config-side .alert.alert-warning {
@@ -137,8 +138,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .rbflow-design .add-node-btn-box {
   width: 240px;
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
   display: inline-flex;
   -ms-flex-negative: 0;
   flex-shrink: 0;
@@ -388,8 +387,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .node-wrap-box {
-  display: -webkit-inline-box;
-  display: -ms-inline-flexbox;
   display: inline-flex;
   -webkit-box-orient: vertical;
   -webkit-box-direction: normal;
@@ -456,8 +453,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .auto-judge .content {
-  padding: 0;
-  padding-top: 12px;
+  padding: 12px 0 0;
 }
 
 .node-wrap-box .content .text,
@@ -607,8 +603,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .add-node .col-4 > a > p {
-  margin: 0;
-  margin-top: 9px;
+  margin: 9px 0 0;
 }
 
 .add-node .col-4 > a.approver > div {
@@ -687,12 +682,18 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .fields-table tr {
   background-color: #fafafa;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
 }
 
 .fields-table td {
-  border-color: #eee;
+  border: 0 none;
 }
 
-.fields-table tbody {
-  border-bottom: 1px solid #eee;
+.fields-table td:first-child {
+  cursor: move;
+}
+
+.fields-table td .close {
+  font-size: 1.2rem;
 }
