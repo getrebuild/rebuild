@@ -18,7 +18,10 @@ class FormulaCalc extends RbAlert {
     return (
       <div className="formula-calc">
         <div className="form-control-plaintext formula mb-2" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)}></div>
-        <input className="form-control-plaintext formula mb-2 bosskey-show" ref={(c) => (this._$formulaInput = c)} />
+        <div className="bosskey-show mb-2">
+          <textarea className="form-control form-control-sm row3x mb-1" ref={(c) => (this._$formulaInput = c)} />
+          <a href="https://www.yuque.com/boyan-avfmj/aviatorscript" target="_blank" className="link">EXPRESSION ENGINE : AVIATORSCRIPT</a>
+        </div>
         <div className="row unselect">
           <div className="col-6">
             <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
