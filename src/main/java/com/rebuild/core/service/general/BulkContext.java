@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.ArrayUtils;
 
 import java.util.Collections;
@@ -44,7 +45,7 @@ public class BulkContext {
     // 扩展数据
     // customData = [特定数据] 默认为高级查询表达式，如果为查询条件，其必须含有查询项，否则将抛出异常
     // shareRights = 共享用，指定权限值
-    private Map<String, Object> extraParams;
+    private Map<String, Object> extraParams = new HashMap<>();
 
     final private Entity mainEntity;
 
@@ -64,7 +65,7 @@ public class BulkContext {
         this.records = records;
         this.targetRecord = recordMain;
         this.cascades = cascades;
-        this.extraParams = extraParams;
+        if (extraParams != null) this.extraParams.putAll(extraParams);
         this.mainEntity = detecteMainEntity();
     }
 
@@ -130,12 +131,10 @@ public class BulkContext {
     }
 
     public Map<String, Object> getExtraParams() {
-        if (extraParams == null) extraParams = new HashMap<>();
         return extraParams;
     }
 
     public void addExtraParam(String name, Object value) {
-        getExtraParams();
         extraParams.put(name, value);
     }
 
