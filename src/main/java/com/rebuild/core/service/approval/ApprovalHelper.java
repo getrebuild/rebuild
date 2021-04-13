@@ -26,6 +26,11 @@ import org.springframework.util.Assert;
 @Slf4j
 public class ApprovalHelper {
 
+    // 审批-发起人
+    public static final String APPROVAL_SUBMITOR = "$SUBMITOR$.";
+    // 审批-审批人
+    public static final String APPROVAL_APPROVER = "$APPROVER$.";
+
     /**
      * 获取提交人
      *
@@ -98,20 +103,20 @@ public class ApprovalHelper {
     }
 
     /**
-     * 用户虚拟字段
+     * 验证虚拟字段
      *
      * @param userField
      * @return
      */
-    public static Field validVirtualField(String userField) {
-        if (userField.startsWith(FlowNode.USER_SPEC_SUBMITOR)
-                || userField.startsWith(FlowNode.USER_SPEC_APPROVER)) {
-            userField = userField.split("\\.")[1];
+    public static Field checkVirtualField(String userField) {
+        if (userField.startsWith(APPROVAL_SUBMITOR)
+                || userField.startsWith(APPROVAL_APPROVER)) {
+            String realField = userField.split("\\.")[1];
             Entity userEntity = MetadataHelper.getEntity(EntityHelper.User);
-            if (userEntity.containsField(userField)) {
-                return userEntity.getField(userField);
+            if (userEntity.containsField(realField)) {
+                return userEntity.getField(realField);
             } else {
-                log.warn("No virtual found : {}", userField);
+                log.warn("No field of virtual found : {}", userField);
             }
         }
         return null;

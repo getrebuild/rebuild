@@ -24,6 +24,7 @@ import java.util.*;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/07/06
  */
+@SuppressWarnings("unused")
 public class FlowNode {
 
     // 特殊节点
@@ -47,11 +48,6 @@ public class FlowNode {
     public static final String USER_SELF = "SELF";
     public static final String USER_SPEC = "SPEC";
     public static final String USER_OWNS = "OWNS";
-
-    // 发起人
-    public static final String USER_SPEC_SUBMITOR = "$SUBMITOR$.";
-    // 审批人
-    public static final String USER_SPEC_APPROVER = "$APPROVER$.";
 
     // 多人联合审批类型
 
@@ -157,12 +153,13 @@ public class FlowNode {
         List<String> defsList = new ArrayList<>();
         for (Object o : userDefs) {
             String def = (String) o;
-            if (def.startsWith(USER_SPEC_SUBMITOR) || def.startsWith(USER_SPEC_APPROVER)) {
+            if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)
+                    || def.startsWith(ApprovalHelper.APPROVAL_APPROVER)) {
                 ApprovalState state = ApprovalHelper.getApprovalState(record);
                 boolean isSubmitted = state == ApprovalState.PROCESSING || state == ApprovalState.APPROVED;
 
                 ID whichUser = operator;
-                if (def.startsWith(USER_SPEC_SUBMITOR)) {
+                if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)) {
                     if (isSubmitted) {
                         whichUser = ApprovalHelper.getSubmitter(record);
                     } else {
@@ -177,7 +174,7 @@ public class FlowNode {
                 }
 
                 if (whichUser != null) {
-                    Field userField = ApprovalHelper.validVirtualField(def);
+                    Field userField = ApprovalHelper.checkVirtualField(def);
                     if (userField != null) {
                         Object[] refUser = Application.getQueryFactory().uniqueNoFilter(whichUser, userField.getName());
                         if (refUser != null && refUser[0] != null) users.add((ID) refUser[0]);

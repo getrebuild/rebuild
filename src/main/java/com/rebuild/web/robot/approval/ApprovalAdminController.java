@@ -23,7 +23,6 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalHelper;
-import com.rebuild.core.service.approval.FlowNode;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
@@ -129,7 +128,7 @@ public class ApprovalAdminController extends BaseController {
             if (!MetadataHelper.isCommonsField(field)
                     && field.getReferenceEntity().getEntityCode() == EntityHelper.User) {
                 fields.add(new String[] {
-                        FlowNode.USER_SPEC_SUBMITOR + field.getName(), textSubmitor + EasyMetaFactory.getLabel(field)} );
+                        ApprovalHelper.APPROVAL_SUBMITOR + field.getName(), textSubmitor + EasyMetaFactory.getLabel(field)} );
             }
         }
         // 上一审批人
@@ -137,7 +136,7 @@ public class ApprovalAdminController extends BaseController {
             if (!MetadataHelper.isCommonsField(field)
                     && field.getReferenceEntity().getEntityCode() == EntityHelper.User) {
                 fields.add(new String[] {
-                        FlowNode.USER_SPEC_APPROVER + field.getName(), textApprover + EasyMetaFactory.getLabel(field)} );
+                        ApprovalHelper.APPROVAL_APPROVER + field.getName(), textApprover + EasyMetaFactory.getLabel(field)} );
             }
         }
 
@@ -171,12 +170,12 @@ public class ApprovalAdminController extends BaseController {
                     shows.add(new String[] { idOrField, name });
                 }
 
-            } else if (idOrField.startsWith(FlowNode.USER_SPEC_SUBMITOR)
-                    || idOrField.startsWith(FlowNode.USER_SPEC_APPROVER)) {
-                Field userField = ApprovalHelper.validVirtualField(idOrField);
+            } else if (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)
+                    || idOrField.startsWith(ApprovalHelper.APPROVAL_APPROVER)) {
+                Field userField = ApprovalHelper.checkVirtualField(idOrField);
                 if (userField != null) {
                     String fieldText = EasyMetaFactory.getLabel(userField);
-                    fieldText = (idOrField.startsWith(FlowNode.USER_SPEC_SUBMITOR) ? textSubmitor : textApprover) + fieldText;
+                    fieldText = (idOrField.startsWith(ApprovalHelper.APPROVAL_SUBMITOR) ? textSubmitor : textApprover) + fieldText;
                     shows.add(new String[] { idOrField, fieldText });
                 }
 
