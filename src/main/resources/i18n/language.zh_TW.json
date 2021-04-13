@@ -1334,6 +1334,9 @@
   "UpdateMode": "更新方式",
   "UpdateByField": "字段值",
   "UpdateByValue": "固定值",
+  "Func": "函數",
+  "FuncUnit": "單位",
+  "FuncHelp": "如何使用函數",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

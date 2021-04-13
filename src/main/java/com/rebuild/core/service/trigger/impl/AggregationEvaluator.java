@@ -9,13 +9,9 @@ package com.rebuild.core.service.trigger.impl;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
-import com.googlecode.aviator.AviatorEvaluator;
-import com.googlecode.aviator.AviatorEvaluatorInstance;
-import com.googlecode.aviator.Options;
-import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.rebuild.core.Application;
-import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -25,39 +21,13 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 /**
- * 归集计算
+ * 聚合计算
  *
  * @author devezhao
  * @since 2020/1/16
  */
 @Slf4j
 public class AggregationEvaluator {
-
-    private static final AviatorEvaluatorInstance AVIATOR = AviatorEvaluator.newInstance();
-    static {
-        // 强制使用 BigDecimal/BigInteger 运算
-        AVIATOR.setOption(Options.ALWAYS_PARSE_FLOATING_POINT_NUMBER_INTO_DECIMAL, true);
-    }
-
-    /**
-     * 算数计算
-     *
-     * @param formual
-     * @return
-     */
-    protected static Object calc(String formual) {
-        try {
-            return AVIATOR.execute(formual);
-        } catch (ArithmeticException ex) {
-            log.error("Bad formula : {}", formual, ex);
-            throw new RebuildException("FORMULA ERROR : " + ex.getLocalizedMessage().toUpperCase());
-        } catch (ExpressionSyntaxErrorException ex) {
-            log.error("Bad formula : {}", formual, ex);
-            return null;
-        }
-    }
-
-    // --
 
     final private Entity sourceEntity;
     final private JSONObject item;
@@ -89,7 +59,7 @@ public class AggregationEvaluator {
 
         String sourceField = item.getString("sourceField");
         if (MetadataHelper.getLastJoinField(sourceEntity, sourceField) == null) {
-            return null;
+            throw new MissingMetaExcetion(sourceField, sourceEntity.getName());
         }
 
         String funcAndField = String.format("%s(%s)", calcMode, sourceField);
@@ -110,12 +80,6 @@ public class AggregationEvaluator {
         return o == null || o[0] == null ? 0 : o[0];
     }
 
-    /**
-     * 公式
-     *
-     * @param triggerRecord
-     * @return
-     */
     private Object evalFormula(ID triggerRecord) {
         String formula = item.getString("sourceFormula");
         Matcher m = FieldAggregation.PATT_FIELD.matcher(formula);
@@ -123,9 +87,10 @@ public class AggregationEvaluator {
         final List<String[]> fields = new ArrayList<>();
         while (m.find()) {
             String[] fieldAndFunc = m.group(1).split("\\$\\$\\$\\$");
-            if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) != null) {
-                fields.add(fieldAndFunc);
+            if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) == null) {
+                throw new MissingMetaExcetion(fieldAndFunc[0], sourceEntity.getName());
             }
+            fields.add(fieldAndFunc);
         }
         if (fields.isEmpty()) return null;
 
@@ -152,16 +117,16 @@ public class AggregationEvaluator {
             return null;
         }
 
-        String newFormual = formula.toUpperCase()
+        String clearFormual = formula.toUpperCase()
                 .replace("×", "*")
                 .replace("÷", "/");
         for (int i = 0; i < fields.size(); i++) {
             String[] field = fields.get(i);
             Object v = o[i] == null ? "0" : o[i];
             String replace = "{" + StringUtils.join(field, "$$$$") + "}";
-            newFormual = newFormual.replace(replace.toUpperCase(), v.toString());
+            clearFormual = clearFormual.replace(replace.toUpperCase(), v.toString());
         }
 
-        return calc(newFormual);
+        return EvaluatorUtils.eval(clearFormual);
     }
 }
