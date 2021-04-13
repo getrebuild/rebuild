@@ -1339,7 +1339,7 @@
   "Func": "函數",
   "FuncUnit": "單位",
   "FuncHelp": "如何使用函數",
-  "ShareWithUpdate": "允許編輯 (不選中則為只讀)",
+  "ShareWithUpdate": "允許編輯 (默認僅共享讀取)",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

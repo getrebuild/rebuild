@@ -222,18 +222,20 @@ public class GeneralOperatingController extends BaseController {
 
         String[] cascades = parseCascades(request);
 
-        int rights = BizzPermission.READ.getMask();
-        if (getBoolParameter(request, "update")) rights += BizzPermission.UPDATE.getMask();
+        int shareRights = BizzPermission.READ.getMask();
+        if (getBoolParameter(request, "withUpdate")) {
+            shareRights += BizzPermission.UPDATE.getMask();
+        }
 
         int affected = 0;
         try {
             for (ID to : toUsers) {
                 // 一条记录
                 if (records.length == 1) {
-                    affected += ies.share(firstId, to, cascades, rights);
+                    affected += ies.share(firstId, to, cascades, shareRights);
                 } else {
                     BulkContext context = new BulkContext(user, BizzPermission.SHARE, to, cascades, records);
-                    context.addExtraParam("shareRights", rights);
+                    context.addExtraParam("shareRights", shareRights);
                     affected += ies.bulk(context);
                 }
             }

@@ -1339,7 +1339,7 @@
   "Func": "函数",
   "FuncUnit": "单位",
   "FuncHelp": "如何使用函数",
-  "ShareWithUpdate": "允许编辑 (不选中则为只读)",
+  "ShareWithUpdate": "允许编辑 (默认仅共享读取)",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

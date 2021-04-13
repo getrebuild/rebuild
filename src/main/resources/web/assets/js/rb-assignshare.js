@@ -110,7 +110,7 @@ class DlgAssign extends RbModalHandler {
     const withUpdate = $(this._withUpdate).prop('checked')
 
     const $btn = $(this._btns).find('.btn').button('loading')
-    $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}&update=${withUpdate || ''}`, (res) => {
+    $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}&withUpdate=${withUpdate || ''}`, (res) => {
       if (res.error_code === 0) {
         this.setState({ cascadesShow: false })
         this._UserSelector.clearSelection()

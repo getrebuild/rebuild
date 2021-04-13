@@ -37,6 +37,15 @@ class ContentAutoShare extends ActionContentSpec {
               </div>
             </div>
           </div>
+          <div className="form-group row pb-0">
+            <label className="col-12 col-sm-3 col-form-label text-lg-right"></label>
+            <div className="col-12 col-lg-8">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />
+                <span className="custom-control-label">{$L('ShareWithUpdate')}</span>
+              </label>
+            </div>
+          </div>
         </form>
       </div>
     )
@@ -70,12 +79,17 @@ class ContentAutoShare extends ActionContentSpec {
           .trigger('change')
       })
     })
+
+    if (content.withUpdate) {
+      $(this._withUpdate).attr('checked', true)
+    }
   }
 
   buildContent() {
     const _data = {
       shareTo: this._shareTo.getSelected(),
       cascades: this.__select2.val().join(','),
+      withUpdate: $(this._withUpdate).prop('checked'),
     }
     if (!_data.shareTo || _data.shareTo.length === 0) {
       RbHighbar.create($L('PlsSelectSome,ShareToWho'))

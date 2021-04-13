@@ -1339,7 +1339,7 @@
   "Func": "Func",
   "FuncUnit": "Unit",
   "FuncHelp": "How to use functions",
-  "ShareWithUpdate": "Allow editing (Read-only if unchecked)",
+  "ShareWithUpdate": "Allow edit (Only shared read by default)",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",
