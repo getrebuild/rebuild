@@ -396,6 +396,7 @@
   "FilterSFU": "本人",
   "FilterSFB": "本部門",
   "FilterSFD": "本部門及子部門",
+  "FilterSFT": "所在團隊",
   "FilterYTA": "昨天",
   "FilterTDA": "今天",
   "FilterTTA": "明天",
@@ -430,7 +431,6 @@
   "SortUploadAsc": "最早上傳",
   "UserInfo": "個人信息",
   "SecureSet": "安全設置",
-  "JoinedTeam": "已加入團隊",
   "ModifyPasswdTips": "建議 90 天更改一次密碼",
   "SomeConf": "{0}配寘",
   "ConfSome": "配寘{0}",
@@ -1335,6 +1335,7 @@
   "UpdateByField": "字段值",
   "UpdateByValue": "固定值",
   "NoAnyApprovers": "當前審批流程無可用審批人",
+  "JoinedTeams": "所在團隊",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

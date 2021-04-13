@@ -56,6 +56,7 @@ public class ParseHelper {
     public static final String SFU = "SFU";
     public static final String SFB = "SFB";
     public static final String SFD = "SFD";
+    public static final String SFT = "SFT";  // 所在团队
     public static final String YTA = "YTA";  // 昨天
     public static final String TDA = "TDA";  // 今天
     public static final String TTA = "TTA";  // 明天
@@ -85,7 +86,7 @@ public class ParseHelper {
      * @param token
      * @return
      */
-    protected static String convetOperator(String token) {
+    protected static String convetOperation(String token) {
         if (EQ.equalsIgnoreCase(token)) {
             return "=";
         } else if (NEQ.equalsIgnoreCase(token)) {
@@ -134,7 +135,7 @@ public class ParseHelper {
             return "=";
         } else if (SFB.equalsIgnoreCase(token)) {
             return "=";
-        } else if (SFD.equalsIgnoreCase(token)) {
+        } else if (SFD.equalsIgnoreCase(token) || SFT.equalsIgnoreCase(token)) {
             return "in";
         } else if (YTA.equalsIgnoreCase(token)) {
             return "=";
@@ -153,7 +154,7 @@ public class ParseHelper {
             return ">=";
         }
 
-        throw new UnsupportedOperationException("Unsupported token of operator : " + token);
+        throw new UnsupportedOperationException("Unsupported token of operation : " + token);
     }
 
     // --
