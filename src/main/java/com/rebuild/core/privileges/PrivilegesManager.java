@@ -246,11 +246,24 @@ public class PrivilegesManager {
      * 是否对指定记录有指定权限
      *
      * @param user
-     * @param target 目标记录
-     * @param action 权限动作
+     * @param target
+     * @param action
      * @return
      */
     public boolean allow(ID user, ID target, Permission action) {
+        return allow(user, target, action, false);
+    }
+
+    /**
+     * 是否对指定记录有指定权限
+     *
+     * @param user
+     * @param target 目标记录
+     * @param action 权限动作
+     * @param ignoreShareRights 是否忽略通过共享得到的权限
+     * @return
+     */
+    public boolean allow(ID user, ID target, Permission action, boolean ignoreShareRights) {
         // PlainEntity: CRUD
         if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(target.getEntityCode()).isPlainEntity()) {
             return true;
@@ -307,7 +320,7 @@ public class PrivilegesManager {
         if (BizzDepthEntry.PRIVATE.equals(depth)) {
             allowed = user.equals(targetUserId);
             if (!allowed) {
-                return allowViaShare(user, target, action);
+                return !ignoreShareRights && allowViaShare(user, target, action);
             }
             return true;
         }
@@ -319,7 +332,7 @@ public class PrivilegesManager {
         if (BizzDepthEntry.LOCAL.equals(depth)) {
             allowed = accessUserDept.equals(targetUser.getOwningDept());
             if (!allowed) {
-                return allowViaShare(user, target, action);
+                return !ignoreShareRights && allowViaShare(user, target, action);
             }
             return true;
 
@@ -330,7 +343,7 @@ public class PrivilegesManager {
 
             allowed = accessUserDept.isChildren(targetUser.getOwningDept(), true);
             if (!allowed) {
-                return allowViaShare(user, target, action);
+                return !ignoreShareRights && allowViaShare(user, target, action);
             }
             return true;
         }
@@ -347,10 +360,9 @@ public class PrivilegesManager {
      */
     public boolean allowViaShare(ID user, ID target, Permission action) {
 
-        // TODO 目前只共享了读取权限
         // TODO 性能优化-使用缓存
 
-        if (action != BizzPermission.READ) {
+        if (!(action == BizzPermission.READ || action == BizzPermission.UPDATE)) {
             return false;
         }
 
@@ -371,8 +383,8 @@ public class PrivilegesManager {
                 .setParameter(2, target)
                 .setParameter(3, user)
                 .unique();
-        int rightsVal = rights == null ? 0 : (int) rights[0];
-        return (rightsVal & BizzPermission.READ.getMask()) != 0;
+        int rightsMask = rights == null ? 0 : (int) rights[0];
+        return (rightsMask & action.getMask()) != 0;
     }
 
     /**

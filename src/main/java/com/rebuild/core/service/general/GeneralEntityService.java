@@ -36,6 +36,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
@@ -53,12 +54,10 @@ import java.util.*;
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */
+@Slf4j
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
 
-    /**
-     * @param aPMFactory
-     */
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
 
@@ -107,7 +106,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         if (RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0) {
             recycleBin = new RecycleStore(currentUser);
         } else {
-            LOG.warn("RecycleBin inactivated : " + record + " by " + currentUser);
+            log.warn("RecycleBin inactivated : " + record + " by " + currentUser);
         }
 
         if (recycleBin != null) {
@@ -118,8 +117,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> recordsOfCascaded = getCascadedRecords(record, cascades, BizzPermission.DELETE);
         for (Map.Entry<String, Set<ID>> e : recordsOfCascaded.entrySet()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Cascade delete - " + e.getKey() + " > " + e.getValue());
+            if (log.isDebugEnabled()) {
+                log.debug("Cascade delete - " + e.getKey() + " > " + e.getValue());
             }
 
             for (ID id : e.getValue()) {
@@ -132,7 +131,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     try {
                         deleted = this.deleteInternal(id);
                     } catch (DataSpecificationException ex) {
-                        LOG.warn("Cannot delete : " + id + " Ex : " + ex);
+                        log.warn("Cannot delete : " + id + " Ex : " + ex);
                     } finally {
                         if (deleted > 0) {
                             affected++;
@@ -141,7 +140,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                         }
                     }
                 } else {
-                    LOG.warn("No have privileges to DELETE : " + currentUser + " > " + id);
+                    log.warn("No have privileges to DELETE : " + currentUser + " > " + id);
                 }
             }
         }
@@ -179,8 +178,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         int affected = 0;
         if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
             // No need to change
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("记录所属人未变化，忽略 : " + record);
+            if (log.isDebugEnabled()) {
+                log.debug("The record owner has not changed, ignore : {}", record);
             }
         } else {
             assignBefore = countObservers() > 0 ? record(assignAfter) : null;
@@ -192,8 +191,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.ASSIGN);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("级联分派 - " + e.getKey() + " > " + e.getValue());
+            if (log.isDebugEnabled()) {
+                log.debug("Cascading assign - {} > {}", e.getKey(), e.getValue());
             }
             for (ID casid : e.getValue()) {
                 affected += assign(casid, to, null);
@@ -208,19 +207,27 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     }
 
     @Override
-    public int share(ID record, ID to, String[] cascades) {
+    public int share(ID record, ID to, String[] cascades, int rights) {
         final ID currentUser = UserContextHolder.getUser();
         final String entityName = MetadataHelper.getEntityName(record);
+
+        // 如用户无更新权限，则降级为只读共享
+        if ((rights & BizzPermission.UPDATE.getMask()) != 0) {
+            if (!Application.getPrivilegesManager().allow(currentUser, record, BizzPermission.UPDATE, true)
+                    || !Application.getPrivilegesManager().allowUpdate(to, record.getEntityCode())) {
+                rights = BizzPermission.READ.getMask();
+                log.warn("Downgrade share rights : {} > {}", record, rights);
+            }
+        }
 
         final Record sharedAfter = EntityHelper.forNew(EntityHelper.ShareAccess, currentUser);
         sharedAfter.setID("recordId", record);
         sharedAfter.setID("shareTo", to);
         sharedAfter.setString("belongEntity", entityName);
-        // TODO 目前仅共享读取权限
-        sharedAfter.setInt("rights", BizzPermission.READ.getMask());
+        sharedAfter.setInt("rights", rights);
 
         Object[] hasShared = ((BaseService) delegateService).getPersistManagerFactory().createQuery(
-                "select accessId from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
+                "select accessId,rights from ShareAccess where belongEntity = ? and recordId = ? and shareTo = ?")
                 .setParameter(1, entityName)
                 .setParameter(2, record)
                 .setParameter(3, to)
@@ -229,14 +236,20 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         int affected = 0;
         boolean shareChange = false;
         if (hasShared != null) {
-            // No need to change
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("记录已共享过，忽略 : " + record);
+            if ((int) hasShared[1] != rights) {
+                Record updateRights = EntityHelper.forUpdate((ID) hasShared[0], currentUser);
+                updateRights.setInt("rights", rights);
+                delegateService.update(updateRights);
+                affected = 1;
+                shareChange = true;
+                sharedAfter.setID("accessId", (ID) hasShared[0]);
+
+            } else {
+                log.debug("The record has been shared and has the same rights, ignore : {}", record);
             }
+
         } else if (to.equals(Application.getRecordOwningCache().getOwningUser(record))) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("共享至与记录所属为同一用户，忽略 : " + record);
-            }
+            log.debug("Share to the same user as the record, ignore : {}", record);
         } else {
             delegateService.create(sharedAfter);
             affected = 1;
@@ -245,11 +258,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Map<String, Set<ID>> cass = getCascadedRecords(record, cascades, BizzPermission.SHARE);
         for (Map.Entry<String, Set<ID>> e : cass.entrySet()) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("级联共享 - " + e.getKey() + " > " + e.getValue());
-            }
+            log.debug("Cascade share - {} > {}", e.getKey(), e.getValue());
+
             for (ID casid : e.getValue()) {
-                affected += share(casid, to, null);
+                affected += share(casid, to, null, rights);
             }
         }
 
@@ -410,7 +422,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                     }
 
                 } catch (NoRecordFoundException ignored) {
-                    LOG.warn("No record found for check : " + recordId);
+                    log.warn("No record found for check : " + recordId);
                     return false;
                 }
 

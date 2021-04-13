@@ -67,7 +67,7 @@ class DlgRuleEdit extends RbFormHandler {
   render() {
     return (
       <RbModal title={$L('FillbackRule')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
-        <div className="form">
+        <div className="form" ref={(c) => (this._form = c)}>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('SourceField')}</label>
             <div className="col-sm-7">
@@ -123,7 +123,10 @@ class DlgRuleEdit extends RbFormHandler {
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.readonlyTargetField === true} data-id="readonlyTargetField" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('SetTargetFieldReadonly')}</span>
+                <span className="custom-control-label">
+                  {$L('SetTargetFieldReadonly')}
+                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('OnlyFormEffectiveTip')} />
+                </span>
               </label>
             </div>
           </div>
@@ -179,6 +182,8 @@ class DlgRuleEdit extends RbFormHandler {
         })
       })
     })
+
+    $(this._form).find('[data-toggle="tooltip"]').tooltip()
   }
 
   _renderTargetFields(s) {

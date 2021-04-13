@@ -56,10 +56,23 @@ public interface EntityService extends ServiceSpec {
      *
      * @param record
      * @param to
-     * @param cascades 需要级联分派的实体
+     * @param cascades
      * @return
      */
-    int share(ID record, ID to, String[] cascades);
+    default int share(ID record, ID to, String[] cascades) {
+        return share(record, to, cascades, BizzPermission.READ.getMask());
+    }
+
+    /**
+     * 共享
+     *
+     * @param record
+     * @param to
+     * @param cascades 需要级联分派的实体
+     * @param rights 共享权限
+     * @return
+     */
+    int share(ID record, ID to, String[] cascades, int rights);
 
     /**
      * 取消共享

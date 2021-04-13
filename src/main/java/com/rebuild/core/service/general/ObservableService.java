@@ -19,8 +19,7 @@ import com.rebuild.core.service.BaseServiceImpl;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 import java.util.Iterator;
@@ -34,9 +33,8 @@ import java.util.Observer;
  * @see OperatingObserver
  * @since 12/28/2018
  */
+@Slf4j
 public abstract class ObservableService extends Observable implements ServiceSpec {
-
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     /**
      * 删除前触发的动作
@@ -59,7 +57,7 @@ public abstract class ObservableService extends Observable implements ServiceSpe
     @Override
     public synchronized void addObserver(Observer o) {
         super.addObserver(o);
-        LOG.info("Add observer : {}", o);
+        log.info("Add observer : {}", o);
     }
 
     @Override
