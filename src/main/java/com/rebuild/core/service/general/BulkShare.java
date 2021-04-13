@@ -36,11 +36,16 @@ public class BulkShare extends BulkOperator {
         final ID[] records = prepareRecords();
         this.setTotal(records.length);
 
+        int shareRights = BizzPermission.READ.getMask();
+        if (context.getExtraParams().containsKey("shareRights")) {
+            shareRights = (int) context.getExtraParams().get("shareRights");
+        }
+
         ID firstShared = null;
         NotificationOnce.begin();
         for (ID id : records) {
             if (Application.getPrivilegesManager().allowShare(context.getOpUser(), id)) {
-                int a = ges.share(id, context.getToUser(), context.getCascades());
+                int a = ges.share(id, context.getToUser(), context.getCascades(), shareRights);
                 if (a > 0) {
                     this.addSucceeded();
                     if (firstShared == null) {

@@ -15,6 +15,9 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.MetadataHelper;
 import org.apache.commons.lang.ArrayUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 批量操作上下文
  *
@@ -37,27 +40,26 @@ public class BulkContext {
     // [级联操作实体]
     private String[] cascades;
 
-    // [特定数据] 默认为高级查询表达式
-    // 如果为查询条件，其必须含有查询项，否则将抛出异常
-    private JSONObject customData;
+    // 扩展数据
+    // customData = [特定数据] 默认为高级查询表达式，如果为查询条件，其必须含有查询项，否则将抛出异常
+    // shareRights = 共享用，指定权限值
+    private Map<String, Object> extraParams = new HashMap<>();
 
     final private Entity mainEntity;
 
     /**
-     * @param opUser
-     * @param action
-     * @param toUser
-     * @param cascades
-     * @param records
-     * @param customData
-     * @param recordMain
+     * @param opUser 操作用户
+     * @param action 动作
+     * @param toUser 目标用户
+     * @param cascades 级联实体
+     * @param records 操作记录
+     * @param recordMain 主记录（与 `records` 二选一）
      */
-    private BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records, JSONObject customData, ID recordMain) {
+    BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records, ID recordMain) {
         this.opUser = opUser;
         this.action = action;
         this.toUser = toUser;
         this.records = records;
-        this.customData = customData;
         this.targetRecord = recordMain;
         this.cascades = cascades;
         this.mainEntity = detecteMainEntity();
@@ -73,7 +75,7 @@ public class BulkContext {
      * @param records
      */
     public BulkContext(ID opUser, Permission action, ID toUser, String[] cascades, ID[] records) {
-        this(opUser, action, toUser, cascades, records, null, null);
+        this(opUser, action, toUser, cascades, records, null);
     }
 
     /**
@@ -85,16 +87,17 @@ public class BulkContext {
      * @param targetRecord
      */
     public BulkContext(ID opUser, Permission action, ID[] records, ID targetRecord) {
-        this(opUser, action, null, null, records, null, targetRecord);
+        this(opUser, action, null, null, records, targetRecord);
     }
 
     /**
+     * 一般批量
+     *
      * @param opUser
      * @param action
-     * @param customData
      */
-    public BulkContext(ID opUser, Permission action, JSONObject customData) {
-        this(opUser, action, null, null, null, customData, null);
+    public BulkContext(ID opUser, Permission action) {
+        this(opUser, action, null, null, null, null);
     }
 
     public ID getOpUser() {
@@ -117,12 +120,16 @@ public class BulkContext {
         return records;
     }
 
-    public JSONObject getCustomData() {
-        return customData;
-    }
-
     public ID getTargetRecord() {
         return targetRecord;
+    }
+
+    public Map<String, Object> getExtraParams() {
+        return extraParams;
+    }
+
+    public void addExtraParam(String name, Object value) {
+        extraParams.put(name, value);
     }
 
     public Entity getMainEntity() {
@@ -134,7 +141,8 @@ public class BulkContext {
             return MetadataHelper.getEntity(targetRecord.getEntityCode());
         } else if (records != null && records.length > 0) {
             return MetadataHelper.getEntity(records[0].getEntityCode());
-        } else if (customData != null) {
+        } else if (extraParams.containsKey("customData")) {
+            JSONObject customData = (JSONObject) extraParams.get("extraParams");
             return MetadataHelper.getEntity(customData.getString("entity"));
         }
         throw new RebuildException("No operation record");

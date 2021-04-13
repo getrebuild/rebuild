@@ -48,7 +48,8 @@ public class BulkBacthUpdateTest extends TestSupport {
         updateContents.add(useSet);
         customData.put("updateContents", updateContents);
 
-        BulkContext bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE, customData);
+        BulkContext bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE);
+        bulkContext.addExtraParam("customData", customData);
         BulkBacthUpdate bacthUpdate = new BulkBacthUpdate(bulkContext, Application.getGeneralEntityService());
         TaskExecutors.run(bacthUpdate);
     }
@@ -58,13 +59,15 @@ public class BulkBacthUpdateTest extends TestSupport {
         JSONObject customData = createCustomData();
 
         // SELECTED
-        BulkContext bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE, customData);
+        BulkContext bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE);
+        bulkContext.addExtraParam("customData", customData);
         ID[] ids = new BulkBacthUpdate(bulkContext, null).prepareRecords();
         System.out.println(Arrays.toString(ids));
 
         // PAGED
         customData.put("_dataRange", BatchOperatorQuery.DR_PAGED);
-        bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE, customData);
+        bulkContext = new BulkContext(SIMPLE_USER, BizzPermission.UPDATE);
+        bulkContext.addExtraParam("customData", customData);
         ids = new BulkBacthUpdate(bulkContext, null).prepareRecords();
         System.out.println(Arrays.toString(ids));
     }

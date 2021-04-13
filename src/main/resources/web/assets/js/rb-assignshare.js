@@ -54,6 +54,17 @@ class DlgAssign extends RbModalHandler {
               </div>
             </div>
           )}
+          {this._Props[0] === 'share' && (
+            <div className="form-group row pt-1">
+              <label className="col-sm-3 col-form-label text-sm-right"></label>
+              <div className="col-sm-7">
+                <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                  <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />
+                  <span className="custom-control-label">{$L('ShareWithUpdate')}</span>
+                </label>
+              </div>
+            </div>
+          )}
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
@@ -93,31 +104,30 @@ class DlgAssign extends RbModalHandler {
 
   post() {
     let users = this._UserSelector.val()
-    if (!users || users.length === 0) {
-      RbHighbar.create($L('PlsSelectSomeToWho,' + this._Props[1]))
-      return
-    }
+    if (!users || users.length === 0) return RbHighbar.create($L('PlsSelectSomeToWho,' + this._Props[1]))
     if ($.type(users) === 'array') users = users.join(',')
     const cass = this.state.cascadesShow === true ? $(this._cascades).val().join(',') : ''
+    const withUpdate = $(this._withUpdate).prop('checked')
 
-    const $btns = $(this._btns).find('.btn').button('loading')
-    $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}`, (res) => {
+    const $btn = $(this._btns).find('.btn').button('loading')
+    $.post(`/app/entity/record-${this._Props[0]}?id=${this.state.ids.join(',')}&cascades=${cass}&to=${users}&update=${withUpdate || ''}`, (res) => {
       if (res.error_code === 0) {
         this.setState({ cascadesShow: false })
         this._UserSelector.clearSelection()
         $(this._cascades).val(null).trigger('change')
+        $(this._withUpdate).prop('checked', false)
 
         this.hide()
         RbHighbar.success($L('SomeSuccess,' + this._Props[1]))
 
         setTimeout(() => {
           if (window.RbListPage) RbListPage._RbList.reload()
-          if (window.RbViewPage) location.reload()
-        }, 500)
+          if (window.RbViewPage) window.RbViewPage.reload()
+        }, 200)
       } else {
         RbHighbar.error(res.error_msg)
       }
-      $btns.button('reset')
+      $btn.button('reset')
     })
   }
 
@@ -262,25 +272,39 @@ class DlgUnshare extends RbModalHandler {
 class DlgShareManager extends RbModalHandler {
   constructor(props) {
     super(props)
-    this.state.selectedAccess = []
   }
 
   render() {
     return (
       <RbModal title={$L('ShareUsers')} ref={(c) => (this._dlg = c)}>
         <div className="sharing-list">
-          <ul className="list-unstyled list-inline">
-            {(this.state.sharingList || []).map((item) => {
-              return (
-                <li className={`list-inline-item ${this.state.selectedAccess.includes(item[1]) ? 'active' : ''}`} key={`access-${item[1]}`}>
-                  <div onClick={() => this.clickUser(item[1])} title={$L('ByXSharedOnX').replace('%s', item[3]).replace('%s', item[2])}>
-                    <UserShow id={item[0][0]} name={item[0][1]} showName={true} />
-                    <i className="zmdi zmdi-check" />
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
+          <table className="table table-hover">
+            <tbody ref={(c) => (this._tbody = c)}>
+              {(this.state.sharingList || []).map((item) => {
+                return (
+                  <tr key={item[1]}>
+                    <td className="user-avatar cell-detail user-info">
+                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0][0]}`} alt="Avatar" />
+                      <span>{item[0][1]}</span>
+                    </td>
+                    <td className="text-right">
+                      {(item[4] & 8) !== 0 && <span className="badge badge-light">{$L('Read')}</span>}
+                      {(item[4] & 4) !== 0 && <span className="badge badge-light">{$L('Update')}</span>}
+                    </td>
+                    <td className="text-right text-muted" title={item[2]}>
+                      {$L('ByXSharedOnX').replace('%s', item[3]).replace('%s', $fromNow(item[2]))}
+                    </td>
+                    <td className="actions text-right">
+                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                        <input className="custom-control-input" type="checkbox" defaultChecked={false} data-id={item[1]} />
+                        <span className="custom-control-label">&nbsp;</span>
+                      </label>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
           {this.props.unshare === true && (
@@ -296,40 +320,28 @@ class DlgShareManager extends RbModalHandler {
     )
   }
 
-  componentDidMount() {
-    $.get(`/app/entity/shared-list?id=${this.props.id}`, (res) => {
-      this.setState({ sharingList: res.data })
-    })
+  _componentDidMount() {
+    $.get(`/app/entity/shared-list?id=${this.props.id}`, (res) => this.setState({ sharingList: res.data || [] }))
   }
-
-  clickUser(id) {
-    if (this.props.unshare !== true) return
-    const s = this.state.selectedAccess
-    if (s.includes(id)) s.remove(id)
-    else s.push(id)
-    this.setState({ selectedAccess: s })
-  }
+  componentDidMount = () => this._componentDidMount()
 
   post() {
-    const s = this.state.selectedAccess
-    if (s.length === 0) {
-      RbHighbar.create($L('PlsSelectSome,CancelWhichUsers'))
-      return
-    }
+    const s = []
+    $(this._tbody)
+      .find('input:checked')
+      .each((idx, item) => s.push($(item).data('id')))
+    if (s.length === 0) return RbHighbar.create($L('PlsSelectSome,CancelWhichUsers'))
 
-    const $btns = $(this._btns).button('loading')
+    const $btn = $(this._btns).button('loading')
     $.post(`/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
         RbHighbar.success($L('SomeSuccess,UnShare'))
-
-        setTimeout(() => {
-          if (window.RbViewPage) location.reload()
-        }, 500)
+        setTimeout(() => window.RbViewPage && window.RbViewPage.reload(), 200)
       } else {
         RbHighbar.error(res.error_msg)
       }
-      $btns.button('reset')
+      $btn.button('reset')
     })
   }
 

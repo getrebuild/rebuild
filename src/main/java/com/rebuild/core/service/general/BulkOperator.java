@@ -60,7 +60,7 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
             return this.records;
         }
 
-        JSONObject asFilterExp = context.getCustomData();
+        JSONObject asFilterExp = (JSONObject) context.getExtraParams().get("customData");
         AdvFilterParser filterParser = new AdvFilterParser(asFilterExp);
         String sqlWhere = filterParser.toSqlWhere();
         // `(1=1)`.length < 10

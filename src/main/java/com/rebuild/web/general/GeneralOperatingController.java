@@ -32,6 +32,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -221,14 +222,18 @@ public class GeneralOperatingController extends BaseController {
 
         String[] cascades = parseCascades(request);
 
+        int rights = BizzPermission.READ.getMask();
+        if (getBoolParameter(request, "update")) rights += BizzPermission.UPDATE.getMask();
+
         int affected = 0;
         try {
             for (ID to : toUsers) {
                 // 一条记录
                 if (records.length == 1) {
-                    affected += ies.share(firstId, to, cascades);
+                    affected += ies.share(firstId, to, cascades, rights);
                 } else {
                     BulkContext context = new BulkContext(user, BizzPermission.SHARE, to, cascades, records);
+                    context.addExtraParam("shareRights", rights);
                     affected += ies.bulk(context);
                 }
             }
@@ -340,14 +345,14 @@ public class GeneralOperatingController extends BaseController {
         final Entity entity = MetadataHelper.getEntity(recordId.getEntityCode());
 
         Object[][] array = Application.createQueryNoFilter(
-                "select shareTo,accessId,createdOn,createdBy from ShareAccess where belongEntity = ? and recordId = ?")
+                "select shareTo,accessId,createdOn,createdBy,rights from ShareAccess where belongEntity = ? and recordId = ?")
                 .setParameter(1, entity.getName())
                 .setParameter(2, recordId)
                 .array();
 
         for (Object[] o : array) {
-            o[0] = new String[]{o[0].toString(), UserHelper.getName((ID) o[0])};
-            o[2] = CalendarUtils.getUTCDateTimeFormat().format(o[2]);
+            o[0] = new String[] { o[0].toString(), UserHelper.getName((ID) o[0]) };
+            o[2] = I18nUtils.formatDate((Date) o[2]);
             o[3] = UserHelper.getName((ID) o[3]);
         }
         return array;
