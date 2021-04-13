@@ -61,7 +61,7 @@ $(document).ready(function () {
   })
 
   $('#entityIcon').click(function () {
-    RbModal.create('/p/commons/search-icon', $L('SelectSome,Icon'))
+    RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
   })
 
   // 排序

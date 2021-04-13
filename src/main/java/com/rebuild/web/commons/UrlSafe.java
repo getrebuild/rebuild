@@ -46,7 +46,7 @@ public class UrlSafe extends BaseController {
             return null;
         }
 
-        return createModelAndView("/commons/url-safe", Collections.singletonMap("outerUrl", url));
+        return createModelAndView("/common/url-safe", Collections.singletonMap("outerUrl", url));
     }
 
     // --

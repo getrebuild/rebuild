@@ -137,7 +137,7 @@ class DlgEdit extends RbFormHandler {
       that.setState({ iconName: s })
       RbModal.hide()
     }
-    RbModal.create('/p/commons/search-icon', $L('SelectSome,Icon'))
+    RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
   }
 
   save = () => {

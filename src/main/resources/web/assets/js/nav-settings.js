@@ -32,7 +32,7 @@ $(document).ready(function () {
       $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
       parent.RbModal.hide()
     }
-    parent.RbModal.create('/p/commons/search-icon', $L('SelectSome,Icon'))
+    parent.RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
   })
 
   $('.J_menuConfirm').click(function () {
