@@ -216,8 +216,8 @@ class ApprovalUsersForm extends RbFormHandler {
     const ccHas = (this.state.nextCcs || []).length > 0 || this.state.ccSelfSelecting
 
     return (
-      <div>
-        {approverHas && (
+      <React.Fragment>
+        {approverHas ? (
           <div className="form-group">
             <label>
               <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('NodeApprover')} (${$L(this.state.signMode === 'AND' ? 'SignAnd' : 'SignOr')})`}
@@ -232,6 +232,10 @@ class ApprovalUsersForm extends RbFormHandler {
                 <UserSelector ref={(c) => (this._approverSelector = c)} />
               </div>
             )}
+          </div>
+        ) : (
+          <div className="form-group">
+            <RbAlertBox message={$L('NoAnyApprovers')} />
           </div>
         )}
         {ccHas && (
@@ -251,7 +255,7 @@ class ApprovalUsersForm extends RbFormHandler {
             )}
           </div>
         )}
-      </div>
+      </React.Fragment>
     )
   }
 
@@ -529,7 +533,7 @@ class ApprovalStepViewer extends React.Component {
         {this.__formatTime(s.createdOn)}
         <div className="timeline-content">
           <div className="timeline-avatar">
-            <img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} />
+            <img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} alt="Avatar" />
           </div>
           <div className="timeline-header">
             <p className="timeline-activity">{$L('SubmittedApprovalByX').replace('%s', s.submitter === rb.currentUser ? $L('You') : s.submitterName)}</p>
@@ -569,7 +573,7 @@ class ApprovalStepViewer extends React.Component {
           {this.__formatTime(item.approvedTime || item.createdOn)}
           <div className="timeline-content">
             <div className="timeline-avatar">
-              <img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} />
+              <img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} alt="Avatar" />
             </div>
             <div className="timeline-header">
               <p className="timeline-activity">{aMsg}</p>

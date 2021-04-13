@@ -165,13 +165,14 @@ class RbFormHandler extends RbModalHandler {
 
   handleChange = (e, call) => {
     const target = e.target
-    const id = target.dataset.id || target.name
-    if (!id) return
+    const name = target.dataset.id || target.name
+    if (!name) return
+
     const val = target.type === 'checkbox' ? target.checked : target.value
     const s = {}
-    s[id] = val
+    s[name] = val
     this.setState(s, call)
-    this.handleChangeAfter(id, val)
+    this.handleChangeAfter(name, val)
   }
 
   handleChangeAfter(name, value) {
@@ -207,6 +208,7 @@ class RbAlert extends React.Component {
   render() {
     const styles = {}
     if (this.props.width) styles.maxWidth = ~~this.props.width
+
     return (
       <div className="modal rbalert" ref={(c) => (this._dlg = c)} tabIndex={this.state.tabIndex || -1}>
         <div className="modal-dialog modal-dialog-centered" style={styles}>
@@ -394,6 +396,7 @@ function RbSpinner(props) {
       )}
     </div>
   )
+
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
 }
@@ -417,9 +420,11 @@ class UserSelector extends React.Component {
 
   render() {
     let inResult
-    if (!this.state.items) inResult = <li className="select2-results__option un-hover text-muted">{$L('Searching')}</li>
-    else if (this.state.items.length === 0) inResult = <li className="select2-results__option un-hover">{$L('NoResults')}</li>
-    else {
+    if (!this.state.items) {
+      inResult = <li className="select2-results__option un-hover text-muted">{$L('Searching')}</li>
+    } else if (this.state.items.length === 0) {
+      inResult = <li className="select2-results__option un-hover">{$L('NoResults')}</li>
+    } else {
       inResult = this.state.items.map((item) => {
         return (
           <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
@@ -566,6 +571,7 @@ class UserSelector extends React.Component {
   switchTab(type) {
     type = type || this.state.tabType
     const ckey = `${type}-${this.state.query}`
+
     this.setState({ tabType: type, items: this._cached[ckey] }, () => {
       if (!this._cached[ckey]) {
         $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
@@ -677,6 +683,7 @@ class UserSelector extends React.Component {
 const UserShow = function (props) {
   const viewUrl = props.id ? `#!/View/User/${props.id}` : null
   const avatarUrl = `${rb.baseUrl}/account/user-avatar/${props.id}`
+
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
       <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
@@ -796,6 +803,7 @@ class AnyRecordSelector extends React.Component {
   value() {
     const val = this.val()
     if (!val) return null
+
     return {
       entity: $(this._entity).val(),
       id: val,

@@ -1334,6 +1334,7 @@
   "UpdateMode": "更新方式",
   "UpdateByField": "字段值",
   "UpdateByValue": "固定值",
+  "NoAnyApprovers": "當前審批流程無可用審批人",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

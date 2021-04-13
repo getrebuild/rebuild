@@ -4,9 +4,17 @@
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
 [![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
 
+## 项目特色
+
+REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。通过 REBUILD 可以真正实现零代码快速搭建业务系统，无需编程、无需编译代码，甚至无需了解技术。
+
+「开放式设计」是 REBUILD 的重要设计理念，得益于开发团队超过十年的成熟 B 端产品经验，我们实现了对企业日常各类需求的可配置化管理，无需开发即可使用，有效避免过度依赖高成本研发人员。
+
+更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
+
 > **福利：欢迎加入 REBUILD QQ 交流群 819865721**
 
-## REBUILD 2.2 新特性
+## V2.2 新特性
 
 本次更新为你带来众多新功能与优化。
 

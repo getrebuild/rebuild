@@ -9,18 +9,21 @@ package com.rebuild.core.service.approval;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 /**
  * @author devezhao
  * @since 2019/10/23
  */
+@Slf4j
 public class ApprovalHelper {
 
     /**
@@ -92,5 +95,25 @@ public class ApprovalHelper {
                 .unique();
 
         return inUsed != null ? ObjectUtils.toInt(inUsed[0]) : 0;
+    }
+
+    /**
+     * 用户虚拟字段
+     *
+     * @param userField
+     * @return
+     */
+    public static Field validVirtualField(String userField) {
+        if (userField.startsWith(FlowNode.USER_SPEC_SUBMITOR)
+                || userField.startsWith(FlowNode.USER_SPEC_APPROVER)) {
+            userField = userField.split("\\.")[1];
+            Entity userEntity = MetadataHelper.getEntity(EntityHelper.User);
+            if (userEntity.containsField(userField)) {
+                return userEntity.getField(userField);
+            } else {
+                log.warn("No virtual found : {}", userField);
+            }
+        }
+        return null;
     }
 }
