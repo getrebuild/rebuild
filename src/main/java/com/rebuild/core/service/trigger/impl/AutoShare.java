@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
@@ -77,11 +78,17 @@ public class AutoShare extends AutoAssign {
             cascades = hasCascades.split("[,]");
         }
 
+        int shareRights = BizzPermission.READ.getMask();
+        if (content.containsKey("withUpdate") && content.getBoolean("withUpdate")) {
+            shareRights += BizzPermission.UPDATE.getMask();
+        }
+        
+        final EntityService es = Application.getEntityService(context.getSourceEntity().getEntityCode());
         for (ID toUser : toUsers) {
             if (allowNoPermissionShare) {
                 PrivilegesGuardContextHolder.setSkipGuard(recordId);
             }
-            Application.getEntityService(context.getSourceEntity().getEntityCode()).share(recordId, toUser, cascades);
+            es.share(recordId, toUser, cascades, shareRights);
         }
     }
 }

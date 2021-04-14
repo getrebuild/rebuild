@@ -5,14 +5,13 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-var wpc = window.__PageConfig
+const wpc = window.__PageConfig
 let fieldsCache
 let activeNode
 let donotCloseSidebar
 
 $(document).ready(() => {
   if (!wpc || !wpc.configId) return
-  // eslint-disable-next-line no-console
   if (rb.env === 'dev') console.log(wpc.flowDefinition)
 
   // 备用
@@ -41,6 +40,7 @@ const NTs = {
   approver: ['approver', $L('NodeApprover'), $L('SelfSelectSome,NodeApprover')],
   cc: ['cc', $L('NodeCc'), $L('SelfSelectSome,NodeCc')],
 }
+// 人员类型
 const UTs = {
   ALL: $L('NodeUserAll'),
   OWNS: $L('NodeUserOwns'),
@@ -49,13 +49,14 @@ const UTs = {
 }
 // 添加节点按钮
 const AddNodeButton = function (props) {
-  let c = function () {
-    showDlgAddNode(props.addNodeCall)
-  }
   return (
     <div className="add-node-btn-box">
       <div className="add-node-btn">
-        <button type="button" onClick={c}>
+        <button
+          type="button"
+          onClick={() => {
+            showDlgAddNode(props.addNodeCall)
+          }}>
           <i className="zmdi zmdi-plus" />
         </button>
       </div>
@@ -85,11 +86,13 @@ class NodeSpec extends React.Component {
 
   openConfig = () => {
     if (wpc.preview) return
-    let that = this
-    let call = function (d) {
+
+    const that = this
+    const call = function (d) {
       that.setState({ data: d, active: false })
     }
-    let props = { ...(this.state.data || {}), call: call, key: 'kns-' + this.props.nodeId }
+    const props = { ...(this.state.data || {}), call: call, key: 'kns-' + this.props.nodeId }
+
     if (this.nodeType === 'start') renderRbcomp(<StartNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'approver') renderRbcomp(<ApproverNodeConfig {...props} />, 'config-side')
     else if (this.nodeType === 'cc') renderRbcomp(<CCNodeConfig {...props} />, 'config-side')
@@ -107,8 +110,11 @@ class NodeSpec extends React.Component {
         RbHighbar.create(NTs[this.nodeType][2])
         this.setState({ hasError: true })
         return false
-      } else this.setState({ hasError: false })
+      } else {
+        this.setState({ hasError: false })
+      }
     }
+
     return { type: this.props.type, nodeId: this.props.nodeId, data: this.state.data }
   }
 }
@@ -122,12 +128,11 @@ class NodeGroupSpec extends React.Component {
   }
 
   renderNodes() {
-    const nodes = (this.state.nodes || []).map((item) => {
+    return (this.state.nodes || []).map((item) => {
       const props = { ...item, key: 'kn-' + item.nodeId, $$$parent: this }
       if (item.type === 'condition') return <ConditionNode {...props} />
       else return <SimpleNode {...props} />
     })
-    return nodes
   }
 
   onRef = (nodeRef, remove) => {
@@ -150,6 +155,7 @@ class NodeGroupSpec extends React.Component {
         nodes.push(item)
       })
     }
+
     this.setState({ nodes: nodes }, () => {
       typeof call === 'function' && call(n.nodeId)
       hideDlgAddNode()
@@ -193,7 +199,6 @@ class SimpleNode extends NodeSpec {
   render() {
     const NT = NTs[this.nodeType]
     const data = this.state.data || {}
-
     const descs = data.users && data.users.length > 0 ? [UTs[data.users[0]] || `${$L('SpecUser')}(${data.users.length})`] : [NT[2]]
 
     if (data.selfSelecting && data.users.length > 0) descs.push($L('AllowSelfSelect'))
@@ -227,9 +232,9 @@ class ConditionNode extends NodeSpec {
   }
 
   render() {
-    const bLen = this.state.branches.length - 1
+    const branchIdx = this.state.branches.length - 1
     return (
-      bLen >= 0 && (
+      branchIdx >= 0 && (
         <div className="branch-wrap">
           <div className="branch-box-wrap">
             <div className="branch-box">
@@ -237,7 +242,7 @@ class ConditionNode extends NodeSpec {
                 {$L('AddBranch')}
               </button>
               {this.state.branches.map((item, idx) => {
-                return <ConditionBranch key={'kcb-' + item.nodeId} priority={idx + 1} isFirst={idx === 0} isLast={idx === bLen} $$$parent={this} {...item} />
+                return <ConditionBranch key={'kcb-' + item.nodeId} priority={idx + 1} isFirst={idx === 0} isLast={idx === branchIdx} $$$parent={this} {...item} />
               })}
             </div>
             <AddNodeButton addNodeCall={this.addNodeQuick} />
@@ -259,10 +264,8 @@ class ConditionNode extends NodeSpec {
   }
 
   removeBranch = (nodeId, e) => {
-    if (e) {
-      e.stopPropagation()
-      e.nativeEvent.stopImmediatePropagation()
-    }
+    $stopEvent(e)
+
     const bs = []
     this.state.branches.forEach((item) => {
       if (nodeId !== item.nodeId) bs.push(item)
@@ -280,6 +283,7 @@ class ConditionNode extends NodeSpec {
     for (let i = 0; i < this.state.branches.length; i++) {
       let branchRef = this.__branchRefs[this.state.branches[i].nodeId]
       if (!holdANode) holdANode = branchRef
+
       let s = branchRef.serialize()
       if (!s) return false
       bs.push(s)
@@ -290,7 +294,10 @@ class ConditionNode extends NodeSpec {
       RbHighbar.create($L('Add2BranchLeast'))
       if (holdANode) holdANode.setState({ hasError: true })
       return false
-    } else if (holdANode) holdANode.setState({ hasError: false })
+    } else if (holdANode) {
+      holdANode.setState({ hasError: false })
+    }
+
     return { branches: bs, type: 'condition', nodeId: this.props.nodeId }
   }
 }
@@ -327,8 +334,12 @@ class ConditionBranch extends NodeGroupSpec {
           </div>
         </div>
         {this.renderNodes()}
-        {this.state.isLast && <div className="top-right-cover-line"></div>}
-        {this.state.isLast && <div className="bottom-right-cover-line"></div>}
+        {this.state.isLast && (
+          <React.Fragment>
+            <div className="top-right-cover-line"></div>
+            <div className="bottom-right-cover-line"></div>
+          </React.Fragment>
+        )}
       </div>
     )
   }
@@ -352,11 +363,13 @@ class ConditionBranch extends NodeGroupSpec {
 
   openConfig = () => {
     if (wpc.preview) return
+
     const that = this
     const call = function (d) {
       that.setState({ data: d, active: false })
     }
     const props = { ...(this.state.data || {}), entity: wpc.applyEntity, call: call }
+
     renderRbcomp(<ConditionBranchConfig key={'kcbc-' + this.props.nodeId} {...props} isLast={this.state.isLast} />, 'config-side')
 
     $(document.body).addClass('open-right-sidebar')
@@ -370,7 +383,9 @@ class ConditionBranch extends NodeGroupSpec {
       this.setState({ hasError: true })
       if (s !== false) RbHighbar.create($L('PlsSetApproverOrCc'))
       return false
-    } else this.setState({ hasError: false })
+    } else {
+      this.setState({ hasError: false })
+    }
 
     s.priority = this.props.priority
     if (this.state.data) s.data = this.state.data
@@ -451,11 +466,13 @@ class DlgAddNode extends React.Component {
 
 let __DlgAddNode
 const showDlgAddNode = function (call) {
-  if (__DlgAddNode) __DlgAddNode.show(call)
-  else
+  if (__DlgAddNode) {
+    __DlgAddNode.show(call)
+  } else {
     renderRbcomp(<DlgAddNode call={call} />, null, function () {
       __DlgAddNode = this
     })
+  }
 }
 const hideDlgAddNode = function () {
   if (__DlgAddNode) __DlgAddNode.hide()
@@ -467,9 +484,7 @@ class StartNodeConfig extends RbFormHandler {
     super(props)
     this.state.users = (props.users || ['OWNS'])[0]
     if (!UTs[this.state.users]) this.state.users = 'SPEC'
-
-    if (props.selfSelecting === false) this.state.selfSelecting = false
-    else this.state.selfSelecting = true
+    this.state.selfSelecting = props.selfSelecting !== false
   }
 
   render() {
@@ -494,11 +509,9 @@ class StartNodeConfig extends RbFormHandler {
               <span className="custom-control-label">{$L('NodeUserSpec')}</span>
             </label>
           </div>
-          {this.state.users === 'SPEC' && (
-            <div className="form-group">
-              <UserSelector selected={this.state.selectedUsers} ref={(c) => (this._UserSelector = c)} />
-            </div>
-          )}
+          <div className={`form-group ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
+            <UserSelector ref={(c) => (this._UserSelector = c)} />
+          </div>
         </div>
         {this.renderButton()}
       </div>
@@ -520,8 +533,8 @@ class StartNodeConfig extends RbFormHandler {
 
   componentDidMount() {
     if (this.state.users === 'SPEC' && this.props.users) {
-      $.post('/commons/search/user-selector', JSON.stringify(this.props.users), (res) => {
-        if (res.data.length > 0) this.setState({ selectedUsers: res.data })
+      $.post(`/admin/robot/approval/user-fields-show?entity=${this.props.entity || wpc.applyEntity}`, JSON.stringify(this.props.users), (res) => {
+        if ((res.data || []).length > 0) this._UserSelector.setState({ selected: res.data })
       })
     }
   }
@@ -535,6 +548,7 @@ class StartNodeConfig extends RbFormHandler {
       RbHighbar.create($L('PlsSelectSome,User'))
       return
     }
+
     typeof this.props.call && this.props.call(d)
     this.cancel()
   }
@@ -549,8 +563,9 @@ class ApproverNodeConfig extends StartNodeConfig {
   constructor(props) {
     super(props)
     this.state.signMode = props.signMode || 'OR'
-    this.state.users = (props.users || ['SPEC'])[0]
-    if (!this.state.users || this.state.users.length === 20) this.state.users = 'SPEC'
+    if (!props.users || props.users.length === 0) this.state.users = 'SPEC'
+    else if (props.users[0] === 'SELF') this.state.users = 'SELF'
+    else this.state.users = 'SPEC'
   }
 
   render() {
@@ -571,11 +586,9 @@ class ApproverNodeConfig extends StartNodeConfig {
               <span className="custom-control-label">{$L('StartApproverSpec')}</span>
             </label>
           </div>
-          {this.state.users === 'SPEC' && (
-            <div className="form-group mb-3">
-              <UserSelector selected={this.state.selectedUsers} ref={(c) => (this._UserSelector = c)} />
-            </div>
-          )}
+          <div className={`form-group mb-3 ${this.state.users === 'SPEC' ? '' : 'hide'}`}>
+            <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
+          </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox">
               <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={this.handleChange} />
@@ -607,14 +620,14 @@ class ApproverNodeConfig extends StartNodeConfig {
                       <tr key={`field-${item.field}`}>
                         <td>{this.__fieldLabel(item.field)}</td>
                         <td width="100">
-                          <label className="custom-control custom-control-sm custom-checkbox">
+                          <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} data-field={item.field} />
                             <span className="custom-control-label">{$L('Required')}</span>
                           </label>
                         </td>
                         <td width="40">
                           <a className="close" title={$L('Remove')} onClick={() => this.removeEditableField(item.field)}>
-                            &times;
+                            <i className="zmdi icon zmdi-close"></i>
                           </a>
                         </td>
                       </tr>
@@ -645,6 +658,7 @@ class ApproverNodeConfig extends StartNodeConfig {
       .sortable({
         cursor: 'move',
         axis: 'y',
+        width: '100%',
       })
       .disableSelection()
   }
@@ -654,7 +668,7 @@ class ApproverNodeConfig extends StartNodeConfig {
     $(this._editableFields)
       .find('input')
       .each(function () {
-        let $this = $(this)
+        const $this = $(this)
         editableFields.push({ field: $this.data('field'), notNull: $this.prop('checked') })
       })
 
@@ -665,20 +679,21 @@ class ApproverNodeConfig extends StartNodeConfig {
       selfSelecting: this.state.selfSelecting,
       editableFields: editableFields,
     }
+
     if (d.users.length === 0 && !d.selfSelecting) {
       RbHighbar.create($L('PlsSelectApprover'))
       return
     }
 
-    typeof this.props.call && this.props.call(d)
+    typeof this.props.call === 'function' && this.props.call(d)
     this.cancel()
   }
 
   setEditableFields(fs) {
-    fs = fs.map((item) => {
+    const fsNew = fs.map((item) => {
       return { field: item, notNull: false }
     })
-    this.setState({ editableFields: fs })
+    this.setState({ editableFields: fsNew })
   }
 
   removeEditableField(field) {
@@ -710,7 +725,7 @@ class CCNodeConfig extends StartNodeConfig {
         <div className="form">
           <div className="form-group mb-3">
             <label className="text-bold">{$L('ApprovalCcToWho')}</label>
-            <UserSelector selected={this.state.selectedUsers} ref={(c) => (this._UserSelector = c)} />
+            <UserSelectorWithField ref={(c) => (this._UserSelector = c)} />
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
@@ -735,11 +750,13 @@ class CCNodeConfig extends StartNodeConfig {
       selfSelecting: this.state.selfSelecting,
       ccAutoShare: this.state.ccAutoShare,
     }
+
     if (d.users.length === 0 && !d.selfSelecting) {
       RbHighbar.create($L('PlsSelectCc'))
       return
     }
-    typeof this.props.call && this.props.call(d)
+
+    typeof this.props.call === 'function' && this.props.call(d)
     this.cancel()
   }
 }
@@ -764,7 +781,7 @@ class ConditionBranchConfig extends StartNodeConfig {
 
   save = (filter) => {
     const d = { nodeName: this.state.nodeName, filter: filter }
-    typeof this.props.call && this.props.call(d)
+    typeof this.props.call === 'function' && this.props.call(d)
     this.cancel()
   }
 }
@@ -801,7 +818,7 @@ class RbFlowCanvas extends NodeGroupSpec {
 
   componentDidMount() {
     if (wpc.flowDefinition) {
-      let flowNodes = wpc.flowDefinition.nodes
+      const flowNodes = wpc.flowDefinition.nodes
       this._root.setState({ data: flowNodes[0].data })
       flowNodes.remove(flowNodes[0])
       this.setState({ nodes: flowNodes }, () => {
@@ -955,5 +972,46 @@ class DlgCopy extends ConfigFormDlg {
       }
       this.disabled()
     })
+  }
+}
+
+// 用户选择器
+class UserSelectorWithField extends UserSelector {
+  constructor(props) {
+    super(props)
+    this._useTabs.push(['FIELDS', $L('UseField')])
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
+
+    this._fields = []
+    $.get(`/admin/robot/approval/user-fields?entity=${this.props.entity || wpc.applyEntity}`, (res) => {
+      this._fields = res.data || []
+    })
+  }
+
+  switchTab(type) {
+    type = type || this.state.tabType
+    if (type === 'FIELDS') {
+      const q = this.state.query
+      const ckey = type + '-' + q
+      this.setState({ tabType: type, items: this._cached[ckey] }, () => {
+        if (!this._cached[ckey]) {
+          if (!q) {
+            this._cached[ckey] = this._fields
+          } else {
+            const fs = []
+            $(this._fields).each(function () {
+              if (this.text.contains(q)) fs.push(this)
+            })
+            this._cached[ckey] = fs
+          }
+          this.switchTab(type)
+        }
+      })
+    } else {
+      super.switchTab(type)
+    }
   }
 }

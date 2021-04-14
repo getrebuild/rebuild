@@ -130,37 +130,42 @@ class AdvFilter extends React.Component {
       </div>
     )
 
-    if (this.props.inModal)
-      return (
-        <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('AdvFilter')} disposeOnHide={!!this.props.filterName}>
-          {advFilter}
-        </RbModal>
-      )
-    else return advFilter
+    return this.props.inModal ? (
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('AdvFilter')} disposeOnHide={!!this.props.filterName}>
+        {advFilter}
+      </RbModal>
+    ) : (
+      advFilter
+    )
   }
 
   componentDidMount() {
-    $.get(`/commons/metadata/fields?deep=2&ft=QUERY&entity=${this.props.entity}`, (res) => {
-      const valideFs = []
+    $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity}`, (res) => {
+      const validFs = []
       this.fields = res.data.map((item) => {
-        valideFs.push(item.name)
+        validFs.push(item.name)
         if (item.type === 'REFERENCE') {
           REFMETA_CACHE[this.props.entity + '.' + item.name] = item.ref
+
           // Use `NameField` type
-          if (!BIZZ_ENTITIES.includes(item.ref[0])) item.type = item.ref[1]
+          if (!BIZZ_ENTITIES.includes(item.ref[0])) {
+            item.type = item.ref[1]
+          }
+        } else if (item.type === 'DATETIME') {
+          item.type = 'DATE'
         }
-        if (item.type === 'DATETIME') item.type = 'DATE'
+
         return item
       })
 
       if (this.__items) {
         this.__items.forEach((item) => {
           if (item.field.substr(0, 1) === NAME_FLAG) item.field = item.field.substr(1)
-          if (valideFs.includes(item.field)) {
+
+          if (validFs.includes(item.field)) {
             this.addItem(item)
           } else {
             this.setState({ hasErrorTip: $L('UnknownFieldInFilterTips') })
-            // eslint-disable-next-line no-console
             if (rb.env === 'dev') console.warn('Unkonw field : ' + JSON.stringify(item))
           }
         })
@@ -174,33 +179,33 @@ class AdvFilter extends React.Component {
 
   handleChange = (e) => {
     const val = e.target.value
-    const id = e.target.dataset.id || e.target.name
-    const state = {}
-    state[id] = val
+    const name = e.target.dataset.id || e.target.name
+    const state = { [name]: val }
     this.setState({ ...state })
   }
 
   addItem(props) {
     if (!this.fields) return
-    const _items = this.state.items || []
-    if (_items.length >= 9) {
+
+    const items = this.state.items || []
+    if (items.length >= 9) {
       RbHighbar.create($L('MaxFilterItems'))
       return
     }
 
-    const id = 'item-' + $random()
+    const id = `item-${$random()}`
     let itemProps = {
       fields: this.fields,
       $$$parent: this,
       key: 'key-' + id,
       id: id,
       onRef: this.onRef,
-      index: _items.length + 1,
+      index: items.length + 1,
     }
     if (props) itemProps = { ...itemProps, ...props }
-    _items.push(<FilterItem {...itemProps} />)
+    items.push(<FilterItem {...itemProps} />)
 
-    this.setState({ items: _items }, () => this.renderEquation())
+    this.setState({ items: items }, () => this.renderEquation())
   }
 
   removeItem(id) {
@@ -208,6 +213,7 @@ class AdvFilter extends React.Component {
     this.state.items.forEach((item) => {
       if (item.props.id !== id) _items.push(item)
     })
+
     const _children = []
     this.childrenRef.forEach((item) => {
       if (item.props.id !== id) _children.push(item)
@@ -225,6 +231,7 @@ class AdvFilter extends React.Component {
   checkEquation(e) {
     const val = e.target.value
     if (!val) return
+
     $.post('/app/entity/advfilter/test-equation', val, (res) => {
       this.setState({ equationError: res.error_code !== 0 })
     })
@@ -244,6 +251,7 @@ class AdvFilter extends React.Component {
       if (!item) hasError = true
       else filters.push(item)
     }
+
     if (hasError) return RbHighbar.create($L('HasInvalidFilterItems'))
     if (filters.length === 0 && canNoFilters !== true) return RbHighbar.create($L('Pls1FilterItemLeast'))
 
@@ -255,7 +263,6 @@ class AdvFilter extends React.Component {
       adv.equation = this.state.equation
     }
 
-    // eslint-disable-next-line no-console
     if (rb.env === 'dev') console.log(JSON.stringify(adv))
     return adv
   }
@@ -315,6 +322,7 @@ const OP_TYPE = {
   SFU: $L('FilterSFU'),
   SFB: $L('FilterSFB'),
   SFD: $L('FilterSFD'),
+  SFT: $L('FilterSFT'),
   YTA: $L('FilterYTA'),
   TDA: $L('FilterTDA'),
   TTA: $L('FilterTTA'),
@@ -376,6 +384,7 @@ class FilterItem extends React.Component {
 
   selectOp() {
     const fieldType = this.state.type
+
     let op = ['LK', 'NLK', 'EQ', 'NEQ']
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
@@ -389,7 +398,7 @@ class FilterItem extends React.Component {
       op = ['LK', 'NLK']
     } else if (fieldType === 'REFERENCE') {
       if (this.isBizzField('User')) {
-        op = ['IN', 'NIN', 'SFU', 'SFB']
+        op = ['IN', 'NIN', 'SFU', 'SFB', 'SFT']
       } else if (this.isBizzField('Department')) {
         op = ['IN', 'NIN', 'SFB', 'SFD']
       } else if (this.isBizzField('Role')) {
@@ -413,9 +422,9 @@ class FilterItem extends React.Component {
   }
 
   renderValue() {
-    let val = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+    let valComp = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
     if (this.state.op === 'BW') {
-      val = (
+      valComp = (
         <div className="val-range">
           <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
           <input className="form-control form-control-sm" ref={(c) => (this._filterVal2 = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
@@ -424,7 +433,7 @@ class FilterItem extends React.Component {
         </div>
       )
     } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE' || this.state.type === 'MULTISELECT') {
-      val = (
+      valComp = (
         <select className="form-control form-control-sm" multiple ref={(c) => (this._filterVal = c)}>
           {(this.state.options || []).map((item) => {
             let id = item.id || item.mask
@@ -437,9 +446,9 @@ class FilterItem extends React.Component {
         </select>
       )
     } else if (this.isBizzField()) {
-      val = <select className="form-control form-control-sm" multiple ref={(c) => (this._filterVal = c)} />
+      valComp = <select className="form-control form-control-sm" multiple ref={(c) => (this._filterVal = c)} />
     } else if (this.state.type === 'BOOL') {
-      val = (
+      valComp = (
         <select className="form-control form-control-sm" ref={(c) => (this._filterVal = c)}>
           <option value="T">{$L('True')}</option>
           <option value="F">{$L('False')}</option>
@@ -448,7 +457,7 @@ class FilterItem extends React.Component {
     }
 
     INPUTVALS_HOLD[this.state.field] = this.state.value
-    return val
+    return valComp
   }
 
   // 引用 User/Department/Role
@@ -496,6 +505,7 @@ class FilterItem extends React.Component {
       .on('change', function (e) {
         that.setState({ op: e.target.value }, () => that._componentDidUpdate())
       })
+
     this.__select2 = [s2field, s2op]
 
     // Load
@@ -537,8 +547,9 @@ class FilterItem extends React.Component {
     }
 
     if (this.isBizzField()) {
-      const ref = REFMETA_CACHE[this.$$$entity + '.' + state.field]
-      this.renderBizzSearch(ref[0])
+      let searchEntity = REFMETA_CACHE[this.$$$entity + '.' + state.field]
+      searchEntity = state.op === 'SFT' ? 'Team' : searchEntity[0]
+      this.renderBizzSearch(searchEntity)
     } else if (lastType === 'REFERENCE') {
       this.removeBizzSearch()
     }
@@ -555,9 +566,7 @@ class FilterItem extends React.Component {
   }
 
   componentWillUnmount() {
-    this.__select2.forEach((item) => {
-      item.select2('destroy')
-    })
+    this.__select2.forEach((item) => item.select2('destroy'))
     this.__select2 = null
     this.removePickList()
     this.removeDatepicker()
@@ -767,7 +776,7 @@ class FilterItem extends React.Component {
       return
     }
 
-    let item = { index: s.index, field: s.field, op: s.op }
+    const item = { index: s.index, field: s.field, op: s.op }
     if (s.value) item.value = s.value
     if (s.value2) item.value2 = s.value2
     // 引用字段查询名称字段

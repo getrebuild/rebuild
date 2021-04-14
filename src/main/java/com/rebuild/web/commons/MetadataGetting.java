@@ -81,14 +81,30 @@ public class MetadataGetting extends BaseController {
                 putFields(data, field, false);
             }
         }
+
+//        // 高级查询追加虚拟字段
+//        if ("VF_USER_TEAMS".equalsIgnoreCase(getParameter(request, "extra"))) {
+//            final JSONObject temp = JSONUtils.toJSONObject(
+//                    new String[] { "name", "label", "type", "ref" },
+//                    new Object[] { null, "." + Language.L("JoinedTeams"), "REFERENCE", new String[] { "Team", "TEXT" } });
+//
+//            List<JSONObject> dataNew = new ArrayList<>();
+//            for (JSONObject item : data) {
+//                dataNew.add(item);
+//                JSONArray ref = item.getJSONArray("ref");
+//                if (ref != null && ref.get(0).equals("User") && !item.getString("name").contains(".")) {
+//                    JSONObject clone = (JSONObject) temp.clone();
+//                    clone.put("name", item.getString("name") + ParseHelper.VF_USER_TEAMS);
+//                    clone.put("label", item.getString("label") + clone.getString("label"));
+//                    dataNew.add(clone);
+//                }
+//            }
+//            data = dataNew;
+//        }
+
         return data;
     }
 
-    /**
-     * @param dest
-     * @param entityOrField
-     * @param filterRefField
-     */
     private void putFields(List<JSONObject> dest, BaseMeta entityOrField, boolean filterRefField) {
         Field parentField = null;
         Entity useEntity;
@@ -108,9 +124,7 @@ public class MetadataGetting extends BaseController {
             if (easyField.getDisplayType() == DisplayType.REFERENCE && filterRefField) {
                 boolean isApprovalId = field.getName().equalsIgnoreCase(EntityHelper.ApprovalId);
                 boolean isBizz = MetadataHelper.isBizzEntity(field.getReferenceEntity());
-                if (!(isApprovalId || isBizz)) {
-                    continue;
-                }
+                if (!(isApprovalId || isBizz)) continue;
             }
 
             JSONObject map = (JSONObject) easyField.toJSON();

@@ -46,7 +46,8 @@ public class BulkBacthUpdate extends BulkOperator {
         final ID[] willUpdates = prepareRecords();
         this.setTotal(willUpdates.length);
 
-        JSONArray updateContents = context.getCustomData().getJSONArray("updateContents");
+        JSONArray updateContents = ((JSONObject) context.getExtraParams().get("customData"))
+                .getJSONArray("updateContents");
         // 转化成标准 FORM 格式
         JSONObject formJson = new JSONObject();
         for (Object o : updateContents) {
@@ -92,7 +93,7 @@ public class BulkBacthUpdate extends BulkOperator {
 
     @Override
     protected ID[] prepareRecords() {
-        JSONObject customData = context.getCustomData();
+        JSONObject customData = (JSONObject) context.getExtraParams().get("customData");
         int dataRange = customData.getIntValue("_dataRange");
         BatchOperatorQuery query = new BatchOperatorQuery(dataRange, customData.getJSONObject("queryData"));
         return query.getQueryedRecords();

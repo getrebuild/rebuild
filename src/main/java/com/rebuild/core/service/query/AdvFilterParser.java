@@ -26,11 +26,10 @@ import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 
 import java.util.*;
@@ -59,9 +58,8 @@ import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
  * @author devezhao
  * @since 09/29/2018
  */
+@Slf4j
 public class AdvFilterParser extends SetUser {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AdvFilterParser.class);
 
     private JSONObject filterExp;
     private Entity rootEntity;
@@ -162,7 +160,7 @@ public class AdvFilterParser extends SetUser {
                 } else if ("(".equals(token) || ")".equals(token) || "or".equals(token) || "and".equals(token)) {
                     itemSqls.add(token);
                 } else {
-                    LOG.warn("Invalid equation token : " + token);
+                    log.warn("Invalid equation token : " + token);
                 }
 
                 if (hasRP) {
@@ -199,7 +197,7 @@ public class AdvFilterParser extends SetUser {
 
         Field fieldMeta = MetadataHelper.getLastJoinField(rootEntity, field);
         if (fieldMeta == null) {
-            LOG.warn("Unknown field '" + field + "' in '" + rootEntity.getName() + "'");
+            log.warn("Unknown field '" + field + "' in '" + rootEntity.getName() + "'");
             return null;
         }
 
@@ -208,7 +206,7 @@ public class AdvFilterParser extends SetUser {
             field = "&" + field;
         } else if (hasNameFlag) {
             if (dt != DisplayType.REFERENCE) {
-                LOG.warn("Non reference-field '" + field + "' in '" + rootEntity.getName() + "'");
+                log.warn("Non reference-field '" + field + "' in '" + rootEntity.getName() + "'");
                 return null;
             }
 
@@ -275,7 +273,7 @@ public class AdvFilterParser extends SetUser {
 
         StringBuilder sb = new StringBuilder(field)
                 .append(' ')
-                .append(ParseHelper.convetOperator(op));
+                .append(ParseHelper.convetOperation(op));
         // 无需值
         if (ParseHelper.NL.equalsIgnoreCase(op) || ParseHelper.NT.equalsIgnoreCase(op)) {
             return sb.toString();
@@ -326,10 +324,15 @@ public class AdvFilterParser extends SetUser {
                     value = StringUtils.join(UserHelper.getAllChildren(dept), "|");
                 }
             }
+        } else if (ParseHelper.SFT.equalsIgnoreCase(op)) {
+            // In Sql
+            value = String.format(
+                    "( select userId from TeamMember where teamId in ('%s') )",
+                    StringUtils.join(value.split("\\|"), "', '"));
         }
 
         if (StringUtils.isBlank(value)) {
-            LOG.warn("No search value defined : " + item.toJSONString());
+            log.warn("No search value defined : " + item.toJSONString());
             return null;
         }
 
@@ -360,7 +363,8 @@ public class AdvFilterParser extends SetUser {
         }
 
         // IN
-        if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN) || op.equalsIgnoreCase(ParseHelper.SFD)) {
+        if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN)
+                || op.equalsIgnoreCase(ParseHelper.SFD) || op.equalsIgnoreCase(ParseHelper.SFT)) {
             sb.append(value);
         } else {
             // LIKE
@@ -418,7 +422,8 @@ public class AdvFilterParser extends SetUser {
             }
 
             // 多个值的情况下，兼容 | 号分割
-            if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN) || op.equalsIgnoreCase(ParseHelper.SFD)) {
+            if (op.equalsIgnoreCase(ParseHelper.IN) || op.equalsIgnoreCase(ParseHelper.NIN)
+                    || op.equalsIgnoreCase(ParseHelper.SFD)) {
                 Set<String> inVals = new HashSet<>();
                 for (String v : value.split("\\|")) {
                     inVals.add(quoteValue(v, field.getType()));
@@ -527,6 +532,7 @@ public class AdvFilterParser extends SetUser {
         }
 
         // 去除 AND OR 0-9 及空格
+        // noinspection RegExpDuplicateCharacterInClass
         clearEquation = clearEquation.replaceAll("[AND|OR|0-9|\\s]", "");
         // 括弧成对出现
         for (int i = 0; i < 20; i++) {

@@ -61,7 +61,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                       <div key={item.targetField}>
                         <div className="row">
                           <div className="col-5">
-                            <span className="badge badge-warning">{_getFieldLabel(this.state.targetFields, item.targetField)}</span>
+                            <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.state.targetFields)}</span>
                           </div>
                           <div className="col-2">
                             <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
@@ -69,7 +69,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
-                              {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : _getFieldLabel(this.__sourceFieldsCache, item.sourceField)}
+                              {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
                             <a className="del" title={$L('Remove')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
@@ -108,7 +108,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 </div>
                 <div className="col-5">
                   <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
-                    <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)} onClick={this.showFormula}></div>
+                    <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)} onClick={() => this.showFormula()}></div>
                     <p>{$L('CalcFORMULA')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
@@ -137,7 +137,10 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
-                <span className="custom-control-label">{$L('SetTargetFieldReadonly')}</span>
+                <span className="custom-control-label">
+                  {$L('SetTargetFieldReadonly')}
+                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('OnlyFormEffectiveTip')} />
+                </span>
               </label>
             </div>
           </div>
@@ -226,25 +229,13 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
   }
 
-  textFormula(formula) {
-    const fs = this.__sourceFieldsCache
-    for (let i = 0; i < fs.length; i++) {
-      const field = fs[i]
-      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
-      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
-    }
-
-    const keys = Object.keys(CALC_MODES)
-    keys.reverse()
-    keys.forEach((k) => {
-      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
-    })
-    return formula.toUpperCase()
+  showFormula() {
+    const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
+    renderRbcomp(<FormulaCalc2 fields={fs} onConfirm={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
   }
 
-  showFormula = () => {
-    const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
-    renderRbcomp(<FormulaCalc fields={fs} onConfirm={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
+  textFormula(formula) {
+    return FormulaCalc2.textFormula(formula, this.__sourceFieldsCache)
   }
 
   _dataAdvFilter = () => {
@@ -317,71 +308,22 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 }
 
-const _getFieldLabel = function (fields, field) {
+const _getFieldLabel = function (field, fields) {
   let found = fields.find((x) => x[0] === field)
   if (found) found = found[1]
   return found || '[' + field.toUpperCase() + ']'
 }
 
-// ~公式计算器
-const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('Back'), $L('Clear')]
-class FormulaCalc extends RbAlert {
+// ~ 公式编辑器
+// eslint-disable-next-line no-undef
+class FormulaCalc2 extends FormulaCalc {
   constructor(props) {
     super(props)
-    this.state = { ...props }
-  }
-
-  renderContent() {
-    return (
-      <div className="formula-calc">
-        <div className="form-control-plaintext formula mb-2" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)}></div>
-        <div className="row">
-          <div className="col-6">
-            <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
-              <ul className="list-unstyled mb-0" _title={$L('NoUsesField')}>
-                {this.props.fields.map((item) => {
-                  return (
-                    <li key={item[0]}>
-                      <a onClick={() => this.handleInput(item)}>{item[1]}</a>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          </div>
-          <div className="col-6 pl-0">
-            <ul className="list-unstyled numbers mb-0">
-              {INPUT_KEYS.map((item) => {
-                return (
-                  <li className="list-inline-item" key={item}>
-                    <a onClick={() => this.handleInput(item)}>{item}</a>
-                  </li>
-                )
-              })}
-              <li className="list-inline-item">
-                <a onClick={() => this.confirm()} className="confirm">
-                  {$L('Confirm')}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-    $(this._$fields).perfectScrollbar()
   }
 
   handleInput(v) {
-    if (v === $L('Back')) {
-      $(this._$formula).find('.v:last').remove()
-    } else if (v === $L('Clear')) {
-      $(this._$formula).empty()
-    } else if (typeof v === 'object') {
-      const $field = $(`<span class="v field"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
+    if (typeof v === 'object') {
+      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
       const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
       $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
         const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || $L('Null')}</a>`).appendTo($menu)
@@ -390,26 +332,43 @@ class FormulaCalc extends RbAlert {
         })
       })
       $field.appendTo(this._$formula)
-    } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
-      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
     } else {
-      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
+      super.handleInput(v)
     }
   }
 
   confirm() {
-    const vv = []
+    let expr = []
     $(this._$formula)
       .find('i')
       .each(function () {
         const $this = $(this)
         const v = $this.data('v')
-        if ($this.attr('data-mode')) vv.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
-        else vv.push(v)
+        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
+        else expr.push(v)
       })
 
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(vv.join(''))
+    expr = expr.join('')
+    if ($(this._$formulaInput).val()) expr = $(this._$formulaInput).val()
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
     this.hide()
+  }
+
+  // 公式文本化
+  static textFormula(formula, fields) {
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i]
+      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
+      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
+    }
+
+    const keys = Object.keys(CALC_MODES)
+    keys.reverse()
+    keys.forEach((k) => {
+      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
+    })
+    return formula.toUpperCase()
   }
 }
 
@@ -426,5 +385,6 @@ renderContentComp = function (props) {
   renderRbcomp(<ContentFieldAggregation {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
+    $('#react-content [data-toggle="tooltip"]').tooltip()
   })
 }

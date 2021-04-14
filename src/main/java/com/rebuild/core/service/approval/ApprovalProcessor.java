@@ -66,7 +66,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 提交
+     * 1. 提交
      *
      * @param selectNextUsers
      * @return
@@ -106,7 +106,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 审批
+     * 2. 审批
      *
      * @param approver
      * @param state
@@ -119,7 +119,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 审批
+     * 2. 审批
      *
      * @param approver
      * @param state
@@ -181,7 +181,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 撤回
+     * 3. 撤回
      *
      * @throws ApprovalException
      */
@@ -197,7 +197,7 @@ public class ApprovalProcessor extends SetUser {
     }
 
     /**
-     * 撤回
+     * 3. 撤销（管理员）
      *
      * @throws ApprovalException
      */
@@ -428,11 +428,6 @@ public class ApprovalProcessor extends SetUser {
         return steps;
     }
 
-    /**
-     * @param step
-     * @param signMode
-     * @return
-     */
     private JSONObject formatStep(Object[] step, String signMode) {
         ID approver = (ID) step[0];
         return JSONUtils.toJSONObject(
@@ -444,12 +439,6 @@ public class ApprovalProcessor extends SetUser {
                         CalendarUtils.getUTCDateTimeFormat().format(step[4]), signMode});
     }
 
-    /**
-     * CC 自动共享
-     *
-     * @param recordId
-     * @param shareTo
-     */
     private void shareIfNeed(ID recordId, Set<ID> shareTo) {
         final EntityService es = Application.getEntityService(recordId.getEntityCode());
         for (ID user : shareTo) {
