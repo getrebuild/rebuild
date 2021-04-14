@@ -12,8 +12,7 @@ import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.distributed.DistributedJobLock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -29,10 +28,9 @@ import java.util.concurrent.*;
  * @see org.springframework.core.task.AsyncTaskExecutor
  * @since 09/29/2018
  */
+@Slf4j
 @Component
 public class TaskExecutors extends DistributedJobLock {
-
-    private static final Logger LOG = LoggerFactory.getLogger(TaskExecutors.class);
 
     private static final int MAX_TASKS_NUMBER = Integer.max(Runtime.getRuntime().availableProcessors() / 2, 2);
 
@@ -95,7 +93,7 @@ public class TaskExecutors extends DistributedJobLock {
     public static void shutdown() {
         List<Runnable> runs = EXECS.shutdownNow();
         if (!runs.isEmpty()) {
-            LOG.warn("{} task(s) were interrupted", runs.size());
+            log.warn("{} task(s) were interrupted", runs.size());
         }
     }
 
@@ -105,7 +103,7 @@ public class TaskExecutors extends DistributedJobLock {
     public void executeJob() {
         if (TASKS.isEmpty() || !tryLock()) return;
 
-        LOG.info("{} task(s) in the queue", TASKS.size());
+        log.info("{} task(s) in the queue", TASKS.size());
 
         for (Map.Entry<String, HeavyTask<?>> e : TASKS.entrySet()) {
             HeavyTask<?> task = e.getValue();
@@ -116,7 +114,7 @@ public class TaskExecutors extends DistributedJobLock {
             long leftTime = (System.currentTimeMillis() - task.getCompletedTime().getTime()) / 1000;
             if (leftTime > 60 * 120) {
                 TASKS.remove(e.getKey());
-                LOG.info("HeavyTask self-destroying : " + e.getKey());
+                log.info("HeavyTask self-destroying : " + e.getKey());
             }
         }
     }

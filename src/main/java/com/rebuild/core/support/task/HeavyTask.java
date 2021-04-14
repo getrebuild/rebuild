@@ -11,8 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.support.SetUser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Date;
 
@@ -25,9 +24,8 @@ import java.util.Date;
  * @see TaskExecutors
  * @since 09/29/2018
  */
+@Slf4j
 public abstract class HeavyTask<T> extends SetUser implements Runnable {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HeavyTask.class);
 
     volatile private boolean interrupt = false;
     volatile private boolean interruptState = false;
@@ -179,7 +177,7 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
         try {
             exec();
         } catch (Exception ex) {
-            LOG.error("Exception during task execute", ex);
+            log.error("Exception during task execute", ex);
             this.errorMessage = ex.getLocalizedMessage();
         } finally {
             completedAfter();
@@ -203,5 +201,10 @@ public abstract class HeavyTask<T> extends SetUser implements Runnable {
         if (this.threadUser != null) {
             UserContextHolder.clearUser();
         }
+    }
+
+    @Override
+    public String toString() {
+        return "HeavyTask#" + getClass().getSimpleName();
     }
 }
