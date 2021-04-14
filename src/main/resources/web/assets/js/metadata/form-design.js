@@ -262,7 +262,7 @@ const render_unset = function (data) {
 const render_type = function (fieldType) {
   const $item = $(`<li class="dd-item"><div class="dd-handle">${$L(`t.${fieldType}`)}</div></li>`).appendTo('.type-list')
   $item.click(function () {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType}`, $L('AddField'))
+    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType}`, $L('AddField'), { disposeOnHide: true })
     else RbHighbar.error($L('OnlyAdminCanSome,AddField'))
   })
   return $item

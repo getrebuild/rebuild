@@ -206,7 +206,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             if (s.getEntityCode() > 0) {
                 _ESS.put(s.getEntityCode(), s);
                 if (devMode()) {
-                    log.info("Service specification : " + s.getClass().getName() + " for <" + s.getEntityCode() + ">");
+                    log.info("Service specification : {} for [ {} ]", s.getClass().getName(), s.getEntityCode());
                 }
             }
         }
