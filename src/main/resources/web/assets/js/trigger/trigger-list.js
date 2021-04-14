@@ -14,7 +14,7 @@ $(document).ready(function () {
 const WHENS = {
   1: $L('Create'),
   2: $L('Delete'),
-  4: $L('Update'),
+  4: $L('Update2'),
   16: $L('Assign'),
   32: $L('Share'),
   64: $L('UnShare'),

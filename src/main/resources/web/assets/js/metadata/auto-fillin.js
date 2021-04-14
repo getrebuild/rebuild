@@ -23,7 +23,7 @@ const loadRules = () => {
 
       const ruleLabels = []
       if (this.extConfig.whenCreate) ruleLabels.push($L('WhenCreate'))
-      if (this.extConfig.whenUpdate) ruleLabels.push($L('WhenUpdate'))
+      if (this.extConfig.whenUpdate) ruleLabels.push($L('WhenEdit'))
       if (this.extConfig.fillinForce) ruleLabels.push($L('ForceFillback'))
       if (this.extConfig.readonlyTargetField) ruleLabels.push($L('TargetFieldReadonly'))
       $(`<td>${ruleLabels.join(', ')}</div></td>`).appendTo($tr)
@@ -106,7 +106,7 @@ class DlgRuleEdit extends RbFormHandler {
               </label>
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.whenUpdate === true} data-id="whenUpdate" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('WhenUpdate')}</span>
+                <span className="custom-control-label">{$L('WhenEdit')}</span>
               </label>
             </div>
           </div>
