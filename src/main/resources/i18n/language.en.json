@@ -487,7 +487,7 @@
   "BindApiUser": "Bind User (Privileges)",
   "BindApiUserTips": "It is strongly recommended that you bind a user to an API key that will have the same permissions as it does. If not bound, have full permissions",
   "UnBindApiUser": "None (with full privileges)",
-  "AccessCount30d": "Calls (30 days)",
+  "AccessCount30d": "Call volume (30 days)",
   "OnlyAdminCanSome": "Only super administrators can {0}",
   "BuiltIn": "Built-in",
   "SysBuiltIn": "System Built-in",

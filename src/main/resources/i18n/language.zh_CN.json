@@ -487,7 +487,7 @@
   "BindApiUser": "绑定用户 (权限)",
   "BindApiUserTips": "强烈建议为 API 秘钥绑定一个用户，此秘钥将拥有和其一样的权限。如不绑定则拥有全部权限",
   "UnBindApiUser": "无 (拥有全部权限)",
-  "AccessCount30d": "访问量 (30 天)",
+  "AccessCount30d": "调用量 (30 天)",
   "OnlyAdminCanSome": "仅超级管理员可{0}",
   "BuiltIn": "内置",
   "SysBuiltIn": "系统内置",
