@@ -1340,6 +1340,7 @@
   "FuncHelp": "如何使用函数",
   "ShareWithUpdate": "允许编辑 (默认仅共享读取)",
   "OnlyFormEffectiveTip": "本选项仅针对表单有效",
+  "TriggerExecError": "触发器执行失败 (%s)",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

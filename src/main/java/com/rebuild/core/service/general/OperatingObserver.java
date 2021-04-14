@@ -9,8 +9,7 @@ package com.rebuild.core.service.general;
 
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.commons.ThreadPool;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -22,9 +21,8 @@ import java.util.Observer;
  * @see ObservableService
  * @since 10/31/2018
  */
+@Slf4j
 public abstract class OperatingObserver implements Observer {
-
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     protected OperatingObserver() {
         super();
@@ -38,7 +36,7 @@ public abstract class OperatingObserver implements Observer {
                 try {
                     updateByAction(ctx);
                 } catch (Exception ex) {
-                    LOG.error("OperateContext : " + ctx, ex);
+                    log.error("OperateContext : " + ctx, ex);
                 }
             });
         } else {

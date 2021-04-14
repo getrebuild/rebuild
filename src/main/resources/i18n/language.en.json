@@ -1340,6 +1340,7 @@
   "FuncHelp": "How to use functions",
   "ShareWithUpdate": "Allow edit (Only shared read by default)",
   "OnlyFormEffectiveTip": "This option is only valid for forms",
+  "TriggerExecError": "Trigger execution failed (%s)",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

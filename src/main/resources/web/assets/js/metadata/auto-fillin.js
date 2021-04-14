@@ -9,9 +9,7 @@ const wpc = window.__PageConfig
 const bProps = { sourceEntity: wpc.referenceEntity, targetEntity: wpc.entityName, field: wpc.fieldName }
 
 $(document).ready(() => {
-  $('.J_add-rule').click(() => {
-    renderRbcomp(<DlgRuleEdit {...bProps} />)
-  })
+  $('.J_add-rule').click(() => renderRbcomp(<DlgRuleEdit {...bProps} />))
   loadRules()
 })
 
@@ -20,15 +18,15 @@ const loadRules = () => {
     const $tbody = $('#dataList tbody').empty()
     $(res.data).each(function () {
       const $tr = $('<tr></tr>').appendTo($tbody)
-      $('<td><div>' + this.targetFieldLabel + '</div></td>').appendTo($tr)
-      $('<td>' + this.sourceFieldLabel + '</div></td>').appendTo($tr)
+      $(`<td><div>${this.targetFieldLabel}</div></td>`).appendTo($tr)
+      $(`<td>${this.sourceFieldLabel}</div></td>`).appendTo($tr)
 
       const ruleLabels = []
       if (this.extConfig.whenCreate) ruleLabels.push($L('WhenCreate'))
       if (this.extConfig.whenUpdate) ruleLabels.push($L('WhenUpdate'))
       if (this.extConfig.fillinForce) ruleLabels.push($L('ForceFillback'))
       if (this.extConfig.readonlyTargetField) ruleLabels.push($L('TargetFieldReadonly'))
-      $('<td>' + ruleLabels.join(', ') + '</div></td>').appendTo($tr)
+      $(`<td>${ruleLabels.join(', ')}</div></td>`).appendTo($tr)
 
       const $btns = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a></td>').appendTo($tr)
       $btns.find('a:eq(0)').click(() => {
@@ -43,9 +41,12 @@ const loadRules = () => {
             this.disabled(true)
             $.post(`/app/entity/common-delete?id=${cfgid}`, (res) => {
               if (res.error_code === 0) {
+                RbHighbar.success($L('SomeSuccess,Delete'))
                 this.hide()
                 loadRules()
-              } else RbHighbar.error(res.error_msg)
+              } else {
+                RbHighbar.error(res.error_msg)
+              }
             })
           },
         })
@@ -222,7 +223,9 @@ class DlgRuleEdit extends RbFormHandler {
       if (res.error_code === 0) {
         this.hide()
         loadRules()
-      } else RbHighbar.create(res.error_msg)
+      } else {
+        RbHighbar.create(res.error_msg)
+      }
       this.disabled()
     })
   }

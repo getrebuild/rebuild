@@ -1340,6 +1340,7 @@
   "FuncHelp": "如何使用函數",
   "ShareWithUpdate": "允許編輯 (默認僅共享讀取)",
   "OnlyFormEffectiveTip": "本選項僅針對錶單有效",
+  "TriggerExecError": "觸發器執行失敗 (%s)",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

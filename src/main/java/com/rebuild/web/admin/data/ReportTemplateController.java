@@ -59,7 +59,7 @@ public class ReportTemplateController extends BaseController {
 
         String sql = "select configId,belongEntity,belongEntity,name,isDisabled,modifiedOn from DataReportConfig" +
                 " where (1=1) and (2=2)" +
-                " order by name, modifiedOn desc";
+                " order by modifiedOn desc, name";
 
         Object[][] array = queryListOfConfig(sql, entity, q);
         writeSuccess(response, array);

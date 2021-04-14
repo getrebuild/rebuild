@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global dlgActionAfter */
 
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<ApprovalEdit />))
@@ -27,7 +28,9 @@ class ApprovalList extends ConfigList {
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
-              <td><DateShow date={item[5]}/></td>
+              <td>
+                <DateShow date={item[5]} />
+              </td>
               <td className="actions">
                 <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
@@ -48,7 +51,6 @@ class ApprovalList extends ConfigList {
   }
 
   handleDelete(id) {
-    const that = this
     const handle = super.handleDelete
     RbAlert.create($L('DeleteApprovalConfirm'), {
       html: true,
@@ -56,10 +58,7 @@ class ApprovalList extends ConfigList {
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        handle(id, () => {
-          this.hide()
-          that.loadData()
-        })
+        handle(id, () => dlgActionAfter(this))
       },
     })
   }
@@ -139,7 +138,7 @@ class ApprovalEdit extends ConfigFormDlg {
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        if (this.props.id) location.reload()
+        if (this.props.id) dlgActionAfter(this)
         else location.href = 'approval/' + res.data.id
       } else {
         RbHighbar.error(res.error_msg)
