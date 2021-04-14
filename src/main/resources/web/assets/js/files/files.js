@@ -117,7 +117,11 @@ var currentSort
 var filesList
 
 $(document).ready(() => {
-  $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
+  $('.side-toggle').click(() => {
+    const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
+    $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
+  })
+
   const $content = $('.page-aside .tab-content')
   $addResizeHandler(() => {
     $content.height($(window).height() - 147)

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${appName}]]</title>
+    <style>
+      .frame-wrap,
+      .frame-wrap iframe {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100%;
+        height: 100%;
+        min-height: 100%;
+        line-height: 1;
+        font-size: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left}" />
+      <div class="rb-loading rb-loading-active must-center">
+        <th:block th:replace="~{/_include/spinner}" />
+      </div>
+      <div class="rb-content">
+        <div class="main-content container-fluid frame-wrap">
+          <iframe frameborder="0" scrolling="yes" height="100%" width="100%" class="hide"></iframe>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script>
+      $(document).ready(() => {
+        const $frame = $('.frame-wrap iframe')
+        $frame.attr('src', $decode($urlp('url')))
+
+        $addResizeHandler(() => {
+          $frame.css({ minHeight: $(window).height() - 61 })
+        })()
+        setTimeout(() => {
+          $frame.removeClass('hide')
+          $('.rb-loading-active').remove()
+        }, 1000)
+      })
+    </script>
+  </body>
+</html>
+<!-- /p/commons/frame?url=xxx -->
