@@ -4,6 +4,16 @@
     <th:block th:replace="~{/_include/header}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
     <title>[[${bundle.L('SomeView,Team')}]]</title>
+    <style>
+      .nav.depts a {
+        border: 1px solid transparent;
+        border-radius: 99px;
+        padding: 0.4rem 0.9rem;
+      }
+      .nav.depts a.active {
+        border: 1px solid #4285f4;
+      }
+    </style>
   </head>
   <body class="view-body">
     <div class="view-header">
