@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONArray;
@@ -22,13 +23,18 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 
 /**
@@ -49,6 +55,26 @@ public class FieldWriteback extends FieldAggregation {
     @Override
     public ActionType getType() {
         return ActionType.FIELDWRITEBACK;
+    }
+
+    @Override
+    public void prepare(OperatingContext operatingContext) throws TriggerException {
+        // FIELD.ENTITY
+        String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
+        this.sourceEntity = context.getSourceEntity();
+        this.targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
+
+        // 自己
+        if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
+            this.targetRecordId = context.getSourceRecord();
+        } else {
+            String sql = String.format("select %s from %s where %s = ?",
+                    targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
+            Object[] o = Application.getQueryFactory().createQueryNoFilter(sql)
+                    .setParameter(1, operatingContext.getAnyRecord().getPrimary())
+                    .unique();
+            this.targetRecordId = (ID) o[0];
+        }
     }
 
     @Override
