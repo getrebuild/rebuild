@@ -620,7 +620,7 @@
   "ApprovalStart": "流程开始",
   "ApprovalEnd": "流程结束",
   "NodeUserAll": "所有人",
-  "NodeUserOwns": "记录所属人",
+  "NodeUserOwns": "记录所属用户",
   "NodeUserSelf": "发起人自己",
   "NodeUserSpec": "指定用户",
   "NodeStart": "发起人",
@@ -1341,7 +1341,7 @@
   "Func": "函数",
   "FuncUnit": "单位",
   "FuncHelp": "如何使用函数",
-  "ShareWithUpdate": "允许编辑 (默认仅共享读取)",
+  "ShareWithUpdate": "允许编辑 (默认仅共享读取权限)",
   "OnlyFormEffectiveTip": "本选项仅针对表单有效",
   "TriggerExecError": "触发器执行失败 (%s)",
 

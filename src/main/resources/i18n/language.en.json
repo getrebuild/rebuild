@@ -1341,7 +1341,7 @@
   "Func": "Func",
   "FuncUnit": "Unit",
   "FuncHelp": "How to use functions",
-  "ShareWithUpdate": "Allow edit (Only shared read by default)",
+  "ShareWithUpdate": "Allow edit (Only shared read permissions by default)",
   "OnlyFormEffectiveTip": "This option is only valid for forms",
   "TriggerExecError": "Trigger execution failed (%s)",
 
