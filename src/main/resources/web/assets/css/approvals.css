@@ -146,7 +146,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.rbflow-design .add-node-btn-box:before {
+.rbflow-design .add-node-btn-box::before {
   content: '';
   position: absolute;
   top: 0;
@@ -287,7 +287,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   position: relative;
 }
 
-.rbflow-design .condition-node-box:before {
+.rbflow-design .condition-node-box::before {
   content: '';
   position: absolute;
   top: 0;
@@ -496,7 +496,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background: #f5f5f7;
 }
 
-.node-wrap-box.start-node:before {
+.node-wrap-box.start-node::before {
   content: none;
 }
 
