@@ -11,7 +11,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 $(document).ready(() => {
   $('.card-header>a').click((e) => {
     e.preventDefault()
-    editMode()
+    enableEditMode()
   })
 
   $('.edit-footer>.btn-link').click(() => location.reload())
@@ -25,7 +25,7 @@ const changeValue = function (e) {
 }
 
 // 激活编辑模式
-const editMode = function () {
+const enableEditMode = function () {
   $('.syscfg table td[data-id]').each(function () {
     const $item = $(this)
     const name = $item.data('id')
@@ -51,6 +51,8 @@ var useEditComp = function (name, value) {
 const post = function (data) {
   for (let k in data) {
     if (!data[k]) {
+      if ($('td[data-id=' + k + ']').data('ignore')) continue
+
       const field = $('td[data-id=' + k + ']')
         .prev()
         .text()
@@ -59,10 +61,17 @@ const post = function (data) {
     }
   }
 
+  if (!(data = postBefore(data))) return false
+
   const $btn = $('.edit-footer>.btn-primary').button('loading')
   $.post(location.href, JSON.stringify(data), (res) => {
     $btn.button('reset')
     if (res.error_code === 0) location.reload()
     else RbHighbar.error(res.error_msg)
   })
+}
+
+// 复写-保存前检查
+var postBefore = function (data) {
+  return data
 }

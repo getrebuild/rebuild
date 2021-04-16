@@ -87,7 +87,7 @@
                       <div class="col-md-4 col-12">
                         <div class="avatar-wrap">
                           <div class="avatar text-center">
-                            <img alt="Avatar" id="avatar-img" th:src="|${baseUrl}/account/user-avatar?w=200&${session.davatarTime}|" />
+                            <img id="avatar-img" th:src="|${baseUrl}/account/user-avatar?w=200&${session.davatarTime}|" alt="Avatar" />
                             <label>
                               <i class="zmdi zmdi-camera"></i>
                               <br />[[${bundle.L('ModifySome,Avatar')}]]
@@ -111,7 +111,7 @@
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('JoinedTeam')}]]</label>
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('JoinedTeams')}]]</label>
                             <div class="col-sm-8">
                               <div class="form-control-plaintext split-span">
                                 <th:block th:each="team : ${user.getOwningTeams()}">

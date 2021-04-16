@@ -212,7 +212,16 @@ class FeedsEditor extends React.Component {
           </div>
         </div>
         {this.state.type === 4 && <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />}
-        {(this.state.type === 2 || this.state.type === 4) && <SelectRelated ref={(c) => (this._selectRelated = c)} initValue={this.state.relatedRecord} />}
+        {(this.state.type === 2 || this.state.type === 4) && (
+          <div className="feed-options related">
+            <dl className="row">
+              <dt className="col-12 col-lg-3 pt-2">{$L('RelatedRecord')}</dt>
+              <dd className="col-12 col-lg-9">
+                <AnyRecordSelector ref={(c) => (this._selectRelated = c)} initValue={this.state.relatedRecord} />
+              </dd>
+            </dl>
+          </div>
+        )}
         {this.state.type === 3 && <AnnouncementOptions ref={(c) => (this._announcementOptions = c)} initValue={this.state.contentMore} />}
         {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && (
           <div className="attachment">
@@ -406,104 +415,6 @@ class SelectGroup extends React.Component {
     this.hide()
     this.props.call && this.props.call(item)
   }
-}
-
-// ~ 选择相关记录
-class SelectRelated extends React.Component {
-  state = { ...this.props }
-
-  render() {
-    return (
-      <div className="feed-options related">
-        <dl className="row">
-          <dt className="col-12 col-lg-3 pt-2">{$L('ReleatedRecord')}</dt>
-          <dd className="col-12 col-lg-9">
-            <span className="float-left" style={{ width: 200 }}>
-              <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
-                {(this.state.entities || []).length === 0 && <option>{$L('NoAnySome,Entity')}</option>}
-                {(this.state.entities || []).map((item) => {
-                  return (
-                    <option key={item.name} value={item.name}>
-                      {item.label}
-                    </option>
-                  )
-                })}
-              </select>
-            </span>
-            <span className="float-left pl-1 related-record">
-              <select className="form-control form-control-sm float-left" ref={(c) => (this._record = c)} />
-            </span>
-            <div className="clearfix"></div>
-          </dd>
-        </dl>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    $.get('/commons/metadata/entities', (res) => {
-      if (!res.data || res.data.length === 0) {
-        $(this._entity).attr('disabled', true)
-        $(this._record).attr('disabled', true)
-        return
-      }
-      this.setState({ entities: res.data }, () => {
-        $(this._entity)
-          .select2({
-            allowClear: false,
-          })
-          .on('change', () => {
-            $(this._record).val(null).trigger('change')
-          })
-
-        // 编辑时
-        if (this.props.initValue) {
-          $(this._entity).val(this.props.initValue.entity).trigger('change')
-          const option = new Option(this.props.initValue.text, this.props.initValue.id, true, true)
-          $(this._record).append(option)
-        }
-      })
-    })
-
-    const that = this
-    let search_input = null
-    $(this._record).select2({
-      placeholder: `${$L('SelectSome,ReleatedRecord')} (${$L('Optional')})`,
-      minimumInputLength: 0,
-      maximumSelectionLength: 1,
-      ajax: {
-        url: '/commons/search/search',
-        delay: 300,
-        data: function (params) {
-          search_input = params.term
-          return { entity: $(that._entity).val(), q: params.term }
-        },
-        processResults: function (data) {
-          return { results: data.data }
-        },
-      },
-      language: {
-        noResults: () => {
-          return (search_input || '').length > 0 ? $L('NoResults') : $L('InputForSearch')
-        },
-        inputTooShort: () => {
-          return $L('InputForSearch')
-        },
-        searching: () => {
-          return $L('Searching')
-        },
-        maximumSelected: () => {
-          return $L('OnlyXSelected').replace('%d', 1)
-        },
-      },
-    })
-  }
-
-  val() {
-    return $(this._record).val()
-  }
-
-  reset = () => $(this._record).val(null).trigger('change')
 }
 
 // 公告选项
@@ -701,7 +612,7 @@ class FeedsEditDlg extends RbModalHandler {
       contentMore: this.props.contentMore,
     }
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('EditSome,e.Feeds')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L(`${this.props.id ? 'EditSome' : 'NewSome'},e.Feeds`)} disposeOnHide={true}>
         <div className="m-1">
           <FeedsEditor ref={(c) => (this._editor = c)} {..._data} />
         </div>
@@ -720,10 +631,9 @@ class FeedsEditDlg extends RbModalHandler {
   _post = () => {
     const _data = this._editor.vals()
     if (!_data) return
-    if (!_data.content) {
-      RbHighbar.create($L('PlsInputSome,FeedsContent'))
-      return
-    }
+    if (!_data.content) return RbHighbar.create($L('PlsInputSome,FeedsContent'))
+    if (!this.props.id && this.props.type) _data.type = this.props.type
+
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
     const btns = $(this._btns).find('.btn').button('loading')

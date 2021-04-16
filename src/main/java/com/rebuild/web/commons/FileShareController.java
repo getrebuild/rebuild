@@ -74,7 +74,7 @@ public class FileShareController extends BaseController {
         }
 
         String publicUrl = makePublicUrl(fileUrl);
-        return createModelAndView("/commons/shared-file", Collections.singletonMap("publicUrl", publicUrl));
+        return createModelAndView("/common/shared-file", Collections.singletonMap("publicUrl", publicUrl));
     }
 
     /**

@@ -46,7 +46,7 @@ class FilesList extends React.Component {
           )
         })}
         {this.state.currentLen >= PAGE_SIZE && (
-          <div className="text-center mt-3 mb-3">
+          <div className="text-center mt-3 pb-3">
             <a
               href="#"
               onClick={(e) => {
@@ -57,7 +57,7 @@ class FilesList extends React.Component {
             </a>
           </div>
         )}
-        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 mb-3 text-muted">{$L('AllLoaded')}</div>}
+        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">{$L('AllLoaded')}</div>}
         {this.__pageNo === 1 && !hasFiles && (
           <div className="list-nodata pt-8 pb-8">
             <i className="zmdi zmdi-folder-outline"></i>
@@ -117,7 +117,11 @@ var currentSort
 var filesList
 
 $(document).ready(() => {
-  $('.side-toggle').click(() => $('.rb-aside').toggleClass('rb-aside-collapsed'))
+  $('.side-toggle').click(() => {
+    const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
+    $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
+  })
+
   const $content = $('.page-aside .tab-content')
   $addResizeHandler(() => {
     $content.height($(window).height() - 147)

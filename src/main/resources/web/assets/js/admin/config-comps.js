@@ -6,6 +6,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
 
+let dlgActionAfter_List
+const dlgActionAfter = function (dlg) {
+  dlg && dlg.hide()
+  dlgActionAfter_List && dlgActionAfter_List.loadData()
+}
+
 // 表单 DLG
 class ConfigFormDlg extends RbFormHandler {
   constructor(props) {
@@ -59,6 +65,7 @@ class ConfigList extends React.Component {
   }
 
   componentDidMount() {
+    dlgActionAfter_List = this
     this.loadData()
     // 搜索
     const $btn = $('.input-search .btn').click(() => this.loadData())
@@ -99,25 +106,33 @@ class ConfigList extends React.Component {
     $(this.state.data).each(function () {
       ues[this[1]] = this[2]
     })
-    const dest = $('.aside-tree ul')
-    for (let k in ues) {
-      $(`<li data-entity="${k}"><a class="text-truncate">${ues[k]}</a></li>`).appendTo(dest)
-    }
+
+    const uesSorted = []
+    for (let k in ues) uesSorted.push([k, ues[k]])
+    uesSorted.sort((x, y) => {
+      return x[1] > y[1] ? 1 : x[1] < y[1] ? -1 : 0
+    })
+
+    const $dest = $('.aside-tree ul')
+    uesSorted.forEach((item) => {
+      $(`<li data-entity="${item[0]}"><a class="text-truncate">${item[1]}</a></li>`).appendTo($dest)
+    })
 
     const that = this
-    dest.find('li').click(function () {
-      dest.find('li').removeClass('active')
+    $dest.find('li').click(function () {
+      $dest.find('li').removeClass('active')
       $(this).addClass('active')
       that.loadData($(this).data('entity') || '$ALL$')
     })
   }
 
   // 删除数据
-  handleDelete(id) {
+  handleDelete(id, call) {
     $.post(`/app/entity/common-delete?id=${id}`, (res) => {
       if (res.error_code === 0) {
         RbHighbar.success($L('SomeSuccess,Delete'))
-        setTimeout(() => location.reload(), 500)
+        if (typeof call === 'function') call()
+        else setTimeout(() => location.reload(), 500)
       } else {
         RbHighbar.error(res.error_msg)
       }

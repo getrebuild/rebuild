@@ -6,24 +6,25 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 .bosskey-show,
-.dev-show,
 .admin-show {
   display: none;
 }
 
-html.dev .dev-show,
 html.admin .admin-show {
   display: block;
 }
 
-html.dev .dev-show.inline,
 html.admin .admin-show.inline {
   display: inline-block;
 }
 
-html.dev .dev-show.row,
 html.admin .admin-show.row {
   display: flex;
+}
+
+.rbv-hide,
+.dev-show {
+  display: none;
 }
 
 html,
@@ -338,8 +339,7 @@ a.btn {
   background-image: url(../img/logo-white.png);
 }
 
-.alert-sm > .icon,
-.alert-icon.min > .icon {
+.alert-sm > .icon {
   width: 42px;
   font-size: 1.6rem;
 }
@@ -348,14 +348,12 @@ a.btn {
   right: -7px;
 }
 
-.alert-sm > .message,
-.alert-icon.min > .message {
+.alert-sm > .message {
   padding: 0.8rem 0.8rem 0.8rem 1.3rem;
   line-height: 22px;
 }
 
-.alert-sm .close,
-.alert.min .close {
+.alert-sm .close {
   padding: 0.95rem 0;
 }
 
@@ -412,6 +410,7 @@ a.btn {
 
 .custom-control-label {
   line-height: 1.9;
+  color: #444;
 }
 
 .custom-control-sm .custom-control-label {
@@ -763,6 +762,14 @@ a {
   background-color: rgba(0, 0, 0, 0.05);
 }
 
+select.form-control:not([disabled]) {
+  background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0iIzU4NjA2OSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNNC40MjcgOS40MjdsMy4zOTYgMy4zOTZhLjI1MS4yNTEgMCAwMC4zNTQgMGwzLjM5Ni0zLjM5NkEuMjUuMjUgMCAwMDExLjM5NiA5SDQuNjA0YS4yNS4yNSAwIDAwLS4xNzcuNDI3ek00LjQyMyA2LjQ3TDcuODIgMy4wNzJhLjI1LjI1IDAgMDEuMzU0IDBMMTEuNTcgNi40N2EuMjUuMjUgMCAwMS0uMTc3LjQyN0g0LjZhLjI1LjI1IDAgMDEtLjE3Ny0uNDI3eiIgLz48L3N2Zz4=');
+  background-repeat: no-repeat;
+  background-position: center right 3px;
+  padding-right: 15px;
+  background-size: 16px;
+}
+
 /* FormPage */
 
 .rbform > form > .alert {
@@ -1014,7 +1021,7 @@ a {
   border: 0 none;
   color: #404040;
   border-left: 2px solid #ccc;
-  width: 205px;
+  width: 239px;
   border-radius: 2px;
   max-height: 38px;
   cursor: default;
@@ -1137,6 +1144,10 @@ a {
 
 .rbhighbar > .alert > .message a {
   color: #fff;
+}
+
+.rbhighbar > .alert > .message a[target='_blank']:hover {
+  text-decoration: underline;
 }
 
 .ui-mprogress .bar-bg,
@@ -1826,7 +1837,7 @@ th.column-fixed {
 
 .aside-tree li > a {
   display: block;
-  padding: 6px 10px;
+  padding: 7px 10px;
   cursor: pointer;
   color: #444;
 }
@@ -1863,8 +1874,8 @@ th.column-fixed {
 .aside-tree li > div.action a,
 .adv-search .dropdown-item div.action a {
   display: inline-block;
-  height: 32px;
-  line-height: 32px;
+  height: 34px;
+  line-height: 34px;
   width: 22px;
   text-align: center;
   font-size: 1.2rem;
@@ -2171,6 +2182,14 @@ form.simple {
 
 .fs-18 {
   font-size: 18px !important;
+}
+
+.fs-19 {
+  font-size: 19px !important;
+}
+
+.fs-20 {
+  font-size: 20px !important;
 }
 
 .danger-hover:hover {
@@ -3703,7 +3722,8 @@ a.select-lang:hover {
   display: none;
 }
 
-.use-theme {
+.use-theme,
+.use-language {
   border-top: 1px solid #eee;
   margin-top: 6px;
   padding: 14px 15px 10px;
@@ -3803,8 +3823,18 @@ a.select-lang:hover {
   min-height: 130px;
 }
 
-.CodeMirror .CodeMirror-code {
+.cm-formatting {
+  display: none !important;
+}
+
+.CodeMirror .CodeMirror-code,
+.CodeMirror-line {
   line-height: 1.6;
+}
+
+.cm-readonly ~ .CodeMirror {
+  background-color: #eee;
+  cursor: default;
 }
 
 .mdedit-content p,
@@ -3815,13 +3845,8 @@ a.select-lang:hover {
 .editor-preview ul,
 .editor-preview ol,
 .editor-preview table {
-  margin-bottom: 1em;
+  margin-bottom: 0.75em;
   line-height: 1.6;
-}
-
-.mdedit-content *:last-child,
-.editor-preview *:last-child {
-  margin-bottom: 0;
 }
 
 .mdedit-content img,
@@ -3833,12 +3858,67 @@ a.select-lang:hover {
 .mdedit-content th,
 .mdedit-content td {
   border: 1px solid #ddd;
-  padding: 5px;
+  padding: 6px;
 }
 
-.cm-readonly ~ .CodeMirror {
-  background-color: #eee;
-  cursor: default;
+.mdedit-content h1,
+.editor-preview h1,
+.CodeMirror .CodeMirror-code .cm-header-1,
+.mdedit-content h2,
+.editor-preview h2,
+.CodeMirror .CodeMirror-code .cm-header-2,
+.mdedit-content h3,
+.editor-preview h3,
+.CodeMirror .CodeMirror-code .cm-header-3,
+.mdedit-content h4,
+.editor-preview h4,
+.CodeMirror .CodeMirror-code .cm-header-4,
+.mdedit-content h5,
+.editor-preview h5,
+.CodeMirror .CodeMirror-code .cm-header-5,
+.mdedit-content h6,
+.editor-preview h6,
+.CodeMirror .CodeMirror-code .cm-header-1 {
+  margin: 0;
+  font-weight: bold;
+  line-height: 1.6;
+}
+
+.mdedit-content h1,
+.editor-preview h1,
+.CodeMirror .CodeMirror-code .cm-header-1 {
+  font-size: 2.5rem;
+}
+
+.mdedit-content h2,
+.editor-preview h2,
+.CodeMirror .CodeMirror-code .cm-header-2 {
+  font-size: 2rem;
+}
+
+.mdedit-content h3,
+.editor-preview h3,
+.CodeMirror .CodeMirror-code .cm-header-3 {
+  font-size: 1.75rem;
+}
+
+.mdedit-content h4,
+.editor-preview h4,
+.CodeMirror .CodeMirror-code .cm-header-4 {
+  font-size: 1.5rem;
+}
+
+.mdedit-content h5,
+.editor-preview h5,
+.CodeMirror .CodeMirror-code .cm-header-5 {
+  font-size: 1.25rem;
+}
+
+.mdedit-content h6,
+.editor-preview h6,
+.CodeMirror .CodeMirror-code .cm-header-6 {
+  font-size: 1rem;
+  font-weight: normal;
 }
 
 .popover {

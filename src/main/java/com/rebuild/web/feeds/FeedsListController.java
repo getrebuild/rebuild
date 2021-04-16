@@ -12,6 +12,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyEntity;
@@ -27,14 +28,13 @@ import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,7 +46,7 @@ import java.util.Set;
  * @author devezhao
  * @since 2019/11/1
  */
-@Controller
+@RestController
 public class FeedsListController extends BaseController {
 
     /**
@@ -64,8 +64,8 @@ public class FeedsListController extends BaseController {
         return mv;
     }
 
-    @RequestMapping("/feeds/feeds-list")
-    public void fetchFeeds(HttpServletRequest request, HttpServletResponse response) {
+    @PostMapping("/feeds/feeds-list")
+    public RespBody fetchFeeds(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
         JSON filter = ServletUtils.getRequestJson(request);
@@ -108,8 +108,7 @@ public class FeedsListController extends BaseController {
             count = (Long) Application.createQueryNoFilter(
                     "select count(feedsId) from Feeds where " + sqlWhere).unique()[0];
             if (count == 0) {
-                writeSuccess(response);
-                return;
+                return RespBody.ok();
             }
         }
 
@@ -180,12 +179,13 @@ public class FeedsListController extends BaseController {
 
             list.add(item);
         }
-        writeSuccess(response,
-                JSONUtils.toJSONObject(new String[]{"total", "data"}, new Object[]{count, list}));
+
+        return RespBody.ok(JSONUtils.toJSONObject(
+                new String[] { "total", "data" }, new Object[] { count, list }));
     }
 
     @GetMapping("/feeds/comments-list")
-    public void fetchComments(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody fetchComments(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 
         ID feeds = getIdParameterNotNull(request, "feeds");
@@ -199,8 +199,7 @@ public class FeedsListController extends BaseController {
             count = (Long) Application.createQueryNoFilter(
                     "select count(commentId) from FeedsComment where " + sqlWhere).unique()[0];
             if (count == 0) {
-                writeSuccess(response);
-                return;
+                return RespBody.ok();
             }
         }
 
@@ -216,15 +215,10 @@ public class FeedsListController extends BaseController {
             list.add(item);
         }
 
-        writeSuccess(response,
-                JSONUtils.toJSONObject(new String[]{"total", "data"}, new Object[]{count, list}));
+        return RespBody.ok(JSONUtils.toJSONObject(
+                new String[] { "total", "data" }, new Object[] { count, list }));
     }
 
-    /**
-     * @param o
-     * @param user
-     * @return
-     */
     private JSONObject buildBase(Object[] o, ID user) {
         JSONObject item = new JSONObject();
         item.put("id", o[0]);

@@ -29,6 +29,7 @@ hs_err_pid*
 *.iml
 **/rebel.xml
 .gitmodules
+**/.gitmodules
 
 # Bin
 /target/

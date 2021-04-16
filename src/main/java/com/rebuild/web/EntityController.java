@@ -31,7 +31,7 @@ import java.util.Map;
  */
 public abstract class EntityController extends BaseController {
 
-    private static final String PLAIN_ENTITY_PRIVILEGES = "{C:true,D:true,U:true,R:true}";
+    private static final JSON PLAIN_ENTITY_PRIVILEGES = (JSON) JSON.parse("{C:true,D:true,U:true,R:true}");
 
     /**
      * @param page
@@ -43,27 +43,7 @@ public abstract class EntityController extends BaseController {
         ModelAndView mv = createModelAndView(page);
         Entity entityMeta = MetadataHelper.getEntity(entity);
         putEntityMeta(mv, entityMeta);
-
-        if (MetadataHelper.hasPrivilegesField(entityMeta)) {
-            Privileges priv = Application.getPrivilegesManager().getPrivileges(user, entityMeta.getEntityCode());
-            Permission[] actions = new Permission[]{
-                    BizzPermission.CREATE,
-                    BizzPermission.DELETE,
-                    BizzPermission.UPDATE,
-                    BizzPermission.READ,
-                    BizzPermission.ASSIGN,
-                    BizzPermission.SHARE,
-            };
-            Map<String, Boolean> actionMap = new HashMap<>();
-            for (Permission act : actions) {
-                actionMap.put(act.getName(), priv.allowed(act));
-            }
-            mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
-        } else if (EasyMetaFactory.valueOf(entityMeta).isPlainEntity()) {
-            mv.getModel().put("entityPrivileges", PLAIN_ENTITY_PRIVILEGES);
-        } else {
-            mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);
-        }
+        mv.getModel().put("entityPrivileges", buildEntityPrivileges(entityMeta, user));
         return mv;
     }
 
@@ -75,15 +55,31 @@ public abstract class EntityController extends BaseController {
      */
     protected ModelAndView createModelAndView(String page, ID record, ID user) {
         ModelAndView mv = createModelAndView(page);
-        Entity entity = MetadataHelper.getEntity(record.getEntityCode());
-        putEntityMeta(mv, entity);
+        putEntityMeta(mv, MetadataHelper.getEntity(record.getEntityCode()));
+        mv.getModel().put("entityPrivileges", buildEntityPrivileges(record, user));
+        return mv;
+    }
+
+    /**
+     * @param recordIdOrEntity
+     * @param user
+     * @return
+     */
+    protected JSON buildEntityPrivileges(Object recordIdOrEntity, ID user) {
+        Entity useEntity;
+        ID useRecordId = null;
+        if (recordIdOrEntity instanceof Entity) {
+            useEntity = (Entity) recordIdOrEntity;
+        } else {
+            useRecordId = (ID) recordIdOrEntity;
+            useEntity = MetadataHelper.getEntity(useRecordId.getEntityCode());
+        }
 
         // 使用主实体权限
-        if (entity.getMainEntity() != null) {
-            entity = entity.getMainEntity();
-        }
-        if (MetadataHelper.hasPrivilegesField(entity)) {
-            Permission[] actions = new Permission[]{
+        if (useEntity.getMainEntity() != null) useEntity = useEntity.getMainEntity();
+
+        if (MetadataHelper.hasPrivilegesField(useEntity)) {
+            Permission[] actions = new Permission[] {
                     BizzPermission.CREATE,
                     BizzPermission.DELETE,
                     BizzPermission.UPDATE,
@@ -91,17 +87,25 @@ public abstract class EntityController extends BaseController {
                     BizzPermission.ASSIGN,
                     BizzPermission.SHARE,
             };
+
             Map<String, Boolean> actionMap = new HashMap<>();
-            for (Permission act : actions) {
-                actionMap.put(act.getName(), Application.getPrivilegesManager().allow(user, record, act));
+            if (useRecordId != null) {
+                for (Permission a : actions) {
+                    actionMap.put(a.getName(), Application.getPrivilegesManager().allow(user, useRecordId, a));
+                }
+            } else {
+                Privileges priv = Application.getPrivilegesManager().getPrivileges(user, useEntity.getEntityCode());
+                for (Permission a : actions) {
+                    actionMap.put(a.getName(), priv.allowed(a));
+                }
             }
-            mv.getModel().put("entityPrivileges", JSON.toJSONString(actionMap));
-        } else if (EasyMetaFactory.valueOf(entity).isPlainEntity()) {
-            mv.getModel().put("entityPrivileges", PLAIN_ENTITY_PRIVILEGES);
+            return (JSON) JSON.toJSON(actionMap);
+
+        } else if (EasyMetaFactory.valueOf(useEntity).isPlainEntity()) {
+            return PLAIN_ENTITY_PRIVILEGES;
         } else {
-            mv.getModel().put("entityPrivileges", JSONUtils.EMPTY_OBJECT_STR);
+            return JSONUtils.EMPTY_OBJECT;
         }
-        return mv;
     }
 
     /**

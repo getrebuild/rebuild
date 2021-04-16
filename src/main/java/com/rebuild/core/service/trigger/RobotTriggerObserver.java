@@ -8,9 +8,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
+import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -21,10 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/27
  */
+@Slf4j
 public class RobotTriggerObserver extends OperatingObserver {
 
     private static final ThreadLocal<OperatingContext> TRIGGER_SOURCE = new ThreadLocal<>();
-    private static final ThreadLocal<ID> TRIGGER_SOURCE_LAST_ID = new ThreadLocal<>();
+    private static final ThreadLocal<ID> TRIGGER_SOURCE_LASTID = new ThreadLocal<>();
 
     @Override
     protected void onCreate(OperatingContext context) {
@@ -64,7 +69,7 @@ public class RobotTriggerObserver extends OperatingObserver {
             try {
                 action.prepare(context);
             } catch (Exception ex) {
-                LOG.error("Preparing trigger failure: " + action, ex);
+                log.error("Preparing context of trigger failed : {}", action, ex);
             }
         }
         DELETE_ACTION_HOLDS.put(primary, actionsOnDelete);
@@ -87,10 +92,11 @@ public class RobotTriggerObserver extends OperatingObserver {
      * @param when
      */
     protected void execAction(OperatingContext context, TriggerWhen when) {
-        final ID primary = context.getAnyRecord().getPrimary();
+        final ID primaryId = context.getAnyRecord().getPrimary();
 
-        TriggerAction[] beExecuted = when == TriggerWhen.DELETE ?
-                DELETE_ACTION_HOLDS.get(primary) : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
+        TriggerAction[] beExecuted = when == TriggerWhen.DELETE
+                ? DELETE_ACTION_HOLDS.get(primaryId)
+                : RobotTriggerManager.instance.getActions(getEffectedId(context), when);
         if (beExecuted == null || beExecuted.length == 0) {
             return;
         }
@@ -101,22 +107,31 @@ public class RobotTriggerObserver extends OperatingObserver {
             TRIGGER_SOURCE.set(context);
         }
         // 自己触发自己，避免无限执行
-        else if (primary.equals(getTriggerSource().getAnyRecord().getPrimary())
-                || primary.equals(TRIGGER_SOURCE_LAST_ID.get())) {
+        else if (primaryId.equals(getTriggerSource().getAnyRecord().getPrimary())
+                || primaryId.equals(TRIGGER_SOURCE_LASTID.get())) {
             return;
         }
 
-        TRIGGER_SOURCE_LAST_ID.set(primary);
+        TRIGGER_SOURCE_LASTID.set(primaryId);
 
         try {
             for (TriggerAction action : beExecuted) {
-                LOG.info("Trigger [ {} ] executing on record ({}) : {}", action.getType(), when.name(), primary);
+                log.info("Trigger [ {} ] executing on record ({}) : {}", action.getType(), when.name(), primaryId);
 
                 try {
                     action.execute(context);
-                } catch (Exception ex) {
-                    LOG.error("Failed trigger : " + action + " << " + context, ex);
-                    throw ex;
+                } catch (Throwable ex) {
+                    log.error("Trigger execution failed : {} << {}", action, context, ex);
+
+                    // FIXME 触发器执行失败是否抛出
+                    if (ex instanceof MissingMetaExcetion) {
+                        throw new TriggerException(Language.LF("TriggerExecError", ex.getLocalizedMessage()));
+                    } else if (ex instanceof TriggerException) {
+                        throw (TriggerException) ex;
+                    } else {
+                        throw new RebuildException(ex);
+                    }
+
                 } finally {
                     if (originalTriggerSource) {
                         action.clean();
@@ -127,6 +142,7 @@ public class RobotTriggerObserver extends OperatingObserver {
         } finally {
             if (originalTriggerSource) {
                 TRIGGER_SOURCE.remove();
+                TRIGGER_SOURCE_LASTID.remove();
             }
         }
     }

@@ -7,12 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import cn.devezhao.commons.ObjectUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URI;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -101,5 +104,18 @@ public class CommonsUtils {
      */
     public static String randomHex() {
         return UUID.randomUUID().toString().replace("-", "");
+    }
+
+    /**
+     * 转整数（四舍五入）
+     *
+     * @param number
+     * @return
+     * @see cn.devezhao.commons.ObjectUtils#toLong(Object)
+     */
+    public static Long toLongHalfUp(Object number) {
+        double doubleValue = ObjectUtils.toDouble(number);
+        return BigDecimal.valueOf(doubleValue)
+                .setScale(0, RoundingMode.HALF_UP).longValue();
     }
 }

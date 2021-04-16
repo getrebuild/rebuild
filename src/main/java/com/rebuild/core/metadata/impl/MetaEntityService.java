@@ -50,7 +50,7 @@ public class MetaEntityService extends BaseService implements AdminGuard {
         String[] confEntities = new String[]{
                 "MetaField", "PickList", "LayoutConfig", "FilterConfig", "ShareAccess", "ChartConfig",
                 "Attachment", "AutoFillinConfig", "RobotTriggerConfig", "RobotApprovalConfig",
-                "DataReportConfig", "TransformConfig"
+                "DataReportConfig", "TransformConfig", "ExtformConfig"
         };
         int del = 0;
         for (String conf : confEntities) {

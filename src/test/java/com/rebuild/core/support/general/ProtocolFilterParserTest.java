@@ -21,7 +21,7 @@ public class ProtocolFilterParserTest extends TestSupport {
     @Test
     public void parseVia() {
         System.out.println(new ProtocolFilterParser(null)
-                .parseVia(ID.newId(EntityHelper.ChartConfig).toLiteral()));
+                .parseVia(ID.newId(EntityHelper.ChartConfig).toLiteral(), null));
     }
 
     @Test

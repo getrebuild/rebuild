@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
+/* !!! KEEP IT ES5 COMPATIBLE !!! */
 
 /*! https://github.com/carhartl/jquery-cookie */
 // eslint-disable-next-line
@@ -69,8 +70,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
     headers: {
       'Content-Type': 'text/plain;charset=utf-8',
       'X-Client': 'RB/WEB-2.1',
-      'X-Csrf-Token': rb.csrfToken || '',
-      'X-Auth-Token': rb.authToken || '',
+      'X-CsrfToken': rb.csrfToken || '',
+      'X-AuthToken': rb.authToken || '',
     },
     cache: false,
     complete: function (xhr) {
@@ -98,8 +99,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
     },
   })
 
+  if (rb.commercial < 10) $('.rbv-hide').removeClass('rbv-hide')
+  if (rb.env === 'dev') $('.dev-show').removeClass('dev-show')
+
   if (rb.appName && rb.appName !== document.title) document.title = document.title + ' · ' + rb.appName
-  if (rb.env === 'dev') $('html').addClass('dev')
   setTimeout(function () {
     $(document.body).addClass('rb-animate')
   }, 1000)
@@ -398,9 +401,12 @@ var $same = function (a, b) {
   if (a === b) return true
   if (a === 0) a = '0'
   if (b === 0) b = '0'
+  if (a === true || a === false) a = a + ''
+  if (b === true || b === false) b = b + ''
   // eslint-disable-next-line eqeqeq
   return a == b
 }
+var $is = $same
 
 /**
  * 是否为空。兼容对象或数组

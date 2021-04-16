@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%B8%83%E5%B1%80" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/form-design.css}" />
     <title>[[${bundle.L('FormLayout')}]]</title>
   </head>
@@ -24,8 +24,8 @@
               <div class="aside-nav collapse">
                 <ul class="nav">
                   <li><a href="base">[[${bundle.L('BasicInfo')}]]</a></li>
-                  <li><a href="fields">[[${bundle.L('NavFields')}]]</a></li>
                   <li class="active"><a href="form-design">[[${bundle.L('FormLayout')}]]</a></li>
+                  <li><a href="fields">[[${bundle.L('NavFields')}]]</a></li>
                   <li><a href="advanced">[[${bundle.L('AdvConf')}]]</a></li>
                 </ul>
               </div>
@@ -34,20 +34,25 @@
         </aside>
         <div class="rb-right-sidebar field-aside">
           <div class="rb-content">
-            <div class="field-head">
-              <h4 class="float-left">[[${bundle.L('SomeList,Field')}]]</h4>
-              <div class="float-right">
-                <a class="btn btn-link btn-sm p-0 J_new-field" style="margin-top: 10px">+ [[${bundle.L('AddSome,Field')}]]</a>
+            <div class="tab-container">
+              <ul class="nav nav-tabs bg-transparent">
+                <li class="nav-item"><a class="nav-link active" href="#FIELDLIST" data-toggle="tab">[[${bundle.L('SomeList,Field')}]]</a></li>
+                <li class="nav-item"><a class="nav-link" href="#FIELDNEW" data-toggle="tab">[[${bundle.L('AddSome,Field')}]]</a></li>
+              </ul>
+              <div class="tab-content bg-transparent p-0">
+                <div class="tab-pane active" id="FIELDLIST">
+                  <div class="rb-scroller">
+                    <!-- FIELDS HERE -->
+                    <div class="field-list dd-list" th:_title="${bundle.L('AllFieldsLayouted')}"></div>
+                  </div>
+                </div>
+                <div class="tab-pane" id="FIELDNEW">
+                  <div class="rb-scroller">
+                    <!-- TYPES HERE -->
+                    <div class="type-list dd-list"></div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="rb-scroller">
-              <div class="field-list dd-list">
-                <div class="nodata">[[${bundle.L('AllFieldsLayouted')}]]</div>
-              </div>
-            </div>
-            <div class="field-legend">
-              <span class="not-nullable">[[${bundle.L('Required')}]]</span>
-              <span class="readonly">[[${bundle.L('Readonly')}]]</span>
             </div>
           </div>
         </div>
@@ -60,13 +65,14 @@
             <div class="tab-container">
               <ul class="nav nav-tabs nav-tabs-classic">
                 <li class="nav-item"><a class="nav-link active" href="#form-design" data-toggle="tab">[[${bundle.L('FormAndViewLayout')}]]</a></li>
-                <li class="nav-item"><a class="nav-link" href="#adv-control" data-toggle="tab">[[${bundle.L('FormAdvControl')}]] <sup class="rbv"></sup></a></li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#adv-control" data-toggle="tab">[[${bundle.L('FormAdvControl')}]] <sup class="rbv"></sup></a>
+                </li>
               </ul>
               <div class="tab-content mb-5">
                 <div class="tab-pane active" id="form-design">
-                  <div class="form-preview view-preview dd-list">
-                    <div class="nodata">[[${bundle.L('ClickFieldLayoutTips')}]]</div>
-                  </div>
+                  <!-- LAYOUT HERE -->
+                  <div class="form-preview view-preview dd-list" th:_title="${bundle.L('ClickFieldLayoutTips')}"></div>
                   <div class="clearfix"></div>
                 </div>
                 <div class="tab-pane" id="adv-control">
@@ -75,7 +81,9 @@
                       <tr>
                         <th>[[${bundle.L('Field')}]]</th>
                         <th>[[${bundle.L('Display')}]]</th>
-                        <th>[[${bundle.L('Required')}]]</th>
+                        <th>
+                          <span class="d-inline-block">[[${bundle.L('Required')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('OnlyFormEffectiveTip')}"></i></span>
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -88,7 +96,7 @@
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" name="displayOnUpdate" checked />
-                            <span class="custom-control-label">[[${bundle.L('WhenUpdate')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('WhenEdit')}]]</span>
                           </label>
                         </td>
                         <td>
@@ -98,13 +106,12 @@
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" name="requiredOnUpdate" />
-                            <span class="custom-control-label">[[${bundle.L('WhenUpdate')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('WhenEdit')}]]</span>
                           </label>
                         </td>
                       </tr>
                     </tbody>
                   </table>
-                  <div class="nodata">[[${bundle.L('ClickFieldLayoutTips')}]]</div>
                 </div>
               </div>
             </div>

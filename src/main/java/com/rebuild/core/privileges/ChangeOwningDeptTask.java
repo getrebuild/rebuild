@@ -13,8 +13,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.task.HeavyTask;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StopWatch;
 
 import java.text.MessageFormat;
 
@@ -24,9 +24,8 @@ import java.text.MessageFormat;
  * @author devezhao
  * @since 12/29/2018
  */
+@Slf4j
 public class ChangeOwningDeptTask extends HeavyTask<Integer> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ChangeOwningDeptTask.class);
 
     final private ID user;
     final private ID deptNew;
@@ -42,8 +41,10 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
 
     @Override
     protected Integer exec() {
-        LOG.info("Start modifying the `OwningDept` ... " + this.user);
+        log.info("Start modifying the `OwningDept` ... " + this.user);
         this.setTotal(MetadataHelper.getEntities().length);
+
+        final StopWatch sw = new StopWatch("ChangeOwningDeptTask");
 
         final String updeptSql = String.format(
                 "update `{0}` set `{1}` = ''%s'' where `{2}` = ''%s''", deptNew.toLiteral(), user.toLiteral());
@@ -51,7 +52,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
         for (Entity e : MetadataHelper.getEntities()) {
             if (this.isInterrupt()) {
                 this.setInterrupted();
-                LOG.error("Task interrupted : " + user + " > " + deptNew);
+                log.error("Task interrupted : " + user + " > " + deptNew);
                 break;
             }
             if (!MetadataHelper.hasPrivilegesField(e)) {
@@ -59,6 +60,7 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
                 continue;
             }
 
+            sw.start(e.getName());
             String sql = MessageFormat.format(updeptSql,
                     e.getPhysicalName(),
                     e.getField(EntityHelper.OwningDept).getPhysicalName(),
@@ -66,8 +68,10 @@ public class ChangeOwningDeptTask extends HeavyTask<Integer> {
             Application.getSqlExecutor().execute(sql, 600);
             this.addCompleted();
             changed++;
+            sw.stop();
         }
-        LOG.info("Modify the `OwningDept` to complete : " + this.user + " > " + changed);
+
+        log.info("Modify the `OwningDept` to complete : {} > {}\n{}", this.user, changed, sw.prettyPrint());
         return changed;
     }
 }

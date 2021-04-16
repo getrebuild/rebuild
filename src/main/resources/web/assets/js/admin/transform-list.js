@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global dlgActionAfter */
 
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<TransformEdit />))
@@ -29,7 +30,9 @@ class TransformList extends ConfigList {
               <td>{item[2]}</td>
               <td>{item[4]}</td>
               <td>{item[7] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
-              <td><DateShow date={item[5]}/></td>
+              <td>
+                <DateShow date={item[5]} />
+              </td>
               <td className="actions">
                 <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
@@ -52,12 +55,11 @@ class TransformList extends ConfigList {
   handleDelete(id) {
     const handle = super.handleDelete
     RbAlert.create($L('DeleteSomeConfirm,TransformConfig'), {
-      html: true,
       type: 'danger',
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        handle(id)
+        handle(id, () => dlgActionAfter(this))
       },
     })
   }
@@ -105,9 +107,7 @@ class TransformEdit extends ConfigFormDlg {
           </React.Fragment>
         )}
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">
-            {$L('Name')}
-          </label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
@@ -163,12 +163,12 @@ class TransformEdit extends ConfigFormDlg {
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
       if (res.error_code === 0) {
-        if (this.props.id) location.reload()
+        if (this.props.id) dlgActionAfter(this)
         else location.href = 'transform/' + res.data.id
       } else {
         RbHighbar.error(res.error_msg)
-        this.disabled()
       }
+      this.disabled()
     })
   }
 }

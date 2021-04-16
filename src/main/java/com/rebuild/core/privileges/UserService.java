@@ -308,38 +308,38 @@ public class UserService extends BaseServiceImpl {
      * @return
      */
     protected boolean updateRoleAppends(ID user, ID[] roleAppends) {
-        Object[][] shown = Application.createQueryNoFilter(
+        Object[][] exists = Application.createQueryNoFilter(
                 "select memberId,roleId from RoleMember where userId = ?")
                 .setParameter(1, user)
                 .array();
-        if (shown.length == 0 && (roleAppends == null || roleAppends.length == 0)) {
+        if (exists.length == 0 && (roleAppends == null || roleAppends.length == 0)) {
             return false;
         }
 
         if (roleAppends == null || roleAppends.length == 0) {
-            for (Object[] o : shown) {
+            for (Object[] o : exists) {
                 super.delete((ID) o[0]);
             }
             return true;
         }
 
-        Map<ID, ID> shownMap = new HashMap<>();
-        for (Object[] o : shown) {
-            shownMap.put((ID) o[1], (ID) o[0]);
+        Map<ID, ID> role2members = new HashMap<>();
+        for (Object[] o : exists) {
+            role2members.put((ID) o[1], (ID) o[0]);
         }
 
-        for (ID append : roleAppends) {
-            if (shownMap.remove(append) == null) {
+        for (ID role : roleAppends) {
+            if (role2members.remove(role) == null) {
                 Record member = RecordBuilder.builder(EntityHelper.RoleMember)
-                        .add("roleId", append)
+                        .add("roleId", role)
                         .add("userId", user)
                         .build(SYSTEM_USER);
                 super.create(member);
             }
         }
 
-        for (ID remove : shownMap.keySet()) {
-            super.delete(remove);
+        for (ID old : role2members.values()) {
+            super.delete(old);
         }
         return true;
     }

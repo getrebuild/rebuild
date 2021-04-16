@@ -19,7 +19,7 @@
                       <div class="content">
                         <ul>
                           <li th:class="${active == 'integration-storage'} ? 'active'"><a th:href="@{/admin/integration/storage}">[[${bundle.L('IntegrationStorage')}]]</a></li>
-                          <li th:class="${active == 'integration-submail'} ? 'active'"><a th:href="@{/admin/integration/submail}">[[${bundle.L('IntegrationMsgs')}]]</a></li>
+                          <li th:class="${active == 'integration-submail'} ? 'active'"><a th:href="@{/admin/integration/submail}">[[${bundle.L('SmsEmail')}]]</a></li>
                         </ul>
                       </div>
                     </div>
@@ -40,7 +40,7 @@
                 <a th:href="@{/admin/robot/approvals}"><i class="icon zmdi zmdi-assignment-check"></i><span>[[${bundle.L('ApprovalConfig')}]]</span></a>
               </li>
               <li th:class="${active == 'transforms'} ? 'active'">
-                <a th:href="@{/admin/transforms}"><i class="icon zmdi zmdi-repeat"></i><span>[[${bundle.L('TransformConfig')}]]</span></a>
+                <a th:href="@{/admin/transforms}"><i class="icon zmdi zmdi-transform"></i><span>[[${bundle.L('TransformConfig')}]]</span></a>
               </li>
               <li th:class="${active == 'robot-trigger'} ? 'active'">
                 <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('Trigger')}]]</span></a>

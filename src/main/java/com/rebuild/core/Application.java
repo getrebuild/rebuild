@@ -36,7 +36,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.core.support.setup.UpgradeDatabase;
-import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONable;
 import com.rebuild.utils.RebuildBanner;
 import com.rebuild.utils.codec.RbDateCodec;
@@ -63,17 +62,20 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
     /**
      * Rebuild Version
      */
-    public static final String VER = "2.2.4";
+    public static final String VER = "2.3.0";
     /**
      * Rebuild Build
      */
-    public static final int BUILD = 20204;
+    public static final int BUILD = 20300;
 
     static {
         // Driver for DB
         try {
             Class.forName(com.mysql.cj.jdbc.Driver.class.getName());
             Class.forName(org.h2.Driver.class.getName());
+
+            // fix https://github.com/alibaba/druid/issues/3991
+            System.setProperty("druid.mysql.usePingMethod", "false");
         } catch (ClassNotFoundException ex) {
             throw new RebuildException(ex);
         }
@@ -111,27 +113,36 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
         _CONTEXT = event.getApplicationContext();
 
         long time = System.currentTimeMillis();
-
-        String localUrl = String.format("http://localhost:%s%s",
-                BootEnvironmentPostProcessor.getProperty("server.port", "18080"),
-                AppUtils.getContextPath());
-
         boolean started = false;
+
+        final Timer timer = new Timer("Boot-Timer");
+
         try {
             if (Installer.isInstalled()) {
                 started = init();
 
                 if (started) {
-                    String banner = RebuildBanner.formatSimple(
-                            "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
-                            "License   : " + License.queryAuthority(false).values(),
-                            "Local URL : " + localUrl);
-                    log.info(banner);
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            String banner = RebuildBanner.formatSimple(
+                                    "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
+                                    "License   : " + License.queryAuthority(false).values(),
+                                    "Local URL : " + BootApplication.getLocalUrl());
+                            log.info(banner);
+                        }
+                    }, 1500);
                 }
 
             } else {
-                log.warn(RebuildBanner.formatBanner(
-                        "REBUILD IS WAITING FOR INSTALL ...", "Install : " + localUrl + "/setup/install"));
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        log.warn(RebuildBanner.formatBanner(
+                                "REBUILD IS WAITING FOR INSTALL ...",
+                                "Install : " + BootApplication.getLocalUrl() + "/setup/install"));
+                    }
+                }, 1500);
             }
 
         } catch (Exception ex) {
@@ -195,7 +206,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
             if (s.getEntityCode() > 0) {
                 _ESS.put(s.getEntityCode(), s);
                 if (devMode()) {
-                    log.info("Service specification : " + s.getClass().getName() + " for <" + s.getEntityCode() + ">");
+                    log.info("Service specification : {} for [ {} ]", s.getClass().getName(), s.getEntityCode());
                 }
             }
         }

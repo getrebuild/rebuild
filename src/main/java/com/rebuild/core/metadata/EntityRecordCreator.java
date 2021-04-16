@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
-import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -16,18 +15,15 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.engine.NullValue;
 import cn.devezhao.persist4j.record.JsonRecordCreator;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -82,7 +78,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     @Override
     protected void afterCreate(Record record) {
-        bindCommonsFieldsValue(record, record.getPrimary() == null);
+        EntityHelper.bindCommonsFieldsValue(record, record.getPrimary() == null);
         verify(record);
     }
 
@@ -139,40 +135,6 @@ public class EntityRecordCreator extends JsonRecordCreator {
             if (!notAllowed.isEmpty()) {
                 throw new DataSpecificationException(
                         Language.LF("XNotModify", StringUtils.join(notAllowed, " / ")));
-            }
-        }
-    }
-
-    /**
-     * 绑定公用/权限字段值
-     *
-     * @param r
-     * @param isNew
-     */
-    protected static void bindCommonsFieldsValue(Record r, boolean isNew) {
-        final Date now = CalendarUtils.now();
-        final Entity entity = r.getEntity();
-
-        if (entity.containsField(EntityHelper.ModifiedOn)) {
-            r.setDate(EntityHelper.ModifiedOn, now);
-        }
-        if (entity.containsField(EntityHelper.ModifiedBy)) {
-            r.setID(EntityHelper.ModifiedBy, r.getEditor());
-        }
-
-        if (isNew) {
-            if (entity.containsField(EntityHelper.CreatedOn)) {
-                r.setDate(EntityHelper.CreatedOn, now);
-            }
-            if (entity.containsField(EntityHelper.CreatedBy)) {
-                r.setID(EntityHelper.CreatedBy, r.getEditor());
-            }
-            if (entity.containsField(EntityHelper.OwningUser)) {
-                r.setID(EntityHelper.OwningUser, r.getEditor());
-            }
-            if (entity.containsField(EntityHelper.OwningDept)) {
-                User user = Application.getUserStore().getUser(r.getEditor());
-                r.setID(EntityHelper.OwningDept, (ID) user.getOwningDept().getIdentity());
             }
         }
     }

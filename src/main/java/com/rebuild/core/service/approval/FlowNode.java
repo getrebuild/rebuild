@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.approval;
 
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -23,6 +24,7 @@ import java.util.*;
  * @author devezhao-mbp zhaofang123@gmail.com
  * @since 2019/07/06
  */
+@SuppressWarnings("unused")
 public class FlowNode {
 
     // 特殊节点
@@ -49,9 +51,9 @@ public class FlowNode {
 
     // 多人联合审批类型
 
-    public static final String SIGN_AND = "AND";  // 会签
+    public static final String SIGN_AND = "AND";  // 会签（默认）
     public static final String SIGN_OR = "OR";      // 或签
-    public static final String SIGN_ALL = "ALL";  // 逐个审批
+    public static final String SIGN_ALL = "ALL";  // 逐个审批（暂未用）
 
     // --
 
@@ -146,11 +148,46 @@ public class FlowNode {
             return users;
         }
 
+        Set<ID> users = new HashSet<>();
+
         List<String> defsList = new ArrayList<>();
         for (Object o : userDefs) {
-            defsList.add((String) o);
+            String def = (String) o;
+            if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)
+                    || def.startsWith(ApprovalHelper.APPROVAL_APPROVER)) {
+                ApprovalState state = ApprovalHelper.getApprovalState(record);
+                boolean isSubmitted = state == ApprovalState.PROCESSING || state == ApprovalState.APPROVED;
+
+                ID whichUser = operator;
+                if (def.startsWith(ApprovalHelper.APPROVAL_SUBMITOR)) {
+                    if (isSubmitted) {
+                        whichUser = ApprovalHelper.getSubmitter(record);
+                    } else {
+                        // 提交人即发起人
+                    }
+                } else {
+                    if (isSubmitted) {
+                        // 提交人即审批人
+                    } else {
+                        whichUser = null;  // 未提交
+                    }
+                }
+
+                if (whichUser != null) {
+                    Field userField = ApprovalHelper.checkVirtualField(def);
+                    if (userField != null) {
+                        Object[] refUser = Application.getQueryFactory().uniqueNoFilter(whichUser, userField.getName());
+                        if (refUser != null && refUser[0] != null) users.add((ID) refUser[0]);
+                    }
+                }
+
+            } else {
+                defsList.add(def);
+            }
         }
-        return UserHelper.parseUsers(defsList, null);
+
+        users.addAll(UserHelper.parseUsers(defsList, null));
+        return users;
     }
 
     @Override

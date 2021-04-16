@@ -70,7 +70,7 @@ public class FileListController extends BaseController {
         return createModelAndView("/files/" + path);
     }
 
-    @RequestMapping("list-file")
+    @GetMapping("list-file")
     public JSON listFile(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         int pageNo = getIntParameter(request, "pageNo", 1);
@@ -181,13 +181,13 @@ public class FileListController extends BaseController {
     }
 
     // 文档树（目录）
-    @RequestMapping("list-folder")
+    @GetMapping("tree-folder")
     public JSON listFolder(HttpServletRequest request) {
-        return FilesHelper.getFolders(getRequestUser(request));
+        return FilesHelper.getFolders(getRequestUser(request), null);
     }
 
     // 实体树
-    @RequestMapping("list-entity")
+    @GetMapping("tree-entity")
     public JSON listEntity(HttpServletRequest request) {
         final ID user = getRequestUser(request);
 

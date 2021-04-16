@@ -187,7 +187,7 @@ public class ConfigurationController extends BaseController {
                     data.getString("SmsUser"), data.getString("SmsPassword"),
                     data.getString("SmsSign")
             };
-            if (specAccount[1].contains("******")) {
+            if (specAccount[1].contains("*")) {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.SmsPassword);
             }
 
@@ -201,9 +201,10 @@ public class ConfigurationController extends BaseController {
 
             String[] specAccount = new String[]{
                     data.getString("MailUser"), data.getString("MailPassword"),
-                    data.getString("MailAddr"), data.getString("MailName")
+                    data.getString("MailAddr"), data.getString("MailName"),
+                    data.getString("MailSmtpServer")
             };
-            if (specAccount[1].contains("******")) {
+            if (specAccount[1].contains("*")) {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.MailPassword);
             }
 

@@ -16,9 +16,8 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.general.BatchOperatorQuery;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 批量修改
@@ -26,9 +25,8 @@ import org.slf4j.LoggerFactory;
  * @author devezhao
  * @since 2019/12/2
  */
+@Slf4j
 public class BulkBacthUpdate extends BulkOperator {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BulkBacthUpdate.class);
 
     /**
      * 修改为
@@ -48,7 +46,8 @@ public class BulkBacthUpdate extends BulkOperator {
         final ID[] willUpdates = prepareRecords();
         this.setTotal(willUpdates.length);
 
-        JSONArray updateContents = context.getCustomData().getJSONArray("updateContents");
+        JSONArray updateContents = ((JSONObject) context.getExtraParams().get("customData"))
+                .getJSONArray("updateContents");
         // 转化成标准 FORM 格式
         JSONObject formJson = new JSONObject();
         for (Object o : updateContents) {
@@ -66,8 +65,8 @@ public class BulkBacthUpdate extends BulkOperator {
         JSONObject metadata = new JSONObject();
         metadata.put("entity", context.getMainEntity().getName());
         formJson.put(JsonRecordCreator.META_FIELD, metadata);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Converter to : " + formJson);
+        if (log.isDebugEnabled()) {
+            log.debug("Converter to : " + formJson);
         }
 
         for (ID id : willUpdates) {
@@ -80,11 +79,11 @@ public class BulkBacthUpdate extends BulkOperator {
                     ges.update(record);
                     this.addSucceeded();
                 } catch (DataSpecificationException ex) {
-                    LOG.warn("Cannot update : " + id + " Ex : " + ex);
+                    log.warn("Cannot update : " + id + " Ex : " + ex);
                 }
 
             } else {
-                LOG.warn("No have privileges to UPDATE : " + context.getOpUser() + " > " + id);
+                log.warn("No have privileges to UPDATE : " + context.getOpUser() + " > " + id);
             }
             this.addCompleted();
         }
@@ -94,7 +93,7 @@ public class BulkBacthUpdate extends BulkOperator {
 
     @Override
     protected ID[] prepareRecords() {
-        JSONObject customData = context.getCustomData();
+        JSONObject customData = (JSONObject) context.getExtraParams().get("customData");
         int dataRange = customData.getIntValue("_dataRange");
         BatchOperatorQuery query = new BatchOperatorQuery(dataRange, customData.getJSONObject("queryData"));
         return query.getQueryedRecords();

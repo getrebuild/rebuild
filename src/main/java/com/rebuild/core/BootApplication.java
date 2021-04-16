@@ -24,9 +24,16 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.management.MBeanServer;
+import javax.management.MBeanServerFactory;
+import javax.management.ObjectName;
+import javax.management.Query;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.io.File;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 /**
  * SpringBoot 启动类
@@ -45,7 +52,8 @@ import java.io.File;
 @Slf4j
 public class BootApplication extends SpringBootServletInitializer {
 
-    private static String CONTEXT_PATH = null;
+    private static String CONTEXT_PATH;
+    private static String TOMCAT_PORT;
 
     /**
      * @return
@@ -56,6 +64,17 @@ public class BootApplication extends SpringBootServletInitializer {
             CONTEXT_PATH = BootEnvironmentPostProcessor.getProperty("server.servlet.context-path", "");
         }
         return CONTEXT_PATH;
+    }
+
+    /**
+     * @return
+     */
+    protected static String getLocalUrl() {
+        if (TOMCAT_PORT == null) {
+            // USE BOOT
+            TOMCAT_PORT = BootEnvironmentPostProcessor.getProperty("server.port", "18080");
+        }
+        return String.format("http://localhost:%s%s", TOMCAT_PORT, getContextPath());
     }
 
     /**
@@ -85,15 +104,37 @@ public class BootApplication extends SpringBootServletInitializer {
     protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
         if (devMode()) System.setProperty("spring.profiles.active", "dev");
 
+        try {
+            initTomcatPort();
+        } catch (Exception ex) {
+            log.debug("Cannot to get Tomcat port : " + ex.getLocalizedMessage());
+        }
+
         log.info("Initializing SpringBoot context {}...", devMode() ? "(dev) " : "");
         SpringApplicationBuilder spring = builder.sources(BootApplication.class);
         spring.listeners(new Application());
         return spring;
     }
-    
+
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         CONTEXT_PATH = StringUtils.defaultIfBlank(servletContext.getContextPath(), "");
         super.onStartup(servletContext);
+    }
+
+    private static void initTomcatPort() throws Exception {
+        List<MBeanServer> mbeans = MBeanServerFactory.findMBeanServer(null);
+        if (mbeans.isEmpty()) return;
+
+        MBeanServer tomcat = mbeans.get(0);
+        Set<ObjectName> connector = tomcat.queryNames(
+                new ObjectName("Catalina:type=Connector,*"),
+                Query.match(Query.attr("protocol"), Query.value("HTTP/1.1")));
+
+        Iterator<ObjectName> iter = connector.iterator();
+        if (iter.hasNext()) {
+            ObjectName name = iter.next();
+            TOMCAT_PORT = tomcat.getAttribute(name, "port").toString();
+        }
     }
 }

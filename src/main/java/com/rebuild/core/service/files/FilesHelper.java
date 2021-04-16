@@ -70,23 +70,13 @@ public class FilesHelper {
     }
 
     /**
-     * 获取可用目录
-     *
-     * @param user
-     * @return
-     */
-    public static JSONArray getFolders(ID user) {
-        return getFolders(user, null);
-    }
-
-    /**
      * 获取可用目录，可指定父级目录
      *
      * @param user
      * @param parent
      * @return
      */
-    protected static JSONArray getFolders(ID user, ID parent) {
+    public static JSONArray getFolders(ID user, ID parent) {
         String sql = "select folderId,name,scope,createdBy,parent from AttachmentFolder" +
                 " where (scope = '" + SCOPE_ALL + "' or (createdBy = ? and scope = '" + SCOPE_SELF + "')) and ";
         if (parent == null) {
@@ -94,6 +84,7 @@ public class FilesHelper {
         } else {
             sql += String.format("parent = '%s'", parent);
         }
+        sql += " order by name";
         Object[][] array = Application.createQueryNoFilter(sql).setParameter(1, user).array();
 
         JSONArray folders = new JSONArray();
@@ -101,7 +92,7 @@ public class FilesHelper {
             o[2] = SCOPE_SELF.equalsIgnoreCase((String) o[2]);
             o[3] = user.equals(o[3]);
             JSONObject folder = JSONUtils.toJSONObject(
-                    new String[]{"id", "text", "private", "self", "parent"}, o);
+                    new String[] { "id", "text", "private", "self", "parent" }, o);
 
             JSONArray children = getFolders(user, (ID) o[0]);
             if (!children.isEmpty()) {

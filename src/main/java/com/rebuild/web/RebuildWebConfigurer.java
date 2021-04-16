@@ -17,6 +17,7 @@ import com.rebuild.core.Initialization;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.thymeleaf.exceptions.TemplateInputException;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.annotation.Resource;
@@ -136,7 +138,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 "\nIP      : " + ServletUtils.getRemoteAddr(request) +
                 "\nUA      : " + StringUtils.defaultIfEmpty(request.getHeader("user-agent"), "-") +
                 "\nURL(s)  : " + getRequestUrls(request) +
-                "\nMessage : " + errorMsg + (model != null ? (" " + model.toString()) : "") +
+                "\nMessage : " + errorMsg + (model != null ? (" " + model) : "") +
                 "\n";
 
         if (ex instanceof DefinedException) {
@@ -144,6 +146,11 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
             log.warn(errorLog, Application.devMode() ? ex : null);
         } else {
             log.error(errorLog, ex);
+
+            if (ex != null && ThrowableUtils.getRootCause(ex) instanceof TemplateInputException
+                    && errorMsg.contains("Error resolving template")) {
+                errorMsg = Language.L("Error404");
+            }
         }
 
         error.getModel().put("error_code", errorCode);

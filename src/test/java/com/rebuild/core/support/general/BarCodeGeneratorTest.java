@@ -27,7 +27,7 @@ public class BarCodeGeneratorTest extends TestSupport {
 
     @Test
     public void saveBarCode() {
-        System.out.println(BarCodeGenerator.saveBarCode("CODE128", BarcodeFormat.CODE_128, 80));
-        System.out.println(BarCodeGenerator.saveBarCode("123ABC支持中文", BarcodeFormat.QR_CODE, 200));
+        System.out.println(BarCodeGenerator.saveCode("CODE128", BarcodeFormat.CODE_128, 80));
+        System.out.println(BarCodeGenerator.saveCode("123ABC支持中文", BarcodeFormat.QR_CODE, 200));
     }
 }

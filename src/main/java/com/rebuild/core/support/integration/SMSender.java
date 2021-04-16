@@ -25,6 +25,8 @@ import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.mail.EmailException;
+import org.apache.commons.mail.HtmlEmail;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,7 +36,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * SUBMAIL SMS/MAIL 发送类
+ * SUBMAIL SMS/MAIL 发送
  *
  * @author devezhao
  * @since 01/03/2019
@@ -43,6 +45,9 @@ import java.util.Map;
 public class SMSender {
 
     private static final String STATUS_OK = "success";
+
+    private static final int TYPE_SMS = 1;
+    private static final int TYPE_EMAIL = 2;
 
     /**
      * @param to
@@ -84,13 +89,7 @@ public class SMSender {
             throw new ConfigurationException(Language.L("SomeAccountConfError", "Email"));
         }
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("appid", specAccount[0]);
-        params.put("signature", specAccount[1]);
-        params.put("to", to);
-        params.put("from", specAccount[2]);
-        params.put("from_name", specAccount[3]);
-        params.put("subject", subject);
+        // 使用邮件模板
         if (useTemplate) {
             Element mailbody = getMailTemplate();
 
@@ -101,9 +100,34 @@ public class SMSender {
             htmlContent = htmlContent.replace("%TO%", to);
             htmlContent = htmlContent.replace("%TIME%", CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
             htmlContent = htmlContent.replace("%APPNAME%", RebuildConfiguration.get(ConfigurationItem.AppName));
-
-            params.put("html", htmlContent);
             content = htmlContent;
+        }
+
+        final String logContent = "【" + subject + "】" + content;
+
+        // Use SMTP
+        if (specAccount.length >= 5 && specAccount[4] != null) {
+            String emailId;
+            try {
+                emailId = sendMailViaSmtp(to, subject, content, specAccount);
+            } catch (EmailException ex) {
+                log.error("Mail failed to send : " + to + " > " + subject, ex);
+                return null;
+            }
+
+            createLog(to, logContent, TYPE_EMAIL, emailId, null);
+            return emailId;
+        }
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("appid", specAccount[0]);
+        params.put("signature", specAccount[1]);
+        params.put("to", to);
+        params.put("from", specAccount[2]);
+        params.put("from_name", specAccount[3]);
+        params.put("subject", subject);
+        if (useTemplate) {
+            params.put("html", content);
         } else {
             params.put("text", content);
         }
@@ -118,20 +142,44 @@ public class SMSender {
             return null;
         }
 
-        final String scontent = "【" + subject + "】" + content;
-
         JSONArray returns = rJson.getJSONArray("return");
         if (STATUS_OK.equalsIgnoreCase(rJson.getString("status")) && !returns.isEmpty()) {
             String sendId = ((JSONObject) returns.get(0)).getString("send_id");
-            createLog(to, scontent, 2, sendId, null);
+            createLog(to, logContent, TYPE_EMAIL, sendId, null);
             return sendId;
 
         } else {
             log.error("Mail failed to send : " + to + " > " + subject + "\nError : " + rJson);
-
-            createLog(to, scontent, 2, null, rJson.getString("msg"));
+            createLog(to, logContent, TYPE_EMAIL, null, rJson.getString("msg"));
             return null;
         }
+    }
+
+    /**
+     * SMTP 发送
+     *
+     * @param to
+     * @param subject
+     * @param htmlContent
+     * @param specAccount
+     * @return
+     * @throws ConfigurationException
+     */
+    private static String sendMailViaSmtp(String to, String subject, String htmlContent, String[] specAccount) throws EmailException {
+        HtmlEmail email = new HtmlEmail();
+        email.addTo(to);
+        email.setSubject(subject);
+        email.setHtmlMsg(htmlContent);
+
+        email.setAuthentication(specAccount[0], specAccount[1]);
+        email.setFrom(specAccount[2], specAccount[3]);
+
+        String[] hostPort = specAccount[4].split(":");
+        email.setHostName(hostPort[0]);
+        if (hostPort.length > 1) email.setSmtpPort(Integer.parseInt(hostPort[1]));
+
+        email.setCharset("UTF-8");
+        return email.send();
     }
 
     private static Element MT_CACHE = null;
@@ -216,19 +264,18 @@ public class SMSender {
 
         if (STATUS_OK.equalsIgnoreCase(rJson.getString("status"))) {
             String sendId = rJson.getString("send_id");
-            createLog(to, content, 1, sendId, null);
+            createLog(to, content, TYPE_SMS, sendId, null);
             return sendId;
 
         } else {
             log.error("SMS failed to send : " + to + " > " + content + "\nError : " + rJson);
-
-            createLog(to, content, 1, null, rJson.getString("msg"));
+            createLog(to, content, TYPE_SMS, null, rJson.getString("msg"));
             return null;
         }
     }
 
     /**
-     * 发送日志
+     * 记录发送日志
      *
      * @param to
      * @param content

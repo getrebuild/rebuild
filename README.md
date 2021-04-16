@@ -4,20 +4,28 @@
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
 [![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
 
+## 项目特色
+
+REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启动模板。通过 REBUILD 可以真正实现零代码快速搭建业务系统，无需编程、无需编译代码，甚至无需了解技术。
+
+「开放式设计」是 REBUILD 的重要设计理念，得益于开发团队超过十年的成熟 B 端产品经验，我们实现了对企业日常各类需求的可配置化管理，无需开发即可使用，有效避免过度依赖高成本研发投入。
+
+更多详情介绍 [https://getrebuild.com/](https://getrebuild.com/)
+
 > **福利：欢迎加入 REBUILD QQ 交流群 819865721**
 
-## REBUILD 2.2 新特性
+## V2.3 新特性
 
-本次更新为你带来众多新功能与优化。
+本次更新为你带来众多功能增强与优化。
 
-1. [新增] 外部表单
-2. [新增] 界面主题选择
-3. [新增] 数字型字段计算公式
-4. [新增] 多行文本字段富文本编辑器
-5. [新增] 高级表单控制
+1. 共享支持编辑权限（默认为只读）
+2. 审批流程审批人可以选择“发起人”与“审批人”
+3. 触发器-字段转写（自动更新）支持更加丰富的转写规则
+4. 高级查询支持“所属团队”条件
+5. 视图相关项列表支持搜索与排序
 6. ...
 
-更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.2)
+更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.3)
 
 ## 在线体验
 
@@ -27,7 +35,7 @@
 
 ## 使用
 
-开始使用 RB 非常简单，你不需要搭建复杂的运行环境，甚至不需要安装 JDK（`standalone` 安装包自带）。零依赖快速部署，就是那么简单！
+开始使用 REBUILD 非常简单，你不需要搭建复杂的运行环境，甚至不需要安装 JDK（`standalone` 安装包自带）。零依赖快速部署，就是那么简单！
 
 #### 1. 使用已发布版本
 
@@ -79,4 +87,4 @@ REBUILD uses both open source ([GPL-3.0](LICENSE)) and [commercial](COMMERCIAL) 
 
 ## 购买商业版
 
-从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 RB 对贵司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
+从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 REBUILD 对贵司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！

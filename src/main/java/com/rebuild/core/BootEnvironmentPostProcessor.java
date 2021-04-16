@@ -9,6 +9,7 @@ package com.rebuild.core;
 
 import ch.qos.logback.classic.LoggerContext;
 import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AES;
@@ -80,7 +81,7 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
                 env.getPropertySources().addFirst(new PropertiesPropertySource(".rebuild", filePs));
 
             } catch (IOException ex) {
-                throw new IllegalStateException("Load file of install failed : " + file.toString(), ex);
+                throw new IllegalStateException("Load file of install failed : " + file, ex);
             }
         }
 
@@ -107,13 +108,15 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
 
         // start: V2.1
         if (dbUrl.contains("jdbc:mysql") && !dbUrl.contains("serverTimezone")) {
-            confPs.put("db.url", dbUrl + "&serverTimezone=GMT");
+            confPs.put("db.url", dbUrl + "&serverTimezone=UTC");
         }
 
         aesDecrypt(confPs);
         env.getPropertySources().addFirst(new PropertiesPropertySource(".configuration", confPs));
 
         ENV_HOLD = env;
+
+        log.info("Use RB data directory : {}", RebuildConfiguration.getFileOfData("/"));
     }
 
     /**
@@ -153,7 +156,8 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
     public static String getProperty(String name, String defaultValue) {
         String value = null;
         if (ConfigurationItem.DataDirectory.name().equalsIgnoreCase(name)) {
-            value = System.getProperty("DataDirectory");
+            value = StringUtils.defaultIfBlank(
+                    System.getProperty("DataDirectory"), System.getProperty(V2_PREFIX + "DataDirectory"));
         } else if (ENV_HOLD != null) {
             if (!(name.startsWith(V2_PREFIX) || name.contains("."))) {
                 name = V2_PREFIX + name;

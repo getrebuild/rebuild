@@ -31,7 +31,7 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} />, null, function () {
         advFilter = this
       })
     }
@@ -49,7 +49,7 @@ $(document).ready(() => {
     })
     const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
     if (rb.commercial < 1 && (when & 512) !== 0) {
-      return RbHighbar.error($L('FreeVerNotSupportted,JobExecution'))
+      return RbHighbar.create($L('FreeVerNotSupportted,JobExecution'), { type: 'danger', html: true, timeout: 6000 })
     }
 
     const content = contentComp.buildContent()

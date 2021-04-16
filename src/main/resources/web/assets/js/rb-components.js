@@ -5,6 +5,7 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
+/* global SimpleMDE */
 
 // ~~ Modal 兼容子元素和 iFrame
 class RbModal extends React.Component {
@@ -83,25 +84,25 @@ class RbModal extends React.Component {
   /**
    * @param {*} url
    * @param {*} title
-   * @param {*} ext
+   * @param {*} options
    */
-  static create(url, title, ext) {
+  static create(url, title, options) {
     // URL prefix
     if (url.substr(0, 1) === '/' && rb.baseUrl) url = rb.baseUrl + url
 
-    ext = ext || {}
-    ext.disposeOnHide = ext.disposeOnHide === true // default false
+    options = options || {}
+    options.disposeOnHide = options.disposeOnHide === true // default false
     this.__HOLDERs = this.__HOLDERs || {}
 
     const that = this
-    if (ext.disposeOnHide === false && !!that.__HOLDERs[url]) {
+    if (options.disposeOnHide === false && !!that.__HOLDERs[url]) {
       that.__HOLDER = that.__HOLDERs[url]
       that.__HOLDER.show()
       that.__HOLDER.resize()
     } else {
-      renderRbcomp(<RbModal url={url} title={title} width={ext.width} disposeOnHide={ext.disposeOnHide} />, null, function () {
+      renderRbcomp(<RbModal url={url} title={title} width={options.width} disposeOnHide={options.disposeOnHide} />, null, function () {
         that.__HOLDER = this
-        if (ext.disposeOnHide === false) that.__HOLDERs[url] = this
+        if (options.disposeOnHide === false) that.__HOLDERs[url] = this
       })
     }
   }
@@ -164,13 +165,14 @@ class RbFormHandler extends RbModalHandler {
 
   handleChange = (e, call) => {
     const target = e.target
-    const id = target.dataset.id || target.name
-    if (!id) return
+    const name = target.dataset.id || target.name
+    if (!name) return
+
     const val = target.type === 'checkbox' ? target.checked : target.value
     const s = {}
-    s[id] = val
+    s[name] = val
     this.setState(s, call)
-    this.handleChangeAfter(id, val)
+    this.handleChangeAfter(name, val)
   }
 
   handleChangeAfter(name, value) {
@@ -206,6 +208,7 @@ class RbAlert extends React.Component {
   render() {
     const styles = {}
     if (this.props.width) styles.maxWidth = ~~this.props.width
+
     return (
       <div className="modal rbalert" ref={(c) => (this._dlg = c)} tabIndex={this.state.tabIndex || -1}>
         <div className="modal-dialog modal-dialog-centered" style={styles}>
@@ -280,20 +283,20 @@ class RbAlert extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} titleOrExt
-   * @param {*} ext
+   * @param {*} titleOrOptions
+   * @param {*} options
    */
-  static create(message, titleOrExt, ext) {
-    if (typeof titleOrExt === 'object') {
-      ext = titleOrExt
-      titleOrExt = null
+  static create(message, titleOrOptions, options) {
+    if (typeof titleOrOptions === 'object') {
+      options = titleOrOptions
+      titleOrOptions = null
     }
 
-    ext = ext || {}
-    const props = { ...ext, title: titleOrExt }
-    if (ext.html === true) props.htmlMessage = message
+    options = options || {}
+    const props = { ...options, title: titleOrOptions }
+    if (options.html === true) props.htmlMessage = message
     else props.message = message
-    renderRbcomp(<RbAlert {...props} />, null, ext.call)
+    renderRbcomp(<RbAlert {...props} />, null, options.call)
   }
 }
 
@@ -333,16 +336,15 @@ class RbHighbar extends React.Component {
   // -- Usage
   /**
    * @param {*} message
-   * @param {*} type
-   * @param {*} ext
+   * @param {*} options
    */
-  static create(message, type, ext) {
+  static create(message, options) {
     if (top !== self && parent.RbHighbar) {
-      parent.RbHighbar.create(message, type, ext)
+      parent.RbHighbar.create(message, options)
     } else {
-      ext = ext || {}
-      if (ext.html === true) renderRbcomp(<RbHighbar htmlMessage={message} type={type} timeout={ext.timeout} />)
-      else renderRbcomp(<RbHighbar message={message} type={type} timeout={ext.timeout} />)
+      options = options || {}
+      if (options.html === true) renderRbcomp(<RbHighbar htmlMessage={message} type={options.type} timeout={options.timeout} />)
+      else renderRbcomp(<RbHighbar message={message} type={options.type} timeout={options.timeout} />)
     }
   }
 
@@ -350,14 +352,14 @@ class RbHighbar extends React.Component {
    * @param {*} message
    */
   static success(message) {
-    RbHighbar.create(message || $L('SomeSuccess,Operation'), 'success', { timeout: 2000 })
+    RbHighbar.create(message || $L('SomeSuccess,Operation'), { type: 'success', timeout: 2000 })
   }
 
   /**
    * @param {*} message
    */
   static error(message) {
-    RbHighbar.create(message || $L('Error500'), 'danger', { timeout: 4000 })
+    RbHighbar.create(message || $L('Error500'), { type: 'danger', timeout: 4000 })
   }
 }
 
@@ -394,6 +396,7 @@ function RbSpinner(props) {
       )}
     </div>
   )
+
   if (props && props.fully === true) return <div className="rb-loading rb-loading-active">{spinner}</div>
   return spinner
 }
@@ -417,9 +420,11 @@ class UserSelector extends React.Component {
 
   render() {
     let inResult
-    if (!this.state.items) inResult = <li className="select2-results__option un-hover text-muted">{$L('Searching')}</li>
-    else if (this.state.items.length === 0) inResult = <li className="select2-results__option un-hover">{$L('NoResults')}</li>
-    else {
+    if (!this.state.items) {
+      inResult = <li className="select2-results__option un-hover text-muted">{$L('Searching')}</li>
+    } else if (this.state.items.length === 0) {
+      inResult = <li className="select2-results__option un-hover">{$L('NoResults')}</li>
+    } else {
       inResult = this.state.items.map((item) => {
         return (
           <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
@@ -566,6 +571,7 @@ class UserSelector extends React.Component {
   switchTab(type) {
     type = type || this.state.tabType
     const ckey = `${type}-${this.state.query}`
+
     this.setState({ tabType: type, items: this._cached[ckey] }, () => {
       if (!this._cached[ckey]) {
         $.get(`/commons/search/users?type=${type}&q=${$encode(this.state.query)}`, (res) => {
@@ -677,6 +683,7 @@ class UserSelector extends React.Component {
 const UserShow = function (props) {
   const viewUrl = props.id ? `#!/View/User/${props.id}` : null
   const avatarUrl = `${rb.baseUrl}/account/user-avatar/${props.id}`
+
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
       <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
@@ -694,6 +701,197 @@ const UserShow = function (props) {
 const DateShow = function (props) {
   return props.date ? <span title={props.date}>{$fromNow(props.date)}</span> : null
 }
+
+// ~~ 任意记录选择
+class AnyRecordSelector extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (
+      <div className="row">
+        <div className="col-4 pr-0">
+          <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
+            {(this.state.entities || []).map((item) => {
+              return (
+                <option key={item.name} value={item.name}>
+                  {item.label}
+                </option>
+              )
+            })}
+          </select>
+        </div>
+        <div className="col-8 pl-2">
+          <select className="form-control form-control-sm float-left" ref={(c) => (this._record = c)} />
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get('/commons/metadata/entities', (res) => {
+      if ((res.data || []).length === 0) $(this._record).attr('disabled', true)
+
+      this.setState({ entities: res.data || [] }, () => {
+        $(this._entity)
+          .select2({
+            placeholder: $L('NoAnySome,Entity'),
+            allowClear: false,
+          })
+          .on('change', () => {
+            $(this._record).val(null).trigger('change')
+          })
+
+        // 编辑时
+        const iv = this.props.initValue
+        if (iv) {
+          $(this._entity).val(iv.entity).trigger('change')
+          const option = new Option(iv.text, iv.id, true, true)
+          $(this._record).append(option)
+        }
+      })
+    })
+
+    const that = this
+    let search_input = null
+    $(this._record)
+      .select2({
+        placeholder: `${$L('SelectSome,Record')}`,
+        minimumInputLength: 0,
+        maximumSelectionLength: 1,
+        ajax: {
+          url: '/commons/search/search',
+          delay: 300,
+          data: function (params) {
+            search_input = params.term
+            return {
+              entity: $(that._entity).val(),
+              q: params.term,
+            }
+          },
+          processResults: function (data) {
+            return {
+              results: data.data,
+            }
+          },
+        },
+        language: {
+          noResults: () => {
+            return (search_input || '').length > 0 ? $L('NoResults') : $L('InputForSearch')
+          },
+          inputTooShort: () => {
+            return $L('InputForSearch')
+          },
+          searching: () => {
+            return $L('Searching')
+          },
+          maximumSelected: () => {
+            return $L('OnlyXSelected').replace('%d', 1)
+          },
+        },
+      })
+      .on('change', (e) => {
+        typeof that.props.onSelect === 'function' && that.props.onSelect(e.target.value)
+      })
+  }
+
+  // return `id`
+  val() {
+    return $(this._record).val()
+  }
+
+  // return `{ id:xx, text:xx, entity:xx }`
+  value() {
+    const val = this.val()
+    if (!val) return null
+
+    return {
+      entity: $(this._entity).val(),
+      id: val,
+      text: $(this._record).select2('data')[0].text,
+    }
+  }
+
+  reset() {
+    $(this._record).val(null).trigger('change')
+  }
+}
+
+// ~~ 默认 SimpleMDE 工具栏
+const DEFAULT_MDE_TOOLBAR = [
+  {
+    name: 'bold',
+    action: SimpleMDE.toggleBold,
+    className: 'zmdi zmdi-format-bold',
+    title: $L('MdeditBold'),
+  },
+  {
+    name: 'italic',
+    action: SimpleMDE.toggleItalic,
+    className: 'zmdi zmdi-format-italic',
+    title: $L('MdeditItalic'),
+  },
+  {
+    name: 'strikethrough',
+    action: SimpleMDE.toggleStrikethrough,
+    className: 'zmdi zmdi-format-strikethrough',
+    title: $L('MdeditStrikethrough'),
+  },
+  {
+    name: 'heading',
+    action: SimpleMDE.toggleHeadingSmaller,
+    className: 'zmdi zmdi-format-size',
+    title: $L('MdeditHeading'),
+  },
+  {
+    name: 'unordered-list',
+    action: SimpleMDE.toggleUnorderedList,
+    className: 'zmdi zmdi-format-list-bulleted',
+    title: $L('MdeditUnorderedList'),
+  },
+  {
+    name: 'ordered-list',
+    action: SimpleMDE.toggleOrderedList,
+    className: 'zmdi zmdi-format-list-numbered',
+    title: $L('MdeditOrderedList'),
+  },
+  {
+    name: 'link',
+    action: SimpleMDE.drawLink,
+    className: 'zmdi zmdi-link',
+    title: $L('MdeditLink'),
+  },
+  {
+    name: 'image',
+    action: () => this._fieldValue__upload.click(),
+    className: 'zmdi zmdi-image-o',
+    title: $L('MdeditImage'),
+  },
+  {
+    name: 'table',
+    action: SimpleMDE.drawTable,
+    className: 'zmdi zmdi-border-all',
+    title: $L('MdeditTable'),
+  },
+  '|',
+  {
+    name: 'fullscreen',
+    action: SimpleMDE.toggleFullScreen,
+    className: 'zmdi zmdi-fullscreen no-disable',
+    title: $L('MdeditFullScreen'),
+  },
+  {
+    name: 'preview',
+    action: SimpleMDE.togglePreview,
+    className: 'zmdi zmdi-eye no-disable',
+    title: $L('MdeditTogglePreview'),
+  },
+  {
+    name: 'guide',
+    action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+    className: 'zmdi zmdi-help-outline no-disable',
+    title: $L('MdeditGuide'),
+  },
+]
 
 /**
  * JSX 组件渲染

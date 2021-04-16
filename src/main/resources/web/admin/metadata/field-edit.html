@@ -24,8 +24,8 @@
               <div class="aside-nav collapse">
                 <ul class="nav">
                   <li><a href="../base">[[${bundle.L('BasicInfo')}]]</a></li>
-                  <li class="active"><a href="../fields">[[${bundle.L('NavFields')}]]</a></li>
                   <li><a href="../form-design">[[${bundle.L('FormLayout')}]]</a></li>
+                  <li class="active"><a href="../fields">[[${bundle.L('NavFields')}]]</a></li>
                   <li><a href="../advanced">[[${bundle.L('AdvConf')}]]</a></li>
                 </ul>
               </div>
@@ -186,10 +186,10 @@
                     <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Style')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" checked /><span class="custom-control-label"> [[${bundle.L('BarCode')}]] (CODE128)</span>
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE" checked /><span class="custom-control-label"> [[${bundle.L('QrCode')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE" /><span class="custom-control-label"> [[${bundle.L('QrCode')}]]</span>
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" /><span class="custom-control-label"> [[${bundle.L('BarCode')}]] (CODE128)</span>
                       </label>
                     </div>
                   </div>
@@ -304,6 +304,7 @@
     <script th:src="@{/assets/lib/widget/bootstrap-slider.min.js}"></script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/field-formula.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/field-edit.js}" type="text/babel"></script>
   </body>
 </html>

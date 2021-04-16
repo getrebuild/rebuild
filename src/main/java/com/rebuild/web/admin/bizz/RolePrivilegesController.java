@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -68,6 +69,13 @@ public class RolePrivilegesController extends EntityController {
     @GetMapping("role-list")
     public JSON roleList() {
         Object[][] array = Application.createQuery("select roleId,name,isDisabled from Role").array();
+        // 排序 a-z
+        Arrays.sort(array, (o1, o2) -> {
+            if (RoleService.ADMIN_ROLE.equals(o1[0])) return -1;
+            else if (RoleService.ADMIN_ROLE.equals(o2[0])) return 1;
+            else return ((String) o1[1]).compareTo((String) o2[1]);
+        });
+
         return JSONUtils.toJSONObjectArray(
                 new String[] { "id", "name", "disabled" }, array);
     }

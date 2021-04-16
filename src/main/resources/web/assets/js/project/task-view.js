@@ -4,7 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global autosize, EMOJIS */
+/* global autosize, EMOJIS, SimpleMDE */
 
 const wpc = window.__PageConfig
 
@@ -110,6 +110,14 @@ class TaskForm extends React.Component {
           </label>
           <div className="col-12 col-sm-9">
             <ValueAttachments attachments={this.state.attachments} $$$parent={this} />
+          </div>
+        </div>
+        <div className="form-group row">
+          <label className="col-12 col-sm-3 col-form-label">
+            <i className="icon zmdi zmdi-link zmdi-hc-rotate-45 fs-19" style={{ marginTop: '0.15rem' }} /> {$L('RelatedRecord')}
+          </label>
+          <div className="col-12 col-sm-9">
+            {this.state.projectId && <ValueRelatedRecord relatedRecord={this.state.relatedRecord} relatedRecordData={this.state.relatedRecordData} $$$parent={this} />}
           </div>
         </div>
         <TaskCommentsList taskid={this.props.id} ref={(c) => (this._TaskCommentsList = c)} editable={this.props.editable} />
@@ -390,7 +398,8 @@ class ValueDescription extends ValueComp {
     if (this.state.editMode) {
       return (
         <div className="form-control-plaintext">
-          <TextEditor hideToolbar={true} ref={(c) => (this._editor = c)} />
+          <textarea defaultValue={this.state.description || ''} ref={(c) => (this._editor = c)} />
+          <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />
           <div className="mt-2 text-right">
             <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
               {$L('Cancel')}
@@ -402,26 +411,66 @@ class ValueDescription extends ValueComp {
         </div>
       )
     } else {
+      const ps = {
+        className: 'form-control-plaintext mdedit-content hover',
+        onClick: () => this._handleEditMode(true),
+      }
+
+      if (this.state.description) {
+        return <div {...ps} dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+      } else {
+        return (
+          <div {...ps}>
+            <span className="text-muted">{$L('Null')}</span>
+          </div>
+        )
+      }
+    }
+  }
+
+  renderViewElement() {
+    if (this.state.description) {
+      return <div className="form-control-plaintext mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+    } else {
       return (
-        <div className="form-control-plaintext desc hover" onClick={() => this._handleEditMode(true)}>
-          {this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('ClickAdd')}</span>}
+        <div className="form-control-plaintext mdedit-content">
+          <span className="text-muted">{$L('Null')}</span>
         </div>
       )
     }
   }
 
-  renderViewElement() {
-    return (
-      <div className="form-control-plaintext desc">{this.state.description ? TextEditor.renderRichContent({ content: this.state.description }) : <span className="text-muted">{$L('Null')}</span>}</div>
-    )
-  }
-
   _handleEditMode(editMode) {
-    this.setState({ editMode: editMode }, () => this.state.editMode && this._editor.focus(this.state.description))
+    if (!editMode && this._simplemde) {
+      this._simplemde.toTextArea()
+      this._simplemde = null
+    }
+
+    this.setState({ editMode: editMode }, () => {
+      if (this.state.editMode) {
+        const mde = new SimpleMDE({
+          element: this._editor,
+          status: false,
+          autoDownloadFontAwesome: false,
+          spellChecker: false,
+          // eslint-disable-next-line no-undef
+          toolbar: DEFAULT_MDE_TOOLBAR,
+        })
+        this._simplemde = mde
+
+        $createUploader(this._fieldValue__upload, null, (res) => {
+          const pos = mde.codemirror.getCursor()
+          mde.codemirror.setSelection(pos, pos)
+          mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+        })
+        mde.codemirror.focus()
+        mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
+      }
+    })
   }
 
   handleChange() {
-    const value = this._editor.val()
+    const value = this._simplemde.value()
     super.handleChange({ target: { name: 'description', value: value } }, () => this.setState({ description: value, editMode: false }))
   }
 }
@@ -464,9 +513,7 @@ class ValuePriority extends ValueComp {
   renderViewElement() {
     return (
       <div className="form-control-plaintext">
-        <span className={`tag-value arrow priority-${this.state.priority}`}>
-          {__PRIORITIES[this.state.priority]}
-        </span>
+        <span className={`tag-value arrow priority-${this.state.priority}`}>{__PRIORITIES[this.state.priority]}</span>
       </div>
     )
   }
@@ -485,7 +532,7 @@ class ValueAttachments extends ValueComp {
       <React.Fragment>
         <div className="form-control-plaintext">
           <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} />
-          <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1 }}>
+          <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1, marginBottom: 0 }}>
             <a className="tag-value upload hover">+ {$L('Upload')}</a>
           </label>
         </div>
@@ -509,7 +556,7 @@ class ValueAttachments extends ValueComp {
                 <i className="file-icon" data-type={$fileExtName(fileName)} />
                 <span>{fileName}</span>
                 {del && (
-                  <b title={$L('Remove')} onClick={(e) => this._deleteAttachment(item, e)}>
+                  <b title={$L('Delete')} onClick={(e) => this._deleteAttachment(item, e)}>
                     <span className="zmdi zmdi-close"></span>
                   </b>
                 )}
@@ -568,10 +615,11 @@ class ValueTags extends ValueComp {
   }
 
   _render(editable) {
+    const tags = this.state.tags || []
     return (
       <div className="form-control-plaintext task-tags">
         <React.Fragment>
-          {(this.state.tags || []).map((item) => {
+          {tags.map((item) => {
             const colorStyle = { color: item.color, borderColor: item.color }
             return (
               <span className="tag-value" key={item.rid} style={colorStyle}>
@@ -585,7 +633,7 @@ class ValueTags extends ValueComp {
             )
           })}
         </React.Fragment>
-        {editable && (
+        {editable ? (
           <span className="dropdown" ref={(c) => (this._dropdown = c)}>
             <a className="tag-add" title={$L('ClickAdd')} data-toggle="dropdown">
               <i className="zmdi zmdi-plus"></i>
@@ -594,6 +642,8 @@ class ValueTags extends ValueComp {
               {<ValueTagsEditor ref={(c) => (this._ValueTagsEditor = c)} projectId={this.props.projectId} taskid={this.props.taskid} $$$parent={this} />}
             </div>
           </span>
+        ) : (
+          tags.length === 0 && <div className="form-control-plaintext text-muted">{$L('Null')}</div>
         )}
       </div>
     )
@@ -601,7 +651,6 @@ class ValueTags extends ValueComp {
 
   componentDidMount() {
     const that = this
-
     $unhideDropdown(this._dropdown).on({
       'hiden.bs.dropdown': function () {
         that._ValueTagsEditor.toggleEditMode(false)
@@ -673,11 +722,11 @@ class ValueTagsEditor extends React.Component {
                 <li className="dropdown-item" key={item.id} onClick={() => this._saveRelated(item)}>
                   <i style={colorStyle}></i>
                   <span>{item.name}</span>
-                  {item.isManageable &&
+                  {item.isManageable && (
                     <a onClick={() => this.toggleEditMode(true, item)} title={$L('Edit')}>
                       <i className="zmdi zmdi-edit"></i>
                     </a>
-                  }
+                  )}
                 </li>
               )
             } else {
@@ -814,6 +863,59 @@ class ValueTagsEditor extends React.Component {
   }
 }
 
+// 关联记录
+class ValueRelatedRecord extends ValueComp {
+  state = { ...this.props }
+
+  renderElement() {
+    if (this.state.editMode) {
+      return (
+        <div className="row">
+          <div className="col-9">
+            <AnyRecordSelector initValue={this.state.relatedRecordData} ref={(c) => (this._relatedRecord = c)} />
+          </div>
+          <div className="col-3" style={{ paddingTop: '0.18rem' }}>
+            <button onClick={() => this.setState({ editMode: false })} className="btn btn-sm btn-link mr-1">
+              {$L('Cancel')}
+            </button>
+            <button className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>
+              {$L('Confirm')}
+            </button>
+          </div>
+        </div>
+      )
+    } else {
+      return this.renderViewElement(true)
+    }
+  }
+
+  renderViewElement(useEdit) {
+    const data = this.state.relatedRecordData
+    if (data) {
+      return (
+        <div className={`form-control-plaintext ${useEdit ? 'hover' : ''}`} onClick={() => useEdit && this.setState({ editMode: true })}>
+          <a href={`${rb.baseUrl}/app/list-and-view?id=${data.id}`} title={$L('ClickViewReleated')} target="_blank" onClick={(e) => $stopEvent(e)}>
+            {data.text}
+          </a>
+        </div>
+      )
+    } else {
+      return (
+        <div className={`form-control-plaintext text-muted ${useEdit ? 'hover' : ''}`} onClick={() => useEdit && this.setState({ editMode: true })}>
+          {$L('Null')}
+        </div>
+      )
+    }
+  }
+
+  handleChange() {
+    const value = this._relatedRecord.value() || null
+    super.handleChange({ target: { name: 'relatedRecord', value: value ? value.id : null } }, () => {
+      this.setState({ editMode: false, relatedRecordData: value })
+    })
+  }
+}
+
 // --
 
 // 评论列表
@@ -824,7 +926,9 @@ class TaskCommentsList extends React.Component {
     if ((this.state.comments || []).length === 0) return null
     return (
       <div className="comment-list-wrap">
-        <h4><i className="zmdi zmdi-comments label-icon down-2"></i> {$L('SomeList,Comment')}</h4>
+        <h4>
+          <i className="zmdi zmdi-comments label-icon down-2"></i> {$L('SomeList,Comment')} ({this.state.comments.length})
+        </h4>
         <div className="feeds-list comment-list">
           {this.state.comments.map((item) => {
             const id = `comment-${item.id}`

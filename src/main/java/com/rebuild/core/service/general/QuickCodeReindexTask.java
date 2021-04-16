@@ -18,16 +18,15 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.core.support.state.StateSpec;
 import com.rebuild.core.support.task.HeavyTask;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -37,9 +36,8 @@ import java.util.List;
  * @author devezhao
  * @since 12/28/2018
  */
+@Slf4j
 public class QuickCodeReindexTask extends HeavyTask<Integer> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(QuickCodeReindexTask.class);
 
     private static final int PAGE_SIZE = 1000;
 
@@ -199,7 +197,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
             try {
                 quickCode = HanLP.convertToPinyinFirstCharString(nameVal, "", false);
             } catch (Exception e) {
-                LOG.error("QuickCode shorting error : " + nameVal, e);
+                log.error("QuickCode shorting error : " + nameVal, e);
             }
         }
 

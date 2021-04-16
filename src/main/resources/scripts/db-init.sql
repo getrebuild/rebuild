@@ -183,7 +183,7 @@ create table if not exists `pick_list` (
 -- ************ Entity [LayoutConfig] DDL ************
 create table if not exists `layout_config` (
   `CONFIG_ID`          char(20) not null,
-  `CONFIG`             text(21845) not null comment 'JSON格式配置',
+  `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人 (可选值: ALL/SELF/$MemberID)',
   `BELONG_ENTITY`      varchar(100) not null,
   `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAV,TBA,ADD',
@@ -198,7 +198,7 @@ create table if not exists `layout_config` (
 -- ************ Entity [FilterConfig] DDL ************
 create table if not exists `filter_config` (
   `CONFIG_ID`          char(20) not null,
-  `CONFIG`             text(21845) not null comment 'JSON格式配置',
+  `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人 (可选值: ALL/SELF/$MemberID)',
   `BELONG_ENTITY`      varchar(100) not null,
   `FILTER_NAME`        varchar(100) not null,
@@ -212,7 +212,7 @@ create table if not exists `filter_config` (
 -- ************ Entity [DashboardConfig] DDL ************
 create table if not exists `dashboard_config` (
   `CONFIG_ID`          char(20) not null,
-  `CONFIG`             text(21845) not null comment 'JSON格式配置',
+  `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人 (可选值: ALL/SELF/$MemberID)',
   `TITLE`              varchar(100) not null,
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -225,7 +225,7 @@ create table if not exists `dashboard_config` (
 -- ************ Entity [ChartConfig] DDL ************
 create table if not exists `chart_config` (
   `CHART_ID`           char(20) not null,
-  `CONFIG`             text(21845) not null comment 'JSON格式配置',
+  `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `BELONG_ENTITY`      varchar(100) not null,
   `CHART_TYPE`         varchar(100) not null,
   `TITLE`              varchar(100) not null,
@@ -380,9 +380,9 @@ create table if not exists `robot_trigger_config` (
   `BELONG_ENTITY`      varchar(100) not null,
   `WHEN`               int(11) default '0' comment '动作 (累加值)',
   `WHEN_TIMER`         varchar(100) comment '定期执行',
-  `WHEN_FILTER`        text(21845) comment '附加过滤器',
+  `WHEN_FILTER`        text(32767) comment '附加过滤器',
   `ACTION_TYPE`        varchar(50) not null comment '预定义的触发操作类型',
-  `ACTION_CONTENT`     text(21845) comment '预定义的触发操作类型 (JSON Map)',
+  `ACTION_CONTENT`     text(32767) comment '预定义的触发操作类型 (JSON Map)',
   `PRIORITY`           int(11) default '1' comment '执行优先级 (越大越高越先执行)',
   `NAME`               varchar(100) comment '触发器名称',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
@@ -398,7 +398,7 @@ create table if not exists `robot_approval_config` (
   `CONFIG_ID`          char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null comment '应用实体',
   `NAME`               varchar(100) not null comment '流程名称',
-  `FLOW_DEFINITION`    text(21845) comment '流程定义',
+  `FLOW_DEFINITION`    text(32767) comment '流程定义',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -449,8 +449,8 @@ create table if not exists `rebuild_api_request` (
   `APP_ID`             varchar(20) not null comment 'APPID',
   `REMOTE_IP`          varchar(100) not null comment '来源IP',
   `REQUEST_URL`        varchar(300) not null comment '请求URL',
-  `REQUEST_BODY`       text(10000) comment '请求数据',
-  `RESPONSE_BODY`      text(10000) not null comment '响应数据',
+  `REQUEST_BODY`       text(32767) comment '请求数据',
+  `RESPONSE_BODY`      text(32767) not null comment '响应数据',
   `REQUEST_TIME`       timestamp not null default current_timestamp comment '请求时间',
   `RESPONSE_TIME`      timestamp not null default current_timestamp comment '响应时间',
   primary key  (`REQUEST_ID`),
@@ -463,7 +463,7 @@ create table if not exists `data_report_config` (
   `BELONG_ENTITY`      varchar(100) not null comment '应用实体',
   `NAME`               varchar(100) not null comment '报表名称',
   `TEMPLATE_FILE`      varchar(200) comment '模板文件',
-  `TEMPLATE_CONTENT`   text(20000) comment '模板内容',
+  `TEMPLATE_CONTENT`   text(32767) comment '模板内容',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -507,7 +507,7 @@ create table if not exists `revision_history` (
 create table if not exists `smsend_log` (
   `SEND_ID`            char(20) not null,
   `TO`                 varchar(100) not null comment '收件人',
-  `CONTENT`            text(21845) not null comment '发送内容',
+  `CONTENT`            text(32767) not null comment '发送内容',
   `TYPE`               smallint(6) default '0' comment '1=短信; 2=邮件',
   `SEND_TIME`          timestamp not null default current_timestamp comment '发送时间',
   `SEND_RESULT`        varchar(191) comment '发送结果 (xxx|ERR:xxx)',
@@ -531,7 +531,7 @@ create table if not exists `transform_config` (
   `BELONG_ENTITY`      varchar(100) not null comment '源实体',
   `TARGET_ENTITY`      varchar(100) not null comment '目标实体',
   `NAME`               varchar(100) comment '名称',
-  `CONFIG`             text(21845) comment '映射配置',
+  `CONFIG`             text(32767) comment '映射配置',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -544,8 +544,8 @@ create table if not exists `transform_config` (
 create table if not exists `feeds` (
   `FEEDS_ID`           char(20) not null,
   `TYPE`               smallint(6) not null default '1' comment '类型',
-  `CONTENT`            text(3000) not null comment '内容',
-  `CONTENT_MORE`       text(3000) comment '不同类型的扩展内容 (JSON Map)',
+  `CONTENT`            text(32767) not null comment '内容',
+  `CONTENT_MORE`       text(32767) comment '不同类型的扩展内容 (JSON Map)',
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `RELATED_RECORD`     char(20) comment '相关业务记录',
@@ -566,7 +566,7 @@ create table if not exists `feeds` (
 create table if not exists `feeds_comment` (
   `COMMENT_ID`         char(20) not null,
   `FEEDS_ID`           char(20) not null comment '相关动态',
-  `CONTENT`            text(3000) not null comment '内容',
+  `CONTENT`            text(32767) not null comment '内容',
   `IMAGES`             varchar(700) comment '图片',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -607,7 +607,7 @@ create table if not exists `project_config` (
   `PRINCIPAL`          char(20) comment '负责人',
   `MEMBERS`            varchar(420) comment '项目成员 ($MemberID)',
   `SCOPE`              smallint(6) default '1' comment '可见范围 (1=公开 2=成员)',
-  `EXTRA_DEFINITION`   text(1000) comment '扩展配置 (JSON Map)',
+  `EXTRA_DEFINITION`   text(32767) comment '扩展配置 (JSON Map)',
   `CREATED_BY`         char(20) not null comment '创建人',
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -643,9 +643,10 @@ create table if not exists `project_task` (
   `DEADLINE`           timestamp null default null comment '截至时间',
   `START_TIME`         timestamp null default null comment '开始时间',
   `END_TIME`           timestamp null default null comment '完成时间',
-  `DESCRIPTION`        text(10000) comment '备注',
+  `DESCRIPTION`        text(32767) comment '备注',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `PARENT_TASK_ID`     char(20) comment '父级任务',
+  `RELATED_RECORD`     char(20) comment '相关业务记录',
   `SEQ`                int(11) default '0' comment '排序 (小到大)',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -653,7 +654,8 @@ create table if not exists `project_task` (
   `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
   primary key  (`TASK_ID`),
   index IX0_project_task (`PROJECT_ID`, `PROJECT_PLAN_ID`, `SEQ`),
-  index IX1_project_task (`PROJECT_ID`, `TASK_NUMBER`, `TASK_NAME`, `STATUS`)
+  index IX1_project_task (`PROJECT_ID`, `TASK_NUMBER`, `TASK_NAME`, `STATUS`),
+  index IX2_project_task (`RELATED_RECORD`, `PROJECT_ID`)
 )Engine=InnoDB;
 
 -- ************ Entity [ProjectTaskRelation] DDL ************
@@ -670,7 +672,7 @@ create table if not exists `project_task_relation` (
 create table if not exists `project_task_comment` (
   `COMMENT_ID`         char(20) not null,
   `TASK_ID`            char(20) not null comment '相关任务',
-  `CONTENT`            text(3000) not null comment '评论内容',
+  `CONTENT`            text(32767) not null comment '评论内容',
   `ATTACHMENTS`        varchar(700) comment '附件',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -709,7 +711,7 @@ create table if not exists `extform_config` (
   `CONFIG_ID`          char(20) not null,
   `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
   `NAME`               varchar(100) not null comment '名称',
-  `PORTAL_CONFIG`      text(21845) comment '表单配置 (JSON Map)',
+  `PORTAL_CONFIG`      text(32767) comment '表单配置 (JSON Map)',
   `START_TIME`         timestamp null default null comment '开始时间',
   `END_TIME`           timestamp null default null comment '结束时间',
   `BIND_USER`          char(20) comment '数据绑定用户',
@@ -763,6 +765,16 @@ insert into `classification` (`DATA_ID`, `NAME`, `DESCRIPTION`, `OPEN_LEVEL`, `I
   ('018-0000000000000001', '地区', NULL, 2, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001'),
   ('018-0000000000000002', '行业', NULL, 1, 'F', CURRENT_TIMESTAMP, '001-0000000000000001', CURRENT_TIMESTAMP, '001-0000000000000001');
 
+-- Projects
+insert into `project_config` (`CONFIG_ID`, `PROJECT_NAME`, `PROJECT_CODE`, `PRINCIPAL`, `MEMBERS`, `SCOPE`, `CREATED_BY`, `CREATED_ON`, `MODIFIED_BY`, `MODIFIED_ON`)
+  values
+  ('050-0000000000000001', 'RB示例项目', 'RB', '001-0000000000000001', '001-9000000000000001', 1, '001-0000000000000000', CURRENT_TIMESTAMP, '001-0000000000000000', CURRENT_TIMESTAMP);
+insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`, `FLOW_STATUS`, `FLOW_NEXTS`)
+  values
+  ('051-0000000000000001', '050-0000000000000001', '待处理', 1000, 1, '051-0000000000000002,051-0000000000000003'),
+  ('051-0000000000000002', '050-0000000000000001', '进行中', 2000, 2, '051-0000000000000001,051-0000000000000003'),
+  ('051-0000000000000003', '050-0000000000000001', '已完成', 3000, 3, '051-0000000000000001,051-0000000000000002');
+
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 34);
+  values ('021-9000000000000001', 'DBVer', 35);

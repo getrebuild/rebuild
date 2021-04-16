@@ -20,6 +20,7 @@ import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.GhostEntity;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
@@ -141,7 +142,7 @@ public class MetadataHelper {
     }
 
     /**
-     * <tt>reference</tt> 中的哪些字段引用了 <tt>source</tt>
+     * <tt>reference</tt> 的哪些字段引用了 <tt>source</tt>
      *
      * @param source
      * @param reference
@@ -150,13 +151,24 @@ public class MetadataHelper {
     public static Field[] getReferenceToFields(Entity source, Entity reference) {
         List<Field> fields = new ArrayList<>();
         for (Field field : reference.getFields()) {
-            if (field.getType() != FieldType.REFERENCE) {
-                continue;
-            }
-
-            if (field.getReferenceEntity().getEntityCode().equals(source.getEntityCode())) {
+            if (field.getType() == FieldType.REFERENCE && field.getReferenceEntity().equals(source)) {
                 fields.add(field);
             }
+        }
+        return fields.toArray(new Field[0]);
+    }
+
+    /**
+     * 哪些字段引用了 <tt>sourceEntity</tt>
+     *
+     * @param source
+     * @return
+     * @see #getReferenceToFields(Entity, Entity)
+     */
+    public static Field[] getReferenceToFields(Entity source) {
+        List<Field> fields = new ArrayList<>();
+        for (Entity entity : getEntities()) {
+            CollectionUtils.addAll(fields, getReferenceToFields(source, entity));
         }
         return fields.toArray(new Field[0]);
     }

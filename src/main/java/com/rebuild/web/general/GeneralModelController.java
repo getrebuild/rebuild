@@ -23,7 +23,10 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -71,7 +74,7 @@ public class GeneralModelController extends EntityController {
         return mv;
     }
 
-    @PostMapping("form-model")
+    @RequestMapping("form-model")
     public JSON entityForm(@PathVariable String entity, @IdParam(required = false) ID id,
                            HttpServletRequest request) {
         final ID user = getRequestUser(request);
@@ -108,7 +111,10 @@ public class GeneralModelController extends EntityController {
     @GetMapping("view-model")
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
-        return FormsBuilder.instance.buildView(entity, getRequestUser(request), id);
+        ID user = getRequestUser(request);
+        JSONObject model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
+        model.put("entityPrivileges", buildEntityPrivileges(id, user));
+        return model;
     }
 
     // 打印视图

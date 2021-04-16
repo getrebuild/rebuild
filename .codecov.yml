@@ -4,7 +4,7 @@ coverage:
   precision: 2
   
   status:
-    project: yes
+    project: true
     patch: no
     changes: no
 

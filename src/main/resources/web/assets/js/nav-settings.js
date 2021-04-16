@@ -21,6 +21,7 @@ $(document).ready(function () {
     if (item_current_isNew === true) {
       const $option = $('.J_menuEntity option:selected')
       if (!$option.val()) return
+
       $('.J_menuIcon .zmdi').attr('class', `zmdi zmdi-${$option.data('icon')}`)
       $('.J_menuName').val($option.text())
     }
@@ -31,32 +32,22 @@ $(document).ready(function () {
       $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
       parent.RbModal.hide()
     }
-    parent.RbModal.create('/p/commons/search-icon', $L('SelectSome,Icon'))
+    parent.RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
   })
 
   $('.J_menuConfirm').click(function () {
     const name = $val('.J_menuName')
-    if (!name) {
-      RbHighbar.create($L('PlsSelectSome,MenuName'))
-      return
-    }
+    if (!name) return RbHighbar.create($L('PlsSelectSome,MenuName'))
+
     const type = $('.J_menuType.active').attr('href').substr(1)
     let value
     if (type === 'ENTITY') {
       value = $val('.J_menuEntity')
-      if (!value) {
-        RbHighbar.create($L('PlsSelectSome,RelatedEntry'))
-        return
-      }
+      if (!value) return RbHighbar.create($L('PlsSelectSome,RelatedEntry'))
     } else {
       value = $val('.J_menuUrl')
-      if (!value) {
-        RbHighbar.create($L('PlsInputSome,URL'))
-        return
-      } else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) {
-        RbHighbar.create($L('PlsInputValidSome,URL'))
-        return
-      }
+      if (!value) return RbHighbar.create($L('PlsInputSome,OutUrl'))
+      else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) return RbHighbar.create($L('PlsInputValidSome,OutUrl'))
     }
 
     const icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
@@ -85,10 +76,7 @@ $(document).ready(function () {
       const $item = build_item($(this), navs)
       if ($item) navs.push($item)
     })
-    if (navs.length === 0) {
-      RbHighbar.create($L('Set1MenuLeast'))
-      return
-    }
+    if (navs.length === 0) return RbHighbar.create($L('Set1MenuLeast'))
 
     if (coveredMode) {
       RbAlert.create($L('OverSelfNavMenu'), {
@@ -164,10 +152,10 @@ const build_item = function (item) {
   }
   if (!data.value) return null
 
-  const subNavs = item.find('ul>li')
-  if (subNavs.length > 0) {
+  const $subNavs = item.find('ul>li')
+  if ($subNavs.length > 0) {
     data.sub = []
-    subNavs.each(function () {
+    $subNavs.each(function () {
       const sub = build_item($(this))
       if (sub) data.sub.push(sub)
     })
@@ -187,17 +175,20 @@ const render_item = function (data, isNew, append2) {
   let $item = $('.J_config').find(`li[attr-id='${data.id}']`)
   if ($item.length === 0) {
     $item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo(append2)
-    const action = $(
-      '<div class="dd3-action"><a class="J_addsub" title="添加子菜单"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="移除"><i class="zmdi zmdi-close"></i></a></div>'
+    const $action = $(
+      `<div class="dd3-action"><a class="J_addsub" title="${$L('AddSome,SubMenu')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L(
+        'Remove'
+      )}"><i class="zmdi zmdi-close"></i></a></div>`
     ).appendTo($item)
-    action
+
+    $action
       .find('a.J_del')
       .off('click')
       .click(function () {
         $item.remove()
         fix_parents()
       })
-    action
+    $action
       .find('a.J_addsub')
       .off('click')
       .click(function () {
@@ -206,15 +197,17 @@ const render_item = function (data, isNew, append2) {
           $subUl = $('<ul></ul>').appendTo($item)
           use_sortable($subUl)
         }
+
         render_item({}, true, $subUl)
         fix_parents()
       })
-    if (!$(append2).hasClass('J_config')) action.find('a.J_addsub').remove()
+
+    if (!$(append2).hasClass('J_config')) $action.find('a.J_addsub').remove()
   }
 
-  const content3 = $item.find('.dd3-content').eq(0)
-  content3.find('.zmdi').attr('class', 'zmdi zmdi-' + data.icon)
-  content3.find('span').text(data.text)
+  const $content3 = $item.find('.dd3-content').eq(0)
+  $content3.find('.zmdi').attr('class', 'zmdi zmdi-' + data.icon)
+  $content3.find('span').text(data.text)
   $item.attr({
     'attr-id': data.id,
     'attr-type': data.type || 'ENTITY',
@@ -223,7 +216,7 @@ const render_item = function (data, isNew, append2) {
   })
 
   // Event
-  content3.off('click').click(function () {
+  $content3.off('click').click(function () {
     $('.J_config li').removeClass('active')
     $item.addClass('active')
 
@@ -244,13 +237,15 @@ const render_item = function (data, isNew, append2) {
       if (!$me.find('option:selected').text()) $me.val('').addClass('is-invalid')
       else $me.removeClass('is-invalid')
     }
+
     item_currentid = data.id
   })
 
   if (isNew === true) {
-    content3.trigger('click')
+    $content3.trigger('click')
     $('.J_menuName').focus()
   }
+
   item_current_isNew = isNew
   return $item
 }

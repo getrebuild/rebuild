@@ -173,6 +173,15 @@ body {
   padding-right: 30px;
 }
 
+.related-list .related-toolbar {
+  margin-bottom: 13px;
+}
+
+.related-list .related-toolbar.feeds {
+  border-bottom: 1px solid #ebebeb;
+  padding-bottom: 13px;
+}
+
 .view-operating > div {
   margin-bottom: 15px !important;
 }
@@ -270,49 +279,17 @@ body {
   line-height: 1;
 }
 
-.sharing-list ul {
-  margin: 10px 0 21px 10px;
+.sharing-list .user-avatar {
+  line-height: 30px;
+  color: #444;
 }
 
-.sharing-list ul > li {
-  margin-bottom: 0.5rem;
+.sharing-list .badge-light {
+  font-weight: normal;
 }
 
-.sharing-list ul > li > div {
-  background-color: #f7f7f7;
-  border: 1px solid #f7f7f7;
-  padding: 5px;
-  border-radius: 2px;
-  width: 150px;
-  cursor: pointer;
-  position: relative;
-  height: 40px;
-}
-
-.sharing-list ul > li > div .zmdi {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  font-size: 1.2rem;
-  color: #fff;
-  width: 18px;
-  height: 18px;
-  line-height: 18px;
-  background-color: #4285f4;
-  text-align: center;
-  display: none;
-}
-
-.sharing-list ul > li.active > div .zmdi {
-  display: block;
-}
-
-.sharing-list ul > li > div .user-show .name {
-  color: #555;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.sharing-list .table > tbody td {
+  padding: 8px 10px;
 }
 
 .load-mores {
@@ -467,13 +444,10 @@ body {
   border-top: 1px solid #eee;
 }
 
-.feeds-list.inview .actions {
+.feeds-list.inview .feeds + .actions {
   border: 0 none;
-  margin: 0;
   padding: 0;
-  position: absolute;
-  right: 0;
-  bottom: 0;
+  margin: -32px 0 0;
 }
 
 .feeds-list.inview .feeds > .content .rich-content {
@@ -482,6 +456,14 @@ body {
 
 .feeds-list.inview .feeds > .content .rich-content > .appends {
   font-size: 12px;
+}
+
+.feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
+  cursor: default;
+}
+
+.modal-body .feed-options.related {
+  display: none;
 }
 
 .view-history .view-history-items {
@@ -531,4 +513,10 @@ body {
 
 .editor-toolbar.fullscreen {
   top: 60px;
+}
+
+.mdedit-content p,
+.editor-preview p {
+  margin-bottom: 0.75em !important;
+  line-height: 1.6 !important;
 }

@@ -19,6 +19,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.project.ProjectHelper;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -146,7 +147,7 @@ public class ProjectTaskController extends BaseController {
     @GetMapping("tasks/details")
     public JSON taskDetails(@IdParam(name = "task") ID taskId) {
         Object[] task = Application.createQueryNoFilter(
-                "select " + BASE_FIELDS + ",projectId,description,attachments from ProjectTask where taskId = ?")
+                "select " + BASE_FIELDS + ",projectId,description,attachments,relatedRecord from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
         JSONObject details = formatTask(task, true);
@@ -156,6 +157,14 @@ public class ProjectTaskController extends BaseController {
         details.put("description", task[12]);
         String attachments = (String) task[13];
         details.put("attachments", JSON.parseArray(attachments));
+
+        // 相关记录
+        ID relatedRecord = (ID) task[14];
+        if (relatedRecord != null) {
+            details.put("relatedRecord", relatedRecord);
+            String text = FieldValueHelper.getLabelNotry(relatedRecord);
+            details.put("relatedRecordData", FieldValueHelper.wrapMixValue(relatedRecord, text));
+        }
 
         return details;
     }

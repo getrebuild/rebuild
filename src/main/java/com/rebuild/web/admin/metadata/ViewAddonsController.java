@@ -94,9 +94,7 @@ public class ViewAddonsController extends BaseController {
         }
 
         // 跟进（动态）
-        if (ViewAddonsManager.TYPE_TAB.equalsIgnoreCase(applyType)) {
-            refs.add(new String[] { "Feeds.relatedRecord", Language.L("e.Feeds") });
-        }
+        refs.add(new String[] { "Feeds.relatedRecord", Language.L("e.Feeds") });
 
         return JSONUtils.toJSONObject(
                 new String[] { "config", "refs" },

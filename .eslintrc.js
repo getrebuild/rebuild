@@ -55,10 +55,12 @@ module.exports = {
     $fileExtName: true,
     $gotoSection: true,
     $createUploader: true,
+    $initUploader: true,
     $cleanMenu: true,
     $cleanMap: true,
     $pages: true,
     $same: true,
+    $is: true,
     $unmount: true,
     $initReferenceSelect2: true,
     $keepModalOpen: true,
@@ -107,6 +109,7 @@ module.exports = {
     $LF: true,
     $isTrue: true,
     $fieldIsCompatible: true,
-    $unhideDropdown: true
+    $unhideDropdown: true,
+    AnyRecordSelector: true,
   },
 }

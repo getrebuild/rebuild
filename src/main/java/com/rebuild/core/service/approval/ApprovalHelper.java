@@ -9,19 +9,27 @@ package com.rebuild.core.service.approval;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
 /**
  * @author devezhao
  * @since 2019/10/23
  */
+@Slf4j
 public class ApprovalHelper {
+
+    // 审批-发起人
+    public static final String APPROVAL_SUBMITOR = "$SUBMITOR$.";
+    // 审批-审批人
+    public static final String APPROVAL_APPROVER = "$APPROVER$.";
 
     /**
      * 获取提交人
@@ -92,5 +100,25 @@ public class ApprovalHelper {
                 .unique();
 
         return inUsed != null ? ObjectUtils.toInt(inUsed[0]) : 0;
+    }
+
+    /**
+     * 验证虚拟字段
+     *
+     * @param userField
+     * @return
+     */
+    public static Field checkVirtualField(String userField) {
+        if (userField.startsWith(APPROVAL_SUBMITOR)
+                || userField.startsWith(APPROVAL_APPROVER)) {
+            String realField = userField.split("\\.")[1];
+            Entity userEntity = MetadataHelper.getEntity(EntityHelper.User);
+            if (userEntity.containsField(realField)) {
+                return userEntity.getField(realField);
+            } else {
+                log.warn("No field of virtual found : {}", userField);
+            }
+        }
+        return null;
     }
 }

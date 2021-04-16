@@ -9,8 +9,6 @@ package com.rebuild.core.cache;
 
 import com.rebuild.core.support.distributed.UseRedis;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.util.Assert;
 import redis.clients.jedis.JedisPool;
@@ -24,8 +22,6 @@ import java.io.Serializable;
  * @since 01/02/2019
  */
 public abstract class BaseCacheTemplate<V extends Serializable> implements CacheTemplate<V>, UseRedis {
-
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     /**
      * 默认缓存时间（90天）

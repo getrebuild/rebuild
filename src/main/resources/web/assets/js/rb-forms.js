@@ -25,7 +25,7 @@ class RbFormModal extends React.Component {
                   {this.state.icon && <span className={'icon zmdi zmdi-' + this.state.icon} />}
                   <h3 className="modal-title">{this.state.title || $L('New')}</h3>
                   {rb.isAdminUser && (
-                    <a className="close s" href={rb.baseUrl + '/admin/entity/' + this.state.entity + '/form-design'} title={$L('ConfSome,FormLayout')} target="_blank">
+                    <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('FormLayout')} target="_blank">
                       <span className="zmdi zmdi-settings"></span>
                     </a>
                   )}
@@ -730,29 +730,36 @@ class RbFormNumber extends RbFormText {
     if (this.props.calcFormula && !this.props.onView) {
       const calcFormula = this.props.calcFormula.replace(new RegExp('×', 'ig'), '*').replace(new RegExp('÷', 'ig'), '/')
       const watchFields = calcFormula.match(/\{([a-z0-9]+)\}/gi) || []
+
       this.calcFormula__values = {}
+      // 初始值
+      watchFields.forEach((item) => {
+        const name = item.substr(1, item.length - 2)
+        const fieldComp = this.props.$$$parent.refs[`fieldcomp-${name}`]
+        if (fieldComp && fieldComp.state.value) {
+          this.calcFormula__values[name] = fieldComp.state.value
+        }
+      })
 
       // 小数位
       const fixed = this.props.decimalFormat ? (this.props.decimalFormat.split('.')[1] || '').length : 0
 
       RbForm.onFieldValueChange((s) => {
-        if (watchFields.includes(`{${s.name}}`)) {
-          this.calcFormula__values[s.name] = s.value
+        if (!watchFields.includes(`{${s.name}}`)) return
+        this.calcFormula__values[s.name] = s.value
 
-          // 尝试计算
-          let formula = calcFormula
-          for (let key in this.calcFormula__values) {
-            formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
-          }
-          if (formula.includes('{')) return
+        let formula = calcFormula
+        for (let key in this.calcFormula__values) {
+          formula = formula.replace(new RegExp(`{${key}}`, 'ig'), this.calcFormula__values[key] || 0)
+        }
+        if (formula.includes('{')) return
 
-          try {
-            let calcv
-            eval(`calcv = ${formula}`)
-            if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
-          } catch (err) {
-            if (rb.env === 'dev') console.log(err)
-          }
+        try {
+          let calcv
+          eval(`calcv = ${formula}`)
+          if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
+        } catch (err) {
+          if (rb.env === 'dev') console.log(err)
         }
       })
     }
@@ -847,104 +854,39 @@ class RbFormTextarea extends RbFormElement {
   }
 
   _initMde() {
-    const _MDE_TOOLBAR = [
-      {
-        name: 'bold',
-        action: SimpleMDE.toggleBold,
-        className: 'zmdi zmdi-format-bold',
-        title: $L('MdeditBold'),
-      },
-      {
-        name: 'italic',
-        action: SimpleMDE.toggleItalic,
-        className: 'zmdi zmdi-format-italic',
-        title: $L('MdeditItalic'),
-      },
-      {
-        name: 'strikethrough',
-        action: SimpleMDE.toggleStrikethrough,
-        className: 'zmdi zmdi-format-strikethrough',
-        title: $L('MdeditStrikethrough'),
-      },
-      {
-        name: 'image',
-        action: () => this._fieldValue__upload.click(),
-        className: 'zmdi zmdi-image-o',
-        title: $L('MdeditImage'),
-      },
-      {
-        name: 'heading',
-        action: SimpleMDE.toggleHeadingSmaller,
-        className: 'zmdi zmdi-format-size',
-        title: $L('MdeditHeading'),
-      },
-      {
-        name: 'table',
-        action: SimpleMDE.drawTable,
-        className: 'zmdi zmdi-border-all',
-        title: $L('MdeditTable'),
-      },
-      {
-        name: 'unordered-list',
-        action: SimpleMDE.toggleUnorderedList,
-        className: 'zmdi zmdi-format-list-bulleted',
-        title: $L('MdeditUnorderedList'),
-      },
-      {
-        name: 'ordered-list',
-        action: SimpleMDE.toggleOrderedList,
-        className: 'zmdi zmdi-format-list-numbered',
-        title: $L('MdeditOrderedList'),
-      },
-      {
-        name: 'link',
-        action: SimpleMDE.drawLink,
-        className: 'zmdi zmdi-link',
-        title: $L('MdeditLink'),
-      },
-      '|',
-      {
-        name: 'fullscreen',
-        action: SimpleMDE.toggleFullScreen,
-        className: 'zmdi zmdi-fullscreen no-disable',
-        title: $L('MdeditFullScreen'),
-      },
-      {
-        name: 'preview',
-        action: SimpleMDE.togglePreview,
-        className: 'zmdi zmdi-eye no-disable',
-        title: $L('MdeditTogglePreview'),
-      },
-      {
-        name: 'guide',
-        action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-        className: 'zmdi zmdi-help-outline no-disable',
-        title: $L('MdeditGuide'),
-      },
-    ]
-
     const mde = new SimpleMDE({
       element: this._fieldValue,
       status: false,
       autoDownloadFontAwesome: false,
       spellChecker: false,
-      toolbar: this.props.readonly ? false : _MDE_TOOLBAR,
+      // eslint-disable-next-line no-undef
+      toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR,
     })
     this._simplemde = mde
 
     if (this.props.readonly) {
       mde.codemirror.setOption('readOnly', true)
     } else {
-      mde.codemirror.on('changes', () => {
-        $setTimeout(() => {
-          this.setState({ value: mde.value() }, this.checkValue)
-        }, 200, 'mde-update-event')
-      })
-
       $createUploader(this._fieldValue__upload, null, (res) => {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
         mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+      })
+      if (this.props.onView) {
+        setTimeout(() => {
+          mde.codemirror.focus()
+          mde.codemirror.setCursor(mde.codemirror.lineCount(), 0) // cursor at end
+        }, 100)
+      }
+
+      mde.codemirror.on('changes', () => {
+        $setTimeout(
+          () => {
+            this.setState({ value: mde.value() }, this.checkValue)
+          },
+          200,
+          'mde-update-event'
+        )
       })
     }
   }
@@ -1702,7 +1644,7 @@ class RbFormBarcode extends RbFormElement {
   renderViewElement() {
     if (!this.state.value) return super.renderViewElement()
 
-    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'QRCODE' ? '-qr' : ''}?t=${$encode(this.state.value)}`
+    const codeUrl = `${rb.baseUrl}/commons/barcode/render${this.props.barcodeType === 'BARCODE' ? '' : '-qr'}?t=${$encode(this.state.value)}`
     return (
       <div className="img-field barcode">
         <a className="img-thumbnail" title={this.state.value}>

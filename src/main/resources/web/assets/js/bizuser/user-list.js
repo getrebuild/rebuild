@@ -111,7 +111,7 @@ class UserImport extends RbModalHandler {
   }
 
   imports() {
-    if (rb.commercial < 1) return RbHighbar.error($L('FreeVerNotSupportted,ImportUser'))
+    if (rb.commercial < 1) return RbHighbar.create($L('FreeVerNotSupportted,ImportUser'), { type: 'danger', html: true, timeout: 6000 })
     if (!this.state.uploadFile) return RbHighbar.create($L('PlsUploadFile'))
 
     $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._notify).prop('checked')}`, (res) => {

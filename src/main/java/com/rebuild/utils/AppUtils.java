@@ -35,11 +35,9 @@ import java.sql.DataTruncation;
  */
 public class AppUtils {
 
-    // 移动端 UA 前缀
-    public static final String MOILE_UA_PREFIX = "RB/MOBILE-";
-
     // Token 认证
     public static final String HF_AUTHTOKEN = "X-AuthToken";
+    public static final String URL_AUTHTOKEN = "_authToken";
 
     // 语言
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
@@ -86,10 +84,10 @@ public class AppUtils {
      * @return null or UserID
      */
     public static ID getRequestUserViaToken(HttpServletRequest request, boolean refreshToken) {
-        String xAuthToken = request.getHeader(HF_AUTHTOKEN);
-        ID user = AuthTokenManager.verifyToken(xAuthToken, false);
+        String authToken = request.getHeader(HF_AUTHTOKEN);
+        ID user = AuthTokenManager.verifyToken(authToken, false);
         if (user != null && refreshToken) {
-            AuthTokenManager.refreshToken(xAuthToken, AuthTokenManager.TOKEN_EXPIRES);
+            AuthTokenManager.refreshToken(authToken, AuthTokenManager.TOKEN_EXPIRES);
         }
         return user;
     }
@@ -167,14 +165,14 @@ public class AppUtils {
     }
 
     /**
-     * 是否 APP 请求
+     * 是否移动端请求
      *
      * @param request
      * @return
      */
     public static boolean isRbMobile(HttpServletRequest request) {
-        String UA = request.getHeader("user-agent");
-        return UA != null && UA.toUpperCase().startsWith(MOILE_UA_PREFIX);
+        String UA = request.getHeader("X-Client");
+        return UA != null && UA.startsWith("RB/Mobile-");
     }
 
     /**
@@ -187,10 +185,10 @@ public class AppUtils {
     public static MimeType parseMimeType(HttpServletRequest request) {
         try {
             String acceptType = request.getHeader("Accept");
-            if (acceptType == null) acceptType = request.getContentType();
+            if (acceptType == null || "*/*".equals(acceptType)) acceptType = request.getContentType();
 
             // Via Spider?
-            if (acceptType == null) return MimeTypeUtils.TEXT_HTML;
+            if (StringUtils.isBlank(acceptType)) return MimeTypeUtils.TEXT_HTML;
 
             acceptType = acceptType.split("[,;]")[0];
             // Accpet ALL?

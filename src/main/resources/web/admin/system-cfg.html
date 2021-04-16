@@ -38,7 +38,7 @@
                         <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
-                        <td>LOGO <sup class="rbv"></sup></td>
+                        <td>Logo <sup class="rbv"></sup></td>
                         <td class="fs-0 applogo">
                           <a class="img-thumbnail"><i class="logo-img"></i></a>
                           <a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
@@ -57,13 +57,9 @@
                         <td>[[${bundle.L('DefaultLanguage')}]]</td>
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
-                      <tr>
-                        <td>[[${bundle.L('LiveWallpaper')}]]</td>
-                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.L(LiveWallpaper ? 'True' : 'False')}]]</td>
-                      </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('SysSecure')}]]</h5>
+                  <h5>[[${bundle.L('SysConf')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
@@ -88,6 +84,10 @@
                       <tr>
                         <td>[[${bundle.L('MultipleSessions')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${bundle.L(MultipleSessions ? 'True' : 'False')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('LiveWallpaper')}]]</td>
+                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.L(LiveWallpaper ? 'True' : 'False')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('MarkWatermark')}]]</td>
@@ -135,6 +135,13 @@
               </div>
             </div>
             <div class="col-lg-3 col-12">
+              <div class="alert alert-danger alert-dismissible rbv-hide">
+                <button class="close" type="button" data-dismiss="alert"><i class="zmdi zmdi-close"></i></button>
+                <div class="icon"><i class="zmdi zmdi-thumb-up animated tada delay-2s"></i></div>
+                <div class="message">
+                  <a href="https://getrebuild.com/#pricing-plans" target="_blank" class="text-white text-bold text-underline">即刻升级! 获取更多系统能力与专业技术支持</a>
+                </div>
+              </div>
               <div class="card">
                 <div class="card-header card-header-divider">[[${bundle.L('About')}]] REBUILD</div>
                 <div class="card-body">

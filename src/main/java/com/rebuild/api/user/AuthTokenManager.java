@@ -10,6 +10,7 @@ package com.rebuild.api.user;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -18,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
  * @author devezhao
  * @since 2020/3/11
  */
+@Slf4j
 public class AuthTokenManager {
 
     // Token 存储前缀
@@ -32,11 +34,12 @@ public class AuthTokenManager {
      * 生成并存储 Token
      *
      * @param user
-     * @param expires
+     * @param expires seconds
      * @return
      */
     public static String generateToken(ID user, int expires) {
-        String token = String.format("%s,%d,v1", user, System.currentTimeMillis());
+        String token = String.format("%s,%d,%s,v1",
+                user, System.currentTimeMillis(), CodecUtils.randomCode(10));
         token = CodecUtils.base64UrlEncode(token);
         Application.getCommonsCache().putx(TOKEN_PREFIX + token, user, expires);
         return token;
@@ -46,17 +49,16 @@ public class AuthTokenManager {
      * 验证 Token
      *
      * @param token
-     * @param verifyAndDestroy
+     * @param verifyAfterDestroy
      * @return
      */
-    public static ID verifyToken(String token, boolean verifyAndDestroy) {
-        if (StringUtils.isBlank(token)) {
-            return null;
-        }
+    public static ID verifyToken(String token, boolean verifyAfterDestroy) {
+        if (StringUtils.isBlank(token)) return null;
 
         token = TOKEN_PREFIX + token;
         ID user = (ID) Application.getCommonsCache().getx(token);
-        if (user != null && verifyAndDestroy) {
+        if (user != null && verifyAfterDestroy) {
+            log.warn("Destroy token : {}", token);
             Application.getCommonsCache().evict(token);
         }
         return user;
@@ -71,9 +73,7 @@ public class AuthTokenManager {
      */
     public static ID refreshToken(String token, int expires) {
         ID user = verifyToken(token, false);
-        if (user == null) {
-            return null;
-        }
+        if (user == null)  return null;
 
         Application.getCommonsCache().putx(TOKEN_PREFIX + token, user, expires);
         return user;

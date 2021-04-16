@@ -28,3 +28,4 @@ rebuild:
 server.servlet.context-path: /rebuild
 spring.thymeleaf.cache: false
 spring.main.banner-mode: console
+spring.devtools.restart.trigger-file: .trigger

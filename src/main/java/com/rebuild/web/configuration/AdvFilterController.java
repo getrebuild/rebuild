@@ -100,7 +100,8 @@ public class AdvFilterController extends BaseController implements ShareTo {
     }
 
     @RequestMapping("advfilter/test-equation")
-    public void testEquation(HttpServletRequest request, HttpServletResponse response) {
+    public void testEquation(@PathVariable String entity,
+                             HttpServletRequest request, HttpServletResponse response) {
         final String equation = ServletUtils.getRequestString(request);
         if (StringUtils.isBlank(equation)) {
             writeSuccess(response);

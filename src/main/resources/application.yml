@@ -20,12 +20,13 @@ server:
 
 # SPRING
 spring:
-  mvc:
-    static-path-pattern: /assets/**
-  resources:
-    static-locations: classpath:/web/assets
   servlet:
     multipart.enabled: false
+  web:
+    resources:
+      static-locations: classpath:/web/assets
+  mvc:
+    static-path-pattern: /assets/**
   thymeleaf:
     prefix: classpath:/web
     cache: true
@@ -37,3 +38,4 @@ spring:
         size: 5
   main:
     banner-mode: off
+

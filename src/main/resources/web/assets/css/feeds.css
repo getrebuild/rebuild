@@ -512,8 +512,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 8px;
 }
 
-.arrow_box:after,
-.arrow_box:before {
+.arrow_box::after,
+.arrow_box::before {
   bottom: 100%;
   left: 50%;
   border: solid transparent;
@@ -524,14 +524,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   pointer-events: none;
 }
 
-.arrow_box:after {
+.arrow_box::after {
   border-color: rgba(255, 255, 255, 0);
   border-bottom-color: #fff;
   border-width: 6px;
   margin-left: -6px;
 }
 
-.arrow_box:before {
+.arrow_box::before {
   border-color: rgba(66, 133, 244, 0);
   border-bottom-color: #4285f4;
   border-width: 7px;
@@ -569,19 +569,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-top-right-radius: 0;
 }
 
-.feed-options.related .related-record {
-  width: 295px;
-}
-
-@media (max-width: 1280px) {
-  .feed-options.related .related-record {
-    width: 245px;
-  }
-}
-
-/* in edit */
-.modal-body .feed-options.related .related-record {
-  width: 250px;
+.feed-options.related {
+  padding-right: 16px;
 }
 
 .rich-content > .appends {

@@ -59,8 +59,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
 
         // 添加明细实体到第一个
         Entity entityMeta = MetadataHelper.getEntity(entity);
-        if (entityMeta.getDetailEntity() != null) {
-            JSON detail = EasyMetaFactory.toJSON(entityMeta.getDetailEntity());
+        Entity detailMeta;
+        if ((detailMeta = entityMeta.getDetailEntity()) != null) {
+            JSONObject detail = EasyMetaFactory.toJSON(detailMeta);
+            detail.put("entity", detailMeta.getName() + "." + MetadataHelper.getDetailToMainField(detailMeta).getName());
             JSONArray tabsFluent = new JSONArray();
             tabsFluent.add(detail);
             tabsFluent.fluentAddAll(vtabs.getJSONArray("items"));
@@ -103,6 +105,9 @@ public class ViewAddonsManager extends BaseLayoutManager {
                     useRefs.add(getEntityShow(field, mfRefs, applyType));
                 }
             }
+
+            // 跟进（动态）
+            useRefs.add(getEntityShow(MetadataHelper.getField("Feeds", "relatedRecord"), mfRefs, applyType));
 
             return JSONUtils.toJSONObject("items", useRefs);
         }

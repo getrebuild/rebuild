@@ -61,7 +61,7 @@ $(document).ready(function () {
   })
 
   $('#entityIcon').click(function () {
-    RbModal.create('/p/commons/search-icon', $L('SelectSome,Icon'))
+    RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
   })
 
   // 排序
@@ -76,6 +76,9 @@ $(document).ready(function () {
     return ss
   }
 
+  // 系统级引用字段
+  const _SYS_REF_FIELDS = ['createdBy', 'modifiedBy', 'owningUser', 'owningDept', 'approvalId']
+
   $.get(`/commons/metadata/fields?deep=1&entity=${wpc.entity}`, function (d) {
     // 名称字段
     const cNameFields = d.data.map((item) => {
@@ -88,7 +91,9 @@ $(document).ready(function () {
         item.type === 'PICKLIST' ||
         item.type === 'CLASSIFICATION' ||
         item.type === 'DATE' ||
-        item.type === 'DATETIME'
+        item.type === 'DATETIME' ||
+        /* 开放引用字段是否有问题 ??? */
+        (item.type === 'REFERENCE' && _SYS_REF_FIELDS.indexOf(item.name) === -1)
       return {
         id: item.name,
         text: item.label,
@@ -107,8 +112,6 @@ $(document).ready(function () {
       .trigger('change')
 
     // 快速查询
-    // 非系统级引用字段
-    const _SYS_REF_FIELDS = ['createdBy', 'modifiedBy', 'owningUser', 'owningDept', 'approvalId']
     const cQuickFields = d.data.map((item) => {
       const canQuick =
         item.type === 'TEXT' ||

@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global FormulaDate, FormulaCalc */
 
 const wpc = window.__PageConfig
 const __gExtConfig = {}
@@ -68,7 +69,11 @@ $(document).ready(function () {
     }
 
     const save = function () {
-      data.metadata = { entity: 'MetaField', id: wpc.metaId }
+      data.metadata = {
+        entity: 'MetaField',
+        id: wpc.metaId,
+      }
+
       $btn.button('loading')
       $.post('/admin/entity/field-update', JSON.stringify(data), function (res) {
         if (res.error_code === 0) {
@@ -203,69 +208,6 @@ const checkDefaultValue = function (v, t) {
   return valid
 }
 
-// ~~ 日期高级表达式
-class AdvDateDefaultValue extends RbAlert {
-  constructor(props) {
-    super(props)
-    this.state = { calcNum: 1, calcUnit: 'D' }
-  }
-
-  renderContent() {
-    return (
-      <form className="ml-6 mr-6">
-        <div className="form-group">
-          <label className="text-bold">{$L('SetSome,DateFormula')}</label>
-          <div className="input-group">
-            <select className="form-control form-control-sm">
-              <option value="NOW">{$L('CurrentDate')}</option>
-            </select>
-            <select className="form-control form-control-sm ml-1" onChange={(e) => this.setState({ calcOp: e.target.value })}>
-              <option value="">{$L('CalcNone')}</option>
-              <option value="+">{$L('CalcPlus')}</option>
-              <option value="-">{$L('CalcMinus')}</option>
-            </select>
-            <input
-              type="number"
-              min="1"
-              max="999999"
-              className="form-control form-control-sm ml-1"
-              defaultValue="1"
-              disabled={!this.state.calcOp}
-              onChange={(e) => this.setState({ calcNum: e.target.value })}
-            />
-            <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
-              <option value="D">{$L('Day')}</option>
-              <option value="M">{$L('Month')}</option>
-              <option value="Y">{$L('Year')}</option>
-              {this.props.type === 'DATETIME' && (
-                <React.Fragment>
-                  <option value="H">{$L('Hour')}</option>
-                  <option value="I">{$L('Minte')}</option>
-                </React.Fragment>
-              )}
-            </select>
-          </div>
-        </div>
-        <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>
-            {$L('Confirm')}
-          </button>
-        </div>
-      </form>
-    )
-  }
-
-  confirm() {
-    let expr = 'NOW'
-    if (this.state.calcOp) {
-      if (isNaN(this.state.calcNum)) return RbHighbar.create($L('PlsInputSome,Number'))
-      expr += ` ${this.state.calcOp} ${this.state.calcNum}${this.state.calcUnit}`
-    }
-    $('.J_defaultValue').val('{' + expr + '}')
-    this.hide()
-  }
-}
-
 const _handlePicklist = function (dt) {
   $.get(`/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
     if (res.data.length === 0) {
@@ -307,7 +249,7 @@ const _handleDate = function (dt) {
 
   $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('DateFormula')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')
-    .click(() => renderRbcomp(<AdvDateDefaultValue type={dt} />))
+    .click(() => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
 
 const _handleFile = function (uploadNumber) {
@@ -484,15 +426,15 @@ const _loadRefsLabel = function ($dv, $dvClear) {
   }
 }
 
-let FIELDS_CACHE = []
+let FIELDS_CACHE
 const _handleNumber = function (calcFormula) {
   const $el = $('#calcFormula2')
   function _call(s) {
     $('#calcFormula').val(s || '')
-    $el.text(FormulaCalc.textFormula(s))
+    $el.text(FormulaCalc.textFormula(s, FIELDS_CACHE))
   }
 
-  if (FIELDS_CACHE) {
+  if (!FIELDS_CACHE) {
     $.get(`/commons/metadata/fields?entity=${wpc.entityName}`, (res) => {
       const fs = []
       res.data.forEach((item) => {
@@ -500,103 +442,11 @@ const _handleNumber = function (calcFormula) {
           fs.push([item.name, item.label])
         }
       })
-      FIELDS_CACHE = fs
 
-      if (calcFormula) {
-        _call(calcFormula)
-      }
+      FIELDS_CACHE = fs
+      if (calcFormula) _call(calcFormula)
     })
   }
 
-  $el.click(() => renderRbcomp(<FormulaCalc call={_call} />))
-}
-
-// ~ 公式计算器
-// @see trigger.FIELDAGGREGATION.js
-const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('Back'), $L('Clear')]
-class FormulaCalc extends RbAlert {
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-  }
-
-  renderContent() {
-    return (
-      <div className="formula-calc">
-        <div className="form-control-plaintext formula mb-2" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)}></div>
-        <div className="row">
-          <div className="col-6">
-            <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
-              <ul className="list-unstyled mb-0" _title={$L('NoUsesField')}>
-                {FIELDS_CACHE.map((item) => {
-                  return (
-                    <li key={item[0]}>
-                      <a onClick={() => this.handleInput(item)}>{item[1]}</a>
-                    </li>
-                  )
-                })}
-              </ul>
-            </div>
-          </div>
-          <div className="col-6 pl-0">
-            <ul className="list-unstyled numbers mb-0">
-              {INPUT_KEYS.map((item) => {
-                return (
-                  <li className="list-inline-item" key={`flag-${item}`}>
-                    <a onClick={() => this.handleInput(item)}>{item}</a>
-                  </li>
-                )
-              })}
-              <li className="list-inline-item">
-                <a onClick={() => this.confirm()} className="confirm">
-                  {$L('Confirm')}
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-    $(this._$fields).perfectScrollbar()
-  }
-
-  handleInput(v) {
-    if (v === $L('Back')) {
-      $(this._$formula).find('.v:last').remove()
-    } else if (v === $L('Clear')) {
-      $(this._$formula).empty()
-    } else if (typeof v === 'object') {
-      const $field = $(`<i class="v field" data-v="{${v[0]}}">{${v[1]}}</i>`)
-      $field.appendTo(this._$formula)
-    } else if (['+', '-', '×', '÷', '(', ')'].includes(v)) {
-      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
-    } else {
-      $(`<i class="v num" data-v="${v}">${v}</i>`).appendTo(this._$formula)
-    }
-  }
-
-  confirm() {
-    const vvv = []
-    $(this._$formula)
-      .find('i')
-      .each(function () {
-        vvv.push($(this).data('v'))
-      })
-    typeof this.props.call === 'function' && this.props.call(vvv.join(''))
-    this.hide()
-  }
-
-  static textFormula(formula) {
-    if (!formula) return ''
-
-    for (let i = 0; i < FIELDS_CACHE.length; i++) {
-      const item = FIELDS_CACHE[i]
-      formula = formula.replace(new RegExp(`{${item[0]}}`, 'ig'), `{${item[1]}}`)
-    }
-    return formula.toUpperCase()
-  }
+  $el.click(() => renderRbcomp(<FormulaCalc onConfirm={_call} fields={FIELDS_CACHE} />))
 }

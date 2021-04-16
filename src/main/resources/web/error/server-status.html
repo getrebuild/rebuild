@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="renderer" content="webkit" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="refresh" content="30" />
     <link rel="shortcut icon" th:href="@{/assets/img/favicon.png}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
     <title>REBUILD</title>
-    <style type="text/css">
-      .block {
-        max-width: 1000px;
-        padding: 0 14px;
-        margin: 30px auto 0;
+    <style>
+      body,html {
+        height: auto;
+        min-height: auto;
       }
       .error {
         background-color: #ea4335;
@@ -27,13 +27,13 @@
   </head>
   <body>
     <div th:if="${!ok}" class="error">
-      <div class="block mt-0">
+      <div class="container">
         <h2 class="mt-0">[[${bundle.L('SystemFailure')}]]</h2>
         <div th:utext="${bundle.L('SystemFailureMemo')}"></div>
       </div>
     </div>
-    <div class="block">
-      <h5 class="text-bold">[[${bundle.L('QuickCheck')}]]</h5>
+    <div class="container">
+      <h5 class="text-bold mt-5">[[${bundle.L('QuickCheck')}]]</h5>
       <table class="table table-bordered table-sm table-hover">
         <tbody>
           <tr>
@@ -52,62 +52,56 @@
           </tr>
           <tr>
             <th>Memory Usage</th>
-            <td>
-              [[${MemoryUsage[1]}]]% ([[${MemoryUsage[0]}]]MB)
-            </td>
+            <td>[[${MemoryUsage[1]}]]% ([[${MemoryUsage[0]}]]MB)</td>
           </tr>
           <tr>
             <th>System Load</th>
-            <td>
-              [[${SystemLoad}]]
-            </td>
+            <td>[[${SystemLoad}]]</td>
           </tr>
         </tbody>
       </table>
-    </div>
-    <div class="block" th:if="${isAdminVerified}">
-      <h5 class="text-bold">[[${bundle.L('SystemInfo')}]]</h5>
-      <table class="table table-bordered table-sm table-hover">
-      <tbody>
-        <tr>
-          <th width="30%">SN</th>
-          <td>[[${T(com.rebuild.core.support.License).SN()}]]</td>
-        </tr>
-        <tr>
-          <th>Version</th>
-          <td>[[${T(com.rebuild.core.Application).VER}]]</td>
-        </tr>
-        <tr>
-          <th>OS</th>
-          <td>[[${T(org.apache.commons.lang.SystemUtils).OS_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).OS_ARCH}]])</td>
-        </tr>
-        <tr>
-          <th>JVM</th>
-          <td>[[${T(org.apache.commons.lang.SystemUtils).JAVA_VM_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).JAVA_VERSION}]])</td>
-        </tr>
-        <tr>
-          <th>System Time</th>
-          <td>[[${T(cn.devezhao.commons.CalendarUtils).now()}]]</td>
-        </tr>
-        <tr>
-          <th>Startup Time</th>
-          <td>[[${T(com.rebuild.core.ServerStatus).STARTUP_TIME}]]</td>
-        </tr>
-        <tr>
-          <th>Data Directory</th>
-          <td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfData("/")}]]</td>
-        </tr>
-        <tr>
-          <th>Temp Directory</th>
-          <td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfTemp("/")}]]</td>
-        </tr>
-      </tbody>
-      </table>
-    </div>
-    <div class="block">
-      <div class="text-muted">
+      <th:block th:if="${isAdminVerified}">
+        <h5 class="text-bold mt-5">[[${bundle.L('SystemInfo')}]]</h5>
+        <table class="table table-bordered table-sm table-hover">
+          <tbody>
+            <tr>
+              <th width="30%">SN</th>
+              <td>[[${T(com.rebuild.core.support.License).SN()}]]</td>
+            </tr>
+            <tr>
+              <th>Version</th>
+              <td>[[${T(com.rebuild.core.Application).VER}]]</td>
+            </tr>
+            <tr>
+              <th>OS</th>
+              <td>[[${T(org.apache.commons.lang.SystemUtils).OS_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).OS_ARCH}]])</td>
+            </tr>
+            <tr>
+              <th>JVM</th>
+              <td>[[${T(org.apache.commons.lang.SystemUtils).JAVA_VM_NAME}]] ([[${T(org.apache.commons.lang.SystemUtils).JAVA_VERSION}]])</td>
+            </tr>
+            <tr>
+              <th>System Time</th>
+              <td>[[${T(cn.devezhao.commons.CalendarUtils).now()}]]</td>
+            </tr>
+            <tr>
+              <th>Startup Time</th>
+              <td>[[${T(com.rebuild.core.ServerStatus).STARTUP_TIME}]]</td>
+            </tr>
+            <tr>
+              <th>Data Directory</th>
+              <td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfData("/")}]]</td>
+            </tr>
+            <tr>
+              <th>Temp Directory</th>
+              <td>[[${T(com.rebuild.core.support.RebuildConfiguration).getFileOfTemp("/")}]]</td>
+            </tr>
+          </tbody>
+        </table>
+      </th:block>
+      <div class="text-muted mt-5">
         &copy; REBUILD &nbsp;·&nbsp;
-        <a href="server-status.json">Status Api</a>
+        <a href="server-status.json" target="_blank">Status Api</a>
       </div>
     </div>
   </body>

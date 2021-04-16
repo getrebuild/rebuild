@@ -85,8 +85,7 @@ public class BatchUpdateController extends BaseController {
                     || dt == DisplayType.LOCATION
                     || dt == DisplayType.BARCODE
                     || dt == DisplayType.SERIES
-                    || dt == DisplayType.ANYREFERENCE
-                    || dt == DisplayType.N2NREFERENCE) {
+                    || dt == DisplayType.ANYREFERENCE) {
                 continue;
             }
 
@@ -99,7 +98,7 @@ public class BatchUpdateController extends BaseController {
      * @param field
      * @return
      */
-    private JSONObject buildField(EasyField field) {
+    public static JSONObject buildField(EasyField field) {
         JSONObject map = (JSONObject) field.toJSON();
 
         // 字段选项

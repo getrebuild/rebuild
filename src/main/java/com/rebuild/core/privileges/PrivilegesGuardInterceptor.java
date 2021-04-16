@@ -144,7 +144,8 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
      * @return
      */
     private boolean isGuardMethod(MethodInvocation invocation) {
-        if (CommonsService.class.isAssignableFrom(invocation.getThis().getClass())) {
+        if (invocation.getThis() == null
+                || CommonsService.class.isAssignableFrom(invocation.getThis().getClass())) {
             return false;
         }
 

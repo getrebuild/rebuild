@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 
 /**
  * @author devezhao
@@ -53,10 +54,13 @@ public class DepartmentController extends EntityController {
         return RespBody.ok();
     }
 
-    @RequestMapping("dept-tree")
+    @GetMapping("dept-tree")
     public JSON deptTreeGet() {
         JSONArray dtree = new JSONArray();
-        for (Department root : Application.getUserStore().getTopDepartments()) {
+
+        Department[] ds = Application.getUserStore().getTopDepartments();
+        sortByName(ds);
+        for (Department root : ds) {
             dtree.add(recursiveDeptTree(root));
         }
         return dtree;
@@ -68,12 +72,25 @@ public class DepartmentController extends EntityController {
         parentJson.put("name", parent.getName());
         parentJson.put("disabled", parent.isDisabled());
         JSONArray children = new JSONArray();
-        for (BusinessUnit child : parent.getChildren()) {
+
+        BusinessUnit[] ds = parent.getChildren().toArray(new BusinessUnit[0]);
+        sortByName(ds);
+        for (BusinessUnit child : ds) {
             children.add(recursiveDeptTree((Department) child));
         }
+
         if (!children.isEmpty()) {
             parentJson.put("children", children);
         }
         return parentJson;
+    }
+
+    private void sortByName(BusinessUnit[] depts) {
+        // 排序 a-z
+        Arrays.sort(depts, (o1, o2) -> {
+            if (DepartmentService.ROOT_DEPT.equals(o1.getIdentity())) return -1;
+            else if (DepartmentService.ROOT_DEPT.equals(o2.getIdentity())) return 1;
+            else return o1.getName().compareTo(o2.getName());
+        });
     }
 }

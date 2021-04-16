@@ -30,11 +30,11 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.BlockList;
+import com.rebuild.utils.RbAssert;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.CharSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.RandomUtils;
-import org.springframework.util.Assert;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -58,8 +58,8 @@ public class Field2Schema {
      * @param user
      */
     public Field2Schema(ID user) {
+        RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("OnlyAdminCanSome", "Operation"));
         this.user = user;
-        Assert.isTrue(UserHelper.isSuperAdmin(user), Language.L("OnlyAdminCanSome", "Operation"));
     }
 
     /**

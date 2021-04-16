@@ -21,8 +21,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.general.GeneralEntityServiceContextHolder;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
 
@@ -33,9 +32,8 @@ import java.util.*;
  * @see DisplayType
  * @since 01/09/2019
  */
+@Slf4j
 public class DataImporter extends HeavyTask<Integer> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DataImporter.class);
 
     final private ImportRule rule;
     private ID owningUser;
@@ -78,7 +76,7 @@ public class DataImporter extends HeavyTask<Integer> {
                 }
             } catch (Exception ex) {
                 eachLogs.put(firstCell.getRowNo(), ex.getLocalizedMessage());
-                LOG.error(firstCell.getRowNo() + " > " + ex);
+                log.error(firstCell.getRowNo() + " > " + ex);
             }
             this.addCompleted();
         }
@@ -154,7 +152,7 @@ public class DataImporter extends HeavyTask<Integer> {
             }
         }
 
-        LOG.info("Checking repeated : " + wheres);
+        log.info("Checking repeated : " + wheres);
         if (wheres.isEmpty()) {
             return null;
         }

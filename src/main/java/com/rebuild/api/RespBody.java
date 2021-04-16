@@ -23,7 +23,7 @@ import lombok.Data;
  */
 @Data
 public class RespBody implements JSONable {
-    private static final long serialVersionUID = 536528838531527195L;
+    private static final long serialVersionUID = 7858909284223713830L;
 
     private int errorCode;
     private String errorMsg;
