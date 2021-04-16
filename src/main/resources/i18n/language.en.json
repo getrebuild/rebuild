@@ -1344,6 +1344,7 @@
   "ShareWithUpdate": "Allow edit (Only shared read permissions by default)",
   "OnlyFormEffectiveTip": "This option is only valid for forms",
   "TriggerExecError": "Trigger execution failed (%s)",
+  "TargetFieldXNotEmpty": "Target Field %s cannot be empty",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

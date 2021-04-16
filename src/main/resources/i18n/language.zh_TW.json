@@ -1344,6 +1344,7 @@
   "ShareWithUpdate": "允許編輯 (默認僅共享讀取權限)",
   "OnlyFormEffectiveTip": "本選項僅針對錶單有效",
   "TriggerExecError": "觸發器執行失敗 (%s)",
+  "TargetFieldXNotEmpty": "目標字段 %s 不能為空",
 
   "s.__": "狀態",
   "s.ApprovalState.DRAFT": "草稿",

@@ -569,7 +569,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
         Record approvalRecord = EntityHelper.forUpdate(record, UserService.SYSTEM_USER, false);
         approvalRecord.setInt(EntityHelper.ApprovalState, state.getState());
-        super.update(approvalRecord);
+        delegateService.update(approvalRecord);
 
         // 触发器
 

@@ -8,6 +8,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.trigger;
 
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
+import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
@@ -67,7 +69,7 @@ public class RobotTriggerObserver extends OperatingObserver {
             try {
                 action.prepare(context);
             } catch (Exception ex) {
-                log.error("Preparing trigger failure: " + action, ex);
+                log.error("Preparing context of trigger failed : {}", action, ex);
             }
         }
         DELETE_ACTION_HOLDS.put(primary, actionsOnDelete);
@@ -118,9 +120,18 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                 try {
                     action.execute(context);
-                } catch (Exception ex) {
-                    log.error("Failed trigger : " + action + " << " + context, ex);
-                    throw new TriggerException(Language.LF("TriggerExecError", ex.getLocalizedMessage()));
+                } catch (Throwable ex) {
+                    log.error("Trigger execution failed : {} << {}", action, context, ex);
+
+                    // FIXME 触发器执行失败是否抛出
+                    if (ex instanceof MissingMetaExcetion) {
+                        throw new TriggerException(Language.LF("TriggerExecError", ex.getLocalizedMessage()));
+                    } else if (ex instanceof TriggerException) {
+                        throw (TriggerException) ex;
+                    } else {
+                        throw new RebuildException(ex);
+                    }
+
                 } finally {
                     if (originalTriggerSource) {
                         action.clean();
