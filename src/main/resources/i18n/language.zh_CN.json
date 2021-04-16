@@ -1344,6 +1344,7 @@
   "ShareWithUpdate": "允许编辑 (默认仅共享读取权限)",
   "OnlyFormEffectiveTip": "本选项仅针对表单有效",
   "TriggerExecError": "触发器执行失败 (%s)",
+  "TargetFieldXNotEmpty": "目标字段 %s 不能为空",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

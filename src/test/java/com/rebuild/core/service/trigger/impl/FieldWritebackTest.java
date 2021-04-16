@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 /**
  * @author devezhao
  * @since 2020/2/7
+ * @see FieldWriteback
  */
 public class FieldWritebackTest extends TestSupport {
 
@@ -32,24 +33,20 @@ public class FieldWritebackTest extends TestSupport {
 
         // 添加配置
         Record triggerConfig = EntityHelper.forNew(EntityHelper.RobotTriggerConfig, UserService.SYSTEM_USER);
-        triggerConfig.setString("belongEntity", SalesOrder);
+        triggerConfig.setString("belongEntity", Account);
         triggerConfig.setInt("when", TriggerWhen.CREATE.getMaskValue());
         triggerConfig.setString("actionType", ActionType.FIELDWRITEBACK.name());
-        String content = "{targetEntity:'relatedAccount.Account999', items:[{sourceField:'createdOn', targetField:'accountName'}]}";
+        // 更新自己，新建时将修改时间改为：createdOn+1天
+        String content = "{targetEntity:'$PRIMARY$.Account999', items:[{targetField:'modifiedOn', updateMode:'FORMULA', sourceField:'dateadd(`{createdOn}`, `1D`)' }]}";
         triggerConfig.setString("actionContent", content);
         Application.getBean(RobotTriggerConfigService.class).create(triggerConfig);
 
         // 测试执行
-        Entity salesOrder999 = MetadataHelper.getEntity(SalesOrder);
         Entity account999 = MetadataHelper.getEntity(Account);
 
         Record account999Record = EntityHelper.forNew(account999.getEntityCode(), SIMPLE_USER);
         account999Record.setString("accountName", "FWB" + System.nanoTime());
-        account999Record = Application.getEntityService(account999.getEntityCode()).create(account999Record);
-
-        Record salesOrder999Record = EntityHelper.forNew(salesOrder999.getEntityCode(), SIMPLE_USER);
-        salesOrder999Record.setID("relatedAccount", account999Record.getPrimary());
-        Application.getEntityService(account999.getEntityCode()).create(salesOrder999Record);
+        Application.getEntityService(account999.getEntityCode()).create(account999Record);
 
         // 清理
         Application.getBean(RobotTriggerConfigService.class).delete(triggerConfig.getPrimary());

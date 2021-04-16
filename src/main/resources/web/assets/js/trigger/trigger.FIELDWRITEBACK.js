@@ -263,7 +263,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       if (!sourceField) return
     } else if (mode === 'VNULL') {
       const tf2 = this.state.targetFields.find((x) => x.name === tf)
-      if (!tf2.nullable) return RbHighbar.create($L('SomeNotEmpty').replace('{0}', tf2.label))
+      if (!tf2.nullable) return RbHighbar.create($LF('TargetFieldXNotEmpty', `[ ${tf2.label} ]`))
     }
 
     const items = this.state.items || []
@@ -435,10 +435,10 @@ class FormulaCalc2 extends FormulaCalc {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
-  // 禁用`删除`
-  $('.J_when .custom-control-input').each(function () {
-    if (~~$(this).val() === 2) $(this).attr('disabled', true)
-  })
+  // // 禁用`删除`
+  // $('.J_when .custom-control-input').each(function () {
+  //   if (~~$(this).val() === 2) $(this).attr('disabled', true)
+  // })
 
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
