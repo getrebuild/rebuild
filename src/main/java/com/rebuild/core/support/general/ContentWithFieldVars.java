@@ -12,6 +12,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.*;
@@ -22,9 +23,13 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2020/6/5
  */
+@Slf4j
 public class ContentWithFieldVars {
 
-    private static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._]+)}");
+    /**
+     * 通过 `{}` 包裹的变量或字段
+     */
+    public static final Pattern PATT_VAR = Pattern.compile("\\{([0-9a-zA-Z._$]+)}");
 
     /**
      * 替换文本中的字段变量
@@ -86,7 +91,11 @@ public class ContentWithFieldVars {
         Matcher m = PATT_VAR.matcher(content);
         while (m.find()) {
             String varName = m.group(1);
-            if (StringUtils.isNotBlank(varName)) vars.add(varName);
+            if (StringUtils.isBlank(varName)) {
+                log.warn("Blank `\\{\\}` found in `{}`", content);
+            } else {
+                vars.add(varName);
+            }
         }
         return vars;
     }

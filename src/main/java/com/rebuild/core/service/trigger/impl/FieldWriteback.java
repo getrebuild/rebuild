@@ -27,6 +27,7 @@ import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -35,7 +36,6 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 /**
  * 数据转写（自动更新）
@@ -97,9 +97,8 @@ public class FieldWriteback extends FieldAggregation {
                 if (sourceField.contains(DATE_EXPR)) {
                     fieldVars.add(sourceField.split(DATE_EXPR)[0]);
                 } else {
-                    Matcher m = FieldAggregation.PATT_FIELD.matcher(sourceField);
-                    while (m.find()) {
-                        String field = m.group(1);
+                    Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
+                    for (String field : matchsVars) {
                         if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
                             throw new MissingMetaExcetion(field, sourceEntity.getName());
                         }

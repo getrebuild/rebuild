@@ -13,12 +13,13 @@ import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
+import java.util.Set;
 
 /**
  * 聚合计算
@@ -82,11 +83,11 @@ public class AggregationEvaluator {
 
     private Object evalFormula(ID triggerRecord) {
         String formula = item.getString("sourceFormula");
-        Matcher m = FieldAggregation.PATT_FIELD.matcher(formula);
+        Set<String> matchsVars = ContentWithFieldVars.matchsVars(formula);
 
-        final List<String[]> fields = new ArrayList<>();
-        while (m.find()) {
-            String[] fieldAndFunc = m.group(1).split("\\$\\$\\$\\$");
+        List<String[]> fields = new ArrayList<>();
+        for (String m : matchsVars) {
+            String[] fieldAndFunc = m.split("\\$\\$\\$\\$");
             if (MetadataHelper.getLastJoinField(sourceEntity, fieldAndFunc[0]) == null) {
                 throw new MissingMetaExcetion(fieldAndFunc[0], sourceEntity.getName());
             }
@@ -110,21 +111,21 @@ public class AggregationEvaluator {
             sql.append(" and ").append(filterSql);
         }
 
-        Object[] o = Application.createQueryNoFilter(sql.toString())
+        final Object[] useSourceData = Application.createQueryNoFilter(sql.toString())
                 .setParameter(1, triggerRecord)
                 .unique();
-        if (o == null) {
-            return null;
-        }
+        if (useSourceData == null) return null;
 
         String clearFormual = formula.toUpperCase()
                 .replace("×", "*")
                 .replace("÷", "/");
+
         for (int i = 0; i < fields.size(); i++) {
             String[] field = fields.get(i);
-            Object v = o[i] == null ? "0" : o[i];
+            Object value = useSourceData[i] == null ? "0" : useSourceData[i];
+
             String replace = "{" + StringUtils.join(field, "$$$$") + "}";
-            clearFormual = clearFormual.replace(replace.toUpperCase(), v.toString());
+            clearFormual = clearFormual.replace(replace.toUpperCase(), value.toString());
         }
 
         return EvaluatorUtils.eval(clearFormual);

@@ -139,7 +139,7 @@ public final class License {
                 return o;
             }
         } catch (Exception ex) {
-            log.error("Call site api error : " + api, ex);
+            log.error("Call site api `{}` error : {}", api, ex.toString());
         }
         return null;
     }

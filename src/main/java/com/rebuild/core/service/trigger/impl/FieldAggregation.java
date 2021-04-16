@@ -34,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * 字段归集可能存在的问题。
@@ -48,11 +47,7 @@ import java.util.regex.Pattern;
 public class FieldAggregation implements TriggerAction {
 
     /**
-     * 变量包裹
-     */
-    public static final Pattern PATT_FIELD = Pattern.compile("\\{(.*?)}");
-    /**
-     * 归集到自己
+     * 更新自己
      */
     public static final String SOURCE_SELF = "$PRIMARY$";
 
