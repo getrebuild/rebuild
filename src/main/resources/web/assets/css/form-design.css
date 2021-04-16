@@ -154,7 +154,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   cursor: pointer;
 }
 
-.field-list .dd-item .dd-handle::before {
+.field-list .dd-item .dd-handle::before,
+.type-list .dd-item .dd-handle:hover::before {
   content: '\f278';
   font: normal normal normal 14px/1 'Material-Design-Iconic-Font';
   float: right;
@@ -170,7 +171,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   right: 32px;
 }
 
-.type-list .dd-item .dd-handle:hover {
+.type-list .dd-item .dd-handle:hover,
+.type-list .dd-item .dd-handle:hover::before {
   background-color: transparent;
   color: #4285f4;
 }
