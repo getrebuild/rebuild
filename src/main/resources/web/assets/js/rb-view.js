@@ -781,8 +781,9 @@ const RbViewPage = {
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.click(() => {
-        const alert = $L('TransformAsTips').replace('%s', `[ ${item.entityLabel} ]`)
+        const alert = $L('TransformAsTips').replace('%s', `<b> ${item.entityLabel} </b>`)
         RbAlert.create(alert, {
+          html: true,
           confirm: function () {
             this.disabled(true)
             $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {

@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global dlgActionAfter */
 
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<ReporEdit />))
@@ -51,17 +52,13 @@ class ReportList extends ConfigList {
   }
 
   handleDelete(id) {
-    const that = this
     const handle = super.handleDelete
     RbAlert.create($L('DeleteSomeConfirm,ReportTemplate'), {
       type: 'danger',
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        handle(id, () => {
-          this.hide()
-          that.loadData()
-        })
+        handle(id, () => dlgActionAfter(this))
       },
     })
   }
@@ -212,7 +209,7 @@ class ReporEdit extends ConfigFormDlg {
 
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(post), (res) => {
-      if (res.error_code === 0) location.reload()
+      if (res.error_code === 0) dlgActionAfter(this)
       else RbHighbar.error(res.error_msg)
       this.disabled()
     })

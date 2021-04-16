@@ -19,6 +19,7 @@ import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 记录变更历史
@@ -26,6 +27,7 @@ import com.rebuild.utils.JSONUtils;
  * @author devezhao
  * @since 10/31/2018
  */
+@Slf4j
 public class RevisionHistoryObserver extends OperatingObserver {
 
     @Override
@@ -36,7 +38,7 @@ public class RevisionHistoryObserver extends OperatingObserver {
         if (RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays) > 0) {
             super.updateByAction(ctx);
         } else if (ctx.getAction() != ObservableService.DELETE_BEFORE) {
-            LOG.warn("RevisionHistory inactivated : " + ctx.getAnyRecord().getPrimary() + " by " + ctx.getOperator());
+            log.warn("RevisionHistory inactivated : " + ctx.getAnyRecord().getPrimary() + " by " + ctx.getOperator());
         }
     }
 

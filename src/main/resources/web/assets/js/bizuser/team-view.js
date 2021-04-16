@@ -23,7 +23,7 @@ class MemberAddDlg extends RbFormHandler {
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
-              <button className="btn btn-primary" type="button" onClick={this._post}>
+              <button className="btn btn-primary" type="button" onClick={() => this.post()}>
                 {$L('Confirm')}
               </button>
             </div>
@@ -33,7 +33,7 @@ class MemberAddDlg extends RbFormHandler {
     )
   }
 
-  _post = () => {
+  post = () => {
     const users = this._UserSelector.val()
     if (users.length < 1) return RbHighbar.create($L('PlsSelectSome,User'))
 
@@ -42,7 +42,10 @@ class MemberAddDlg extends RbFormHandler {
       if (res.error_code === 0) {
         this.hide()
         typeof this.props.call === 'function' && this.props.call()
-      } else RbHighbar.error(res.error_msg)
+        RbHighbar.success($L('SomeAdded,TeamMember'))
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }
@@ -52,34 +55,59 @@ class MemberList extends React.Component {
   state = { ...this.props }
 
   render() {
-    if (this.state.members && this.state.members.length === 0)
+    if (this.state.members && this.state.members.length === 0) {
       return (
         <div className="list-nodata">
           <span className="zmdi zmdi-info-outline"></span>
           <p>{$L('PlsAddSome,TeamMember')}</p>
         </div>
       )
+    }
+
+    const depts = {}
+    this.state.members &&
+      this.state.members.forEach((item) => {
+        if (!item[2]) return
+        depts[item[2]] = (depts[item[2]] || 0) + 1
+      })
+
     return (
-      <table className="table table-striped table-hover">
-        <tbody>
-          {(this.state.members || []).map((item) => {
-            return (
-              <tr key={`member-${item[0]}`}>
-                <td className="user-avatar cell-detail user-info">
-                  <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
-                  <span>{item[1]}</span>
-                  <span className="cell-detail-description">{item[2] || '-'}</span>
-                </td>
-                <td className="actions">
-                  <a className="icon" title={$L('Delete')} onClick={() => this._removeMember(item[0])}>
-                    <i className="zmdi zmdi-delete"></i>
-                  </a>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
+      <div className="row">
+        <div className="col-9">
+          <table className="table table-striped table-hover">
+            <tbody>
+              {(this.state.members || []).map((item) => {
+                if (this.state.activeDept && this.state.activeDept !== item[2]) return null
+                return (
+                  <tr key={item[0]}>
+                    <td className="user-avatar cell-detail user-info">
+                      <img src={`${rb.baseUrl}/account/user-avatar/${item[0]}`} alt="Avatar" />
+                      <span>{item[1]}</span>
+                      <span className="cell-detail-description">{item[2] || '-'}</span>
+                    </td>
+                    <td className="actions">
+                      <a className="icon danger-hover" title={$L('Delete')} onClick={() => this._removeMember(item[0])}>
+                        <i className="zmdi zmdi-delete"></i>
+                      </a>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        <div className="col-3">
+          <div className="nav depts">
+            {Object.keys(depts).map((item) => {
+              return (
+                <a className="nav-link" data-toggle="pill" href="#" key={item} onClick={() => this.setState({ activeDept: item })}>
+                  {item} ({depts[item]})
+                </a>
+              )
+            })}
+          </div>
+        </div>
+      </div>
     )
   }
 
@@ -90,7 +118,7 @@ class MemberList extends React.Component {
   }
 
   _removeMember(user) {
-    let that = this
+    const that = this
     RbAlert.create($L('DeleteTeamMemberConfirm'), {
       confirm: function () {
         this.disabled(true)
@@ -98,7 +126,10 @@ class MemberList extends React.Component {
           if (res.error_code === 0) {
             this.hide()
             that.loadMembers()
-          } else RbHighbar.error(res.error_msg)
+            RbHighbar.success($L('SomeRemoved,TeamMember'))
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
         })
       },
     })
@@ -114,6 +145,7 @@ $(document).ready(() => {
         memberList = this
       })
   })
+
   $('.J_add-detail')
     .off('click')
     .click(() => renderRbcomp(<MemberAddDlg id={teamId} call={() => memberList && memberList.loadMembers()} />))

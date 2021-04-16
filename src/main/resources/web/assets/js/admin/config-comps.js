@@ -6,6 +6,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* eslint-disable no-unused-vars */
 
+let dlgActionAfter_List
+const dlgActionAfter = function (dlg) {
+  dlg && dlg.hide()
+  dlgActionAfter_List && dlgActionAfter_List.loadData()
+}
+
 // 表单 DLG
 class ConfigFormDlg extends RbFormHandler {
   constructor(props) {
@@ -59,6 +65,7 @@ class ConfigList extends React.Component {
   }
 
   componentDidMount() {
+    dlgActionAfter_List = this
     this.loadData()
     // 搜索
     const $btn = $('.input-search .btn').click(() => this.loadData())

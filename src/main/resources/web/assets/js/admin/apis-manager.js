@@ -6,9 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 $(document).ready(function () {
-  $('.J_add').click(() => {
-    renderRbcomp(<DlgEdit />)
-  })
+  $('.J_add').click(() => renderRbcomp(<DlgEdit />))
   renderRbcomp(<AppList />, 'appList')
 })
 
@@ -35,10 +33,12 @@ class AppList extends React.Component {
               <td>{item[1]}</td>
               <td>{secret}</td>
               <td>{item[4] || $L('UnBindApiUser')}</td>
-              <td>{item[5]}</td>
               <td>{item[6] || 0}</td>
+              <td>
+                <DateShow date={item[5]} />
+              </td>
               <td className="actions">
-                <a className="icon danger" onClick={() => this.delete(item)}>
+                <a className="icon danger-hover" onClick={() => this.delete(item)}>
                   <i className="zmdi zmdi-delete" />
                 </a>
               </td>
@@ -49,15 +49,17 @@ class AppList extends React.Component {
     )
   }
 
-  componentDidMount() {
+  _componentDidMount() {
     $.get('/admin/apis-manager/app-list', (res) => {
-      this.setState({ list: res.data || [] }, () => {
+      const _data = res.data || []
+      this.setState({ list: _data }, () => {
         $('.rb-loading-active').removeClass('rb-loading-active')
-        $('.dataTables_info').text($L('CountXItems').replace('%d', this.state.list.length))
-        if (this.state.list.length === 0) $('.list-nodata').removeClass('hide')
+        $('.dataTables_info').text($L('CountXItems').replace('%d', _data.length))
+        if (_data.length === 0) $('.list-nodata').removeClass('hide')
       })
     })
   }
+  componentDidMount = () => this._componentDidMount()
 
   showSecret(s) {
     event.preventDefault()
@@ -67,14 +69,20 @@ class AppList extends React.Component {
   }
 
   delete(app) {
+    const that = this
     RbAlert.create($L('DelApiTips'), {
       type: 'danger',
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
         $.post(`/admin/apis-manager/app-delete?id=${app[0]}`, (res) => {
-          if (res.error_code === 0) location.reload()
-          else RbHighbar.error(res.error_msg)
+          if (res.error_code === 0) {
+            RbHighbar.success($L('SomeSuccess,Delete'))
+            that._componentDidMount()
+            this.hide()
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
         })
       },
     })
@@ -117,9 +125,9 @@ class DlgEdit extends RbFormHandler {
     const bindUser = this._UserSelector.val()
     this.disabled(true)
     $.post(`/admin/apis-manager/app-create?bind=${bindUser || ''}`, (res) => {
-      this.disabled()
       if (res.error_code === 0) location.reload()
       else RbHighbar.error(res.error_msg)
+      this.disabled()
     })
   }
 }

@@ -34,7 +34,6 @@ import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * 字段归集可能存在的问题。
@@ -48,11 +47,7 @@ import java.util.regex.Pattern;
 public class FieldAggregation implements TriggerAction {
 
     /**
-     * 变量包裹
-     */
-    public static final Pattern PATT_FIELD = Pattern.compile("\\{(.*?)}");
-    /**
-     * 归集到自己
+     * 更新自己
      */
     public static final String SOURCE_SELF = "$PRIMARY$";
 
@@ -70,10 +65,10 @@ public class FieldAggregation implements TriggerAction {
     protected Entity sourceEntity;
     // 目标实体
     protected Entity targetEntity;
+    // 目标记录
+    protected ID targetRecordId;
     // 关联字段
     private String followSourceField;
-    // 触发记录
-    private ID targetRecordId;
 
     /**
      * @param context
@@ -194,10 +189,6 @@ public class FieldAggregation implements TriggerAction {
 
         // FIELD.ENTITY
         String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
-        if (!MetadataHelper.containsEntity(targetFieldEntity[1])) {
-            return;
-        }
-
         this.sourceEntity = context.getSourceEntity();
         this.targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
@@ -208,7 +199,7 @@ public class FieldAggregation implements TriggerAction {
         } else {
             this.followSourceField = targetFieldEntity[0];
             if (!sourceEntity.containsField(followSourceField)) {
-                return;
+                throw new MissingMetaExcetion(followSourceField, sourceEntity.getName());
             }
 
             // 找到主记录

@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global dlgActionAfter */
 
 $(document).ready(function () {
   $('.J_add').click(() => renderRbcomp(<TriggerEdit />))
@@ -13,7 +14,7 @@ $(document).ready(function () {
 const WHENS = {
   1: $L('Create'),
   2: $L('Delete'),
-  4: $L('Update'),
+  4: $L('Update2'),
   16: $L('Assign'),
   32: $L('Share'),
   64: $L('UnShare'),
@@ -75,17 +76,13 @@ class TriggerList extends ConfigList {
   }
 
   handleDelete(id) {
-    const that = this
     const handle = super.handleDelete
     RbAlert.create($L('DeleteSomeConfirm,Trigger'), {
       type: 'danger',
       confirmText: $L('Delete'),
       confirm: function () {
         this.disabled(true)
-        handle(id, () => {
-          this.hide()
-          that.loadData()
-        })
+        handle(id, () => dlgActionAfter(this))
       },
     })
   }
@@ -218,9 +215,11 @@ class TriggerEdit extends ConfigFormDlg {
     this.disabled(true)
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
-        if (this.props.id) location.reload()
+        if (this.props.id) dlgActionAfter(this)
         else location.href = 'trigger/' + res.data.id
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
       this.disabled()
     })
   }

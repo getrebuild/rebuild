@@ -214,7 +214,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   background: #f5f5f7;
 }
 
-.rbflow-design .branch-box .col-box:before {
+.rbflow-design .branch-box .col-box::before {
   content: '';
   position: absolute;
   top: 0;
@@ -551,7 +551,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .rbflow-design .auto-judge:after,
-.rbflow-design .node-wrap-box:after {
+.rbflow-design .node-wrap-box::after {
   pointer-events: none;
   content: '';
   position: absolute;
@@ -563,13 +563,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   border-radius: 3px;
 }
 
-.rbflow-design .auto-judge.error:after,
-.rbflow-design .node-wrap-box.error:after {
+.rbflow-design .auto-judge.error::after,
+.rbflow-design .node-wrap-box.error::after {
   border: 2px solid #ea4335;
 }
 
-.rbflow-design .auto-judge.active:after,
-.rbflow-design .node-wrap-box.active:after {
+.rbflow-design .auto-judge.active::after,
+.rbflow-design .node-wrap-box.active::after {
   border: 1px solid #409eff;
 }
 

@@ -163,7 +163,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   componentDidMount() {
     const content = this.props.content
     this.__select2 = []
-    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
+    $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         const $s2te = $(this._targetEntity)
           .select2({ placeholder: $L('SelectSome,TargetEntity') })

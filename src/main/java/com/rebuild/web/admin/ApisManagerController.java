@@ -11,25 +11,27 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.RebuildApiService;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.math.RandomUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 
 /**
  * @author devezhao
  * @since 2019/7/22
  */
+@RestController
 @RequestMapping("/admin/")
-@Controller
 public class ApisManagerController extends BaseController {
 
     @GetMapping("apis-manager")
@@ -38,7 +40,7 @@ public class ApisManagerController extends BaseController {
     }
 
     @RequestMapping("apis-manager/app-list")
-    public void appList(HttpServletResponse response) {
+    public RespBody appList() {
         Object[][] apps = Application.createQueryNoFilter(
                 "select uniqueId,appId,appSecret,bindUser,bindUser.fullName,createdOn,appId from RebuildApi")
                 .array();
@@ -52,13 +54,14 @@ public class ApisManagerController extends BaseController {
                     .setParameter(2, CalendarUtils.addDay(-30))
                     .unique();
             o[6] = count[0];
+            o[5] = I18nUtils.formatDate((Date) o[5]);
         }
 
-        writeSuccess(response, apps);
+        return RespBody.ok(apps);
     }
 
     @RequestMapping("apis-manager/app-create")
-    public void appCreate(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody appCreate(HttpServletRequest request) {
         ID user = getRequestUser(request);
         ID bindUser = getIdParameter(request, "bind");
 
@@ -67,13 +70,14 @@ public class ApisManagerController extends BaseController {
         record.setString("appSecret", CodecUtils.randomCode(40));
         record.setID("bindUser", bindUser);
         Application.getBean(RebuildApiService.class).create(record);
-        writeSuccess(response);
+
+        return RespBody.ok();
     }
 
     @RequestMapping("apis-manager/app-delete")
-    public void appDelete(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody appDelete(HttpServletRequest request) {
         ID id = getIdParameterNotNull(request, "id");
         Application.getBean(RebuildApiService.class).delete(id);
-        writeSuccess(response);
+        return RespBody.ok();
     }
 }

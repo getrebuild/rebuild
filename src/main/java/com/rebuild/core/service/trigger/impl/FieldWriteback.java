@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONArray;
@@ -22,14 +23,19 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyDateTime;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
+import com.rebuild.core.service.trigger.TriggerException;
+import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.CommonsUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
-import java.util.*;
-import java.util.regex.Matcher;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * 数据转写（自动更新）
@@ -52,6 +58,26 @@ public class FieldWriteback extends FieldAggregation {
     }
 
     @Override
+    public void prepare(OperatingContext operatingContext) throws TriggerException {
+        // FIELD.ENTITY
+        String[] targetFieldEntity = ((JSONObject) context.getActionContent()).getString("targetEntity").split("\\.");
+        this.sourceEntity = context.getSourceEntity();
+        this.targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
+
+        // 自己
+        if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
+            this.targetRecordId = context.getSourceRecord();
+        } else {
+            String sql = String.format("select %s from %s where %s = ?",
+                    targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
+            Object[] o = Application.getQueryFactory().createQueryNoFilter(sql)
+                    .setParameter(1, operatingContext.getAnyRecord().getPrimary())
+                    .unique();
+            this.targetRecordId = (ID) o[0];
+        }
+    }
+
+    @Override
     protected void buildTargetRecord(Record record, String dataFilterSql) {
         final JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 
@@ -71,9 +97,8 @@ public class FieldWriteback extends FieldAggregation {
                 if (sourceField.contains(DATE_EXPR)) {
                     fieldVars.add(sourceField.split(DATE_EXPR)[0]);
                 } else {
-                    Matcher m = FieldAggregation.PATT_FIELD.matcher(sourceField);
-                    while (m.find()) {
-                        String field = m.group(1);
+                    Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
+                    for (String field : matchsVars) {
                         if (MetadataHelper.getLastJoinField(sourceEntity, field) == null) {
                             throw new MissingMetaExcetion(field, sourceEntity.getName());
                         }

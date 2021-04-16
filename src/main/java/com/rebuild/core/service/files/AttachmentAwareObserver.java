@@ -22,6 +22,7 @@ import com.rebuild.core.service.general.OperatingObserver;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -34,6 +35,7 @@ import java.util.List;
  * @author devezhao
  * @since 12/25/2018
  */
+@Slf4j
 public class AttachmentAwareObserver extends OperatingObserver {
 
     public AttachmentAwareObserver() {
@@ -85,9 +87,10 @@ public class AttachmentAwareObserver extends OperatingObserver {
                         iter.remove();
                     }
                 }
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug("Remove ... " + beforeFiles);
-                    LOG.debug("Add ... " + afterFiles);
+
+                if (log.isDebugEnabled()) {
+                    log.debug("Remove ... " + beforeFiles);
+                    log.debug("Add ... " + afterFiles);
                 }
 
                 for (Object o : beforeFiles) {
