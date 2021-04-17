@@ -22,10 +22,14 @@
         </div>
       </div>
       <div class="dialog-footer">
-        <span th:if="${param.type[0] == 'TAB'}" class="float-left">
+        <span th:if="${param.type[0] == 'TAB'}" class="float-left pt-1">
           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
             <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
             <span class="custom-control-label">[[${bundle.L('RelatedAutoExpand')}]]</span>
+          </label>
+          <label class="custom-control custom-control-sm custom-checkbox custom-control-inline ml-2">
+            <input class="custom-control-input" type="checkbox" id="relatedAutoHide" />
+            <span class="custom-control-label">[[${bundle.L('RelatedTabAutoHide')}]]</span>
           </label>
         </span>
         <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>

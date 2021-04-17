@@ -435,7 +435,7 @@
         <index field-list="projectId,seq"/>
     </entity>
 
-    <entity name="ProjectTask" type-code="052" description="任务">
+    <entity name="ProjectTask" type-code="052" description="任务" extra-attrs="{icon:'calendar-check'}">
         <field name="taskId" type="primary"/>
         <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="相关项目" queryable="false"/>
         <field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="相关面板" queryable="false"/>

@@ -42,12 +42,22 @@ public class ProjectManager implements ConfigManager {
     private static final String CKEY_TASK = "Task2Project-";
 
     /**
+     * @param user
+     * @return
+     * @see #getAvailable(ID, boolean)
+     */
+    public ConfigBean[] getAvailable(ID user) {
+        return getAvailable(user, false);
+    }
+
+    /**
      * 获取指定用户可用项目
      *
      * @param user
+     * @param onlyMember
      * @return
      */
-    public ConfigBean[] getAvailable(ID user) {
+    public ConfigBean[] getAvailable(ID user, boolean onlyMember) {
         ConfigBean[] projects = getAllProjects();
 
         // 管理员可见全部
@@ -55,8 +65,10 @@ public class ProjectManager implements ConfigManager {
 
         List<ConfigBean> alist = new ArrayList<>();
         for (ConfigBean e : projects) {
-            if (isAdmin || e.getInteger("scope") == ProjectConfigService.SCOPE_ALL
-                    || e.get("members", Set.class).contains(user)) {
+            boolean isMember = e.get("members", Set.class).contains(user);
+            if (onlyMember) {
+                if (isMember) alist.add(e.clone());
+            } else if (isAdmin || isMember || e.getInteger("scope") == ProjectConfigService.SCOPE_ALL) {
                 alist.add(e.clone());
             }
         }

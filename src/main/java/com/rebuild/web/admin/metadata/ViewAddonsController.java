@@ -95,6 +95,8 @@ public class ViewAddonsController extends BaseController {
 
         // 跟进（动态）
         refs.add(new String[] { "Feeds.relatedRecord", Language.L("e.Feeds") });
+        // 任务（项目）
+        refs.add(new String[] { "ProjectTask.relatedRecord", Language.L("e.ProjectTask") });
 
         return JSONUtils.toJSONObject(
                 new String[] { "config", "refs" },

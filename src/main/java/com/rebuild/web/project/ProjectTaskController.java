@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.privileges.UserHelper;
@@ -191,5 +192,65 @@ public class ProjectTaskController extends BaseController {
         }
 
         return data;
+    }
+
+    // -- for EntityView
+
+    @GetMapping("alist")
+    public RespBody getProjectAndPlans(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
+        ConfigBean[] ps = ProjectManager.instance.getAvailable(user, true);
+        JSONArray alist = new JSONArray();
+
+        for (ConfigBean p : ps) {
+            JSONObject item = (JSONObject) p.toJSON("id", "projectName");
+
+            // 面板
+            ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(p.getID("id"));
+            JSONArray plansList = new JSONArray();
+            for (ConfigBean plan : plans) {
+                plansList.add(plan.toJSON("id", "planName", "flowStatus"));
+            }
+            item.put("plans", plansList);
+
+            alist.add(item);
+        }
+
+        return RespBody.ok(alist);
+    }
+
+    @RequestMapping("tasks/related-list")
+    public JSON relatedTaskList(@IdParam(name = "related") ID relatedId, HttpServletRequest request) {
+        String queryWhere = "relatedRecord = ?";
+
+        // 关键词搜索
+        String search = getParameter(request, "search");
+        if (StringUtils.isNotBlank(search)) {
+            queryWhere += " and taskName like '%" + StringEscapeUtils.escapeSql(search) + "%'";
+        }
+
+        int pageNo = getIntParameter(request, "pageNo", 1);
+        int pageSize = getIntParameter(request, "pageSize", 40);
+        String sort = getParameter(request, "sort");
+
+        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
+        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
+        else sort = "seq asc";
+        queryWhere += " order by " + sort;
+
+        String querySql = "select projectId.projectCode,taskNumber,taskId,taskName,executor,status,priority,deadline,endTime from ProjectTask where " + queryWhere;
+        Object[][] tasks = Application.createQueryNoFilter(querySql)
+                .setParameter(1, relatedId)
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        JSONArray alist = new JSONArray();
+        for (Object[] o : tasks) {
+            alist.add(JSONUtils.toJSONObject(
+                    new String[] { "taskNumber", "taskId", "taskName" },
+                    new Object[] { String.format("%s-%d", o[0], o[1]), o[2], o[3] }));
+        }
+        return alist;
     }
 }
