@@ -83,6 +83,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .dd-list .dd-item.active .dd-handle {
   background: #dedede !important;
+  font-weight: bold;
 }
 
 .dd-list .dd-item .arrow {

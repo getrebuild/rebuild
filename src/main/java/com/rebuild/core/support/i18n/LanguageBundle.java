@@ -18,9 +18,8 @@ import com.rebuild.core.support.License;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
@@ -38,10 +37,9 @@ import java.util.regex.Pattern;
  * @author ZHAO
  * @since 2019/10/31
  */
+@Slf4j
 public class LanguageBundle implements JSONable {
     private static final long serialVersionUID = 1985809451734089603L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(LanguageBundle.class);
 
     // 链接
     private static final Pattern LINK_PATT = Pattern.compile("\\[(.*?)]\\((.*?)\\)");
@@ -201,12 +199,12 @@ public class LanguageBundle implements JSONable {
 
         String lang = getLangBase(key);
         if (lang == null && parent != null) {
-            LOG.warn("Missing lang-key [{}] for [{}], use default", key, getLocale());
+            log.warn("Missing lang-key [{}] for [{}], use default", key, getLocale());
             lang = parent.getDefaultBundle().getLangBase(key);
         }
 
         if (lang == null) {
-            LOG.warn("Missing lang-key [{}]", key);
+            log.warn("Missing lang-key [{}]", key);
             return String.format("[%s]", key.toUpperCase());
         }
 
