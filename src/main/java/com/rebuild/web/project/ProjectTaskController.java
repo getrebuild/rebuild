@@ -113,14 +113,9 @@ public class ProjectTaskController extends BaseController {
             }
         }
 
-        // 排序
-        String sort = getParameter(request, "sort");
-        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
-        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
-        else sort = "seq asc";
-        queryWhere += " order by " + sort;
-
+        queryWhere += " order by " +  buildQuerySort(request);
         String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
+
         Object[][] tasks = Application.createQueryNoFilter(querySql)
                 .setParameter(1, planId)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
@@ -194,6 +189,14 @@ public class ProjectTaskController extends BaseController {
         return data;
     }
 
+    private String buildQuerySort(HttpServletRequest request) {
+        String sort = getParameter(request, "sort");
+        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
+        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
+        else sort = "seq asc";
+        return sort;
+    }
+
     // -- for EntityView
 
     @GetMapping("alist")
@@ -232,14 +235,10 @@ public class ProjectTaskController extends BaseController {
 
         int pageNo = getIntParameter(request, "pageNo", 1);
         int pageSize = getIntParameter(request, "pageSize", 40);
-        String sort = getParameter(request, "sort");
 
-        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
-        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
-        else sort = "seq asc";
-        queryWhere += " order by " + sort;
+        queryWhere += " order by " + buildQuerySort(request);
+        String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
 
-        String querySql = "select projectId.projectCode,taskNumber,taskId,taskName,executor,status,priority,deadline,endTime from ProjectTask where " + queryWhere;
         Object[][] tasks = Application.createQueryNoFilter(querySql)
                 .setParameter(1, relatedId)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
@@ -247,9 +246,13 @@ public class ProjectTaskController extends BaseController {
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
-            alist.add(JSONUtils.toJSONObject(
-                    new String[] { "taskNumber", "taskId", "taskName" },
-                    new Object[] { String.format("%s-%d", o[0], o[1]), o[2], o[3] }));
+            JSONObject formatted = formatTask(o, false);
+            formatted.put("taskNumber", String.format("%s-%d", o[0], o[1] ));
+
+            Object executor = o[6] == null ? null : new Object[] { o[6], UserHelper.getName((ID) o[6]) };
+            formatted.put("executor", executor);
+
+            alist.add(formatted);
         }
         return alist;
     }

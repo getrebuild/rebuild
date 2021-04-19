@@ -163,15 +163,29 @@ const _renderError = (message) => {
 
 // ~ 相关项列表
 class RelatedList extends React.Component {
-  state = { ...this.props, viewOpens: {}, viewComponents: {} }
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    // 相关配置
+    this.__searchSort = null
+    this.__searchKey = null
+    this.__pageNo = 1
+
+    this.__listExtraLink = null
+    this.__listClass = null
+    this.__listNoData = (
+      <div className="list-nodata">
+        <span className="zmdi zmdi-info-outline" />
+        <p>{$L('NoData')}</p>
+      </div>
+    )
+  }
 
   render() {
-    const entity = this.props.entity.split('.')[0]
-    const openListUrl = `${rb.baseUrl}/app/${entity}/list?via=${this.props.mainid}:${this.props.entity}`
-
     return (
-      <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
-        {!this.state.list && <RbSpinner />}
+      <div className={`related-list ${this.state.dataList ? '' : 'rb-loading rb-loading-active'}`}>
+        {!this.state.dataList && <RbSpinner />}
         {this.state.showToolbar && (
           <div className="related-toolbar">
             <div className="row">
@@ -182,7 +196,7 @@ class RelatedList extends React.Component {
                     type="text"
                     placeholder={$L('QuickQuery')}
                     maxLength="40"
-                    ref={(c) => (this._quickSearch = c)}
+                    ref={(c) => (this._$quickSearch = c)}
                     onKeyDown={(e) => e.keyCode === 13 && this._search()}
                   />
                   <span className="input-group-btn">
@@ -191,61 +205,33 @@ class RelatedList extends React.Component {
                     </button>
                   </span>
                 </div>
-                <a className="btn btn-link" href={openListUrl} target="_blank">
-                  <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('ViewInList')}
-                </a>
+                {this.__listExtraLink}
               </div>
               <div className="col text-right">
                 <div className="btn-group">
-                  <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" aria-expanded="false">
+                  <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
                     {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
                   </button>
-                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-                    <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
-                      {$L('SortByModified')}
-                    </a>
-                    <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
-                      {$L('SortByCreated')}
-                    </a>
-                    <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
-                      {$L('SortByCreatedAsc')}
-                    </a>
-                  </div>
+                  {this.renderSorts()}
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {this.state.list && this.state.list.length === 0 && (
-          <div className="list-nodata">
-            <span className="zmdi zmdi-info-outline" />
-            <p>{$L('NoData')}</p>
+        {this.state.dataList && this.state.dataList.length === 0 && this.__listNoData}
+        {this.state.dataList && this.state.dataList.length > 0 && (
+          <div className={this.__listClass || ''}>
+            {(this.state.dataList || []).map((item) => {
+              return this.renderItem(item)
+            })}
           </div>
         )}
-        {(this.state.list || []).map((item) => {
-          return (
-            <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={item[0]} ref={`item-${item[0]}`}>
-              <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
-                <div className="col-10">
-                  <a href={`#!/View/${entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
-                    {item[1]}
-                  </a>
-                </div>
-                <div className="col-2 text-right">
-                  <span className="fs-12 text-muted" title={`${$L('f.modifiedOn')} ${item[2]}`}>
-                    {$fromNow(item[2])}
-                  </span>
-                </div>
-              </div>
-              <div className="rbview-form inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
-            </div>
-          )
-        })}
-        {this.state.showMores && (
+
+        {this.state.showMore && (
           <div className="text-center load-mores">
             <div>
-              <button type="button" className="btn btn-secondary" onClick={() => this.fetchList(1)}>
+              <button type="button" className="btn btn-secondary" onClick={() => this.fetchData(1)}>
                 {$L('LoadMore')}
               </button>
             </div>
@@ -255,34 +241,122 @@ class RelatedList extends React.Component {
     )
   }
 
-  componentDidMount = () => this.fetchList()
+  renderSorts() {
+    return (
+      <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+        <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
+          {$L('SortByModified')}
+        </a>
+        <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
+          {$L('SortByCreated')}
+        </a>
+        <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
+          {$L('SortByCreatedAsc')}
+        </a>
+      </div>
+    )
+  }
 
-  fetchList(append) {
+  renderItem(item) {
+    return <div>{JSON.stringify(item)}</div>
+  }
+
+  componentDidMount = () => this.fetchData()
+
+  fetchData(append) {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
     const pageSize = 20
 
-    const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`
-    $.get(`${url}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`, (res) => {
+    $.get(`/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}`, (res) => {
       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-      const data = res.data.data || []
-      const list = append ? (this.state.list || []).concat(data) : data
+      const data = (res.data || {}).data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
 
-      // FIXME 数据少不显示
-      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
-
-      this.setState({ list: list, showMores: data.length >= pageSize }, () => {
-        if (this.props.autoExpand) {
-          data.forEach((item) => {
-            // eslint-disable-next-line react/no-string-refs
-            const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
-            if ($H.length > 0 && !$H.parent().hasClass('active')) $H[0].click()
-          })
-        }
-      })
     })
+  }
+
+  _search(e) {
+    let sort = null
+    if (e && e.currentTarget) {
+      sort = $(e.currentTarget).data('sort')
+      this.setState({ sortDisplayText: $(e.currentTarget).text() })
+    }
+
+    this.__searchSort = sort || this.__searchSort
+    this.__searchKey = $(this._$quickSearch).val() || ''
+    this.__pageNo = 1
+    this.fetchData()
+  }
+}
+
+// ~ 业务实体相关项列表
+class EntityRelatedList extends RelatedList {
+  constructor(props) {
+    super(props)
+    this.state.viewOpens = {}
+    this.state.viewComponents = {}
+
+    this.__entity = props.entity.split('.')[0]
+    const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
+    this.__listExtraLink = (
+      <a className="btn btn-link" href={openListUrl} target="_blank">
+        <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('ViewInList')}
+      </a>
+    )
+  }
+
+  renderItem(item) {
+    return (
+      <div key={item[0]} className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} ref={`item-${item[0]}`}>
+        <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
+          <div className="col-10">
+            <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('ViewDetails')}>
+              {item[1]}
+            </a>
+          </div>
+          <div className="col-2 text-right">
+            <span className="fs-12 text-muted" title={`${$L('f.modifiedOn')} ${item[2]}`}>
+              {$fromNow(item[2])}
+            </span>
+          </div>
+        </div>
+        <div className="rbview-form inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+      </div>
+    )
+  }
+
+  fetchData(append) {
+    this.__pageNo = this.__pageNo || 1
+    if (append) this.__pageNo += append
+    const pageSize = 20
+
+    $.get(
+      `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`,
+      (res) => {
+        if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+        const data = res.data.data || []
+        const list = append ? (this.state.dataList || []).concat(data) : data
+
+        this.setState({ dataList: list, showMore: data.length >= pageSize }, () => {
+          if (this.props.autoExpand) {
+            data.forEach((item) => {
+              // eslint-disable-next-line react/no-string-refs
+              const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
+              if ($H.length > 0 && !$H.parent().hasClass('active')) $H[0].click()
+            })
+          }
+        })
+
+        // FIXME 数据少不显示
+        // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+        if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+      }
+    )
   }
 
   _handleView(e) {
@@ -299,10 +373,9 @@ class RelatedList extends React.Component {
     // 加载视图
     const viewComponents = this.state.viewComponents
     if (!viewComponents[id]) {
-      $.get(`/app/${this.props.entity.split('.')[0]}/view-model?id=${id}`, (res) => {
+      $.get(`/app/${this.__entity}/view-model?id=${id}`, (res) => {
         if (res.error_code > 0 || !!res.data.error) {
-          const err = res.data.error || res.error_msg
-          viewComponents[id] = _renderError(err)
+          viewComponents[id] = _renderError(res.data.error || res.error_msg)
         } else {
           viewComponents[id] = (
             <div className="row">
@@ -316,19 +389,6 @@ class RelatedList extends React.Component {
         this.setState({ viewComponents: viewComponents })
       })
     }
-  }
-
-  _search(e) {
-    let sort = null
-    if (e && e.currentTarget) {
-      sort = $(e.currentTarget).data('sort')
-      this.setState({ sortDisplayText: $(e.currentTarget).text() })
-    }
-
-    this.__searchSort = sort || this.__searchSort
-    this.__searchKey = $(this._quickSearch).val() || ''
-    this.__pageNo = 1
-    this.fetchList()
   }
 }
 
@@ -344,8 +404,81 @@ class MixRelatedList extends React.Component {
       // eslint-disable-next-line react/jsx-no-undef
       return <LightTaskList {...this.props} fetchNow={true} />
     } else {
-      return <RelatedList {...this.props} />
+      return <EntityRelatedList {...this.props} />
     }
+  }
+}
+
+// 选择报表
+// eslint-disable-next-line no-unused-vars
+class SelectReport extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    return (
+      <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
+        <div className="modal-dialog modal-dialog-centered">
+          <div className="modal-content">
+            <div className="modal-header pb-0">
+              <button className="close" type="button" onClick={this.hide}>
+                <i className="zmdi zmdi-close" />
+              </button>
+            </div>
+            <div className="modal-body">
+              <h5 className="mt-0 text-bold">{$L('SelectSome,Report')}</h5>
+              {this.state.reports && this.state.reports.length === 0 && (
+                <p className="text-muted">
+                  {$L('NoAnySome,Report')}
+                  {rb.isAdminUser && (
+                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
+                      <i className="zmdi zmdi-settings"></i> {$L('ClickConf')}
+                    </a>
+                  )}
+                </p>
+              )}
+              <div>
+                <ul className="list-unstyled">
+                  {(this.state.reports || []).map((item) => {
+                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}&attname=${$encode(item.name)}`
+                    return (
+                      <li key={'r-' + item.id}>
+                        <a target="_blank" href={reportUrl} className="text-truncate">
+                          {item.name}
+                          <i className="zmdi zmdi-download"></i>
+                        </a>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    $.get(`/app/${this.props.entity}/report/available`, (res) => this.setState({ reports: res.data }))
+    $(this._dlg).modal({ show: true, keyboard: true })
+  }
+
+  hide = () => $(this._dlg).modal('hide')
+  show = () => $(this._dlg).modal('show')
+
+  /**
+   * @param {*} entity
+   * @param {*} id
+   */
+  static create(entity, id) {
+    if (this.__cached) {
+      this.__cached.show()
+      return
+    }
+    const that = this
+    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
+      that.__cached = this
+    })
   }
 }
 
@@ -397,7 +530,6 @@ const RbViewPage = {
     )
     $('.J_assign').click(() => DlgAssign.create({ entity: entity[0], ids: [id] }))
     $('.J_share').click(() => DlgShare.create({ entity: entity[0], ids: [id] }))
-    // eslint-disable-next-line no-undef
     $('.J_report').click(() => SelectReport.create(entity[0], id))
     $('.J_add-detail').click(function () {
       const iv = { $MAINID$: id }
@@ -487,7 +619,7 @@ const RbViewPage = {
         }
       }
 
-      // If PlainEntity
+      // PlainEntity ?
       if (!res.data.owningUser) $('.view-user').remove()
     })
   },

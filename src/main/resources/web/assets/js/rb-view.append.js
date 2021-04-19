@@ -4,152 +4,49 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global RelatedList, FeedsList */
 
 const wpc = window.__PageConfig || {}
 
-// 选择报表
-// eslint-disable-next-line no-unused-vars
-class SelectReport extends React.Component {
-  state = { ...this.props }
+// const FeedsList = window.FeedsList || React.Component
 
-  render() {
-    return (
-      <div className="modal select-list" ref={(c) => (this._dlg = c)} tabIndex="-1">
-        <div className="modal-dialog modal-dialog-centered">
-          <div className="modal-content">
-            <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={this.hide}>
-                <i className="zmdi zmdi-close" />
-              </button>
-            </div>
-            <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('SelectSome,Report')}</h5>
-              {this.state.reports && this.state.reports.length === 0 && (
-                <p className="text-muted">
-                  {$L('NoAnySome,Report')}
-                  {rb.isAdminUser && (
-                    <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                      <i className="zmdi zmdi-settings"></i> {$L('ClickConf')}
-                    </a>
-                  )}
-                </p>
-              )}
-              <div>
-                <ul className="list-unstyled">
-                  {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}&attname=${$encode(item.name)}`
-                    return (
-                      <li key={'r-' + item.id}>
-                        <a target="_blank" href={reportUrl} className="text-truncate">
-                          {item.name}
-                          <i className="zmdi zmdi-download"></i>
-                        </a>
-                      </li>
-                    )
-                  })}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  componentDidMount() {
-    $.get(`/app/${this.props.entity}/report/available`, (res) => this.setState({ reports: res.data }))
-    $(this._dlg).modal({ show: true, keyboard: true })
-  }
-
-  hide = () => $(this._dlg).modal('hide')
-  show = () => $(this._dlg).modal('show')
-
-  /**
-   * @param {*} entity
-   * @param {*} id
-   */
-  static create(entity, id) {
-    if (this.__cached) {
-      this.__cached.show()
-      return
-    }
-    const that = this
-    renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
-      that.__cached = this
-    })
-  }
-}
-
-const FeedsList = window.FeedsList || React.Component
 // ~ 跟进列表
 // eslint-disable-next-line no-unused-vars
-class LightFeedsList extends FeedsList {
-  state = { ...this.props }
+class LightFeedsList extends RelatedList {
+  constructor(props) {
+    super(props)
+    this.__FeedsList = new FeedsList()
 
-  render() {
-    return (
-      <div className={`related-list ${!this.state.data ? 'rb-loading rb-loading-active' : ''}`}>
-        {!this.state.data && <RbSpinner />}
-        {this.state.showToolbar && (
-          <div className="related-toolbar feeds">
-            <div className="row">
-              <div className="col">
-                <div className="input-group input-search">
-                  <input className="form-control" type="text" placeholder={$L('Keyword')} maxLength="40" ref={(c) => (this._quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
-                  <span className="input-group-btn">
-                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                      <i className="icon zmdi zmdi-search" />
-                    </button>
-                  </span>
-                </div>
-              </div>
-              <div className="col text-right">
-                <div className="btn-group">
-                  <button type="button" className="btn btn-link" data-toggle="dropdown" aria-expanded="false">
-                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
-                  </button>
-                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-                    <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortNewer')}
-                    </a>
-                    <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortOlder')}
-                    </a>
-                    <a className="dropdown-item" data-sort="modified" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortModified')}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {this.state.data && this.state.data.length === 0 && (
-          <div className="list-nodata">
-            <span className="zmdi zmdi-chart-donut" />
-            <p>{$L('NoSome,e.Feeds')}</p>
-          </div>
-        )}
-        <div className="feeds-list inview">
-          {(this.state.data || []).map((item) => {
-            return this.renderItem({ ...item, self: false })
-          })}
-        </div>
-        {this.state.showMores && (
-          <div className="text-center load-mores">
-            <div>
-              <button type="button" className="btn btn-secondary" onClick={() => this.fetchFeeds(1)}>
-                {$L('LoadMore')}
-              </button>
-            </div>
-          </div>
-        )}
+    this.__listClass = 'feeds-list inview'
+    this.__listNoData = (
+      <div className="list-nodata">
+        <span className="zmdi zmdi-chart-donut" />
+        <p>{$L('NoSome,e.Feeds')}</p>
       </div>
     )
   }
 
-  fetchFeeds(append) {
+  renderSorts() {
+    return (
+      <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+        <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
+          {$L('FeedsSortNewer')}
+        </a>
+        <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
+          {$L('FeedsSortOlder')}
+        </a>
+        <a className="dropdown-item" data-sort="modified" onClick={(e) => this._search(e)}>
+          {$L('FeedsSortModified')}
+        </a>
+      </div>
+    )
+  }
+
+  renderItem(item) {
+    return this.__FeedsList.renderItem({ ...item, self: false })
+  }
+
+  fetchData(append) {
     const filter = {
       entity: 'Feeds',
       equation: '(1 OR 2) AND 3',
@@ -172,107 +69,90 @@ class LightFeedsList extends FeedsList {
       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
       const data = (res.data || {}).data || []
-      const list = append ? (this.state.data || []).concat(data) : data
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
 
-      // 数据少不显示
-      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
-
-      this.setState({ data: list, showMores: data.length >= pageSize })
     })
-  }
-
-  _search(e) {
-    let sort = null
-    if (e && e.currentTarget) {
-      sort = $(e.currentTarget).data('sort')
-      this.setState({ sortDisplayText: $(e.currentTarget).text() })
-    }
-
-    this.__searchSort = sort || this.__searchSort
-    this.__searchKey = $(this._quickSearch).val() || ''
-    this.__pageNo = 1
-    this.fetchFeeds()
   }
 }
 
 // 任务列表
 // eslint-disable-next-line no-unused-vars
-class LightTaskList extends React.Component {
-  state = { ...this.props }
+class LightTaskList extends RelatedList {
+  constructor(props) {
+    super(props)
+    this.__FeedsList = new FeedsList()
 
-  render() {
-    return (
-      <div className={`related-list ${!this.state.data ? 'rb-loading rb-loading-active' : ''}`}>
-        {!this.state.data && <RbSpinner />}
-        {this.state.showToolbar && (
-          <div className="related-toolbar feeds">
-            <div className="row">
-              <div className="col">
-                <div className="input-group input-search">
-                  <input className="form-control" type="text" placeholder={$L('Keyword')} maxLength="40" ref={(c) => (this._quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
-                  <span className="input-group-btn">
-                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                      <i className="icon zmdi zmdi-search" />
-                    </button>
-                  </span>
-                </div>
-              </div>
-              <div className="col text-right">
-                <div className="btn-group">
-                  <button type="button" className="btn btn-link" data-toggle="dropdown" aria-expanded="false">
-                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
-                  </button>
-                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-                    <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortNewer')}
-                    </a>
-                    <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortOlder')}
-                    </a>
-                    <a className="dropdown-item" data-sort="modified" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortModified')}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {this.state.data && this.state.data.length === 0 && (
-          <div className="list-nodata">
-            <span className="zmdi zmdi-chart-donut" />
-            <p>{$L('NoSome,e.ProjectTask')}</p>
-          </div>
-        )}
-        <div className="feeds-list inview">
-          {(this.state.data || []).map((item) => {
-            return (
-              <div className="card" key={item.taskId}>
-                <div className="row header-title">{item.taskName}</div>
-              </div>
-            )
-          })}
-        </div>
-        {this.state.showMores && (
-          <div className="text-center load-mores">
-            <div>
-              <button type="button" className="btn btn-secondary" onClick={() => this.fetchFeeds(1)}>
-                {$L('LoadMore')}
-              </button>
-            </div>
-          </div>
-        )}
+    this.__listClass = 'tasks-list inview'
+    this.__listNoData = (
+      <div className="list-nodata">
+        <span className="zmdi zmdi-chart-donut" />
+        <p>{$L('NoSome,e.ProjectTask')}</p>
       </div>
     )
   }
 
-  componentDidMount() {
-    this.search()
+  renderSorts() {
+    return (
+      <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+        <a className="dropdown-item" data-sort="seq" onClick={(e) => this._search(e)}>
+          {$L('TasksSortSeq')}
+        </a>
+        <a className="dropdown-item" data-sort="deadline" onClick={(e) => this._search(e)}>
+          {$L('TasksSortDeadline')}
+        </a>
+        <a className="dropdown-item" data-sort="modifiedOn" onClick={(e) => this._search(e)}>
+          {$L('TasksSortModified')}
+        </a>
+      </div>
+    )
   }
 
-  fetchList(append) {
+  renderItem(item) {
+    return (
+      <div className={`card priority-${item.priority} status-${item.status}`} key={item.id}>
+        <div className="row header-title">
+          <div className="col-9 title">
+            <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.flowStatus === 2} />
+              <span className="custom-control-label"></span>
+            </label>
+            <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('ViewDetails')}>
+              [{item.taskNumber}] {item.taskName}
+            </a>
+          </div>
+          <div className="col-3 date-avatar">
+            {!item.deadline && !item.endTime && (
+              <React.Fragment>
+                <span className="mr-1">{$L('f.createdOn')}</span>
+                <DateShow date={item.createdOn} />
+              </React.Fragment>
+            )}
+            {item.deadline && (
+              <React.Fragment>
+                <span className="mr-1">{$L('Deadline')}</span>
+                <DateShow date={item.deadline} />
+              </React.Fragment>
+            )}
+            {!item.deadline && item.endTime && (
+              <React.Fragment>
+                <span className="mr-1">{$L('FinishTime')}</span>
+                <DateShow date={item.endTime} />
+              </React.Fragment>
+            )}
+            {item.executor && (
+              <a className="avatar">
+                <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} title={item.executor[1]} alt="Avatar" />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  fetchData(append) {
     this.__pageNo = this.__pageNo || 1
     if (append) this.__pageNo += append
     const pageSize = 20
@@ -280,28 +160,12 @@ class LightTaskList extends React.Component {
     $.get(`/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}`, (res) => {
       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
-      const data = (res.data || {}).data || []
-      const list = append ? (this.state.data || []).concat(data) : data
+      const data = res.data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
 
-      // 数据少不显示
-      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
-
-      this.setState({ data: list, showMores: data.length >= pageSize })
     })
-  }
-
-  search(e) {
-    let sort = null
-    if (e && e.currentTarget) {
-      sort = $(e.currentTarget).data('sort')
-      this.setState({ sortDisplayText: $(e.currentTarget).text() })
-    }
-
-    this.__searchSort = sort || this.__searchSort
-    this.__searchKey = $(this._quickSearch).val() || ''
-    this.__pageNo = 1
-    this.fetchList()
   }
 }
 
