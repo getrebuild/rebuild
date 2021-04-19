@@ -314,7 +314,7 @@ class EntityRelatedList extends RelatedList {
       <div key={item[0]} className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} ref={`item-${item[0]}`}>
         <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
           <div className="col-10">
-            <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('ViewDetails')}>
+            <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
               {item[1]}
             </a>
           </div>

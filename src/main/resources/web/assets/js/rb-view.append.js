@@ -15,7 +15,10 @@ const wpc = window.__PageConfig || {}
 class LightFeedsList extends RelatedList {
   constructor(props) {
     super(props)
+
+    // 复写组件
     this.__FeedsList = new FeedsList()
+    this.__FeedsList.setState = (s) => this.setState(s)
 
     this.__listClass = 'feeds-list inview'
     this.__listNoData = (
@@ -70,6 +73,7 @@ class LightFeedsList extends RelatedList {
 
       const data = (res.data || {}).data || []
       const list = append ? (this.state.dataList || []).concat(data) : data
+      this.__FeedsList.state = { data: list }
       this.setState({ dataList: list, showMore: data.length >= pageSize })
 
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
@@ -118,7 +122,7 @@ class LightTaskList extends RelatedList {
               <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.flowStatus === 2} />
               <span className="custom-control-label"></span>
             </label>
-            <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('ViewDetails')}>
+            <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('Open')}>
               [{item.taskNumber}] {item.taskName}
             </a>
           </div>

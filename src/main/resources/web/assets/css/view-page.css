@@ -317,6 +317,20 @@ body {
   margin-top: -1.4rem;
 }
 
+.load-mores.load-end {
+  border: 0 none;
+  margin: 15px 0;
+  height: auto;
+}
+
+.load-mores.load-end > div {
+  width: 10px;
+  height: 10px;
+  background-color: #ccc;
+  margin: 0 auto;
+  border-radius: 99px;
+}
+
 .rbview-form .form-group.row.editable a.edit {
   position: absolute;
   right: 15px;
@@ -562,7 +576,7 @@ body {
 .tasks-list.inview .header-title .avatar {
   position: absolute;
   margin-top: -4px;
-  right: 10px;
+  right: 12px;
 }
 
 .tasks-list.inview .header-title .avatar img {
