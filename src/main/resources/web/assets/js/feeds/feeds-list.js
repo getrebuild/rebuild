@@ -108,6 +108,7 @@ class FeedsList extends React.Component {
 
   renderItem(item) {
     if (item.deleted) return null
+
     const id = `feeds-${item.id}`
     return (
       <div key={id} id={id} className={`${item.id === this.state.focusFeed ? 'focus' : ''}`}>
@@ -143,6 +144,7 @@ class FeedsList extends React.Component {
             {__renderRichContent(item)}
           </div>
         </div>
+
         <div className="actions">
           <ul className="list-unstyled m-0">
             {item.self && (
@@ -174,6 +176,7 @@ class FeedsList extends React.Component {
             </li>
           </ul>
         </div>
+
         <span className={`${item.shownComments ? '' : 'hide'}`}>{item.shownCommentsReal && <FeedsComments feeds={item.id} $$$parent={this} />}</span>
       </div>
     )
@@ -294,12 +297,12 @@ class FeedsComments extends React.Component {
             {$L('AddSome,Comment')}
           </div>
           <span className={`${!this.state.openComment && 'hide'}`}>
-            <FeedsEditor placeholder={$L('AddSome,Comment')} ref={(c) => (this._editor = c)} />
+            <FeedsEditor placeholder={$L('AddSome,Comment')} ref={(c) => (this._FeedsEditor = c)} />
             <div className="mt-2 text-right">
               <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link">
                 {$L('Cancel')}
               </button>
-              <button className="btn btn-sm btn-primary" ref={(c) => (this._btn = c)} onClick={() => this._post()}>
+              <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post()}>
                 {$L('Comment')}
               </button>
             </div>
@@ -360,7 +363,7 @@ class FeedsComments extends React.Component {
                         <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
                           {$L('Cancel')}
                         </button>
-                        <button className="btn btn-sm btn-primary" ref={(c) => (this._btn = c)} onClick={() => this._post(item._editor)}>
+                        <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post(item._editor)}>
                           {$L('Reply')}
                         </button>
                       </div>
@@ -387,21 +390,19 @@ class FeedsComments extends React.Component {
   }
 
   _post = (whichEditor) => {
-    if (!whichEditor) whichEditor = this._editor
+    if (!whichEditor) whichEditor = this._FeedsEditor
+
     const _data = whichEditor.vals()
-    if (!_data.content) {
-      RbHighbar.create($L('PlsInputSome,CommentContent'))
-      return
-    }
+    if (!_data.content) return RbHighbar.create($L('PlsInputSome,CommentContent'))
     _data.feedsId = this.props.feeds
     _data.metadata = { entity: 'FeedsComment' }
 
-    const btn = $(this._btn).button('loading')
+    const $btn = $(this._$btn).button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
-      btn.button('reset')
+      $btn.button('reset')
       if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
 
-      this._editor.reset()
+      this._FeedsEditor.reset()
       this._commentState(false)
       this._fetchComments()
 
@@ -410,7 +411,7 @@ class FeedsComments extends React.Component {
   }
 
   _commentState = (state) => {
-    this.setState({ openComment: state }, () => this.state.openComment && this._editor.focus())
+    this.setState({ openComment: state }, () => this.state.openComment && this._FeedsEditor.focus())
   }
 
   _toggleReply = (id, state) => {
@@ -531,9 +532,6 @@ class Pagination extends React.Component {
   }
 }
 
-// 视图页
-const _inView = window.__PageConfig && window.__PageConfig.type === 'RecordView'
-
 // 渲染动态内容
 function __renderRichContent(e) {
   // 表情和换行不在后台转换，因为不同客户端所需的格式不同
@@ -561,18 +559,14 @@ function __renderRichContent(e) {
           </div>
         )}
         {e.relatedRecord && (
-          <div>
+          <div className="J_relatedRecord">
             <span>
               <i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} />
               {` ${e.relatedRecord.entityLabel} : `}
             </span>
-            {_inView ? (
-              <a>{e.relatedRecord.text}</a>
-            ) : (
-              <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('ClickViewReleated')}>
-                {e.relatedRecord.text}
-              </a>
-            )}
+            <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('ClickViewReleated')}>
+              {e.relatedRecord.text}
+            </a>
           </div>
         )}
         {e.type === 3 && (

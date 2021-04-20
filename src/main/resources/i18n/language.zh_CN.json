@@ -1346,9 +1346,6 @@
   "TriggerExecError": "触发器执行失败 (%s)",
   "TargetFieldXNotEmpty": "目标字段 %s 不能为空",
   "RelatedTabAutoHide": "隐藏无记录项",
-  "TasksProject": "项目",
-  "TasksPlan": "任务面板",
-  "TasksTitle": "任务标题",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

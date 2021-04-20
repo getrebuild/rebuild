@@ -437,8 +437,8 @@
 
     <entity name="ProjectTask" type-code="052" description="任务" extra-attrs="{icon:'calendar-check'}">
         <field name="taskId" type="primary"/>
-        <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="相关项目" queryable="false"/>
-        <field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="相关面板" queryable="false"/>
+        <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="项目" queryable="false"/>
+        <field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="任务面板" queryable="false"/>
         <field name="taskNumber" type="long" nullable="false" updatable="false" description="任务编号"/>
         <field name="taskName" type="string" max-length="191" nullable="false" description="任务标题"/>
         <field name="executor" type="reference" ref-entity="User" description="执行人"/>

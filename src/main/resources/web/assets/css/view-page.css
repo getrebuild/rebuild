@@ -539,6 +539,11 @@ body {
   cursor: default;
 }
 
+.feeds-list.inview .J_relatedRecord a {
+  color: #444;
+  cursor: text;
+}
+
 .tasks-list.inview .card:hover {
   box-shadow: 0 0 0 #fff;
 }

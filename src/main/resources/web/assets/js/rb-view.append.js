@@ -74,7 +74,12 @@ class LightFeedsList extends RelatedList {
       const data = (res.data || {}).data || []
       const list = append ? (this.state.dataList || []).concat(data) : data
       this.__FeedsList.state = { data: list }
-      this.setState({ dataList: list, showMore: data.length >= pageSize })
+      this.setState({ dataList: list, showMore: data.length >= pageSize }, () => {
+        $('.feeds-list.inview .J_relatedRecord a').attr({
+          href: 'javascript:;',
+          title: ''
+        })
+      })
 
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
     })
@@ -222,7 +227,7 @@ class LightTaskDlg extends RbModalHandler {
           <div className="row">
             <div className="col-6">
               <div className="form-group">
-                <label>{$L('TasksProject')}</label>
+                <label>{$L('f.ProjectTask.projectId')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$project = c)}>
                   {this.state.projects &&
                     this.state.projects.map((item) => {
@@ -237,7 +242,7 @@ class LightTaskDlg extends RbModalHandler {
             </div>
             <div className="col-6">
               <div className="form-group">
-                <label>{$L('TasksPlan')}</label>
+                <label>{$L('f.ProjectTask.projectPlanId')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$plan = c)}>
                   {this.state.selectProject &&
                     this.state.selectProject.plans &&
@@ -253,7 +258,7 @@ class LightTaskDlg extends RbModalHandler {
             </div>
           </div>
           <div className="form-group">
-            <label>{$L('TasksTitle')}</label>
+            <label>{$L('f.ProjectTask.taskName')}</label>
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)}></textarea>
           </div>
         </div>
@@ -277,7 +282,7 @@ class LightTaskDlg extends RbModalHandler {
       const that = this
       $(this._$project)
         .select2({
-          placeholder: $L('SelectSome,e.ProjectConfig'),
+          placeholder: $L('SelectSome,f.ProjectTask.projectId'),
           allowClear: false,
         })
         .on('change', function () {
@@ -288,10 +293,12 @@ class LightTaskDlg extends RbModalHandler {
         .trigger('change')
 
       $(this._$plan).select2({
-        placeholder: $L('SelectSome,e.ProjectPlanConfig'),
+        placeholder: $L('SelectSome,f.ProjectTask.projectPlanId'),
         allowClear: false,
       })
     })
+
+    setTimeout(() => this._$title.focus(), 200)
   }
 
   _post = () => {
@@ -303,6 +310,9 @@ class LightTaskDlg extends RbModalHandler {
       relatedRecord: this.props.relatedRecord,
       metadata: { entity: 'ProjectTask' },
     }
+    if (!data.projectId) return RbHighbar.create($L('PlsSelectSome,f.ProjectTask.projectId'))
+    if (!data.projectPlanId) return RbHighbar.create($L('PlsSelectSome,f.ProjectTask.projectPlanId'))
+    if (!data.taskName) return RbHighbar.create($L('PlsInputSome,f.ProjectTask.taskName'))
 
     const $btn = $(this._btns).button('loading')
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
