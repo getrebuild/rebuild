@@ -554,32 +554,34 @@ body {
 }
 
 .tasks-list.inview .header-title .title .badge {
-  background-color: #f7f7f7;
+  background-color: #f5f5f5;
   color: #595959;
   font-size: 12px;
   font-weight: normal;
   padding: 0.07692rem 0.38rem;
   border: 0 none;
   float: left;
+  margin-top: -2px;
+  margin-right: 10px;
 }
 
 .tasks-list.inview .header-title::after {
   content: '';
 }
 
-.tasks-list.inview .header-title .date-avatar {
+.tasks-list.inview .header-title .task-meta {
   text-align: right;
-  padding-right: 50px;
   color: #878787;
 }
 
-.tasks-list.inview .header-title .avatar {
+.tasks-list.inview .header-title .task-meta .avatar {
   position: absolute;
-  margin-top: -4px;
-  right: 12px;
+  top: -4px;
+  right: 15px;
+  margin-left: 15px;
 }
 
-.tasks-list.inview .header-title .avatar img {
+.tasks-list.inview .header-title .task-meta .avatar img {
   width: 26px;
   height: 26px;
 }

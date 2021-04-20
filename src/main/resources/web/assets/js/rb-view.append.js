@@ -117,39 +117,47 @@ class LightTaskList extends RelatedList {
     return (
       <div className={`card priority-${item.priority} status-${item.status}`} key={item.id}>
         <div className="row header-title">
-          <div className="col-9 title">
+          <div className="col-7 title">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.flowStatus === 2} />
+              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label"></span>
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('Open')}>
-              [{item.taskNumber}] {item.taskName}
+              <span className="badge">{item.taskNumber}</span>
+              {item.taskName}
             </a>
           </div>
-          <div className="col-3 date-avatar">
-            {!item.deadline && !item.endTime && (
-              <React.Fragment>
-                <span className="mr-1">{$L('f.createdOn')}</span>
-                <DateShow date={item.createdOn} />
-              </React.Fragment>
-            )}
-            {item.deadline && (
-              <React.Fragment>
-                <span className="mr-1">{$L('Deadline')}</span>
-                <DateShow date={item.deadline} />
-              </React.Fragment>
-            )}
-            {!item.deadline && item.endTime && (
-              <React.Fragment>
-                <span className="mr-1">{$L('FinishTime')}</span>
-                <DateShow date={item.endTime} />
-              </React.Fragment>
-            )}
-            {item.executor && (
-              <a className="avatar">
-                <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} title={item.executor[1]} alt="Avatar" />
-              </a>
-            )}
+          <div className="col-5 task-meta">
+            <div className="row">
+              <div className="col-5 text-ellipsis">{item.planName}</div>
+              <div className="col-5 text-ellipsis">
+                {!item.deadline && !item.endTime && (
+                  <React.Fragment>
+                    <span className="mr-1">{$L('f.createdOn')}</span>
+                    <DateShow date={item.createdOn} />
+                  </React.Fragment>
+                )}
+                {item.deadline && (
+                  <React.Fragment>
+                    <span className="mr-1">{$L('Deadline')}</span>
+                    <DateShow date={item.deadline} />
+                  </React.Fragment>
+                )}
+                {!item.deadline && item.endTime && (
+                  <React.Fragment>
+                    <span className="mr-1">{$L('FinishTime')}</span>
+                    <DateShow date={item.endTime} />
+                  </React.Fragment>
+                )}
+              </div>
+              <div className="col-2">
+                {item.executor && (
+                  <a className="avatar">
+                    <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} title={item.executor[1]} alt="Avatar" />
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -161,7 +169,7 @@ class LightTaskList extends RelatedList {
     if (append) this.__pageNo += append
     const pageSize = 20
 
-    $.get(`/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}`, (res) => {
+    $.get(`/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}&search=${$encode(this.__searchKey)}`, (res) => {
       if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
       const data = res.data || []
@@ -169,6 +177,33 @@ class LightTaskList extends RelatedList {
       this.setState({ dataList: list, showMore: data.length >= pageSize })
 
       if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
+  }
+
+  _toggleStatus(item) {
+    const data = {
+      status: item.status === 1 ? 0 : 1,
+      metadata: { id: item.id },
+    }
+
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
+
+      // 获取最新的
+      $.get(`/project/tasks/related-list?task=${item.id}&related=${item.id}`, (res) => {
+        if (res.error_code === 0) {
+          const taskNew = res.data[0]
+          const dataListNew = this.state.dataList
+          for (let i = 0; i < dataListNew.length; i++) {
+            const c = dataListNew[i]
+            if (c.id === taskNew.id) {
+              dataListNew[i] = taskNew
+              break
+            }
+          }
+          this.setState({ dataList: dataListNew })
+        }
+      })
     })
   }
 }
@@ -187,7 +222,7 @@ class LightTaskDlg extends RbModalHandler {
           <div className="row">
             <div className="col-6">
               <div className="form-group">
-                <label>{$L('f.ProjectTask.projectId')}</label>
+                <label>{$L('TasksProject')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$project = c)}>
                   {this.state.projects &&
                     this.state.projects.map((item) => {
@@ -202,7 +237,7 @@ class LightTaskDlg extends RbModalHandler {
             </div>
             <div className="col-6">
               <div className="form-group">
-                <label>{$L('f.ProjectTask.projectPlanId')}</label>
+                <label>{$L('TasksPlan')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$plan = c)}>
                   {this.state.selectProject &&
                     this.state.selectProject.plans &&
@@ -218,7 +253,7 @@ class LightTaskDlg extends RbModalHandler {
             </div>
           </div>
           <div className="form-group">
-            <label>{$L('f.ProjectTask.taskName')}</label>
+            <label>{$L('TasksTitle')}</label>
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)}></textarea>
           </div>
         </div>

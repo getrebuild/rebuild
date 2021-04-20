@@ -224,8 +224,10 @@ public class ProjectTaskController extends BaseController {
     }
 
     @RequestMapping("tasks/related-list")
-    public JSON relatedTaskList(@IdParam(name = "related") ID relatedId, HttpServletRequest request) {
-        String queryWhere = "relatedRecord = ?";
+    public JSON relatedTaskList(@IdParam(name = "related") ID relatedId,
+                                @IdParam(name = "task", required = false) ID taskId,
+                                HttpServletRequest request) {
+        String queryWhere = String.format("relatedRecord = '%s'", relatedId);
 
         // 关键词搜索
         String search = getParameter(request, "search");
@@ -237,10 +239,15 @@ public class ProjectTaskController extends BaseController {
         int pageSize = getIntParameter(request, "pageSize", 40);
 
         queryWhere += " order by " + buildQuerySort(request);
-        String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
+
+        // 获取指定任务的（其他条件忽略）
+        if (taskId != null) {
+            queryWhere = String.format("taskId = '%s'", taskId);
+        }
+
+        String querySql = "select " + BASE_FIELDS + ",projectPlanId,projectId from ProjectTask where " + queryWhere;
 
         Object[][] tasks = Application.createQueryNoFilter(querySql)
-                .setParameter(1, relatedId)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
@@ -251,6 +258,13 @@ public class ProjectTaskController extends BaseController {
 
             Object executor = o[6] == null ? null : new Object[] { o[6], UserHelper.getName((ID) o[6]) };
             formatted.put("executor", executor);
+
+            ID projectPlanId = (ID) o[11];
+            ID projectId = (ID) o[12];
+            ConfigBean project =  ProjectManager.instance.getProject(projectId, null);
+            ConfigBean plan =  ProjectManager.instance.getPlanOfProject(projectPlanId, projectId);
+            formatted.put("planName", String.format("%s (%s)", plan.getString("planName"), project.getString("projectName")));
+            formatted.put("planFlow", plan.getInteger("flowStatus"));
 
             alist.add(formatted);
         }
