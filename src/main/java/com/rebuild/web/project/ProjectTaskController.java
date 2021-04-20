@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.privileges.UserHelper;
@@ -112,14 +113,9 @@ public class ProjectTaskController extends BaseController {
             }
         }
 
-        // 排序
-        String sort = getParameter(request, "sort");
-        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
-        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
-        else sort = "seq asc";
-        queryWhere += " order by " + sort;
-
+        queryWhere += " order by " +  buildQuerySort(request);
         String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
+
         Object[][] tasks = Application.createQueryNoFilter(querySql)
                 .setParameter(1, planId)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
@@ -191,5 +187,87 @@ public class ProjectTaskController extends BaseController {
         }
 
         return data;
+    }
+
+    private String buildQuerySort(HttpServletRequest request) {
+        String sort = getParameter(request, "sort");
+        if ("deadline".equalsIgnoreCase(sort)) sort = "deadline desc";
+        else if ("modifiedOn".equalsIgnoreCase(sort)) sort = "modifiedOn desc";
+        else sort = "seq asc";
+        return sort;
+    }
+
+    // -- for EntityView
+
+    @GetMapping("alist")
+    public RespBody getProjectAndPlans(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
+        ConfigBean[] ps = ProjectManager.instance.getAvailable(user, true);
+        JSONArray alist = new JSONArray();
+
+        for (ConfigBean p : ps) {
+            JSONObject item = (JSONObject) p.toJSON("id", "projectName");
+
+            // 面板
+            ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(p.getID("id"));
+            JSONArray plansList = new JSONArray();
+            for (ConfigBean plan : plans) {
+                plansList.add(plan.toJSON("id", "planName", "flowStatus"));
+            }
+            item.put("plans", plansList);
+
+            alist.add(item);
+        }
+
+        return RespBody.ok(alist);
+    }
+
+    @RequestMapping("tasks/related-list")
+    public JSON relatedTaskList(@IdParam(name = "related") ID relatedId,
+                                @IdParam(name = "task", required = false) ID taskId,
+                                HttpServletRequest request) {
+        String queryWhere = String.format("relatedRecord = '%s'", relatedId);
+
+        // 关键词搜索
+        String search = getParameter(request, "search");
+        if (StringUtils.isNotBlank(search)) {
+            queryWhere += " and taskName like '%" + StringEscapeUtils.escapeSql(search) + "%'";
+        }
+
+        int pageNo = getIntParameter(request, "pageNo", 1);
+        int pageSize = getIntParameter(request, "pageSize", 40);
+
+        queryWhere += " order by " + buildQuerySort(request);
+
+        // 获取指定任务的（其他条件忽略）
+        if (taskId != null) {
+            queryWhere = String.format("taskId = '%s'", taskId);
+        }
+
+        String querySql = "select " + BASE_FIELDS + ",projectPlanId,projectId from ProjectTask where " + queryWhere;
+
+        Object[][] tasks = Application.createQueryNoFilter(querySql)
+                .setLimit(pageSize, pageNo * pageSize - pageSize)
+                .array();
+
+        JSONArray alist = new JSONArray();
+        for (Object[] o : tasks) {
+            JSONObject formatted = formatTask(o, false);
+            formatted.put("taskNumber", String.format("%s-%d", o[0], o[1] ));
+
+            Object executor = o[6] == null ? null : new Object[] { o[6], UserHelper.getName((ID) o[6]) };
+            formatted.put("executor", executor);
+
+            ID projectPlanId = (ID) o[11];
+            ID projectId = (ID) o[12];
+            ConfigBean project =  ProjectManager.instance.getProject(projectId, null);
+            ConfigBean plan =  ProjectManager.instance.getPlanOfProject(projectPlanId, projectId);
+            formatted.put("planName", String.format("%s (%s)", plan.getString("planName"), project.getString("projectName")));
+            formatted.put("planFlow", plan.getInteger("flowStatus"));
+
+            alist.add(formatted);
+        }
+        return alist;
     }
 }

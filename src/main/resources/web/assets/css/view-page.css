@@ -317,6 +317,20 @@ body {
   margin-top: -1.4rem;
 }
 
+.load-mores.load-end {
+  border: 0 none;
+  margin: 15px 0;
+  height: auto;
+}
+
+.load-mores.load-end > div {
+  width: 10px;
+  height: 10px;
+  background-color: #ccc;
+  margin: 0 auto;
+  border-radius: 99px;
+}
+
 .rbview-form .form-group.row.editable a.edit {
   position: absolute;
   right: 15px;
@@ -429,39 +443,6 @@ body {
   content: '\f273';
 }
 
-/* over Feeds */
-
-.feeds-list.inview {
-  margin-top: -11px;
-}
-
-.feeds-list.inview > div {
-  padding: 12px 1px 0;
-  position: relative;
-}
-
-.feeds-list.inview > div + div {
-  border-top: 1px solid #eee;
-}
-
-.feeds-list.inview .feeds + .actions {
-  border: 0 none;
-  padding: 0;
-  margin: -32px 0 0;
-}
-
-.feeds-list.inview .feeds > .content .rich-content {
-  font-size: 1rem;
-}
-
-.feeds-list.inview .feeds > .content .rich-content > .appends {
-  font-size: 12px;
-}
-
-.feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
-  cursor: default;
-}
-
 .modal-body .feed-options.related {
   display: none;
 }
@@ -519,4 +500,111 @@ body {
 .editor-preview p {
   margin-bottom: 0.75em !important;
   line-height: 1.6 !important;
+}
+
+/* over Feeds */
+
+.feeds-list.inview {
+  border-top: 1px solid #ebebeb;
+}
+
+.feeds-list.inview > div {
+  padding: 12px 1px 0;
+  position: relative;
+}
+
+.feeds-list.inview > div:first-child {
+  margin-top: 0;
+}
+
+.feeds-list.inview > div + div {
+  border-top: 1px solid #eee;
+}
+
+.feeds-list.inview .feeds + .actions {
+  border: 0 none;
+  padding: 0;
+  margin: -32px 0 0;
+}
+
+.feeds-list.inview .feeds > .content .rich-content {
+  font-size: 1rem;
+}
+
+.feeds-list.inview .feeds > .content .rich-content > .appends {
+  font-size: 12px;
+}
+
+.feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
+  cursor: default;
+}
+
+.feeds-list.inview .J_relatedRecord a {
+  color: #444;
+  cursor: text;
+}
+
+.tasks-list.inview .card:hover {
+  box-shadow: 0 0 0 #fff;
+}
+
+.tasks-list.inview .header-title .title {
+  padding-left: 45px;
+}
+
+.tasks-list.inview .header-title .title .custom-control {
+  position: absolute;
+  left: 15px;
+  margin: -1px 0 0;
+}
+
+.tasks-list.inview .header-title .title .badge {
+  background-color: #f5f5f5;
+  color: #595959;
+  font-size: 12px;
+  font-weight: normal;
+  padding: 0.07692rem 0.38rem;
+  border: 0 none;
+  float: left;
+  margin-top: -2px;
+  margin-right: 10px;
+}
+
+.tasks-list.inview .header-title::after {
+  content: '';
+}
+
+.tasks-list.inview .header-title .task-meta {
+  text-align: right;
+  color: #878787;
+}
+
+.tasks-list.inview .header-title .task-meta .avatar {
+  position: absolute;
+  top: -4px;
+  right: 15px;
+  margin-left: 15px;
+}
+
+.tasks-list.inview .header-title .task-meta .avatar img {
+  width: 26px;
+  height: 26px;
+}
+
+.tasks-list.inview .card.priority-2 .header-title,
+.tasks-list.inview .card.priority-3 .header-title {
+  border-left: 4px solid #f7b904;
+}
+
+.tasks-list.inview .card.priority-3 .header-title {
+  border-left-color: #ea3f30;
+}
+
+.tasks-list.inview .card.status-1 .title {
+  color: #8c8c8c;
+  opacity: 0.5;
+}
+
+.tasks-list.inview .card.status-1 .title a {
+  color: #8c8c8c;
 }

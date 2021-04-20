@@ -51,10 +51,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .rich-editor .action-btns li a .zmdi.at-text {
-  font-weight: 600;
   font-size: 17px;
-  transform: translateY(-2px);
   color: #888;
+  transform: translateY(-4px);
+  font-weight: bold;
 }
 
 .rich-editor .action-btns li a .zmdi.at-text:hover {

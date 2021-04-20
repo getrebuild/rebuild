@@ -4,7 +4,6 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-/* global RepeatedViewer */
 
 const wpc = window.__PageConfig || {}
 
@@ -130,6 +129,7 @@ class RbViewForm extends React.Component {
         parent && parent.RbListPage && parent.RbListPage.reload()
       } else if (res.error_code === 499) {
         // 有重复
+        // eslint-disable-next-line react/jsx-no-undef
         renderRbcomp(<RepeatedViewer entity={this.props.entity} data={res.data} />)
       } else {
         RbHighbar.error(res.error_msg)
@@ -161,7 +161,256 @@ const _renderError = (message) => {
   )
 }
 
+// ~ 相关项列表
+class RelatedList extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { ...props }
+
+    // 相关配置
+    this.__searchSort = null
+    this.__searchKey = null
+    this.__pageNo = 1
+
+    this.__listExtraLink = null
+    this.__listClass = null
+    this.__listNoData = (
+      <div className="list-nodata">
+        <span className="zmdi zmdi-info-outline" />
+        <p>{$L('NoData')}</p>
+      </div>
+    )
+  }
+
+  render() {
+    return (
+      <div className={`related-list ${this.state.dataList ? '' : 'rb-loading rb-loading-active'}`}>
+        {!this.state.dataList && <RbSpinner />}
+        {this.state.showToolbar && (
+          <div className="related-toolbar">
+            <div className="row">
+              <div className="col">
+                <div className="input-group input-search float-left">
+                  <input
+                    className="form-control"
+                    type="text"
+                    placeholder={$L('QuickQuery')}
+                    maxLength="40"
+                    ref={(c) => (this._$quickSearch = c)}
+                    onKeyDown={(e) => e.keyCode === 13 && this._search()}
+                  />
+                  <span className="input-group-btn">
+                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
+                      <i className="icon zmdi zmdi-search" />
+                    </button>
+                  </span>
+                </div>
+                {this.__listExtraLink}
+              </div>
+              <div className="col text-right">
+                <div className="btn-group">
+                  <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
+                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                  </button>
+                  {this.renderSorts()}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {this.state.dataList && this.state.dataList.length === 0 && this.__listNoData}
+        {this.state.dataList && this.state.dataList.length > 0 && (
+          <div className={this.__listClass || ''}>
+            {(this.state.dataList || []).map((item) => {
+              return this.renderItem(item)
+            })}
+          </div>
+        )}
+
+        {this.state.showMore && (
+          <div className="text-center load-mores">
+            <div>
+              <button type="button" className="btn btn-secondary" onClick={() => this.fetchData(1)}>
+                {$L('LoadMore')}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  renderSorts() {
+    return (
+      <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
+        <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
+          {$L('SortByModified')}
+        </a>
+        <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
+          {$L('SortByCreated')}
+        </a>
+        <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
+          {$L('SortByCreatedAsc')}
+        </a>
+      </div>
+    )
+  }
+
+  renderItem(item) {
+    return <div>{JSON.stringify(item)}</div>
+  }
+
+  componentDidMount = () => this.fetchData()
+
+  fetchData(append) {
+    this.__pageNo = this.__pageNo || 1
+    if (append) this.__pageNo += append
+    const pageSize = 20
+
+    $.get(`/project/tasks/related-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&related=${this.props.mainid}`, (res) => {
+      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+      const data = (res.data || {}).data || []
+      const list = append ? (this.state.dataList || []).concat(data) : data
+      this.setState({ dataList: list, showMore: data.length >= pageSize })
+
+      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+    })
+  }
+
+  _search(e) {
+    let sort = null
+    if (e && e.currentTarget) {
+      sort = $(e.currentTarget).data('sort')
+      this.setState({ sortDisplayText: $(e.currentTarget).text() })
+    }
+
+    this.__searchSort = sort || this.__searchSort
+    this.__searchKey = $(this._$quickSearch).val() || ''
+    this.__pageNo = 1
+    this.fetchData()
+  }
+}
+
+// ~ 业务实体相关项列表
+class EntityRelatedList extends RelatedList {
+  constructor(props) {
+    super(props)
+    this.state.viewOpens = {}
+    this.state.viewComponents = {}
+
+    this.__entity = props.entity.split('.')[0]
+    const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
+    this.__listExtraLink = (
+      <a className="btn btn-link" href={openListUrl} target="_blank">
+        <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('ViewInList')}
+      </a>
+    )
+  }
+
+  renderItem(item) {
+    return (
+      <div key={item[0]} className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} ref={`item-${item[0]}`}>
+        <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
+          <div className="col-10">
+            <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
+              {item[1]}
+            </a>
+          </div>
+          <div className="col-2 text-right">
+            <span className="fs-12 text-muted" title={`${$L('f.modifiedOn')} ${item[2]}`}>
+              {$fromNow(item[2])}
+            </span>
+          </div>
+        </div>
+        <div className="rbview-form inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
+      </div>
+    )
+  }
+
+  fetchData(append) {
+    this.__pageNo = this.__pageNo || 1
+    if (append) this.__pageNo += append
+    const pageSize = 20
+
+    $.get(
+      `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`,
+      (res) => {
+        if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
+
+        const data = res.data.data || []
+        const list = append ? (this.state.dataList || []).concat(data) : data
+
+        this.setState({ dataList: list, showMore: data.length >= pageSize }, () => {
+          if (this.props.autoExpand) {
+            data.forEach((item) => {
+              // eslint-disable-next-line react/no-string-refs
+              const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
+              if ($H.length > 0 && !$H.parent().hasClass('active')) $H[0].click()
+            })
+          }
+        })
+
+        // FIXME 数据少不显示
+        // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
+        if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
+      }
+    )
+  }
+
+  _handleView(e) {
+    e.preventDefault()
+    $stopEvent(e)
+    RbViewPage.clickView(e.currentTarget)
+  }
+
+  _toggleInsideView(id) {
+    const viewOpens = this.state.viewOpens
+    viewOpens[id] = !viewOpens[id]
+    this.setState({ viewOpens: viewOpens })
+
+    // 加载视图
+    const viewComponents = this.state.viewComponents
+    if (!viewComponents[id]) {
+      $.get(`/app/${this.__entity}/view-model?id=${id}`, (res) => {
+        if (res.error_code > 0 || !!res.data.error) {
+          viewComponents[id] = _renderError(res.data.error || res.error_msg)
+        } else {
+          viewComponents[id] = (
+            <div className="row">
+              {res.data.elements.map((item) => {
+                item.$$$parent = this
+                return detectViewElement(item)
+              })}
+            </div>
+          )
+        }
+        this.setState({ viewComponents: viewComponents })
+      })
+    }
+  }
+}
+
+class MixRelatedList extends React.Component {
+  state = { ...this.props }
+
+  render() {
+    const entity = this.props.entity.split('.')[0]
+    if (entity === 'Feeds') {
+      // eslint-disable-next-line react/jsx-no-undef
+      return <LightFeedsList {...this.props} fetchNow={true} />
+    } else if (entity === 'ProjectTask') {
+      // eslint-disable-next-line react/jsx-no-undef
+      return <LightTaskList {...this.props} fetchNow={true} />
+    } else {
+      return <EntityRelatedList {...this.props} />
+    }
+  }
+}
+
 // 选择报表
+// eslint-disable-next-line no-unused-vars
 class SelectReport extends React.Component {
   state = { ...this.props }
 
@@ -230,310 +479,6 @@ class SelectReport extends React.Component {
     renderRbcomp(<SelectReport entity={entity} id={id} />, null, function () {
       that.__cached = this
     })
-  }
-}
-
-// ~ 相关项列表
-class RelatedList extends React.Component {
-  state = { ...this.props, viewOpens: {}, viewComponents: {} }
-
-  render() {
-    const entity = this.props.entity.split('.')[0]
-    const openListUrl = `${rb.baseUrl}/app/${entity}/list?via=${this.props.mainid}:${this.props.entity}`
-
-    return (
-      <div className={`related-list ${!this.state.list ? 'rb-loading rb-loading-active' : ''}`}>
-        {!this.state.list && <RbSpinner />}
-        {this.state.showToolbar && (
-          <div className="related-toolbar">
-            <div className="row">
-              <div className="col">
-                <div className="input-group input-search float-left">
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder={$L('QuickQuery')}
-                    maxLength="40"
-                    ref={(c) => (this._quickSearch = c)}
-                    onKeyDown={(e) => e.keyCode === 13 && this._search()}
-                  />
-                  <span className="input-group-btn">
-                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                      <i className="icon zmdi zmdi-search" />
-                    </button>
-                  </span>
-                </div>
-                <a className="btn btn-link" href={openListUrl} target="_blank">
-                  <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('ViewInList')}
-                </a>
-              </div>
-              <div className="col text-right">
-                <div className="btn-group">
-                  <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown" aria-expanded="false">
-                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
-                  </button>
-                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-                    <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
-                      {$L('SortByModified')}
-                    </a>
-                    <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
-                      {$L('SortByCreated')}
-                    </a>
-                    <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
-                      {$L('SortByCreatedAsc')}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {this.state.list && this.state.list.length === 0 && (
-          <div className="list-nodata">
-            <span className="zmdi zmdi-info-outline" />
-            <p>{$L('NoData')}</p>
-          </div>
-        )}
-        {(this.state.list || []).map((item) => {
-          return (
-            <div className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} key={item[0]} ref={`item-${item[0]}`}>
-              <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
-                <div className="col-10">
-                  <a href={`#!/View/${entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
-                    {item[1]}
-                  </a>
-                </div>
-                <div className="col-2 text-right">
-                  <span className="fs-12 text-muted" title={`${$L('f.modifiedOn')} ${item[2]}`}>
-                    {$fromNow(item[2])}
-                  </span>
-                </div>
-              </div>
-              <div className="rbview-form inside">{this.state.viewComponents[item[0]] || <RbSpinner fully={true} />}</div>
-            </div>
-          )
-        })}
-        {this.state.showMores && (
-          <div className="text-center load-mores">
-            <div>
-              <button type="button" className="btn btn-secondary" onClick={() => this.fetchList(1)}>
-                {$L('LoadMore')}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  componentDidMount = () => this.fetchList()
-
-  fetchList(append) {
-    this.__pageNo = this.__pageNo || 1
-    if (append) this.__pageNo += append
-    const pageSize = 20
-
-    const url = `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}`
-    $.get(`${url}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`, (res) => {
-      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
-
-      const data = res.data.data || []
-      const list = append ? (this.state.list || []).concat(data) : data
-
-      // FIXME 数据少不显示
-      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
-      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
-
-      this.setState({ list: list, showMores: data.length >= pageSize }, () => {
-        if (this.props.autoExpand) {
-          data.forEach((item) => {
-            // eslint-disable-next-line react/no-string-refs
-            const $H = $(this.refs[`item-${item[0]}`]).find('.header-title')
-            if ($H.length > 0 && !$H.parent().hasClass('active')) $H[0].click()
-          })
-        }
-      })
-    })
-  }
-
-  _handleView(e) {
-    e.preventDefault()
-    $stopEvent(e)
-    RbViewPage.clickView(e.currentTarget)
-  }
-
-  _toggleInsideView(id) {
-    const viewOpens = this.state.viewOpens
-    viewOpens[id] = !viewOpens[id]
-    this.setState({ viewOpens: viewOpens })
-
-    // 加载视图
-    const viewComponents = this.state.viewComponents
-    if (!viewComponents[id]) {
-      $.get(`/app/${this.props.entity.split('.')[0]}/view-model?id=${id}`, (res) => {
-        if (res.error_code > 0 || !!res.data.error) {
-          const err = res.data.error || res.error_msg
-          viewComponents[id] = _renderError(err)
-        } else {
-          viewComponents[id] = (
-            <div className="row">
-              {res.data.elements.map((item) => {
-                item.$$$parent = this
-                return detectViewElement(item)
-              })}
-            </div>
-          )
-        }
-        this.setState({ viewComponents: viewComponents })
-      })
-    }
-  }
-
-  _search(e) {
-    let sort = null
-    if (e && e.currentTarget) {
-      sort = $(e.currentTarget).data('sort')
-      this.setState({ sortDisplayText: $(e.currentTarget).text() })
-    }
-
-    this.__searchSort = sort || this.__searchSort
-    this.__searchKey = $(this._quickSearch).val() || ''
-    this.__pageNo = 1
-    this.fetchList()
-  }
-}
-
-const FeedsList = window.FeedsList || React.Component
-// ~ 跟进列表
-// eslint-disable-next-line no-undef
-class ReducedFeedsList extends FeedsList {
-  state = { ...this.props }
-
-  render() {
-    return (
-      <div className={`related-list ${!this.state.data ? 'rb-loading rb-loading-active' : ''}`}>
-        {!this.state.data && <RbSpinner />}
-        {this.state.showToolbar && (
-          <div className="related-toolbar feeds">
-            <div className="row">
-              <div className="col">
-                <div className="input-group input-search">
-                  <input className="form-control" type="text" placeholder={$L('Keyword')} maxLength="40" ref={(c) => (this._quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
-                  <span className="input-group-btn">
-                    <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
-                      <i className="icon zmdi zmdi-search" />
-                    </button>
-                  </span>
-                </div>
-              </div>
-              <div className="col text-right">
-                <div className="btn-group">
-                  <button type="button" className="btn btn-link" data-toggle="dropdown" aria-expanded="false">
-                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
-                  </button>
-                  <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
-                    <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortNewer')}
-                    </a>
-                    <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortOlder')}
-                    </a>
-                    <a className="dropdown-item" data-sort="modified" onClick={(e) => this._search(e)}>
-                      {$L('FeedsSortModified')}
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {this.state.data && this.state.data.length === 0 && (
-          <div className="list-nodata">
-            <span className="zmdi zmdi-chart-donut" />
-            <p>{$L('NoSome,e.Feeds')}</p>
-          </div>
-        )}
-        <div className="feeds-list inview">
-          {(this.state.data || []).map((item) => {
-            return this.renderItem({ ...item, self: false })
-          })}
-        </div>
-        {this.state.showMores && (
-          <div className="text-center load-mores">
-            <div>
-              <button type="button" className="btn btn-secondary" onClick={() => this.fetchFeeds(1)}>
-                {$L('LoadMore')}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  fetchFeeds(append) {
-    const filter = {
-      entity: 'Feeds',
-      equation: '(1 OR 2) AND 3',
-      items: [
-        { field: 'type', op: 'EQ', value: 2 },
-        { field: 'type', op: 'EQ', value: 4 },
-        { field: 'relatedRecord', op: 'EQ', value: wpc.recordId },
-      ],
-    }
-    if (this.__searchKey) {
-      filter.equation = '(1 OR 2) AND 3 AND 4'
-      filter.items.push({ field: 'content', op: 'LK', value: this.__searchKey })
-    }
-
-    this.__pageNo = this.__pageNo || 1
-    if (append) this.__pageNo += append
-    const pageSize = 20
-
-    $.post(`/feeds/feeds-list?pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&type=&foucs=`, JSON.stringify(filter), (res) => {
-      if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
-
-      const data = (res.data || {}).data || []
-      const list = append ? (this.state.data || []).concat(data) : data
-
-      // 数据少不显示
-      // if (this.state.showToolbar === undefined && data.length >= pageSize) this.setState({ showToolbar: data.length > 0 })
-      if (this.state.showToolbar === undefined) this.setState({ showToolbar: data.length > 0 })
-
-      this.setState({ data: list, showMores: data.length >= pageSize })
-    })
-  }
-
-  // _toggleComment(feeds) {
-  //   window.open(`${rb.baseUrl}/app/list-and-view?id=${feeds}`)
-  // }
-
-  _search(e) {
-    let sort = null
-    if (e && e.currentTarget) {
-      sort = $(e.currentTarget).data('sort')
-      this.setState({ sortDisplayText: $(e.currentTarget).text() })
-    }
-
-    this.__searchSort = sort || this.__searchSort
-    this.__searchKey = $(this._quickSearch).val() || ''
-    this.__pageNo = 1
-    this.fetchFeeds()
-  }
-}
-
-class MixRelatedList extends React.Component {
-  state = { ...this.props }
-
-  render() {
-    const entity = this.props.entity.split('.')[0]
-    if (entity === 'Feeds') {
-      return <ReducedFeedsList {...this.props} fetchNow={true} />
-    } else {
-      return <RelatedList {...this.props} />
-    }
   }
 }
 
@@ -628,6 +573,7 @@ const RbViewPage = {
         return
       }
 
+      const that = this
       for (let k in res.data) {
         const v = res.data[k]
         if (!v) continue
@@ -638,7 +584,6 @@ const RbViewPage = {
           renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
         } else if (k === 'sharingList') {
           const $list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo($('.J_sharingList').empty())
-          const that = this
           $(v).each(function () {
             const _this = this
             const $item = $('<li class="list-inline-item"></li>').appendTo($list)
@@ -674,7 +619,7 @@ const RbViewPage = {
         }
       }
 
-      // If PlainEntity
+      // PlainEntity ?
       if (!res.data.owningUser) $('.view-user').remove()
     })
   },
@@ -686,6 +631,7 @@ const RbViewPage = {
 
     $.get(`/app/entity/extras/record-history?id=${this.__id}`, (res) => {
       if (res.error_code !== 0) return
+
       $into.empty()
       res.data.forEach((item, idx) => {
         const content = $LF('ViewHistoryContent', $fromNow(item.revisionOn)).replace('$USER$', item.revisionBy[1]).replace('$ACTION$', item.revisionType)
@@ -715,10 +661,13 @@ const RbViewPage = {
       that.__vtabEntities.push(entity)
 
       const tabId = 'tab-' + entity.replace('.', '--') // `.` is JS keyword
-      const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
-      const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
-      tabNav.find('a').click(function () {
-        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, tabPane)
+      const $tabNav = $(
+        `<li class="nav-item ${wpc.viewTabsAutoHide ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
+      ).appendTo('.nav-tabs')
+      const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
+
+      $tabNav.find('a').click(function () {
+        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
       })
     })
     this.updateVTabs()
@@ -736,12 +685,15 @@ const RbViewPage = {
   updateVTabs(specEntities) {
     specEntities = specEntities || this.__vtabEntities
     if (!specEntities || specEntities.length === 0) return
+
     $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in res.data || {}) {
         if (~~res.data[k] > 0) {
-          const tabNav = $('.nav-tabs a[href="#tab-' + k.replace('.', '--') + '"]')
-          if (tabNav.find('.badge').length > 0) tabNav.find('.badge').text(res.data[k])
-          else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(tabNav)
+          const $tabNav = $('.nav-tabs a[href="#tab-' + k.replace('.', '--') + '"]')
+          $tabNav.parent().removeClass('hide')
+
+          if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
+          else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo($tabNav)
         }
       }
     })
@@ -763,6 +715,9 @@ const RbViewPage = {
           }
           // eslint-disable-next-line react/jsx-no-undef
           renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)
+        } else if (e.entity === 'ProjectTask.relatedRecord') {
+          // eslint-disable-next-line react/jsx-no-undef
+          renderRbcomp(<LightTaskDlg relatedRecord={that.__id} call={() => that.reload()} />)
         } else {
           const iv = {}
           const entity = e.entity.split('.')
@@ -771,6 +726,7 @@ const RbViewPage = {
           RbFormModal.create({ title: `${title}`, entity: entity[0], icon: e.icon, initialValue: iv })
         }
       })
+
       $('.J_adds .dropdown-divider').before($item)
     })
   },
@@ -800,6 +756,7 @@ const RbViewPage = {
           },
         })
       })
+
       $('.J_trans .dropdown-divider').before($item)
     })
   },
@@ -818,6 +775,7 @@ const RbViewPage = {
     }
     return false
   },
+
   clickViewUser(id) {
     return this.clickView('#!/View/User/' + id)
   },

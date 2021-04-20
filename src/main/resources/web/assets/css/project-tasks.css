@@ -28,6 +28,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-left: 6px;
   text-align: left;
   width: 70px;
+  display: none;
 }
 
 .project-head:hover .project-action {

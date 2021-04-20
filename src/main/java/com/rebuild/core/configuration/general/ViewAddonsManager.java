@@ -108,6 +108,8 @@ public class ViewAddonsManager extends BaseLayoutManager {
 
             // 跟进（动态）
             useRefs.add(getEntityShow(MetadataHelper.getField("Feeds", "relatedRecord"), mfRefs, applyType));
+            // 任务（项目）
+            useRefs.add(getEntityShow(MetadataHelper.getField("ProjectTask", "relatedRecord"), mfRefs, applyType));
 
             return JSONUtils.toJSONObject("items", useRefs);
         }

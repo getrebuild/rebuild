@@ -14,9 +14,10 @@ class FeedsPost extends React.Component {
   render() {
     const activeType = this.state.type
     const activeClass = 'text-primary text-bold'
+
     return (
       <div className="feeds-post">
-        <ul className="list-unstyled list-inline mb-1 pl-1" ref={(c) => (this._activeType = c)}>
+        <ul className="list-unstyled list-inline mb-1 pl-1" ref={(c) => (this._$activeType = c)}>
           <li className="list-inline-item">
             <a onClick={() => this.setState({ type: 1 })} className={`${activeType === 1 ? activeClass : ''}`}>
               {$L('FeedsType1')}
@@ -40,13 +41,15 @@ class FeedsPost extends React.Component {
             </li>
           )}
         </ul>
-        <div className="arrow_box" ref={(c) => (this._activeArrow = c)}></div>
+        <div className="arrow_box" ref={(c) => (this._$activeArrow = c)}></div>
+
         <div>
-          <FeedsEditor ref={(c) => (this._editor = c)} type={activeType} />
+          <FeedsEditor ref={(c) => (this._FeedsEditor = c)} type={activeType} />
         </div>
+
         <div className="mt-3">
           <div className="float-right">
-            <button className="btn btn-primary" ref={(c) => (this._btn = c)} onClick={this._post}>
+            <button className="btn btn-primary" ref={(c) => (this._$btn = c)} onClick={this._post}>
               {$L('Publish')}
             </button>
           </div>
@@ -80,8 +83,8 @@ class FeedsPost extends React.Component {
 
   componentDidUpdate(prevProps, prevState) {
     if (prevState.type !== this.state.type) {
-      const pos = $(this._activeType).find('.text-primary').position()
-      $(this._activeArrow).css('margin-left', pos.left - 30)
+      const pos = $(this._$activeType).find('.text-primary').position()
+      $(this._$activeArrow).css('margin-left', pos.left - 30)
     }
   }
 
@@ -102,6 +105,7 @@ class FeedsPost extends React.Component {
       }
     })
   }
+
   _renderGroupScope = (item) => {
     if (!item) return
     $(this._scopeBtn).html(`<i class="icon up-1 zmdi zmdi-accounts"></i>${item.name}`)
@@ -109,34 +113,26 @@ class FeedsPost extends React.Component {
   }
 
   _post = () => {
-    const _data = this._editor.vals()
+    const _data = this._FeedsEditor.vals()
     if (!_data) return
-    if (!_data.content) {
-      RbHighbar.create($L('PlsInputSome,FeedsContent'))
-      return
-    }
+    if (!_data.content) return RbHighbar.create($L('PlsInputSome,FeedsContent'))
 
     _data.scope = this.state.scope
     if (_data.scope === 'GROUP') {
-      if (!this.__group) {
-        RbHighbar.create($L('PlsSelectSome,e.Team'))
-        return
-      }
+      if (!this.__group) return RbHighbar.create($L('PlsSelectSome,e.Team'))
       _data.scope = this.__group.id
     }
 
     _data.type = this.state.type
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
-    const btn = $(this._btn).button('loading')
+    const $btn = $(this._$btn).button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
-      btn.button('reset')
-      if (res.error_msg > 0) {
-        RbHighbar.error(res.error_msg)
-        return
-      }
-      this._editor.reset()
-      this.props.call && this.props.call()
+      $btn.button('reset')
+      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+
+      this._FeedsEditor.reset()
+      typeof this.props.call === 'function' && this.props.call()
     })
   }
 }
@@ -165,9 +161,10 @@ class FeedsEditor extends React.Component {
     return (
       <React.Fragment>
         {isFinish && <RbAlertBox message={$L('ReFinshScheduleConfirm')} />}
+
         <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
           <textarea
-            ref={(c) => (this._editor = c)}
+            ref={(c) => (this._$editor = c)}
             placeholder={this.props.placeholder}
             maxLength="2000"
             onFocus={() => this.setState({ focus: true })}
@@ -199,18 +196,19 @@ class FeedsEditor extends React.Component {
                 />
               </li>
               <li className="list-inline-item">
-                <a title={$L('Image')} onClick={() => this._imageInput.click()}>
+                <a title={$L('Image')} onClick={() => this._$imageInput.click()}>
                   <i className="zmdi zmdi-image-o" />
                 </a>
               </li>
               <li className="list-inline-item">
-                <a title={$L('Attachment')} onClick={() => this._fileInput.click()} style={{ marginLeft: -5 }}>
+                <a title={$L('Attachment')} onClick={() => this._$fileInput.click()} style={{ marginLeft: -5 }}>
                   <i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" />
                 </a>
               </li>
             </ul>
           </div>
         </div>
+
         {this.state.type === 4 && <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />}
         {(this.state.type === 2 || this.state.type === 4) && (
           <div className="feed-options related">
@@ -256,8 +254,8 @@ class FeedsEditor extends React.Component {
           </div>
         )}
         <span className="hide">
-          <input type="file" ref={(c) => (this._fileInput = c)} />
-          <input type="file" ref={(c) => (this._imageInput = c)} accept="image/*" />
+          <input type="file" ref={(c) => (this._$fileInput = c)} />
+          <input type="file" ref={(c) => (this._$imageInput = c)} accept="image/*" />
         </span>
       </React.Fragment>
     )
@@ -266,8 +264,8 @@ class FeedsEditor extends React.Component {
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
   componentDidMount() {
-    autosize(this._editor)
-    setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
+    autosize(this._$editor)
+    setTimeout(() => this.props.initValue && autosize.update(this._$editor), 200)
 
     let mp
     const mp_end = function () {
@@ -276,7 +274,7 @@ class FeedsEditor extends React.Component {
     }
 
     $createUploader(
-      this._imageInput,
+      this._$imageInput,
       (res) => {
         if (!mp) mp = new Mprogress({ template: 1, start: true })
         mp.set(res.percent / 100)
@@ -291,7 +289,7 @@ class FeedsEditor extends React.Component {
     )
 
     $createUploader(
-      this._fileInput,
+      this._$fileInput,
       (res) => {
         if (!mp) mp = new Mprogress({ template: 1, start: true })
         mp.set(res.percent / 100)
@@ -307,12 +305,12 @@ class FeedsEditor extends React.Component {
   }
 
   _selectEmoji(emoji) {
-    $(this._editor).insertAtCursor(`[${emoji}]`)
+    $(this._$editor).insertAtCursor(`[${emoji}]`)
     this.setState({ showEmoji: false })
   }
 
   _selectAtUser = (s) => {
-    $(this._editor).insertAtCursor(`@${s.text} `)
+    $(this._$editor).insertAtCursor(`@${s.text} `)
     this.setState({ showAtUser: false })
   }
 
@@ -329,7 +327,7 @@ class FeedsEditor extends React.Component {
   }
 
   val() {
-    return $(this._editor).val()
+    return $(this._$editor).val()
   }
 
   vals() {
@@ -353,11 +351,11 @@ class FeedsEditor extends React.Component {
     return vals
   }
 
-  focus = () => $(this._editor).selectRange(9999, 9999) // Move to last
+  focus = () => $(this._$editor).selectRange(9999, 9999) // Move to last
 
   reset = () => {
-    $(this._editor).val('')
-    autosize.update(this._editor)
+    $(this._$editor).val('')
+    autosize.update(this._$editor)
     if (this._selectRelated) this._selectRelated.reset()
     if (this._announcementOptions) this._announcementOptions.reset()
     if (this._scheduleOptions) this._scheduleOptions.reset()
@@ -426,7 +424,7 @@ class AnnouncementOptions extends React.Component {
       <div className="feed-options announcement">
         <dl className="row mb-1">
           <dt className="col-12 col-lg-3">{$L('SameAnnouncementPos')}</dt>
-          <dd className="col-12 col-lg-9 mb-0" ref={(c) => (this._showWhere = c)}>
+          <dd className="col-12 col-lg-9 mb-0" ref={(c) => (this._$showWhere = c)}>
             <label className="custom-control custom-checkbox custom-control-inline">
               <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
               <span className="custom-control-label">{$L('AnnouncementPos1')}</span>
@@ -445,7 +443,7 @@ class AnnouncementOptions extends React.Component {
         </dl>
         <dl className="row">
           <dt className="col-12 col-lg-3 pt-2"> {$L('AnnouncementTime')}</dt>
-          <dd className="col-12 col-lg-9" ref={(c) => (this._showTime = c)}>
+          <dd className="col-12 col-lg-9" ref={(c) => (this._$showTime = c)}>
             <div className="input-group">
               <input type="text" className="form-control form-control-sm" placeholder={$L('Now')} />
               <div className="input-group-prepend input-group-append">
@@ -460,18 +458,18 @@ class AnnouncementOptions extends React.Component {
   }
 
   componentDidMount() {
-    $(this._showTime).find('.form-control').datetimepicker()
-    $(this._showWhere).find('.zicon').tooltip()
+    $(this._$showTime).find('.form-control').datetimepicker()
+    $(this._$showWhere).find('.zicon').tooltip()
 
     const initValue = this.props.initValue
     if (initValue) {
-      $(this._showTime)
+      $(this._$showTime)
         .find('.form-control:eq(0)')
         .val(initValue.timeStart || '')
-      $(this._showTime)
+      $(this._$showTime)
         .find('.form-control:eq(1)')
         .val(initValue.timeEnd || '')
-      $(this._showWhere)
+      $(this._$showWhere)
         .find('input')
         .each(function () {
           if ((~~$(this).val() & initValue.showWhere) !== 0) $(this).prop('checked', true)
@@ -480,19 +478,19 @@ class AnnouncementOptions extends React.Component {
   }
 
   componentWillUnmount() {
-    $(this._showTime).find('.form-control').datetimepicker('remove')
+    $(this._$showTime).find('.form-control').datetimepicker('remove')
   }
 
   val() {
     let where = 0
-    $(this._showWhere)
+    $(this._$showWhere)
       .find('input:checked')
       .each(function () {
         where += ~~$(this).val()
       })
 
-    const timeStart = $(this._showTime).find('.form-control:eq(0)').val()
-    const timeEnd = $(this._showTime).find('.form-control:eq(1)').val()
+    const timeStart = $(this._$showTime).find('.form-control:eq(0)').val()
+    const timeEnd = $(this._$showTime).find('.form-control:eq(1)').val()
     if (where > 0 && !timeEnd) {
       RbHighbar.create($L('PlsSelectSome,EndTime'))
       return
@@ -506,8 +504,8 @@ class AnnouncementOptions extends React.Component {
   }
 
   reset() {
-    $(this._showTime).find('.form-control').val('')
-    $(this._showWhere).find('input').prop('checked', false)
+    $(this._$showTime).find('.form-control').val('')
+    $(this._$showWhere).find('input').prop('checked', false)
   }
 }
 
@@ -522,13 +520,13 @@ class ScheduleOptions extends React.Component {
       <div className="feed-options schedule">
         <dl className="row">
           <dt className="col-12 col-lg-3 pt-2">{$L('ScheduleTime')}</dt>
-          <dd className="col-12 col-lg-9" ref={(c) => (this._scheduleTime = c)}>
+          <dd className="col-12 col-lg-9" ref={(c) => (this._$scheduleTime = c)}>
             <input type="text" className="form-control form-control-sm" placeholder={$L('SelectSome,ScheduleTime')} />
           </dd>
         </dl>
         <dl className="row mb-1">
           <dt className="col-12 col-lg-3">{$L('SendRemindToMe')}</dt>
-          <dd className="col-12 col-lg-9 mb-0" ref={(c) => (this._scheduleRemind = c)}>
+          <dd className="col-12 col-lg-9 mb-0" ref={(c) => (this._$scheduleRemind = c)}>
             <label className="custom-control custom-checkbox custom-control-inline">
               <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
               <span className="custom-control-label">{$L('Notification')}</span>
@@ -554,11 +552,12 @@ class ScheduleOptions extends React.Component {
   }
 
   componentDidMount() {
-    $(this._scheduleTime).find('.form-control').datetimepicker()
+    $(this._$scheduleTime).find('.form-control').datetimepicker()
+
     const initValue = this.props.initValue
     if (initValue) {
-      $(this._scheduleTime).find('.form-control').val(initValue.scheduleTime)
-      $(this._scheduleRemind)
+      $(this._$scheduleTime).find('.form-control').val(initValue.scheduleTime)
+      $(this._$scheduleRemind)
         .find('input')
         .each(function () {
           if ((~~$(this).val() & initValue.scheduleRemind) !== 0) $(this).prop('checked', true)
@@ -567,17 +566,17 @@ class ScheduleOptions extends React.Component {
   }
 
   componentWillUnmount() {
-    $(this._scheduleTime).find('.form-control').datetimepicker('remove')
+    $(this._$scheduleTime).find('.form-control').datetimepicker('remove')
   }
 
   val() {
     let remind = 0
-    $(this._scheduleRemind)
+    $(this._$scheduleRemind)
       .find('input:checked')
       .each(function () {
         remind += ~~$(this).val()
       })
-    const time = $(this._scheduleTime).find('.form-control:eq(0)').val()
+    const time = $(this._$scheduleTime).find('.form-control:eq(0)').val()
     if (!time) {
       RbHighbar.create($L('PlsSelectSome,ScheduleTime'))
       return
@@ -590,12 +589,12 @@ class ScheduleOptions extends React.Component {
   }
 
   reset() {
-    $(this._scheduleTime).find('.form-control').val('')
-    $(this._scheduleRemind).find('input').prop('checked', false)
+    $(this._$scheduleTime).find('.form-control').val('')
+    $(this._$scheduleRemind).find('input').prop('checked', false)
   }
 }
 
-// ~~ 编辑动态
+// ~~ 新建/编辑动态
 // eslint-disable-next-line no-unused-vars
 class FeedsEditDlg extends RbModalHandler {
   constructor(props) {
@@ -611,12 +610,13 @@ class FeedsEditDlg extends RbModalHandler {
       relatedRecord: this.props.relatedRecord,
       contentMore: this.props.contentMore,
     }
+
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={$L(`${this.props.id ? 'EditSome' : 'NewSome'},e.Feeds`)} disposeOnHide={true}>
         <div className="m-1">
-          <FeedsEditor ref={(c) => (this._editor = c)} {..._data} />
+          <FeedsEditor ref={(c) => (this._FeedsEditor = c)} {..._data} />
         </div>
-        <div className="mt-3 text-right" ref={(c) => (this._btns = c)}>
+        <div className="mt-3 text-right" ref={(c) => (this._$btn = c)}>
           <button className="btn btn-primary btn-space" type="button" onClick={this._post}>
             {$L('Save')}
           </button>
@@ -628,23 +628,25 @@ class FeedsEditDlg extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    if (!this.props.id) setTimeout(() => this._FeedsEditor._$editor.focus(), 100)
+  }
+
   _post = () => {
-    const _data = this._editor.vals()
+    const _data = this._FeedsEditor.vals()
     if (!_data) return
     if (!_data.content) return RbHighbar.create($L('PlsInputSome,FeedsContent'))
     if (!this.props.id && this.props.type) _data.type = this.props.type
 
     _data.metadata = { entity: 'Feeds', id: this.props.id }
 
-    const btns = $(this._btns).find('.btn').button('loading')
+    const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {
-      btns.button('reset')
-      if (res.error_msg > 0) {
-        RbHighbar.error(res.error_msg)
-        return
-      }
+      $btn.button('reset')
+      if (res.error_msg > 0) return RbHighbar.error(res.error_msg)
+
       this.hide()
-      this.props.call && this.props.call()
+      typeof this.props.call === 'function' && this.props.call()
     })
   }
 }

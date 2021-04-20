@@ -1321,7 +1321,7 @@
   "RevisionHistoryKeepingDays": "Revision History retention time",
   "RecycleBinKeepingDays": "Recycle Bin retention time",
   "BindUser": "Data Binding User",
-  "BindUserTip": "The user who belongs to the data submitted through this form. If not specified, the system-user will be the default. You can assign the data to different users through [Trigger (Auto Assign)](/admin/robot/triggers)" ,
+  "BindUserTip": "The user who belongs to the data submitted through this form. If not specified, the system-user will be the default. You can assign the data to different users through [Trigger (Auto Assign)](/admin/robot/triggers)",
   "SortByModified": "Recently Modified",
   "SortByCreated": "Recently Created",
   "SortByCreatedAsc": "Earliest Created",
@@ -1346,6 +1346,7 @@
   "OnlyFormEffectiveTip": "This option is only valid for forms",
   "TriggerExecError": "Trigger execution failed (%s)",
   "TargetFieldXNotEmpty": "Target Field %s cannot be empty",
+  "RelatedTabAutoHide": "Hide tabs without records",
 
   "s.__": "STATE",
   "s.ApprovalState.DRAFT": "Draft",

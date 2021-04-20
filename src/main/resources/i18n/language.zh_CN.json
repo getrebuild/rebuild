@@ -1278,7 +1278,7 @@
   "FormCalcFormulaTips": "本公式仅做前端计算，如公式中所用字段未布局/未显示，则无法进行计算。你也可以通过 [触发器 (数据转写)](/admin/robot/triggers) 实现更强大的计算规则",
   "DataSecure": "数据安全",
   "DataMssking": "数据脱敏",
-  "RelatedAutoExpand": "自动展开显示项记录",
+  "RelatedAutoExpand": "自动展开记录",
   "FormAdvControl": "高级控制",
   "Display": "显示",
   "BatchSelect": "批量选择",
@@ -1346,6 +1346,7 @@
   "OnlyFormEffectiveTip": "本选项仅针对表单有效",
   "TriggerExecError": "触发器执行失败 (%s)",
   "TargetFieldXNotEmpty": "目标字段 %s 不能为空",
+  "RelatedTabAutoHide": "隐藏无记录项",
 
   "s.__": "状态",
   "s.ApprovalState.DRAFT": "草稿",

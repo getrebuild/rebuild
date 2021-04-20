@@ -99,28 +99,26 @@ public class MetaSchemaGenerator {
         }
         schemaEntity.put("fields", metaFields);
 
+        // 布局
         schemaEntity.put("layouts", performLayouts(entity));
-
+        // 表单回填
         schemaEntity.put("fillins", performFillins(entity));
-
+        // 高级过滤
         schemaEntity.put("filters", performFilters(entity));
-
+        // 触发器
         schemaEntity.put("triggers", performTriggers(entity));
 
         if (!isDetail) {
+            // 审批流程
             schemaEntity.put("approvals", performApprovals(entity));
+            // 字段转换
+            schemaEntity.put("transforms", performTransforms(entity));
         }
 
         return schemaEntity;
     }
 
-    /**
-     * 字段
-     *
-     * @param field
-     * @return
-     */
-    protected JSON performField(Field field) {
+    private JSON performField(Field field) {
         final JSONObject schemaField = new JSONObject(true);
         final EasyField easyField = EasyMetaFactory.valueOf(field);
         final DisplayType dt = easyField.getDisplayType();
@@ -154,12 +152,6 @@ public class MetaSchemaGenerator {
         return schemaField;
     }
 
-    /**
-     * 列表选项
-     *
-     * @param field
-     * @return
-     */
     private JSON performPickList(Field field) {
         ConfigBean[] entries = PickListManager.instance.getPickListRaw(
                 field.getOwnEntity().getName(), field.getName(), false);
@@ -173,13 +165,9 @@ public class MetaSchemaGenerator {
         return items;
     }
 
-    /**
-     * 布局（每种布局只保留一个（管理员的））
-     *
-     * @param entity
-     * @return
-     */
-    protected JSON performLayouts(Entity entity) {
+    private JSON performLayouts(Entity entity) {
+        // 每种布局只保留一个（管理员的）
+
         Object[][] array = Application.createQueryNoFilter(
                 "select applyType,config from LayoutConfig where belongEntity = ? and createdBy = ?")
                 .setParameter(1, entity.getName())
@@ -188,8 +176,8 @@ public class MetaSchemaGenerator {
 
         JSONObject layouts = new JSONObject();
         for (Object[] o : array) {
-            JSONArray config = (JSONArray) parseJSON(o[1]);
-            if (config != null && !config.isEmpty()) {
+            JSON config = parseJSON(o[1]);
+            if (config != null) {
                 String type = (String) o[0];
                 layouts.put(type, config);
             }
@@ -197,13 +185,7 @@ public class MetaSchemaGenerator {
         return layouts;
     }
 
-    /**
-     * 表单自动回填
-     *
-     * @param entity
-     * @return
-     */
-    protected JSON performFillins(Entity entity) {
+    private JSON performFillins(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select belongField,sourceField,targetField,extConfig from AutoFillinConfig where belongEntity = ?")
                 .setParameter(1, entity.getName())
@@ -219,13 +201,7 @@ public class MetaSchemaGenerator {
         return fillins;
     }
 
-    /**
-     * 高级过滤
-     *
-     * @param entity
-     * @return
-     */
-    protected JSON performFilters(Entity entity) {
+    private JSON performFilters(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select filterName,config from FilterConfig where belongEntity = ? and createdBy = ?")
                 .setParameter(1, entity.getName())
@@ -245,13 +221,7 @@ public class MetaSchemaGenerator {
         return filters;
     }
 
-    /**
-     * 触发器
-     *
-     * @param entity
-     * @return
-     */
-    protected JSON performTriggers(Entity entity) {
+    private JSON performTriggers(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select when,whenTimer,whenFilter,actionType,actionContent,priority,name from RobotTriggerConfig where belongEntity = ? and isDisabled = 'F'")
                 .setParameter(1, entity.getName())
@@ -270,13 +240,7 @@ public class MetaSchemaGenerator {
         return triggers;
     }
 
-    /**
-     * 审批流程
-     *
-     * @param entity
-     * @return
-     */
-    protected JSON performApprovals(Entity entity) {
+    private JSON performApprovals(Entity entity) {
         Object[][] array = Application.createQueryNoFilter(
                 "select name,flowDefinition from RobotApprovalConfig where belongEntity = ? and isDisabled = 'F'")
                 .setParameter(1, entity.getName())
@@ -293,6 +257,25 @@ public class MetaSchemaGenerator {
             approvals.add(config);
         }
         return approvals;
+    }
+
+    private JSON performTransforms(Entity entity) {
+        Object[][] array = Application.createQueryNoFilter(
+                "select targetEntity,name,config from TransformConfig where belongEntity = ? and isDisabled = 'F'")
+                .setParameter(1, entity.getName())
+                .array();
+
+        JSONArray transforms = new JSONArray();
+        for (Object[] o : array) {
+            JSON mappingConfig = parseJSON(o[2]);
+            if (mappingConfig == null) continue;
+
+            JSON config = JSONUtils.toJSONObject(
+                    new String[] { "targetEntity", "name", "config" },
+                    new Object[] { o[0], o[1], mappingConfig });
+            transforms.add(config);
+        }
+        return transforms;
     }
 
     private JSON parseJSON(Object content) {

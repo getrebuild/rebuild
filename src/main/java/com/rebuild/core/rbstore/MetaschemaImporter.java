@@ -208,7 +208,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         MetadataHelper.getMetadataFactory().refresh(false);
 
         // 布局
-
         JSONObject layouts = schemaEntity.getJSONObject("layouts");
         if (layouts != null) {
             for (Map.Entry<String, Object> e : layouts.entrySet()) {
@@ -217,7 +216,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 表单回填
-
         JSONArray fillins = schemaEntity.getJSONArray("fillins");
         if (fillins != null) {
             for (Object o : fillins) {
@@ -226,7 +224,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 高级查询
-
         JSONArray filters = schemaEntity.getJSONArray("filters");
         if (filters != null) {
             for (Object o : filters) {
@@ -235,7 +232,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 触发器
-
         JSONArray triggers = schemaEntity.getJSONArray("triggers");
         if (triggers != null) {
             for (Object o : triggers) {
@@ -244,7 +240,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         }
 
         // 审批流程
-
         JSONArray approvals = schemaEntity.getJSONArray("approvals");
         if (approvals != null) {
             for (Object o : approvals) {
@@ -252,15 +247,18 @@ public class MetaschemaImporter extends HeavyTask<String> {
             }
         }
 
+        // 记录转换
+        JSONArray transforms = schemaEntity.getJSONArray("transforms");
+        if (transforms != null) {
+            for (Object o : transforms) {
+                performTransform(entityName, (JSONObject) o);
+            }
+        }
+
         return entityName;
     }
 
-    /**
-     * @param schemaField
-     * @param belong
-     * @return
-     */
-    protected Field performField(JSONObject schemaField, Entity belong) {
+    private Field performField(JSONObject schemaField, Entity belong) {
         String fieldName = schemaField.getString("field");
         String fieldLabel = schemaField.getString("fieldLabel");
         String displayType = schemaField.getString("displayType");
@@ -292,10 +290,6 @@ public class MetaschemaImporter extends HeavyTask<String> {
         return unsafeField;
     }
 
-    /**
-     * @param items
-     * @return
-     */
     private JSONObject performPickList(JSONArray items) {
         JSONArray shown = new JSONArray();
         for (Object o : items) {
@@ -315,12 +309,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         return JSONUtils.toJSONObject("show", shown);
     }
 
-    /**
-     * @param entity
-     * @param applyType
-     * @param config
-     */
-    protected void performLayout(String entity, String applyType, JSON config) {
+    private void performLayout(String entity, String applyType, JSON config) {
         Record record = RecordBuilder.builder(EntityHelper.LayoutConfig)
                 .add("belongEntity", entity)
                 .add("applyType", applyType)
@@ -330,11 +319,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Application.getBean(LayoutConfigService.class).create(record);
     }
 
-    /**
-     * @param entity
-     * @param config
-     */
-    protected void performFillin(String entity, JSONObject config) {
+    private void performFillin(String entity, JSONObject config) {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.AutoFillinConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
@@ -344,11 +329,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Application.getBean(AutoFillinConfigService.class).create(record);
     }
 
-    /**
-     * @param entity
-     * @param config
-     */
-    protected void performFilter(String entity, JSONObject config) {
+    private void performFilter(String entity, JSONObject config) {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.FilterConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
@@ -359,10 +340,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Application.getBean(AdvFilterService.class).create(record);
     }
 
-    /**
-     * @param config
-     */
-    protected void performTrigger(String entity,JSONObject config) {
+    private void performTrigger(String entity,JSONObject config) {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotTriggerConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
@@ -372,10 +350,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Application.getBean(RobotTriggerConfigService.class).create(record);
     }
 
-    /**
-     * @param config
-     */
-    protected void performApproval(String entity, JSONObject config) {
+    private void performApproval(String entity, JSONObject config) {
         Entity configEntity = MetadataHelper.getEntity(EntityHelper.RobotApprovalConfig);
         config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
         config.put("belongEntity", entity);
@@ -383,5 +358,15 @@ public class MetaschemaImporter extends HeavyTask<String> {
         Record record = new EntityRecordCreator(configEntity, config, getUser())
                 .create();
         Application.getBean(RobotApprovalConfigService.class).create(record);
+    }
+
+    private void performTransform(String entity, JSONObject config) {
+        Entity configEntity = MetadataHelper.getEntity(EntityHelper.TransformConfig);
+        config.put("metadata", JSONUtils.toJSONObject("entity", configEntity.getName()));
+        config.put("belongEntity", entity);
+
+        Record record = new EntityRecordCreator(configEntity, config, getUser())
+                .create();
+        Application.getBean(TransformConfigService.class).create(record);
     }
 }
