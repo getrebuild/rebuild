@@ -44,7 +44,7 @@ $(document).ready(function () {
       data.defaultValue = dv
     }
 
-    const extConfigNew = { ...__gExtConfig }
+    const extConfigNew = { ...extConfig, ...__gExtConfig }
     // 不同类型的配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
@@ -153,9 +153,9 @@ $(document).ready(function () {
     $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
   }
 
-  // 只读属性
-  delete extConfig['classification']
-  delete extConfig['stateClass']
+  // // 只读属性
+  // delete extConfig['classification']
+  // delete extConfig['stateClass']
 
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) {
