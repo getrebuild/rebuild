@@ -573,6 +573,7 @@ const RbViewPage = {
         return
       }
 
+      const that = this
       for (let k in res.data) {
         const v = res.data[k]
         if (!v) continue
@@ -583,7 +584,6 @@ const RbViewPage = {
           renderRbcomp(<UserShow id={v[0]} name={v[1]} showName={true} deptName={v[2]} onClick={() => this.clickViewUser(v[0])} />, $el[0])
         } else if (k === 'sharingList') {
           const $list = $('<ul class="list-unstyled list-inline mb-0"></ul>').appendTo($('.J_sharingList').empty())
-          const that = this
           $(v).each(function () {
             const _this = this
             const $item = $('<li class="list-inline-item"></li>').appendTo($list)
@@ -631,6 +631,7 @@ const RbViewPage = {
 
     $.get(`/app/entity/extras/record-history?id=${this.__id}`, (res) => {
       if (res.error_code !== 0) return
+
       $into.empty()
       res.data.forEach((item, idx) => {
         const content = $LF('ViewHistoryContent', $fromNow(item.revisionOn)).replace('$USER$', item.revisionBy[1]).replace('$ACTION$', item.revisionType)
@@ -660,10 +661,13 @@ const RbViewPage = {
       that.__vtabEntities.push(entity)
 
       const tabId = 'tab-' + entity.replace('.', '--') // `.` is JS keyword
-      const tabNav = $(`<li class="nav-item"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`).appendTo('.nav-tabs')
-      const tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
-      tabNav.find('a').click(function () {
-        tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, tabPane)
+      const $tabNav = $(
+        `<li class="nav-item ${wpc.viewTabsAutoHide ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
+      ).appendTo('.nav-tabs')
+      const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
+
+      $tabNav.find('a').click(function () {
+        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
       })
     })
     this.updateVTabs()
@@ -681,12 +685,15 @@ const RbViewPage = {
   updateVTabs(specEntities) {
     specEntities = specEntities || this.__vtabEntities
     if (!specEntities || specEntities.length === 0) return
+
     $.get(`/app/entity/related-counts?mainid=${this.__id}&relateds=${specEntities.join(',')}`, function (res) {
       for (let k in res.data || {}) {
         if (~~res.data[k] > 0) {
-          const tabNav = $('.nav-tabs a[href="#tab-' + k.replace('.', '--') + '"]')
-          if (tabNav.find('.badge').length > 0) tabNav.find('.badge').text(res.data[k])
-          else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo(tabNav)
+          const $tabNav = $('.nav-tabs a[href="#tab-' + k.replace('.', '--') + '"]')
+          $tabNav.parent().removeClass('hide')
+
+          if ($tabNav.find('.badge').length > 0) $tabNav.find('.badge').text(res.data[k])
+          else $('<span class="badge badge-pill badge-primary">' + res.data[k] + '</span>').appendTo($tabNav)
         }
       }
     })
@@ -719,6 +726,7 @@ const RbViewPage = {
           RbFormModal.create({ title: `${title}`, entity: entity[0], icon: e.icon, initialValue: iv })
         }
       })
+
       $('.J_adds .dropdown-divider').before($item)
     })
   },
@@ -748,6 +756,7 @@ const RbViewPage = {
           },
         })
       })
+
       $('.J_trans .dropdown-divider').before($item)
     })
   },
@@ -766,6 +775,7 @@ const RbViewPage = {
     }
     return false
   },
+
   clickViewUser(id) {
     return this.clickView('#!/View/User/' + id)
   },

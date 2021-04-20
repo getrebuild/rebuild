@@ -298,7 +298,7 @@ class LightTaskDlg extends RbModalHandler {
       })
     })
 
-    setTimeout(() => this._$title.focus(), 200)
+    setTimeout(() => this._$title.focus(), 100)
   }
 
   _post = () => {

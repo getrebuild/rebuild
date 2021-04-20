@@ -628,6 +628,10 @@ class FeedsEditDlg extends RbModalHandler {
     )
   }
 
+  componentDidMount() {
+    if (!this.props.id) setTimeout(() => this._FeedsEditor._$editor.focus(), 100)
+  }
+
   _post = () => {
     const _data = this._FeedsEditor.vals()
     if (!_data) return

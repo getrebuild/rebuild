@@ -20,13 +20,13 @@ USE rebuild20;
 -- ************ Entity [User] DDL ************
 create table if not exists `user` (
   `USER_ID`            char(20) not null,
-  `LOGIN_NAME`         varchar(100) not null comment '登录名',
+  `LOGIN_NAME`         varchar(100) not null comment '用户名',
   `PASSWORD`           varchar(100) not null comment '登录密码',
   `EMAIL`              varchar(100) comment '邮箱',
   `FULL_NAME`          varchar(100) comment '姓名',
   `AVATAR_URL`         varchar(200) comment '头像',
   `JOB_TITLE`          varchar(100) comment '职务',
-  `WORKPHONE`          varchar(100) comment '电话',
+  `WORKPHONE`          varchar(100) comment '工作电话',
   `DEPT_ID`            char(20) comment '部门',
   `ROLE_ID`            char(20) comment '角色',
   `IS_DISABLED`        char(1) default 'F' comment '是否禁用',
@@ -183,9 +183,9 @@ create table if not exists `pick_list` (
 -- ************ Entity [LayoutConfig] DDL ************
 create table if not exists `layout_config` (
   `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null,
   `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人 (可选值: ALL/SELF/$MemberID)',
-  `BELONG_ENTITY`      varchar(100) not null,
   `APPLY_TYPE`         varchar(20) not null comment 'FORM,DATALIST,NAV,TBA,ADD',
   `CONFIG_NAME`        varchar(100),
   `MODIFIED_BY`        char(20) not null comment '修改人',
@@ -198,9 +198,9 @@ create table if not exists `layout_config` (
 -- ************ Entity [FilterConfig] DDL ************
 create table if not exists `filter_config` (
   `CONFIG_ID`          char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null,
   `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `SHARE_TO`           varchar(420) default 'SELF' comment '共享给哪些人 (可选值: ALL/SELF/$MemberID)',
-  `BELONG_ENTITY`      varchar(100) not null,
   `FILTER_NAME`        varchar(100) not null,
   `MODIFIED_BY`        char(20) not null comment '修改人',
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -225,8 +225,8 @@ create table if not exists `dashboard_config` (
 -- ************ Entity [ChartConfig] DDL ************
 create table if not exists `chart_config` (
   `CHART_ID`           char(20) not null,
-  `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `BELONG_ENTITY`      varchar(100) not null,
+  `CONFIG`             text(32767) not null comment 'JSON格式配置',
   `CHART_TYPE`         varchar(100) not null,
   `TITLE`              varchar(100) not null,
   `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
@@ -632,8 +632,8 @@ create table if not exists `project_plan_config` (
 -- ************ Entity [ProjectTask] DDL ************
 create table if not exists `project_task` (
   `TASK_ID`            char(20) not null,
-  `PROJECT_ID`         char(20) not null comment '相关项目',
-  `PROJECT_PLAN_ID`    char(20) not null comment '相关面板',
+  `PROJECT_ID`         char(20) not null comment '项目',
+  `PROJECT_PLAN_ID`    char(20) not null comment '任务面板',
   `TASK_NUMBER`        bigint(20) not null comment '任务编号',
   `TASK_NAME`          varchar(191) not null comment '任务标题',
   `EXECUTOR`           char(20) comment '执行人',
