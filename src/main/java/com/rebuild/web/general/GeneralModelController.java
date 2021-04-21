@@ -32,6 +32,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 表单/视图
@@ -50,29 +52,39 @@ public class GeneralModelController extends EntityController {
         final Entity useEntity = GeneralListController.checkPageOfEntity(user, entity, response);
         if (useEntity == null) return null;
 
+        boolean isDetail = useEntity.getMainEntity() != null;
         ModelAndView mv;
-        if (useEntity.getMainEntity() != null) {
+        if (isDetail) {
             mv = createModelAndView("/general/detail-view", id, user);
         } else {
             mv = createModelAndView("/general/record-view", id, user);
-
-            JSONObject vtab = ViewAddonsManager.instance.getViewTab(entity, user);
-            mv.getModel().put("ViewTabs", vtab.getJSONArray("items"));
-            mv.getModel().put("ViewTabsAutoExpand", vtab.getBooleanValue("autoExpand"));
-            mv.getModel().put("ViewTabsAutoHide", vtab.getBooleanValue("autoHide"));
-            JSONObject vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
-            mv.getModel().put("ViewAdds", vadd.getJSONArray("items"));
         }
-
-        // 记录转换
-        JSON trans = TransformManager.instance.getTransforms(entity, user);
-        mv.getModel().put("TransformTos", trans);
-
+        // 视图扩展
+        mv.getModel().putAll(getViewExtras(user, entity, isDetail));
         // 显示历史
         mv.getModel().put("ShowViewHistory", RebuildConfiguration.getBool(ConfigurationItem.ShowViewHistory));
 
         mv.getModel().put("id", id);
         return mv;
+    }
+
+    private Map<String, Object> getViewExtras(ID user, String entity, boolean isDetail) {
+        Map<String, Object> extras = new HashMap<>();
+        if (!isDetail) {
+            // 视图相关项
+            JSONObject vtab = ViewAddonsManager.instance.getViewTab(entity, user);
+            extras.put("ViewTabs", vtab.getJSONArray("items"));
+            extras.put("ViewTabsAutoExpand", vtab.getBooleanValue("autoExpand"));
+            extras.put("ViewTabsAutoHide", vtab.getBooleanValue("autoHide"));
+            JSONObject vadd = ViewAddonsManager.instance.getViewAdd(entity, user);
+            extras.put("ViewAdds", vadd.getJSONArray("items"));
+        }
+
+        // 记录转换
+        JSON trans = TransformManager.instance.getTransforms(entity, user);
+        extras.put("TransformTos", trans);
+
+        return extras;
     }
 
     @RequestMapping("form-model")
@@ -112,9 +124,15 @@ public class GeneralModelController extends EntityController {
     @GetMapping("view-model")
     public JSON entityView(@PathVariable String entity, @IdParam ID id,
                            HttpServletRequest request) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
         JSONObject model = (JSONObject) FormsBuilder.instance.buildView(entity, user, id);
-        model.put("entityPrivileges", buildEntityPrivileges(id, user));
+
+        // 返回扩展
+        if (getBoolParameter(request, "extras") && !model.containsKey("error")) {
+            boolean isDetail = MetadataHelper.getEntity(entity).getMainEntity() != null;
+            model.putAll(getViewExtras(user, entity, isDetail));
+            model.put("entityPrivileges", buildEntityPrivileges(id, user));
+        }
         return model;
     }
 

@@ -36,6 +36,7 @@ hs_err_pid*
 /bin/
 node_modules
 node
+/out/
 
 # MacOS
 

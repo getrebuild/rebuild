@@ -55,6 +55,7 @@ $(document).ready(function () {
       const k = $(this).attr('name')
       extConfigNew[k] = $val(this)
     })
+    delete extConfigNew['undefined']  // bugfix
 
     if (!$same(extConfigNew, extConfig)) {
       data['extConfig'] = JSON.stringify(extConfigNew)
