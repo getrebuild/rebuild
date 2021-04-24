@@ -51,7 +51,9 @@ public class AttachmentAwareObserver extends OperatingObserver {
         List<Record> creates = new ArrayList<>();
         for (Field field : fileFields) {
             if (record.hasValue(field.getName(), false)) {
-                JSONArray filesJson = parseFilesJson(record.getString(field.getName()));
+                Object value = record.getObjectValue(field.getName());
+                JSONArray filesJson = value instanceof JSON ? (JSONArray) value : parseFilesJson(value.toString());
+
                 for (Object file : filesJson) {
                     Record add = createAttachment(
                             field, context.getAfterRecord().getPrimary(), (String) file, context.getOperator());

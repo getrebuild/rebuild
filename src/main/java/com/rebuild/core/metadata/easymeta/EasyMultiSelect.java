@@ -38,13 +38,13 @@ public class EasyMultiSelect extends EasyField implements MixValue {
             return null;
         }
 
-        String[] valueLabels = MultiSelectManager.instance.getLabels((Long) value, getRawMeta());
-        if (valueLabels == null || valueLabels.length == 0) {
+        final String[] valueTexts = MultiSelectManager.instance.getLabels((Long) value, getRawMeta());
+        if (valueTexts == null || valueTexts.length == 0) {
             return null;
         }
 
         long maskValue = 0;
-        for (String label : valueLabels) {
+        for (String label : valueTexts) {
             long mv = MultiSelectManager.instance.findMultiItemByLabel(label, targetField.getRawMeta());
             if (mv > 0) {
                 maskValue += mv;
@@ -71,6 +71,11 @@ public class EasyMultiSelect extends EasyField implements MixValue {
 
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
+        if (wrappedValue instanceof Long) {
+            return StringUtils.join(
+                    MultiSelectManager.instance.getLabels((Long) wrappedValue, getRawMeta()), ", ");
+        }
+
         JSONObject mixValue = (JSONObject) wrappedValue;
         return StringUtils.join(mixValue.getJSONArray("text"), ", ");
     }
