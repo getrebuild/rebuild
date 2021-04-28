@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import java.util.Set;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-21
  */
+@Slf4j
 public class RoleBaseQueryFilter implements Filter, QueryFilter {
     private static final long serialVersionUID = -7388577069739389698L;
 
@@ -41,7 +43,6 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      */
     public static final Filter DENIED = new RoleBaseQueryFilter() {
         private static final long serialVersionUID = -1841438304452108874L;
-
         @Override
         public String evaluate(Entity entity) {
             return "( 1 = 0 )";
@@ -53,7 +54,6 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      */
     public static final Filter ALLOWED = new RoleBaseQueryFilter() {
         private static final long serialVersionUID = -1300184338130890817L;
-
         @Override
         public String evaluate(Entity entity) {
             return "( 1 = 1 )";
@@ -100,6 +100,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             } else if (entity.getMainEntity() != null) {
                 useMain = entity.getMainEntity();
             } else {
+                log.warn("None privileges entity use query-filter : {}", entity);
                 return DENIED.evaluate(null);
             }
         }

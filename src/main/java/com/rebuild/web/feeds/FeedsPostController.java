@@ -71,8 +71,8 @@ public class FeedsPostController extends BaseController {
 
     @RequestMapping("delete")
     public void delete(HttpServletRequest request, HttpServletResponse response) {
-        ID anyId = getIdParameterNotNull(request, "id");
-        Application.getService(anyId.getEntityCode()).delete(anyId);
+        ID anyFeedsId = getIdParameterNotNull(request, "id");
+        Application.getService(anyFeedsId.getEntityCode()).delete(anyFeedsId);
         writeSuccess(response);
     }
 
