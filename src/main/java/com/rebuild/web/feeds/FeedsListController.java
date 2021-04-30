@@ -164,6 +164,12 @@ public class FeedsListController extends BaseController {
         Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsId).unique();
 
         JSONObject data = buildItem(o, user);
+
+        boolean fromEdit = getBoolParameter(request, "edit");
+        if (fromEdit) {
+            data.put("content", o[4]);
+        }
+
         return RespBody.ok(data);
     }
 
@@ -171,7 +177,7 @@ public class FeedsListController extends BaseController {
             " feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore" +
             " from Feeds where ";
 
-    private JSONObject buildItem(Object[] o , ID user) {
+    private JSONObject buildItem(Object[] o, ID user) {
         JSONObject item = formatBase(o, user);
         FeedsScope scope = FeedsScope.parse((String) o[7]);
         if (scope == FeedsScope.GROUP) {

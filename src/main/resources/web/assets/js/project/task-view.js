@@ -1176,7 +1176,7 @@ class TextEditor extends React.Component {
   }
 
   _selectEmoji(emoji) {
-    $(this._textarea).insertAtCursor(`[${emoji}]`)
+    $(this._textarea).insertAtCursor(`[${emoji}] `)
     this.setState({ showEmoji: false })
   }
 

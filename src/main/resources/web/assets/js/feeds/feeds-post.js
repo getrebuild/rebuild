@@ -305,7 +305,7 @@ class FeedsEditor extends React.Component {
   }
 
   _selectEmoji(emoji) {
-    $(this._$editor).insertAtCursor(`[${emoji}]`)
+    $(this._$editor).insertAtCursor(`[${emoji}] `)
     this.setState({ showEmoji: false })
   }
 
