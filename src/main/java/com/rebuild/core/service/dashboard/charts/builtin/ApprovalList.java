@@ -98,11 +98,11 @@ public class ApprovalList extends ChartData implements BuiltinChart {
         }
 
         Object[][] stats = Application.createQueryNoFilter(
-                "select state,count(state) from RobotApprovalStep " + baseWhere + " state <> ? group by state")
+                "select state,count(state) from RobotApprovalStep " + baseWhere + " state < ? group by state")
                 .setParameter(1, this.getUser())
                 .setParameter(2, ApprovalState.CANCELED.getState())
                 .array();
-        // 排除删除的（可能导致不同状态下数据不一致）
+        // FIXME 排除删除的（可能导致不同状态下数据不一致）
         if (deleted > 0) {
             for (Object[] o : stats) {
                 if ((Integer) o[0] == viewState) {

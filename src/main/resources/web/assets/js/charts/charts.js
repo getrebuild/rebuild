@@ -564,7 +564,6 @@ const APPROVAL_STATES = {
   10: ['success', $L('s.ApprovalState.APPROVED')],
   11: ['danger', $L('s.ApprovalState.REJECTED')],
 }
-
 class ApprovalList extends BaseChart {
   constructor(props) {
     super(props)
@@ -574,22 +573,23 @@ class ApprovalList extends BaseChart {
 
   renderChart(data) {
     let statsTotal = 0
-    this.__lastStats = this.__lastStats || data.stats
-    this.__lastStats.forEach((item) => (statsTotal += item[1]))
+    this._lastStats = this._lastStats || data.stats
+    this._lastStats.forEach((item) => (statsTotal += item[1]))
 
     const stats = (
       <div className="progress-wrap sticky">
         <div className="progress">
-          {this.__lastStats.map((item) => {
+          {this._lastStats.map((item) => {
             const s = APPROVAL_STATES[item[0]]
             if (!s || s[1] <= 0) return null
-            const sp = ((item[1] * 100) / statsTotal).toFixed(2) + '%'
+
+            const p = ((item[1] * 100) / statsTotal).toFixed(2) + '%'
             return (
               <div
-                key={`state-${s[0]}`}
-                className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] ? 'text-bold' : ''}`}
-                title={`${s[1]} : ${item[1]} (${sp})`}
-                style={{ width: sp }}
+                key={s[0]}
+                className={`progress-bar bg-${s[0]} ${this.state.viewState === item[0] && 'active'}`}
+                title={`${s[1]} : ${item[1]} (${p})`}
+                style={{ width: p }}
                 onClick={() => this._changeState(item[0])}>
                 {s[1]} ({item[1]})
               </div>
@@ -606,7 +606,7 @@ class ApprovalList extends BaseChart {
     }
 
     const table =
-      !data.data || data.data.length === 0 ? (
+      (data.data || []).length === 0 ? (
         <div className="chart-undata must-center">
           <i className="zmdi zmdi-check icon text-success"></i> {$L('YouFinishedAllApproval')}
         </div>
@@ -696,6 +696,7 @@ class ApprovalList extends BaseChart {
   }
 
   _changeState(state) {
+    if (state === this.state.viewState) state = 1
     this.setState({ viewState: state }, () => this.loadChartData())
   }
 
@@ -708,7 +709,7 @@ class ApprovalList extends BaseChart {
 class FeedsSchedule extends BaseChart {
   renderChart(data) {
     const table =
-      !data || data.length === 0 ? (
+      (data || []).length === 0 ? (
         <div className="chart-undata must-center" style={{ marginTop: -15 }}>
           <i className="zmdi zmdi-check icon text-success"></i> {$L('NoSome,TodoSchedule')}
           <br />
@@ -735,7 +736,7 @@ class FeedsSchedule extends BaseChart {
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
-                      <span className={`cell-detail-description ${_expired ? 'text-warning' : ''}`}>
+                      <span className={`cell-detail-description ${_expired && 'text-warning'}`}>
                         {$fromNow(item.scheduleTime)}
                         {_expired && ` (${$L('Expires')})`}
                       </span>
