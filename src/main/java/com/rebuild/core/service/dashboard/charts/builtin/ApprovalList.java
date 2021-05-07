@@ -98,7 +98,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
         }
 
         Object[][] stats = Application.createQueryNoFilter(
-                "select state,count(state) from RobotApprovalStep " + baseWhere + " state <> ? group by state")
+                "select state,count(state) from RobotApprovalStep " + baseWhere + " state < ? group by state")
                 .setParameter(1, this.getUser())
                 .setParameter(2, ApprovalState.CANCELED.getState())
                 .array();
