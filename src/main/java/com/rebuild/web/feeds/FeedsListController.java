@@ -249,7 +249,7 @@ public class FeedsListController extends BaseController {
         item.put("self", o[1].equals(user));
         item.put("createdBy", new Object[]{o[1], UserHelper.getName((ID) o[1])});
         item.put("createdOn", I18nUtils.formatDate((Date) o[2]));
-        item.put("modifedOn", I18nUtils.formatDate((Date) o[3]));
+        item.put("modifiedOn", I18nUtils.formatDate((Date) o[3]));
         item.put("content", FeedsHelper.formatContent((String) o[4]));
         if (o[5] != null) {
             item.put("images", JSON.parse((String) o[5]));
