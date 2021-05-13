@@ -96,7 +96,6 @@ public class GeneralModelController extends EntityController {
         JSON initialVal = null;
         if (id == null) {
             initialVal = ServletUtils.getRequestJson(request);
-
             if (initialVal != null) {
                 // 新建明细记录时必须指定主实体
                 String mainid = ((JSONObject) initialVal).getString(FormsBuilder.DV_MAINID);
@@ -108,12 +107,10 @@ public class GeneralModelController extends EntityController {
 
         try {
             JSON model = FormsBuilder.instance.buildForm(entity, user, id);
-
             // 填充前端设定的初始值
             if (id == null && initialVal != null) {
                 FormsBuilder.instance.setFormInitialValue(metaEntity, model, (JSONObject) initialVal);
             }
-
             return model;
 
         } finally {
