@@ -28,4 +28,14 @@ public class I18nUtils {
         return CalendarUtils.getUTCWithZoneDateTimeFormat().format(date);
     }
 
+    /**
+     * 多语言支持
+     *
+     * @param key
+     * @param placeholders
+     * @return
+     */
+    public static String $L(String key, Object... placeholders) {
+        return Language.getCurrentBundle().formatLang(key, placeholders);
+    }
 }

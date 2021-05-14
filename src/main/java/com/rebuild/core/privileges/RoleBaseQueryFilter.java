@@ -22,7 +22,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
-import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
@@ -102,7 +101,6 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
                 useMain = entity.getMainEntity();
             } else {
                 log.warn("None privileges entity use `Application#createQueryNoFilter` please : {}", entity);
-                CommonsUtils.printStackTrace();
                 return DENIED.evaluate(null);
             }
         }

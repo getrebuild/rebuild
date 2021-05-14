@@ -27,6 +27,7 @@ import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,6 +39,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
+
+import static com.rebuild.core.support.i18n.I18nUtils.$L;
 
 /**
  * 任务
@@ -224,9 +227,10 @@ public class ProjectTaskController extends BaseController {
     }
 
     @RequestMapping("tasks/related-list")
-    public JSON relatedTaskList(@IdParam(name = "related") ID relatedId,
+    public JSON relatedTaskList(@IdParam(name = "related", required = false) ID relatedId,
                                 @IdParam(name = "task", required = false) ID taskId,
                                 HttpServletRequest request) {
+        Assert.isTrue(relatedId != null || taskId != null, $L("无效请求参数"));
         String queryWhere = String.format("relatedRecord = '%s'", relatedId);
 
         // 关键词搜索

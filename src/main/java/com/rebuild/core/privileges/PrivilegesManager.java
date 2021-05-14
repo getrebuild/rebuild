@@ -203,8 +203,9 @@ public class PrivilegesManager {
         if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(entity).isPlainEntity()) {
             return true;
         }
-        // Feeds: R
-        if (entity == EntityHelper.Feeds && action == BizzPermission.READ) {
+        // 允许读取
+        if ((entity == EntityHelper.Feeds || entity == EntityHelper.ProjectTask)
+                && action == BizzPermission.READ) {
             return true;
         }
 
