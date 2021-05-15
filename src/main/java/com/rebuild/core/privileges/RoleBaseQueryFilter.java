@@ -102,7 +102,9 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
             } else if (entity.getMainEntity() != null) {
                 useMainEntity = entity.getMainEntity();
             } else {
-                log.warn("None privileges entity use `Application#createQueryNoFilter` please : {}", entity);
+                log.warn("None privileges entity use `Application#createQueryNoFilter` please : {} \n\t{}",
+                        entity, StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
+
                 return DENIED.evaluate(null);
             }
         }
