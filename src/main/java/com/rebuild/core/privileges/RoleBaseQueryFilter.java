@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
@@ -33,6 +34,7 @@ import java.util.Set;
  * @author Zhao Fangfang
  * @since 1.0, 2013-6-21
  */
+@Slf4j
 public class RoleBaseQueryFilter implements Filter, QueryFilter {
     private static final long serialVersionUID = -7388577069739389698L;
 
@@ -85,21 +87,22 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
     }
 
     @Override
-    public String evaluate(Entity entity) {
+    public String evaluate(final Entity entity) {
         if (user == null || !user.isActive()) {
             return DENIED.evaluate(null);
         } else if (user.isAdmin()) {
             return ALLOWED.evaluate(null);
         }
 
-        Entity useMain = null;
+        Entity useMainEntity = null;
         if (!MetadataHelper.hasPrivilegesField(entity)) {
             // NOTE BIZZ 实体全部用户可见
             if (MetadataHelper.isBizzEntity(entity) || EasyMetaFactory.valueOf(entity).isPlainEntity()) {
                 return ALLOWED.evaluate(null);
             } else if (entity.getMainEntity() != null) {
-                useMain = entity.getMainEntity();
+                useMainEntity = entity.getMainEntity();
             } else {
+                log.warn("None privileges entity use `Application#createQueryNoFilter` please : {}", entity);
                 return DENIED.evaluate(null);
             }
         }
@@ -107,7 +110,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
         // 未配置权限的默认拒绝
         // 明细实体使用主实体权限
         Privileges ep = user.getOwningRole().getPrivileges(
-                useMain != null ? useMain.getEntityCode() : entity.getEntityCode());
+                useMainEntity != null ? useMainEntity.getEntityCode() : entity.getEntityCode());
         if (ep == Privileges.NONE) {
             return DENIED.evaluate(null);
         }
@@ -119,7 +122,7 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
 
         String ownFormat = "%s = '%s'";
         Field dtmField = null;
-        if (useMain != null) {
+        if (useMainEntity != null) {
             dtmField = MetadataHelper.getDetailToMainField(entity);
             ownFormat = dtmField.getName() + "." + ownFormat;
         }
