@@ -18,7 +18,6 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -26,6 +25,8 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 数据列表
@@ -95,7 +96,7 @@ public class GeneralListController extends EntityController {
         }
 
         if (!Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) {
-            response.sendError(403, Language.L("YouNoPermissionAccessSome", "Page"));
+            response.sendError(403, $L("你没有访问此页面的权限"));
             return null;
         }
 

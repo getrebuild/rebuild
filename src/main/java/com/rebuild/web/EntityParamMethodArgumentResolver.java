@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.web;
 
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.MethodParameter;
 import org.springframework.util.Assert;
@@ -16,6 +15,8 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * {@link cn.devezhao.persist4j.Entity} 参数解析器
@@ -39,7 +40,7 @@ public class EntityParamMethodArgumentResolver implements HandlerMethodArgumentR
         String value = webRequest.getParameter(param.name());
         if (StringUtils.isBlank(value)) {
             if (param.required()) {
-                throw new InvalidParameterException(Language.LF("BadRequestParamsSome", param.name(), value));
+                throw new InvalidParameterException($L("无效请求参数 (%s=%s)", param.name(), value));
             }
             return null;
         }
@@ -47,6 +48,6 @@ public class EntityParamMethodArgumentResolver implements HandlerMethodArgumentR
         if (MetadataHelper.containsEntity(value)) {
             return MetadataHelper.getEntity(value);
         }
-        throw new InvalidParameterException(Language.L("BadRequestParams"));
+        throw new InvalidParameterException($L("无效请求参数"));
     }
 }

@@ -24,7 +24,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.support.SetUser;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -37,6 +36,7 @@ import java.util.*;
 import static cn.devezhao.commons.CalendarUtils.addDay;
 import static cn.devezhao.commons.CalendarUtils.addMonth;
 import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 高级查询解析器
@@ -127,7 +127,7 @@ public class AdvFilterParser extends SetUser {
 
         String equationHold = equation;
         if ((equation = validEquation(equation)) == null) {
-            throw new FilterParseException(Language.L("InvalidAdvExpr") + " : " + equationHold);
+            throw new FilterParseException($L("无效的高级表达式 : %s", equationHold));
         }
 
         if ("OR".equalsIgnoreCase(equation)) {

@@ -11,10 +11,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
 import com.rebuild.core.cache.CommonsCache;
-import com.rebuild.core.support.i18n.Language;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author devezhao
@@ -78,7 +79,7 @@ public class CheckDangers {
 
         if (License.isCommercial() && !License.isRbvAttached()) {
             if (dangers == null) dangers = new LinkedHashMap<>();
-            dangers.put(CommercialNoRbv, Language.L("CommercialNoRbvTip"));
+            dangers.put(CommercialNoRbv, $L("系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取"));
         }
 
         if (dangers == null || dangers.isEmpty()) {
@@ -91,7 +92,7 @@ public class CheckDangers {
         String hasUpdate = dangers.get(HasUpdate);
         if (hasUpdate != null && hasUpdate.contains("$$$$")) {
             String[] ss = hasUpdate.split("\\$\\$\\$\\$");
-            hasUpdate = Language.LF("NewVersion", ss[0], ss[1]);
+            hasUpdate = $L("有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)", ss[0], ss[1]);
             hasUpdate = hasUpdate.replace("<a ", "<a target=\"_blank\" ");
             dangers.put(HasUpdate, hasUpdate);
         }

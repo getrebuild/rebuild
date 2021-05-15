@@ -22,7 +22,6 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataMasking;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
@@ -41,6 +40,8 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 系统配置
@@ -145,7 +146,7 @@ public class ConfigurationController extends BaseController {
             return RespBody.ok();
 
         } catch (QiniuException ex) {
-            return RespBody.error(Language.L("ConfInvalid") + " : " + ex.response.error);
+            return RespBody.error($L("无效配置参数 : %s", ex.response.error));
         } catch (Exception ex) {
             return RespBody.error(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }

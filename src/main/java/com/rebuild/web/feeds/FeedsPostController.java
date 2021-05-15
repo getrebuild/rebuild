@@ -17,7 +17,6 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.feeds.FeedsType;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -26,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 操作相关
@@ -83,7 +84,7 @@ public class FeedsPostController extends BaseController {
                 .setParameter(2, FeedsType.SCHEDULE.getMask())
                 .unique();
         if (schedule == null || !schedule[0].equals(user)) {
-            return RespBody.error(Language.L("NoOpPrivileges"));
+            return RespBody.error($L("无操作权限"));
         }
 
         // 非结构化存储
