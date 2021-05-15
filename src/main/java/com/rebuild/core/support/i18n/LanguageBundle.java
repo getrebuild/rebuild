@@ -19,10 +19,7 @@ import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ArrayUtils;
 
-import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,9 +47,6 @@ public class LanguageBundle implements JSONable {
     // 代码
     private static final Pattern CODE_PATT = Pattern.compile("`(.*?)`");
 
-    // Match `"{xx}"`
-    private static final Pattern PATT_LANG_KEY = Pattern.compile("\"\\{([0-9a-zA-Z._]+)}\"");
-
     protected static final String PREFIX_ENTITY = "e.";
     protected static final String PREFIX_FIELD = "f.";
     protected static final String PREFIX_DISPLAY_TYPE = "t.";
@@ -62,16 +56,12 @@ public class LanguageBundle implements JSONable {
     private JSONObject bundle;
     private String bundleHash;
 
-    transient private Language parent;
-
     /**
      * @param locale
      * @param bundle
-     * @param parent
      */
-    protected LanguageBundle(String locale, JSONObject bundle, Language parent) {
+    protected LanguageBundle(String locale, JSONObject bundle) {
         this.locale = locale;
-        this.parent = parent;
         this.bundle = this.merge(bundle);
     }
 
@@ -178,92 +168,16 @@ public class LanguageBundle implements JSONable {
 
     /**
      * @param key
-     * @param phValues
-     * @return
-     * @see String#format(String, Object...)
-     */
-    public String formatLang(String key, Object... phValues) {
-        return String.format(getLang(key), phValues);
-    }
-
-    /**
-     * @param key
+     * @param placeholders
      * @return
      */
-    public String getLang(String key, String... phKeys) {
-        if (key.contains(",")) {
-            String[] keyAndPhKeys = key.split(",");
-            key = keyAndPhKeys[0];
-            phKeys = Arrays.copyOfRange(keyAndPhKeys, 1, keyAndPhKeys.length);
-        }
-
-        String lang = getLangBase(key);
-        if (lang == null && parent != null) {
-            log.warn("Missing lang-key [{}] for [{}], use default", key, getLocale());
-            lang = parent.getDefaultBundle().getLangBase(key);
-        }
-
+    public String $L(String key, Object... placeholders) {
+        String lang = bundle.getString(key);
         if (lang == null) {
-            log.warn("Missing lang-key [{}]", key);
-            return String.format("[%s]", key.toUpperCase());
+            log.warn("Missing lang [{}] for [{}]", key, getLocale());
+            lang = key;
         }
-
-        if (phKeys.length > 0) {
-            Object[] phLangs = new Object[phKeys.length];
-            for (int i = 0; i < phKeys.length; i++) {
-                phLangs[i] = getLang(phKeys[i]);
-            }
-            return MessageFormat.format(lang, phLangs);
-        } else {
-            return lang;
-        }
-    }
-
-    /**
-     * 直接获取不做任何加工处理
-     *
-     * @param key
-     * @return
-     */
-    public String getLangBase(String key) {
-        return bundle.getString(key);
-    }
-
-    /**
-     * 主要提供给页面模板使用
-     *
-     * @param mixkey 支持 , 分隔多个语言 Key
-     * @return
-     * @see #getLang(String, String...)
-     */
-    public String L(String mixkey) {
-        if (mixkey.contains(",")) {
-            String[] keys = mixkey.split(",");
-            String[] phKeys = (String[]) ArrayUtils.subarray(keys, 1, keys.length);
-            return getLang(keys[0], phKeys);
-        } else {
-            return getLang(mixkey);
-        }
-    }
-
-    /**
-     * 用于替换（JSON）配置中的语言 Key
-     *
-     * @param resource
-     * @return
-     */
-    public JSON replaceLangKey(JSON resource) {
-        String s = resource.toJSONString();
-        boolean noAny = true;
-        Matcher matcher = PATT_LANG_KEY.matcher(s);
-        while (matcher.find()) {
-            String key = matcher.group(1);
-            s = s.replace(String.format("\"{%s}\"", key), '"' + getLang(key) + '"');
-            noAny = false;
-        }
-
-        if (noAny) return resource;
-        return (JSON) JSON.parse(s);
+        return String.format(lang, placeholders);
     }
 
     @Override
@@ -278,24 +192,10 @@ public class LanguageBundle implements JSONable {
 
     // --
 
+    static final LanguageBundle DEFAULT_BUNDLE = new LanguageBundle();
+
     private LanguageBundle() {
         this.bundle = JSONUtils.EMPTY_OBJECT;
         this.bundleHash = "0";
     }
-
-    /**
-     * 等待启动时使用
-     */
-    static final LanguageBundle UNLOADS_BUNDLE = new LanguageBundle() {
-        private static final long serialVersionUID = -9096686370342671391L;
-
-        @Override
-        public String getLang(String key, String... phKeys) {
-            return key.toUpperCase();
-        }
-        @Override
-        public String formatLang(String key, Object... phValues) {
-            return key.toUpperCase();
-        }
-    };
 }

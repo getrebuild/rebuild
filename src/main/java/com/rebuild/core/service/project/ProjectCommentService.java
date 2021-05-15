@@ -21,6 +21,8 @@ import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * @author devezhao
  * @since 2020/7/27
@@ -71,7 +73,7 @@ public class ProjectCommentService extends BaseTaskService {
     private int checkAtUserAndNotification(Record record, String content) {
         if (StringUtils.isBlank(content)) return 0;
 
-        final String msg = Language.LF("MsgAtYouInProjectTask", record.getEditor()) + " \n> " + content;
+        final String msg = $L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
 
         ID[] atUsers = FeedsHelper.findMentions(content);
         int send = 0;

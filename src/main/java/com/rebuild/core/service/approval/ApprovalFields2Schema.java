@@ -15,11 +15,12 @@ import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.Field2Schema;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
-import com.rebuild.core.support.i18n.Language;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 审批流程字段
@@ -46,11 +47,11 @@ public class ApprovalFields2Schema extends Field2Schema {
             throw new RebuildException("Unsupported entity : " + approvalEntity.getName());
         }
 
-        Field apporvalId = createUnsafeField(approvalEntity, EntityHelper.ApprovalId, Language.L("f.approvalId"),
+        Field apporvalId = createUnsafeField(approvalEntity, EntityHelper.ApprovalId, $L("审核流程"),
                 DisplayType.REFERENCE, true, false, false, true, true, null, "RobotApprovalConfig", CascadeModel.Ignore, null, null);
-        Field apporvalState = createUnsafeField(approvalEntity, EntityHelper.ApprovalState, Language.L("f.approvalState"),
+        Field apporvalState = createUnsafeField(approvalEntity, EntityHelper.ApprovalState, $L("审核状态"),
                 DisplayType.STATE, true, false, false, true, true, null, null, null, null, ApprovalState.DRAFT.getState());
-        Field apporvalStepId = createUnsafeField(approvalEntity, EntityHelper.ApprovalStepNode, Language.L("f.approvalStepNode"),
+        Field apporvalStepId = createUnsafeField(approvalEntity, EntityHelper.ApprovalStepNode, $L("审核步骤"),
                 DisplayType.TEXT, true, false, false, true, false, null, null, null, null, null);
 
         boolean schemaReady = schema2Database(approvalEntity,
@@ -58,7 +59,7 @@ public class ApprovalFields2Schema extends Field2Schema {
 
         if (!schemaReady) {
             Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
-            throw new MetadataModificationException(Language.L("NotCreateMetasToDb"));
+            throw new MetadataModificationException($L("无法同步元数据到数据库"));
         }
 
         MetadataHelper.getMetadataFactory().refresh(false);

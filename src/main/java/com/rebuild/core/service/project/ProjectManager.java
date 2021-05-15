@@ -24,6 +24,8 @@ import org.springframework.util.Assert;
 
 import java.util.*;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 项目管理
  *
@@ -145,7 +147,7 @@ public class ProjectManager implements ConfigManager {
                 return e.clone();
             }
         }
-        throw new ConfigurationException(Language.L("CannotReadProjectTips"));
+        throw new ConfigurationException($L("无权访问该项目或项目已删除"));
     }
 
     /**
@@ -172,13 +174,13 @@ public class ProjectManager implements ConfigManager {
         }
 
         if (projectId == null) {
-            throw new ConfigurationException(Language.L("CannotReadTaskTips"));
+            throw new ConfigurationException($L("任务不存在或已被删除"));
         }
 
         try {
             return getProject(projectId, user);
         } catch (ConfigurationException ex) {
-            throw new AccessDeniedException(Language.L("NoReadTask"), ex);
+            throw new AccessDeniedException($L("无权访问该任务"), ex);
         }
     }
 
@@ -237,7 +239,7 @@ public class ProjectManager implements ConfigManager {
         for (ConfigBean e : getPlansOfProject(projectId)) {
             if (e.getID("id").equals(planId)) return e;
         }
-        throw new ConfigurationException(Language.L("SomeInvalid", "ProjectPlan") + " : " + planId);
+        throw new ConfigurationException($L("无效任务面板 (%s)", planId));
     }
 
     @Override

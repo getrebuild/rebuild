@@ -14,7 +14,8 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.support.i18n.Language;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 配置类的 Service。在增/删/改时调用清理缓存方法
@@ -58,7 +59,7 @@ public abstract class BaseConfigurationService extends BaseService {
         if (UserHelper.isAdmin(user)) return;
 
         if (!UserHelper.isSelf(user, cfgid)) {
-            throw new DataSpecificationException(Language.L("NotOpOtherUserSome", "Conf"));
+            throw new DataSpecificationException($L("无权操作他人配置"));
         }
     }
 

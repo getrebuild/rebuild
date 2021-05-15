@@ -16,6 +16,7 @@ import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
+import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AppUtils;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -80,7 +81,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             }
 
             final ID toUser = (ID) list.get(0)[0];
-            final String subjectTemp = Application.getLanguage().getDefaultBundle().L("YouHaveXSchedule");
+            final String subjectTemp = I18nUtils.getSysDefaultBundle().$L("你有 %d 条日程提醒");
 
             // 消息通知
             if (!notifications.isEmpty()) {

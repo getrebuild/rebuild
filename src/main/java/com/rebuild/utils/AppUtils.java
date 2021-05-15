@@ -16,7 +16,6 @@ import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.web.admin.AdminVerfiyController;
 import org.apache.commons.lang.StringUtils;
@@ -26,6 +25,8 @@ import org.springframework.util.MimeTypeUtils;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.AccessDeniedException;
 import java.sql.DataTruncation;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 封裝一些有用的工具方法
@@ -136,9 +137,9 @@ public class AppUtils {
 
             Integer code = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
             if (code != null && code == 404) {
-                return Language.L("Error404");
+                return $L("访问的页面/资源不存在");
             } else if (code != null && code == 403) {
-                return Language.L("Error403");
+                return $L("权限不足，访问被阻止");
             }
 
             exception = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
@@ -148,18 +149,18 @@ public class AppUtils {
         if (exception != null) {
             Throwable known = ThrowableUtils.getRootCause(exception);
             if (known instanceof DataTruncation) {
-                return Language.L("ErrorOutMaxInput");
+                return $L("字段长度超出限制");
             } else if (known instanceof AccessDeniedException) {
-                return Language.L("Error403");
+                return $L("权限不足，访问被阻止");
             }
         }
 
         if (exception == null) {
-            return Language.L("Error500");
+            return $L("系统繁忙，请稍后重试");
         } else {
             exception = ThrowableUtils.getRootCause(exception);
             String errorMsg = exception.getLocalizedMessage();
-            if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("Error500");
+            if (StringUtils.isBlank(errorMsg)) errorMsg = $L("系统繁忙，请稍后重试");
             return errorMsg;
         }
     }

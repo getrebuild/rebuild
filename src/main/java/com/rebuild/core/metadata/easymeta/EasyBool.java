@@ -9,9 +9,10 @@ package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.editor.BoolEditor;
-import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author devezhao
@@ -50,10 +51,10 @@ public class EasyBool extends EasyField implements MixValue {
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
         if (wrappedValue instanceof Boolean) {
-            return (Boolean) wrappedValue ? Language.L("True") : Language.L("False");
+            return (Boolean) wrappedValue ? $L("是") : $L("否");
         }
 
         return StringUtils.equals(BoolEditor.TRUE + "", wrappedValue.toString())
-                ? Language.L("True") : Language.L("False");
+                ? $L("是") : $L("否");
     }
 }

@@ -20,6 +20,8 @@ import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 项目管理
  *
@@ -58,7 +60,7 @@ public class ProjectConfigService extends BaseConfigurationService implements Ad
                 .setParameter(1, projectId)
                 .unique();
         if ((Long) count[0] > 0) {
-            throw new DataSpecificationException(Language.LF("DeleteProjectHasXTasks", count[0]));
+            throw new DataSpecificationException($L("项目下有 %d 个任务，不能删除", count[0]));
         }
         return super.delete(projectId);
     }
@@ -77,9 +79,9 @@ public class ProjectConfigService extends BaseConfigurationService implements Ad
 
         // 使用模板
         if (useTemplate == TEMPLATE_DEFAULT) {
-            ID id1 = createPlan(project.getPrimary(), Language.L("PlanStatusSTART"), 1000, ProjectPlanConfigService.FLOW_STATUS_START, null);
-            ID id2 = createPlan(project.getPrimary(), Language.L("PlanStatusPROCESSING"), 2000, ProjectPlanConfigService.FLOW_STATUS_PROCESSING, null);
-            ID id3 = createPlan(project.getPrimary(), Language.L("PlanStatusEND"), 3000, ProjectPlanConfigService.FLOW_STATUS_END, new ID[]{id1, id2});
+            ID id1 = createPlan(project.getPrimary(), $L("待处理"), 1000, ProjectPlanConfigService.FLOW_STATUS_START, null);
+            ID id2 = createPlan(project.getPrimary(), $L("进行中"), 2000, ProjectPlanConfigService.FLOW_STATUS_PROCESSING, null);
+            ID id3 = createPlan(project.getPrimary(), $L("已完成"), 3000, ProjectPlanConfigService.FLOW_STATUS_END, new ID[]{id1, id2});
             updateFlowNexts(id1, new ID[]{id2, id3});
             updateFlowNexts(id2, new ID[]{id1, id3});
         }

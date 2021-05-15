@@ -16,9 +16,10 @@ import com.rebuild.core.Application;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RateLimiters;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 获取登录 Token 可用于单点登录
@@ -34,7 +35,7 @@ public class LoginToken extends BaseApi {
         String password = context.getParameterNotBlank("password");
 
         if (RateLimiters.RRL_LOGIN.overLimitWhenIncremented("user:" + user)) {
-            return formatFailure(Language.L("RequestsTooFrequent"), ApiInvokeException.ERR_FREQUENCY);
+            return formatFailure($L("请求过于频繁，请稍后重试"), ApiInvokeException.ERR_FREQUENCY);
         }
 
         String hasError = checkUser(user, password);
@@ -62,13 +63,13 @@ public class LoginToken extends BaseApi {
      */
     public static String checkUser(String user, String password) {
         if (!Application.getUserStore().existsUser(user)) {
-            return Language.L("SomeError", "UsernameOrPassword");
+            return $L("用户名或密码错误");
         }
 
         User loginUser = Application.getUserStore().getUser(user);
         if (!loginUser.isActive()
                 || !Application.getPrivilegesManager().allow(loginUser.getId(), ZeroEntry.AllowLogin)) {
-            return Language.L("UnactiveUser");
+            return $L("用户未激活或不允许登录");
         }
 
         Object[] foundUser = Application.createQueryNoFilter(
@@ -80,7 +81,7 @@ public class LoginToken extends BaseApi {
             // Okay
             return null;
         } else {
-            return Language.L("SomeError", "UsernameOrPassword");
+            return $L("用户名或密码错误");
         }
     }
 }

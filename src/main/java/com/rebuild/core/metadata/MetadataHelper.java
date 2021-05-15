@@ -18,13 +18,14 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.DynamicMetadataFactory;
 import com.rebuild.core.metadata.impl.GhostEntity;
-import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.rebuild.core.support.i18n.I18nUtils.$L;
 
 /**
  * 实体元数据
@@ -101,7 +102,7 @@ public class MetadataHelper {
         try {
             return getMetadataFactory().getEntity(entityName);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(Language.LF("EntityNotExists", "[" + entityName + "]"));
+            throw new MissingMetaExcetion($L("实体 [%s] 已经不存在，请检查配置", entityName));
         }
     }
 
@@ -114,7 +115,7 @@ public class MetadataHelper {
         try {
             return getMetadataFactory().getEntity(entityCode);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(Language.LF("EntityNotExists", "[" + entityCode + "]"));
+            throw new MissingMetaExcetion($L("实体 [%s] 已经不存在，请检查配置", entityCode));
         }
     }
 
@@ -136,8 +137,8 @@ public class MetadataHelper {
         try {
             return getEntity(entityName).getField(fieldName);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(Language.LF(
-                    "FieldNotExists", ("[" + entityName + "#" + fieldName + "]").toUpperCase()));
+            throw new MissingMetaExcetion(
+                    $L("字段 [%s] 已经不存在，请检查配置", (entityName + "#" + fieldName).toUpperCase()));
         }
     }
 

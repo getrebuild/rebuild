@@ -45,6 +45,6 @@ public abstract class BaseTaskService extends ObservableService {
                 : ProjectManager.instance.getProject(taskOrProject, null);
         if (c != null && c.get("members", Set.class).contains(user)) return true;
 
-        throw new DataSpecificationException(Language.L("NonMemberNotOp"));
+        throw new DataSpecificationException(Language.$L("非项目成员禁止操作"));
     }
 }

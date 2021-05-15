@@ -32,6 +32,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 数据导出
  *
@@ -160,13 +162,13 @@ public class DataExporter extends SetUser {
                 }
 
                 if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
-                    cellVal = String.format("[%s]", Language.L("NoPrivileges"));
+                    cellVal = $L("[无权限]");
 
                 } else if (dt == DisplayType.FILE
                         || dt == DisplayType.IMAGE
                         || dt == DisplayType.AVATAR
                         || dt == DisplayType.BARCODE) {
-                    cellVal = String.format("[%s]", Language.L("Unsupport"));
+                    cellVal = $L("[暂不支持]");
 
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位

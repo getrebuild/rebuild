@@ -7,29 +7,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.i18n;
 
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.rebuild.core.*;
-import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.Application;
+import com.rebuild.core.Initialization;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.state.StateSpec;
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -38,45 +35,33 @@ import java.util.Map;
  * @author ZHAO
  * @since 2019/10/31
  */
+@Slf4j
 @Component
 public class Language implements Initialization {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Language.class);
-
-    private static final Map<String, String> LC_NAMES = new HashMap<>();
-    static {
-        LC_NAMES.put("zh_TW", "繁体 (zh_TW)");
-    }
-
-    private static final String BUNDLE_FILE = "i18n/language.%s.json";
-
-    private Map<String, LanguageBundle> bundleMap = new HashMap<>();
-
-    private Map<String, String> aLocales = new LinkedHashMap<>();
+    private Map<String, LanguageBundle> bundleMap = new LinkedHashMap<>();
 
     @Override
-    public void init() {
-        String[] supports = BootEnvironmentPostProcessor.getProperty(
-                "rebuild.SuportLanguages", "zh_CN,zh_TW,en").split(",");
+    public void init() throws IOException {
+        bundleMap.put("zh_CN", LanguageBundle.DEFAULT_BUNDLE);
 
-        for (String locale : supports) {
-            LOG.info("Loading language bundle : " + locale);
+        File[] langFiles = new ClassPathResource("i18n/").getFile().listFiles(pathname -> {
+            String name = pathname.getName();
+            return name.startsWith("language.") && name.endsWith(".json");
+        });
+        if (langFiles == null) return;
 
-            try (InputStream is = CommonsUtils.getStreamOfRes(String.format(BUNDLE_FILE, locale))) {
+        for (File file : langFiles) {
+            log.info("Loading language bundle : {}", file);
+            String locale = file.getName().split("\\.")[1];
+
+            try (InputStream is = CommonsUtils.getStreamOfRes("i18n/" + file.getName())) {
                 JSONObject o = JSON.parseObject(is, null);
-                LanguageBundle bundle = new LanguageBundle(locale, o, this);
+                LanguageBundle bundle = new LanguageBundle(locale, o);
                 bundleMap.put(locale, bundle);
 
-                if (LC_NAMES.containsKey(locale)) {
-                    aLocales.put(locale, LC_NAMES.get(locale));
-                } else {
-                    String[] lc = locale.split("[_-]");
-                    Locale inst = new Locale(lc[0], lc.length > 1 ? lc[1] : "");
-                    aLocales.put(locale, inst.getDisplayLanguage(inst) + " (" + locale + ")");
-                }
-
             } catch (IOException ex) {
-                LOG.error("Cannot load language bundle : " + locale, ex);
+                log.error("Cannot load language bundle : {}", file, ex);
             }
         }
     }
@@ -95,7 +80,7 @@ public class Language implements Initialization {
         try {
             this.init();
         } catch (Exception e) {
-            LOG.error("Refresh language-bundle error", e);
+            log.error("Refresh language-bundle error", e);
         }
     }
 
@@ -105,7 +90,7 @@ public class Language implements Initialization {
      * @see java.util.Locale
      */
     public LanguageBundle getBundle(String locale) {
-        if (Application.isWaitLoad()) return LanguageBundle.UNLOADS_BUNDLE;
+        if (Application.isWaitLoad()) return LanguageBundle.DEFAULT_BUNDLE;
 
         if (locale != null) {
             if (bundleMap.containsKey(locale)) {
@@ -129,18 +114,19 @@ public class Language implements Initialization {
     public LanguageBundle getDefaultBundle() {
         String d = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         if (available(d) == null) {
-            throw new RebuildException("No default locale found : " + d);
+            return LanguageBundle.DEFAULT_BUNDLE;
+        } else {
+            return bundleMap.get(d);
         }
-        return bundleMap.get(d);
     }
 
     /**
-     * @param language
+     * @param locale
      * @return
      */
-    private String useLanguageCode(String language) {
-        for (String key : aLocales.keySet()) {
-            if (key.equals(language) || key.startsWith(language)) {
+    private String useLanguageCode(String locale) {
+        for (String key : bundleMap.keySet()) {
+            if (key.equals(locale) || key.startsWith(locale)) {
                 return key;
             }
         }
@@ -162,7 +148,7 @@ public class Language implements Initialization {
         locale = lc[0].toLowerCase();
         if (lc.length > 1) locale += "_" + lc[1].toUpperCase();
 
-        boolean a = aLocales.containsKey(locale);
+        boolean a = bundleMap.containsKey(locale);
         if (a) return locale;
 
         if ((locale = useLanguageCode(lc[0])) != null) {
@@ -175,7 +161,11 @@ public class Language implements Initialization {
      * @return
      */
     public Map<String, String> availableLocales() {
-        return new LinkedHashMap<>(aLocales);
+        Map<String, String> map = new LinkedHashMap<>();
+        for (Map.Entry<String, LanguageBundle> item : bundleMap.entrySet()) {
+            map.put(item.getKey(), item.getValue().$L("_"));
+        }
+        return map;
     }
 
     // -- Quick Methods
@@ -185,78 +175,24 @@ public class Language implements Initialization {
      *
      * @return
      * @see UserContextHolder#getLocale()
-     * @see com.rebuild.utils.AppUtils#getReuqestBundle(HttpServletRequest)
      */
     public static LanguageBundle getCurrentBundle() {
         return Application.getLanguage().getBundle(UserContextHolder.getLocale());
     }
 
-    /**
-     * @param key
-     * @param phKeys 可替换语言 Key 中的 {0} {1}
-     * @return
-     * @see LanguageBundle#getLang(String, String...)
-     */
-    public static String L(String key, String... phKeys) {
-        return getCurrentBundle().getLang(key, phKeys);
+    public static String $L(String key, Object... placeholders) {
+        return getCurrentBundle().$L(key, placeholders);
     }
 
-    /**
-     * @param key
-     * @param phValues 可格式化语言 Key 中的 %s %d
-     * @return
-     * @see LanguageBundle#formatLang(String, Object...)
-     */
-    public static String LF(String key, Object... phValues) {
-        return getCurrentBundle().formatLang(key, phValues);
+    public static String $L(StateSpec state) {
+        return $L(state.getName());
     }
 
-    /**
-     * 元数据语言
-     *
-     * @param entityOrField
-     * @return
-     */
-    public static String L(BaseMeta entityOrField) {
-        String langKey;
-        if (entityOrField instanceof Entity) {
-            langKey = LanguageBundle.PREFIX_ENTITY + entityOrField.getName();
-        } else {
-            Field field = (Field) entityOrField;
-            if (MetadataHelper.isCommonsField(field)) {
-                langKey = LanguageBundle.PREFIX_FIELD + field.getName();
-            } else {
-                langKey = LanguageBundle.PREFIX_FIELD + field.getOwnEntity().getName() + "." + field.getName();
-            }
-        }
-
-        String metaLabel = getCurrentBundle().getLangBase(langKey);
-        if (StringUtils.isBlank(metaLabel)) {
-            metaLabel = StringUtils.defaultIfBlank(
-                    entityOrField.getDescription(), entityOrField.getName().toUpperCase());
-        }
-        return metaLabel;
+    public static String $L(DisplayType type) {
+        return $L(type.getDisplayName());
     }
 
-    /**
-     * 状态语言
-     *
-     * @param state
-     * @return
-     */
-    public static String L(StateSpec state) {
-        String langKey = LanguageBundle.PREFIX_STATE + state.getClass().getSimpleName() + "." + ((Enum<?>) state).name();
-        return StringUtils.defaultIfBlank(getCurrentBundle().getLangBase(langKey), state.getName());
-    }
-
-    /**
-     * 字段类型语言
-     *
-     * @param type
-     * @return
-     */
-    public static String L(DisplayType type) {
-        String langKey = LanguageBundle.PREFIX_DISPLAY_TYPE + type.name();
-        return StringUtils.defaultIfBlank(getCurrentBundle().getLangBase(langKey), type.getDisplayName());
+    public static String $L(BaseMeta meta) {
+        return $L(meta.getDescription());
     }
 }

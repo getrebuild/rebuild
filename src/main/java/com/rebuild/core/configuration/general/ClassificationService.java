@@ -14,15 +14,15 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
-import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 分类数据
@@ -51,7 +51,7 @@ public class ClassificationService extends BaseConfigurationService implements A
         for (Object[] o : used) {
             if (StringUtils.contains((String) o[0], recordId.toLiteral())) {
                 String usedEntity = EasyMetaFactory.getLabel((String) o[1]);
-                throw new DataSpecificationException(Language.LF("DeleteClassDataInUsedX", usedEntity));
+                throw new DataSpecificationException($L("此分类数据正在被 %s 使用，不能删除", usedEntity));
             }
         }
 

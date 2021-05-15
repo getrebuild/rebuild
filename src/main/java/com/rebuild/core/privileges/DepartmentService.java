@@ -19,8 +19,9 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.service.BaseServiceImpl;
 import com.rebuild.core.service.DataSpecificationException;
-import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * for Department
@@ -62,14 +63,14 @@ public class DepartmentService extends BaseServiceImpl {
         if (record.hasValue("parentDept", false)) {
             ID parentDept = record.getID("parentDept");
             if (parentDept.equals(record.getPrimary())) {
-                throw new DataSpecificationException(Language.L("ParentDeptNotSelf"));
+                throw new DataSpecificationException($L("父级部门不能选择自己"));
             }
 
             Department parent = Application.getUserStore().getDepartment(parentDept);
             Department that = Application.getUserStore().getDepartment(record.getPrimary());
 
             if (that.isChildren(parent, true)) {
-                throw new DataSpecificationException(Language.L("SubDeptNotAsParent"));
+                throw new DataSpecificationException($L("子级部门不能同时作为父级部门"));
             }
         }
 
@@ -115,7 +116,7 @@ public class DepartmentService extends BaseServiceImpl {
         if (UserHelper.isAdmin(currentUser)) return;
 
         if (action == BizzPermission.CREATE || action == BizzPermission.DELETE) {
-            throw new PrivilegesException(Language.L("NoOpPrivileges"));
+            throw new PrivilegesException($L("无操作权限"));
         }
 
         // 用户可自己改自己的部门
@@ -123,6 +124,6 @@ public class DepartmentService extends BaseServiceImpl {
         if (action == BizzPermission.UPDATE && dept.equals(currentDeptOfUser)) {
             return;
         }
-        throw new PrivilegesException(Language.L("NoOpPrivileges"));
+        throw new PrivilegesException($L("无操作权限"));
     }
 }

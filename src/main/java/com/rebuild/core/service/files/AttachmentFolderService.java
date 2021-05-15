@@ -18,6 +18,8 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 文件目录
  *
@@ -43,7 +45,7 @@ public class AttachmentFolderService extends BaseService {
                 .setParameter(1, recordId)
                 .unique();
         if (inFolder != null) {
-            throw new DataSpecificationException(Language.L("DeleteFolderHasFiles"));
+            throw new DataSpecificationException($L("目录内有文件不能删除"));
         }
 
         Object parent = Application.createQueryNoFilter(
@@ -51,7 +53,7 @@ public class AttachmentFolderService extends BaseService {
                 .setParameter(1, recordId)
                 .unique();
         if (parent != null) {
-            throw new DataSpecificationException(Language.L("DeleteFolderHasSubs"));
+            throw new DataSpecificationException($L("目录下有子目录不能删除"));
         }
 
         ID user = UserContextHolder.getUser();
@@ -61,7 +63,7 @@ public class AttachmentFolderService extends BaseService {
                     .setParameter(1, recordId)
                     .unique();
             if (!user.equals(createdBy[0])) {
-                throw new DataSpecificationException(Language.L("NotDeleteOtherUserSome", "Folder"));
+                throw new DataSpecificationException($L("无权删除他人目录"));
             }
         }
 

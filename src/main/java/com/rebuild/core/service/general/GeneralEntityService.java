@@ -34,7 +34,6 @@ import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -42,6 +41,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.util.*;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 业务实体核心服务，所有业务实体都应该使用此类（或子类）
@@ -396,8 +397,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 ApprovalState state = ApprovalHelper.getApprovalState(record.getID(dtmField.getName()));
 
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
-                    String stateType = state == ApprovalState.APPROVED ? "RecordApproved" : "RecordInApproval";
-                    throw new DataSpecificationException(Language.L("MainRecordApprovedNotAddDetailTips", stateType));
+                    throw new DataSpecificationException(state == ApprovalState.APPROVED
+                            ? $L("主记录已完成审批，不能添加明细") : $L("主记录正在审批中，不能添加明细"));
                 }
             }
 
@@ -407,10 +408,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             if (checkEntity.containsField(EntityHelper.ApprovalId)) {
                 // 需要验证主记录
-                String recordType = "Record";
+                String recordType = $L("记录");
                 if (mainEntity != null) {
                     recordId = getMainId(entity, recordId);
-                    recordType = "MainRecord";
+                    recordType = $L("主记录");
                 }
 
                 ApprovalState currentState;
@@ -436,16 +437,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (rejected) {
                     if (RobotTriggerObserver.getTriggerSource() != null) {
-                        recordType = "RelatedRecord";
+                        recordType = $L("关联记录");
                     }
 
-                    String errorMsg;
-                    if (currentState == ApprovalState.APPROVED) {
-                        errorMsg = Language.L("SomeRecordApprovedTips", recordType);
-                    } else {
-                        errorMsg = Language.L("SomeRecordInApprovalTips", recordType);
-                    }
-                    throw new DataSpecificationException(errorMsg);
+                    throw new DataSpecificationException(currentState == ApprovalState.APPROVED
+                            ? $L("%s已完成审批，禁止操作", recordType) : $L("%s正在审批中，禁止操作", recordType));
                 }
             }
         }

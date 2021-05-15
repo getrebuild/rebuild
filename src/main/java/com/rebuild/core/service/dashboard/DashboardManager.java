@@ -21,6 +21,8 @@ import com.rebuild.utils.JSONUtils;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 首页仪表盘
  *
@@ -56,7 +58,7 @@ public class DashboardManager extends ShareToManager {
         if (detected == null) {
             Record record = EntityHelper.forNew(EntityHelper.DashboardConfig, user);
             record.setString("config", JSONUtils.EMPTY_ARRAY_STR);
-            record.setString("title", Language.L(UserHelper.isAdmin(user) ? "DefaultDashboard" : "MyDashboard"));
+            record.setString("title", UserHelper.isAdmin(user) ? $L("默认仪表盘") : $L("我的仪表盘"));
             record.setString("shareTo", UserHelper.isAdmin(user) ? SHARE_ALL : SHARE_SELF);
             Application.getBean(DashboardConfigService.class).create(record);
         }

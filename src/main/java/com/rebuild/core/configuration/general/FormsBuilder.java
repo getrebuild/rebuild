@@ -29,13 +29,14 @@ import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.core.support.general.FieldValueHelper;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.*;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 表单构造
@@ -115,18 +116,18 @@ public class FormsBuilder extends FormsManager {
                 approvalState = getHadApproval(entityMeta, null);
 
                 if ((approvalState == ApprovalState.PROCESSING || approvalState == ApprovalState.APPROVED)) {
-                    String stateType = approvalState == ApprovalState.APPROVED ? "RecordApproved" : "RecordInApproval";
-                    return formatModelError(Language.L("MainRecordApprovedNotAddDetailTips", stateType));
+                    return formatModelError(approvalState == ApprovalState.APPROVED
+                            ? $L("主记录已完成审批，不能添加明细") : $L("主记录正在审批中，不能添加明细"));
                 }
 
                 // 明细无需审批
                 approvalState = null;
 
                 if (!Application.getPrivilegesManager().allowUpdate(user, mainId)) {
-                    return formatModelError(Language.LF("YouNoSomePermission", "AddDetail"));
+                    return formatModelError($L("你没有添加明细权限"));
                 }
             } else if (!Application.getPrivilegesManager().allowCreate(user, entityMeta.getEntityCode())) {
-                return formatModelError(Language.L("YouNoSomePermission", "Create"));
+                return formatModelError($L("你没有新建权限" ));
             } else {
                 approvalState = getHadApproval(entityMeta, null);
             }
@@ -134,7 +135,7 @@ public class FormsBuilder extends FormsManager {
         // 查看（视图）
         else if (viewMode) {
             if (!Application.getPrivilegesManager().allowRead(user, record)) {
-                return formatModelError(Language.L("NotReadRecordTips"));
+                return formatModelError($L("无权读取此记录或记录已被删除"));
             }
 
             approvalState = getHadApproval(entityMeta, record);
@@ -143,16 +144,16 @@ public class FormsBuilder extends FormsManager {
         // 编辑
         else {
             if (!Application.getPrivilegesManager().allowUpdate(user, record)) {
-                return formatModelError(Language.L("YouNoSomeRecordPermission", "Update"));
+                return formatModelError($L("你没有修改此记录的权限"));
             }
 
             approvalState = getHadApproval(entityMeta, record);
             if (approvalState != null) {
-                String recordType = mainEntity == null ? "Record" : "MainRecord";
+                String recordType = mainEntity == null ? $L("记录") : $L("主记录");
                 if (approvalState == ApprovalState.APPROVED) {
-                    return formatModelError(Language.L("SomeRecordApprovedTips", recordType));
+                    return formatModelError($L("%s已完成审批，禁止操作", recordType));
                 } else if (approvalState == ApprovalState.PROCESSING) {
-                    return formatModelError(Language.L("SomeRecordInApprovalTips", recordType));
+                    return formatModelError($L("%s正在审批中，禁止操作", recordType));
                 }
             }
         }
@@ -160,14 +161,14 @@ public class FormsBuilder extends FormsManager {
         ConfigBean model = getFormLayout(entity, user);
         JSONArray elements = (JSONArray) model.getJSON("elements");
         if (elements == null || elements.isEmpty()) {
-            return formatModelError(Language.L("FormUnLayoutTips"));
+            return formatModelError($L("此表单布局尚未配置，请配置后使用"));
         }
 
         Record data = null;
         if (record != null) {
             data = findRecord(record, user, elements);
             if (data == null) {
-                return formatModelError(Language.L("NotReadRecordTips"));
+                return formatModelError($L("无权读取此记录或记录已被删除"));
             }
         }
 
@@ -183,7 +184,7 @@ public class FormsBuilder extends FormsManager {
         buildModelElements(elements, entityMeta, data, user, !viewMode);
 
         if (elements.isEmpty()) {
-            return formatModelError(Language.L("FormUnLayoutTips"));
+            return formatModelError($L("此表单布局尚未配置，请配置后使用"));
         }
 
         // 主/明细实体处理
@@ -255,8 +256,6 @@ public class FormsBuilder extends FormsManager {
     protected void buildModelElements(JSONArray elements, Entity entity, Record data, ID user, boolean useAdvControl) {
         final User formUser = Application.getUserStore().getUser(user);
         final Date now = CalendarUtils.now();
-
-        final String autoValue = Language.L("AutoValue");
 
         // Check and clean
         for (Iterator<Object> iter = elements.iterator(); iter.hasNext(); ) {
@@ -374,7 +373,7 @@ public class FormsBuilder extends FormsManager {
                             el.put("value", FieldValueHelper.wrapMixValue((ID) dept.getIdentity(), dept.getName()));
                             break;
                         case EntityHelper.ApprovalId:
-                            el.put("value", FieldValueHelper.wrapMixValue(null, Language.L("UnSubmit")));
+                            el.put("value", FieldValueHelper.wrapMixValue(null, $L("未提交")));
                             break;
                         case EntityHelper.ApprovalState:
                             el.put("value", ApprovalState.DRAFT.getState());
@@ -387,7 +386,7 @@ public class FormsBuilder extends FormsManager {
                 // 默认值
                 if (el.get("value") == null) {
                     if (dt == DisplayType.SERIES) {
-                        el.put("value", autoValue);
+                        el.put("value", $L("自动值"));
                     } else {
                         Object defaultValue = easyField.exprDefaultValue();
                         if (defaultValue != null) {
@@ -408,7 +407,7 @@ public class FormsBuilder extends FormsManager {
                             || dt == DisplayType.SERIES
                             || dt == DisplayType.TEXT
                             || dt == DisplayType.NTEXT) {
-                        el.put("value", autoValue);
+                        el.put("value", $L("自动值"));
                     }
                 }
 
