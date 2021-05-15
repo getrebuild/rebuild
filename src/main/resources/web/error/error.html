@@ -51,7 +51,11 @@
         $btn.parentNode.removeChild($btn)
         if (parent && parent.RbViewModal) {
           try {
+            // Check#1
             parent.RbViewModal.currentHolder().hideLoading()
+            // Check#2
+            const stack = parent.RbViewModal.__HOLDERsStack
+            stack[stack.length - 1].hideLoading()
           } catch (ignore) {}
         }
       } else if (location.href.indexOf('/f/') > -1) {
