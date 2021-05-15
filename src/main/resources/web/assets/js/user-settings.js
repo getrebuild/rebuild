@@ -152,7 +152,7 @@ class DlgChangeEmail extends RbFormHandler {
       <RbModal title={$L('ModifySome,Email')} ref="dlg" disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('email')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('Email')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" data-id="newEmail" onChange={this.handleChange} />
             </div>

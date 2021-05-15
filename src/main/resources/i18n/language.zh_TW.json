@@ -1056,7 +1056,7 @@
   "DetailEntityNotBeMain": "明細實體不能作為主實體",
   "SelectMainEntityBeXUsed": "選擇的主實體已被 %s 使用",
   "Message": "消息",
-  "Todo": "代辦",
+  "Todo": "待辦",
   "MakeReadAll": "已讀全部",
   "MakeReadAllConfirm": "確認已讀全部消息？",
   "MakeReadAllTips": "全部消息已設為已讀",
