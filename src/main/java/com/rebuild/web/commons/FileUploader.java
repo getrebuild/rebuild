@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 文件上传
  *
@@ -73,7 +75,7 @@ public class FileUploader extends BaseController {
 
             file.transferTo(dest);
             if (!dest.exists()) {
-                writeFailure(response, getLang(request, "ErrorUpload"));
+                writeFailure(response, $L("上传失败，请稍后重试"));
                 return;
             }
 
@@ -85,7 +87,7 @@ public class FileUploader extends BaseController {
         if (uploadName != null) {
             writeSuccess(response, uploadName);
         } else {
-            writeFailure(response, getLang(request, "ErrorUpload"));
+            writeFailure(response, $L("上传失败，请稍后重试"));
         }
     }
 

@@ -64,7 +64,7 @@ public class ChartDesignController extends EntityController {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomChart),
-                getLang(request, "NoOpPrivileges"));
+                $L("无操作权限"));
 
         ModelAndView mv = createModelAndView("/dashboard/chart-design");
 

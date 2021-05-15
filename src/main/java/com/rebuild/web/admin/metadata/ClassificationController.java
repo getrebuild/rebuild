@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 分类数据管理
  *
@@ -52,7 +54,7 @@ public class ClassificationController extends BaseController {
                 .setParameter(1, id)
                 .unique();
         if (data == null) {
-            resp.sendError(404, getLang(request, "SomeNotExists", "Classification"));
+            resp.sendError(404,  $L("分类数据不存在"));
             return null;
         }
 

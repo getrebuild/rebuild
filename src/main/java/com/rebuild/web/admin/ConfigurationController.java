@@ -192,12 +192,12 @@ public class ConfigurationController extends BaseController {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.SmsPassword);
             }
 
-            String content = getLang(request, "SendTestMessage", "Sms");
+            String content = $L("收到此消息说明你的短信服务配置正确");
             sent = SMSender.sendSMS(receiver, content, specAccount);
 
         } else if ("EMAIL".equalsIgnoreCase(type)) {
             if (!RegexUtils.isEMail(receiver)) {
-                return RespBody.errorl("SomeInvalid", "Email");
+                return RespBody.errorl("无效邮箱地址");
             }
 
             String[] specAccount = new String[]{
@@ -209,7 +209,7 @@ public class ConfigurationController extends BaseController {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.MailPassword);
             }
 
-            String content = getLang(request, "SendTestMessage", "Email");
+            String content = $L("收到此消息说明你的邮件服务配置正确");
             sent = SMSender.sendMail(receiver, content, content, true, specAccount);
         }
 

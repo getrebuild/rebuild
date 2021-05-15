@@ -11,7 +11,6 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.Controller;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,30 +41,6 @@ public abstract class BaseController extends Controller {
             throw new InvalidParameterException($L("无效请求用户"));
         }
         return user;
-    }
-
-    /**
-     * @param request
-     * @param key
-     * @param phKey
-     * @return
-     * @see AppUtils#getReuqestBundle(HttpServletRequest)
-     * @see Language#L(String, String...) 
-     */
-    protected String getLang(HttpServletRequest request, String key, String... phKey) {
-        return AppUtils.getReuqestBundle(request).getLang(key, phKey);
-    }
-
-    /**
-     * @param request
-     * @param key
-     * @param phValues
-     * @return
-     * @see AppUtils#getReuqestBundle(HttpServletRequest)
-     * @see Language#LF(String, Object...)
-     */
-    protected String formatLang(HttpServletRequest request, String key, Object... phValues) {
-        return AppUtils.getReuqestBundle(request).formatLang(key, phValues);
     }
 
     /**

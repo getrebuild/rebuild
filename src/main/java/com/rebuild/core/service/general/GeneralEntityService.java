@@ -59,6 +59,7 @@ import static com.rebuild.core.support.i18n.Language.$L;
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
 
+    @SuppressWarnings("deprecation")
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
 

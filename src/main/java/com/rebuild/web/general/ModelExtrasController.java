@@ -69,7 +69,7 @@ public class ModelExtrasController extends BaseController {
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, (JSONObject) config.getJSON("config"));
         if (!transfomer.checkFilter(sourceRecord)) {
-            return RespBody.error(getLang(request, "TransformNotAllow"), 400);
+            return RespBody.error($L("当前记录不符合转换条件"), 400);
         }
 
         ID newId = transfomer.transform(sourceRecord);

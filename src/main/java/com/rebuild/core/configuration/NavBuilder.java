@@ -22,7 +22,6 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.project.ProjectManager;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +32,8 @@ import org.jsoup.nodes.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Iterator;
+
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 导航渲染
@@ -55,15 +56,15 @@ public class NavBuilder extends NavManager {
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
             NAV_ITEM_PROPS,
             new Object[][] {
-                    new Object[] { "chart-donut", "{Feeds}", "BUILTIN", NAV_FEEDS },
-                    new Object[] { "shape", "{Project}", "BUILTIN", NAV_PROJECT },
-                    new Object[] { "folder", "{File}", "BUILTIN", NAV_FILEMRG }
+                    new Object[] { "chart-donut", $L("动态"), "BUILTIN", NAV_FEEDS },
+                    new Object[] { "shape", $L("项目"), "BUILTIN", NAV_PROJECT },
+                    new Object[] { "folder", $L("文件"), "BUILTIN", NAV_FILEMRG }
             });
 
     // 新建项目
     private static final JSONObject NAV_PROJECT__ADD = JSONUtils.toJSONObject(
             NAV_ITEM_PROPS,
-            new String[] { "plus", "{AddProject}", "BUILTIN", NAV_PROJECT + "--add" }
+            new String[] { "plus", $L("添加项目"), "BUILTIN", NAV_PROJECT + "--add" }
     );
 
     // URL 绑定实体权限
@@ -178,7 +179,7 @@ public class NavBuilder extends NavManager {
      * @param initEntity
      */
     public void addInitNavOnInstall(String[] initEntity) {
-        JSONArray initNav = (JSONArray) Language.getCurrentBundle().replaceLangKey(NAVS_DEFAULT);
+        JSONArray initNav = replaceLangKey(NAVS_DEFAULT);
 
         for (String e : initEntity) {
             EasyEntity entity = EasyMetaFactory.valueOf(e);
@@ -215,7 +216,7 @@ public class NavBuilder extends NavManager {
         if (activeNav == null) activeNav = "dashboard-home";
 
         JSONArray navs = NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request));
-        navs = (JSONArray) AppUtils.getReuqestBundle(request).replaceLangKey(navs);
+        navs = replaceLangKey(navs);
 
         StringBuilder navsHtml = new StringBuilder();
         for (Object item : navs) {
@@ -320,5 +321,10 @@ public class NavBuilder extends NavManager {
             return navBody.selectFirst("li").outerHtml();
         }
         return navHtml.toString();
+    }
+
+    private static JSONArray replaceLangKey(JSONArray resource) {
+        // TODO 导航条语言替换 ???
+        return (JSONArray) resource.clone();
     }
 }

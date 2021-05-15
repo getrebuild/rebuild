@@ -25,7 +25,7 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.rebuild.core.support.i18n.I18nUtils.$L;
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 实体元数据

@@ -40,7 +40,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
 
-import static com.rebuild.core.support.i18n.I18nUtils.$L;
+import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 任务
@@ -67,7 +67,7 @@ public class ProjectTaskController extends BaseController {
 
         final ID user = getRequestUser(request);
         if (!ProjectHelper.checkReadable(taskId2, user)) {
-            response.sendError(403, getLang(request, "NoPrivViewTask"));
+            response.sendError(403, $L("你无权查看此任务"));
             return null;
         }
 

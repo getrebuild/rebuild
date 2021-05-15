@@ -53,7 +53,7 @@ public class BatchUpdateController extends BaseController {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate),
-                getLang(request, "NoOpPrivileges"));
+                $L("无操作权限"));
 
         JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
 

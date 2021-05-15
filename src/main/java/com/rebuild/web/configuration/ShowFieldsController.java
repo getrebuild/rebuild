@@ -44,6 +44,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 列表配置
  *
@@ -60,7 +62,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList),
-                getLang(request, "NoOpPrivileges"));
+                $L("无操作权限"));
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个

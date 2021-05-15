@@ -61,7 +61,7 @@ public class ApprovalAdminController extends BaseController {
                 .setParameter(1, configId)
                 .unique();
         if (config == null) {
-            response.sendError(404, getLang(request, "SomeNotExists", "ApprovalConfig"));
+            response.sendError(404, $L("审批流程不存在"));
             return null;
         }
 

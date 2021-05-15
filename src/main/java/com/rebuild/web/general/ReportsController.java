@@ -35,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 报表/导出
  *
@@ -83,7 +85,7 @@ public class ReportsController extends BaseController {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport),
-                getLang(request, "NoOpPrivileges"));
+                $L("无操作权限"));
 
         int dataRange = getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED);
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);

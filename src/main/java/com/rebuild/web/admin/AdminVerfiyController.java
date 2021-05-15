@@ -28,6 +28,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * @author devezhao
  * @since 10/13/2018
@@ -47,7 +49,7 @@ public class AdminVerfiyController extends BaseController {
         if (admin.isAdmin()) {
             return createModelAndView("/admin/admin-verify");
         } else {
-            response.sendError(403, getLang(request, "NoneAdmin"));
+            response.sendError(403, $L("非管理员用户"));
             return null;
         }
     }

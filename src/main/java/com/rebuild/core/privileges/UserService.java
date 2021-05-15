@@ -26,6 +26,7 @@ import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.core.support.task.TaskExecutors;
@@ -237,9 +238,8 @@ public class UserService extends BaseServiceImpl {
         String appName = RebuildConfiguration.get(ConfigurationItem.AppName);
         String homeUrl = RebuildConfiguration.getHomeUrl();
 
-        LanguageBundle bundle = Application.getLanguage().getDefaultBundle();
-        String content = bundle.$L(
-                "系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改登陆密码。修改方式 : 登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
+        LanguageBundle bundle = Language.getSysDefaultBundle();
+        String content = bundle.$L("系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改登陆密码。修改方式 : 登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
                 appName, newUser.getString("loginName"), passwd, homeUrl, homeUrl);
 
         SMSender.sendMailAsync(newUser.getString("email"), $L("你的账号已就绪"), content);
@@ -363,8 +363,8 @@ public class UserService extends BaseServiceImpl {
         // 通知管理员
         ID newUserId = record.getPrimary();
         String viewUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + newUserId;
-        String content = $L("用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。" +
-                "如果这是一个无效的申请请忽略。[点击开始激活](%s)", newUserId, viewUrl);
+        String content = $L("用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。[点击开始激活](%s)",
+                newUserId, viewUrl);
 
         Message message = MessageBuilder.createMessage(ADMIN_USER, content, newUserId);
         Application.getNotifications().send(message);

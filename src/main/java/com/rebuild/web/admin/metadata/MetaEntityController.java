@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
@@ -134,18 +136,16 @@ public class MetaEntityController extends BaseController {
         String mainEntity = reqJson.getString("mainEntity");
         if (StringUtils.isNotBlank(mainEntity)) {
             if (!MetadataHelper.containsEntity(mainEntity)) {
-                writeFailure(response,
-                        getLang(request, "SomeInvalid", "MainEntity") + " : " + mainEntity);
+                writeFailure(response, $L("无效主实体 (%s)", mainEntity));
                 return;
             }
 
             Entity useMain = MetadataHelper.getEntity(mainEntity);
             if (useMain.getMainEntity() != null) {
-                writeFailure(response, getLang(request, "DetailEntityNotBeMain"));
+                writeFailure(response, $L("明细实体不能作为主实体"));
                 return;
             } else if (useMain.getDetailEntity() != null) {
-                writeFailure(response,
-                        String.format(getLang(request, "SelectMainEntityBeXUsed"), useMain.getDetailEntity()));
+                writeFailure(response, $L("选择的主实体已被 [%s] 使用", useMain.getDetailEntity()));
                 return;
             }
         }

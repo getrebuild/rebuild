@@ -89,8 +89,7 @@ public class GeneralOperatingController extends BaseController {
         // 检查重复值
         List<Record> repeated = ies.getAndCheckRepeated(record, 100);
         if (!repeated.isEmpty()) {
-            return new RespBody(CODE_REPEATED_VALUES,
-                    getLang(request, "RecordRepeated"), buildRepeatedData(repeated));
+            return new RespBody(CODE_REPEATED_VALUES, $L("存在重复记录"), buildRepeatedData(repeated));
         }
 
         try {

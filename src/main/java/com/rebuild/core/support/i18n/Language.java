@@ -43,11 +43,11 @@ public class Language implements Initialization {
 
     @Override
     public void init() throws IOException {
-        bundleMap.put("zh_CN", LanguageBundle.DEFAULT_BUNDLE);
+        bundleMap.put(LanguageBundle.SYS_LC, LanguageBundle.SYS_BUNDLE);
 
         File[] langFiles = new ClassPathResource("i18n/").getFile().listFiles(pathname -> {
             String name = pathname.getName();
-            return name.startsWith("language.") && name.endsWith(".json");
+            return name.startsWith("lang.") && name.endsWith(".json");
         });
         if (langFiles == null) return;
 
@@ -90,7 +90,7 @@ public class Language implements Initialization {
      * @see java.util.Locale
      */
     public LanguageBundle getBundle(String locale) {
-        if (Application.isWaitLoad()) return LanguageBundle.DEFAULT_BUNDLE;
+        if (Application.isWaitLoad()) return LanguageBundle.SYS_BUNDLE;
 
         if (locale != null) {
             if (bundleMap.containsKey(locale)) {
@@ -114,7 +114,7 @@ public class Language implements Initialization {
     public LanguageBundle getDefaultBundle() {
         String d = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         if (available(d) == null) {
-            return LanguageBundle.DEFAULT_BUNDLE;
+            return LanguageBundle.SYS_BUNDLE;
         } else {
             return bundleMap.get(d);
         }
@@ -171,8 +171,16 @@ public class Language implements Initialization {
     // -- Quick Methods
 
     /**
-     * 当前用户语言包（线程量用户）
-     *
+     * 获取默认语言
+     * @return
+     * @see Language#getDefaultBundle()
+     */
+    public static LanguageBundle getSysDefaultBundle() {
+        return Application.getLanguage().getDefaultBundle();
+    }
+
+    /**
+     * 获取当前用户语言
      * @return
      * @see UserContextHolder#getLocale()
      */

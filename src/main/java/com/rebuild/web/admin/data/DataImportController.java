@@ -43,6 +43,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * @author devezhao
  * @since 01/03/2019
@@ -63,7 +65,7 @@ public class DataImportController extends BaseController {
         String file = getParameterNotNull(request, "file");
         File tmp = getFileOfImport(file);
         if (tmp == null) {
-            writeFailure(response, getLang(request, "SomeInvalid,DataFile"));
+            writeFailure(response, $L("数据文件无效"));
             return;
         }
 
@@ -75,7 +77,7 @@ public class DataImportController extends BaseController {
             preview = parser.parse(11);
         } catch (Exception ex) {
             log.error("Parse excel error : " + file, ex);
-            writeFailure(response, getLang(request, "NotParseDataFile"));
+            writeFailure(response, $L("无法解析数据，请检查数据文件格式"));
             return;
         }
 
@@ -134,13 +136,13 @@ public class DataImportController extends BaseController {
             String defaultValue = null;
             if (EntityHelper.CreatedOn.equals(fieldName)
                     || EntityHelper.ModifiedOn.equals(fieldName)) {
-                defaultValue = getLang(request, "CurrentTime");
+                defaultValue = $L("当前时间");
             } else if (EntityHelper.CreatedBy.equals(fieldName)
                     || EntityHelper.ModifiedBy.equals(fieldName)
                     || EntityHelper.OwningUser.equals(fieldName)) {
-                defaultValue = getLang(request, "CurrentUser");
+                defaultValue = $L("当前用户");
             } else if (easyMeta.getDisplayType() == DisplayType.SERIES) {
-                defaultValue = getLang(request, "t.SERIES");
+                defaultValue = $L("自动编号");
             }
 
             if (defaultValue != null) {

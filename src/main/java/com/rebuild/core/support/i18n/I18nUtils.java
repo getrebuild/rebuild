@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.i18n;
 
 import cn.devezhao.commons.CalendarUtils;
-import com.rebuild.core.Application;
 
 import java.util.Date;
 
@@ -37,13 +36,5 @@ public class I18nUtils {
      */
     public static String $L(String key, Object... placeholders) {
         return Language.$L(key, placeholders);
-    }
-
-    /**
-     * @return
-     * @see Language#getDefaultBundle()
-     */
-    public static LanguageBundle getSysDefaultBundle() {
-        return Application.getLanguage().getDefaultBundle();
     }
 }

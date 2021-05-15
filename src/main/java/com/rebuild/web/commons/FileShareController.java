@@ -27,6 +27,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 文件共享
  *
@@ -51,7 +53,7 @@ public class FileShareController extends BaseController {
     public JSON makeSharedFile(HttpServletRequest request) {
         Assert.isTrue(
                 RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
-                getLang(request, "FileSharableDeny"));
+                $L("不允许分享文件"));
 
         String fileUrl = getParameterNotNull(request, "url");
         int mtime = getIntParameter(request, "time", 5);
@@ -65,11 +67,11 @@ public class FileShareController extends BaseController {
 
     @GetMapping("/s/{shareKey}")
     public ModelAndView viewSharedFile(@PathVariable String shareKey,
-                                       HttpServletRequest request, HttpServletResponse response) throws IOException {
+                                       HttpServletResponse response) throws IOException {
         String fileUrl;
         if (!RebuildConfiguration.getBool(ConfigurationItem.FileSharable)
                 || (fileUrl = Application.getCommonsCache().get(shareKey)) == null) {
-            response.sendError(403, getLang(request, "ShardeFileExpired"));
+            response.sendError(403, $L("分享的文件已过期"));
             return null;
         }
 

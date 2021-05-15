@@ -24,6 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 最近搜索（针对引用字段）。
  * 非自动，需要调用 <tt>recently-add</tt> 方法手动添加方可用，后期考虑自动化
@@ -41,7 +43,7 @@ public class RecentlyUsedSearchController extends BaseController {
         String type = getParameter(request, "type");
 
         ID[] recently = RecentlyUsedHelper.gets(getRequestUser(request), entity, type);
-        return formatSelect2(recently, getLang(request, "RecentlyUsed"));
+        return formatSelect2(recently, $L("最近使用"));
     }
 
     @PostMapping("recently-add")

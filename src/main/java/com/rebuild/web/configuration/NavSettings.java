@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * 导航菜单设置
  *
@@ -45,7 +47,7 @@ public class NavSettings extends BaseController implements ShareTo {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomNav),
-                getLang(request, "NoOpPrivileges"));
+                $L("无操作权限"));
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个

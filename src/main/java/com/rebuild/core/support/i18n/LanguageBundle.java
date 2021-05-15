@@ -8,12 +8,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.i18n;
 
 import cn.devezhao.commons.EncryptUtils;
-import cn.devezhao.persist4j.Entity;
-import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.support.License;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.JSONUtils;
@@ -47,11 +44,6 @@ public class LanguageBundle implements JSONable {
     // 代码
     private static final Pattern CODE_PATT = Pattern.compile("`(.*?)`");
 
-    protected static final String PREFIX_ENTITY = "e.";
-    protected static final String PREFIX_FIELD = "f.";
-    protected static final String PREFIX_DISPLAY_TYPE = "t.";
-    protected static final String PREFIX_STATE = "s.";
-
     private String locale;
     private JSONObject bundle;
     private String bundleHash;
@@ -72,19 +64,30 @@ public class LanguageBundle implements JSONable {
      * @return
      */
     private JSONObject merge(JSONObject bundle) {
-        if (Application.isReady()) {
-            appendMetadata(bundle);
-
-            if (License.isCommercial()) {
-                appendDatabase(bundle);
-            }
+        if (Application.isReady() && License.isCommercial()) {
+            appendDatabase(bundle);
         }
 
-        String bundleString = bundle.toJSONString();
+        JSONObject newBundle = new JSONObject();
+        for (String key : bundle.keySet()) {
+            String value = bundle.getString(key);
+            newBundle.put(key, formatLang(value));
+        }
 
-        bundleString = BR_PATT.matcher(bundleString).replaceAll("<br/>");
+        this.bundleHash = EncryptUtils.toMD5Hex(newBundle.toJSONString());
+        return newBundle;
+    }
 
-        Matcher matcher = LINK_PATT.matcher(bundleString);
+    /**
+     * MD 语法支持
+     *
+     * @param content
+     * @return
+     */
+    private String formatLang(String content) {
+        content = BR_PATT.matcher(content).replaceAll("<br/>");
+
+        Matcher matcher = LINK_PATT.matcher(content);
         while (matcher.find()) {
             String text = matcher.group(1);
             String url = matcher.group(2);
@@ -96,45 +99,29 @@ public class LanguageBundle implements JSONable {
                 link = "<a href='" + AppUtils.getContextPath() + "%s'>%s</a>";
             }
 
-            bundleString = bundleString.replace(
-                    String.format("[%s](%s)", text, url),
-                    String.format(link, url, text));
+            content = content.replace(
+                    String.format("[%s](%s)", text, url), String.format(link, url, text));
         }
 
-        matcher = BOLD_PATT.matcher(bundleString);
+        matcher = BOLD_PATT.matcher(content);
         while (matcher.find()) {
             String text = matcher.group(1);
             String bold = "<b>%s</b>";
-            bundleString = bundleString.replace(String.format("**%s**", text), String.format(bold, text));
+
+            content = content.replace(
+                    String.format("**%s**", text), String.format(bold, text));
         }
 
-        matcher = CODE_PATT.matcher(bundleString);
+        matcher = CODE_PATT.matcher(content);
         while (matcher.find()) {
             String text = matcher.group(1);
             String code = "<code>%s</code>";
-            bundleString = bundleString.replace(String.format("`%s`", text), String.format(code, text));
+
+            content = content.replace(
+                    String.format("`%s`", text), String.format(code, text));
         }
 
-        this.bundleHash = EncryptUtils.toMD5Hex(bundleString);
-        return JSON.parseObject(bundleString);
-    }
-
-    /**
-     * 元数据
-     * @param bundle
-     */
-    protected void appendMetadata(JSONObject bundle) {
-        for (Entity entity : MetadataHelper.getEntities()) {
-            bundle.put(PREFIX_ENTITY + entity.getName(),
-                    entity.getDescription().split(" \\(")[0]);
-
-            for (Field field : entity.getFields()) {
-                if (!MetadataHelper.isCommonsField(field)) {
-                    bundle.put(PREFIX_FIELD + entity.getName() + "." + field.getName(),
-                            field.getDescription().split(" \\(")[0]);
-                }
-            }
-        }
+        return content;
     }
 
     /**
@@ -192,7 +179,8 @@ public class LanguageBundle implements JSONable {
 
     // --
 
-    static final LanguageBundle DEFAULT_BUNDLE = new LanguageBundle();
+    static final String SYS_LC = "zh_CN";
+    static final LanguageBundle SYS_BUNDLE = new LanguageBundle();
 
     private LanguageBundle() {
         this.bundle = JSONUtils.EMPTY_OBJECT;

@@ -37,6 +37,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * Excel 报表
  *
@@ -75,7 +77,7 @@ public class ReportTemplateController extends BaseController {
 
         Map<String, String> vars = new TemplateExtractor(template, true).transformVars(entityMeta);
         if (vars.isEmpty()) {
-            writeFailure(response, getLang(request, "BadReportTemplate"));
+            writeFailure(response, $L("无效模板文件 (未找到有效字段)"));
             return;
         }
 
@@ -87,7 +89,7 @@ public class ReportTemplateController extends BaseController {
         }
 
         if (invalidVars.size() >= vars.size()) {
-            writeFailure(response, getLang(request, "BadReportTemplate"));
+            writeFailure(response, $L("无效模板文件 (未找到有效字段)"));
             return;
         }
 
@@ -108,7 +110,7 @@ public class ReportTemplateController extends BaseController {
                 entity.getPrimaryField().getName(), entity.getName());
         Object[] random = Application.createQueryNoFilter(sql).unique();
         if (random == null) {
-            response.sendError(400, getLang(request, "NoRecordForPreview"));
+            response.sendError(400, $L("未找到可供预览的记录"));
             return;
         }
 
@@ -117,7 +119,7 @@ public class ReportTemplateController extends BaseController {
             File template = DataReportManager.instance.getTemplateFile(entity, reportId);
             file = new EasyExcelGenerator(template, (ID) random[0]).generate();
         } catch (ConfigurationException ex) {
-            response.sendError(400, getLang(request, "NoFileForPreview"));
+            response.sendError(400, $L("未找到可供预览的记录"));
             return;
         }
 

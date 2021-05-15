@@ -48,6 +48,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static com.rebuild.core.support.i18n.Language.$L;
+
 /**
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
@@ -278,14 +280,14 @@ public class LoginController extends BaseController {
         }
 
         String vcode = VerfiyCode.generate(email, 2);
-        String subject = getLang(request, "ResetPassword");
-        String content = String.format(getLang(request, "YourVCode", "ResetPassword"), vcode);
+        String subject = $L("重置密码");
+        String content = $L("你的重置密码验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, subject, content);
 
         if (sentid != null) {
             return RespBody.ok();
         } else {
-            return RespBody.errorl("OperationFailed");
+            return RespBody.errorl("操作失败，请稍后重试");
         }
     }
 
