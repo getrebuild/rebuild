@@ -154,7 +154,7 @@ public class MetaFieldController extends BaseController {
 
         } else if (dt == DisplayType.STATE) {
             if (!StateHelper.isStateClass(stateClass)) {
-                return RespBody.errorl("SomeInvalid,StateClass");
+                return RespBody.errorl("无效状态类 (Enum)");
             }
 
             extConfig = JSONUtils.toJSONObject(EasyFieldConfigProps.STATE_CLASS, stateClass);

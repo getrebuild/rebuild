@@ -78,7 +78,7 @@ public class ConfigurationController extends BaseController {
     public RespBody postSystems(@RequestBody JSONObject data) {
         String dHomeURL = defaultIfBlank(data, ConfigurationItem.HomeURL);
         if (!RegexUtils.isUrl(dHomeURL)) {
-            return RespBody.errorl("SomeInvalid", "HomeUrl");
+            return RespBody.errorl("无效主页地址/域名");
         }
 
         // 验证数字参数
@@ -133,7 +133,7 @@ public class ConfigurationController extends BaseController {
             dStorageURL = "https:" + dStorageURL;
         }
         if (!RegexUtils.isUrl(dStorageURL)) {
-            return RespBody.errorl("SomeInvalid", "StorageDomain");
+            return RespBody.errorl("无效访问域名");
         }
 
         try {
@@ -166,7 +166,7 @@ public class ConfigurationController extends BaseController {
     public RespBody postIntegrationSubmail(@RequestBody JSONObject data) {
         String dMailAddr = defaultIfBlank(data, ConfigurationItem.MailAddr);
         if (!RegexUtils.isEMail(dMailAddr)) {
-            return RespBody.errorl("SomeInvalid", "MailServAddr");
+            return RespBody.errorl("无效发件人地址");
         }
 
         setValues(data);
@@ -181,7 +181,7 @@ public class ConfigurationController extends BaseController {
         String sent = null;
         if ("SMS".equalsIgnoreCase(type)) {
             if (!RegexUtils.isCNMobile(receiver)) {
-                return RespBody.errorl("SomeInvalid", "Mobile");
+                return RespBody.errorl("无效手机号码");
             }
 
             String[] specAccount = new String[]{
@@ -216,7 +216,7 @@ public class ConfigurationController extends BaseController {
         if (sent != null) {
             return RespBody.ok(sent);
         } else {
-            return RespBody.errorl("SendTestError");
+            return RespBody.errorl("测试发送失败，请检查你的配置");
         }
     }
 

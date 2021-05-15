@@ -50,16 +50,17 @@ public class I18nGettextParser {
     static void parse(File fileOrDir, Set<String> into) throws IOException {
         String fileName = fileOrDir.getName();
         if (fileOrDir.isFile()) {
-            if (fileName.endsWith(".jsx")) {
+            if (fileName.endsWith(".js")) {
                 into.addAll(parseJs(fileOrDir));
-            } else if (fileName.endsWith(".htmlx")) {
+            } else if (fileName.endsWith(".html")) {
                 into.addAll(parseHtml(fileOrDir));
-            } else if (fileName.endsWith("UserService.java")) {
+            } else if (fileName.endsWith(".java")) {
                 into.addAll(parseJava(fileOrDir));
             }
 
         } else if (fileOrDir.isDirectory()) {
-            if (fileName.equalsIgnoreCase("node_modules")) {
+            if (fileName.equalsIgnoreCase("node_modules")
+                    || fileName.equalsIgnoreCase("test")) {
                 return;
             }
 
@@ -73,17 +74,17 @@ public class I18nGettextParser {
         Pattern pattern = Pattern.compile("\\$L\\('(.*?)'\\)");
         return parseWithPattern(file, pattern);
     }
-    
+
     static List<String> parseHtml(File file) throws IOException {
         Pattern pattern = Pattern.compile("bundle\\.L\\('(.*?)'\\)");
         return parseWithPattern(file, pattern);
     }
 
     static List<String> parseJava(File file) throws IOException {
-        Pattern pattern = Pattern.compile("\\$L\\(\"(.*?)\"[, \\)]");
+        Pattern pattern = Pattern.compile("\\$L\\(\"(.*?)\"[,)]");
         List<String> list = new ArrayList<>(parseWithPattern(file, pattern));
 
-        pattern = Pattern.compile("errorl\\(\"(.*?)\"[, \\)]");
+        pattern = Pattern.compile("errorl\\(\"(.*?)\"[,)]");
         list.addAll(parseWithPattern(file, pattern));
 
         return list;

@@ -88,7 +88,7 @@ public class InstallController extends BaseController implements InstallState {
                             okMsg += $L("已发现 **%s** 为 REBUILD 数据库，系统将自动挂载", dbProps.getString("dbName"));
                             okMsg = "1#" + okMsg;
                         } else {
-                            return RespBody.errorl("NoneEmptyDbError");
+                            return RespBody.errorl("非空数据库不可使用，请使用其他数据库");
                         }
                     }
                 }
@@ -137,7 +137,7 @@ public class InstallController extends BaseController implements InstallState {
             return RBStore.fetchMetaschema("index-2.0.json");
         } catch (Exception ex) {
             log.warn(null, ex);
-            return RespBody.errorl("NoInitEntityTips");
+            return RespBody.errorl("暂无可用业务实体。此安装步骤不是必须的，你仍可以继续安装");
         }
     }
 

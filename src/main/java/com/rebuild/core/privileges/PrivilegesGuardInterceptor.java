@@ -212,7 +212,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         if (target == null) {
             return $L("你没有%s%s权限", actionHuman, EasyMetaFactory.getLabel(entity));
         } else {
-            return $L("你没有%s此记录的权限 (%s)", actionHuman, target);
+            return $L("你没有%s此记录的权限", actionHuman);
         }
     }
 }

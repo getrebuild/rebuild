@@ -84,7 +84,7 @@ public class ModelExtrasController extends BaseController {
                 entity.getName(), entity.getPrimaryField().getName(), id);
         Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
         if (recordMeta == null) {
-            return RespBody.errorl("RecordNotExists");
+            return RespBody.errorl("记录不存在");
         }
 
         return JSONUtils.toJSONObject(
@@ -104,7 +104,7 @@ public class ModelExtrasController extends BaseController {
         sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
         Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
         if (recordMeta == null) {
-            return RespBody.errorl("RecordNotExists");
+            return RespBody.errorl("记录不存在");
         }
 
         recordMeta[0] = I18nUtils.formatDate((Date) recordMeta[0]);

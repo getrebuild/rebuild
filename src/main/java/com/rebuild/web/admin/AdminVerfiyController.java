@@ -69,7 +69,7 @@ public class AdminVerfiyController extends BaseController {
             return RespBody.ok();
         } else {
             ServletUtils.setSessionAttribute(request, KEY_VERIFIED, null);
-            return RespBody.errorl("SomeError,Password");
+            return RespBody.errorl("密码错误");
         }
     }
 

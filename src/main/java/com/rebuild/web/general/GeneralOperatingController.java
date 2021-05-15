@@ -101,7 +101,7 @@ public class GeneralOperatingController extends BaseController {
 
         } catch (GenericJdbcException ex) {
             if (ex.getCause() instanceof DataTruncation) {
-                return RespBody.errorl("DataTruncation");
+                return RespBody.errorl("字段长度超过限制");
             }
 
             log.error(null, ex);
@@ -133,7 +133,7 @@ public class GeneralOperatingController extends BaseController {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            return RespBody.errorl("NoSelect4Delete");
+            return RespBody.errorl("没有要删除的记录");
         }
 
         final ID firstId = records[0];
@@ -172,7 +172,7 @@ public class GeneralOperatingController extends BaseController {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            return RespBody.errorl("NoSelect4Assign");
+            return RespBody.errorl("没有要分派的记录");
         }
 
         final ID firstId = records[0];
@@ -207,12 +207,12 @@ public class GeneralOperatingController extends BaseController {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            return RespBody.errorl("NoSelect4Share");
+            return RespBody.errorl("没有要共享的记录");
         }
 
         final ID[] toUsers = parseUserList(request);
         if (toUsers.length == 0) {
-            return RespBody.errorl("NoSelect4ShareUser");
+            return RespBody.errorl("没有要共享的用户");
         }
 
         final ID firstId = records[0];
@@ -254,7 +254,7 @@ public class GeneralOperatingController extends BaseController {
         final ID user = getRequestUser(request);
         final ID[] accessIds = parseIdList(request);  // ShareAccess IDs
         if (accessIds.length == 0) {
-            return RespBody.errorl("NoSelect4UnShare");
+            return RespBody.errorl("没有要取消共享的记录");
         }
 
         final ID firstId = accessIds[0];
@@ -285,7 +285,7 @@ public class GeneralOperatingController extends BaseController {
         final ID user = getRequestUser(request);
         final ID[] records = parseIdList(request);
         if (records.length == 0) {
-            return RespBody.errorl("NoSelect4UnShare");
+            return RespBody.errorl("没有要取消共享的记录");
         }
 
         // 查询共享记录ID
@@ -298,7 +298,7 @@ public class GeneralOperatingController extends BaseController {
         if (!"$ALL$".equals(to)) {
             ID[] toUsers = parseUserList(request);
             if (toUsers.length == 0) {
-                return RespBody.errorl("NoSelect4UnShareUser");
+                return RespBody.errorl("没有要取消共享的用户");
             }
 
             accessSql += String.format(" and shareTo in ('%s')", StringUtils.join(toUsers, "','"));

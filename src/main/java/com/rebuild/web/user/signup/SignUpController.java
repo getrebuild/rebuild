@@ -62,15 +62,15 @@ public class SignUpController extends BaseController {
     @PostMapping("signup-email-vcode")
     public RespBody signupEmailVcode(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
-            return RespBody.errorl("EmailAccountUnset");
+            return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
         }
 
         String email = getParameterNotNull(request, "email");
 
         if (!RegexUtils.isEMail(email)) {
-            return RespBody.errorl("SomeInvalid,Email");
+            return RespBody.errorl("无效邮箱");
         } else if (Application.getUserStore().existsEmail(email)) {
-            return RespBody.errorl("SomeExists,Email");
+            return RespBody.errorl("邮箱已存在");
         }
 
         String vcode = VerfiyCode.generate(email, 1);
@@ -94,7 +94,7 @@ public class SignUpController extends BaseController {
         String email = data.getString("email");
         String vcode = data.getString("vcode");
         if (!VerfiyCode.verfiy(email, vcode, true)) {
-            return RespBody.errorl("SomeInvalid,Captcha");
+            return RespBody.errorl("无效验证码");
         }
 
         String loginName = data.getString("loginName");

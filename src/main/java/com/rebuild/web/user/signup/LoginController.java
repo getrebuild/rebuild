@@ -144,7 +144,7 @@ public class LoginController extends BaseController {
         Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, SK_NEED_VCODE);
         if (needVcode != null && needVcode
                 && (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
-            return RespBody.errorl("SomeError", "Captcha");
+            return RespBody.errorl("验证码错误");
         }
 
         final String user = getParameterNotNull(request, "user");
@@ -271,12 +271,12 @@ public class LoginController extends BaseController {
     @PostMapping("user-forgot-passwd")
     public RespBody userForgotPasswd(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
-            return RespBody.errorl("EmailAccountUnset");
+            return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
         }
 
         String email = getParameterNotNull(request, "email");
         if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
-            return RespBody.errorl("SomeInvalid,Email");
+            return RespBody.errorl("无效邮箱地址");
         }
 
         String vcode = VerfiyCode.generate(email, 2);
@@ -300,7 +300,7 @@ public class LoginController extends BaseController {
         String vcode = data.getString("vcode");
 
         if (!VerfiyCode.verfiy(email, vcode, true)) {
-            return RespBody.errorl("SomeInvalid", "Captcha");
+            return RespBody.errorl("无效验证码");
         }
 
         User user = Application.getUserStore().getUserByEmail(email);

@@ -80,7 +80,7 @@ public class ClassificationController extends BaseController {
                 .unique();
 
         if (data == null) {
-            return RespBody.errorl("SomeNotExists,Classification");
+            return RespBody.errorl("分类数据不存在");
         } else {
             return JSONUtils.toJSONObject(new String[] { "name", "openLevel" }, data);
         }
@@ -106,7 +106,7 @@ public class ClassificationController extends BaseController {
             }
             item.setInt("level", level);
         } else {
-            return RespBody.errorl("BadRequestParams");
+            return RespBody.errorl("无效请求参数");
         }
 
         String code = getParameter(request, "code");
@@ -148,7 +148,7 @@ public class ClassificationController extends BaseController {
                     .setParameter(1, dataId)
                     .array();
         } else {
-            return RespBody.errorl("BadRequestParams");
+            return RespBody.errorl("无效请求参数");
         }
 
         return RespBody.ok(child);
