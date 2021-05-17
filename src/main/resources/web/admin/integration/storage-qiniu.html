@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/integration#%E4%BA%91%E5%AD%98%E5%82%A8" />
-    <title>[[${bundle.L('SomeConf,CloudStorage')}]]</title>
+    <title>[[${bundle.L('云存储配置')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -15,51 +15,51 @@
             <div class="col-lg-9 col-12">
               <div class="card">
                 <div class="card-header pb-1">
-                  [[${bundle.L('CloudStorage')}]]
-                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('Modify')}]]</a>
+                  [[${bundle.L('云存储')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                 </div>
                 <div class="card-body">
-                  <h5>[[${bundle.L('Qiniu')}]]</h5>
+                  <h5>[[${bundle.L('七牛云 QINIU')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('StorageDomain')}]]</td>
-                        <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">[[${storageAccount == null ? bundle.L('Unset') : storageAccount[3]}]]</td>
+                        <td width="40%">[[${bundle.L('访问域名')}]]</td>
+                        <td data-id="StorageURL" th:data-value="${storageAccount == null ? '' : storageAccount[3]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[3]}]]</td>
                       </tr>
                       <tr>
                         <td>
-                          [[${bundle.L('StorageBucket')}]]
-                          <p>[[${bundle.L('StorageBucketTips')}]]</p>
+                          [[${bundle.L('存储空间')}]]
+                          <p>[[${bundle.L('存储空间变更需你自行迁移原有数据')}]]</p>
                         </td>
-                        <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}">[[${storageAccount == null ? bundle.L('Unset') : storageAccount[2]}]]</td>
+                        <td data-id="StorageBucket" th:data-value="${storageAccount == null ? '' : storageAccount[2]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[2]}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('StorageAk')}]]</td>
-                        <td data-id="StorageApiKey" th:data-value="${storageAccount == null ? '' : storageAccount[0]}">[[${storageAccount == null ? bundle.L('Unset') : storageAccount[0]}]]</td>
+                        <td>[[${bundle.L('秘钥 AK')}]]</td>
+                        <td data-id="StorageApiKey" th:data-value="${storageAccount == null ? '' : storageAccount[0]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[0]}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('StorageSk')}]]</td>
-                        <td data-id="StorageApiSecret" th:data-value="${storageAccount == null ? '' : storageAccount[1]}">[[${storageAccount == null ? bundle.L('Unset') : storageAccount[1]}]]</td>
+                        <td>[[${bundle.L('秘钥 SK')}]]</td>
+                        <td data-id="StorageApiSecret" th:data-value="${storageAccount == null ? '' : storageAccount[1]}">[[${storageAccount == null ? bundle.L('未设置') : storageAccount[1]}]]</td>
                       </tr>
                     </tbody>
                   </table>
                   <div th:if="${!_StorageCloud}" class="alert alert-warning alert-icon mt-6">
                     <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
-                    <div class="message">[[${bundle.L('StorageFallback')}]]</div>
+                    <div class="message">[[${bundle.L('七牛云存储账户未配置或配置有误，当前已启用本地文件存储')}]]</div>
                   </div>
                   <div class="edit-footer">
-                    <button class="btn btn-link">[[${bundle.L('Cancel')}]]</button>
-                    <button class="btn btn-primary">[[${bundle.L('Save')}]]</button>
+                    <button class="btn btn-link">[[${bundle.L('取消')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
                   </div>
                 </div>
               </div>
             </div>
             <div class="col-lg-3 col-12">
               <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('StorageSize')}]]</div>
+                <div class="card-header card-header-divider">[[${bundle.L('存储大小')}]]</div>
                 <div class="card-body">
                   <strong class="fs-16">[[${_StorageSize}]]</strong>
-                  ([[${bundle.L(_StorageCloud ? 'Qiniu' : 'LocalStorage')}]])
+                  ([[${_StorageCloud ? bundle.L('七牛云 QINIU') : bundle.L('本地存储')}]])
                 </div>
               </div>
             </div>

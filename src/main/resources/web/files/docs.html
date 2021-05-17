@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('SomeManage,File')}]]</title>
+    <title>[[${bundle.L('文件管理')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/files.css}" />
   </head>
   <body>
@@ -11,11 +11,11 @@
       <th:block th:replace="~{/_include/nav-left(active='nav_entity-Attachment')}" />
       <div class="rb-content rb-no-padding">
         <aside class="page-aside widgets">
-          <a class="side-toggle" th:title="${bundle.L('Toggle')}"><i class="zmdi zmdi-arrow-left"></i></a>
+          <a class="side-toggle" th:title="${bundle.L('展开/收缩')}"><i class="zmdi zmdi-arrow-left"></i></a>
           <div class="tab-container">
             <ul class="nav nav-tabs">
-              <li class="nav-item"><a class="nav-link" href="attachment">[[${bundle.L('Attachment')}]]</a></li>
-              <li class="nav-item"><a class="nav-link active" href="docs">[[${bundle.L('File')}]]</a></li>
+              <li class="nav-item"><a class="nav-link" href="attachment">[[${bundle.L('附件')}]]</a></li>
+              <li class="nav-item"><a class="nav-link active" href="docs">[[${bundle.L('文件')}]]</a></li>
             </ul>
             <div class="tab-content rb-scroller">
               <div class="tab-pane active" id="navTree">
@@ -35,14 +35,14 @@
           <div class="file-header">
             <div class="file-path">
               <ol class="breadcrumb">
-                <li class="breadcrumb-item active">[[${bundle.L('AllSome,File')}]]</li>
+                <li class="breadcrumb-item active">[[${bundle.L('全部文件')}]]</li>
               </ol>
             </div>
             <div class="file-operator">
               <div class="row">
                 <div class="col-6">
                   <div class="input-group input-search">
-                    <input class="form-control" type="text" th:placeholder="${bundle.L('Search')}" maxlength="40" />
+                    <input class="form-control" type="text" th:placeholder="${bundle.L('搜索')}" maxlength="40" />
                     <span class="input-group-btn">
                       <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                     </span>
@@ -50,23 +50,23 @@
                 </div>
                 <div class="col-6 text-right">
                   <div class="btn-group btn-space mb-0">
-                    <button class="btn btn-primary J_upload-file" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('UploadSome,File')}]]</button>
+                    <button class="btn btn-primary J_upload-file" type="button"><i class="icon zmdi zmdi-upload"></i> [[${bundle.L('上传文件')}]]</button>
                     <button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
                     <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-                      <a class="dropdown-item J_add-folder"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('NewSome,Folder')}]]</a>
+                      <a class="dropdown-item J_add-folder"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('新建目录')}]]</a>
                       <div class="dropdown-divider"></div>
-                      <a class="dropdown-item J_move"><i class="icon zmdi zmdi-swap"></i> [[${bundle.L('ModifyFileFolder')}]]</a>
-                      <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('DeleteSome,File')}]]</a>
+                      <a class="dropdown-item J_move"><i class="icon zmdi zmdi-swap"></i> [[${bundle.L('修改文件目录')}]]</a>
+                      <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('删除文件')}]]</a>
                     </div>
                   </div>
                   <div class="btn-group btn-space mb-0 mr-0 J_sort">
                     <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                      <span>[[${bundle.L('DefaultSort')}]]</span>
+                      <span>[[${bundle.L('默认排序')}]]</span>
                       <i class="icon zmdi zmdi-chevron-down up-1"></i>
                     </button>
                     <div class="dropdown-menu dropdown-menu-right">
-                      <a class="dropdown-item" data-sort="newer">[[${bundle.L('SortUploadDesc')}]]</a>
-                      <a class="dropdown-item" data-sort="older">[[${bundle.L('SortUploadAsc')}]]</a>
+                      <a class="dropdown-item" data-sort="newer">[[${bundle.L('最近上传')}]]</a>
+                      <a class="dropdown-item" data-sort="older">[[${bundle.L('最早上传')}]]</a>
                     </div>
                   </div>
                 </div>

@@ -2,20 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('ConfSome,View')}]]</title>
+    <title>[[${bundle.L('视图配置')}]]</title>
   </head>
   <body class="dialog">
     <div class="main-content">
       <div class="row m-0">
         <div class="col-6 sortable-swap">
-          <h5 class="sortable-box-title">[[${bundle.L('Showed')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('已显示')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list J_config"></ol>
           </div>
           <i class="zmdi zmdi-swap"></i>
         </div>
         <div class="col-6">
-          <h5 class="sortable-box-title">[[${bundle.L('UnShow')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('未显示')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list unset-list"></ol>
           </div>
@@ -25,15 +25,15 @@
         <span th:if="${param.type[0] == 'TAB'}" class="float-left pt-1">
           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
             <input class="custom-control-input" type="checkbox" id="relatedAutoExpand" />
-            <span class="custom-control-label">[[${bundle.L('RelatedAutoExpand')}]]</span>
+            <span class="custom-control-label">[[${bundle.L('自动展开记录')}]]</span>
           </label>
           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline ml-2">
             <input class="custom-control-input" type="checkbox" id="relatedAutoHide" />
-            <span class="custom-control-label">[[${bundle.L('RelatedTabAutoHide')}]]</span>
+            <span class="custom-control-label">[[${bundle.L('隐藏无记录项')}]]</span>
           </label>
         </span>
-        <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('Cancel')}]]</button>
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

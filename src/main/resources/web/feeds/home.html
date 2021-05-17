@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('Feeds')}]]</title>
+    <title>[[${bundle.L('动态')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/feeds.css}" />
   </head>
   <body>
@@ -23,26 +23,26 @@
                 <div class="accordion m-0">
                   <div class="card">
                     <div class="card-header" id="headingSearch">
-                      <button class="btn" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="true"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('Search')}]]</button>
+                      <button class="btn" data-toggle="collapse" data-target="#collapseSearch" aria-expanded="true"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('搜索')}]]</button>
                     </div>
                     <div class="collapse show" id="collapseSearch">
                       <div class="card-body">
                         <div class="input-group input-group-sm">
-                          <input type="text" class="form-control search J_search-key" th:placeholder="${bundle.L('Keyword')}" th:title="${bundle.L('InputForSearch')}" />
+                          <input type="text" class="form-control search J_search-key" th:placeholder="${bundle.L('关键词')}" th:title="${bundle.L('输入关键词搜索')}" />
                           <span class="append">
                             <a><i class="icon zmdi zmdi-close"></i></a>
                             <i class="icon zmdi zmdi-search"></i>
                           </span>
                         </div>
                         <div class="input-group input-group-sm">
-                          <input type="text" class="form-control search J_date-begin" th:placeholder="${bundle.L('PublishTime') + ' (' + bundle.L('Start0') + ')'}" />
+                          <input type="text" class="form-control search J_date-begin" th:placeholder="${bundle.L('发布时间') + ' (' + bundle.L('起') + ')'}" />
                           <span class="append">
                             <a><i class="icon zmdi zmdi-close"></i></a>
                             <i class="icon zmdi zmdi-calendar"></i>
                           </span>
                         </div>
                         <div class="input-group input-group-sm">
-                          <input type="text" class="form-control search J_date-end" th:placeholder="${bundle.L('PublishTime') + ' (' + bundle.L('End0') + ')'}" />
+                          <input type="text" class="form-control search J_date-end" th:placeholder="${bundle.L('发布时间') + ' (' + bundle.L('止') + ')'}" />
                           <span class="append">
                             <a><i class="icon zmdi zmdi-close"></i></a>
                             <i class="icon zmdi zmdi-calendar"></i>
@@ -53,16 +53,16 @@
                   </div>
                   <div class="card">
                     <div class="card-header" id="headingFeedsType">
-                      <button class="btn" data-toggle="collapse" data-target="#collapseFeedsType"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('Type')}]]</button>
+                      <button class="btn" data-toggle="collapse" data-target="#collapseFeedsType"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('类型')}]]</button>
                     </div>
                     <div class="collapse" id="collapseFeedsType">
                       <div class="card-body">
                         <div class="aside-tree rb-scroller">
                           <ul class="list-unstyled">
-                            <li data-type="1"><a>[[${bundle.L('FeedsType1')}]]</a></li>
-                            <li data-type="2"><a>[[${bundle.L('FeedsType2')}]]</a></li>
-                            <li data-type="4"><a>[[${bundle.L('FeedsType4')}]]</a></li>
-                            <li data-type="3"><a>[[${bundle.L('FeedsType3')}]]</a></li>
+                            <li data-type="1"><a>[[${bundle.L('动态')}]]</a></li>
+                            <li data-type="2"><a>[[${bundle.L('跟进')}]]</a></li>
+                            <li data-type="4"><a>[[${bundle.L('日程')}]]</a></li>
+                            <li data-type="3"><a>[[${bundle.L('公告')}]]</a></li>
                           </ul>
                         </div>
                       </div>
@@ -70,23 +70,23 @@
                   </div>
                   <div class="card">
                     <div class="card-header" id="headingGroup">
-                      <button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('Team')}]]</button>
-                      <a class="add-group admin-show" th:href="@{/admin/bizuser/teams}" th:title="${bundle.L('SomeManage,Team')}"><i class="icon zmdi zmdi-settings"></i></a>
+                      <button class="btn" data-toggle="collapse" data-target="#collapseGroup"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('团队')}]]</button>
+                      <a class="add-group admin-show" th:href="@{/admin/bizuser/teams}" th:title="${bundle.L('管理团队')}"><i class="icon zmdi zmdi-settings"></i></a>
                     </div>
                     <div class="collapse" id="collapseGroup">
                       <div class="card-body">
-                        <div class="search-member"><input type="text" th:placeholder="${bundle.L('SearchSome,Team')}" /></div>
+                        <div class="search-member"><input type="text" th:placeholder="${bundle.L('搜索团队')}" /></div>
                         <div class="aside-tree rb-scroller"></div>
                       </div>
                     </div>
                   </div>
                   <div class="card">
                     <div class="card-header" id="headingUser">
-                      <button class="btn" data-toggle="collapse" data-target="#collapseUser"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('User')}]]</button>
+                      <button class="btn" data-toggle="collapse" data-target="#collapseUser"><i class="icon zmdi zmdi-chevron-right"></i> [[${bundle.L('用户')}]]</button>
                     </div>
                     <div class="collapse" id="collapseUser">
                       <div class="card-body pb-3">
-                        <div class="search-member"><input type="text" th:placeholder="${bundle.L('SearchSome,User')}" /></div>
+                        <div class="search-member"><input type="text" th:placeholder="${bundle.L('搜索用户')}" /></div>
                         <div class="aside-tree rb-scroller"></div>
                       </div>
                     </div>

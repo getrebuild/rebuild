@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('SomeConf,General')}]]</title>
+    <title>[[${bundle.L('通用配置')}]]</title>
     <style type="text/css">
       .syscfg a.img-thumbnail {
         display: inline-block;
@@ -26,15 +26,15 @@
             <div class="col-lg-9 col-12">
               <div class="card">
                 <div class="card-header pb-1">
-                  [[${bundle.L('SomeConf,General')}]]
-                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('Modify')}]]</a>
+                  [[${bundle.L('通用配置')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                 </div>
                 <div class="card-body">
-                  <h5>[[${bundle.L('General')}]]</h5>
+                  <h5>[[${bundle.L('通用')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('Name')}]] <sup class="rbv"></sup></td>
+                        <td width="40%">[[${bundle.L('名称')}]] <sup class="rbv"></sup></td>
                         <td th:data-id="${commercial > 0 ? 'AppName' : ''}" th:data-value="${AppName}">[[${AppName}]]</td>
                       </tr>
                       <tr>
@@ -43,93 +43,95 @@
                           <a class="img-thumbnail"><i class="logo-img"></i></a>
                           <a class="img-thumbnail bg-primary ml-1"><i class="logo-img white"></i></a>
                           <input type="file" class="hide" accept="image/*" data-maxsize="5000000" data-local="true" />
-                          <p class="mt-2 text-dark hide">[[${bundle.L('UploadLogoTips')}]]</p>
+                          <p class="mt-2 text-dark hide">[[${bundle.L('请分别上传深色与白色 LOGO，透明背景，宽高为 268 × 54')}]]</p>
                         </td>
                       </tr>
                       <tr>
                         <td>
-                          [[${bundle.L('HomeUrl')}]]
-                          <p>[[${bundle.L('HomeUrlTips')}]]</p>
+                          [[${bundle.L('主页地址/域名')}]]
+                          <p>[[${bundle.L('所有外部链接将以此作为前缀')}]]</p>
                         </td>
                         <td data-id="HomeURL" th:data-value="${HomeURL}">[[${HomeURL}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('DefaultLanguage')}]]</td>
+                        <td>[[${bundle.L('默认语言')}]]</td>
                         <td data-id="DefaultLanguage" th:data-value="${DefaultLanguage}" id="_DefaultLanguage">[[${DefaultLanguage}]]</td>
                       </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('SysConf')}]]</h5>
+                  <h5>[[${bundle.L('系统选项')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">[[${bundle.L('OpenSignUp')}]]</td>
-                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${bundle.L(OpenSignUp ? 'True' : 'False')}]]</td>
+                        <td width="40%">[[${bundle.L('公开注册')}]]</td>
+                        <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('PasswordPolicy')}]]</td>
+                        <td>[[${bundle.L('登录密码等级')}]]</td>
                         <td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
-                          <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.L('PasswordPolicyL1')}]]</th:block>
-                          <th:block th:if="${PasswordPolicy == '2'}">[[${bundle.L('PasswordPolicyL2')}]]</th:block>
-                          <th:block th:if="${PasswordPolicy == '3'}">[[${bundle.L('PasswordPolicyL3')}]]</th:block>
+                          <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.L('低 (最低6位，无字符类型限制)')}]]</th:block>
+                          <th:block th:if="${PasswordPolicy == '2'}">[[${bundle.L('中 (最低6位，必须同时包含数字、字母)')}]]</th:block>
+                          <th:block th:if="${PasswordPolicy == '3'}">[[${bundle.L('高 (最低8位，必须同时包含数字、字母、特殊字符)')}]]</th:block>
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('LoginCaptchaPolicy')}]]</td>
+                        <td>[[${bundle.L('登录验证码显示模式')}]]</td>
                         <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
-                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('LoginCaptchaPolicy1')}]]</th:block>
-                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('LoginCaptchaPolicy2')}]]</th:block>
+                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('自动')}]]</th:block>
+                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('总是显示')}]]</th:block>
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('MultipleSessions')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${bundle.L(MultipleSessions ? 'True' : 'False')}]]</td>
+                        <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('LiveWallpaper')}]]</td>
-                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${bundle.L(LiveWallpaper ? 'True' : 'False')}]]</td>
+                        <td>[[${bundle.L('登录页每日一图')}]]</td>
+                        <td data-id="LiveWallpaper" th:data-value="${LiveWallpaper}">[[${LiveWallpaper ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('MarkWatermark')}]]</td>
-                        <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${bundle.L(MarkWatermark ? 'True' : 'False')}]]</td>
+                        <td>[[${bundle.L('显示页面水印')}]]</td>
+                        <td data-id="MarkWatermark" th:data-value="${MarkWatermark}">[[${MarkWatermark ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('FileSharable')}]]</td>
-                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${bundle.L(FileSharable ? 'True' : 'False')}]]</td>
+                        <td>[[${bundle.L('允许分享文件')}]]</td>
+                        <td data-id="FileSharable" th:data-value="${FileSharable}">[[${FileSharable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('ShowViewHistory')}]]</td>
-                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${bundle.L(ShowViewHistory ? 'True' : 'False')}]]</td>
+                        <td>[[${bundle.L('在视图页显示修改历史')}]]</td>
+                        <td data-id="ShowViewHistory" th:data-value="${ShowViewHistory}">[[${ShowViewHistory ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                     </tbody>
                   </table>
-                  <h5>[[${bundle.L('DataSecure')}]]</h5>
+                  <h5>[[${bundle.L('数据安全')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
                         <td width="40%">
-                          [[${bundle.L('DBBackupsEnable')}]]
-                          <p>[[${bundle.L('DBBackupsEnableTips')}]]</p>
+                          [[${bundle.L('数据库自动备份')}]]
+                          <p>[[${bundle.L('每日 0 点备份到数据目录，请预留足够磁盘空间')}]]</p>
                         </td>
-                        <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${bundle.L(DBBackupsEnable ? 'True' : 'False')}]]</td>
+                        <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('DBBackupsKeepingDays')}]]</td>
-                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('Day0')}]]</td>
+                        <td>[[${bundle.L('备份保留时间')}]]</td>
+                        <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('RevisionHistoryKeepingDays')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'RevisionHistoryKeepingDays' : ''}" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('Day0')}]]</td>
+                        <td>[[${bundle.L('变更历史保留时间')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'RevisionHistoryKeepingDays' : ''}" th:data-value="${RevisionHistoryKeepingDays}">
+                          [[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]
+                        </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('RecycleBinKeepingDays')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'RecycleBinKeepingDays' : ''}" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('Day0')}]]</td>
+                        <td>[[${bundle.L('回收站保留时间')}]] <sup class="rbv"></sup></td>
+                        <td th:data-id="${commercial > 0 ? 'RecycleBinKeepingDays' : ''}" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">
-                    <button class="btn btn-link">[[${bundle.L('Cancel')}]]</button>
-                    <button class="btn btn-primary">[[${bundle.L('Save')}]]</button>
+                    <button class="btn btn-link">[[${bundle.L('取消')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
                   </div>
                 </div>
               </div>
@@ -143,16 +145,21 @@
                 </div>
               </div>
               <div class="card">
-                <div class="card-header card-header-divider">[[${bundle.L('About')}]] REBUILD</div>
+                <div class="card-header card-header-divider">[[${bundle.L('关于')}]] REBUILD</div>
                 <div class="card-body">
-                  <p class="mb-1">[[${bundle.L('RebuildVersion')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
-                  <p class="mb-2">[[${bundle.L('LicenseType')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
+                  <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
+                  <p class="mb-2">[[${bundle.L('许可类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
                   <ul style="line-height: 2">
-                    <li><a class="link" target="_blank" th:href="@{/error/server-status}">[[${bundle.L('SysStatus')}]]</a></li>
-                    <li><a class="link" target="_blank" href="https://getrebuild.com/docs/">[[${bundle.L('HelpDoc')}]]</a></li>
-                    <li><a class="link" target="_blank" href="https://getrebuild.com/">[[${bundle.L('TechSupport')}]]</a></li>
+                    <li><a class="link" target="_blank" th:href="@{/error/server-status}">[[${bundle.L('系统状态')}]]</a></li>
+                    <li><a class="link" target="_blank" href="https://getrebuild.com/docs/">[[${bundle.L('帮助文档')}]]</a></li>
+                    <li><a class="link" target="_blank" href="https://getrebuild.com/">[[${bundle.L('技术支持')}]]</a></li>
                   </ul>
-                  <div class="text-muted link">&copy; <span th:utext="${bundle.L('RebuildRights')}"></span></div>
+                  <div class="text-muted link">
+                    &copy;
+                    <span
+                      th:utext="${bundle.L('[REBUILD](https://getrebuild.com/) 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。')}"
+                    ></span>
+                  </div>
                 </div>
               </div>
             </div>

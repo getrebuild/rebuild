@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('OptionList')}]]</title>
+    <title>[[${bundle.L('选项列表')}]]</title>
     <style type="text/css">
       .unset-list .dd-handle {
         font-style: italic;
@@ -23,7 +23,7 @@
     <div class="main-content">
       <div class="row m-0">
         <div class="col-6">
-          <h5 class="sortable-box-title">[[${bundle.L('OptionList')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('选项列表')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list J_config"></ol>
           </div>
@@ -31,21 +31,21 @@
             <div class="input-group input-group-sm">
               <input class="form-control J_text" type="text" maxlength="50" />
               <div class="input-group-append">
-                <button class="btn btn-secondary J_confirm" type="submit" style="min-width: 0">[[${bundle.L('Add')}]]</button>
+                <button class="btn btn-secondary J_confirm" type="submit" style="min-width: 0">[[${bundle.L('添加')}]]</button>
               </div>
             </div>
           </form>
         </div>
         <div class="col-6">
-          <h5 class="sortable-box-title">[[${bundle.L('Disabled')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('已禁用')}]]</h5>
           <div class="sortable-box rb-scroller">
             <ol class="dd-list unset-list"></ol>
           </div>
         </div>
       </div>
       <div class="dialog-footer">
-        <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('Cancel')}]]</button>
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

@@ -2,9 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('AdminVerify')}]]</title>
+    <title>[[${bundle.L('管理员验证')}]]</title>
     <style type="text/css">
-      .rb-navbar-header .rb-toggle-left-sidebar, .rb-icons-nav {
+      .rb-navbar-header .rb-toggle-left-sidebar,
+      .rb-icons-nav {
         display: none !important;
       }
     </style>
@@ -17,21 +18,21 @@
           <div class="splash-container">
             <div class="card card-border-color card-border-color-primary">
               <div class="card-header">
-                <h4>[[${bundle.L('VerifyYourAdminIdentity')}]]</h4>
+                <h4>[[${bundle.L('需要验证你的管理员身份')}]]</h4>
               </div>
               <div class="card-body">
                 <form>
                   <div class="form-group">
-                    <input class="form-control" id="admin-passwd" type="password" th:placeholder="${bundle.L('InputSome,Password')}" autocomplete="off" />
+                    <input class="form-control" id="admin-passwd" type="password" th:placeholder="${bundle.L('输入密码')}" autocomplete="off" />
                   </div>
                   <div class="form-group login-submit">
-                    <button class="btn btn-primary btn-xl J_verify-btn" type="submit">[[${bundle.L('Confirm')}]]</button>
+                    <button class="btn btn-primary btn-xl J_verify-btn" type="submit">[[${bundle.L('确定')}]]</button>
                   </div>
                 </form>
               </div>
             </div>
             <div class="splash-footer">
-              <span><a href="javascript:history.back()">[[${bundle.L('Return')}]]</a></span>
+              <span><a href="javascript:history.back()">[[${bundle.L('返回')}]]</a></span>
             </div>
           </div>
         </div>

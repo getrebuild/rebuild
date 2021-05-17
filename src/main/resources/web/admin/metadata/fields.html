@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%AD%97%E6%AE%B5" />
-    <title>[[${bundle.L('NavFields')}]]</title>
+    <title>[[${bundle.L('字段管理')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -22,10 +22,10 @@
               </div>
               <div class="aside-nav collapse">
                 <ul class="nav">
-                  <li><a href="base">[[${bundle.L('BasicInfo')}]]</a></li>
-                  <li><a href="form-design">[[${bundle.L('FormLayout')}]]</a></li>
-                  <li class="active"><a href="fields">[[${bundle.L('NavFields')}]]</a></li>
-                  <li><a href="advanced">[[${bundle.L('AdvConf')}]]</a></li>
+                  <li><a href="base">[[${bundle.L('基本信息')}]]</a></li>
+                  <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
+                  <li class="active"><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
+                  <li><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
                 </ul>
               </div>
             </div>
@@ -39,7 +39,7 @@
                   <div class="col-sm-6">
                     <div class="dataTables_filter">
                       <div class="input-group input-search">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('Query')}" maxlength="40" />
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" maxlength="40" />
                         <span class="input-group-btn"
                           ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
                         ></span>
@@ -48,7 +48,7 @@
                   </div>
                   <div class="col-sm-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-primary btn-space J_new-field"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('Add')}]]</button>
+                      <button class="btn btn-primary btn-space J_new-field"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
                     </div>
                   </div>
                 </div>
@@ -58,10 +58,10 @@
                       <table class="table table-hover table-striped" id="dataList">
                         <thead>
                           <tr>
-                            <th width="25%" data-filed="fieldLabel">[[${bundle.L('FieldName')}]]</th>
-                            <th width="16%" data-field="fieldName">[[${bundle.L('MetaName')}]]</th>
-                            <th width="16%" data-field="displayType">[[${bundle.L('Type')}]]</th>
-                            <th data-field="comments">[[${bundle.L('Remark')}]]</th>
+                            <th width="25%" data-filed="fieldLabel">[[${bundle.L('字段名称')}]]</th>
+                            <th width="16%" data-field="fieldName">[[${bundle.L('内部标识')}]]</th>
+                            <th width="16%" data-field="displayType">[[${bundle.L('类型')}]]</th>
+                            <th data-field="comments">[[${bundle.L('备注')}]]</th>
                             <th width="50"></th>
                           </tr>
                         </thead>

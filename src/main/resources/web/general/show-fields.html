@@ -2,20 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('FieldShow')}]]</title>
+    <title>[[${bundle.L('列显示')}]]</title>
   </head>
   <body class="dialog">
     <div class="main-content">
       <div class="row m-0">
         <div class="col-6 sortable-swap">
-          <h5 class="sortable-box-title">[[${bundle.L('Showed')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('已显示')}]]</h5>
           <div class="sortable-box h380 rb-scroller">
             <ol class="dd-list J_config"></ol>
           </div>
           <i class="zmdi zmdi-swap"></i>
         </div>
         <div class="col-6">
-          <h5 class="sortable-box-title">[[${bundle.L('UnShow')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('未显示')}]]</h5>
           <div class="sortable-box h380 rb-scroller">
             <ol class="dd-list unset-list"></ol>
           </div>
@@ -25,8 +25,8 @@
         <div class="float-left">
           <div id="shareTo" class="shareTo--wrap"></div>
         </div>
-        <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('Cancel')}]]</button>
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
