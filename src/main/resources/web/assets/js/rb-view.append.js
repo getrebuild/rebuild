@@ -77,7 +77,7 @@ class LightFeedsList extends RelatedList {
       this.setState({ dataList: list, showMore: data.length >= pageSize }, () => {
         $('.feeds-list.inview .J_relatedRecord a').attr({
           href: 'javascript:;',
-          title: ''
+          title: '',
         })
       })
 
@@ -222,7 +222,7 @@ class LightTaskDlg extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('NewSome,e.ProjectTask')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建,e.ProjectTask')} disposeOnHide={true}>
         <div className="m-1">
           <div className="row">
             <div className="col-6">
@@ -264,10 +264,10 @@ class LightTaskDlg extends RbModalHandler {
         </div>
         <div className="mt-3 text-right" ref={(c) => (this._btns = c)}>
           <button className="btn btn-primary btn-space" type="button" onClick={this._post}>
-            {$L('Save')}
+            {$L('保存')}
           </button>
           <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
-            {$L('Cancel')}
+            {$L('取消')}
           </button>
         </div>
       </RbModal>
@@ -282,7 +282,7 @@ class LightTaskDlg extends RbModalHandler {
       const that = this
       $(this._$project)
         .select2({
-          placeholder: $L('SelectSome,f.ProjectTask.projectId'),
+          placeholder: $L('选择,f.ProjectTask.projectId'),
           allowClear: false,
         })
         .on('change', function () {
@@ -293,7 +293,7 @@ class LightTaskDlg extends RbModalHandler {
         .trigger('change')
 
       $(this._$plan).select2({
-        placeholder: $L('SelectSome,f.ProjectTask.projectPlanId'),
+        placeholder: $L('选择,f.ProjectTask.projectPlanId'),
         allowClear: false,
       })
     })
@@ -310,9 +310,9 @@ class LightTaskDlg extends RbModalHandler {
       relatedRecord: this.props.relatedRecord,
       metadata: { entity: 'ProjectTask' },
     }
-    if (!data.projectId) return RbHighbar.create($L('PlsSelectSome,f.ProjectTask.projectId'))
-    if (!data.projectPlanId) return RbHighbar.create($L('PlsSelectSome,f.ProjectTask.projectPlanId'))
-    if (!data.taskName) return RbHighbar.create($L('PlsInputSome,f.ProjectTask.taskName'))
+    if (!data.projectId) return RbHighbar.create($L('请选择,f.ProjectTask.projectId'))
+    if (!data.projectPlanId) return RbHighbar.create($L('请选择,f.ProjectTask.projectPlanId'))
+    if (!data.taskName) return RbHighbar.create($L('请输入,f.ProjectTask.taskName'))
 
     const $btn = $(this._btns).button('loading')
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {

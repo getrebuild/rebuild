@@ -41,7 +41,7 @@ const loadRules = () => {
             this.disabled(true)
             $.post(`/app/entity/common-delete?id=${cfgid}`, (res) => {
               if (res.error_code === 0) {
-                RbHighbar.success($L('SomeSuccess,Delete'))
+                RbHighbar.success($L('删除成功'))
                 this.hide()
                 loadRules()
               } else {
@@ -134,10 +134,10 @@ class DlgRuleEdit extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -152,7 +152,7 @@ class DlgRuleEdit extends RbFormHandler {
     $.get(`/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
       this.__targetFieldsCache = res.data
       const s2target = $(this._targetField).select2({
-        placeholder: $L('SelectSome,Field'),
+        placeholder: $L('选择,Field'),
         allowClear: false,
       })
       this.__select2.push(s2target)
@@ -163,7 +163,7 @@ class DlgRuleEdit extends RbFormHandler {
         this.setState({ sourceFields: res.data }, () => {
           const s2source = $(this._sourceField)
             .select2({
-              placeholder: $L('SelectSome,Field'),
+              placeholder: $L('选择,Field'),
               allowClear: false,
             })
             .on('change', (e) => this._renderTargetFields(e.target.value))
@@ -208,7 +208,7 @@ class DlgRuleEdit extends RbFormHandler {
       sourceField: $(this._sourceField).val(),
       targetField: $(this._targetField).val(),
     }
-    if (!_data.targetField) return RbHighbar.create($L('PlsSelectSome,TargetField'))
+    if (!_data.targetField) return RbHighbar.create($L('请选择,TargetField'))
 
     _data.extConfig = {
       whenCreate: this.state.whenCreate,

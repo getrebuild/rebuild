@@ -199,7 +199,7 @@ class SimpleNode extends NodeSpec {
   render() {
     const NT = NTs[this.nodeType]
     const data = this.state.data || {}
-    const descs = data.users && data.users.length > 0 ? [UTs[data.users[0]] || `${$L('SpecUser')}(${data.users.length})`] : [NT[2]]
+    const descs = data.users && data.users.length > 0 ? [UTs[data.users[0]] || `${$L('指定用户')}(${data.users.length})`] : [NT[2]]
 
     if (data.selfSelecting && data.users.length > 0) descs.push($L('AllowSelfSelect'))
     if (data.ccAutoShare) descs.push($L('AutoShare'))
@@ -210,7 +210,7 @@ class SimpleNode extends NodeSpec {
         <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={rb.env === 'dev' ? this.props.nodeId : null}>
           <div className="title">
             <span>{data.nodeName || NT[1]}</span>
-            {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title={$L('Remove')} onClick={this.removeNodeQuick} />}
+            {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title={$L('移除')} onClick={this.removeNodeQuick} />}
           </div>
           <div className="content" onClick={this.openConfig}>
             <div className="text">{descs.join(' / ')}</div>
@@ -322,11 +322,11 @@ class ConditionBranch extends NodeGroupSpec {
               <div className="title-wrapper">
                 <span className="editable-title float-left">{data.nodeName || $L('BranchCond')}</span>
                 <span className="priority-title float-right">{$L('DefaultPiro')}</span>
-                <i className="zmdi zmdi-close aclose" title={$L('Remove')} onClick={(e) => this.props.$$$parent.removeBranch(this.props.nodeId, e)} />
+                <i className="zmdi zmdi-close aclose" title={$L('移除')} onClick={(e) => this.props.$$$parent.removeBranch(this.props.nodeId, e)} />
                 <div className="clearfix"></div>
               </div>
               <div className="content">
-                <div className="text">{this.state.isLast ? $L('OtherFilter') : filters > 0 ? `${$L('AdvFiletrSeted')} (${filters})` : $L('PlsSetFilter')}</div>
+                <div className="text">{this.state.isLast ? $L('OtherFilter') : filters > 0 ? `${$L('已设置条件')} (${filters})` : $L('PlsSetFilter')}</div>
                 <i className="zmdi zmdi-chevron-right arrow"></i>
               </div>
             </div>
@@ -522,10 +522,10 @@ class StartNodeConfig extends RbFormHandler {
     return (
       <div className="footer">
         <button type="button" className="btn btn-primary" onClick={this.save}>
-          {$L('Confirm')}
+          {$L('确定')}
         </button>
         <button type="button" className="btn btn-secondary" onClick={this.cancel}>
-          {$L('Cancel')}
+          {$L('取消')}
         </button>
       </div>
     )
@@ -545,7 +545,7 @@ class StartNodeConfig extends RbFormHandler {
       users: this.state.users === 'SPEC' ? this._UserSelector.getSelected() : [this.state.users],
     }
     if (this.state.users === 'SPEC' && d.users.length === 0) {
-      RbHighbar.create($L('PlsSelectSome,User'))
+      RbHighbar.create($L('请选择,User'))
       return
     }
 
@@ -622,11 +622,11 @@ class ApproverNodeConfig extends StartNodeConfig {
                         <td width="100">
                           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} data-field={item.field} />
-                            <span className="custom-control-label">{$L('Required')}</span>
+                            <span className="custom-control-label">{$L('必填')}</span>
                           </label>
                         </td>
                         <td width="40">
-                          <a className="close" title={$L('Remove')} onClick={() => this.removeEditableField(item.field)}>
+                          <a className="close" title={$L('移除')} onClick={() => this.removeEditableField(item.field)}>
                             <i className="zmdi icon zmdi-close"></i>
                           </a>
                         </td>
@@ -637,7 +637,7 @@ class ApproverNodeConfig extends StartNodeConfig {
               </table>
               <div className="pb-4">
                 <button className="btn btn-secondary btn-sm" onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
-                  + {$L('SelectSome,Field')}
+                  + {$L('选择,Field')}
                 </button>
               </div>
             </div>
@@ -888,7 +888,7 @@ class DlgFields extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('SelectSome,UpdatableFields')} ref={(c) => (this._dlg = c)} disposeOnHide={true} onHide={() => (donotCloseSidebar = false)}>
+      <RbModal title={$L('选择,UpdatableFields')} ref={(c) => (this._dlg = c)} disposeOnHide={true} onHide={() => (donotCloseSidebar = false)}>
         <div className="row p-1" ref={(c) => (this._fields = c)}>
           {fieldsCache.map((item) => {
             if (item.type === 'BARCODE') return null
@@ -904,10 +904,10 @@ class DlgFields extends RbModalHandler {
         </div>
         <div className="dialog-footer">
           <button className="btn btn-primary" type="button" onClick={this.confirm}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
           <button className="btn btn-secondary" type="button" onClick={this.hide}>
-            {$L('Cancel')}
+            {$L('取消')}
           </button>
         </div>
       </RbModal>
@@ -958,7 +958,7 @@ class DlgCopy extends ConfigFormDlg {
   confirm = () => {
     const approvalName = this.state.name
     if (!approvalName) {
-      RbHighbar.create($L('PlsInputSome,NewName'))
+      RbHighbar.create($L('请输入,NewName'))
       return
     }
 

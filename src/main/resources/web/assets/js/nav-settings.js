@@ -32,21 +32,21 @@ $(document).ready(function () {
       $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
       parent.RbModal.hide()
     }
-    parent.RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
+    parent.RbModal.create('/p/common/search-icon', $L('选择,Icon'))
   })
 
   $('.J_menuConfirm').click(function () {
     const name = $val('.J_menuName')
-    if (!name) return RbHighbar.create($L('PlsSelectSome,MenuName'))
+    if (!name) return RbHighbar.create($L('请选择,MenuName'))
 
     const type = $('.J_menuType.active').attr('href').substr(1)
     let value
     if (type === 'ENTITY') {
       value = $val('.J_menuEntity')
-      if (!value) return RbHighbar.create($L('PlsSelectSome,RelatedEntry'))
+      if (!value) return RbHighbar.create($L('请选择,RelatedEntry'))
     } else {
       value = $val('.J_menuUrl')
-      if (!value) return RbHighbar.create($L('PlsInputSome,OutUrl'))
+      if (!value) return RbHighbar.create($L('请输入,OutUrl'))
       else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) return RbHighbar.create($L('PlsInputValidSome,OutUrl'))
     }
 
@@ -168,7 +168,7 @@ let item_current_isNew
 let item_randomid = new Date().getTime()
 const render_item = function (data, isNew, append2) {
   data.id = data.id || item_randomid++
-  data.text = data.text || $L('Unname')
+  data.text = data.text || $L('未命名')
   data.icon = data.icon || UNICON_NAME
   append2 = append2 || '.J_config'
 

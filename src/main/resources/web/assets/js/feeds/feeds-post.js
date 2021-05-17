@@ -20,23 +20,23 @@ class FeedsPost extends React.Component {
         <ul className="list-unstyled list-inline mb-1 pl-1" ref={(c) => (this._$activeType = c)}>
           <li className="list-inline-item">
             <a onClick={() => this.setState({ type: 1 })} className={`${activeType === 1 ? activeClass : ''}`}>
-              {$L('FeedsType1')}
+              {$L('动态')}
             </a>
           </li>
           <li className="list-inline-item">
             <a onClick={() => this.setState({ type: 2 })} className={`${activeType === 2 ? activeClass : ''}`}>
-              {$L('FeedsType2')}
+              {$L('跟进')}
             </a>
           </li>
           <li className="list-inline-item">
             <a onClick={() => this.setState({ type: 4 })} className={`${activeType === 4 ? activeClass : ''}`}>
-              {$L('FeedsType4')}
+              {$L('日程')}
             </a>
           </li>
           {rb.isAdminUser && (
             <li className="list-inline-item">
               <a onClick={() => this.setState({ type: 3 })} className={`${activeType === 3 ? activeClass : ''}`}>
-                {$L('FeedsType3')}
+                {$L('公告')}
               </a>
             </li>
           )}
@@ -50,19 +50,19 @@ class FeedsPost extends React.Component {
         <div className="mt-3">
           <div className="float-right">
             <button className="btn btn-primary" ref={(c) => (this._$btn = c)} onClick={this._post}>
-              {$L('Publish')}
+              {$L('发布')}
             </button>
           </div>
           <div className="float-right mr-4">
             <div className="btn-group" style={{ border: '0 none' }}>
               <button className="btn btn-scope btn-link" data-toggle="dropdown" ref={(c) => (this._scopeBtn = c)}>
                 <i className="icon up-1 zmdi zmdi-chart-donut" />
-                {$L('Public')}
+                {$L('公开')}
               </button>
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" onClick={this._selectScope} data-scope="ALL" title={$L('FeedsScopeAll')}>
                   <i className="icon up-1 zmdi zmdi-chart-donut" />
-                  {$L('Public')}
+                  {$L('公开')}
                 </a>
                 <a className="dropdown-item" onClick={this._selectScope} data-scope="SELF" title={$L('FeedsScopePrivate')}>
                   <i className="icon up-1 zmdi zmdi-lock" />
@@ -115,11 +115,11 @@ class FeedsPost extends React.Component {
   _post = () => {
     const _data = this._FeedsEditor.vals()
     if (!_data) return
-    if (!_data.content) return RbHighbar.create($L('PlsInputSome,FeedsContent'))
+    if (!_data.content) return RbHighbar.create($L('请输入,FeedsContent'))
 
     _data.scope = this.state.scope
     if (_data.scope === 'GROUP') {
-      if (!this.__group) return RbHighbar.create($L('PlsSelectSome,e.Team'))
+      if (!this.__group) return RbHighbar.create($L('请选择,e.Team'))
       _data.scope = this.__group.id
     }
 
@@ -188,7 +188,7 @@ class FeedsEditor extends React.Component {
                   multiple={false}
                   ref={(c) => (this._UserSelector = c)}
                   compToggle={
-                    <a title={`@${$L('User')}`} data-toggle="dropdown">
+                    <a title={`@${$L('用户')}`} data-toggle="dropdown">
                       <i className="zmdi at-text">@</i>
                     </a>
                   }
@@ -229,7 +229,7 @@ class FeedsEditor extends React.Component {
                   <span key={'img-' + item}>
                     <a title={$fileCutName(item)} className="img-thumbnail img-upload">
                       <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
-                      <b title={$L('Remove')} onClick={() => this._removeImage(item)}>
+                      <b title={$L('移除')} onClick={() => this._removeImage(item)}>
                         <span className="zmdi zmdi-close"></span>
                       </b>
                     </a>
@@ -244,7 +244,7 @@ class FeedsEditor extends React.Component {
                   <div key={'file-' + item} className="img-thumbnail" title={fileName}>
                     <i className="file-icon" data-type={$fileExtName(fileName)} />
                     <span>{fileName}</span>
-                    <b title={$L('Remove')} onClick={() => this._removeFile(item)}>
+                    <b title={$L('移除')} onClick={() => this._removeFile(item)}>
                       <span className="zmdi zmdi-close"></span>
                     </b>
                   </div>
@@ -378,7 +378,7 @@ class SelectGroup extends React.Component {
               </button>
             </div>
             <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('SelectSome,e.Team')}</h5>
+              <h5 className="mt-0 text-bold">{$L('选择,e.Team')}</h5>
               {this.state.groups && this.state.groups.length === 0 && <p className="text-muted">{$L('YouNotJoinAnyTeams')}</p>}
               <div>
                 <ul className="list-unstyled">
@@ -445,11 +445,11 @@ class AnnouncementOptions extends React.Component {
           <dt className="col-12 col-lg-3 pt-2"> {$L('AnnouncementTime')}</dt>
           <dd className="col-12 col-lg-9" ref={(c) => (this._$showTime = c)}>
             <div className="input-group">
-              <input type="text" className="form-control form-control-sm" placeholder={$L('Now')} />
+              <input type="text" className="form-control form-control-sm" placeholder={$L('现在')} />
               <div className="input-group-prepend input-group-append">
                 <span className="input-group-text">{$L('To')}</span>
               </div>
-              <input type="text" className="form-control form-control-sm" placeholder={$L('SelectSome,EndTime')} />
+              <input type="text" className="form-control form-control-sm" placeholder={$L('选择,EndTime')} />
             </div>
           </dd>
         </dl>
@@ -492,7 +492,7 @@ class AnnouncementOptions extends React.Component {
     const timeStart = $(this._$showTime).find('.form-control:eq(0)').val()
     const timeEnd = $(this._$showTime).find('.form-control:eq(1)').val()
     if (where > 0 && !timeEnd) {
-      RbHighbar.create($L('PlsSelectSome,EndTime'))
+      RbHighbar.create($L('请选择,EndTime'))
       return
     }
 
@@ -521,7 +521,7 @@ class ScheduleOptions extends React.Component {
         <dl className="row">
           <dt className="col-12 col-lg-3 pt-2">{$L('ScheduleTime')}</dt>
           <dd className="col-12 col-lg-9" ref={(c) => (this._$scheduleTime = c)}>
-            <input type="text" className="form-control form-control-sm" placeholder={$L('SelectSome,ScheduleTime')} />
+            <input type="text" className="form-control form-control-sm" placeholder={$L('选择,ScheduleTime')} />
           </dd>
         </dl>
         <dl className="row mb-1">
@@ -578,7 +578,7 @@ class ScheduleOptions extends React.Component {
       })
     const time = $(this._$scheduleTime).find('.form-control:eq(0)').val()
     if (!time) {
-      RbHighbar.create($L('PlsSelectSome,ScheduleTime'))
+      RbHighbar.create($L('请选择,ScheduleTime'))
       return
     }
 
@@ -618,10 +618,10 @@ class FeedsEditDlg extends RbModalHandler {
         </div>
         <div className="mt-3 text-right" ref={(c) => (this._$btn = c)}>
           <button className="btn btn-primary btn-space" type="button" onClick={this._post}>
-            {$L('Save')}
+            {$L('保存')}
           </button>
           <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
-            {$L('Cancel')}
+            {$L('取消')}
           </button>
         </div>
       </RbModal>
@@ -635,7 +635,7 @@ class FeedsEditDlg extends RbModalHandler {
   _post = () => {
     const _data = this._FeedsEditor.vals()
     if (!_data) return
-    if (!_data.content) return RbHighbar.create($L('PlsInputSome,FeedsContent'))
+    if (!_data.content) return RbHighbar.create($L('请输入,FeedsContent'))
     if (!this.props.id && this.props.type) _data.type = this.props.type
 
     _data.metadata = { entity: 'Feeds', id: this.props.id }

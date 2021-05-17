@@ -61,7 +61,7 @@ class FilesList extends React.Component {
         {this.__pageNo === 1 && !hasFiles && (
           <div className="list-nodata pt-8 pb-8">
             <i className="zmdi zmdi-folder-outline"></i>
-            <p>{$L('NoData')}</p>
+            <p>{$L('暂无数据')}</p>
           </div>
         )}
       </div>

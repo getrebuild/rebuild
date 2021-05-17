@@ -44,7 +44,7 @@ class GridList extends React.Component {
             </div>
           )
         })}
-        {this.state.list && this.state.list.length === 0 && <div className="text-muted">{$L('NoSome,Project')}</div>}
+        {this.state.list && this.state.list.length === 0 && <div className="text-muted">{$L('暂无项目')}</div>}
       </div>
     )
   }
@@ -58,15 +58,15 @@ class GridList extends React.Component {
   }
 
   _handleDelete(projectId) {
-    RbAlert.create($L('DeleteProjectConfirm'), {
+    RbAlert.create($L('只有空项目 (项目下无任务) 才能被删除。确认吗？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${projectId}`, (res) => {
           this.hide()
           if (res.error_code === 0) {
-            RbHighbar.success($L('SomeDeleted,Project'))
+            RbHighbar.success($L('项目已删除'))
             setTimeout(() => location.reload(), 500)
           } else RbHighbar.error(res.error_msg)
         })
@@ -80,10 +80,10 @@ class DlgEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L(this.props.id ? 'ModifySome,Project' : 'AddSome,Project')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this.props.id ? $L('修改项目') : $L('添加项目')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('Icon')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图标')}</label>
             <div className="col-sm-7">
               <a className="project-icon" title="选择图标" onClick={() => this._selectIcon()}>
                 <i className={`icon zmdi zmdi-${this.state.iconName || 'texture'}`}></i>
@@ -91,7 +91,7 @@ class DlgEdit extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ProjectName')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('项目名称')}</label>
             <div className="col-sm-7">
               <input className="form-control form-control-sm" value={this.state.projectName || ''} data-id="projectName" onChange={this.handleChange} maxLength="60" />
             </div>
@@ -99,10 +99,10 @@ class DlgEdit extends RbFormHandler {
           {!this.props.id && (
             <React.Fragment>
               <div className="form-group row">
-                <label className="col-sm-3 col-form-label text-sm-right">{$L('ProjectCode')}</label>
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('项目 ID')}</label>
                 <div className="col-sm-7">
                   <input className="form-control form-control-sm " value={this.state.projectCode || ''} data-id="projectCode" onChange={this.handleChange} maxLength="6" />
-                  <div className="form-text">{$L('ProjectCodeTips')}</div>
+                  <div className="form-text">{$L('任务编号将以项目 ID 作为前缀，用以区别不同项目。支持 2-6 位字母')}</div>
                 </div>
               </div>
               <div className="form-group row">
@@ -110,7 +110,7 @@ class DlgEdit extends RbFormHandler {
                 <div className="col-sm-7">
                   <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                     <input className="custom-control-input" type="checkbox" value="1" defaultChecked ref={(c) => (this._useTemplate = c)} />
-                    <span className="custom-control-label">{$L('UseProjectTemplate')}</span>
+                    <span className="custom-control-label">{$L('使用默认项目模板')}</span>
                   </label>
                 </div>
               </div>
@@ -119,10 +119,10 @@ class DlgEdit extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -137,11 +137,11 @@ class DlgEdit extends RbFormHandler {
       that.setState({ iconName: s })
       RbModal.hide()
     }
-    RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
+    RbModal.create('/p/common/search-icon', $L('选择,Icon'))
   }
 
   save = () => {
-    if (!this.state.projectName) return RbHighbar.create($L('PlsInputSome,ProjectName'))
+    if (!this.state.projectName) return RbHighbar.create($L('请输入,ProjectName'))
     const _data = {
       projectName: this.state.projectName,
       iconName: this.state.iconName,

@@ -74,7 +74,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                             {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
                             {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
                             {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
-                            <a className="del" title={$L('Remove')} onClick={() => this.delItem(item.targetField)}>
+                            <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
                             </a>
                           </div>
@@ -138,7 +138,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
               <div className="mt-1">
                 <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()}>
-                  + {$L('Add')}
+                  + {$L('添加')}
                 </button>
               </div>
             </div>
@@ -166,7 +166,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         const $s2te = $(this._targetEntity)
-          .select2({ placeholder: $L('SelectSome,TargetEntity') })
+          .select2({ placeholder: $L('选择,TargetEntity') })
           .on('change', () => this._changeTargetEntity())
 
         if (content && content.targetEntity) {
@@ -201,14 +201,14 @@ class ContentFieldWriteback extends ActionContentSpec {
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           const $s2tf = $(this._targetField)
-            .select2({ placeholder: $L('SelectSome,TargetField') })
+            .select2({ placeholder: $L('选择,TargetField') })
             .on('change', () => this._changeTargetField())
           const $s2um = $(this._updateMode)
-            .select2({ placeholder: $L('SelectSome,UpdateMode') })
+            .select2({ placeholder: $L('选择,UpdateMode') })
             .on('change', (e) => {
               this.setState({ updateMode: e.target.value })
             })
-          const $s2sf = $(this._sourceField).select2({ placeholder: $L('SelectSome,SourceField') })
+          const $s2sf = $(this._sourceField).select2({ placeholder: $L('选择,SourceField') })
 
           $s2tf.trigger('change')
           this.__select2.push($s2tf)
@@ -246,7 +246,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   addItem() {
     const tf = $(this._targetField).val()
     const mode = $(this._updateMode).val()
-    if (!tf) return RbHighbar.create($L('PlsSelectSome,TargetField'))
+    if (!tf) return RbHighbar.create($L('请选择,TargetField'))
 
     let sourceField = null
     if (mode === 'FIELD') {
@@ -257,7 +257,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       if (tfFull === sourceField) return RbHighbar.create($L('TargetAndSourceNotSame'))
     } else if (mode === 'FORMULA') {
       sourceField = this._sourceFormula.val()
-      if (!sourceField) return RbHighbar.create($L('PlsInputSome,CalcFORMULA'))
+      if (!sourceField) return RbHighbar.create($L('请输入,CalcFORMULA'))
     } else if (mode === 'VFIXED') {
       sourceField = this._sourceValue.val()
       if (!sourceField) return
@@ -288,7 +288,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       readonlyFields: $(this._readonlyFields).prop('checked'),
     }
     if (!content.targetEntity) {
-      RbHighbar.create($L('PlsSelectSome,TargetEntity'))
+      RbHighbar.create($L('请选择,TargetEntity'))
       return false
     }
     if (content.items.length === 0) {
@@ -391,7 +391,7 @@ class FormulaCalc2 extends FormulaCalc {
           <a data-toggle="dropdown">{$L('FuncUnit')}</a>
           <div className="dropdown-menu">
             <a className="dropdown-item" onClick={() => this.handleInput('H')}>
-              H ({$L('Hour')})
+              H ({$L('小时')})
             </a>
             <a className="dropdown-item" onClick={() => this.handleInput('D')}>
               D ({$L('Day')})
@@ -400,7 +400,7 @@ class FormulaCalc2 extends FormulaCalc {
               M ({$L('Month')})
             </a>
             <a className="dropdown-item" onClick={() => this.handleInput('Y')}>
-              Y ({$L('Year')})
+              Y ({$L('年')})
             </a>
           </div>
         </li>

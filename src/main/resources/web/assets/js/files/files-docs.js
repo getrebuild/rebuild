@@ -13,7 +13,7 @@ let __FolderData = []
 // 渲染目录
 const _renderOption = function (item, idx, disabledItem) {
   idx = idx || 0
-  if (item.id === __DEFAULT_ALL) item = { text: $L('Null') }
+  if (item.id === __DEFAULT_ALL) item = { text: $L('无') }
   let options = [
     <option
       key={`opt-${item.id}`}
@@ -50,7 +50,7 @@ class FolderEditDlg extends RbFormHandler {
             <div className="col-sm-7 pt-1 down-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('Public')}</span>
+                <span className="custom-control-label">{$L('公开')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
@@ -72,10 +72,10 @@ class FolderEditDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -87,7 +87,7 @@ class FolderEditDlg extends RbFormHandler {
   _post = () => {
     let _data = { name: this.state.name, parent: this.state.parent, scope: this.state.scope }
     if (!_data.name) {
-      RbHighbar.create($L('PlsInputSome,FolderName'))
+      RbHighbar.create($L('请输入,FolderName'))
       return
     }
     _data.metadata = { entity: 'AttachmentFolder', id: this.props.id || null }
@@ -128,7 +128,7 @@ class FileUploadDlg extends RbFormHandler {
                     <div key={'file-' + item} className="img-thumbnail" title={fileName}>
                       <i className="file-icon" data-type={$fileExtName(fileName)} />
                       <span>{fileName}</span>
-                      <b title={$L('Remove')} onClick={() => this._removeFile(item)}>
+                      <b title={$L('移除')} onClick={() => this._removeFile(item)}>
                         <span className="zmdi zmdi-close"></span>
                       </b>
                     </div>
@@ -144,10 +144,10 @@ class FileUploadDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('Upload')}
+                {$L('上传')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -206,7 +206,7 @@ class FileUploadDlg extends RbFormHandler {
   }
 
   _post = () => {
-    if ((this.state.files || []).length === 0) return RbHighbar.create($L('PlsSelectSome,File'))
+    if ((this.state.files || []).length === 0) return RbHighbar.create($L('请选择,File'))
 
     this.disabled(true)
     $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.state.files), (res) => {
@@ -239,10 +239,10 @@ class FileMoveDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -322,7 +322,7 @@ class FolderTree extends React.Component {
     const that = this
     RbAlert.create($L('DelFolderTips'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${id}`, (res) => {
@@ -340,7 +340,7 @@ class FolderTree extends React.Component {
   loadData() {
     $.get('/files/tree-folder', (res) => {
       const data = res.data || []
-      data.unshift({ id: __DEFAULT_ALL, text: $L('All') })
+      data.unshift({ id: __DEFAULT_ALL, text: $L('全部') })
       this.setState({ list: data })
       __FolderData = data
     })
@@ -360,7 +360,7 @@ class FilesList4Docs extends FilesList {
             <i className="icon zmdi zmdi-download"></i>
           </a>
           {rb.fileSharable && (
-            <a title={$L('Share0')} onClick={(e) => this._share(item, e)}>
+            <a title={$L('分享')} onClick={(e) => this._share(item, e)}>
               <i className="icon zmdi zmdi-share"></i>
             </a>
           )}
@@ -414,7 +414,7 @@ $(document).ready(() => {
     if (!s) return
     RbAlert.create($L('DeleteSomeConfirm,File'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/files/delete-files?ids=${s}`, (res) => {

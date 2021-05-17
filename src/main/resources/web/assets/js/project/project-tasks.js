@@ -17,7 +17,7 @@ $(document).ready(() => {
     $('.search-input-gs, .J_search .input-search input').val(gs)
     $('.J_search .indicator-primary').removeClass('hide')
   }
-  
+
   renderRbcomp(<PlanBoxes plans={wpc.projectPlans} readonly={!wpc.isMember} search={gs} />, 'plan-boxes', function () {
     __PlanBoxes = this
     __draggable()
@@ -64,7 +64,7 @@ $(document).ready(() => {
     if (__AdvFilter) {
       __AdvFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('AdvFilter')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={confirmFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('高级查询')} entity="ProjectTask" inModal={true} canNoFilters={true} confirm={confirmFilter} />, null, function () {
         __AdvFilter = this
       })
     }
@@ -140,7 +140,7 @@ class PlanBoxes extends React.Component {
             const flowNexts = wpc.projectPlans.find((item) => item.id === planidOld).flowNexts || []
             if (!flowNexts.includes(planidNew)) {
               $(this).sortable('cancel')
-              RbHighbar.create($L('NotNextToPlan'))
+              RbHighbar.create($L('不允许流转到此面板'))
               return
             }
           }
@@ -215,7 +215,7 @@ class PlanBox extends React.Component {
             {(this.state.tasks || []).map((item) => {
               return <Task key={`task-${item.id}`} planid={this.props.id} $$$parent={this} {...item} />
             })}
-            {this.state.taskNum === 0 && <div className="no-tasks">{$L('NoSome,Task')}</div>}
+            {this.state.taskNum === 0 && <div className="no-tasks">{$L('暂无任务')}</div>}
           </div>
           {this.creatableTask &&
             (this.state.newMode ? (
@@ -224,7 +224,7 @@ class PlanBox extends React.Component {
                   <div>
                     <textarea
                       className="form-control form-control-sm row2x"
-                      placeholder={$L('InputNameAndNewTask')}
+                      placeholder={$L('输入标题以新建任务')}
                       ref={(c) => (this._taskName = c)}
                       maxLength="190"
                       autoFocus
@@ -251,17 +251,17 @@ class PlanBox extends React.Component {
                   </div>
                   <div className="text-right">
                     <button className="btn btn-link w-auto" type="button" onClick={() => this.setState({ newMode: false })}>
-                      {$L('Cancel')}
+                      {$L('取消')}
                     </button>
                     <button className="btn btn-primary" type="button" ref={(c) => (this._btn = c)} onClick={() => this._handleCreateTask()}>
-                      {$L('Confirm')}
+                      {$L('确定')}
                     </button>
                   </div>
                 </div>
               </div>
             ) : (
               <div className="task-card newbtn" onClick={() => this._handleAddTask()}>
-                <i className="zmdi zmdi-plus"/>
+                <i className="zmdi zmdi-plus" />
               </div>
             ))}
         </div>
@@ -289,7 +289,7 @@ class PlanBox extends React.Component {
     const $boxes = document.getElementById('plan-boxes')
     $addResizeHandler(() => {
       let mh = $(window).height() - 210 + (this.creatableTask ? 0 : 44)
-      if ($boxes.scrollWidth > $boxes.clientWidth) mh -= 5  // 横向滚动条高度
+      if ($boxes.scrollWidth > $boxes.clientWidth) mh -= 5 // 横向滚动条高度
 
       $scroller.css({ 'max-height': mh })
       $scroller.perfectScrollbar('update')
@@ -375,7 +375,7 @@ class PlanBox extends React.Component {
       metadata: { entity: 'ProjectTask' },
     }
 
-    if (!_data.taskName) return RbHighbar.create($L('PlsInputSome,TaskName'))
+    if (!_data.taskName) return RbHighbar.create($L('请输入,TaskName'))
     if (_data.deadline) _data.deadline += ':00'
 
     const $btn = $(this._btn).button('loading')
@@ -426,7 +426,7 @@ class Task extends React.Component {
                   disabled={!this.props.$$$parent.performableTask}
                   ref={(c) => (this._status = c)}
                 />
-                <span className="custom-control-label"/>
+                <span className="custom-control-label" />
               </label>
             </div>
             <div className="task-content">
@@ -441,7 +441,7 @@ class Task extends React.Component {
               </div>
               {deadlineState > -1 && (
                 <div className="task-time">
-                  <span className={`badge badge-${deadlineState === 2 ? 'danger' : (deadlineState === 1 ? 'warning' : 'primary')}`}>
+                  <span className={`badge badge-${deadlineState === 2 ? 'danger' : deadlineState === 1 ? 'warning' : 'primary'}`}>
                     {$L('Deadline')} <DateShow date={this.state.deadline} />
                   </span>
                 </div>
@@ -453,7 +453,7 @@ class Task extends React.Component {
                     const colorStyle2 = { backgroundColor: item.color }
                     return (
                       <a key={item.rid} style={colorStyle1}>
-                        <i style={colorStyle2}/> {item.name}
+                        <i style={colorStyle2} /> {item.name}
                       </a>
                     )
                   })}
@@ -466,7 +466,7 @@ class Task extends React.Component {
                   </a>
                 )}
                 <span className="badge float-right">{this.state.taskNumber}</span>
-                <div className="clearfix"/>
+                <div className="clearfix" />
               </div>
             </div>
           </div>
@@ -574,7 +574,7 @@ class TaskViewModal extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state._taskUrl || ''} frameBorder="0" scrolling="no"/>
+              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state._taskUrl || ''} frameBorder="0" scrolling="no" />
               <RbSpinner />
             </div>
           </div>

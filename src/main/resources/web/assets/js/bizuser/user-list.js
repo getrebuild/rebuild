@@ -22,7 +22,7 @@ $(document).ready(function () {
   })
   $('.J_new-dept').click(function () {
     formPostType = 2
-    RbFormModal.create({ title: $L('NewSome,Department'), entity: 'Department', icon: 'accounts' })
+    RbFormModal.create({ title: $L('新建,Department'), entity: 'Department', icon: 'accounts' })
   })
 })
 
@@ -50,14 +50,14 @@ class UserImport extends RbModalHandler {
       <RbModal title={$L('ImportUser')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('UploadFile')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('上传文件')}</label>
             <div className="col-sm-9">
               <div className="float-left">
                 <div className="file-select">
                   <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="temp" ref={(c) => (this._upload = c)} />
                   <label htmlFor="upload-input" className="btn-secondary">
                     <i className="zmdi zmdi-upload"></i>
-                    <span>{$L('SelectFile')}</span>
+                    <span>{$L('选择文件')}</span>
                   </label>
                 </div>
               </div>

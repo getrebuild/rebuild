@@ -16,7 +16,7 @@ $(document).ready(function () {
       refClassification = $val('#refClassification'),
       stateClass = $val('#stateClass') || 'com.rebuild.core.support.state.HowtoState'
     if (!fieldLabel) {
-      return RbHighbar.create($L('PlsInputSome,FieldName'))
+      return RbHighbar.create($L('请输入,FieldName'))
     }
 
     if ((type === 'REFERENCE' || type === 'N2NREFERENCE') && !refEntity) {
@@ -72,13 +72,13 @@ $(document).ready(function () {
         referenceLoaded = true
         $.get('/admin/entity/entity-list?detail=true&bizz=false', (res) => {
           const _data = res.data || []
-          _data.push({ entityName: 'User', entityLabel: $L('e.User') })
-          _data.push({ entityName: 'Department', entityLabel: $L('e.Department') })
+          _data.push({ entityName: 'User', entityLabel: $L('用户') })
+          _data.push({ entityName: 'Department', entityLabel: $L('部门') })
           // _data.push({ entityName: 'Team', entityLabel: $L('e.Team') })
           // _data.push({ entityName: 'Role', entityLabel: $L('e.Role') })
 
           $(_data).each(function () {
-            $(`<option value="${this.entityName}">${this.entityLabel}${this.mainEntity ? ' (' + $L('DetailEntity') + ')' : ''}</option>`).appendTo('#refEntity')
+            $(`<option value="${this.entityName}">${this.entityLabel}${this.mainEntity ? ' (' + $L('明细实体') + ')' : ''}</option>`).appendTo('#refEntity')
           })
           if (_data.length === 0) $(`<option value="">${$L('NoAnySome,Entity')}</option>`).appendTo('#refEntity')
         })

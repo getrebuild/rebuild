@@ -27,9 +27,7 @@ class GridList extends React.Component {
                   <a className="text-truncate" href={'classification/' + item[0]}>
                     {item[1]}
                   </a>
-                  <p className="text-muted text-truncate">
-                    {$L('XLevelClass').replace('%d', ~~item[3] + 1)}
-                  </p>
+                  <p className="text-muted text-truncate">{$L('XLevelClass').replace('%d', ~~item[3] + 1)}</p>
                 </div>
                 <div className="card-footer card-footer-contrast">
                   <div className="float-left">
@@ -40,7 +38,7 @@ class GridList extends React.Component {
                       <i className="zmdi zmdi-delete"></i>
                     </a>
                   </div>
-                  {item[2] && <div className="badge badge-warning">{$L('Disabled')}</div>}
+                  {item[2] && <div className="badge badge-warning">{$L('已禁用')}</div>}
                   <div className="clearfix"></div>
                 </div>
               </div>
@@ -63,7 +61,7 @@ class GridList extends React.Component {
   _handleDelete(dataId) {
     RbAlert.create($L('DeleteClassDataConfirm'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${dataId}`, (res) => {
@@ -109,10 +107,10 @@ class DlgEdit extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -123,7 +121,7 @@ class DlgEdit extends RbFormHandler {
 
   save = (e) => {
     e.preventDefault()
-    if (!this.state.name) return RbHighbar.create($L('PlsInputSome,ClassificationName'))
+    if (!this.state.name) return RbHighbar.create($L('请输入,ClassificationName'))
 
     const data = {
       name: this.state.name,

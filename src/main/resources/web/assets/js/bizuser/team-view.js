@@ -16,7 +16,7 @@ class MemberAddDlg extends RbFormHandler {
       <RbModal ref={(c) => (this._dlg = c)} title={$L('AddMember')} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,User')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,User')}</label>
             <div className="col-sm-7">
               <UserSelector ref={(c) => (this._UserSelector = c)} hideTeam={true} />
             </div>
@@ -24,7 +24,7 @@ class MemberAddDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
             </div>
           </div>
@@ -35,7 +35,7 @@ class MemberAddDlg extends RbFormHandler {
 
   post = () => {
     const users = this._UserSelector.val()
-    if (users.length < 1) return RbHighbar.create($L('PlsSelectSome,User'))
+    if (users.length < 1) return RbHighbar.create($L('请选择,User'))
 
     this.disabled(true)
     $.post(`/admin/bizuser/team-members-add?team=${this.props.id}`, JSON.stringify(users), (res) => {
@@ -86,7 +86,7 @@ class MemberList extends React.Component {
                       <span className="cell-detail-description">{item[2] || '-'}</span>
                     </td>
                     <td className="actions">
-                      <a className="icon danger-hover" title={$L('Delete')} onClick={() => this._removeMember(item[0])}>
+                      <a className="icon danger-hover" title={$L('删除')} onClick={() => this._removeMember(item[0])}>
                         <i className="zmdi zmdi-delete"></i>
                       </a>
                     </td>
@@ -154,7 +154,7 @@ $(document).ready(() => {
     .click(() => {
       RbAlert.create($L('DeleteTeamConfirm'), $L('DeleteSome,Team'), {
         type: 'danger',
-        confirmText: $L('Delete'),
+        confirmText: $L('删除'),
         confirm: function () {
           this.disabled(true)
           $.post(`/app/entity/common-delete?id=${teamId}`, (res) => {

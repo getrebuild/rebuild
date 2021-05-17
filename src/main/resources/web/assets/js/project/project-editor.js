@@ -33,7 +33,7 @@ $(document).ready(() => {
       members: _Members.val().join(','),
       metadata: { id: wpc.id },
     }
-    if (!data.members) return RbHighbar.create($L('PlsSelectSome,Members'))
+    if (!data.members) return RbHighbar.create($L('请选择,Members'))
 
     $btn.button('loading')
     $.post('/admin/projects/post', JSON.stringify(data), (res) => {
@@ -132,7 +132,7 @@ class PlanList extends React.Component {
     const that = this
     RbAlert.create($L('DeletePlanConfirm'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${planId}`, (res) => {
@@ -206,10 +206,10 @@ class PlanEdit extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -219,7 +219,7 @@ class PlanEdit extends RbFormHandler {
   }
 
   save = () => {
-    if (!this.state.planName) return RbHighbar.create($L('PlsInputSome,PlanName'))
+    if (!this.state.planName) return RbHighbar.create($L('请输入,PlanName'))
 
     const _data = {
       planName: this.state.planName,

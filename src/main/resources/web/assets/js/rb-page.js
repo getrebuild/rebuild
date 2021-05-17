@@ -254,7 +254,7 @@ var _initNavs = function () {
   }
 
   $('.nav-settings').click(function () {
-    RbModal.create('/p/settings/nav-settings', $L('SetSome,NavMenu'))
+    RbModal.create('/p/settings/nav-settings', $L('设置,NavMenu'))
   })
 
   // WHEN SMALL-WIDTH

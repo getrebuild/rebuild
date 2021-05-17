@@ -116,7 +116,7 @@ class FieldsMapping extends React.Component {
 
         $this
           .select2({
-            placeholder: $L('SelectSome,SourceField'),
+            placeholder: $L('选择,SourceField'),
             allowClear: true,
             data: sourceFields,
             language: {
@@ -193,6 +193,6 @@ class FieldsMapping extends React.Component {
 let advFilter_data
 function _saveFilter(res) {
   advFilter_data = res
-  if (advFilter_data && advFilter_data.items && advFilter_data.items.length > 0) $('#useFilter').text(`${$L('AdvFiletrSeted')} (${advFilter_data.items.length})`)
-  else $('#useFilter').text($L('ClickSet'))
+  if (advFilter_data && advFilter_data.items && advFilter_data.items.length > 0) $('#useFilter').text(`${$L('已设置条件')} (${advFilter_data.items.length})`)
+  else $('#useFilter').text($L('点击设置'))
 }

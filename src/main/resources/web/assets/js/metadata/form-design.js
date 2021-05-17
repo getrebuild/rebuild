@@ -136,7 +136,7 @@ $(document).ready(function () {
     if ($('.field-list .not-nullable').length > 0) {
       RbAlert.create($L('HasRequiredFieldUnLayoutConfirm'), {
         type: 'warning',
-        confirmText: $L('Save'),
+        confirmText: $L('保存'),
         confirm: function () {
           this.hide()
           _handleSave(formElements)
@@ -190,7 +190,7 @@ const render_item = function (data) {
       .click(function () {
         $item.toggleClass('w-100')
       })
-    $(`<a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a>`)
+    $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
       .click(function () {
         const call = function (nv) {
@@ -217,7 +217,7 @@ const render_item = function (data) {
         renderRbcomp(<DlgEditField call={call} {...ov} />)
       })
 
-    $(`<a title="${$L('Remove')}"><i class="zmdi zmdi-close"></i></a>`)
+    $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
       .appendTo($action)
       .click(function () {
         render_unset(data)
@@ -227,7 +227,7 @@ const render_item = function (data) {
 
   if (data.fieldName === DIVIDER_LINE) {
     $item.addClass('divider')
-    $(`<a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a>`)
+    $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
       .click(function () {
         const call = function (nv) {
@@ -237,7 +237,7 @@ const render_item = function (data) {
         renderRbcomp(<DlgEditDivider call={call} dividerName={ov || ''} />)
       })
 
-    $(`<a title="${$L('Remove')}"><i class="zmdi zmdi-close"></i></a>`)
+    $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
       .appendTo($action)
       .click(function () {
         $item.remove()
@@ -306,7 +306,7 @@ class DlgEditField extends RbAlert {
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
         </div>
       </form>
@@ -341,7 +341,7 @@ class DlgEditDivider extends DlgEditField {
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
         </div>
       </form>

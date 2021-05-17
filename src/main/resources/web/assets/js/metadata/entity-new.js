@@ -10,7 +10,7 @@ $(document).ready(function () {
     const entityLabel = $val('#entityLabel'),
       comments = $val('#comments')
     if (!entityLabel) {
-      RbHighbar.create($L('PlsInputSome,EntityName'))
+      RbHighbar.create($L('请输入,EntityName'))
       return
     }
 
@@ -21,7 +21,7 @@ $(document).ready(function () {
     if ($val('#isDetail')) {
       data.mainEntity = $val('#mainEntity')
       if (!data.mainEntity) {
-        RbHighbar.create($L('PlsSelectSome,MainEntity'))
+        RbHighbar.create($L('请选择,MainEntity'))
         return
       }
     }

@@ -52,7 +52,7 @@ class TaskForm extends React.Component {
               </button>
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" onClick={() => this._handleDelete()}>
-                  {$L('Delete')}
+                  {$L('删除')}
                 </a>
               </div>
             </div>
@@ -141,7 +141,7 @@ class TaskForm extends React.Component {
     const that = this
     RbAlert.create($L('DeleteSomeConfirm,Task'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${that.props.id}`, (res) => {
@@ -305,7 +305,7 @@ class ValueExecutor extends ValueComp {
               }
               onSelectItem={(s) => this.handleChange(s)}
             />
-            <a className="close" onClick={() => this.handleChange(null)} title={$L('Remove')}>
+            <a className="close" onClick={() => this.handleChange(null)} title={$L('移除')}>
               <i className="zmdi zmdi-close" />
             </a>
           </div>
@@ -319,7 +319,7 @@ class ValueExecutor extends ValueComp {
               ref={(c) => (this._UserSelector = c)}
               compToggle={
                 <a className="tag-value arrow placeholder" data-toggle="dropdown">
-                  {$L('SelectSome,Executor')}
+                  {$L('选择,Executor')}
                 </a>
               }
               onSelectItem={(s) => this.handleChange(s)}
@@ -331,7 +331,7 @@ class ValueExecutor extends ValueComp {
   }
 
   renderViewElement() {
-    return this._renderValue() || <div className="form-control-plaintext text-muted">{$L('Null')}</div>
+    return this._renderValue() || <div className="form-control-plaintext text-muted">{$L('无')}</div>
   }
 
   _renderValue(call) {
@@ -358,14 +358,14 @@ class ValueDeadline extends ValueComp {
     return (
       <div className="form-control-plaintext" ref={(c) => (this._deadline = c)}>
         <a className={`tag-value arrow ${this.state.deadline ? 'plaintext' : 'placeholder'}`} name="deadline" title={this.state.deadline}>
-          {this._renderValue($L('SelectSome,Deadline'))}
+          {this._renderValue($L('选择,Deadline'))}
         </a>
       </div>
     )
   }
 
   renderViewElement() {
-    return this.state.deadline ? <div className="form-control-plaintext">{this._renderValue()}</div> : <div className="form-control-plaintext text-muted">{$L('Null')}</div>
+    return this.state.deadline ? <div className="form-control-plaintext">{this._renderValue()}</div> : <div className="form-control-plaintext text-muted">{$L('无')}</div>
   }
 
   _renderValue(defaultValue) {
@@ -402,10 +402,10 @@ class ValueDescription extends ValueComp {
           <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />
           <div className="mt-2 text-right">
             <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
-              {$L('Cancel')}
+              {$L('取消')}
             </button>
             <button className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>
-              {$L('Confirm')}
+              {$L('确定')}
             </button>
           </div>
         </div>
@@ -421,7 +421,7 @@ class ValueDescription extends ValueComp {
       } else {
         return (
           <div {...ps}>
-            <span className="text-muted">{$L('Null')}</span>
+            <span className="text-muted">{$L('无')}</span>
           </div>
         )
       }
@@ -434,7 +434,7 @@ class ValueDescription extends ValueComp {
     } else {
       return (
         <div className="form-control-plaintext mdedit-content">
-          <span className="text-muted">{$L('Null')}</span>
+          <span className="text-muted">{$L('无')}</span>
         </div>
       )
     }
@@ -533,7 +533,7 @@ class ValueAttachments extends ValueComp {
         <div className="form-control-plaintext">
           <input type="file" className="inputfile" id="attachments" ref={(c) => (this._attachments = c)} />
           <label htmlFor="attachments" style={{ padding: 0, border: 0, lineHeight: 1, marginBottom: 0 }}>
-            <a className="tag-value upload hover">+ {$L('Upload')}</a>
+            <a className="tag-value upload hover">+ {$L('上传')}</a>
           </label>
         </div>
         {this._renderValue(true)}
@@ -542,7 +542,7 @@ class ValueAttachments extends ValueComp {
   }
 
   renderViewElement() {
-    return this._renderValue() || <div className="form-control-plaintext text-muted">{$L('Null')}</div>
+    return this._renderValue() || <div className="form-control-plaintext text-muted">{$L('无')}</div>
   }
 
   _renderValue(del) {
@@ -556,7 +556,7 @@ class ValueAttachments extends ValueComp {
                 <i className="file-icon" data-type={$fileExtName(fileName)} />
                 <span>{fileName}</span>
                 {del && (
-                  <b title={$L('Delete')} onClick={(e) => this._deleteAttachment(item, e)}>
+                  <b title={$L('删除')} onClick={(e) => this._deleteAttachment(item, e)}>
                     <span className="zmdi zmdi-close"></span>
                   </b>
                 )}
@@ -573,7 +573,7 @@ class ValueAttachments extends ValueComp {
     const that = this
     RbAlert.create($L('DeleteSomeConfirm,Attachment'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.hide()
         const s = that.state.attachments.filter((x) => x !== item)
@@ -625,7 +625,7 @@ class ValueTags extends ValueComp {
               <span className="tag-value" key={item.rid} style={colorStyle}>
                 {item.name}
                 {editable && (
-                  <a title={$L('Remove')} onClick={() => this._delRelated(item.rid)}>
+                  <a title={$L('移除')} onClick={() => this._delRelated(item.rid)}>
                     <i className="zmdi zmdi-close"></i>
                   </a>
                 )}
@@ -643,7 +643,7 @@ class ValueTags extends ValueComp {
             </div>
           </span>
         ) : (
-          tags.length === 0 && <div className="form-control-plaintext text-muted">{$L('Null')}</div>
+          tags.length === 0 && <div className="form-control-plaintext text-muted">{$L('无')}</div>
         )}
       </div>
     )
@@ -723,7 +723,7 @@ class ValueTagsEditor extends React.Component {
                   <i style={colorStyle}></i>
                   <span>{item.name}</span>
                   {item.isManageable && (
-                    <a onClick={() => this.toggleEditMode(true, item)} title={$L('Edit')}>
+                    <a onClick={() => this.toggleEditMode(true, item)} title={$L('编辑')}>
                       <i className="zmdi zmdi-edit"></i>
                     </a>
                   )}
@@ -771,13 +771,13 @@ class ValueTagsEditor extends React.Component {
           <div className="row">
             <div className="col">
               <button typeof="button" className="btn btn-primary w-100" onClick={() => this._saveTag()}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
             </div>
             {this.state.tagId && (
               <div className="col pl-0">
                 <button typeof="button" className="btn btn-danger btn-outline w-100" onClick={() => this._deleteTag(this.state.tagId)}>
-                  {$L('Delete')}
+                  {$L('删除')}
                 </button>
               </div>
             )}
@@ -876,10 +876,10 @@ class ValueRelatedRecord extends ValueComp {
           </div>
           <div className="col-3" style={{ paddingTop: '0.18rem' }}>
             <button onClick={() => this.setState({ editMode: false })} className="btn btn-sm btn-link mr-1">
-              {$L('Cancel')}
+              {$L('取消')}
             </button>
             <button className="btn btn-sm btn-primary" onClick={() => this.handleChange()}>
-              {$L('Confirm')}
+              {$L('确定')}
             </button>
           </div>
         </div>
@@ -902,7 +902,7 @@ class ValueRelatedRecord extends ValueComp {
     } else {
       return (
         <div className={`form-control-plaintext text-muted ${useEdit ? 'hover' : ''}`} onClick={() => useEdit && this.setState({ editMode: true })}>
-          {$L('Null')}
+          {$L('无')}
         </div>
       )
     }
@@ -956,7 +956,7 @@ class TaskCommentsList extends React.Component {
                           {item.isManageable && (
                             <li className="list-inline-item mr-2">
                               <a href="#" onClick={() => this._handleDelete(item)} className="fixed-icon danger-hover">
-                                <i className="zmdi zmdi-delete" /> {$L('Delete')}
+                                <i className="zmdi zmdi-delete" /> {$L('删除')}
                               </a>
                             </li>
                           )}
@@ -992,7 +992,7 @@ class TaskCommentsList extends React.Component {
     const that = this
     RbAlert.create($L('DeleteSomeConfirm,Comment'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
           this.hide()
@@ -1020,7 +1020,7 @@ class TaskComment extends React.Component {
             <TextEditor placeholder={$L('AddSome,Comment')} ref={(c) => (this._editor = c)} />
             <div className="mt-2 text-right" ref={(c) => (this._btns = c)}>
               <button onClick={() => this.commentState(false)} className="btn btn-sm btn-link">
-                {$L('Cancel')}
+                {$L('取消')}
               </button>
               <button className="btn btn-sm btn-primary" ref={(c) => (this._btn = c)} onClick={() => this._post()}>
                 {$L('Comment')}
@@ -1038,7 +1038,7 @@ class TaskComment extends React.Component {
 
   _post() {
     const _data = this._editor.vals()
-    if (!_data.content) return RbHighbar.create($L('PlsInputSome,CommentContent'))
+    if (!_data.content) return RbHighbar.create($L('请输入,CommentContent'))
 
     _data.taskId = this.props.id
     _data.metadata = { entity: 'ProjectTaskComment' }
@@ -1104,7 +1104,7 @@ class TextEditor extends React.Component {
                     multiple={false}
                     ref={(c) => (this._UserSelector = c)}
                     compToggle={
-                      <a title={'@' + $L('User')} data-toggle="dropdown">
+                      <a title={'@' + $L('用户')} data-toggle="dropdown">
                         <i className="zmdi at-text">@</i>
                       </a>
                     }
@@ -1129,7 +1129,7 @@ class TextEditor extends React.Component {
                   <div key={'file-' + item} className="img-thumbnail" title={fileName}>
                     <i className="file-icon" data-type={$fileExtName(fileName)} />
                     <span>{fileName}</span>
-                    <b title={$L('Remove')} onClick={() => this._removeFile(item)}>
+                    <b title={$L('移除')} onClick={() => this._removeFile(item)}>
                       <span className="zmdi zmdi-close"></span>
                     </b>
                   </div>

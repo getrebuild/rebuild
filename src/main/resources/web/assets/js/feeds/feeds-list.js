@@ -7,15 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global FeedsEditor */
 
 const FeedsSorts = {
-  newer: $L('FeedsSortNewer'),
-  older: $L('FeedsSortOlder'),
-  modified: $L('FeedsSortModified'),
+  newer: $L('最近发布'),
+  older: $L('最早发布'),
+  modified: $L('最近修改'),
 }
 const FeedsTypes = {
-  1: $L('FeedsType1'),
-  2: $L('FeedsType2'),
-  3: $L('FeedsType3'),
-  4: $L('FeedsType4'),
+  1: $L('动态'),
+  2: $L('跟进'),
+  3: $L('公告'),
+  4: $L('日程'),
 }
 
 // ~ 动态列表
@@ -34,38 +34,38 @@ class FeedsList extends React.Component {
           <ul className="nav nav-tabs">
             <li className="nav-item">
               <a onClick={() => this._switchTab(0)} className={`nav-link ${this.state.tabType === 0 && 'active'}`}>
-                {$L('All')}
+                {$L('全部')}
               </a>
             </li>
             <li className="nav-item">
               <a onClick={() => this._switchTab(1)} className={`nav-link ${this.state.tabType === 1 && 'active'}`}>
-                {$L('FeedsTabAtMe')}
+                {$L('@我的')}
               </a>
             </li>
             <li className="nav-item">
               <a onClick={() => this._switchTab(10)} className={`nav-link ${this.state.tabType === 10 && 'active'}`}>
-                {$L('FeedsTabMy')}
+                {$L('我发布的')}
               </a>
             </li>
             <li className="nav-item">
               <a onClick={() => this._switchTab(2)} className={`nav-link ${this.state.tabType === 2 && 'active'}`}>
-                {$L('FeedsTabMyComment')}
+                {$L('我评论的')}
               </a>
             </li>
             <li className="nav-item">
               <a onClick={() => this._switchTab(3)} className={`nav-link ${this.state.tabType === 3 && 'active'}`}>
-                {$L('FeedsTabMyLike')}
+                {$L('我点赞的')}
               </a>
             </li>
             <li className="nav-item">
               <a onClick={() => this._switchTab(11)} className={`nav-link ${this.state.tabType === 11 && 'active'}`}>
-                {$L('FeedsTabPrivate')}
+                {$L('私密')}
               </a>
             </li>
             <span className="float-right">
               <div className="btn-group">
                 <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
-                  {FeedsSorts[this.state.sort] || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                  {FeedsSorts[this.state.sort] || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
                   <a className="dropdown-item" data-sort="newer" onClick={this._sortFeeds}>
@@ -87,11 +87,11 @@ class FeedsList extends React.Component {
             <div className="list-nodata pt-8 pb-8">
               <i className="zmdi zmdi-chart-donut"></i>
               <p>
-                {$L('NoSome,Feeds')}
+                {$L('暂无动态')}
                 {this.state.tabType === 11 && (
                   <React.Fragment>
                     <br />
-                    {$L('PrivateFeedTips')}
+                    {$L('即使管理员也不能查看他人的私密动态')}
                   </React.Fragment>
                 )}
               </p>
@@ -127,8 +127,8 @@ class FeedsList extends React.Component {
               <p className="text-muted fs-12 m-0">
                 <DateShow date={item.createdOn} />
                 {item.createdOn !== item.modifiedOn && (
-                  <span className="text-danger ml-1" title={`${$L('f.modifiedOn')} ${item.modifiedOn}`}>
-                    ({$L('Modified')})
+                  <span className="text-danger ml-1" title={`${$L('修改时间')} ${item.modifiedOn}`}>
+                    ({$L('已修改')})
                   </span>
                 )}
                 &nbsp;&nbsp;·&nbsp;&nbsp;
@@ -149,17 +149,17 @@ class FeedsList extends React.Component {
           <ul className="list-unstyled m-0">
             {item.self && (
               <li className="list-inline-item mr-2">
-                <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('More')}>
+                <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
                   <i className="zmdi zmdi-more"></i>&nbsp;
                 </a>
                 <div className="dropdown-menu dropdown-menu-right">
                   {this._renderMoreMenu(item)}
                   <a className="dropdown-item" onClick={() => this._handleEdit(item)}>
-                    <i className="icon zmdi zmdi-edit" /> {$L('Edit')}
+                    <i className="icon zmdi zmdi-edit" /> {$L('编辑')}
                   </a>
                   <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
                     <i className="icon zmdi zmdi-delete" />
-                    {$L('Delete')}
+                    {$L('删除')}
                   </a>
                 </div>
               </li>
@@ -232,7 +232,7 @@ class FeedsList extends React.Component {
     const that = this
     RbAlert.create($L('DeleteSomeConfirm,Feeds'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/feeds/post/delete?id=${id}`, () => {
@@ -300,7 +300,7 @@ class FeedsComments extends React.Component {
             <FeedsEditor placeholder={$L('AddSome,Comment')} ref={(c) => (this._FeedsEditor = c)} />
             <div className="mt-2 text-right">
               <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link">
-                {$L('Cancel')}
+                {$L('取消')}
               </button>
               <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post()}>
                 {$L('Comment')}
@@ -334,13 +334,13 @@ class FeedsComments extends React.Component {
                       <ul className="list-unstyled m-0">
                         {item.self && (
                           <li className="list-inline-item mr-2">
-                            <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('More')}>
+                            <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
                               <i className="zmdi zmdi-more"></i>&nbsp;
                             </a>
                             <div className="dropdown-menu dropdown-menu-right">
                               <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
                                 <i className="icon zmdi zmdi-delete" />
-                                {$L('Delete')}
+                                {$L('删除')}
                               </a>
                             </div>
                           </li>
@@ -361,7 +361,7 @@ class FeedsComments extends React.Component {
                       {item.shownReplyReal && <FeedsEditor placeholder={$L('AddSome,Reply')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
                       <div className="mt-2 text-right">
                         <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
-                          {$L('Cancel')}
+                          {$L('取消')}
                         </button>
                         <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post(item._editor)}>
                           {$L('Reply')}
@@ -393,7 +393,7 @@ class FeedsComments extends React.Component {
     if (!whichEditor) whichEditor = this._FeedsEditor
 
     const _data = whichEditor.vals()
-    if (!_data.content) return RbHighbar.create($L('PlsInputSome,CommentContent'))
+    if (!_data.content) return RbHighbar.create($L('请输入,CommentContent'))
     _data.feedsId = this.props.feeds
     _data.metadata = { entity: 'FeedsComment' }
 
@@ -434,7 +434,7 @@ class FeedsComments extends React.Component {
     const that = this
     RbAlert.create($L('DeleteSomeConfirm,Comment'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/feeds/post/delete?id=${id}`, () => {

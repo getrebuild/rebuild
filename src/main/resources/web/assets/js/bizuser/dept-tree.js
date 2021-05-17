@@ -19,7 +19,7 @@ var loadDeptTree = function () {
 
 const renderDeptTree = function (dept, target) {
   const $dept = $(
-    `<li data-id="${dept.id}"><a href="#dept=${dept.id}" class="text-truncate ${dept.disabled && ' text-disabled'}" title="${dept.disabled ? $L('Disabled') : ''}">${dept.name}</a></li>`
+    `<li data-id="${dept.id}"><a href="#dept=${dept.id}" class="text-truncate ${dept.disabled && ' text-disabled'}" title="${dept.disabled ? $L('已禁用') : ''}">${dept.name}</a></li>`
   ).appendTo(target)
 
   $dept.find('a').click(function () {

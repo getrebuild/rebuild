@@ -16,7 +16,7 @@ $(document).ready(function () {
           RbAlert.create($L('DeleteUserSafeConfirm'), $L('DeleteSome,User'), {
             icon: 'alert-circle-o',
             type: 'danger',
-            confirmText: $L('Delete'),
+            confirmText: $L('删除'),
             confirm: function () {
               deleteUser(userId, this)
             },
@@ -78,7 +78,9 @@ $(document).ready(function () {
         if (!res.data.role || !res.data.dept) {
           $('.J_enable')
             .off('click')
-            .click(() => renderRbcomp(<DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />))
+            .click(() =>
+              renderRbcomp(<DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />)
+            )
         }
       } else {
         $('.J_enable').remove()
@@ -90,7 +92,7 @@ $(document).ready(function () {
         else if (res.data.roleDisabled) reasons.push($L('OwningRoleDisabled'))
         if (!res.data.dept) reasons.push($L('NotSpecDept'))
         else if (res.data.deptDisabled) reasons.push($L('OwningDeptDisabled'))
-        if (res.data.disabled === true) reasons.push($L('Disabled'))
+        if (res.data.disabled === true) reasons.push($L('已禁用'))
         $('.J_tips')
           .removeClass('hide')
           .find('.message p')
@@ -147,7 +149,7 @@ class DlgEnableUser extends RbModalHandler {
         <div className="form">
           {this.props.deptSet && (
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,f.owningDept')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,f.owningDept')}</label>
               <div className="col-sm-7">
                 <UserSelector hideUser={true} hideRole={true} hideTeam={true} multiple={false} defaultValue={this.props.dept} ref={(c) => (this._deptNew = c)} />
               </div>
@@ -156,7 +158,7 @@ class DlgEnableUser extends RbModalHandler {
           {this.props.roleSet && (
             <React.Fragment>
               <div className="form-group row">
-                <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,Role')}</label>
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,Role')}</label>
                 <div className="col-sm-7">
                   <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} multiple={false} defaultValue={this.props.role} ref={(c) => (this._roleNew = c)} />
                 </div>
@@ -175,10 +177,10 @@ class DlgEnableUser extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link btn-space" onClick={() => this.hide()}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -195,12 +197,12 @@ class DlgEnableUser extends RbModalHandler {
     }
     if (this._deptNew) {
       const v = this._deptNew.val()
-      if (v.length === 0) return RbHighbar.create($L('PlsSelectSome,Department'))
+      if (v.length === 0) return RbHighbar.create($L('请选择,Department'))
       data.dept = v[0]
     }
     if (this._roleNew) {
       const v = this._roleNew.val()
-      if (v.length === 0) return RbHighbar.create($L('PlsSelectSome,Role'))
+      if (v.length === 0) return RbHighbar.create($L('请选择,Role'))
       data.role = v[0]
     }
     if (this._roleAppends) {

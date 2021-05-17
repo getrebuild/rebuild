@@ -25,18 +25,18 @@ class ReportList extends ConfigList {
             <tr key={'k-' + item[0]}>
               <td>{item[3]}</td>
               <td>{item[2] || item[1]}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-normal">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
+              <td>{item[4] ? <span className="badge badge-warning font-weight-normal">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
               <td>
                 <DateShow date={item[5]} />
               </td>
               <td className="actions">
-                <a className="icon" title={$L('Preview')} href={`${rb.baseUrl}/admin/data/report-templates/preview?id=${item[0]}`} target="_blank">
+                <a className="icon" title={$L('预览')} href={`${rb.baseUrl}/admin/data/report-templates/preview?id=${item[0]}`} target="_blank">
                   <i className="zmdi zmdi-open-in-new" />
                 </a>
-                <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
+                <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </a>
-                <a className="icon danger-hover" title={$L('Delete')} onClick={() => this.handleDelete(item[0])}>
+                <a className="icon danger-hover" title={$L('删除')} onClick={() => this.handleDelete(item[0])}>
                   <i className="zmdi zmdi-delete" />
                 </a>
               </td>
@@ -55,7 +55,7 @@ class ReportList extends ConfigList {
     const handle = super.handleDelete
     RbAlert.create($L('DeleteSomeConfirm,ReportTemplate'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         handle(id, () => dlgActionAfter(this))
@@ -76,7 +76,7 @@ class ReporEdit extends ConfigFormDlg {
         {!this.props.id && (
           <React.Fragment>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,ApplyEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,ApplyEntity')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
                   {(this.state.entities || []).map((item) => {
@@ -97,7 +97,7 @@ class ReporEdit extends ConfigFormDlg {
                     <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls" data-local="true" ref={(c) => (this.__upload = c)} />
                     <label htmlFor="upload-input" className="btn-secondary">
                       <i className="zmdi zmdi-upload"></i>
-                      <span>{$L('SelectFile')}</span>
+                      <span>{$L('选择文件')}</span>
                     </label>
                   </div>
                 </div>
@@ -112,7 +112,7 @@ class ReporEdit extends ConfigFormDlg {
           </React.Fragment>
         )}
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
@@ -122,7 +122,7 @@ class ReporEdit extends ConfigFormDlg {
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('IsDisable')}</span>
+                <span className="custom-control-label">{$L('是否禁用')}</span>
               </label>
             </div>
           </div>
@@ -188,7 +188,7 @@ class ReporEdit extends ConfigFormDlg {
   confirm = () => {
     const post = { name: this.state['name'] }
     if (!post.name) {
-      RbHighbar.create($L('PlsInputSome,Name'))
+      RbHighbar.create($L('请输入,Name'))
       return
     }
     if (this.props.id) {
@@ -196,7 +196,7 @@ class ReporEdit extends ConfigFormDlg {
     } else {
       post.belongEntity = this.__select2.val()
       if (!post.belongEntity) {
-        RbHighbar.create($L('PlsSelectSome,ApplyEntity'))
+        RbHighbar.create($L('请选择,ApplyEntity'))
         return
       }
       post.templateFile = this.state.templateFile

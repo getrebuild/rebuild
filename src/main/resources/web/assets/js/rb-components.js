@@ -22,7 +22,7 @@ class RbModal extends React.Component {
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
               <h3 className="modal-title">{this.props.title || 'UNTITLED'}</h3>
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('Close')}>
+              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -214,7 +214,7 @@ class RbAlert extends React.Component {
         <div className="modal-dialog modal-dialog-centered" style={styles}>
           <div className="modal-content">
             <div className="modal-header pb-0">
-              <button className="close" type="button" onClick={() => this.hide()} title={$L('Close')}>
+              <button className="close" type="button" onClick={() => this.hide()} title={$L('关闭')}>
                 <span className="zmdi zmdi-close" />
               </button>
             </div>
@@ -248,10 +248,10 @@ class RbAlert extends React.Component {
         <div className={this.props.title ? '' : 'mt-3'}>{content}</div>
         <div className="mt-4 mb-3">
           <button disabled={this.state.disable} className="btn btn-space btn-secondary" type="button" onClick={cancel}>
-            {this.props.cancelText || $L('Cancel')}
+            {this.props.cancelText || $L('取消')}
           </button>
           <button disabled={this.state.disable} className={`btn btn-space btn-${type}`} type="button" onClick={confirm}>
-            {this.props.confirmText || $L('Confirm')}
+            {this.props.confirmText || $L('确定')}
           </button>
         </div>
       </div>
@@ -315,7 +315,7 @@ class RbHighbar extends React.Component {
     return (
       <div ref={(c) => (this._rbhighbar = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
         <div className={`alert alert-dismissible alert-${this.props.type || 'warning'} mb-0`}>
-          <button className="close" type="button" onClick={this.close} title={$L('Close')}>
+          <button className="close" type="button" onClick={this.close} title={$L('关闭')}>
             <i className="zmdi zmdi-close" />
           </button>
           <div className="icon">
@@ -352,14 +352,14 @@ class RbHighbar extends React.Component {
    * @param {*} message
    */
   static success(message) {
-    RbHighbar.create(message || $L('SomeSuccess,Operation'), { type: 'success', timeout: 2000 })
+    RbHighbar.create(message || $L('操作成功'), { type: 'success', timeout: 2000 })
   }
 
   /**
    * @param {*} message
    */
   static error(message) {
-    RbHighbar.create(message || $L('Error500'), { type: 'danger', timeout: 4000 })
+    RbHighbar.create(message || $L('系统繁忙，请稍后重试'), { type: 'danger', timeout: 4000 })
   }
 }
 
@@ -374,7 +374,7 @@ function RbAlertBox(props) {
         <i className={`zmdi zmdi-${icon}`} />
       </div>
       <div className="message">
-        <a className="close" data-dismiss="alert" onClick={() => typeof props.onClose === 'function' && props.onClose()} title={$L('Close')}>
+        <a className="close" data-dismiss="alert" onClick={() => typeof props.onClose === 'function' && props.onClose()} title={$L('关闭')}>
           <i className="zmdi zmdi-close" />
         </a>
         <p>{props.message || 'INMESSAGE'}</p>
@@ -409,10 +409,10 @@ class UserSelector extends React.Component {
 
     this._cached = {}
     this._useTabs = []
-    if (props.hideUser !== true) this._useTabs.push(['User', $L('User')])
-    if (props.hideDepartment !== true) this._useTabs.push(['Department', $L('Department0')])
-    if (props.hideRole !== true) this._useTabs.push(['Role', $L('Role')])
-    if (props.hideTeam !== true) this._useTabs.push(['Team', $L('Team')])
+    if (props.hideUser !== true) this._useTabs.push(['User', $L('用户')])
+    if (props.hideDepartment !== true) this._useTabs.push(['Department', $L('部门')])
+    if (props.hideRole !== true) this._useTabs.push(['Role', $L('角色')])
+    if (props.hideTeam !== true) this._useTabs.push(['Team', $L('团队')])
 
     // 默认显示
     this.state.tabType = this._useTabs[0][0]
@@ -421,9 +421,9 @@ class UserSelector extends React.Component {
   render() {
     let inResult
     if (!this.state.items) {
-      inResult = <li className="select2-results__option un-hover text-muted">{$L('Searching')}</li>
+      inResult = <li className="select2-results__option un-hover text-muted">{$L('搜索中...')}</li>
     } else if (this.state.items.length === 0) {
-      inResult = <li className="select2-results__option un-hover">{$L('NoResults')}</li>
+      inResult = <li className="select2-results__option un-hover">{$L('未找到结果')}</li>
     } else {
       inResult = this.state.items.map((item) => {
         return (
@@ -504,7 +504,7 @@ class UserSelector extends React.Component {
                 })}
                 <span className="select2-selection__choice abtn" data-toggle="dropdown">
                   <a>
-                    <i className="zmdi zmdi-plus" /> {this.props.multiple === false ? $L('Select') : $L('Add')}
+                    <i className="zmdi zmdi-plus" /> {this.props.multiple === false ? $L('Select') : $L('添加')}
                   </a>
                 </span>
                 {_DropdownMenu}
@@ -755,7 +755,7 @@ class AnyRecordSelector extends React.Component {
     let search_input = null
     $(this._record)
       .select2({
-        placeholder: `${$L('SelectSome,Record')}`,
+        placeholder: `${$L('选择,Record')}`,
         minimumInputLength: 0,
         maximumSelectionLength: 1,
         ajax: {

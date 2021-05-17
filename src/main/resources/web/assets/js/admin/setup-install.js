@@ -77,7 +77,7 @@ class RbWelcome extends React.Component {
   render() {
     return (
       <div className="rb-welcome pb-1">
-        <h3>{$L('SelectSome,InstallMode')}</h3>
+        <h3>{$L('选择,InstallMode')}</h3>
         <ul className="list-unstyled">
           <li>
             <a onClick={() => this._next(1)}>
@@ -120,7 +120,7 @@ class DatabaseConf extends React.Component {
   render() {
     return (
       <div className="rb-database">
-        <h3>{$L('SetSome,Database')}</h3>
+        <h3>{$L('设置,Database')}</h3>
         <form>
           <div className="form-group row pt-0">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('DbType')}</div>
@@ -178,7 +178,7 @@ class DatabaseConf extends React.Component {
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
             <i className="zmdi zmdi-chevron-left icon" />
-            {$L('SelectSome,InstallMode')}
+            {$L('选择,InstallMode')}
           </button>
           <div className="float-right">
             <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
@@ -250,7 +250,7 @@ class CacheConf extends DatabaseConf {
   render() {
     return (
       <div className="rb-cache">
-        <h3>{$L('SetSome,CacheSrv')}</h3>
+        <h3>{$L('设置,CacheSrv')}</h3>
         <form>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('CacheType')}</div>
@@ -306,7 +306,7 @@ class CacheConf extends DatabaseConf {
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
             <i className="zmdi zmdi-chevron-left icon" />
-            {$L('SetSome,Database')}
+            {$L('设置,Database')}
           </button>
           <div className="float-right">
             {this.state.cacheType === 'redis' && (
@@ -370,7 +370,7 @@ class AdminConf extends DatabaseConf {
   render() {
     return (
       <div className="rb-admin">
-        <h3>{$L('SetSome,SuperAdmin')}</h3>
+        <h3>{$L('设置,SuperAdmin')}</h3>
         <form>
           <div className="form-group row pt-0">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('AdminPasswd')}</div>
@@ -396,13 +396,13 @@ class AdminConf extends DatabaseConf {
           {this.props.$$$parent.state.installType === 1 && (
             <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>
               <i className="zmdi zmdi-chevron-left icon" />
-              {$L('SetSome,CacheSrv')}
+              {$L('设置,CacheSrv')}
             </button>
           )}
           {this.props.$$$parent.state.installType === 99 && (
             <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>
               <i className="zmdi zmdi-chevron-left icon" />
-              {$L('SelectSome,InstallMode')}
+              {$L('选择,InstallMode')}
             </button>
           )}
           <div className="float-right">
@@ -450,7 +450,7 @@ class ModelConf extends React.Component {
     const _canUse = !DatabaseConf_mount && !ModelConf_error && ModelConf_data
     return (
       <div className="rb-model">
-        <h3>{$L('SelectSome,InitEntity')}</h3>
+        <h3>{$L('选择,InitEntity')}</h3>
         <form>
           {_canUse &&
             ModelConf_data.map((item) => {
@@ -483,7 +483,7 @@ class ModelConf extends React.Component {
         <div className="splash-footer">
           <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(4)}>
             <i className="zmdi zmdi-chevron-left icon" />
-            {$L('SetSome,SuperAdmin')}
+            {$L('设置,SuperAdmin')}
           </button>
           <div className="float-right">
             <button className="btn btn-primary" onClick={this._next}>

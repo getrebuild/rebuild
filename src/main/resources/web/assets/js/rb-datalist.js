@@ -109,7 +109,7 @@ class RbList extends React.Component {
               {this.state.inLoad === false && this.state.rowsData.length === 0 && (
                 <div className="list-nodata">
                   <span className="zmdi zmdi-info-outline" />
-                  <p>{$L('NoData')}</p>
+                  <p>{$L('暂无数据')}</p>
                 </div>
               )}
             </div>
@@ -431,7 +431,7 @@ class RbList extends React.Component {
         selected.push($(this).parents('tr').data('id'))
       })
 
-    if (selected.length === 0 && noWarn !== true) RbHighbar.create($L('UnselectAnySome,Record'))
+    if (selected.length === 0 && noWarn !== true) RbHighbar.create($L('未选中任何记录'))
     return selected
   }
 
@@ -486,8 +486,8 @@ const CellRenders = {
    */
   renderSimple(v, s, k) {
     if (typeof v === 'string' && v.length > 300) v = v.sub(0, 300)
-    else if (k.endsWith('.approvalId') && !v) v = $L('UnSubmit')
-    else if (k.endsWith('.approvalState') && !v) v = $L('s.ApprovalState.DRAFT')
+    else if (k.endsWith('.approvalId') && !v) v = $L('未提交')
+    else if (k.endsWith('.approvalState') && !v) v = $L('草稿')
 
     return (
       <td key={k}>
@@ -835,7 +835,7 @@ const RbListPage = {
         RbViewModal.create({ id: ids[0], entity: entity[0] })
       }
     })
-    $('.J_columns').click(() => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('SetSome,FieldShow')))
+    $('.J_columns').click(() => RbModal.create(`/p/general/show-fields?entity=${entity[0]}`, $L('设置,FieldShow')))
 
     // 权限实体才有
     $('.J_assign').click(() => {
@@ -923,7 +923,7 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
-          const $action = $(`<div class="action"><a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('Delete')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
+          const $action = $(`<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
 
           $action.find('a:eq(0)').click(function () {
             that.showAdvFilter(item.id)
@@ -934,7 +934,7 @@ const AdvFilters = {
           $action.find('a:eq(1)').click(function () {
             RbAlert.create($L('DeleteSomeConfirm,AdvFilter'), {
               type: 'danger',
-              confirmText: $L('Delete'),
+              confirmText: $L('删除'),
               confirm: function () {
                 this.disabled(true)
                 $.post(`/app/entity/record-delete?id=${item.id}`, (res) => {
@@ -1195,7 +1195,7 @@ class RbViewModal extends React.Component {
   static holder(id, action) {
     if (action === 'DISPOSE') {
       delete this.__HOLDERs[id]
-      this.__HOLDERs2.pop()  // 销毁后替换
+      this.__HOLDERs2.pop() // 销毁后替换
       this.__HOLDERs2.forEach((x) => {
         if (x.props.id === id) this.__HOLDERs[id] = x
       })

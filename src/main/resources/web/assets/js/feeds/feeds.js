@@ -30,8 +30,8 @@ class GroupList extends React.Component {
   render() {
     return (
       <ul className="list-unstyled">
-        {!this.state.list && <li className="nodata">{$L('Loading')}</li>}
-        {this.state.list && this.state.list.length === 0 && <li className="nodata">{$L('NoData')}</li>}
+        {!this.state.list && <li className="nodata">{$L('加载中')}</li>}
+        {this.state.list && this.state.list.length === 0 && <li className="nodata">{$L('暂无数据')}</li>}
         {(this.state.list || []).map((item) => {
           return (
             <li key={'item-' + item.id} data-id={item.id} className={this.state.active === item.id ? 'active' : ''}>

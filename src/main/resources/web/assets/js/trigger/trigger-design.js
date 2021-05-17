@@ -71,8 +71,8 @@ $(document).ready(() => {
 
 const saveFilter = function (res) {
   wpc.whenFilter = res
-  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a').text(`${$L('AdvFiletrSeted')} (${wpc.whenFilter.items.length})`)
-  else $('.J_whenFilter a').text($L('ClickSet'))
+  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a').text(`${$L('已设置条件')} (${wpc.whenFilter.items.length})`)
+  else $('.J_whenFilter a').text($L('点击设置'))
 }
 
 // 组件复写

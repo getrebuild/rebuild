@@ -30,7 +30,7 @@ $(document).ready(function () {
       nameField: $val('#nameField'),
       comments: $val('#comments'),
     }
-    if (data.entityLabel === '') return RbHighbar.create($L('PlsInputSome,EntityName'))
+    if (data.entityLabel === '') return RbHighbar.create($L('请输入,EntityName'))
 
     const icon = $val('#entityIcon')
     if (icon) data.icon = icon
@@ -61,7 +61,7 @@ $(document).ready(function () {
   })
 
   $('#entityIcon').click(function () {
-    RbModal.create('/p/common/search-icon', $L('SelectSome,Icon'))
+    RbModal.create('/p/common/search-icon', $L('选择,Icon'))
   })
 
   // 排序
@@ -104,7 +104,7 @@ $(document).ready(function () {
 
     $('#nameField')
       .select2({
-        placeholder: $L('SelectSome,Field'),
+        placeholder: $L('选择,Field'),
         allowClear: false,
         data: sortFields(cNameFields),
       })
@@ -134,7 +134,7 @@ $(document).ready(function () {
     })
 
     $('#quickFields').select2({
-      placeholder: $L('SelectSome,Field'),
+      placeholder: $L('选择,Field'),
       allowClear: true,
       data: sortFields(cQuickFields),
       multiple: true,

@@ -25,7 +25,7 @@ $(document).ready(function () {
       $('.chart-grid').removeClass('invisible')
       $('.J_dash-load').remove()
 
-      renderRbcomp(<RbAlertBox message={$L('NoDashboardTips')} />, $('.chart-grid')[0])
+      renderRbcomp(<RbAlertBox message={$L('暂无仪表盘')} />, $('.chart-grid')[0])
       return
     }
 
@@ -49,7 +49,7 @@ $(document).ready(function () {
 
     if (location.hash && location.hash.length > 20) {
       if (location.hash.substr(0, 5) === '#del=') {
-        RbHighbar.success($L('SomeDeleted,Dashboard'))
+        RbHighbar.success($L('仪表盘已删除'))
         location.hash = ''
       } else {
         const high = $('#chart-' + location.hash.substr(1)).addClass('high')
@@ -165,7 +165,7 @@ const dlgShow = (t, props) => {
         dlgRefs[t] = this
       })
     } else {
-      RbHighbar.create($L('NoPrivilegesAddChartToDashTips'))
+      RbHighbar.create($L('你无权添加图表到此仪表盘'))
     }
   } else if (t === 'DlgDashAdd') {
     renderRbcomp(<DlgDashAdd {...props} />, null, function () {
@@ -201,11 +201,7 @@ const render_dashboard = function (init) {
   $(init).each((idx, item) => add_widget(item))
   if (rendered_charts.length === 0) {
     const gsi =
-      '<div class="grid-stack-item">' +
-      '<div id="chart-add" class="grid-stack-item-content">' +
-      `<a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('AddSome,Chart')}</p></a>` +
-      '</div>' +
-      '</div>'
+      '<div class="grid-stack-item">' + '<div id="chart-add" class="grid-stack-item-content">' + `<a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a>` + '</div>' + '</div>'
     const $gsi = gridstack.addWidget(gsi, 0, 0, 2, 2)
     $gsi.find('a').click(() => {
       if ($('.J_chart-new').length === 0) $('.J_chart-select').trigger('click')
@@ -289,10 +285,10 @@ class DlgAddChart extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('AddSome,Chart')} ref="dlg">
+      <RbModal title={$L('添加图表')} ref="dlg">
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ChartDataSource')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('图表数据来源')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" ref="entity" />
             </div>
@@ -300,7 +296,7 @@ class DlgAddChart extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary" type="button" onClick={() => this.next()}>
-                {$L('NextStep')}
+                {$L('下一步')}
               </button>
             </div>
           </div>
@@ -317,7 +313,7 @@ class DlgAddChart extends RbFormHandler {
       })
       this.__select2 = $entity.select2({
         allowClear: false,
-        placeholder: $L('SelectSome,DataSource'),
+        placeholder: $L('选择数据来源'),
       })
     })
   }
@@ -337,12 +333,12 @@ class DlgDashSettings extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('SetSome,Dashboard')} ref="dlg">
+      <RbModal title={$L('设置')} ref="dlg">
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
             <div className="col-sm-7">
-              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('DefaultDashboard')} data-id="title" onChange={this.handleChange} maxLength="40" />
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('默认仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
           {rb.isAdminUser && (
@@ -358,10 +354,10 @@ class DlgDashSettings extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary btn-space" type="button" onClick={() => this.save()}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <button className="btn btn-danger btn-outline btn-space" type="button" onClick={() => this.delete()}>
-                <i className="zmdi zmdi-delete icon" /> {$L('Delete')}
+                <i className="zmdi zmdi-delete icon" /> {$L('删除')}
               </button>
             </div>
           </div>
@@ -373,7 +369,7 @@ class DlgDashSettings extends RbFormHandler {
   save() {
     const _data = {
       shareTo: this._shareTo.getData().shareTo,
-      title: this.state.title || $L('DefaultDashboard'),
+      title: this.state.title || $L('默认仪表盘'),
     }
     _data.metadata = { id: this.props.dashid, entity: 'DashboardConfig' }
 
@@ -391,9 +387,9 @@ class DlgDashSettings extends RbFormHandler {
   }
 
   delete() {
-    RbAlert.create($L('DeleteSomeConfirm,Dashboard'), {
+    RbAlert.create($L('确认删除此仪表盘？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post('/app/entity/common-delete?id=' + dashid, function (res) {
@@ -414,12 +410,12 @@ class DlgDashAdd extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('AddSome,Dashboard')} ref="dlg">
+      <RbModal title={$L('添加仪表盘')} ref="dlg">
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
             <div className="col-sm-7">
-              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('MyDashboard')} data-id="title" onChange={this.handleChange} maxLength="40" />
+              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('我的仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
             </div>
           </div>
           <div className="form-group row">
@@ -427,17 +423,17 @@ class DlgDashAdd extends RbFormHandler {
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mt-0 mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.copy === true} data-id="copy" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('CopyDashTips')}</span>
+                <span className="custom-control-label">{$L('复制当前仪表盘')}</span>
               </label>
             </div>
           </div>
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -448,7 +444,7 @@ class DlgDashAdd extends RbFormHandler {
 
   save = () => {
     const _data = {
-      title: this.state.title || $L('MyDashboard'),
+      title: this.state.title || $L('我的仪表盘'),
       metadata: { entity: 'DashboardConfig' },
     }
     if (this.state.copy === true) _data.__copy = gridstack_serialize

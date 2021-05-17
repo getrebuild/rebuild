@@ -16,23 +16,23 @@ class BaseChart extends React.Component {
     const opers = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('ViewSourceData')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
+          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
             <i className="zmdi zmdi-rss" />
           </a>
         )}
-        <a title={$L('Refresh')} onClick={() => this.loadChartData()}>
+        <a title={$L('刷新')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a className="J_fullscreen d-none d-md-inline-block" title={$L('FullScreen')} onClick={() => this.toggleFullscreen()}>
+        <a className="J_fullscreen d-none d-md-inline-block" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
         {this.props.isManageable && !this.props.builtin && (
-          <a className="J_chart-edit d-none d-md-inline-block" title={$L('Edit')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+          <a className="J_chart-edit d-none d-md-inline-block" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
             <i className="zmdi zmdi-edit" />
           </a>
         )}
         {this.props.editable && (
-          <a title={$L('Remove')} onClick={() => this.remove()}>
+          <a title={$L('移除')} onClick={() => this.remove()}>
             <i className="zmdi zmdi-close" />
           </a>
         )}
@@ -155,7 +155,7 @@ class ChartIndex extends BaseChart {
 class ChartTable extends BaseChart {
   renderChart(data) {
     if (!data.html) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -298,7 +298,7 @@ const renderEChart = function (option, $target) {
 class ChartLine extends BaseChart {
   renderChart(data) {
     if (data.xAxis.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -361,7 +361,7 @@ class ChartLine extends BaseChart {
 class ChartBar extends BaseChart {
   renderChart(data) {
     if (data.xAxis.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -418,7 +418,7 @@ class ChartBar extends BaseChart {
 class ChartPie extends BaseChart {
   renderChart(data) {
     if (data.data.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -455,7 +455,7 @@ class ChartPie extends BaseChart {
 class ChartFunnel extends BaseChart {
   renderChart(data) {
     if (data.data.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -502,7 +502,7 @@ const LEVELS_SPLIT = '--------'
 class ChartTreemap extends BaseChart {
   renderChart(data) {
     if (data.data.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -601,7 +601,7 @@ class ApprovalList extends BaseChart {
     )
 
     if (statsTotal === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -799,7 +799,7 @@ class FeedsSchedule extends BaseChart {
 class ChartRadar extends BaseChart {
   renderChart(data) {
     if (data.indicator.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -875,7 +875,7 @@ class ChartRadar extends BaseChart {
 class ChartScatter extends BaseChart {
   renderChart(data) {
     if (data.series.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -1007,7 +1007,7 @@ class ChartSelect extends RbModalHandler {
           <div className="col-3">
             <div className="nav flex-column nav-pills">
               <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>
-                {$L('All')}
+                {$L('全部')}
               </a>
               {this.props.entity && (
                 <a href="#entity" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#entity' ? 'active' : ''}`}>
@@ -1042,7 +1042,7 @@ class ChartSelect extends RbModalHandler {
                         </a>
                       ) : (
                         <a className="btn" onClick={() => this.selectChart(item)}>
-                          {$L('Add')}
+                          {$L('添加')}
                         </a>
                       )}
                     </span>
@@ -1083,7 +1083,7 @@ class ChartSelect extends RbModalHandler {
     const that = this
     RbAlert.create($L('DeleteSomeConfirm,Chart'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/dashboard/chart-delete?id=${id}`, (res) => {

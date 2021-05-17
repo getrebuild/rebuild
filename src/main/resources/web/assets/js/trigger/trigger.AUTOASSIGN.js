@@ -81,7 +81,7 @@ class ContentAutoAssign extends ActionContentSpec {
         this.__select2 = $(this._cascades)
           .select2({
             multiple: true,
-            placeholder: `${$L('SelectSome,RelatedEntity')} (${$L('Optional')})`,
+            placeholder: `${$L('选择,RelatedEntity')} (${$L('Optional')})`,
           })
           .val(cascades.length === 0 ? null : cascades)
           .trigger('change')
@@ -102,7 +102,7 @@ class ContentAutoAssign extends ActionContentSpec {
       cascades: this.__select2.val().join(','),
     }
     if (!_data.assignTo || _data.assignTo.length === 0) {
-      RbHighbar.create($L('PlsSelectSome,AssignToWho'))
+      RbHighbar.create($L('请选择,AssignToWho'))
       return false
     }
     return _data

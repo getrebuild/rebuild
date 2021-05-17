@@ -267,7 +267,7 @@ class ApprovalUsersForm extends RbFormHandler {
 
     if (!this.state.isLastStep) {
       if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
-        RbHighbar.create($L('PlsSelectSome,NodeApprover'))
+        RbHighbar.create($L('请选择,NodeApprover'))
         return false
       }
     }
@@ -293,7 +293,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
       <RbModal ref={(c) => (this._dlg = c)} title={$L('SubmitApproval')} width="600" disposeOnHide={this.props.disposeOnHide === true}>
         <div className="form approval-form">
           <div className="form-group">
-            <label>{$L('SelectSome,ApprovalConfig')}</label>
+            <label>{$L('选择,ApprovalConfig')}</label>
             <div className="approval-list">
               {!this.state.approvals && (
                 <p className="text-muted">
@@ -326,7 +326,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
               {$L('Submit')}
             </button>
             <button type="button" className="btn btn-secondary btn-space" onClick={this.hide}>
-              {$L('Cancel')}
+              {$L('取消')}
             </button>
           </div>
         </div>
@@ -353,7 +353,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
   }
 
   post() {
-    if (!this.state.useApproval) return RbHighbar.create($L('PlsSelectSome,ApprovalConfig'))
+    if (!this.state.useApproval) return RbHighbar.create($L('请选择,ApprovalConfig'))
     const selectUsers = this.getSelectUsers()
     if (!selectUsers) return
 

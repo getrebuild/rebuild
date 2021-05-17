@@ -90,9 +90,7 @@ class LevelBox extends React.Component {
     return (
       <div className={`col-md-3 ${this.state.turnOn ? '' : 'off'}`}>
         <div className="float-left">
-          <h5 className="text-bold">
-            {$L('XLevelClass').replace('%d', (~~this.props.level + 1) + ' ')}
-          </h5>
+          <h5 className="text-bold">{$L('XLevelClass').replace('%d', ~~this.props.level + 1 + ' ')}</h5>
         </div>
         {this.props.level < 1 ? null : (
           <div className="float-right">
@@ -116,27 +114,27 @@ class LevelBox extends React.Component {
             )}
             <div className="input-group-append">
               <button className="btn btn-primary" type="submit" disabled={this.state.inSave === true}>
-                {$L(this.state.itemId ? 'Save' : 'Add')}
+                {this.state.itemId ? $L('保存') : $L('添加')}
               </button>
             </div>
           </div>
         </form>
         <div className="rb-scroller mt-3">
-          <ol className="dd-list unset-list" _title={$L('NoClassData')}>
+          <ol className="dd-list unset-list" _title={$L('暂无分类项')}>
             {(this.state.items || []).map((item) => {
               const active = this.state.activeId === item[0]
               return (
                 <li className={`dd-item ${active ? ' active' : ''}`} key={item[0]} onClick={() => this.clickItem(item[0])}>
-                  <div className={`dd-handle ${item[3] ? ' text-disabled' : ''}`} title={item[3] ? $L('Disabled') : null}>
+                  <div className={`dd-handle ${item[3] ? ' text-disabled' : ''}`} title={item[3] ? $L('已禁用') : null}>
                     {item[1]}
                     {item[3] && <small />}
                   </div>
                   <div className="dd-action">
                     <a>
-                      <i className="zmdi zmdi-edit" title={$L('Modify')} onClick={(e) => this.editItem(item, e)}></i>
+                      <i className="zmdi zmdi-edit" title={$L('修改')} onClick={(e) => this.editItem(item, e)}></i>
                     </a>
                     <a>
-                      <i className="zmdi zmdi-delete" title={$L('Delete')} onClick={(e) => this.delItem(item, e)}></i>
+                      <i className="zmdi zmdi-delete" title={$L('删除')} onClick={(e) => this.delItem(item, e)}></i>
                     </a>
                   </div>
                   {active && <span className="zmdi zmdi-caret-right arrow hide"></span>}
@@ -171,7 +169,7 @@ class LevelBox extends React.Component {
     this.setState({ turnOn: c })
     if (stop !== true) {
       const that = this
-      RbAlert.create($L('ChangeClassLevelTips'), {
+      RbAlert.create($L('改变分类级别可能会影响现有数据。是否继续？'), {
         confirm: function () {
           that.props.$$$parent.notifyToggle(that.props.level, c)
           saveOpenLevel()
@@ -180,7 +178,7 @@ class LevelBox extends React.Component {
         cancel: function () {
           that.setState({ turnOn: !c })
           this.hide()
-        }
+        },
       })
     }
   }
@@ -195,12 +193,12 @@ class LevelBox extends React.Component {
     e.preventDefault()
     const name = $.trim(this.state.itemName)
     if (!name) return
-    if (this.props.level >= 1 && !this.parentId) return RbHighbar.create($L('PlsSelectPrevClassFirst'))
+    if (this.props.level >= 1 && !this.parentId) return RbHighbar.create($L('请先选择上级分类项'))
 
     const repeated = this.state.items.find((x) => {
       return x[1] === name && x[0] !== this.state.itemId
     })
-    if (repeated) return RbHighbar.create($L('SomeDuplicate,ClassItem'))
+    if (repeated) return RbHighbar.create($L('分类项重复'))
 
     let url = `/admin/metadata/classification/save-data-item?data_id=${wpc.id}&name=${name}`
     if (this.state.itemId) url += `&item_id=${this.state.itemId}`
@@ -242,7 +240,7 @@ class LevelBox extends React.Component {
 
     const that = this
 
-    let alertMsg = $L('DeleteClassOptionConfirm1')
+    let alertMsg = $L('删除后其子分类项也将被一并删除。[] 如果此分类项已被使用，使用了这些分类项的字段也将无法显示。确认删除吗？')
     const alertExt = {
       type: 'danger',
       confirm: function () {
@@ -254,7 +252,7 @@ class LevelBox extends React.Component {
             return
           }
 
-          RbHighbar.success($L('SomeDeleted,ClassItem'))
+          RbHighbar.success($L('分类项已删除'))
           const ns = []
           that.state.items.forEach((i) => {
             if (i[0] !== item[0]) ns.push(i)
@@ -269,7 +267,7 @@ class LevelBox extends React.Component {
 
     if (item[3] !== true) {
       alertMsg = $L('DeleteClassOptionConfirm2')
-      alertExt.confirmText = $L('Delete')
+      alertExt.confirmText = $L('删除')
       alertExt.cancelText = $L('Disable')
       alertExt.cancel = function () {
         this.disabled()
@@ -365,7 +363,7 @@ class DlgImports extends RbModalHandler {
                         <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._uploadInput = c)} />
                         <label htmlFor="upload-input" className="btn-secondary">
                           <i className="zmdi zmdi-upload"></i>
-                          <span>{$L('SelectSome,File')}</span>
+                          <span>{$L('选择,File')}</span>
                         </label>
                       </div>
                     </div>
@@ -382,7 +380,7 @@ class DlgImports extends RbModalHandler {
                       {$L('StartImport')}
                     </button>
                     <button className="btn btn-link" type="button" onClick={() => this._dlg.hide()} disabled={this.state.inProgress}>
-                      {$L('Cancel')}
+                      {$L('取消')}
                     </button>
                   </div>
                 </div>

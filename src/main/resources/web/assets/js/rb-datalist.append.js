@@ -25,31 +25,31 @@ class BatchOperator extends RbFormHandler {
       <RbModal title={this._title} disposeOnHide={true} ref={(c) => (this._dlg = c)}>
         <div className="form batch-form">
           <div className="form-group">
-            <label className="text-bold">{$L('SelectDataRange')}</label>
+            <label className="text-bold">{$L('选择数据范围')}</label>
             <div>
               {selectedRows > 0 && (
                 <label className="custom-control custom-control-sm custom-radio mb-2">
                   <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
                   <span className="custom-control-label">
-                    {$L('DatasSelected')} ({$L('XItem').replace('%d', selectedRows)})
+                    {$L('选中的数据')} ({$L('共 %d 项', selectedRows)})
                   </span>
                 </label>
               )}
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('DatasPaged')} ({$L('XItem').replace('%d', pageRows)})
+                  {$L('当前页的数据')} ({$L('共 %d 项', pageRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('DatasQueryed')} ({$L('XItem').replace('%d', queryRows)})
+                  {$L('查询后的数据')} ({$L('共 %d 项', queryRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 10} value="10" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('AllDatas')}</span>
+                <span className="custom-control-label">{$L('全部数据')}</span>
               </label>
             </div>
           </div>
@@ -57,10 +57,10 @@ class BatchOperator extends RbFormHandler {
         </div>
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
           <a className="btn btn-link btn-space" onClick={this.hide}>
-            {$L('Cancel')}
+            {$L('取消')}
           </a>
           <button className="btn btn-primary btn-space" type="button" onClick={this.confirm}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
         </div>
       </RbModal>
@@ -129,7 +129,7 @@ class BatchUpdate extends BatchOperator {
                 <div key={item.field}>
                   <div className="row">
                     <div className="col-4">
-                      <a className="del" onClick={() => this.delItem(item.field)} title={$L('Remove')}>
+                      <a className="del" onClick={() => this.delItem(item.field)} title={$L('移除')}>
                         <i className="zmdi zmdi-close"></i>
                       </a>
                       <span className="badge badge-light">{fieldObj.label}</span>
@@ -147,7 +147,7 @@ class BatchUpdate extends BatchOperator {
             {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
               <button className="btn btn-primary btn-sm btn-outline" onClick={this.addItem} type="button">
-                + {$L('Add')}
+                + {$L('添加')}
               </button>
             </div>
           </div>

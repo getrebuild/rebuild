@@ -36,7 +36,7 @@ $(document).ready(function () {
         RbAlert.create($L('DeleteDeptSafeConfirm'), $L('DeleteSome,Department'), {
           icon: 'alert-circle-o',
           type: 'danger',
-          confirmText: $L('Delete'),
+          confirmText: $L('删除'),
           confirm: function () {
             deleteDept(this)
           },

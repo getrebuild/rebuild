@@ -109,10 +109,10 @@ class DlgChangePasswd extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref="btns">
               <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link btn-space" onClick={() => this.hide()}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -123,8 +123,8 @@ class DlgChangePasswd extends RbFormHandler {
 
   post() {
     const s = this.state
-    if (!s.oldPasswd) return RbHighbar.create($L('PlsInputSome,OldPassword'))
-    if (!s.newPasswd) return RbHighbar.create($L('PlsInputSome,NewPassword'))
+    if (!s.oldPasswd) return RbHighbar.create($L('请输入,OldPassword'))
+    if (!s.newPasswd) return RbHighbar.create($L('请输入,NewPassword'))
     if (s.newPasswd !== s.newPasswdAgain) return RbHighbar.create($L('PasswordNotMatch'))
 
     const $btns = $(this.refs['btns']).find('.btn').button('loading')
@@ -171,10 +171,10 @@ class DlgChangeEmail extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref="btns">
               <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link btn-space" onClick={() => this.hide()}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -185,7 +185,7 @@ class DlgChangeEmail extends RbFormHandler {
 
   sendVCode() {
     const s = this.state
-    if (!s.newEmail) return RbHighbar.create($L('PlsInputSome,Email'))
+    if (!s.newEmail) return RbHighbar.create($L('请输入,Email'))
     if (!$regex.isMail(s.newEmail)) return RbHighbar.create($L('SomeNotFormatWell,Email'))
 
     this.setState({ vcodeDisabled: true })
@@ -201,19 +201,19 @@ class DlgChangeEmail extends RbFormHandler {
   vcodeResend() {
     let countdown = 60
     let countdownTimer = setInterval(() => {
-      this.setState({ vcodeCountdown: `${$L('ReGet')} (${--countdown})` })
+      this.setState({ vcodeCountdown: `${$L('重新获取')} (${--countdown})` })
       if (countdown <= 0) {
         clearInterval(countdownTimer)
-        this.setState({ vcodeCountdown: $L('ReGet'), vcodeDisabled: false })
+        this.setState({ vcodeCountdown: $L('重新获取'), vcodeDisabled: false })
       }
     }, 1000)
   }
 
   post() {
     const s = this.state
-    if (!s.newEmail) return RbHighbar.create($L('PlsInputSome,Email'))
+    if (!s.newEmail) return RbHighbar.create($L('请输入,Email'))
     if (!$regex.isMail(s.newEmail)) return RbHighbar.create($L('SomeNotFormatWell,Email'))
-    if (!s.newEmail || !s.vcode) return RbHighbar.create($L('PlsInputSome,Vcode'))
+    if (!s.newEmail || !s.vcode) return RbHighbar.create($L('请输入,Vcode'))
 
     const $btns = $(this.refs['btns']).find('.btn').button('loading')
     $.post(`/settings/user/save-email?email=${$encode(s.newEmail)}&vcode=${$encode(s.vcode)}`, (res) => {
@@ -245,7 +245,7 @@ class DlgCropper extends RbModalHandler {
         </div>
         <div className="mt-3">
           <button className="btn btn-primary w-100" onClick={this.post} ref={(c) => (this._btn = c)}>
-            {$L('Modify')}
+            {$L('修改')}
           </button>
         </div>
       </RbModal>

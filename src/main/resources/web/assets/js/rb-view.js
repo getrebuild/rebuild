@@ -36,7 +36,7 @@ class RbViewForm extends React.Component {
 
       let hadApproval = res.data.hadApproval
       if (wpc.type === 'DetailView') {
-        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: $L('SomeInApproval,MainRecord') })
+        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: $L('主记录正在审批中') })
         else if (hadApproval === 10) $('.J_edit, .J_delete').remove()
         hadApproval = null
       }
@@ -177,7 +177,7 @@ class RelatedList extends React.Component {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-info-outline" />
-        <p>{$L('NoData')}</p>
+        <p>{$L('暂无数据')}</p>
       </div>
     )
   }
@@ -319,7 +319,7 @@ class EntityRelatedList extends RelatedList {
             </a>
           </div>
           <div className="col-2 text-right">
-            <span className="fs-12 text-muted" title={`${$L('f.modifiedOn')} ${item[2]}`}>
+            <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}
             </span>
           </div>
@@ -425,7 +425,7 @@ class SelectReport extends React.Component {
               </button>
             </div>
             <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('SelectSome,Report')}</h5>
+              <h5 className="mt-0 text-bold">{$L('选择,Report')}</h5>
               {this.state.reports && this.state.reports.length === 0 && (
                 <p className="text-muted">
                   {$L('NoAnySome,Report')}

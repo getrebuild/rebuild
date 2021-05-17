@@ -6,8 +6,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const _ENTITIES = {
-  'Feeds': $L('e.Feeds'),
-  'ProjectTask': $L('e.ProjectTask'),
+  'Feeds': $L('动态'),
+  'ProjectTask': $L('任务'),
 }
 
 $(document).ready(() => {
@@ -28,24 +28,24 @@ $(document).ready(() => {
 const ListConfig = {
   entity: 'RevisionHistory',
   fields: [
-    { field: 'belongEntity', label: $L('BelongEntity'), unsort: true },
-    { field: 'revisionType', label: $L('RevisionType') },
-    { field: 'revisionOn', label: $L('RevisionOn'), type: 'DATETIME' },
-    { field: 'revisionBy.fullName', label: $L('RevisionBy') },
-    { field: 'channelWith', label: $L('RevisionChannel'), unsort: true },
-    { field: 'recordId', label: $L('RecordId'), unsort: true },
+    { field: 'belongEntity', label: $L('所属实体'), unsort: true },
+    { field: 'revisionType', label: $L('变更类型') },
+    { field: 'revisionOn', label: $L('变更时间'), type: 'DATETIME' },
+    { field: 'revisionBy.fullName', label: $L('变更用户') },
+    { field: 'channelWith', label: $L('变更渠道'), unsort: true },
+    { field: 'recordId', label: $L('记录 ID'), unsort: true },
   ],
   sort: 'revisionOn:desc',
 }
 
 // 操作类型
 const RevTypes = {
-  1: $L('Create'),
-  2: $L('Delete'),
-  4: $L('Update'),
-  16: $L('Assign'),
-  32: $L('Share'),
-  64: $L('UnShare'),
+  1: $L('新建'),
+  2: $L('删除'),
+  4: $L('编辑'),
+  16: $L('分派'),
+  32: $L('共享'),
+  64: $L('取消共享'),
 }
 
 class DataList extends React.Component {
@@ -58,7 +58,7 @@ class DataList extends React.Component {
   componentDidMount() {
     const select2 = $('#belongEntity')
       .select2({
-        placeholder: $L('SelectSome,Entity'),
+        placeholder: $L('选择,Entity'),
         width: 220,
         allowClear: false,
       })
@@ -150,10 +150,10 @@ class DlgDetails extends RbAlert {
               <tr key={item.field}>
                 <td>{item.field}</td>
                 <td>
-                  <div>{item.before || <span className="text-muted">{$L('Empty')}</span>}</div>
+                  <div>{item.before || <span className="text-muted">{$L('空')}</span>}</div>
                 </td>
                 <td>
-                  <div>{item.after || <span className="text-muted">{$L('Empty')}</span>}</div>
+                  <div>{item.after || <span className="text-muted">{$L('空')}</span>}</div>
                 </td>
               </tr>
             )

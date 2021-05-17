@@ -23,9 +23,9 @@ class RbFormModal extends React.Component {
               <div className="modal-content">
                 <div className="modal-header modal-header-colored">
                   {this.state.icon && <span className={'icon zmdi zmdi-' + this.state.icon} />}
-                  <h3 className="modal-title">{this.state.title || $L('New')}</h3>
+                  <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
                   {rb.isAdminUser && (
-                    <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('FormLayout')} target="_blank">
+                    <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('表单设计')} target="_blank">
                       <span className="zmdi zmdi-settings"></span>
                     </a>
                   )}
@@ -215,7 +215,7 @@ class RbForm extends React.Component {
     if (pmodel.hadApproval) {
       moreActions.push(
         <a key="Action103" className="dropdown-item" onClick={() => this.post(103)}>
-          {$L('SaveAndSubmit')}
+          {$L('保存并提交')}
         </a>
       )
     }
@@ -223,27 +223,27 @@ class RbForm extends React.Component {
     if (pmodel.isMain === true) {
       moreActions.push(
         <a key="Action102" className="dropdown-item" onClick={() => this.post(102)}>
-          {$L('SaveAndAddDetail')}
+          {$L('保存并添加明细')}
         </a>
       )
     } else if (pmodel.isDetail === true) {
       moreActions.push(
         <a key="Action101" className="dropdown-item" onClick={() => this.post(101)}>
-          {$L('SaveAndAdd')}
+          {$L('保存并继续添加')}
         </a>
       )
     }
 
     let actionBtn = (
       <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
-        {$L('Save')}
+        {$L('保存')}
       </button>
     )
     if (moreActions.length > 0) {
       actionBtn = (
         <div className="btn-group dropup btn-space">
           <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-            {$L('Save')}
+            {$L('保存')}
           </button>
           <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown">
             <span className="icon zmdi zmdi-chevron-up"></span>
@@ -262,7 +262,7 @@ class RbForm extends React.Component {
         <div className="col-12 col-sm-8 offset-sm-3" ref={(c) => (this._formAction = c)}>
           {actionBtn}
           <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
-            {$L('Cancel')}
+            {$L('取消')}
           </button>
         </div>
       </div>
@@ -424,7 +424,7 @@ class RbFormElement extends React.Component {
         <div ref={(c) => (this._fieldText = c)} className={'col-12 col-sm-' + colWidths[1]}>
           {!props.onView || (editable && this.state.editMode) ? this.renderElement() : this.renderViewElement()}
           {!props.onView && props.tip && <p className="form-text">{props.tip}</p>}
-          {editable && !this.state.editMode && <a className="edit" title={$L('Edit')} onClick={() => this.toggleEditMode(true)} />}
+          {editable && !this.state.editMode && <a className="edit" title={$L('编辑')} onClick={() => this.toggleEditMode(true)} />}
           {editable && this.state.editMode && (
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
@@ -484,7 +484,7 @@ class RbFormElement extends React.Component {
     if (value && $empty(value)) value = null
     return (
       <React.Fragment>
-        <div className="form-control-plaintext">{value || <span className="text-muted">{$L('Null')}</span>}</div>
+        <div className="form-control-plaintext">{value || <span className="text-muted">{$L('无')}</span>}</div>
       </React.Fragment>
     )
   }
@@ -979,7 +979,7 @@ class RbFormImage extends RbFormElement {
               <a title={$fileCutName(item)} className="img-thumbnail img-upload">
                 <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
                 {!this.props.readonly && (
-                  <b title={$L('Remove')} onClick={() => this.removeItem(item)}>
+                  <b title={$L('移除')} onClick={() => this.removeItem(item)}>
                     <span className="zmdi zmdi-close"></span>
                   </b>
                 )}
@@ -1078,7 +1078,7 @@ class RbFormFile extends RbFormImage {
               <i className="file-icon" data-type={$fileExtName(fileName)} />
               <span>{fileName}</span>
               {!this.props.readonly && (
-                <b title={$L('Remove')} onClick={() => this.removeItem(item)}>
+                <b title={$L('移除')} onClick={() => this.removeItem(item)}>
                   <span className="zmdi zmdi-close"></span>
                 </b>
               )}
@@ -1090,7 +1090,7 @@ class RbFormFile extends RbFormImage {
             <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
             <label htmlFor={`${this.props.field}-input`} title={$L('UploadFileNeedX').replace('%d', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
               <i className="zmdi zmdi-upload"></i>
-              <span>{$L('UploadFile')}</span>
+              <span>{$L('上传文件')}</span>
             </label>
           </div>
         )}
@@ -1576,8 +1576,8 @@ class RbFormMultiSelect extends RbFormElement {
 
 class RbFormBool extends RbFormElement {
   _Options = {
-    T: $L('True'),
-    F: $L('False'),
+    T: $L('是'),
+    F: $L('否'),
   }
 
   constructor(props) {
@@ -1664,7 +1664,7 @@ class RbFormAvatar extends RbFormElement {
     const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
-        <span title={this.props.readonly ? null : $L('SelectSome,Avatar')}>
+        <span title={this.props.readonly ? null : $L('选择,Avatar')}>
           {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
             <img src={aUrl} alt={$L('Avatar')} />
@@ -1862,7 +1862,7 @@ class RepeatedViewer extends RbModalHandler {
       <tr key={`row-${idx}`}>
         {item.map((o, i) => {
           if (i === 0) return null
-          return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('Null')}</span>}</td>
+          return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
         })}
         <td className="actions">
           <a className="icon" onClick={() => this.openView(item[0])} title={$L('ViewDetails')}>

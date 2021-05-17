@@ -35,7 +35,7 @@ class AdvFilter extends React.Component {
     const opButtons = this.props.fromList ? (
       <div className="float-right">
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('Save')}
+          {$L('保存')}
         </button>
         <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
           <i className="icon zmdi zmdi-search" /> {$L('QueryNow')}
@@ -44,10 +44,10 @@ class AdvFilter extends React.Component {
     ) : (
       <div className="item">
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('Confirm')}
+          {$L('确定')}
         </button>
         <button className="btn btn-secondary" type="button" onClick={() => this.hide(true)}>
-          {$L('Cancel')}
+          {$L('取消')}
         </button>
       </div>
     )
@@ -355,7 +355,7 @@ class FilterItem extends React.Component {
       <div className="row item">
         <div className="col-sm-5 field">
           <em>{this.state.index}</em>
-          <i className="zmdi zmdi-minus-circle" title={$L('Remove')} onClick={() => this.props.$$$parent.removeItem(this.props.id)}></i>
+          <i className="zmdi zmdi-minus-circle" title={$L('移除')} onClick={() => this.props.$$$parent.removeItem(this.props.id)}></i>
           <select className="form-control form-control-sm" ref={(c) => (this._filterField = c)}>
             {this.state.fields.map((item) => {
               return (
@@ -450,8 +450,8 @@ class FilterItem extends React.Component {
     } else if (this.state.type === 'BOOL') {
       valComp = (
         <select className="form-control form-control-sm" ref={(c) => (this._filterVal = c)}>
-          <option value="T">{$L('True')}</option>
-          <option value="F">{$L('False')}</option>
+          <option value="T">{$L('是')}</option>
+          <option value="F">{$L('否')}</option>
         </select>
       )
     }
