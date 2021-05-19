@@ -136,7 +136,7 @@ class FeedsList extends React.Component {
                   item.scope
                 ) : (
                   <span>
-                    {item.scope[1]} <i title={$L('FeedsScopeGroup')} className="zmdi zmdi-accounts fs-14 down-1"></i>
+                    {item.scope[1]} <i title={$L('团队成员可见')} className="zmdi zmdi-accounts fs-14 down-1"></i>
                   </span>
                 )}
               </p>
@@ -166,7 +166,7 @@ class FeedsList extends React.Component {
             )}
             <li className="list-inline-item mr-3">
               <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                <i className="zmdi zmdi-thumb-up"></i> {$L('Like')} {item.numLike > 0 && <span>({item.numLike})</span>}
+                <i className="zmdi zmdi-thumb-up"></i> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
               </a>
             </li>
             <li className="list-inline-item">
@@ -230,7 +230,7 @@ class FeedsList extends React.Component {
   _handleDelete(id) {
     event.preventDefault()
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,Feeds'), {
+    RbAlert.create($L('确认删除此,Feeds'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -347,7 +347,7 @@ class FeedsComments extends React.Component {
                         )}
                         <li className="list-inline-item mr-3">
                           <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                            <i className="zmdi zmdi-thumb-up"></i> {$L('Like')} {item.numLike > 0 && <span>({item.numLike})</span>}
+                            <i className="zmdi zmdi-thumb-up"></i> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
                           </a>
                         </li>
                         <li className="list-inline-item">
@@ -432,7 +432,7 @@ class FeedsComments extends React.Component {
   _handleDelete = (id) => {
     event.preventDefault()
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,Comment'), {
+    RbAlert.create($L('确认删除此,Comment'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -620,7 +620,7 @@ const ANN_OPTIONS = [
   [4, $L('AnnouncementPos4')],
 ]
 const REM_OPTIONS = [
-  [1, $L('Notification')],
+  [1, $L('通知')],
   [2, $L('Mail')],
   [4, $L('Sms')],
 ]

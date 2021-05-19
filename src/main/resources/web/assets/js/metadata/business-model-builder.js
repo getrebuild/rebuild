@@ -42,11 +42,11 @@ class BusinessModelBuilder extends React.Component {
         <div className="col-2 text-right">
           {item.exists ? (
             <button disabled className="btn btn-sm btn-primary">
-              {$L('Exists')}
+              {$L('已存在')}
             </button>
           ) : (
             <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" onClick={() => this.imports(item)}>
-              {$L('Import')}
+              {$L('导入')}
             </button>
           )}
         </div>

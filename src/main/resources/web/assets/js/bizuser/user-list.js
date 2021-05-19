@@ -22,7 +22,7 @@ $(document).ready(function () {
   })
   $('.J_new-dept').click(function () {
     formPostType = 2
-    RbFormModal.create({ title: $L('新建,Department'), entity: 'Department', icon: 'accounts' })
+    RbFormModal.create({ title: $L('新建部门'), entity: 'Department', icon: 'accounts' })
   })
 })
 
@@ -47,7 +47,7 @@ class UserImport extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('ImportUser')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('导入用户')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('上传文件')}</label>
@@ -65,7 +65,11 @@ class UserImport extends RbModalHandler {
                 {this.state.uploadFile && <u className="text-bold">{$fileCutName(this.state.uploadFile)}</u>}
               </div>
               <div className="clearfix"></div>
-              <p className="form-text mt-0 mb-0 link" dangerouslySetInnerHTML={{ __html: $L('ImportUserTips') }}></p>
+              <p
+                className="form-text mt-0 mb-0 link"
+                dangerouslySetInnerHTML={{
+                  __html: $L('请按照 [模板文件](https://getrebuild.com/docs/images/USERS_TEMPLATE.xls) 要求填写并上传，更多说明请 [参考文档](https://getrebuild.com/docs/admin/users)'),
+                }}></p>
             </div>
           </div>
           <div className="form-group row">
@@ -74,7 +78,7 @@ class UserImport extends RbModalHandler {
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._notify = c)} />
                 <span className="custom-control-label">
-                  {$L('ImportUserAndNotify')} {window.__PageConfig.serviceMail !== 'true' && <span>({$L('Unavailable')})</span>}
+                  {$L('导入成功后发送邮件通知用户')} {window.__PageConfig.serviceMail !== 'true' && <span>({$L('不可用')})</span>}
                 </span>
               </label>
             </div>
@@ -82,7 +86,7 @@ class UserImport extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={() => this.imports()} ref={(c) => (this._btn = c)}>
-                {$L('StartImport')}
+                {$L('开始导入')}
               </button>
             </div>
           </div>
@@ -111,8 +115,8 @@ class UserImport extends RbModalHandler {
   }
 
   imports() {
-    if (rb.commercial < 1) return RbHighbar.create($L('FreeVerNotSupportted,ImportUser'), { type: 'danger', html: true, timeout: 6000 })
-    if (!this.state.uploadFile) return RbHighbar.create($L('PlsUploadFile'))
+    if (rb.commercial < 1) return RbHighbar.create($L('免费版不支持{0}功能 [(查看详情)](https://getrebuild.com/docs/rbv-features),ImportUser'), { type: 'danger', html: true, timeout: 6000 })
+    if (!this.state.uploadFile) return RbHighbar.create($L('请上传文件'))
 
     $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._notify).prop('checked')}`, (res) => {
       if (res.error_code === 0) {
@@ -131,7 +135,7 @@ class UserImport extends RbModalHandler {
         // $(this._btn).button('reset')
         this.hide()
         RbListPage.reload()
-        RbHighbar.success($L('ImportUserOkTips').replace('%d', res.data.succeeded))
+        RbHighbar.success($L('成功导入 %d 用户', res.data.succeeded))
       } else {
         setTimeout(() => this._checkState(), 1000)
       }

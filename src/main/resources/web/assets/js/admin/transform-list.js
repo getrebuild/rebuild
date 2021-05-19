@@ -54,7 +54,7 @@ class TransformList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('DeleteSomeConfirm,TransformConfig'), {
+    RbAlert.create($L('确认删除此记录转换映射？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -68,7 +68,7 @@ class TransformList extends ConfigList {
 class TransformEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.subtitle = $L('TransformConfig')
+    this.subtitle = $L('记录转换映射')
   }
 
   renderFrom() {
@@ -77,7 +77,7 @@ class TransformEdit extends ConfigFormDlg {
         {!this.props.id && (
           <React.Fragment>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,SourceEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择源实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._source = c)}>
                   {(this.state.entities || []).map((item) => {
@@ -91,7 +91,7 @@ class TransformEdit extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,TargetEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择目标实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._target = c)}>
                   {(this.state.entities || []).map((item) => {

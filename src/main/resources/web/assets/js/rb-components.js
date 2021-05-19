@@ -421,7 +421,7 @@ class UserSelector extends React.Component {
   render() {
     let inResult
     if (!this.state.items) {
-      inResult = <li className="select2-results__option un-hover text-muted">{$L('搜索中...')}</li>
+      inResult = <li className="select2-results__option un-hover text-muted">{$L('搜索中')}</li>
     } else if (this.state.items.length === 0) {
       inResult = <li className="select2-results__option un-hover">{$L('未找到结果')}</li>
     } else {
@@ -443,7 +443,7 @@ class UserSelector extends React.Component {
             <input
               type="search"
               className="form-control search"
-              placeholder={$L('InputForSearch')}
+              placeholder={$L('输入关键词搜索')}
               value={this.state.query || ''}
               ref={(c) => (this._input = c)}
               onChange={(e) => this.searchItems(e)}
@@ -504,7 +504,7 @@ class UserSelector extends React.Component {
                 })}
                 <span className="select2-selection__choice abtn" data-toggle="dropdown">
                   <a>
-                    <i className="zmdi zmdi-plus" /> {this.props.multiple === false ? $L('Select') : $L('添加')}
+                    <i className="zmdi zmdi-plus" /> {this.props.multiple === false ? $L('选择') : $L('添加')}
                   </a>
                 </span>
                 {_DropdownMenu}
@@ -651,7 +651,7 @@ class UserSelector extends React.Component {
 
     if (!exists) ns.push(selected)
     if (ns.length >= 20) {
-      RbHighbar.create($L('MaxSelectX').replace('%d', 20))
+      RbHighbar.create($L('最多选择 20 项'))
       return false
     }
 
@@ -734,7 +734,7 @@ class AnyRecordSelector extends React.Component {
       this.setState({ entities: res.data || [] }, () => {
         $(this._entity)
           .select2({
-            placeholder: $L('NoAnySome,Entity'),
+            placeholder: $L('无可用实体'),
             allowClear: false,
           })
           .on('change', () => {
@@ -755,7 +755,7 @@ class AnyRecordSelector extends React.Component {
     let search_input = null
     $(this._record)
       .select2({
-        placeholder: `${$L('选择,Record')}`,
+        placeholder: `${$L('选择记录')}`,
         minimumInputLength: 0,
         maximumSelectionLength: 1,
         ajax: {
@@ -776,16 +776,16 @@ class AnyRecordSelector extends React.Component {
         },
         language: {
           noResults: () => {
-            return (search_input || '').length > 0 ? $L('NoResults') : $L('InputForSearch')
+            return (search_input || '').length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
           },
           inputTooShort: () => {
-            return $L('InputForSearch')
+            return $L('输入关键词搜索')
           },
           searching: () => {
-            return $L('Searching')
+            return $L('搜索中')
           },
           maximumSelected: () => {
-            return $L('OnlyXSelected').replace('%d', 1)
+            return $L('只能选择 1 项')
           },
         },
       })
@@ -822,74 +822,74 @@ const DEFAULT_MDE_TOOLBAR = [
     name: 'bold',
     action: SimpleMDE.toggleBold,
     className: 'zmdi zmdi-format-bold',
-    title: $L('MdeditBold'),
+    title: $L('粗体'),
   },
   {
     name: 'italic',
     action: SimpleMDE.toggleItalic,
     className: 'zmdi zmdi-format-italic',
-    title: $L('MdeditItalic'),
+    title: $L('斜体'),
   },
   {
     name: 'strikethrough',
     action: SimpleMDE.toggleStrikethrough,
     className: 'zmdi zmdi-format-strikethrough',
-    title: $L('MdeditStrikethrough'),
+    title: $L('删除线'),
   },
   {
     name: 'heading',
     action: SimpleMDE.toggleHeadingSmaller,
     className: 'zmdi zmdi-format-size',
-    title: $L('MdeditHeading'),
+    title: $L('标题'),
   },
   {
     name: 'unordered-list',
     action: SimpleMDE.toggleUnorderedList,
     className: 'zmdi zmdi-format-list-bulleted',
-    title: $L('MdeditUnorderedList'),
+    title: $L('列表'),
   },
   {
     name: 'ordered-list',
     action: SimpleMDE.toggleOrderedList,
     className: 'zmdi zmdi-format-list-numbered',
-    title: $L('MdeditOrderedList'),
+    title: $L('数字列表'),
   },
   {
     name: 'link',
     action: SimpleMDE.drawLink,
     className: 'zmdi zmdi-link',
-    title: $L('MdeditLink'),
+    title: $L('链接'),
   },
   {
     name: 'image',
     action: () => this._fieldValue__upload.click(),
     className: 'zmdi zmdi-image-o',
-    title: $L('MdeditImage'),
+    title: $L('图片'),
   },
   {
     name: 'table',
     action: SimpleMDE.drawTable,
     className: 'zmdi zmdi-border-all',
-    title: $L('MdeditTable'),
+    title: $L('表格'),
   },
   '|',
   {
     name: 'fullscreen',
     action: SimpleMDE.toggleFullScreen,
     className: 'zmdi zmdi-fullscreen no-disable',
-    title: $L('MdeditFullScreen'),
+    title: $L('全屏'),
   },
   {
     name: 'preview',
     action: SimpleMDE.togglePreview,
     className: 'zmdi zmdi-eye no-disable',
-    title: $L('MdeditTogglePreview'),
+    title: $L('预览'),
   },
   {
     name: 'guide',
     action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
     className: 'zmdi zmdi-help-outline no-disable',
-    title: $L('MdeditGuide'),
+    title: $L('编辑器帮助'),
   },
 ]
 

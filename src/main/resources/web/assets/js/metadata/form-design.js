@@ -37,7 +37,7 @@ $(document).ready(function () {
       if (this.field === DIVIDER_LINE) {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
       } else if (!field) {
-        const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('SomeDeleted,Field')}</span></div></div>`).appendTo(
+        const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
           '.form-preview'
         )
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
@@ -154,7 +154,7 @@ $(document).ready(function () {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
       e.preventDefault()
-      RbHighbar.create($L('FreeVerNotSupportted,FormAdvControl'), { type: 'danger', html: true, timeout: 6000 })
+      RbHighbar.create($L('免费版不支持{0}功能 [(查看详情)](https://getrebuild.com/docs/rbv-features),FormAdvControl'), { type: 'danger', html: true, timeout: 6000 })
       return false
     }
 

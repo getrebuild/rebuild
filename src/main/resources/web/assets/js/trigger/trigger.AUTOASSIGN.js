@@ -16,26 +16,26 @@ class ContentAutoAssign extends ActionContentSpec {
       <div className="auto-assign">
         <form className="simple">
           <div className="form-group row pt-1">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('AssignToWho')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('分派给谁')}</label>
             <div className="col-12 col-lg-8">
               <UserSelectorWithField ref={(c) => (this._assignTo = c)} />
             </div>
           </div>
           <div className="form-group row pb-1">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('NUsersAssign')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('(多人) 分派规则')}</label>
             <div className="col-12 col-lg-8 pt-1" ref={(c) => (this._assignRule = c)}>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline">
                 <input className="custom-control-input" name="assignRule" type="radio" value="1" onClick={(e) => this.changeValue(e)} defaultChecked />
-                <span className="custom-control-label">{$L('NUsersAssign1')}</span>
+                <span className="custom-control-label">{$L('依次平均分派')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline">
                 <input className="custom-control-input" name="assignRule" type="radio" value="2" onClick={(e) => this.changeValue(e)} />
-                <span className="custom-control-label">{$L('NUsersAssign2')}</span>
+                <span className="custom-control-label">{$L('随机分派')}</span>
               </label>
             </div>
           </div>
           <div className="form-group row pb-1">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('SameSomeRelatedRecords,Assign')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时分派关联记录')}</label>
             <div className="col-12 col-lg-8">
               <div className="entity-select">
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
@@ -81,7 +81,7 @@ class ContentAutoAssign extends ActionContentSpec {
         this.__select2 = $(this._cascades)
           .select2({
             multiple: true,
-            placeholder: `${$L('选择,RelatedEntity')} (${$L('Optional')})`,
+            placeholder: `${$L('选择关联实体')} (${$L('可选')})`,
           })
           .val(cascades.length === 0 ? null : cascades)
           .trigger('change')
@@ -102,7 +102,7 @@ class ContentAutoAssign extends ActionContentSpec {
       cascades: this.__select2.val().join(','),
     }
     if (!_data.assignTo || _data.assignTo.length === 0) {
-      RbHighbar.create($L('请选择,AssignToWho'))
+      RbHighbar.create($L('请选择分派给谁'))
       return false
     }
     return _data

@@ -118,11 +118,11 @@ class FormulaDate extends RbAlert {
   }
 
   renderContent() {
-    const base = this.props.base ? this.props.base : [['NOW', $L('CurrentDate')]]
+    const base = this.props.base ? this.props.base : [['NOW', $L('当前日期')]]
     return (
       <form className="ml-6 mr-6">
         <div className="form-group">
-          <label className="text-bold">{$L('设置,DateFormula')}</label>
+          <label className="text-bold">{$L('设置日期公式')}</label>
           <div className="input-group">
             <select className="form-control form-control-sm" ref={(c) => (this._base = c)}>
               {base.map((item) => {
@@ -134,9 +134,9 @@ class FormulaDate extends RbAlert {
               })}
             </select>
             <select className="form-control form-control-sm ml-1" onChange={(e) => this.setState({ calcOp: e.target.value })}>
-              <option value="">{$L('CalcNone')}</option>
-              <option value="+">{$L('CalcPlus')}</option>
-              <option value="-">{$L('CalcMinus')}</option>
+              <option value="">{$L('不计算')}</option>
+              <option value="+">{$L('加上')}</option>
+              <option value="-">{$L('减去')}</option>
             </select>
             <input
               type="number"

@@ -24,7 +24,7 @@ class LightFeedsList extends RelatedList {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-chart-donut" />
-        <p>{$L('NoSome,e.Feeds')}</p>
+        <p>{$L('暂无动态')}</p>
       </div>
     )
   }
@@ -33,13 +33,13 @@ class LightFeedsList extends RelatedList {
     return (
       <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
         <a className="dropdown-item" data-sort="newer" onClick={(e) => this._search(e)}>
-          {$L('FeedsSortNewer')}
+          {$L('最近发布')}
         </a>
         <a className="dropdown-item" data-sort="older" onClick={(e) => this._search(e)}>
-          {$L('FeedsSortOlder')}
+          {$L('最早发布')}
         </a>
         <a className="dropdown-item" data-sort="modified" onClick={(e) => this._search(e)}>
-          {$L('FeedsSortModified')}
+          {$L('最近修改')}
         </a>
       </div>
     )
@@ -97,7 +97,7 @@ class LightTaskList extends RelatedList {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-chart-donut" />
-        <p>{$L('NoSome,e.ProjectTask')}</p>
+        <p>{$L('暂无任务')}</p>
       </div>
     )
   }
@@ -106,13 +106,13 @@ class LightTaskList extends RelatedList {
     return (
       <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
         <a className="dropdown-item" data-sort="seq" onClick={(e) => this._search(e)}>
-          {$L('TasksSortSeq')}
+          {$L('手动拖动')}
         </a>
         <a className="dropdown-item" data-sort="deadline" onClick={(e) => this._search(e)}>
-          {$L('TasksSortDeadline')}
+          {$L('最近截至')}
         </a>
         <a className="dropdown-item" data-sort="modifiedOn" onClick={(e) => this._search(e)}>
-          {$L('TasksSortModified')}
+          {$L('最近更新')}
         </a>
       </div>
     )
@@ -127,7 +127,7 @@ class LightTaskList extends RelatedList {
               <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label"></span>
             </label>
-            <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('Open')}>
+            <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
               <span className="badge">{item.taskNumber}</span>
               {item.taskName}
             </a>
@@ -138,19 +138,19 @@ class LightTaskList extends RelatedList {
               <div className="col-5 text-ellipsis">
                 {!item.deadline && !item.endTime && (
                   <React.Fragment>
-                    <span className="mr-1">{$L('f.createdOn')}</span>
+                    <span className="mr-1">{$L('创建时间')}</span>
                     <DateShow date={item.createdOn} />
                   </React.Fragment>
                 )}
                 {item.deadline && (
                   <React.Fragment>
-                    <span className="mr-1">{$L('Deadline')}</span>
+                    <span className="mr-1">{$L('到期时间')}</span>
                     <DateShow date={item.deadline} />
                   </React.Fragment>
                 )}
                 {!item.deadline && item.endTime && (
                   <React.Fragment>
-                    <span className="mr-1">{$L('FinishTime')}</span>
+                    <span className="mr-1">{$L('完成时间')}</span>
                     <DateShow date={item.endTime} />
                   </React.Fragment>
                 )}
@@ -222,12 +222,12 @@ class LightTaskDlg extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建,e.ProjectTask')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('新建任务')} disposeOnHide={true}>
         <div className="m-1">
           <div className="row">
             <div className="col-6">
               <div className="form-group">
-                <label>{$L('f.ProjectTask.projectId')}</label>
+                <label>{$L('项目')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$project = c)}>
                   {this.state.projects &&
                     this.state.projects.map((item) => {
@@ -242,7 +242,7 @@ class LightTaskDlg extends RbModalHandler {
             </div>
             <div className="col-6">
               <div className="form-group">
-                <label>{$L('f.ProjectTask.projectPlanId')}</label>
+                <label>{$L('任务面板')}</label>
                 <select className="form-control form-control-sm" ref={(c) => (this._$plan = c)}>
                   {this.state.selectProject &&
                     this.state.selectProject.plans &&
@@ -258,7 +258,7 @@ class LightTaskDlg extends RbModalHandler {
             </div>
           </div>
           <div className="form-group">
-            <label>{$L('f.ProjectTask.taskName')}</label>
+            <label>{$L('任务标题')}</label>
             <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)}></textarea>
           </div>
         </div>
@@ -282,7 +282,7 @@ class LightTaskDlg extends RbModalHandler {
       const that = this
       $(this._$project)
         .select2({
-          placeholder: $L('选择,f.ProjectTask.projectId'),
+          placeholder: $L('选择项目'),
           allowClear: false,
         })
         .on('change', function () {
@@ -293,7 +293,7 @@ class LightTaskDlg extends RbModalHandler {
         .trigger('change')
 
       $(this._$plan).select2({
-        placeholder: $L('选择,f.ProjectTask.projectPlanId'),
+        placeholder: $L('选择任务面板'),
         allowClear: false,
       })
     })
@@ -310,9 +310,9 @@ class LightTaskDlg extends RbModalHandler {
       relatedRecord: this.props.relatedRecord,
       metadata: { entity: 'ProjectTask' },
     }
-    if (!data.projectId) return RbHighbar.create($L('请选择,f.ProjectTask.projectId'))
-    if (!data.projectPlanId) return RbHighbar.create($L('请选择,f.ProjectTask.projectPlanId'))
-    if (!data.taskName) return RbHighbar.create($L('请输入,f.ProjectTask.taskName'))
+    if (!data.projectId) return RbHighbar.create($L('请选择项目'))
+    if (!data.projectPlanId) return RbHighbar.create($L('请选择任务面板'))
+    if (!data.taskName) return RbHighbar.create($L('请输入任务标题'))
 
     const $btn = $(this._btns).button('loading')
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {

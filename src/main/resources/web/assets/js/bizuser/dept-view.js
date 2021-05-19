@@ -29,11 +29,11 @@ $(document).ready(function () {
   $('.J_delete-dept').click(() => {
     $.get(`/admin/bizuser/delete-checks?id=${dept_id}`, (res) => {
       const limits = []
-      if (res.data.hasMember > 0) limits.push($L('HasXUsers').replace('%d', res.data.hasMember))
-      if (res.data.hasChild > 0) limits.push($L('HasXSubdepts').replace('%d', res.data.hasChild))
+      if (res.data.hasMember > 0) limits.push($L('**%d** 个用户', res.data.hasMember))
+      if (res.data.hasChild > 0) limits.push($L('**%d** 个子部门', res.data.hasChild))
 
       if (limits.length === 0) {
-        RbAlert.create($L('DeleteDeptSafeConfirm'), $L('DeleteSome,Department'), {
+        RbAlert.create($L('此部门可以被安全的删除'), $L('删除部门'), {
           icon: 'alert-circle-o',
           type: 'danger',
           confirmText: $L('删除'),
@@ -42,7 +42,7 @@ $(document).ready(function () {
           },
         })
       } else {
-        RbAlert.create($L('DeleteDeptUnSafeConfirm').replace('%s', limits.join(' / ')), $L('NotDelete'), {
+        RbAlert.create($L('此部门下有 %s [] 需要先将他们转移至其他部门，然后才能安全删除', limits.join(' / ')), $L('无法删除选中记录'), {
           type: 'danger',
           html: true,
         })

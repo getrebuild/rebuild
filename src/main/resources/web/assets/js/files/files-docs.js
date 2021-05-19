@@ -37,16 +37,16 @@ class FolderEditDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={`${$L(this.props.id ? 'ModifySome,Folder' : 'NewSome,Folder')}`} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this.props.id ? $L('修改目录') : $L('新建目录')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('FolderName')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('目录名称')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="name" value={this.state.name || ''} onChange={this.handleChange} />
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ViewScope')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('可见范围')}</label>
             <div className="col-sm-7 pt-1 down-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
@@ -54,13 +54,13 @@ class FolderEditDlg extends RbFormHandler {
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
                 <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('PrivateTips')}</span>
+                <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>
               </label>
-              <div className="form-text mb-1">{$L('ViewScopeTips')}</div>
+              <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
             </div>
           </div>
           <div className="form-group row pt-1">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ParentFolder')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('上级目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="parent" onChange={this.handleChange}>
                 {__FolderData.map((item) => {
@@ -87,7 +87,7 @@ class FolderEditDlg extends RbFormHandler {
   _post = () => {
     let _data = { name: this.state.name, parent: this.state.parent, scope: this.state.scope }
     if (!_data.name) {
-      RbHighbar.create($L('请输入,FolderName'))
+      RbHighbar.create($L('请输入目录名称'))
       return
     }
     _data.metadata = { entity: 'AttachmentFolder', id: this.props.id || null }
@@ -106,10 +106,10 @@ class FileUploadDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('UploadSome,File')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form" ref={(c) => (this._dropArea = c)}>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('UploadSome,Folder')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('上传目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" defaultValue={this.props.inFolder} onChange={this.handleChange}>
                 {__FolderData.map((item) => {
@@ -119,7 +119,7 @@ class FileUploadDlg extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('File')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('文件')}</label>
             <div className="col-sm-7">
               <div className="file-field files">
                 {(this.state.files || []).map((item) => {
@@ -136,7 +136,7 @@ class FileUploadDlg extends RbFormHandler {
                 })}
               </div>
               <label className="upload-box">
-                {$L('DragToUpload')}
+                {$L('点击选择或拖动文件至此')}
                 <input type="file" ref={(c) => (this._upload = c)} className="hide" />
               </label>
             </div>
@@ -206,7 +206,7 @@ class FileUploadDlg extends RbFormHandler {
   }
 
   _post = () => {
-    if ((this.state.files || []).length === 0) return RbHighbar.create($L('请选择,File'))
+    if ((this.state.files || []).length === 0) return RbHighbar.create($L('请选择文件'))
 
     this.disabled(true)
     $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.state.files), (res) => {
@@ -224,10 +224,10 @@ class FileMoveDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('ModifyFileFolder')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('修改文件目录')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ChangToFolder')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('更改至新目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" onChange={this.handleChange}>
                 {__FolderData.map((item) => {
@@ -283,7 +283,7 @@ class FolderTree extends React.Component {
       <li key={`folder-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
         <a data-id={item.id} onClick={() => this._clickItem(item)} href={`#!/Folder/${item.id}`}>
           {item.text}
-          {item.private && <i title={$L('Private')} className="icon zmdi zmdi-lock" />}
+          {item.private && <i title={$L('私有')} className="icon zmdi zmdi-lock" />}
         </a>
         {item.self && (
           <div className="action">
@@ -320,7 +320,7 @@ class FolderTree extends React.Component {
   _handleDelete(id) {
     event.preventDefault()
     const that = this
-    RbAlert.create($L('DelFolderTips'), {
+    RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -412,7 +412,7 @@ $(document).ready(() => {
   $('.J_delete').click(() => {
     const s = filesList.getSelected()
     if (!s) return
-    RbAlert.create($L('DeleteSomeConfirm,File'), {
+    RbAlert.create($L('确认删除此文件？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

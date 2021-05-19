@@ -92,7 +92,7 @@ $(function () {
       $('.admin-settings').remove()
     } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      topPopover($('.admin-settings a'), '<div class="p-1">' + $L('CancelYourAdminAccess').replace('#', 'javascript:_cancelAdmin()') + '</div>')
+      topPopover($('.admin-settings a'), '<div class="p-1">' + $L('当前已启用管理员访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>')
     }
 
     $.get('/user/admin-dangers', function (res) {
@@ -149,7 +149,7 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 1) return RbHighbar.create($L('FreeVerNotSupportted,UseTheme'), { type: 'danger', html: true, timeout: 6000 })
+    if (rb.commercial < 1) return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), { type: 'danger', html: true, timeout: 6000 })
 
     var theme = $(this).data('theme')
     $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
@@ -254,7 +254,7 @@ var _initNavs = function () {
   }
 
   $('.nav-settings').click(function () {
-    RbModal.create('/p/settings/nav-settings', $L('设置,NavMenu'))
+    RbModal.create('/p/settings/nav-settings', $L('设置导航菜单'))
   })
 
   // WHEN SMALL-WIDTH
@@ -273,7 +273,7 @@ var _initNavs = function () {
   }
 
   setTimeout(function () {
-    $('.rbv').attr('title', $L('CommercialFeat'))
+    $('.rbv').attr('title', $L('增值功能'))
   }, 400)
 
   // Active URL Nav
@@ -334,7 +334,7 @@ var _loadMessages = function () {
       $('<span class="date">' + $fromNow(item[2]) + '</span>').appendTo(o)
     })
     _loadMessages__state = true
-    if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('NoSome,Notification') + '</li>').appendTo(dest)
+    if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('暂无通知') + '</li>').appendTo(dest)
   })
 }
 var _showNotification = function () {
@@ -342,7 +342,7 @@ var _showNotification = function () {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      new _Notification($L('HasXNotice').replace('%d', _checkMessage__state), {
+      new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
         tag: 'rbNotification',
         icon: rb.baseUrl + '/assets/img/favicon.png',
       })
@@ -472,11 +472,11 @@ var $createUploader = function (input, next, complete, error) {
           error: function (err) {
             var msg = (err.message || err.error || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
-              RbHighbar.create($L('PlsUploadImg'))
+              RbHighbar.create($L('请上传图片'))
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create($L('ExceedMaxLimit') + ' (100MB)')
+              RbHighbar.create($L('超出文件大小限制') + ' (100MB)')
             } else {
-              RbHighbar.error($L('ErrorUpload') + ' : ' + msg)
+              RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
             }
             typeof error === 'function' && error()
             return false
@@ -494,10 +494,10 @@ var $createUploader = function (input, next, complete, error) {
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create($L(imgOnly ? 'PlsUploadImg' : 'FileTypeError'))
+          RbHighbar.create(imgOnly ? $L('请上传图片') : $L('文件格式错误'))
           return false
         } else if (err === 'ErrorMaxSize') {
-          RbHighbar.create($L('ExceedMaxLimit'))
+          RbHighbar.create($L('超出文件大小限制'))
           return false
         }
       },
@@ -511,12 +511,12 @@ var $createUploader = function (input, next, complete, error) {
           if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
           complete({ key: e.data })
         } else {
-          RbHighbar.error($L('ErrorUpload'))
+          RbHighbar.error($L('上传失败，请稍后重试'))
           typeof error === 'function' && error()
         }
       },
       onClientError: function (e, file) {
-        RbHighbar.error($L('ErrorUpload'))
+        RbHighbar.error($L('上传失败，请稍后重试'))
         typeof error === 'function' && error()
       },
     })
@@ -542,7 +542,7 @@ var $unmount = function (container, delay, keepContainer) {
 var $initReferenceSelect2 = function (el, field) {
   var search_input = null
   return $(el).select2({
-    placeholder: field.placeholder || $L('SelectSome').replace('{0}', field.label),
+    placeholder: field.placeholder || $L('选择%s', field.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
     ajax: {
@@ -558,19 +558,19 @@ var $initReferenceSelect2 = function (el, field) {
     },
     language: {
       noResults: function () {
-        return (search_input || '').length > 0 ? $L('NoResults') : $L('InputForSearch')
+        return (search_input || '').length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
       },
       inputTooShort: function () {
-        return $L('InputForSearch')
+        return $L('输入关键词搜索')
       },
       searching: function () {
-        return $L('Searching')
+        return $L('搜索中')
       },
       maximumSelected: function () {
-        return $L('OnlyXSelected').replace('%d', 1)
+        return $L('只能选择 1 项')
       },
       removeAllItems: function () {
-        return $L('Clean')
+        return $L('清除')
       },
     },
     theme: 'default ' + (field.appendClass || ''),
@@ -733,7 +733,7 @@ var $moment = function (date) {
  */
 var $fromNow = function (date) {
   var m = $moment(date)
-  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow') : m.fromNow()
+  return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.fromNow()
 }
 /**
  * 是否过期

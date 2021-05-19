@@ -53,7 +53,7 @@ class ReportList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('DeleteSomeConfirm,ReportTemplate'), {
+    RbAlert.create($L('确认删除此报表模板？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -67,7 +67,7 @@ class ReportList extends ConfigList {
 class ReporEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.subtitle = $L('ReportTemplate')
+    this.subtitle = $L('报表模板')
   }
 
   renderFrom() {
@@ -76,7 +76,7 @@ class ReporEdit extends ConfigFormDlg {
         {!this.props.id && (
           <React.Fragment>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,ApplyEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择应用实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
                   {(this.state.entities || []).map((item) => {
@@ -90,7 +90,7 @@ class ReporEdit extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row pb-1">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('TemplateFile')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('模板文件')}</label>
               <div className="col-sm-9">
                 <div className="float-left">
                   <div className="file-select">
@@ -201,7 +201,7 @@ class ReporEdit extends ConfigFormDlg {
       }
       post.templateFile = this.state.templateFile
       if (!post.templateFile) {
-        RbHighbar.create($L('PlsUploadFile'))
+        RbHighbar.create($L('请上传文件'))
         return
       }
     }

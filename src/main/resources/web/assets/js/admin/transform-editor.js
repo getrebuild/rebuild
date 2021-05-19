@@ -13,7 +13,7 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} entity={wpc.sourceEntity.entity} filter={advFilter_data} confirm={_saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={wpc.sourceEntity.entity} filter={advFilter_data} confirm={_saveFilter} />, null, function () {
         advFilter = this
       })
     }
@@ -41,11 +41,11 @@ $(document).ready(() => {
 
   $('#fillbackField')
     .select2({
-      placeholder: `(${$L('Optional')})`,
+      placeholder: `(${$L('可选')})`,
       data: fillbackFields,
       allowClear: true,
       language: {
-        noResults: () => $L('NoUsesField'),
+        noResults: () => $L('无可用字段'),
       },
     })
     .val(null)
@@ -116,11 +116,11 @@ class FieldsMapping extends React.Component {
 
         $this
           .select2({
-            placeholder: $L('选择,SourceField'),
+            placeholder: $L('选择源字段'),
             allowClear: true,
             data: sourceFields,
             language: {
-              noResults: () => $L('NoUsesField'),
+              noResults: () => $L('无可用字段'),
             },
           })
           .on('change', function () {
@@ -137,7 +137,7 @@ class FieldsMapping extends React.Component {
     const _target = this.props.target
 
     if (!_target.fields || _target.fields.length === 0) {
-      return <RbAlertBox message={$L('NoUsesField')} />
+      return <RbAlertBox message={$L('无可用字段')} />
     }
 
     return (

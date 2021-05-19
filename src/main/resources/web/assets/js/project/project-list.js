@@ -137,11 +137,11 @@ class DlgEdit extends RbFormHandler {
       that.setState({ iconName: s })
       RbModal.hide()
     }
-    RbModal.create('/p/common/search-icon', $L('选择,Icon'))
+    RbModal.create('/p/common/search-icon', $L('选择图标'))
   }
 
   save = () => {
-    if (!this.state.projectName) return RbHighbar.create($L('请输入,ProjectName'))
+    if (!this.state.projectName) return RbHighbar.create($L('请输入项目名称'))
     const _data = {
       projectName: this.state.projectName,
       iconName: this.state.iconName,
@@ -149,7 +149,7 @@ class DlgEdit extends RbFormHandler {
 
     if (!this.props.id) {
       if (!this.state.projectCode || !/^[a-zA-Z]{2,6}$/.test(this.state.projectCode)) {
-        return RbHighbar.create($L('ProjectCodeInvalid'))
+        return RbHighbar.create($L('项目 ID 无效，请输入 2-6 位字母'))
       }
       _data.projectCode = this.state.projectCode.toUpperCase()
       _data._useTemplate = this._useTemplate.checked ? 1 : 0

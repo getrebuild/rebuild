@@ -529,20 +529,20 @@ class ScheduleOptions extends React.Component {
           <dd className="col-12 col-lg-9 mb-0" ref={(c) => (this._$scheduleRemind = c)}>
             <label className="custom-control custom-checkbox custom-control-inline">
               <input className="custom-control-input" name="remindOn" type="checkbox" value={1} disabled={this.props.readonly} />
-              <span className="custom-control-label">{$L('Notification')}</span>
+              <span className="custom-control-label">{$L('通知')}</span>
             </label>
             <label className="custom-control custom-checkbox custom-control-inline" title={email}>
               <input className="custom-control-input" name="remindOn" type="checkbox" value={2} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('Mail')}
-                {!email && <span> ({$L('Unavailable')})</span>}
+                {!email && <span> ({$L('不可用')})</span>}
               </span>
             </label>
             <label className="custom-control custom-checkbox custom-control-inline" title={mobile}>
               <input className="custom-control-input" name="remindOn" type="checkbox" value={4} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('Sms')}
-                {!mobile && <span> ({$L('Unavailable')})</span>}
+                {!mobile && <span> ({$L('不可用')})</span>}
               </span>
             </label>
           </dd>
@@ -612,7 +612,7 @@ class FeedsEditDlg extends RbModalHandler {
     }
 
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L(`${this.props.id ? 'EditSome' : 'NewSome'},e.Feeds`)} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide={true}>
         <div className="m-1">
           <FeedsEditor ref={(c) => (this._FeedsEditor = c)} {..._data} />
         </div>

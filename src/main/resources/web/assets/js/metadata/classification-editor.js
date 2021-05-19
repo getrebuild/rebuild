@@ -90,14 +90,14 @@ class LevelBox extends React.Component {
     return (
       <div className={`col-md-3 ${this.state.turnOn ? '' : 'off'}`}>
         <div className="float-left">
-          <h5 className="text-bold">{$L('XLevelClass').replace('%d', ~~this.props.level + 1 + ' ')}</h5>
+          <h5 className="text-bold">{$L('%d 级分类', ~~this.props.level + 1)}</h5>
         </div>
         {this.props.level < 1 ? null : (
           <div className="float-right">
             <div className="switch-button switch-button-xs">
               <input type="checkbox" id={forId} onChange={this.turnToggle} checked={this.state.turnOn} />
               <span>
-                <label htmlFor={forId} title={$L('EnableOrDisable')}></label>
+                <label htmlFor={forId} title={$L('启用/禁用')}></label>
               </span>
             </div>
           </div>
@@ -105,11 +105,11 @@ class LevelBox extends React.Component {
         <div className="clearfix"></div>
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
-            <input className="form-control" type="text" maxLength="60" placeholder={$L('AddSome,ClassItem')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
+            <input className="form-control" type="text" maxLength="60" placeholder={$L('添加分类项')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
             {this.state.itemId && this.state.itemHide && (
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                 <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
-                <span className="custom-control-label">{$L('Enable')}</span>
+                <span className="custom-control-label">{$L('激活')}</span>
               </label>
             )}
             <div className="input-group-append">
@@ -266,9 +266,9 @@ class LevelBox extends React.Component {
     }
 
     if (item[3] !== true) {
-      alertMsg = $L('DeleteClassOptionConfirm2')
+      alertMsg = $L('删除后其子分类项也将被一并删除。[] 如果此分类项已被使用，建议你禁用，否则已使用这些分类项的字段将无法显示。')
       alertExt.confirmText = $L('删除')
-      alertExt.cancelText = $L('Disable')
+      alertExt.cancelText = $L('禁用')
       alertExt.cancel = function () {
         this.disabled()
         const url = `/admin/metadata/classification/save-data-item?item_id=${item[0]}&hide=true`
@@ -279,7 +279,7 @@ class LevelBox extends React.Component {
             return
           }
 
-          RbHighbar.success($L('SomeDisabled,ClassItem'))
+          RbHighbar.success($L('分类项已禁用'))
           const ns = []
           $(that.state.items || []).each(function () {
             if (this[0] === item[0]) this[3] = true
@@ -320,7 +320,7 @@ const saveOpenLevel = function () {
           RbHighbar.error(res.error_msg)
         } else {
           saveOpenLevel_last = level
-          RbHighbar.success($L('EnabledXLevelClass').replace('%d', level + 1))
+          RbHighbar.success($L('已启用 %d 级分类', level + 1))
         }
       })
     },
@@ -337,18 +337,18 @@ class DlgImports extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('ImportSome,Classification')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('导入分类数据')} ref={(c) => (this._dlg = c)}>
         <div className="tab-container">
           <ul className="nav nav-tabs">
             <li className="nav-item">
               <a className="nav-link active" href="#FILE" data-toggle="tab">
-                {$L('FileImport')}
+                {$L('文件导入')}
               </a>
             </li>
             <li className="nav-item">
               <a className="nav-link" href="#RBSTORE" data-toggle="tab">
                 <i className="icon zmdi zmdi-cloud-outline-alt"></i>
-                {$L('RbImport')}
+                {$L('从 RB 仓库导入')}
               </a>
             </li>
           </ul>
@@ -356,14 +356,14 @@ class DlgImports extends RbModalHandler {
             <div className="tab-pane active" id="FILE">
               <div className="form">
                 <div className="form-group row">
-                  <label className="col-sm-3 col-form-label text-sm-right">{$L('UploadSome,File')}</label>
+                  <label className="col-sm-3 col-form-label text-sm-right">{$L('上传文件')}</label>
                   <div className="col-sm-7">
                     <div className="float-left">
                       <div className="file-select">
                         <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._uploadInput = c)} />
                         <label htmlFor="upload-input" className="btn-secondary">
                           <i className="zmdi zmdi-upload"></i>
-                          <span>{$L('选择,File')}</span>
+                          <span>{$L('选择文件')}</span>
                         </label>
                       </div>
                     </div>
@@ -403,7 +403,7 @@ class DlgImports extends RbModalHandler {
                       </div>
                       <div className="float-right">
                         <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>
-                          {$L('Import')}
+                          {$L('导入')}
                         </button>
                       </div>
                       <div className="clearfix"></div>
@@ -450,7 +450,7 @@ class DlgImports extends RbModalHandler {
 
   import4File() {
     if (!this.state.uploadFile) {
-      RbHighbar.create($L('PlsUploadFile'))
+      RbHighbar.create($L('请上传文件'))
       return
     }
 

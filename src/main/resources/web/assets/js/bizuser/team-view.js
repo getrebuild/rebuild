@@ -13,10 +13,10 @@ class MemberAddDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('AddMember')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加成员')} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('选择,User')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('选择用户')}</label>
             <div className="col-sm-7">
               <UserSelector ref={(c) => (this._UserSelector = c)} hideTeam={true} />
             </div>
@@ -35,14 +35,14 @@ class MemberAddDlg extends RbFormHandler {
 
   post = () => {
     const users = this._UserSelector.val()
-    if (users.length < 1) return RbHighbar.create($L('请选择,User'))
+    if (users.length < 1) return RbHighbar.create($L('请选择用户'))
 
     this.disabled(true)
     $.post(`/admin/bizuser/team-members-add?team=${this.props.id}`, JSON.stringify(users), (res) => {
       if (res.error_code === 0) {
         this.hide()
         typeof this.props.call === 'function' && this.props.call()
-        RbHighbar.success($L('SomeAdded,TeamMember'))
+        RbHighbar.success($L('团队成员已添加'))
       } else {
         RbHighbar.error(res.error_msg)
       }
@@ -59,7 +59,7 @@ class MemberList extends React.Component {
       return (
         <div className="list-nodata">
           <span className="zmdi zmdi-info-outline"></span>
-          <p>{$L('PlsAddSome,TeamMember')}</p>
+          <p>{$L('请添加团队成员')}</p>
         </div>
       )
     }
@@ -119,14 +119,14 @@ class MemberList extends React.Component {
 
   _removeMember(user) {
     const that = this
-    RbAlert.create($L('DeleteTeamMemberConfirm'), {
+    RbAlert.create($L('确认将此成员移出当前团队？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/admin/bizuser/team-members-del?team=${that.props.id}&user=${user}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
             that.loadMembers()
-            RbHighbar.success($L('SomeRemoved,TeamMember'))
+            RbHighbar.success($L('团队成员已删除'))
           } else {
             RbHighbar.error(res.error_msg)
           }
@@ -152,7 +152,7 @@ $(document).ready(() => {
   $('.J_delete')
     .off('click')
     .click(() => {
-      RbAlert.create($L('DeleteTeamConfirm'), $L('DeleteSome,Team'), {
+      RbAlert.create($L('如果此团队已经被使用则不建议删除'), $L('删除团队'), {
         type: 'danger',
         confirmText: $L('删除'),
         confirm: function () {

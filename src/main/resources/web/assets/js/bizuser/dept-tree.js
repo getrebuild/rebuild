@@ -10,7 +10,7 @@ var loadDeptTree = function () {
   $.get('/admin/bizuser/dept-tree', function (res) {
     $('.aside-tree').empty()
     let root = $('<ul class="list-unstyled"></ul>').appendTo('.aside-tree')
-    renderDeptTree({ id: '$ALL$', name: $L('AllSome,Department') }, root).addClass('active')
+    renderDeptTree({ id: '$ALL$', name: $L('全部部门') }, root).addClass('active')
     $(res.data).each(function () {
       renderDeptTree(this, root)
     })

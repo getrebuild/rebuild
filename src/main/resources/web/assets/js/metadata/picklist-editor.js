@@ -119,7 +119,7 @@ render_unset_after = function (item) {
 
 render_item_after = function (item, data) {
   if (data[2]) item.addClass('active')
-  item.find('a.J_del').attr('title', $L('Disable'))
+  item.find('a.J_del').attr('title', $L('禁用'))
 
   const $edit = $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
   item.find('.dd3-action').prepend($edit)

@@ -96,7 +96,7 @@ class RbFormModal extends React.Component {
         <div className="icon">
           <i className="zmdi zmdi-alert-triangle"></i>
         </div>
-        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('Opps')}</strong> ` + message }}></div>
+        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}</strong> ` + message }}></div>
       </div>
     )
     this.setState({ formComponent: error }, () => this.setState({ inLoad: false }))
@@ -135,7 +135,7 @@ class RbFormModal extends React.Component {
           this._refresh()
         }
       } else if (res.error_msg === 'NO_EXISTS') {
-        this.setState({ alertMessage: $L('RecordNotExistsTips') })
+        this.setState({ alertMessage: $L('记录已经不存在，可能已被其他用户删除') })
       }
     })
   }
@@ -339,7 +339,7 @@ class RbForm extends React.Component {
     $.post('/app/entity/record-save', JSON.stringify(data), (res) => {
       $btns.button('reset')
       if (res.error_code === 0) {
-        RbHighbar.success($L('SomeSuccess,Save'))
+        RbHighbar.success($L('保存成功'))
         setTimeout(() => {
           this.props.$$$parent.hide(true)
           RbForm.postAfter(res.data, next)
@@ -356,7 +356,7 @@ class RbForm extends React.Component {
             const iv = { $MAINID$: res.data.id }
             const sm = this.props.$$$parent.state.__formModel.detailMeta
             RbFormModal.create({
-              title: $L('AddSome').replace('{0}', sm.entityLabel),
+              title: $L('添加%s', sm.entityLabel),
               entity: sm.entity,
               icon: sm.icon,
               initialValue: iv,
@@ -446,7 +446,7 @@ class RbFormElement extends React.Component {
     const props = this.props
     if (!props.onView) {
       // 必填字段
-      if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('SomeNotEmpty').replace('{0}', props.label))
+      if (!props.nullable && $empty(props.value)) props.$$$parent.setFieldValue(props.field, null, $L('%s 不能为空', props.label))
       props.tip && $(this._fieldLabel).find('i.zmdi').tooltip({ placement: 'right' })
     }
     if (!props.onView) this.onEditModeChanged()
@@ -529,8 +529,8 @@ class RbFormElement extends React.Component {
   isValueError() {
     if (this.props.nullable === false) {
       const v = this.state.value
-      if (v && $.type(v) === 'array') return v.length === 0 ? $L('SomeNotEmpty').replace('{0}', '') : null
-      else return !v ? $L('SomeNotEmpty').replace('{0}', '') : null
+      if (v && $.type(v) === 'array') return v.length === 0 ? $L('不能为空') : null
+      else return !v ? $L('不能为空') : null
     }
   }
 
@@ -636,7 +636,7 @@ class RbFormUrl extends RbFormText {
   isValueError() {
     const err = super.isValueError()
     if (err) return err
-    return !!this.state.value && $regex.isUrl(this.state.value) === false ? $L('SomeNotFormatWell').replace('{0}', '') : null
+    return !!this.state.value && $regex.isUrl(this.state.value) === false ? $L('格式不正确') : null
   }
 }
 
@@ -650,7 +650,7 @@ class RbFormEMail extends RbFormText {
 
     return (
       <div className="form-control-plaintext">
-        <a title={$L('SendEmail')} href={`mailto:${this.state.value}`} className="link">
+        <a title={$L('发送邮件')} href={`mailto:${this.state.value}`} className="link">
           {this.state.value}
         </a>
       </div>
@@ -660,7 +660,7 @@ class RbFormEMail extends RbFormText {
   isValueError() {
     const err = super.isValueError()
     if (err) return err
-    return !!this.state.value && $regex.isMail(this.state.value) === false ? $L('SomeNotFormatWell').replace('{0}', '') : null
+    return !!this.state.value && $regex.isMail(this.state.value) === false ? $L('格式不正确') : null
   }
 }
 
@@ -674,7 +674,7 @@ class RbFormPhone extends RbFormText {
 
     return (
       <div className="form-control-plaintext">
-        <a title={$L('DialPhone')} href={`tel:${this.state.value}`} className="link">
+        <a title={$L('拨打电话')} href={`tel:${this.state.value}`} className="link">
           {this.state.value}
         </a>
       </div>
@@ -684,7 +684,7 @@ class RbFormPhone extends RbFormText {
   isValueError() {
     const err = super.isValueError()
     if (err) return err
-    return !!this.state.value && $regex.isTel(this.state.value) === false ? $L('SomeNotFormatWell').replace('{0}', '') : null
+    return !!this.state.value && $regex.isTel(this.state.value) === false ? $L('格式不正确') : null
   }
 }
 
@@ -697,8 +697,8 @@ class RbFormNumber extends RbFormText {
   isValueError() {
     const err = super.isValueError()
     if (err) return err
-    if (!!this.state.value && $regex.isNumber(this.state.value) === false) return $L('SomeNotFormatWell').replace('{0}', '')
-    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('SomeNotNegative').replace('{0}', '')
+    if (!!this.state.value && $regex.isNumber(this.state.value) === false) return $L('格式不正确')
+    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('不能为负数')
     return null
   }
   _isValueError() {
@@ -775,8 +775,8 @@ class RbFormDecimal extends RbFormNumber {
   isValueError() {
     const err = super._isValueError()
     if (err) return err
-    if (!!this.state.value && $regex.isDecimal(this.state.value) === false) return $L('SomeNotFormatWell').replace('{0}', '')
-    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('SomeNotNegative').replace('{0}', '')
+    if (!!this.state.value && $regex.isDecimal(this.state.value) === false) return $L('格式不正确')
+    if (!!this.state.value && $isTrue(this.props.notNegative) && parseFloat(this.state.value) < 0) return $L('不能为负数')
     return null
   }
 }
@@ -1055,8 +1055,8 @@ class RbFormImage extends RbFormElement {
     const err = super.isValueError()
     if (err) return err
     const ups = (this.state.value || []).length
-    if (this.__minUpload > 0 && ups < this.__minUpload) return $L('UploadMinXTips').replace('%d', this.__minUpload)
-    if (this.__maxUpload < ups) return $L('UploadMaxXTips').replace('%d', this.__maxUpload)
+    if (this.__minUpload > 0 && ups < this.__minUpload) return $L('至少需要上传 %d 个', this.__minUpload)
+    if (this.__maxUpload < ups) return $L('最多允许上传 %d 个', this.__maxUpload)
   }
 }
 
@@ -1088,7 +1088,7 @@ class RbFormFile extends RbFormImage {
         {showUpload && (
           <div className="file-select">
             <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
-            <label htmlFor={`${this.props.field}-input`} title={$L('UploadFileNeedX').replace('%d', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+            <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
               <i className="zmdi zmdi-upload"></i>
               <span>{$L('上传文件')}</span>
             </label>
@@ -1167,7 +1167,7 @@ class RbFormPickList extends RbFormElement {
       super.onEditModeChanged(destroy)
     } else {
       this.__select2 = $(this._fieldValue).select2({
-        placeholder: $L('SelectSome').replace('{0}', '') + this.props.label,
+        placeholder: $L('选择%s', this.props.label),
       })
 
       const that = this
@@ -1202,7 +1202,7 @@ class RbFormReference extends RbFormElement {
     const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
     return (
       <div className="input-group has-append">
-        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={hasDataFilter ? $L('FieldUseDataFilter') : null} multiple={this._multiple === true} />
+        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
         {!this.props.readonly && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
@@ -1315,7 +1315,7 @@ class RbFormReference extends RbFormElement {
     } else {
       const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${this.props.field}.${this.props.$$$parent.props.entity}`
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('SelectSome').replace('{0}', this.props.label)} />, function () {
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择%s', this.props.label)} />, function () {
         that.__searcher = this
       })
     }
@@ -1523,7 +1523,7 @@ class RbFormMultiSelect extends RbFormElement {
     const keyName = `checkbox-${this.props.field}-`
     return (
       <div className="mt-1" ref={(c) => (this._fieldValue__wrap = c)}>
-        {(this.props.options || []).length === 0 && <div className="text-danger">{$L('UnConf')}</div>}
+        {(this.props.options || []).length === 0 && <div className="text-danger">{$L('未配置')}</div>}
         {(this.props.options || []).map((item) => {
           return (
             <label key={keyName + item.mask} className="custom-control custom-checkbox custom-control-inline">
@@ -1638,7 +1638,7 @@ class RbFormBarcode extends RbFormElement {
 
   renderElement() {
     if (this.state.value) return this.renderViewElement()
-    else return <div className="form-control-plaintext barcode text-muted">{`${$L('AutoValue')} (${$L(this.props.barcodeType === 'QRCODE' ? 'QrCode' : 'BarCode')})`}</div>
+    else return <div className="form-control-plaintext barcode text-muted">{$L('自动值')} ({this.props.barcodeType === 'QRCODE' ? $L('二维码')  : $L('条形码')})</div>
   }
 
   renderViewElement() {
@@ -1664,10 +1664,10 @@ class RbFormAvatar extends RbFormElement {
     const aUrl = rb.baseUrl + (this.state.value ? `/filex/img/${this.state.value}?imageView2/2/w/100/interlace/1/q/100` : '/assets/img/avatar.png')
     return (
       <div className="img-field avatar">
-        <span title={this.props.readonly ? null : $L('选择,Avatar')}>
+        <span title={this.props.readonly ? null : $L('选择头像')}>
           {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
-            <img src={aUrl} alt={$L('Avatar')} />
+            <img src={aUrl} alt="Avatar" />
           </label>
         </span>
       </div>
@@ -1865,7 +1865,7 @@ class RepeatedViewer extends RbModalHandler {
           return <td key={`col-${idx}-${i}`}>{o || <span className="text-muted">{$L('无')}</span>}</td>
         })}
         <td className="actions">
-          <a className="icon" onClick={() => this.openView(item[0])} title={$L('ViewDetails')}>
+          <a className="icon" onClick={() => this.openView(item[0])} title={$L('查看详情')}>
             <i className="zmdi zmdi-open-in-new" />
           </a>
         </td>

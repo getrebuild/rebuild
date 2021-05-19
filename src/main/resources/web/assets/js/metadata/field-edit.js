@@ -349,7 +349,7 @@ const _handleReference = function (isN2N) {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
+      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
         advFilter = this
       })
     }
@@ -369,13 +369,13 @@ const _handleReference = function (isN2N) {
     } else {
       const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择,DefaultValue')} />, function () {
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} />, function () {
         _ReferenceSearcher = this
       })
     }
   }
 
-  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
   $dv.attr('readonly', true)
   $append.click(() => _showSearcher())
 

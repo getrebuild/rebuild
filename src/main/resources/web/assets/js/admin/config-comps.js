@@ -19,7 +19,7 @@ class ConfigFormDlg extends RbFormHandler {
   }
 
   render() {
-    const title = this.title || $L(this.props.id ? 'ModifySome' : 'AddSome').replace('{0}', this.subtitle || '')
+    const title = this.title || (this.props.id ? $L('修改%s', this.subtitle || '') : $L('添加%s', this.subtitle || ''))
     return (
       <RbModal title={title} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
@@ -44,7 +44,7 @@ class ConfigFormDlg extends RbFormHandler {
       $.get('/commons/metadata/entities', (res) => {
         this.setState({ entities: res.data }, () => {
           this.__select2 = $(this._entity).select2({
-            placeholder: $L('选择,Entity'),
+            placeholder: $L('选择实体'),
             allowClear: false,
           })
         })
@@ -84,7 +84,7 @@ class ConfigList extends React.Component {
       if (res.error_code === 0) {
         this.setState({ data: res.data || [] }, () => {
           $('.rb-loading-active').removeClass('rb-loading-active')
-          $('.dataTables_info').text($L('CountXItems').replace('%d', this.state.data.length))
+          $('.dataTables_info').text($L('共 %d 项', this.state.data.length))
 
           if (this.state.data.length === 0) $('.list-nodata').removeClass('hide')
           else $('.list-nodata').addClass('hide')

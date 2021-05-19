@@ -308,9 +308,9 @@ let render_preview_chart = null
 const render_preview = () => {
   const $fs = $('a.J_filter > span')
   if (dataFilter && (dataFilter.items || []).length > 0) {
-    $fs.text(`${$L('SetAdvFiletr')} (${dataFilter.items.length})`)
+    $fs.text(`${$L('附加过滤条件')} (${dataFilter.items.length})`)
   } else {
-    $fs.text($L('SetAdvFiletr'))
+    $fs.text($L('附加过滤条件'))
   }
 
   $setTimeout(
@@ -344,7 +344,7 @@ const render_preview = () => {
 
 // 构造配置
 const build_config = () => {
-  const cfg = { entity: wpc.sourceEntity, title: $val('#chart-title') || $L('UnnameChart') }
+  const cfg = { entity: wpc.sourceEntity, title: $val('#chart-title') || $L('未命名图表') }
   cfg.type = $('.chart-type>a.select').data('type')
   if (!cfg.type) return
 
@@ -391,17 +391,17 @@ class DlgAxisProps extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('ShowStyles')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('显示样式')} ref={(c) => (this._dlg = c)}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('Alias')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('别名')}</label>
             <div className="col-sm-7">
               <input className="form-control form-control-sm" placeholder={$L('默认')} data-id="label" value={this.state.label || ''} onChange={this.handleChange} />
             </div>
           </div>
           {this.state.isNumAxis && (
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('DecimalLength')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('小数位长度')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" value={this.state.scale || 2} data-id="scale" onChange={this.handleChange}>
                   <option value="0">0</option>

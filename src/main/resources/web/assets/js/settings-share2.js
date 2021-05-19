@@ -135,8 +135,8 @@ class Share2Switch extends _ChangeHandler {
       <div className="rb-scroller" ref={(s) => (this._scrollbar = s)}>
         <ul className="list-unstyled nav-list">
           {list.map((item) => {
-            let st = item[2] === SHARE_ALL ? $L('全部用户') : item[2] === SHARE_SELF ? $L('Private') : `${$L('指定用户')}(${item[2].split(',').length})`
-            if (this.props.id === item[0]) st += ` [${$L('Current')}]`
+            let st = item[2] === SHARE_ALL ? $L('全部用户') : item[2] === SHARE_SELF ? $L('私有') : `${$L('指定用户')}(${item[2].split(',').length})`
+            if (this.props.id === item[0]) st += ` [${$L('当前')}]`
             return (
               <li key={'item-' + item[0]}>
                 <a href={`?id=${item[0]}&entity=${this.props.entity || ''}`}>
@@ -220,7 +220,7 @@ class Share2Settings extends Share2Switch {
 
   delete = () => {
     const id = this.props.id
-    RbAlert.create($L('DeleteSomeConfirm,Conf'), {
+    RbAlert.create($L('确认删除此配置？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${id}`, () => parent.location.reload())
@@ -238,14 +238,14 @@ const renderSwitchButton = (data, title, current) => {
       <div className="btn-group">
         <button type="button" className="btn btn-link" data-toggle="dropdown">
           <i className="zmdi zmdi-swap-vertical icon"></i>
-          {$L('SwitchX').replace('%s', title)}
+          {$L('切换到%s', title)}
         </button>
         <div className="dropdown-menu">
           {data.map((x) => {
             let name = x[1] || $L('未命名')
-            if (x[3] === rb.currentUser) name = $L('MyX').replace('%s', title)
-            else name += ` ${$L('Shared')}`
-            if (current && current === x[0]) name += ` ${$L('Current')}`
+            if (x[3] === rb.currentUser) name = $L('我的%s', title)
+            else name += ` ${$L('共享的')}`
+            if (current && current === x[0]) name += ` ${$L('当前')}`
             return (
               <a key={`sw-${x[0]}`} className="dropdown-item" href={`?id=${x[0]}${x[4] ? `&entity=${x[4]}` : ''}`}>
                 {name}

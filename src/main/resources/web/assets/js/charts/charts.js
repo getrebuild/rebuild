@@ -99,7 +99,7 @@ class BaseChart extends React.Component {
 
   remove() {
     const that = this
-    RbAlert.create($L('RemoveSomeConfirm,Chart'), {
+    RbAlert.create($L('确认移除此图表？'), {
       confirm: function () {
         if (window.gridstack) window.gridstack.removeWidget($(that._$box).parent().parent())
         else if (window.chart_remove) window.chart_remove($(that._$box))
@@ -109,7 +109,7 @@ class BaseChart extends React.Component {
   }
 
   renderError(msg) {
-    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('LoadError')}</div> })
+    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> })
   }
 
   renderChart(data) {
@@ -560,9 +560,9 @@ class ChartTreemap extends BaseChart {
 
 // ~ 审批列表
 const APPROVAL_STATES = {
-  1: ['warning', $L('WaitApproval')],
-  10: ['success', $L('s.ApprovalState.APPROVED')],
-  11: ['danger', $L('s.ApprovalState.REJECTED')],
+  1: ['warning', $L('待审批')],
+  10: ['success', $L('通过')],
+  11: ['danger', $L('驳回')],
 }
 class ApprovalList extends BaseChart {
   constructor(props) {
@@ -596,7 +596,7 @@ class ApprovalList extends BaseChart {
             )
           })}
         </div>
-        <p className="m-0 mt-1 fs-11 text-muted text-right hide">{$L('ApprovalStats')}</p>
+        <p className="m-0 mt-1 fs-11 text-muted text-right hide">{$L('审批统计')}</p>
       </div>
     )
 
@@ -608,15 +608,15 @@ class ApprovalList extends BaseChart {
     const table =
       (data.data || []).length === 0 ? (
         <div className="chart-undata must-center">
-          <i className="zmdi zmdi-check icon text-success"></i> {$L('YouFinishedAllApproval')}
+          <i className="zmdi zmdi-check icon text-success"></i> {$L('你已完成所有审批')}
         </div>
       ) : (
         <div>
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th style={{ minWidth: 140 }}>{$L('Submitter')}</th>
-                <th style={{ minWidth: 140 }}>{$L('ApprovalRecord')}</th>
+                <th style={{ minWidth: 140 }}>{$L('提交人')}</th>
+                <th style={{ minWidth: 140 }}>{$L('审批记录')}</th>
                 <th width="90"></th>
               </tr>
             </thead>
@@ -638,11 +638,11 @@ class ApprovalList extends BaseChart {
                     <td className="actions text-right text-nowrap">
                       {this.state.viewState === 1 && (
                         <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
-                          {$L('Approve')}
+                          {$L('审批')}
                         </button>
                       )}
-                      {this.state.viewState === 10 && <span className="text-success">{$L('s.ApprovalState.APPROVED')}</span>}
-                      {this.state.viewState === 11 && <span className="text-danger">{$L('s.ApprovalState.REJECTED')}</span>}
+                      {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
+                      {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
                     </td>
                   </tr>
                 )
@@ -711,7 +711,7 @@ class FeedsSchedule extends BaseChart {
     const table =
       (data || []).length === 0 ? (
         <div className="chart-undata must-center" style={{ marginTop: -15 }}>
-          <i className="zmdi zmdi-check icon text-success"></i> {$L('NoSome,TodoSchedule')}
+          <i className="zmdi zmdi-check icon text-success"></i> {$L('暂无待办日程')}
           <br />
           {$L('NoTodoScheduleTips')}
         </div>
@@ -738,7 +738,7 @@ class FeedsSchedule extends BaseChart {
                       <div>{item.scheduleTime.substr(0, 16)}</div>
                       <span className={`cell-detail-description ${_expired && 'text-warning'}`}>
                         {$fromNow(item.scheduleTime)}
-                        {_expired && ` (${$L('Expires')})`}
+                        {_expired && ` (${$L('已过期')})`}
                       </span>
                     </td>
                     <td className="actions text-right text-nowrap">
@@ -1081,7 +1081,7 @@ class ChartSelect extends RbModalHandler {
 
   deleteChart(id) {
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,Chart'), {
+    RbAlert.create($L('确认删除此,Chart'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

@@ -30,7 +30,7 @@ $(document).ready(function () {
       nameField: $val('#nameField'),
       comments: $val('#comments'),
     }
-    if (data.entityLabel === '') return RbHighbar.create($L('请输入,EntityName'))
+    if (data.entityLabel === '') return RbHighbar.create($L('请输入实体名称'))
 
     const icon = $val('#entityIcon')
     if (icon) data.icon = icon
@@ -61,7 +61,7 @@ $(document).ready(function () {
   })
 
   $('#entityIcon').click(function () {
-    RbModal.create('/p/common/search-icon', $L('选择,Icon'))
+    RbModal.create('/p/common/search-icon', $L('选择图标'))
   })
 
   // 排序
@@ -98,13 +98,13 @@ $(document).ready(function () {
         id: item.name,
         text: item.label,
         disabled: canName === false,
-        title: canName === false ? $L('FieldNotApply') : item.label,
+        title: canName === false ? $L('字段 (类型) 不适用') : item.label,
       }
     })
 
     $('#nameField')
       .select2({
-        placeholder: $L('选择,Field'),
+        placeholder: $L('选择字段'),
         allowClear: false,
         data: sortFields(cNameFields),
       })
@@ -129,12 +129,12 @@ $(document).ready(function () {
         id: item.name,
         text: item.label,
         disabled: canQuick === false,
-        title: canQuick === false ? $L('FieldNotApply') : item.label,
+        title: canQuick === false ? $L('字段 (类型) 不适用') : item.label,
       }
     })
 
     $('#quickFields').select2({
-      placeholder: $L('选择,Field'),
+      placeholder: $L('选择字段'),
       allowClear: true,
       data: sortFields(cQuickFields),
       multiple: true,

@@ -276,7 +276,7 @@ class DlgShareManager extends RbModalHandler {
 
   render() {
     return (
-      <RbModal title={$L('ShareUsers')} ref={(c) => (this._dlg = c)}>
+      <RbModal title={$L('共享用户')} ref={(c) => (this._dlg = c)}>
         <div className="sharing-list">
           <table className="table table-hover">
             <tbody ref={(c) => (this._tbody = c)}>
@@ -288,11 +288,11 @@ class DlgShareManager extends RbModalHandler {
                       <span>{item[0][1]}</span>
                     </td>
                     <td className="text-right">
-                      {(item[4] & 8) !== 0 && <span className="badge badge-light">{$L('Read')}</span>}
+                      {(item[4] & 8) !== 0 && <span className="badge badge-light">{$L('读取')}</span>}
                       {(item[4] & 4) !== 0 && <span className="badge badge-light">{$L('编辑')}</span>}
                     </td>
                     <td className="text-right text-muted" title={item[2]}>
-                      {$L('ByXSharedOnX').replace('%s', item[3]).replace('%s', $fromNow(item[2]))}
+                      {$L('由 %s 共享于 %s', item[3], $fromNow(item[2]))}
                     </td>
                     <td className="actions text-right">
                       <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
@@ -336,7 +336,7 @@ class DlgShareManager extends RbModalHandler {
     $.post(`/app/entity/record-unshare?id=${s.join(',')}&record=${this.props.id}`, (res) => {
       if (res.error_code === 0) {
         this.hide()
-        RbHighbar.success($L('SomeSuccess,UnShare'))
+        RbHighbar.success($L('取消共享成功'))
         setTimeout(() => window.RbViewPage && window.RbViewPage.reload(), 200)
       } else {
         RbHighbar.error(res.error_msg)

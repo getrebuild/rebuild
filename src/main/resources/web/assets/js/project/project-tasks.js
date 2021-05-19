@@ -238,13 +238,13 @@ class PlanBox extends React.Component {
                     />
                   </div>
                   <div>
-                    <label className="mb-1">{$L('Executor')}</label>
+                    <label className="mb-1">{$L('执行人')}</label>
                     <div>
                       <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} ref={(c) => (this._executor = c)} />
                     </div>
                   </div>
                   <div>
-                    <label className="mb-1">{$L('Deadline')}</label>
+                    <label className="mb-1">{$L('到期时间')}</label>
                     <div>
                       <input type="text" className="form-control form-control-sm" ref={(c) => (this._deadline = c)} />
                     </div>
@@ -375,7 +375,7 @@ class PlanBox extends React.Component {
       metadata: { entity: 'ProjectTask' },
     }
 
-    if (!_data.taskName) return RbHighbar.create($L('请输入,TaskName'))
+    if (!_data.taskName) return RbHighbar.create($L('请输入任务标题'))
     if (_data.deadline) _data.deadline += ':00'
 
     const $btn = $(this._btn).button('loading')
@@ -433,16 +433,16 @@ class Task extends React.Component {
               <div className="task-title text-wrap">{this.state.taskName}</div>
               {this.state.endTime && (
                 <div className="task-time">
-                  {$L('FinishTime')} <DateShow date={this.state.endTime} />
+                  {$L('完成时间')} <DateShow date={this.state.endTime} />
                 </div>
               )}
               <div className="task-time">
-                {$L('f.createdOn')} <DateShow date={this.state.createdOn} />
+                {$L('创建时间')} <DateShow date={this.state.createdOn} />
               </div>
               {deadlineState > -1 && (
                 <div className="task-time">
                   <span className={`badge badge-${deadlineState === 2 ? 'danger' : deadlineState === 1 ? 'warning' : 'primary'}`}>
-                    {$L('Deadline')} <DateShow date={this.state.deadline} />
+                    {$L('到期时间')} <DateShow date={this.state.deadline} />
                   </span>
                 </div>
               )}
@@ -461,7 +461,7 @@ class Task extends React.Component {
               )}
               <div className="task-extras">
                 {this.state.executor && (
-                  <a className="avatar float-left" title={`${$L('Executor')} ${this.state.executor[1]}`}>
+                  <a className="avatar float-left" title={`${$L('执行人')} ${this.state.executor[1]}`}>
                     <img src={`${rb.baseUrl}/account/user-avatar/${this.state.executor[0]}`} alt="Avatar" />
                   </a>
                 )}

@@ -48,7 +48,7 @@ class TaskForm extends React.Component {
           {this.props.editable && this.props.isManageable && (
             <div className="col-2 text-right">
               <button className="btn btn-secondary" style={{ minWidth: 80, marginTop: 2 }} data-toggle="dropdown">
-                {$L('Operation')} <i className="icon zmdi zmdi-more-vert"></i>
+                {$L('操作')} <i className="icon zmdi zmdi-more-vert"></i>
               </button>
               <div className="dropdown-menu dropdown-menu-right">
                 <a className="dropdown-item" onClick={() => this._handleDelete()}>
@@ -60,7 +60,7 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-square-o" /> {$L('Status')}
+            <i className="icon zmdi zmdi-square-o" /> {$L('状态')}
           </label>
           <div className="col-12 col-sm-9">
             <ValueStatus status={this.state.status} $$$parent={this} />
@@ -68,7 +68,7 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-account-o" /> {$L('Executor')}
+            <i className="icon zmdi zmdi-account-o" /> {$L('执行人')}
           </label>
           <div className="col-12 col-sm-9">
             <ValueExecutor executor={this.state.executor} $$$parent={this} />
@@ -76,7 +76,7 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-time" /> {$L('Deadline')}
+            <i className="icon zmdi zmdi-time" /> {$L('到期时间')}
           </label>
           <div className="col-12 col-sm-9">
             <ValueDeadline deadline={this.state.deadline} $$$parent={this} />
@@ -84,7 +84,7 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-comment-more" /> {$L('Description')}
+            <i className="icon zmdi zmdi-comment-more" /> {$L('详情')}
           </label>
           <div className="col-12 col-sm-9">
             <ValueDescription description={this.state.description} $$$parent={this} />
@@ -92,7 +92,7 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-circle-o" /> {$L('Priority')}
+            <i className="icon zmdi zmdi-circle-o" /> {$L('优先级')}
           </label>
           <div className="col-12 col-sm-9">
             <ValuePriority priority={this.state.priority} $$$parent={this} />
@@ -100,13 +100,13 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-label" /> {$L('TaskTag')}
+            <i className="icon zmdi zmdi-label" /> {$L('标签')}
           </label>
           <div className="col-12 col-sm-9">{this.state.projectId && <ValueTags tags={this.state.tags} projectId={this.state.projectId} taskid={this.props.id} $$$parent={this} />}</div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45 mt-1" /> {$L('Attachment')}
+            <i className="icon zmdi zmdi-attachment-alt zmdi-hc-rotate-45 mt-1" /> {$L('附件')}
           </label>
           <div className="col-12 col-sm-9">
             <ValueAttachments attachments={this.state.attachments} $$$parent={this} />
@@ -114,7 +114,7 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-link zmdi-hc-rotate-45 fs-19" style={{ marginTop: '0.15rem' }} /> {$L('RelatedRecord')}
+            <i className="icon zmdi zmdi-link zmdi-hc-rotate-45 fs-19" style={{ marginTop: '0.15rem' }} /> {$L('关联记录')}
           </label>
           <div className="col-12 col-sm-9">
             {this.state.projectId && <ValueRelatedRecord relatedRecord={this.state.relatedRecord} relatedRecordData={this.state.relatedRecordData} $$$parent={this} />}
@@ -139,7 +139,7 @@ class TaskForm extends React.Component {
 
   _handleDelete() {
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,Task'), {
+    RbAlert.create($L('确认删除此任务？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -147,7 +147,7 @@ class TaskForm extends React.Component {
         $.post(`/app/entity/common-delete?id=${that.props.id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
-            RbHighbar.success($L('SomeDeleted,Task'))
+            RbHighbar.success($L('任务已删除'))
             __TaskViewer.refreshTask('DELETE')
             __TaskViewer.hide()
           } else RbHighbar.error(res.error_msg)
@@ -239,7 +239,7 @@ class ValueTaskName extends ValueComp {
   handleChange(e) {
     const value = e.target.value
     if (!value) {
-      RbHighbar.create($L('SomeNotEmpty,TaskName'))
+      RbHighbar.create($L('任务名称不能为空'))
       this._taskName.focus()
     } else {
       super.handleChange(e, () => this.setState({ editMode: false }))
@@ -257,7 +257,7 @@ class ValueStatus extends ValueComp {
         <span className="status-checkbox">
           <label className="custom-control custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
             <input className="custom-control-input" type="checkbox" ref={(c) => (this._status = c)} onChange={(e) => this._handleChangeStatus(e)} />
-            <span className="custom-control-label">{$L(this.state.status > 0 ? 'Finished' : 'UnFinished')}</span>
+            <span className="custom-control-label">{this.state.status > 0 ? $L('已完成') : $L('未完成')}</span>
           </label>
         </span>
       </div>
@@ -265,7 +265,7 @@ class ValueStatus extends ValueComp {
   }
 
   renderViewElement() {
-    return <div className="form-control-plaintext">{$L(this.state.status > 0 ? 'Finished' : 'UnFinished')}</div>
+    return <div className="form-control-plaintext">{this.state.status > 0 ? $L('已完成') : $L('未完成')}</div>
   }
 
   _handleChangeStatus(e) {
@@ -319,7 +319,7 @@ class ValueExecutor extends ValueComp {
               ref={(c) => (this._UserSelector = c)}
               compToggle={
                 <a className="tag-value arrow placeholder" data-toggle="dropdown">
-                  {$L('选择,Executor')}
+                  {$L('选择执行人')}
                 </a>
               }
               onSelectItem={(s) => this.handleChange(s)}
@@ -476,10 +476,10 @@ class ValueDescription extends ValueComp {
 }
 
 const __PRIORITIES = {
-  0: $L('TaskPriority0'),
-  1: $L('TaskPriority1'),
-  2: $L('TaskPriority2'),
-  3: $L('TaskPriority3'),
+  0: $L('较低'),
+  1: $L('普通'),
+  2: $L('紧急'),
+  3: $L('非常紧急'),
 }
 
 // 优先级
@@ -571,7 +571,7 @@ class ValueAttachments extends ValueComp {
   _deleteAttachment(item, e) {
     $stopEvent(e)
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,Attachment'), {
+    RbAlert.create($L('确认删除此附件？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -635,7 +635,7 @@ class ValueTags extends ValueComp {
         </React.Fragment>
         {editable ? (
           <span className="dropdown" ref={(c) => (this._dropdown = c)}>
-            <a className="tag-add" title={$L('ClickAdd')} data-toggle="dropdown">
+            <a className="tag-add" title={$L('点击添加')} data-toggle="dropdown">
               <i className="zmdi zmdi-plus"></i>
             </a>
             <div className="dropdown-menu dropdown-menu-right tags">
@@ -701,7 +701,7 @@ class ValueTagsEditor extends React.Component {
               type="text"
               className="form-control"
               maxLength="20"
-              placeholder={$L('Search')}
+              placeholder={$L('搜索')}
               ref={(c) => (this._searchTagName = c)}
               value={this.state.searchTagName || ''}
               onChange={(e) => this.setState({ searchTagName: e.target.value })}
@@ -745,7 +745,7 @@ class ValueTagsEditor extends React.Component {
           <a onClick={() => this.toggleEditMode(false)}>
             <i className="zmdi zmdi-chevron-left" />
           </a>
-          {$L(this.state.tagId ? 'EditSome,TaskTag' : 'AddSome,TaskTag')}
+          {this.state.tagId ? $L('标记标签') : $L('添加标签')}
         </h5>
         <div className="p-3 pt-0">
           <div>
@@ -819,7 +819,7 @@ class ValueTagsEditor extends React.Component {
 
   _deleteTag(tagId) {
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,TaskTag'), {
+    RbAlert.create($L('确认删除此标签？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${tagId}`, () => {
@@ -894,7 +894,7 @@ class ValueRelatedRecord extends ValueComp {
     if (data) {
       return (
         <div className={`form-control-plaintext ${useEdit ? 'hover' : ''}`} onClick={() => useEdit && this.setState({ editMode: true })}>
-          <a href={`${rb.baseUrl}/app/list-and-view?id=${data.id}`} title={$L('ClickViewReleated')} target="_blank" onClick={(e) => $stopEvent(e)}>
+          <a href={`${rb.baseUrl}/app/list-and-view?id=${data.id}`} title={$L('点击查看记录')} target="_blank" onClick={(e) => $stopEvent(e)}>
             {data.text}
           </a>
         </div>
@@ -927,7 +927,7 @@ class TaskCommentsList extends React.Component {
     return (
       <div className="comment-list-wrap">
         <h4>
-          <i className="zmdi zmdi-comments label-icon down-2"></i> {$L('SomeList,Comment')} ({this.state.comments.length})
+          <i className="zmdi zmdi-comments label-icon down-2"></i> {$L('评论列表')} ({this.state.comments.length})
         </h4>
         <div className="feeds-list comment-list">
           {this.state.comments.map((item) => {
@@ -962,7 +962,7 @@ class TaskCommentsList extends React.Component {
                           )}
                           <li className="list-inline-item">
                             <a href="#" onClick={() => this._handleReply(item)} className="fixed-icon">
-                              <i className="zmdi zmdi-mail-reply" /> {$L('Reply')}
+                              <i className="zmdi zmdi-mail-reply" /> {$L('回复')}
                             </a>
                           </li>
                         </ul>
@@ -990,7 +990,7 @@ class TaskCommentsList extends React.Component {
 
   _handleDelete(item) {
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,Comment'), {
+    RbAlert.create($L('确认删除此,Comment'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {

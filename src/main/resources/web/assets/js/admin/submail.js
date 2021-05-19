@@ -109,7 +109,7 @@ class TestSend extends RbAlert {
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()} ref={(c) => (this._btn = c)}>
-            {$L('Send')}
+            {$L('发送')}
           </button>
         </div>
       </form>
