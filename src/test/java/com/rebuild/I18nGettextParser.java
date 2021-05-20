@@ -35,7 +35,7 @@ public class I18nGettextParser {
         log.info("Found {} items", into.size());
         // Bad text
         for (String text : into) {
-            if (text.contains("'")) System.err.println(text);
+            if (text.contains("'") || text.contains("\"")) System.err.println(text);
         }
 
         File target = new File(root, "lang.zh_CN.json");
@@ -54,11 +54,11 @@ public class I18nGettextParser {
     static void parse(File fileOrDir, Set<String> into) throws IOException {
         String fileName = fileOrDir.getName();
         if (fileOrDir.isFile()) {
-            if (fileName.endsWith(".jsx")) {
+            if (fileName.endsWith(".js")) {
                 into.addAll(parseJs(fileOrDir));
             } else if (fileName.endsWith(".html")) {
                 into.addAll(parseHtml(fileOrDir));
-            } else if (fileName.endsWith(".javax")) {
+            } else if (fileName.endsWith(".java")) {
                 into.addAll(parseJava(fileOrDir));
             }
 

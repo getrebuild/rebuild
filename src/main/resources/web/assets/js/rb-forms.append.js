@@ -132,7 +132,7 @@ class ClassificationSelector extends React.Component {
     const last = this._select2[this.state.openLevel]
     const v = last.val()
     if (!v) {
-      RbHighbar.create($L('请选择%s', this.props.label))
+      RbHighbar.create($L('请选择 %s', this.props.label))
     } else {
       const text = []
       $(this._select2).each(function () {

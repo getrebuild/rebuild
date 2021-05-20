@@ -269,7 +269,7 @@ public class Field2Schema {
             // 在导入实体时需要，需自行保证引用实体有效性，否则系统会出错
             if (!DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
                 if (!MetadataHelper.containsEntity(refEntity)) {
-                    throw new MetadataModificationException($L("无效引用实体 : %s", refEntity));
+                    throw new MetadataModificationException($L("无效引用实体 (%s)", refEntity));
                 }
             }
 

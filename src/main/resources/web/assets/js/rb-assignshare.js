@@ -22,7 +22,7 @@ class DlgAssign extends RbModalHandler {
             <div className="form-group row pb-0">
               <label className="col-sm-3 col-form-label text-sm-right">{$L('%s哪些记录', this._Props[1])}</label>
               <div className="col-sm-7">
-                <div className="form-control-plaintext">{`${$L('选中的数据')} (${$L('%d条', this.state.ids.length)})`}</div>
+                <div className="form-control-plaintext">{`${$L('选中的数据')} (${$L('%d 条', this.state.ids.length)})`}</div>
               </div>
             </div>
           )}
@@ -184,7 +184,7 @@ class DlgUnshare extends RbModalHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('取消共享哪些记录')}</label>
             <div className="col-sm-7">
-              <div className="form-control-plaintext">{`${$L('选中的数据')} (${$L('%d条', this.state.ids.length)})`}</div>
+              <div className="form-control-plaintext">{`${$L('选中的数据')} (${$L('%d 条', this.state.ids.length)})`}</div>
             </div>
           </div>
           <div className="form-group row pt-0 pb-0">

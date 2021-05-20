@@ -85,7 +85,7 @@ public class Entity2Schema extends Field2Schema {
 
         final boolean isDetail = StringUtils.isNotBlank(mainEntity);
         if (isDetail && !MetadataHelper.containsEntity(mainEntity)) {
-            throw new MetadataModificationException($L("无效主实体 : %s", mainEntity));
+            throw new MetadataModificationException($L("无效主实体 (%s)", mainEntity));
         }
 
         String physicalName = "T__" + entityName.toUpperCase();
