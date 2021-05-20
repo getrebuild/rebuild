@@ -171,7 +171,7 @@ class FeedsList extends React.Component {
             </li>
             <li className="list-inline-item">
               <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
-                <i className="zmdi zmdi-comment-outline"></i> {$L('Comment')} {item.numComments > 0 && <span>({item.numComments})</span>}
+                <i className="zmdi zmdi-comment-outline"></i> {$L('评论')} {item.numComments > 0 && <span>({item.numComments})</span>}
               </a>
             </li>
           </ul>
@@ -230,7 +230,7 @@ class FeedsList extends React.Component {
   _handleDelete(id) {
     event.preventDefault()
     const that = this
-    RbAlert.create($L('确认删除此,Feeds'), {
+    RbAlert.create($L('确认删除此动态？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -255,7 +255,7 @@ class FeedsList extends React.Component {
       return (
         <React.Fragment>
           <a className="dropdown-item" onClick={() => this._handleFinish(item.id)}>
-            <i className="icon zmdi zmdi-check" /> {$L('Finish')}
+            <i className="icon zmdi zmdi-check" /> {$L('完成')}
           </a>
           <div className="dropdown-divider"></div>
         </React.Fragment>
@@ -266,13 +266,13 @@ class FeedsList extends React.Component {
 
   _handleFinish(id) {
     const that = this
-    RbAlert.create($L('FinshScheduleConfirm'), {
+    RbAlert.create($L('确认完成该日程？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/feeds/post/finish-schedule?id=${id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
-            RbHighbar.success($L('SomeFinished,FeedsType4'))
+            RbHighbar.success($L('日程已完成'))
             that.fetchFeeds()
           } else RbHighbar.error(res.error_msg)
         })
@@ -294,16 +294,16 @@ class FeedsComments extends React.Component {
       <div className="comments">
         <div className="comment-reply">
           <div onClick={() => this._commentState(true)} className={`reply-mask ${this.state.openComment && 'hide'}`}>
-            {$L('AddSome,Comment')}
+            {$L('添加评论')}
           </div>
           <span className={`${!this.state.openComment && 'hide'}`}>
-            <FeedsEditor placeholder={$L('AddSome,Comment')} ref={(c) => (this._FeedsEditor = c)} />
+            <FeedsEditor placeholder={$L('添加评论')} ref={(c) => (this._FeedsEditor = c)} />
             <div className="mt-2 text-right">
               <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link">
                 {$L('取消')}
               </button>
               <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post()}>
-                {$L('Comment')}
+                {$L('评论')}
               </button>
             </div>
           </span>
@@ -352,19 +352,19 @@ class FeedsComments extends React.Component {
                         </li>
                         <li className="list-inline-item">
                           <a href="#reply" onClick={() => this._toggleReply(item.id)} className={`fixed-icon ${item.shownReply && 'text-primary'}`}>
-                            <i className="zmdi zmdi-mail-reply"></i> {$L('Reply')}
+                            <i className="zmdi zmdi-mail-reply"></i> {$L('回复')}
                           </a>
                         </li>
                       </ul>
                     </div>
                     <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
-                      {item.shownReplyReal && <FeedsEditor placeholder={$L('AddSome,Reply')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
+                      {item.shownReplyReal && <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
                       <div className="mt-2 text-right">
                         <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
                           {$L('取消')}
                         </button>
                         <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post(item._editor)}>
-                          {$L('Reply')}
+                          {$L('回复')}
                         </button>
                       </div>
                     </div>
@@ -393,7 +393,7 @@ class FeedsComments extends React.Component {
     if (!whichEditor) whichEditor = this._FeedsEditor
 
     const _data = whichEditor.vals()
-    if (!_data.content) return RbHighbar.create($L('请输入,CommentContent'))
+    if (!_data.content) return RbHighbar.create($L('请输入评论内容'))
     _data.feedsId = this.props.feeds
     _data.metadata = { entity: 'FeedsComment' }
 
@@ -432,7 +432,7 @@ class FeedsComments extends React.Component {
   _handleDelete = (id) => {
     event.preventDefault()
     const that = this
-    RbAlert.create($L('确认删除此,Comment'), {
+    RbAlert.create($L('确认删除此评论？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -476,7 +476,7 @@ class Pagination extends React.Component {
     return (
       <div className="feeds-pages">
         <div className="float-left">
-          <p className="text-muted">{$L('CountXFeeds').replace('%d', this.state.rowsTotal)}</p>
+          <p className="text-muted">{$L('共 %d 条动态', this.state.rowsTotal)}</p>
         </div>
         <div className="float-right">
           <ul className={`pagination ${this.props.comment && 'pagination-sm'}`}>
@@ -544,16 +544,16 @@ function __renderRichContent(e) {
         {e.type === 4 && (
           <div>
             <div>
-              <span>{$L('ScheduleTime')} : </span> {contentMore.scheduleTime}
+              <span>{$L('日程时间')} : </span> {contentMore.scheduleTime}
             </div>
             {contentMore.finishTime && (
               <div>
-                <span>{$L('FinishedTime')} : </span> {contentMore.finishTime.substr(0, 16)}
+                <span>{$L('完成时间')} : </span> {contentMore.finishTime.substr(0, 16)}
               </div>
             )}
             {contentMore.scheduleRemind > 0 && (
               <div>
-                <span>{$L('SendRemind')} : </span> {__findMaskTexts(contentMore.scheduleRemind, REM_OPTIONS).join(' / ')}
+                <span>{$L('发送提醒')} : </span> {__findMaskTexts(contentMore.scheduleRemind, REM_OPTIONS).join(' / ')}
               </div>
             )}
           </div>
@@ -564,7 +564,7 @@ function __renderRichContent(e) {
               <i className={`icon zmdi zmdi-${e.relatedRecord.icon}`} />
               {` ${e.relatedRecord.entityLabel} : `}
             </span>
-            <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('ClickViewReleated')}>
+            <a href={`${rb.baseUrl}/app/list-and-view?id=${e.relatedRecord.id}`} title={$L('点击查看记录')}>
               {e.relatedRecord.text}
             </a>
           </div>
@@ -573,12 +573,12 @@ function __renderRichContent(e) {
           <div>
             {contentMore.showWhere > 0 && (
               <div>
-                <span>{$L('AnnouncementPos')} : </span> {__findMaskTexts(contentMore.showWhere, ANN_OPTIONS).join('、')}
+                <span>{$L('公示位置')} : </span> {__findMaskTexts(contentMore.showWhere, ANN_OPTIONS).join('、')}
               </div>
             )}
             {(contentMore.timeStart || contentMore.timeEnd) && (
               <div>
-                <span>{$L('AnnouncementTime')} : </span> {contentMore.timeStart || ''} {$L('To')} {contentMore.timeEnd}
+                <span>{$L('公示时间')} : </span> {contentMore.timeStart || ''} {$L('至')} {contentMore.timeEnd}
               </div>
             )}
           </div>
@@ -615,14 +615,14 @@ function __renderRichContent(e) {
 }
 
 const ANN_OPTIONS = [
-  [1, $L('AnnouncementPos1')],
-  [2, $L('AnnouncementPos2')],
-  [4, $L('AnnouncementPos4')],
+  [1, $L('动态页')],
+  [2, $L('首页')],
+  [4, $L('登录页')],
 ]
 const REM_OPTIONS = [
   [1, $L('通知')],
-  [2, $L('Mail')],
-  [4, $L('Sms')],
+  [2, $L('邮件')],
+  [4, $L('短信')],
 ]
 
 function __findMaskTexts(mask, options) {

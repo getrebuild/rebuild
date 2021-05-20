@@ -177,7 +177,7 @@ class FieldsMapping extends React.Component {
 
         if (req && !val) {
           const label = $this.parent().next().find('.badge').text()
-          RbHighbar.create($L('PlsSelectSourceField').replace('%s', label))
+          RbHighbar.create($L('请选择 %s 的源字段', label))
           mapping = null
           return false
         }

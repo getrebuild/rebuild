@@ -32,22 +32,22 @@ $(document).ready(function () {
       $('.J_menuIcon .zmdi').attr('class', 'zmdi zmdi-' + s)
       parent.RbModal.hide()
     }
-    parent.RbModal.create('/p/common/search-icon', $L('选择,Icon'))
+    parent.RbModal.create('/p/common/search-icon', $L('选择图标'))
   })
 
   $('.J_menuConfirm').click(function () {
     const name = $val('.J_menuName')
-    if (!name) return RbHighbar.create($L('请选择,MenuName'))
+    if (!name) return RbHighbar.create($L('请输入菜单名称'))
 
     const type = $('.J_menuType.active').attr('href').substr(1)
     let value
     if (type === 'ENTITY') {
       value = $val('.J_menuEntity')
-      if (!value) return RbHighbar.create($L('请选择,RelatedEntry'))
+      if (!value) return RbHighbar.create($L('请选择相关项'))
     } else {
       value = $val('.J_menuUrl')
-      if (!value) return RbHighbar.create($L('请输入,OutUrl'))
-      else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) return RbHighbar.create($L('PlsInputValidSome,OutUrl'))
+      if (!value) return RbHighbar.create($L('请输入外部地址'))
+      else if (!($regex.isUrl(value) || $regex.isUrl(`https://getrebuild.com${value}`))) return RbHighbar.create($L('请输入有效的外部地址'))
     }
 
     const icon = $('.J_menuIcon i').attr('class').replace('zmdi zmdi-', '')
@@ -76,10 +76,10 @@ $(document).ready(function () {
       const $item = build_item($(this), navs)
       if ($item) navs.push($item)
     })
-    if (navs.length === 0) return RbHighbar.create($L('Set1MenuLeast'))
+    if (navs.length === 0) return RbHighbar.create($L('请至少设置 1 个菜单项'))
 
     if (coveredMode) {
-      RbAlert.create($L('OverSelfNavMenu'), {
+      RbAlert.create($L('保存将覆盖你现有的导航菜单。继续吗？'), {
         confirm: function () {
           this.hide()
           _save(navs)
@@ -114,13 +114,13 @@ $(document).ready(function () {
     $.get('/app/settings/nav-settings/alist', (res) => {
       const cc = res.data.find((x) => x[0] === _current.id)
       if (rb.isAdminUser) {
-        renderRbcomp(<Share2 title={$L('NavMenu')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
+        renderRbcomp(<Share2 title={$L('导航菜单')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
           shareToComp = this
         })
       } else {
         // overSelf = cc && cc[3] !== rb.currentUser
         // eslint-disable-next-line no-undef
-        renderSwitchButton(res.data, $L('NavMenu'), cc ? cc[0] : null)
+        renderSwitchButton(res.data, $L('导航菜单'), cc ? cc[0] : null)
       }
 
       // 有自有才提示覆盖
@@ -176,8 +176,8 @@ const render_item = function (data, isNew, append2) {
   if ($item.length === 0) {
     $item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo(append2)
     const $action = $(
-      `<div class="dd3-action"><a class="J_addsub" title="${$L('AddSome,SubMenu')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L(
-        'Remove'
+      `<div class="dd3-action"><a class="J_addsub" title="${$L('添加子菜单')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L(
+        '移除'
       )}"><i class="zmdi zmdi-close"></i></a></div>`
     ).appendTo($item)
 

@@ -371,13 +371,13 @@ class DlgImports extends RbModalHandler {
                       <u className="text-bold">{$fileCutName(this.state.uploadFile || '')}</u>
                     </div>
                     <div className="clearfix"></div>
-                    <div className="form-text link" dangerouslySetInnerHTML={{ __html: $L('ImportClassDataTips') }}></div>
+                    <div className="form-text link" dangerouslySetInnerHTML={{ __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/classifications)') }}></div>
                   </div>
                 </div>
                 <div className="form-group row footer">
                   <div className="col-sm-7 offset-sm-3">
                     <button className="btn btn-primary" type="button" onClick={() => this.import4File()} disabled={this.state.inProgress}>
-                      {$L('StartImport')}
+                      {$L('开始导入')}
                     </button>
                     <button className="btn btn-link" type="button" onClick={() => this._dlg.hide()} disabled={this.state.inProgress}>
                       {$L('取消')}
@@ -394,7 +394,7 @@ class DlgImports extends RbModalHandler {
                       <div className="float-left">
                         <h5>{item.name}</h5>
                         <div className="text-muted">
-                          {$L('DataSource')}{' '}
+                          {$L('数据源')}{' '}
                           <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>
                             {item.author || item.source}
                           </a>
@@ -413,7 +413,7 @@ class DlgImports extends RbModalHandler {
               </div>
               <div className="mt-2 mr-2 text-right">
                 <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">
-                  {$L('RbSubmit')}
+                  {$L('提交数据到 RB 仓库')}
                 </a>
               </div>
             </div>
@@ -467,7 +467,7 @@ class DlgImports extends RbModalHandler {
     const name = e.currentTarget.dataset.name
     const url = `/admin/metadata/classification/imports/start?dest=${this.props.id}&file=${$encode(file)}`
     const that = this
-    RbAlert.create(`<strong>${name}</strong><br>${$L('ImportClassDataConfirm')}`, {
+    RbAlert.create(`<strong>${name}</strong><br>${$L('此导入为增量导入，不会对现有数据造成影响。开始导入吗？')}`, {
       html: true,
       confirm: function () {
         this.hide()
@@ -493,7 +493,7 @@ class DlgImports extends RbModalHandler {
 
         const cp = res.data.progress
         if (cp >= 1) {
-          RbHighbar.success($L('SomeSuccess,Import'))
+          RbHighbar.success($L('导入成功'))
           this.__mp.end()
           setTimeout(() => location.reload(), 1500)
         } else {

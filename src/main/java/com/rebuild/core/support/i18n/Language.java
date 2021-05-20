@@ -45,13 +45,13 @@ public class Language implements Initialization {
     public void init() throws IOException {
         bundleMap.put(LanguageBundle.SYS_LC, LanguageBundle.SYS_BUNDLE);
 
-        File[] langFiles = new ClassPathResource("i18n/").getFile().listFiles(pathname -> {
+        File[] langs = new ClassPathResource("i18n/").getFile().listFiles(pathname -> {
             String name = pathname.getName();
             return name.startsWith("lang.") && name.endsWith(".json");
         });
-        if (langFiles == null) return;
+        if (langs == null || langs.length == 0) return;
 
-        for (File file : langFiles) {
+        for (File file : langs) {
             log.info("Loading language bundle : {}", file);
             String locale = file.getName().split("\\.")[1];
 

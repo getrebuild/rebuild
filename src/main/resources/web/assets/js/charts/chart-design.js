@@ -322,7 +322,7 @@ const render_preview = () => {
 
       const cfg = build_config()
       if (!cfg) {
-        $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('ChartNodata')}</h4>`)
+        $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('当前图表无数据')}</h4>`)
         return
       }
 
@@ -334,7 +334,7 @@ const render_preview = () => {
           render_preview_chart = this
         })
       } else {
-        $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('UnsupportChartType')}</h4>`)
+        $('#chart-preview').html(`<h4 class="chart-undata must-center">${$L('不支持的图表类型')}</h4>`)
       }
     },
     400,

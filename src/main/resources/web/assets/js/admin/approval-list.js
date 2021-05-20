@@ -124,7 +124,7 @@ class ApprovalEdit extends ConfigFormDlg {
     if (!this.props.id) {
       post.belongEntity = this.__select2.val()
       if (!post.belongEntity) {
-        RbHighbar.create($L('请选择,ApplyEntity'))
+        RbHighbar.create($L('请选择应用实体'))
         return
       }
     } else {

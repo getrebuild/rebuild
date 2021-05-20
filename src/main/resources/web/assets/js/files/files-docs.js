@@ -356,7 +356,7 @@ class FilesList4Docs extends FilesList {
     return (
       <React.Fragment>
         <span className="fop">
-          <a title={$L('Download')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
             <i className="icon zmdi zmdi-download"></i>
           </a>
           {rb.fileSharable && (

@@ -988,7 +988,7 @@ class RbFormImage extends RbFormElement {
           )
         })}
         {showUpload && (
-          <span title={$L('UploadImgNeedX').replace('%d', `${this.__minUpload}~${this.__maxUpload}`)}>
+          <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)}>
             <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
             <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
               <span className="zmdi zmdi-image-alt"></span>
@@ -1638,7 +1638,12 @@ class RbFormBarcode extends RbFormElement {
 
   renderElement() {
     if (this.state.value) return this.renderViewElement()
-    else return <div className="form-control-plaintext barcode text-muted">{$L('自动值')} ({this.props.barcodeType === 'QRCODE' ? $L('二维码')  : $L('条形码')})</div>
+    else
+      return (
+        <div className="form-control-plaintext barcode text-muted">
+          {$L('自动值')} ({this.props.barcodeType === 'QRCODE' ? $L('二维码') : $L('条形码')})
+        </div>
+      )
   }
 
   renderViewElement() {
@@ -1835,7 +1840,7 @@ class RepeatedViewer extends RbModalHandler {
   render() {
     const data = this.props.data
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('ExistsXDuplicateItems').replace('%d', this.props.data.length - 1)} disposeOnHide={true} colored="warning">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('存在 %d 条重复记录', this.props.data.length - 1)} disposeOnHide={true} colored="warning">
         <table className="table table-striped table-hover table-sm dialog-table">
           <thead>
             <tr>

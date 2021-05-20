@@ -148,8 +148,8 @@ class FormulaDate extends RbAlert {
               onChange={(e) => this.setState({ calcNum: e.target.value })}
             />
             <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
-              <option value="D">{$L('Day')}</option>
-              <option value="M">{$L('Month')}</option>
+              <option value="D">{$L('日')}</option>
+              <option value="M">{$L('月')}</option>
               <option value="Y">{$L('年')}</option>
               {this.props.type === 'DATETIME' && (
                 <React.Fragment>
@@ -175,7 +175,7 @@ class FormulaDate extends RbAlert {
 
     if (this.state.calcOp) {
       if (isNaN(this.state.calcNum) || this.state.calcNum < 1) {
-        return RbHighbar.create($L('请输入,Number'))
+        return RbHighbar.create($L('请输入数字'))
       }
       expr += ` ${this.state.calcOp} ${this.state.calcNum}${this.state.calcUnit}`
     }

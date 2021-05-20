@@ -152,7 +152,7 @@ class DlgRuleEdit extends RbFormHandler {
     $.get(`/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
       this.__targetFieldsCache = res.data
       const s2target = $(this._targetField).select2({
-        placeholder: $L('选择,Field'),
+        placeholder: $L('选择字段'),
         allowClear: false,
       })
       this.__select2.push(s2target)
@@ -163,7 +163,7 @@ class DlgRuleEdit extends RbFormHandler {
         this.setState({ sourceFields: res.data }, () => {
           const s2source = $(this._sourceField)
             .select2({
-              placeholder: $L('选择,Field'),
+              placeholder: $L('选择字段'),
               allowClear: false,
             })
             .on('change', (e) => this._renderTargetFields(e.target.value))
@@ -208,7 +208,7 @@ class DlgRuleEdit extends RbFormHandler {
       sourceField: $(this._sourceField).val(),
       targetField: $(this._targetField).val(),
     }
-    if (!_data.targetField) return RbHighbar.create($L('请选择,TargetField'))
+    if (!_data.targetField) return RbHighbar.create($L('请选择目标字段'))
 
     _data.extConfig = {
       whenCreate: this.state.whenCreate,

@@ -105,8 +105,8 @@ class ReporEdit extends ConfigFormDlg {
                   {this.state.uploadFileName && <u className="text-bold">{this.state.uploadFileName}</u>}
                 </div>
                 <div className="clearfix"></div>
-                <p className="form-text mt-0 mb-1 link" dangerouslySetInnerHTML={{ __html: $L('HowWriteTemplateTips') }}></p>
-                {(this.state.invalidVars || []).length > 0 && <p className="form-text text-danger mt-0 mb-1">{$L('ExistsInvalidFieldsX').replace('%s', `{${this.state.invalidVars.join('} {')}}`)}</p>}
+                <p className="form-text mt-0 mb-1 link" dangerouslySetInnerHTML={{ __html: $L('如何编写模板文件？[查看帮助](https://getrebuild.com/docs/admin/excel-admin)') }}></p>
+                {(this.state.invalidVars || []).length > 0 && <p className="form-text text-danger mt-0 mb-1">{$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)}</p>}
               </div>
             </div>
           </React.Fragment>
@@ -196,7 +196,7 @@ class ReporEdit extends ConfigFormDlg {
     } else {
       post.belongEntity = this.__select2.val()
       if (!post.belongEntity) {
-        RbHighbar.create($L('请选择,ApplyEntity'))
+        RbHighbar.create($L('请选择应用实体'))
         return
       }
       post.templateFile = this.state.templateFile

@@ -627,7 +627,7 @@ const RbViewPage = {
 
       $into.empty()
       res.data.forEach((item, idx) => {
-        const content = $LF('ViewHistoryContent', $fromNow(item.revisionOn)).replace('$USER$', item.revisionBy[1]).replace('$ACTION$', item.revisionType)
+        const content = $L('**%s** 由 %s %s', $fromNow(item.revisionOn), item.revisionBy[1], item.revisionType)
         const $item = $(`<li>${content}</li>`).appendTo($into)
         $item.find('b:eq(0)').attr('title', item.revisionOn)
         if (idx > 9) $item.addClass('hide')

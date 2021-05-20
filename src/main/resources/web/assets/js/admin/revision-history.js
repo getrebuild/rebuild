@@ -58,7 +58,7 @@ class DataList extends React.Component {
   componentDidMount() {
     const select2 = $('#belongEntity')
       .select2({
-        placeholder: $L('选择,Entity'),
+        placeholder: $L('选择实体'),
         width: 220,
         allowClear: false,
       })
@@ -106,13 +106,13 @@ CellRenders.renderSimple = function (v, s, k) {
   if (k.endsWith('.channelWith')) {
     v = v ? (
       <React.Fragment>
-        {$L('CasOperation')}
-        <span className="badge text-id ml-1" title={$L('CasMainId')}>
+        {$L('关联操作')}
+        <span className="badge text-id ml-1" title={$L('关联主记录 ID')}>
           {v.id}
         </span>
       </React.Fragment>
     ) : (
-      $L('DirectOperation')
+      $L('直接操作')
     )
   } else if (k.endsWith('.recordId')) {
     v = <span className="badge text-id">{v.id}</span>
@@ -133,15 +133,15 @@ class DlgDetails extends RbAlert {
 
   renderContent() {
     const _data = (this.state.data || []).filter((item) => !$same(item.after, item.before))
-    if (_data.length === 0) return <div className="m-3 text-center text-muted">{$L('NoHistoryDetails')}</div>
+    if (_data.length === 0) return <div className="m-3 text-center text-muted">{$L('无变更详情')}</div>
 
     return (
       <table className="table table-fixed">
         <thead>
           <tr>
-            <th width="22%">{$L('Field')}</th>
-            <th>{$L('UpdateBefore')}</th>
-            <th>{$L('UpdateAfter')}</th>
+            <th width="22%">{$L('字段')}</th>
+            <th>{$L('变更前')}</th>
+            <th>{$L('变更后')}</th>
           </tr>
         </thead>
         <tbody>
@@ -166,7 +166,7 @@ class DlgDetails extends RbAlert {
   componentDidMount() {
     $.get(`/admin/audit/revision-history/details?id=${this.props.id}`, (res) => {
       if (res.data.length === 0) {
-        RbHighbar.create($L('NoHistoryDetails'))
+        RbHighbar.create($L('无变更详情'))
         this.hide()
       } else {
         super.componentDidMount()

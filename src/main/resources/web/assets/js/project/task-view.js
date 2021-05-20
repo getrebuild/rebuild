@@ -358,7 +358,7 @@ class ValueDeadline extends ValueComp {
     return (
       <div className="form-control-plaintext" ref={(c) => (this._deadline = c)}>
         <a className={`tag-value arrow ${this.state.deadline ? 'plaintext' : 'placeholder'}`} name="deadline" title={this.state.deadline}>
-          {this._renderValue($L('选择,Deadline'))}
+          {this._renderValue($L('选择到期时间'))}
         </a>
       </div>
     )
@@ -990,7 +990,7 @@ class TaskCommentsList extends React.Component {
 
   _handleDelete(item) {
     const that = this
-    RbAlert.create($L('确认删除此,Comment'), {
+    RbAlert.create($L('确认删除此评论？'), {
       type: 'danger',
       confirmText: $L('删除'),
       confirm: function () {
@@ -1014,16 +1014,16 @@ class TaskComment extends React.Component {
       <div className="comments">
         <div className="comment-reply">
           <div onClick={() => this.commentState(true)} className={`reply-mask ${this.state.openComment && 'hide'}`}>
-            {$L('AddSome,Comment')}
+            {$L('添加评论')}
           </div>
           <span className={`${!this.state.openComment && 'hide'}`}>
-            <TextEditor placeholder={$L('AddSome,Comment')} ref={(c) => (this._editor = c)} />
+            <TextEditor placeholder={$L('添加评论')} ref={(c) => (this._editor = c)} />
             <div className="mt-2 text-right" ref={(c) => (this._btns = c)}>
               <button onClick={() => this.commentState(false)} className="btn btn-sm btn-link">
                 {$L('取消')}
               </button>
               <button className="btn btn-sm btn-primary" ref={(c) => (this._btn = c)} onClick={() => this._post()}>
-                {$L('Comment')}
+                {$L('评论')}
               </button>
             </div>
           </span>
@@ -1038,7 +1038,7 @@ class TaskComment extends React.Component {
 
   _post() {
     const _data = this._editor.vals()
-    if (!_data.content) return RbHighbar.create($L('请输入,CommentContent'))
+    if (!_data.content) return RbHighbar.create($L('请输入评论内容'))
 
     _data.taskId = this.props.id
     _data.metadata = { entity: 'ProjectTaskComment' }
@@ -1088,7 +1088,7 @@ class TextEditor extends React.Component {
             <div className="action-btns">
               <ul className="list-unstyled list-inline m-0 p-0">
                 <li className="list-inline-item use-dropdown">
-                  <a title={$L('Emoji')} data-toggle="dropdown">
+                  <a title={$L('表情')} data-toggle="dropdown">
                     <i className="zmdi zmdi-mood" />
                   </a>
                   <div className="dropdown-menu">
@@ -1112,7 +1112,7 @@ class TextEditor extends React.Component {
                   />
                 </li>
                 <li className="list-inline-item">
-                  <a title={$L('Attachment')} onClick={() => this._fileInput.click()}>
+                  <a title={$L('附件')} onClick={() => this._fileInput.click()}>
                     <i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" />
                   </a>
                 </li>
@@ -1222,7 +1222,7 @@ class TextEditor extends React.Component {
    */
   static renderRichContent(data) {
     // 表情和换行不在后台转换，因为不同客户端所需的格式不同
-    const contentHtml = data.content ? $converEmoji(data.content.replace(/\n/g, '<br />')) : $L('ClickAdd')
+    const contentHtml = data.content ? $converEmoji(data.content.replace(/\n/g, '<br />')) : $L('点击添加')
     return (
       <div className="rich-content">
         <div className="texts text-break" dangerouslySetInnerHTML={{ __html: contentHtml }} />

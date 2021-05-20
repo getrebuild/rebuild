@@ -39,7 +39,9 @@ class PreviewTable extends React.Component {
               if (c1.field === '$DIVIDER$') {
                 return (
                   <tr key={'k-' + idx}>
-                    <th colSpan="4" className="divider">{c1.label}</th>
+                    <th colSpan="4" className="divider">
+                      {c1.label}
+                    </th>
                   </tr>
                 )
               }

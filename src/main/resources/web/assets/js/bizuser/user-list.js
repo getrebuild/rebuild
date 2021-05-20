@@ -115,7 +115,7 @@ class UserImport extends RbModalHandler {
   }
 
   imports() {
-    if (rb.commercial < 1) return RbHighbar.create($L('免费版不支持{0}功能 [(查看详情)](https://getrebuild.com/docs/rbv-features),ImportUser'), { type: 'danger', html: true, timeout: 6000 })
+    if (rb.commercial < 1) return RbHighbar.create($L('免费版不支持导入用户功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), { type: 'danger', html: true, timeout: 6000 })
     if (!this.state.uploadFile) return RbHighbar.create($L('请上传文件'))
 
     $.post(`/admin/bizuser/user-imports?file=${$encode(this.state.uploadFile)}&notify=${$(this._notify).prop('checked')}`, (res) => {

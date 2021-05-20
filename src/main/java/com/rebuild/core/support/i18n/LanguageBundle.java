@@ -13,7 +13,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.License;
 import com.rebuild.utils.AppUtils;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.extern.slf4j.Slf4j;
 
@@ -44,8 +43,8 @@ public class LanguageBundle implements JSONable {
     // 代码
     private static final Pattern CODE_PATT = Pattern.compile("`(.*?)`");
 
+    protected JSONObject bundle;
     private String locale;
-    private JSONObject bundle;
     private String bundleHash;
 
     /**
@@ -84,7 +83,7 @@ public class LanguageBundle implements JSONable {
      * @param content
      * @return
      */
-    private String formatLang(String content) {
+    protected String formatLang(String content) {
         content = BR_PATT.matcher(content).replaceAll("<br/>");
 
         Matcher matcher = LINK_PATT.matcher(content);
@@ -161,10 +160,10 @@ public class LanguageBundle implements JSONable {
     public String $L(String key, Object... placeholders) {
         String lang = bundle.getString(key);
         if (lang == null) {
-            log.warn("Missing lang [{}] for [{}]", key, getLocale());
+            log.warn("Missing lang [ {} ] for [ {} ]", key, getLocale());
             lang = key;
         }
-        return String.format(lang, placeholders);
+        return placeholders.length > 0 ? String.format(lang, placeholders) : lang;
     }
 
     @Override
@@ -177,13 +176,28 @@ public class LanguageBundle implements JSONable {
         return super.toString() + "#" + getLocale() + ":" + bundle.size();
     }
 
-    // --
+    // -- 系统语言
 
     static final String SYS_LC = "zh_CN";
-    static final LanguageBundle SYS_BUNDLE = new LanguageBundle();
+    static final LanguageBundle SYS_BUNDLE = new LanguageBundle() {
+        private static final long serialVersionUID = -5127621395095384712L;
+        @Override
+        public String getLocale() {
+            return SYS_LC;
+        }
+        @Override
+        public String $L(String key, Object... placeholders) {
+            String lang = bundle.getString(key);
+            if (lang == null) {
+                lang = formatLang(key);
+                bundle.put(key, lang);
+            }
+            return placeholders.length > 0 ? String.format(lang, placeholders) : lang;
+        }
+    };
 
     private LanguageBundle() {
-        this.bundle = JSONUtils.EMPTY_OBJECT;
-        this.bundleHash = "0";
+        this.bundle = JSON.parseObject("{ '_':'中文' }");
+        this.bundleHash = EncryptUtils.toMD5Hex(Application.VER);
     }
 }

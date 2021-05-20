@@ -130,11 +130,11 @@ class TransformEdit extends ConfigFormDlg {
     $.get('/commons/metadata/entities', (res) => {
       this.setState({ entities: res.data }, () => {
         this._$source = $(this._source).select2({
-          placeholder: $L('选择,Entity'),
+          placeholder: $L('选择实体'),
           allowClear: false,
         })
         this._$target = $(this._target).select2({
-          placeholder: $L('选择,Entity'),
+          placeholder: $L('选择实体'),
           allowClear: false,
         })
       })
@@ -143,14 +143,14 @@ class TransformEdit extends ConfigFormDlg {
 
   confirm = () => {
     const post = { name: this.state['name'] }
-    if (!post.name) return RbHighbar.create($L('请输入,Name'))
+    if (!post.name) return RbHighbar.create($L('请输入名称'))
 
     if (!this.props.id) {
       post.belongEntity = this._$source.val()
-      if (!post.belongEntity) return RbHighbar.create($L('请选择,SourceEntity'))
+      if (!post.belongEntity) return RbHighbar.create($L('请选择源实体'))
 
       post.targetEntity = this._$target.val()
-      if (!post.targetEntity) return RbHighbar.create($L('请选择,TargetEntity'))
+      if (!post.targetEntity) return RbHighbar.create($L('请选择目标实体'))
     } else {
       post.isDisabled = this.state.isDisabled === true
     }

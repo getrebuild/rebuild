@@ -42,7 +42,7 @@ class ApprovalProcessor extends React.Component {
 
   renderStateProcessing() {
     window.RbViewPage && window.RbViewPage.setReadonly(true)
-    let aMsg = $L('SomeInApproval,CurrentRecord')
+    let aMsg = $L('当前记录正在审批中')
     if (this.state.imApprover) {
       if (this.state.imApproveSatate === 1) aMsg = $L('当前记录正在等待你审批')
       else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待他人审批')
@@ -385,14 +385,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {this.state.aform && this._renderEditableForm()}
           <div className="form-group">
             <label>{$L('批注')}</label>
-            <textarea
-              className="form-control form-control-sm row2x"
-              name="remark"
-              placeholder={$L('输入批注 (可选)')}
-              value={this.state.remark || ''}
-              onChange={this.handleChange}
-              maxLength="600"
-            />
+            <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
           </div>
           {this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
@@ -484,10 +477,10 @@ class EditableForm extends RbForm {
 }
 
 const STATE_NAMES = {
-  10: $L('ApproveSome,Agree'),
-  11: $L('ApproveSome,s.ApprovalState.REJECTED'),
-  12: $L('ApproveSome,s.ApprovalState.CANCELED'),
-  13: $L('ApproveSome,s.ApprovalState.REVOKED'),
+  10: $L('审批同意'),
+  11: $L('审批驳回'),
+  12: $L('审批撤回'),
+  13: $L('审批撤销'),
 }
 
 // 已审批步骤查看

@@ -243,10 +243,10 @@ const BUE_OPTYPES = {
   SET: $L('修改为'),
   NULL: $L('置空'),
   // TODO 支持更多修改模式
-  // PREFIX: $L('BatchUpdateOpPREFIX'),
-  // SUFFIX: $L('BatchUpdateOpSUFFIX'),
-  // PLUS: $L('CalcPlus'),
-  // MINUS: $L('CalcMinus'),
+  // PREFIX: $L('前添加'),
+  // SUFFIX: $L('后添加'),
+  // PLUS: $L('加上'),
+  // MINUS: $L('减去'),
 }
 
 // ~ 批量修改编辑器

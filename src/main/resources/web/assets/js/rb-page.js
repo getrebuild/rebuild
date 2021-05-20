@@ -760,32 +760,18 @@ var _$unthy = function (text) {
  * 获取语言（PH_KEY）
  */
 var $L = function () {
-  var args = arguments.length === 1 ? arguments[0].split(',') : arguments
-  return _$L(args, true)
-}
-/**
- * 获取语言（PH_VALUE）
- */
-var $LF = function () {
-  var args = arguments.length === 1 ? arguments[0].split(',') : arguments
-  return _$L(args, false)
-}
-var _$L = function (args, isPhKey) {
-  var lang = _getLang(args[0])
-  if (args.length < 2) return lang
-
-  for (var i = 1; i < args.length; i++) {
-    var phKey = isPhKey ? '{' + (i - 1) + '}' : '%s'
-    var phLang = isPhKey ? _getLang(args[i]) : args[i]
-    lang = lang.replace(phKey, phLang)
-  }
+  var args = arguments
+  var lang = __$L(args[0])
+  if (args.length <= 1) return lang
+  // 替换占位符 %s %d
+  for (var i = 1; i < args.length; i++) lang = lang.replace(/\\%[sd]/, args[i])
   return lang
 }
-var _getLang = function (key) {
+var __$L = function (key) {
   var lang = (window._LANGBUNDLE || {})[key]
   if (!lang) {
     console.warn('Missing lang-key `' + key + '`')
-    lang = '[' + key.toUpperCase() + ']'
+    return key
   }
   return lang
 }

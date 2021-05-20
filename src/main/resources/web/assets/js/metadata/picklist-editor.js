@@ -128,17 +128,17 @@ render_item_after = function (item, data) {
     $('.J_text').val(data[1]).attr('attr-id', data[0]).focus()
   })
 
-  const $def = $(`<a title="${$L('SetDefault')}" class="J_def"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)
+  const $def = $(`<a title="${$L('设为默认')}" class="J_def"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)
   item.find('.dd3-action').prepend($def)
   $def.click(function () {
     if (item.hasClass('active')) {
       item.removeClass('active')
-      $def.attr('title', $L('SetDefault'))
+      $def.attr('title', $L('设为默认'))
     } else {
       // 单选
-      if (!isMulti) $('.J_config li').removeClass('active').find('.J_def').attr('title', $L('SetDefault'))
+      if (!isMulti) $('.J_config li').removeClass('active').find('.J_def').attr('title', $L('设为默认'))
       item.addClass('active')
-      $def.attr('title', $L('CancelDefault'))
+      $def.attr('title', $L('取消默认'))
     }
   })
 

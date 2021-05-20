@@ -106,7 +106,6 @@ module.exports = {
     $fromNow: true,
     $expired: true,
     $L: true,
-    $LF: true,
     $isTrue: true,
     $fieldIsCompatible: true,
     $unhideDropdown: true,

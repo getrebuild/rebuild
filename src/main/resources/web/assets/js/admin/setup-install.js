@@ -6,9 +6,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const _INSTALL_STATES = {
-  10: ['zmdi-settings zmdi-hc-spin', $L('Installing')],
-  11: ['zmdi-check text-success', $L('InstallSucceed')],
-  12: ['zmdi-close-circle-o text-danger', $L('InstallFailed')],
+  10: ['zmdi-settings zmdi-hc-spin', $L('正在安装')],
+  11: ['zmdi-check text-success', $L('安装成功')],
+  12: ['zmdi-close-circle-o text-danger', $L('安装失败')],
 }
 
 class Setup extends React.Component {
@@ -32,12 +32,12 @@ class Setup extends React.Component {
               <h2 className="mb-0">{state[1]}</h2>
               {this.state.installState === 11 && (
                 <a className="btn btn-secondary mt-3" href="../user/login">
-                  {$L('LoginNow')}
+                  {$L('立即登录')}
                 </a>
               )}
               {this.state.installState === 12 && (
                 <a className="btn btn-secondary mt-3" href="install">
-                  {$L('Retry')}
+                  {$L('重试')}
                 </a>
               )}
               {this.state.installState === 12 && this.state.installError && (
@@ -77,18 +77,18 @@ class RbWelcome extends React.Component {
   render() {
     return (
       <div className="rb-welcome pb-1">
-        <h3>{$L('选择,InstallMode')}</h3>
+        <h3>{$L('选择安装模式')}</h3>
         <ul className="list-unstyled">
           <li>
             <a onClick={() => this._next(1)}>
-              <h5 className="m-0 text-bold">{$L('InstallMySql')}</h5>
-              <p className="m-0 mt-1 text-muted">{$L('InstallMySqlTips')}</p>
+              <h5 className="m-0 text-bold">{$L('标准安装')}</h5>
+              <p className="m-0 mt-1 text-muted">{$L('以产品形式安装，用于真实生产环境')}</p>
             </a>
           </li>
           <li>
             <a onClick={() => this._next(99)}>
-              <h5 className="m-0 text-bold">{$L('InstallH2')}</h5>
-              <p className="m-0 mt-1 text-muted">{$L('InstallH2Tips')}</p>
+              <h5 className="m-0 text-bold">{$L('快速安装')}</h5>
+              <p className="m-0 mt-1 text-muted">{$L('将使用内置数据库执行安装，仅用于评估演示 (部分功能可能无法使用)')}</p>
             </a>
           </li>
         </ul>
@@ -99,11 +99,11 @@ class RbWelcome extends React.Component {
   // 开始安装
   _next(type) {
     const that = this
-    RbAlert.create(`<div class="text-left link">${$('.license').html()}<p class="text-bold">${$L('CommercialTips')}</p></div>`, {
+    RbAlert.create(`<div class="text-left link">${$('.license').html()}<p class="text-bold">${$L('如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。')}</p></div>`, {
       html: true,
       type: 'warning',
-      cancelText: $L('Disagree'),
-      confirmText: $L('Agree'),
+      cancelText: $L('不同意'),
+      confirmText: $L('同意'),
       confirm: function () {
         this.hide()
         that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
@@ -120,45 +120,45 @@ class DatabaseConf extends React.Component {
   render() {
     return (
       <div className="rb-database">
-        <h3>{$L('设置,Database')}</h3>
+        <h3>{$L('设置数据库')}</h3>
         <form>
           <div className="form-group row pt-0">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('DbType')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('数据库类型')}</div>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="dbType">
                 <option value="mysql">MySQL</option>
               </select>
-              <div className="form-text">{$L('DbMySqlTips')}</div>
+              <div className="form-text">{$L('支持 MySQL 5.5 或以上版本')}</div>
             </div>
           </div>
           <div className="form-group row">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('Host')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('主机')}</div>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="dbHost" value={this.state.dbHost || ''} onChange={this.handleValue} placeholder="127.0.0.1" />
             </div>
           </div>
           <div className="form-group row">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('Port')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('端口')}</div>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="dbPort" value={this.state.dbPort || ''} onChange={this.handleValue} placeholder="3306" />
             </div>
           </div>
           <div className="form-group row">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('DbName')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('数据库名称')}</div>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="dbName" value={this.state.dbName || ''} onChange={this.handleValue} placeholder="rebuild20" />
-              <div className="form-text">{$L('DbNameTips')}</div>
+              <div className="form-text">{$L('如数据库不存在系统将自动创建')}</div>
             </div>
           </div>
           <div className="form-group row">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('DbUser')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('用户')}</div>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="dbUser" value={this.state.dbUser || ''} onChange={this.handleValue} placeholder="rebuild" />
-              <div className="form-text">{$L('DbUserTips')}</div>
+              <div className="form-text">{$L('请赋予用户除管理员权限以外的所有权限')}</div>
             </div>
           </div>
           <div className="form-group row">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('Passwd')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('密码')}</div>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="dbPassword" value={this.state.dbPassword || ''} onChange={this.handleValue} placeholder="rebuild" />
             </div>
@@ -178,15 +178,15 @@ class DatabaseConf extends React.Component {
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
             <i className="zmdi zmdi-chevron-left icon" />
-            {$L('选择,InstallMode')}
+            {$L('选择安装模式')}
           </button>
           <div className="float-right">
             <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
               {this.state.inTest && <i className="zmdi icon zmdi-refresh zmdi-hc-spin mr-1" />}
-              {$L('TestConnection')}
+              {$L('测试连接')}
             </button>
             <button className="btn btn-secondary" onClick={this._next}>
-              {$L('NextStep')}
+              {$L('下一步')}
             </button>
           </div>
           <div className="clearfix"></div>
@@ -211,7 +211,7 @@ class DatabaseConf extends React.Component {
       dbPassword: this.state.dbPassword || 'rebuild',
     }
     if (check && isNaN(ps.dbPort)) {
-      RbHighbar.create($L('SomeInvalid,Port'))
+      RbHighbar.create($L('无效端口'))
       return
     }
     return ps
@@ -250,34 +250,34 @@ class CacheConf extends DatabaseConf {
   render() {
     return (
       <div className="rb-cache">
-        <h3>{$L('设置,CacheSrv')}</h3>
+        <h3>{$L('设置缓存服务')}</h3>
         <form>
           <div className="form-group row">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('CacheType')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('缓存类型')}</div>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="cacheType" onChange={this.handleValue} defaultValue={this.props.cacheType}>
-                <option value="ehcache">EHCACHE ({$L('BuiltIn')})</option>
+                <option value="ehcache">EHCACHE ({$L('内置')})</option>
                 <option value="redis">REDIS</option>
               </select>
-              {this.state.cacheType === 'redis' && <div className="form-text">{$L('CacheRedisTips')}</div>}
+              {this.state.cacheType === 'redis' && <div className="form-text">{$L('支持 Redis 3.2 或以上版本')}</div>}
             </div>
           </div>
           {this.state.cacheType === 'redis' && (
             <React.Fragment>
               <div className="form-group row">
-                <div className="col-sm-3 col-form-label text-sm-right">{$L('Host')}</div>
+                <div className="col-sm-3 col-form-label text-sm-right">{$L('主机')}</div>
                 <div className="col-sm-7">
                   <input type="text" className="form-control form-control-sm" name="CacheHost" value={this.state.CacheHost || ''} onChange={this.handleValue} placeholder="127.0.0.1" />
                 </div>
               </div>
               <div className="form-group row">
-                <div className="col-sm-3 col-form-label text-sm-right">{$L('Port')}</div>
+                <div className="col-sm-3 col-form-label text-sm-right">{$L('端口')}</div>
                 <div className="col-sm-7">
                   <input type="text" className="form-control form-control-sm" name="CachePort" value={this.state.CachePort || ''} onChange={this.handleValue} placeholder="6379" />
                 </div>
               </div>
               <div className="form-group row">
-                <div className="col-sm-3 col-form-label text-sm-right">{$L('Passwd')}</div>
+                <div className="col-sm-3 col-form-label text-sm-right">{$L('密码')}</div>
                 <div className="col-sm-7">
                   <input
                     type="text"
@@ -285,7 +285,7 @@ class CacheConf extends DatabaseConf {
                     name="CachePassword"
                     value={this.state.CachePassword || ''}
                     onChange={this.handleValue}
-                    placeholder={$L('CacheNoPasswdTips')}
+                    placeholder={$L('无密码请留空')}
                   />
                 </div>
               </div>
@@ -306,17 +306,17 @@ class CacheConf extends DatabaseConf {
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
             <i className="zmdi zmdi-chevron-left icon" />
-            {$L('设置,Database')}
+            {$L('设置数据库')}
           </button>
           <div className="float-right">
             {this.state.cacheType === 'redis' && (
               <button className="btn btn-link text-right mr-2" disabled={this.state.inTest} onClick={this._testConnection}>
                 {this.state.inTest && <i className="zmdi icon zmdi-refresh zmdi-hc-spin mr-1" />}
-                {$L('TestConnection')}
+                {$L('测试连接')}
               </button>
             )}
             <button className="btn btn-secondary" onClick={this._next}>
-              {$L('NextStep')}
+              {$L('下一步')}
             </button>
           </div>
           <div className="clearfix"></div>
@@ -334,7 +334,7 @@ class CacheConf extends DatabaseConf {
       CachePassword: this.state.CachePassword || '',
     }
     if (check && isNaN(ps.CachePort)) {
-      RbHighbar.create($L('SomeInvalid,Port'))
+      RbHighbar.create($L('无效端口'))
       return
     }
     return ps
@@ -370,22 +370,22 @@ class AdminConf extends DatabaseConf {
   render() {
     return (
       <div className="rb-admin">
-        <h3>{$L('设置,SuperAdmin')}</h3>
+        <h3>{$L('设置超级管理员')}</h3>
         <form>
           <div className="form-group row pt-0">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('AdminPasswd')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('管理员密码')}</div>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="adminPasswd" value={this.state.adminPasswd || ''} onChange={this.handleValue} placeholder="admin" />
               <div className="form-text">
-                {$L('DefaultPasswd')} <code className="text-danger">admin</code>
+                {$L('默认用户名/密码均为')} <code className="text-danger">admin</code>
               </div>
             </div>
           </div>
           <div className="form-group row">
-            <div className="col-sm-3 col-form-label text-sm-right">{$L('AdminEmail')}</div>
+            <div className="col-sm-3 col-form-label text-sm-right">{$L('管理员邮箱')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="adminMail" value={this.state.adminMail || ''} onChange={this.handleValue} placeholder="(选填)" />
-              <div className="form-text">{$L('AdminEmailTips')}</div>
+              <input type="text" className="form-control form-control-sm" name="adminMail" value={this.state.adminMail || ''} onChange={this.handleValue} placeholder={$L('(选填)')} />
+              <div className="form-text">{$L('用于找回密码等重要操作，也可在安装完成后填写')}</div>
             </div>
           </div>
         </form>
@@ -396,18 +396,18 @@ class AdminConf extends DatabaseConf {
           {this.props.$$$parent.state.installType === 1 && (
             <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(3)}>
               <i className="zmdi zmdi-chevron-left icon" />
-              {$L('设置,CacheSrv')}
+              {$L('设置缓存服务')}
             </button>
           )}
           {this.props.$$$parent.state.installType === 99 && (
             <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(0)}>
               <i className="zmdi zmdi-chevron-left icon" />
-              {$L('选择,InstallMode')}
+              {$L('选择安装模式')}
             </button>
           )}
           <div className="float-right">
             <button className="btn btn-secondary" onClick={this._next}>
-              {$L('NextStep')}
+              {$L('下一步')}
             </button>
           </div>
           <div className="clearfix"></div>
@@ -422,7 +422,7 @@ class AdminConf extends DatabaseConf {
       adminMail: this.state.adminMail,
     }
     if (check && ps.adminMail && !$regex.isMail(ps.adminMail)) {
-      RbHighbar.create($L('SomeInvalid,AdminEmail'))
+      RbHighbar.create($L('无效管理员邮箱'))
       return
     }
     return ps
@@ -450,7 +450,7 @@ class ModelConf extends React.Component {
     const _canUse = !DatabaseConf_mount && !ModelConf_error && ModelConf_data
     return (
       <div className="rb-model">
-        <h3>{$L('选择,InitEntity')}</h3>
+        <h3>{$L('选择初始业务实体')}</h3>
         <form>
           {_canUse &&
             ModelConf_data.map((item) => {
@@ -465,10 +465,10 @@ class ModelConf extends React.Component {
               )
             })}
         </form>
-        {_canUse && <p className="mt-1 mb-1 protips">{$L('SelectInitEntityTips')}</p>}
+        {_canUse && <p className="mt-1 mb-1 protips">{$L('你可以选择需要的业务实体使用，或在安装完成后再进行添加')}</p>}
         {DatabaseConf_mount && (
           <div className="mb-6">
-            <RbAlertBox message={$L('CantSelectInitEntityTips')} />
+            <RbAlertBox message={$L('由于使用了已存在的 REBUILD 数据库，因此此步骤不可用，你仍可以继续安装')} />
           </div>
         )}
         {!DatabaseConf_mount && ModelConf_error && (
@@ -483,11 +483,11 @@ class ModelConf extends React.Component {
         <div className="splash-footer">
           <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(4)}>
             <i className="zmdi zmdi-chevron-left icon" />
-            {$L('设置,SuperAdmin')}
+            {$L('设置超级管理员')}
           </button>
           <div className="float-right">
             <button className="btn btn-primary" onClick={this._next}>
-              {$L('FinishInstall')}
+              {$L('完成安装')}
             </button>
           </div>
           <div className="clearfix"></div>
