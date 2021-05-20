@@ -38,8 +38,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * for User
  *
@@ -105,7 +103,7 @@ public class UserService extends BaseServiceImpl {
         checkAdminGuard(BizzPermission.DELETE, null);
 
         if (ADMIN_USER.equals(record) || SYSTEM_USER.equals(record)) {
-            throw new OperationDeniedException($L("内置用户禁止删除"));
+            throw new OperationDeniedException(Language.L("内置用户禁止删除"));
         }
 
         Object[] hasLogin = Application.createQueryNoFilter(
@@ -113,7 +111,7 @@ public class UserService extends BaseServiceImpl {
                 .setParameter(1, record)
                 .unique();
         if (ObjectUtils.toInt(hasLogin[0]) > 0) {
-            throw new OperationDeniedException($L("已使用过的用户禁止删除"));
+            throw new OperationDeniedException(Language.L("已使用过的用户禁止删除"));
         }
 
         super.delete(record);
@@ -136,7 +134,7 @@ public class UserService extends BaseServiceImpl {
         }
 
         if (record.hasValue("email") && Application.getUserStore().existsUser(record.getString("email"))) {
-            throw new DataSpecificationException($L("邮箱已存在"));
+            throw new DataSpecificationException(Language.L("邮箱已存在"));
         }
 
         if (record.getPrimary() == null && !record.hasValue("fullName")) {
@@ -158,11 +156,11 @@ public class UserService extends BaseServiceImpl {
      */
     private void checkLoginName(String loginName) throws DataSpecificationException {
         if (Application.getUserStore().existsUser(loginName)) {
-            throw new DataSpecificationException($L("用户名已存在"));
+            throw new DataSpecificationException(Language.L("用户名已存在"));
         }
 
         if (!CommonsUtils.isPlainText(loginName) || BlockList.isBlock(loginName)) {
-            throw new DataSpecificationException($L("用户名无效"));
+            throw new DataSpecificationException(Language.L("用户名无效"));
         }
     }
 
@@ -176,13 +174,13 @@ public class UserService extends BaseServiceImpl {
         if (UserHelper.isAdmin(currentUser)) return;
 
         if (action == BizzPermission.CREATE || action == BizzPermission.DELETE) {
-            throw new AccessDeniedException($L("无操作权限"));
+            throw new AccessDeniedException(Language.L("无操作权限"));
         }
 
         // 用户可自己改自己
         if (action == BizzPermission.UPDATE && currentUser.equals(user)) return;
 
-        throw new AccessDeniedException($L("无操作权限"));
+        throw new AccessDeniedException(Language.L("无操作权限"));
     }
 
     /**
@@ -193,7 +191,7 @@ public class UserService extends BaseServiceImpl {
      */
     protected void checkPassword(String password) throws DataSpecificationException {
         if (password.length() < 6) {
-            throw new DataSpecificationException($L("密码不能小于 6 位"));
+            throw new DataSpecificationException(Language.L("密码不能小于 6 位"));
         }
 
         int policy = RebuildConfiguration.getInt(ConfigurationItem.PasswordPolicy);
@@ -218,10 +216,10 @@ public class UserService extends BaseServiceImpl {
         }
 
         if (countUpper == 0 || countLower == 0 || countDigit == 0) {
-            throw new DataSpecificationException($L("密码不能小于 6 位，且必须包含数字和大小写字母"));
+            throw new DataSpecificationException(Language.L("密码不能小于 6 位，且必须包含数字和大小写字母"));
         }
         if (policy >= 3 && (countSpecial == 0 || password.length() < 8)) {
-            throw new DataSpecificationException($L("密码不能小于 8 位，且必须包含数字和大小写字母及特殊字符"));
+            throw new DataSpecificationException(Language.L("密码不能小于 8 位，且必须包含数字和大小写字母及特殊字符"));
         }
     }
 
@@ -239,10 +237,10 @@ public class UserService extends BaseServiceImpl {
         String homeUrl = RebuildConfiguration.getHomeUrl();
 
         LanguageBundle bundle = Language.getSysDefaultBundle();
-        String content = bundle.$L("系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改登陆密码。修改方式 : 登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
+        String content = bundle.L("系统管理员已经为你开通了 %s 账号！以下为你的登录信息，请妥善保管。 [] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改登陆密码。修改方式 : 登陆后点击右上角头像 - 个人设置 - 安全设置 - 更改密码",
                 appName, newUser.getString("loginName"), passwd, homeUrl, homeUrl);
 
-        SMSender.sendMailAsync(newUser.getString("email"), $L("你的账号已就绪"), content);
+        SMSender.sendMailAsync(newUser.getString("email"), Language.L("你的账号已就绪"), content);
         return true;
     }
 
@@ -363,7 +361,7 @@ public class UserService extends BaseServiceImpl {
         // 通知管理员
         ID newUserId = record.getPrimary();
         String viewUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + newUserId;
-        String content = $L("用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。[点击开始激活](%s)",
+        String content = Language.L("用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。[点击开始激活](%s)",
                 newUserId, viewUrl);
 
         Message message = MessageBuilder.createMessage(ADMIN_USER, content, newUserId);

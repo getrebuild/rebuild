@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.$L('用户登录')}]]</title>
+    <title>[[${bundle.L('用户登录')}]]</title>
     <style type="text/css">
       #login-form > .row {
         margin-left: -15px !important;
@@ -64,33 +64,33 @@
               <div class="card-body">
                 <form id="login-form">
                   <div class="form-group">
-                    <input class="form-control" id="user" type="text" th:placeholder="${bundle.$L('用户名 (或邮箱)')}" />
+                    <input class="form-control" id="user" type="text" th:placeholder="${bundle.L('用户名 (或邮箱)')}" />
                   </div>
                   <div class="form-group">
-                    <input class="form-control" id="passwd" type="password" th:placeholder="${bundle.$L('密码')}" />
+                    <input class="form-control" id="passwd" type="password" th:placeholder="${bundle.L('密码')}" />
                   </div>
                   <div class="form-group row pt-0 mb-3 vcode-row" th:if="${session.needLoginVCode}">
                     <div class="col-6 pr-0">
-                      <input class="form-control" type="text" th:placeholder="${bundle.$L('验证码')}" />
+                      <input class="form-control" type="text" th:placeholder="${bundle.L('验证码')}" />
                     </div>
                     <div class="col-6 text-right pl-0 pr-0">
-                      <img class="mw-100 mr-zero" src="captcha" th:title="${bundle.$L('点击刷新')}" alt="CAPTCHA" />
+                      <img class="mw-100 mr-zero" src="captcha" th:title="${bundle.L('点击刷新')}" alt="CAPTCHA" />
                     </div>
                   </div>
                   <div class="form-group row login-tools">
                     <div class="col-6 login-remember">
                       <label class="custom-control custom-checkbox custom-control-inline mb-0">
                         <input class="custom-control-input" type="checkbox" id="autoLogin" />
-                        <span class="custom-control-label">[[${bundle.$L('记住登录')}]]</span>
+                        <span class="custom-control-label">[[${bundle.L('记住登录')}]]</span>
                       </label>
                     </div>
                     <div class="col-6 login-forgot-password">
-                      <a href="forgot-passwd">[[${bundle.$L('找回密码')}]]</a>
+                      <a href="forgot-passwd">[[${bundle.L('找回密码')}]]</a>
                     </div>
                   </div>
                   <div class="form-group login-submit mb-2">
-                    <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.$L('登录')}]]</button>
-                    <div class="mt-4 text-center" th:utext="${bundle.$L('还没有账号? [立即注册](signup)')}"></div>
+                    <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
+                    <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
                   </div>
                   <div class="text-center mb-2">
                     <a class="select-lang dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span></a>
@@ -102,7 +102,7 @@
               </div>
             </div>
             <div class="splash-footer">
-              <div class="copyright link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.$L('[REBUILD](https://getrebuild.com/) 强力驱动')}" /></div>
+              <div class="copyright link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" /></div>
             </div>
           </div>
         </div>

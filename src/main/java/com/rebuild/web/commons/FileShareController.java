@@ -12,6 +12,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -26,8 +27,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 文件共享
@@ -53,7 +52,7 @@ public class FileShareController extends BaseController {
     public JSON makeSharedFile(HttpServletRequest request) {
         Assert.isTrue(
                 RebuildConfiguration.getBool(ConfigurationItem.FileSharable),
-                $L("不允许分享文件"));
+                Language.L("不允许分享文件"));
 
         String fileUrl = getParameterNotNull(request, "url");
         int mtime = getIntParameter(request, "time", 5);
@@ -71,7 +70,7 @@ public class FileShareController extends BaseController {
         String fileUrl;
         if (!RebuildConfiguration.getBool(ConfigurationItem.FileSharable)
                 || (fileUrl = Application.getCommonsCache().get(shareKey)) == null) {
-            response.sendError(403, $L("分享的文件已过期"));
+            response.sendError(403, Language.L("分享的文件已过期"));
             return null;
         }
 

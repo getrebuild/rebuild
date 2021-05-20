@@ -23,8 +23,6 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * 审批流程
  *
@@ -56,7 +54,7 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
         if (record.hasValue("flowDefinition")) {
             int inUsed = ApprovalHelper.checkInUsed(record.getPrimary());
             if (inUsed > 0) {
-                throw new DataSpecificationException($L("有 %d 条记录正在使用此流程，禁止修改", inUsed));
+                throw new DataSpecificationException(Language.L("有 %d 条记录正在使用此流程，禁止修改", inUsed));
             }
         }
         return super.update(record);
@@ -75,7 +73,7 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
         }
 
         if (inUsed > 0) {
-            throw new DataSpecificationException($L("有 %d 条记录正在使用此流程，禁止删除", inUsed));
+            throw new DataSpecificationException(Language.L("有 %d 条记录正在使用此流程，禁止删除", inUsed));
         }
         return super.delete(recordId);
     }

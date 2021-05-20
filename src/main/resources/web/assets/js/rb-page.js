@@ -173,7 +173,6 @@ var $addResizeHandler = function (call) {
     })
   }
 }
-
 /**
  * 取消管理员访问
  */
@@ -186,7 +185,6 @@ var _cancelAdmin = function () {
     }
   })
 }
-
 /**
  * 初始化导航菜单
  */
@@ -352,7 +350,6 @@ var _showNotification = function () {
     }
   }
 }
-
 /**
  * 全局搜索
  */
@@ -405,7 +402,6 @@ var _globalSearch = function () {
       }
     })
 }
-
 /**
  * 清理 dropdown 菜单
  */
@@ -425,7 +421,6 @@ var $cleanMenu = function (mbg) {
   // remove btn
   if (mbgMenu.children().length === 0) mbg.remove()
 }
-
 /**
  * 获取附件文件名
  */
@@ -435,7 +430,6 @@ var $fileCutName = function (fileName) {
   fileName = fileName[fileName.length - 1]
   return fileName.substr(fileName.indexOf('__') + 2)
 }
-
 /**
  * 获取附件文件扩展名
  */
@@ -445,7 +439,6 @@ var $fileExtName = function (fileName) {
   fileName = fileName.split('.')
   return fileName[fileName.length - 1] || '*'
 }
-
 /**
  * 创建 Upload 组件（自动判断使用七牛或本地）
  */
@@ -523,7 +516,6 @@ var $createUploader = function (input, next, complete, error) {
   }
 }
 var $initUploader = $createUploader
-
 /**
  * 卸载 React 组件
  */
@@ -535,7 +527,6 @@ var $unmount = function (container, delay, keepContainer) {
     }, delay || 1000)
   }
 }
-
 /**
  * 初始化引用字段（搜索）
  */
@@ -576,7 +567,6 @@ var $initReferenceSelect2 = function (el, field) {
     theme: 'default ' + (field.appendClass || ''),
   })
 }
-
 /**
  * 保持模态窗口（如果需要）
  */
@@ -588,7 +578,6 @@ var $keepModalOpen = function () {
   }
   return false
 }
-
 /**
  * 禁用按钮 N 秒（用在一些危险操作上）
  */
@@ -605,7 +594,6 @@ var $countdownButton = function (btn, seconds) {
     }
   }, 1000)
 }
-
 /**
  * 加载状态条（单线程）
  */
@@ -720,7 +708,6 @@ var $converEmoji = function (text) {
   })
   return text
 }
-
 /**
  * Use momentjs
  */
@@ -743,7 +730,6 @@ var $expired = function (date, offset) {
   if (offset) m.add(offset, 's')
   return m.isBefore(moment())
 }
-
 /**
  * 转义 Thymeleaf 页面的 JSON
  */
@@ -755,7 +741,6 @@ var _$unthy = function (text) {
   if (rb.env === 'dev') console.log(s)
   return s
 }
-
 /**
  * 获取语言（PH_KEY）
  */
@@ -775,7 +760,6 @@ var _getLang = function (key) {
   }
   return lang
 }
-
 /**
  * 点击 Dropdown-Menu 不隐藏
  */

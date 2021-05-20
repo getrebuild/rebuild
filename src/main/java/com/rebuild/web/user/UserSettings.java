@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.StringUtils;
@@ -26,8 +27,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 用户设置
@@ -59,7 +58,7 @@ public class UserSettings extends EntityController {
 
         String vcode = VerfiyCode.generate(email);
         String subject = "邮箱验证码";
-        String content = $L("你的邮箱验证码是 : **%s**", vcode);
+        String content = Language.L("你的邮箱验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, subject, content);
 
         if (sentid != null) {

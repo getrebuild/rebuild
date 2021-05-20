@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.BlockList;
 import com.rebuild.utils.RbAssert;
@@ -37,8 +38,6 @@ import org.apache.commons.lang.math.RandomUtils;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 创建字段
@@ -59,7 +58,7 @@ public class Field2Schema {
      * @param user
      */
     public Field2Schema(ID user) {
-        RbAssert.isAllow(UserHelper.isSuperAdmin(user), $L("仅超级管理员可操作"));
+        RbAssert.isAllow(UserHelper.isSuperAdmin(user), Language.L("仅超级管理员可操作"));
         this.user = user;
     }
 
@@ -75,7 +74,7 @@ public class Field2Schema {
     public String createField(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
         long count;
         if ((count = checkRecordCount(entity)) > 100000) {
-            throw new MetadataModificationException($L("实体记录过多 (%d)，增加/删除字段可能导致表损坏", count));
+            throw new MetadataModificationException(Language.L("实体记录过多 (%d)，增加/删除字段可能导致表损坏", count));
         }
 
         String fieldName = toPinyinName(fieldLabel);
@@ -93,7 +92,7 @@ public class Field2Schema {
         boolean schemaReady = schema2Database(entity, new Field[]{field});
         if (!schemaReady) {
             Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
-            throw new MetadataModificationException($L("无法同步元数据到数据库"));
+            throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
         MetadataHelper.getMetadataFactory().refresh(false);
@@ -109,18 +108,18 @@ public class Field2Schema {
         EasyField easyMeta = EasyMetaFactory.valueOf(field);
         ID metaRecordId = easyMeta.getMetaId();
         if (easyMeta.isBuiltin() || metaRecordId == null) {
-            throw new MetadataModificationException($L("系统内置，不允许删除"));
+            throw new MetadataModificationException(Language.L("系统内置，不允许删除"));
         }
 
         Entity entity = field.getOwnEntity();
         if (entity.getNameField().equals(field)) {
-            throw new MetadataModificationException($L("名称字段不允许删除"));
+            throw new MetadataModificationException(Language.L("名称字段不允许删除"));
         }
 
         if (!force) {
             long count;
             if ((count = checkRecordCount(entity)) > 100000) {
-                throw new MetadataModificationException($L("实体记录过多 (%d)，增加/删除字段可能导致表损坏", count));
+                throw new MetadataModificationException(Language.L("实体记录过多 (%d)，增加/删除字段可能导致表损坏", count));
             }
         }
 
@@ -269,7 +268,7 @@ public class Field2Schema {
             // 在导入实体时需要，需自行保证引用实体有效性，否则系统会出错
             if (!DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
                 if (!MetadataHelper.containsEntity(refEntity)) {
-                    throw new MetadataModificationException($L("无效引用实体 : %s", refEntity));
+                    throw new MetadataModificationException(Language.L("无效引用实体 : %s", refEntity));
                 }
             }
 
@@ -289,7 +288,7 @@ public class Field2Schema {
         recordOfField.setInt("maxLength", maxLength);
 
         if ((dt == DisplayType.REFERENCE || dt == DisplayType.N2NREFERENCE) && StringUtils.isBlank(refEntity)) {
-            throw new MetadataModificationException($L("引用字段必须指定引用实体"));
+            throw new MetadataModificationException(Language.L("引用字段必须指定引用实体"));
         }
 
         recordOfField = Application.getCommonsService().create(recordOfField);

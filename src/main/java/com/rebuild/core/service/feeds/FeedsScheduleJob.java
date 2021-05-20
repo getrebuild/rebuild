@@ -86,7 +86,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
 
             // 消息通知
             if (!notifications.isEmpty()) {
-                String subject = bundle.$L("你有 %d 条日程提醒", notifications.size());
+                String subject = bundle.L("你有 %d 条日程提醒", notifications.size());
                 String contents = subject + mergeContents(notifications, false);
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(toUser, contents, Message.TYPE_FEEDS));
@@ -95,7 +95,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             // 邮件
             final String emailAddr = Application.getUserStore().getUser(toUser).getEmail();
             if (SMSender.availableMail() && RegexUtils.isEMail(emailAddr) && !emails.isEmpty()) {
-                String subject = bundle.$L("你有 %d 条日程提醒", emails.size());
+                String subject = bundle.L("你有 %d 条日程提醒", emails.size());
                 String contents = mergeContents(emails, true);
                 contents = MessageBuilder.formatMessage(contents, true, false);
                 SMSender.sendMailAsync(emailAddr, subject, contents);
@@ -104,7 +104,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             // 短信（考虑短信字数，内容简化了）
             final String mobileAddr = Application.getUserStore().getUser(toUser).getWorkphone();
             if (SMSender.availableSMS() && RegexUtils.isCNMobile(mobileAddr) && !smss.isEmpty()) {
-                String subject = bundle.$L("你有 %d 条日程提醒", smss.size());
+                String subject = bundle.L("你有 %d 条日程提醒", smss.size());
                 SMSender.sendSMSAsync(mobileAddr, subject);
             }
         }

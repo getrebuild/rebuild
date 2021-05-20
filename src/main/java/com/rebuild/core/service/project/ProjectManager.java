@@ -24,8 +24,6 @@ import org.springframework.util.Assert;
 
 import java.util.*;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * 项目管理
  *
@@ -147,7 +145,7 @@ public class ProjectManager implements ConfigManager {
                 return e.clone();
             }
         }
-        throw new ConfigurationException($L("无权访问该项目或项目已删除"));
+        throw new ConfigurationException(Language.L("无权访问该项目或项目已删除"));
     }
 
     /**
@@ -174,13 +172,13 @@ public class ProjectManager implements ConfigManager {
         }
 
         if (projectId == null) {
-            throw new ConfigurationException($L("任务不存在或已被删除"));
+            throw new ConfigurationException(Language.L("任务不存在或已被删除"));
         }
 
         try {
             return getProject(projectId, user);
         } catch (ConfigurationException ex) {
-            throw new AccessDeniedException($L("无权访问该任务"), ex);
+            throw new AccessDeniedException(Language.L("无权访问该任务"), ex);
         }
     }
 
@@ -239,7 +237,7 @@ public class ProjectManager implements ConfigManager {
         for (ConfigBean e : getPlansOfProject(projectId)) {
             if (e.getID("id").equals(planId)) return e;
         }
-        throw new ConfigurationException($L("无效任务面板 (%s)", planId));
+        throw new ConfigurationException(Language.L("无效任务面板 (%s)", planId));
     }
 
     @Override

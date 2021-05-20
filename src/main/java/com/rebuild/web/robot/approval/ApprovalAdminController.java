@@ -24,6 +24,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -36,8 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -61,7 +60,7 @@ public class ApprovalAdminController extends BaseController {
                 .setParameter(1, configId)
                 .unique();
         if (config == null) {
-            response.sendError(404, $L("审批流程不存在"));
+            response.sendError(404, Language.L("审批流程不存在"));
             return null;
         }
 
@@ -116,8 +115,8 @@ public class ApprovalAdminController extends BaseController {
 
     @GetMapping("approval/user-fields")
     public JSON approvalUserFields(@EntityParam Entity entity) {
-        final String textSubmitor = $L("发起人") + ".";
-        final String textApprover = $L("审批人") + ".";
+        final String textSubmitor = Language.L("发起人") + ".";
+        final String textApprover = Language.L("审批人") + ".";
 
         List<String[]> fields = new ArrayList<>();
 
@@ -158,8 +157,8 @@ public class ApprovalAdminController extends BaseController {
     public JSON approvalUserFieldsShow(@EntityParam Entity entity, HttpServletRequest request) {
         final JSON users = ServletUtils.getRequestJson(request);
 
-        final String textSubmitor = $L("发起人") + ".";
-        final String textApprover = $L("审批人") + ".";
+        final String textSubmitor = Language.L("发起人") + ".";
+        final String textApprover = Language.L("审批人") + ".";
 
         List<String[]> shows = new ArrayList<>();
 

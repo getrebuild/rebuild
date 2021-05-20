@@ -13,12 +13,11 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.general.OperatingObserver;
+import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 触发器
@@ -126,7 +125,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                     // FIXME 触发器执行失败是否抛出
                     if (ex instanceof MissingMetaExcetion) {
-                        throw new TriggerException($L("触发器执行失败 : %s", ex.getLocalizedMessage()));
+                        throw new TriggerException(Language.L("触发器执行失败 : %s", ex.getLocalizedMessage()));
                     } else if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;
                     } else {

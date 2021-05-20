@@ -48,7 +48,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
     @Override
     public String getChartTitle() {
-        return Language.$L("我的审批");
+        return Language.L("我的审批");
     }
 
     @Override

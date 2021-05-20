@@ -44,7 +44,7 @@ public class FeedsSchedule extends ChartData implements BuiltinChart {
 
     @Override
     public String getChartTitle() {
-        return Language.$L("我的日程");
+        return Language.L("我的日程");
     }
 
     @Override

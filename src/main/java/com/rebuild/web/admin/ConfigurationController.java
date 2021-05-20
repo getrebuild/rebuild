@@ -22,6 +22,7 @@ import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataMasking;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.CommonsUtils;
@@ -40,8 +41,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Map;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 系统配置
@@ -146,7 +145,7 @@ public class ConfigurationController extends BaseController {
             return RespBody.ok();
 
         } catch (QiniuException ex) {
-            return RespBody.error($L("无效配置参数 : %s", ex.response.error));
+            return RespBody.error(Language.L("无效配置参数 : %s", ex.response.error));
         } catch (Exception ex) {
             return RespBody.error(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
@@ -192,7 +191,7 @@ public class ConfigurationController extends BaseController {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.SmsPassword);
             }
 
-            String content = $L("收到此消息说明你的短信服务配置正确");
+            String content = Language.L("收到此消息说明你的短信服务配置正确");
             sent = SMSender.sendSMS(receiver, content, specAccount);
 
         } else if ("EMAIL".equalsIgnoreCase(type)) {
@@ -209,7 +208,7 @@ public class ConfigurationController extends BaseController {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.MailPassword);
             }
 
-            String content = $L("收到此消息说明你的邮件服务配置正确");
+            String content = Language.L("收到此消息说明你的邮件服务配置正确");
             sent = SMSender.sendMail(receiver, content, content, true, specAccount);
         }
 

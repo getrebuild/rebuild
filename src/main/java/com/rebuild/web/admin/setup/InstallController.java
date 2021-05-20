@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.rbstore.RBStore;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AppUtils;
@@ -39,8 +40,6 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author devezhao
@@ -75,7 +74,7 @@ public class InstallController extends BaseController implements InstallState {
         Installer checker = new Installer(props);
         try (Connection conn = checker.getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
-            String okMsg = $L("连接成功 : %s",
+            String okMsg = Language.L("连接成功 : %s",
                     dmd.getDatabaseProductName() + " " + dmd.getDatabaseProductVersion());
 
             // 查询表
@@ -85,7 +84,7 @@ public class InstallController extends BaseController implements InstallState {
                     if (hasTable != null) {
                         // 挂载模式
                         if (checker.isRbDatabase()) {
-                            okMsg += $L("已发现 **%s** 为 REBUILD 数据库，系统将自动挂载", dbProps.getString("dbName"));
+                            okMsg += Language.L("已发现 **%s** 为 REBUILD 数据库，系统将自动挂载", dbProps.getString("dbName"));
                             okMsg = "1#" + okMsg;
                         } else {
                             return RespBody.errorl("非空数据库不可使用，请使用其他数据库");
@@ -99,7 +98,7 @@ public class InstallController extends BaseController implements InstallState {
 
         } catch (SQLException ex) {
             if (ex.getLocalizedMessage().contains("Unknown database")) {
-                String okMsg = $L("连接成功 : 数据库 **%s** 不存在，系统将自动创建", dbProps.getString("dbName"));
+                String okMsg = Language.L("连接成功 : 数据库 **%s** 不存在，系统将自动创建", dbProps.getString("dbName"));
                 return RespBody.ok(okMsg);
             } else {
                 return RespBody.errorl("连接错误 : %s", ex.getLocalizedMessage());
@@ -124,7 +123,7 @@ public class InstallController extends BaseController implements InstallState {
             }
             pool.destroy();
 
-            return RespBody.ok($L("连接成功 : %s", info));
+            return RespBody.ok(Language.L("连接成功 : %s", info));
 
         } catch (Exception ex) {
             return RespBody.errorl("连接错误 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());

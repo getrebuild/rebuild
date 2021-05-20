@@ -26,6 +26,7 @@ import com.rebuild.core.service.dataimport.DataFileParser;
 import com.rebuild.core.service.dataimport.DataImporter;
 import com.rebuild.core.service.dataimport.ImportRule;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -42,8 +43,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author devezhao
@@ -65,7 +64,7 @@ public class DataImportController extends BaseController {
         String file = getParameterNotNull(request, "file");
         File tmp = getFileOfImport(file);
         if (tmp == null) {
-            writeFailure(response, $L("数据文件无效"));
+            writeFailure(response, Language.L("数据文件无效"));
             return;
         }
 
@@ -77,7 +76,7 @@ public class DataImportController extends BaseController {
             preview = parser.parse(11);
         } catch (Exception ex) {
             log.error("Parse excel error : " + file, ex);
-            writeFailure(response, $L("无法解析数据，请检查数据文件格式"));
+            writeFailure(response, Language.L("无法解析数据，请检查数据文件格式"));
             return;
         }
 
@@ -136,13 +135,13 @@ public class DataImportController extends BaseController {
             String defaultValue = null;
             if (EntityHelper.CreatedOn.equals(fieldName)
                     || EntityHelper.ModifiedOn.equals(fieldName)) {
-                defaultValue = $L("当前时间");
+                defaultValue = Language.L("当前时间");
             } else if (EntityHelper.CreatedBy.equals(fieldName)
                     || EntityHelper.ModifiedBy.equals(fieldName)
                     || EntityHelper.OwningUser.equals(fieldName)) {
-                defaultValue = $L("当前用户");
+                defaultValue = Language.L("当前用户");
             } else if (easyMeta.getDisplayType() == DisplayType.SERIES) {
-                defaultValue = $L("自动编号");
+                defaultValue = Language.L("自动编号");
             }
 
             if (defaultValue != null) {

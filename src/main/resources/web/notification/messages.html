@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.$L('通知')}]]</title>
+    <title>[[${bundle.L('通知')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-offcanvas-menu">
@@ -13,12 +13,12 @@
           <div class="tab-container">
             <ul class="nav nav-tabs nav-tabs-classic notification-tab">
               <li class="nav-item">
-                <a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.$L('消息')}]]</a>
+                <a class="nav-link active" href="notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.L('消息')}]]</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="notifications/todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.$L('待办')}]]</a>
+                <a class="nav-link" href="notifications/todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.L('待办')}]]</a>
               </li>
-              <button class="btn btn-secondary read-all" type="button"><i class="zmdi zmdi-check-all icon"></i> [[${bundle.$L('已读全部')}]]</button>
+              <button class="btn btn-secondary read-all" type="button"><i class="zmdi zmdi-check-all icon"></i> [[${bundle.L('已读全部')}]]</button>
             </ul>
             <div class="tab-content">
               <div class="tab-pane active">
@@ -26,25 +26,25 @@
                   <div class="col-md-3 col-12">
                     <div class="list-group notification-type">
                       <a href="#unread" data-type="1" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.$L('未读消息')}]]</span>
+                        <span class="text">[[${bundle.L('未读消息')}]]</span>
                       </a>
                       <a href="#read" data-type="2" class="hide list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.$L('已读消息')}]]</span>
+                        <span class="text">[[${bundle.L('已读消息')}]]</span>
                       </a>
                       <a href="#feeds" data-type="30" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.$L('动态')}]]</span>
+                        <span class="text">[[${bundle.L('动态')}]]</span>
                       </a>
                       <a href="#project" data-type="40" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.$L('项目')}]]</span>
+                        <span class="text">[[${bundle.L('项目')}]]</span>
                       </a>
                       <a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.$L('审批')}]]</span>
+                        <span class="text">[[${bundle.L('审批')}]]</span>
                       </a>
                       <a href="#assigns" data-type="10" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.$L('分派&共享')}]]</span>
+                        <span class="text">[[${bundle.L('分派&共享')}]]</span>
                       </a>
                       <a href="#all" data-type="3" class="list-group-item d-flex list-group-item-action">
-                        <span class="text">[[${bundle.$L('全部消息')}]]</span>
+                        <span class="text">[[${bundle.L('全部消息')}]]</span>
                       </a>
                     </div>
                   </div>

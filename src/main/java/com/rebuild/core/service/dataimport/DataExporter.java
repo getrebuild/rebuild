@@ -23,16 +23,10 @@ import com.rebuild.core.support.general.DataListWrapper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 数据导出
@@ -162,13 +156,13 @@ public class DataExporter extends SetUser {
                 }
 
                 if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
-                    cellVal = $L("[无权限]");
+                    cellVal = Language.L("[无权限]");
 
                 } else if (dt == DisplayType.FILE
                         || dt == DisplayType.IMAGE
                         || dt == DisplayType.AVATAR
                         || dt == DisplayType.BARCODE) {
-                    cellVal = $L("[暂不支持]");
+                    cellVal = Language.L("[暂不支持]");
 
                 } else if (dt == DisplayType.DECIMAL || dt == DisplayType.NUMBER) {
                     cellVal = cellVal.toString().replace(",", "");  // 移除千分位

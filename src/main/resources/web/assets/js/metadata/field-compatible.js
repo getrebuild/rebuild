@@ -15,7 +15,6 @@ const FT_COMPATIBLE = {
   TEXT: ['*'],
   NTEXT: ['*'],
 }
-
 /**
  * 字段兼容判断
  * see backend `FieldValueCompatibleConversion.java`

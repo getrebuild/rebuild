@@ -19,14 +19,13 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 标准 Record 解析
@@ -109,7 +108,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
             if (!notAllowed.isEmpty()) {
                 throw new DataSpecificationException(
-                        $L("%s 不允许为空", StringUtils.join(notAllowed, " / ")));
+                        Language.L("%s 不允许为空", StringUtils.join(notAllowed, " / ")));
             }
         }
         // 更新
@@ -135,7 +134,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
             if (!notAllowed.isEmpty()) {
                 throw new DataSpecificationException(
-                        $L("%s 不允许修改", StringUtils.join(notAllowed, " / ")));
+                        Language.L("%s 不允许修改", StringUtils.join(notAllowed, " / ")));
             }
         }
     }

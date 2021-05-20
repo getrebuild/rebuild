@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.general.BulkContext;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
@@ -35,8 +36,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 批量修改
@@ -53,7 +52,7 @@ public class BatchUpdateController extends BaseController {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate),
-                $L("无操作权限"));
+                Language.L("无操作权限"));
 
         JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
 
@@ -118,10 +117,10 @@ public class BatchUpdateController extends BaseController {
             JSONArray options = new JSONArray();
             options.add(JSONUtils.toJSONObject(
                     new String[] { "id", "text" },
-                    new Object[] { true, $L("是") }));
+                    new Object[] { true, Language.L("是") }));
             options.add(JSONUtils.toJSONObject(
                     new String[] { "id", "text" },
-                    new Object[] { false, $L("否") }));
+                    new Object[] { false, Language.L("否") }));
             map.put("options", options);
 
         } else if (dt == DisplayType.NUMBER) {

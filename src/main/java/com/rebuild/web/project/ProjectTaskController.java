@@ -22,6 +22,7 @@ import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -39,8 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Set;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 任务
@@ -67,7 +66,7 @@ public class ProjectTaskController extends BaseController {
 
         final ID user = getRequestUser(request);
         if (!ProjectHelper.checkReadable(taskId2, user)) {
-            response.sendError(403, $L("你无权查看此任务"));
+            response.sendError(403, Language.L("你无权查看此任务"));
             return null;
         }
 
@@ -230,7 +229,7 @@ public class ProjectTaskController extends BaseController {
     public JSON relatedTaskList(@IdParam(name = "related", required = false) ID relatedId,
                                 @IdParam(name = "task", required = false) ID taskId,
                                 HttpServletRequest request) {
-        Assert.isTrue(relatedId != null || taskId != null, $L("无效请求参数"));
+        Assert.isTrue(relatedId != null || taskId != null, Language.L("无效请求参数"));
         String queryWhere = String.format("relatedRecord = '%s'", relatedId);
 
         // 关键词搜索

@@ -20,6 +20,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.BlockList;
 import com.rebuild.web.BaseController;
@@ -37,8 +38,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.io.IOException;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * 用户自助注册
  *
@@ -53,7 +52,7 @@ public class SignUpController extends BaseController {
     @GetMapping("signup")
     public ModelAndView pageSignup(HttpServletResponse response) throws IOException {
         if (!RebuildConfiguration.getBool(ConfigurationItem.OpenSignUp)) {
-            response.sendError(400, $L("管理员未开放公开注册"));
+            response.sendError(400, Language.L("管理员未开放公开注册"));
             return null;
         }
         return createModelAndView("/signup/signup");
@@ -74,8 +73,8 @@ public class SignUpController extends BaseController {
         }
 
         String vcode = VerfiyCode.generate(email, 1);
-        String title = $L("注册验证码");
-        String content = $L("你的注册验证码是 : **%s**", vcode);
+        String title = Language.L("注册验证码");
+        String content = Language.L("你的注册验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, title, content);
 
 
@@ -113,8 +112,8 @@ public class SignUpController extends BaseController {
 
             // 通知用户
             String homeUrl = RebuildConfiguration.getHomeUrl();
-            String title = $L("管理员正在审核你的注册信息");
-            String content = $L(
+            String title = Language.L("管理员正在审核你的注册信息");
+            String content = Language.L(
                     "%s 欢迎注册！以下是你的注册信息，请妥善保管。 [][] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 目前你还无法登录系统，因为系统管理员正在审核你的注册信息。完成后会通过邮件通知你，请耐心等待。",
                     fullName, loginName, passwd, homeUrl, homeUrl);
             SMSender.sendMail(email, title, content);

@@ -20,6 +20,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.HttpUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -33,8 +34,6 @@ import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * SUBMAIL SMS/MAIL 发送
@@ -87,7 +86,7 @@ public class SMSender {
         if (specAccount == null || specAccount.length < 4
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
-            throw new ConfigurationException($L("邮件账户未配置或配置错误"));
+            throw new ConfigurationException(Language.L("邮件账户未配置或配置错误"));
         }
 
         // 使用邮件模板
@@ -241,7 +240,7 @@ public class SMSender {
         if (specAccount == null || specAccount.length < 3
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2])) {
-            throw new ConfigurationException($L("短信账户未配置或配置错误"));
+            throw new ConfigurationException(Language.L("短信账户未配置或配置错误"));
         }
 
         Map<String, Object> params = new HashMap<>();

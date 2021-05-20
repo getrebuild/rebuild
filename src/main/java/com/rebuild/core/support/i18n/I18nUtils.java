@@ -32,9 +32,9 @@ public class I18nUtils {
      * @param key
      * @param placeholders
      * @return
-     * @see Language#$L(String, Object...)
+     * @see Language#L(String, Object...)
      */
-    public static String $L(String key, Object... placeholders) {
-        return Language.$L(key, placeholders);
+    public static String L(String key, Object... placeholders) {
+        return Language.L(key, placeholders);
     }
 }

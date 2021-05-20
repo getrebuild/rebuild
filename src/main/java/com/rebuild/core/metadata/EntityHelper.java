@@ -20,8 +20,6 @@ import org.springframework.util.Assert;
 
 import java.util.Date;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * @author Zhao Fangfang
  * @see MetadataHelper
@@ -37,14 +35,16 @@ public class EntityHelper {
     public static Record parse(JSONObject data, ID user) {
         JSONObject metadata = data.getJSONObject(EntityRecordCreator.META_FIELD);
         if (metadata == null) {
-            throw new FieldValueException($L("无效实体数据格式 : %s", data.toJSONString()));
+            throw new FieldValueException(
+                    com.rebuild.core.support.i18n.Language.L("无效实体数据格式 : %s", data.toJSONString()));
         }
 
         String entityName = metadata.getString("entity");
         if (StringUtils.isBlank(entityName)) {
             String id = metadata.getString("id");
             if (!ID.isId(id)) {
-                throw new FieldValueException($L("无效实体数据格式 : %s", data.toJSONString()));
+                throw new FieldValueException(
+                        com.rebuild.core.support.i18n.Language.L("无效实体数据格式 : %s", data.toJSONString()));
             }
             entityName = MetadataHelper.getEntityName(ID.valueOf(id));
         }

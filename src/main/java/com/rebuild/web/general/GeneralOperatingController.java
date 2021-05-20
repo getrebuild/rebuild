@@ -32,6 +32,7 @@ import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -47,8 +48,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.sql.DataTruncation;
 import java.util.*;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 业务实体操作（增/改/删/分派/共享）
@@ -89,7 +88,7 @@ public class GeneralOperatingController extends BaseController {
         // 检查重复值
         List<Record> repeated = ies.getAndCheckRepeated(record, 100);
         if (!repeated.isEmpty()) {
-            return new RespBody(CODE_REPEATED_VALUES, $L("存在重复记录"), buildRepeatedData(repeated));
+            return new RespBody(CODE_REPEATED_VALUES, Language.L("存在重复记录"), buildRepeatedData(repeated));
         }
 
         try {
@@ -379,7 +378,7 @@ public class GeneralOperatingController extends BaseController {
                 sameEntityCode = id0.getEntityCode();
             }
             if (sameEntityCode != id0.getEntityCode()) {
-                throw new InvalidParameterException($L("只能批量处理同一实体的记录"));
+                throw new InvalidParameterException(Language.L("只能批量处理同一实体的记录"));
             }
             idList.add(ID.valueOf(id));
         }

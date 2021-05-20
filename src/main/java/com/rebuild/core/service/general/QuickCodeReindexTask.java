@@ -134,7 +134,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
             nameValue = PickListManager.instance.getLabel((ID) nameValue);
         } else if (dt == DisplayType.STATE) {
             StateSpec state = StateManager.instance.findState(nameField, nameValue);
-            nameValue = Language.$L(state);
+            nameValue = Language.L(state);
         } else if (dt == DisplayType.CLASSIFICATION) {
             nameValue = ClassificationManager.instance.getFullName((ID) nameValue);
         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {

@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.CommonsService;
 import com.rebuild.core.service.general.BulkContext;
 import com.rebuild.core.service.general.EntityService;
+import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -30,8 +31,6 @@ import org.springframework.util.Assert;
 import java.lang.reflect.Method;
 import java.security.Guard;
 import java.util.Objects;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 权限验证 - 拦截所有 *Service 方法
@@ -63,7 +62,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         Class<?> invocationClass = Objects.requireNonNull(invocation.getThis()).getClass();
         // 验证管理员操作
         if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
-            throw new AccessDeniedException($L("权限不足，访问被阻止"));
+            throw new AccessDeniedException(Language.L("权限不足，访问被阻止"));
         }
         // 仅 EntityService 或子类会验证角色权限
         if (!EntityService.class.isAssignableFrom(invocationClass)) {
@@ -116,7 +115,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
                 ID mainid = ((Record) idOrRecord).getID(dtmField.getName());
                 if (mainid == null || !Application.getPrivilegesManager().allowUpdate(caller, mainid)) {
-                    throw new AccessDeniedException($L("你没有添加明细权限"));
+                    throw new AccessDeniedException(Language.L("你没有添加明细权限"));
                 }
                 allowed = true;
 
@@ -196,23 +195,23 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
     private String formatHumanMessage(Permission action, Entity entity, ID target) {
         String actionHuman = null;
         if (action == BizzPermission.CREATE) {
-            actionHuman = $L("新建");
+            actionHuman = Language.L("新建");
         } else if (action == BizzPermission.DELETE) {
-            actionHuman = $L("删除");
+            actionHuman = Language.L("删除");
         } else if (action == BizzPermission.UPDATE) {
-            actionHuman = $L("编辑");
+            actionHuman = Language.L("编辑");
         } else if (action == BizzPermission.ASSIGN) {
-            actionHuman = $L("分派");
+            actionHuman = Language.L("分派");
         } else if (action == BizzPermission.SHARE) {
-            actionHuman = $L("共享");
+            actionHuman = Language.L("共享");
         } else if (action == EntityService.UNSHARE) {
-            actionHuman = $L("取消共享");
+            actionHuman = Language.L("取消共享");
         }
 
         if (target == null) {
-            return $L("你没有%s%s权限", actionHuman, EasyMetaFactory.getLabel(entity));
+            return Language.L("你没有%s%s权限", actionHuman, EasyMetaFactory.getLabel(entity));
         } else {
-            return $L("你没有%s此记录的权限", actionHuman);
+            return Language.L("你没有%s此记录的权限", actionHuman);
         }
     }
 }

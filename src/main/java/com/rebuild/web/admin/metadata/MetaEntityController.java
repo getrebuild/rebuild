@@ -25,6 +25,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaSchemaGenerator;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -44,8 +45,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author zhaofang123@gmail.com
@@ -136,16 +135,16 @@ public class MetaEntityController extends BaseController {
         String mainEntity = reqJson.getString("mainEntity");
         if (StringUtils.isNotBlank(mainEntity)) {
             if (!MetadataHelper.containsEntity(mainEntity)) {
-                writeFailure(response, $L("无效主实体 : %s", mainEntity));
+                writeFailure(response, Language.L("无效主实体 : %s", mainEntity));
                 return;
             }
 
             Entity useMain = MetadataHelper.getEntity(mainEntity);
             if (useMain.getMainEntity() != null) {
-                writeFailure(response, $L("明细实体不能作为主实体"));
+                writeFailure(response, Language.L("明细实体不能作为主实体"));
                 return;
             } else if (useMain.getDetailEntity() != null) {
-                writeFailure(response, $L("选择的主实体已被 [%s] 使用", useMain.getDetailEntity()));
+                writeFailure(response, Language.L("选择的主实体已被 [%s] 使用", useMain.getDetailEntity()));
                 return;
             }
         }

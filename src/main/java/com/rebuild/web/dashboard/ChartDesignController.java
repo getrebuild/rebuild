@@ -29,6 +29,7 @@ import com.rebuild.core.service.dashboard.ChartConfigService;
 import com.rebuild.core.service.dashboard.DashboardConfigService;
 import com.rebuild.core.service.dashboard.charts.ChartData;
 import com.rebuild.core.service.dashboard.charts.ChartsFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.EntityController;
@@ -47,8 +48,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * @author devezhao
  * @since 12/09/2018
@@ -64,7 +63,7 @@ public class ChartDesignController extends EntityController {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomChart),
-                $L("无操作权限"));
+                Language.L("无操作权限"));
 
         ModelAndView mv = createModelAndView("/dashboard/chart-design");
 
@@ -74,11 +73,11 @@ public class ChartDesignController extends EntityController {
                     .setParameter(1, chartId)
                     .unique();
             if (chart == null) {
-                response.sendError(404, $L("未知图表"));
+                response.sendError(404, Language.L("未知图表"));
                 return null;
             }
             if (!UserHelper.isAdmin(user) && !user.equals(chart[3])) {
-                response.sendError(403, $L("无权操作他人图表"));
+                response.sendError(403, Language.L("无权操作他人图表"));
                 return null;
             }
 
@@ -93,11 +92,11 @@ public class ChartDesignController extends EntityController {
             mv.getModel().put("chartOwningAdmin", UserHelper.isAdmin(user));
 
         } else {
-            throw new InvalidParameterException($L("无效请求参数"));
+            throw new InvalidParameterException(Language.L("无效请求参数"));
         }
 
         if (!Application.getPrivilegesManager().allowRead(getRequestUser(request), entity.getEntityCode())) {
-            response.sendError(403, $L("没有读取 %s 的权限", EasyMetaFactory.getLabel(entity)));
+            response.sendError(403, Language.L("没有读取 %s 的权限", EasyMetaFactory.getLabel(entity)));
             return null;
         }
 

@@ -27,6 +27,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.*;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
@@ -47,8 +48,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author zhaofang123@gmail.com
@@ -280,8 +279,8 @@ public class LoginController extends BaseController {
         }
 
         String vcode = VerfiyCode.generate(email, 2);
-        String subject = $L("重置密码");
-        String content = $L("你的重置密码验证码是 : **%s**", vcode);
+        String subject = Language.L("重置密码");
+        String content = Language.L("你的重置密码验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, subject, content);
 
         if (sentid != null) {

@@ -892,7 +892,6 @@ const DEFAULT_MDE_TOOLBAR = [
     title: $L('编辑器帮助'),
   },
 ]
-
 /**
  * JSX 组件渲染
  *

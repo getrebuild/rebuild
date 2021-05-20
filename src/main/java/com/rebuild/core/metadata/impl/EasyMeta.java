@@ -19,13 +19,12 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.trigger.RobotTriggerManager;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
 
 import java.util.Set;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 元数据（Entity/Field）封装
@@ -161,7 +160,7 @@ public class EasyMeta implements BaseMeta {
         if (isField() && ((Field) baseMeta).getType() == FieldType.PRIMARY) {
             return "ID";
         }
-        return $L(this.baseMeta);
+        return Language.L(this.baseMeta);
     }
 
     /**
@@ -184,7 +183,7 @@ public class EasyMeta implements BaseMeta {
         if (getMetaId() != null) {
             return comments;
         }
-        return StringUtils.defaultIfBlank(comments, $L("系统内置"));
+        return StringUtils.defaultIfBlank(comments, Language.L("系统内置"));
     }
 
     @Override

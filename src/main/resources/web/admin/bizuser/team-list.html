@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/users#%E5%9B%A2%E9%98%9F" />
-    <title>[[${bundle.$L('管理团队')}]]</title>
+    <title>[[${bundle.L('管理团队')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -18,7 +18,7 @@
                   <div class="col-12 col-lg-6">
                     <div class="dataTables_filter">
                       <div class="input-group input-search">
-                        <input class="form-control" type="text" th:placeholder="${bundle.$L('查询')}" maxlength="40" />
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" maxlength="40" />
                         <span class="input-group-btn">
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
@@ -27,12 +27,12 @@
                   </div>
                   <div class="col-12 col-lg-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.$L('打开')}]]</button>
-                      <button class="btn btn-primary btn-space J_new" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.$L('新建团队')}]]</button>
+                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('打开')}]]</button>
+                      <button class="btn btn-primary btn-space J_new" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建团队')}]]</button>
                       <div class="btn-group btn-space">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.$L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
                         <div class="dropdown-menu dropdown-menu-right">
-                          <a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.$L('列显示')}]]</a>
+                          <a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>
                     </div>

@@ -69,7 +69,7 @@ public class StateManager {
             StateSpec ss = (StateSpec) c;
             JSONObject item = JSONUtils.toJSONObject(
                     new String[]{"id", "text", "default"},
-                    new Object[]{ss.getState(), Language.$L(ss), ss.isDefault()});
+                    new Object[]{ss.getState(), Language.L(ss), ss.isDefault()});
             options.add(item);
         }
 

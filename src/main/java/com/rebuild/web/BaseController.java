@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.Controller;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -19,8 +20,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Map;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * Root Controller
@@ -38,7 +37,7 @@ public abstract class BaseController extends Controller {
     protected ID getRequestUser(HttpServletRequest request) {
         ID user = AppUtils.getRequestUser(request);
         if (user == null) {
-            throw new InvalidParameterException($L("无效请求用户"));
+            throw new InvalidParameterException(Language.L("无效请求用户"));
         }
         return user;
     }
@@ -119,7 +118,7 @@ public abstract class BaseController extends Controller {
     protected String getParameterNotNull(HttpServletRequest request, String name) {
         String v = request.getParameter(name);
         if (StringUtils.isEmpty(v)) {
-            throw new InvalidParameterException($L("无效请求参数 (%s=%s)", name, v));
+            throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", name, v));
         }
         return v;
     }
@@ -190,7 +189,7 @@ public abstract class BaseController extends Controller {
     protected ID getIdParameterNotNull(HttpServletRequest request, String name) {
         String v = request.getParameter(name);
         if (ID.isId(v)) return ID.valueOf(v);
-        throw new InvalidParameterException($L("无效请求参数 (%s=%s)", name, v));
+        throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", name, v));
     }
 
     /**

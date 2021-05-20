@@ -153,7 +153,7 @@ public class DashboardController extends BaseController {
             for (BuiltinChart b : ChartsFactory.getBuiltinCharts()) {
                 charts.add(JSONUtils.toJSONObject(
                         new String[] { "id", "title", "type", "entityLabel" },
-                        new Object[] { b.getChartId(), b.getChartTitle(), b.getChartType(), Language.$L("内置") }));
+                        new Object[] { b.getChartId(), b.getChartTitle(), b.getChartType(), Language.L("内置") }));
             }
         }
 

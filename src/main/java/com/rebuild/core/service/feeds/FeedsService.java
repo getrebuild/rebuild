@@ -39,7 +39,7 @@ public class FeedsService extends BaseFeedsService {
         Integer type = record.getInt("type");
         if (type != null && type == FeedsType.ANNOUNCEMENT.getMask()
                 && !UserHelper.isAdmin(UserContextHolder.getUser())) {
-            throw new OperationDeniedException(Language.$L("仅管理员可发布公告"));
+            throw new OperationDeniedException(Language.L("仅管理员可发布公告"));
         }
 
         return super.createOrUpdate(record);

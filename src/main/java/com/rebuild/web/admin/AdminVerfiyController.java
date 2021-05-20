@@ -16,6 +16,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.CheckDangers;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,8 +28,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * @author devezhao
@@ -49,7 +48,7 @@ public class AdminVerfiyController extends BaseController {
         if (admin.isAdmin()) {
             return createModelAndView("/admin/admin-verify");
         } else {
-            response.sendError(403, $L("非管理员用户"));
+            response.sendError(403, Language.L("非管理员用户"));
             return null;
         }
     }

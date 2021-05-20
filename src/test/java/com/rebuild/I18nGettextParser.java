@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * 多语言提取
  * 1 .java 文件提取 `$L(xxx, [args])` `errorl(xxx)` 注意不要换行
  * 2 .js 提取 `$L(xxx, [args])`
- * 3 .html 提取 `bundle.$L(xxx, [args])`
+ * 3 .html 提取 `bundle.L(xxx, [args])`
  *
  * @author devezhao
  * @since 2021/5/14
@@ -61,9 +61,10 @@ public class I18nGettextParser {
         String fileName = fileOrDir.getName();
         if (fileOrDir.isFile()) {
             if (fileName.endsWith(".js")) {
-                into.addAll(parseStatic(fileOrDir));
+                into.addAll(parseJs(fileOrDir));
             } else if (fileName.endsWith(".html")) {
-                into.addAll(parseStatic(fileOrDir));
+                into.addAll(parseJs(fileOrDir));
+                into.addAll(parseHtml(fileOrDir));
             } else if (fileName.endsWith(".java")) {
                 into.addAll(parseJava(fileOrDir));
             }
@@ -80,15 +81,20 @@ public class I18nGettextParser {
         }
     }
 
-    static List<String> parseStatic(File file) throws IOException {
+    static List<String> parseJs(File file) throws IOException {
         Pattern pattern = Pattern.compile("\\$L\\('(.*?)'[,)]");
         return parseWithPattern(file, pattern);
     }
 
+    static List<String> parseHtml(File file) throws IOException {
+        Pattern pattern = Pattern.compile("bundle\\.L\\('(.*?)'[,)]");
+        return parseWithPattern(file, pattern);
+    }
+
     static List<String> parseJava(File file) throws IOException {
-        Pattern pattern = Pattern.compile("\\$L\\(\"(.*?)\"[,)]");
+        Pattern pattern = Pattern.compile("\\.L\\(\"(.*?)\"[,)]");
         List<String> list = new ArrayList<>(parseWithPattern(file, pattern));
-        pattern = Pattern.compile("errorl\\(\"(.*?)\"[,)]");
+        pattern = Pattern.compile("\\.errorl\\(\"(.*?)\"[,)]");
         list.addAll(parseWithPattern(file, pattern));
         return list;
     }

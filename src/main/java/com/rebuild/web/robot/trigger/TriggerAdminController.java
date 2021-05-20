@@ -33,8 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/23
@@ -69,7 +67,7 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("sourceEntity", sourceEntity.getName());
         mv.getModel().put("sourceEntityLabel", EasyMetaFactory.getLabel(sourceEntity));
         mv.getModel().put("actionType", actionType.name());
-        mv.getModel().put("actionTypeLabel", $L(actionType));
+        mv.getModel().put("actionTypeLabel", Language.L(actionType));
         mv.getModel().put("when", config[2]);
         mv.getModel().put("whenTimer", config[7] == null ? StringUtils.EMPTY : config[7]);
         mv.getModel().put("whenFilter", StringUtils.defaultIfBlank((String) config[3], JSONUtils.EMPTY_OBJECT_STR));
@@ -83,7 +81,7 @@ public class TriggerAdminController extends BaseController {
     public List<String[]> getAvailableActions() {
         List<String[]> alist = new ArrayList<>();
         for (ActionType t : ActionFactory.getAvailableActions()) {
-            alist.add(new String[] { t.name(), $L(t) });
+            alist.add(new String[] { t.name(), Language.L(t) });
         }
         return alist;
     }
@@ -112,7 +110,7 @@ public class TriggerAdminController extends BaseController {
 
         Object[][] array = ReportTemplateController.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : array) {
-            o[7] = $L(ActionType.valueOf((String) o[7]));
+            o[7] = Language.L(ActionType.valueOf((String) o[7]));
         }
         return array;
     }

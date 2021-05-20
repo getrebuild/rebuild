@@ -22,6 +22,7 @@ import com.rebuild.core.configuration.general.ViewAddonsManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashSet;
 import java.util.Set;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 视图-相关项显示
@@ -95,9 +94,9 @@ public class ViewAddonsController extends BaseController {
         }
 
         // 跟进（动态）
-        refs.add(new String[] { "Feeds.relatedRecord", $L("动态") });
+        refs.add(new String[] { "Feeds.relatedRecord", Language.L("动态") });
         // 任务（项目）
-        refs.add(new String[] { "ProjectTask.relatedRecord", $L("任务") });
+        refs.add(new String[] { "ProjectTask.relatedRecord", Language.L("任务") });
 
         return JSONUtils.toJSONObject(
                 new String[] { "config", "refs" },

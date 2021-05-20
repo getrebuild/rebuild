@@ -4,10 +4,10 @@
     <th:block th:replace="~{/_include/header}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%BC%95%E7%94%A8%E5%AD%97%E6%AE%B5%E7%9A%84%E6%9B%B4%E5%A4%9A%E8%AF%B4%E6%98%8E" />
-    <title>[[${bundle.$L('表单回填')}]]</title>
+    <title>[[${bundle.L('表单回填')}]]</title>
     <style type="text/css">
       .dataTables_wrapper .rb-datatable-header {
-        position: static;
+        position: static
       }
       span.badge {
         font-size: 1rem;
@@ -45,22 +45,22 @@
               </div>
               <div class="aside-nav collapse">
                 <ul class="nav">
-                  <li><a href="../../base">[[${bundle.$L('基本信息')}]]</a></li>
-                  <li><a href="../../form-design">[[${bundle.$L('表单设计')}]]</a></li>
-                  <li class="active"><a href="../../fields">[[${bundle.$L('字段管理')}]]</a></li>
-                  <li><a href="../../advanced">[[${bundle.$L('高级配置')}]]</a></li>
+                  <li><a href="../../base">[[${bundle.L('基本信息')}]]</a></li>
+                  <li><a href="../../form-design">[[${bundle.L('表单设计')}]]</a></li>
+                  <li class="active"><a href="../../fields">[[${bundle.L('字段管理')}]]</a></li>
+                  <li><a href="../../advanced">[[${bundle.L('高级配置')}]]</a></li>
                 </ul>
               </div>
             </div>
           </div>
         </aside>
         <div class="page-head">
-          <div class="page-head-title">[[${bundle.$L('表单回填')}]]</div>
+          <div class="page-head-title">[[${bundle.L('表单回填')}]]</div>
         </div>
         <div class="main-content container-fluid pt-1">
           <ul class="nav nav-tabs nav-tabs-classic">
-            <li class="nav-item"><a th:href="|../${fieldName}|" class="nav-link">[[${bundle.$L('字段信息')}]]</a></li>
-            <li class="nav-item"><a href="./auto-fillin" class="nav-link active">[[${bundle.$L('表单回填')}]]</a></li>
+            <li class="nav-item"><a th:href="|../${fieldName}|" class="nav-link">[[${bundle.L('字段信息')}]]</a></li>
+            <li class="nav-item"><a href="./auto-fillin" class="nav-link active">[[${bundle.L('表单回填')}]]</a></li>
           </ul>
           <div class="card">
             <div class="card-body">
@@ -73,7 +73,7 @@
                   </div>
                   <div class="col-sm-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-primary J_add-rule"><i class="icon zmdi zmdi-plus"></i> [[${bundle.$L('添加')}]]</button>
+                      <button class="btn btn-primary J_add-rule"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
                     </div>
                   </div>
                 </div>
@@ -83,9 +83,9 @@
                       <table class="table table-hover table-striped table-fixed" id="dataList">
                         <thead>
                           <tr>
-                            <th>[[${bundle.$L('目标字段')}]]</th>
-                            <th>[[${bundle.$L('源字段')}]]</th>
-                            <th width="35%">[[${bundle.$L('回填规则')}]]</th>
+                            <th>[[${bundle.L('目标字段')}]]</th>
+                            <th>[[${bundle.L('源字段')}]]</th>
+                            <th width="35%">[[${bundle.L('回填规则')}]]</th>
                             <th width="100"></th>
                           </tr>
                         </thead>
@@ -94,7 +94,7 @@
                       <th:block th:replace="~{/_include/spinner}" />
                       <div class="list-nodata hide">
                         <span class="zmdi zmdi-info-outline"></span>
-                        <p>[[${bundle.$L('暂无表单回填')}]]</p>
+                        <p>[[${bundle.L('暂无表单回填')}]]</p>
                       </div>
                     </div>
                   </div>
@@ -102,7 +102,7 @@
               </div>
             </div>
           </div>
-          <p class="protips" th:utext="${bundle.$L('通过 [触发器 (自动更新)](/admin/robot/triggers) 可以实现更加强大的回填规则')}"></p>
+          <p class="protips" th:utext="${bundle.L('通过 [触发器 (自动更新)](/admin/robot/triggers) 可以实现更加强大的回填规则')}"></p>
         </div>
       </div>
     </div>

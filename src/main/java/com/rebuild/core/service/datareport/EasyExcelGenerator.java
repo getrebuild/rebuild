@@ -29,8 +29,6 @@ import org.springframework.util.Assert;
 import java.io.File;
 import java.util.*;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * 报表生成 easyexcel
  * https://alibaba-easyexcel.github.io/quickstart/fill.html
@@ -180,8 +178,8 @@ public class EasyExcelGenerator extends SetUser {
     protected Map<String, Object> buildData(Record record, Map<String, String> varsMap, boolean isDetail) {
         final Entity entity = record.getEntity();
 
-        final String badFieldTip = $L("[无效字段]");
-        final String unsupportFieldTip = $L("[暂不支持]");
+        final String badFieldTip = Language.L("[无效字段]");
+        final String unsupportFieldTip = Language.L("[暂不支持]");
 
         final Map<String, Object> data = new HashMap<>();
         // 无效字段填充

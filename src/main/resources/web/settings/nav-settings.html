@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.$L('导航菜单')}]]</title>
+    <title>[[${bundle.L('导航菜单')}]]</title>
     <style type="text/css">
       .dd3-content > .zmdi {
         position: absolute;
@@ -46,46 +46,46 @@
             <ol class="dd-list J_config"></ol>
           </div>
           <div class="actions">
-            <button type="button" class="btn btn-secondary btn-sm J_add-menu">+ [[${bundle.$L('添加菜单项')}]]</button>
+            <button type="button" class="btn btn-secondary btn-sm J_add-menu">+ [[${bundle.L('添加菜单项')}]]</button>
           </div>
         </div>
         <div class="col-7 mt-2 pl-6">
-          <div class="text-muted J_edit-tips">[[${bundle.$L('点击左侧菜单项进行编辑')}]]</div>
+          <div class="text-muted J_edit-tips">[[${bundle.L('点击左侧菜单项进行编辑')}]]</div>
           <div class="J_edit-menu hide" style="margin-top: -6px">
             <div class="tab-container">
               <ul class="nav nav-tabs">
-                <li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">[[${bundle.$L('关联项')}]]</a></li>
-                <li class="nav-item"><a class="nav-link J_menuType" href="#URL" data-toggle="tab">[[${bundle.$L('外部地址')}]]</a></li>
+                <li class="nav-item"><a class="nav-link J_menuType active" href="#ENTITY" data-toggle="tab">[[${bundle.L('关联项')}]]</a></li>
+                <li class="nav-item"><a class="nav-link J_menuType" href="#URL" data-toggle="tab">[[${bundle.L('外部地址')}]]</a></li>
               </ul>
               <div class="tab-content m-0 p-0 pt-3 pb-3">
                 <div class="tab-pane active" id="ENTITY">
                   <select class="form-control form-control-sm J_menuEntity">
-                    <option value="">[[${bundle.$L('选择关联项')}]]</option>
-                    <optgroup th:label="${bundle.$L('业务实体')}">
+                    <option value="">[[${bundle.L('选择关联项')}]]</option>
+                    <optgroup th:label="${bundle.L('业务实体')}">
                       <!-- Biz entities -->
                     </optgroup>
-                    <optgroup th:label="${bundle.$L('系统内置')}">
-                      <option value="$FILEMRG$" data-icon="folder">[[${bundle.$L('文件')}]]</option>
-                      <option value="$FEEDS$" data-icon="chart-donut">[[${bundle.$L('动态')}]]</option>
-                      <option value="$PROJECT$" data-icon="shape">[[${bundle.$L('项目')}]]</option>
-                      <option value="$PARENT$" data-icon="menu">[[${bundle.$L('父级菜单')}]]</option>
+                    <optgroup th:label="${bundle.L('系统内置')}">
+                      <option value="$FILEMRG$" data-icon="folder">[[${bundle.L('文件')}]]</option>
+                      <option value="$FEEDS$" data-icon="chart-donut">[[${bundle.L('动态')}]]</option>
+                      <option value="$PROJECT$" data-icon="shape">[[${bundle.L('项目')}]]</option>
+                      <option value="$PARENT$" data-icon="menu">[[${bundle.L('父级菜单')}]]</option>
                     </optgroup>
                   </select>
                 </div>
                 <div class="tab-pane" id="URL">
-                  <input type="text" class="form-control form-control-sm J_menuUrl" th:placeholder="${bundle.$L('输入外部地址')}" />
-                  <div class="form-text">[[${bundle.$L('支持绝对地址或相对地址')}]]</div>
+                  <input type="text" class="form-control form-control-sm J_menuUrl" th:placeholder="${bundle.L('输入外部地址')}" />
+                  <div class="form-text">[[${bundle.L('支持绝对地址或相对地址')}]]</div>
                 </div>
               </div>
             </div>
             <div class="input-group mb-3">
               <span class="input-group-prepend">
-                <span class="input-group-text J_menuIcon" th:title="${bundle.$L('选择图标')}"><i class="zmdi zmdi-texture"></i></span>
+                <span class="input-group-text J_menuIcon" th:title="${bundle.L('选择图标')}"><i class="zmdi zmdi-texture"></i></span>
               </span>
-              <input type="text" class="form-control form-control-sm J_menuName" th:placeholder="${bundle.$L('菜单名称')}" />
+              <input type="text" class="form-control form-control-sm J_menuName" th:placeholder="${bundle.L('菜单名称')}" />
             </div>
             <div>
-              <button type="button" class="btn btn-primary btn-outline J_menuConfirm">[[${bundle.$L('确定')}]]</button>
+              <button type="button" class="btn btn-primary btn-outline J_menuConfirm">[[${bundle.L('确定')}]]</button>
             </div>
           </div>
         </div>
@@ -94,8 +94,8 @@
         <div class="float-left">
           <div id="shareTo" class="shareTo--wrap"></div>
         </div>
-        <button class="btn btn-primary J_save" type="button">[[${bundle.$L('保存')}]]</button>
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide('/p/settings/nav-settings')" type="button">[[${bundle.$L('取消')}]]</button>
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide('/p/settings/nav-settings')" type="button">[[${bundle.L('取消')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />

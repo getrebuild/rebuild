@@ -14,9 +14,8 @@ import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 项目/任务面板
@@ -56,7 +55,7 @@ public class ProjectPlanConfigService extends BaseConfigurationService implement
                 .setParameter(1, planId)
                 .unique();
         if ((Long) count[0] > 0) {
-            throw new DataSpecificationException($L("任务面板下有 %d 个任务，不能删除", count[0]));
+            throw new DataSpecificationException(Language.L("任务面板下有 %d 个任务，不能删除", count[0]));
         }
         return super.delete(planId);
     }

@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/cropper.min.css}" />
-    <title>[[${bundle.$L('个人设置')}]]</title>
+    <title>[[${bundle.L('个人设置')}]]</title>
     <style type="text/css">
       .avatar-wrap {
         height: 256px;
@@ -77,9 +77,9 @@
             <div class="card-body">
               <div class="tab-container">
                 <ul class="nav nav-tabs">
-                  <li class="nav-item"><a class="nav-link active" href="#base" data-toggle="tab">[[${bundle.$L('个人信息')}]]</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#secure" data-toggle="tab">[[${bundle.$L('安全设置')}]]</a></li>
-                  <li class="nav-item"><a class="nav-link" href="#logs" data-toggle="tab">[[${bundle.$L('登录日志')}]]</a></li>
+                  <li class="nav-item"><a class="nav-link active" href="#base" data-toggle="tab">[[${bundle.L('个人信息')}]]</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#secure" data-toggle="tab">[[${bundle.L('安全设置')}]]</a></li>
+                  <li class="nav-item"><a class="nav-link" href="#logs" data-toggle="tab">[[${bundle.L('登录日志')}]]</a></li>
                 </ul>
                 <div class="tab-content m-0">
                   <div class="tab-pane active" id="base">
@@ -90,7 +90,7 @@
                             <img id="avatar-img" th:src="|${baseUrl}/account/user-avatar?w=200&${session.davatarTime}|" alt="Avatar" />
                             <label>
                               <i class="zmdi zmdi-camera"></i>
-                              <br />[[${bundle.$L('修改头像')}]]
+                              <br />[[${bundle.L('修改头像')}]]
                               <input type="file" id="avatar-input" accept="image/*" data-local="temp" data-maxsize="10000000" />
                             </label>
                           </div>
@@ -99,42 +99,42 @@
                       <div class="col-md-8 col-12">
                         <form>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.$L('用户名')}]]</label>
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('用户名')}]]</label>
                             <div class="col-sm-8">
                               <div class="form-control-plaintext" th:text="${user.getName()}"></div>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.$L('所属部门')}]]</label>
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('所属部门')}]]</label>
                             <div class="col-sm-8">
                               <div class="form-control-plaintext" th:text="${user.getOwningBizUnit().getName()}"></div>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.$L('加入团队')}]]</label>
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('加入团队')}]]</label>
                             <div class="col-sm-8">
                               <div class="form-control-plaintext split-span">
                                 <th:block th:each="team : ${user.getOwningTeams()}">
                                   <span th:text="${team.getName()}"></span>
                                 </th:block>
-                                <em class="text-muted" th:if="${user.getOwningTeams().isEmpty()}">[[${bundle.$L('你未加入任何团队')}]]</em>
+                                <em class="text-muted" th:if="${user.getOwningTeams().isEmpty()}">[[${bundle.L('你未加入任何团队')}]]</em>
                               </div>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.$L('姓名')}]]</label>
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('姓名')}]]</label>
                             <div class="col-sm-8">
                               <input class="form-control form-control-sm" type="text" id="fullName" th:value="${user.getFullName()}" th:data-o="${user.getFullName()}" />
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.$L('工作电话')}]]</label>
+                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('工作电话')}]]</label>
                             <div class="col-sm-8">
                               <input
                                 class="form-control form-control-sm"
                                 type="text"
                                 id="workphone"
-                                th:placeholder="${bundle.$L('无')}"
+                                th:placeholder="${bundle.L('无')}"
                                 th:value="${user.getWorkphone()}"
                                 th:data-o="${user.getWorkphone()}"
                               />
@@ -142,7 +142,7 @@
                           </div>
                           <div class="form-group row border-none mt-3">
                             <div class="col-sm-8 offset-sm-4">
-                              <button class="btn btn-primary J_save" type="button">[[${bundle.$L('确定')}]]</button>
+                              <button class="btn btn-primary J_save" type="button">[[${bundle.L('确定')}]]</button>
                             </div>
                           </div>
                         </form>
@@ -152,21 +152,21 @@
                   <div class="tab-pane" id="secure">
                     <form>
                       <div class="form-group row">
-                        <label class="col-sm-2 col-form-label text-left">[[${bundle.$L('修改邮箱')}]]</label>
+                        <label class="col-sm-2 col-form-label text-left">[[${bundle.L('修改邮箱')}]]</label>
                         <div class="col-sm-7 pl-0">
-                          <div class="form-control-plaintext text-muted J_email-account" th:text="${user.getEmail() ?: bundle.$L('邮箱未设置')}"></div>
+                          <div class="form-control-plaintext text-muted J_email-account" th:text="${user.getEmail() ?: bundle.L('邮箱未设置')}"></div>
                         </div>
                         <div class="col-sm-3 text-right">
-                          <button class="btn btn-primary btn-outline J_email" type="button">[[${bundle.$L('修改')}]]</button>
+                          <button class="btn btn-primary btn-outline J_email" type="button">[[${bundle.L('修改')}]]</button>
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label class="col-sm-2 col-form-label text-left">[[${bundle.$L('修改密码')}]]</label>
+                        <label class="col-sm-2 col-form-label text-left">[[${bundle.L('修改密码')}]]</label>
                         <div class="col-sm-7 pl-0">
-                          <div class="form-control-plaintext text-muted">[[${bundle.$L('建议 90 天更改一次密码')}]]</div>
+                          <div class="form-control-plaintext text-muted">[[${bundle.L('建议 90 天更改一次密码')}]]</div>
                         </div>
                         <div class="col-sm-3 text-right">
-                          <button class="btn btn-primary btn-outline J_passwd" type="button">[[${bundle.$L('修改')}]]</button>
+                          <button class="btn btn-primary btn-outline J_passwd" type="button">[[${bundle.L('修改')}]]</button>
                         </div>
                       </div>
                     </form>
@@ -176,9 +176,9 @@
                       <thead>
                         <tr>
                           <th width="50"></th>
-                          <th>[[${bundle.$L('登录时间')}]]</th>
-                          <th>[[${bundle.$L('IP 地址')}]]</th>
-                          <th>[[${bundle.$L('客户端')}]]</th>
+                          <th>[[${bundle.L('登录时间')}]]</th>
+                          <th>[[${bundle.L('IP 地址')}]]</th>
+                          <th>[[${bundle.L('客户端')}]]</th>
                         </tr>
                       </thead>
                       <tbody></tbody>

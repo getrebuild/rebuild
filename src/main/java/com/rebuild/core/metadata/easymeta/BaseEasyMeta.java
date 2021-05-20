@@ -11,11 +11,10 @@ import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import org.apache.commons.lang.StringUtils;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 元数据封装
@@ -122,10 +121,10 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
 
     /**
      * @return
-     * @see com.rebuild.core.support.i18n.Language#$L(BaseMeta)
+     * @see com.rebuild.core.support.i18n.Language#L(BaseMeta)
      */
     public String getLabel() {
-        return $L(getRawMeta());
+        return Language.L(getRawMeta());
     }
 
     /**
@@ -138,7 +137,7 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
         if (getMetaId() != null) {
             return comments;
         }
-        return StringUtils.defaultIfBlank(comments, $L("系统内置"));
+        return StringUtils.defaultIfBlank(comments, Language.L("系统内置"));
     }
 
     /**

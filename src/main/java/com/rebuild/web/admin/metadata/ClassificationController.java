@@ -14,6 +14,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationService;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -28,8 +29,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 分类数据管理
@@ -54,7 +53,7 @@ public class ClassificationController extends BaseController {
                 .setParameter(1, id)
                 .unique();
         if (data == null) {
-            resp.sendError(404,  $L("分类数据不存在"));
+            resp.sendError(404,  Language.L("分类数据不存在"));
             return null;
         }
 

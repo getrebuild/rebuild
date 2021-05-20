@@ -164,7 +164,7 @@ public class Language implements Initialization {
     public Map<String, String> availableLocales() {
         Map<String, String> map = new LinkedHashMap<>();
         for (Map.Entry<String, LanguageBundle> item : bundleMap.entrySet()) {
-            map.put(item.getKey(), item.getValue().$L("_"));
+            map.put(item.getKey(), item.getValue().L("_"));
         }
         return map;
     }
@@ -191,26 +191,26 @@ public class Language implements Initialization {
         return Application.getLanguage().getBundle(UserContextHolder.getLocale());
     }
 
-    public static String $L(String key, Object... placeholders) {
-        return getCurrentBundle().$L(key, placeholders);
+    public static String L(String key, Object... placeholders) {
+        return getCurrentBundle().L(key, placeholders);
     }
 
-    public static String $L(StateSpec state) {
+    public static String L(StateSpec state) {
         String lang = getCurrentBundle().getLang(state.getName());
         return lang == null ? state.getName() : lang;
     }
 
-    public static String $L(DisplayType type) {
+    public static String L(DisplayType type) {
         String lang = getCurrentBundle().getLang(type.getDisplayName());
         return lang == null ? type.getDisplayName() : lang;
     }
 
-    public static String $L(ActionType type) {
+    public static String L(ActionType type) {
         String lang = getCurrentBundle().getLang(type.getDisplayName());
         return lang == null ? type.getDisplayName() : lang;
     }
 
-    public static String $L(BaseMeta meta) {
+    public static String L(BaseMeta meta) {
         String lang = getCurrentBundle().getLang(meta.getDescription());
         return lang == null ? meta.getDescription() : lang;
     }

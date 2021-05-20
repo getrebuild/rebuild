@@ -16,6 +16,7 @@ import com.rebuild.core.RebuildException;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.CsrfToken;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.RbAssert;
@@ -36,8 +37,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 文件下载/查看
@@ -141,7 +140,7 @@ public class FileDownloader extends BaseController {
         if (request.getRequestURI().contains("/filex/access/")) {
             String e = getParameter(request, "e");
             if (StringUtils.isBlank(e) || Application.getCommonsCache().get(e) == null) {
-                response.sendError(HttpStatus.FORBIDDEN.value(), $L("分享的文件已过期"));
+                response.sendError(HttpStatus.FORBIDDEN.value(), Language.L("分享的文件已过期"));
                 return;
             }
 

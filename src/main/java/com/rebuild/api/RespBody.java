@@ -14,8 +14,6 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.JSONable;
 import lombok.Data;
 
-import static com.rebuild.core.support.i18n.Language.$L;
-
 /**
  * 统一请求返回消息体
  *
@@ -86,13 +84,13 @@ public class RespBody implements JSONable {
     public static RespBody error(String errorMsg, int errorCode) {
         if (errorMsg == null) {
             if (errorCode == 401) {
-                errorMsg = $L("未授权访问");
+                errorMsg = Language.L("未授权访问");
             } else if (errorCode == 403) {
-                errorMsg = $L("权限不足，访问被阻止");
+                errorMsg = Language.L("权限不足，访问被阻止");
             } else if (errorCode == 404) {
-                errorMsg = $L("访问的页面/资源不存在");
+                errorMsg = Language.L("访问的页面/资源不存在");
             } else {
-                errorMsg = $L("系统繁忙，请稍后重试");
+                errorMsg = Language.L("系统繁忙，请稍后重试");
             }
         }
         return new RespBody(errorCode, errorMsg, null);
@@ -102,10 +100,10 @@ public class RespBody implements JSONable {
      * @param errorMsg
      * @param placeholders
      * @return
-     * @see Language#$L(String, Object...)
+     * @see Language#L(String, Object...)
      */
     public static RespBody errorl(String errorMsg, Object... placeholders) {
-        return error($L(errorMsg, placeholders), Controller.CODE_ERROR);
+        return error(Language.L(errorMsg, placeholders), Controller.CODE_ERROR);
     }
 
     /**
@@ -120,6 +118,6 @@ public class RespBody implements JSONable {
      * @return
      */
     public static RespBody ok(Object data) {
-        return new RespBody(Controller.CODE_OK, $L("调用成功"), data);
+        return new RespBody(Controller.CODE_OK, Language.L("调用成功"), data);
     }
 }

@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/triggers" />
-    <title>[[${bundle.$L('触发器')}]]</title>
+    <title>[[${bundle.L('触发器')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header rb-aside" th:classappend="${sideCollapsedClazz}">
@@ -13,21 +13,21 @@
         <aside class="page-aside">
           <div class="rb-scroller">
             <div class="aside-tree">
-              <h5 class="config-title">[[${bundle.$L('源实体')}]]</h5>
+              <h5 class="config-title">[[${bundle.L('源实体')}]]</h5>
               <ul class="list-unstyled">
-                <li class="active"><a>[[${bundle.$L('全部实体')}]]</a></li>
+                <li class="active"><a>[[${bundle.L('全部实体')}]]</a></li>
               </ul>
             </div>
           </div>
         </aside>
         <div class="page-head">
-          <div class="float-left"><div class="page-head-title">[[${bundle.$L('触发器')}]]</div></div>
+          <div class="float-left"><div class="page-head-title">[[${bundle.L('触发器')}]]</div></div>
           <div class="float-right pt-1">
-            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.$L('添加')}]]</button>
+            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
           </div>
           <div class="float-right pt-1 mr-3">
             <div class="input-group input-search">
-              <input class="form-control" type="text" th:placeholder="${bundle.$L('查询')}" maxlength="40" />
+              <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" maxlength="40" />
               <span class="input-group-btn"
                 ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
               ></span>
@@ -45,12 +45,12 @@
                       <table class="table table-hover table-striped table-fixed">
                         <thead>
                           <tr>
-                            <th>[[${bundle.$L('名称')}]]</th>
-                            <th>[[${bundle.$L('源实体')}]]</th>
-                            <th>[[${bundle.$L('触发类型')}]]</th>
-                            <th>[[${bundle.$L('触发动作')}]]</th>
-                            <th width="80">[[${bundle.$L('启用')}]]</th>
-                            <th width="120">[[${bundle.$L('修改时间')}]]</th>
+                            <th>[[${bundle.L('名称')}]]</th>
+                            <th>[[${bundle.L('源实体')}]]</th>
+                            <th>[[${bundle.L('触发类型')}]]</th>
+                            <th>[[${bundle.L('触发动作')}]]</th>
+                            <th width="80">[[${bundle.L('启用')}]]</th>
+                            <th width="120">[[${bundle.L('修改时间')}]]</th>
                             <th width="80"></th>
                           </tr>
                         </thead>
@@ -59,7 +59,7 @@
                       <th:block th:replace="~{/_include/spinner}" />
                       <div class="list-nodata hide">
                         <span class="zmdi zmdi-rotate-cw"></span>
-                        <p>[[${bundle.$L('暂无触发器')}]]</p>
+                        <p>[[${bundle.L('暂无触发器')}]]</p>
                       </div>
                     </div>
                   </div>

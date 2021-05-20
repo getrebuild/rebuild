@@ -157,7 +157,7 @@ public class LanguageBundle implements JSONable {
      * @param placeholders
      * @return
      */
-    public String $L(String key, Object... placeholders) {
+    public String L(String key, Object... placeholders) {
         String lang = getLang(key);
         if (lang == null) {
             log.warn("Missing lang `{}` for `{}`", key, getLocale());
@@ -194,7 +194,7 @@ public class LanguageBundle implements JSONable {
             return SYS_LC;
         }
         @Override
-        public String $L(String key, Object... placeholders) {
+        public String L(String key, Object... placeholders) {
             String lang = getLang(key);
             if (lang == null) lang = formatLang(key);
             return placeholders.length > 0 ? String.format(lang, placeholders) : lang;

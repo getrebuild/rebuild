@@ -20,14 +20,13 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 视图-相关项/新建相关
@@ -192,7 +191,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
                     : String.format("%s (%s)", show.getString("entityLabel"), EasyMetaFactory.getLabel(field));
             show.put("entityLabel", entityLabel);
         } else if (fieldEntity.getEntityCode() == EntityHelper.Feeds) {
-            show.put("entityLabel", $L("动态"));
+            show.put("entityLabel", Language.L("动态"));
         }
         return show;
     }

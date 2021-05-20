@@ -28,14 +28,13 @@ import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.HeavyTask;
 import com.rebuild.utils.JSONUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 元数据模型导入
@@ -84,7 +83,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
     private String verfiyEntity(JSONObject entity) {
         String entityName = entity.getString("entity");
         if (MetadataHelper.containsEntity(entityName)) {
-            return $L("实体名称已存在 : %s",entityName);
+            return Language.L("实体名称已存在 : %s",entityName);
         }
 
         for (Object o : entity.getJSONArray("fields")) {
@@ -93,7 +92,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
             if (DisplayType.REFERENCE.name().equals(dt) || DisplayType.N2NREFERENCE.name().equals(dt)) {
                 String refEntity = field.getString("refEntity");
                 if (!entityName.equals(refEntity) && !MetadataHelper.containsEntity(refEntity)) {
-                    return $L("缺少必要的引用实体 : %s (%s)", field.getString("fieldLabel"), refEntity);
+                    return Language.L("缺少必要的引用实体 : %s (%s)", field.getString("fieldLabel"), refEntity);
                 }
             }
         }

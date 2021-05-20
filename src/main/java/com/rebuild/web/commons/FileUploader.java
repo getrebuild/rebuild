@@ -11,6 +11,7 @@ import cn.devezhao.commons.ObjectUtils;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.service.files.FilesHelper;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,6 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 文件上传
@@ -75,7 +74,7 @@ public class FileUploader extends BaseController {
 
             file.transferTo(dest);
             if (!dest.exists()) {
-                writeFailure(response, $L("上传失败，请稍后重试"));
+                writeFailure(response, Language.L("上传失败，请稍后重试"));
                 return;
             }
 
@@ -87,7 +86,7 @@ public class FileUploader extends BaseController {
         if (uploadName != null) {
             writeSuccess(response, uploadName);
         } else {
-            writeFailure(response, $L("上传失败，请稍后重试"));
+            writeFailure(response, Language.L("上传失败，请稍后重试"));
         }
     }
 

@@ -23,6 +23,7 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -35,8 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import static com.rebuild.core.support.i18n.Language.$L;
 
 /**
  * 表单/视图 功能扩展
@@ -69,7 +68,7 @@ public class ModelExtrasController extends BaseController {
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, (JSONObject) config.getJSON("config"));
         if (!transfomer.checkFilter(sourceRecord)) {
-            return RespBody.error($L("当前记录不符合转换条件"), 400);
+            return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }
 
         ID newId = transfomer.transform(sourceRecord);
@@ -146,13 +145,13 @@ public class ModelExtrasController extends BaseController {
 
         for (Object[] o : array) {
             int revType = (int) o[0];
-            if (revType == 1) o[0] = $L("新建");
-            else if (revType == 2) o[0] = $L("删除");
-            else if (revType == 4) o[0] = $L("更新");
-            else if (revType == 16) o[0] = $L("分派");
-            else if (revType == 32) o[0] = $L("共享");
-            else if (revType == 64) o[0] = $L("取消共享");
-            else o[0] = $L("未知");
+            if (revType == 1) o[0] = Language.L("新建");
+            else if (revType == 2) o[0] = Language.L("删除");
+            else if (revType == 4) o[0] = Language.L("更新");
+            else if (revType == 16) o[0] = Language.L("分派");
+            else if (revType == 32) o[0] = Language.L("共享");
+            else if (revType == 64) o[0] = Language.L("取消共享");
+            else o[0] = Language.L("未知");
 
             o[1] = I18nUtils.formatDate((Date) o[1]);
             o[2] = new Object[] { o[2], UserHelper.getName((ID) o[2]) };
