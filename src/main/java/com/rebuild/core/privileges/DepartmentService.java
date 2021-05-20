@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.service.BaseServiceImpl;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
 import static com.rebuild.core.support.i18n.Language.$L;
@@ -96,10 +97,10 @@ public class DepartmentService extends BaseServiceImpl {
 
         Department dept = Application.getUserStore().getDepartment(deptId);
         if (!dept.getMembers().isEmpty()) {
-            throw new OperationDeniedException("HAS MEMBERS");
+            throw new OperationDeniedException(Language.$L("部门下有用户禁止删除"));
         }
         if (!dept.getChildren().isEmpty()) {
-            throw new OperationDeniedException("HAS SUB-DEPARTMENTS");
+            throw new OperationDeniedException(Language.$L("部门下有子部门禁止删除"));
         }
 
         super.delete(deptId);
