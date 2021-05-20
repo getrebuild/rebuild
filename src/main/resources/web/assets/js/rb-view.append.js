@@ -112,7 +112,7 @@ class LightTaskList extends RelatedList {
           {$L('最近截至')}
         </a>
         <a className="dropdown-item" data-sort="modifiedOn" onClick={(e) => this._search(e)}>
-          {$L('最近更新')}
+          {$L('最近修改')}
         </a>
       </div>
     )

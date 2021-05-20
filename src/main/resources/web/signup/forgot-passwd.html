@@ -38,10 +38,10 @@
                   </div>
                 </div>
                 <div class="form-group">
-                  <input class="form-control" id="newpwd" type="password" placeholder="新密码" autocomplete="off" />
+                  <input class="form-control" id="newpwd" type="password" th:placeholder="${bundle.$L('新密码')}" autocomplete="off" />
                 </div>
                 <div class="form-group">
-                  <input class="form-control" id="newpwd2" type="password" placeholder="重复新密码" />
+                  <input class="form-control" id="newpwd2" type="password" th:placeholder="${bundle.$L('重复新密码')}" />
                 </div>
                 <div class="form-group login-submit">
                   <button class="btn btn-primary btn-xl J_confirm-btn">[[${bundle.$L('确认重置')}]]</button>

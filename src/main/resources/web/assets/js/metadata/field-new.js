@@ -24,7 +24,7 @@ $(document).ready(function () {
     } else if (type === 'CLASSIFICATION' && !refClassification) {
       return RbHighbar.create('请选择分类数据')
     } else if (type === 'STATE' && !stateClass) {
-      return RbHighbar.create('请选择状态类 (Enum)')
+      return RbHighbar.create('请输入状态类 (Enum)')
     }
 
     const data = {

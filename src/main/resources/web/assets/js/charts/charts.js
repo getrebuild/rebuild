@@ -778,7 +778,7 @@ class FeedsSchedule extends BaseChart {
 
   handleFinish(id) {
     const that = this
-    RbAlert.create($L('确认完成该日程？'), {
+    RbAlert.create($L('确认完成此日程？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/feeds/post/finish-schedule?id=${id}`, (res) => {

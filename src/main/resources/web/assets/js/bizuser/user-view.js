@@ -22,7 +22,7 @@ $(document).ready(function () {
             },
           })
         } else {
-          RbAlert.create($L('此用户已被使用过，因此不能删除。如不再使用可将其禁用'), $L('无法删除选中记录'), {
+          RbAlert.create($L('此用户已被使用过，因此不能删除。如不再使用可将其禁用'), $L('无法删除'), {
             icon: 'alert-circle-o',
             type: 'danger',
             confirmText: $L('无法删除选中记录'),
@@ -91,7 +91,7 @@ $(document).ready(function () {
         if (!res.data.role) reasons.push($L('未指定角色'))
         else if (res.data.roleDisabled) reasons.push($L('所属角色已禁用'))
         if (!res.data.dept) reasons.push($L('未指定部门'))
-        else if (res.data.deptDisabled) reasons.push($L('所在部门已禁用'))
+        else if (res.data.deptDisabled) reasons.push($L('所属部门已禁用'))
         if (res.data.disabled === true) reasons.push($L('已禁用'))
         $('.J_tips')
           .removeClass('hide')

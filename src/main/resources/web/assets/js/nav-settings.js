@@ -43,7 +43,7 @@ $(document).ready(function () {
     let value
     if (type === 'ENTITY') {
       value = $val('.J_menuEntity')
-      if (!value) return RbHighbar.create($L('请选择相关项'))
+      if (!value) return RbHighbar.create($L('请选择关联项'))
     } else {
       value = $val('.J_menuUrl')
       if (!value) return RbHighbar.create($L('请输入外部地址'))

@@ -121,7 +121,7 @@ class OnlineUserViewer extends RbModalHandler {
 
   _killSession(user) {
     const that = this
-    RbAlert.create($L('确认强制退出该用户？'), {
+    RbAlert.create($L('确认强制退出此用户？'), {
       confirm: function () {
         $.post(`/admin/audit/kill-session?user=${user}`, () => {
           this.hide()
