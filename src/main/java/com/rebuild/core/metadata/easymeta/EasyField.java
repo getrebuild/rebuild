@@ -47,7 +47,7 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         if (MetadataHelper.isCommonsField(field)) return true;
 
         if (field.getType() == FieldType.REFERENCE) {
-            // 明细-引用主记录的字段也是内建
+            // 明细-引用主记录的字段也是内置
             // @see MetadataHelper#getDetailToMainField
             Entity hasMain = field.getOwnEntity().getMainEntity();
             return hasMain != null && hasMain.equals(field.getReferenceEntity()) && !field.isCreatable();

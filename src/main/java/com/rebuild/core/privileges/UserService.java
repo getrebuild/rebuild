@@ -105,7 +105,7 @@ public class UserService extends BaseServiceImpl {
         checkAdminGuard(BizzPermission.DELETE, null);
 
         if (ADMIN_USER.equals(record) || SYSTEM_USER.equals(record)) {
-            throw new OperationDeniedException("内置用户禁止删除");
+            throw new OperationDeniedException($L("内置用户禁止删除"));
         }
 
         Object[] hasLogin = Application.createQueryNoFilter(
@@ -113,7 +113,7 @@ public class UserService extends BaseServiceImpl {
                 .setParameter(1, record)
                 .unique();
         if (ObjectUtils.toInt(hasLogin[0]) > 0) {
-            throw new OperationDeniedException(Language.$L("已使用过的用户禁止删除"));
+            throw new OperationDeniedException($L("已使用过的用户禁止删除"));
         }
 
         super.delete(record);

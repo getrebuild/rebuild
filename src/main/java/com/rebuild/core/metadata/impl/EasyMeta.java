@@ -129,7 +129,7 @@ public class EasyMeta implements BaseMeta {
     }
 
     /**
-     * 系统内建字段/实体，不可更改
+     * 系统内置字段/实体，不可更改
      *
      * @return
      * @see MetadataHelper#isCommonsField(Field)
@@ -144,7 +144,7 @@ public class EasyMeta implements BaseMeta {
             if (MetadataHelper.isCommonsField(field)) {
                 return true;
             } else if (getDisplayType() == DisplayType.REFERENCE) {
-                // 明细-引用主记录的字段也是内建
+                // 明细-引用主记录的字段也是内置
                 // @see MetadataHelper#getDetailToMainField
                 Entity hasMain = field.getOwnEntity().getMainEntity();
                 return hasMain != null && hasMain.equals(field.getReferenceEntity()) && !field.isCreatable();

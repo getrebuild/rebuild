@@ -149,7 +149,7 @@ $(document).ready(function () {
     $('#defaultValue').remove()
   }
 
-  // 内建字段
+  // 内置字段
   if (wpc.fieldBuildin) {
     $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
   }

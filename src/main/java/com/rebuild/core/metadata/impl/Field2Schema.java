@@ -75,7 +75,7 @@ public class Field2Schema {
     public String createField(Entity entity, String fieldLabel, DisplayType type, String comments, String refEntity, JSON extConfig) {
         long count;
         if ((count = checkRecordCount(entity)) > 100000) {
-            throw new MetadataModificationException($L("实体记录过多(%d)，增加/删除字段可能导致表损坏", count));
+            throw new MetadataModificationException($L("实体记录过多 (%d)，增加/删除字段可能导致表损坏", count));
         }
 
         String fieldName = toPinyinName(fieldLabel);
@@ -120,7 +120,7 @@ public class Field2Schema {
         if (!force) {
             long count;
             if ((count = checkRecordCount(entity)) > 100000) {
-                throw new MetadataModificationException($L("实体记录过多(%d)，增加/删除字段可能导致表损坏", count));
+                throw new MetadataModificationException($L("实体记录过多 (%d)，增加/删除字段可能导致表损坏", count));
             }
         }
 
@@ -269,7 +269,7 @@ public class Field2Schema {
             // 在导入实体时需要，需自行保证引用实体有效性，否则系统会出错
             if (!DynamicMetadataContextHolder.isSkipRefentityCheck(false)) {
                 if (!MetadataHelper.containsEntity(refEntity)) {
-                    throw new MetadataModificationException($L("无效引用实体 (%s)", refEntity));
+                    throw new MetadataModificationException($L("无效引用实体 : %s", refEntity));
                 }
             }
 

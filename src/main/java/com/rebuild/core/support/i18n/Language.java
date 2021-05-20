@@ -14,6 +14,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.Initialization;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.state.StateSpec;
@@ -200,6 +201,11 @@ public class Language implements Initialization {
     }
 
     public static String $L(DisplayType type) {
+        String lang = getCurrentBundle().getLang(type.getDisplayName());
+        return lang == null ? type.getDisplayName() : lang;
+    }
+
+    public static String $L(ActionType type) {
         String lang = getCurrentBundle().getLang(type.getDisplayName());
         return lang == null ? type.getDisplayName() : lang;
     }

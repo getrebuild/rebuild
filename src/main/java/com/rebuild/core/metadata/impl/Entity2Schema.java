@@ -85,7 +85,7 @@ public class Entity2Schema extends Field2Schema {
 
         final boolean isDetail = StringUtils.isNotBlank(mainEntity);
         if (isDetail && !MetadataHelper.containsEntity(mainEntity)) {
-            throw new MetadataModificationException($L("无效主实体 (%s)", mainEntity));
+            throw new MetadataModificationException($L("无效主实体 : %s", mainEntity));
         }
 
         String physicalName = "T__" + entityName.toUpperCase();
@@ -211,7 +211,7 @@ public class Entity2Schema extends Field2Schema {
             if (whoRef.getOwnEntity().equals(entity)) continue;
             if (whoRef.getType() == FieldType.ANY_REFERENCE) continue;
             throw new MetadataModificationException(
-                    $L("实体已被其他实体引用 (引用实体 : %s)", EasyMetaFactory.getLabel(whoRef.getOwnEntity())));
+                    $L("实体已被其他实体引用 (引用实体 : %s)", $L(whoRef.getOwnEntity())));
         }
 
         // 有记录的强删

@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.data.ReportTemplateController;
@@ -68,7 +69,7 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("sourceEntity", sourceEntity.getName());
         mv.getModel().put("sourceEntityLabel", EasyMetaFactory.getLabel(sourceEntity));
         mv.getModel().put("actionType", actionType.name());
-        mv.getModel().put("actionTypeLabel", $L(actionType.getDisplayName()));
+        mv.getModel().put("actionTypeLabel", $L(actionType));
         mv.getModel().put("when", config[2]);
         mv.getModel().put("whenTimer", config[7] == null ? StringUtils.EMPTY : config[7]);
         mv.getModel().put("whenFilter", StringUtils.defaultIfBlank((String) config[3], JSONUtils.EMPTY_OBJECT_STR));
@@ -82,7 +83,7 @@ public class TriggerAdminController extends BaseController {
     public List<String[]> getAvailableActions() {
         List<String[]> alist = new ArrayList<>();
         for (ActionType t : ActionFactory.getAvailableActions()) {
-            alist.add(new String[] { t.name(), $L(t.getDisplayName()) });
+            alist.add(new String[] { t.name(), $L(t) });
         }
         return alist;
     }
@@ -111,7 +112,7 @@ public class TriggerAdminController extends BaseController {
 
         Object[][] array = ReportTemplateController.queryListOfConfig(sql, belongEntity, q);
         for (Object[] o : array) {
-            o[7] = $L(ActionType.valueOf((String) o[7]).getDisplayName());
+            o[7] = $L(ActionType.valueOf((String) o[7]));
         }
         return array;
     }

@@ -55,7 +55,7 @@ public class ChartsFactory {
     public static ChartData create(JSONObject config, ID user) throws ChartsException {
         String entityName = config.getString("entity");
         if (!MetadataHelper.containsEntity(entityName)) {
-            throw new ChartsException($L("源实体 [%s] 已不存在", entityName));
+            throw new ChartsException($L("源实体 [%s] 已不存在", entityName.toUpperCase()));
         }
 
         Entity entity = MetadataHelper.getEntity(entityName);
@@ -93,7 +93,7 @@ public class ChartsFactory {
     }
 
     /**
-     * 获取内建图表
+     * 获取内置图表
      *
      * @return
      */

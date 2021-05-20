@@ -136,7 +136,7 @@ public class MetaEntityController extends BaseController {
         String mainEntity = reqJson.getString("mainEntity");
         if (StringUtils.isNotBlank(mainEntity)) {
             if (!MetadataHelper.containsEntity(mainEntity)) {
-                writeFailure(response, $L("无效主实体 (%s)", mainEntity));
+                writeFailure(response, $L("无效主实体 : %s", mainEntity));
                 return;
             }
 

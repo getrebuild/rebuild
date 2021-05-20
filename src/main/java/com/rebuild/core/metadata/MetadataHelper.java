@@ -102,7 +102,7 @@ public class MetadataHelper {
         try {
             return getMetadataFactory().getEntity(entityName);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion($L("实体 [%s] 已经不存在，请检查配置", entityName));
+            throw new MissingMetaExcetion($L("实体 [%s] 已经不存在，请检查配置", entityName.toUpperCase()));
         }
     }
 

@@ -51,7 +51,7 @@ public class ClassificationService extends BaseConfigurationService implements A
         for (Object[] o : used) {
             if (StringUtils.contains((String) o[0], recordId.toLiteral())) {
                 String usedEntity = EasyMetaFactory.getLabel((String) o[1]);
-                throw new DataSpecificationException($L("此分类数据正在被 %s 使用，不能删除", usedEntity));
+                throw new DataSpecificationException($L("此分类数据正在被 **%s** 使用，不能删除", usedEntity));
             }
         }
 

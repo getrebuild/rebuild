@@ -112,7 +112,7 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
     }
 
     /**
-     * 系统内建字段/实体，不可更改
+     * 系统内置字段/实体，不可更改
      *
      * @return
      */
