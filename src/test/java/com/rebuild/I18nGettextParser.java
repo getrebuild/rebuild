@@ -17,7 +17,9 @@ import java.util.regex.Pattern;
 
 /**
  * 多语言提取
- * 1. .java 文件提取 `$L(xxx)` `errorl(xxx)` 注意不要换行
+ * 1 .java 文件提取 `$L(xxx, [args])` `errorl(xxx)` 注意不要换行
+ * 2 .js 提取 `$L(xxx, [args])`
+ * 3 .html 提取 `bundle.$L(xxx, [args])`
  *
  * @author devezhao
  * @since 2021/5/14
@@ -25,12 +27,15 @@ import java.util.regex.Pattern;
 @Slf4j
 public class I18nGettextParser {
 
+    public static final String ROOT = "D:\\GitHub\\rebuild\\rebuild";
+
     public static void main(String[] args) throws IOException {
-//        final File root = new File("D:\\GitHub\\rebuild\\rebuild-mob");
-        final File root = new File("D:\\GitHub\\rebuild\\rebuild");
+        final File root = new File(ROOT);
 
         Set<String> into = new TreeSet<>();
         parse(root, into);
+        // append mob
+//        parse(new File("D:\\GitHub\\rebuild\\rebuild-mob"), into);
 
         log.info("Found {} items", into.size());
         // Bad text
@@ -41,20 +46,15 @@ public class I18nGettextParser {
         File target = new File(root, "lang.zh_CN.json");
         if (target.exists()) target.delete();
 
-        JSONObject content = new JSONObject(true);
-        content.put("_", wrapText("中文"));
+        JSONObject contents = new JSONObject(true);
+        contents.put("_", "中文");
         for (String text : into) {
-            if (content.containsKey(text)) continue;
-            content.put(text, wrapText(text));
+            if (contents.containsKey(text)) continue;
+            contents.put(text, text);
         }
 
-        FileUtils.writeStringToFile(target, JSONUtils.prettyPrint(content));
+        FileUtils.writeStringToFile(target, JSONUtils.prettyPrint(contents));
         log.info("File write : {}", target.getAbsolutePath());
-    }
-
-    static String wrapText(String text) {
-//        return String.format("[%s]", text);
-        return text;
     }
 
     static void parse(File fileOrDir, Set<String> into) throws IOException {

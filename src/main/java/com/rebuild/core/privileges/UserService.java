@@ -158,11 +158,11 @@ public class UserService extends BaseServiceImpl {
      */
     private void checkLoginName(String loginName) throws DataSpecificationException {
         if (Application.getUserStore().existsUser(loginName)) {
-            throw new DataSpecificationException($L("登录名已存在"));
+            throw new DataSpecificationException($L("用户名已存在"));
         }
 
         if (!CommonsUtils.isPlainText(loginName) || BlockList.isBlock(loginName)) {
-            throw new DataSpecificationException($L("登录名无效"));
+            throw new DataSpecificationException($L("用户名无效"));
         }
     }
 

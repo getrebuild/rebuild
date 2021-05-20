@@ -166,7 +166,11 @@ public class LanguageBundle implements JSONable {
         return placeholders.length > 0 ? String.format(lang, placeholders) : lang;
     }
 
-    protected String getLang(String key) {
+    /**
+     * @param key
+     * @return
+     */
+    public String getLang(String key) {
         return bundle.getString(key);
     }
 
