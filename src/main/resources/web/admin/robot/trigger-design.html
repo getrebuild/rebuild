@@ -4,7 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/triggers" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/triggers.css}" />
-    <title>[[${bundle.L('触发器')}]]</title>
+    <title>[[${bundle.$L('触发器')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -12,7 +12,7 @@
       <th:block th:replace="~{/_include/nav-left-admin(active='robot-trigger')}" />
       <div class="rb-content">
         <div class="page-head">
-          <div class="page-head-title">[[${bundle.L('触发器')}]]<span class="sub-title">[[${name ?: bundle.L('未命名')}]]</span></div>
+          <div class="page-head-title">[[${bundle.$L('触发器')}]]<span class="sub-title">[[${name ?: bundle.$L('未命名')}]]</span></div>
           <div class="clearfix"></div>
         </div>
         <div class="main-content container-fluid pt-0">
@@ -20,54 +20,54 @@
             <div class="card-body">
               <ul class="timeline spare">
                 <li class="timeline-item">
-                  <div class="timeline-date"><span>[[${bundle.L('当发生动作')}]]</span></div>
+                  <div class="timeline-date"><span>[[${bundle.$L('当发生动作')}]]</span></div>
                   <div class="timeline-content">
                     <form class="simple">
                       <div class="form-group row">
-                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('源实体')}]]</label>
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('源实体')}]]</label>
                         <div class="col-12 col-lg-9">
                           <div class="form-control-plaintext text-bold">[[${sourceEntityLabel}]]</div>
                         </div>
                       </div>
                       <div class="form-group row pt-0 pb-0">
-                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('触发动作')}]]</label>
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('触发动作')}]]</label>
                         <div class="col-12 col-lg-9 pt-1 J_when">
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                             <input class="custom-control-input" type="checkbox" value="1" />
-                            <span class="custom-control-label"> [[${bundle.L('新建时')}]]</span>
+                            <span class="custom-control-label"> [[${bundle.$L('新建时')}]]</span>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                             <input class="custom-control-input" type="checkbox" value="4" />
-                            <span class="custom-control-label"> [[${bundle.L('更新时')}]]</span>
+                            <span class="custom-control-label"> [[${bundle.$L('更新时')}]]</span>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                             <input class="custom-control-input" type="checkbox" value="2" />
-                            <span class="custom-control-label"> [[${bundle.L('删除时')}]]</span>
+                            <span class="custom-control-label"> [[${bundle.$L('删除时')}]]</span>
                           </label>
                           <div class="mt-1">
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="16" />
-                              <span class="custom-control-label"> [[${bundle.L('分派时')}]]</span>
+                              <span class="custom-control-label"> [[${bundle.$L('分派时')}]]</span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="32" />
-                              <span class="custom-control-label"> [[${bundle.L('共享时')}]]</span>
+                              <span class="custom-control-label"> [[${bundle.$L('共享时')}]]</span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="64" />
-                              <span class="custom-control-label"> [[${bundle.L('取消共享时')}]]</span>
+                              <span class="custom-control-label"> [[${bundle.$L('取消共享时')}]]</span>
                             </label>
                           </div>
                           <div class="mt-1">
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="128" />
-                              <span class="custom-control-label"> [[${bundle.L('审核通过时')}]]</span>
+                              <span class="custom-control-label"> [[${bundle.$L('审核通过时')}]]</span>
                             </label>
                             <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                               <input class="custom-control-input" type="checkbox" value="256" />
                               <span class="custom-control-label">
-                                [[${bundle.L('审核撤销时')}]]
-                                <i class="zmdi zmdi-help zicon down-1" th:title="${bundle.L('审批通过后管理员可以撤销重审')}" data-toggle="tooltip"></i
+                                [[${bundle.$L('审核撤销时')}]]
+                                <i class="zmdi zmdi-help zicon down-1" th:title="${bundle.$L('审批通过后管理员可以撤销重审')}" data-toggle="tooltip"></i
                               ></span>
                             </label>
                           </div>
@@ -75,60 +75,60 @@
                             <div>
                               <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                                 <input class="custom-control-input" type="checkbox" value="512" onclick="_handle512Change()" />
-                                <span class="custom-control-label"> [[${bundle.L('定期执行')}]] <sup class="rbv"></sup></span>
+                                <span class="custom-control-label"> [[${bundle.$L('定期执行')}]] <sup class="rbv"></sup></span>
                               </label>
                             </div>
                             <div class="on-timers mt-1 hide">
                               <div class="input-group input-group-sm">
                                 <select class="form-control form-control-sm J_whenTimer1">
-                                  <option value="D">[[${bundle.L('每天')}]]</option>
-                                  <option value="M">[[${bundle.L('每月')}]]</option>
-                                  <option value="H">[[${bundle.L('每小时')}]]</option>
+                                  <option value="D">[[${bundle.$L('每天')}]]</option>
+                                  <option value="M">[[${bundle.$L('每月')}]]</option>
+                                  <option value="H">[[${bundle.$L('每小时')}]]</option>
                                 </select>
                                 <div class="input-group-prepend input-group-append">
-                                  <span class="input-group-text">[[${bundle.L('执行')}]]</span>
+                                  <span class="input-group-text">[[${bundle.$L('执行')}]]</span>
                                 </div>
                                 <input type="text" class="form-control form-control-sm text-center J_whenTimer2" placeholder="1" />
                                 <div class="input-group-append">
-                                  <span class="input-group-text">[[${bundle.L('次')}]]</span>
+                                  <span class="input-group-text">[[${bundle.$L('次')}]]</span>
                                 </div>
                               </div>
-                              <p class="form-text">[[${bundle.L('具体实行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00')}]]</p>
+                              <p class="form-text">[[${bundle.$L('具体实行时间将在你设定的周期内平均分布。例如每天执行2次，其执行时间为 00:00 和 12:00')}]]</p>
                             </div>
                           </div>
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('附加过滤条件')}]]</label>
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('附加过滤条件')}]]</label>
                         <div class="col-12 col-lg-9 J_whenFilter">
-                          <a class="btn btn-sm btn-link pl-0 text-left down-2">[[${bundle.L('点击设置')}]]</a>
-                          <p class="form-text mb-0 mt-0">[[${bundle.L('符合过滤条件的数据才会执行操作')}]]</p>
+                          <a class="btn btn-sm btn-link pl-0 text-left down-2">[[${bundle.$L('点击设置')}]]</a>
+                          <p class="form-text mb-0 mt-0">[[${bundle.$L('符合过滤条件的数据才会执行操作')}]]</p>
                         </div>
                       </div>
                     </form>
                   </div>
                 </li>
                 <li class="timeline-item">
-                  <div class="timeline-date"><span>[[${bundle.L('就执行操作')}]]</span></div>
+                  <div class="timeline-date"><span>[[${bundle.$L('就执行操作')}]]</span></div>
                   <div class="timeline-content">
                     <form class="simple">
                       <div class="form-group row">
-                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('执行操作')}]]</label>
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('执行操作')}]]</label>
                         <div class="col-12 col-lg-9">
                           <div class="form-control-plaintext text-bold">[[${actionTypeLabel}]]</div>
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('操作内容')}]]</label>
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('操作内容')}]]</label>
                         <div class="col-12 col-lg-9">
-                          <div id="react-content">[[${bundle.L('加载中')}]]</div>
+                          <div id="react-content">[[${bundle.$L('加载中')}]]</div>
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('执行优先级')}]]</label>
+                        <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('执行优先级')}]]</label>
                         <div class="col-12 col-lg-9">
                           <input type="number" class="form-control form-control-sm" id="priority" th:value="${priority}" th:data-o="${priority}" style="max-width: 200px" />
-                          <p class="form-text mb-0">[[${bundle.L('优先级高 (数字大) 的会被先执行')}]]</p>
+                          <p class="form-text mb-0">[[${bundle.$L('优先级高 (数字大) 的会被先执行')}]]</p>
                         </div>
                       </div>
                     </form>
@@ -140,7 +140,7 @@
                       <div class="form-group row footer">
                         <label class="col-12 col-lg-3 col-form-label text-lg-right"></label>
                         <div class="col-12 col-lg-9">
-                          <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+                          <button class="btn btn-primary J_save" type="button">[[${bundle.$L('保存')}]]</button>
                         </div>
                       </div>
                     </form>

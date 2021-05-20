@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/projects" />
-    <title>[[${bundle.L('项目管理')}]]</title>
+    <title>[[${bundle.$L('项目管理')}]]</title>
     <style type="text/css">
       #members {
         min-height: 37px;
@@ -40,7 +40,7 @@
       <div class="rb-content">
         <div class="page-head">
           <div class="float-left">
-            <div class="page-head-title">[[${bundle.L('项目')}]]<span class="sub-title">[[${projectName}]]</span></div>
+            <div class="page-head-title">[[${bundle.$L('项目')}]]<span class="sub-title">[[${projectName}]]</span></div>
           </div>
           <div class="float-right pt-1"></div>
           <div class="clearfix"></div>
@@ -50,44 +50,44 @@
             <div class="card-body">
               <form class="simple">
                 <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('项目范围')}]]</label>
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('项目范围')}]]</label>
                   <div class="col-12 col-lg-9 pt-1">
                     <label class="custom-control custom-control-sm custom-radio custom-control-inline">
                       <input class="custom-control-input" type="radio" name="scope" id="scope_1" value="1" checked />
-                      <span class="custom-control-label">[[${bundle.L('公开 (所有人可见，仅成员可编辑)')}]]</span>
+                      <span class="custom-control-label">[[${bundle.$L('公开 (所有人可见，仅成员可编辑)')}]]</span>
                     </label>
                     <label class="custom-control custom-control-sm custom-radio custom-control-inline">
                       <input class="custom-control-input" type="radio" name="scope" id="scope_2" value="2" />
-                      <span class="custom-control-label">[[${bundle.L('私有 (仅成员可见和编辑)')}]]</span>
+                      <span class="custom-control-label">[[${bundle.$L('私有 (仅成员可见和编辑)')}]]</span>
                     </label>
                   </div>
                 </div>
                 <div class="form-group row pt-0">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('负责人')}]]</label>
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('负责人')}]]</label>
                   <div class="col-12 col-lg-9">
                     <div id="principal"></div>
-                    <p class="form-text">[[${bundle.L('负责人拥有对任务的管理权限')}]]</p>
+                    <p class="form-text">[[${bundle.$L('负责人拥有对任务的管理权限')}]]</p>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('项目成员')}]]</label>
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('项目成员')}]]</label>
                   <div class="col-12 col-lg-9">
                     <div id="members"></div>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.L('任务面板')}]]</label>
+                  <label class="col-12 col-lg-3 col-form-label text-lg-right">[[${bundle.$L('任务面板')}]]</label>
                   <div class="col-12 col-lg-9">
                     <div class="plan-boxes card-list mb-2" id="plans">
-                      <p class="text-muted m-3">[[${bundle.L('加载中')}]]</p>
+                      <p class="text-muted m-3">[[${bundle.$L('加载中')}]]</p>
                     </div>
-                    <button class="btn btn-secondary btn-sm J_add-plan" type="button"><i class="zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+                    <button class="btn btn-secondary btn-sm J_add-plan" type="button"><i class="zmdi zmdi-plus"></i> [[${bundle.$L('添加')}]]</button>
                   </div>
                 </div>
                 <div class="form-group row footer">
                   <label class="col-12 col-lg-3 col-form-label text-lg-right"> </label>
                   <div class="col-12 col-lg-9">
-                    <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+                    <button class="btn btn-primary J_save" type="button">[[${bundle.$L('保存')}]]</button>
                   </div>
                 </div>
               </form>

@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('重置密码')}]]</title>
+    <title>[[${bundle.$L('重置密码')}]]</title>
   </head>
   <body class="rb-splash-screen">
     <div class="rb-wrapper rb-login">
@@ -13,27 +13,27 @@
               <div class="card-header"><a class="logo-img"></a></div>
               <div class="card-body J_step1">
                 <div class="form-group">
-                  <input class="form-control" id="email" type="email" th:placeholder="${bundle.L('邮箱')}" autocomplete="off" />
-                  <p class="form-text">[[${bundle.L('如果你忘记或未填写邮箱，请联系管理员重置密码')}]]</p>
+                  <input class="form-control" id="email" type="email" th:placeholder="${bundle.$L('邮箱')}" autocomplete="off" />
+                  <p class="form-text">[[${bundle.$L('如果你忘记或未填写邮箱，请联系管理员重置密码')}]]</p>
                 </div>
                 <div class="form-group login-submit">
-                  <button class="btn btn-primary btn-xl J_forgot-btn">[[${bundle.L('重置密码')}]]</button>
+                  <button class="btn btn-primary btn-xl J_forgot-btn">[[${bundle.$L('重置密码')}]]</button>
                 </div>
               </div>
               <div class="card-body J_step2 hide">
                 <div class="alert alert-warning alert-icon alert-icon-border alert-sm">
                   <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
                   <div class="message">
-                    <p>[[${bundle.L('验证码已发送至你的邮箱')}]] <b class="J_email ml-1"></b></p>
+                    <p>[[${bundle.$L('验证码已发送至你的邮箱')}]] <b class="J_email ml-1"></b></p>
                   </div>
                 </div>
                 <div class="form-group">
                   <div class="row">
                     <div class="col-7">
-                      <input class="form-control" id="vcode" type="text" th:placeholder="${bundle.L('请输入验证码')}" />
+                      <input class="form-control" id="vcode" type="text" th:placeholder="${bundle.$L('请输入验证码')}" />
                     </div>
                     <div class="col-5 pl-0">
-                      <button type="button" class="btn btn-secondary J_vcode-resend" style="height: 41px; width: 100%">[[${bundle.L('获取验证码')}]]</button>
+                      <button type="button" class="btn btn-secondary J_vcode-resend" style="height: 41px; width: 100%">[[${bundle.$L('获取验证码')}]]</button>
                     </div>
                   </div>
                 </div>
@@ -44,12 +44,12 @@
                   <input class="form-control" id="newpwd2" type="password" placeholder="重复新密码" />
                 </div>
                 <div class="form-group login-submit">
-                  <button class="btn btn-primary btn-xl J_confirm-btn">[[${bundle.L('确认重置')}]]</button>
+                  <button class="btn btn-primary btn-xl J_confirm-btn">[[${bundle.$L('确认重置')}]]</button>
                 </div>
               </div>
             </div>
             <div class="splash-footer">
-              <span><a href="login">[[${bundle.L('返回登录')}]]</a></span>
+              <span><a href="login">[[${bundle.$L('返回登录')}]]</a></span>
             </div>
           </div>
         </div>

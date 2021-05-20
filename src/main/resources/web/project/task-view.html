@@ -5,15 +5,15 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/feeds.css}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/task-view.css}" />
-    <title>[[${bundle.L('任务视图')}]]</title>
+    <title>[[${bundle.$L('任务视图')}]]</title>
   </head>
   <body class="view-body" th:classappend="${!isMember} ? 'readonly'">
     <div class="view-header">
       <i class="header-icon zmdi" th:classappend="${'zmdi-' + projectIcon}"></i>
-      <h3 class="title">[[${bundle.L('任务视图')}]]</h3>
+      <h3 class="title">[[${bundle.$L('任务视图')}]]</h3>
       <span>
-        <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
-        <a class="close sm J_reload" th:title="${bundle.L('刷新')}"><i class="zmdi zmdi-refresh"></i></a>
+        <a class="close J_close" th:title="${bundle.$L('关闭')}"><i class="zmdi zmdi-close"></i></a>
+        <a class="close sm J_reload" th:title="${bundle.$L('刷新')}"><i class="zmdi zmdi-refresh"></i></a>
       </span>
     </div>
     <div class="main-content container-fluid">

@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/dev/how-use-apis" />
-    <title>[[${bundle.L('API 秘钥')}]]</title>
+    <title>[[${bundle.$L('API 秘钥')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -11,9 +11,9 @@
       <th:block th:replace="~{/_include/nav-left-admin(active='apis-manager')}" />
       <div class="rb-content">
         <div class="page-head">
-          <div class="float-left"><div class="page-head-title">[[${bundle.L('API 秘钥')}]]</div></div>
+          <div class="float-left"><div class="page-head-title">[[${bundle.$L('API 秘钥')}]]</div></div>
           <div class="float-right pt-1">
-            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.$L('添加')}]]</button>
           </div>
           <div class="clearfix"></div>
         </div>
@@ -29,9 +29,9 @@
                           <tr>
                             <th width="10%">APP ID</th>
                             <th width="30%">APP SECRET</th>
-                            <th>[[${bundle.L('绑定用户 (权限)')}]]</th>
-                            <th>[[${bundle.L('调用量 (30 天)')}]]</th>
-                            <th width="120">[[${bundle.L('创建时间')}]]</th>
+                            <th>[[${bundle.$L('绑定用户 (权限)')}]]</th>
+                            <th>[[${bundle.$L('调用量 (30 天)')}]]</th>
+                            <th width="120">[[${bundle.$L('创建时间')}]]</th>
                             <th width="50"></th>
                           </tr>
                         </thead>
@@ -40,7 +40,7 @@
                       <th:block th:replace="~{/_include/spinner}" />
                       <div class="list-nodata hide">
                         <span class="zmdi zmdi-key"></span>
-                        <p>[[${bundle.L('暂无 API 秘钥')}]]</p>
+                        <p>[[${bundle.$L('暂无 API 秘钥')}]]</p>
                       </div>
                     </div>
                   </div>

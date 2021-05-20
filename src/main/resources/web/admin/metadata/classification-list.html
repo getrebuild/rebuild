@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/classifications" />
-    <title>[[${bundle.L('分类数据')}]]</title>
+    <title>[[${bundle.$L('分类数据')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -11,9 +11,9 @@
       <th:block th:replace="~{/_include/nav-left-admin(active='classifications')}" />
       <div class="rb-content">
         <div class="page-head">
-          <div class="float-left"><div class="page-head-title">[[${bundle.L('分类数据')}]]</div></div>
+          <div class="float-left"><div class="page-head-title">[[${bundle.$L('分类数据')}]]</div></div>
           <div class="float-right pt-1">
-            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('添加')}]]</button>
+            <button class="btn btn-primary J_add" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.$L('添加')}]]</button>
           </div>
           <div class="clearfix"></div>
         </div>

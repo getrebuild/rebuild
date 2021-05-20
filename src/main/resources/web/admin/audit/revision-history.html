@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/auditing#%E8%AE%B0%E5%BD%95%E4%BF%AE%E6%94%B9%E5%8E%86%E5%8F%B2" />
-    <title>[[${bundle.L('变更历史')}]]</title>
+    <title>[[${bundle.$L('变更历史')}]]</title>
     <style type="text/css">
       .table.table-fixed td {
         vertical-align: text-top;
@@ -30,11 +30,11 @@
                     <div class="dataTables_filter">
                       <div class="float-left mr-2 select2-sm">
                         <select class="form-control form-control-sm" id="belongEntity" style="width: 220px">
-                          <option value="$ALL$">[[${bundle.L('全部实体')}]]</option>
+                          <option value="$ALL$">[[${bundle.$L('全部实体')}]]</option>
                         </select>
                       </div>
                       <div class="input-group input-search">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('查询记录ID')}" maxlength="40" />
+                        <input class="form-control" type="text" th:placeholder="${bundle.$L('查询记录ID')}" maxlength="40" />
                         <span class="input-group-btn"
                           ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
                         ></span>
@@ -43,7 +43,7 @@
                   </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-space btn-secondary J_details"><i class="icon zmdi zmdi-search-in-file"></i> [[${bundle.L('详情')}]]</button>
+                      <button class="btn btn-space btn-secondary J_details"><i class="icon zmdi zmdi-search-in-file"></i> [[${bundle.$L('详情')}]]</button>
                     </div>
                   </div>
                 </div>

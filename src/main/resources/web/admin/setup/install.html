@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('REBUILD 安装程序')}]]</title>
+    <title>[[${bundle.$L('REBUILD 安装程序')}]]</title>
     <style type="text/css">
       .splash-container.rb-install {
         max-width: 680px;
@@ -84,18 +84,18 @@
             <div class="card shadow-lg">
               <div class="card-header bg-primary m-0"><a class="logo-img white"></a></div>
               <div class="card-body pt-0">
-                <h2 class="text-center text-muted">[[${bundle.L('请稍后')}]]</h2>
+                <h2 class="text-center text-muted">[[${bundle.$L('请稍后')}]]</h2>
               </div>
             </div>
             <div class="copyright">
               <div>
                 <span>&copy; REBUILD ([[${Version}]])</span>
                 <b>·</b>
-                <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">[[${bundle.L('安装指南')}]]</a>
+                <a href="https://getrebuild.com/docs/admin/install" target="_blank" class="link">[[${bundle.$L('安装指南')}]]</a>
               </div>
               <div
                 class="mt-1 license link"
-                th:utext="${bundle.L('[REBUILD](https://getrebuild.com/) 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。')}"
+                th:utext="${bundle.$L('[REBUILD](https://getrebuild.com/) 使用开源 [GPL-3.0](https://getrebuild.com/license/LICENSE.txt) 和 [商用](https://getrebuild.com/license/COMMERCIAL.txt) 双重授权许可，安装/使用即表示你已阅读并同意许可内容。')}"
               ></div>
               <div class="mt-2">
                 <a class="select-lang dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span></a>

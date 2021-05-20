@@ -35,10 +35,10 @@
             <div class="error-description" th:utext="${error_msg}"></div>
             <div th:if="${error_stack != null}" class="error-description text-left"><pre th:utext="${error_stack}"></pre></div>
             <div class="error-goback-button">
-              <a class="btn btn-xl btn-space btn-secondary" th:href="@{/dashboard/home}" id="goHome">[[${bundle.L('返回首页')}]]</a>
-              <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.L('重试')}]]</button>
+              <a class="btn btn-xl btn-space btn-secondary" th:href="@{/dashboard/home}" id="goHome">[[${bundle.$L('返回首页')}]]</a>
+              <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.$L('重试')}]]</button>
               <div class="mt-4">
-                <a href="https://getrebuild.com/report-issue?title=error-page" target="_blank">[[${bundle.L('报告问题')}]]</a>
+                <a href="https://getrebuild.com/report-issue?title=error-page" target="_blank">[[${bundle.$L('报告问题')}]]</a>
               </div>
             </div>
           </div>

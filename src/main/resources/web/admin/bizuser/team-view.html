@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/view-page.css}" />
-    <title>[[${bundle.L('团队视图')}]]</title>
+    <title>[[${bundle.$L('团队视图')}]]</title>
     <style>
       .nav.depts a {
         border: 1px solid transparent;
@@ -18,7 +18,7 @@
   <body class="view-body">
     <div class="view-header">
       <i class="header-icon zmdi" th:classappend="${'zmdi-' + entityIcon}"></i>
-      <h3 class="title">[[${bundle.L('团队视图')}]]</h3>
+      <h3 class="title">[[${bundle.$L('团队视图')}]]</h3>
       <span>
         <a class="close J_close"><i class="zmdi zmdi-close"></i></a>
         <a class="close sm J_reload"><i class="zmdi zmdi-refresh"></i></a>
@@ -29,8 +29,8 @@
         <div class="col-12 col-md-9">
           <div class="tab-container">
             <ul class="nav nav-tabs">
-              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('详情')}]]</a></li>
-              <li class="nav-item admin-show"><a class="nav-link" href="#tab-members" data-toggle="tab">[[${bundle.L('成员列表')}]]</a></li>
+              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.$L('详情')}]]</a></li>
+              <li class="nav-item admin-show"><a class="nav-link" href="#tab-members" data-toggle="tab">[[${bundle.$L('成员列表')}]]</a></li>
             </ul>
             <div class="tab-content">
               <div class="tab-pane active" id="tab-rbview"></div>
@@ -41,28 +41,28 @@
         <div class="col-12 col-md-3 view-operating">
           <div class="view-action row admin-show admin-verified">
             <div class="col-12 col-lg-6">
-              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('编辑')}]]</button>
+              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.$L('编辑')}]]</button>
             </div>
             <div class="col-12 col-lg-6 btn-group J_mores">
-              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.$L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
               <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('删除')}]]</a>
+                <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.$L('删除')}]]</a>
               </div>
             </div>
             <div class="col-12 col-lg-6">
-              <button class="btn btn-secondary J_add-detail" type="button"><i class="icon zmdi zmdi-account-add"></i> [[${bundle.L('添加成员')}]]</button>
+              <button class="btn btn-secondary J_add-detail" type="button"><i class="icon zmdi zmdi-account-add"></i> [[${bundle.$L('添加成员')}]]</button>
             </div>
           </div>
           <div class="view-date">
             <div class="form-line">
-              <fieldset><legend>[[${bundle.L('日期')}]]</legend></fieldset>
+              <fieldset><legend>[[${bundle.$L('日期')}]]</legend></fieldset>
             </div>
             <dl class="row">
-              <dt class="col-12 col-lg-4">[[${bundle.L('创建时间')}]]</dt>
+              <dt class="col-12 col-lg-4">[[${bundle.$L('创建时间')}]]</dt>
               <dd class="col-12 col-lg-8 J_createdOn"></dd>
             </dl>
             <dl class="row">
-              <dt class="col-12 col-lg-4">[[${bundle.L('修改时间')}]]</dt>
+              <dt class="col-12 col-lg-4">[[${bundle.$L('修改时间')}]]</dt>
               <dd class="col-12 col-lg-8 J_modifiedOn"></dd>
             </dl>
           </div>

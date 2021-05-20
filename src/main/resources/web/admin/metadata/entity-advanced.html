@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
-    <title>[[${bundle.L('高级配置')}]]</title>
+    <title>[[${bundle.$L('高级配置')}]]</title>
     <style type="text/css">
       a#entityIcon {
         display: inline-block;
@@ -40,46 +40,48 @@
               </div>
               <div class="aside-nav collapse">
                 <ul class="nav">
-                  <li><a href="base">[[${bundle.L('基本信息')}]]</a></li>
-                  <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
-                  <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
-                  <li class="active"><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
+                  <li><a href="base">[[${bundle.$L('基本信息')}]]</a></li>
+                  <li><a href="form-design">[[${bundle.$L('表单设计')}]]</a></li>
+                  <li><a href="fields">[[${bundle.$L('字段管理')}]]</a></li>
+                  <li class="active"><a href="advanced">[[${bundle.$L('高级配置')}]]</a></li>
                 </ul>
               </div>
             </div>
           </div>
         </aside>
         <div class="page-head">
-          <div class="page-head-title">[[${bundle.L('高级配置')}]]</div>
+          <div class="page-head-title">[[${bundle.$L('高级配置')}]]</div>
         </div>
         <div class="main-content container-fluid pt-1">
           <div class="card">
-            <div class="card-header">[[${bundle.L('删除实体')}]]</div>
+            <div class="card-header">[[${bundle.$L('删除实体')}]]</div>
             <div class="card-body">
-              <p th:utext="${bundle.L('**实体删除后将无法恢复，请务必谨慎操作。** [] 删除前，必须将该实体下的记录全部清空。如果这是一个主实体，则需要先将明细实体删除。如果此实体已被其他实体 (字段) 引用，则需要先删除引用字段。')}"></p>
+              <p
+                th:utext="${bundle.$L('**实体删除后将无法恢复，请务必谨慎操作。** [] 删除前，必须将该实体下的记录全部清空。如果这是一个主实体，则需要先将明细实体删除。如果此实体已被其他实体 (字段) 引用，则需要先删除引用字段。')}"
+              ></p>
               <div>
                 <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
-                  <input class="custom-control-input J_drop-check" type="checkbox" /><span class="custom-control-label"> [[${bundle.L('我已知晓风险')}]]</span>
+                  <input class="custom-control-input J_drop-check" type="checkbox" /><span class="custom-control-label"> [[${bundle.$L('我已知晓风险')}]]</span>
                 </label>
                 <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2 bosskey-show">
-                  <input class="custom-control-input J_drop-force" type="checkbox" /><span class="custom-control-label"> [[${bundle.L('强制删除')}]]</span>
+                  <input class="custom-control-input J_drop-force" type="checkbox" /><span class="custom-control-label"> [[${bundle.$L('强制删除')}]]</span>
                 </label>
               </div>
               <div class="mb-1">
-                <button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('确定')}]]</button>
+                <button type="button" class="btn btn-danger J_drop-confirm" disabled="disabled"><i class="zmdi zmdi-delete icon"></i> [[${bundle.$L('确定')}]]</button>
                 <div class="alert alert-warning alert-icon hide col-sm-6 mb-0">
                   <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
-                  <div class="message">[[${bundle.L('系统内置，不允许删除')}]]</div>
+                  <div class="message">[[${bundle.$L('系统内置，不允许删除')}]]</div>
                 </div>
               </div>
             </div>
           </div>
           <div class="card bosskey-show">
-            <div class="card-header">[[${bundle.L('导出实体')}]]</div>
+            <div class="card-header">[[${bundle.$L('导出实体')}]]</div>
             <div class="card-body">
-              <p class="link" th:utext="${bundle.L('将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 [RB 仓库](https://github.com/getrebuild/rebuild-datas)。')}"></p>
+              <p class="link" th:utext="${bundle.$L('将实体的元数据导出，方便与其他实例间共享。你也可以将导出文件发布到 [RB 仓库](https://github.com/getrebuild/rebuild-datas)。')}"></p>
               <div class="mb-1">
-                <a th:href="|../entity-export?id=${entityMetaId}|" target="_blank" class="btn btn-primary"><i class="zmdi zmdi-cloud-download icon"></i> [[${bundle.L('导出')}]]</a>
+                <a th:href="|../entity-export?id=${entityMetaId}|" target="_blank" class="btn btn-primary"><i class="zmdi zmdi-cloud-download icon"></i> [[${bundle.$L('导出')}]]</a>
               </div>
             </div>
           </div>
