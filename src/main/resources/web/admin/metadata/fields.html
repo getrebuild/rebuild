@@ -98,7 +98,7 @@
 
         $('.input-search .btn').click(() => __renderList())
         $('.input-search .form-control').keydown(function (event) {
-          if (event.which == 13) $('.input-search .btn').trigger('click')
+          if (event.which === 13) $('.input-search .btn').trigger('click')
         })
         $('.J_new-field').click(function () {
           if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('添加字段'))
@@ -122,12 +122,12 @@
 
           const $tr = $('<tr data-id="' + (item.fieldId || '') + '"></tr>').appendTo($tbody)
           const $name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo($tr)
-          if (item.fieldName == wpc.nameField) {
+          if (item.fieldName === wpc.nameField) {
             $tr.addClass('primary')
             $(`<span class="badge badge-pill badge-secondary thin ml-1">${$L('名称')}</span>`).appendTo($name)
-          } else if (item.creatable == false) {
+          } else if (!item.creatable) {
             $tr.addClass('muted')
-          } else if (item.nullable == false) {
+          } else if (!item.nullable) {
             $tr.addClass('danger')
           }
           $(`<td><div class="text-muted">${item.fieldName}</div></td>`).appendTo($tr)

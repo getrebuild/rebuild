@@ -72,7 +72,7 @@
           $('.J_config>li').each(function () {
             config.push({ field: $(this).data('key') })
           })
-          if (config.length == 0) {
+          if (config.length === 0) {
             RbHighbar.create($L('请至少选择 1 个显示列'))
             return
           }
@@ -80,7 +80,7 @@
           const btn = $(this).button('loading')
           const shareToData = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
           $.post(settingsUrl + '?id=' + cfgid + '&configName=' + $encode(shareToData.configName || '') + '&shareTo=' + shareToData.shareTo, JSON.stringify(config), function (res) {
-            if (res.error_code == 0) parent.location.reload()
+            if (res.error_code === 0) parent.location.reload()
             btn.button('reset')
           })
         })

@@ -48,7 +48,7 @@
     <script type="text/babel">
       $(document).ready(() => {
         const $in = $('.in>input').keydown((event) => {
-          if (event.which == 13 && $in.val()) {
+          if (event.which === 13 && $in.val()) {
             const c = $in.val().trim()
             $in.val('')
             if (c === 'clean') {
