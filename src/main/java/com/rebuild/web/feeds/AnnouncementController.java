@@ -11,6 +11,7 @@ import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.feeds.FeedsHelper;
@@ -18,11 +19,10 @@ import com.rebuild.core.service.feeds.FeedsScope;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -33,28 +33,27 @@ import java.util.List;
  * @author devezhao
  * @since 2019/12/19
  */
-@Controller
+@RestController
 public class AnnouncementController extends BaseController {
 
     @GetMapping("/commons/announcements")
-    public void list(HttpServletRequest request, HttpServletResponse response) {
-        ID user = AppUtils.getRequestUser(request);
-        int fromWhere = 0;
-
-        // 1=动态页 2=首页 4=登录页
-        String refererUrl = StringUtils.defaultIfBlank(request.getHeader("Referer"), "");
-        if (refererUrl.contains("/user/login")) {
-            fromWhere = 4;
-        } else if (refererUrl.contains("/dashboard/home")) {
-            fromWhere = 2;
-        } else if (refererUrl.contains("/feeds/")) {
-            fromWhere = 1;
-        }
+    public RespBody list(HttpServletRequest request) {
+        final ID user = AppUtils.getRequestUser(request);
+        int fromWhere = getIntParameter(request, "from", 0);
 
         if (fromWhere == 0) {
-            writeSuccess(response);
-            return;
+            // 1=动态页 2=首页 4=登录页
+            String refererUrl = StringUtils.defaultIfBlank(request.getHeader("Referer"), "");
+            if (refererUrl.contains("/user/login")) {
+                fromWhere = 4;
+            } else if (refererUrl.contains("/dashboard/home")) {
+                fromWhere = 2;
+            } else if (refererUrl.contains("/feeds/")) {
+                fromWhere = 1;
+            }
         }
+
+        if (fromWhere == 0) return RespBody.ok();
 
         Object[][] array = Application.createQueryNoFilter(
                 "select content,contentMore,scope,createdBy,createdOn,feedsId from Feeds where type = 3")
@@ -106,7 +105,7 @@ public class AnnouncementController extends BaseController {
             }
         }
 
-        writeSuccess(response, as);
+        return RespBody.ok(as);
     }
 
     private Date parseTime(String time) {

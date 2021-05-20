@@ -52,7 +52,10 @@
       <div class="rb-bgimg"></div>
       <div class="rb-content">
         <div class="announcement-wrapper">
-          <div class="bg-danger" th:if="${UsersMsg != null}"><i class="icon zmdi zmdi-alert-octagon"></i><p th:utext="${UsersMsg}"></p></div>
+          <div class="bg-danger" th:if="${UsersMsg != null}">
+            <i class="icon zmdi zmdi-alert-octagon"></i>
+            <p th:utext="${UsersMsg}"></p>
+          </div>
         </div>
         <div class="main-content container-fluid">
           <div class="splash-container mb-1">
@@ -71,7 +74,7 @@
                       <input class="form-control" type="text" th:placeholder="${bundle.L('Captcha')}" />
                     </div>
                     <div class="col-6 text-right pl-0 pr-0">
-                      <img class="mw-100 mr-zero" src="captcha" th:title="${bundle.L('ClickReload')}"  alt="CAPTCHA"/>
+                      <img class="mw-100 mr-zero" src="captcha" th:title="${bundle.L('ClickReload')}" alt="CAPTCHA" />
                     </div>
                   </div>
                   <div class="form-group row login-tools">
@@ -99,7 +102,7 @@
               </div>
             </div>
             <div class="splash-footer">
-              <div class="copyright link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('RebuildPowered')}"/></div>
+              <div class="copyright link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('RebuildPowered')}" /></div>
             </div>
           </div>
         </div>

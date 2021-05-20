@@ -7,21 +7,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 /**
  * @see com.rebuild.web.RebuildWebConfigurer
  */
+@Slf4j
 @Component("thymeleafViewResolver")
 public class MockThymeleafViewResolver extends ThymeleafViewResolver {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MockThymeleafViewResolver.class);
-
     public MockThymeleafViewResolver() {
         super();
-        LOG.warn("Mock `thymeleafViewResolver` has been enabled");
+        log.warn("Mock `thymeleafViewResolver` has been enabled");
     }
 }

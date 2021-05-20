@@ -46,7 +46,7 @@ public class EasyEntity extends BaseEasyMeta<Entity> {
     @Override
     public JSON toJSON() {
         return JSONUtils.toJSONObject(
-                new String[] { "entity", "entityLabel", "icon" },
-                new String[] { getName(), getLabel(), getIcon() });
+                new String[] { "entity", "entityLabel", "entityCode", "icon" },
+                new Object[] { getName(), getLabel(), getRawMeta().getEntityCode(), getIcon() });
     }
 }

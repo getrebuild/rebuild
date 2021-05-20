@@ -9,6 +9,7 @@ package com.rebuild.web.feeds;
 
 import cn.devezhao.bizz.security.member.Team;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
@@ -17,12 +18,11 @@ import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 
 /**
@@ -32,12 +32,12 @@ import java.util.Set;
  * @see Team
  * @since 2019/11/8
  */
-@Controller
+@RestController
 @RequestMapping("/feeds/group/")
 public class FeedsGroupController extends BaseController {
 
     @GetMapping("group-list")
-    public void groupList(HttpServletRequest request, HttpServletResponse response) {
+    public JSON groupList(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         final String query = getParameter(request, "q");
         Set<Team> teams = Application.getUserStore().getUser(user).getOwningTeams();
@@ -49,16 +49,14 @@ public class FeedsGroupController extends BaseController {
                 JSONObject o = JSONUtils.toJSONObject(
                         new String[]{"id", "name"}, new Object[]{t.getIdentity(), t.getName()});
                 ret.add(o);
-                if (ret.size() >= 20) {
-                    break;
-                }
+                if (ret.size() >= 20) break;
             }
         }
-        writeSuccess(response, ret);
+        return ret;
     }
 
     @GetMapping("user-list")
-    public void userList(HttpServletRequest request, HttpServletResponse response) {
+    public JSON userList(HttpServletRequest request) {
         final String query = getParameter(request, "q");
 
         JSONArray ret = new JSONArray();
@@ -70,11 +68,9 @@ public class FeedsGroupController extends BaseController {
                         new String[]{"id", "name"},
                         new Object[]{u.getId(), u.getFullName()});
                 ret.add(o);
-                if (ret.size() >= 20) {
-                    break;
-                }
+                if (ret.size() >= 20) break;
             }
         }
-        writeSuccess(response, ret);
+        return ret;
     }
 }

@@ -118,4 +118,16 @@ public class CommonsUtils {
         return BigDecimal.valueOf(doubleValue)
                 .setScale(0, RoundingMode.HALF_UP).longValue();
     }
+
+    /**
+     * 打印调用栈（for DEBUG）
+     *
+     * @return
+     */
+    public static void printStackTrace() {
+        StackTraceElement[] trace = Thread.currentThread().getStackTrace();
+        for (StackTraceElement traceElement : trace) {
+            System.err.println("\tat " + traceElement);
+        }
+    }
 }

@@ -27,6 +27,7 @@ import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
+import com.rebuild.web.IdParam;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -112,8 +113,7 @@ public class FeedsListController extends BaseController {
             }
         }
 
-        String sql = "select feedsId,createdBy,createdOn,modifiedOn,content,images,attachments," +
-                "scope,type,relatedRecord,contentMore from Feeds where " + sqlWhere;
+        String sql = ITEM_SQL + sqlWhere;
 
         // 焦点动态
         ID foucs = getIdParameter(request, "foucs");
@@ -150,38 +150,62 @@ public class FeedsListController extends BaseController {
 
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
-            JSONObject item = buildBase(o, user);
-            FeedsScope scope = FeedsScope.parse((String) o[7]);
-            if (scope == FeedsScope.GROUP) {
-                Team team = Application.getUserStore().getTeam(ID.valueOf((String) o[7]));
-                item.put("scope", new Object[]{team.getIdentity(), team.getName()});
-            } else {
-                item.put("scope", scope.getName());
-            }
-            item.put("type", o[8]);
-            item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
-
-            // 相关记录
-            ID related = (ID) o[9];
-            if (related != null && MetadataHelper.containsEntity(related.getEntityCode())) {
-                EasyEntity entity = EasyMetaFactory.valueOf(related.getEntityCode());
-                String nameValue = FieldValueHelper.getLabelNotry(related);
-                JSONObject mixValue = FieldValueHelper.wrapMixValue(related, nameValue);
-                mixValue.put("icon", entity.getIcon());
-                mixValue.put("entityLabel", entity.getLabel());
-                item.put("relatedRecord", mixValue);
-            }
-
-            // 更多内容
-            if (o[10] != null) {
-                item.put("contentMore", JSON.parse((String) o[10]));
-            }
-
-            list.add(item);
+            list.add(buildItem(o, user));
         }
 
         return RespBody.ok(JSONUtils.toJSONObject(
                 new String[] { "total", "data" }, new Object[] { count, list }));
+    }
+
+    @GetMapping("/feeds/feeds-details")
+    public RespBody fetchDetails(@IdParam ID feedsId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        String sql = ITEM_SQL + "feedsId = ?";
+        Object[] o = Application.createQueryNoFilter(sql).setParameter(1, feedsId).unique();
+
+        JSONObject data = buildItem(o, user);
+
+        boolean fromEdit = getBoolParameter(request, "edit");
+        if (fromEdit) {
+            data.put("content", o[4]);
+        }
+
+        return RespBody.ok(data);
+    }
+
+    private static final String ITEM_SQL = "select" +
+            " feedsId,createdBy,createdOn,modifiedOn,content,images,attachments,scope,type,relatedRecord,contentMore" +
+            " from Feeds where ";
+
+    private JSONObject buildItem(Object[] o, ID user) {
+        JSONObject item = formatBase(o, user);
+        FeedsScope scope = FeedsScope.parse((String) o[7]);
+        if (scope == FeedsScope.GROUP) {
+            Team team = Application.getUserStore().getTeam(ID.valueOf((String) o[7]));
+            item.put("scope", new Object[]{team.getIdentity(), team.getName()});
+        } else {
+            item.put("scope", scope.getName());
+        }
+        item.put("type", o[8]);
+        item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));
+
+        // 相关记录
+        ID related = (ID) o[9];
+        if (related != null && MetadataHelper.containsEntity(related.getEntityCode())) {
+            EasyEntity entity = EasyMetaFactory.valueOf(related.getEntityCode());
+            String nameValue = FieldValueHelper.getLabelNotry(related);
+            JSONObject mixValue = FieldValueHelper.wrapMixValue(related, nameValue);
+            mixValue.put("icon", entity.getIcon());
+            mixValue.put("entityLabel", entity.getLabel());
+            item.put("relatedRecord", mixValue);
+        }
+
+        // 更多内容
+        if (o[10] != null) {
+            item.put("contentMore", JSON.parse((String) o[10]));
+        }
+
+        return item;
     }
 
     @GetMapping("/feeds/comments-list")
@@ -211,7 +235,7 @@ public class FeedsListController extends BaseController {
 
         List<JSON> list = new ArrayList<>();
         for (Object[] o : array) {
-            JSONObject item = buildBase(o, user);
+            JSONObject item = formatBase(o, user);
             list.add(item);
         }
 
@@ -219,13 +243,13 @@ public class FeedsListController extends BaseController {
                 new String[] { "total", "data" }, new Object[] { count, list }));
     }
 
-    private JSONObject buildBase(Object[] o, ID user) {
+    private JSONObject formatBase(Object[] o, ID user) {
         JSONObject item = new JSONObject();
         item.put("id", o[0]);
         item.put("self", o[1].equals(user));
         item.put("createdBy", new Object[]{o[1], UserHelper.getName((ID) o[1])});
         item.put("createdOn", I18nUtils.formatDate((Date) o[2]));
-        item.put("modifedOn", I18nUtils.formatDate((Date) o[3]));
+        item.put("modifiedOn", I18nUtils.formatDate((Date) o[3]));
         item.put("content", FeedsHelper.formatContent((String) o[4]));
         if (o[5] != null) {
             item.put("images", JSON.parse((String) o[5]));

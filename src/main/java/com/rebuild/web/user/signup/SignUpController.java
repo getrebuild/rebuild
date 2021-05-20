@@ -90,7 +90,7 @@ public class SignUpController extends BaseController {
         String email = data.getString("email");
         String vcode = data.getString("vcode");
         if (!VerfiyCode.verfiy(email, vcode, true)) {
-            return RespBody.error("SomeInvalid,Captcha");
+            return RespBody.errorl("SomeInvalid,Captcha");
         }
 
         String loginName = data.getString("loginName");

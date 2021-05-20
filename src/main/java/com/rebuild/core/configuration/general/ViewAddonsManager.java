@@ -143,8 +143,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "items", "autoExpand" },
-                new Object[] { addons, ((JSONObject) configJson).getBooleanValue("autoExpand") });
+                new String[] { "items", "autoExpand", "autoHide" },
+                new Object[] { addons,
+                        ((JSONObject) configJson).getBooleanValue("autoExpand"),
+                        ((JSONObject) configJson).getBooleanValue("autoHide") });
     }
 
     /**

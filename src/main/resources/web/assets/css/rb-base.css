@@ -23017,8 +23017,10 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
 
 /* fileicon.types */
 .file-icon[data-type='zip'],
-.file-icon[data-type='rar'] {
-  background: #acacac;
+.file-icon[data-type='rar'],
+.file-icon[data-type='7z'],
+.file-icon[data-type='gz'] {
+  background: #b10b49;
 }
 
 .file-icon[data-type^='doc'] {

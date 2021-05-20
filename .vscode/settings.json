@@ -13,5 +13,7 @@
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+
+  "LineCount.excludes": ["**/.vscode/**", "**/.idea/**", "**/node_modules/**", "**/target/**", "**/assets/lib/**"]
 }

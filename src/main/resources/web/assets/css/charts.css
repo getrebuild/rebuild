@@ -231,6 +231,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
   opacity: 0.8;
 }
 
+.chart-box.ApprovalList .progress-wrap .progress-bar.active {
+  font-weight: bold;
+  box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.15);
+}
+
 .chart.FeedsSchedule td > .content {
   max-height: 37px;
   overflow: hidden;

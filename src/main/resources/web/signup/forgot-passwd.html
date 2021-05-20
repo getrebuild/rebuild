@@ -66,14 +66,14 @@
           $('.J_email').text(email)
           const $btn = $(this).button('loading')
           $.post('/user/user-forgot-passwd?email=' + $encode(email), function (res) {
-            if (res.error_code == 0) {
+            $btn.button('reset')
+            if (res.error_code === 0) {
               $('.J_step1').hide()
               $('.J_step2').removeClass('hide')
               resend_countdown(true)
             } else {
               RbHighbar.create(res.error_msg)
             }
-            $btn.button('reset')
           })
         })
 
@@ -93,11 +93,9 @@
 
           const $btn = $(this).button('loading')
           $.post('/user/user-confirm-passwd', JSON.stringify(_data), function (res) {
-            if (res.error_code == 0) {
+            if (res.error_code === 0) {
               $btn.text('操作成功')
-              setTimeout(() => {
-                location.href = 'login'
-              }, 1000)
+              setTimeout(() => (location.href = 'login'), 1000)
             } else {
               RbHighbar.create(res.error_msg)
               $btn.button('reset')
@@ -107,15 +105,17 @@
       })
 
       let countdown_timer
-      let countdown_seconds = 60
+      let countdown_seconds
       const resend_countdown = function (first) {
-        if (first === true) {
-          $('.J_vcode-resend').attr('disabled', true)
+        if (first) {
           if (countdown_timer) clearTimeout(countdown_timer)
+          $('.J_vcode-resend').attr('disabled', true)
           countdown_seconds = 60
         }
-        $('.J_vcode-resend').text('重新获取 (' + --countdown_seconds + ')')
-        if (countdown_seconds == 0) {
+
+        $('.J_vcode-resend').text(`重新获取 (${--countdown_seconds})`)
+
+        if (countdown_seconds === 0) {
           $('.J_vcode-resend').attr('disabled', false).text('重新获取')
         } else {
           countdown_timer = setTimeout(resend_countdown, 1000)

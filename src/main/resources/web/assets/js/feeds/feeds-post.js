@@ -305,7 +305,7 @@ class FeedsEditor extends React.Component {
   }
 
   _selectEmoji(emoji) {
-    $(this._$editor).insertAtCursor(`[${emoji}]`)
+    $(this._$editor).insertAtCursor(`[${emoji}] `)
     this.setState({ showEmoji: false })
   }
 
@@ -528,18 +528,18 @@ class ScheduleOptions extends React.Component {
           <dt className="col-12 col-lg-3">{$L('SendRemindToMe')}</dt>
           <dd className="col-12 col-lg-9 mb-0" ref={(c) => (this._$scheduleRemind = c)}>
             <label className="custom-control custom-checkbox custom-control-inline">
-              <input className="custom-control-input" name="showOn" type="checkbox" value={1} disabled={this.props.readonly} />
+              <input className="custom-control-input" name="remindOn" type="checkbox" value={1} disabled={this.props.readonly} />
               <span className="custom-control-label">{$L('Notification')}</span>
             </label>
             <label className="custom-control custom-checkbox custom-control-inline" title={email}>
-              <input className="custom-control-input" name="showOn" type="checkbox" value={2} disabled={this.props.readonly} />
+              <input className="custom-control-input" name="remindOn" type="checkbox" value={2} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('Mail')}
                 {!email && <span> ({$L('Unavailable')})</span>}
               </span>
             </label>
             <label className="custom-control custom-checkbox custom-control-inline" title={mobile}>
-              <input className="custom-control-input" name="showOn" type="checkbox" value={4} disabled={this.props.readonly} />
+              <input className="custom-control-input" name="remindOn" type="checkbox" value={4} disabled={this.props.readonly} />
               <span className="custom-control-label">
                 {$L('Sms')}
                 {!mobile && <span> ({$L('Unavailable')})</span>}

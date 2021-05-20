@@ -13,17 +13,19 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.feeds.FeedsType;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
-import org.springframework.stereotype.Controller;
+import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 操作相关
@@ -31,27 +33,23 @@ import javax.servlet.http.HttpServletResponse;
  * @author devezhao
  * @since 2019/11/1
  */
-@Controller
+@RestController
 @RequestMapping("/feeds/post/")
 public class FeedsPostController extends BaseController {
 
     @PostMapping({"publish", "comment"})
-    public void publish(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    public JSON publish(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         JSON formJson = ServletUtils.getRequestJson(request);
         Record record = EntityHelper.parse((JSONObject) formJson, user);
-        String content = record.getString("content");
-        record.setString("content", content);
 
         Application.getService(record.getEntity().getEntityCode()).createOrUpdate(record);
-        JSON ret = JSONUtils.toJSONObject("id", record.getPrimary());
-        writeSuccess(response, ret);
+        return JSONUtils.toJSONObject("id", record.getPrimary());
     }
 
     @RequestMapping("like")
-    public void like(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        ID source = getIdParameterNotNull(request, "id");
+    public RespBody like(HttpServletRequest request, @IdParam ID source) {
+        final ID user = getRequestUser(request);
 
         Object[] liked = Application.createQueryNoFilter(
                 "select likeId from FeedsLike where source = ? and createdBy = ?")
@@ -66,20 +64,18 @@ public class FeedsPostController extends BaseController {
             Application.getCommonsService().delete((ID) liked[0]);
         }
 
-        writeSuccess(response, liked == null);
+        return RespBody.ok(liked == null);
     }
 
     @RequestMapping("delete")
-    public void delete(HttpServletRequest request, HttpServletResponse response) {
-        ID anyId = getIdParameterNotNull(request, "id");
-        Application.getService(anyId.getEntityCode()).delete(anyId);
-        writeSuccess(response);
+    public RespBody delete(@IdParam ID anyFeedsId) {
+        Application.getService(anyFeedsId.getEntityCode()).delete(anyFeedsId);
+        return RespBody.ok();
     }
 
     @RequestMapping("finish-schedule")
-    public void finishSchedule(HttpServletRequest request, HttpServletResponse response) {
+    public RespBody finishSchedule(HttpServletRequest request, @IdParam ID feedsId) {
         final ID user = getRequestUser(request);
-        final ID feedsId = getIdParameterNotNull(request, "id");
 
         Object[] schedule = Application.createQueryNoFilter(
                 "select createdBy,contentMore from Feeds where feedsId = ? and type = ?")
@@ -87,8 +83,7 @@ public class FeedsPostController extends BaseController {
                 .setParameter(2, FeedsType.SCHEDULE.getMask())
                 .unique();
         if (schedule == null || !schedule[0].equals(user)) {
-            writeFailure(response, "无权操作他人日程");
-            return;
+            return RespBody.error(Language.L("NoOpPrivileges"));
         }
 
         // 非结构化存储
@@ -99,6 +94,7 @@ public class FeedsPostController extends BaseController {
         record.setString("contentMore", contentMore.toJSONString());
         record.removeValue(EntityHelper.ModifiedOn);
         Application.getCommonsService().update(record);
-        writeSuccess(response);
+
+        return RespBody.ok();
     }
 }
