@@ -49,7 +49,7 @@ public class Language implements Initialization {
             String name = pathname.getName();
             return name.startsWith("lang.") && name.endsWith(".json");
         });
-        if (langs == null || langs.length == 0) return;
+        if (langs == null) return;
 
         for (File file : langs) {
             log.info("Loading language bundle : {}", file);
@@ -171,7 +171,8 @@ public class Language implements Initialization {
     // -- Quick Methods
 
     /**
-     * 获取默认语言
+     * 获取系统默认语言
+     *
      * @return
      * @see Language#getDefaultBundle()
      */
@@ -181,6 +182,7 @@ public class Language implements Initialization {
 
     /**
      * 获取当前用户语言
+     *
      * @return
      * @see UserContextHolder#getLocale()
      */
@@ -193,14 +195,17 @@ public class Language implements Initialization {
     }
 
     public static String $L(StateSpec state) {
-        return $L(state.getName());
+        String lang = getCurrentBundle().getLang(state.getName());
+        return lang == null ? state.getName() : lang;
     }
 
     public static String $L(DisplayType type) {
-        return $L(type.getDisplayName());
+        String lang = getCurrentBundle().getLang(type.getDisplayName());
+        return lang == null ? type.getDisplayName() : lang;
     }
 
     public static String $L(BaseMeta meta) {
-        return $L(meta.getDescription());
+        String lang = getCurrentBundle().getLang(meta.getDescription());
+        return lang == null ? meta.getDescription() : lang;
     }
 }

@@ -394,7 +394,6 @@ class DlgImports extends RbModalHandler {
                       <div className="float-left">
                         <h5>{item.name}</h5>
                         <div className="text-muted">
-                          {$L('数据源')}{' '}
                           <a target="_blank" className="link" rel="noopener noreferrer" href={item.source}>
                             {item.author || item.source}
                           </a>
@@ -411,7 +410,7 @@ class DlgImports extends RbModalHandler {
                   )
                 })}
               </div>
-              <div className="mt-2 mr-2 text-right">
+              <div className="mt-2 text-right">
                 <a href="https://github.com/getrebuild/rebuild-datas/" className="link" target="_blank" rel="noopener noreferrer">
                   {$L('提交数据到 RB 仓库')}
                 </a>

@@ -761,13 +761,13 @@ var _$unthy = function (text) {
  */
 var $L = function () {
   var args = arguments
-  var lang = __$L(args[0])
+  var lang = _getLang(args[0])
   if (args.length <= 1) return lang
   // 替换占位符 %s %d
-  for (var i = 1; i < args.length; i++) lang = lang.replace(/\\%[sd]/, args[i])
+  for (var i = 1; i < args.length; i++) lang = lang.replace(/%[sd]/, args[i])
   return lang
 }
-var __$L = function (key) {
+var _getLang = function (key) {
   var lang = (window._LANGBUNDLE || {})[key]
   if (!lang) {
     console.warn('Missing lang-key `' + key + '`')

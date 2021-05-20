@@ -102,15 +102,15 @@
 
           const $new = render_entity({
             icon: 'plus',
-            entityLabel: $L('AddEntity'),
-            comments: $L('AddEntityTips'),
+            entityLabel: $L('添加实体'),
+            comments: $L('添加一个新的实体'),
           })
           $new
             .find('a.card')
             .attr('href', 'javascript:;')
             .click(function () {
-              if (window.__PageConfig.isSuperAdmin) RbModal.create('/p/admin/metadata/entity-new', $L('AddEntity'))
-              else RbHighbar.error('OnlyAdminCanSome,AddEntity')
+              if (window.__PageConfig.isSuperAdmin) RbModal.create('/p/admin/metadata/entity-new', $L('添加实体'))
+              else RbHighbar.error('仅超级管理员可添加实体')
             })
         })
       })
@@ -121,8 +121,8 @@
         $t.find('.icon').addClass('zmdi-' + item.icon)
         $t.find('span').text(item.entityLabel)
         $t.find('p').text(item.comments || '-')
-        if (item.builtin) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('BuiltIn')}</i>`).appendTo($t.find('a.card'))
-        if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('Detail')}</i>`).appendTo($t.find('a.card'))
+        if (item.builtin) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('内置')}</i>`).appendTo($t.find('a.card'))
+        if (!!item.detailEntity) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('明细')}</i>`).appendTo($t.find('a.card'))
         return $t
       }
     </script>

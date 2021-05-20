@@ -101,8 +101,8 @@
           if (event.which == 13) $('.input-search .btn').trigger('click')
         })
         $('.J_new-field').click(function () {
-          if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('AddField'))
-          else RbHighbar.error($L('OnlyAdminCanSome,AddField'))
+          if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}`, $L('添加字段'))
+          else RbHighbar.error($L('仅超级管理员可添加字段'))
         })
       })
 
@@ -124,7 +124,7 @@
           const $name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo($tr)
           if (item.fieldName == wpc.nameField) {
             $tr.addClass('primary')
-            $(`<span class="badge badge-pill badge-secondary thin ml-1">${$L('Name')}</span>`).appendTo($name)
+            $(`<span class="badge badge-pill badge-secondary thin ml-1">${$L('名称')}</span>`).appendTo($name)
           } else if (item.creatable == false) {
             $tr.addClass('muted')
           } else if (item.nullable == false) {
@@ -132,11 +132,11 @@
           }
           $(`<td><div class="text-muted">${item.fieldName}</div></td>`).appendTo($tr)
           $(`<td><div class="text-muted">${item.displayType}</div></td>`).appendTo($tr)
-          $(`<td><div class="text-none" _title="${$L('Null')}">${item.comments || ''}</div></td>`).appendTo($tr)
+          $(`<td><div class="text-none" _title="${$L('无')}">${item.comments || ''}</div></td>`).appendTo($tr)
           $(`<td class="actions"><a class="icon J_edit" href="field/${item.fieldName}"><i class="zmdi zmdi-settings"></i></a></td>`).appendTo($tr)
         })
 
-        $('.dataTables_info').text($L('CountXItems').replace('%d', $tbody.find('tr').length))
+        $('.dataTables_info').text($L('共 %d 个字段', $tbody.find('tr').length))
         $('#dataList').parent().removeClass('rb-loading-active')
       }
     </script>

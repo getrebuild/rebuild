@@ -112,19 +112,19 @@
         const $drop = $('.J_drop-confirm').click(() => {
           if ($('.J_drop-check').prop('checked') == false) return
           if (!window.__PageConfig.isSuperAdmin) {
-            RbHighbar.error($L('OnlyAdminCanSome,DeleteEntity'))
+            RbHighbar.error($L('仅超级管理员可删除实体'))
             return
           }
 
-          RbAlert.create($L('DeleteEntityConfirm'), $L('DeleteEntity'), {
+          RbAlert.create($L('实体删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除实体'), {
             type: 'danger',
-            confirmText: $L('Delete'),
+            confirmText: $L('删除'),
             confirm: function () {
               $drop.button('loading')
               this.disabled(true)
               $.post('../entity-drop?id=' + metaId + '&force=' + $('.J_drop-force').prop('checked'), (res) => {
-                if (res.error_code == 0) {
-                  RbHighbar.success($L('SomeDeleted,Entity'))
+                if (res.error_code === 0) {
+                  RbHighbar.success($L('实体已删除'))
                   setTimeout(function () {
                     location.replace('../../entities')
                   }, 1500)

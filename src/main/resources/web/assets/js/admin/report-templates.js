@@ -188,7 +188,7 @@ class ReporEdit extends ConfigFormDlg {
   confirm = () => {
     const post = { name: this.state['name'] }
     if (!post.name) {
-      RbHighbar.create($L('请输入,Name'))
+      RbHighbar.create($L('请输入名称'))
       return
     }
     if (this.props.id) {

@@ -43,7 +43,7 @@ public class LanguageBundle implements JSONable {
     // 代码
     private static final Pattern CODE_PATT = Pattern.compile("`(.*?)`");
 
-    protected JSONObject bundle;
+    private JSONObject bundle;
     private String locale;
     private String bundleHash;
 
@@ -69,8 +69,8 @@ public class LanguageBundle implements JSONable {
 
         JSONObject newBundle = new JSONObject();
         for (String key : bundle.keySet()) {
-            String value = bundle.getString(key);
-            newBundle.put(key, formatLang(value));
+            String text = bundle.getString(key);
+            newBundle.put(key, formatLang(text));
         }
 
         this.bundleHash = EncryptUtils.toMD5Hex(newBundle.toJSONString());
@@ -158,12 +158,16 @@ public class LanguageBundle implements JSONable {
      * @return
      */
     public String $L(String key, Object... placeholders) {
-        String lang = bundle.getString(key);
+        String lang = getLang(key);
         if (lang == null) {
-            log.warn("Missing lang [ {} ] for [ {} ]", key, getLocale());
+            log.warn("Missing lang `{}` for `{}`", key, getLocale());
             lang = key;
         }
         return placeholders.length > 0 ? String.format(lang, placeholders) : lang;
+    }
+
+    protected String getLang(String key) {
+        return bundle.getString(key);
     }
 
     @Override
@@ -178,7 +182,7 @@ public class LanguageBundle implements JSONable {
 
     // -- 系统语言
 
-    static final String SYS_LC = "zh_CN";
+    public static final String SYS_LC = "zh_CN";
     static final LanguageBundle SYS_BUNDLE = new LanguageBundle() {
         private static final long serialVersionUID = -5127621395095384712L;
         @Override
@@ -187,11 +191,8 @@ public class LanguageBundle implements JSONable {
         }
         @Override
         public String $L(String key, Object... placeholders) {
-            String lang = bundle.getString(key);
-            if (lang == null) {
-                lang = formatLang(key);
-                bundle.put(key, lang);
-            }
+            String lang = getLang(key);
+            if (lang == null) lang = formatLang(key);
             return placeholders.length > 0 ? String.format(lang, placeholders) : lang;
         }
     };

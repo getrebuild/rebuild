@@ -127,11 +127,11 @@
             passwd = $val('#passwd'),
             vcode = $val('.vcode-row input')
           if (!user || !passwd) {
-            RbHighbar.create($L('PlsInputSome,UsernameAndPassword'))
+            RbHighbar.create($L('请输入用户名和密码'))
             return
           }
           if ($('.vcode-row img').length > 0 && !vcode) {
-            RbHighbar.create($L('PlsInputSome,Captcha'))
+            RbHighbar.create($L('请输入验证码'))
             return
           }
 

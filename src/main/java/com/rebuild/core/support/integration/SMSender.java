@@ -107,7 +107,7 @@ public class SMSender {
         final String logContent = "【" + subject + "】" + content;
 
         // Use SMTP
-        if (specAccount.length >= 5 && specAccount[4] != null) {
+        if (specAccount.length >= 5 && StringUtils.isNotBlank(specAccount[4])) {
             String emailId;
             try {
                 emailId = sendMailViaSmtp(to, subject, content, specAccount);

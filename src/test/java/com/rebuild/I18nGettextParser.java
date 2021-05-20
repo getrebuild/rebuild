@@ -35,29 +35,35 @@ public class I18nGettextParser {
         log.info("Found {} items", into.size());
         // Bad text
         for (String text : into) {
-            if (text.contains("'") || text.contains("\"")) System.err.println(text);
+            if (text.contains(",") || text.contains("'") || text.contains("\"")) System.err.println(text);
         }
 
         File target = new File(root, "lang.zh_CN.json");
         if (target.exists()) target.delete();
 
         JSONObject content = new JSONObject(true);
-        content.put("_", "[中文]");
-        for (String gettext : into) {
-            content.put(gettext, String.format("[%s]", gettext));
+        content.put("_", wrapText("中文"));
+        for (String text : into) {
+            if (content.containsKey(text)) continue;
+            content.put(text, wrapText(text));
         }
 
         FileUtils.writeStringToFile(target, JSONUtils.prettyPrint(content));
         log.info("File write : {}", target.getAbsolutePath());
     }
 
+    static String wrapText(String text) {
+//        return String.format("[%s]", text);
+        return text;
+    }
+
     static void parse(File fileOrDir, Set<String> into) throws IOException {
         String fileName = fileOrDir.getName();
         if (fileOrDir.isFile()) {
             if (fileName.endsWith(".js")) {
-                into.addAll(parseJs(fileOrDir));
+                into.addAll(parseStatic(fileOrDir));
             } else if (fileName.endsWith(".html")) {
-                into.addAll(parseHtml(fileOrDir));
+                into.addAll(parseStatic(fileOrDir));
             } else if (fileName.endsWith(".java")) {
                 into.addAll(parseJava(fileOrDir));
             }
@@ -74,23 +80,16 @@ public class I18nGettextParser {
         }
     }
 
-    static List<String> parseJs(File file) throws IOException {
-        Pattern pattern = Pattern.compile("\\$L\\('(.*?)'[,)]+");
-        return parseWithPattern(file, pattern);
-    }
-
-    static List<String> parseHtml(File file) throws IOException {
-        Pattern pattern = Pattern.compile("bundle\\.\\$L\\('(.*?)'\\)");
+    static List<String> parseStatic(File file) throws IOException {
+        Pattern pattern = Pattern.compile("\\$L\\('(.*?)'[,)]");
         return parseWithPattern(file, pattern);
     }
 
     static List<String> parseJava(File file) throws IOException {
         Pattern pattern = Pattern.compile("\\$L\\(\"(.*?)\"[,)]");
         List<String> list = new ArrayList<>(parseWithPattern(file, pattern));
-
         pattern = Pattern.compile("errorl\\(\"(.*?)\"[,)]");
         list.addAll(parseWithPattern(file, pattern));
-
         return list;
     }
 
@@ -101,7 +100,7 @@ public class I18nGettextParser {
         List<String> list = new ArrayList<>();
         while (matcher.find()) {
             String gettext = matcher.group(1);
-            log.info("` {} ` in ` {} `", gettext, file.getName());
+            log.info("`{}` in {}", gettext, file.getName());
             list.add(gettext);
         }
         return list;

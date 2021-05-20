@@ -20,11 +20,11 @@ $(document).ready(function () {
     }
 
     if ((type === 'REFERENCE' || type === 'N2NREFERENCE') && !refEntity) {
-      return RbHighbar.create('PlsSelectSome,RefEntity')
+      return RbHighbar.create('请选择引用实体')
     } else if (type === 'CLASSIFICATION' && !refClassification) {
-      return RbHighbar.create('PlsSelectSome,Classification')
+      return RbHighbar.create('请选择分类数据')
     } else if (type === 'STATE' && !stateClass) {
-      return RbHighbar.create('PlsInputSome,StateClass')
+      return RbHighbar.create('请选择状态类 (Enum)')
     }
 
     const data = {
@@ -54,7 +54,9 @@ $(document).ready(function () {
         } else {
           parent.location.href = `${rb.baseUrl}/admin/entity/${entity}/field/${res.data}`
         }
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   })
 

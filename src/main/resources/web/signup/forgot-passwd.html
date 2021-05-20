@@ -61,7 +61,7 @@
         let email
         $('.J_forgot-btn, .J_vcode-resend').click(function () {
           email = $val('#email')
-          if (!email) return RbHighbar.create($L('PlsInputSome,Email'))
+          if (!email) return RbHighbar.create($L('请输入邮箱'))
 
           $('.J_email').text(email)
           const $btn = $(this).button('loading')
@@ -81,9 +81,9 @@
           const vcode = $val('#vcode')
           const newpwd = $val('#newpwd')
           const newpwd2 = $val('#newpwd2')
-          if (!vcode) return RbHighbar.create($L('PlsInputSome,Captcha'))
-          if (!newpwd) return RbHighbar.create($L('PlsInputSome,NewPassword'))
-          if (newpwd !== newpwd2) returnRbHighbar.create($L('PasswordNotMatch'))
+          if (!vcode) return RbHighbar.create($L('请输入验证码'))
+          if (!newpwd) return RbHighbar.create($L('请输入新密码'))
+          if (newpwd !== newpwd2) returnRbHighbar.create($L('两次输入的新密码不一致'))
 
           const _data = {
             email: email,
@@ -94,7 +94,7 @@
           const $btn = $(this).button('loading')
           $.post('/user/user-confirm-passwd', JSON.stringify(_data), function (res) {
             if (res.error_code === 0) {
-              $btn.text('操作成功')
+              $btn.text('密码已重置')
               setTimeout(() => (location.href = 'login'), 1000)
             } else {
               RbHighbar.create(res.error_msg)

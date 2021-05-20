@@ -50,13 +50,13 @@
         const $btn = $('.J_verify-btn').click(function () {
           const passwd = $val('#admin-passwd')
           if (!passwd) {
-            RbHighbar.create($L('PlsInputSome', 'Password'))
+            RbHighbar.create($L('请输入密码'))
             return false
           }
 
           $btn.button('loading')
           $.post('admin-verify?passwd=' + $encode(passwd), function (res) {
-            if (res.error_code == 0) location.replace(nexturl)
+            if (res.error_code === 0) location.replace(nexturl)
             else {
               RbHighbar.create(res.error_msg)
               $btn.button('reset')

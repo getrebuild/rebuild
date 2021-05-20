@@ -497,7 +497,7 @@ class UserSelector extends React.Component {
                     <span key={`s-${item.id}`} className="select2-selection__choice">
                       <span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>
                         &times;
-                      </span>{' '}
+                      </span>
                       {item.text}
                     </span>
                   )

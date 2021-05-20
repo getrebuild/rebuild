@@ -23,7 +23,10 @@ const WHENS = {
   512: `(${$L('定期执行')})`,
 }
 
-const RBV_TRIGGERS = ['HOOKURL', 'AUTOTRANSFORM']
+const RBV_TRIGGERS = {
+  'HOOKURL': $L('回调URL'),
+  'AUTOTRANSFORM': $L('自动记录转换'),
+}
 
 const formatWhen = function (maskVal) {
   const as = []
@@ -161,7 +164,7 @@ class TriggerEdit extends ConfigFormDlg {
             placeholder: $L('选择触发类型'),
             allowClear: false,
             templateResult: function (s) {
-              if (RBV_TRIGGERS.includes(s.id)) {
+              if (Object.keys(RBV_TRIGGERS).includes(s.id)) {
                 return $(`<span>${s.text} <sup class="rbv"></sup></span>`)
               } else {
                 return s.text
@@ -208,8 +211,8 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
-    if (rb.commercial < 1 && RBV_TRIGGERS.includes(data.actionType)) {
-      return RbHighbar.create($L(`FreeVerNotSupportted,${data.actionType}`), { type: 'danger', html: true, timeout: 6000 })
+    if (rb.commercial < 1 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
+      return RbHighbar.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]), { type: 'danger', html: true, timeout: 6000 })
     }
 
     this.disabled(true)

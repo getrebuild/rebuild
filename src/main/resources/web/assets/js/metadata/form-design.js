@@ -65,29 +65,29 @@ $(document).ready(function () {
   })
 
   // @see field-new.html
-  const FIELD_TYPES = [
-    'TEXT',
-    'NTEXT',
-    'PHONE',
-    'EMAIL',
-    'URL',
-    'NUMBER',
-    'DECIMAL',
-    'DATE',
-    'DATETIME',
-    'PICKLIST',
-    'CLASSIFICATION',
-    'MULTISELECT',
-    'REFERENCE',
-    'N2NREFERENCE',
-    'FILE',
-    'IMAGE',
-    'AVATAR',
-    'SERIES',
-    'BARCODE',
-    'BOOL',
-  ]
-  FIELD_TYPES.forEach((type) => render_type(type))
+  const FIELD_TYPES = {
+    'TEXT': $L('文本'),
+    'NTEXT': $L('多行文本'),
+    'PHONE': $L('电话'),
+    'EMAIL': $L('邮箱'),
+    'URL': $L('链接'),
+    'NUMBER': $L('整数'),
+    'DECIMAL': $L('货币'),
+    'DATE': $L('日期'),
+    'DATETIME': $L('日期时间'),
+    'PICKLIST': $L('选项'),
+    'CLASSIFICATION': $L('分类'),
+    'MULTISELECT': $L('多选'),
+    'REFERENCE': $L('引用'),
+    'N2NREFERENCE': $L('多引用'),
+    'FILE': $L('附件'),
+    'IMAGE': $L('图片'),
+    'AVATAR': $L('头像'),
+    'SERIES': $L('自动编号'),
+    'BARCODE': $L('二维码'),
+    'BOOL': $L('布尔'),
+  }
+  for (let k in FIELD_TYPES) render_type({ name: k, label: FIELD_TYPES[k] })
 
   // SAVE
 
@@ -260,9 +260,9 @@ const render_unset = function (data) {
 }
 
 const render_type = function (fieldType) {
-  const $item = $(`<li class="dd-item"><div class="dd-handle">${$L(`t.${fieldType}`)}</div></li>`).appendTo('.type-list')
+  const $item = $(`<li class="dd-item"><div class="dd-handle">${$L(fieldType.label)}</div></li>`).appendTo('.type-list')
   $item.click(function () {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType}`, $L('添加字段'), { disposeOnHide: true })
+    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType.name}`, $L('添加字段'), { disposeOnHide: true })
     else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
   return $item
