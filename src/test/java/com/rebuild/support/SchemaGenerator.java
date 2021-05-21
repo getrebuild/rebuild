@@ -13,7 +13,7 @@ import cn.devezhao.persist4j.metadata.impl.ConfigurationMetadataFactory;
 import cn.devezhao.persist4j.util.support.Table;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
-import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import org.dom4j.Element;
 
 /**
@@ -33,8 +33,8 @@ public class SchemaGenerator {
 
         PMF = Application.getPersistManagerFactory();
 
-//        generate();
-        generate(EntityHelper.ExtformConfig);
+        generate();
+//        generate(EntityHelper.ExtformConfig);
 
         System.exit(0);
     }
@@ -44,7 +44,7 @@ public class SchemaGenerator {
      */
     static void generate() {
         for (Entity entity : PMF.getMetadataFactory().getEntities()) {
-            generate(entity.getEntityCode());
+            if (EasyMetaFactory.valueOf(entity).isBuiltin()) generate(entity.getEntityCode());
         }
     }
 

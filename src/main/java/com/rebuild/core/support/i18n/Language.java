@@ -195,9 +195,9 @@ public class Language implements Initialization {
         return getCurrentBundle().L(key, placeholders);
     }
 
-    public static String L(StateSpec state) {
-        String lang = getCurrentBundle().getLang(state.getName());
-        return lang == null ? state.getName() : lang;
+    public static String L(BaseMeta meta) {
+        String lang = getCurrentBundle().getLang(meta.getDescription());
+        return lang == null ? meta.getDescription() : lang;
     }
 
     public static String L(DisplayType type) {
@@ -210,8 +210,8 @@ public class Language implements Initialization {
         return lang == null ? type.getDisplayName() : lang;
     }
 
-    public static String L(BaseMeta meta) {
-        String lang = getCurrentBundle().getLang(meta.getDescription());
-        return lang == null ? meta.getDescription() : lang;
+    public static String L(StateSpec state) {
+        String lang = getCurrentBundle().getLang(state.getName());
+        return lang == null ? state.getName() : lang;
     }
 }

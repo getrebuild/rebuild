@@ -4,10 +4,20 @@ Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rig
 
 package com.rebuild;
 
+import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.metadata.BaseMeta;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
+import com.rebuild.core.BootApplication;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,14 +57,16 @@ public class I18nGettextParser {
         if (target.exists()) target.delete();
 
         JSONObject contents = new JSONObject(true);
-        contents.put("_", "中文");
+        sysDefined(contents);
+
         for (String text : into) {
             if (contents.containsKey(text)) continue;
             contents.put(text, text);
         }
 
         FileUtils.writeStringToFile(target, JSONUtils.prettyPrint(contents));
-        log.info("File write : {}", target.getAbsolutePath());
+        log.info("File write : {} ({})", target.getAbsolutePath(), contents.size());
+        System.exit(0);
     }
 
     static void parse(File fileOrDir, Set<String> into) throws IOException {
@@ -110,5 +122,39 @@ public class I18nGettextParser {
             list.add(gettext);
         }
         return list;
+    }
+
+    // 系统定义的
+
+    static void sysDefined(JSONObject into) {
+        into.put("_", "中文");
+
+        for (DisplayType o : DisplayType.values()) into.put(o.getDisplayName(), o.getDisplayName());
+        for (ActionType o : ActionType.values()) into.put(o.getDisplayName(), o.getDisplayName());
+        for (ApprovalState s : ApprovalState.values()) into.put(s.getName(), s.getName());
+
+        // 实体元数据
+
+        System.setProperty("spring.main.web-application-type", "none");  // No Web
+        System.setProperty("rbdev", "true");  // dev/debug mode
+        BootApplication.main(new String[0]);
+
+        for (Entity entity : Application.getPersistManagerFactory().getMetadataFactory().getEntities()) {
+            if (!EasyMetaFactory.valueOf(entity).isBuiltin()) continue;
+            sysDefinedMeta(entity, into);
+            for (Field field : entity.getFields()) {
+                if (!EasyMetaFactory.valueOf(field).isBuiltin()) continue;
+                sysDefinedMeta(field, into);
+            }
+        }
+        into.put("__", "__");
+    }
+
+    static void sysDefinedMeta(BaseMeta meta, JSONObject into) {
+        String text = meta.getDescription();
+        if (StringUtils.isNotBlank(text)) {
+            text = text.split("\\(")[0];
+            if (StringUtils.isNotBlank(text)) into.put(text, text);
+        }
     }
 }
