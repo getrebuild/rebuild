@@ -299,7 +299,7 @@ class FeedsComments extends React.Component {
           <span className={`${!this.state.openComment && 'hide'}`}>
             <FeedsEditor placeholder={$L('添加评论')} ref={(c) => (this._FeedsEditor = c)} />
             <div className="mt-2 text-right">
-              <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link">
+              <button onClick={() => this._commentState(false)} className="btn btn-sm btn-link mr-1">
                 {$L('取消')}
               </button>
               <button className="btn btn-sm btn-primary" ref={(c) => (this._$btn = c)} onClick={() => this._post()}>

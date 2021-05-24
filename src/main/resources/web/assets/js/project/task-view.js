@@ -1019,7 +1019,7 @@ class TaskComment extends React.Component {
           <span className={`${!this.state.openComment && 'hide'}`}>
             <TextEditor placeholder={$L('添加评论')} ref={(c) => (this._editor = c)} />
             <div className="mt-2 text-right" ref={(c) => (this._btns = c)}>
-              <button onClick={() => this.commentState(false)} className="btn btn-sm btn-link">
+              <button onClick={() => this.commentState(false)} className="btn btn-sm btn-link mr-1">
                 {$L('取消')}
               </button>
               <button className="btn btn-sm btn-primary" ref={(c) => (this._btn = c)} onClick={() => this._post()}>

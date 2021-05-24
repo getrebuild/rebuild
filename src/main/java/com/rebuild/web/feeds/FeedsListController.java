@@ -25,6 +25,7 @@ import com.rebuild.core.service.feeds.FeedsType;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -184,7 +185,7 @@ public class FeedsListController extends BaseController {
             Team team = Application.getUserStore().getTeam(ID.valueOf((String) o[7]));
             item.put("scope", new Object[]{team.getIdentity(), team.getName()});
         } else {
-            item.put("scope", scope.getName());
+            item.put("scope", Language.L(scope.getName()));
         }
         item.put("type", o[8]);
         item.put("numComments", FeedsHelper.getNumOfComment((ID) o[0]));

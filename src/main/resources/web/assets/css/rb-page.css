@@ -3678,10 +3678,7 @@ a.avatar.x26 img {
 .btn,
 .dropdown-item,
 .page-head-title,
-.card-header,
-.text-capitalize,
-.text-capitalize-s *,
-h1, h2, h3, h4, h5, h6 {
+.text-capitalize {
   text-transform: capitalize;
 }
 
