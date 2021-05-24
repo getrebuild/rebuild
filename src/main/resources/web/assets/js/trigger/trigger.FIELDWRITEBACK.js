@@ -201,7 +201,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           const $s2tf = $(this._targetField)
-            .select2({ placeholder: $L('选择明白字段') })
+            .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => this._changeTargetField())
           const $s2um = $(this._updateMode)
             .select2({ placeholder: $L('选择更新方式') })

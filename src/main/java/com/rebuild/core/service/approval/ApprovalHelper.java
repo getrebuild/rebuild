@@ -79,7 +79,7 @@ public class ApprovalHelper {
     }
 
     /**
-     * 流程是否正在使用中（处于审核中）
+     * 流程是否正在使用中（处于审批中）
      *
      * @param approvalId
      * @return

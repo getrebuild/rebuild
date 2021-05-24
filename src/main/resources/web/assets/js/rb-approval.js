@@ -281,7 +281,7 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 }
 
-// 审核提交
+// 审批提交
 class ApprovalSubmitForm extends ApprovalUsersForm {
   constructor(props) {
     super(props)

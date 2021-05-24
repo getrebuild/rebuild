@@ -124,7 +124,7 @@ public class FlowParser {
         if (nodeMap.containsKey(nodeId)) {
             return nodeMap.get(nodeId);
         }
-        throw new ApprovalException(Language.L("无效审核步骤节点 (%s)", nodeId));
+        throw new ApprovalException(Language.L("无效审批步骤节点 (%s)", nodeId));
     }
 
     /**

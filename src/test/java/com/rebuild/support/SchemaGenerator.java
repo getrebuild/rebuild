@@ -33,6 +33,7 @@ public class SchemaGenerator {
 
         PMF = Application.getPersistManagerFactory();
 
+        // !!! COMMENT DynamicMetadataFactory#appendConfig4Db
         generate();
 //        generate(EntityHelper.ExtformConfig);
 

@@ -1776,7 +1776,7 @@ th.column-fixed {
   left: 10px;
   margin: -11px 0 0;
   padding: 3px 5px 3px 5px;
-  color: #444;
+  color: #777;
 }
 
 .form-line.hover fieldset legend {
@@ -3677,7 +3677,11 @@ a.avatar.x26 img {
 .modal-title,
 .btn,
 .dropdown-item,
-.page-head-title {
+.page-head-title,
+.card-header,
+.text-capitalize,
+.text-capitalize-s *,
+h1, h2, h3, h4, h5, h6 {
   text-transform: capitalize;
 }
 

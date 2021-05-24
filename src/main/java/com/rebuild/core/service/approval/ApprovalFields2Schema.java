@@ -46,11 +46,11 @@ public class ApprovalFields2Schema extends Field2Schema {
             throw new RebuildException("Unsupported entity : " + approvalEntity.getName());
         }
 
-        Field apporvalId = createUnsafeField(approvalEntity, EntityHelper.ApprovalId, Language.L("审核流程"),
+        Field apporvalId = createUnsafeField(approvalEntity, EntityHelper.ApprovalId, Language.L("审批流程"),
                 DisplayType.REFERENCE, true, false, false, true, true, null, "RobotApprovalConfig", CascadeModel.Ignore, null, null);
-        Field apporvalState = createUnsafeField(approvalEntity, EntityHelper.ApprovalState, Language.L("审核状态"),
+        Field apporvalState = createUnsafeField(approvalEntity, EntityHelper.ApprovalState, Language.L("审批状态"),
                 DisplayType.STATE, true, false, false, true, true, null, null, null, null, ApprovalState.DRAFT.getState());
-        Field apporvalStepId = createUnsafeField(approvalEntity, EntityHelper.ApprovalStepNode, Language.L("审核步骤"),
+        Field apporvalStepId = createUnsafeField(approvalEntity, EntityHelper.ApprovalStepNode, Language.L("审批步骤"),
                 DisplayType.TEXT, true, false, false, true, false, null, null, null, null, null);
 
         boolean schemaReady = schema2Database(approvalEntity,

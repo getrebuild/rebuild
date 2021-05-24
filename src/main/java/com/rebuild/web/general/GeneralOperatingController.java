@@ -100,7 +100,7 @@ public class GeneralOperatingController extends BaseController {
 
         } catch (GenericJdbcException ex) {
             if (ex.getCause() instanceof DataTruncation) {
-                return RespBody.errorl("字段长度超过限制");
+                return RespBody.errorl("字段长度超出限制");
             }
 
             log.error(null, ex);

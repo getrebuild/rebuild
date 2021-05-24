@@ -49,7 +49,7 @@ import java.util.*;
  * <br>- 会带有系统设置规则的执行
  * <br>- 会开启一个事务，详见 <tt>application-bean.xml</tt> 配置
  *
- * 如有需要，其他实体可根据自身业务集成并实现/改写实现
+ * 如有需要，其他实体可根据自身业务继承并复写
  *
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
