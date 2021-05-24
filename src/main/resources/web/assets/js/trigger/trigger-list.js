@@ -24,7 +24,7 @@ const WHENS = {
 }
 
 const RBV_TRIGGERS = {
-  'HOOKURL': $L('回调URL'),
+  'HOOKURL': $L('回调 URL'),
   'AUTOTRANSFORM': $L('自动记录转换'),
 }
 

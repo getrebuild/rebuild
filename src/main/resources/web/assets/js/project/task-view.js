@@ -745,7 +745,7 @@ class ValueTagsEditor extends React.Component {
           <a onClick={() => this.toggleEditMode(false)}>
             <i className="zmdi zmdi-chevron-left" />
           </a>
-          {this.state.tagId ? $L('标记标签') : $L('添加标签')}
+          {this.state.tagId ? $L('编辑标签') : $L('添加标签')}
         </h5>
         <div className="p-3 pt-0">
           <div>

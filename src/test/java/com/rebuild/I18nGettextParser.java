@@ -60,6 +60,7 @@ public class I18nGettextParser {
         sysDefined(contents);
 
         for (String text : into) {
+            text = text.trim();
             if (contents.containsKey(text)) continue;
             contents.put(text, text);
         }
@@ -153,7 +154,7 @@ public class I18nGettextParser {
     static void sysDefinedMeta(BaseMeta meta, JSONObject into) {
         String text = meta.getDescription();
         if (StringUtils.isNotBlank(text)) {
-            text = text.split("\\(")[0];
+            text = text.split("\\(")[0].trim();
             if (StringUtils.isNotBlank(text)) into.put(text, text);
         }
     }

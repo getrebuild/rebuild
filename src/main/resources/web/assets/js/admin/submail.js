@@ -118,7 +118,7 @@ class TestSend extends RbAlert {
 
   confirm() {
     const receiver = $(this._input).val()
-    if (!receiver) return RbHighbar.create($L('请输入%s', this._typeName))
+    if (!receiver) return RbHighbar.create($L('请输入 %s', this._typeName))
 
     const conf = {}
     $('.syscfg table td[data-id]').each(function () {
