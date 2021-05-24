@@ -108,7 +108,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
             if (!notAllowed.isEmpty()) {
                 throw new DataSpecificationException(
-                        Language.LF("XNotNull", StringUtils.join(notAllowed, " / ")));
+                        Language.L("%s 不允许为空", StringUtils.join(notAllowed, " / ")));
             }
         }
         // 更新
@@ -134,7 +134,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
             if (!notAllowed.isEmpty()) {
                 throw new DataSpecificationException(
-                        Language.LF("XNotModify", StringUtils.join(notAllowed, " / ")));
+                        Language.L("%s 不允许修改", StringUtils.join(notAllowed, " / ")));
             }
         }
     }

@@ -11,6 +11,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.ServerStatus;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.stereotype.Controller;
@@ -29,10 +30,11 @@ import javax.servlet.http.HttpServletResponse;
 public class ErrorPageView extends BaseController {
 
     @GetMapping("/error/unsupported-browser")
-    public ModelAndView pageUnsupportedBrowser(HttpServletRequest request) {
+    public ModelAndView pageUnsupportedBrowser() {
         ModelAndView mv = createModelAndView("/error/error");
         mv.getModelMap().put("error_code", 400);
-        mv.getModelMap().put("error_msg", getLang(request, "UnsupportIE10"));
+        mv.getModelMap().put("error_msg",
+                Language.L("不支持 IE10 及以下的浏览器 [] 推荐使用 Edge、Chrome、Firefox 或 IE11"));
         return mv;
     }
 

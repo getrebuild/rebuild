@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('Icon')}]]</title>
+    <title>[[${bundle.L('图标')}]]</title>
     <style type="text/css">
       #icons a {
         display: inline-block;
@@ -33,8 +33,8 @@
       $(document).ready(function () {
         const call = parent && parent.clickIcon ? parent.clickIcon : console.log
         $(ZMDI_ICONS).each(function () {
-          if (ZMDI_ICONS_IGNORE.contains(this + '') == false) {
-            const $a = $('<a data-icon="' + this + '" title="' + this.toUpperCase() + '"><i class="zmdi zmdi-' + this + '"></a>').appendTo('#icons')
+          if (!ZMDI_ICONS_IGNORE.contains(this + '')) {
+            const $a = $(`<a data-icon="${this}" title="${this.toUpperCase()}"><i class="zmdi zmdi-${this}"></a>`).appendTo('#icons')
             $a.click(function () {
               call($(this).data('icon'))
             })

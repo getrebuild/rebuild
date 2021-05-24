@@ -21,7 +21,10 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.RecordBuilder;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.impl.*;
+import com.rebuild.core.metadata.impl.DynamicMetadataContextHolder;
+import com.rebuild.core.metadata.impl.Entity2Schema;
+import com.rebuild.core.metadata.impl.Field2Schema;
+import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.approval.RobotApprovalConfigService;
 import com.rebuild.core.service.trigger.RobotTriggerConfigService;
@@ -80,7 +83,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
     private String verfiyEntity(JSONObject entity) {
         String entityName = entity.getString("entity");
         if (MetadataHelper.containsEntity(entityName)) {
-            return Language.L("SomeDuplicate", "EntityName") + " : " + entityName;
+            return Language.L("实体名称已存在 : %s",entityName);
         }
 
         for (Object o : entity.getJSONArray("fields")) {
@@ -89,7 +92,7 @@ public class MetaschemaImporter extends HeavyTask<String> {
             if (DisplayType.REFERENCE.name().equals(dt) || DisplayType.N2NREFERENCE.name().equals(dt)) {
                 String refEntity = field.getString("refEntity");
                 if (!entityName.equals(refEntity) && !MetadataHelper.containsEntity(refEntity)) {
-                    return Language.L("MissRefEntity") + " : " + field.getString("fieldLabel") + " (" + refEntity + ")";
+                    return Language.L("缺少必要的引用实体 : %s (%s)", field.getString("fieldLabel"), refEntity);
                 }
             }
         }

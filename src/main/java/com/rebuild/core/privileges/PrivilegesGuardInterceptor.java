@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
 
 import java.lang.reflect.Method;
 import java.security.Guard;
+import java.util.Objects;
 
 /**
  * 权限验证 - 拦截所有 *Service 方法
@@ -58,10 +59,10 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             log.info("User [ " + caller + " ] call : " + invocation.getMethod());
         }
 
-        Class<?> invocationClass = invocation.getThis().getClass();
+        Class<?> invocationClass = Objects.requireNonNull(invocation.getThis()).getClass();
         // 验证管理员操作
         if (AdminGuard.class.isAssignableFrom(invocationClass) && !UserHelper.isAdmin(caller)) {
-            throw new AccessDeniedException(Language.L("Error403"));
+            throw new AccessDeniedException(Language.L("权限不足，访问被阻止"));
         }
         // 仅 EntityService 或子类会验证角色权限
         if (!EntityService.class.isAssignableFrom(invocationClass)) {
@@ -108,12 +109,13 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
         if (action == BizzPermission.CREATE) {
             // 明细实体
             if (entity.getMainEntity() != null) {
-                Assert.isTrue(Record.class.isAssignableFrom(idOrRecord.getClass()), "First argument must be Record!");
+                Assert.isTrue(Record.class.isAssignableFrom(idOrRecord.getClass()),
+                        "FIRST ARGUMENT MUST BE RECORD!");
 
                 Field dtmField = MetadataHelper.getDetailToMainField(entity);
                 ID mainid = ((Record) idOrRecord).getID(dtmField.getName());
                 if (mainid == null || !Application.getPrivilegesManager().allowUpdate(caller, mainid)) {
-                    throw new AccessDeniedException(Language.L("YouNoSomePermission", "AddDetail"));
+                    throw new AccessDeniedException(Language.L("你没有添加明细权限"));
                 }
                 allowed = true;
 
@@ -122,7 +124,7 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
             }
 
         } else {
-            Assert.notNull(recordId, "No primary in record!");
+            Assert.notNull(recordId, "NO PRIMARY IN RECORD!");
             allowed = Application.getPrivilegesManager().allow(caller, recordId, action);
         }
 
@@ -191,25 +193,25 @@ public class PrivilegesGuardInterceptor implements MethodInterceptor, Guard {
      * @return
      */
     private String formatHumanMessage(Permission action, Entity entity, ID target) {
-        String actionKey = null;
+        String actionHuman = null;
         if (action == BizzPermission.CREATE) {
-            actionKey = "Create";
+            actionHuman = Language.L("新建");
         } else if (action == BizzPermission.DELETE) {
-            actionKey = "Delete";
+            actionHuman = Language.L("删除");
         } else if (action == BizzPermission.UPDATE) {
-            actionKey = "Update";
+            actionHuman = Language.L("编辑");
         } else if (action == BizzPermission.ASSIGN) {
-            actionKey = "Assign";
+            actionHuman = Language.L("分派");
         } else if (action == BizzPermission.SHARE) {
-            actionKey = "Share";
+            actionHuman = Language.L("共享");
         } else if (action == EntityService.UNSHARE) {
-            actionKey = "UnShare";
+            actionHuman = Language.L("取消共享");
         }
 
         if (target == null) {
-            return Language.L("YouNoSomePermission", actionKey) + " (" + EasyMetaFactory.getLabel(entity) + ")";
+            return Language.L("你没有%s%s权限", actionHuman, EasyMetaFactory.getLabel(entity));
         } else {
-            return Language.L("YouNoSomeRecordPermission", actionKey) + " (" + target + ")";
+            return Language.L("你没有%s此记录的权限", actionHuman);
         }
     }
 }

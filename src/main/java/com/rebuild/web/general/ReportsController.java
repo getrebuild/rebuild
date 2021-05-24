@@ -20,6 +20,7 @@ import com.rebuild.core.service.dataimport.DataExporter;
 import com.rebuild.core.service.datareport.DataReportManager;
 import com.rebuild.core.service.datareport.EasyExcelGenerator;
 import com.rebuild.core.support.general.BatchOperatorQuery;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -83,7 +84,7 @@ public class ReportsController extends BaseController {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport),
-                getLang(request, "NoOpPrivileges"));
+                Language.L("无操作权限"));
 
         int dataRange = getIntParameter(request, "dr", BatchOperatorQuery.DR_PAGED);
         JSONObject queryData = (JSONObject) ServletUtils.getRequestJson(request);

@@ -14,6 +14,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationService;
 import com.rebuild.core.metadata.EntityHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.IdParam;
@@ -52,7 +53,7 @@ public class ClassificationController extends BaseController {
                 .setParameter(1, id)
                 .unique();
         if (data == null) {
-            resp.sendError(404, getLang(request, "SomeNotExists", "Classification"));
+            resp.sendError(404,  Language.L("分类数据不存在"));
             return null;
         }
 
@@ -78,7 +79,7 @@ public class ClassificationController extends BaseController {
                 .unique();
 
         if (data == null) {
-            return RespBody.errorl("SomeNotExists,Classification");
+            return RespBody.errorl("分类数据不存在");
         } else {
             return JSONUtils.toJSONObject(new String[] { "name", "openLevel" }, data);
         }
@@ -104,7 +105,7 @@ public class ClassificationController extends BaseController {
             }
             item.setInt("level", level);
         } else {
-            return RespBody.errorl("BadRequestParams");
+            return RespBody.errorl("无效请求参数");
         }
 
         String code = getParameter(request, "code");
@@ -146,7 +147,7 @@ public class ClassificationController extends BaseController {
                     .setParameter(1, dataId)
                     .array();
         } else {
-            return RespBody.errorl("BadRequestParams");
+            return RespBody.errorl("无效请求参数");
         }
 
         return RespBody.ok(child);

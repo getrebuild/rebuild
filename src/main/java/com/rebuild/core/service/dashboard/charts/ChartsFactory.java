@@ -36,7 +36,7 @@ public class ChartsFactory {
     public static ChartData create(ID chartId) throws ChartsException {
         ConfigBean chart = ChartManager.instance.getChart(chartId);
         if (chart == null) {
-            throw new ChartsException(Language.L("SomeInvalid", "Chart"));
+            throw new ChartsException(Language.L("无效图表"));
         }
 
         JSONObject config = (JSONObject) chart.getJSON("config");
@@ -51,14 +51,14 @@ public class ChartsFactory {
      * @throws ChartsException
      */
     public static ChartData create(JSONObject config, ID user) throws ChartsException {
-        String e = config.getString("entity");
-        if (!MetadataHelper.containsEntity(e)) {
-            throw new ChartsException(Language.LF("SourceEntityMiss", e));
+        String entityName = config.getString("entity");
+        if (!MetadataHelper.containsEntity(entityName)) {
+            throw new ChartsException(Language.L("源实体 [%s] 已不存在", entityName.toUpperCase()));
         }
 
-        Entity entity = MetadataHelper.getEntity(e);
+        Entity entity = MetadataHelper.getEntity(entityName);
         if (user == null || !Application.getPrivilegesManager().allowRead(user, entity.getEntityCode())) {
-            throw new DefinedException(Language.LF("NoReadEntity", EasyMetaFactory.getLabel(entity)));
+            throw new DefinedException(Language.L("没有读取 %s 的权限", EasyMetaFactory.getLabel(entity)));
         }
 
         String type = config.getString("type");
@@ -91,7 +91,7 @@ public class ChartsFactory {
     }
 
     /**
-     * 获取内建图表
+     * 获取内置图表
      *
      * @return
      */

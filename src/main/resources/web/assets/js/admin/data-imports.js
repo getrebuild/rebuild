@@ -83,15 +83,15 @@ const step_upload = () => {
 // 2. 字段映射
 const step_mapping = () => {
   if (!_Config.entity) {
-    RbHighbar.create($L('PlsSelectSome,ImportEntity'))
+    RbHighbar.create($L('请选择导入实体'))
     return
   }
   if (!_Config.file) {
-    RbHighbar.create($L('PlsUploadSome,DataFile'))
+    RbHighbar.create($L('请上传数据文件'))
     return
   }
   if (_Config.repeat_opt !== 3 && (!_Config.repeat_fields || _Config.repeat_fields.length === 0)) {
-    RbHighbar.create($L('PlsSelectSome,DuplicateFields'))
+    RbHighbar.create($L('请选择充重复判断字段'))
     return
   }
 
@@ -105,7 +105,7 @@ const step_mapping = () => {
 
     const _data = res.data
     if (_data.preview.length < 2 || _data.preview[0].length === 0) {
-      RbHighbar.create($L('UploadedFileNoData'))
+      RbHighbar.create($L('上传的文件无有效数据'))
       return
     }
 
@@ -129,7 +129,7 @@ const step_import = () => {
     if (item.nullable === true || !!item.defaultValue) {
       // Not be must
     } else if (fm[item.name] === undefined) {
-      RbHighbar.create($L('XRequiredField').replace('%s', item.label))
+      RbHighbar.create($L('%s 为必填字段，请选择', item.label))
       fm = null
       return false
     }
@@ -137,7 +137,7 @@ const step_import = () => {
   if (!fm) return
   _Config.fields_mapping = fm
 
-  RbAlert.create($L('DataImportConfirm'), {
+  RbAlert.create($L('请再次确认导入选项和字段映射。开始导入吗？'), {
     confirm: function () {
       this.disabled(true)
       $.post('/admin/data/data-imports/import-submit', JSON.stringify(_Config), (res) => {
@@ -180,20 +180,20 @@ const import_state = (taskid, inLoad) => {
 
     if (_data.isCompleted === true) {
       $('.J_import-bar').css('width', '100%')
-      $('.J_import_state').text($L('ImportFinshedTips').replace('%d', _data.succeeded))
+      $('.J_import_state').text($L('导入完成。共成功导入 %d 条数据', _data.succeeded))
     } else if (_data.isInterrupted === true) {
-      $('.J_import_state').text($L('ImportInterrupttedTips').replace('%d', _data.succeeded))
+      $('.J_import_state').text($L('导入被终止。已成功导入 %d 条数据', _data.succeeded))
     }
 
     if (_data.isCompleted === true || _data.isInterrupted === true) {
-      $('.J_step3-cancel').attr('disabled', true).text($L('ImportFinshed'))
+      $('.J_step3-cancel').attr('disabled', true).text($L('导入完成'))
       $('.J_step3-logs').removeClass('hide')
       import_inprogress = false
       return
     }
 
     if (_data.progress > 0) {
-      $('.J_import_state').text($L('DataImporting') + ' ' + _data.completed + '/' + _data.total)
+      $('.J_import_state').text($L('正在导入 ...') + ' ' + _data.completed + '/' + _data.total)
       $('.J_import-bar').css('width', _data.progress * 100 + '%')
     }
 
@@ -205,7 +205,7 @@ const import_state = (taskid, inLoad) => {
 
 // 3.3. 中断导入
 const import_cancel = () => {
-  RbAlert.create($L('ImportInterrupttedConfirm'), {
+  RbAlert.create($L('确认终止导入？请注意已导入数据无法自动删除'), {
     type: 'danger',
     confirm: function () {
       $.post(`/commons/task/cancel?taskid=${import_taskid}`, (res) => {
@@ -219,10 +219,10 @@ const import_cancel = () => {
 // 渲染字段映射
 const render_fieldsMapping = (columns, fields) => {
   const fieldMap = {}
-  const fieldSelect = $(`<select><option value="">${$L('Null')}</option></select>`)
+  const fieldSelect = $(`<select><option value="">${$L('无')}</option></select>`)
 
   $(fields).each((idx, item) => {
-    let canNull = item.nullable === false ? ` [${$L('Required')}]` : ''
+    let canNull = item.nullable === false ? ` [${$L('必填')}]` : ''
     if (item.defaultValue) canNull = ''
     $('<option value="' + item.name + '">' + item.label + canNull + '</option>').appendTo(fieldSelect)
     fieldMap[item.name] = item
@@ -239,7 +239,7 @@ const render_fieldsMapping = (columns, fields) => {
 
   $('#fieldsMapping tbody select')
     .select2({
-      placeholder: $L('Null'),
+      placeholder: $L('无'),
     })
     .on('change', function () {
       const val = $(this).val()
@@ -247,7 +247,7 @@ const render_fieldsMapping = (columns, fields) => {
       if (val) {
         $toe.parent().addClass('table-active')
         const field = fieldMap[val]
-        if (field.defaultValue) $toe.text($L('Default') + ' : ' + field.defaultValue)
+        if (field.defaultValue) $toe.text($L('默认') + ' : ' + field.defaultValue)
         else $toe.text('')
       } else {
         $toe.parent().removeClass('table-active')
@@ -273,10 +273,10 @@ function _checkUserPrivileges() {
   if (!_Config.entity || !_Config.owning_user) return
   $.get(`/admin/data/data-imports/check-user?user=${_Config.owning_user}&entity=${_Config.entity}`, (res) => {
     let hasError = []
-    if (res.data.canCreate !== true) hasError.push($L('Create'))
-    if (res.data.canUpdate !== true) hasError.push($L('Update'))
+    if (res.data.canCreate !== true) hasError.push($L('新建'))
+    if (res.data.canUpdate !== true) hasError.push($L('编辑'))
     if (hasError.length > 0) {
-      renderRbcomp(<RbAlertBox message={$L('SelectUserNoPermissionConfirm').replace('%s', hasError.join('/'))} />, 'user-warn')
+      renderRbcomp(<RbAlertBox message={$L('选择的用户无 %s 权限。但作为管理员，你可以强制导入', hasError.join('/'))} />, 'user-warn')
     } else {
       $('#user-warn').empty()
     }
@@ -296,7 +296,7 @@ function _renderRepeatFields(entity) {
     $el
       .select2({
         maximumSelectionLength: 3,
-        placeholder: $L('SelectSome,Field'),
+        placeholder: $L('选择字段'),
       })
       .on('change', function () {
         _Config.repeat_fields = $(this).val()

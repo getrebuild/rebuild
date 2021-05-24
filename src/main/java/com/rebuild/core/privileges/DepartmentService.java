@@ -62,14 +62,14 @@ public class DepartmentService extends BaseServiceImpl {
         if (record.hasValue("parentDept", false)) {
             ID parentDept = record.getID("parentDept");
             if (parentDept.equals(record.getPrimary())) {
-                throw new DataSpecificationException(Language.L("ParentDeptNotSelf"));
+                throw new DataSpecificationException(Language.L("父级部门不能选择自己"));
             }
 
             Department parent = Application.getUserStore().getDepartment(parentDept);
             Department that = Application.getUserStore().getDepartment(record.getPrimary());
 
             if (that.isChildren(parent, true)) {
-                throw new DataSpecificationException(Language.L("SubDeptNotAsParent"));
+                throw new DataSpecificationException(Language.L("子级部门不能同时作为父级部门"));
             }
         }
 
@@ -95,10 +95,10 @@ public class DepartmentService extends BaseServiceImpl {
 
         Department dept = Application.getUserStore().getDepartment(deptId);
         if (!dept.getMembers().isEmpty()) {
-            throw new OperationDeniedException("HAS MEMBERS");
+            throw new OperationDeniedException(Language.L("部门下有用户禁止删除"));
         }
         if (!dept.getChildren().isEmpty()) {
-            throw new OperationDeniedException("HAS SUB-DEPARTMENTS");
+            throw new OperationDeniedException(Language.L("部门下有子部门禁止删除"));
         }
 
         super.delete(deptId);
@@ -115,7 +115,7 @@ public class DepartmentService extends BaseServiceImpl {
         if (UserHelper.isAdmin(currentUser)) return;
 
         if (action == BizzPermission.CREATE || action == BizzPermission.DELETE) {
-            throw new PrivilegesException(Language.L("NoOpPrivileges"));
+            throw new PrivilegesException(Language.L("无操作权限"));
         }
 
         // 用户可自己改自己的部门
@@ -123,6 +123,6 @@ public class DepartmentService extends BaseServiceImpl {
         if (action == BizzPermission.UPDATE && dept.equals(currentDeptOfUser)) {
             return;
         }
-        throw new PrivilegesException(Language.L("NoOpPrivileges"));
+        throw new PrivilegesException(Language.L("无操作权限"));
     }
 }

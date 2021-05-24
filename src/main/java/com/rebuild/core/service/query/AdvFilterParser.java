@@ -127,7 +127,7 @@ public class AdvFilterParser extends SetUser {
 
         String equationHold = equation;
         if ((equation = validEquation(equation)) == null) {
-            throw new FilterParseException(Language.L("InvalidAdvExpr") + " : " + equationHold);
+            throw new FilterParseException(Language.L("无效的高级表达式 : %s", equationHold));
         }
 
         if ("OR".equalsIgnoreCase(equation)) {

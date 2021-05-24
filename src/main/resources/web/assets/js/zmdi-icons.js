@@ -1048,5 +1048,5 @@ const ZMDI_ICONS_IGNORE = [
   'format-indent-decrease',
   'format-indent-increase',
   'format-list-bulleted',
-  'attachment'
+  'attachment',
 ]

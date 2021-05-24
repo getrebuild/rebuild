@@ -22,6 +22,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
@@ -128,6 +129,7 @@ public class UserController extends EntityController {
             if (roleNew != null) {
                 set.remove(deptNew);
             } else if (enUser.getOwningRole() != null) {
+                // noinspection SuspiciousMethodCalls
                 set.remove(enUser.getOwningRole().getIdentity());
             }
 
@@ -154,8 +156,9 @@ public class UserController extends EntityController {
 
             if (did == null) {
                 String homeUrl = RebuildConfiguration.getHomeUrl();
-                String subject = getLang(request, "YourAccountActive");
-                String content = String.format(getLang(request, "NewUserAccountActive"), enUser.getFullName(), homeUrl, homeUrl);
+                String subject = Language.L("你的账户已激活");
+                String content = Language.L("%s 你的账户已激活！现在你可以登陆并使用系统。 [][] 登录地址 : [%s](%s) [][] 首次登陆，建议你立即修改密码！如有任何登陆或使用问题，请与系统管理员联系。",
+                        enUser.getFullName(), homeUrl, homeUrl);
 
                 SMSender.sendMailAsync(enUser.getEmail(), subject, content);
             }

@@ -36,7 +36,7 @@ public class EntityHelper {
         JSONObject metadata = data.getJSONObject(EntityRecordCreator.META_FIELD);
         if (metadata == null) {
             throw new FieldValueException(
-                    com.rebuild.core.support.i18n.Language.L("InvalidRecordJson") + " : " + data.toJSONString());
+                    com.rebuild.core.support.i18n.Language.L("无效实体数据格式 : %s", data.toJSONString()));
         }
 
         String entityName = metadata.getString("entity");
@@ -44,7 +44,7 @@ public class EntityHelper {
             String id = metadata.getString("id");
             if (!ID.isId(id)) {
                 throw new FieldValueException(
-                        com.rebuild.core.support.i18n.Language.L("InvalidRecordJson") + " : " + data.toJSONString());
+                        com.rebuild.core.support.i18n.Language.L("无效实体数据格式 : %s", data.toJSONString()));
             }
             entityName = MetadataHelper.getEntityName(ID.valueOf(id));
         }

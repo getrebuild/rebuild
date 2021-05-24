@@ -58,7 +58,7 @@ public abstract class BaseConfigurationService extends BaseService {
         if (UserHelper.isAdmin(user)) return;
 
         if (!UserHelper.isSelf(user, cfgid)) {
-            throw new DataSpecificationException(Language.L("NotOpOtherUserSome", "Conf"));
+            throw new DataSpecificationException(Language.L("无权操作他人配置"));
         }
     }
 

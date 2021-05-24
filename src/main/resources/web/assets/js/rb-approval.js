@@ -30,38 +30,38 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-warning shadow-sm">
         <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('Submit')}
+          {$L('提交')}
         </button>
         <div className="icon">
           <span className="zmdi zmdi-info-outline"></span>
         </div>
-        <div className="message"> {$L('UnSubmitApprovalTips')}</div>
+        <div className="message"> {$L('当前记录尚未提交审批，请在信息完善后尽快提交')}</div>
       </div>
     )
   }
 
   renderStateProcessing() {
     window.RbViewPage && window.RbViewPage.setReadonly(true)
-    let aMsg = $L('SomeInApproval,CurrentRecord')
+    let aMsg = $L('当前记录正在审批中')
     if (this.state.imApprover) {
-      if (this.state.imApproveSatate === 1) aMsg = $L('RecordWaitYouApproval')
-      else if (this.state.imApproveSatate === 10) aMsg = $L('RecordWaitUserApproval')
-      else if (this.state.imApproveSatate === 11) aMsg = $L('YouRejectedApproval')
+      if (this.state.imApproveSatate === 1) aMsg = $L('当前记录正在等待你审批')
+      else if (this.state.imApproveSatate === 10) aMsg = $L('你已审批同意，正在等待他人审批')
+      else if (this.state.imApproveSatate === 11) aMsg = $L('你已驳回审批')
     }
 
     return (
       <div className="alert alert-warning shadow-sm">
         <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('Details')}
+          {$L('详情')}
         </button>
         {this.state.canCancel && (
           <button className="close btn btn-secondary" onClick={this.cancel}>
-            {$L('s.ApprovalState.CANCELED')}
+            {$L('撤回')}
           </button>
         )}
         {this.state.imApprover && this.state.imApproveSatate === 1 && (
           <button className="close btn btn-secondary" onClick={this.approve}>
-            {$L('Approve')}
+            {$L('审批')}
           </button>
         )}
         <div className="icon">
@@ -78,17 +78,17 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-success shadow-sm">
         <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('Details')}
+          {$L('详情')}
         </button>
         {rb.isAdminUser && (
           <button className="close btn btn-secondary" onClick={this.revoke}>
-            {$L('s.ApprovalState.REVOKED')}
+            {$L('撤销')}
           </button>
         )}
         <div className="icon">
           <span className="zmdi zmdi-check"></span>
         </div>
-        <div className="message">{$L('RecordIsApproved')}</div>
+        <div className="message">{$L('当前记录已审批完成')}</div>
       </div>
     )
   }
@@ -97,15 +97,15 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-danger shadow-sm">
         <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('Details')}
+          {$L('详情')}
         </button>
         <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('SubmitAgain')}
+          {$L('再次提交')}
         </button>
         <div className="icon">
           <span className="zmdi zmdi-close-circle-o"></span>
         </div>
-        <div className="message">{$L('RecordIsRejectedTips')}</div>
+        <div className="message">{$L('审批被驳回，可在信息完善后再次提交')}</div>
       </div>
     )
   }
@@ -114,15 +114,15 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-warning shadow-sm">
         <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('Details')}
+          {$L('详情')}
         </button>
         <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('SubmitAgain')}
+          {$L('再次提交')}
         </button>
         <div className="icon">
           <span className="zmdi zmdi-rotate-left"></span>
         </div>
-        <div className="message">{$L('RecordIsCanceledTips')}</div>
+        <div className="message">{$L('审批已撤回，请在信息完善后再次提交')}</div>
       </div>
     )
   }
@@ -131,15 +131,15 @@ class ApprovalProcessor extends React.Component {
     return (
       <div className="alert alert-warning shadow-sm">
         <button className="close btn btn-secondary" onClick={this.viewSteps}>
-          {$L('Details')}
+          {$L('详情')}
         </button>
         <button className="close btn btn-secondary" onClick={this.submit}>
-          {$L('SubmitAgain')}
+          {$L('再次提交')}
         </button>
         <div className="icon">
           <span className="zmdi zmdi-rotate-left"></span>
         </div>
-        <div className="message">{$L('RecordIsRevokedTips')}</div>
+        <div className="message">{$L('审批已撤销，请在信息完善后再次提交')}</div>
       </div>
     )
   }
@@ -168,12 +168,12 @@ class ApprovalProcessor extends React.Component {
 
   cancel = () => {
     const that = this
-    RbAlert.create($L('ApprovalCancelConfirm'), {
+    RbAlert.create($L('确认撤回当前审批？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/approval/cancel?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else _reload(this, $L('ApprovalCanceled'))
+          else _reload(this, $L('审批已撤回'))
           this.disabled()
         })
       },
@@ -182,13 +182,13 @@ class ApprovalProcessor extends React.Component {
 
   revoke = () => {
     const that = this
-    RbAlert.create($L('ApprovalRevokeConfirm'), {
+    RbAlert.create($L('将要撤销已通过审批，每条记录仅有 3 次撤销机会。确认吗？'), {
       type: 'warning',
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/approval/revoke?record=${that.props.id}`, (res) => {
           if (res.error_code > 0) RbHighbar.error(res.error_msg)
-          else _reload(this, $L('ApprovalRevoked'))
+          else _reload(this, $L('审批已撤销'))
           this.disabled()
         })
       },
@@ -220,7 +220,7 @@ class ApprovalUsersForm extends RbFormHandler {
         {approverHas ? (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('NodeApprover')} (${$L(this.state.signMode === 'AND' ? 'SignAnd' : 'SignOr')})`}
+              <i className="zmdi zmdi-account zicon" /> {`${this._approverLabel || $L('审批人')} (${this.state.signMode === 'AND' ? $L('会签') : $L('或签')})`}
             </label>
             <div>
               {(this.state.nextApprovers || []).map((item) => {
@@ -235,13 +235,13 @@ class ApprovalUsersForm extends RbFormHandler {
           </div>
         ) : (
           <div className="form-group">
-            <RbAlertBox message={$L('NoAnyApprovers')} />
+            <RbAlertBox message={$L('当前审批流程无可用审批人')} />
           </div>
         )}
         {ccHas && (
           <div className="form-group">
             <label>
-              <i className="zmdi zmdi-mail-send zicon" /> {$L('ApprovalResultCcTips')}
+              <i className="zmdi zmdi-mail-send zicon" /> {$L('本次审批结果将抄送给')}
             </label>
             <div>
               {(this.state.nextCcs || []).map((item) => {
@@ -267,7 +267,7 @@ class ApprovalUsersForm extends RbFormHandler {
 
     if (!this.state.isLastStep) {
       if ((this.state.nextApprovers || []).length === 0 && selectUsers.selectApprovers.length === 0) {
-        RbHighbar.create($L('PlsSelectSome,NodeApprover'))
+        RbHighbar.create($L('请选择审批人'))
         return false
       }
     }
@@ -281,7 +281,7 @@ class ApprovalUsersForm extends RbFormHandler {
   }
 }
 
-// 审核提交
+// 审批提交
 class ApprovalSubmitForm extends ApprovalUsersForm {
   constructor(props) {
     super(props)
@@ -290,17 +290,17 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('SubmitApproval')} width="600" disposeOnHide={this.props.disposeOnHide === true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('提交审批')} width="600" disposeOnHide={this.props.disposeOnHide === true}>
         <div className="form approval-form">
           <div className="form-group">
-            <label>{$L('SelectSome,ApprovalConfig')}</label>
+            <label>{$L('选择审批流程')}</label>
             <div className="approval-list">
               {!this.state.approvals && (
                 <p className="text-muted">
-                  {$L('NoMatchApproval')}
+                  {$L('无适用流程')}
                   {rb.isAdminUser && (
                     <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/robot/approvals`}>
-                      <i className="zmdi zmdi-settings"></i> {$L('ClickConf')}
+                      <i className="zmdi zmdi-settings"></i> {$L('点击配置')}
                     </a>
                   )}
                 </p>
@@ -313,7 +313,7 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                       <span className="custom-control-label">{item.name}</span>
                     </label>
                     <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank">
-                      <i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> {$L('ApprovalDiagram')}
+                      <i className="zmdi zmdi-usb zmdi-hc-rotate-180"></i> {$L('审批流程图')}
                     </a>
                   </div>
                 )
@@ -323,10 +323,10 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
           {this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
             <button type="button" className="btn btn-primary btn-space" onClick={() => this.post()}>
-              {$L('Submit')}
+              {$L('提交')}
             </button>
             <button type="button" className="btn btn-secondary btn-space" onClick={this.hide}>
-              {$L('Cancel')}
+              {$L('取消')}
             </button>
           </div>
         </div>
@@ -353,14 +353,14 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
   }
 
   post() {
-    if (!this.state.useApproval) return RbHighbar.create($L('PlsSelectSome,ApprovalConfig'))
+    if (!this.state.useApproval) return RbHighbar.create($L('请选择审批流程'))
     const selectUsers = this.getSelectUsers()
     if (!selectUsers) return
 
     this.disabled(true)
     $.post(`/app/entity/approval/submit?record=${this.props.id}&approval=${this.state.useApproval}`, JSON.stringify(selectUsers), (res) => {
       if (res.error_code > 0) RbHighbar.error(res.error_msg)
-      else _reload(this, $L('ApprovalSubmitted'))
+      else _reload(this, $L('审批已提交'))
       this.disabled()
     })
   }
@@ -370,12 +370,12 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
 class ApprovalApproveForm extends ApprovalUsersForm {
   constructor(props) {
     super(props)
-    this._approverLabel = $L('NextApprovers')
+    this._approverLabel = $L('下一审批人')
   }
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('Approval')} width="600">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('审批')} width="600">
         <div className="form approval-form">
           {this.state.bizMessage && (
             <div className="form-group">
@@ -384,23 +384,16 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           )}
           {this.state.aform && this._renderEditableForm()}
           <div className="form-group">
-            <label>{$L('ApprovalComment')}</label>
-            <textarea
-              className="form-control form-control-sm row2x"
-              name="remark"
-              placeholder={$L('ApprovalCommentTips')}
-              value={this.state.remark || ''}
-              onChange={this.handleChange}
-              maxLength="600"
-            />
+            <label>{$L('批注')}</label>
+            <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
           </div>
           {this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>
             <button type="button" className="btn btn-primary btn-space" onClick={() => this.post(10)}>
-              {$L('Agree')}
+              {$L('同意')}
             </button>
             <button type="button" className="btn btn-danger btn-outline btn-space" onClick={() => this.post(11)}>
-              {$L('s.ApprovalState.REJECTED')}
+              {$L('驳回')}
             </button>
           </div>
         </div>
@@ -414,7 +407,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
     }
     return (
       <div className="form-group">
-        <label>{$L('ApprovalFormTips')}</label>
+        <label>{$L('信息完善 (驳回时无需填写)')}</label>
         <EditableForm $$$parent={fake} entity={this.props.entity} ref={(c) => (this._rbform = c)}>
           {this.state.aform.map((item) => {
             // eslint-disable-next-line no-undef
@@ -463,7 +456,7 @@ class ApprovalApproveForm extends ApprovalUsersForm {
       } else if (res.error_code > 0) {
         RbHighbar.error(res.error_msg)
       } else {
-        _reload(this, $L('ApprovalAlreadySome,' + (state === 10 ? 'Agree' : 's.ApprovalState.REJECTED')))
+        _reload(this, state === 10 ? $L('审批已同意') : $L('审批已驳回'))
         typeof this.props.call === 'function' && this.props.call()
       }
       this.disabled()
@@ -484,10 +477,10 @@ class EditableForm extends RbForm {
 }
 
 const STATE_NAMES = {
-  10: $L('ApproveSome,Agree'),
-  11: $L('ApproveSome,s.ApprovalState.REJECTED'),
-  12: $L('ApproveSome,s.ApprovalState.CANCELED'),
-  13: $L('ApproveSome,s.ApprovalState.REVOKED'),
+  10: $L('审批同意'),
+  11: $L('审批驳回'),
+  12: $L('审批撤回'),
+  13: $L('审批撤销'),
 }
 
 // 已审批步骤查看
@@ -516,7 +509,7 @@ class ApprovalStepViewer extends React.Component {
                 })}
                 {stateLast >= 10 && (
                   <li className="timeline-item last">
-                    <span>{$L(stateLast === 13 ? 'ReApproval' : 'End')}</span>
+                    <span>{stateLast === 13 ? $L('重审') : $L('结束')}</span>
                   </li>
                 )}
               </ul>
@@ -536,7 +529,7 @@ class ApprovalStepViewer extends React.Component {
             <img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} alt="Avatar" />
           </div>
           <div className="timeline-header">
-            <p className="timeline-activity">{$L('SubmittedApprovalByX').replace('%s', s.submitter === rb.currentUser ? $L('You') : s.submitterName)}</p>
+            <p className="timeline-activity">{$L('由 %s 提交审批', s.submitter === rb.currentUser ? $L('你') : s.submitterName)}</p>
             {s.approvalName && (
               <blockquote className="blockquote timeline-blockquote mb-0">
                 <p>
@@ -563,10 +556,10 @@ class ApprovalStepViewer extends React.Component {
     }
 
     s.forEach((item) => {
-      const approverName = item.approver === rb.currentUser ? $L('You') : item.approverName
-      let aMsg = $L('WaitApprovalByX').replace('%s', approverName)
-      if (item.state >= 10) aMsg = $L('ByXandY').replace('%s', approverName).replace('%s', STATE_NAMES[item.state])
-      if ((nodeState >= 10 || lastState >= 10) && item.state < 10) aMsg = `${approverName} ${$L('NotApproval')}`
+      const approverName = item.approver === rb.currentUser ? $L('你') : item.approverName
+      let aMsg = $L('等待 %s 审批', approverName)
+      if (item.state >= 10) aMsg = $L('由 %s %s', approverName, STATE_NAMES[item.state])
+      if ((nodeState >= 10 || lastState >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
 
       sss.push(
         <li className={'timeline-item state' + item.state} key={kp + sss.length}>
@@ -592,7 +585,7 @@ class ApprovalStepViewer extends React.Component {
     const sm = s[0].signMode
     const clazz = sm === 'OR' || sm === 'AND' ? 'joint' : 'no-joint'
     return (
-      <div key={kp} className={clazz} _title={sm === 'OR' ? $L('SignOr') : sm === 'AND' ? $L('SignAnd') : null}>
+      <div key={kp} className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null}>
         {sss}
       </div>
     )
@@ -612,7 +605,7 @@ class ApprovalStepViewer extends React.Component {
     this.show()
     $.get(`/app/entity/approval/fetch-workedsteps?record=${this.props.id}`, (res) => {
       if (!res.data || res.data.length === 0) {
-        RbHighbar.create($L('NoApprovalStepFound'))
+        RbHighbar.create($L('未查询到流程详情'))
         this.hide()
         this.__noStepFound = true
       } else this.setState({ steps: res.data })
@@ -622,7 +615,7 @@ class ApprovalStepViewer extends React.Component {
   hide = () => $(this._dlg).modal('hide')
   show = () => {
     if (this.__noStepFound === true) {
-      RbHighbar.create($L('NoApprovalStepFound'))
+      RbHighbar.create($L('未查询到流程详情'))
       this.hide()
     } else $(this._dlg).modal({ show: true, keyboard: true })
   }

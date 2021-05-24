@@ -86,7 +86,7 @@ public class SMSender {
         if (specAccount == null || specAccount.length < 4
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2]) || StringUtils.isBlank(specAccount[3])) {
-            throw new ConfigurationException(Language.L("SomeAccountConfError", "Email"));
+            throw new ConfigurationException(Language.L("邮件账户未配置或配置错误"));
         }
 
         // 使用邮件模板
@@ -106,7 +106,7 @@ public class SMSender {
         final String logContent = "【" + subject + "】" + content;
 
         // Use SMTP
-        if (specAccount.length >= 5 && specAccount[4] != null) {
+        if (specAccount.length >= 5 && StringUtils.isNotBlank(specAccount[4])) {
             String emailId;
             try {
                 emailId = sendMailViaSmtp(to, subject, content, specAccount);
@@ -240,7 +240,7 @@ public class SMSender {
         if (specAccount == null || specAccount.length < 3
                 || StringUtils.isBlank(specAccount[0]) || StringUtils.isBlank(specAccount[1])
                 || StringUtils.isBlank(specAccount[2])) {
-            throw new ConfigurationException(Language.L("SomeAccountConfError", "Sms"));
+            throw new ConfigurationException(Language.L("短信账户未配置或配置错误"));
         }
 
         Map<String, Object> params = new HashMap<>();

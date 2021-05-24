@@ -134,7 +134,7 @@ public class RecycleRestore {
      */
     private List<Record> conver2Record(JSONObject content, ID recordId) {
         if (!MetadataHelper.containsEntity(recordId.getEntityCode())) {
-            throw new DefinedException(Language.L("EntityUnexistsNotRestore"));
+            throw new DefinedException(Language.L("所属实体已经不存在，无法恢复"));
         }
 
         JSONArray detailList = content.getJSONArray(RecycleBean.NAME_DETAILLIST);

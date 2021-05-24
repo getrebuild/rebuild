@@ -11,7 +11,7 @@ class FieldValueSet extends React.Component {
   render() {
     const field = this.props.field
     if (field.type === 'ID' || field.type === 'AVATAR' || field.type === 'IMAGE' || field.type === 'FILE' || field.type === 'BARCODE' || field.type === 'SERIES') {
-      return <div className="form-control-plaintext text-danger">{$L('Unsupport')}</div>
+      return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
 
     if (
@@ -104,25 +104,25 @@ class FieldValueSet extends React.Component {
 
     if (field.type === 'NUMBER' || field.type === 'DECIMAL') {
       if (isNaN(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       } else if ($isTrue(field.notNegative) && ~~value < 0) {
-        RbHighbar.create($L('SomeNotBeNegative').replace('{0}', field.label))
+        RbHighbar.create($L('%s 不能为负数', field.label))
         return null
       }
     } else if (field.type === 'EMAIL') {
       if (!$regex.isMail(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       }
     } else if (field.type === 'URL') {
       if (!$regex.isUrl(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       }
     } else if (field.type === 'PHONE') {
       if (!$regex.isTel(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       }
     }

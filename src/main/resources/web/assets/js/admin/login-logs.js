@@ -14,10 +14,10 @@ $(document).ready(function () {
 const ListConfig = {
   entity: 'LoginLog',
   fields: [
-    { field: 'user', label: $L('LoginUser'), type: 'REFERENCE' },
-    { field: 'loginTime', label: $L('LoginTime'), type: 'DATETIME' },
-    { field: 'ipAddr', label: $L('IpAddr') },
-    { field: 'userAgent', label: $L('UserAgent') },
+    { field: 'user', label: $L('登录用户'), type: 'REFERENCE' },
+    { field: 'loginTime', label: $L('登录时间'), type: 'DATETIME' },
+    { field: 'ipAddr', label: $L('IP 地址') },
+    { field: 'userAgent', label: $L('客户端') },
   ],
   sort: 'loginTime:desc',
 }
@@ -55,7 +55,7 @@ RbList.renderAfter = function () {
   pageIps.forEach(function (ip) {
     $.get(`/commons/ip-location?ip=${ip}`, (res) => {
       if (res.error_code === 0 && res.data.country !== 'N') {
-        let L = res.data.country === 'R' ? $L('LAN') : [res.data.region, res.data.country].join(', ')
+        let L = res.data.country === 'R' ? $L('局域网') : [res.data.region, res.data.country].join(', ')
         L = `${ip} (${L})`
         $(`.J_ip-${ip.replace(/\./g, '-')}`)
           .attr('title', L)
@@ -74,12 +74,12 @@ class OnlineUserViewer extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('ViewOnlineUsers')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('查看在线用户')} disposeOnHide={true}>
         <table className="table table-striped table-hover table-sm dialog-table">
           <thead>
             <tr>
-              <th style={{ minWidth: 150 }}>{$L('User')}</th>
-              <th style={{ minWidth: 150 }}>{$L('LastActive')}</th>
+              <th style={{ minWidth: 150 }}>{$L('用户')}</th>
+              <th style={{ minWidth: 150 }}>{$L('最近活跃')}</th>
               <th width="90" />
             </tr>
           </thead>
@@ -99,7 +99,7 @@ class OnlineUserViewer extends RbModalHandler {
                   </td>
                   <td className="actions text-right">
                     <button className="btn btn-danger btn-sm btn-outline" type="button" onClick={() => this._killSession(item.user)}>
-                      {$L('KillSession')}
+                      {$L('强退')}
                     </button>
                   </td>
                 </tr>
@@ -121,7 +121,7 @@ class OnlineUserViewer extends RbModalHandler {
 
   _killSession(user) {
     const that = this
-    RbAlert.create($L('KillSessionConfirm'), {
+    RbAlert.create($L('确认强制退出此用户？'), {
       confirm: function () {
         $.post(`/admin/audit/kill-session?user=${user}`, () => {
           this.hide()

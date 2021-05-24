@@ -147,7 +147,7 @@ public class ApprovalController extends BaseController {
             if (success) {
                 return RespBody.ok();
             } else {
-                return RespBody.errorl("SomeAdminConfInvalid,ApprovalConfig");
+                return RespBody.errorl("无效审批流程，请联系管理员配置");
             }
 
         } catch (ApprovalException ex) {
@@ -223,7 +223,7 @@ public class ApprovalController extends BaseController {
                 .setParameter(1, approvalId)
                 .unique();
         if (belongEntity == null) {
-            return RespBody.errorl("BadOrDeleteApproval");
+            return RespBody.errorl("无效审批流程，可能已被删除");
         }
 
         FlowDefinition def = RobotApprovalManager.instance

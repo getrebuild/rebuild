@@ -83,7 +83,7 @@ public class RolePrivilegesController extends EntityController {
     @GetMapping("privileges-list")
     public RespBody privilegesList(@IdParam(name = "role") ID roleId) {
         if (RoleService.ADMIN_ROLE.equals(roleId)) {
-            return RespBody.errorl("NotModifyAdminRole");
+            return RespBody.errorl("系统内置管理员角色，不允许修改。此角色拥有高级系统权限，请谨慎使用");
         }
 
         Object[][] array = Application.createQuery(

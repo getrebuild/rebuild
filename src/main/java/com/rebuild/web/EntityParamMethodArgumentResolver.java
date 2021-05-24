@@ -39,7 +39,7 @@ public class EntityParamMethodArgumentResolver implements HandlerMethodArgumentR
         String value = webRequest.getParameter(param.name());
         if (StringUtils.isBlank(value)) {
             if (param.required()) {
-                throw new InvalidParameterException(Language.LF("BadRequestParamsSome", param.name(), value));
+                throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", param.name(), value));
             }
             return null;
         }
@@ -47,6 +47,6 @@ public class EntityParamMethodArgumentResolver implements HandlerMethodArgumentR
         if (MetadataHelper.containsEntity(value)) {
             return MetadataHelper.getEntity(value);
         }
-        throw new InvalidParameterException(Language.L("BadRequestParams"));
+        throw new InvalidParameterException(Language.L("无效请求参数"));
     }
 }

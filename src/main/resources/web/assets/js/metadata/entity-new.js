@@ -10,7 +10,7 @@ $(document).ready(function () {
     const entityLabel = $val('#entityLabel'),
       comments = $val('#comments')
     if (!entityLabel) {
-      RbHighbar.create($L('PlsInputSome,EntityName'))
+      RbHighbar.create($L('请输入实体名称'))
       return
     }
 
@@ -21,7 +21,7 @@ $(document).ready(function () {
     if ($val('#isDetail')) {
       data.mainEntity = $val('#mainEntity')
       if (!data.mainEntity) {
-        RbHighbar.create($L('PlsSelectSome,MainEntity'))
+        RbHighbar.create($L('请选择主实体'))
         return
       }
     }
@@ -82,11 +82,11 @@ class MetaschemaList extends React.Component {
                   <div className="float-right">
                     {item.exists ? (
                       <button disabled className="btn btn-sm btn-primary">
-                        {$L('Exists')}
+                        {$L('已存在')}
                       </button>
                     ) : (
                       <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" onClick={() => this.imports(item)}>
-                        {$L('Import')}
+                        {$L('导入')}
                       </button>
                     )}
                   </div>
@@ -115,15 +115,15 @@ class MetaschemaList extends React.Component {
   }
 
   imports(item) {
-    const tips = [`<strong>${$L('Import')} [ ${item.name} ]</strong>`]
+    const tips = [`<strong>${$L('导入')} [ ${item.name} ]</strong>`]
     if ((item.refs || []).length > 0) {
       const refNames = []
       this.state.indexes.forEach((bar) => {
         if (item.refs.includes(bar.key) && !bar.exists) refNames.push(bar.name)
       })
-      if (refNames.length > 0) tips.push($L('ImportEntityTips1').replace('%s', `[ ${refNames.join(', ')} ]`))
+      if (refNames.length > 0) tips.push($L('导入本实体将同时导入 **%s** 等依赖实体。', `[ ${refNames.join(', ')} ]`))
     }
-    tips.push($L('ImportEntityTips2'))
+    tips.push($L('你可在导入后进行适当调整。开始导入吗？'))
 
     const that = this
     const $mp2 = parent && parent.$mp ? parent.$mp : $mp
@@ -138,7 +138,7 @@ class MetaschemaList extends React.Component {
           $mp2.end()
           that.setState({ inProgress: false })
           if (res.error_code === 0) {
-            RbHighbar.success($L('SomeSuccess,Import'))
+            RbHighbar.success($L('导入成功'))
             setTimeout(() => (parent.location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`), 1500)
           } else {
             RbHighbar.error(res.error_msg)

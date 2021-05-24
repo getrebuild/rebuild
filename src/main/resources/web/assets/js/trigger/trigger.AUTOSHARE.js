@@ -16,13 +16,13 @@ class ContentAutoShare extends ActionContentSpec {
       <div className="auto-share">
         <form className="simple">
           <div className="form-group row pt-1">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('ShareToWho')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('共享给谁')}</label>
             <div className="col-12 col-lg-8">
               <UserSelectorWithField ref={(c) => (this._shareTo = c)} />
             </div>
           </div>
           <div className="form-group row pb-1">
-            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('SameSomeRelatedRecords,Share')}</label>
+            <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享关联记录')}</label>
             <div className="col-12 col-lg-8">
               <div>
                 <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)}>
@@ -42,7 +42,7 @@ class ContentAutoShare extends ActionContentSpec {
             <div className="col-12 col-lg-8">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />
-                <span className="custom-control-label">{$L('ShareWithUpdate')}</span>
+                <span className="custom-control-label">{$L('允许编辑 (默认仅共享读取权限)')}</span>
               </label>
             </div>
           </div>
@@ -73,7 +73,7 @@ class ContentAutoShare extends ActionContentSpec {
         this.__select2 = $(this._cascades)
           .select2({
             multiple: true,
-            placeholder: `${$L('SelectSome,RelatedEntity')} (${$L('Optional')})`,
+            placeholder: `${$L('选择关联实体')} (${$L('可选')})`,
           })
           .val(cascades.length === 0 ? null : cascades)
           .trigger('change')
@@ -92,7 +92,7 @@ class ContentAutoShare extends ActionContentSpec {
       withUpdate: $(this._withUpdate).prop('checked'),
     }
     if (!_data.shareTo || _data.shareTo.length === 0) {
-      RbHighbar.create($L('PlsSelectSome,ShareToWho'))
+      RbHighbar.create($L('请选择共享给谁'))
       return false
     }
     return _data

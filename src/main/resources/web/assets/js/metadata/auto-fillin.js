@@ -22,10 +22,10 @@ const loadRules = () => {
       $(`<td>${this.sourceFieldLabel}</div></td>`).appendTo($tr)
 
       const ruleLabels = []
-      if (this.extConfig.whenCreate) ruleLabels.push($L('WhenCreate'))
-      if (this.extConfig.whenUpdate) ruleLabels.push($L('WhenEdit'))
-      if (this.extConfig.fillinForce) ruleLabels.push($L('ForceFillback'))
-      if (this.extConfig.readonlyTargetField) ruleLabels.push($L('TargetFieldReadonly'))
+      if (this.extConfig.whenCreate) ruleLabels.push($L('新建时'))
+      if (this.extConfig.whenUpdate) ruleLabels.push($L('编辑时'))
+      if (this.extConfig.fillinForce) ruleLabels.push($L('强制回填'))
+      if (this.extConfig.readonlyTargetField) ruleLabels.push($L('自动设置目标字段为只读'))
       $(`<td>${ruleLabels.join(', ')}</div></td>`).appendTo($tr)
 
       const $btns = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a></td>').appendTo($tr)
@@ -35,13 +35,13 @@ const loadRules = () => {
 
       const cfgid = this.id
       $btns.find('a:eq(1)').click(() => {
-        RbAlert.create($L('DeleteSomeConfirm,FillbackRule'), {
+        RbAlert.create($L('确认删除此回填规则？'), {
           type: 'danger',
           confirm: function () {
             this.disabled(true)
             $.post(`/app/entity/common-delete?id=${cfgid}`, (res) => {
               if (res.error_code === 0) {
-                RbHighbar.success($L('SomeSuccess,Delete'))
+                RbHighbar.success($L('删除成功'))
                 this.hide()
                 loadRules()
               } else {
@@ -67,10 +67,10 @@ class DlgRuleEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('FillbackRule')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('回填规则')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form" ref={(c) => (this._form = c)}>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('SourceField')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('源字段')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
                 {(this.state.sourceFields || []).map((item) => {
@@ -84,7 +84,7 @@ class DlgRuleEdit extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('TargetField')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('目标字段')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" ref={(c) => (this._targetField = c)}>
                 {(this.state.targetFields || []).map((item) => {
@@ -98,24 +98,24 @@ class DlgRuleEdit extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('HowFillback')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('何时回填')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.whenCreate === true} data-id="whenCreate" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('WhenCreate')}</span>
+                <span className="custom-control-label">{$L('新建时')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.whenUpdate === true} data-id="whenUpdate" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('WhenEdit')}</span>
+                <span className="custom-control-label">{$L('编辑时')}</span>
               </label>
             </div>
           </div>
           <div className="form-group row pt-1">
-            <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('WhenTargetFieldNotEmpty')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('当目标字段非空时')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.fillinForce === true} data-id="fillinForce" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('ForceFillback')}</span>
+                <span className="custom-control-label">{$L('强制回填')}</span>
               </label>
             </div>
           </div>
@@ -125,8 +125,8 @@ class DlgRuleEdit extends RbFormHandler {
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" checked={this.state.readonlyTargetField === true} data-id="readonlyTargetField" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('SetTargetFieldReadonly')}
-                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('OnlyFormEffectiveTip')} />
+                  {$L('自动设置目标字段为只读')}
+                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
                 </span>
               </label>
             </div>
@@ -134,10 +134,10 @@ class DlgRuleEdit extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -152,7 +152,7 @@ class DlgRuleEdit extends RbFormHandler {
     $.get(`/commons/metadata/fields?entity=${this.props.targetEntity}`, (res) => {
       this.__targetFieldsCache = res.data
       const s2target = $(this._targetField).select2({
-        placeholder: $L('SelectSome,Field'),
+        placeholder: $L('选择字段'),
         allowClear: false,
       })
       this.__select2.push(s2target)
@@ -163,7 +163,7 @@ class DlgRuleEdit extends RbFormHandler {
         this.setState({ sourceFields: res.data }, () => {
           const s2source = $(this._sourceField)
             .select2({
-              placeholder: $L('SelectSome,Field'),
+              placeholder: $L('选择字段'),
               allowClear: false,
             })
             .on('change', (e) => this._renderTargetFields(e.target.value))
@@ -208,7 +208,7 @@ class DlgRuleEdit extends RbFormHandler {
       sourceField: $(this._sourceField).val(),
       targetField: $(this._targetField).val(),
     }
-    if (!_data.targetField) return RbHighbar.create($L('PlsSelectSome,TargetField'))
+    if (!_data.targetField) return RbHighbar.create($L('请选择目标字段'))
 
     _data.extConfig = {
       whenCreate: this.state.whenCreate,

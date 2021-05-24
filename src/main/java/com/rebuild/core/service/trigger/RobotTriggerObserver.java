@@ -125,7 +125,7 @@ public class RobotTriggerObserver extends OperatingObserver {
 
                     // FIXME 触发器执行失败是否抛出
                     if (ex instanceof MissingMetaExcetion) {
-                        throw new TriggerException(Language.LF("TriggerExecError", ex.getLocalizedMessage()));
+                        throw new TriggerException(Language.L("触发器执行失败 : %s", ex.getLocalizedMessage()));
                     } else if (ex instanceof TriggerException) {
                         throw (TriggerException) ex;
                     } else {

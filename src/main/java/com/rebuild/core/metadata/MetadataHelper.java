@@ -101,7 +101,7 @@ public class MetadataHelper {
         try {
             return getMetadataFactory().getEntity(entityName);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(Language.LF("EntityNotExists", "[" + entityName + "]"));
+            throw new MissingMetaExcetion(Language.L("实体 [%s] 已经不存在，请检查配置", entityName.toUpperCase()));
         }
     }
 
@@ -114,7 +114,7 @@ public class MetadataHelper {
         try {
             return getMetadataFactory().getEntity(entityCode);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(Language.LF("EntityNotExists", "[" + entityCode + "]"));
+            throw new MissingMetaExcetion(Language.L("实体 [%s] 已经不存在，请检查配置", entityCode));
         }
     }
 
@@ -136,8 +136,8 @@ public class MetadataHelper {
         try {
             return getEntity(entityName).getField(fieldName);
         } catch (MissingMetaExcetion ex) {
-            throw new MissingMetaExcetion(Language.LF(
-                    "FieldNotExists", ("[" + entityName + "#" + fieldName + "]").toUpperCase()));
+            throw new MissingMetaExcetion(
+                    Language.L("字段 [%s] 已经不存在，请检查配置", (entityName + "#" + fieldName).toUpperCase()));
         }
     }
 

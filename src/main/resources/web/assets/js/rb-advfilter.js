@@ -35,19 +35,19 @@ class AdvFilter extends React.Component {
     const opButtons = this.props.fromList ? (
       <div className="float-right">
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('Save')}
+          {$L('保存')}
         </button>
         <button className="btn btn-primary btn-outline" type="button" onClick={() => this.searchNow()}>
-          <i className="icon zmdi zmdi-search" /> {$L('QueryNow')}
+          <i className="icon zmdi zmdi-search" /> {$L('立即查询')}
         </button>
       </div>
     ) : (
       <div className="item">
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
-          {$L('Confirm')}
+          {$L('确定')}
         </button>
         <button className="btn btn-secondary" type="button" onClick={() => this.hide(true)}>
-          {$L('Cancel')}
+          {$L('取消')}
         </button>
       </div>
     )
@@ -69,7 +69,7 @@ class AdvFilter extends React.Component {
             })}
             <div className="item plus">
               <a onClick={() => this.addItem()} tabIndex="-1">
-                <i className="zmdi zmdi-plus-circle icon"></i> {$L('AddFilterItem')}
+                <i className="zmdi zmdi-plus-circle icon"></i> {$L('添加条件')}
               </a>
             </div>
           </div>
@@ -79,22 +79,22 @@ class AdvFilter extends React.Component {
             <div className="item mt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input className="custom-control-input" type="radio" name="useEquation" value="OR" checked={this.state.useEquation === 'OR'} onChange={this.handleChange} />
-                <span className="custom-control-label"> {$L('OrEquation')}</span>
+                <span className="custom-control-label"> {$L('或关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input className="custom-control-input" type="radio" name="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
-                <span className="custom-control-label"> {$L('AndEquation')}</span>
+                <span className="custom-control-label"> {$L('且关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input className="custom-control-input" type="radio" name="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
-                <span className="custom-control-label"> {$L('AdvEquation')}</span>
+                <span className="custom-control-label"> {$L('高级表达式')}</span>
               </label>
             </div>
             {this.state.useEquation === '9999' && (
               <div className="mb-3 equation-state">
                 <input
                   className={'form-control form-control-sm text-uppercase' + (this.state.equationError ? ' is-invalid' : '')}
-                  title={this.state.equationError ? $L('SomeInvalid,AdvEquation') : ''}
+                  title={this.state.equationError ? $L('无效高级表达式') : ''}
                   value={this.state.equation || ''}
                   placeholder={this.state.equationDef || ''}
                   data-id="equation"
@@ -115,7 +115,7 @@ class AdvFilter extends React.Component {
                     value={this.state.filterName || ''}
                     data-id="filterName"
                     onChange={this.handleChange}
-                    placeholder={$L('InputNameSave')}
+                    placeholder={$L('输入名称保存')}
                   />
                 </div>
                 {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} noSwitch={true} shareTo={this.props.shareTo} />}
@@ -131,7 +131,7 @@ class AdvFilter extends React.Component {
     )
 
     return this.props.inModal ? (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('AdvFilter')} disposeOnHide={!!this.props.filterName}>
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.title || $L('高级查询')} disposeOnHide={!!this.props.filterName}>
         {advFilter}
       </RbModal>
     ) : (
@@ -165,7 +165,7 @@ class AdvFilter extends React.Component {
           if (validFs.includes(item.field)) {
             this.addItem(item)
           } else {
-            this.setState({ hasErrorTip: $L('UnknownFieldInFilterTips') })
+            this.setState({ hasErrorTip: $L('存在无效字段，可能已被管理员删除，建议你调整后重新保存') })
             if (rb.env === 'dev') console.warn('Unkonw field : ' + JSON.stringify(item))
           }
         })
@@ -189,7 +189,7 @@ class AdvFilter extends React.Component {
 
     const items = this.state.items || []
     if (items.length >= 9) {
-      RbHighbar.create($L('MaxFilterItems'))
+      RbHighbar.create($L('最多可添加 9 个条件'))
       return
     }
 
@@ -252,14 +252,14 @@ class AdvFilter extends React.Component {
       else filters.push(item)
     }
 
-    if (hasError) return RbHighbar.create($L('HasInvalidFilterItems'))
-    if (filters.length === 0 && canNoFilters !== true) return RbHighbar.create($L('Pls1FilterItemLeast'))
+    if (hasError) return RbHighbar.create($L('部分条件设置有误，请检查'))
+    if (filters.length === 0 && canNoFilters !== true) return RbHighbar.create($L('请至少添加 1 个条件'))
 
     const adv = { entity: this.props.entity, items: filters }
     if (this.state.useEquation === 'AND') {
       adv.equation = 'AND'
     } else if (this.state.useEquation === '9999') {
-      if (this.state.equationError === true) return RbHighbar.create($L('SomeInvalid,AdvOperator'))
+      if (this.state.equationError === true) return RbHighbar.create($L('无效高级表达式'))
       adv.equation = this.state.equation
     }
 
@@ -297,39 +297,39 @@ class AdvFilter extends React.Component {
 }
 
 const OP_TYPE = {
-  LK: $L('FilterLK'),
-  NLK: $L('FilterNLK'),
-  IN: $L('FilterLK'),
-  NIN: $L('FilterNLK'),
-  EQ: $L('FilterEQ'),
-  NEQ: $L('FilterNEQ'),
-  GT: $L('FilterGT'),
-  LT: $L('FilterLT'),
-  GE: $L('FilterGE'),
-  LE: $L('FilterLE'),
-  BW: $L('FilterBW'),
-  NL: $L('FilterNL'),
-  NT: $L('FilterNT'),
-  BFD: $L('FilterBFD'),
-  BFM: $L('FilterBFM'),
-  BFY: $L('FilterBFY'),
-  AFD: $L('FilterAFD'),
-  AFM: $L('FilterAFM'),
-  AFY: $L('FilterAFY'),
-  RED: $L('FilterRED'),
-  REM: $L('FilterREM'),
-  REY: $L('FilterREY'),
-  SFU: $L('FilterSFU'),
-  SFB: $L('FilterSFB'),
-  SFD: $L('FilterSFD'),
-  SFT: $L('FilterSFT'),
-  YTA: $L('FilterYTA'),
-  TDA: $L('FilterTDA'),
-  TTA: $L('FilterTTA'),
-  CUW: $L('FilterCUW'),
-  CUM: $L('FilterCUM'),
-  CUQ: $L('FilterCUQ'),
-  CUY: $L('FilterCUY'),
+  LK: $L('包含'),
+  NLK: $L('不包含'),
+  IN: $L('包含'),
+  NIN: $L('不包含'),
+  EQ: $L('等于'),
+  NEQ: $L('不等于'),
+  GT: $L('大于'),
+  LT: $L('小于'),
+  GE: $L('大于等于'),
+  LE: $L('小于等于'),
+  BW: $L('区间'),
+  NL: $L('为空'),
+  NT: $L('不为空'),
+  BFD: $L('..天前'),
+  BFM: $L('..月前'),
+  BFY: $L('..年前'),
+  AFD: $L('..天后'),
+  AFM: $L('..月后'),
+  AFY: $L('..年后'),
+  RED: $L('最近..天'),
+  REM: $L('最近..月'),
+  REY: $L('最近..年'),
+  SFU: $L('本人'),
+  SFB: $L('本部门'),
+  SFD: $L('本部门及子部门'),
+  SFT: $L('所在团队'),
+  YTA: $L('昨天'),
+  TDA: $L('今天'),
+  TTA: $L('明天'),
+  CUW: $L('本周'),
+  CUM: $L('本月'),
+  CUQ: $L('本季度'),
+  CUY: $L('本年'),
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'CUW', 'CUM', 'CUQ', 'CUY']
 const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
@@ -355,7 +355,7 @@ class FilterItem extends React.Component {
       <div className="row item">
         <div className="col-sm-5 field">
           <em>{this.state.index}</em>
-          <i className="zmdi zmdi-minus-circle" title={$L('Remove')} onClick={() => this.props.$$$parent.removeItem(this.props.id)}></i>
+          <i className="zmdi zmdi-minus-circle" title={$L('移除')} onClick={() => this.props.$$$parent.removeItem(this.props.id)}></i>
           <select className="form-control form-control-sm" ref={(c) => (this._filterField = c)}>
             {this.state.fields.map((item) => {
               return (
@@ -428,8 +428,8 @@ class FilterItem extends React.Component {
         <div className="val-range">
           <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
           <input className="form-control form-control-sm" ref={(c) => (this._filterVal2 = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
-          <span>{$L('Start0')}</span>
-          <span className="end">{$L('End0')}</span>
+          <span>{$L('起')}</span>
+          <span className="end">{$L('止')}</span>
         </div>
       )
     } else if (this.state.type === 'PICKLIST' || this.state.type === 'STATE' || this.state.type === 'MULTISELECT') {
@@ -450,8 +450,8 @@ class FilterItem extends React.Component {
     } else if (this.state.type === 'BOOL') {
       valComp = (
         <select className="form-control form-control-sm" ref={(c) => (this._filterVal = c)}>
-          <option value="T">{$L('True')}</option>
-          <option value="F">{$L('False')}</option>
+          <option value="T">{$L('是')}</option>
+          <option value="F">{$L('否')}</option>
         </select>
       )
     }

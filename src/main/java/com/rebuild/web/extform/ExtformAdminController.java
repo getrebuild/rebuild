@@ -23,7 +23,7 @@ public class ExtformAdminController extends BaseController {
 
     @GetMapping("/admin/extforms")
     public ModelAndView pageList() {
-        RbAssert.isCommercial(Language.L("FreeVerNotSupportted,ExtForms"));
+        RbAssert.isCommercial(Language.L("免费版不支持外部表单功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
         return createModelAndView("/admin/extform/extform-list");
     }
 }

@@ -60,7 +60,7 @@ public class ApprovalAdminController extends BaseController {
                 .setParameter(1, configId)
                 .unique();
         if (config == null) {
-            response.sendError(404, getLang(request, "SomeNotExists", "ApprovalConfig"));
+            response.sendError(404, Language.L("审批流程不存在"));
             return null;
         }
 
@@ -115,8 +115,8 @@ public class ApprovalAdminController extends BaseController {
 
     @GetMapping("approval/user-fields")
     public JSON approvalUserFields(@EntityParam Entity entity) {
-        final String textSubmitor = Language.L("NodeStart") + ".";
-        final String textApprover = Language.L("NodeApprover") + ".";
+        final String textSubmitor = Language.L("发起人") + ".";
+        final String textApprover = Language.L("审批人") + ".";
 
         List<String[]> fields = new ArrayList<>();
 
@@ -157,8 +157,8 @@ public class ApprovalAdminController extends BaseController {
     public JSON approvalUserFieldsShow(@EntityParam Entity entity, HttpServletRequest request) {
         final JSON users = ServletUtils.getRequestJson(request);
 
-        final String textSubmitor = Language.L("NodeStart") + ".";
-        final String textApprover = Language.L("NodeApprover") + ".";
+        final String textSubmitor = Language.L("发起人") + ".";
+        final String textApprover = Language.L("审批人") + ".";
 
         List<String[]> shows = new ArrayList<>();
 

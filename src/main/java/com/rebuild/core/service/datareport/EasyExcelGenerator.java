@@ -178,8 +178,8 @@ public class EasyExcelGenerator extends SetUser {
     protected Map<String, Object> buildData(Record record, Map<String, String> varsMap, boolean isDetail) {
         final Entity entity = record.getEntity();
 
-        final String badFieldTip = String.format("[%s]", Language.L("BadField")).toUpperCase();
-        final String unsupportFieldTip = String.format("[%s]", Language.L("Unsupport")).toUpperCase();
+        final String badFieldTip = Language.L("[无效字段]");
+        final String unsupportFieldTip = Language.L("[暂不支持]");
 
         final Map<String, Object> data = new HashMap<>();
         // 无效字段填充

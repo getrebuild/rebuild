@@ -42,11 +42,11 @@ class BusinessModelBuilder extends React.Component {
         <div className="col-2 text-right">
           {item.exists ? (
             <button disabled className="btn btn-sm btn-primary">
-              {$L('Exists')}
+              {$L('已存在')}
             </button>
           ) : (
             <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" onClick={() => this.imports(item)}>
-              {$L('Import')}
+              {$L('导入')}
             </button>
           )}
         </div>
@@ -69,7 +69,7 @@ class BusinessModelBuilder extends React.Component {
   imports(item) {
     $.post(`/admin/rbstore/business-model/imports?key=${item.key}`, (res) => {
       if (res.error_code === 0) {
-        RbHighbar.success($L('SomeSuccess,Import'))
+        RbHighbar.success($L('导入成功'))
         setTimeout(() => (parent.location.href = `${rb.baseUrl}/admin/entity/${res.data}/base`), 1500)
       } else {
         RbHighbar.error(res.error_msg)

@@ -39,7 +39,9 @@ class PreviewTable extends React.Component {
               if (c1.field === '$DIVIDER$') {
                 return (
                   <tr key={'k-' + idx}>
-                    <th colSpan="4" className="divider">{c1.label}</th>
+                    <th colSpan="4" className="divider">
+                      {c1.label}
+                    </th>
                   </tr>
                 )
               }
@@ -124,7 +126,7 @@ class PreviewTable extends React.Component {
         )
       }
     } else if (item.type === 'BOOL') {
-      return $L(item.value === 'T' ? 'True' : 'False')
+      return item.value ? $L('是') : $L('否')
     } else if (item.type === 'MULTISELECT') {
       return (
         <ul className="m-0 p-0 pl-3">

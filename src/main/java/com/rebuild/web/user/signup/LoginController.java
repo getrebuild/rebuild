@@ -27,6 +27,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.*;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
@@ -142,7 +143,7 @@ public class LoginController extends BaseController {
         Boolean needVcode = (Boolean) ServletUtils.getSessionAttribute(request, SK_NEED_VCODE);
         if (needVcode != null && needVcode
                 && (StringUtils.isBlank(vcode) || !CaptchaUtil.ver(vcode, request))) {
-            return RespBody.errorl("SomeError", "Captcha");
+            return RespBody.errorl("验证码错误");
         }
 
         final String user = getParameterNotNull(request, "user");
@@ -269,23 +270,23 @@ public class LoginController extends BaseController {
     @PostMapping("user-forgot-passwd")
     public RespBody userForgotPasswd(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
-            return RespBody.errorl("EmailAccountUnset");
+            return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
         }
 
         String email = getParameterNotNull(request, "email");
         if (!RegexUtils.isEMail(email) || !Application.getUserStore().existsEmail(email)) {
-            return RespBody.errorl("SomeInvalid,Email");
+            return RespBody.errorl("无效邮箱地址");
         }
 
         String vcode = VerfiyCode.generate(email, 2);
-        String subject = getLang(request, "ResetPassword");
-        String content = String.format(getLang(request, "YourVCode", "ResetPassword"), vcode);
+        String subject = Language.L("重置密码");
+        String content = Language.L("你的重置密码验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, subject, content);
 
         if (sentid != null) {
             return RespBody.ok();
         } else {
-            return RespBody.errorl("OperationFailed");
+            return RespBody.errorl("操作失败，请稍后重试");
         }
     }
 
@@ -298,7 +299,7 @@ public class LoginController extends BaseController {
         String vcode = data.getString("vcode");
 
         if (!VerfiyCode.verfiy(email, vcode, true)) {
-            return RespBody.errorl("SomeInvalid", "Captcha");
+            return RespBody.errorl("无效验证码");
         }
 
         User user = Application.getUserStore().getUserByEmail(email);

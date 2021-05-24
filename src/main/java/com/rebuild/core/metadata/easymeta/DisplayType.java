@@ -36,7 +36,7 @@ public enum DisplayType {
     AVATAR(EasyAvatar.class, "头像", FieldType.STRING, 300, null),
     MULTISELECT(EasyMultiSelect.class, "多选", FieldType.LONG, -1, null),
     BOOL(EasyBool.class, "布尔", FieldType.BOOL, -1, null),
-    BARCODE(EasyBarCode.class, "条形码", FieldType.STRING, 300, null),
+    BARCODE(EasyBarCode.class, "二维码", FieldType.STRING, 300, null),
     N2NREFERENCE(EasyN2NReference.class, "多引用", FieldType.REFERENCE_LIST, -1, null),
 
     // 内部

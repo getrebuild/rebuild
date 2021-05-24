@@ -12,7 +12,7 @@ RbForm.postAfter = function (data) {
 
 const roleId = window.__PageConfig.recordId
 $(document).ready(function () {
-  $('.J_new-role').click(() => RbFormModal.create({ title: $L('NewSome,Role'), entity: 'Role', icon: 'lock' }))
+  $('.J_new-role').click(() => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
 
   if (roleId) {
     $('.J_save').attr('disabled', false).click(updatePrivileges)
@@ -76,7 +76,7 @@ const loadRoles = function () {
     $(res.data).each(function () {
       const _id = this.id
       const $item = $(
-        `<li><a class="text-truncate ${this.disabled ? 'text-disabled' : ''}" title="${this.disabled ? $L('Disabled') : ''}" href="${rb.baseUrl}/admin/bizuser/role/${_id}">${this.name}</a></li>`
+        `<li><a class="text-truncate ${this.disabled ? 'text-disabled' : ''}" title="${this.disabled ? $L('已禁用') : ''}" href="${rb.baseUrl}/admin/bizuser/role/${_id}">${this.name}</a></li>`
       ).appendTo('.aside-tree ul')
 
       const $action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo($item)
@@ -85,7 +85,7 @@ const loadRoles = function () {
 
       $action.find('a.J_edit').click(() =>
         RbFormModal.create({
-          title: $L('EditSome,Role'),
+          title: $L('编辑角色'),
           entity: 'Role',
           icon: 'lock',
           id: _id,

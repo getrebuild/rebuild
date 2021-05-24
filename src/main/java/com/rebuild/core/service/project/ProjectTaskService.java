@@ -101,7 +101,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public int delete(ID taskId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(taskId, user)) throw new OperationDeniedException("DELETE TASK");
+        if (!ProjectHelper.isManageable(taskId, user)) throw new OperationDeniedException();
 
         int d = super.delete(taskId);
         ProjectManager.instance.clean(taskId);
@@ -183,7 +183,7 @@ public class ProjectTaskService extends BaseTaskService {
      */
     private void sendNotification(ID taskId) {
         Object[] task = Application.getQueryFactory().uniqueNoFilter(taskId, "executor", "taskName");
-        String msg = Language.L("MsgNewProjectTaskToYou") + " \n> " + task[1];
+        String msg = Language.L("有一个新任务分派给你") + " \n> " + task[1];
         Application.getNotifications().send(
                 MessageBuilder.createMessage((ID) task[0], msg, Message.TYPE_PROJECT, taskId));
     }

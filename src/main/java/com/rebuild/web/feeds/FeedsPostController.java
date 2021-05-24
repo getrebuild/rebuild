@@ -83,7 +83,7 @@ public class FeedsPostController extends BaseController {
                 .setParameter(2, FeedsType.SCHEDULE.getMask())
                 .unique();
         if (schedule == null || !schedule[0].equals(user)) {
-            return RespBody.error(Language.L("NoOpPrivileges"));
+            return RespBody.error(Language.L("无操作权限"));
         }
 
         // 非结构化存储

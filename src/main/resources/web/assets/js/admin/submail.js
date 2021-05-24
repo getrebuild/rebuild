@@ -11,7 +11,7 @@ postBefore = function (data) {
   if (isSmtp) {
     data['MailSmtpServer'] = $('input[name="MailSmtpServer"]').val()
     if (!data['MailSmtpServer']) {
-      RbHighbar.create($L('SomeNotEmpty,SmtpServer'))
+      RbHighbar.create($L('SMTP 服务器地址不能为空'))
       return false
     }
   } else {
@@ -97,19 +97,19 @@ class TestSend extends RbAlert {
   constructor(props) {
     super(props)
     this.state = { ...props }
-    this._typeName = props.type === 'email' ? 'Email' : 'Mobile'
+    this._typeName = props.type === 'email' ? $L('邮箱') : $L('手机')
   }
 
   renderContent() {
     return (
       <form style={{ maxWidth: 400, margin: '0 auto' }}>
         <div className="form-group">
-          <label>{$L('InputTestSome,' + this._typeName)}</label>
+          <label>{$L('输入接收%s', this._typeName)}</label>
           <input type="text" className="form-control form-control-sm" placeholder={$L(this._typeName)} ref={(c) => (this._input = c)} />
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()} ref={(c) => (this._btn = c)}>
-            {$L('Send')}
+            {$L('发送')}
           </button>
         </div>
       </form>
@@ -118,7 +118,7 @@ class TestSend extends RbAlert {
 
   confirm() {
     const receiver = $(this._input).val()
-    if (!receiver) return RbHighbar.create($L('PlsInputSome,' + this._typeName))
+    if (!receiver) return RbHighbar.create($L('请输入 %s', this._typeName))
 
     const conf = {}
     $('.syscfg table td[data-id]').each(function () {
@@ -129,10 +129,10 @@ class TestSend extends RbAlert {
     $(this._btn).button('loading')
     $.post('./submail/test?type=' + this.props.type + '&receiver=' + $encode(receiver), JSON.stringify(conf), (res) => {
       if (res.error_code === 0) {
-        RbHighbar.success($L('SomeSuccess,Send'))
+        RbHighbar.success($L('发送成功'))
         // this.hide()
       } else {
-        RbHighbar.create(res.error_msg || $L('SomeFailed,Send'))
+        RbHighbar.create(res.error_msg || $L('发送失败'))
       }
       $(this._btn).button('reset')
     })

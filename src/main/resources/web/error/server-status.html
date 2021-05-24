@@ -10,7 +10,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
     <title>REBUILD</title>
     <style>
-      body,html {
+      body,
+      html {
         height: auto;
         min-height: auto;
       }
@@ -28,12 +29,12 @@
   <body>
     <div th:if="${!ok}" class="error">
       <div class="container">
-        <h2 class="mt-0">[[${bundle.L('SystemFailure')}]]</h2>
-        <div th:utext="${bundle.L('SystemFailureMemo')}"></div>
+        <h2 class="mt-0">[[${bundle.L('系统故障')}]]</h2>
+        <div th:utext="${bundle.L('服务未能正常启动，请通过快速检查排除故障，排除后请重启服务。你也可以 [报告此问题](https://getrebuild.com/report-issue?title=boot-error)')}"></div>
       </div>
     </div>
     <div class="container">
-      <h5 class="text-bold mt-5">[[${bundle.L('QuickCheck')}]]</h5>
+      <h5 class="text-bold mt-5">[[${bundle.L('快速检查')}]]</h5>
       <table class="table table-bordered table-sm table-hover">
         <tbody>
           <tr>
@@ -61,7 +62,7 @@
         </tbody>
       </table>
       <th:block th:if="${isAdminVerified}">
-        <h5 class="text-bold mt-5">[[${bundle.L('SystemInfo')}]]</h5>
+        <h5 class="text-bold mt-5">[[${bundle.L('系统信息')}]]</h5>
         <table class="table table-bordered table-sm table-hover">
           <tbody>
             <tr>

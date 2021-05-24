@@ -56,7 +56,7 @@ public class ProjectCommentService extends BaseTaskService {
     @Override
     public int delete(ID commentId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(commentId, user)) throw new OperationDeniedException("DELETE COMMENT");
+        if (!ProjectHelper.isManageable(commentId, user)) throw new OperationDeniedException();
 
         return super.delete(commentId);
     }
@@ -71,7 +71,7 @@ public class ProjectCommentService extends BaseTaskService {
     private int checkAtUserAndNotification(Record record, String content) {
         if (StringUtils.isBlank(content)) return 0;
 
-        final String msg = Language.LF("MsgAtYouInProjectTask", record.getEditor()) + " \n> " + content;
+        final String msg = Language.L("@%s 在任务中提到了你", record.getEditor()) + " \n> " + content;
 
         ID[] atUsers = FeedsHelper.findMentions(content);
         int send = 0;

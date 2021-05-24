@@ -7,7 +7,7 @@
           <div class="left-sidebar-content no-divider">
             <ul class="sidebar-elements">
               <li th:class="${active == 'dashboard-home'} ? 'active'">
-                <a th:href="@{/dashboard/home}"><i class="icon zmdi zmdi-home"></i><span>[[${bundle.L('Home')}]]</span></a>
+                <a th:href="@{/dashboard/home}"><i class="icon zmdi zmdi-home"></i><span>[[${bundle.L('首页')}]]</span></a>
               </li>
               <th:block th:utext="${T(com.rebuild.core.configuration.NavBuilder).renderNav(#request, active)}"></th:block>
             </ul>
@@ -15,7 +15,7 @@
         </div>
       </div>
       <div th:if="${AllowCustomNav}" class="bottom-widget">
-        <a class="nav-settings" th:title="${bundle.L('SetSome,NavMenu')}"><i class="icon zmdi zmdi-apps"></i></a>
+        <a class="nav-settings" th:title="${bundle.L('导航菜单配置')}"><i class="icon zmdi zmdi-apps"></i></a>
       </div>
     </div>
   </div>

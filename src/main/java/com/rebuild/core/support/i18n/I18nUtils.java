@@ -29,13 +29,12 @@ public class I18nUtils {
     }
 
     /**
-     * 多语言支持
-     *
      * @param key
      * @param placeholders
      * @return
+     * @see Language#L(String, Object...)
      */
-    public static String $L(String key, Object... placeholders) {
-        return Language.getCurrentBundle().formatLang(key, placeholders);
+    public static String L(String key, Object... placeholders) {
+        return Language.L(key, placeholders);
     }
 }

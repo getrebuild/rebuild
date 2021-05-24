@@ -149,7 +149,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
             if (ex != null && ThrowableUtils.getRootCause(ex) instanceof TemplateInputException
                     && errorMsg.contains("Error resolving template")) {
-                errorMsg = Language.L("Error404");
+                errorMsg = Language.L("访问的页面/资源不存在");
             }
         }
 

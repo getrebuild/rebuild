@@ -2,20 +2,20 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('FieldShow')}]]</title>
+    <title>[[${bundle.L('列显示')}]]</title>
   </head>
   <body class="dialog">
     <div class="main-content">
       <div class="row m-0">
         <div class="col-6 sortable-swap">
-          <h5 class="sortable-box-title">[[${bundle.L('Showed')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('已显示')}]]</h5>
           <div class="sortable-box h380 rb-scroller">
             <ol class="dd-list J_config"></ol>
           </div>
           <i class="zmdi zmdi-swap"></i>
         </div>
         <div class="col-6">
-          <h5 class="sortable-box-title">[[${bundle.L('UnShow')}]]</h5>
+          <h5 class="sortable-box-title">[[${bundle.L('未显示')}]]</h5>
           <div class="sortable-box h380 rb-scroller">
             <ol class="dd-list unset-list"></ol>
           </div>
@@ -25,8 +25,8 @@
         <div class="float-left">
           <div id="shareTo" class="shareTo--wrap"></div>
         </div>
-        <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
-        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('Cancel')}]]</button>
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
@@ -54,7 +54,7 @@
               return x[0] === cfgid
             })
             if (rb.isAdminUser) {
-              renderRbcomp(<Share2 title={$L('FieldShow')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId} />, 'shareTo', function () {
+              renderRbcomp(<Share2 title={$L('列显示')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_data.shareTo} entity={entity} id={_data.configId} />, 'shareTo', function () {
                 shareToComp = this
               })
             } else {
@@ -62,7 +62,7 @@
                 x[4] = entity
                 return x
               })
-              renderSwitchButton(data, $L('FieldShow'), cfgid)
+              renderSwitchButton(data, $L('列显示'), cfgid)
             }
           })
         })
@@ -72,15 +72,15 @@
           $('.J_config>li').each(function () {
             config.push({ field: $(this).data('key') })
           })
-          if (config.length == 0) {
-            RbHighbar.create($L('PlsSet1FieldShowLeast'))
+          if (config.length === 0) {
+            RbHighbar.create($L('请至少选择 1 个显示列'))
             return
           }
 
           const btn = $(this).button('loading')
           const shareToData = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
           $.post(settingsUrl + '?id=' + cfgid + '&configName=' + $encode(shareToData.configName || '') + '&shareTo=' + shareToData.shareTo, JSON.stringify(config), function (res) {
-            if (res.error_code == 0) parent.location.reload()
+            if (res.error_code === 0) parent.location.reload()
             btn.button('reset')
           })
         })

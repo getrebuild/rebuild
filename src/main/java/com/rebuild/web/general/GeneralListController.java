@@ -95,7 +95,7 @@ public class GeneralListController extends EntityController {
         }
 
         if (!Application.getPrivilegesManager().allowRead(user, checkEntity.getEntityCode())) {
-            response.sendError(403, Language.L("YouNoPermissionAccessSome", "Page"));
+            response.sendError(403, Language.L("你没有访问此页面的权限"));
             return null;
         }
 

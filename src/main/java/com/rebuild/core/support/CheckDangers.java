@@ -78,7 +78,7 @@ public class CheckDangers {
 
         if (License.isCommercial() && !License.isRbvAttached()) {
             if (dangers == null) dangers = new LinkedHashMap<>();
-            dangers.put(CommercialNoRbv, Language.L("CommercialNoRbvTip"));
+            dangers.put(CommercialNoRbv, Language.L("系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取"));
         }
 
         if (dangers == null || dangers.isEmpty()) {
@@ -91,7 +91,7 @@ public class CheckDangers {
         String hasUpdate = dangers.get(HasUpdate);
         if (hasUpdate != null && hasUpdate.contains("$$$$")) {
             String[] ss = hasUpdate.split("\\$\\$\\$\\$");
-            hasUpdate = Language.LF("NewVersion", ss[0], ss[1]);
+            hasUpdate = Language.L("有新版的 REBUILD (%s) 更新可用 [(查看详情)](%s)", ss[0], ss[1]);
             hasUpdate = hasUpdate.replace("<a ", "<a target=\"_blank\" ");
             dangers.put(HasUpdate, hasUpdate);
         }

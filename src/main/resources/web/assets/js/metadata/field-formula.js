@@ -6,7 +6,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 // ~ 公式编辑器
-const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('Back'), $L('Clear')]
+const INPUT_KEYS = ['+', 1, 2, 3, '-', 4, 5, 6, '×', 7, 8, 9, '÷', '(', ')', 0, '.', $L('回退'), $L('清空')]
 // eslint-disable-next-line no-unused-vars
 class FormulaCalc extends RbAlert {
   constructor(props) {
@@ -17,15 +17,17 @@ class FormulaCalc extends RbAlert {
   renderContent() {
     return (
       <div className="formula-calc">
-        <div className="form-control-plaintext formula mb-2" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)}></div>
+        <div className="form-control-plaintext formula mb-2" _title={$L('计算公式')} ref={(c) => (this._$formula = c)}></div>
         <div className="bosskey-show mb-2">
           <textarea className="form-control form-control-sm row3x mb-1" ref={(c) => (this._$formulaInput = c)} />
-          <a href="https://www.yuque.com/boyan-avfmj/aviatorscript" target="_blank" className="link">EXPRESSION ENGINE : AVIATORSCRIPT</a>
+          <a href="https://www.yuque.com/boyan-avfmj/aviatorscript" target="_blank" className="link">
+            EXPRESSION ENGINE : AVIATORSCRIPT
+          </a>
         </div>
         <div className="row unselect">
           <div className="col-6">
             <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
-              <ul className="list-unstyled mb-0" _title={$L('NoUsesField')}>
+              <ul className="list-unstyled mb-0" _title={$L('无可用字段')}>
                 {this.props.fields.map((item) => {
                   return (
                     <li key={item[0]} className={item[2] ? `flag-${item[2]}` : ''}>
@@ -48,7 +50,7 @@ class FormulaCalc extends RbAlert {
               })}
               <li className="list-inline-item">
                 <a onClick={() => this.confirm()} className="confirm">
-                  {$L('Confirm')}
+                  {$L('确定')}
                 </a>
               </li>
             </ul>
@@ -68,9 +70,9 @@ class FormulaCalc extends RbAlert {
   }
 
   handleInput(v) {
-    if (v === $L('Back')) {
+    if (v === $L('回退')) {
       $(this._$formula).find('.v:last').remove()
-    } else if (v === $L('Clear')) {
+    } else if (v === $L('清空')) {
       $(this._$formula).empty()
     } else if (typeof v === 'object') {
       $(`<i class="v field" data-v="{${v[0]}}">{${v[1]}}</i>`).appendTo(this._$formula)
@@ -116,11 +118,11 @@ class FormulaDate extends RbAlert {
   }
 
   renderContent() {
-    const base = this.props.base ? this.props.base : [['NOW', $L('CurrentDate')]]
+    const base = this.props.base ? this.props.base : [['NOW', $L('当前日期')]]
     return (
       <form className="ml-6 mr-6">
         <div className="form-group">
-          <label className="text-bold">{$L('SetSome,DateFormula')}</label>
+          <label className="text-bold">{$L('设置日期公式')}</label>
           <div className="input-group">
             <select className="form-control form-control-sm" ref={(c) => (this._base = c)}>
               {base.map((item) => {
@@ -132,9 +134,9 @@ class FormulaDate extends RbAlert {
               })}
             </select>
             <select className="form-control form-control-sm ml-1" onChange={(e) => this.setState({ calcOp: e.target.value })}>
-              <option value="">{$L('CalcNone')}</option>
-              <option value="+">{$L('CalcPlus')}</option>
-              <option value="-">{$L('CalcMinus')}</option>
+              <option value="">{$L('不计算')}</option>
+              <option value="+">{$L('加上')}</option>
+              <option value="-">{$L('减去')}</option>
             </select>
             <input
               type="number"
@@ -146,13 +148,13 @@ class FormulaDate extends RbAlert {
               onChange={(e) => this.setState({ calcNum: e.target.value })}
             />
             <select className="form-control form-control-sm ml-1" disabled={!this.state.calcOp} onChange={(e) => this.setState({ calcUnit: e.target.value })}>
-              <option value="D">{$L('Day')}</option>
-              <option value="M">{$L('Month')}</option>
-              <option value="Y">{$L('Year')}</option>
+              <option value="D">{$L('日')}</option>
+              <option value="M">{$L('月')}</option>
+              <option value="Y">{$L('年')}</option>
               {this.props.type === 'DATETIME' && (
                 <React.Fragment>
-                  <option value="H">{$L('Hour')}</option>
-                  <option value="I">{$L('Minte')}</option>
+                  <option value="H">{$L('小时')}</option>
+                  <option value="I">{$L('分钟')}</option>
                 </React.Fragment>
               )}
             </select>
@@ -160,7 +162,7 @@ class FormulaDate extends RbAlert {
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
         </div>
       </form>
@@ -173,7 +175,7 @@ class FormulaDate extends RbAlert {
 
     if (this.state.calcOp) {
       if (isNaN(this.state.calcNum) || this.state.calcNum < 1) {
-        return RbHighbar.create($L('PlsInputSome,Number'))
+        return RbHighbar.create($L('请输入数字'))
       }
       expr += ` ${this.state.calcOp} ${this.state.calcNum}${this.state.calcUnit}`
     }

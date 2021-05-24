@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
-    <title>[[${bundle.L('SomeManage,Entity')}]]</title>
+    <title>[[${bundle.L('实体管理')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
   </head>
   <body>
@@ -22,72 +22,72 @@
               </div>
               <div class="aside-nav collapse">
                 <ul class="nav">
-                  <li class="active"><a href="base">[[${bundle.L('BasicInfo')}]]</a></li>
-                  <li><a href="form-design">[[${bundle.L('FormLayout')}]]</a></li>
-                  <li><a href="fields">[[${bundle.L('NavFields')}]]</a></li>
-                  <li><a href="advanced">[[${bundle.L('AdvConf')}]]</a></li>
+                  <li class="active"><a href="base">[[${bundle.L('基本信息')}]]</a></li>
+                  <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
+                  <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
+                  <li><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
                 </ul>
               </div>
             </div>
           </div>
         </aside>
         <div class="page-head">
-          <div class="page-head-title">[[${bundle.L('BasicInfo')}]]</div>
+          <div class="page-head-title">[[${bundle.L('基本信息')}]]</div>
         </div>
         <div class="main-content container-fluid pt-1">
           <ul th:if="${detailEntity != null}" class="nav nav-tabs nav-tabs-classic">
-            <li th:class="|nav-item J_tab-${mainEntity}|"><a th:href="|../${mainEntity}/base|" class="nav-link">[[${bundle.L('MainEntity')}]]</a></li>
-            <li th:class="|nav-item J_tab-${detailEntity}|"><a th:href="|../${detailEntity}/base|" class="nav-link">[[${bundle.L('DetailEntity')}]]</a></li>
+            <li th:class="|nav-item J_tab-${mainEntity}|"><a th:href="|../${mainEntity}/base|" class="nav-link">[[${bundle.L('主实体')}]]</a></li>
+            <li th:class="|nav-item J_tab-${detailEntity}|"><a th:href="|../${detailEntity}/base|" class="nav-link">[[${bundle.L('明细实体')}]]</a></li>
           </ul>
           <div class="card mb-0">
             <div class="card-body pt-4">
               <form class="simple">
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Icon')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('图标')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <a id="entityIcon" th:data-o="${icon}" title="更换图标"><i th:class="|icon zmdi zmdi-${icon}|"></i></a>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('EntityName')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('实体名称')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40" th:value="${entityLabel}" th:data-o="${entityLabel}" />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('MetaName')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('内部标识')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input class="form-control form-control-sm" type="text" readonly id="entityName" th:value="${entityName}" />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('NameField')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('名称字段')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="nameField" th:data-o="${nameField}"></select>
-                    <p class="form-text mb-0">[[${bundle.L('NameFieldTips')}]]</p>
+                    <p class="form-text mb-0">[[${bundle.L('名称字段应该清晰的体现记录本身，如客户中的客户名称')}]]</p>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('QuickQueryField')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('快速查询字段')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="quickFields"></select>
-                    <p class="form-text mb-0">[[${bundle.L('QuickQueryFieldTips')}]]</p>
+                    <p class="form-text mb-0">[[${bundle.L('用于列表、表单引用字段等处的快速查询')}]]</p>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Remark')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('备注')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${comments}" th:placeholder="${bundle.L('Optional')}">[[${comments}]]</textarea>
+                    <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${comments}" th:placeholder="${bundle.L('可选')}">[[${comments}]]</textarea>
                   </div>
                 </div>
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <div class="J_action hide">
-                      <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
+                      <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
                     </div>
                     <div class="alert alert-warning alert-icon mb-0 hide">
                       <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
-                      <div class="message">[[${bundle.L('BuiltInNotModify')}]]</div>
+                      <div class="message">[[${bundle.L('系统内置，不允许修改')}]]</div>
                     </div>
                   </div>
                 </div>

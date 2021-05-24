@@ -25,31 +25,31 @@ class BatchOperator extends RbFormHandler {
       <RbModal title={this._title} disposeOnHide={true} ref={(c) => (this._dlg = c)}>
         <div className="form batch-form">
           <div className="form-group">
-            <label className="text-bold">{$L('SelectDataRange')}</label>
+            <label className="text-bold">{$L('选择数据范围')}</label>
             <div>
               {selectedRows > 0 && (
                 <label className="custom-control custom-control-sm custom-radio mb-2">
                   <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
                   <span className="custom-control-label">
-                    {$L('DatasSelected')} ({$L('XItem').replace('%d', selectedRows)})
+                    {$L('选中的数据')} ({$L('共 %d 项', selectedRows)})
                   </span>
                 </label>
               )}
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('DatasPaged')} ({$L('XItem').replace('%d', pageRows)})
+                  {$L('当前页的数据')} ({$L('共 %d 项', pageRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-2">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
                 <span className="custom-control-label">
-                  {$L('DatasQueryed')} ({$L('XItem').replace('%d', queryRows)})
+                  {$L('查询后的数据')} ({$L('共 %d 项', queryRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
                 <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 10} value="10" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('AllDatas')}</span>
+                <span className="custom-control-label">{$L('全部数据')}</span>
               </label>
             </div>
           </div>
@@ -57,10 +57,10 @@ class BatchOperator extends RbFormHandler {
         </div>
         <div className="dialog-footer" ref={(c) => (this._btns = c)}>
           <a className="btn btn-link btn-space" onClick={this.hide}>
-            {$L('Cancel')}
+            {$L('取消')}
           </a>
           <button className="btn btn-primary btn-space" type="button" onClick={this.confirm}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
         </div>
       </RbModal>
@@ -86,7 +86,7 @@ class BatchOperator extends RbFormHandler {
 class DataExport extends BatchOperator {
   constructor(props) {
     super(props)
-    this._title = $L('DataExport')
+    this._title = $L('数据导出')
   }
 
   confirm = () => {
@@ -94,7 +94,7 @@ class DataExport extends BatchOperator {
     $.post(`/app/${this.props.entity}/export/submit?dr=${this.state.dataRange}`, JSON.stringify(this.getQueryData()), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        const attname = $L(`SomeList,e.${this.props.entity}`) + '.csv'
+        const attname = `${this.props.entity || 'RB'}.csv`
         window.open(`${rb.baseUrl}/filex/download/${res.data}?temp=yes&attname=${$encode(attname)}`)
       } else {
         this.disabled(false)
@@ -110,7 +110,7 @@ class DataExport extends BatchOperator {
 class BatchUpdate extends BatchOperator {
   constructor(props) {
     super(props)
-    this._title = $L('BatchUpdate')
+    this._title = $L('批量修改')
   }
 
   componentDidMount() {
@@ -120,7 +120,7 @@ class BatchUpdate extends BatchOperator {
   renderOperator() {
     return (
       <div className="form-group">
-        <label className="text-bold">{$L('UpdateContents')}</label>
+        <label className="text-bold">{$L('修改内容')}</label>
         <div>
           <div className="batch-contents">
             {(this.state.updateContents || []).map((item) => {
@@ -129,7 +129,7 @@ class BatchUpdate extends BatchOperator {
                 <div key={item.field}>
                   <div className="row">
                     <div className="col-4">
-                      <a className="del" onClick={() => this.delItem(item.field)} title={$L('Remove')}>
+                      <a className="del" onClick={() => this.delItem(item.field)} title={$L('移除')}>
                         <i className="zmdi zmdi-close"></i>
                       </a>
                       <span className="badge badge-light">{fieldObj.label}</span>
@@ -147,7 +147,7 @@ class BatchUpdate extends BatchOperator {
             {this.state.fields && <BatchUpdateEditor ref={(c) => (this._editor = c)} fields={this.state.fields} entity={this.props.entity} />}
             <div className="mt-1">
               <button className="btn btn-primary btn-sm btn-outline" onClick={this.addItem} type="button">
-                + {$L('Add')}
+                + {$L('添加')}
               </button>
             </div>
           </div>
@@ -163,7 +163,7 @@ class BatchUpdate extends BatchOperator {
     const contents = this.state.updateContents || []
     const exists = contents.find((x) => item.field === x.field)
     if (exists) {
-      RbHighbar.create($L('UpdateFieldExists'))
+      RbHighbar.create($L('修改字段已经存在'))
       return
     }
 
@@ -181,7 +181,7 @@ class BatchUpdate extends BatchOperator {
 
   confirm = () => {
     if (!this.state.updateContents || this.state.updateContents.length === 0) {
-      RbHighbar.create($L('PlsAddSome,UpdateContents'))
+      RbHighbar.create($L('请添加修改内容'))
       return
     }
 
@@ -193,7 +193,7 @@ class BatchUpdate extends BatchOperator {
     if (rb.env === 'dev') console.log(JSON.stringify(_data))
 
     const that = this
-    RbAlert.create($L('BatchUpdateConfirm'), {
+    RbAlert.create($L('请再次确认修改数据范围和修改内容。开始修改吗？'), {
       confirm: function () {
         this.hide()
         that.disabled(true)
@@ -222,8 +222,8 @@ class BatchUpdate extends BatchOperator {
         const cp = res.data.progress
         if (cp >= 1) {
           mp && mp.end()
-          $(this._btns).find('.btn-primary').text($L('Finished'))
-          RbHighbar.success($L('BatchUpdateSuccessTips').replace('%d', res.data.succeeded))
+          $(this._btns).find('.btn-primary').text($L('已完成'))
+          RbHighbar.success($L('成功修改 %d 条记录', res.data.succeeded))
           setTimeout(() => {
             this.hide()
             window.RbListPage && window.RbListPage.reload()
@@ -240,13 +240,13 @@ class BatchUpdate extends BatchOperator {
 }
 
 const BUE_OPTYPES = {
-  SET: $L('BatchUpdateOpSET'),
-  NULL: $L('BatchUpdateOpNULL'),
+  SET: $L('修改为'),
+  NULL: $L('置空'),
   // TODO 支持更多修改模式
-  // PREFIX: $L('BatchUpdateOpPREFIX'),
-  // SUFFIX: $L('BatchUpdateOpSUFFIX'),
-  // PLUS: $L('CalcPlus'),
-  // MINUS: $L('CalcMinus'),
+  // PREFIX: $L('前添加'),
+  // SUFFIX: $L('后添加'),
+  // PLUS: $L('加上'),
+  // MINUS: $L('减去'),
 }
 
 // ~ 批量修改编辑器
@@ -280,7 +280,7 @@ class BatchUpdateEditor extends React.Component {
 
   render() {
     if (this.props.fields.length === 0) {
-      return <div className="text-danger">{$L('NoUpdateFields')}</div>
+      return <div className="text-danger">{$L('没有可修改字段')}</div>
     }
 
     return (
@@ -304,7 +304,7 @@ class BatchUpdateEditor extends React.Component {
         </div>
         <div className="col-6">
           <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
-            {this.state.selectFieldObj && <FieldValueSet entity={this.props.entity} field={this.state.selectFieldObj} placeholder={$L('NewValue')} ref={(c) => (this._valueComp = c)} />}
+            {this.state.selectFieldObj && <FieldValueSet entity={this.props.entity} field={this.state.selectFieldObj} placeholder={$L('新值')} ref={(c) => (this._valueComp = c)} />}
           </div>
         </div>
       </div>
@@ -326,7 +326,7 @@ class BatchUpdateEditor extends React.Component {
     const field = this.props.fields.find((item) => this.state.selectField === item.name)
     if (item.op === 'NULL') {
       if (!field.nullable) {
-        RbHighbar.create($L('SomeNotEmpty').replace('{0}', field.label))
+        RbHighbar.create($L('%s 不能为空', field.label))
         return null
       } else {
         return item

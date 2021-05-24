@@ -160,7 +160,8 @@ public class FieldValueHelper {
             return hasValue;
 
         } else if (id.equals(ApprovalStepService.APPROVAL_NOID)) {
-            return Language.L("AUTOAPPROVAL");
+            return Language.L("自动审批");
+
         }
 
         Field nameField = entity.getNameField();

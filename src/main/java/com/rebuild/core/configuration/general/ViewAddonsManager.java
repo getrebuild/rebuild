@@ -191,7 +191,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
                     : String.format("%s (%s)", show.getString("entityLabel"), EasyMetaFactory.getLabel(field));
             show.put("entityLabel", entityLabel);
         } else if (fieldEntity.getEntityCode() == EntityHelper.Feeds) {
-            show.put("entityLabel", Language.L("e.Feeds"));
+            show.put("entityLabel", Language.L("动态"));
         }
         return show;
     }

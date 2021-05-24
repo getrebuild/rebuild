@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/privileges" />
-    <title>[[${bundle.L('RolePrivileges')}]]</title>
+    <title>[[${bundle.L('角色权限')}]]</title>
     <style type="text/css">
       .table.table-priv {
         table-layout: fixed;
@@ -99,31 +99,31 @@
             </div>
           </div>
           <div class="float-right" style="margin-top: -1px">
-            <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('NewSome,Role')}]]</button>
-            <button class="btn btn-primary btn-space J_save mr-0" type="button" disabled="disabled">[[${bundle.L('Save')}]]</button>
+            <button class="btn btn-secondary btn-space J_new-role" type="button"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建角色')}]]</button>
+            <button class="btn btn-primary btn-space J_save mr-0" type="button" disabled="disabled">[[${bundle.L('保存')}]]</button>
           </div>
           <div class="tab-container">
             <ul class="nav nav-tabs nav-tabs-classic">
-              <li class="nav-item"><a data-toggle="tab" href="#priv-entity" class="nav-link active">[[${bundle.L('EntityPrivileges')}]]</a></li>
-              <li class="nav-item"><a data-toggle="tab" href="#priv-zero" class="nav-link">[[${bundle.L('ZeroPrivileges')}]]</a></li>
+              <li class="nav-item"><a data-toggle="tab" href="#priv-entity" class="nav-link active">[[${bundle.L('实体权限')}]]</a></li>
+              <li class="nav-item"><a data-toggle="tab" href="#priv-zero" class="nav-link">[[${bundle.L('扩展权限')}]]</a></li>
             </ul>
             <div class="tab-content mb-0">
               <div class="tab-pane active" id="priv-entity">
                 <table class="table table-hover table-priv">
                   <thead>
                     <tr>
-                      <th class="text-left" width="25%">[[${bundle.L('BizEntity')}]]</th>
-                      <th><a data-action="C" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Create')}]]</a></th>
-                      <th><a data-action="R" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Read')}]]</a></th>
-                      <th><a data-action="U" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Update')}]]</a></th>
-                      <th><a data-action="D" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Delete')}]]</a></th>
-                      <th><a data-action="A" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Assign')}]]</a></th>
-                      <th><a data-action="S" th:title="${bundle.L('BatchSelect')}">[[${bundle.L('Share')}]]</a></th>
+                      <th class="text-left" width="25%">[[${bundle.L('业务实体')}]]</th>
+                      <th><a data-action="C" th:title="${bundle.L('批量选择')}">[[${bundle.L('新建')}]]</a></th>
+                      <th><a data-action="R" th:title="${bundle.L('批量选择')}">[[${bundle.L('读取')}]]</a></th>
+                      <th><a data-action="U" th:title="${bundle.L('批量选择')}">[[${bundle.L('更新')}]]</a></th>
+                      <th><a data-action="D" th:title="${bundle.L('批量选择')}">[[${bundle.L('删除')}]]</a></th>
+                      <th><a data-action="A" th:title="${bundle.L('批量选择')}">[[${bundle.L('分派')}]]</a></th>
+                      <th><a data-action="S" th:title="${bundle.L('批量选择')}">[[${bundle.L('共享')}]]</a></th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr th:each="entity : ${Entities}">
-                      <td class="name"><a th:data-name="${entity[0]}" th:title="${bundle.L('BatchSelect')}">[[${entity[1]}]]</a></td>
+                      <td class="name"><a th:data-name="${entity[0]}" th:title="${bundle.L('批量选择')}">[[${entity[1]}]]</a></td>
                       <td><i data-action="C" class="priv R0"></i></td>
                       <td><i data-action="R" class="priv R0"></i></td>
                       <td><i data-action="U" class="priv R0"></i></td>
@@ -135,12 +135,12 @@
                 </table>
                 <div class="legend-wrap">
                   <div class="legend">
-                    [[${bundle.L('Legend')}]]
-                    <label><i class="priv R0"></i> [[${bundle.L('NoPrivileges')}]]</label>
-                    <label><i class="priv R1"></i> [[${bundle.L('DepthEntry1')}]]</label>
-                    <label><i class="priv R2"></i> [[${bundle.L('DepthEntry2')}]]</label>
-                    <label><i class="priv R3"></i> [[${bundle.L('DepthEntry3')}]]</label>
-                    <label><i class="priv R4"></i> [[${bundle.L('DepthEntry4')}]]</label>
+                    [[${bundle.L('图例')}]]
+                    <label><i class="priv R0"></i> [[${bundle.L('无权限')}]]</label>
+                    <label><i class="priv R1"></i> [[${bundle.L('本人')}]]</label>
+                    <label><i class="priv R2"></i> [[${bundle.L('本部门')}]]</label>
+                    <label><i class="priv R3"></i> [[${bundle.L('本部门及子部门')}]]</label>
+                    <label><i class="priv R4"></i> [[${bundle.L('全部')}]]</label>
                   </div>
                 </div>
               </div>
@@ -148,9 +148,9 @@
                 <table class="table table-hover table-priv">
                   <thead>
                     <tr>
-                      <th class="text-left" width="25%">[[${bundle.L('PermissionItem')}]]</th>
-                      <th><a data-action="Z">[[${bundle.L('Allow')}]]</a></th>
-                      <th class="text-left">[[${bundle.L('PrePermission')}]]</th>
+                      <th class="text-left" width="25%">[[${bundle.L('权限项')}]]</th>
+                      <th><a data-action="Z">[[${bundle.L('允许')}]]</a></th>
+                      <th class="text-left">[[${bundle.L('前置条件')}]]</th>
                       <th></th>
                       <th></th>
                       <th></th>
@@ -159,47 +159,47 @@
                   </thead>
                   <tbody>
                     <tr>
-                      <td class="name"><a data-name="AllowLogin">[[${bundle.L('AllowSome,Login')}]]</a></td>
+                      <td class="name"><a data-name="AllowLogin">[[${bundle.L('允许登录')}]]</a></td>
                       <td><i data-action="Z" class="priv R4"></i></td>
-                      <td colspan="5" class="text-muted text-left">[[${bundle.L('Null')}]]</td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('无')}]]</td>
                     </tr>
                     <tr>
-                      <td class="name"><a data-name="AllowCustomNav">[[${bundle.L('AllowSetSome,NavMenu')}]]</a></td>
+                      <td class="name"><a data-name="AllowCustomNav">[[${bundle.L('允许自定义导航菜单')}]]</a></td>
                       <td><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted text-left">[[${bundle.L('Null')}]]</td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('无')}]]</td>
                     </tr>
                     <tr>
-                      <td class="name"><a data-name="AllowCustomChart">[[${bundle.L('AllowSetSome,Chart')}]]</a></td>
+                      <td class="name"><a data-name="AllowCustomChart">[[${bundle.L('允许自定义图表')}]]</a></td>
                       <td><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted text-left">[[${bundle.L('Null')}]]</td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('无')}]]</td>
                     </tr>
                     <tr>
-                      <td class="name"><a data-name="AllowCustomDataList">[[${bundle.L('AllowSetSome,FieldShow')}]]</a></td>
+                      <td class="name"><a data-name="AllowCustomDataList">[[${bundle.L('允许自定义列显示')}]]</a></td>
                       <td><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Read')}]]</td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('需具备相应实体的读取权限')}]]</td>
                     </tr>
                     <tr>
-                      <td class="name"><a data-name="AllowBatchUpdate">[[${bundle.L('AllowSome,BatchUpdate')}]]</a></td>
+                      <td class="name"><a data-name="AllowBatchUpdate">[[${bundle.L('允许批量修改')}]]</a></td>
                       <td><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Update')}]]</td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('需具备相应实体的修改权限')}]]</td>
                     </tr>
                     <tr class="hide">
-                      <td class="name"><a data-name="AllowDataImport">[[${bundle.L('AllowSome,DataImport')}]]</a></td>
+                      <td class="name"><a data-name="AllowDataImport">[[${bundle.L('允许数据导入')}]]</a></td>
                       <td><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Create')}]]</td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('需具备相应实体的新建权限')}]]</td>
                     </tr>
                     <tr>
-                      <td class="name"><a data-name="AllowDataExport">[[${bundle.L('AllowSome,DataExport')}]]</a></td>
+                      <td class="name"><a data-name="AllowDataExport">[[${bundle.L('允许数据导出')}]]</a></td>
                       <td><i data-action="Z" class="priv R0"></i></td>
-                      <td colspan="5" class="text-muted text-left">[[${bundle.L('AllowSetSomePrePermission,Read')}]]</td>
+                      <td colspan="5" class="text-muted text-left">[[${bundle.L('需具备相应实体的读取权限')}]]</td>
                     </tr>
                   </tbody>
                 </table>
                 <div class="legend-wrap">
                   <div class="legend">
-                    [[${bundle.L('Legend')}]]
-                    <label><i class="priv R4"></i> [[${bundle.L('True')}]]</label>
-                    <label><i class="priv R0"></i> [[${bundle.L('False')}]]</label>
+                    [[${bundle.L('图例')}]]
+                    <label><i class="priv R4"></i> [[${bundle.L('是')}]]</label>
+                    <label><i class="priv R0"></i> [[${bundle.L('否')}]]</label>
                   </div>
                 </div>
               </div>

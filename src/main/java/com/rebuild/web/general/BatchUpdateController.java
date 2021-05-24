@@ -52,7 +52,7 @@ public class BatchUpdateController extends BaseController {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate),
-                getLang(request, "NoOpPrivileges"));
+                Language.L("无操作权限"));
 
         JSONObject requestData = (JSONObject) ServletUtils.getRequestJson(request);
 
@@ -117,10 +117,10 @@ public class BatchUpdateController extends BaseController {
             JSONArray options = new JSONArray();
             options.add(JSONUtils.toJSONObject(
                     new String[] { "id", "text" },
-                    new Object[] { true, Language.L("True") }));
+                    new Object[] { true, Language.L("是") }));
             options.add(JSONUtils.toJSONObject(
                     new String[] { "id", "text" },
-                    new Object[] { false, Language.L("False") }));
+                    new Object[] { false, Language.L("否") }));
             map.put("options", options);
 
         } else if (dt == DisplayType.NUMBER) {

@@ -13,6 +13,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,7 +39,7 @@ public class FeedsService extends BaseFeedsService {
         Integer type = record.getInt("type");
         if (type != null && type == FeedsType.ANNOUNCEMENT.getMask()
                 && !UserHelper.isAdmin(UserContextHolder.getUser())) {
-            throw new OperationDeniedException("ANNOUNCEMENT ADMIN ONLY");
+            throw new OperationDeniedException(Language.L("仅管理员可发布公告"));
         }
 
         return super.createOrUpdate(record);

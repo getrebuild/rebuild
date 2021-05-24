@@ -27,6 +27,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.RoleService;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
@@ -60,7 +61,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         final ID user = getRequestUser(request);
         RbAssert.isAllow(
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowCustomDataList),
-                getLang(request, "NoOpPrivileges"));
+                Language.L("无操作权限"));
 
         ID cfgid = getIdParameter(request, "id");
         // 普通用户只能有一个

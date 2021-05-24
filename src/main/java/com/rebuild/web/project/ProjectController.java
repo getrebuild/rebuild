@@ -119,7 +119,7 @@ public class ProjectController extends BaseController {
         // 未找到就跳转到第一个项目
         ConfigBean[] ccc = ProjectManager.instance.getAvailable(getRequestUser(request));
         if (ccc.length == 0) {
-            response.sendError(404, Language.L("NoProjects"));
+            response.sendError(404, Language.L("没有可用项目"));
         } else {
             String projectUrl = baseUrl + ccc[0].getID("id") + "/tasks#gs=";
             if (gs != null) projectUrl += CodecUtils.urlEncode(gs);

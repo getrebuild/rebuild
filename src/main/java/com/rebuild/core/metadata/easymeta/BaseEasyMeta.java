@@ -111,7 +111,7 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
     }
 
     /**
-     * 系统内建字段/实体，不可更改
+     * 系统内置字段/实体，不可更改
      *
      * @return
      */
@@ -137,7 +137,7 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
         if (getMetaId() != null) {
             return comments;
         }
-        return StringUtils.defaultIfBlank(comments, Language.L("SysBuiltIn"));
+        return StringUtils.defaultIfBlank(comments, Language.L("系统内置"));
     }
 
     /**

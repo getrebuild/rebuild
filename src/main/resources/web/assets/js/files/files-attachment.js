@@ -42,7 +42,7 @@ class EntityTree extends React.Component {
   loadData() {
     $.get('/files/tree-entity', (res) => {
       let _list = res.data || []
-      _list.unshift({ id: __DEFAULT_ALL, text: $L('All') })
+      _list.unshift({ id: __DEFAULT_ALL, text: $L('全部') })
       this.setState({ list: _list })
     })
   }
@@ -55,7 +55,7 @@ class FilesList4Atts extends FilesList {
   renderExtras(item) {
     return item.relatedRecord ? (
       <span>
-        <a title={$L('ClickViewReleated')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>
+        <a title={$L('点击查看记录')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>
           {item.relatedRecord[1]}
         </a>
       </span>

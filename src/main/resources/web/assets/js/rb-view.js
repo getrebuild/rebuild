@@ -36,7 +36,7 @@ class RbViewForm extends React.Component {
 
       let hadApproval = res.data.hadApproval
       if (wpc.type === 'DetailView') {
-        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: $L('SomeInApproval,MainRecord') })
+        if (hadApproval === 2) $('.J_edit, .J_delete').attr({ disabled: true, title: $L('主记录正在审批中') })
         else if (hadApproval === 10) $('.J_edit, .J_delete').remove()
         hadApproval = null
       }
@@ -79,7 +79,7 @@ class RbViewForm extends React.Component {
           setTimeout(() => location.reload(), window.VIEW_LOAD_DELAY || 200)
         }
       } else if (res.error_msg === 'NO_EXISTS') {
-        this.renderViewError($L('ThisRecordDeleted'))
+        this.renderViewError($L('此记录已被删除'))
         $('.view-operating').empty()
       }
     })
@@ -156,7 +156,7 @@ const _renderError = (message) => {
       <div className="icon">
         <i className="zmdi zmdi-alert-triangle"></i>
       </div>
-      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('Opps')}!</strong> ${message}` }}></div>
+      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}!</strong> ${message}` }}></div>
     </div>
   )
 }
@@ -177,7 +177,7 @@ class RelatedList extends React.Component {
     this.__listNoData = (
       <div className="list-nodata">
         <span className="zmdi zmdi-info-outline" />
-        <p>{$L('NoData')}</p>
+        <p>{$L('暂无数据')}</p>
       </div>
     )
   }
@@ -191,14 +191,7 @@ class RelatedList extends React.Component {
             <div className="row">
               <div className="col">
                 <div className="input-group input-search float-left">
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder={$L('QuickQuery')}
-                    maxLength="40"
-                    ref={(c) => (this._$quickSearch = c)}
-                    onKeyDown={(e) => e.keyCode === 13 && this._search()}
-                  />
+                  <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
                   <span className="input-group-btn">
                     <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
                       <i className="icon zmdi zmdi-search" />
@@ -210,7 +203,7 @@ class RelatedList extends React.Component {
               <div className="col text-right">
                 <div className="btn-group">
                   <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
-                    {this.state.sortDisplayText || $L('DefaultSort')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                    {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
                   </button>
                   {this.renderSorts()}
                 </div>
@@ -232,7 +225,7 @@ class RelatedList extends React.Component {
           <div className="text-center load-mores">
             <div>
               <button type="button" className="btn btn-secondary" onClick={() => this.fetchData(1)}>
-                {$L('LoadMore')}
+                {$L('显示更多')}
               </button>
             </div>
           </div>
@@ -245,13 +238,13 @@ class RelatedList extends React.Component {
     return (
       <div className="dropdown-menu dropdown-menu-right" x-placement="bottom-end">
         <a className="dropdown-item" data-sort="modifiedOn:desc" onClick={(e) => this._search(e)}>
-          {$L('SortByModified')}
+          {$L('最近修改')}
         </a>
         <a className="dropdown-item" data-sort="createdOn:desc" onClick={(e) => this._search(e)}>
-          {$L('SortByCreated')}
+          {$L('最近创建')}
         </a>
         <a className="dropdown-item" data-sort="createdOn" onClick={(e) => this._search(e)}>
-          {$L('SortByCreatedAsc')}
+          {$L('最早创建')}
         </a>
       </div>
     )
@@ -304,7 +297,7 @@ class EntityRelatedList extends RelatedList {
     const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     this.__listExtraLink = (
       <a className="btn btn-link" href={openListUrl} target="_blank">
-        <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('ViewInList')}
+        <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('列表页查看')}
       </a>
     )
   }
@@ -314,12 +307,12 @@ class EntityRelatedList extends RelatedList {
       <div key={item[0]} className={`card ${this.state.viewOpens[item[0]] ? 'active' : ''}`} ref={`item-${item[0]}`}>
         <div className="row header-title" onClick={() => this._toggleInsideView(item[0])}>
           <div className="col-10">
-            <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('Open')}>
+            <a href={`#!/View/${this.__entity}/${item[0]}`} onClick={(e) => this._handleView(e)} title={$L('打开')}>
               {item[1]}
             </a>
           </div>
           <div className="col-2 text-right">
-            <span className="fs-12 text-muted" title={`${$L('f.modifiedOn')} ${item[2]}`}>
+            <span className="fs-12 text-muted" title={`${$L('修改时间')} ${item[2]}`}>
               {$fromNow(item[2])}
             </span>
           </div>
@@ -425,13 +418,13 @@ class SelectReport extends React.Component {
               </button>
             </div>
             <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('SelectSome,Report')}</h5>
+              <h5 className="mt-0 text-bold">{$L('选择报表')}</h5>
               {this.state.reports && this.state.reports.length === 0 && (
                 <p className="text-muted">
-                  {$L('NoAnySome,Report')}
+                  {$L('暂无报表')}
                   {rb.isAdminUser && (
                     <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                      <i className="zmdi zmdi-settings"></i> {$L('ClickConf')}
+                      <i className="zmdi zmdi-settings"></i> {$L('点击配置')}
                     </a>
                   )}
                 </p>
@@ -523,7 +516,7 @@ const RbViewPage = {
     $('.J_edit').click(() =>
       RbFormModal.create({
         id: id,
-        title: $L('EditSome').replace('{0}', entity[1]),
+        title: $L('编辑%s', entity[1]),
         entity: entity[0],
         icon: entity[2],
       })
@@ -535,7 +528,7 @@ const RbViewPage = {
       const iv = { $MAINID$: id }
       const $this = $(this)
       RbFormModal.create({
-        title: $L('AddDetail'),
+        title: $L('添加明细'),
         entity: $this.data('entity'),
         icon: $this.data('icon'),
         initialValue: iv,
@@ -595,7 +588,7 @@ const RbViewPage = {
             if (v.length === 0) {
               renderRbcomp(
                 <UserShow
-                  name={$L('AddSome,Share')}
+                  name={$L('添加共享')}
                   icon="zmdi zmdi-plus"
                   onClick={() => {
                     $('.J_share').trigger('click')
@@ -604,11 +597,11 @@ const RbViewPage = {
                 $op
               )
             } else {
-              renderRbcomp(<UserShow name={$L('SomeManage,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, $op)
+              renderRbcomp(<UserShow name={$L('管理共享用户')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id)} />, $op)
             }
           } else if (v.length > 0) {
             const $op = $('<li class="list-inline-item"></li>').appendTo($list)[0]
-            renderRbcomp(<UserShow name={$L('ViewSome,ShareUsers')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, $op)
+            renderRbcomp(<UserShow name={$L('查看共享用户')} icon="zmdi zmdi-more" onClick={() => DlgShareManager.create(this.__id, false)} />, $op)
           } else {
             $('.J_sharingList').parent().remove()
           }
@@ -634,14 +627,14 @@ const RbViewPage = {
 
       $into.empty()
       res.data.forEach((item, idx) => {
-        const content = $LF('ViewHistoryContent', $fromNow(item.revisionOn)).replace('$USER$', item.revisionBy[1]).replace('$ACTION$', item.revisionType)
+        const content = $L('**%s** 由 %s %s', $fromNow(item.revisionOn), item.revisionBy[1], item.revisionType)
         const $item = $(`<li>${content}</li>`).appendTo($into)
         $item.find('b:eq(0)').attr('title', item.revisionOn)
         if (idx > 9) $item.addClass('hide')
       })
 
       if (res.data.length > 10) {
-        $into.after(`<a href="javascript:;" class="J_mores">${$L('LoadMore')}</a>`)
+        $into.after(`<a href="javascript:;" class="J_mores">${$L('显示更多')}</a>`)
         $('.view-history .J_mores').click(function () {
           $into.find('li.hide').removeClass('hide')
           $(this).addClass('hide')
@@ -676,7 +669,7 @@ const RbViewPage = {
     if (rb.isAdminUser) {
       $('.J_view-addons').click(function () {
         const type = $(this).data('type')
-        RbModal.create(`/p/admin/metadata/view-addons?entity=${that.__entity[0]}&type=${type}`, $L('ConfSome,' + (type === 'TAB' ? 'ViewShowAddon' : 'ViewNewAddon')))
+        RbModal.create(`/p/admin/metadata/view-addons?entity=${that.__entity[0]}&type=${type}`, type === 'TAB' ? $L('配置显示项') : $L('配置新建项'))
       })
     }
   },
@@ -704,7 +697,7 @@ const RbViewPage = {
     const that = this
     $(config).each(function () {
       const e = this
-      const title = $L('NewSome').replace('{0}', e.entityLabel)
+      const title = $L('新建%s', e.entityLabel)
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${e.icon}"></i>${title}</a>`)
       $item.click(function () {
         if (e.entity === 'Feeds.relatedRecord') {
@@ -737,7 +730,7 @@ const RbViewPage = {
     config.forEach((item) => {
       const $item = $(`<a class="dropdown-item"><i class="icon zmdi zmdi-${item.icon}"></i>${item.entityLabel}</a>`)
       $item.click(() => {
-        const alert = $L('TransformAsTips').replace('%s', `<b> ${item.entityLabel} </b>`)
+        const alert = $L('确认将当前记录转换为 **%s** 吗？', item.entityLabel)
         RbAlert.create(alert, {
           html: true,
           confirm: function () {
@@ -745,7 +738,7 @@ const RbViewPage = {
             $.post(`/app/entity/extras/transform?transid=${item.transid}&source=${that.__id}`, (res) => {
               this.hide()
               if (res.error_code === 0) {
-                RbHighbar.success($L('SomeSuccess,Transform'))
+                RbHighbar.success($L('转换成功'))
                 setTimeout(() => that.clickView(`!#/View/${item.entity}/${res.data}`), 200)
               } else if (res.error_code === 400) {
                 RbHighbar.create(res.error_msg)

@@ -31,7 +31,7 @@ var render_unset_after = function (item, data) {}
 
 const render_item = function (data, target) {
   const $item = $(`<li class="dd-item dd3-item" data-key="${data[0]}"><div class="dd-handle dd3-handle"></div><div class="dd3-content">${data[1]}</div></li>`).appendTo(target || '.J_config')
-  const $del = $(`<div class="dd3-action"><a title="${$L('Remove')}" class="J_del"><i class="zmdi zmdi-close"></i></a></div>`).appendTo($item)
+  const $del = $(`<div class="dd3-action"><a title="${$L('移除')}" class="J_del"><i class="zmdi zmdi-close"></i></a></div>`).appendTo($item)
   $del.find('a').click(function () {
     data[1] = $item.find('.dd3-content').text()
     render_unset(data)

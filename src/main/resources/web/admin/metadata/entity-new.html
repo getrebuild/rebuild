@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('AddEntity')}]]</title>
+    <title>[[${bundle.L('添加实体')}]]</title>
     <style type="text/css">
       .text-muted.desc {
         max-width: 80%;
@@ -13,24 +13,24 @@
     <div class="main-content pt-1">
       <div class="tab-container">
         <ul class="nav nav-tabs">
-          <li class="nav-item"><a class="nav-link active" href="#MANUAL" data-toggle="tab">[[${bundle.L('Manual')}]]</a></li>
+          <li class="nav-item"><a class="nav-link active" href="#MANUAL" data-toggle="tab">[[${bundle.L('手动')}]]</a></li>
           <li class="nav-item">
-            <a class="nav-link J_imports" href="#IMPORTS" data-toggle="tab"><i class="icon zmdi zmdi-cloud-outline-alt"></i> [[${bundle.L('RbImport')}]]</a>
+            <a class="nav-link J_imports" href="#IMPORTS" data-toggle="tab"><i class="icon zmdi zmdi-cloud-outline-alt"></i> [[${bundle.L('从 RB 仓库导入')}]]</a>
           </li>
         </ul>
         <div class="tab-content m-0 pb-0">
           <div class="tab-pane active" id="MANUAL">
             <div class="form">
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.L('SomeName,Entity')}]]</label>
+                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.L('实体名称')}]]</label>
                 <div class="col-sm-7">
                   <input class="form-control form-control-sm" type="text" id="entityLabel" maxlength="40" />
                 </div>
               </div>
               <div class="form-group row">
-                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.L('Remark')}]]</label>
+                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.L('备注')}]]</label>
                 <div class="col-sm-7">
-                  <textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" th:placeholder="${bundle.L('Optional')}"></textarea>
+                  <textarea class="form-control form-control-sm row2x" id="comments" maxlength="100" th:placeholder="${bundle.L('可选')}"></textarea>
                 </div>
               </div>
               <div class="form-group row pt-2">
@@ -38,7 +38,7 @@
                 <div class="col-sm-7">
                   <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                     <input class="custom-control-input" type="checkbox" id="nameField" />
-                    <span class="custom-control-label">[[${bundle.L('AddSome,NameField')}]]</span>
+                    <span class="custom-control-label">[[${bundle.L('添加名称字段')}]]</span>
                   </label>
                 </div>
               </div>
@@ -48,22 +48,22 @@
                   <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                     <input class="custom-control-input" type="checkbox" id="isDetail" />
                     <span class="custom-control-label">
-                      [[${bundle.L('ThisDetailEntity')}]]
-                      <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('ThisDetailEntityTips')}"></i>
+                      [[${bundle.L('这是一个明细实体')}]]
+                      <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('通过明细实体可以更好的组织业务关系。例如订单明细通常依附于订单，而非独立存在')}"></i>
                     </span>
                   </label>
                 </div>
               </div>
               <div class="form-group row J_mainEntity hide">
-                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.L('SelectSome,MainEntity')}]]</label>
+                <label class="col-sm-3 col-form-label text-sm-right">[[${bundle.L('选择主实体')}]]</label>
                 <div class="col-sm-7">
                   <select class="form-control form-control-sm" id="mainEntity"></select>
                 </div>
               </div>
               <div class="form-group row footer">
                 <div class="col-sm-7 offset-sm-3">
-                  <button class="btn btn-primary" type="button">[[${bundle.L('Confirm')}]]</button>
-                  <button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">[[${bundle.L('Cancel')}]]</button>
+                  <button class="btn btn-primary" type="button">[[${bundle.L('确定')}]]</button>
+                  <button class="btn btn-link" type="button" onclick="parent.RbModal.hide()">[[${bundle.L('取消')}]]</button>
                 </div>
               </div>
             </div>
@@ -71,7 +71,7 @@
           <div class="tab-pane" id="IMPORTS">
             <div id="metaschemas"></div>
             <div class="mt-2 text-right hide">
-              <a href="https://github.com/getrebuild/rebuild-datas/" class="link" target="_blank">[[${bundle.L('RbSubmit')}]]</a>
+              <a href="https://github.com/getrebuild/rebuild-datas/" class="link" target="_blank">[[${bundle.L('提交数据到 RB 仓库')}]]</a>
             </div>
           </div>
         </div>

@@ -88,7 +88,7 @@ public class MetadataGetting extends BaseController {
 //        if ("VF_USER_TEAMS".equalsIgnoreCase(getParameter(request, "extra"))) {
 //            final JSONObject temp = JSONUtils.toJSONObject(
 //                    new String[] { "name", "label", "type", "ref" },
-//                    new Object[] { null, "." + Language.L("JoinedTeams"), "REFERENCE", new String[] { "Team", "TEXT" } });
+//                    new Object[] { null, "." + Language.L("加入团队"), "REFERENCE", new String[] { "Team", "TEXT" } });
 //
 //            List<JSONObject> dataNew = new ArrayList<>();
 //            for (JSONObject item : data) {

@@ -18,8 +18,8 @@ import lombok.Data;
  * 统一请求返回消息体
  *
  * @author ZHAO
- * @since 2020/8/28
  * @see com.rebuild.web.ControllerResponseBodyAdvice
+ * @since 2020/8/28
  */
 @Data
 public class RespBody implements JSONable {
@@ -38,8 +38,8 @@ public class RespBody implements JSONable {
     @Override
     public JSON toJSON() {
         JSONObject result = JSONUtils.toJSONObject(
-                new String[] { "error_code", "error_msg" },
-                new Object[] { getErrorCode(), getErrorMsg() });
+                new String[]{"error_code", "error_msg"},
+                new Object[]{getErrorCode(), getErrorMsg()});
         if (getData() != null) {
             result.put("data", getData());
         }
@@ -84,38 +84,26 @@ public class RespBody implements JSONable {
     public static RespBody error(String errorMsg, int errorCode) {
         if (errorMsg == null) {
             if (errorCode == 401) {
-                errorMsg = Language.L("Error401");
+                errorMsg = Language.L("未授权访问");
             } else if (errorCode == 403) {
-                errorMsg = Language.L("Error403");
+                errorMsg = Language.L("权限不足，访问被阻止");
             } else if (errorCode == 404) {
-                errorMsg = Language.L("Error404");
+                errorMsg = Language.L("访问的页面/资源不存在");
             } else {
-                errorMsg = Language.L("Error500");
+                errorMsg = Language.L("系统繁忙，请稍后重试");
             }
         }
         return new RespBody(errorCode, errorMsg, null);
     }
 
     /**
-     * @param errorMsgLang
-     * @param phKeys
+     * @param errorMsg
+     * @param placeholders
      * @return
-     * @see Language#L(String, String...)
+     * @see Language#L(String, Object...)
      */
-    public static RespBody errorl(String errorMsgLang, String ... phKeys) {
-        String lang = Language.L(errorMsgLang, phKeys);
-        return error(lang, Controller.CODE_ERROR);
-    }
-
-    /**
-     * @param errorMsgLang
-     * @param phValues
-     * @return
-     * @see Language#LF(String, Object...)
-     */
-    public static RespBody errorlf(String errorMsgLang, Object ... phValues) {
-        String lang = Language.LF(errorMsgLang, phValues);
-        return error(lang, Controller.CODE_ERROR);
+    public static RespBody errorl(String errorMsg, Object... placeholders) {
+        return error(Language.L(errorMsg, placeholders), Controller.CODE_ERROR);
     }
 
     /**
@@ -130,6 +118,6 @@ public class RespBody implements JSONable {
      * @return
      */
     public static RespBody ok(Object data) {
-        return new RespBody(Controller.CODE_OK, Language.L("Error0"), data);
+        return new RespBody(Controller.CODE_OK, Language.L("调用成功"), data);
     }
 }

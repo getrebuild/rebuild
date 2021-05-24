@@ -7,10 +7,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global FieldValueSet */
 
 const UPDATE_MODES = {
-  FIELD: $L('UpdateByField'),
-  VFIXED: $L('UpdateByValue'),
-  VNULL: $L('BatchUpdateOpNULL'),
-  FORMULA: $L('CalcFORMULA'),
+  FIELD: $L('字段值'),
+  VFIXED: $L('固定值'),
+  VNULL: $L('置空'),
+  FORMULA: $L('计算公式'),
 }
 
 // ~~ 数据转写（自动更新）
@@ -26,7 +26,7 @@ class ContentFieldWriteback extends ActionContentSpec {
       <div className="field-aggregation">
         <form className="simple">
           <div className="form-group row">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('TargetEntity')}</label>
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('目标实体')}</label>
             <div className="col-md-12 col-lg-9">
               <div className="row">
                 <div className="col-5">
@@ -45,13 +45,13 @@ class ContentFieldWriteback extends ActionContentSpec {
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
                   <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
-                  {$L('TriggerTargetEntityTips')}
+                  {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)')}
                 </div>
               )}
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('UpdateRule')}</label>
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('更新规则')}</label>
             <div className="col-md-12 col-lg-9">
               <div className="items">
                 {(this.state.items || []).length > 0 &&
@@ -74,7 +74,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                             {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
                             {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
                             {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
-                            <a className="del" title={$L('Remove')} onClick={() => this.delItem(item.targetField)}>
+                            <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
                             </a>
                           </div>
@@ -94,7 +94,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                       )
                     })}
                   </select>
-                  <p>{$L('TargetField')}</p>
+                  <p>{$L('目标字段')}</p>
                 </div>
                 <div className="col-2 pr-0">
                   <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
@@ -107,7 +107,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                       )
                     })}
                   </select>
-                  <p>{$L('UpdateMode')}</p>
+                  <p>{$L('更新方式')}</p>
                 </div>
                 <div className={`col-5 ${this.state.targetField ? '' : 'hide'}`}>
                   <div className={this.state.updateMode === 'FIELD' ? '' : 'hide'}>
@@ -120,25 +120,25 @@ class ContentFieldWriteback extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('SourceField')}</p>
+                    <p>{$L('源字段')}</p>
                   </div>
                   <div className={this.state.updateMode === 'VFIXED' ? '' : 'hide'}>
                     {this.state.updateMode === 'VFIXED' && this.state.targetField && (
-                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('UpdateByValue')} ref={(c) => (this._sourceValue = c)} />
+                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('固定值')} ref={(c) => (this._sourceValue = c)} />
                     )}
-                    <p>{$L('UpdateByValue')}</p>
+                    <p>{$L('固定值')}</p>
                   </div>
                   <div className={this.state.updateMode === 'FORMULA' ? '' : 'hide'}>
                     {this.state.updateMode === 'FORMULA' && this.state.targetField && (
                       <FieldFormula fields={this.__sourceFieldsCache} field={this.state.targetField} ref={(c) => (this._sourceFormula = c)} />
                     )}
-                    <p>{$L('CalcFORMULA')}</p>
+                    <p>{$L('计算公式')}</p>
                   </div>
                 </div>
               </div>
               <div className="mt-1">
                 <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()}>
-                  + {$L('Add')}
+                  + {$L('添加')}
                 </button>
               </div>
             </div>
@@ -149,8 +149,8 @@ class ContentFieldWriteback extends ActionContentSpec {
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
                 <span className="custom-control-label">
-                  {$L('SetTargetFieldReadonly')}
-                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('OnlyFormEffectiveTip')} />
+                  {$L('自动设置目标字段为只读')}
+                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
                 </span>
               </label>
             </div>
@@ -166,7 +166,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
         const $s2te = $(this._targetEntity)
-          .select2({ placeholder: $L('SelectSome,TargetEntity') })
+          .select2({ placeholder: $L('选择目标实体') })
           .on('change', () => this._changeTargetEntity())
 
         if (content && content.targetEntity) {
@@ -201,14 +201,14 @@ class ContentFieldWriteback extends ActionContentSpec {
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
           const $s2tf = $(this._targetField)
-            .select2({ placeholder: $L('SelectSome,TargetField') })
+            .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => this._changeTargetField())
           const $s2um = $(this._updateMode)
-            .select2({ placeholder: $L('SelectSome,UpdateMode') })
+            .select2({ placeholder: $L('选择更新方式') })
             .on('change', (e) => {
               this.setState({ updateMode: e.target.value })
             })
-          const $s2sf = $(this._sourceField).select2({ placeholder: $L('SelectSome,SourceField') })
+          const $s2sf = $(this._sourceField).select2({ placeholder: $L('选择源字段') })
 
           $s2tf.trigger('change')
           this.__select2.push($s2tf)
@@ -246,7 +246,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   addItem() {
     const tf = $(this._targetField).val()
     const mode = $(this._updateMode).val()
-    if (!tf) return RbHighbar.create($L('PlsSelectSome,TargetField'))
+    if (!tf) return RbHighbar.create($L('请选择目标字段'))
 
     let sourceField = null
     if (mode === 'FIELD') {
@@ -254,21 +254,21 @@ class ContentFieldWriteback extends ActionContentSpec {
 
       // 目标字段=源字段
       const tfFull = `${$(this._targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
-      if (tfFull === sourceField) return RbHighbar.create($L('TargetAndSourceNotSame'))
+      if (tfFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
     } else if (mode === 'FORMULA') {
       sourceField = this._sourceFormula.val()
-      if (!sourceField) return RbHighbar.create($L('PlsInputSome,CalcFORMULA'))
+      if (!sourceField) return RbHighbar.create($L('请输入计算公式'))
     } else if (mode === 'VFIXED') {
       sourceField = this._sourceValue.val()
       if (!sourceField) return
     } else if (mode === 'VNULL') {
       const tf2 = this.state.targetFields.find((x) => x.name === tf)
-      if (!tf2.nullable) return RbHighbar.create($LF('TargetFieldXNotEmpty', `[ ${tf2.label} ]`))
+      if (!tf2.nullable) return RbHighbar.create($L('目标字段 %s 不能为空', `[ ${tf2.label} ]`))
     }
 
     const items = this.state.items || []
     const exists = items.find((x) => x.targetField === tf)
-    if (exists) return RbHighbar.create($L('SomeDuplicate,TargetField'))
+    if (exists) return RbHighbar.create($L('目标字段重复'))
 
     items.push({ targetField: tf, updateMode: mode, sourceField: sourceField })
     this.setState({ items: items })
@@ -288,11 +288,11 @@ class ContentFieldWriteback extends ActionContentSpec {
       readonlyFields: $(this._readonlyFields).prop('checked'),
     }
     if (!content.targetEntity) {
-      RbHighbar.create($L('PlsSelectSome,TargetEntity'))
+      RbHighbar.create($L('请选择目标实体'))
       return false
     }
     if (content.items.length === 0) {
-      RbHighbar.create($L('PlsAdd1AggregationRuleLeast'))
+      RbHighbar.create($L('请至少添加 1 个聚合规则'))
       return false
     }
     return content
@@ -315,9 +315,9 @@ class FieldFormula extends React.Component {
   render() {
     const fieldType = this.state.field.type
     if (fieldType === 'DATE' || fieldType === 'DATETIME' || fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
-      return <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._formula = c)} onClick={() => this.showFormula()}></div>
+      return <div className="form-control-plaintext formula" _title={$L('计算公式')} ref={(c) => (this._formula = c)} onClick={() => this.showFormula()}></div>
     } else {
-      return <div className="form-control-plaintext text-danger">{$L('Unsupport')}</div>
+      return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
   }
 
@@ -370,7 +370,7 @@ class FormulaCalc2 extends FormulaCalc {
     return (
       <React.Fragment>
         <li className="list-inline-item">
-          <a data-toggle="dropdown">{$L('Func')}</a>
+          <a data-toggle="dropdown">{$L('函数')}</a>
           <div className="dropdown-menu">
             <a className="dropdown-item" onClick={() => this.handleInput('DATEDIFF')} title="DATEDIFF($DATE1, $DATE2, [H|D|M|Y])">
               DATEDIFF
@@ -383,24 +383,24 @@ class FormulaCalc2 extends FormulaCalc {
             </a>
             <div className="dropdown-divider"></div>
             <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)%20~~v2.3">
-              {$L('FuncHelp')}
+              {$L('如何使用函数')}
             </a>
           </div>
         </li>
         <li className="list-inline-item">
-          <a data-toggle="dropdown">{$L('FuncUnit')}</a>
+          <a data-toggle="dropdown">{$L('单位')}</a>
           <div className="dropdown-menu">
             <a className="dropdown-item" onClick={() => this.handleInput('H')}>
-              H ({$L('Hour')})
+              H ({$L('小时')})
             </a>
             <a className="dropdown-item" onClick={() => this.handleInput('D')}>
-              D ({$L('Day')})
+              D ({$L('日')})
             </a>
             <a className="dropdown-item" onClick={() => this.handleInput('M')}>
-              M ({$L('Month')})
+              M ({$L('月')})
             </a>
             <a className="dropdown-item" onClick={() => this.handleInput('Y')}>
-              Y ({$L('Year')})
+              Y ({$L('年')})
             </a>
           </div>
         </li>

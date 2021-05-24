@@ -1776,7 +1776,7 @@ th.column-fixed {
   left: 10px;
   margin: -11px 0 0;
   padding: 3px 5px 3px 5px;
-  color: #444;
+  color: #777;
 }
 
 .form-line.hover fieldset legend {
@@ -2356,9 +2356,15 @@ form {
 }
 
 .user-selector .nav-tabs > li.nav-item a.nav-link {
-  padding: 4px 8px;
+  padding: 4px 6px;
   font-size: 12px;
   min-width: 42px;
+}
+
+.user-selector .nav-tabs.w5 > li.nav-item a.nav-link {
+  max-width: 56px;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .user-selector .tab-content {
@@ -3677,7 +3683,8 @@ a.avatar.x26 img {
 .modal-title,
 .btn,
 .dropdown-item,
-.page-head-title {
+.page-head-title,
+.text-capitalize {
   text-transform: capitalize;
 }
 

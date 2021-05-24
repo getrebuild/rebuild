@@ -16,23 +16,23 @@ class BaseChart extends React.Component {
     const opers = (
       <div className="chart-oper">
         {!this.props.builtin && (
-          <a title={$L('ViewSourceData')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
+          <a title={$L('查看来源数据')} href={`${rb.baseUrl}/dashboard/view-chart-source?id=${this.props.id}`}>
             <i className="zmdi zmdi-rss" />
           </a>
         )}
-        <a title={$L('Refresh')} onClick={() => this.loadChartData()}>
+        <a title={$L('刷新')} onClick={() => this.loadChartData()}>
           <i className="zmdi zmdi-refresh" />
         </a>
-        <a className="J_fullscreen d-none d-md-inline-block" title={$L('FullScreen')} onClick={() => this.toggleFullscreen()}>
+        <a className="J_fullscreen d-none d-md-inline-block" title={$L('全屏')} onClick={() => this.toggleFullscreen()}>
           <i className={`zmdi zmdi-${this.state.fullscreen ? 'fullscreen-exit' : 'fullscreen'}`} />
         </a>
         {this.props.isManageable && !this.props.builtin && (
-          <a className="J_chart-edit d-none d-md-inline-block" title={$L('Edit')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
+          <a className="J_chart-edit d-none d-md-inline-block" title={$L('编辑')} href={`${rb.baseUrl}/dashboard/chart-design?id=${this.props.id}`}>
             <i className="zmdi zmdi-edit" />
           </a>
         )}
         {this.props.editable && (
-          <a title={$L('Remove')} onClick={() => this.remove()}>
+          <a title={$L('移除')} onClick={() => this.remove()}>
             <i className="zmdi zmdi-close" />
           </a>
         )}
@@ -99,7 +99,7 @@ class BaseChart extends React.Component {
 
   remove() {
     const that = this
-    RbAlert.create($L('RemoveSomeConfirm,Chart'), {
+    RbAlert.create($L('确认移除此图表？'), {
       confirm: function () {
         if (window.gridstack) window.gridstack.removeWidget($(that._$box).parent().parent())
         else if (window.chart_remove) window.chart_remove($(that._$box))
@@ -109,7 +109,7 @@ class BaseChart extends React.Component {
   }
 
   renderError(msg) {
-    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('LoadError')}</div> })
+    this.setState({ chartdata: <div className="chart-undata must-center">{msg || $L('加载失败')}</div> })
   }
 
   renderChart(data) {
@@ -155,7 +155,7 @@ class ChartIndex extends BaseChart {
 class ChartTable extends BaseChart {
   renderChart(data) {
     if (!data.html) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -298,7 +298,7 @@ const renderEChart = function (option, $target) {
 class ChartLine extends BaseChart {
   renderChart(data) {
     if (data.xAxis.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -361,7 +361,7 @@ class ChartLine extends BaseChart {
 class ChartBar extends BaseChart {
   renderChart(data) {
     if (data.xAxis.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -418,7 +418,7 @@ class ChartBar extends BaseChart {
 class ChartPie extends BaseChart {
   renderChart(data) {
     if (data.data.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -455,7 +455,7 @@ class ChartPie extends BaseChart {
 class ChartFunnel extends BaseChart {
   renderChart(data) {
     if (data.data.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -502,7 +502,7 @@ const LEVELS_SPLIT = '--------'
 class ChartTreemap extends BaseChart {
   renderChart(data) {
     if (data.data.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -560,9 +560,9 @@ class ChartTreemap extends BaseChart {
 
 // ~ 审批列表
 const APPROVAL_STATES = {
-  1: ['warning', $L('WaitApproval')],
-  10: ['success', $L('s.ApprovalState.APPROVED')],
-  11: ['danger', $L('s.ApprovalState.REJECTED')],
+  1: ['warning', $L('待审批')],
+  10: ['success', $L('通过')],
+  11: ['danger', $L('驳回')],
 }
 class ApprovalList extends BaseChart {
   constructor(props) {
@@ -596,27 +596,27 @@ class ApprovalList extends BaseChart {
             )
           })}
         </div>
-        <p className="m-0 mt-1 fs-11 text-muted text-right hide">{$L('ApprovalStats')}</p>
+        <p className="m-0 mt-1 fs-11 text-muted text-right hide">{$L('审批统计')}</p>
       </div>
     )
 
     if (statsTotal === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
     const table =
       (data.data || []).length === 0 ? (
         <div className="chart-undata must-center">
-          <i className="zmdi zmdi-check icon text-success"></i> {$L('YouFinishedAllApproval')}
+          <i className="zmdi zmdi-check icon text-success"></i> {$L('你已完成所有审批')}
         </div>
       ) : (
         <div>
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th style={{ minWidth: 140 }}>{$L('Submitter')}</th>
-                <th style={{ minWidth: 140 }}>{$L('ApprovalRecord')}</th>
+                <th style={{ minWidth: 140 }}>{$L('提交人')}</th>
+                <th style={{ minWidth: 140 }}>{$L('审批记录')}</th>
                 <th width="90"></th>
               </tr>
             </thead>
@@ -638,11 +638,11 @@ class ApprovalList extends BaseChart {
                     <td className="actions text-right text-nowrap">
                       {this.state.viewState === 1 && (
                         <button className="btn btn-secondary btn-sm" onClick={() => this.approve(item[3], item[5], item[7])}>
-                          {$L('Approve')}
+                          {$L('审批')}
                         </button>
                       )}
-                      {this.state.viewState === 10 && <span className="text-success">{$L('s.ApprovalState.APPROVED')}</span>}
-                      {this.state.viewState === 11 && <span className="text-danger">{$L('s.ApprovalState.REJECTED')}</span>}
+                      {this.state.viewState === 10 && <span className="text-success">{$L('通过')}</span>}
+                      {this.state.viewState === 11 && <span className="text-danger">{$L('驳回')}</span>}
                     </td>
                   </tr>
                 )
@@ -711,17 +711,17 @@ class FeedsSchedule extends BaseChart {
     const table =
       (data || []).length === 0 ? (
         <div className="chart-undata must-center" style={{ marginTop: -15 }}>
-          <i className="zmdi zmdi-check icon text-success"></i> {$L('NoSome,TodoSchedule')}
+          <i className="zmdi zmdi-check icon text-success"></i> {$L('暂无待办日程')}
           <br />
-          {$L('NoTodoScheduleTips')}
+          {$L('过期超过 30 天的日程将不再显示')}
         </div>
       ) : (
         <div>
           <table className="table table-striped table-hover">
             <thead>
               <tr>
-                <th style={{ minWidth: 140 }}>{$L('ScheduleContent')}</th>
-                <th style={{ minWidth: 140 }}>{$L('ScheduleTime')}</th>
+                <th style={{ minWidth: 140 }}>{$L('日程内容')}</th>
+                <th style={{ minWidth: 140 }}>{$L('日程时间')}</th>
                 <th width="90"></th>
               </tr>
             </thead>
@@ -732,18 +732,18 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a title={$L('ViewDetails')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a title={$L('查看详情')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
                       <span className={`cell-detail-description ${_expired && 'text-warning'}`}>
                         {$fromNow(item.scheduleTime)}
-                        {_expired && ` (${$L('Expires')})`}
+                        {_expired && ` (${$L('已过期')})`}
                       </span>
                     </td>
                     <td className="actions text-right text-nowrap">
                       <button className="btn btn-secondary btn-sm" onClick={() => this.handleFinish(item.id)}>
-                        {$L('Finish')}
+                        {$L('完成')}
                       </button>
                     </td>
                   </tr>
@@ -778,13 +778,13 @@ class FeedsSchedule extends BaseChart {
 
   handleFinish(id) {
     const that = this
-    RbAlert.create($L('FinshScheduleConfirm'), {
+    RbAlert.create($L('确认完成此日程？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/feeds/post/finish-schedule?id=${id}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
-            RbHighbar.success($L('SomeFinished,FeedsType4'))
+            RbHighbar.success($L('日程已完成'))
             that.loadChartData()
           } else {
             RbHighbar.error(res.error_msg)
@@ -799,7 +799,7 @@ class FeedsSchedule extends BaseChart {
 class ChartRadar extends BaseChart {
   renderChart(data) {
     if (data.indicator.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -875,7 +875,7 @@ class ChartRadar extends BaseChart {
 class ChartScatter extends BaseChart {
   renderChart(data) {
     if (data.series.length === 0) {
-      this.renderError($L('NoData'))
+      this.renderError($L('暂无数据'))
       return
     }
 
@@ -987,7 +987,7 @@ const detectChart = function (cfg, id) {
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
   } else {
-    return <h4 className="chart-undata must-center">{`${$L('UnknownChart')} [${cfg.type}]`}</h4>
+    return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }
 }
 
@@ -1002,29 +1002,29 @@ class ChartSelect extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('AddExistsChart')}>
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('添加已有图表')}>
         <div className="row chart-select-wrap">
           <div className="col-3">
             <div className="nav flex-column nav-pills">
               <a href="#all" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#all' ? 'active' : ''}`}>
-                {$L('All')}
+                {$L('全部')}
               </a>
               {this.props.entity && (
                 <a href="#entity" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#entity' ? 'active' : ''}`}>
-                  {$L('CurrentEntity')}
+                  {$L('当前实体')}
                 </a>
               )}
               <a href="#myself" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#myself' ? 'active' : ''}`}>
-                {$L('Myself')}
+                {$L('我自己的')}
               </a>
               <a href="#builtin" onClick={this.switchTab} className={`nav-link ${this.state.tabActive === '#builtin' ? 'active' : ''}`}>
-                {$L('BuiltinChart')}
+                {$L('内置图表')}
               </a>
             </div>
           </div>
           <div className="col-9 pl-0">
             <div className="chart-list">
-              {this.state.chartList && this.state.chartList.length === 0 && <p className="text-muted">{$L('NoAnySome,Chart')}</p>}
+              {this.state.chartList && this.state.chartList.length === 0 && <p className="text-muted">{$L('无可用图表')}</p>}
               {(this.state.chartList || []).map((item) => {
                 return (
                   <div key={`chart-${item.id}`}>
@@ -1038,11 +1038,11 @@ class ChartSelect extends RbModalHandler {
                     <span className="float-right">
                       {this.state.appended.includes(item.id) ? (
                         <a className="btn disabled" data-id={item.id}>
-                          {$L('Added')}
+                          {$L('已添加')}
                         </a>
                       ) : (
                         <a className="btn" onClick={() => this.selectChart(item)}>
-                          {$L('Add')}
+                          {$L('添加')}
                         </a>
                       )}
                     </span>
@@ -1081,9 +1081,9 @@ class ChartSelect extends RbModalHandler {
 
   deleteChart(id) {
     const that = this
-    RbAlert.create($L('DeleteSomeConfirm,Chart'), {
+    RbAlert.create($L('确认删除此图表？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/dashboard/chart-delete?id=${id}`, (res) => {

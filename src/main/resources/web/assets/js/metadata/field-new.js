@@ -16,15 +16,15 @@ $(document).ready(function () {
       refClassification = $val('#refClassification'),
       stateClass = $val('#stateClass') || 'com.rebuild.core.support.state.HowtoState'
     if (!fieldLabel) {
-      return RbHighbar.create($L('PlsInputSome,FieldName'))
+      return RbHighbar.create($L('请输入字段名称'))
     }
 
     if ((type === 'REFERENCE' || type === 'N2NREFERENCE') && !refEntity) {
-      return RbHighbar.create('PlsSelectSome,RefEntity')
+      return RbHighbar.create('请选择引用实体')
     } else if (type === 'CLASSIFICATION' && !refClassification) {
-      return RbHighbar.create('PlsSelectSome,Classification')
+      return RbHighbar.create('请选择分类数据')
     } else if (type === 'STATE' && !stateClass) {
-      return RbHighbar.create('PlsInputSome,StateClass')
+      return RbHighbar.create('请输入状态类 (Enum)')
     }
 
     const data = {
@@ -42,7 +42,7 @@ $(document).ready(function () {
       $btn.button('reset')
       if (res.error_code === 0) {
         if ($val('#saveAndNew')) {
-          RbHighbar.success($L('SomeAdded,Field'))
+          RbHighbar.success($L('字段已添加'))
           $('#fieldLabel, #comments').val('')
           $('#type').val('TEXT').trigger('change')
           $('#fieldLabel').focus()
@@ -54,7 +54,9 @@ $(document).ready(function () {
         } else {
           parent.location.href = `${rb.baseUrl}/admin/entity/${entity}/field/${res.data}`
         }
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   })
 
@@ -72,15 +74,15 @@ $(document).ready(function () {
         referenceLoaded = true
         $.get('/admin/entity/entity-list?detail=true&bizz=false', (res) => {
           const _data = res.data || []
-          _data.push({ entityName: 'User', entityLabel: $L('e.User') })
-          _data.push({ entityName: 'Department', entityLabel: $L('e.Department') })
-          // _data.push({ entityName: 'Team', entityLabel: $L('e.Team') })
-          // _data.push({ entityName: 'Role', entityLabel: $L('e.Role') })
+          _data.push({ entityName: 'User', entityLabel: $L('用户') })
+          _data.push({ entityName: 'Department', entityLabel: $L('部门') })
+          // _data.push({ entityName: 'Team', entityLabel: $L('团队') })
+          // _data.push({ entityName: 'Role', entityLabel: $L('角色') })
 
           $(_data).each(function () {
-            $(`<option value="${this.entityName}">${this.entityLabel}${this.mainEntity ? ' (' + $L('DetailEntity') + ')' : ''}</option>`).appendTo('#refEntity')
+            $(`<option value="${this.entityName}">${this.entityLabel}${this.mainEntity ? ' (' + $L('明细实体') + ')' : ''}</option>`).appendTo('#refEntity')
           })
-          if (_data.length === 0) $(`<option value="">${$L('NoAnySome,Entity')}</option>`).appendTo('#refEntity')
+          if (_data.length === 0) $(`<option value="">${$L('无可用实体')}</option>`).appendTo('#refEntity')
         })
       }
     } else if (dt === 'CLASSIFICATION') {
@@ -94,7 +96,7 @@ $(document).ready(function () {
               hasData = true
             }
           })
-          if (!hasData) $(`<option value="">${$L('NoAnySome,Classification')}</option>`).appendTo('#refClassification')
+          if (!hasData) $(`<option value="">${$L('无可用分类数据')}</option>`).appendTo('#refClassification')
         })
       }
     } else if (dt === 'STATE') {
