@@ -452,7 +452,7 @@ class UserSelector extends React.Component {
           </div>
         </div>
         <div className="tab-container m-0">
-          <ul className={`nav nav-tabs nav-tabs-classic ${this._useTabs.length < 2 ? 'hide' : ''}`}>
+          <ul className={`nav nav-tabs nav-tabs-classic ${this._useTabs.length < 2 ? 'hide' : ''} ${this._useTabs.length > 4 ? 'w5' : ''}`}>
             {this._useTabs.map((item) => {
               return (
                 <li className="nav-item" key={`t-${item[0]}`}>

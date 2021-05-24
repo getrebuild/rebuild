@@ -27,8 +27,9 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 多语言
@@ -40,7 +41,7 @@ import java.util.Map;
 @Component
 public class Language implements Initialization {
 
-    private Map<String, LanguageBundle> bundleMap = new LinkedHashMap<>();
+    private Map<String, LanguageBundle> bundleMap = new HashMap<>();
 
     @Override
     public void init() throws IOException {
@@ -162,7 +163,7 @@ public class Language implements Initialization {
      * @return
      */
     public Map<String, String> availableLocales() {
-        Map<String, String> map = new LinkedHashMap<>();
+        Map<String, String> map = new TreeMap<>();
         for (Map.Entry<String, LanguageBundle> item : bundleMap.entrySet()) {
             map.put(item.getKey(), item.getValue().L("_"));
         }

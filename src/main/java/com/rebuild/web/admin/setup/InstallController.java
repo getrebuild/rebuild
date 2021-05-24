@@ -84,7 +84,7 @@ public class InstallController extends BaseController implements InstallState {
                     if (hasTable != null) {
                         // 挂载模式
                         if (checker.isRbDatabase()) {
-                            okMsg += Language.L("已发现 **%s** 为 REBUILD 数据库，系统将自动挂载", dbProps.getString("dbName"));
+                            okMsg += " " + Language.L("已发现 **%s** 为 REBUILD 数据库，系统将自动挂载", dbProps.getString("dbName"));
                             okMsg = "1#" + okMsg;
                         } else {
                             return RespBody.errorl("非空数据库不可使用，请使用其他数据库");
