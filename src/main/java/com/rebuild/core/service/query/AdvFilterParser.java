@@ -202,7 +202,8 @@ public class AdvFilterParser extends SetUser {
         }
 
         DisplayType dt = EasyMetaFactory.getDisplayType(fieldMeta);
-        if (dt == DisplayType.CLASSIFICATION) {
+        if (dt == DisplayType.CLASSIFICATION
+                || (dt == DisplayType.PICKLIST && hasNameFlag) /* 快速查询 */) {
             field = "&" + field;
         } else if (hasNameFlag) {
             if (dt != DisplayType.REFERENCE) {

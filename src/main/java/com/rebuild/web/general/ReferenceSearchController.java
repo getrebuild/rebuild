@@ -9,6 +9,7 @@ package com.rebuild.web.general;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -131,7 +132,7 @@ public class ReferenceSearchController extends EntityController {
             searchWhere = String.format("(%s) and (%s)", appendWhere, searchWhere);
         }
 
-        List<Object> result = resultSearch(searchWhere, searchEntity, true, maxResults);
+        List<Object> result = resultSearch(searchWhere, searchEntity, maxResults);
         return (JSON) JSON.toJSON(result);
     }
 
@@ -167,11 +168,11 @@ public class ReferenceSearchController extends EntityController {
                 useClassification.toLiteral(), openLevel, q, q);
 
         List<Object> result = resultSearch(
-                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), false, 10);
+                sqlWhere, MetadataHelper.getEntity(EntityHelper.ClassificationData), 10);
         return (JSON) JSON.toJSON(result);
     }
 
-    private List<Object> resultSearch(String sqlWhere, Entity entity, boolean usePrivileges, int maxResults) {
+    private List<Object> resultSearch(String sqlWhere, Entity entity, int maxResults) {
         Field nameField = entity.getNameField();
 
         String sql = MessageFormat.format("select {0},{1} from {2} where {3}",
@@ -186,9 +187,9 @@ public class ReferenceSearchController extends EntityController {
             }
         }
 
-        Object[][] array = (usePrivileges ? Application.createQueryNoFilter(sql) : Application.createQuery(sql))
-                .setLimit(maxResults)
-                .array();
+        Query query = MetadataHelper.hasPrivilegesField(entity)
+                ? Application.createQuery(sql) : Application.createQueryNoFilter(sql);
+        Object[][] array = query.setLimit(maxResults).array();
 
         List<Object> result = new ArrayList<>();
         for (Object[] o : array) {

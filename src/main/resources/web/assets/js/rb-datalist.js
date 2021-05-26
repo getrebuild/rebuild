@@ -1164,14 +1164,14 @@ class RbViewModal extends React.Component {
    */
   static create(props, subView) {
     this.__HOLDERs = this.__HOLDERs || {}
-    this.__HOLDERs2 = this.__HOLDERs2 || []
+    this.__HOLDERsStack = this.__HOLDERsStack || []
     const that = this
     const viewUrl = `${rb.baseUrl}/app/${props.entity}/view/${props.id}`
 
     if (subView) {
       renderRbcomp(<RbViewModal url={viewUrl} id={props.id} disposeOnHide={true} subView={true} />, null, function () {
         that.__HOLDERs[props.id] = this
-        that.__HOLDERs2.push(this)
+        that.__HOLDERsStack.push(this)
       })
     } else {
       if (this.__HOLDER) {
@@ -1180,7 +1180,7 @@ class RbViewModal extends React.Component {
       } else {
         renderRbcomp(<RbViewModal url={viewUrl} id={props.id} />, null, function () {
           that.__HOLDERs[props.id] = this
-          that.__HOLDERs2.push(this)
+          that.__HOLDERsStack.push(this)
           that.__HOLDER = this
         })
       }
@@ -1195,8 +1195,8 @@ class RbViewModal extends React.Component {
   static holder(id, action) {
     if (action === 'DISPOSE') {
       delete this.__HOLDERs[id]
-      this.__HOLDERs2.pop() // 销毁后替换
-      this.__HOLDERs2.forEach((x) => {
+      this.__HOLDERsStack.pop() // 销毁后替换
+      this.__HOLDERsStack.forEach((x) => {
         if (x.props.id === id) this.__HOLDERs[id] = x
       })
     } else if (action === 'HIDE') {

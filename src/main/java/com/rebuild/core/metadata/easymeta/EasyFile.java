@@ -23,6 +23,9 @@ public class EasyFile extends EasyField {
         super(field, displayType);
     }
 
+    /**
+     * 注意此类型字段存储值为 <tt>TEXT</tt>，但是此处会转换为/返回 <tt>JSONArray</tt>
+     */
     @Override
     public Object convertCompatibleValue(Object value, EasyField targetField) {
         Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
