@@ -21870,7 +21870,6 @@ fieldset[disabled] .full-calendar .fc-button:hover {
   background-color: #f9f9f9;
   position: relative;
   min-height: 48px;
-  overflow: hidden;
 }
 
 .fuelux .wizard:after,

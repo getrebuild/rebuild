@@ -92,7 +92,7 @@ $(function () {
       $('.admin-settings').remove()
     } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      topPopover($('.admin-settings a'), '<div class="p-1">' + $L('当前已启用管理员访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>')
+      topPopover($('.admin-settings a'), '<div class="p-1">' + $L('当前已启用管理中心访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>')
     }
 
     $.get('/user/admin-dangers', function (res) {
@@ -174,7 +174,7 @@ var $addResizeHandler = function (call) {
   }
 }
 /**
- * 取消管理员访问
+ * 取消管理中心访问
  */
 var _cancelAdmin = function () {
   $.post('/user/admin-cancel', function (res) {

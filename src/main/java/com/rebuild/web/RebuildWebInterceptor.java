@@ -109,7 +109,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         // 用户验证
         if (requestUser != null) {
 
-            // 管理员后台
+            // 管理中心
             if (requestUri.contains("/admin/") && !AppUtils.isAdminVerified(request)) {
                 if (requestEntry.isHtmlRequest()) {
                     sendRedirect(response, "/user/admin-verify", requestUri);
