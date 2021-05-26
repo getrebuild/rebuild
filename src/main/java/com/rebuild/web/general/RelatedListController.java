@@ -10,6 +10,7 @@ package com.rebuild.web.general;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
+import cn.devezhao.persist4j.Query;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
@@ -54,16 +55,17 @@ public class RelatedListController extends BaseController {
         String sql = buildMainSql(mainid, related, q, false);
         sql += " order by " + sort.replace(":", " ");
 
-        String[] ef = related.split("\\.");
-        Field nameField = MetadataHelper.getEntity(ef[0]).getNameField();
-
         int pn = NumberUtils.toInt(getParameter(request, "pageNo"), 1);
         int ps = NumberUtils.toInt(getParameter(request, "pageSize"), 200);
 
-        Object[][] array = Application.createQuery(sql).setLimit(ps, pn * ps - ps).array();
+        Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
+
+        Query query = MetadataHelper.hasPrivilegesField(relatedEntity)
+                ? Application.createQuery(sql) : Application.createQueryNoFilter(sql);
+        Object[][] array = query.setLimit(ps, pn * ps - ps).array();
         for (Object[] o : array) {
             Object nameValue = o[1];
-            nameValue = FieldValueHelper.wrapFieldValue(nameValue, nameField, true);
+            nameValue = FieldValueHelper.wrapFieldValue(nameValue, relatedEntity.getNameField(), true);
             if (nameValue == null || StringUtils.isEmpty(nameValue.toString())) {
                 nameValue = FieldValueHelper.NO_LABEL_PREFIX + o[0].toString().toUpperCase();
             }
@@ -84,7 +86,10 @@ public class RelatedListController extends BaseController {
         for (String related : relateds) {
             String sql = buildMainSql(mainid, related, null, true);
             if (sql != null) {
-                Object[] count = Application.createQuery(sql).unique();
+                Entity relatedEntity = MetadataHelper.getEntity(related.split("\\.")[0]);
+
+                Object[] count = MetadataHelper.hasPrivilegesField(relatedEntity)
+                        ? Application.createQuery(sql).unique() : Application.createQueryNoFilter(sql).unique();
                 countMap.put(related, ObjectUtils.toInt(count[0]));
             }
         }
@@ -111,9 +116,7 @@ public class RelatedListController extends BaseController {
             }
         }
 
-        if (relatedFields.isEmpty()) {
-            return null;
-        }
+        if (relatedFields.isEmpty()) return null;
 
         String mainWhere = "(" + StringUtils.join(relatedFields, " = ''{0}'' or ") + " = ''{0}'')";
         mainWhere = MessageFormat.format(mainWhere, recordOfMain);

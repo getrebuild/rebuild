@@ -22,7 +22,7 @@ import com.rebuild.utils.JSONUtils;
 import java.util.Date;
 
 /**
- * 代办日程
+ * 待办日程
  *
  * @author devezhao
  * @since 2020/2/28
