@@ -91,7 +91,6 @@ class LightFeedsList extends RelatedList {
 class LightTaskList extends RelatedList {
   constructor(props) {
     super(props)
-    this.__FeedsList = new FeedsList()
 
     this.__listClass = 'tasks-list inview'
     this.__listNoData = (

@@ -20,6 +20,7 @@ import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
 import com.rebuild.core.service.dashboard.charts.builtin.BuiltinChart;
 import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
+import com.rebuild.core.service.dashboard.charts.builtin.ProjectTasks;
 import com.rebuild.core.support.i18n.Language;
 
 /**
@@ -98,7 +99,8 @@ public class ChartsFactory {
     public static BuiltinChart[] getBuiltinCharts() {
         return new BuiltinChart[]{
                 new ApprovalList(),
-                new FeedsSchedule()
+                new FeedsSchedule(),
+                new ProjectTasks()
         };
     }
 }

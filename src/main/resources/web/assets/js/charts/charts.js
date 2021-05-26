@@ -732,7 +732,7 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a title={$L('查看详情')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -761,6 +761,9 @@ class FeedsSchedule extends BaseChart {
         .find('.FeedsSchedule')
         .css('height', $tb.height() - 13)
         .perfectScrollbar()
+      $tb.find('.content').each(function () {
+        $(this).attr('title', $(this).text())
+      })
       this._$tb = $tb
     })
     return table
@@ -958,6 +961,92 @@ class ChartScatter extends BaseChart {
   }
 }
 
+// ~ 我的任务
+class ProjectTasks extends BaseChart {
+  renderChart(data) {
+    const table =
+      (data || []).length === 0 ? (
+        <div className="chart-undata must-center">
+          <i className="zmdi zmdi-check icon text-success"></i> {$L('你已完成所有任务')}
+        </div>
+      ) : (
+        <div>
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th width="40"></th>
+                <th>{$L('任务')}</th>
+                <th style={{ minWidth: 140 }}>{$L('时间')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => {
+                let deadlineState = -1
+                if (!item.endTime && item.deadline) {
+                  if ($expired(item.deadline)) deadlineState = 2
+                  else if ($expired(item.deadline, -60 * 60 * 24)) deadlineState = 1
+                  else deadlineState = 0
+                }
+
+                return (
+                  <tr key={item.id}>
+                    <td>
+                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                        <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2} onClick={() => this._toggleStatus(item)} />
+                        <span className="custom-control-label"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <a title={item.taskName} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content">
+                        <p>{item.taskName}</p>
+                        <p className="text-muted fs-12">{item.planName}</p>
+                      </a>
+                    </td>
+                    <td className="cell-detail">
+                      {deadlineState > -1 ? (
+                        <span className={`badge badge-${deadlineState === 2 ? 'danger' : deadlineState === 1 ? 'warning' : 'primary'}`}>
+                          {$L('到期时间')} <DateShow date={item.deadline} />
+                        </span>
+                      ) : (
+                        <div className="text-muted">
+                          {$L('创建时间')} <DateShow date={item.createdOn} />
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )
+
+    const chartdata = <div className="chart ProjectTasks">{table}</div>
+    this.setState({ chartdata: chartdata }, () => {
+      const $tb = $(this._$body)
+      $tb
+        .find('.ProjectTasks')
+        .css('height', $tb.height() - 13)
+        .perfectScrollbar()
+      this._$tb = $tb
+    })
+    return table
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        if (this._$tb) this._$tb.find('.ProjectTasks').css('height', this._$tb.height() - 13)
+      },
+      400,
+      'resize-chart-' + this.state.id
+    )
+  }
+
+  _toggleStatus(id) {
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -986,6 +1075,8 @@ const detectChart = function (cfg, id) {
     return <ChartRadar {...props} />
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
+  } else if (cfg.type === 'ProjectTasks') {
+    return <ProjectTasks {...props} builtin={true} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }
