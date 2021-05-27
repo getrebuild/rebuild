@@ -47,7 +47,7 @@ public class ProjectTasks extends ChartData implements BuiltinChart {
         final int viewState = ObjectUtils.toInt(getExtraParams().get("state"), 0);
         Object[][] tasks = Application.createQueryNoFilter(
                 "select taskId,projectId,projectPlanId,taskNumber,taskName,createdOn,deadline,endTime,status,priority" +
-                        " from ProjectTask where executor = ? and status = ?")
+                        " from ProjectTask where executor = ? and status = ? order by seq asc")
                 .setParameter(1, getUser())
                 .setParameter(2, viewState)
                 .array();
