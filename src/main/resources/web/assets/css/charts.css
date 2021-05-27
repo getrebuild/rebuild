@@ -15,7 +15,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box.INDEX {
-  padding-bottom: 0px;
+  padding-bottom: 0;
 }
 
 .chart-box.high {
@@ -152,7 +152,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart.ctable .table th {
-  background-color: #dee2e6;
   background-color: #eceff1;
   border-width: 1px;
   font-weight: normal;
@@ -168,29 +167,28 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart-box.ApprovalList,
-.chart-box.FeedsSchedule {
-  padding: 0;
-  padding-top: 20px;
+.chart-box.FeedsSchedule,
+.chart-box.ProjectTasks {
+  padding: 20px 0 0;
 }
 
 .chart-box.ApprovalList .chart-head,
-.chart-box.FeedsSchedule .chart-head {
+.chart-box.FeedsSchedule .chart-head,
+.chart-box.ProjectTasks .chart-head {
   margin: 0 25px;
 }
 
 .chart.ApprovalList,
-.chart.FeedsSchedule {
+.chart.FeedsSchedule,
+.chart.ProjectTasks {
   position: relative;
   width: 100%;
   margin-top: 5px;
 }
 
-.chart.FeedsSchedule {
-  margin-top: 13px;
-}
-
 .chart.ApprovalList .table th,
-.chart.FeedsSchedule .table th {
+.chart.FeedsSchedule .table th,
+.chart.ProjectTasks .table th {
   border-top: 0 none;
   padding-top: 0;
   padding-bottom: 6px;
@@ -198,21 +196,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .chart.ApprovalList .table td,
-.chart.FeedsSchedule .table td {
+.chart.FeedsSchedule .table td,
+.chart.ProjectTasks .table td {
   padding: 8px 10px;
 }
 
 .chart.ApprovalList .table tr th:first-child,
 .chart.ApprovalList .table tr td:first-child,
 .chart.FeedsSchedule .table tr th:first-child,
-.chart.FeedsSchedule .table tr td:first-child {
+.chart.FeedsSchedule .table tr td:first-child,
+.chart.ProjectTasks .table tr th:first-child,
+.chart.ProjectTasks .table tr td:first-child {
   padding-left: 25px;
 }
 
 .chart.ApprovalList .table tr th:last-child,
 .chart.ApprovalList .table tr td:last-child,
 .chart.FeedsSchedule .table tr th:last-child,
-.chart.FeedsSchedule .table tr td:last-child {
+.chart.FeedsSchedule .table tr td:last-child,
+.chart.ProjectTasks .table tr th:last-child,
+.chart.ProjectTasks .table tr td:last-child {
   padding-right: 23px;
 }
 
@@ -236,8 +239,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-shadow: inset 3px 3px 3px rgba(0, 0, 0, 0.15);
 }
 
-.chart.FeedsSchedule td > .content {
-  max-height: 37px;
+.chart.FeedsSchedule,
+.chart.ProjectTasks {
+  margin-top: 13px;
+}
+
+.chart.FeedsSchedule td > .content,
+.chart.ProjectTasks td > .content {
+  max-height: 36px;
   overflow: hidden;
   text-overflow: ellipsis;
   color: #404040;
@@ -245,13 +254,31 @@ See LICENSE and COMMERCIAL in the project root for license information.
   line-height: 1;
 }
 
-.chart.FeedsSchedule td > .content:hover {
+.chart.FeedsSchedule td > .content:hover,
+.chart.ProjectTasks td > .content:hover {
   opacity: 0.8;
 }
 
-.chart.FeedsSchedule td > .content p {
+.chart.FeedsSchedule td > .content p,
+.chart.ProjectTasks td > .content p {
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.4;
+}
+
+.chart.ProjectTasks tr.priority-2 td:first-child,
+.chart.ProjectTasks tr.priority-3 td:first-child {
+  border-left: 5px solid #f7b904;
+  padding-left: 20px;
+}
+
+.chart.ProjectTasks tr.priority-3 td:first-child {
+  border-left-color: #ea3f30;
+}
+
+.chart.ProjectTasks tr.status-1 a,
+.chart.ProjectTasks tr.status-1 label {
+  color: #8c8c8c;
+  opacity: 0.5;
 }
 
 .chart-select-wrap .nav-pills .nav-link {
@@ -314,7 +341,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .chart-list > div .delete {
   font-size: 1.2rem;
   color: #a1a1a1;
-  display: inline-block;
   padding: 8px;
   margin-top: 3px;
   margin-right: 6px;

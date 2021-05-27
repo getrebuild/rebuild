@@ -134,12 +134,12 @@ public class ProjectManager implements ConfigManager {
      * 获取指定项目
      *
      * @param projectId
-     * @param user
+     * @param checkUser
      * @return
      * @throws ConfigurationException If not found
      */
-    public ConfigBean getProject(ID projectId, ID user) throws ConfigurationException {
-        ConfigBean[] ee = user == null ? getAllProjects() : getAvailable(user);
+    public ConfigBean getProject(ID projectId, ID checkUser) throws ConfigurationException {
+        ConfigBean[] ee = checkUser == null ? getAllProjects() : getAvailable(checkUser);
         for (ConfigBean e : ee) {
             if (projectId.equals(e.getID("id"))) {
                 return e.clone();

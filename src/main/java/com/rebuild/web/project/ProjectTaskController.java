@@ -266,7 +266,8 @@ public class ProjectTaskController extends BaseController {
             ID projectId = (ID) o[12];
             ConfigBean project =  ProjectManager.instance.getProject(projectId, null);
             ConfigBean plan =  ProjectManager.instance.getPlanOfProject(projectPlanId, projectId);
-            formatted.put("planName", String.format("%s (%s)", plan.getString("planName"), project.getString("projectName")));
+            formatted.put("planName", String.format("%s (%s)",
+                    project.getString("projectName"), plan.getString("planName")));
             formatted.put("planFlow", plan.getInteger("flowStatus"));
 
             alist.add(formatted);

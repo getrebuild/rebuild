@@ -212,7 +212,8 @@ const render_dashboard = function (init) {
 
   // When resize/re-postion/remove
   $('.grid-stack')
-    .on('change', function () {
+    .on('change', function (e) {
+      if (e.target) return  // input 元素也会触发 ???
       save_dashboard()
     })
     .on('resizestart', function () {

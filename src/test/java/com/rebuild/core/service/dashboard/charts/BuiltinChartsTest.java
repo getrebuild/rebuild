@@ -12,6 +12,7 @@ import com.rebuild.TestSupport;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.dashboard.charts.builtin.ApprovalList;
 import com.rebuild.core.service.dashboard.charts.builtin.FeedsSchedule;
+import com.rebuild.core.service.dashboard.charts.builtin.ProjectTasks;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -24,16 +25,23 @@ import java.util.Map;
 public class BuiltinChartsTest extends TestSupport {
 
     @Test
-    public void testApprovalList() {
+    void testApprovalList() {
         Map<String, Object> params = new HashMap<>();
         params.put("state", ApprovalState.APPROVED.getState());
+
         JSON ret = ((ApprovalList) new ApprovalList().setUser(SIMPLE_USER)).setExtraParams(params).build();
         System.out.println(ret);
     }
 
     @Test
-    public void testFeedsSchedule() {
+    void testFeedsSchedule() {
         JSON ret = ((FeedsSchedule) new FeedsSchedule().setUser(SIMPLE_USER)).build();
+        System.out.println(ret);
+    }
+
+    @Test
+    void testProjectTasks() {
+        JSON ret = ((ProjectTasks) new ProjectTasks().setUser(SIMPLE_USER)).build();
         System.out.println(ret);
     }
 }

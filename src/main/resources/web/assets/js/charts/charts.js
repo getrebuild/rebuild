@@ -732,7 +732,7 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a title={$L('查看详情')} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -761,6 +761,9 @@ class FeedsSchedule extends BaseChart {
         .find('.FeedsSchedule')
         .css('height', $tb.height() - 13)
         .perfectScrollbar()
+      $tb.find('.content').each(function () {
+        $(this).attr('title', $(this).text())
+      })
       this._$tb = $tb
     })
     return table
@@ -958,6 +961,108 @@ class ChartScatter extends BaseChart {
   }
 }
 
+// ~ 我的任务
+class ProjectTasks extends BaseChart {
+  renderChart(data) {
+    const table =
+      (data || []).length === 0 ? (
+        <div className="chart-undata must-center">
+          <i className="zmdi zmdi-check icon text-success"></i> {$L('你已完成所有任务')}
+        </div>
+      ) : (
+        <div>
+          <table className="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th width="40"></th>
+                <th>{$L('任务')}</th>
+                <th style={{ minWidth: 150 }}>{$L('时间')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item) => {
+                return (
+                  <tr key={item.id} className={`status-${item.status} priority-${item.priority}`}>
+                    <td className="align-text-top">
+                      <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
+                        <input className="custom-control-input" type="checkbox" disabled={item.planFlow === 2} onClick={(e) => this._toggleStatus(item, e)} />
+                        <span className="custom-control-label"></span>
+                      </label>
+                    </td>
+                    <td>
+                      <a title={item.taskName} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content">
+                        <p className="text-break">
+                          [{item.taskNumber}] {item.taskName}
+                        </p>
+                      </a>
+                      <p className="text-muted fs-12 m-0" style={{ lineHeight: 1 }}>
+                        {item.projectName}
+                      </p>
+                    </td>
+                    <td className="text-muted">
+                      {!item.deadline && !item.endTime && (
+                        <React.Fragment>
+                          <span className="mr-1">{$L('创建时间')}</span>
+                          <DateShow date={item.createdOn} />
+                        </React.Fragment>
+                      )}
+                      {item.endTime && (
+                        <React.Fragment>
+                          <span className="mr-1">{$L('完成时间')}</span>
+                          <DateShow date={item.endTime} />
+                        </React.Fragment>
+                      )}
+                      {!item.endTime && item.deadline && (
+                        <React.Fragment>
+                          <span className="mr-1">{$L('到期时间')}</span>
+                          <DateShow date={item.deadline} />
+                        </React.Fragment>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )
+
+    const chartdata = <div className="chart ProjectTasks">{table}</div>
+    this.setState({ chartdata: chartdata }, () => {
+      const $tb = $(this._$body)
+      $tb
+        .find('.ProjectTasks')
+        .css('height', $tb.height() - 13)
+        .perfectScrollbar()
+      this._$tb = $tb
+    })
+    return table
+  }
+
+  resize() {
+    $setTimeout(
+      () => {
+        if (this._$tb) this._$tb.find('.ProjectTasks').css('height', this._$tb.height() - 13)
+      },
+      400,
+      'resize-chart-' + this.state.id
+    )
+  }
+
+  _toggleStatus(item, e) {
+    const $target = $(e.currentTarget)
+    const data = {
+      status: $target.prop('checked') ? 1 : 0,
+      metadata: { id: item.id },
+    }
+
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
+      $target.parents('tr').removeClass('status-0 status-1').addClass('status-' + data.status)
+    })
+  }
+}
+
 // 确定图表类型
 // eslint-disable-next-line no-unused-vars
 const detectChart = function (cfg, id) {
@@ -986,6 +1091,8 @@ const detectChart = function (cfg, id) {
     return <ChartRadar {...props} />
   } else if (cfg.type === 'SCATTER') {
     return <ChartScatter {...props} />
+  } else if (cfg.type === 'ProjectTasks') {
+    return <ProjectTasks {...props} builtin={true} />
   } else {
     return <h4 className="chart-undata must-center">{`${$L('未知图表')} [${cfg.type}]`}</h4>
   }
