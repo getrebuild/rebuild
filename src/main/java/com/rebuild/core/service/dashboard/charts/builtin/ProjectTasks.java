@@ -46,7 +46,7 @@ public class ProjectTasks extends ChartData implements BuiltinChart {
     public JSON build() {
         final int viewState = ObjectUtils.toInt(getExtraParams().get("state"), 0);
         Object[][] tasks = Application.createQueryNoFilter(
-                "select taskId,projectId,projectPlanId.planName,taskNumber,taskName,deadline,createdOn,endTime" +
+                "select taskId,projectId,projectPlanId,taskNumber,taskName,createdOn,deadline,endTime,status,priority" +
                         " from ProjectTask where executor = ? and status = ?")
                 .setParameter(1, getUser())
                 .setParameter(2, viewState)
@@ -55,16 +55,21 @@ public class ProjectTasks extends ChartData implements BuiltinChart {
         JSONArray array = new JSONArray();
         for (Object[] o : tasks) {
             ID projectId = (ID) o[1];
-            ConfigBean cb = ProjectManager.instance.getProject(projectId, null);
-            String taskNumber = String.format("%s-%s", cb.getString("projectCode"), o[3]);
-            String planName = String.format("%s (%s)", o[2], cb.getString("projectName"));
+            ConfigBean cbProject = ProjectManager.instance.getProject(projectId, null);
+            ConfigBean cbPlan = ProjectManager.instance.getPlanOfProject((ID) o[2], projectId);
+
+            String projectName = String.format("%s (%s)",
+                    cbProject.getString("projectName"), cbPlan.getString("planName"));
+            String taskNumber = String.format("%s-%s", cbProject.getString("projectCode"), o[3]);
 
             array.add(JSONUtils.toJSONObject(
-                    new String[] { "id", "projectId", "taskNumber", "planName", "taskName", "deadline", "createdOn", "endTime" },
-                    new Object[] { o[0], projectId, taskNumber, planName, o[4],
+                    new String[] { "id", "projectName", "planFlow", "taskNumber", "taskName", "createdOn", "deadline", "endTime", "status", "priority" },
+                    new Object[] { o[0], projectName, cbPlan.getInteger("flowStatus"), taskNumber, o[4],
                             I18nUtils.formatDate((Date) o[5]),
                             I18nUtils.formatDate((Date) o[6]),
-                            I18nUtils.formatDate((Date) o[7]) }));
+                            I18nUtils.formatDate((Date) o[7]),
+                            o[8], o[9]
+                    }));
         }
         return array;
     }

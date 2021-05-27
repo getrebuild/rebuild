@@ -976,41 +976,47 @@ class ProjectTasks extends BaseChart {
               <tr>
                 <th width="40"></th>
                 <th>{$L('任务')}</th>
-                <th style={{ minWidth: 140 }}>{$L('时间')}</th>
+                <th style={{ minWidth: 150 }}>{$L('时间')}</th>
               </tr>
             </thead>
             <tbody>
               {data.map((item) => {
-                let deadlineState = -1
-                if (!item.endTime && item.deadline) {
-                  if ($expired(item.deadline)) deadlineState = 2
-                  else if ($expired(item.deadline, -60 * 60 * 24)) deadlineState = 1
-                  else deadlineState = 0
-                }
-
                 return (
-                  <tr key={item.id}>
-                    <td>
+                  <tr key={item.id} className={`status-${item.status} priority-${item.priority}`}>
+                    <td className="align-text-top">
                       <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                        <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2} onClick={() => this._toggleStatus(item)} />
+                        <input className="custom-control-input" type="checkbox" disabled={item.planFlow === 2} onClick={(e) => this._toggleStatus(item, e)} />
                         <span className="custom-control-label"></span>
                       </label>
                     </td>
                     <td>
                       <a title={item.taskName} href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content">
-                        <p>{item.taskName}</p>
-                        <p className="text-muted fs-12">{item.planName}</p>
+                        <p className="text-break">
+                          [{item.taskNumber}] {item.taskName}
+                        </p>
                       </a>
+                      <p className="text-muted fs-12 m-0" style={{ lineHeight: 1 }}>
+                        {item.projectName}
+                      </p>
                     </td>
-                    <td className="cell-detail">
-                      {deadlineState > -1 ? (
-                        <span className={`badge badge-${deadlineState === 2 ? 'danger' : deadlineState === 1 ? 'warning' : 'primary'}`}>
-                          {$L('到期时间')} <DateShow date={item.deadline} />
-                        </span>
-                      ) : (
-                        <div className="text-muted">
-                          {$L('创建时间')} <DateShow date={item.createdOn} />
-                        </div>
+                    <td className="text-muted">
+                      {!item.deadline && !item.endTime && (
+                        <React.Fragment>
+                          <span className="mr-1">{$L('创建时间')}</span>
+                          <DateShow date={item.createdOn} />
+                        </React.Fragment>
+                      )}
+                      {item.endTime && (
+                        <React.Fragment>
+                          <span className="mr-1">{$L('完成时间')}</span>
+                          <DateShow date={item.endTime} />
+                        </React.Fragment>
+                      )}
+                      {!item.endTime && item.deadline && (
+                        <React.Fragment>
+                          <span className="mr-1">{$L('到期时间')}</span>
+                          <DateShow date={item.deadline} />
+                        </React.Fragment>
                       )}
                     </td>
                   </tr>
@@ -1043,7 +1049,17 @@ class ProjectTasks extends BaseChart {
     )
   }
 
-  _toggleStatus(id) {
+  _toggleStatus(item, e) {
+    const $target = $(e.currentTarget)
+    const data = {
+      status: $target.prop('checked') ? 1 : 0,
+      metadata: { id: item.id },
+    }
+
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+      if (res.error_code > 0) return RbHighbar.error(res.error_msg)
+      $target.parents('tr').removeClass('status-0 status-1').addClass('status-' + data.status)
+    })
   }
 }
 
