@@ -127,12 +127,18 @@ class LightTaskList extends RelatedList {
               <span className="custom-control-label"></span>
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
-              <span className="badge">{item.taskNumber}</span>
-              {item.taskName}
+              [{item.taskNumber}] {item.taskName}
             </a>
           </div>
           <div className="col-5 task-meta">
             <div className="row">
+              <div className="col-2">
+                {item.executor && (
+                  <a className="avatar" title={$L('执行人')}>
+                    <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} title={item.executor[1]} alt="Avatar" />
+                  </a>
+                )}
+              </div>
               <div className="col-5 text-ellipsis">{item.planName}</div>
               <div className="col-5 text-ellipsis">
                 {!item.deadline && !item.endTime && (
@@ -141,24 +147,17 @@ class LightTaskList extends RelatedList {
                     <DateShow date={item.createdOn} />
                   </React.Fragment>
                 )}
-                {item.deadline && (
-                  <React.Fragment>
-                    <span className="mr-1">{$L('到期时间')}</span>
-                    <DateShow date={item.deadline} />
-                  </React.Fragment>
-                )}
-                {!item.deadline && item.endTime && (
+                {item.endTime && (
                   <React.Fragment>
                     <span className="mr-1">{$L('完成时间')}</span>
                     <DateShow date={item.endTime} />
                   </React.Fragment>
                 )}
-              </div>
-              <div className="col-2">
-                {item.executor && (
-                  <a className="avatar">
-                    <img src={`${rb.baseUrl}/account/user-avatar/${item.executor[0]}`} title={item.executor[1]} alt="Avatar" />
-                  </a>
+                {!item.endTime && item.deadline && (
+                  <React.Fragment>
+                    <span className="mr-1">{$L('到期时间')}</span>
+                    <DateShow date={item.deadline} />
+                  </React.Fragment>
                 )}
               </div>
             </div>
