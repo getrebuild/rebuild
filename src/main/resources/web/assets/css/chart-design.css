@@ -13,10 +13,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-size: 2.11rem;
 }
 
-.rb-offcanvas-menu .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar:hover .zmdi-arrow-left {
-  color: #4285f4;
-}
-
 .chart-box .chart-head .chart-title {
   display: none;
 }
