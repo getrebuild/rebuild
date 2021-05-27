@@ -279,6 +279,7 @@ class ValueStatus extends ValueComp {
 }
 
 // 执行者
+// TODO 执行者仅允许选择成员 ???
 class ValueExecutor extends ValueComp {
   state = { ...this.props }
 
@@ -1066,7 +1067,7 @@ class TextEditor extends React.Component {
       const item = EMOJIS[k]
       this.__es.push(
         <a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}>
-          <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} />
+          <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} alt={k} />
         </a>
       )
     }
