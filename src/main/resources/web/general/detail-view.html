@@ -81,5 +81,9 @@
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-view.append.js}" type="text/babel"></script>
+    <th:block th:if="${commercial > 0}">
+      <script th:src="@{/assets/js/frontjs/frontjs-sdk.js}"></script>
+      <script th:src="@{/commons/frontjs/use-frontjs}"></script>
+    </th:block>
   </body>
 </html>

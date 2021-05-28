@@ -7,6 +7,7 @@
     <style type="text/css">
       .CodeMirror {
         padding: 0;
+        border: 0 none;
       }
       .cm-s-material-darker {
         font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif !important;
@@ -37,7 +38,9 @@
                   <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
                   <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
                   <li><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
-                  <li class="active"><a href="frontjs">FrontJS</a></li>
+                  <li class="active">
+                    <a href="frontjs">FrontJS <sup class="rbv"></sup></a>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -46,7 +49,14 @@
         <div class="main-content container-fluid">
           <div class="code-toolbar row">
             <div class="col">
-              <input class="form-control form-control-sm" id="applyPath" th:placeholder="${bundle.L('应用路径')}" />
+              <ol class="breadcrumb m-0 p-0 bg-transparent" style="height: 37px; line-height: 37px">
+                <li class="breadcrumb-item">[[${entityLabel}]]</li>
+                <li class="breadcrumb-item position-relative">
+                  <div class="position-absolute" style="width: 300px; top: 0; left: 20px">
+                    <input class="form-control form-control-sm" id="applyPath" th:placeholder="${bundle.L('应用路径')}" />
+                  </div>
+                </li>
+              </ol>
             </div>
             <div class="col text-right">
               <div class="btn-group J_save_group">
@@ -77,6 +87,8 @@
     <script th:src="@{/assets/lib/codemirror/codemirror.js}"></script>
     <script th:src="@{/assets/lib/codemirror/mode/javascript/javascript.js}"></script>
     <script th:src="@{/assets/lib/codemirror/mode/jsx/jsx.js}"></script>
+    <script th:src="@{/assets/lib/codemirror/addon/edit/closebrackets.js}"></script>
+    <script th:src="@{/assets/lib/codemirror/addon/edit/matchbrackets.js}"></script>
     <script th:src="@{/assets/js/frontjs/frontjs.js}" type="text/babel"></script>
   </body>
 </html>

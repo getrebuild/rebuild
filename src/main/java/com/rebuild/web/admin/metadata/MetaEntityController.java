@@ -28,6 +28,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
@@ -99,6 +100,9 @@ public class MetaEntityController extends BaseController {
 
     @GetMapping("entity/{entity}/frontjs")
     public ModelAndView pageFrontJs(@PathVariable String entity, HttpServletRequest request) {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持 FrontJS 功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
         ModelAndView mv = createModelAndView("/admin/metadata/frontjs");
         mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
         setEntityBase(mv, entity);
