@@ -207,6 +207,7 @@ public class EntityHelper {
     public static final int SmsendLog = 35;
     public static final int Language = 36;
     public static final int TransformConfig = 37;
+    public static final int FrontjsCode = 38;
 
     // 动态
 

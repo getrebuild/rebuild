@@ -4,24 +4,6 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity" />
     <title>[[${bundle.L('高级配置')}]]</title>
-    <style type="text/css">
-      a#entityIcon {
-        display: inline-block;
-        width: 36px;
-        height: 36px;
-        background-color: #e3e3e3;
-        text-align: center;
-        border-radius: 2px;
-      }
-      a#entityIcon .icon {
-        font-size: 26px;
-        color: #555;
-        line-height: 36px;
-      }
-      a#entityIcon:hover {
-        opacity: 0.8;
-      }
-    </style>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -44,6 +26,7 @@
                   <li><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
                   <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
                   <li class="active"><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
+                  <li><a href="frontjs">FrontJS</a></li>
                 </ul>
               </div>
             </div>

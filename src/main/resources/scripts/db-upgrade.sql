@@ -1,6 +1,21 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #36 (v2.4)
+-- ************ Entity [FrontjsCode] DDL ************
+create table if not exists `frontjs_code` (
+  `CODE_ID`            char(20) not null,
+  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `APPLY_PATH`         varchar(200) comment '应用路径',
+  `CODE`               text(21845) comment '代码',
+  `ES5_CODE`           text(21845) comment 'ES5 代码',
+  `MODIFIED_ON`        timestamp not null default current_timestamp comment '修改时间',
+  `MODIFIED_BY`        char(20) not null comment '修改人',
+  `CREATED_BY`         char(20) not null comment '创建人',
+  `CREATED_ON`         timestamp not null default current_timestamp comment '创建时间',
+  primary key  (`CODE_ID`)
+)Engine=InnoDB;
+
 -- #35 (v2.3)
 alter table `project_task`
   add column `RELATED_RECORD` char(20) comment '相关业务记录',

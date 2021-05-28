@@ -97,6 +97,14 @@ public class MetaEntityController extends BaseController {
         return mv;
     }
 
+    @GetMapping("entity/{entity}/frontjs")
+    public ModelAndView pageFrontJs(@PathVariable String entity, HttpServletRequest request) {
+        ModelAndView mv = createModelAndView("/admin/metadata/frontjs");
+        mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
+        setEntityBase(mv, entity);
+        return mv;
+    }
+
     @ResponseBody
     @RequestMapping("entity/entity-list")
     public Object listEntity(HttpServletRequest request) {

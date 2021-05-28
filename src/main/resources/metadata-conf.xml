@@ -369,6 +369,14 @@
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
+    <entity name="FrontjsCode" type-code="038" description="FrontJS" queryable="false">
+        <field name="codeId" type="primary"/>
+        <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
+        <field name="applyPath" type="string" max-length="200" description="应用路径"/>
+        <field name="code" type="text" description="代码"/>
+        <field name="es5Code" type="text" description="ES5 代码"/>
+    </entity>
+
     <!-- 动态不涉及审计 -->
     <entity name="Feeds" type-code="040" description="动态" name-field="content" extra-attrs="{icon:'chart-donut'}">
         <field name="feedsId" type="primary"/>
