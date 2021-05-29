@@ -75,8 +75,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
             request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
 
-            request.setAttribute(WebConstants.USE_THEME,
-                    !requestEntry.getRequestUri().contains("/admin/") && License.isCommercial());
+            boolean adminPage = requestEntry.getRequestUri().contains("/admin/")
+                    || requestEntry.getRequestUri().contains("/admin-");
+            request.setAttribute(WebConstants.USE_THEME, !adminPage && License.isCommercial());
         }
 
         final String requestUri = requestEntry.getRequestUri();
@@ -98,8 +99,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             else if (!requestUri.contains("/setup/")) {
                 sendRedirect(response, "/setup/install", null);
                 return false;
-            }
-            else {
+            } else {
                 return true;
             }
         }

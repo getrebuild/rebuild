@@ -2,7 +2,7 @@
 Copyright (c) Ruifang Tech <http://ruifang-tech.com/> and/or its owners. All rights reserved.
 */
 
-package com.rebuild;
+package com.rebuild.support;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 
 /**
  * 多语言提取
- * 1 .java 文件提取 `$L(xxx, [args])` `errorl(xxx)` 注意不要换行
+ * 1 .java 文件提取 `.L(xxx, [args])` `.errorl(xxx)` 注意不要换行
  * 2 .js 提取 `$L(xxx, [args])`
  * 3 .html 提取 `bundle.L(xxx, [args])`
  *
@@ -67,7 +67,6 @@ public class I18nGettextParser {
 
         FileUtils.writeStringToFile(target, JSONUtils.prettyPrint(contents));
         log.info("File write : {} ({})", target.getAbsolutePath(), contents.size());
-        System.exit(0);
     }
 
     static void parse(File fileOrDir, Set<String> into) throws IOException {
