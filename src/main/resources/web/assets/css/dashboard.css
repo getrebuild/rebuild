@@ -170,19 +170,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   min-width: 0;
 }
 
-body.fullscreen .rb-wrapper {
-  padding: 0 !important;
-}
-
-body.fullscreen .rb-wrapper > .rb-top-header,
-body.fullscreen .rb-wrapper > .rb-left-sidebar {
-  display: none !important;
-}
-
-body.fullscreen .rb-wrapper > .rb-content {
-  margin-left: 0 !important;
-}
-
 body.fullscreen .J_dash-fullscreen .zmdi-fullscreen::before {
   content: '\f16c';
 }

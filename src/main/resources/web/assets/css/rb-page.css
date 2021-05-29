@@ -3939,3 +3939,16 @@ a.select-lang:hover {
 .admin-danger-list > div + div {
   border-top: 1px solid #eee;
 }
+
+body.fullscreen .rb-wrapper > .rb-top-header,
+body.fullscreen .rb-wrapper > .rb-left-sidebar {
+  display: none !important;
+}
+
+body.fullscreen .rb-wrapper {
+  padding: 0 !important;
+}
+
+body.fullscreen .rb-wrapper > .rb-content {
+  margin-left: 0 !important;
+}

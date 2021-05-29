@@ -15,11 +15,15 @@
       .CodeMirror-hints.material-darker {
         font-family: Menlo, Monaco, Consolas, 'Courier New', monospace !important;
       }
+      .rb-loading:after {
+        background-color: transparent;
+      }
       .code-editor-wrapper {
         position: relative;
+        min-height: 300px;
       }
-      .code-editor-wrapper.fullscreen {
-        position: fixed;
+      body.fullscreen .code-editor-wrapper {
+        position: absolute;
         top: 0;
         left: 0;
         width: 100%;
@@ -100,12 +104,13 @@
             </div>
           </div>
           <div class="mt-2">
-            <div class="code-editor-wrapper">
+            <div class="code-editor-wrapper rb-loading rb-loading-active">
               <div class="code-editor-toolbar">
                 <a class="J_format" th:title="${bundle.L('格式化')}"><i class="zmdi zmdi-wrap-text"></i></a>
-                <a class="J_fullscreen hide" th:title="${bundle.L('全屏')}"><i class="zmdi zmdi-fullscreen"></i></a>
+                <a class="J_fullscreen" th:title="${bundle.L('全屏')}"><i class="zmdi zmdi-fullscreen"></i></a>
               </div>
               <textarea id="code-editor" class="hide"></textarea>
+              <th:block th:replace="~{/_include/spinner}" />
             </div>
           </div>
         </div>
@@ -127,7 +132,8 @@
     <script th:src="@{/assets/lib/codemirror/mode/jsx/jsx.js}"></script>
     <script th:src="@{/assets/lib/codemirror/addon/edit/closebrackets.js}"></script>
     <script th:src="@{/assets/lib/codemirror/addon/edit/matchbrackets.js}"></script>
-    <script th:src="@{/assets/lib/codemirror/addon/formatting.js}"></script>
+    <script th:src="@{/assets/lib/prettier/standalone.js}"></script>
+    <script th:src="@{/assets/lib/prettier/parser-babel.js}"></script>
     <script th:src="@{/assets/js/frontjs/frontjs.js}" type="text/babel"></script>
   </body>
 </html>
