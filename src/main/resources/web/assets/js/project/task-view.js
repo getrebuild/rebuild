@@ -63,7 +63,7 @@ class TaskForm extends React.Component {
             <i className="icon zmdi zmdi-square-o" /> {$L('状态')}
           </label>
           <div className="col-12 col-sm-9">
-            <ValueStatus status={this.state.status} $$$parent={this} />
+            <ValueStatus status={this.state.status} readonly={this.state.planFlow === 2} $$$parent={this} />
           </div>
         </div>
         <div className="form-group row">
@@ -256,7 +256,7 @@ class ValueStatus extends ValueComp {
       <div className="form-control-plaintext">
         <span className="status-checkbox">
           <label className="custom-control custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
-            <input className="custom-control-input" type="checkbox" ref={(c) => (this._status = c)} onChange={(e) => this._handleChangeStatus(e)} />
+            <input className="custom-control-input" type="checkbox" disabled={this.props.readonly} ref={(c) => (this._status = c)} onChange={(e) => this._handleChangeStatus(e)} />
             <span className="custom-control-label">{this.state.status > 0 ? $L('已完成') : $L('未完成')}</span>
           </label>
         </span>
@@ -644,7 +644,7 @@ class ValueTags extends ValueComp {
             </div>
           </span>
         ) : (
-          tags.length === 0 && <div className="form-control-plaintext text-muted">{$L('无')}</div>
+          tags.length === 0 && <span className="text-muted" style={{ display: 'inline-block', paddingTop: 5 }}>{$L('无')}</span>
         )}
       </div>
     )
