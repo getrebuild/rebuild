@@ -141,13 +141,13 @@ public class ProjectTaskService extends BaseTaskService {
      */
     synchronized
     private int getSeqInStatus(ID taskId, boolean desc) {
-        Object[] taskStatus = Application.createQuery(
+        Object[] taskStatus = Application.createQueryNoFilter(
                 "select status,projectPlanId from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
         if (taskStatus == null) return 1;
 
-        Object[] seq = Application.createQuery(
+        Object[] seq = Application.createQueryNoFilter(
                 "select " + (desc ? "max" : "min") + "(seq) from ProjectTask where status = ? and projectPlanId = ?")
                 .setParameter(1, taskStatus[0])
                 .setParameter(2, taskStatus[1])

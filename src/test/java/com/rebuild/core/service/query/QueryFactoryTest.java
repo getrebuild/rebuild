@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class QueryFactoryTest extends TestSupport {
 
     @Test
-    public void testBaseQuery() {
+    void testBaseQuery() {
         String sql = "select loginName from User";
         Filter filter = Application.getPrivilegesManager().createQueryFilter(SIMPLE_USER);
         Object[][] array = Application.getQueryFactory().createQuery(sql, filter).array();
@@ -33,7 +33,7 @@ public class QueryFactoryTest extends TestSupport {
     }
 
     @Test
-    public void testQueryAllDT() {
+    void testQueryAllDT() {
         Entity allDT = MetadataHelper.getEntity(TestAllFields);
         StringBuilder sql = new StringBuilder("select ");
         for (Field f : allDT.getFields()) {
@@ -51,8 +51,14 @@ public class QueryFactoryTest extends TestSupport {
     }
 
     @Test
-    public void testNoUser() {
+    void testNoUser() {
         Assertions.assertThrows(AccessDeniedException.class,
                 () -> Application.getQueryFactory().createQuery("select loginName from User").array());
+    }
+
+    @Test
+    void createNativeQuery() {
+        Object[] x = Application.getQueryFactory().createNativeQuery("select current_date").unique();
+        System.out.println(x[0]);
     }
 }

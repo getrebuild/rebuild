@@ -452,7 +452,7 @@ public class FormsBuilder extends FormsManager {
                 .append(" where ")
                 .append(entity.getPrimaryField().getName())
                 .append(" = ?");
-        return Application.getQueryFactory().createQuery(sql.toString(), user).setParameter(1, id).record();
+        return Application.createQuery(sql.toString(), user).setParameter(1, id).record();
     }
 
     /**
