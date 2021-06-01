@@ -154,7 +154,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             if (requestEntry.isHtmlRequest()) {
                 sendRedirect(response, "/user/login", requestUri);
             } else {
-                ServletUtils.writeJson(response, RespBody.error(HttpStatus.FORBIDDEN.value()).toJSONString());
+                ServletUtils.writeJson(response, RespBody.error(HttpStatus.UNAUTHORIZED.value()).toJSONString());
             }
 
             return false;
