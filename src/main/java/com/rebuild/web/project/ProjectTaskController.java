@@ -73,10 +73,9 @@ public class ProjectTaskController extends BaseController {
         ConfigBean project = ProjectManager.instance.getProjectByTask(taskId2, user);
 
         ModelAndView mv = createModelAndView("/project/task-view");
-        mv.getModel().put("projectIcon", project.getString("iconName"));
         mv.getModel().put("id", taskId2.toLiteral());
+        mv.getModel().put("projectIcon", project.getString("iconName"));
         mv.getModel().put("isMember", project.get("members", Set.class).contains(user));
-        mv.getModel().put("isManageable", ProjectHelper.isManageable(taskId2, user));
         return mv;
     }
 
@@ -187,14 +186,15 @@ public class ProjectTaskController extends BaseController {
         // 标签
         data.put("tags", TaskTagController.getTaskTags((ID) o[3]));
 
-        // 项目信息
         if (user != null) {
+            // 项目信息
             ConfigBean plan =  ProjectManager.instance.getPlanOfProject((ID) o[1], (ID) o[0]);
-
             data.put("planName", String.format("%s (%s)",
                     project.getString("projectName"), plan.getString("planName")));
             data.put("planFlow", plan.getInteger("flowStatus"));
+            // 权限
             data.put("projectMember", project.get("members", Set.class).contains(user));
+            data.put("isManageable", ProjectHelper.isManageable((ID) o[3], user));
         }
 
         return data;
