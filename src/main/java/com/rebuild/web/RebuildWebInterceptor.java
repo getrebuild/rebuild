@@ -189,43 +189,45 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
      * @param request
      * @param response
      * @return
+     * @see AppUtils#getReuqestLocale(HttpServletRequest)
      */
     private String detectLocale(HttpServletRequest request, HttpServletResponse response) {
+        String rbmobLocale = request.getHeader(AppUtils.HF_LOCALE);
+        if (rbmobLocale != null) return rbmobLocale;
+
         // 0. Session
-        String locale = (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
+        String havingLocale = (String) ServletUtils.getSessionAttribute(request, AppUtils.SK_LOCALE);
 
         String urlLocale = request.getParameter("locale");
-        if (StringUtils.isNotBlank(urlLocale) && !urlLocale.equals(locale)) {
+        if (StringUtils.isNotBlank(urlLocale) && !urlLocale.equals(havingLocale)) {
             urlLocale = Application.getLanguage().available(urlLocale);
 
             if (urlLocale != null) {
-                locale = urlLocale;
+                havingLocale = urlLocale;
 
-                ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
-                ServletUtils.addCookie(response, AppUtils.CK_LOCALE, locale,
+                ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, havingLocale);
+                ServletUtils.addCookie(response, AppUtils.CK_LOCALE, havingLocale,
                         CommonsCache.TS_DAY * 90, null, StringUtils.defaultIfBlank(AppUtils.getContextPath(), "/"));
 
-                if (Application.devMode()) {
-                    Application.getLanguage().refresh();
-                }
+                if (Application.devMode()) Application.getLanguage().refresh();
             }
         }
-        if (locale != null) return locale;
+        if (havingLocale != null) return havingLocale;
 
         // 1. Cookie
-        locale = ServletUtils.readCookie(request, AppUtils.CK_LOCALE);
-        if (locale == null) {
+        havingLocale = ServletUtils.readCookie(request, AppUtils.CK_LOCALE);
+        if (havingLocale == null) {
             // 2. User-Local
-            locale = request.getLocale().toString();
+            havingLocale = request.getLocale().toString();
         }
 
         // 3. Default
-        if ((locale = Application.getLanguage().available(locale)) == null) {
-            locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
+        if ((havingLocale = Application.getLanguage().available(havingLocale)) == null) {
+            havingLocale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
 
-        ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, locale);
-        return locale;
+        ServletUtils.setSessionAttribute(request, AppUtils.SK_LOCALE, havingLocale);
+        return havingLocale;
     }
 
     /**
