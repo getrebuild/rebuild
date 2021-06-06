@@ -133,7 +133,7 @@ public class HttpUtils {
      * @throws IOException
      */
     public static File readBinary(String url) throws IOException {
-        File tmp = RebuildConfiguration.getFileOfTemp("download." + UUID.randomUUID().toString());
+        File tmp = RebuildConfiguration.getFileOfTemp("download." + UUID.randomUUID());
         boolean success = readBinary(url, tmp, Collections.singletonMap(HttpHeaders.USER_AGENT, RB_UA));
         return success && tmp.exists() ? tmp : null;
     }

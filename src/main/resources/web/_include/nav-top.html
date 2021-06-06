@@ -29,7 +29,7 @@
                 <div class="user-id" th:data-user="${user.getId()}">[[${user.getEmail() ?: bundle.L('邮箱未设置')}]]</div>
               </div>
               <a class="dropdown-item" th:href="@{/settings/user}"><i class="icon zmdi zmdi-account-box"></i>[[${bundle.L('个人设置')}]]</a>
-              <a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('注销登录')}]]</a>
+              <a class="dropdown-item" th:href="@{/user/logout}"><i class="icon zmdi zmdi-power"></i>[[${bundle.L('退出')}]]</a>
               <div class="use-theme">
                 <div>[[${bundle.L('选择主题')}]] <sup class="rbv"></sup></div>
                 <ul class="list-inline list-unstyled mt-1">
