@@ -24,7 +24,7 @@ spring:
     multipart.enabled: false
   web:
     resources:
-      static-locations: classpath:/web/assets
+      static-locations: classpath:/web/assets/
   mvc:
     static-path-pattern: /assets/**
   thymeleaf:

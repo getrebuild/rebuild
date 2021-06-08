@@ -32,6 +32,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.exceptions.TemplateInputException;
@@ -92,7 +93,14 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 .excludePathPatterns("/gw/api/**")
                 .excludePathPatterns("/language/**")
                 .excludePathPatterns("/assets/**")
+                .excludePathPatterns("/h5app/**")
                 .excludePathPatterns("/*.txt");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/h5app/**")
+                .addResourceLocations("classpath:/public/h5app/");
     }
 
     @Override
@@ -113,11 +121,6 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         return createError(request, (Exception) request.getAttribute(ServletUtils.ERROR_EXCEPTION), status, model);
     }
 
-    /**
-     * @param request
-     * @param ex
-     * @return
-     */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
         if (request.getRequestURI().contains("/assets/")) return null;
@@ -164,12 +167,10 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     /**
-     * 获取请求/引用地址
-     *
      * @param request
      * @return
      */
-    static String getRequestUrls(HttpServletRequest request) {
+    protected static String getRequestUrls(HttpServletRequest request) {
         String reqUrl = request.getRequestURL().toString();
         String refUrl = ServletUtils.getReferer(request);
 
