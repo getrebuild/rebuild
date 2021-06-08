@@ -42,3 +42,7 @@ node
 
 .DS_Store
 test.*
+
+# Build
+
+**/public/h5app/

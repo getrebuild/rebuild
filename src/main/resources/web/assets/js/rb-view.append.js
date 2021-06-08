@@ -123,7 +123,7 @@ class LightTaskList extends RelatedList {
         <div className="row header-title">
           <div className="col-7 title">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2} onClick={() => this._toggleStatus(item)} />
+              <input className="custom-control-input" type="checkbox" defaultChecked={item.status > 0} disabled={item.planFlow === 2 || !item.projectMember} onClick={() => this._toggleStatus(item)} />
               <span className="custom-control-label"></span>
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>

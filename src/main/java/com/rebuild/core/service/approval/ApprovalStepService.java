@@ -15,6 +15,8 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.OperationDeniedException;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
@@ -251,6 +253,10 @@ public class ApprovalStepService extends BaseService {
     public void txCancel(ID recordId, ID approvalId, String currentNode, boolean isRevoke) {
         final ID opUser = UserContextHolder.getUser();
         final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
+
+        if (isRevoke && !UserHelper.isAdmin(opUser)) {
+            throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
+        }
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
         step.setID("recordId", recordId);

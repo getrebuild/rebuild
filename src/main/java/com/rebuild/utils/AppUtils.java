@@ -43,6 +43,10 @@ public class AppUtils {
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
     public static final String CK_LOCALE = "rb.locale";
 
+    // RbMob
+    public static final String HF_CLIENT = "X-Client";
+    public static final String HF_LOCALE = "X-ClientLocale";
+
     /**
      * @return
      * @see BootApplication#getContextPath()
@@ -106,6 +110,9 @@ public class AppUtils {
      */
     public static String getReuqestLocale(HttpServletRequest request) {
         String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
+        if (locale == null) {
+            locale = StringUtils.defaultIfBlank(request.getHeader(HF_LOCALE), null);
+        }
         if (locale == null) {
             locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
@@ -171,7 +178,7 @@ public class AppUtils {
      * @return
      */
     public static boolean isRbMobile(HttpServletRequest request) {
-        String UA = request.getHeader("X-Client");
+        String UA = request.getHeader(HF_CLIENT);
         return UA != null && UA.startsWith("RB/Mobile-");
     }
 

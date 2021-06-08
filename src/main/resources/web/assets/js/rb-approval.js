@@ -234,9 +234,11 @@ class ApprovalUsersForm extends RbFormHandler {
             )}
           </div>
         ) : (
-          <div className="form-group">
-            <RbAlertBox message={$L('当前审批流程无可用审批人')} />
-          </div>
+          !this.state.isLastStep && (
+            <div className="form-group">
+              <RbAlertBox message={$L('当前审批流程无可用审批人')} />
+            </div>
+          )
         )}
         {ccHas && (
           <div className="form-group">
@@ -505,7 +507,7 @@ class ApprovalStepViewer extends React.Component {
               {!this.state.steps && <RbSpinner fully={true} />}
               <ul className="timeline approved-steps">
                 {(this.state.steps || []).map((item, idx) => {
-                  return idx === 0 ? this.renderSubmitter(item, idx) : this.renderApprovers(item, idx, stateLast)
+                  return idx === 0 ? this.renderSubmitter(item) : this.renderApprover(item, stateLast)
                 })}
                 {stateLast >= 10 && (
                   <li className="timeline-item last">
@@ -520,10 +522,10 @@ class ApprovalStepViewer extends React.Component {
     )
   }
 
-  renderSubmitter(s, idx) {
+  renderSubmitter(s) {
     return (
-      <li className="timeline-item state0" key={`step-${idx}`}>
-        {this.__formatTime(s.createdOn)}
+      <li className="timeline-item state0" key={`step-${$random()}`}>
+        {this._formatTime(s.createdOn)}
         <div className="timeline-content">
           <div className="timeline-avatar">
             <img src={`${rb.baseUrl}/account/user-avatar/${s.submitter}`} alt="Avatar" />
@@ -545,8 +547,7 @@ class ApprovalStepViewer extends React.Component {
     )
   }
 
-  renderApprovers(s, idx, lastState) {
-    const kp = 'step-' + idx + '-'
+  renderApprover(s, stateLast) {
     const sss = []
     let nodeState = 0
     if (s[0].signMode === 'OR') {
@@ -559,11 +560,11 @@ class ApprovalStepViewer extends React.Component {
       const approverName = item.approver === rb.currentUser ? $L('你') : item.approverName
       let aMsg = $L('等待 %s 审批', approverName)
       if (item.state >= 10) aMsg = $L('由 %s %s', approverName, STATE_NAMES[item.state])
-      if ((nodeState >= 10 || lastState >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
+      if ((nodeState >= 10 || stateLast >= 10) && item.state < 10) aMsg = `${approverName} ${$L('未进行审批')}`
 
       sss.push(
-        <li className={'timeline-item state' + item.state} key={kp + sss.length}>
-          {this.__formatTime(item.approvedTime || item.createdOn)}
+        <li className={'timeline-item state' + item.state} key={`step-${$random()}`}>
+          {this._formatTime(item.approvedTime || item.createdOn)}
           <div className="timeline-content">
             <div className="timeline-avatar">
               <img src={`${rb.baseUrl}/account/user-avatar/${item.approver}`} alt="Avatar" />
@@ -585,13 +586,13 @@ class ApprovalStepViewer extends React.Component {
     const sm = s[0].signMode
     const clazz = sm === 'OR' || sm === 'AND' ? 'joint' : 'no-joint'
     return (
-      <div key={kp} className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null}>
+      <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null}>
         {sss}
       </div>
     )
   }
 
-  __formatTime(time) {
+  _formatTime(time) {
     time = time.split(' ')
     return (
       <div className="timeline-date">
@@ -608,7 +609,9 @@ class ApprovalStepViewer extends React.Component {
         RbHighbar.create($L('未查询到流程详情'))
         this.hide()
         this.__noStepFound = true
-      } else this.setState({ steps: res.data })
+      } else {
+        this.setState({ steps: res.data })
+      }
     })
   }
 
@@ -617,7 +620,9 @@ class ApprovalStepViewer extends React.Component {
     if (this.__noStepFound === true) {
       RbHighbar.create($L('未查询到流程详情'))
       this.hide()
-    } else $(this._dlg).modal({ show: true, keyboard: true })
+    } else {
+      $(this._dlg).modal({ show: true, keyboard: true })
+    }
   }
 }
 

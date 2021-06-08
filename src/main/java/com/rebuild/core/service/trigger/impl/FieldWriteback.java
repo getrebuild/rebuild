@@ -117,7 +117,7 @@ public class FieldWriteback extends FieldAggregation {
         } else {
             String sql = String.format("select %s from %s where %s = ?",
                     targetEntity.getPrimaryField().getName(), targetFieldEntity[1], targetFieldEntity[0]);
-            Object[][] array = Application.getQueryFactory().createQueryNoFilter(sql)
+            Object[][] array = Application.createQueryNoFilter(sql)
                     .setParameter(1, operatingContext.getAnyRecord().getPrimary())
                     .array();
 

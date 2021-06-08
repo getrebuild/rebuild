@@ -11,18 +11,21 @@ import cn.devezhao.commons.CodecUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.service.project.ProjectManager;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +40,7 @@ import java.util.regex.Pattern;
  * @author devezhao
  * @since 2020/6/29
  */
-@Controller
+@RestController
 @RequestMapping("/project/")
 public class ProjectController extends BaseController {
 
@@ -78,6 +81,31 @@ public class ProjectController extends BaseController {
         mv.getModel().put("projectPlans", plansList.toJSONString());
 
         return mv;
+    }
+
+    @GetMapping("{projectId}/details")
+    public RespBody getPlans(@PathVariable String projectId, HttpServletRequest request) throws IOException {
+        final ID user = getRequestUser(request);
+        
+        JSONObject details;
+        try {
+            ConfigBean p = ProjectManager.instance.getProject(ID.valueOf(projectId), user);
+            details = JSONUtils.toJSONObject(
+                    new String[] { "projectName", "isMember" },
+                    new Object[] { p.getString("projectName"), p.get("members", Set.class).contains(user) });
+
+        } catch (ConfigurationException ex) {
+            return RespBody.error(ex.getLocalizedMessage(), 403);
+        }
+
+        ConfigBean[] plans = ProjectManager.instance.getPlansOfProject(ID.valueOf(projectId));
+        JSONArray array = new JSONArray();
+        for (ConfigBean cb : plans) {
+            array.add(cb.toJSON());
+        }
+        details.put("projectPlans", array);
+
+        return RespBody.ok(details);
     }
 
     /**

@@ -73,7 +73,7 @@ public abstract class BulkOperator extends HeavyTask<Integer> {
                 entity.getPrimaryField().getName(), entity.getName(), sqlWhere);
 
         // NOTE 注意没有分页
-        Query query = Application.getQueryFactory().createQuery(sql, context.getOpUser());
+        Query query = Application.createQuery(sql, context.getOpUser());
         Object[][] array = QueryHelper.readArray(query);
         Set<ID> ids = new HashSet<>();
         for (Object[] o : array) {

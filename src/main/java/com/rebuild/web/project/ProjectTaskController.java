@@ -70,18 +70,18 @@ public class ProjectTaskController extends BaseController {
             return null;
         }
 
-        ConfigBean cfg = ProjectManager.instance.getProjectByTask(taskId2, user);
+        ConfigBean project = ProjectManager.instance.getProjectByTask(taskId2, user);
 
         ModelAndView mv = createModelAndView("/project/task-view");
         mv.getModel().put("id", taskId2.toLiteral());
-        mv.getModel().put("projectIcon", cfg.getString("iconName"));
-        mv.getModel().put("isMember", cfg.get("members", Set.class).contains(user));
-        mv.getModel().put("isManageable", ProjectHelper.isManageable(taskId2, user));
+        mv.getModel().put("projectIcon", project.getString("iconName"));
+        mv.getModel().put("isMember", project.get("members", Set.class).contains(user));
         return mv;
     }
 
     @RequestMapping("tasks/list")
     public JSON taskList(@IdParam(name = "plan") ID planId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
         String queryWhere = "projectPlanId = ?";
 
         // 关键词搜索
@@ -125,7 +125,7 @@ public class ProjectTaskController extends BaseController {
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
-            alist.add(formatTask(o, true));
+            alist.add(formatTask(o, user));
         }
 
         return JSONUtils.toJSONObject(
@@ -139,19 +139,19 @@ public class ProjectTaskController extends BaseController {
                 "select " + BASE_FIELDS + " from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
-        return formatTask(task, true);
+        return formatTask(task, null);
     }
 
     @GetMapping("tasks/details")
-    public JSON taskDetails(@IdParam(name = "task") ID taskId) {
+    public JSON taskDetails(@IdParam(name = "task") ID taskId, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
         Object[] task = Application.createQueryNoFilter(
-                "select " + BASE_FIELDS + ",projectId,description,attachments,relatedRecord from ProjectTask where taskId = ?")
+                "select " + BASE_FIELDS + ",description,attachments,relatedRecord from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
-        JSONObject details = formatTask(task, true);
+        JSONObject details = formatTask(task, user);
 
-        // 状态面板
-        details.put("projectId", task[11]);
         details.put("description", task[12]);
         String attachments = (String) task[13];
         details.put("attachments", JSON.parseArray(attachments));
@@ -168,24 +168,33 @@ public class ProjectTaskController extends BaseController {
     }
 
     private static final String BASE_FIELDS =
-            "projectId.projectCode,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority,endTime";
+            "projectId,projectPlanId,taskNumber,taskId,taskName,createdOn,deadline,executor,status,seq,priority,endTime";
 
-    private JSONObject formatTask(Object[] o, boolean appendTags) {
-        String taskNumber = o[1].toString();
-        if (StringUtils.isNotBlank((String) o[0])) taskNumber = o[0] + "-" + taskNumber;
+    private JSONObject formatTask(Object[] o, ID user) {
+        final ConfigBean project =  ProjectManager.instance.getProject((ID) o[0], user);
 
-        String createdOn = I18nUtils.formatDate((Date) o[4]);
-        String deadline = I18nUtils.formatDate((Date) o[5]);
-        String endTime = I18nUtils.formatDate((Date) o[10]);
+        String taskNumber = String.format("%s-%s", project.getString("projectCode"), o[2]);
+        String createdOn = I18nUtils.formatDate((Date) o[5]);
+        String deadline = I18nUtils.formatDate((Date) o[6]);
+        String endTime = I18nUtils.formatDate((Date) o[11]);
 
-        Object[] executor = o[6] == null ? null : new Object[]{o[6], UserHelper.getName((ID) o[6])};
+        Object[] executor = o[7] == null ? null : new Object[]{o[7], UserHelper.getName((ID) o[7])};
 
         JSONObject data = JSONUtils.toJSONObject(
-                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime" },
-                new Object[] { o[2], taskNumber, o[3], createdOn, deadline, executor, o[7], o[8], o[9], endTime });
+                new String[] { "id", "taskNumber", "taskName", "createdOn", "deadline", "executor", "status", "seq", "priority", "endTime", "projectId" },
+                new Object[] { o[3], taskNumber, o[4], createdOn, deadline, executor, o[8], o[9], o[10], endTime, o[0] });
+        // 标签
+        data.put("tags", TaskTagController.getTaskTags((ID) o[3]));
 
-        if (appendTags) {
-            data.put("tags", TaskTagController.getTaskTags((ID) o[2]));
+        if (user != null) {
+            // 项目信息
+            ConfigBean plan =  ProjectManager.instance.getPlanOfProject((ID) o[1], (ID) o[0]);
+            data.put("planName", String.format("%s (%s)",
+                    project.getString("projectName"), plan.getString("planName")));
+            data.put("planFlow", plan.getInteger("flowStatus"));
+            // 权限
+            data.put("projectMember", project.get("members", Set.class).contains(user));
+            data.put("isManageable", ProjectHelper.isManageable((ID) o[3], user));
         }
 
         return data;
@@ -199,8 +208,7 @@ public class ProjectTaskController extends BaseController {
         return sort;
     }
 
-    // -- for EntityView
-
+    // for View of Entity
     @GetMapping("alist")
     public RespBody getProjectAndPlans(HttpServletRequest request) {
         final ID user = getRequestUser(request);
@@ -230,6 +238,8 @@ public class ProjectTaskController extends BaseController {
                                 @IdParam(name = "task", required = false) ID taskId,
                                 HttpServletRequest request) {
         Assert.isTrue(relatedId != null || taskId != null, Language.L("无效请求参数"));
+
+        final ID user = getRequestUser(request);
         String queryWhere = String.format("relatedRecord = '%s'", relatedId);
 
         // 关键词搜索
@@ -248,30 +258,16 @@ public class ProjectTaskController extends BaseController {
             queryWhere = String.format("taskId = '%s'", taskId);
         }
 
-        String querySql = "select " + BASE_FIELDS + ",projectPlanId,projectId from ProjectTask where " + queryWhere;
+        String querySql = "select " + BASE_FIELDS + " from ProjectTask where " + queryWhere;
 
         Object[][] tasks = Application.createQueryNoFilter(querySql)
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .array();
 
-        JSONArray alist = new JSONArray();
+        JSONArray array = new JSONArray();
         for (Object[] o : tasks) {
-            JSONObject formatted = formatTask(o, false);
-            formatted.put("taskNumber", String.format("%s-%d", o[0], o[1] ));
-
-            Object executor = o[6] == null ? null : new Object[] { o[6], UserHelper.getName((ID) o[6]) };
-            formatted.put("executor", executor);
-
-            ID projectPlanId = (ID) o[11];
-            ID projectId = (ID) o[12];
-            ConfigBean project =  ProjectManager.instance.getProject(projectId, null);
-            ConfigBean plan =  ProjectManager.instance.getPlanOfProject(projectPlanId, projectId);
-            formatted.put("planName", String.format("%s (%s)",
-                    project.getString("projectName"), plan.getString("planName")));
-            formatted.put("planFlow", plan.getInteger("flowStatus"));
-
-            alist.add(formatted);
+            array.add(formatTask(o, user));
         }
-        return alist;
+        return array;
     }
 }
