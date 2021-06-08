@@ -5,11 +5,12 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
-package com.rebuild.web.extform;
+package com.rebuild.web.admin.extform;
 
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,7 +19,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author devezhao
  * @since 2020/12/8
  */
-@RestController
+@Controller
 public class ExtformAdminController extends BaseController {
 
     @GetMapping("/admin/extforms")

@@ -68,7 +68,9 @@ public class RolePrivilegesController extends EntityController {
 
     @GetMapping("role-list")
     public JSON roleList() {
-        Object[][] array = Application.createQuery("select roleId,name,isDisabled from Role").array();
+        Object[][] array = Application.createQuery(
+                "select roleId,name,isDisabled from Role")
+                .array();
         // 排序 a-z
         Arrays.sort(array, (o1, o2) -> {
             if (RoleService.ADMIN_ROLE.equals(o1[0])) return -1;

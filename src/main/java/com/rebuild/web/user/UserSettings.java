@@ -90,7 +90,7 @@ public class UserSettings extends EntityController {
 
     @RequestMapping("/user/save-passwd")
     public RespBody savePasswd(HttpServletRequest request) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
         String oldp = getParameterNotNull(request, "oldp");
         String newp = getParameterNotNull(request, "newp");
 
