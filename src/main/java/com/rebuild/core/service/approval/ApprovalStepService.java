@@ -252,10 +252,11 @@ public class ApprovalStepService extends BaseService {
      */
     public void txCancel(ID recordId, ID approvalId, String currentNode, boolean isRevoke) {
         final ID opUser = UserContextHolder.getUser();
-        if (!UserHelper.isAdmin(opUser)) {
+        final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
+
+        if (isRevoke && !UserHelper.isAdmin(opUser)) {
             throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
         }
-        final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
         step.setID("recordId", recordId);
