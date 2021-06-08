@@ -727,7 +727,7 @@ create table if not exists `extform_config` (
 -- ************ Entity [FrontjsCode] DDL ************
 create table if not exists `frontjs_code` (
   `CODE_ID`            char(20) not null,
-  `BELONG_ENTITY`      varchar(100) not null comment '所属实体',
+  `NAME`               varchar(100) not null comment '名称',
   `APPLY_PATH`         varchar(200) comment '应用路径',
   `CODE`               text(21845) comment '代码',
   `ES5_CODE`           text(21845) comment 'ES5 代码',
