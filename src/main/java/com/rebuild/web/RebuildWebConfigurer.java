@@ -167,6 +167,8 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     /**
+     * 获取请求+引用地址
+     *
      * @param request
      * @return
      */
