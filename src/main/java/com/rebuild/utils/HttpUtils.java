@@ -9,6 +9,7 @@ package com.rebuild.utils;
 
 import com.rebuild.core.Application;
 import com.rebuild.core.support.RebuildConfiguration;
+import lombok.extern.slf4j.Slf4j;
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -25,13 +26,14 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
- * HTTP 调用工具
+ * okhttp3 调用封装
  *
  * @author devezhao
  * @see org.springframework.http.HttpStatus
  * @see org.springframework.http.HttpHeaders
  * @since 2020/7/15
  */
+@Slf4j
 public class HttpUtils {
 
     private static OkHttpClient okHttpClient = null;
@@ -80,8 +82,12 @@ public class HttpUtils {
         Request.Builder builder = new Request.Builder().url(url);
         Request request = useHeaders(builder, headers).build();
 
+        long ms = System.currentTimeMillis();
         try (Response response = getHttpClient().newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
+        } finally {
+            ms = System.currentTimeMillis() - ms;
+            if (ms > 3000) log.warn("Http GET `{}` time {}ms", url, ms);
         }
     }
 
@@ -120,8 +126,12 @@ public class HttpUtils {
                 .post(formBuilder.build())
                 .build();
 
+        long ms = System.currentTimeMillis();
         try (Response response = getHttpClient().newCall(request).execute()) {
             return Objects.requireNonNull(response.body()).string();
+        } finally {
+            ms = System.currentTimeMillis() - ms;
+            if (ms > 3000) log.warn("Http POST `{}` time {}ms", url, ms);
         }
     }
 
