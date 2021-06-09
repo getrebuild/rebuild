@@ -146,6 +146,8 @@ public class AppUtils {
                 return Language.L("访问的页面/资源不存在");
             } else if (code != null && code == 403) {
                 return Language.L("权限不足，访问被阻止");
+            } else if (code != null && code == 401) {
+                return Language.L("未授权访问");
             }
 
             exception = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
