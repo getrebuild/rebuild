@@ -18,17 +18,16 @@ import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.state.StateSpec;
-import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -47,23 +46,21 @@ public class Language implements Initialization {
     public void init() throws IOException {
         bundleMap.put(LanguageBundle.SYS_LC, LanguageBundle.SYS_BUNDLE);
 
-        File[] langs = new ClassPathResource("i18n/").getFile().listFiles(pathname -> {
-            String name = pathname.getName();
-            return name.startsWith("lang.") && name.endsWith(".json");
-        });
-        if (langs == null) return;
+        Resource[] resources = new PathMatchingResourcePatternResolver().getResources(
+                "classpath:i18n/lang.*.json");
+        if (resources.length == 0) return;
 
-        for (File file : langs) {
-            log.info("Loading language bundle : {}", file);
-            String locale = file.getName().split("\\.")[1];
+        for (Resource res : resources) {
+            log.info("Loading language bundle : {}", res);
+            String locale = Objects.requireNonNull(res.getFilename()).split("\\.")[1];
 
-            try (InputStream is = CommonsUtils.getStreamOfRes("i18n/" + file.getName())) {
-                JSONObject o = JSON.parseObject(is, null);
+            try {
+                JSONObject o = JSON.parseObject(res.getInputStream(), null);
                 LanguageBundle bundle = new LanguageBundle(locale, o);
                 bundleMap.put(locale, bundle);
 
             } catch (IOException ex) {
-                log.error("Cannot load language bundle : {}", file, ex);
+                log.error("Cannot load language bundle : {}", res, ex);
             }
         }
     }
