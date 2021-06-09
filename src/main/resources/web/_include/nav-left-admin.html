@@ -45,6 +45,9 @@
               <li th:class="${active == 'robot-trigger'} ? 'active'">
                 <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
+              <li th:class="${active == 'extforms'} ? 'active'">
+                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup></a>
+              </li>
               <li th:class="${active == 'data-imports'} ? 'active'">
                 <a th:href="@{/admin/data/data-imports}"><i class="icon zmdi zmdi-cloud-upload"></i><span>[[${bundle.L('数据导入')}]]</span></a>
               </li>
@@ -55,8 +58,8 @@
               <li th:class="${active == 'projects'} ? 'active'">
                 <a th:href="@{/admin/projects}"><i class="icon zmdi zmdi-shape"></i><span>[[${bundle.L('项目')}]]</span></a>
               </li>
-              <li th:class="${active == 'extforms'} ? 'active'">
-                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup></a>
+              <li th:class="${active == 'frontjs-code'} ? 'active'">
+                <a th:href="@{/admin/frontjs-code}"><i class="icon zmdi zmdi-code-setting"></i><span>FrontJS</span> <sup class="rbv"></sup></a>
               </li>
               <li class="divider">[[${bundle.L('用户')}]]</li>
               <li th:class="${active == 'users'} ? 'active'">

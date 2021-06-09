@@ -121,6 +121,9 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         return createError(request, (Exception) request.getAttribute(ServletUtils.ERROR_EXCEPTION), status, model);
     }
 
+    /**
+     * @see ControllerResponseBodyAdvice
+     */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
         if (request.getRequestURI().contains("/assets/")) return null;

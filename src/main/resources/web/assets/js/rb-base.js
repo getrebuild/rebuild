@@ -83,7 +83,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
           }
         }
 
-        if (err && err.status) err = $L('Error' + err.status)
+        if (err && err.status) {
+          if (err.status === 404) err = $L('访问的页面/资源不存在')
+          if (err.status === 403) err = $L('权限不足，访问被阻止')
+          if (err.status === 401) err = $L('未授权访问')
+          else err = $L('系统繁忙，请稍后重试')
+        }
         RbHighbar.error(err)
       } else {
         var res = xhr.responseJSON
