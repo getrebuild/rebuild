@@ -70,6 +70,10 @@ public class ConfigBean implements Serializable, Cloneable, JSONable {
         return (JSON) data.get(name);
     }
 
+    public Object getObject(String name) {
+        return data.get(name);
+    }
+
     @SuppressWarnings({"unchecked", "unused"})
     public <T> T get(String name, Class<T> returnType) {
         return (T) data.get(name);

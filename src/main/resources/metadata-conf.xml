@@ -372,7 +372,7 @@
     <entity name="FrontjsCode" type-code="038" description="FrontJS 代码" queryable="false">
         <field name="codeId" type="primary"/>
         <field name="name" type="string" max-length="100" description="名称"/>
-        <field name="applyPath" type="string" max-length="200" description="应用路径"/>
+        <field name="applyPath" type="string" max-length="200" description="匹配路径"/>
         <field name="code" type="text" description="代码"/>
         <field name="es5Code" type="text" description="ES5 代码"/>
     </entity>
