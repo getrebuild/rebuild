@@ -232,17 +232,13 @@ public class LoginController extends BaseController {
     protected void createLoginLog(HttpServletRequest request, ID user) {
         String ipAddr = ServletUtils.getRemoteAddr(request);
         String UA = request.getHeader("user-agent");
-        if (AppUtils.isRbMobile(request)) {
-            UA = UA.toUpperCase();
-        } else {
-            UserAgent uas = UserAgent.parseUserAgentString(UA);
-            try {
-                UA = String.format("%s-%s (%s)",
-                        uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
-            } catch (Exception ex) {
-                log.warn("Unknown user-agent : " + UA);
-                UA = "UNKNOW";
-            }
+        UserAgent uas = UserAgent.parseUserAgentString(UA);
+        try {
+            UA = String.format("%s-%s (%s)",
+                    uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
+        } catch (Exception ex) {
+            log.warn("Unknown user-agent : " + UA);
+            UA = "UNKNOW";
         }
 
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
