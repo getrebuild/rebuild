@@ -29,9 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 @RequestMapping("/language/")
 public class LanguageController extends BaseController {
 
-    // Support Etag
-    @GetMapping("bundle")
-    public void getLanguageBundle(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("use-bundle")
+    public void useBundle(HttpServletRequest request, HttpServletResponse response) {
         response.setContentType(ServletUtils.CT_JS);
 
         LanguageBundle bundle = AppUtils.getReuqestBundle(request);
@@ -41,25 +40,5 @@ public class LanguageController extends BaseController {
             ServletUtils.write(response,
                     "window._LANGBUNDLE = " + bundle.toJSON().toJSONString());
         }
-
-//        // whether the generated ETag should be weak
-//        // SPEC: length of W/ + " + 0 + 32bits md5 hash + "
-//        String responseETag = String.format("W/\"0%s\"", bundle.getBundleHash());
-//        response.setHeader(HEADER_ETAG, responseETag);
-//
-//        // 无缓存
-//        String cacheControl = response.getHeader(HEADER_CACHE_CONTROL);
-//        if (cacheControl != null && cacheControl.contains(DIRECTIVE_NO_STORE)) {
-//            ServletUtils.write(response, "window._LANGBUNDLE = " + bundle.toJSON().toJSONString());
-//            return;
-//        }
-//
-//        String requestETag = request.getHeader(HEADER_IF_NONE_MATCH);
-//        if (requestETag != null && ("*".equals(requestETag) || responseETag.equals(requestETag) ||
-//                responseETag.replaceFirst("^W/", "").equals(requestETag.replaceFirst("^W/", "")))) {
-//            response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-//        } else {
-//            ServletUtils.write(response, "window._LANGBUNDLE = " + bundle.toJSON().toJSONString());
-//        }
     }
 }

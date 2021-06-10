@@ -17,7 +17,6 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataMasking;
 import com.rebuild.core.support.License;
@@ -25,7 +24,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -65,7 +63,7 @@ public class ConfigurationController extends BaseController {
         // Available langs
         mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
 
-        JSONObject auth = License.queryAuthority(false);
+        JSONObject auth = License.queryAuthority(true);
         mv.getModel().put("LicenseType",
                 auth.getString("authType") + " (" + auth.getString("authObject") + ")");
         mv.getModel().put("Version", Application.VER);
@@ -96,7 +94,8 @@ public class ConfigurationController extends BaseController {
         String dLOGO = data.getString("LOGO");
         String dLOGOWhite = data.getString("LOGOWhite");
         if (dLOGO != null || dLOGOWhite != null) {
-            Application.getCommonsCache().put("dimgLogoTime", CommonsUtils.randomHex(), CommonsCache.TS_DAY);
+            // @see UseThemeController#useLogo
+            Application.getCommonsCache().evict("dimgLogoTime");
         }
 
         setValues(data);

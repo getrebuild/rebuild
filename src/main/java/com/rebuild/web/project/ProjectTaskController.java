@@ -125,7 +125,9 @@ public class ProjectTaskController extends BaseController {
 
         JSONArray alist = new JSONArray();
         for (Object[] o : tasks) {
-            alist.add(formatTask(o, user));
+            JSONObject item = formatTask(o, user);
+            item.remove("planName");
+            alist.add(item);
         }
 
         return JSONUtils.toJSONObject(
