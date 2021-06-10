@@ -439,7 +439,14 @@ class FormulaCalcWithCode extends FormulaCalc {
   }
 
   componentDidMount() {
-    $(this._$fields).css('max-height', 221)
+    if (this._$fields) {
+      $(this._$fields).css('max-height', 221)
+
+      const $btn = $(`<a class="switch-code-btn" title="${$L('使用高级计算公式')}"><i class="icon zmdi zmdi-edit"></i></a>`)
+      $(this._$formula).addClass('switch-code').after($btn)
+      $btn.click(() => this.setState({ useCode: true }))
+    }
+
     super.componentDidMount()
   }
 
@@ -461,12 +468,12 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} />
+        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} maxLength="2000" placeholder="// Support AviatorScript" autoFocus />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">
               <a href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)" target="_blank" className="link">
-                {$L('高级计算公式编写指南')}
+                {$L('如何使用高级计算公式')}
               </a>
               <i className="zmdi zmdi-help zicon"></i>
             </span>
