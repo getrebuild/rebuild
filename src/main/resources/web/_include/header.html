@@ -15,7 +15,7 @@
   <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/simplemde.min.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-base.css}" />
   <link rel="stylesheet" type="text/css" th:href="@{/assets/css/rb-page.css}" />
-  <link th:if="${user != null && useTheme}" rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" />
+  <link rel="stylesheet" type="text/css" th:href="@{/commons/theme/use-theme}" th:if="${user != null && commercial > 0}" />
   <meta name="rb.env" th:content="${env}" />
   <meta name="rb.commercial" th:content="${commercial}" />
   <meta name="rb.locale" th:content="${locale}" />

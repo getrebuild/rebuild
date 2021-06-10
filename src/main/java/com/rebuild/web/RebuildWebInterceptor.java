@@ -19,7 +19,6 @@ import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.CsrfToken;
-import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.utils.AppUtils;
@@ -74,10 +73,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
             // Lang
             request.setAttribute(WebConstants.LOCALE, requestEntry.getLocale());
             request.setAttribute(WebConstants.$BUNDLE, Application.getLanguage().getBundle(requestEntry.getLocale()));
-
-            boolean adminPage = requestEntry.getRequestUri().contains("/admin/")
-                    || requestEntry.getRequestUri().contains("/admin-");
-            request.setAttribute(WebConstants.USE_THEME, !adminPage && License.isCommercial());
         }
 
         final String requestUri = requestEntry.getRequestUri();

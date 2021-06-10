@@ -63,7 +63,7 @@ function _useAssetsHex(file) {
       try {
         hex = revHash(fs.readFileSync(`${RBV_ROOT}${file}`))
       } catch (err) {
-        console.log('Cannot #revHash : ' + file, err)
+        console.log('Cannot #revHash :', file, err)
 
         // Use date
         const d = new Date()
@@ -90,7 +90,8 @@ function compileHtml(m) {
     .pipe(
       replace(/<script th:src="@\{(.*)\}"><\/script>/gi, (m, p) => {
         let file = p
-        if (file.includes('/lib/') || file.includes('/language/')) {
+        if (file.includes('/lib/') || file.includes('/use-')) {
+          console.log('Use lib :', file)
           if (file.includes('/babel')) return '<!-- No Babel -->'
           if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
           return '<script th:src="@{' + file + '}"></script>'
@@ -110,7 +111,8 @@ function compileHtml(m) {
     .pipe(
       replace(/<link rel="stylesheet" type="text\/css" th:href="@\{(.*)\}" \/>/gi, (m, p) => {
         let file = p
-        if (file.includes('/lib/')) {
+        if (file.includes('/lib/') || file.includes('use-')) {
+          console.log('Use lib :', file)
           return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         } else {
           file += '?v=' + _useAssetsHex(file.split('?')[0], m)
@@ -128,7 +130,7 @@ function compileHtml(m) {
 
 function maven(cb) {
   const pomfile = `${__dirname}/../pom.xml`
-  console.log('Using pom.xml : ' + pomfile)
+  console.log('Using pom.xml :', pomfile)
 
   const mvn = require('child_process').spawnSync(process.platform === 'win32' ? 'mvn.cmd' : 'mvn', ['clean', 'package', '-f', pomfile], {
     stdio: 'inherit',
