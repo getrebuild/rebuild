@@ -91,7 +91,7 @@ function compileHtml(m) {
       replace(/<script th:src="@\{(.*)\}"><\/script>/gi, (m, p) => {
         let file = p
         if (file.includes('/lib/') || file.includes('/language/')) {
-          if (file.includes('babel')) return '<!-- No Babel -->'
+          if (file.includes('/babel')) return '<!-- No Babel -->'
           if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
           return '<script th:src="@{' + file + '}"></script>'
         } else {
