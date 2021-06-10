@@ -30,7 +30,7 @@ class ContentFieldWriteback extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <div className="row">
                 <div className="col-5">
-                  <select className="form-control form-control-sm" ref={(c) => (this._targetEntity = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetEntity = c)}>
                     {(this.state.targetEntities || []).map((item) => {
                       const val = `${item[2]}.${item[0]}`
                       return (
@@ -85,7 +85,7 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
               <div className="row">
                 <div className="col-5">
-                  <select className="form-control form-control-sm" ref={(c) => (this._targetField = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
                       return (
                         <option key={item.name} value={item.name}>
@@ -98,7 +98,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                 </div>
                 <div className="col-2 pr-0">
                   <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                  <select className="form-control form-control-sm" ref={(c) => (this._updateMode = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$updateMode = c)}>
                     {Object.keys(UPDATE_MODES).map((item) => {
                       return (
                         <option key={item} value={item}>
@@ -111,7 +111,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                 </div>
                 <div className={`col-5 ${this.state.targetField ? '' : 'hide'}`}>
                   <div className={this.state.updateMode === 'FIELD' ? '' : 'hide'}>
-                    <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
+                    <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
                         return (
                           <option key={item.name} value={item.name}>
@@ -124,13 +124,13 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </div>
                   <div className={this.state.updateMode === 'VFIXED' ? '' : 'hide'}>
                     {this.state.updateMode === 'VFIXED' && this.state.targetField && (
-                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('固定值')} ref={(c) => (this._sourceValue = c)} />
+                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('固定值')} ref={(c) => (this._$sourceValue = c)} />
                     )}
                     <p>{$L('固定值')}</p>
                   </div>
                   <div className={this.state.updateMode === 'FORMULA' ? '' : 'hide'}>
                     {this.state.updateMode === 'FORMULA' && this.state.targetField && (
-                      <FieldFormula fields={this.__sourceFieldsCache} field={this.state.targetField} ref={(c) => (this._sourceFormula = c)} />
+                      <FieldFormula fields={this.__sourceFieldsCache} field={this.state.targetField} ref={(c) => (this._$sourceFormula = c)} />
                     )}
                     <p>{$L('计算公式')}</p>
                   </div>
@@ -147,7 +147,7 @@ class ContentFieldWriteback extends ActionContentSpec {
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
+                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
                 <span className="custom-control-label">
                   {$L('自动设置目标字段为只读')}
                   <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
@@ -165,7 +165,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     this.__select2 = []
     $.get(`/admin/robot/trigger/field-writeback-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
-        const $s2te = $(this._targetEntity)
+        const $s2te = $(this._$targetEntity)
           .select2({ placeholder: $L('选择目标实体') })
           .on('change', () => this._changeTargetEntity())
 
@@ -180,12 +180,12 @@ class ContentFieldWriteback extends ActionContentSpec {
     })
 
     if (content) {
-      $(this._readonlyFields).attr('checked', content.readonlyFields === true)
+      $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
     }
   }
 
   _changeTargetEntity() {
-    const te = ($(this._targetEntity).val() || '').split('.')[1]
+    const te = ($(this._$targetEntity).val() || '').split('.')[1]
     if (!te) return
     // 清空现有规则
     this.setState({ targetEntity: te, items: [] })
@@ -196,19 +196,19 @@ class ContentFieldWriteback extends ActionContentSpec {
 
       if (this.state.targetFields) {
         this.setState({ targetFields: res.data.target }, () => {
-          $(this._targetField).trigger('change')
+          $(this._$targetField).trigger('change')
         })
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
-          const $s2tf = $(this._targetField)
+          const $s2tf = $(this._$targetField)
             .select2({ placeholder: $L('选择目标字段') })
             .on('change', () => this._changeTargetField())
-          const $s2um = $(this._updateMode)
+          const $s2um = $(this._$updateMode)
             .select2({ placeholder: $L('选择更新方式') })
             .on('change', (e) => {
               this.setState({ updateMode: e.target.value })
             })
-          const $s2sf = $(this._sourceField).select2({ placeholder: $L('选择源字段') })
+          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
 
           $s2tf.trigger('change')
           this.__select2.push($s2tf)
@@ -224,7 +224,7 @@ class ContentFieldWriteback extends ActionContentSpec {
   }
 
   _changeTargetField() {
-    const tf = $(this._targetField).val()
+    const tf = $(this._$targetField).val()
     if (!tf) return
     const targetField = this.state.targetFields.find((x) => x.name === tf)
 
@@ -237,29 +237,29 @@ class ContentFieldWriteback extends ActionContentSpec {
     })
 
     this.setState({ targetField: null, sourceFields: sourceFields }, () => {
-      if (sourceFields.length > 0) $(this._sourceField).val(sourceFields[0].name)
+      if (sourceFields.length > 0) $(this._$sourceField).val(sourceFields[0].name)
       // 强制销毁后再渲染
       this.setState({ targetField: targetField })
     })
   }
 
   addItem() {
-    const tf = $(this._targetField).val()
-    const mode = $(this._updateMode).val()
+    const tf = $(this._$targetField).val()
+    const mode = $(this._$updateMode).val()
     if (!tf) return RbHighbar.create($L('请选择目标字段'))
 
     let sourceField = null
     if (mode === 'FIELD') {
-      sourceField = $(this._sourceField).val()
+      sourceField = $(this._$sourceField).val()
 
       // 目标字段=源字段
-      const tfFull = `${$(this._targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
+      const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
       if (tfFull === sourceField) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
     } else if (mode === 'FORMULA') {
-      sourceField = this._sourceFormula.val()
+      sourceField = this._$sourceFormula.val()
       if (!sourceField) return RbHighbar.create($L('请输入计算公式'))
     } else if (mode === 'VFIXED') {
-      sourceField = this._sourceValue.val()
+      sourceField = this._$sourceValue.val()
       if (!sourceField) return
     } else if (mode === 'VNULL') {
       const tf2 = this.state.targetFields.find((x) => x.name === tf)
@@ -283,9 +283,9 @@ class ContentFieldWriteback extends ActionContentSpec {
 
   buildContent() {
     const content = {
-      targetEntity: $(this._targetEntity).val(),
+      targetEntity: $(this._$targetEntity).val(),
       items: this.state.items,
-      readonlyFields: $(this._readonlyFields).prop('checked'),
+      readonlyFields: $(this._$readonlyFields).prop('checked'),
     }
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))
@@ -314,27 +314,34 @@ class FieldFormula extends React.Component {
 
   render() {
     const fieldType = this.state.field.type
-    if (fieldType === 'DATE' || fieldType === 'DATETIME' || fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
-      return <div className="form-control-plaintext formula" _title={$L('计算公式')} ref={(c) => (this._formula = c)} onClick={() => this.showFormula()}></div>
-    } else {
+    // @see DisplayType.java
+    if (fieldType === 'AVATAR' || fieldType === 'IMAGE' || fieldType === 'FILE') {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
+    } else {
+      return (
+        <div className="form-control-plaintext formula" _title={$L('计算公式')} onClick={() => this.show(this.state.field.type)}>
+          {this.state.valueText}
+        </div>
+      )
     }
   }
 
-  showFormula() {
-    const fieldVars = []
+  show(ft) {
+    const ndVars = []
     this.props.fields.forEach((item) => {
-      if (item.name !== this.state.field.name && ['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)) {
-        fieldVars.push([item.name, item.label, item.type])
+      if (['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(item.type)) {
+        ndVars.push([item.name, item.label, item.type])
       }
     })
 
-    renderRbcomp(<FormulaCalc2 fields={fieldVars} onConfirm={(expr) => this._confirm(expr)} />)
+    // 数字、日期支持计算器模式
+    const ndType = ['NUMBER', 'DECIMAL', 'DATE', 'DATETIME'].includes(ft)
+    renderRbcomp(<FormulaCalcWithCode fields={ndVars} forceCode={!ndType} onConfirm={(expr) => this.onConfirm(expr)} />)
   }
 
-  _confirm(expr) {
+  onConfirm(expr) {
     this._value = expr
-    $(this._formula).text(FieldFormula.formatText(expr, this.props.fields))
+    this.setState({ valueText: FieldFormula.formatText(expr, this.props.fields) })
   }
 
   val() {
@@ -345,6 +352,10 @@ class FieldFormula extends React.Component {
 FieldFormula.formatText = function (formula, fields) {
   if (!formula) return
 
+  // CODE
+  if (formula.startsWith('{{{{') && formula.endsWith('}}}}')) {
+    return FormulaCode.textCode(formula)
+  }
   // DATE
   if (formula.includes('#')) {
     const fs = formula.split('#')
@@ -355,15 +366,27 @@ FieldFormula.formatText = function (formula, fields) {
   else {
     const fs = []
     fields.forEach((item) => fs.push([item.name, item.label]))
-    return FormulaCalc2.textFormula(formula, fs)
+    return FormulaCalcWithCode.textFormula(formula, fs)
   }
 }
 
 // ~ 公式编辑器
 // eslint-disable-next-line no-undef
-class FormulaCalc2 extends FormulaCalc {
-  constructor(props) {
-    super(props)
+class FormulaCalcWithCode extends FormulaCalc {
+  renderContent() {
+    if (this.props.forceCode || this.state.useCode) {
+      return (
+        <FormulaCode
+          initCode={this.props.initCode}
+          onConfirm={(code) => {
+            this.props.onConfirm(`{{{{${code}}}}}`)
+            this.hide()
+          }}
+        />
+      )
+    } else {
+      return super.renderContent()
+    }
   }
 
   renderExtraKeys() {
@@ -382,7 +405,8 @@ class FormulaCalc2 extends FormulaCalc {
               DATESUB
             </a>
             <div className="dropdown-divider"></div>
-            <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)%20~~v2.3">
+            <a className="dropdown-item" target="_blank" href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)">
+              <i className="zmdi zmdi-help icon"></i>
               {$L('如何使用函数')}
             </a>
           </div>
@@ -433,13 +457,44 @@ class FormulaCalc2 extends FormulaCalc {
   }
 }
 
+class FormulaCode extends React.Component {
+  render() {
+    return (
+      <div>
+        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} />
+        <div className="row mt-1">
+          <div className="col pt-2">
+            <span className="d-inline-block">
+              <a href="https://getrebuild.com/docs/admin/triggers#%E8%87%AA%E5%8A%A8%E6%9B%B4%E6%96%B0%20(%E6%95%B0%E6%8D%AE%E8%BD%AC%E5%86%99)" target="_blank" className="link">
+                {$L('高级计算公式编写指南')}
+              </a>
+              <i className="zmdi zmdi-help zicon"></i>
+            </span>
+          </div>
+          <div className="col text-right">
+            <button type="button" className="btn btn-primary" onClick={() => this.confirm()}>
+              {$L('确定')}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  confirm() {
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm($val(this._$formulaInput))
+  }
+
+  // 格式化显示
+  static textCode(code) {
+    code = code.substr(4, code.length - 8) // Remove {{{{}}}}
+    code = code.replace(/\n/gi, '<br/>').replace(/( )/gi, '&nbsp;')
+    return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
+  }
+}
+
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
-  // // 禁用`删除`
-  // $('.J_when .custom-control-input').each(function () {
-  //   if (~~$(this).val() === 2) $(this).attr('disabled', true)
-  // })
-
   renderRbcomp(<ContentFieldWriteback {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this

@@ -264,6 +264,21 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin: 3px 0;
 }
 
+textarea.formula-code {
+  font-family: Consolas, Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
+  font-size: 13px;
+  background-color: #212121;
+  color: #f07178;
+  border: 0 none;
+  height: 267px;
+  width: 100%;
+  resize: none;
+  outline: none;
+  border-radius: 0;
+  line-height: 1.6;
+  padding: 4px 10px;
+}
+
 .auto-assign .select2-selection__rendered,
 .auto-share .select2-selection__rendered {
   display: block !important;
