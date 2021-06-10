@@ -3756,8 +3756,8 @@ a.select-lang:hover {
 }
 
 .use-theme ul li a {
-  width: 24px;
-  height: 24px;
+  width: 21px;
+  height: 21px;
   display: inline-block;
   background-color: #ddd;
   opacity: 0.9;
@@ -3786,6 +3786,10 @@ a.select-lang:hover {
 
 .use-theme ul li a.theme-blue {
   background-color: #4873c0 !important;
+}
+
+.use-theme ul li a.theme-blue2 {
+  background-color: #38adff !important;
 }
 
 .use-theme ul li a.theme-green {

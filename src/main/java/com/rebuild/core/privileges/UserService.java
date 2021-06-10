@@ -155,6 +155,10 @@ public class UserService extends BaseServiceImpl {
      * @throws DataSpecificationException
      */
     private void checkLoginName(String loginName) throws DataSpecificationException {
+        if (loginName.length() < 4) {
+            throw new DataSpecificationException(Language.L("用户名不能小于 4 位"));
+        }
+
         if (Application.getUserStore().existsUser(loginName)) {
             throw new DataSpecificationException(Language.L("用户名已存在"));
         }
