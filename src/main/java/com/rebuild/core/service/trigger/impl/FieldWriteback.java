@@ -135,7 +135,7 @@ public class FieldWriteback extends FieldAggregation {
         final Record record = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
         final JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 
-        Set<String> fieldVars = new HashSet<>();
+        final Set<String> fieldVars = new HashSet<>();
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String sourceField = item.getString("sourceField");
@@ -214,10 +214,10 @@ public class FieldWriteback extends FieldAggregation {
                 }
 
                 // 高级公式代码
-                final boolean isCode = sourceAny.startsWith(CODE_PREFIX);
+                final boolean useCode = sourceAny.startsWith(CODE_PREFIX);
 
                 // 日期兼容 fix: v2.2
-                if (sourceAny.contains(DATE_EXPR) && !isCode) {
+                if (sourceAny.contains(DATE_EXPR) && !useCode) {
                     String fieldName = sourceAny.split(DATE_EXPR)[0];
                     Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
                     if (sourceField2 == null) continue;
@@ -232,23 +232,25 @@ public class FieldWriteback extends FieldAggregation {
 
                 // 公式
                 else {
-                    String clearFormual = isCode
+                    String clearFormual = useCode
                             ? sourceAny.substring(4, sourceAny.length() - 4)
-                            : sourceAny.toUpperCase()
-                            .replace("×", "*")
-                            .replace("÷", "/")
-                            .replace("`", "'");
+                            : sourceAny
+                                .replace("×", "*")
+                                .replace("÷", "/")
+                                .replace("`", "'");  // fix: 2.4 改为 "
 
-                    for (String fieldName : useSourceData.getAvailableFields()) {
-                        String replace = "{" + (isCode ? sourceAny : sourceAny.toUpperCase()) + "}";
+                    for (String fieldName : fieldVars) {
+                        String replace = "{" + fieldName + "}";
                         if (clearFormual.contains(replace)) {
                             Object value = useSourceData.getObjectValue(fieldName);
                             if (value instanceof Date) {
                                 value = CalendarUtils.getUTCDateTimeFormat().format(value);
                             } else {
-                                value = value == null ? "0" : value.toString();
+                                value = value == null ? StringUtils.EMPTY : value.toString();
                             }
                             clearFormual = clearFormual.replace(replace, (String) value);
+                        } else {
+                            log.warn("No replace of field found : {}", replace);
                         }
                     }
 

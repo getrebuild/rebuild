@@ -217,7 +217,13 @@ class ContentFieldWriteback extends ActionContentSpec {
         })
 
         if (this.props.content) {
-          this.setState({ items: this.props.content.items || [] })
+          const items = this.props.content.items || []
+          items.forEach((item) => {
+            if (item.sourceField) {
+              item.sourceField = item.sourceField.replace(/&amp;/gi, '&').replace(/&#39;/gi, '\'').replace(/&#34;/gi, '"')
+            }
+          })
+          this.setState({ items: items })
         }
       }
     })
@@ -271,7 +277,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (exists) return RbHighbar.create($L('目标字段重复'))
 
     items.push({ targetField: tf, updateMode: mode, sourceField: sourceField })
-    this.setState({ items: items })
+    this.setState({ items: items }, () => this._$sourceFormula.clear())
   }
 
   delItem(targetField) {
@@ -347,13 +353,18 @@ class FieldFormula extends React.Component {
   val() {
     return this._value
   }
+
+  clear() {
+    this._value = null
+    this.setState({ valueText: null })
+  }
 }
 
 FieldFormula.formatText = function (formula, fields) {
   if (!formula) return
 
   // CODE
-  if (formula.startsWith('{{{{') && formula.endsWith('}}}}')) {
+  if (formula.startsWith('{{{{')) {
     return FormulaCode.textCode(formula)
   }
   // DATE
@@ -429,7 +440,7 @@ class FormulaCalcWithCode extends FormulaCalc {
           </div>
         </li>
         <li className="list-inline-item">
-          <a onClick={() => this.handleInput('`')}>`</a>
+          <a onClick={() => this.handleInput('"')}>&#34;</a>
         </li>
         <li className="list-inline-item">
           <a onClick={() => this.handleInput(',')}>,</a>
@@ -451,12 +462,12 @@ class FormulaCalcWithCode extends FormulaCalc {
   }
 
   handleInput(v) {
-    if (['DATEDIFF', 'DATEADD', 'DATESUB', ',', '`'].includes(v)) {
-      $(`<i class="v oper" data-v="${v}">${v}</em>`).appendTo(this._$formula)
+    if (['DATEDIFF', 'DATEADD', 'DATESUB', ',', '"'].includes(v)) {
+      $(`<i class="v oper">${v}</em>`).appendTo(this._$formula).attr('data-v', v)
 
       if (['DATEDIFF', 'DATEADD', 'DATESUB'].includes(v)) {
-        setTimeout(() => this.handleInput('('), 400)
-        setTimeout(() => this.handleInput('`'), 600)
+        setTimeout(() => this.handleInput('('), 300)
+        setTimeout(() => this.handleInput('"'), 400)
       }
     } else {
       super.handleInput(v)
@@ -494,7 +505,7 @@ class FormulaCode extends React.Component {
 
   // 格式化显示
   static textCode(code) {
-    code = code.substr(4, code.length - 8) // Remove {{{{}}}}
+    code = code.substr(4, code.length - 8) // Remove {{{{ xxx }}}}
     code = code.replace(/\n/gi, '<br/>').replace(/( )/gi, '&nbsp;')
     return <code style={{ lineHeight: 1.2 }} dangerouslySetInnerHTML={{ __html: code }} />
   }
