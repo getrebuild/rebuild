@@ -18,12 +18,6 @@ class FormulaCalc extends RbAlert {
     return (
       <div className="formula-calc">
         <div className="form-control-plaintext formula mb-2" _title={$L('计算公式')} ref={(c) => (this._$formula = c)}></div>
-        <div className="bosskey-show mb-2">
-          <textarea className="form-control form-control-sm row3x mb-1" ref={(c) => (this._$formulaInput = c)} />
-          <a href="https://www.yuque.com/boyan-avfmj/aviatorscript" target="_blank" className="link">
-            EXPRESSION ENGINE : AVIATORSCRIPT
-          </a>
-        </div>
         <div className="row unselect">
           <div className="col-6">
             <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
@@ -84,17 +78,14 @@ class FormulaCalc extends RbAlert {
   }
 
   confirm() {
-    let expr = []
+    const expr = []
     $(this._$formula)
       .find('i')
       .each(function () {
         expr.push($(this).data('v'))
       })
 
-    expr = expr.join('')
-    if ($(this._$formulaInput).val()) expr = $(this._$formulaInput).val()
-
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr.join(''))
     this.hide()
   }
 
@@ -124,7 +115,7 @@ class FormulaDate extends RbAlert {
         <div className="form-group">
           <label className="text-bold">{$L('设置日期公式')}</label>
           <div className="input-group">
-            <select className="form-control form-control-sm" ref={(c) => (this._base = c)}>
+            <select className="form-control form-control-sm" ref={(c) => (this._$base = c)}>
               {base.map((item) => {
                 return (
                   <option key={item[0]} value={item[0]}>
@@ -161,7 +152,7 @@ class FormulaDate extends RbAlert {
           </div>
         </div>
         <div className="form-group mb-1">
-          <button type="button" className="btn btn-space btn-primary" onClick={() => this.confirm()}>
+          <button type="button" className="btn btn-primary" onClick={() => this.confirm()}>
             {$L('确定')}
           </button>
         </div>
@@ -170,7 +161,7 @@ class FormulaDate extends RbAlert {
   }
 
   confirm() {
-    let expr = $(this._base).val()
+    let expr = $(this._$base).val()
     if (!expr) return
 
     if (this.state.calcOp) {

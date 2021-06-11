@@ -735,11 +735,17 @@ var $expired = function (date, offset) {
  */
 var _$unthy = function (text) {
   if (!text) return null
+  if (rb.env === 'dev') console.log(text)
   text = text.replace(/&quot;/g, '"')
   text = text.replace(/\n/g, '\\n')
-  var s = $.parseJSON(text)
-  if (rb.env === 'dev') console.log(s)
-  return s
+  try {
+    var s = $.parseJSON(text)
+    if (rb.env === 'dev') console.log(text, s)
+    return s
+  } catch (err) {
+    console.log(text, err)
+    return null
+  }
 }
 /**
  * 获取语言（PH_KEY）

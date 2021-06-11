@@ -13,6 +13,7 @@ import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.devezhao.persist4j.engine.StandardRecord;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
 import cn.devezhao.persist4j.record.RecordVisitor;
 import com.alibaba.fastjson.JSONArray;
@@ -35,8 +36,8 @@ import com.rebuild.core.service.trigger.TriggerException;
 import com.rebuild.core.support.general.ContentWithFieldVars;
 import com.rebuild.utils.CommonsUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -51,6 +52,7 @@ import java.util.*;
 public class FieldWriteback extends FieldAggregation {
 
     private static final String DATE_EXPR = "#";
+    private static final String CODE_PREFIX = "{{{{";  // ends with }}}}
 
     private Set<ID> targetRecordIds;
     private Record targetRecordData;
@@ -133,7 +135,7 @@ public class FieldWriteback extends FieldAggregation {
         final Record record = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER, false);
         final JSONArray items = ((JSONObject) context.getActionContent()).getJSONArray("items");
 
-        Set<String> fieldVars = new HashSet<>();
+        final Set<String> fieldVars = new HashSet<>();
         for (Object o : items) {
             JSONObject item = (JSONObject) o;
             String sourceField = item.getString("sourceField");
@@ -146,7 +148,7 @@ public class FieldWriteback extends FieldAggregation {
             if ("FIELD".equalsIgnoreCase(updateMode)) {
                 fieldVars.add(sourceField);
             } else if ("FORMULA".equalsIgnoreCase(updateMode)) {
-                if (sourceField.contains(DATE_EXPR)) {
+                if (sourceField.contains(DATE_EXPR) && !sourceField.startsWith(CODE_PREFIX)) {
                     fieldVars.add(sourceField.split(DATE_EXPR)[0]);
                 } else {
                     Set<String> matchsVars = ContentWithFieldVars.matchsVars(sourceField);
@@ -179,7 +181,7 @@ public class FieldWriteback extends FieldAggregation {
             EasyField targetFieldEasy = EasyMetaFactory.valueOf(targetEntity.getField(targetField));
 
             String updateMode = item.getString("updateMode");
-            String sourceField = item.getString("sourceField");
+            String sourceAny = item.getString("sourceField");
 
             // 置空
             if ("VNULL".equalsIgnoreCase(updateMode)) {
@@ -188,15 +190,15 @@ public class FieldWriteback extends FieldAggregation {
 
             // 固定值
             else if ("VFIXED".equalsIgnoreCase(updateMode)) {
-                RecordVisitor.setValueByLiteral(targetField, sourceField, record);
+                RecordVisitor.setValueByLiteral(targetField, sourceAny, record);
             }
 
             // 字段
             else if ("FIELD".equalsIgnoreCase(updateMode)) {
-                Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, sourceField);
+                Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, sourceAny);
                 if (sourceField2 == null) continue;
 
-                Object value = Objects.requireNonNull(useSourceData).getObjectValue(sourceField);
+                Object value = Objects.requireNonNull(useSourceData).getObjectValue(sourceAny);
                 Object newValue = value == null ? null : EasyMetaFactory.valueOf(sourceField2)
                         .convertCompatibleValue(value, targetFieldEasy);
                 if (newValue != null) {
@@ -206,17 +208,23 @@ public class FieldWriteback extends FieldAggregation {
 
             // 公式
             else if ("FORMULA".equalsIgnoreCase(updateMode)) {
-                Assert.notNull(useSourceData, "[useSourceData] not be null");
+                if (useSourceData == null) {
+                    log.warn("[useSourceData] is null, Set to empty");
+                    useSourceData = new StandardRecord(sourceEntity, null);
+                }
+
+                // 高级公式代码
+                final boolean useCode = sourceAny.startsWith(CODE_PREFIX);
 
                 // 日期兼容 fix: v2.2
-                if (sourceField.contains(DATE_EXPR)) {
-                    String fieldName = sourceField.split(DATE_EXPR)[0];
+                if (sourceAny.contains(DATE_EXPR) && !useCode) {
+                    String fieldName = sourceAny.split(DATE_EXPR)[0];
                     Field sourceField2 = MetadataHelper.getLastJoinField(sourceEntity, fieldName);
                     if (sourceField2 == null) continue;
 
                     Object value = useSourceData.getObjectValue(fieldName);
                     Object newValue = value == null ? null : ((EasyDateTime) EasyMetaFactory.valueOf(sourceField2))
-                            .convertCompatibleValue(value, targetFieldEasy, sourceField);
+                            .convertCompatibleValue(value, targetFieldEasy, sourceAny);
                     if (newValue != null) {
                         record.setObjectValue(targetField, newValue);
                     }
@@ -224,21 +232,25 @@ public class FieldWriteback extends FieldAggregation {
 
                 // 公式
                 else {
-                    String clearFormual = sourceField.toUpperCase()
-                            .replace("×", "*")
-                            .replace("÷", "/")
-                            .replace("`", "'");
+                    String clearFormual = useCode
+                            ? sourceAny.substring(4, sourceAny.length() - 4)
+                            : sourceAny
+                                .replace("×", "*")
+                                .replace("÷", "/")
+                                .replace("`", "\"");  // fix: 2.4 改为 "
 
-                    for (String fieldName : useSourceData.getAvailableFields()) {
-                        String replace = "{" + fieldName.toUpperCase() + "}";
+                    for (String fieldName : fieldVars) {
+                        String replace = "{" + fieldName + "}";
                         if (clearFormual.contains(replace)) {
                             Object value = useSourceData.getObjectValue(fieldName);
                             if (value instanceof Date) {
                                 value = CalendarUtils.getUTCDateTimeFormat().format(value);
                             } else {
-                                value = value == null ? "0" : value.toString();
+                                value = value == null ? StringUtils.EMPTY : value.toString();
                             }
                             clearFormual = clearFormual.replace(replace, (String) value);
+                        } else {
+                            log.warn("No replace of field found : {}", replace);
                         }
                     }
 
@@ -251,11 +263,76 @@ public class FieldWriteback extends FieldAggregation {
                             record.setDouble(targetField, ObjectUtils.toDouble(newValue));
                         } else if (dt == DisplayType.DATE || dt == DisplayType.DATETIME) {
                             record.setDate(targetField, (Date) newValue);
+                        } else {
+                            newValue = checkoutFieldValue(newValue, targetFieldEasy);
+                            if (newValue != null) {
+                                record.setObjectValue(targetField, newValue);
+                            }
                         }
                     }
                 }
             }
         }
         return record;
+    }
+
+    /**
+     * @see DisplayType
+     * @see com.rebuild.core.metadata.EntityRecordCreator
+     */
+    private Object checkoutFieldValue(Object value, EasyField field) {
+
+        DisplayType dt = field.getDisplayType();
+        Object newValue = null;
+
+        if (dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION
+                || dt == DisplayType.REFERENCE || dt == DisplayType.ANYREFERENCE) {
+
+            ID id = ID.isId(value) ? ID.valueOf(value.toString()) : null;
+            if (id != null) {
+                int idCode = id.getEntityCode();
+                if (dt == DisplayType.PICKLIST) {
+                    if (idCode == EntityHelper.PickList) newValue = id;
+                } else if (dt == DisplayType.CLASSIFICATION) {
+                    if (idCode == EntityHelper.ClassificationData) newValue = id;
+                } else if (dt == DisplayType.REFERENCE) {
+                    if (field.getRawMeta().getReferenceEntity().getEntityCode() == idCode) newValue = id;
+                } else {
+                    newValue = id;
+                }
+            }
+
+        } else if (dt == DisplayType.N2NREFERENCE) {
+
+            String[] ids = value.toString().split(",");
+            List<String> idsList = new ArrayList<>();
+            for (String id : ids) {
+                if (ID.isId(id)) idsList.add(id);
+            }
+            if (ids.length == idsList.size()) newValue = value.toString();
+
+        } else if (dt == DisplayType.BOOL) {
+
+            if (value instanceof Boolean) {
+                newValue = value;
+            } else {
+                newValue = BooleanUtils.toBooleanObject(value.toString());
+            }
+
+        } else if (dt == DisplayType.MULTISELECT || dt == DisplayType.STATE) {
+
+            if (value instanceof Integer || value instanceof Long) {
+                newValue = value;
+            }
+
+        } else {
+            // TODO 验证字段格式
+            newValue = value.toString();
+        }
+
+        if (newValue == null) {
+            log.warn("Value `{}` cannot be convert to field (value) : {}", value, field.getRawMeta());
+        }
+        return newValue;
     }
 }

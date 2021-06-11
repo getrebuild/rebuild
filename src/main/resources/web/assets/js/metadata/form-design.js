@@ -75,7 +75,7 @@ $(document).ready(function () {
     'DECIMAL': $L('货币'),
     'DATE': $L('日期'),
     'DATETIME': $L('日期时间'),
-    'PICKLIST': $L('选项'),
+    'PICKLIST': $L('下拉列表'),
     'CLASSIFICATION': $L('分类'),
     'MULTISELECT': $L('多选'),
     'REFERENCE': $L('引用'),

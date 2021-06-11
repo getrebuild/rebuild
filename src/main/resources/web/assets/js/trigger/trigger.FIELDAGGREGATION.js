@@ -31,7 +31,7 @@ class ContentFieldAggregation extends ActionContentSpec {
             <div className="col-md-12 col-lg-9">
               <div className="row">
                 <div className="col-5">
-                  <select className="form-control form-control-sm" ref={(c) => (this._targetEntity = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetEntity = c)}>
                     {(this.state.targetEntities || []).map((item) => {
                       const val = `${item[2]}.${item[0]}`
                       return (
@@ -82,7 +82,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
               <div className="row">
                 <div className="col-5">
-                  <select className="form-control form-control-sm" ref={(c) => (this._targetField = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
                       return (
                         <option key={item[0]} value={item[0]}>
@@ -95,7 +95,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 </div>
                 <div className="col-2 pr-0">
                   <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                  <select className="form-control form-control-sm" ref={(c) => (this._calcMode = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$calcMode = c)}>
                     {Object.keys(CALC_MODES).map((item) => {
                       return (
                         <option key={item} value={item}>
@@ -112,7 +112,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                     <p>{$L('计算公式')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
-                    <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
+                    <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
                         return (
                           <option key={item[0]} value={item[0]}>
@@ -136,7 +136,7 @@ class ContentFieldAggregation extends ActionContentSpec {
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
+                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
                 <span className="custom-control-label">
                   {$L('自动设置目标字段为只读')}
                   <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
@@ -163,7 +163,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     this.__select2 = []
     $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
-        const $s2te = $(this._targetEntity)
+        const $s2te = $(this._$targetEntity)
           .select2({ placeholder: $L('选择目标实体') })
           .on('change', () => this._changeTargetEntity())
 
@@ -178,13 +178,13 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
 
     if (content) {
-      $(this._readonlyFields).attr('checked', content.readonlyFields === true)
+      $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       this._saveAdvFilter(content.dataFilter)
     }
   }
 
   _changeTargetEntity() {
-    const te = ($(this._targetEntity).val() || '').split('.')[1]
+    const te = ($(this._$targetEntity).val() || '').split('.')[1]
     if (!te) return
     // 清空现有规则
     this.setState({ items: [] })
@@ -195,12 +195,12 @@ class ContentFieldAggregation extends ActionContentSpec {
 
       if (this.state.targetFields) {
         this.setState({ targetFields: res.data.target }, () => {
-          $(this._calcMode).trigger('change')
+          $(this._$calcMode).trigger('change')
         })
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
-          const $s2sf = $(this._sourceField).select2({ placeholder: $L('选择源字段') })
-          const $s2cm = $(this._calcMode)
+          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
+          const $s2cm = $(this._$calcMode)
             .select2({ placeholder: $L('选择聚合方式') })
             .on('change', (e) => {
               this.setState({ calcMode: e.target.value })
@@ -213,7 +213,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 this.setState({ sourceFields: fs })
               }
             })
-          const $s2tf = $(this._targetField).select2({ placeholder: $L('选择目标字段') })
+          const $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
 
           $s2cm.trigger('change')
 
@@ -257,9 +257,9 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   addItem() {
-    const tf = $(this._targetField).val()
-    const calc = $(this._calcMode).val()
-    const sf = calc === 'FORMULA' ? null : $(this._sourceField).val()
+    const tf = $(this._$targetField).val()
+    const calc = $(this._$calcMode).val()
+    const sf = calc === 'FORMULA' ? null : $(this._$sourceField).val()
     const formula = calc === 'FORMULA' ? $(this._$formula).attr('data-v') : null
 
     if (!tf) return RbHighbar.create($L('请选择目标字段'))
@@ -270,7 +270,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     }
 
     // 目标字段=源字段
-    const tfFull = `${$(this._targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
+    const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
     if (sf === tfFull) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
 
     const items = this.state.items || []
@@ -290,9 +290,9 @@ class ContentFieldAggregation extends ActionContentSpec {
 
   buildContent() {
     const content = {
-      targetEntity: $(this._targetEntity).val(),
+      targetEntity: $(this._$targetEntity).val(),
       items: this.state.items,
-      readonlyFields: $(this._readonlyFields).prop('checked'),
+      readonlyFields: $(this._$readonlyFields).prop('checked'),
       dataFilter: this._advFilter__data,
     }
 
