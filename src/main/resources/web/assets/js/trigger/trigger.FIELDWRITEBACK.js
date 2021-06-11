@@ -217,13 +217,7 @@ class ContentFieldWriteback extends ActionContentSpec {
         })
 
         if (this.props.content) {
-          const items = this.props.content.items || []
-          items.forEach((item) => {
-            if (item.sourceField) {
-              item.sourceField = item.sourceField.replace(/&amp;/gi, '&').replace(/&#39;/gi, '\'').replace(/&#34;/gi, '"')
-            }
-          })
-          this.setState({ items: items })
+          this.setState({ items: this.props.content.items || [] })
         }
       }
     })

@@ -237,7 +237,7 @@ public class FieldWriteback extends FieldAggregation {
                             : sourceAny
                                 .replace("×", "*")
                                 .replace("÷", "/")
-                                .replace("`", "'");  // fix: 2.4 改为 "
+                                .replace("`", "\"");  // fix: 2.4 改为 "
 
                     for (String fieldName : fieldVars) {
                         String replace = "{" + fieldName + "}";

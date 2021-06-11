@@ -272,7 +272,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding-right: 40px;
 }
 
-.form-control-plaintext.formula.switch-code~.switch-code-btn {
+.form-control-plaintext.formula.switch-code + .switch-code-btn {
   position: absolute;
   right: 2px;
   top: 2px;
@@ -287,7 +287,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
   transition: background-color 0.2s;
 }
 
-.form-control-plaintext.formula.switch-code~.switch-code-btn:hover {
+.form-control-plaintext.formula.switch-code + .switch-code-btn:hover {
   background-color: #212121;
   color: #fff;
 }
