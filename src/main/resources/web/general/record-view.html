@@ -109,12 +109,12 @@
       window.__PageConfig = {
         type: 'RecordView',
         entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
-        privileges: _$unthy('[[${entityPrivileges}]]'),
-        viewTabs: _$unthy('[[${ViewTabs}]]'),
+        privileges: [(${entityPrivileges})],
+        viewTabs: [(${ViewTabs})],
         viewTabsAutoExpand: '[[${ViewTabsAutoExpand}]]',
         viewTabsAutoHide: '[[${ViewTabsAutoExpand}]]',
-        viewAdds: _$unthy('[[${ViewAdds}]]'),
-        transformTos: _$unthy('[[${TransformTos}]]'),
+        viewAdds: [(${ViewAdds})],
+        transformTos: [(${TransformTos})],
         recordId: '[[${id}]]',
       }
     </script>

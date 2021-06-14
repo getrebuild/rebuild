@@ -59,7 +59,7 @@
         configId: '[[${configId}]]',
         name: '[[${name}]]',
         applyEntity: '[[${applyEntity}]]',
-        flowDefinition: _$unthy('[[${flowDefinition}]]'),
+        flowDefinition: [(${flowDefinition ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>

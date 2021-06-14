@@ -38,9 +38,7 @@ $(document).ready(() => {
   })
   saveFilter(wpc.whenFilter)
 
-  $.get(`/admin/robot/trigger/${wpc.configId}/actionContent`, (res) => {
-    renderContentComp({ sourceEntity: wpc.sourceEntity, content: res.data })
-  })
+  renderContentComp({ sourceEntity: wpc.sourceEntity, content: wpc.actionContent })
 
   const $btn = $('.J_save').click(() => {
     if (!contentComp) return

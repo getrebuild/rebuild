@@ -731,23 +731,6 @@ var $expired = function (date, offset) {
   return m.isBefore(moment())
 }
 /**
- * 转义 Thymeleaf 页面的 JSON
- */
-var _$unthy = function (text) {
-  if (!text) return null
-  if (rb.env === 'dev') console.log(text)
-  text = text.replace(/&quot;/g, '"')
-  text = text.replace(/\n/g, '\\n')
-  try {
-    var s = $.parseJSON(text)
-    if (rb.env === 'dev') console.log(text, s)
-    return s
-  } catch (err) {
-    console.log(text, err)
-    return null
-  }
-}
-/**
  * 获取语言（PH_KEY）
  */
 var $L = function () {

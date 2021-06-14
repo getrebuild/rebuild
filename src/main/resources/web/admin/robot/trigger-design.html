@@ -160,8 +160,8 @@
         sourceEntity: '[[${sourceEntity}]]',
         when: ~~'[[${when}]]',
         whenTimer: '[[${whenTimer}]]',
-        whenFilter: _$unthy('[[${whenFilter}]]'),
-        actionContent: _$unthy('[[${actionContent}]]'),
+        whenFilter: [(${whenFilter ?:'null'})],
+        actionContent: [(${actionContent ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>

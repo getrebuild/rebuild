@@ -52,8 +52,7 @@ public class ApprovalAdminController extends BaseController {
     }
 
     @GetMapping("approval/{id}")
-    public ModelAndView page(@PathVariable String id,
-                             HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView page(@PathVariable String id, HttpServletResponse response) throws IOException {
         ID configId = ID.valueOf(id);
         Object[] config = Application.createQuery(
                 "select belongEntity,name,flowDefinition from RobotApprovalConfig where configId = ?")
