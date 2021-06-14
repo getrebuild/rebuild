@@ -169,6 +169,10 @@ Array.prototype.contains = function (item) {
 Array.prototype.insert = function (index, item) {
   this.splice(index, 0, item)
 }
+Array.prototype.toggle = function (item) {
+  if (this.contains(item)) this.remove(item)
+  else this.push(item)
+}
 
 // extends String
 String.prototype.startsWith = function (substr) {

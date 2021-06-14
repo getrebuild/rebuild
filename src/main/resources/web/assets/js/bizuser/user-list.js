@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 /* global RbForm, loadDeptTree */
 
 const RbForm_postAfter = RbForm.postAfter
-
 let formPostType = 1
 RbForm.postAfter = function () {
   if (formPostType === 1) RbForm_postAfter()
@@ -16,7 +15,6 @@ RbForm.postAfter = function () {
 }
 
 $(document).ready(function () {
-  loadDeptTree()
   $('.J_new').click(function () {
     formPostType = 1
   })
@@ -24,18 +22,7 @@ $(document).ready(function () {
     formPostType = 2
     RbFormModal.create({ title: $L('新建部门'), entity: 'Department', icon: 'accounts' })
   })
-})
 
-// eslint-disable-next-line no-undef
-clickDept = function (depts) {
-  if (depts[0] === '$ALL$') depts = []
-  let exp = { items: [], values: {} }
-  exp.items.push({ op: 'in', field: 'deptId', value: '{2}' })
-  exp.values['2'] = depts
-  RbListPage._RbList.search(depts.length === 0 ? {} : exp)
-}
-
-$(document).ready(() => {
   $('.J_imports').click(() => renderRbcomp(<UserImport />))
 })
 

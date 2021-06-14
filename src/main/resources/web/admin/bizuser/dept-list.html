@@ -12,7 +12,7 @@
       <div class="rb-content">
         <aside class="page-aside">
           <div class="rb-scroller">
-            <div class="aside-tree">
+            <div class="page-aside-tree" id="dept-tree">
               <div class="ph-item rb">
                 <div class="ph-col-12 p-0">
                   <div class="ph-row">
@@ -82,21 +82,13 @@
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/bizuser/dept-tree.js}"></script>
+    <script th:src="@{/assets/js/aside-tree.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/dept-tree.js}" type="text/babel"></script>
     <script type="text/babel">
       const RbForm_postAfter = RbForm.postAfter
       RbForm.postAfter = function () {
         RbForm_postAfter()
         loadDeptTree()
-      }
-
-      $(document).ready(loadDeptTree)
-      clickDept = function (depts) {
-        if (depts[0] === '$ALL$') depts = []
-        let exp = { items: [], values: {} }
-        exp.items.push({ op: 'in', field: 'deptId', value: '{2}' })
-        exp.values['2'] = depts
-        RbListPage._RbList.search(exp)
       }
     </script>
   </body>
