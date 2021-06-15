@@ -62,7 +62,7 @@ public class TriggerAdminController extends BaseController {
         ActionType actionType = ActionType.valueOf((String) config[1]);
 
         ModelAndView mv = createModelAndView("/admin/robot/trigger-design");
-        mv.getModel().put("configId", configId.toLiteral());
+        mv.getModel().put("configId", configId);
         mv.getModel().put("sourceEntity", sourceEntity.getName());
         mv.getModel().put("sourceEntityLabel", EasyMetaFactory.getLabel(sourceEntity));
         mv.getModel().put("actionType", actionType.name());
