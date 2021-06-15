@@ -365,8 +365,10 @@ public class UserService extends BaseServiceImpl {
         // 通知管理员
         ID newUserId = record.getPrimary();
         String viewUrl = AppUtils.getContextPath() + "/app/list-and-view?id=" + newUserId;
-        String content = Language.L("用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。[点击开始激活](%s)",
-                newUserId, viewUrl);
+        String content = Language.L(
+                "用户 @%s 提交了注册申请。请验证用户有效性后为其指定部门和角色，激活用户登录。如果这是一个无效的申请请忽略。",
+                newUserId);
+        content += String.format("[%s](%s)", Language.L("点击开始激活"), viewUrl);
 
         Message message = MessageBuilder.createMessage(ADMIN_USER, content, newUserId);
         Application.getNotifications().send(message);
