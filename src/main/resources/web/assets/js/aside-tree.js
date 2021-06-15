@@ -58,6 +58,7 @@ class AsideTree extends React.Component {
             typeof this.props.onItemClick === 'function' && this.props.onItemClick(item, e)
           }}>
           {item.text || item.name}
+          {item.private === true && <i className="icon zmdi zmdi-lock" title={$L('私有')} />}
         </a>
         {typeof this.props.extrasAction === 'function' && this.props.extrasAction(item)}
       </li>
