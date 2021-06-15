@@ -102,7 +102,7 @@ public class FieldValueHelper {
             if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalState)) {
                 return ApprovalState.DRAFT.getState();
             } else if (field.getName().equalsIgnoreCase(EntityHelper.ApprovalId)) {
-                return wrapMixValue(null, Language.L(ApprovalState.DRAFT));
+                return wrapMixValue(null, Language.L("未提交"));
             }
 
             return null;
