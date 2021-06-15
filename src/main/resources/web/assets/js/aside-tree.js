@@ -5,6 +5,9 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+// 树组件
+// TODO v2.5 更换全部
+
 // eslint-disable-next-line no-unused-vars
 class AsideTree extends React.Component {
   constructor(props) {
@@ -13,7 +16,7 @@ class AsideTree extends React.Component {
   }
 
   render() {
-    return <div className="aside-2tree">{this.renderTree(this.props.data || [])}</div>
+    return <div className={`aside-2tree ${this.props.hideCollapse && 'hide-collapse'}`}>{this.renderTree(this.props.data || [])}</div>
   }
 
   renderTree(items, item) {
@@ -53,9 +56,10 @@ class AsideTree extends React.Component {
         <a
           data-id={item.id}
           className={`text-ellipsis ${item.disabled && 'text-disabled'}`}
-          onClick={(e) => {
-            this.setState({ activeItem: item.id })
-            typeof this.props.onItemClick === 'function' && this.props.onItemClick(item, e)
+          onClick={() => {
+            this.setState({ activeItem: item.id }, () => {
+              typeof this.props.onItemClick === 'function' && this.props.onItemClick(item)
+            })
           }}>
           {item.text || item.name}
           {item.private === true && <i className="icon zmdi zmdi-lock" title={$L('私有')} />}

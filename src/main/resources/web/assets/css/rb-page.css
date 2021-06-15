@@ -1987,6 +1987,15 @@ th.column-fixed {
   display: inline-block;
 }
 
+.aside-2tree.hide-collapse li span.collapse-icon {
+  display: none !important;
+}
+
+.aside-2tree.hide-collapse ul li > a {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
 /* AdvFilter */
 
 .adv-search .dropdown-item div.action a {

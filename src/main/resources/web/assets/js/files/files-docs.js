@@ -6,9 +6,85 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global filesList */
 
-// 文档
+// 文件
 const __DEFAULT_ALL = 'ALL'
+
 let __FolderData = []
+let filesNav
+let currentFolder
+
+// 目录树
+const FolderTree = {
+  load: function () {
+    $.get('/files/tree-folder', (res) => {
+      __FolderData = [{ id: __DEFAULT_ALL, text: $L('全部') }, ...res.data]
+
+      renderRbcomp(
+        <AsideTree
+          data={__FolderData}
+          activeItem={__DEFAULT_ALL}
+          onItemClick={(item) => {
+            filesList && filesList.loadData(item.id)
+            currentFolder = item.id
+
+            const paths = []
+            FolderTree._findPaths($('#navTree li.active'), paths)
+            const $ol = $('.file-path ol').empty()
+            $(paths).each((idx, item) => {
+              $(`<li class="breadcrumb-item active">${item[0]}</li>`).appendTo($ol)
+            })
+            location.hash = `!/Folder/${item.id}`
+          }}
+          extrasAction={(item) => {
+            return item.self ? (
+              <React.Fragment>
+                <span className="action" onClick={() => FolderTree._edit(item)}>
+                  <i className="zmdi zmdi-edit" />
+                </span>
+                <span className="action" onClick={() => FolderTree._delete(item)}>
+                  <i className="zmdi zmdi-delete" />
+                </span>
+              </React.Fragment>
+            ) : null
+          }}
+        />,
+        'navTree',
+        function () {
+          filesNav = this
+        }
+      )
+    })
+  },
+
+  _edit: function (item) {
+    renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} id={item.id} name={item.text} scope={item.private ? 'SELF' : 'ALL'} parent={item.parent} />)
+  },
+
+  _delete: function (item) {
+    RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
+      type: 'danger',
+      confirmText: $L('删除'),
+      confirm: function () {
+        this.disabled(true)
+        $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+          if (res.error_code === 0) {
+            this.hide()
+            FolderTree.load()
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      },
+    })
+  },
+
+  _findPaths: function (active, into) {
+    const $a = active.find('>a')
+    into.unshift([$a.text(), $a.data('id')])
+    const $li = active.parent('ul').prev('li')
+    if ($li.length > 0) FolderTree._findPaths($li, into)
+  },
+}
 
 // 渲染目录
 const _renderOption = function (item, idx, disabledItem) {
@@ -263,167 +339,6 @@ class FileMoveDlg extends RbFormHandler {
     })
   }
 }
-
-let filesNav
-let currentFolder
-// 目录树
-const FolderTree = {
-  load: function () {
-    $.get('/files/tree-folder', (res) => {
-      __FolderData = [{ id: __DEFAULT_ALL, text: $L('全部') }, ...res.data]
-
-      renderRbcomp(
-        <AsideTree
-          data={__FolderData}
-          activeItem={__DEFAULT_ALL}
-          onItemClick={(item) => {
-            filesList && filesList.loadData(item.id)
-            currentFolder = item.id
-
-            setTimeout(() => {
-              const paths = []
-              FolderTree._findPaths($('#navTree li.active'), paths)
-              const $ol = $('.file-path ol').empty()
-              $(paths).each((idx, item) => {
-                $(`<li class="breadcrumb-item active">${item[0]}</li>`).appendTo($ol)
-              })
-            }, 200)
-          }}
-          extrasAction={(item) => {
-            return item.self ? (
-              <React.Fragment>
-                <span className="action" onClick={() => FolderTree._edit(item)}>
-                  <i className="zmdi zmdi-edit" />
-                </span>
-                <span className="action" onClick={() => FolderTree._delete(item)}>
-                  <i className="zmdi zmdi-delete" />
-                </span>
-              </React.Fragment>
-            ) : null
-          }}
-        />,
-        'navTree',
-        function () {
-          filesNav = this
-        }
-      )
-    })
-  },
-
-  _edit: function (item) {
-    renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} id={item.id} name={item.text} scope={item.private ? 'SELF' : 'ALL'} parent={item.parent} />)
-  },
-
-  _delete: function (item) {
-    RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
-      type: 'danger',
-      confirmText: $L('删除'),
-      confirm: function () {
-        this.disabled(true)
-        $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
-          if (res.error_code === 0) {
-            this.hide()
-            FolderTree.load()
-          } else {
-            RbHighbar.error(res.error_msg)
-          }
-        })
-      },
-    })
-  },
-
-  _findPaths: function (active, into) {
-    const $a = active.find('>a')
-    into.unshift([$a.text(), $a.data('id')])
-    const $li = active.parent('ul').prev('li')
-    if ($li.length > 0) FolderTree._findPaths($li, into)
-  },
-}
-
-// // ~ 目录树
-// class FolderTree extends React.Component {
-//   state = { activeItem: __DEFAULT_ALL, ...this.props }
-
-//   render() {
-//     return (
-//       <div className="aside-tree p-0">
-//         <ul className="list-unstyled">
-//           {(this.state.list || []).map((item) => {
-//             return this._renderItem(item)
-//           })}
-//         </ul>
-//       </div>
-//     )
-//   }
-
-//   _renderItem(item) {
-//     return (
-//       <li key={`folder-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
-//         <a data-id={item.id} onClick={() => this._clickItem(item)} href={`#!/Folder/${item.id}`}>
-//           {item.text}
-//           {item.private && <i title={$L('私有')} className="icon zmdi zmdi-lock" />}
-//         </a>
-//         {item.self && (
-//           <div className="action">
-//             <a onClick={() => this._handleEdit(item)}>
-//               <i className="zmdi zmdi-edit"></i>
-//             </a>
-//             <a onClick={() => this._handleDelete(item.id)}>
-//               <i className="zmdi zmdi-delete"></i>
-//             </a>
-//           </div>
-//         )}
-//         {item.children && (
-//           <ul className="list-unstyled">
-//             {item.children.map((item) => {
-//               return this._renderItem(item)
-//             })}
-//           </ul>
-//         )}
-//       </li>
-//     )
-//   }
-
-//   _clickItem(item) {
-//     this.setState({ activeItem: item.id }, () => {
-//       this.props.call && this.props.call(item)
-//     })
-//   }
-
-//   _handleEdit(item) {
-//     event.preventDefault()
-//     renderRbcomp(<FolderEditDlg call={() => filesNav && filesNav.loadData()} id={item.id} name={item.text} scope={item.private ? 'SELF' : 'ALL'} parent={item.parent} />)
-//   }
-
-//   _handleDelete(id) {
-//     event.preventDefault()
-//     const that = this
-//     RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
-//       type: 'danger',
-//       confirmText: $L('删除'),
-//       confirm: function () {
-//         this.disabled(true)
-//         $.post(`/app/entity/common-delete?id=${id}`, (res) => {
-//           if (res.error_code === 0) {
-//             this.hide()
-//             that.loadData()
-//           } else RbHighbar.error(res.error_msg)
-//         })
-//       },
-//     })
-//   }
-
-//   componentDidMount = () => this.loadData()
-
-//   loadData() {
-//     $.get('/files/tree-folder', (res) => {
-//       const data = res.data || []
-//       data.unshift({ id: __DEFAULT_ALL, text: $L('全部') })
-//       this.setState({ list: data })
-//       __FolderData = data
-//     })
-//   }
-// }
 
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
