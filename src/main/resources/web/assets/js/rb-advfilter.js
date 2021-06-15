@@ -78,16 +78,43 @@ class AdvFilter extends React.Component {
           <div className="mb-1">
             <div className="item mt-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input className="custom-control-input" type="radio" name="useEquation" value="OR" checked={this.state.useEquation === 'OR'} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="useEquation"
+                  value="OR"
+                  checked={this.state.useEquation === 'OR'}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label"> {$L('或关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input className="custom-control-input" type="radio" name="useEquation" value="AND" checked={this.state.useEquation === 'AND'} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="useEquation"
+                  value="AND"
+                  checked={this.state.useEquation === 'AND'}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label"> {$L('且关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                <input className="custom-control-input" type="radio" name="useEquation" value="9999" checked={this.state.useEquation === '9999'} onChange={this.handleChange} />
-                <span className="custom-control-label"> {$L('高级表达式')}</span>
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="useEquation"
+                  value="9999"
+                  checked={this.state.useEquation === '9999'}
+                  onChange={this.handleChange}
+                />
+                <span className="custom-control-label">
+                  {' '}
+                  {$L('高级表达式')}{' '}
+                  <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" target="_blank">
+                    <i className="zmdi zmdi-help zicon down-1" style={{ cursor: 'pointer' }} />
+                  </a>
+                </span>
               </label>
             </div>
             {this.state.useEquation === '9999' && (
@@ -422,12 +449,33 @@ class FilterItem extends React.Component {
   }
 
   renderValue() {
-    let valComp = <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
+    let valComp = (
+      <input
+        className="form-control form-control-sm"
+        ref={(c) => (this._filterVal = c)}
+        onChange={this.valueHandle}
+        onBlur={this.valueCheck}
+        value={this.state.value || ''}
+      />
+    )
     if (this.state.op === 'BW') {
       valComp = (
         <div className="val-range">
-          <input className="form-control form-control-sm" ref={(c) => (this._filterVal = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value || ''} />
-          <input className="form-control form-control-sm" ref={(c) => (this._filterVal2 = c)} onChange={this.valueHandle} onBlur={this.valueCheck} value={this.state.value2 || ''} data-at="2" />
+          <input
+            className="form-control form-control-sm"
+            ref={(c) => (this._filterVal = c)}
+            onChange={this.valueHandle}
+            onBlur={this.valueCheck}
+            value={this.state.value || ''}
+          />
+          <input
+            className="form-control form-control-sm"
+            ref={(c) => (this._filterVal2 = c)}
+            onChange={this.valueHandle}
+            onBlur={this.valueCheck}
+            value={this.state.value2 || ''}
+            data-at="2"
+          />
           <span>{$L('起')}</span>
           <span className="end">{$L('止')}</span>
         </div>
