@@ -95,11 +95,11 @@
     <script>
       window.__PageConfig = {
         configId: '[[${configId}]]',
-        config: _$unthy('[[${config}]]'),
-        sourceEntity: _$unthy('[[${sourceEntity}]]'),
-        sourceDetailEntity: _$unthy('[[${sourceDetailEntity}]]'),
-        targetEntity: _$unthy('[[${targetEntity}]]'),
-        targetDetailEntity: _$unthy('[[${targetDetailEntity}]]'),
+        config: [(${config ?:'null'})],
+        sourceEntity: [(${sourceEntity ?:'null'})],
+        sourceDetailEntity: [(${sourceDetailEntity ?:'null'})],
+        targetEntity: [(${targetEntity ?:'null'})],
+        targetDetailEntity: [(${targetDetailEntity ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/rb-advfilter.js}" type="text/babel"></script>

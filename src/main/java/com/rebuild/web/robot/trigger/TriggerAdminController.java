@@ -9,7 +9,6 @@ package com.rebuild.web.robot.trigger;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
-import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
@@ -18,7 +17,6 @@ import com.rebuild.core.service.trigger.ActionFactory;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.i18n.Language;
-import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.admin.data.ReportTemplateController;
 import org.apache.commons.lang.StringUtils;
@@ -71,18 +69,11 @@ public class TriggerAdminController extends BaseController {
         mv.getModel().put("actionTypeLabel", Language.L(actionType));
         mv.getModel().put("when", config[2]);
         mv.getModel().put("whenTimer", config[7] == null ? StringUtils.EMPTY : config[7]);
-        mv.getModel().put("whenFilter", StringUtils.defaultIfBlank((String) config[3], JSONUtils.EMPTY_OBJECT_STR));
-        mv.getModel().put("actionContent", JSONUtils.EMPTY_OBJECT_STR);
+        mv.getModel().put("whenFilter", config[3]);
+        mv.getModel().put("actionContent", config[4]);
         mv.getModel().put("priority", config[5]);
         mv.getModel().put("name", config[6]);
         return mv;
-    }
-
-    // 单独加载，否则会有转义问题
-    @GetMapping("trigger/{id}/actionContent")
-    public JSON pageEditor(@PathVariable String id) throws IOException {
-        Object[] x = Application.getQueryFactory().unique(ID.valueOf(id), "actionContent");
-        return (JSON) JSON.parse(x[0] == null ? "{}" : (String) x[0]);
     }
 
     @GetMapping("trigger/available-actions")

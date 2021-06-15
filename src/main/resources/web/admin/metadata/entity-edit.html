@@ -103,7 +103,7 @@
         metaId: '[[${entityMetaId}]]',
         entity: '[[${entityName}]]',
         nameField: '[[${nameField}]]',
-        extConfig: _$unthy('[[${entityExtConfig}]]'),
+        extConfig: [(${entityExtConfig ?:'null'})],
       }
     </script>
     <script th:src="@{/assets/js/metadata/entity-edit.js}"></script>

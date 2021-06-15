@@ -1913,6 +1913,91 @@ th.column-fixed {
   color: #4285f4;
 }
 
+.page-aside-tree {
+  padding: 25px 18px;
+}
+
+.aside-2tree ul > ul {
+  padding-left: 17px !important;
+}
+
+.aside-2tree ul li {
+  display: flex;
+}
+
+.aside-2tree ul li:hover {
+  background-color: #eee;
+}
+
+.aside-2tree ul li.active {
+  color: #fff !important;
+  background-color: #4285f4 !important;
+  border-radius: 2px;
+}
+
+.aside-2tree ul li > a {
+  flex: 1;
+  display: block;
+  padding: 7px 0;
+}
+
+.aside-2tree ul li > span {
+  width: 22px;
+  cursor: pointer;
+}
+
+.aside-2tree li span.collapse-icon {
+  padding-left: 6px;
+  padding-top: 7px;
+  font-size: 1.6rem;
+}
+
+.aside-2tree li span.collapse-icon:hover {
+  color: #4285f4;
+}
+
+.aside-2tree li.active span.collapse-icon:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.aside-2tree li span.collapse-icon.no-child .zmdi {
+  width: 8px;
+  overflow: hidden;
+}
+
+.aside-2tree li span.collapse-icon.no-child .zmdi::before {
+  content: '\f273';
+}
+
+.aside-2tree li span.action {
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  font-size: 1.2rem;
+  border-radius: 2px;
+  display: none;
+}
+
+.aside-2tree li span.action:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.aside-2tree li.active:hover span.action {
+  display: inline-block;
+}
+
+.aside-2tree.hide-collapse li span.collapse-icon {
+  display: none !important;
+}
+
+.aside-2tree.hide-collapse ul li > a {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* AdvFilter */
+
 .adv-search .dropdown-item div.action a {
   height: 34px;
   line-height: 34px;
@@ -1924,8 +2009,6 @@ th.column-fixed {
   color: #4285f4 !important;
   background-color: rgba(0, 0, 0, 0.05);
 }
-
-/* AdvFilter */
 
 .adv-filter-wrap {
   background-color: #fff;

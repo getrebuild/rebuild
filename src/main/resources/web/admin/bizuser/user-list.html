@@ -12,7 +12,7 @@
       <div class="rb-content">
         <aside class="page-aside">
           <div class="rb-scroller">
-            <div class="aside-tree">
+            <div class="page-aside-tree" id="dept-tree">
               <div class="ph-item rb">
                 <div class="ph-col-12 p-0">
                   <div class="ph-row">
@@ -82,8 +82,8 @@
       window.__PageConfig = {
         type: 'RecordList',
         entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
-        privileges: _$unthy('[[${entityPrivileges}]]'),
-        listConfig: _$unthy('[[${DataListConfig}]]'),
+        privileges: [(${entityPrivileges})],
+        listConfig: [(${DataListConfig})],
         advFilter: false,
         serviceMail: '[[${serviceMail}]]',
       }
@@ -91,7 +91,8 @@
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/bizuser/dept-tree.js}"></script>
+    <script th:src="@{/assets/js/aside-tree.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/dept-tree.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/bizuser/user-list.js}" type="text/babel"></script>
   </body>
 </html>

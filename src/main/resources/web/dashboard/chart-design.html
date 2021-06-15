@@ -180,7 +180,7 @@
       window.__PageConfig = {
         sourceEntity: '[[${entityName}]]',
         chartId: '[[${chartId}]]',
-        chartConfig: _$unthy('[[${chartConfig}]]'),
+        chartConfig: [(${chartConfig ?:'null'})],
         chartOwningAdmin: '[[${chartOwningAdmin}]]' === 'true',
       }
     </script>

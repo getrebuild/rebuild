@@ -170,7 +170,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script>
       window.__PageConfig = {
-        _LANGS: _$unthy('[[${availableLangs}]]'),
+        _LANGS: [(${availableLangs})],
       }
     </script>
     <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
