@@ -190,6 +190,8 @@ public class AdvFilterParser extends SetUser {
      */
     private String parseItem(JSONObject item, JSONObject values) {
         String field = item.getString("field");
+        if (field.startsWith("&amp;")) field = field.replace("&amp;", "&");  // fix: _$unthy
+
         boolean hasNameFlag = field.startsWith("&");
         if (hasNameFlag) {
             field = field.substring(1);

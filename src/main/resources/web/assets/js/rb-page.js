@@ -730,6 +730,7 @@ var $expired = function (date, offset) {
   if (offset) m.add(offset, 's')
   return m.isBefore(moment())
 }
+
 /**
  * 获取语言（PH_KEY）
  */
