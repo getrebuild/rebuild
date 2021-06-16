@@ -1,6 +1,6 @@
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
-[![Build Status](https://travis-ci.org/getrebuild/rebuild.svg?branch=master)](https://travis-ci.org/getrebuild/rebuild)
+[![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
 [![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
 
@@ -14,9 +14,16 @@ REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启
 
 > **福利：欢迎加入 REBUILD QQ 交流群 819865721**
 
-## V2.3 新特性
+## V2.4 新特性
 
 本次更新为你带来众多功能增强与优化。
+
+1. [新增] Hello RBMOB! 移动端发布（Beta）
+2. [新增] Hello FrontJS! 前端接口发布
+3. [新增] 内置图表“我的任务”
+4. [优化] 触发器-自动更新支持自定义编写计算公式
+5. [优化] 数据导入自动识别表头并映射
+6. ...
 
 1. 共享支持编辑权限（默认为只读）
 2. 审批流程审批人可以选择“发起人”与“审批人”
@@ -25,7 +32,7 @@ REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启
 5. 视图相关项列表支持搜索与排序
 6. ...
 
-更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.3)
+更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.4)
 
 ## 在线体验
 
