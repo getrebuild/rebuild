@@ -152,7 +152,7 @@ public class ShowFieldsController extends BaseController implements ShareTo {
     }
 
     /**
-     * @see NavSettings#getsList(HttpServletRequest, HttpServletResponse)
+     * @see #getsList(HttpServletRequest)
      */
     @GetMapping("list-fields/alist")
     public void getsList(@PathVariable String entity,

@@ -59,7 +59,7 @@ $(document).ready(function () {
     $('.J_edit-menu').addClass('hide')
   })
 
-  let coveredMode = false
+  let overwriteMode = false
   let cfgid = $urlp('id')
   const _save = function (navs) {
     const $btn = $('.J_save').button('loading')
@@ -82,7 +82,7 @@ $(document).ready(function () {
     })
     if (navs.length === 0) return RbHighbar.create($L('请至少设置 1 个菜单项'))
 
-    if (coveredMode) {
+    if (overwriteMode) {
       RbAlert.create($L('保存将覆盖你现有的导航菜单。继续吗？'), {
         confirm: function () {
           this.hide()
@@ -111,7 +111,7 @@ $(document).ready(function () {
         }
       })
       // 覆盖自有配置
-      coveredMode = !rb.isAdminUser && res.data.shareTo !== 'SELF'
+      overwriteMode = !rb.isAdminUser && res.data.shareTo !== 'SELF'
     }
 
     const _current = res.data || {}
@@ -132,9 +132,9 @@ $(document).ready(function () {
       }
 
       // 有自有才提示覆盖
-      if (coveredMode) {
+      if (overwriteMode) {
         const haveSelf = res.data.find((x) => x[2] === 'SELF')
-        coveredMode = !!haveSelf
+        overwriteMode = !!haveSelf
       }
     })
     // ~
