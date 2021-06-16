@@ -28,7 +28,10 @@ const deleteRole = function (id) {
     if (res.data.hasMember === 0) {
       RbAlert.create($L('此角色可以被安全的删除'), $L('删除角色'), { ...alertExt, icon: 'alert-circle-o' })
     } else {
-      RbAlert.create($L('有 **%d** 个用户使用了此角色 [] 删除可能导致这些用户被禁用，直到你为他们指定了新的角色', res.data.hasMember), $L('删除角色'), { ...alertExt, html: true })
+      RbAlert.create($L('有 **%d** 个用户使用了此角色 [] 删除可能导致这些用户被禁用，直到你为他们指定了新的角色', res.data.hasMember), $L('删除角色'), {
+        ...alertExt,
+        html: true,
+      })
     }
   })
 }

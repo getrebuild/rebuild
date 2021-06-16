@@ -192,11 +192,23 @@ class DlgUnshare extends RbModalHandler {
             <div className="col-sm-7">
               <div className="mt-1">
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                  <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'ALL'} onChange={() => this.whichMode(true)} />
+                  <input
+                    className="custom-control-input"
+                    name="whichUsers"
+                    type="radio"
+                    checked={this.state.whichUsers === 'ALL'}
+                    onChange={() => this.whichMode(true)}
+                  />
                   <span className="custom-control-label">{$L('全部用户')}</span>
                 </label>
                 <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
-                  <input className="custom-control-input" name="whichUsers" type="radio" checked={this.state.whichUsers === 'SPEC'} onChange={() => this.whichMode()} />
+                  <input
+                    className="custom-control-input"
+                    name="whichUsers"
+                    type="radio"
+                    checked={this.state.whichUsers === 'SPEC'}
+                    onChange={() => this.whichMode()}
+                  />
                   <span className="custom-control-label">{$L('指定用户')}</span>
                 </label>
               </div>

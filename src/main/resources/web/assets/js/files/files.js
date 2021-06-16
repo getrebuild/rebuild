@@ -57,7 +57,9 @@ class FilesList extends React.Component {
             </a>
           </div>
         )}
-        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>}
+        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && (
+          <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>
+        )}
         {this.__pageNo === 1 && !hasFiles && (
           <div className="list-nodata pt-8 pb-8">
             <i className="zmdi zmdi-folder-outline"></i>
@@ -83,7 +85,9 @@ class FilesList extends React.Component {
   loadData(entry, pageNo) {
     this.__lastEntry = entry || this.__lastEntry
     this.__pageNo = pageNo || 1
-    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`
+    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${
+      this.__pageNo
+    }&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
       let files = this.__pageNo === 1 ? [] : this.state.files

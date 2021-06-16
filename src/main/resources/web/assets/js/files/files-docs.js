@@ -125,11 +125,25 @@ class FolderEditDlg extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('可见范围')}</label>
             <div className="col-sm-7 pt-1 down-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="scope"
+                  checked={this.state.scope === 'ALL'}
+                  value="ALL"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('公开')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="scope"
+                  checked={this.state.scope === 'SELF'}
+                  value="SELF"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>
               </label>
               <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
@@ -349,7 +363,11 @@ class FilesList4Docs extends FilesList {
     return (
       <React.Fragment>
         <span className="fop">
-          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+          <a
+            title={$L('下载')}
+            onClick={(e) => $stopEvent(e)}
+            href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`}
+            target="_blank">
             <i className="icon zmdi zmdi-download"></i>
           </a>
           {rb.fileSharable && (

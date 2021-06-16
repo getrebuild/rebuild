@@ -108,7 +108,11 @@ class ContentFieldAggregation extends ActionContentSpec {
                 </div>
                 <div className="col-5">
                   <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
-                    <div className="form-control-plaintext formula" _title={$L('计算公式')} ref={(c) => (this._$formula = c)} onClick={() => this.showFormula()}></div>
+                    <div
+                      className="form-control-plaintext formula"
+                      _title={$L('计算公式')}
+                      ref={(c) => (this._$formula = c)}
+                      onClick={() => this.showFormula()}></div>
                     <p>{$L('计算公式')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
@@ -243,7 +247,14 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (that._advFilter) that._advFilter.show()
     else
       renderRbcomp(
-        <AdvFilter title={$L('数据过滤条件')} inModal={true} canNoFilters={true} entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={that._saveAdvFilter} />,
+        <AdvFilter
+          title={$L('数据过滤条件')}
+          inModal={true}
+          canNoFilters={true}
+          entity={this.props.sourceEntity}
+          filter={that._advFilter__data}
+          confirm={that._saveAdvFilter}
+        />,
         null,
         function () {
           that._advFilter = this

@@ -162,26 +162,55 @@ class PlanEdit extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('面板名称')}</label>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="planName" value={this.state.planName || ''} onChange={this.handleChange} maxLength="60" autoFocus />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="planName"
+                value={this.state.planName || ''}
+                onChange={this.handleChange}
+                maxLength="60"
+                autoFocus
+              />
             </div>
           </div>
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('工作流状态')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-radio mb-1 mt-1">
-                <input className="custom-control-input" type="radio" name="flowStatus" value="1" checked={~~this.state.flowStatus === 1} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="flowStatus"
+                  value="1"
+                  checked={~~this.state.flowStatus === 1}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
                   {$L('开始状态')} <p className="text-muted mb-0 fs-12">{$L('该状态下可新建任务')}</p>
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input className="custom-control-input" type="radio" name="flowStatus" value="2" checked={~~this.state.flowStatus === 2} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="flowStatus"
+                  value="2"
+                  checked={~~this.state.flowStatus === 2}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
                   {$L('进行中')} <p className="text-muted mb-0 fs-12">{$L('该状态下不可新建任务，不可完成任务')}</p>
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input className="custom-control-input" type="radio" name="flowStatus" value="3" checked={~~this.state.flowStatus === 3} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="flowStatus"
+                  value="3"
+                  checked={~~this.state.flowStatus === 3}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
                   {$L('结束状态')} <p className="text-muted mb-0 fs-12">{$L('该状态下任务自动标记完成')}</p>
                 </span>

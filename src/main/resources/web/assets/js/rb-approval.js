@@ -311,7 +311,14 @@ class ApprovalSubmitForm extends ApprovalUsersForm {
                 return (
                   <div key={'A' + item.id}>
                     <label className="custom-control custom-control-sm custom-radio mb-0">
-                      <input className="custom-control-input" type="radio" name="useApproval" value={item.id} onChange={this.handleChange} checked={this.state.useApproval === item.id} />
+                      <input
+                        className="custom-control-input"
+                        type="radio"
+                        name="useApproval"
+                        value={item.id}
+                        onChange={this.handleChange}
+                        checked={this.state.useApproval === item.id}
+                      />
                       <span className="custom-control-label">{item.name}</span>
                     </label>
                     <a href={`${rb.baseUrl}/app/RobotApprovalConfig/view/${item.id}`} target="_blank">
@@ -387,7 +394,14 @@ class ApprovalApproveForm extends ApprovalUsersForm {
           {this.state.aform && this._renderEditableForm()}
           <div className="form-group">
             <label>{$L('批注')}</label>
-            <textarea className="form-control form-control-sm row2x" name="remark" placeholder={$L('输入批注 (可选)')} value={this.state.remark || ''} onChange={this.handleChange} maxLength="600" />
+            <textarea
+              className="form-control form-control-sm row2x"
+              name="remark"
+              placeholder={$L('输入批注 (可选)')}
+              value={this.state.remark || ''}
+              onChange={this.handleChange}
+              maxLength="600"
+            />
           </div>
           {this.renderUsers()}
           <div className="dialog-footer" ref={(c) => (this._btns = c)}>

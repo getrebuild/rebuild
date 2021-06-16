@@ -25,7 +25,13 @@ class ReportList extends ConfigList {
             <tr key={'k-' + item[0]}>
               <td>{item[3]}</td>
               <td>{item[2] || item[1]}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-normal">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
+              <td>
+                {item[4] ? (
+                  <span className="badge badge-warning font-weight-normal">{$L('否')}</span>
+                ) : (
+                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
+                )}
+              </td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -105,8 +111,12 @@ class ReporEdit extends ConfigFormDlg {
                   {this.state.uploadFileName && <u className="text-bold">{this.state.uploadFileName}</u>}
                 </div>
                 <div className="clearfix"></div>
-                <p className="form-text mt-0 mb-1 link" dangerouslySetInnerHTML={{ __html: $L('如何编写模板文件？[查看帮助](https://getrebuild.com/docs/admin/excel-admin)') }}></p>
-                {(this.state.invalidVars || []).length > 0 && <p className="form-text text-danger mt-0 mb-1">{$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)}</p>}
+                <p
+                  className="form-text mt-0 mb-1 link"
+                  dangerouslySetInnerHTML={{ __html: $L('如何编写模板文件？[查看帮助](https://getrebuild.com/docs/admin/excel-admin)') }}></p>
+                {(this.state.invalidVars || []).length > 0 && (
+                  <p className="form-text text-danger mt-0 mb-1">{$L('存在无效字段 %s 建议修改', `{${this.state.invalidVars.join('} {')}}`)}</p>
+                )}
               </div>
             </div>
           </React.Fragment>
@@ -121,7 +131,13 @@ class ReporEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.isDisabled === true}
+                  data-id="isDisabled"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('是否禁用')}</span>
               </label>
             </div>

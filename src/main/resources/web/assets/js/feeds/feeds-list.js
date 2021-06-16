@@ -194,11 +194,15 @@ class FeedsList extends React.Component {
     const firstFetch = !s.data
     // s.focusFeed 首次加载有效
 
-    $.post(`/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`, JSON.stringify(filter), (res) => {
-      const _data = res.data || { data: [], total: 0 }
-      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
-      this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null })
-    })
+    $.post(
+      `/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`,
+      JSON.stringify(filter),
+      (res) => {
+        const _data = res.data || { data: [], total: 0 }
+        this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
+        this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null })
+      }
+    )
   }
 
   _switchTab(t) {
@@ -358,7 +362,9 @@ class FeedsComments extends React.Component {
                       </ul>
                     </div>
                     <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
-                      {item.shownReplyReal && <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
+                      {item.shownReplyReal && (
+                        <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />
+                      )}
                       <div className="mt-2 text-right">
                         <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
                           {$L('取消')}

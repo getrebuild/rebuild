@@ -310,7 +310,11 @@ class RbHighbar extends React.Component {
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
-    const content = this.props.htmlMessage ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message pl-0">{this.props.message}</div>
+    const content = this.props.htmlMessage ? (
+      <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
+    ) : (
+      <div className="message pl-0">{this.props.message}</div>
+    )
 
     return (
       <div ref={(c) => (this._rbhighbar = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
@@ -686,7 +690,9 @@ const UserShow = function (props) {
 
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-      <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
+      <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>
+        {props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}
+      </div>
       {props.showName && (
         <div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>
           {props.name}

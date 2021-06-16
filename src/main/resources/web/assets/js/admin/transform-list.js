@@ -29,7 +29,13 @@ class TransformList extends ConfigList {
               </td>
               <td>{item[2]}</td>
               <td>{item[4]}</td>
-              <td>{item[7] ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
+              <td>
+                {item[7] ? (
+                  <span className="badge badge-warning font-weight-light">{$L('否')}</span>
+                ) : (
+                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
+                )}
+              </td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -116,7 +122,13 @@ class TransformEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.isDisabled === true}
+                  data-id="isDisabled"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('是否禁用')}</span>
               </label>
             </div>

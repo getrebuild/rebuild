@@ -37,9 +37,11 @@ $(document).ready(function () {
       if (this.field === DIVIDER_LINE) {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
       } else if (!field) {
-        const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('字段已删除')}</span></div></div>`).appendTo(
-          '.form-preview'
-        )
+        const $item = $(
+          `<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L(
+            '字段已删除'
+          )}</span></div></div>`
+        ).appendTo('.form-preview')
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
         $action.find('a').click(function () {
           $item.remove()
@@ -176,7 +178,9 @@ const render_item = function (data) {
   const $item = $('<div class="dd-item"></div>').appendTo('.form-preview')
   if (data.isFull === true) $item.addClass('w-100')
 
-  const $handle = $(`<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('分栏')}">${data.fieldLabel}</span></div>`).appendTo($item)
+  const $handle = $(
+    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('分栏')}">${data.fieldLabel}</span></div>`
+  ).appendTo($item)
   if (data.creatable === false) $handle.addClass('readonly')
   else if (data.nullable === false) $handle.addClass('not-nullable')
   // 填写提示
@@ -337,7 +341,14 @@ class DlgEditDivider extends DlgEditField {
       <form className="field-attr">
         <div className="form-group">
           <label>{$L('分栏名称')}</label>
-          <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('输入分栏名称')} />
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            name="dividerName"
+            value={this.state.dividerName || ''}
+            onChange={this.handleChange}
+            placeholder={$L('输入分栏名称')}
+          />
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>

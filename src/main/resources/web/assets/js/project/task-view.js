@@ -102,7 +102,9 @@ class TaskForm extends React.Component {
           <label className="col-12 col-sm-3 col-form-label">
             <i className="icon zmdi zmdi-label" /> {$L('标签')}
           </label>
-          <div className="col-12 col-sm-9">{this.state.projectId && <ValueTags tags={this.state.tags} projectId={this.state.projectId} taskid={this.props.id} $$$parent={this} />}</div>
+          <div className="col-12 col-sm-9">
+            {this.state.projectId && <ValueTags tags={this.state.tags} projectId={this.state.projectId} taskid={this.props.id} $$$parent={this} />}
+          </div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
@@ -117,7 +119,9 @@ class TaskForm extends React.Component {
             <i className="icon zmdi zmdi-link zmdi-hc-rotate-45 fs-19" style={{ marginTop: '0.15rem' }} /> {$L('关联记录')}
           </label>
           <div className="col-12 col-sm-9">
-            {this.state.projectId && <ValueRelatedRecord relatedRecord={this.state.relatedRecord} relatedRecordData={this.state.relatedRecordData} $$$parent={this} />}
+            {this.state.projectId && (
+              <ValueRelatedRecord relatedRecord={this.state.relatedRecord} relatedRecordData={this.state.relatedRecordData} $$$parent={this} />
+            )}
           </div>
         </div>
         <TaskCommentsList taskid={this.props.id} ref={(c) => (this._TaskCommentsList = c)} editable={this.props.editable} />
@@ -230,7 +234,9 @@ class ValueTaskName extends ValueComp {
   renderViewElement() {
     const editable = this.props.$$$parent.props.editable
     return (
-      <div className={`task-title text-break ${editable ? 'hover' : ''}`} onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
+      <div
+        className={`task-title text-break ${editable ? 'hover' : ''}`}
+        onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
         {this.state.taskName}
       </div>
     )
@@ -256,7 +262,13 @@ class ValueStatus extends ValueComp {
       <div className="form-control-plaintext">
         <span className="status-checkbox">
           <label className="custom-control custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
-            <input className="custom-control-input" type="checkbox" disabled={this.props.readonly} ref={(c) => (this._status = c)} onChange={(e) => this._handleChangeStatus(e)} />
+            <input
+              className="custom-control-input"
+              type="checkbox"
+              disabled={this.props.readonly}
+              ref={(c) => (this._status = c)}
+              onChange={(e) => this._handleChangeStatus(e)}
+            />
             <span className="custom-control-label">{this.state.status > 0 ? $L('已完成') : $L('未完成')}</span>
           </label>
         </span>
@@ -366,7 +378,11 @@ class ValueDeadline extends ValueComp {
   }
 
   renderViewElement() {
-    return this.state.deadline ? <div className="form-control-plaintext">{this._renderValue()}</div> : <div className="form-control-plaintext text-muted">{$L('无')}</div>
+    return this.state.deadline ? (
+      <div className="form-control-plaintext">{this._renderValue()}</div>
+    ) : (
+      <div className="form-control-plaintext text-muted">{$L('无')}</div>
+    )
   }
 
   _renderValue(defaultValue) {
@@ -431,7 +447,9 @@ class ValueDescription extends ValueComp {
 
   renderViewElement() {
     if (this.state.description) {
-      return <div className="form-control-plaintext mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+      return (
+        <div className="form-control-plaintext mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
+      )
     } else {
       return (
         <div className="form-control-plaintext mdedit-content">
@@ -644,7 +662,11 @@ class ValueTags extends ValueComp {
             </div>
           </span>
         ) : (
-          tags.length === 0 && <span className="text-muted" style={{ display: 'inline-block', paddingTop: 5 }}>{$L('无')}</span>
+          tags.length === 0 && (
+            <span className="text-muted" style={{ display: 'inline-block', paddingTop: 5 }}>
+              {$L('无')}
+            </span>
+          )
         )}
       </div>
     )

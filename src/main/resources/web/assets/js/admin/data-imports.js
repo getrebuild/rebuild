@@ -53,7 +53,14 @@ $(document).ready(() => {
     else _Config.owning_user = s.id
   }
   renderRbcomp(
-    <UserSelector hideDepartment={true} hideRole={true} hideTeam={true} multiple={false} onSelectItem={(s, isRemove) => _onSelectUser(s, isRemove)} onClearSelection={() => _onSelectUser()} />,
+    <UserSelector
+      hideDepartment={true}
+      hideRole={true}
+      hideTeam={true}
+      multiple={false}
+      onSelectItem={(s, isRemove) => _onSelectUser(s, isRemove)}
+      onClearSelection={() => _onSelectUser()}
+    />,
     'toUser'
   )
 

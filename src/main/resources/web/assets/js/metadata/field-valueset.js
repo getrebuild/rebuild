@@ -10,7 +10,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class FieldValueSet extends React.Component {
   render() {
     const field = this.props.field
-    if (field.type === 'ID' || field.type === 'AVATAR' || field.type === 'IMAGE' || field.type === 'FILE' || field.type === 'BARCODE' || field.type === 'SERIES') {
+    if (
+      field.type === 'ID' ||
+      field.type === 'AVATAR' ||
+      field.type === 'IMAGE' ||
+      field.type === 'FILE' ||
+      field.type === 'BARCODE' ||
+      field.type === 'SERIES'
+    ) {
       return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
 
@@ -24,7 +31,11 @@ class FieldValueSet extends React.Component {
       field.type === 'CLASSIFICATION'
     ) {
       return (
-        <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE'} ref={(c) => (this._value = c)} key={field.name}>
+        <select
+          className="form-control form-control-sm"
+          multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE'}
+          ref={(c) => (this._value = c)}
+          key={field.name}>
           {(field.options || []).map((item) => {
             let value = item.id || item.mask
             // for BOOL
@@ -41,7 +52,9 @@ class FieldValueSet extends React.Component {
       )
     }
 
-    return <input className="form-control form-control-sm" placeholder={this.props.placeholder} ref={(c) => (this._value = c)} key={field.name} maxLength="255" />
+    return (
+      <input className="form-control form-control-sm" placeholder={this.props.placeholder} ref={(c) => (this._value = c)} key={field.name} maxLength="255" />
+    )
   }
 
   componentDidMount() {

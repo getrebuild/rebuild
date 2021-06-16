@@ -71,9 +71,15 @@ class ContentFieldWriteback extends ActionContentSpec {
                             <span className="badge badge-warning">{UPDATE_MODES[item.updateMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
-                            {item.updateMode === 'FIELD' && <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>}
-                            {item.updateMode === 'VFIXED' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>}
-                            {item.updateMode === 'FORMULA' && <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>}
+                            {item.updateMode === 'FIELD' && (
+                              <span className="badge badge-warning">{_getFieldLabel(this.__sourceFieldsCache, item.sourceField)}</span>
+                            )}
+                            {item.updateMode === 'VFIXED' && (
+                              <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.sourceField, field)}</span>
+                            )}
+                            {item.updateMode === 'FORMULA' && (
+                              <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>
+                            )}
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
                             </a>
@@ -124,7 +130,12 @@ class ContentFieldWriteback extends ActionContentSpec {
                   </div>
                   <div className={this.state.updateMode === 'VFIXED' ? '' : 'hide'}>
                     {this.state.updateMode === 'VFIXED' && this.state.targetField && (
-                      <FieldValueSet entity={this.state.targetEntity} field={this.state.targetField} placeholder={$L('固定值')} ref={(c) => (this._$sourceValue = c)} />
+                      <FieldValueSet
+                        entity={this.state.targetEntity}
+                        field={this.state.targetField}
+                        placeholder={$L('固定值')}
+                        ref={(c) => (this._$sourceValue = c)}
+                      />
                     )}
                     <p>{$L('固定值')}</p>
                   </div>
@@ -473,7 +484,14 @@ class FormulaCode extends React.Component {
   render() {
     return (
       <div>
-        <textarea className="formula-code" ref={(c) => (this._$formulaInput = c)} defaultValue={this.props.initCode || ''} maxLength="2000" placeholder="// Support AviatorScript" autoFocus />
+        <textarea
+          className="formula-code"
+          ref={(c) => (this._$formulaInput = c)}
+          defaultValue={this.props.initCode || ''}
+          maxLength="2000"
+          placeholder="// Support AviatorScript"
+          autoFocus
+        />
         <div className="row mt-1">
           <div className="col pt-2">
             <span className="d-inline-block">

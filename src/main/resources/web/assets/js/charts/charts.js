@@ -220,7 +220,8 @@ const ECHART_BASE = {
     position: 'top',
   },
   textStyle: {
-    fontFamily: 'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
+    fontFamily:
+      'Roboto, "Hiragina Sans GB", San Francisco, "Helvetica Neue", Helvetica, Arial, PingFangSC-Light, "WenQuanYi Micro Hei", "Microsoft YaHei UI", "Microsoft YaHei", sans-serif',
   },
 }
 
@@ -289,7 +290,9 @@ const cloneOption = function (opt) {
 }
 
 const renderEChart = function (option, $target) {
-  const c = echarts.init(document.getElementById($target), 'light', { renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas' })
+  const c = echarts.init(document.getElementById($target), 'light', {
+    renderer: navigator.userAgent.match(/(iPhone|iPod|Android|ios|SymbianOS)/i) ? 'svg' : 'canvas',
+  })
   c.setOption(option)
   return c
 }
@@ -732,7 +735,11 @@ class FeedsSchedule extends BaseChart {
                 return (
                   <tr key={'schedule-' + idx}>
                     <td>
-                      <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} className="content text-break" dangerouslySetInnerHTML={{ __html: item.content }} />
+                      <a
+                        href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`}
+                        className="content text-break"
+                        dangerouslySetInnerHTML={{ __html: item.content }}
+                      />
                     </td>
                     <td className="cell-detail">
                       <div>{item.scheduleTime.substr(0, 16)}</div>
@@ -1058,7 +1065,10 @@ class ProjectTasks extends BaseChart {
 
     $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
       if (res.error_code > 0) return RbHighbar.error(res.error_msg)
-      $target.parents('tr').removeClass('status-0 status-1').addClass('status-' + data.status)
+      $target
+        .parents('tr')
+        .removeClass('status-0 status-1')
+        .addClass('status-' + data.status)
     })
   }
 }

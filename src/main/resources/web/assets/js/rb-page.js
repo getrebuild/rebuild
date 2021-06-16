@@ -92,7 +92,10 @@ $(function () {
       $('.admin-settings').remove()
     } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      topPopover($('.admin-settings a'), '<div class="p-1">' + $L('当前已启用管理中心访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>')
+      topPopover(
+        $('.admin-settings a'),
+        '<div class="p-1">' + $L('当前已启用管理中心访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>'
+      )
     }
 
     $.get('/user/admin-dangers', function (res) {
@@ -149,7 +152,12 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 1) return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), { type: 'danger', html: true, timeout: 6000 })
+    if (rb.commercial < 1)
+      return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
+        type: 'danger',
+        html: true,
+        timeout: 6000,
+      })
 
     var theme = $(this).data('theme')
     $.get('/commons/theme/set-use-theme?theme=' + theme, function () {

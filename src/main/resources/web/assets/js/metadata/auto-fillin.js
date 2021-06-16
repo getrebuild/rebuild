@@ -28,7 +28,9 @@ const loadRules = () => {
       if (this.extConfig.readonlyTargetField) ruleLabels.push($L('自动设置目标字段为只读'))
       $(`<td>${ruleLabels.join(', ')}</div></td>`).appendTo($tr)
 
-      const $btns = $('<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a></td>').appendTo($tr)
+      const $btns = $(
+        '<td class="actions"><a class="icon"><i class="zmdi zmdi-settings"></i></a><a class="icon danger-hover"><i class="zmdi zmdi-delete"></i></a></td>'
+      ).appendTo($tr)
       $btns.find('a:eq(0)').click(() => {
         renderRbcomp(<DlgRuleEdit {...bProps} {...this.extConfig} id={this.id} sourceField={this.sourceField} targetField={this.targetField} />)
       })
@@ -101,11 +103,23 @@ class DlgRuleEdit extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('何时回填')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.whenCreate === true} data-id="whenCreate" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.whenCreate === true}
+                  data-id="whenCreate"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('新建时')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.whenUpdate === true} data-id="whenUpdate" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.whenUpdate === true}
+                  data-id="whenUpdate"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('编辑时')}</span>
               </label>
             </div>
@@ -114,7 +128,13 @@ class DlgRuleEdit extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right pt-1">{$L('当目标字段非空时')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.fillinForce === true} data-id="fillinForce" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.fillinForce === true}
+                  data-id="fillinForce"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('强制回填')}</span>
               </label>
             </div>
@@ -123,7 +143,13 @@ class DlgRuleEdit extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right pt-1"></label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.readonlyTargetField === true} data-id="readonlyTargetField" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.readonlyTargetField === true}
+                  data-id="readonlyTargetField"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
                   {$L('自动设置目标字段为只读')}
                   <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />

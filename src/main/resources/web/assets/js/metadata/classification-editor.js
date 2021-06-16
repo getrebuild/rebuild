@@ -105,7 +105,15 @@ class LevelBox extends React.Component {
         <div className="clearfix"></div>
         <form className="mt-1" onSubmit={this.saveItem}>
           <div className="input-group input-group-sm">
-            <input className="form-control" type="text" maxLength="60" placeholder={$L('添加分类项')} value={this.state.itemName || ''} data-id="itemName" onChange={this.changeVal} />
+            <input
+              className="form-control"
+              type="text"
+              maxLength="60"
+              placeholder={$L('添加分类项')}
+              value={this.state.itemName || ''}
+              data-id="itemName"
+              onChange={this.changeVal}
+            />
             {this.state.itemId && this.state.itemHide && (
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
                 <input className="custom-control-input" type="checkbox" data-id="itemUnhide" onChange={this.changeVal} />
@@ -358,7 +366,14 @@ class DlgImports extends RbModalHandler {
                   <div className="col-sm-7">
                     <div className="float-left">
                       <div className="file-select">
-                        <input type="file" className="inputfile" id="upload-input" accept=".xlsx,.xls,.csv" data-local="temp" ref={(c) => (this._uploadInput = c)} />
+                        <input
+                          type="file"
+                          className="inputfile"
+                          id="upload-input"
+                          accept=".xlsx,.xls,.csv"
+                          data-local="temp"
+                          ref={(c) => (this._uploadInput = c)}
+                        />
                         <label htmlFor="upload-input" className="btn-secondary">
                           <i className="zmdi zmdi-upload"></i>
                           <span>{$L('选择文件')}</span>
@@ -369,7 +384,11 @@ class DlgImports extends RbModalHandler {
                       <u className="text-bold">{$fileCutName(this.state.uploadFile || '')}</u>
                     </div>
                     <div className="clearfix"></div>
-                    <div className="form-text link" dangerouslySetInnerHTML={{ __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/classifications)') }}></div>
+                    <div
+                      className="form-text link"
+                      dangerouslySetInnerHTML={{
+                        __html: $L('支持 Excel 或 CSV 文件，文件格式请 [参考文档](https://getrebuild.com/docs/admin/classifications)'),
+                      }}></div>
                   </div>
                 </div>
                 <div className="form-group row footer">
@@ -399,7 +418,12 @@ class DlgImports extends RbModalHandler {
                         </div>
                       </div>
                       <div className="float-right">
-                        <button disabled={this.state.inProgress === true} className="btn btn-sm btn-primary" data-file={item.file} data-name={item.name} onClick={this.import4Rbstore}>
+                        <button
+                          disabled={this.state.inProgress === true}
+                          className="btn btn-sm btn-primary"
+                          data-file={item.file}
+                          data-name={item.name}
+                          onClick={this.import4Rbstore}>
                           {$L('导入')}
                         </button>
                       </div>

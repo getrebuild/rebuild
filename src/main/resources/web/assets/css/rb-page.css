@@ -3092,7 +3092,8 @@ form {
 }
 
 .preview-modal .preview-body .iframe.text > pre {
-  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui',
+    'microsoft yahei', sans-serif;
   font-size: 1rem;
   background-color: #fff;
 }

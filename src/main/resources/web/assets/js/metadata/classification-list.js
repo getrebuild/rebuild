@@ -98,7 +98,13 @@ class DlgEdit extends RbFormHandler {
             <div className="form-group row">
               <div className="col-sm-7 offset-sm-3">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                  <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+                  <input
+                    className="custom-control-input"
+                    type="checkbox"
+                    checked={this.state.isDisabled === true}
+                    data-id="isDisabled"
+                    onChange={this.handleChange}
+                  />
                   <span className="custom-control-label">{$L('是否禁用 (禁用不影响已有数据)')}</span>
                 </label>
               </div>

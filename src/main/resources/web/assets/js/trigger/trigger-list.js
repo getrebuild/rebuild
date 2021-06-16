@@ -55,7 +55,13 @@ class TriggerList extends ConfigList {
               <td>{item[2] || item[1]}</td>
               <td>{item[7]}</td>
               <td>{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('否')}</span> : <span className="badge badge-success font-weight-light">{$L('是')}</span>}</td>
+              <td>
+                {item[4] ? (
+                  <span className="badge badge-warning font-weight-light">{$L('否')}</span>
+                ) : (
+                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
+                )}
+              </td>
               <td>
                 <DateShow date={item[5]} />
               </td>
@@ -142,7 +148,13 @@ class TriggerEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.isDisabled === true}
+                  data-id="isDisabled"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('是否禁用')}</span>
               </label>
             </div>
@@ -212,7 +224,11 @@ class TriggerEdit extends ConfigFormDlg {
     }
 
     if (rb.commercial < 1 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
-      return RbHighbar.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]), { type: 'danger', html: true, timeout: 6000 })
+      return RbHighbar.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]), {
+        type: 'danger',
+        html: true,
+        timeout: 6000,
+      })
     }
 
     this.disabled(true)

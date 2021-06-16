@@ -125,7 +125,13 @@ class RbPreview extends React.Component {
               <RbSpinner fully={true} />
             </div>
           )}
-          <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
+          <iframe
+            className={!this.state.docRendered ? 'hide' : ''}
+            src={this.state.previewUrl || ''}
+            onLoad={() => this.setState({ docRendered: true })}
+            frameBorder="0"
+            scrolling="no"
+          />
         </div>
       </div>
     )

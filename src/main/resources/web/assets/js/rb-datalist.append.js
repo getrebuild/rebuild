@@ -29,26 +29,54 @@ class BatchOperator extends RbFormHandler {
             <div>
               {selectedRows > 0 && (
                 <label className="custom-control custom-control-sm custom-radio mb-2">
-                  <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 1} value="1" onChange={this.handleChange} />
+                  <input
+                    className="custom-control-input"
+                    name="dataRange"
+                    type="radio"
+                    checked={~~this.state.dataRange === 1}
+                    value="1"
+                    onChange={this.handleChange}
+                  />
                   <span className="custom-control-label">
                     {$L('选中的数据')} ({$L('共 %d 项', selectedRows)})
                   </span>
                 </label>
               )}
               <label className="custom-control custom-control-sm custom-radio mb-2">
-                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 2} value="2" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  name="dataRange"
+                  type="radio"
+                  checked={~~this.state.dataRange === 2}
+                  value="2"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
                   {$L('当前页的数据')} ({$L('共 %d 项', pageRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-2">
-                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 3} value="3" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  name="dataRange"
+                  type="radio"
+                  checked={~~this.state.dataRange === 3}
+                  value="3"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
                   {$L('查询后的数据')} ({$L('共 %d 项', queryRows)})
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input className="custom-control-input" name="dataRange" type="radio" checked={~~this.state.dataRange === 10} value="10" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  name="dataRange"
+                  type="radio"
+                  checked={~~this.state.dataRange === 10}
+                  value="10"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">{$L('全部数据')}</span>
               </label>
             </div>
@@ -137,7 +165,9 @@ class BatchUpdate extends BatchOperator {
                     <div className="col-2 pl-0 pr-0">
                       <span className="badge badge-light">{BUE_OPTYPES[item.op]}</span>
                     </div>
-                    <div className="col-6">{item.op !== 'NULL' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.value, fieldObj)}</span>}</div>
+                    <div className="col-6">
+                      {item.op !== 'NULL' && <span className="badge badge-light text-break">{FieldValueSet.formatFieldText(item.value, fieldObj)}</span>}
+                    </div>
                   </div>
                 </div>
               )
@@ -304,7 +334,9 @@ class BatchUpdateEditor extends React.Component {
         </div>
         <div className="col-6">
           <div className={`${this.state.selectOp === 'NULL' ? 'hide' : ''}`}>
-            {this.state.selectFieldObj && <FieldValueSet entity={this.props.entity} field={this.state.selectFieldObj} placeholder={$L('新值')} ref={(c) => (this._valueComp = c)} />}
+            {this.state.selectFieldObj && (
+              <FieldValueSet entity={this.props.entity} field={this.state.selectFieldObj} placeholder={$L('新值')} ref={(c) => (this._valueComp = c)} />
+            )}
           </div>
         </div>
       </div>

@@ -207,7 +207,9 @@ class SimpleNode extends NodeSpec {
 
     return (
       <div className="node-wrap">
-        <div className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`} title={rb.env === 'dev' ? this.props.nodeId : null}>
+        <div
+          className={`node-wrap-box animated fadeIn ${NT[0]}-node ${this.state.hasError ? 'error' : ''} ${this.state.active ? 'active' : ''}`}
+          title={rb.env === 'dev' ? this.props.nodeId : null}>
           <div className="title">
             <span>{data.nodeName || NT[1]}</span>
             {this.props.nodeId !== 'ROOT' && <i className="zmdi zmdi-close aclose" title={$L('移除')} onClick={this.removeNodeQuick} />}
@@ -242,7 +244,9 @@ class ConditionNode extends NodeSpec {
                 {$L('添加分支')}
               </button>
               {this.state.branches.map((item, idx) => {
-                return <ConditionBranch key={'kcb-' + item.nodeId} priority={idx + 1} isFirst={idx === 0} isLast={idx === branchIdx} $$$parent={this} {...item} />
+                return (
+                  <ConditionBranch key={'kcb-' + item.nodeId} priority={idx + 1} isFirst={idx === 0} isLast={idx === branchIdx} $$$parent={this} {...item} />
+                )
               })}
             </div>
             <AddNodeButton addNodeCall={this.addNodeQuick} />
@@ -501,11 +505,25 @@ class StartNodeConfig extends RbFormHandler {
               <span className="custom-control-label">{$L('所有人')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio mb-2">
-              <input className="custom-control-input" type="radio" name="users" value="OWNS" onChange={this.handleChange} checked={this.state.users === 'OWNS'} />
+              <input
+                className="custom-control-input"
+                type="radio"
+                name="users"
+                value="OWNS"
+                onChange={this.handleChange}
+                checked={this.state.users === 'OWNS'}
+              />
               <span className="custom-control-label">{$L('记录所属用户')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio mb-2">
-              <input className="custom-control-input" type="radio" name="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
+              <input
+                className="custom-control-input"
+                type="radio"
+                name="users"
+                value="SPEC"
+                onChange={this.handleChange}
+                checked={this.state.users === 'SPEC'}
+              />
               <span className="custom-control-label">{$L('指定用户')}</span>
             </label>
           </div>
@@ -578,11 +596,25 @@ class ApproverNodeConfig extends StartNodeConfig {
           <div className="form-group mb-0">
             <label className="text-bold">{$L('由谁审批')}</label>
             <label className="custom-control custom-control-sm custom-radio mb-2">
-              <input className="custom-control-input" type="radio" name="users" value="SELF" onChange={this.handleChange} checked={this.state.users === 'SELF'} />
+              <input
+                className="custom-control-input"
+                type="radio"
+                name="users"
+                value="SELF"
+                onChange={this.handleChange}
+                checked={this.state.users === 'SELF'}
+              />
               <span className="custom-control-label">{$L('发起人自己')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio mb-2">
-              <input className="custom-control-input" type="radio" name="users" value="SPEC" onChange={this.handleChange} checked={this.state.users === 'SPEC'} />
+              <input
+                className="custom-control-input"
+                type="radio"
+                name="users"
+                value="SPEC"
+                onChange={this.handleChange}
+                checked={this.state.users === 'SPEC'}
+              />
               <span className="custom-control-label">{$L('指定审批人')}</span>
             </label>
           </div>
@@ -591,22 +623,49 @@ class ApproverNodeConfig extends StartNodeConfig {
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={this.handleChange} />
+              <input
+                className="custom-control-input"
+                type="checkbox"
+                name="selfSelecting"
+                checked={this.state.selfSelecting === true}
+                onChange={this.handleChange}
+              />
               <span className="custom-control-label">{$L('同时允许自选')}</span>
             </label>
           </div>
           <div className="form-group mt-4">
             <label className="text-bold">{$L('当有多人审批时')}</label>
             <label className="custom-control custom-control-sm custom-radio mb-2 hide">
-              <input className="custom-control-input" type="radio" name="signMode" value="ALL" onChange={this.handleChange} checked={this.state.signMode === 'ALL'} />
+              <input
+                className="custom-control-input"
+                type="radio"
+                name="signMode"
+                value="ALL"
+                onChange={this.handleChange}
+                checked={this.state.signMode === 'ALL'}
+              />
               <span className="custom-control-label">{$L('依次审批')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio mb-2">
-              <input className="custom-control-input" type="radio" name="signMode" value="AND" onChange={this.handleChange} checked={this.state.signMode === 'AND'} />
+              <input
+                className="custom-control-input"
+                type="radio"
+                name="signMode"
+                value="AND"
+                onChange={this.handleChange}
+                checked={this.state.signMode === 'AND'}
+              />
               <span className="custom-control-label">{$L('会签 (需所有审批人同意)')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-radio mb-2">
-              <input className="custom-control-input" type="radio" name="signMode" value="OR" onChange={this.handleChange} checked={this.state.signMode === 'OR'} />
+              <input
+                className="custom-control-input"
+                type="radio"
+                name="signMode"
+                value="OR"
+                onChange={this.handleChange}
+                checked={this.state.signMode === 'OR'}
+              />
               <span className="custom-control-label">{$L('或签 (一名审批人同意或拒绝)')}</span>
             </label>
           </div>
@@ -621,7 +680,13 @@ class ApproverNodeConfig extends StartNodeConfig {
                         <td>{this.__fieldLabel(item.field)}</td>
                         <td width="100">
                           <label className="custom-control custom-control-sm custom-checkbox custom-control-inline">
-                            <input className="custom-control-input" type="checkbox" name="notNull" defaultChecked={item.notNull === true} data-field={item.field} />
+                            <input
+                              className="custom-control-input"
+                              type="checkbox"
+                              name="notNull"
+                              defaultChecked={item.notNull === true}
+                              data-field={item.field}
+                            />
                             <span className="custom-control-label">{$L('必填')}</span>
                           </label>
                         </td>
@@ -636,7 +701,9 @@ class ApproverNodeConfig extends StartNodeConfig {
                 </tbody>
               </table>
               <div className="pb-4">
-                <button className="btn btn-secondary btn-sm" onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
+                <button
+                  className="btn btn-secondary btn-sm"
+                  onClick={() => renderRbcomp(<DlgFields selected={this.state.editableFields} call={(fs) => this.setEditableFields(fs)} />)}>
                   + {$L('选择字段')}
                 </button>
               </div>
@@ -729,11 +796,23 @@ class CCNodeConfig extends StartNodeConfig {
           </div>
           <div className="form-group mb-0">
             <label className="custom-control custom-control-sm custom-checkbox mb-2">
-              <input className="custom-control-input" type="checkbox" name="selfSelecting" checked={this.state.selfSelecting === true} onChange={(e) => this.handleChange(e)} />
+              <input
+                className="custom-control-input"
+                type="checkbox"
+                name="selfSelecting"
+                checked={this.state.selfSelecting === true}
+                onChange={(e) => this.handleChange(e)}
+              />
               <span className="custom-control-label">{$L('同时允许自选')}</span>
             </label>
             <label className="custom-control custom-control-sm custom-checkbox">
-              <input className="custom-control-input" type="checkbox" name="ccAutoShare" checked={this.state.ccAutoShare === true} onChange={(e) => this.handleChange(e)} />
+              <input
+                className="custom-control-input"
+                type="checkbox"
+                name="ccAutoShare"
+                checked={this.state.ccAutoShare === true}
+                onChange={(e) => this.handleChange(e)}
+              />
               <span className="custom-control-label">{$L('抄送人无读取权限时自动共享')}</span>
             </label>
           </div>
@@ -895,7 +974,13 @@ class DlgFields extends RbModalHandler {
             return (
               <div className="col-3" key={`field-${item.name}`}>
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-1">
-                  <input className="custom-control-input" type="checkbox" disabled={!item.updatable} value={item.name} defaultChecked={item.updatable && this._selected.includes(item.name)} />
+                  <input
+                    className="custom-control-input"
+                    type="checkbox"
+                    disabled={!item.updatable}
+                    value={item.name}
+                    defaultChecked={item.updatable && this._selected.includes(item.name)}
+                  />
                   <span className="custom-control-label">{item.label}</span>
                 </label>
               </div>
@@ -946,7 +1031,13 @@ class DlgCopy extends ConfigFormDlg {
         <div className="form-group row">
           <div className="col-sm-7 offset-sm-3">
             <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-              <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+              <input
+                className="custom-control-input"
+                type="checkbox"
+                checked={this.state.isDisabled === true}
+                data-id="isDisabled"
+                onChange={this.handleChange}
+              />
               <span className="custom-control-label">{$L('同时禁用当前流程')}</span>
             </label>
           </div>

@@ -201,7 +201,11 @@ const render_dashboard = function (init) {
   $(init).each((idx, item) => add_widget(item))
   if (rendered_charts.length === 0) {
     const gsi =
-      '<div class="grid-stack-item">' + '<div id="chart-add" class="grid-stack-item-content">' + `<a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a>` + '</div>' + '</div>'
+      '<div class="grid-stack-item">' +
+      '<div id="chart-add" class="grid-stack-item-content">' +
+      `<a class="chart-add"><i class="zmdi zmdi-plus"></i><p>${$L('添加图表')}</p></a>` +
+      '</div>' +
+      '</div>'
     const $gsi = gridstack.addWidget(gsi, 0, 0, 2, 2)
     $gsi.find('a').click(() => {
       if ($('.J_chart-new').length === 0) $('.J_chart-select').trigger('click')
@@ -213,7 +217,7 @@ const render_dashboard = function (init) {
   // When resize/re-postion/remove
   $('.grid-stack')
     .on('change', function (e) {
-      if (e.target) return  // input 元素也会触发 ???
+      if (e.target) return // input 元素也会触发 ???
       save_dashboard()
     })
     .on('resizestart', function () {
@@ -339,7 +343,14 @@ class DlgDashSettings extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
             <div className="col-sm-7">
-              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('默认仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
+              <input
+                className="form-control form-control-sm"
+                value={this.state.title || ''}
+                placeholder={$L('默认仪表盘')}
+                data-id="title"
+                onChange={this.handleChange}
+                maxLength="40"
+              />
             </div>
           </div>
           {rb.isAdminUser && (
@@ -416,7 +427,14 @@ class DlgDashAdd extends RbFormHandler {
           <div className="form-group row">
             <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
             <div className="col-sm-7">
-              <input className="form-control form-control-sm" value={this.state.title || ''} placeholder={$L('我的仪表盘')} data-id="title" onChange={this.handleChange} maxLength="40" />
+              <input
+                className="form-control form-control-sm"
+                value={this.state.title || ''}
+                placeholder={$L('我的仪表盘')}
+                data-id="title"
+                onChange={this.handleChange}
+                maxLength="40"
+              />
             </div>
           </div>
           <div className="form-group row">

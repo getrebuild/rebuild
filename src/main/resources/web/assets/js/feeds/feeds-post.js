@@ -209,7 +209,9 @@ class FeedsEditor extends React.Component {
           </div>
         </div>
 
-        {this.state.type === 4 && <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />}
+        {this.state.type === 4 && (
+          <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />
+        )}
         {(this.state.type === 2 || this.state.type === 4) && (
           <div className="feed-options related">
             <dl className="row">

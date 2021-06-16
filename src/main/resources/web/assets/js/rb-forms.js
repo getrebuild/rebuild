@@ -418,7 +418,9 @@ class RbFormElement extends React.Component {
 
     return (
       <div className={`form-group row type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
-        <label ref={(c) => (this._fieldLabel = c)} className={`col-12 col-sm-${colWidths[0]} col-form-label text-sm-right ${!props.onView && !props.nullable ? 'required' : ''}`}>
+        <label
+          ref={(c) => (this._fieldLabel = c)}
+          className={`col-12 col-sm-${colWidths[0]} col-form-label text-sm-right ${!props.onView && !props.nullable ? 'required' : ''}`}>
           {props.label}
         </label>
         <div ref={(c) => (this._fieldText = c)} className={'col-12 col-sm-' + colWidths[1]}>
@@ -791,7 +793,9 @@ class RbFormTextarea extends RbFormElement {
       <React.Fragment>
         <textarea
           ref={(c) => (this._fieldValue = c)}
-          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
+          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${
+            this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''
+          }`}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={this.handleChange}
@@ -1088,7 +1092,10 @@ class RbFormFile extends RbFormImage {
         {showUpload && (
           <div className="file-select">
             <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
-            <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+            <label
+              htmlFor={`${this.props.field}-input`}
+              title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)}
+              className="btn-secondary">
               <i className="zmdi zmdi-upload"></i>
               <span>{$L('上传文件')}</span>
             </label>
@@ -1202,7 +1209,12 @@ class RbFormReference extends RbFormElement {
     const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
     return (
       <div className="input-group has-append">
-        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
+        <select
+          ref={(c) => (this._fieldValue = c)}
+          className="form-control form-control-sm"
+          title={hasDataFilter ? $L('当前字段已启用数据过滤') : null}
+          multiple={this._multiple === true}
+        />
         {!this.props.readonly && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
@@ -1488,7 +1500,14 @@ class RbFormClassification extends RbFormElement {
       const that = this
       renderRbcomp(
         // eslint-disable-next-line react/jsx-no-undef
-        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen={true} />,
+        <ClassificationSelector
+          entity={p.$$$parent.state.entity}
+          field={p.field}
+          label={p.label}
+          openLevel={p.openLevel}
+          onSelect={(s) => this._setClassificationValue(s)}
+          keepModalOpen={true}
+        />,
         null,
         function () {
           that.__selector = this
@@ -1670,7 +1689,9 @@ class RbFormAvatar extends RbFormElement {
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
-          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
+          {!this.props.readonly && (
+            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
+          )}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
             <img src={aUrl} alt="Avatar" />
           </label>

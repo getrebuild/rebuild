@@ -69,7 +69,12 @@ class RbList extends React.Component {
                       const styles = { width: cWidth + 'px' }
                       const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
-                        <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
+                        <th
+                          key={'column-' + item.field}
+                          style={styles}
+                          className={clazz}
+                          data-field={item.field}
+                          onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={styles}>
                             <span style={{ width: cWidth - 8 + 'px' }}>{item.label}</span>
                             <i className={'zmdi ' + (item.sort || '')} />
@@ -115,7 +120,9 @@ class RbList extends React.Component {
             </div>
           </div>
         </div>
-        {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._pagination = c)} rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />}
+        {this.state.rowsData.length > 0 && (
+          <RbListPagination ref={(c) => (this._pagination = c)} rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />
+        )}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>
     )
@@ -605,7 +612,12 @@ CellRenders.addRender('URL', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a href={`${rb.baseUrl}/commons/url-safe?url=${$encode(v)}`} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>
+        <a
+          href={`${rb.baseUrl}/commons/url-safe?url=${$encode(v)}`}
+          className="column-url"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => $stopEvent(e)}>
           {v}
         </a>
       </div>
@@ -923,7 +935,9 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
-          const $action = $(`<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
+          const $action = $(
+            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`
+          ).appendTo($item)
 
           $action.find('a:eq(0)').click(function () {
             that.showAdvFilter(item.id)
@@ -1049,7 +1063,9 @@ $(document).ready(() => {
   const via = $urlp('via', location.hash)
   if (via) {
     wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
+    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo(
+      '.dataTables_filter'
+    )
     $cleanVia.find('a').click(() => {
       wpc.protocolFilter = null
       RbListPage.reload()
@@ -1083,7 +1099,12 @@ class RbViewModal extends React.Component {
             <div className="modal-dialog">
               <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
                 <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                  <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no"></iframe>
+                  <iframe
+                    ref={(c) => (this._iframe = c)}
+                    className={this.state.isHide ? 'invisible' : ''}
+                    src={this.state.showAfterUrl || 'about:blank'}
+                    frameBorder="0"
+                    scrolling="no"></iframe>
                   <RbSpinner />
                 </div>
               </div>

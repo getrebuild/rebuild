@@ -64,10 +64,14 @@ $(document).ready(function () {
   const _save = function (navs) {
     const $btn = $('.J_save').button('loading')
     const std = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
-    $.post(`/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`, JSON.stringify(navs), function (res) {
-      $btn.button('reset')
-      if (res.error_code === 0) parent.location.reload()
-    })
+    $.post(
+      `/app/settings/nav-settings?id=${cfgid || ''}&configName=${$encode(std.configName || '')}&shareTo=${std.shareTo || ''}`,
+      JSON.stringify(navs),
+      function (res) {
+        $btn.button('reset')
+        if (res.error_code === 0) parent.location.reload()
+      }
+    )
   }
 
   $('.J_save').click(function () {
@@ -114,9 +118,13 @@ $(document).ready(function () {
     $.get('/app/settings/nav-settings/alist', (res) => {
       const cc = res.data.find((x) => x[0] === _current.id)
       if (rb.isAdminUser) {
-        renderRbcomp(<Share2 title={$L('导航菜单')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />, 'shareTo', function () {
-          shareToComp = this
-        })
+        renderRbcomp(
+          <Share2 title={$L('导航菜单')} list={res.data} configName={cc ? cc[1] : ''} shareTo={_current.shareTo} id={_current.id} />,
+          'shareTo',
+          function () {
+            shareToComp = this
+          }
+        )
       } else {
         // overSelf = cc && cc[3] !== rb.currentUser
         // eslint-disable-next-line no-undef
@@ -174,7 +182,9 @@ const render_item = function (data, isNew, append2) {
 
   let $item = $('.J_config').find(`li[attr-id='${data.id}']`)
   if ($item.length === 0) {
-    $item = $('<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>').appendTo(append2)
+    $item = $(
+      '<li class="dd-item dd3-item"><div class="dd-handle dd3-handle"></div><div class="dd3-content"><i class="zmdi"></i><span></span></div></li>'
+    ).appendTo(append2)
     const $action = $(
       `<div class="dd3-action"><a class="J_addsub" title="${$L('添加子菜单')}"><i class="zmdi zmdi-plus"></i></a><a class="J_del" title="${$L(
         '移除'

@@ -99,16 +99,21 @@ class RbWelcome extends React.Component {
   // 开始安装
   _next(type) {
     const that = this
-    RbAlert.create(`<div class="text-left link">${$('.license').html()}<p class="text-bold">${$L('如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。')}</p></div>`, {
-      html: true,
-      type: 'warning',
-      cancelText: $L('不同意'),
-      confirmText: $L('同意'),
-      confirm: function () {
-        this.hide()
-        that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
-      },
-    })
+    RbAlert.create(
+      `<div class="text-left link">${$('.license').html()}<p class="text-bold">${$L(
+        '如果用于商业用途，请注意使用目的。访问 [REBUILD 官网](https://getrebuild.com/#pricing-plans) 了解更多信息。'
+      )}</p></div>`,
+      {
+        html: true,
+        type: 'warning',
+        cancelText: $L('不同意'),
+        confirmText: $L('同意'),
+        confirm: function () {
+          this.hide()
+          that.props.$$$parent.setState({ installType: type, stepNo: type === 1 ? 2 : 4 })
+        },
+      }
+    )
   }
 }
 
@@ -134,33 +139,68 @@ class DatabaseConf extends React.Component {
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('主机')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="dbHost" value={this.state.dbHost || ''} onChange={this.handleValue} placeholder="127.0.0.1" />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="dbHost"
+                value={this.state.dbHost || ''}
+                onChange={this.handleValue}
+                placeholder="127.0.0.1"
+              />
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('端口')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="dbPort" value={this.state.dbPort || ''} onChange={this.handleValue} placeholder="3306" />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="dbPort"
+                value={this.state.dbPort || ''}
+                onChange={this.handleValue}
+                placeholder="3306"
+              />
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('数据库名称')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="dbName" value={this.state.dbName || ''} onChange={this.handleValue} placeholder="rebuild20" />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="dbName"
+                value={this.state.dbName || ''}
+                onChange={this.handleValue}
+                placeholder="rebuild20"
+              />
               <div className="form-text">{$L('如数据库不存在系统将自动创建')}</div>
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('用户')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="dbUser" value={this.state.dbUser || ''} onChange={this.handleValue} placeholder="rebuild" />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="dbUser"
+                value={this.state.dbUser || ''}
+                onChange={this.handleValue}
+                placeholder="rebuild"
+              />
               <div className="form-text">{$L('请赋予用户除管理员权限以外的所有权限')}</div>
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('密码')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="dbPassword" value={this.state.dbPassword || ''} onChange={this.handleValue} placeholder="rebuild" />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="dbPassword"
+                value={this.state.dbPassword || ''}
+                onChange={this.handleValue}
+                placeholder="rebuild"
+              />
             </div>
           </div>
         </form>
@@ -267,13 +307,27 @@ class CacheConf extends DatabaseConf {
               <div className="form-group row">
                 <div className="col-sm-3 col-form-label text-sm-right">{$L('主机')}</div>
                 <div className="col-sm-7">
-                  <input type="text" className="form-control form-control-sm" name="CacheHost" value={this.state.CacheHost || ''} onChange={this.handleValue} placeholder="127.0.0.1" />
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    name="CacheHost"
+                    value={this.state.CacheHost || ''}
+                    onChange={this.handleValue}
+                    placeholder="127.0.0.1"
+                  />
                 </div>
               </div>
               <div className="form-group row">
                 <div className="col-sm-3 col-form-label text-sm-right">{$L('端口')}</div>
                 <div className="col-sm-7">
-                  <input type="text" className="form-control form-control-sm" name="CachePort" value={this.state.CachePort || ''} onChange={this.handleValue} placeholder="6379" />
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    name="CachePort"
+                    value={this.state.CachePort || ''}
+                    onChange={this.handleValue}
+                    placeholder="6379"
+                  />
                 </div>
               </div>
               <div className="form-group row">
@@ -347,7 +401,10 @@ class CacheConf extends DatabaseConf {
 
     this.setState({ inTest: true })
     $.post('/setup/test-cache', JSON.stringify(ps), (res) => {
-      this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg }, () => typeof call === 'function' && call(ps, res))
+      this.setState(
+        { inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
+        () => typeof call === 'function' && call(ps, res)
+      )
     })
   }
 
@@ -375,7 +432,14 @@ class AdminConf extends DatabaseConf {
           <div className="form-group row pt-0">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('管理员密码')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="adminPasswd" value={this.state.adminPasswd || ''} onChange={this.handleValue} placeholder="admin" />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="adminPasswd"
+                value={this.state.adminPasswd || ''}
+                onChange={this.handleValue}
+                placeholder="admin"
+              />
               <div className="form-text">
                 {$L('默认用户名/密码均为')} <code className="text-danger">admin</code>
               </div>
@@ -384,7 +448,14 @@ class AdminConf extends DatabaseConf {
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('管理员邮箱')}</div>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="adminMail" value={this.state.adminMail || ''} onChange={this.handleValue} placeholder={$L('(选填)')} />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="adminMail"
+                value={this.state.adminMail || ''}
+                onChange={this.handleValue}
+                placeholder={$L('(选填)')}
+              />
               <div className="form-text">{$L('用于找回密码等重要操作，也可在安装完成后填写')}</div>
             </div>
           </div>

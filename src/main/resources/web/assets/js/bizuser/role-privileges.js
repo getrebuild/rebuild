@@ -76,10 +76,14 @@ const loadRoles = function () {
     $(res.data).each(function () {
       const _id = this.id
       const $item = $(
-        `<li><a class="text-truncate ${this.disabled ? 'text-disabled' : ''}" title="${this.disabled ? $L('已禁用') : ''}" href="${rb.baseUrl}/admin/bizuser/role/${_id}">${this.name}</a></li>`
+        `<li><a class="text-truncate ${this.disabled ? 'text-disabled' : ''}" title="${this.disabled ? $L('已禁用') : ''}" href="${
+          rb.baseUrl
+        }/admin/bizuser/role/${_id}">${this.name}</a></li>`
       ).appendTo('.aside-tree ul')
 
-      const $action = $('<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>').appendTo($item)
+      const $action = $(
+        '<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>'
+      ).appendTo($item)
       if (roleId === _id) $item.addClass('active')
       if (_id === '003-0000000000000001') $action.remove()
 
