@@ -37,9 +37,10 @@
         const entity = $urlp('entity')
         const settingsUrl = `/app/${entity}/list-fields`
 
+        let overwriteMode = false
         let shareToComp
         let cfgid = $urlp('id')
-        $.get(settingsUrl + '?id=' + (cfgid || ''), function (res) {
+        $.get(`${settingsUrl}?id=${cfgid || ''}`, function (res) {
           const _data = res.data || {}
           $(_data.fieldList).each(function () {
             render_unset([this.field, this.label])
@@ -48,6 +49,11 @@
             $('.unset-list li[data-key="' + this.field + '"]').trigger('click')
           })
           cfgid = _data.configId || ''
+
+          // 覆盖自有配置
+          if (res.data) {
+            overwriteMode = !rb.isAdminUser && res.data.shareTo !== 'SELF'
+          }
 
           $.get(`${settingsUrl}/alist`, (res) => {
             const ccfg = res.data.find((x) => x[0] === cfgid)
@@ -66,6 +72,12 @@
               })
               renderSwitchButton(data, $L('列显示'), cfgid)
             }
+
+            // 有自有才提示覆盖
+            if (overwriteMode) {
+              const haveSelf = res.data.find((x) => x[2] === 'SELF')
+              overwriteMode = !!haveSelf
+            }
           })
         })
 
@@ -76,16 +88,29 @@
           })
           if (config.length === 0) return RbHighbar.create($L('请至少选择 1 个显示列'))
 
-          const $btn = $(this).button('loading')
-          const shareToData = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
-          $.post(
-            `${settingsUrl}?id=${cfgid}&configName=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`,
-            JSON.stringify(config),
-            function (res) {
-              if (res.error_code === 0) parent.location.reload()
-              $btn.button('reset')
-            }
-          )
+          const _save = function () {
+            const $btn = $(this).button('loading')
+            const shareToData = shareToComp ? shareToComp.getData() : { shareTo: 'SELF' }
+            $.post(
+              `${settingsUrl}?id=${cfgid}&configName=${shareToData.configName || ''}&shareTo=${shareToData.shareTo || ''}`,
+              JSON.stringify(config),
+              function (res) {
+                if (res.error_code === 0) parent.location.reload()
+                $btn.button('reset')
+              }
+            )
+          }
+
+          if (overwriteMode) {
+            RbAlert.create($L('保存将覆盖你现有的列显示。继续吗？'), {
+              confirm: function () {
+                this.hide()
+                _save()
+              },
+            })
+          } else {
+            _save()
+          }
         })
       })
     </script>
