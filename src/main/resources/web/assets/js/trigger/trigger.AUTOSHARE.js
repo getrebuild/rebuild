@@ -42,7 +42,7 @@ class ContentAutoShare extends ActionContentSpec {
             <div className="col-12 col-lg-8">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />
-                <span className="custom-control-label">{$L('允许编辑 (默认仅共享读取权限)')}</span>
+                <span className="custom-control-label">{$L('允许修改 (不勾选则仅共享读取权限)')}</span>
               </label>
             </div>
           </div>
