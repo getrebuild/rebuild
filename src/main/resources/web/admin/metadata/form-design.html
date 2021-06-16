@@ -4,7 +4,7 @@
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%B8%83%E5%B1%80" />
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/form-design.css}" />
-    <title>[[${bundle.L('FormLayout')}]]</title>
+    <title>[[${bundle.L('表单设计')}]]</title>
   </head>
   <body class="open-right-sidebar">
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -23,10 +23,10 @@
               </div>
               <div class="aside-nav collapse">
                 <ul class="nav">
-                  <li><a href="base">[[${bundle.L('BasicInfo')}]]</a></li>
-                  <li class="active"><a href="form-design">[[${bundle.L('FormLayout')}]]</a></li>
-                  <li><a href="fields">[[${bundle.L('NavFields')}]]</a></li>
-                  <li><a href="advanced">[[${bundle.L('AdvConf')}]]</a></li>
+                  <li><a href="base">[[${bundle.L('基本信息')}]]</a></li>
+                  <li class="active"><a href="form-design">[[${bundle.L('表单设计')}]]</a></li>
+                  <li><a href="fields">[[${bundle.L('字段管理')}]]</a></li>
+                  <li><a href="advanced">[[${bundle.L('高级配置')}]]</a></li>
                 </ul>
               </div>
             </div>
@@ -36,14 +36,14 @@
           <div class="rb-content">
             <div class="tab-container">
               <ul class="nav nav-tabs bg-transparent">
-                <li class="nav-item"><a class="nav-link active" href="#FIELDLIST" data-toggle="tab">[[${bundle.L('SomeList,Field')}]]</a></li>
-                <li class="nav-item"><a class="nav-link" href="#FIELDNEW" data-toggle="tab">[[${bundle.L('AddSome,Field')}]]</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#FIELDLIST" data-toggle="tab">[[${bundle.L('字段列表')}]]</a></li>
+                <li class="nav-item"><a class="nav-link" href="#FIELDNEW" data-toggle="tab">+ [[${bundle.L('添加字段')}]]</a></li>
               </ul>
               <div class="tab-content bg-transparent p-0">
                 <div class="tab-pane active" id="FIELDLIST">
                   <div class="rb-scroller">
                     <!-- FIELDS HERE -->
-                    <div class="field-list dd-list" th:_title="${bundle.L('AllFieldsLayouted')}"></div>
+                    <div class="field-list dd-list" th:_title="${bundle.L('全部字段已布局')}"></div>
                   </div>
                 </div>
                 <div class="tab-pane" id="FIELDNEW">
@@ -59,30 +59,30 @@
         <div class="main-content container-fluid">
           <div>
             <div class="float-right">
-              <a class="btn btn-link J_add-divider">+ [[${bundle.L('AddSome,Divider')}]]</a>
-              <button class="btn btn-primary J_save" type="button">[[${bundle.L('Save')}]]</button>
+              <a class="btn btn-link J_add-divider">+ [[${bundle.L('添加分栏')}]]</a>
+              <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
             </div>
             <div class="tab-container">
               <ul class="nav nav-tabs nav-tabs-classic">
-                <li class="nav-item"><a class="nav-link active" href="#form-design" data-toggle="tab">[[${bundle.L('FormAndViewLayout')}]]</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#form-design" data-toggle="tab">[[${bundle.L('表单/视图布局')}]]</a></li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#adv-control" data-toggle="tab">[[${bundle.L('FormAdvControl')}]] <sup class="rbv"></sup></a>
+                  <a class="nav-link" href="#adv-control" data-toggle="tab">[[${bundle.L('高级控制')}]] <sup class="rbv"></sup></a>
                 </li>
               </ul>
               <div class="tab-content mb-5">
                 <div class="tab-pane active" id="form-design">
                   <!-- LAYOUT HERE -->
-                  <div class="form-preview view-preview dd-list" th:_title="${bundle.L('ClickFieldLayoutTips')}"></div>
+                  <div class="form-preview view-preview dd-list" th:_title="${bundle.L('点击右侧字段添加到布局')}"></div>
                   <div class="clearfix"></div>
                 </div>
                 <div class="tab-pane" id="adv-control">
                   <table th:if="${commercial > 0}" class="table table-hover table-p">
                     <thead>
                       <tr>
-                        <th>[[${bundle.L('Field')}]]</th>
-                        <th>[[${bundle.L('Display')}]]</th>
+                        <th>[[${bundle.L('字段')}]]</th>
+                        <th>[[${bundle.L('显示')}]]</th>
                         <th>
-                          <span class="d-inline-block">[[${bundle.L('Required')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('OnlyFormEffectiveTip')}"></i></span>
+                          <span class="d-inline-block">[[${bundle.L('必填')}]] <i class="zmdi zmdi-help zicon up-2" data-toggle="tooltip" th:title="${bundle.L('本选项仅针对表单有效')}"></i></span>
                         </th>
                       </tr>
                     </thead>
@@ -92,21 +92,21 @@
                         <td>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" name="displayOnCreate" checked />
-                            <span class="custom-control-label">[[${bundle.L('WhenCreate')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" name="displayOnUpdate" checked />
-                            <span class="custom-control-label">[[${bundle.L('WhenEdit')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
                         </td>
                         <td>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" name="requiredOnCreate" />
-                            <span class="custom-control-label">[[${bundle.L('WhenCreate')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('新建时')}]]</span>
                           </label>
                           <label class="custom-control custom-control-sm custom-checkbox custom-control-inline">
                             <input class="custom-control-input" type="checkbox" name="requiredOnUpdate" />
-                            <span class="custom-control-label">[[${bundle.L('WhenEdit')}]]</span>
+                            <span class="custom-control-label">[[${bundle.L('编辑时')}]]</span>
                           </label>
                         </td>
                       </tr>
@@ -115,7 +115,7 @@
                 </div>
               </div>
             </div>
-            <p class="protips">[[${bundle.L('FormAndViewLayoutTips1')}]]</p>
+            <p class="protips">[[${bundle.L('新建/编辑页暂不支持双列布局')}]]</p>
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@
     <th:block th:replace="~{/_include/footer}" />
     <script>
       window.__PageConfig = {
-        formConfig: _$unthy('[[${FormConfig}]]'),
+        formConfig: [(${FormConfig ?:'null'})],
         entityName: '[[${entityName}]]',
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
       }

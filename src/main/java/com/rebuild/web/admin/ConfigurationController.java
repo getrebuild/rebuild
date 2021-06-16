@@ -17,7 +17,6 @@ import com.qiniu.storage.BucketManager;
 import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.cache.CommonsCache;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.DataMasking;
 import com.rebuild.core.support.License;
@@ -25,7 +24,6 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
-import com.rebuild.utils.CommonsUtils;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
@@ -65,7 +63,7 @@ public class ConfigurationController extends BaseController {
         // Available langs
         mv.getModel().put("availableLangs", JSON.toJSON(Application.getLanguage().availableLocales()));
 
-        JSONObject auth = License.queryAuthority(false);
+        JSONObject auth = License.queryAuthority(true);
         mv.getModel().put("LicenseType",
                 auth.getString("authType") + " (" + auth.getString("authObject") + ")");
         mv.getModel().put("Version", Application.VER);
@@ -77,7 +75,7 @@ public class ConfigurationController extends BaseController {
     public RespBody postSystems(@RequestBody JSONObject data) {
         String dHomeURL = defaultIfBlank(data, ConfigurationItem.HomeURL);
         if (!RegexUtils.isUrl(dHomeURL)) {
-            return RespBody.errorl("SomeInvalid", "HomeUrl");
+            return RespBody.errorl("无效主页地址/域名");
         }
 
         // 验证数字参数
@@ -96,7 +94,8 @@ public class ConfigurationController extends BaseController {
         String dLOGO = data.getString("LOGO");
         String dLOGOWhite = data.getString("LOGOWhite");
         if (dLOGO != null || dLOGOWhite != null) {
-            Application.getCommonsCache().put("dimgLogoTime", CommonsUtils.randomHex(), CommonsCache.TS_DAY);
+            // @see UseThemeController#useLogo
+            Application.getCommonsCache().evict("dimgLogoTime");
         }
 
         setValues(data);
@@ -132,7 +131,7 @@ public class ConfigurationController extends BaseController {
             dStorageURL = "https:" + dStorageURL;
         }
         if (!RegexUtils.isUrl(dStorageURL)) {
-            return RespBody.errorl("SomeInvalid", "StorageDomain");
+            return RespBody.errorl("无效访问域名");
         }
 
         try {
@@ -145,7 +144,7 @@ public class ConfigurationController extends BaseController {
             return RespBody.ok();
 
         } catch (QiniuException ex) {
-            return RespBody.error(Language.L("ConfInvalid") + " : " + ex.response.error);
+            return RespBody.error(Language.L("无效配置参数 : %s", ex.response.error));
         } catch (Exception ex) {
             return RespBody.error(ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
@@ -165,7 +164,7 @@ public class ConfigurationController extends BaseController {
     public RespBody postIntegrationSubmail(@RequestBody JSONObject data) {
         String dMailAddr = defaultIfBlank(data, ConfigurationItem.MailAddr);
         if (!RegexUtils.isEMail(dMailAddr)) {
-            return RespBody.errorl("SomeInvalid", "MailServAddr");
+            return RespBody.errorl("无效发件人地址");
         }
 
         setValues(data);
@@ -180,7 +179,7 @@ public class ConfigurationController extends BaseController {
         String sent = null;
         if ("SMS".equalsIgnoreCase(type)) {
             if (!RegexUtils.isCNMobile(receiver)) {
-                return RespBody.errorl("SomeInvalid", "Mobile");
+                return RespBody.errorl("无效手机号码");
             }
 
             String[] specAccount = new String[]{
@@ -191,12 +190,12 @@ public class ConfigurationController extends BaseController {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.SmsPassword);
             }
 
-            String content = getLang(request, "SendTestMessage", "Sms");
+            String content = Language.L("收到此消息说明你的短信服务配置正确");
             sent = SMSender.sendSMS(receiver, content, specAccount);
 
         } else if ("EMAIL".equalsIgnoreCase(type)) {
             if (!RegexUtils.isEMail(receiver)) {
-                return RespBody.errorl("SomeInvalid", "Email");
+                return RespBody.errorl("无效邮箱地址");
             }
 
             String[] specAccount = new String[]{
@@ -208,14 +207,14 @@ public class ConfigurationController extends BaseController {
                 specAccount[1] = RebuildConfiguration.get(ConfigurationItem.MailPassword);
             }
 
-            String content = getLang(request, "SendTestMessage", "Email");
+            String content = Language.L("收到此消息说明你的邮件服务配置正确");
             sent = SMSender.sendMail(receiver, content, content, true, specAccount);
         }
 
         if (sent != null) {
             return RespBody.ok(sent);
         } else {
-            return RespBody.errorl("SendTestError");
+            return RespBody.errorl("测试发送失败，请检查你的配置");
         }
     }
 

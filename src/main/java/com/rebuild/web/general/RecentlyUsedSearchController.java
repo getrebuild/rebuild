@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +42,7 @@ public class RecentlyUsedSearchController extends BaseController {
         String type = getParameter(request, "type");
 
         ID[] recently = RecentlyUsedHelper.gets(getRequestUser(request), entity, type);
-        return formatSelect2(recently, getLang(request, "RecentlyUsed"));
+        return formatSelect2(recently, Language.L("最近使用"));
     }
 
     @PostMapping("recently-add")

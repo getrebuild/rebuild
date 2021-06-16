@@ -49,7 +49,7 @@ import java.util.*;
  * <br>- 会带有系统设置规则的执行
  * <br>- 会开启一个事务，详见 <tt>application-bean.xml</tt> 配置
  *
- * 如有需要，其他实体可根据自身业务集成并实现/改写实现
+ * 如有需要，其他实体可根据自身业务继承并复写
  *
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
@@ -58,6 +58,7 @@ import java.util.*;
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
 
+    @SuppressWarnings("deprecation")
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
 
@@ -396,8 +397,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                 ApprovalState state = ApprovalHelper.getApprovalState(record.getID(dtmField.getName()));
 
                 if (state == ApprovalState.APPROVED || state == ApprovalState.PROCESSING) {
-                    String stateType = state == ApprovalState.APPROVED ? "RecordApproved" : "RecordInApproval";
-                    throw new DataSpecificationException(Language.L("MainRecordApprovedNotAddDetailTips", stateType));
+                    throw new DataSpecificationException(state == ApprovalState.APPROVED
+                            ? Language.L("主记录已完成审批，不能添加明细") : Language.L("主记录正在审批中，不能添加明细"));
                 }
             }
 
@@ -407,10 +408,10 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             if (checkEntity.containsField(EntityHelper.ApprovalId)) {
                 // 需要验证主记录
-                String recordType = "Record";
+                String recordType = Language.L("记录");
                 if (mainEntity != null) {
                     recordId = getMainId(entity, recordId);
-                    recordType = "MainRecord";
+                    recordType = Language.L("主记录");
                 }
 
                 ApprovalState currentState;
@@ -436,16 +437,11 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
                 if (rejected) {
                     if (RobotTriggerObserver.getTriggerSource() != null) {
-                        recordType = "RelatedRecord";
+                        recordType = Language.L("关联记录");
                     }
 
-                    String errorMsg;
-                    if (currentState == ApprovalState.APPROVED) {
-                        errorMsg = Language.L("SomeRecordApprovedTips", recordType);
-                    } else {
-                        errorMsg = Language.L("SomeRecordInApprovalTips", recordType);
-                    }
-                    throw new DataSpecificationException(errorMsg);
+                    throw new DataSpecificationException(currentState == ApprovalState.APPROVED
+                            ? Language.L("%s已完成审批，禁止操作", recordType) : Language.L("%s正在审批中，禁止操作", recordType));
                 }
             }
         }

@@ -75,7 +75,7 @@ public class ApprovalProcessor extends SetUser {
     public boolean submit(JSONObject selectNextUsers) throws ApprovalException {
         final ApprovalState currentState = ApprovalHelper.getApprovalState(this.record);
         if (currentState == ApprovalState.PROCESSING || currentState == ApprovalState.APPROVED) {
-            throw new ApprovalException(Language.LF("InvalidApprovalStateXTips", currentState));
+            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", currentState));
         }
 
         FlowNodeGroup nextNodes = getNextNodes(FlowNode.NODE_ROOT);
@@ -133,7 +133,7 @@ public class ApprovalProcessor extends SetUser {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
         ApprovalState currentState = status.getCurrentState();
         if (currentState != ApprovalState.PROCESSING) {
-            throw new ApprovalException(Language.LF("InvalidApprovalStateXTips", currentState));
+            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", currentState));
         }
 
         final Object[] stepApprover = Application.createQueryNoFilter(
@@ -143,7 +143,8 @@ public class ApprovalProcessor extends SetUser {
                 .setParameter(3, getCurrentNodeId(status))
                 .unique();
         if (stepApprover == null || (Integer) stepApprover[1] != ApprovalState.DRAFT.getState()) {
-            throw new ApprovalException(Language.L(stepApprover == null ? "ApprovalStepApprovedByOther" : "ApprovalStepYouApproved"));
+            throw new ApprovalException(Language.L(stepApprover == null
+                    ? Language.L("当前流程已经被他人审批") : Language.L("你已经审批过当前流程")));
         }
 
         Record approvedStep = EntityHelper.forUpdate((ID) stepApprover[0], approver);
@@ -162,7 +163,7 @@ public class ApprovalProcessor extends SetUser {
         if (state == ApprovalState.APPROVED && !nextNodes.isLastStep()) {
             nextApprovers = nextNodes.getApproveUsers(this.getUser(), this.record, selectNextUsers);
             if (nextApprovers.isEmpty()) {
-                throw new ApprovalException(Language.L("NoNextApproversTips"));
+                throw new ApprovalException(Language.L("下一流程无审批人可用，请联系管理员配置"));
             }
 
             FlowNode nextApprovalNode = nextNodes.getApprovalNode();
@@ -189,7 +190,7 @@ public class ApprovalProcessor extends SetUser {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
         ApprovalState currentState = status.getCurrentState();
         if (currentState != ApprovalState.PROCESSING) {
-            throw new ApprovalException(Language.LF("InvalidApprovalStateXTips", currentState));
+            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", currentState));
         }
 
         Application.getBean(ApprovalStepService.class).txCancel(
@@ -204,7 +205,7 @@ public class ApprovalProcessor extends SetUser {
     public void revoke() throws ApprovalException {
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(this.record);
         if (status.getCurrentState() != ApprovalState.APPROVED) {
-            throw new ApprovalException(Language.LF("InvalidApprovalStateXTips", status.getCurrentState()));
+            throw new ApprovalException(Language.L("无效审批状态 (%s) ，请刷新后重试", status.getCurrentState()));
         }
 
         Object[] count = Application.createQueryNoFilter(
@@ -213,7 +214,7 @@ public class ApprovalProcessor extends SetUser {
                 .setParameter(2, ApprovalState.REVOKED.getState())
                 .unique();
         if (ObjectUtils.toInt(count[0]) >= MAX_REVOKED) {
-            throw new ApprovalException(Language.LF("RevokeOutLimitTips", MAX_REVOKED));
+            throw new ApprovalException(Language.L("记录撤销次数已达 %d 次，不能再次撤销", MAX_REVOKED));
         }
 
         Application.getBean(ApprovalStepService.class).txCancel(
@@ -386,7 +387,7 @@ public class ApprovalProcessor extends SetUser {
             stepGroup.add(o);
         }
         if (firstStep == null) {
-            throw new ConfigurationException(Language.LF("InvalidapprovalRecordX", this.record));
+            throw new ConfigurationException(Language.L("无效审批记录 (%s)", this.record));
         }
 
         JSONArray steps = new JSONArray();

@@ -12,18 +12,21 @@ $(document).ready(function () {
 })
 
 const WHENS = {
-  1: $L('Create'),
-  2: $L('Delete'),
-  4: $L('Update2'),
-  16: $L('Assign'),
-  32: $L('Share'),
-  64: $L('UnShare'),
-  128: $L('Approved'),
-  256: $L('Revoked'),
-  512: `(${$L('JobExecution')})`,
+  1: $L('新建'),
+  2: $L('删除'),
+  4: $L('更新'),
+  16: $L('分派'),
+  32: $L('共享'),
+  64: $L('取消共享'),
+  128: $L('审批通过'),
+  256: $L('审批撤销'),
+  512: `(${$L('定期执行')})`,
 }
 
-const RBV_TRIGGERS = ['HOOKURL', 'AUTOTRANSFORM']
+const RBV_TRIGGERS = {
+  'HOOKURL': $L('回调 URL'),
+  'AUTOTRANSFORM': $L('自动记录转换'),
+}
 
 const formatWhen = function (maskVal) {
   const as = []
@@ -51,16 +54,22 @@ class TriggerList extends ConfigList {
               </td>
               <td>{item[2] || item[1]}</td>
               <td>{item[7]}</td>
-              <td>{item[6] > 0 ? $L('WhenXTime').replace('%s', formatWhen(item[6])) : <span className="text-warning">({$L('NoTriggerAction')})</span>}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
+              <td>{item[6] > 0 ? $L('当 %s 时', formatWhen(item[6])) : <span className="text-warning">({$L('无触发动作')})</span>}</td>
+              <td>
+                {item[4] ? (
+                  <span className="badge badge-warning font-weight-light">{$L('否')}</span>
+                ) : (
+                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
+                )}
+              </td>
               <td>
                 <DateShow date={item[5]} />
               </td>
               <td className="actions">
-                <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
+                <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </a>
-                <a className="icon danger-hover" title={$L('Delete')} onClick={() => this.handleDelete(item[0])}>
+                <a className="icon danger-hover" title={$L('删除')} onClick={() => this.handleDelete(item[0])}>
                   <i className="zmdi zmdi-delete" />
                 </a>
               </td>
@@ -77,9 +86,9 @@ class TriggerList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('DeleteSomeConfirm,Trigger'), {
+    RbAlert.create($L('确认删除此触发器？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         handle(id, () => dlgActionAfter(this))
@@ -91,7 +100,7 @@ class TriggerList extends ConfigList {
 class TriggerEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.subtitle = $L('Trigger')
+    this.subtitle = $L('触发器')
   }
 
   renderFrom() {
@@ -100,7 +109,7 @@ class TriggerEdit extends ConfigFormDlg {
         {!this.props.id && (
           <React.Fragment>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,Trigger')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择触发器')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._actionType = c)}>
                   {(this.state.actions || []).map((item) => {
@@ -114,7 +123,7 @@ class TriggerEdit extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,SourceEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择源实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._sourceEntity = c)}>
                   {(this.state.sourceEntities || []).map((item) => {
@@ -130,7 +139,7 @@ class TriggerEdit extends ConfigFormDlg {
           </React.Fragment>
         )}
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
@@ -139,8 +148,14 @@ class TriggerEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('IsDisable')}</span>
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.isDisabled === true}
+                  data-id="isDisabled"
+                  onChange={this.handleChange}
+                />
+                <span className="custom-control-label">{$L('是否禁用')}</span>
               </label>
             </div>
           </div>
@@ -158,10 +173,10 @@ class TriggerEdit extends ConfigFormDlg {
       this.setState({ actions: res.data }, () => {
         const s2ot = $(this._actionType)
           .select2({
-            placeholder: $L('SelectSome,TriggerType'),
+            placeholder: $L('选择触发类型'),
             allowClear: false,
             templateResult: function (s) {
-              if (RBV_TRIGGERS.includes(s.id)) {
+              if (Object.keys(RBV_TRIGGERS).includes(s.id)) {
                 return $(`<span>${s.text} <sup class="rbv"></sup></span>`)
               } else {
                 return s.text
@@ -175,7 +190,7 @@ class TriggerEdit extends ConfigFormDlg {
 
         // #2
         const s2se = $(this._sourceEntity).select2({
-          placeholder: $L('SelectSome,SourceEntity'),
+          placeholder: $L('选择源实体'),
           allowClear: false,
         })
         this.__select2.push(s2se)
@@ -193,14 +208,14 @@ class TriggerEdit extends ConfigFormDlg {
 
   confirm = () => {
     let data = { name: this.state['name'] }
-    if (!data.name) return RbHighbar.create($L('PlsInputSome,Name'))
+    if (!data.name) return RbHighbar.create($L('请输入名称'))
 
     if (this.props.id) {
       data.isDisabled = this.state.isDisabled === true
     } else {
       data = { ...data, actionType: this.__select2[0].val(), belongEntity: this.__select2[1].val() }
       if (!data.actionType || !data.belongEntity) {
-        return RbHighbar.create($L('PlsSelectSome,SourceEntity'))
+        return RbHighbar.create($L('请选择源实体'))
       }
     }
     data.metadata = {
@@ -208,8 +223,12 @@ class TriggerEdit extends ConfigFormDlg {
       id: this.props.id || null,
     }
 
-    if (rb.commercial < 1 && RBV_TRIGGERS.includes(data.actionType)) {
-      return RbHighbar.create($L(`FreeVerNotSupportted,${data.actionType}`), { type: 'danger', html: true, timeout: 6000 })
+    if (rb.commercial < 1 && Object.keys(RBV_TRIGGERS).includes(data.actionType)) {
+      return RbHighbar.create($L('免费版不支持%s功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)', RBV_TRIGGERS[data.actionType]), {
+        type: 'danger',
+        html: true,
+        timeout: 6000,
+      })
     }
 
     this.disabled(true)

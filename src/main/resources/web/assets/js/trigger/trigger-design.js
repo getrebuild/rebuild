@@ -31,9 +31,13 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} />, null, function () {
-        advFilter = this
-      })
+      renderRbcomp(
+        <AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal={true} canNoFilters={true} />,
+        null,
+        function () {
+          advFilter = this
+        }
+      )
     }
   })
   saveFilter(wpc.whenFilter)
@@ -49,7 +53,11 @@ $(document).ready(() => {
     })
     const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
     if (rb.commercial < 1 && (when & 512) !== 0) {
-      return RbHighbar.create($L('FreeVerNotSupportted,JobExecution'), { type: 'danger', html: true, timeout: 6000 })
+      return RbHighbar.create($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
+        type: 'danger',
+        html: true,
+        timeout: 6000,
+      })
     }
 
     const content = contentComp.buildContent()
@@ -71,8 +79,9 @@ $(document).ready(() => {
 
 const saveFilter = function (res) {
   wpc.whenFilter = res
-  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a').text(`${$L('AdvFiletrSeted')} (${wpc.whenFilter.items.length})`)
-  else $('.J_whenFilter a').text($L('ClickSet'))
+  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0)
+    $('.J_whenFilter a').text(`${$L('已设置条件')} (${wpc.whenFilter.items.length})`)
+  else $('.J_whenFilter a').text($L('点击设置'))
 }
 
 // 组件复写
@@ -88,7 +97,7 @@ const BIZZ_ENTITIES = ['User', 'Department', 'Role', 'Team']
 class UserSelectorWithField extends UserSelector {
   constructor(props) {
     super(props)
-    this._useTabs.push(['FIELDS', $L('UseField')])
+    this._useTabs.push(['FIELDS', $L('使用字段')])
   }
 
   componentDidMount() {

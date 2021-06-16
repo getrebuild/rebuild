@@ -66,11 +66,11 @@ public class DataListBuilderImpl implements DataListBuilder {
     public JSON getJSONResult() {
         int totalRows = 0;
         if (queryParser.isNeedReload()) {
-            Object[] count = Application.getQueryFactory().createQuery(queryParser.toCountSql(), user).unique();
+            Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
             totalRows = ObjectUtils.toInt(count[0]);
         }
 
-        Query query = Application.getQueryFactory().createQuery(queryParser.toSql(), user);
+        Query query = Application.createQuery(queryParser.toSql(), user);
         int[] limits = queryParser.getSqlLimit();
         Object[][] data = query.setLimit(limits[0], limits[1]).array();
 

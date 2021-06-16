@@ -13,7 +13,7 @@ $(document).ready(() => {
 const deleteRole = function (id) {
   const alertExt = {
     type: 'danger',
-    confirmText: $L('Delete'),
+    confirmText: $L('删除'),
     confirm: function () {
       this.disabled(true)
 
@@ -26,9 +26,12 @@ const deleteRole = function (id) {
 
   $.get(`/admin/bizuser/delete-checks?id=${id}`, function (res) {
     if (res.data.hasMember === 0) {
-      RbAlert.create($L('DeleteRoleSafeConfirm'), $L('DeleteSome,Role'), { ...alertExt, icon: 'alert-circle-o' })
+      RbAlert.create($L('此角色可以被安全的删除'), $L('删除角色'), { ...alertExt, icon: 'alert-circle-o' })
     } else {
-      RbAlert.create($L('DeleteRoleUnSafeConfirm').replace('%d', res.data.hasMember), $L('DeleteSome,Role'), { ...alertExt, html: true })
+      RbAlert.create($L('有 **%d** 个用户使用了此角色 [] 删除可能导致这些用户被禁用，直到你为他们指定了新的角色', res.data.hasMember), $L('删除角色'), {
+        ...alertExt,
+        html: true,
+      })
     }
   })
 }

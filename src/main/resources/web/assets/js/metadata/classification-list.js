@@ -27,9 +27,7 @@ class GridList extends React.Component {
                   <a className="text-truncate" href={'classification/' + item[0]}>
                     {item[1]}
                   </a>
-                  <p className="text-muted text-truncate">
-                    {$L('XLevelClass').replace('%d', ~~item[3] + 1)}
-                  </p>
+                  <p className="text-muted text-truncate">{$L('%d 级分类', ~~item[3] + 1)}</p>
                 </div>
                 <div className="card-footer card-footer-contrast">
                   <div className="float-left">
@@ -40,14 +38,14 @@ class GridList extends React.Component {
                       <i className="zmdi zmdi-delete"></i>
                     </a>
                   </div>
-                  {item[2] && <div className="badge badge-warning">{$L('Disabled')}</div>}
+                  {item[2] && <div className="badge badge-warning">{$L('已禁用')}</div>}
                   <div className="clearfix"></div>
                 </div>
               </div>
             </div>
           )
         })}
-        {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">{$L('NoSome,Classification')}</div>}
+        {(!this.state.list || this.state.list.length === 0) && <div className="text-muted">{$L('暂无分类数据')}</div>}
       </div>
     )
   }
@@ -61,14 +59,14 @@ class GridList extends React.Component {
   }
 
   _handleDelete(dataId) {
-    RbAlert.create($L('DeleteClassDataConfirm'), {
+    RbAlert.create($L('删除前请确认此分类数据未被使用。确认删除吗？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${dataId}`, (res) => {
           if (res.error_code === 0) {
-            RbHighbar.success($L('SomeDeleted,Classification'))
+            RbHighbar.success($L('分类数据已删除'))
             setTimeout(() => location.reload(), 500)
           } else {
             this.disabled(false)
@@ -88,10 +86,10 @@ class DlgEdit extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L((this.props.id ? 'ModifySome' : 'AddSome') + ',Classification')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this.props.id ? $L('修改分类数据') : $L('添加分类数据')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ClassificationName')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('分类名称')}</label>
             <div className="col-sm-7">
               <input className="form-control form-control-sm" value={this.state.name || ''} data-id="name" onChange={this.handleChange} maxLength="40" />
             </div>
@@ -100,8 +98,14 @@ class DlgEdit extends RbFormHandler {
             <div className="form-group row">
               <div className="col-sm-7 offset-sm-3">
                 <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                  <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
-                  <span className="custom-control-label">{$L('IsDisableTips')}</span>
+                  <input
+                    className="custom-control-input"
+                    type="checkbox"
+                    checked={this.state.isDisabled === true}
+                    data-id="isDisabled"
+                    onChange={this.handleChange}
+                  />
+                  <span className="custom-control-label">{$L('是否禁用 (禁用不影响已有数据)')}</span>
                 </label>
               </div>
             </div>
@@ -109,10 +113,10 @@ class DlgEdit extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -123,7 +127,7 @@ class DlgEdit extends RbFormHandler {
 
   save = (e) => {
     e.preventDefault()
-    if (!this.state.name) return RbHighbar.create($L('PlsInputSome,ClassificationName'))
+    if (!this.state.name) return RbHighbar.create($L('请输入分类名称'))
 
     const data = {
       name: this.state.name,

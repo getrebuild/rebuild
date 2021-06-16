@@ -32,6 +32,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.exceptions.TemplateInputException;
@@ -92,7 +93,14 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
                 .excludePathPatterns("/gw/api/**")
                 .excludePathPatterns("/language/**")
                 .excludePathPatterns("/assets/**")
+                .excludePathPatterns("/h5app/**")
                 .excludePathPatterns("/*.txt");
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/h5app/**")
+                .addResourceLocations("classpath:/public/h5app/");
     }
 
     @Override
@@ -114,9 +122,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     /**
-     * @param request
-     * @param ex
-     * @return
+     * @see ControllerResponseBodyAdvice
      */
     private ModelAndView createError(HttpServletRequest request, Exception ex, HttpStatus status, Map<String, Object> model) {
         // IGNORED
@@ -149,7 +155,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
 
             if (ex != null && ThrowableUtils.getRootCause(ex) instanceof TemplateInputException
                     && errorMsg.contains("Error resolving template")) {
-                errorMsg = Language.L("Error404");
+                errorMsg = Language.L("访问的页面/资源不存在");
             }
         }
 
@@ -164,12 +170,12 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
     }
 
     /**
-     * 获取请求/引用地址
+     * 获取请求+引用地址
      *
      * @param request
      * @return
      */
-    static String getRequestUrls(HttpServletRequest request) {
+    protected static String getRequestUrls(HttpServletRequest request) {
         String reqUrl = request.getRequestURL().toString();
         String refUrl = ServletUtils.getReferer(request);
 

@@ -28,7 +28,7 @@ class ClassificationSelector extends React.Component {
               </button>
             </div>
             <div className="modal-body">
-              <h5 className="mt-0 text-bold">{$L('SelectSome').replace('{0}', this.props.label)}</h5>
+              <h5 className="mt-0 text-bold">{$L('选择%s', this.props.label)}</h5>
               <div>
                 <select ref={(c) => this._select.push(c)} className="form-control form-control-sm">
                   {(this.state.datas[0] || []).map((item) => {
@@ -81,7 +81,7 @@ class ClassificationSelector extends React.Component {
               )}
               <div>
                 <button className="btn btn-primary w-100" onClick={() => this.confirm()}>
-                  {$L('Confirm')}
+                  {$L('确定')}
                 </button>
               </div>
             </div>
@@ -103,7 +103,7 @@ class ClassificationSelector extends React.Component {
     $(this._select).each(function (idx) {
       const s = $(this)
         .select2({
-          placeholder: $L('SelectSome').replace('{0}', $L('XLevelClass').replace('%d', idx + 1)),
+          placeholder: $L('选择 %d 级分类', idx + 1),
           allowClear: false,
         })
         .on('change', () => {
@@ -132,7 +132,7 @@ class ClassificationSelector extends React.Component {
     const last = this._select2[this.state.openLevel]
     const v = last.val()
     if (!v) {
-      RbHighbar.create($L('PlsSelectSome').replace('{0}', this.props.label))
+      RbHighbar.create($L('请选择 %s', this.props.label))
     } else {
       const text = []
       $(this._select2).each(function () {
@@ -173,7 +173,7 @@ class ReferenceSearcher extends RbModal {
         <div className="modal-dialog modal-xl">
           <div className="modal-content">
             <div className="modal-header modal-header-colored">
-              <h3 className="modal-title">{this.props.title || $L('Query')}</h3>
+              <h3 className="modal-title">{this.props.title || $L('查询')}</h3>
               <button className="close" type="button" onClick={() => this.hide()}>
                 <span className="zmdi zmdi-close" />
               </button>
@@ -204,7 +204,7 @@ class DeleteConfirm extends RbAlert {
 
   render() {
     let message = this.props.message
-    if (!message) message = this.props.ids ? $L('DeleteSelectedSomeConfirm').replace('%d', this.props.ids.length) : $L('DeleteRecordConfirm')
+    if (!message) message = this.props.ids ? $L('确认删除选中的 %d 条记录？', this.props.ids.length) : $L('确认删除当前记录吗？')
 
     return (
       <div className="modal rbalert" ref={(c) => (this._dlg = c)} tabIndex="-1">
@@ -224,8 +224,13 @@ class DeleteConfirm extends RbAlert {
                 {!this.props.entity ? null : (
                   <div className="mt-2">
                     <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-2">
-                      <input className="custom-control-input" type="checkbox" checked={this.state.enableCascade === true} onChange={() => this.enableCascade()} />
-                      <span className="custom-control-label"> {$L('DeleteCasTips')}</span>
+                      <input
+                        className="custom-control-input"
+                        type="checkbox"
+                        checked={this.state.enableCascade === true}
+                        onChange={() => this.enableCascade()}
+                      />
+                      <span className="custom-control-label"> {$L('同时删除关联记录')}</span>
                     </label>
                     <div className={' ' + (this.state.enableCascade ? '' : 'hide')}>
                       <select className="form-control form-control-sm" ref={(c) => (this._cascades = c)} multiple>
@@ -242,10 +247,10 @@ class DeleteConfirm extends RbAlert {
                 )}
                 <div className="mt-4 mb-3" ref={(c) => (this._btns = c)}>
                   <button className="btn btn-space btn-secondary" type="button" onClick={() => this.hide()}>
-                    {$L('Cancel')}
+                    {$L('取消')}
                   </button>
                   <button className="btn btn-space btn-danger" type="button" onClick={() => this.handleDelete()}>
-                    {$L('Delete')}
+                    {$L('删除')}
                   </button>
                 </div>
               </div>
@@ -263,7 +268,7 @@ class DeleteConfirm extends RbAlert {
         this.setState({ cascadesEntity: res.data }, () => {
           this.__select2 = $(this._cascades)
             .select2({
-              placeholder: $L('SelectCasEntity'),
+              placeholder: $L('选择关联实体 (可选)'),
               width: '88%',
             })
             .val(null)
@@ -282,9 +287,9 @@ class DeleteConfirm extends RbAlert {
     const $btns = $(this._btns).find('.btn').button('loading')
     $.post(`/app/entity/record-delete?id=${ids}&cascades=${cascades}`, (res) => {
       if (res.error_code === 0) {
-        if (res.data.deleted === res.data.requests) RbHighbar.success($L('SomeSuccess', 'Delete'))
-        else if (res.data.deleted === 0) RbHighbar.error($L('NotDeleteTips'))
-        else RbHighbar.success($L('SuccessDeletedXItems').replace('%d', res.data.deleted))
+        if (res.data.deleted === res.data.requests) RbHighbar.success($L('删除成功'))
+        else if (res.data.deleted === 0) RbHighbar.error($L('无法删除选中记录'))
+        else RbHighbar.success($L('成功删除 %d 条记录', res.data.deleted))
 
         this.hide()
         typeof this.props.deleteAfter === 'function' && this.props.deleteAfter()

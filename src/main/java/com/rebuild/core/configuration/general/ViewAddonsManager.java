@@ -108,6 +108,8 @@ public class ViewAddonsManager extends BaseLayoutManager {
 
             // 跟进（动态）
             useRefs.add(getEntityShow(MetadataHelper.getField("Feeds", "relatedRecord"), mfRefs, applyType));
+            // 任务（项目）
+            useRefs.add(getEntityShow(MetadataHelper.getField("ProjectTask", "relatedRecord"), mfRefs, applyType));
 
             return JSONUtils.toJSONObject("items", useRefs);
         }
@@ -141,8 +143,10 @@ public class ViewAddonsManager extends BaseLayoutManager {
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "items", "autoExpand" },
-                new Object[] { addons, ((JSONObject) configJson).getBooleanValue("autoExpand") });
+                new String[] { "items", "autoExpand", "autoHide" },
+                new Object[] { addons,
+                        ((JSONObject) configJson).getBooleanValue("autoExpand"),
+                        ((JSONObject) configJson).getBooleanValue("autoHide") });
     }
 
     /**
@@ -187,7 +191,7 @@ public class ViewAddonsManager extends BaseLayoutManager {
                     : String.format("%s (%s)", show.getString("entityLabel"), EasyMetaFactory.getLabel(field));
             show.put("entityLabel", entityLabel);
         } else if (fieldEntity.getEntityCode() == EntityHelper.Feeds) {
-            show.put("entityLabel", Language.L("e.Feeds"));
+            show.put("entityLabel", Language.L("动态"));
         }
         return show;
     }

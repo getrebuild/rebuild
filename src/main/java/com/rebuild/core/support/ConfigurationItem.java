@@ -7,6 +7,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import com.rebuild.core.support.i18n.LanguageBundle;
+
 /**
  * 系统配置项，所有配置应在此处声明
  *
@@ -69,7 +71,7 @@ public enum ConfigurationItem {
     MultipleSessions(true),
 
     // 默认语言
-    DefaultLanguage("zh_CN"),
+    DefaultLanguage(LanguageBundle.SYS_LC),
 
     // 数据脱敏（实验功能!!! 仅 PHONE/EMAIL 字段）
     DataMasking(false),

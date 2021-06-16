@@ -66,7 +66,7 @@ public class FileManagerController extends BaseController {
 
             ID fileId = ID.valueOf(file);
             if (!FilesHelper.isManageable(user, fileId)) {
-                return RespBody.errorl("NoFilePermissionSome", "Delete");
+                return RespBody.errorl("无权删除他人文件");
             }
 
             willDeletes.add(fileId);
@@ -88,7 +88,7 @@ public class FileManagerController extends BaseController {
 
             ID fileId = ID.valueOf(file);
             if (!FilesHelper.isManageable(user, fileId)) {
-                return RespBody.errorl("NoFilePermissionSome", "Modify");
+                return RespBody.errorl("无权修改他人文件");
             }
 
             Record r = EntityHelper.forUpdate(fileId, user);

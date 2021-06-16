@@ -25,8 +25,10 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaSchemaGenerator;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
@@ -96,6 +98,17 @@ public class MetaEntityController extends BaseController {
         return mv;
     }
 
+    @GetMapping("entity/{entity}/frontjs")
+    public ModelAndView pageFrontJs(@PathVariable String entity, HttpServletRequest request) {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持 FrontJS 功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/metadata/frontjs");
+        mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
+        setEntityBase(mv, entity);
+        return mv;
+    }
+
     @ResponseBody
     @RequestMapping("entity/entity-list")
     public Object listEntity(HttpServletRequest request) {
@@ -134,18 +147,16 @@ public class MetaEntityController extends BaseController {
         String mainEntity = reqJson.getString("mainEntity");
         if (StringUtils.isNotBlank(mainEntity)) {
             if (!MetadataHelper.containsEntity(mainEntity)) {
-                writeFailure(response,
-                        getLang(request, "SomeInvalid", "MainEntity") + " : " + mainEntity);
+                writeFailure(response, Language.L("无效主实体 : %s", mainEntity));
                 return;
             }
 
             Entity useMain = MetadataHelper.getEntity(mainEntity);
             if (useMain.getMainEntity() != null) {
-                writeFailure(response, getLang(request, "DetailEntityNotBeMain"));
+                writeFailure(response, Language.L("明细实体不能作为主实体"));
                 return;
             } else if (useMain.getDetailEntity() != null) {
-                writeFailure(response,
-                        String.format(getLang(request, "SelectMainEntityBeXUsed"), useMain.getDetailEntity()));
+                writeFailure(response, Language.L("选择的主实体已被 [%s] 使用", useMain.getDetailEntity()));
                 return;
             }
         }

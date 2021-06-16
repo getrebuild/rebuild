@@ -40,6 +40,7 @@ public class QueryFactory {
     /**
      * @param ajql
      * @return
+     * @see #createQueryNoFilter(String)
      */
     public Query createQuery(String ajql) {
         return createQuery(ajql, UserContextHolder.getUser());
@@ -56,14 +57,6 @@ public class QueryFactory {
 
     /**
      * @param ajql
-     * @return
-     */
-    public Query createQueryNoFilter(String ajql) {
-        return createQuery(ajql, RoleBaseQueryFilter.ALLOWED);
-    }
-
-    /**
-     * @param ajql
      * @param filter
      * @return
      */
@@ -76,11 +69,25 @@ public class QueryFactory {
     }
 
     /**
-     * @param sql
+     * 1.无权限实体查询（无权限实体使用 #createQuery 除管理员外将查不到数据）
+     * 2.有权限实体查询单不应用角色（权限）
+     *
+     * @param ajql
+     * @return
+     * @see #createQuery(String)
+     */
+    public Query createQueryNoFilter(String ajql) {
+        return createQuery(ajql, RoleBaseQueryFilter.ALLOWED);
+    }
+
+    /**
+     * 原生 SQL 查询
+     *
+     * @param rawSql
      * @return
      */
-    public NativeQuery createNativeQuery(String sql) {
-        return aPMFactory.createNativeQuery(sql)
+    public NativeQuery createNativeQuery(String rawSql) {
+        return aPMFactory.createNativeQuery(rawSql)
                 .setTimeout(QUERY_TIMEOUT)
                 .setSlowLoggerTime(SLOW_LOGGER_TIME);
     }
@@ -129,11 +136,6 @@ public class QueryFactory {
         return createQueryNoFilter(sql).setParameter(1, recordId).unique();
     }
 
-    /**
-     * @param recordId
-     * @param fields
-     * @return
-     */
     private String buildUniqueSql(ID recordId, String... fields) {
         Assert.notNull(recordId, "[recordId] cannot be null");
 

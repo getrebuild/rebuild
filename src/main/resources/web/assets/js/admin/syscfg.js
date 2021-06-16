@@ -56,7 +56,7 @@ const post = function (data) {
       const field = $('td[data-id=' + k + ']')
         .prev()
         .text()
-      RbHighbar.create($L('SomeNotEmpty').replace('{0}', field))
+      RbHighbar.create($L('%s 不能为空', field))
       return false
     }
   }

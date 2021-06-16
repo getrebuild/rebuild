@@ -16,6 +16,8 @@ import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.distributed.DistributedJobLock;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.core.support.i18n.LanguageBundle;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.AppUtils;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -65,6 +67,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             list.add(o);
         }
 
+        final LanguageBundle bundle = Language.getSysDefaultBundle();
         // 发送
         for (List<Object[]> list : map.values()) {
             List<Object[]> notifications = new ArrayList<>();
@@ -79,12 +82,11 @@ public class FeedsScheduleJob extends DistributedJobLock {
                 if ((reminds & 4) != 0) smss.add(o);
             }
 
-            final ID toUser = (ID) list.get(0)[0];
-            final String subjectTemp = Application.getLanguage().getDefaultBundle().L("YouHaveXSchedule");
+            ID toUser = (ID) list.get(0)[0];
 
             // 消息通知
             if (!notifications.isEmpty()) {
-                String subject = String.format(subjectTemp, notifications.size());
+                String subject = bundle.L("你有 %d 条日程提醒", notifications.size());
                 String contents = subject + mergeContents(notifications, false);
                 Application.getNotifications().send(
                         MessageBuilder.createMessage(toUser, contents, Message.TYPE_FEEDS));
@@ -93,7 +95,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             // 邮件
             final String emailAddr = Application.getUserStore().getUser(toUser).getEmail();
             if (SMSender.availableMail() && RegexUtils.isEMail(emailAddr) && !emails.isEmpty()) {
-                String subject = String.format(subjectTemp, emails.size());
+                String subject = bundle.L("你有 %d 条日程提醒", emails.size());
                 String contents = mergeContents(emails, true);
                 contents = MessageBuilder.formatMessage(contents, true, false);
                 SMSender.sendMailAsync(emailAddr, subject, contents);
@@ -102,7 +104,7 @@ public class FeedsScheduleJob extends DistributedJobLock {
             // 短信（考虑短信字数，内容简化了）
             final String mobileAddr = Application.getUserStore().getUser(toUser).getWorkphone();
             if (SMSender.availableSMS() && RegexUtils.isCNMobile(mobileAddr) && !smss.isEmpty()) {
-                String subject = String.format(subjectTemp, smss.size());
+                String subject = bundle.L("你有 %d 条日程提醒", smss.size());
                 SMSender.sendSMSAsync(mobileAddr, subject);
             }
         }

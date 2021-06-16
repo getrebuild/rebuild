@@ -39,7 +39,7 @@ public class IdParamMethodArgumentResolver implements HandlerMethodArgumentResol
         ID idValue = ID.isId(value) ? ID.valueOf(value) : null;
 
         if (param.required() && idValue == null) {
-            throw new InvalidParameterException(Language.LF("BadRequestParamsSome", param.name(), value));
+            throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", param.name(), value));
         }
         return idValue;
     }

@@ -15,6 +15,8 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.privileges.OperationDeniedException;
+import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.BaseService;
 import com.rebuild.core.service.DataSpecificationNoRollbackException;
@@ -69,7 +71,7 @@ public class ApprovalStepService extends BaseService {
         String entityLabel = EasyMetaFactory.getLabel(recordOfMain.getEntity());
 
         // 审批人
-        String approvalMsg = Language.LF("HasXApprovalNotice", entityLabel);
+        String approvalMsg = Language.L("有一条 %s 记录请你审批", entityLabel);
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, submitter);
         step.setID("recordId", recordId);
@@ -86,7 +88,7 @@ public class ApprovalStepService extends BaseService {
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
-            String ccMsg = Language.LF("CcXSubmittedNotice", submitter, entityLabel);
+            String ccMsg = Language.L("用户 @%s 提交了一条 %s 审批，请知晓", submitter, entityLabel);
             for (ID to : cc) {
                 Application.getNotifications().send(MessageBuilder.createApproval(to, ccMsg, recordId));
             }
@@ -127,7 +129,7 @@ public class ApprovalStepService extends BaseService {
                 ApprovalProcessor approvalProcessor = new ApprovalProcessor((ID) stepObject[0], (ID) stepObject[1]);
                 FlowNodeGroup nextNodes = approvalProcessor.getNextNodes();
                 if (!nextNodes.getGroupId().equals(checkUseGroup)) {
-                    throw new DataSpecificationNoRollbackException(Language.L("ReSubmitOnDataAdded"));
+                    throw new DataSpecificationNoRollbackException(Language.L("由于更改数据导致流程变化，你需要重新审批"));
                 }
             }
         }
@@ -150,7 +152,7 @@ public class ApprovalStepService extends BaseService {
 
         // 抄送人
         if (cc != null && !cc.isEmpty()) {
-            String ccMsg = Language.LF("CcXApprovedNotice",
+            String ccMsg = Language.L("用户 @%s 提交的 %s 审批已由 @%s %s，请知晓",
                     submitter, entityLabel, approver, Language.L(state));
             for (ID c : cc) {
                 Application.getNotifications().send(MessageBuilder.createApproval(c, ccMsg, recordId));
@@ -167,7 +169,7 @@ public class ApprovalStepService extends BaseService {
             recordOfMain.setInt(EntityHelper.ApprovalState, ApprovalState.REJECTED.getState());
             super.update(recordOfMain);
 
-            String rejectedMsg = Language.LF("XRejectedYourApproval", approver, entityLabel);
+            String rejectedMsg = Language.L("@%s 驳回了你的 %s 审批", approver, entityLabel);
             Application.getNotifications().send(MessageBuilder.createApproval(submitter, rejectedMsg, recordId));
             return;
         }
@@ -175,7 +177,7 @@ public class ApprovalStepService extends BaseService {
         // 或签/会签
         boolean goNextNode = true;
 
-        String approvalMsg = Language.LF("HasXApprovalNotice", entityLabel);
+        String approvalMsg = Language.L("有一条 %s 记录请你审批", entityLabel);
 
         // 或签。一人通过其他作废
         if (FlowNode.SIGN_OR.equals(signMode)) {
@@ -251,6 +253,10 @@ public class ApprovalStepService extends BaseService {
     public void txCancel(ID recordId, ID approvalId, String currentNode, boolean isRevoke) {
         final ID opUser = UserContextHolder.getUser();
         final ApprovalState useState = isRevoke ? ApprovalState.REVOKED : ApprovalState.CANCELED;
+
+        if (isRevoke && !UserHelper.isAdmin(opUser)) {
+            throw new OperationDeniedException(Language.L("仅管理员可撤销审批"));
+        }
 
         Record step = EntityHelper.forNew(EntityHelper.RobotApprovalStep, opUser);
         step.setID("recordId", recordId);
@@ -390,7 +396,7 @@ public class ApprovalStepService extends BaseService {
                     FlowNode.NODE_AUTOAPPROVAL, useApprover, false, FlowNode.NODE_ROOT);
             Record step = EntityHelper.forUpdate(stepId, useApprover, false);
             step.setInt("state", ApprovalState.APPROVED.getState());
-            step.setString("remark", Language.L("AUTOAPPROVAL"));
+            step.setString("remark", Language.L("自动审批"));
             super.update(step);
 
             // 更新记录审批状态

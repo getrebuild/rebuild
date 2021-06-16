@@ -48,8 +48,8 @@
         <field name="privilegesId" type="primary"/>
         <field name="roleId" type="reference" ref-entity="Role" nullable="false" updatable="false" cascade="delete"/>
         <field name="entity" type="int" default-value="0" nullable="false" updatable="false" description="哪个实体"/>
-        <field name="zeroKey" type="string" max-length="50" description="其他权限KEY"/>
-        <field name="definition" type="string" max-length="100" description="权限定义"/>
+        <field name="zeroKey" type="string" max-length="50" description="扩展权限"/>
+        <field name="definition" type="string" max-length="100" description="实体权限"/>
         <index type="unique" field-list="roleId,entity,zeroKey"/>
     </entity>
 
@@ -80,12 +80,12 @@
         <field name="typeCode" type="small-int" nullable="false" updatable="false"/>
         <field name="entityName" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="physicalName" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="entityLabel" type="string" max-length="100" nullable="false" description="for description"/>
+        <field name="entityLabel" type="string" max-length="100" nullable="false" description="(for description)"/>
         <field name="comments" type="string" max-length="300"/>
         <field name="icon" type="string" max-length="60"/>
         <field name="nameField" type="string" max-length="100"/>
-        <field name="masterEntity" type="string" max-length="100" updatable="false" description="明细实体的所属主实体"/>
-        <field name="extConfig" type="string" max-length="700" description="更多扩展配置 (JSON Map)"/>
+        <field name="masterEntity" type="string" max-length="100" updatable="false" description="所属主实体 (明细实体)"/>
+        <field name="extConfig" type="string" max-length="700" description="扩展配置 (JSON Map)"/>
         <index type="unique" field-list="typeCode"/>
         <index type="unique" field-list="entityName"/>
         <index type="unique" field-list="physicalName"/>
@@ -96,19 +96,19 @@
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="fieldName" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="physicalName" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="fieldLabel" type="string" max-length="100" nullable="false" description="for description"/>
+        <field name="fieldLabel" type="string" max-length="100" nullable="false" description="(for description)"/>
         <field name="displayType" type="string" max-length="100" description="显示类型 (详见 DisplayType)"/>
         <field name="nullable" type="bool" default-value="T"/>
         <field name="creatable" type="bool" default-value="T"/>
         <field name="updatable" type="bool" default-value="T"/>
         <field name="repeatable" type="bool" default-value="T"/>
         <field name="queryable" type="bool" default-value="T"/>
-        <field name="defaultValue" type="string" max-length="300" description="此值不影响数据库默认值"/>
+        <field name="defaultValue" type="string" max-length="300" description="(此值不影响数据库默认值)"/>
         <field name="maxLength" type="small-int" default-value="300"/>
         <field name="refEntity" type="string" max-length="100"/>
         <field name="cascade" type="string" max-length="20"/>
         <field name="comments" type="string" max-length="300"/>
-        <field name="extConfig" type="string" max-length="700" description="更多扩展配置 (JSON Map)"/>
+        <field name="extConfig" type="string" max-length="700" description="扩展配置 (JSON Map)"/>
         <index type="unique" field-list="belongEntity,fieldName"/>
         <index type="unique" field-list="belongEntity,physicalName"/>
     </entity>
@@ -117,49 +117,49 @@
         <field name="itemId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="belongField" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="text" type="string" max-length="100" nullable="false"/>
+        <field name="text" type="string" max-length="100" nullable="false" />
         <field name="seq" type="int" default-value="0" description="排序 (小到大)"/>
         <field name="isDefault" type="bool" default-value="F"/>
         <field name="isHide" type="bool" default-value="F"/>
-        <field name="maskValue" type="long" default-value="0" description="MultiSelect专用"/>
+        <field name="maskValue" type="long" default-value="0" description="(MultiSelect专用)"/>
         <index field-list="belongEntity,belongField"/>
     </entity>
 
     <entity name="LayoutConfig" type-code="013" description="布局 (表单/列表/导航/视图(相关项/新建))" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="config" type="text" description="JSON格式配置" nullable="false"/>
-        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人 (可选值: ALL/SELF/$MemberID)"/>
-        <field name="applyType" type="string" max-length="20" nullable="false" updatable="false" description="FORM,DATALIST,NAV,TBA,ADD"/>
-        <field name="configName" type="string" max-length="100"/>
+        <field name="config" type="text" nullable="false"/>
+        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给谁 (ALL/SELF/$MemberID)"/>
+        <field name="applyType" type="string" max-length="20" nullable="false" updatable="false" description="(FORM,DATALIST,NAV,TBA,ADD)"/>
+        <field name="configName" type="string" max-length="100" description="名称"/>
     </entity>
 
     <entity name="FilterConfig" type-code="014" description="过滤条件" queryable="false">
         <field name="configId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="config" type="text" description="JSON格式配置" nullable="false"/>
-        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人 (可选值: ALL/SELF/$MemberID)"/>
-        <field name="filterName" type="string" max-length="100" nullable="false"/>
+        <field name="config" type="text" nullable="false"/>
+        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给谁 (可选值: ALL/SELF/$MemberID)"/>
+        <field name="filterName" type="string" max-length="100" nullable="false" description="名称"/>
     </entity>
 
     <entity name="DashboardConfig" type-code="016" description="仪表盘" queryable="false">
         <field name="configId" type="primary"/>
-        <field name="config" type="text" description="JSON格式配置" nullable="false"/>
-        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给哪些人 (可选值: ALL/SELF/$MemberID)"/>
-        <field name="title" type="string" max-length="100" nullable="false"/>
+        <field name="config" type="text" nullable="false"/>
+        <field name="shareTo" type="string" max-length="420" default-value="SELF" description="共享给谁 (可选值: ALL/SELF/$MemberID)"/>
+        <field name="title" type="string" max-length="100" nullable="false" description="名称"/>
     </entity>
 
     <entity name="ChartConfig" type-code="017" description="图表" queryable="false">
         <field name="chartId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false"/>
-        <field name="config" type="text" description="JSON格式配置" nullable="false"/>
+        <field name="config" type="text" nullable="false"/>
         <field name="chartType" type="string" max-length="100" nullable="false"/>
-        <field name="title" type="string" max-length="100" nullable="false"/>
+        <field name="title" type="string" max-length="100" nullable="false" description="名称"/>
     </entity>
 
     <entity name="Classification" type-code="018" name-field="name" description="分类数据" queryable="false">
         <field name="dataId" type="primary"/>
-        <field name="name" type="string" max-length="100" nullable="false"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
         <field name="description" type="string" max-length="600"/>
         <field name="isDisabled" type="bool" default-value="F"/>
         <field name="openLevel" type="small-int" default-value="0"/>
@@ -169,7 +169,7 @@
         <field name="itemId" type="primary"/>
         <field name="dataId" type="reference" ref-entity="Classification" nullable="false" cascade="delete"/>
         <field name="name" type="string" max-length="100" nullable="false"/>
-        <field name="fullName" type="string" max-length="191" nullable="false" description="包括父级名称 (用点号分割)"/>
+        <field name="fullName" type="string" max-length="191" nullable="false" description="(包括父级名称, 用点号分割)"/>
         <field name="parent" type="reference" ref-entity="ClassificationData" cascade="delete"/>
         <field name="code" type="string" max-length="50"/>
         <field name="level" type="small-int" default-value="0" updatable="false"/>
@@ -182,8 +182,8 @@
     <entity name="ShareAccess" type-code="020" description="记录共享" queryable="false">
         <field name="accessId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="哪个实体"/>
-        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="记录ID" cascade="ignore"/>
-        <field name="shareTo" type="any-reference" ref-entity="User,Department,Role,Team" nullable="false" updatable="false" description="共享给谁" cascade="ignore"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
+        <field name="shareTo" type="any-reference" ref-entity="User,Department,Role,Team" nullable="false" updatable="false" cascade="ignore" description="共享给谁"/>
         <field name="rights" type="int" default-value="0" nullable="false" description="共享权限 (R=2,U=4,D=8,0=Auto)"/>
         <index field-list="belongEntity,recordId,shareTo"/>
     </entity>
@@ -202,16 +202,16 @@
         <field name="message" type="string" max-length="3000" updatable="false" description="内容" />
         <field name="unread" type="bool" default-value="T" description="是否未读"/>
         <field name="type" type="small-int" updatable="false" default-value="0" description="消息分类"/>
-        <field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" cascade="ignore"/>
+        <field name="relatedRecord" type="any-reference" updatable="false" description="相关记录" cascade="ignore"/>
         <index field-list="toUser,unread,createdOn"/>
         <index field-list="toUser,type,createdOn"/>
     </entity>
 
     <entity name="Attachment" type-code="023" description="附件" extra-attrs="{icon:'folder'}">
         <field name="attachmentId" type="primary"/>
-        <field name="belongEntity" type="small-int" default-value="0" updatable="false" queryable="false"/>
-        <field name="belongField" type="string" max-length="100" updatable="false" queryable="false"/>
-        <field name="relatedRecord" type="any-reference" updatable="false" description="相关业务记录" cascade="ignore"/>
+        <field name="belongEntity" type="small-int" default-value="0" updatable="false" queryable="false" description="所属实体" />
+        <field name="belongField" type="string" max-length="100" updatable="false" queryable="false" description="所属字段"/>
+        <field name="relatedRecord" type="any-reference" updatable="false" description="相关记录" cascade="ignore"/>
         <field name="filePath" type="string" max-length="191" nullable="false" description="文件路径"/>
         <field name="fileType" type="string" max-length="20" description="文件类型"/>
         <field name="fileSize" type="int" default-value="0" description="文件大小"/>
@@ -224,8 +224,8 @@
 
     <entity name="AttachmentFolder" type-code="024" description="附件目录" queryable="false">
         <field name="folderId" type="primary"/>
-        <field name="name" type="string" max-length="100" nullable="false"/>
-        <field name="parent" type="reference" ref-entity="AttachmentFolder"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="目录名称"/>
+        <field name="parent" type="reference" ref-entity="AttachmentFolder" description="父级"/>
         <field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见 (可选值: ALL/SELF/$TeamID)"/>
         <index field-list="scope,createdBy"/>
     </entity>
@@ -233,7 +233,7 @@
     <entity name="LoginLog" type-code="025" description="登陆日志" parent="false">
         <field name="logId" type="primary"/>
         <field name="user" type="reference" ref-entity="User" nullable="false" updatable="false" description="登陆用户"/>
-        <field name="ipAddr" type="string" max-length="100" description="IP地址"/>
+        <field name="ipAddr" type="string" max-length="100" description="IP 地址"/>
         <field name="userAgent" type="string" max-length="200" description="客户端"/>
         <field name="loginTime" type="timestamp" nullable="false" updatable="false" description="登陆时间"/>
         <field name="logoutTime" type="timestamp" description="退出时间"/>
@@ -246,7 +246,7 @@
         <field name="belongField" type="string" max-length="100" nullable="false" updatable="false"/>
         <field name="sourceField" type="string" max-length="100" nullable="false" description="引用实体的字段"/>
         <field name="targetField" type="string" max-length="100" nullable="false" description="当前实体的字段"/>
-        <field name="extConfig" type="string" max-length="700" description="更多扩展配置 (JSON Map)"/>
+        <field name="extConfig" type="string" max-length="700" description="扩展配置 (JSON Map)"/>
     </entity>
 
     <entity name="RobotTriggerConfig" type-code="027" description="触发器" queryable="false">
@@ -290,15 +290,15 @@
         <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID"/>
         <field name="appSecret" type="string" max-length="60" nullable="false" description="APPSECRET"/>
         <field name="bindUser" type="reference" ref-entity="User" description="绑定用户 (权限)"/>
-        <field name="bindIps" type="string" max-length="300" description="IP白名单"/>
+        <field name="bindIps" type="string" max-length="300" description="IP 白名单"/>
         <index type="unique" field-list="appId"/>
     </entity>
 
-    <entity name="RebuildApiRequest" type-code="031" description="API调用日志" queryable="false" parent="false">
+    <entity name="RebuildApiRequest" type-code="031" description="API 调用日志" queryable="false" parent="false">
         <field name="requestId" type="primary"/>
         <field name="appId" type="string" max-length="20" nullable="false" updatable="false" description="APPID"/>
-        <field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源IP"/>
-        <field name="requestUrl" type="string" max-length="300" nullable="false" updatable="false" description="请求URL"/>
+        <field name="remoteIp" type="string" max-length="100" nullable="false" updatable="false" description="来源 IP"/>
+        <field name="requestUrl" type="string" max-length="300" nullable="false" updatable="false" description="请求 URL"/>
         <field name="requestBody" type="text" updatable="false" description="请求数据"/>
         <field name="responseBody" type="text" nullable="false" updatable="false" description="响应数据"/>
         <field name="requestTime" type="timestamp" nullable="false" updatable="false" description="请求时间"/>
@@ -318,7 +318,7 @@
     <entity name="RecycleBin" type-code="033" name-field="recordName" description="回收站" queryable="false" parent="false">
         <field name="recycleId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
-        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="ID字段值" cascade="ignore"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="ID 字段值" cascade="ignore"/>
         <field name="recordName" type="string" max-length="191" nullable="false" updatable="false" description="名称字段值"/>
         <field name="recordContent" type="ntext" nullable="false" updatable="false" description="数据"/>
         <field name="deletedBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="删除人"/>
@@ -331,22 +331,22 @@
     <entity name="RevisionHistory" type-code="034" name-field="recordName" description="变更历史" queryable="false" parent="false">
         <field name="revisionId" type="primary"/>
         <field name="belongEntity" type="string" max-length="100" nullable="false" updatable="false" description="所属实体"/>
-        <field name="recordId" type="any-reference" nullable="false" updatable="false" description="记录ID" cascade="ignore"/>
+        <field name="recordId" type="any-reference" nullable="false" updatable="false" cascade="ignore" description="记录 ID"/>
         <field name="revisionType" type="small-int" default-value="1" description="变更类型"/>
         <field name="revisionContent" type="ntext" nullable="false" updatable="false" description="变更数据"/>
         <field name="revisionBy" type="reference" ref-entity="User" nullable="false" updatable="false" description="操作人"/>
         <field name="revisionOn" type="timestamp" nullable="false" updatable="false" description="操作时间"/>
-        <field name="channelWith" type="any-reference" updatable="false" description="变更渠道 (空为直接, 否则为关联)" cascade="ignore"/>
-        <field name="ipAddr" type="string" max-length="100" description="IP地址"/>
+        <field name="channelWith" type="any-reference" updatable="false" cascade="ignore" description="变更渠道 (空为直接, 否则为关联)"/>
+        <field name="ipAddr" type="string" max-length="100" description="IP 地址"/>
         <index field-list="belongEntity,revisionType,revisionBy,revisionOn"/>
         <index field-list="recordId,channelWith"/>
     </entity>
 
-    <entity name="SmsendLog" type-code="035" description="SM发送日志" queryable="false" parent="false">
+    <entity name="SmsendLog" type-code="035" description="SM 发送日志" queryable="false" parent="false">
         <field name="sendId" type="primary"/>
-        <field name="to" type="string" max-length="100" nullable="false" updatable="false" description="收件人"/>
+        <field name="to" type="string" max-length="100" nullable="false" updatable="false" description="接收人"/>
         <field name="content" type="text" nullable="false" updatable="false" description="发送内容"/>
-        <field name="type" type="small-int" default-value="0" description="1=短信; 2=邮件"/>
+        <field name="type" type="small-int" default-value="0" description="(1=短信; 2=邮件)"/>
         <field name="sendTime" type="timestamp" nullable="false" updatable="false" description="发送时间"/>
         <field name="sendResult" type="string" max-length="191" description="发送结果 (xxx|ERR:xxx)"/>
         <index field-list="type,sendTime,sendResult"/>
@@ -355,8 +355,8 @@
     <entity name="Language" type-code="036" description="语言包" queryable="false" parent="false">
         <field name="langId" type="primary"/>
         <field name="locale" type="string" max-length="10" nullable="false" description="Locale"/>
-        <field name="name" type="string" max-length="100" nullable="false" description="语言名"/>
-        <field name="value" type="string" max-length="300" nullable="false" description="语言值"/>
+        <field name="name" type="string" max-length="500" nullable="false" description="语言名"/>
+        <field name="value" type="string" max-length="500" nullable="false" description="语言值"/>
         <index field-list="locale,name"/>
     </entity>
 
@@ -369,17 +369,25 @@
         <field name="isDisabled" type="bool" default-value="F" description="是否禁用"/>
     </entity>
 
+    <entity name="FrontjsCode" type-code="038" description="FrontJS 代码" queryable="false">
+        <field name="codeId" type="primary"/>
+        <field name="name" type="string" max-length="100" nullable="false" description="名称"/>
+        <field name="applyPath" type="string" max-length="200" description="匹配路径"/>
+        <field name="code" type="text" description="代码"/>
+        <field name="es5Code" type="text" description="ES5 代码"/>
+    </entity>
+
     <!-- 动态不涉及审计 -->
     <entity name="Feeds" type-code="040" description="动态" name-field="content" extra-attrs="{icon:'chart-donut'}">
         <field name="feedsId" type="primary"/>
         <field name="type" type="small-int" nullable="false" updatable="false" default-value="1" description="类型"/>
         <field name="content" type="text" nullable="false" description="内容"/>
-        <field name="contentMore" type="text" description="不同类型的扩展内容 (JSON Map)" queryable="false"/>
+        <field name="contentMore" type="text" description="扩展内容 (JSON Map)" queryable="false"/>
         <field name="images" type="string" max-length="700" description="图片" extra-attrs="{displayType:'IMAGE'}"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
-        <field name="relatedRecord" type="any-reference" description="相关业务记录" cascade="ignore"/>
+        <field name="relatedRecord" type="any-reference" description="相关记录" cascade="ignore"/>
         <field name="scheduleTime" type="timestamp" description="日程时间"/>
-        <field name="scope" type="string" max-length="20" default-value="ALL" description="哪些人可见 (可选值: ALL/SELF/$TeamID)" queryable="false"/>
+        <field name="scope" type="string" max-length="20" default-value="ALL" description="可见范围 (ALL/SELF/$TeamID)" queryable="false"/>
         <index field-list="createdOn,scope,type,createdBy"/>
         <index field-list="relatedRecord"/>
         <index field-list="type,scheduleTime,createdBy"/>
@@ -415,7 +423,7 @@
         <field name="configId" type="primary"/>
         <field name="projectName" type="string" max-length="100" nullable="false" description="项目名称"/>
         <field name="projectCode" type="string" max-length="10" nullable="false" updatable="false" description="项目 ID"/>
-        <field name="iconName" type="string" max-length="30" description="图标ICON"/>
+        <field name="iconName" type="string" max-length="30" description="图标"/>
         <field name="comments" type="string" max-length="300" description="备注"/>
         <field name="principal" type="reference" ref-entity="User" description="负责人"/>
         <field name="members" type="string" max-length="420" description="项目成员 ($MemberID)"/>
@@ -431,14 +439,14 @@
         <field name="comments" type="string" max-length="300" description="备注"/>
         <field name="seq" type="int" default-value="0" description="排序 (小到大)"/>
         <field name="flowStatus" type="small-int" default-value="1" description="工作流状态"/>
-        <field name="flowNexts" type="string" max-length="420" description="可转换到哪个面板"/>
+        <field name="flowNexts" type="string" max-length="420" description="可流转到哪个面板"/>
         <index field-list="projectId,seq"/>
     </entity>
 
-    <entity name="ProjectTask" type-code="052" description="任务">
+    <entity name="ProjectTask" type-code="052" description="任务" extra-attrs="{icon:'calendar-check'}">
         <field name="taskId" type="primary"/>
-        <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="相关项目" queryable="false"/>
-        <field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="相关面板" queryable="false"/>
+        <field name="projectId" type="reference" ref-entity="ProjectConfig" nullable="false" updatable="false" description="项目" queryable="false"/>
+        <field name="projectPlanId" type="reference" ref-entity="ProjectPlanConfig" nullable="false" description="任务面板" queryable="false"/>
         <field name="taskNumber" type="long" nullable="false" updatable="false" description="任务编号"/>
         <field name="taskName" type="string" max-length="191" nullable="false" description="任务标题"/>
         <field name="executor" type="reference" ref-entity="User" description="执行人"/>
@@ -451,7 +459,7 @@
         <field name="description" type="text" description="备注" queryable="false"/>
         <field name="attachments" type="string" max-length="700" description="附件" extra-attrs="{displayType:'FILE'}"/>
         <field name="parentTaskId" type="reference" ref-entity="ProjectTask" description="父级任务" queryable="false"/>
-        <field name="relatedRecord" type="any-reference" description="相关业务记录" cascade="ignore"/>
+        <field name="relatedRecord" type="any-reference" description="相关记录" cascade="ignore"/>
         <field name="seq" type="int" default-value="0" description="排序 (小到大)" queryable="false"/>
         <index field-list="projectId,projectPlanId,seq"/>
         <index field-list="projectId,taskNumber,taskName,status"/>

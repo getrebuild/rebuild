@@ -43,6 +43,10 @@ public class AppUtils {
     public static final String SK_LOCALE = WebUtils.KEY_PREFIX + ".LOCALE";
     public static final String CK_LOCALE = "rb.locale";
 
+    // RbMob
+    public static final String HF_CLIENT = "X-Client";
+    public static final String HF_LOCALE = "X-ClientLocale";
+
     /**
      * @return
      * @see BootApplication#getContextPath()
@@ -107,6 +111,9 @@ public class AppUtils {
     public static String getReuqestLocale(HttpServletRequest request) {
         String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
         if (locale == null) {
+            locale = StringUtils.defaultIfBlank(request.getHeader(HF_LOCALE), null);
+        }
+        if (locale == null) {
             locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         }
         return locale;
@@ -136,9 +143,11 @@ public class AppUtils {
 
             Integer code = (Integer) request.getAttribute(ServletUtils.ERROR_STATUS_CODE);
             if (code != null && code == 404) {
-                return Language.L("Error404");
+                return Language.L("访问的页面/资源不存在");
             } else if (code != null && code == 403) {
-                return Language.L("Error403");
+                return Language.L("权限不足，访问被阻止");
+            } else if (code != null && code == 401) {
+                return Language.L("未授权访问");
             }
 
             exception = (Throwable) request.getAttribute(ServletUtils.ERROR_EXCEPTION);
@@ -148,18 +157,18 @@ public class AppUtils {
         if (exception != null) {
             Throwable known = ThrowableUtils.getRootCause(exception);
             if (known instanceof DataTruncation) {
-                return Language.L("ErrorOutMaxInput");
+                return Language.L("字段长度超出限制");
             } else if (known instanceof AccessDeniedException) {
-                return Language.L("Error403");
+                return Language.L("权限不足，访问被阻止");
             }
         }
 
         if (exception == null) {
-            return Language.L("Error500");
+            return Language.L("系统繁忙，请稍后重试");
         } else {
             exception = ThrowableUtils.getRootCause(exception);
             String errorMsg = exception.getLocalizedMessage();
-            if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("Error500");
+            if (StringUtils.isBlank(errorMsg)) errorMsg = Language.L("系统繁忙，请稍后重试");
             return errorMsg;
         }
     }
@@ -171,7 +180,7 @@ public class AppUtils {
      * @return
      */
     public static boolean isRbMobile(HttpServletRequest request) {
-        String UA = request.getHeader("X-Client");
+        String UA = request.getHeader(HF_CLIENT);
         return UA != null && UA.startsWith("RB/Mobile-");
     }
 

@@ -53,12 +53,12 @@ public class ProjectConfigService extends BaseConfigurationService implements Ad
 
     @Override
     public int delete(ID projectId) {
-        Object[] count = Application.createQuery(
+        Object[] count = Application.createQueryNoFilter(
                 "select count(taskId) from ProjectTask where projectId = ?")
                 .setParameter(1, projectId)
                 .unique();
         if ((Long) count[0] > 0) {
-            throw new DataSpecificationException(Language.LF("DeleteProjectHasXTasks", count[0]));
+            throw new DataSpecificationException(Language.L("项目下有 %d 个任务，不能删除", count[0]));
         }
         return super.delete(projectId);
     }
@@ -77,9 +77,12 @@ public class ProjectConfigService extends BaseConfigurationService implements Ad
 
         // 使用模板
         if (useTemplate == TEMPLATE_DEFAULT) {
-            ID id1 = createPlan(project.getPrimary(), Language.L("PlanStatusSTART"), 1000, ProjectPlanConfigService.FLOW_STATUS_START, null);
-            ID id2 = createPlan(project.getPrimary(), Language.L("PlanStatusPROCESSING"), 2000, ProjectPlanConfigService.FLOW_STATUS_PROCESSING, null);
-            ID id3 = createPlan(project.getPrimary(), Language.L("PlanStatusEND"), 3000, ProjectPlanConfigService.FLOW_STATUS_END, new ID[]{id1, id2});
+            ID id1 = createPlan(project.getPrimary(),
+                    Language.L("待处理"), 1000, ProjectPlanConfigService.FLOW_STATUS_START, null);
+            ID id2 = createPlan(project.getPrimary(),
+                    Language.L("进行中"), 2000, ProjectPlanConfigService.FLOW_STATUS_PROCESSING, null);
+            ID id3 = createPlan(project.getPrimary(),
+                    Language.L("已完成"), 3000, ProjectPlanConfigService.FLOW_STATUS_END, new ID[]{id1, id2});
             updateFlowNexts(id1, new ID[]{id2, id3});
             updateFlowNexts(id2, new ID[]{id1, id3});
         }

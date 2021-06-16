@@ -12,7 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.utils.JSONUtils;
 
 /**
- * 内建图表
+ * 内置图表
  *
  * @author devezhao
  * @since 2019/10/14

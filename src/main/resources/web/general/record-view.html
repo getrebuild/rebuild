@@ -9,11 +9,11 @@
   <body class="view-body">
     <div class="view-header">
       <i class="header-icon zmdi" th:classappend="|zmdi-${entityIcon}|"></i>
-      <h3 class="title" th:text="${bundle.L('SomeView,e.' + entityName)}"></h3>
+      <h3 class="title" th:text="${bundle.L('%s视图', entityLabel)}"></h3>
       <span>
-        <a class="close J_close" th:title="${bundle.L('Close')}"><i class="zmdi zmdi-close"></i></a>
-        <a class="close sm J_reload" th:title="${bundle.L('Refresh')}"><i class="zmdi zmdi-refresh"></i></a>
-        <a class="close sm admin-show" th:title="${bundle.L('FormLayout')}" th:href="|${baseUrl}/admin/entity/${entityName}/form-design|" target="_blank">
+        <a class="close J_close" th:title="${bundle.L('关闭')}"><i class="zmdi zmdi-close"></i></a>
+        <a class="close sm J_reload" th:title="${bundle.L('刷新')}"><i class="zmdi zmdi-refresh"></i></a>
+        <a class="close sm admin-show" th:title="${bundle.L('表单设计')}" th:href="|${baseUrl}/admin/entity/${entityName}/form-design|" target="_blank">
           <i class="zmdi zmdi-settings"></i>
         </a>
       </span>
@@ -23,8 +23,8 @@
         <div class="col-12 col-md-9">
           <div class="tab-container">
             <ul class="nav nav-tabs">
-              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('View')}]]</a></li>
-              <a class="vtab-settings admin-show J_view-addons" data-type="TAB" th:title="${bundle.L('ConfSome,ViewShowAddon')}"><i class="zmdi zmdi-settings"></i></a>
+              <li class="nav-item"><a class="nav-link active" href="#tab-rbview" data-toggle="tab">[[${bundle.L('详情')}]]</a></li>
+              <a class="vtab-settings admin-show J_view-addons" data-type="TAB" th:title="${bundle.L('显示项配置')}"><i class="zmdi zmdi-settings"></i></a>
             </ul>
             <div class="tab-content">
               <div class="tab-pane active" id="tab-rbview"></div>
@@ -34,68 +34,70 @@
         <div class="col-12 col-md-3 view-operating">
           <div class="view-action row">
             <div class="col-12 col-lg-6">
-              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('Edit')}]]</button>
+              <button class="btn btn-secondary J_edit" type="button"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('编辑')}]]</button>
             </div>
             <div class="col-12 col-lg-6 btn-group J_mores">
-              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
               <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('Delete')}]]</a>
-                <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('Assign')}]]</a>
-                <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('Share')}]]</a>
+                <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('删除')}]]</a>
+                <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('分派')}]]</a>
+                <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('共享')}]]</a>
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item J_print" target="_blank" th:href="|${baseUrl}/app/${entityName}/print?id=${id}|"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('Print')}]]</a>
-                <a class="dropdown-item J_report"><i class="icon zmdi zmdi-map"></i> [[${bundle.L('Report')}]]</a>
+                <a class="dropdown-item J_print" target="_blank" th:href="|${baseUrl}/app/${entityName}/print?id=${id}|"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</a>
+                <a class="dropdown-item J_report"><i class="icon zmdi zmdi-map"></i> [[${bundle.L('报表')}]]</a>
               </div>
             </div>
             <div th:if="${detailEntity != null}" class="col-12 col-lg-6">
               <button class="btn btn-secondary J_add-detail" type="button" th:data-entity="${detailEntity}" th:data-label="${detailEntityLabel}" th:data-icon="${detailEntityIcon}">
-                <i class="icon x14 zmdi zmdi-playlist-plus"></i> [[${bundle.L('AddDetail')}]]
+                <i class="icon x14 zmdi zmdi-playlist-plus"></i> [[${bundle.L('添加明细')}]]
               </button>
             </div>
             <div class="col-12 col-lg-6 btn-group J_adds">
-              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('AddRelated')}]]</button>
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建相关')}]]</button>
               <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item admin-show J_view-addons" data-type="ADD"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('ConfSome,ViewNewAddon')}]]</a>
+                <a class="dropdown-item admin-show J_view-addons" data-type="ADD"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('配置新建项')}]]</a>
               </div>
             </div>
             <div class="col-12 col-lg-6 btn-group J_trans hide">
-              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-transform"></i> [[${bundle.L('TransformAs')}]]</button>
+              <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown"><i class="icon zmdi zmdi-transform"></i> [[${bundle.L('转换为')}]]</button>
               <div class="dropdown-menu dropdown-menu-right">
                 <div class="dropdown-divider"></div>
-                <a class="dropdown-item admin-show" target="_blank" th:href="${baseUrl} + '/admin/transforms'"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('ConfSome,TransformConfig')}]]</a>
+                <a class="dropdown-item admin-show" target="_blank" th:href="${baseUrl} + '/admin/transforms'"><i class="icon zmdi zmdi-settings"></i> [[${bundle.L('配置记录转换映射')}]]</a>
               </div>
             </div>
           </div>
           <div class="view-user">
             <div class="form-line">
-              <fieldset><legend>[[${bundle.L('ViewUser')}]]</legend></fieldset>
+              <fieldset><legend>[[${bundle.L('用户')}]]</legend></fieldset>
             </div>
             <dl class="row">
-              <dt class="col-12 col-lg-4">[[${bundle.L('f.owningUser')}]]</dt>
+              <dt class="col-12 col-lg-4">[[${bundle.L('所属用户')}]]</dt>
               <dd class="col-12 col-lg-8 J_owningUser"></dd>
             </dl>
             <dl class="row">
-              <dt class="col-12 col-lg-4">[[${bundle.L('ShareUsers')}]]</dt>
+              <dt class="col-12 col-lg-4">[[${bundle.L('共享用户')}]]</dt>
               <dd class="col-12 col-lg-8 J_sharingList"></dd>
             </dl>
           </div>
           <div class="view-date">
             <div class="form-line">
-              <fieldset><legend>[[${bundle.L('ViewDate')}]]</legend></fieldset>
+              <fieldset><legend>[[${bundle.L('日期')}]]</legend></fieldset>
             </div>
             <dl class="row">
-              <dt class="col-12 col-lg-4">[[${bundle.L('f.createdOn')}]]</dt>
+              <dt class="col-12 col-lg-4">[[${bundle.L('创建时间')}]]</dt>
               <dd class="col-12 col-lg-8 J_createdOn"></dd>
             </dl>
             <dl class="row">
-              <dt class="col-12 col-lg-4">[[${bundle.L('f.modifiedOn')}]]</dt>
+              <dt class="col-12 col-lg-4">[[${bundle.L('修改时间')}]]</dt>
               <dd class="col-12 col-lg-8 J_modifiedOn"></dd>
             </dl>
           </div>
           <div class="view-history" th:if="${ShowViewHistory}">
             <div class="form-line">
-              <fieldset><legend>[[${bundle.L('ViewHistory')}]] <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('ViewHistoryTip')}"></i></legend></fieldset>
+              <fieldset>
+                <legend>[[${bundle.L('修改历史')}]] <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('修改历史明细可至管理中心 (变更历史) 查看')}"></i></legend>
+              </fieldset>
             </div>
             <ul class="view-history-items list-unstyled"></ul>
           </div>
@@ -107,11 +109,12 @@
       window.__PageConfig = {
         type: 'RecordView',
         entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
-        privileges: _$unthy('[[${entityPrivileges}]]'),
-        viewTabs: _$unthy('[[${ViewTabs}]]'),
+        privileges: [(${entityPrivileges})],
+        viewTabs: [(${ViewTabs})],
         viewTabsAutoExpand: '[[${ViewTabsAutoExpand}]]',
-        viewAdds: _$unthy('[[${ViewAdds}]]'),
-        transformTos: _$unthy('[[${TransformTos}]]'),
+        viewTabsAutoHide: '[[${ViewTabsAutoExpand}]]',
+        viewAdds: [(${ViewAdds})],
+        transformTos: [(${TransformTos})],
         recordId: '[[${id}]]',
       }
     </script>
@@ -120,6 +123,7 @@
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-view.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/rb-view.append.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-assignshare.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-approval.js}" type="text/babel"></script>
   </body>

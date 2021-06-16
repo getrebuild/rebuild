@@ -55,15 +55,15 @@ public class NavBuilder extends NavManager {
     private static final JSONArray NAVS_DEFAULT = JSONUtils.toJSONObjectArray(
             NAV_ITEM_PROPS,
             new Object[][] {
-                    new Object[] { "chart-donut", "{Feeds}", "BUILTIN", NAV_FEEDS },
-                    new Object[] { "shape", "{Project}", "BUILTIN", NAV_PROJECT },
-                    new Object[] { "folder", "{File}", "BUILTIN", NAV_FILEMRG }
+                    new Object[] { "chart-donut", "动态", "BUILTIN", NAV_FEEDS },
+                    new Object[] { "shape", "项目", "BUILTIN", NAV_PROJECT },
+                    new Object[] { "folder", "文件", "BUILTIN", NAV_FILEMRG }
             });
 
     // 新建项目
     private static final JSONObject NAV_PROJECT__ADD = JSONUtils.toJSONObject(
             NAV_ITEM_PROPS,
-            new String[] { "plus", "{AddProject}", "BUILTIN", NAV_PROJECT + "--add" }
+            new String[] { "plus", "添加项目", "BUILTIN", NAV_PROJECT + "--add" }
     );
 
     // URL 绑定实体权限
@@ -78,7 +78,7 @@ public class NavBuilder extends NavManager {
     public JSONArray getUserNav(ID user) {
         ConfigBean config = getLayoutOfNav(user);
         if (config == null) {
-            JSONArray useDefault = (JSONArray) NAVS_DEFAULT.clone();
+            JSONArray useDefault = replaceLang(NAVS_DEFAULT);
             ((JSONObject) useDefault.get(1)).put("sub", getAvailableProjects(user));
             return useDefault;
         }
@@ -167,7 +167,9 @@ public class NavBuilder extends NavManager {
 
         // 管理员显示新建项目入口
         if (UserHelper.isAdmin(user)) {
-            navsOfProjects.add(NAV_PROJECT__ADD.clone());
+            JSONObject add = (JSONObject) NAV_PROJECT__ADD.clone();
+            replaceLang(add);
+            navsOfProjects.add(add);
         }
         return navsOfProjects;
     }
@@ -178,7 +180,7 @@ public class NavBuilder extends NavManager {
      * @param initEntity
      */
     public void addInitNavOnInstall(String[] initEntity) {
-        JSONArray initNav = (JSONArray) Language.getCurrentBundle().replaceLangKey(NAVS_DEFAULT);
+        JSONArray initNav = replaceLang(NAVS_DEFAULT);
 
         for (String e : initEntity) {
             EasyEntity entity = EasyMetaFactory.valueOf(e);
@@ -215,7 +217,6 @@ public class NavBuilder extends NavManager {
         if (activeNav == null) activeNav = "dashboard-home";
 
         JSONArray navs = NavBuilder.instance.getUserNav(AppUtils.getRequestUser(request));
-        navs = (JSONArray) AppUtils.getReuqestBundle(request).replaceLangKey(navs);
 
         StringBuilder navsHtml = new StringBuilder();
         for (Object item : navs) {
@@ -320,5 +321,20 @@ public class NavBuilder extends NavManager {
             return navBody.selectFirst("li").outerHtml();
         }
         return navHtml.toString();
+    }
+
+    // FIXME 目前仅处理了默认导航
+
+    private static JSONArray replaceLang(JSONArray resource) {
+        JSONArray clone = (JSONArray) resource.clone();
+        for (Object o : clone) {
+            replaceLang((JSONObject) o);
+        }
+        return clone;
+    }
+
+    private static void replaceLang(JSONObject item) {
+        String text = item.getString("text");
+        item.put("text", Language.L(text));
     }
 }

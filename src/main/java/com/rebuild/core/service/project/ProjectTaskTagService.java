@@ -15,6 +15,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.BaseConfigurationService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.OperationDeniedException;
+import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
 
 /**
@@ -47,7 +48,7 @@ public class ProjectTaskTagService extends BaseConfigurationService {
 
     private void checkManageable(ID tagId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(tagId, user)) throw new OperationDeniedException("DELETE/UPDATE TAG");
+        if (!ProjectHelper.isManageable(tagId, user)) throw new OperationDeniedException();
     }
 
     @Override

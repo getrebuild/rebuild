@@ -6,14 +6,90 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global filesList */
 
-// 文档
+// 文件
 const __DEFAULT_ALL = 'ALL'
+
 let __FolderData = []
+let filesNav
+let currentFolder
+
+// 目录树
+const FolderTree = {
+  load: function () {
+    $.get('/files/tree-folder', (res) => {
+      __FolderData = [{ id: __DEFAULT_ALL, text: $L('全部') }, ...res.data]
+
+      renderRbcomp(
+        <AsideTree
+          data={__FolderData}
+          activeItem={__DEFAULT_ALL}
+          onItemClick={(item) => {
+            filesList && filesList.loadData(item.id)
+            currentFolder = item.id
+
+            const paths = []
+            FolderTree._findPaths($('#navTree li.active'), paths)
+            const $ol = $('.file-path ol').empty()
+            $(paths).each((idx, item) => {
+              $(`<li class="breadcrumb-item active">${item[0]}</li>`).appendTo($ol)
+            })
+            location.hash = `!/Folder/${item.id}`
+          }}
+          extrasAction={(item) => {
+            return item.self ? (
+              <React.Fragment>
+                <span className="action" onClick={() => FolderTree._edit(item)}>
+                  <i className="zmdi zmdi-edit" />
+                </span>
+                <span className="action" onClick={() => FolderTree._delete(item)}>
+                  <i className="zmdi zmdi-delete" />
+                </span>
+              </React.Fragment>
+            ) : null
+          }}
+        />,
+        'navTree',
+        function () {
+          filesNav = this
+        }
+      )
+    })
+  },
+
+  _edit: function (item) {
+    renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} id={item.id} name={item.text} scope={item.private ? 'SELF' : 'ALL'} parent={item.parent} />)
+  },
+
+  _delete: function (item) {
+    RbAlert.create($L('如果目录内有文件或子目录则不允许删除。确认删除吗？'), {
+      type: 'danger',
+      confirmText: $L('删除'),
+      confirm: function () {
+        this.disabled(true)
+        $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
+          if (res.error_code === 0) {
+            this.hide()
+            FolderTree.load()
+          } else {
+            RbHighbar.error(res.error_msg)
+          }
+        })
+      },
+    })
+  },
+
+  _findPaths: function (active, into) {
+    const $a = active.find('>a')
+    into.unshift([$a.text(), $a.data('id')])
+    const $li = active.parent('ul').prev('li')
+    if ($li.length > 0) FolderTree._findPaths($li, into)
+  },
+}
 
 // 渲染目录
 const _renderOption = function (item, idx, disabledItem) {
   idx = idx || 0
-  if (item.id === __DEFAULT_ALL) item = { text: $L('Null') }
+  if (item.id === __DEFAULT_ALL) item = { text: $L('无') }
   let options = [
     <option
       key={`opt-${item.id}`}
@@ -37,32 +113,46 @@ class FolderEditDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={`${$L(this.props.id ? 'ModifySome,Folder' : 'NewSome,Folder')}`} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this.props.id ? $L('修改目录') : $L('新建目录')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('FolderName')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('目录名称')}</label>
             <div className="col-sm-7">
               <input type="text" className="form-control form-control-sm" name="name" value={this.state.name || ''} onChange={this.handleChange} />
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ViewScope')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('可见范围')}</label>
             <div className="col-sm-7 pt-1 down-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('Public')}</span>
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="scope"
+                  checked={this.state.scope === 'ALL'}
+                  value="ALL"
+                  onChange={this.handleChange}
+                />
+                <span className="custom-control-label">{$L('公开')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('PrivateTips')}</span>
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="scope"
+                  checked={this.state.scope === 'SELF'}
+                  value="SELF"
+                  onChange={this.handleChange}
+                />
+                <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>
               </label>
-              <div className="form-text mb-1">{$L('ViewScopeTips')}</div>
+              <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
             </div>
           </div>
           <div className="form-group row pt-1">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ParentFolder')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('上级目录')}</label>
             <div className="col-sm-7">
-              <select className="form-control form-control-sm" name="parent" onChange={this.handleChange}>
+              <select className="form-control form-control-sm" name="parent" defaultValue={this.props.parent || null} onChange={this.handleChange}>
                 {__FolderData.map((item) => {
                   return _renderOption(item, 0, this.props.id)
                 })}
@@ -72,10 +162,10 @@ class FolderEditDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3">
               <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -85,11 +175,13 @@ class FolderEditDlg extends RbFormHandler {
   }
 
   _post = () => {
-    let _data = { name: this.state.name, parent: this.state.parent, scope: this.state.scope }
-    if (!_data.name) {
-      RbHighbar.create($L('PlsInputSome,FolderName'))
-      return
+    let _data = {
+      name: this.state.name,
+      parent: this.state.parent,
+      scope: this.state.scope,
     }
+    if (!_data.name) return RbHighbar.create($L('请输入目录名称'))
+
     _data.metadata = { entity: 'AttachmentFolder', id: this.props.id || null }
 
     this.disabled(true)
@@ -106,10 +198,10 @@ class FileUploadDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('UploadSome,File')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('上传文件')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form" ref={(c) => (this._dropArea = c)}>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('UploadSome,Folder')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('上传目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" defaultValue={this.props.inFolder} onChange={this.handleChange}>
                 {__FolderData.map((item) => {
@@ -119,7 +211,7 @@ class FileUploadDlg extends RbFormHandler {
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('File')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('文件')}</label>
             <div className="col-sm-7">
               <div className="file-field files">
                 {(this.state.files || []).map((item) => {
@@ -128,7 +220,7 @@ class FileUploadDlg extends RbFormHandler {
                     <div key={'file-' + item} className="img-thumbnail" title={fileName}>
                       <i className="file-icon" data-type={$fileExtName(fileName)} />
                       <span>{fileName}</span>
-                      <b title={$L('Remove')} onClick={() => this._removeFile(item)}>
+                      <b title={$L('移除')} onClick={() => this._removeFile(item)}>
                         <span className="zmdi zmdi-close"></span>
                       </b>
                     </div>
@@ -136,7 +228,7 @@ class FileUploadDlg extends RbFormHandler {
                 })}
               </div>
               <label className="upload-box">
-                {$L('DragToUpload')}
+                {$L('点击选择或拖动文件至此')}
                 <input type="file" ref={(c) => (this._upload = c)} className="hide" />
               </label>
             </div>
@@ -144,10 +236,10 @@ class FileUploadDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('Upload')}
+                {$L('上传')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -206,7 +298,7 @@ class FileUploadDlg extends RbFormHandler {
   }
 
   _post = () => {
-    if ((this.state.files || []).length === 0) return RbHighbar.create($L('PlsSelectSome,File'))
+    if ((this.state.files || []).length === 0) return RbHighbar.create($L('请选择文件'))
 
     this.disabled(true)
     $.post(`/files/post-files?folder=${this.state.inFolder || ''}`, JSON.stringify(this.state.files), (res) => {
@@ -224,10 +316,10 @@ class FileMoveDlg extends RbFormHandler {
 
   render() {
     return (
-      <RbModal title={$L('ModifyFileFolder')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={$L('修改文件目录')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('ChangToFolder')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('更改至新目录')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" name="inFolder" onChange={this.handleChange}>
                 {__FolderData.map((item) => {
@@ -239,10 +331,10 @@ class FileMoveDlg extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this._post}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -262,91 +354,6 @@ class FileMoveDlg extends RbFormHandler {
   }
 }
 
-// ~ 目录树
-class FolderTree extends React.Component {
-  state = { activeItem: __DEFAULT_ALL, ...this.props }
-
-  render() {
-    return (
-      <div className="aside-tree p-0">
-        <ul className="list-unstyled">
-          {(this.state.list || []).map((item) => {
-            return this._renderItem(item)
-          })}
-        </ul>
-      </div>
-    )
-  }
-
-  _renderItem(item) {
-    return (
-      <li key={`folder-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
-        <a data-id={item.id} onClick={() => this._clickItem(item)} href={`#!/Folder/${item.id}`}>
-          {item.text}
-          {item.private && <i title={$L('Private')} className="icon zmdi zmdi-lock" />}
-        </a>
-        {item.self && (
-          <div className="action">
-            <a onClick={() => this._handleEdit(item)}>
-              <i className="zmdi zmdi-edit"></i>
-            </a>
-            <a onClick={() => this._handleDelete(item.id)}>
-              <i className="zmdi zmdi-delete"></i>
-            </a>
-          </div>
-        )}
-        {item.children && (
-          <ul className="list-unstyled">
-            {item.children.map((item) => {
-              return this._renderItem(item)
-            })}
-          </ul>
-        )}
-      </li>
-    )
-  }
-
-  _clickItem(item) {
-    this.setState({ activeItem: item.id }, () => {
-      this.props.call && this.props.call(item)
-    })
-  }
-
-  _handleEdit(item) {
-    event.preventDefault()
-    renderRbcomp(<FolderEditDlg call={() => filesNav && filesNav.loadData()} id={item.id} name={item.text} scope={item.private ? 'SELF' : 'ALL'} parent={item.parent} />)
-  }
-
-  _handleDelete(id) {
-    event.preventDefault()
-    const that = this
-    RbAlert.create($L('DelFolderTips'), {
-      type: 'danger',
-      confirmText: $L('Delete'),
-      confirm: function () {
-        this.disabled(true)
-        $.post(`/app/entity/common-delete?id=${id}`, (res) => {
-          if (res.error_code === 0) {
-            this.hide()
-            that.loadData()
-          } else RbHighbar.error(res.error_msg)
-        })
-      },
-    })
-  }
-
-  componentDidMount = () => this.loadData()
-
-  loadData() {
-    $.get('/files/tree-folder', (res) => {
-      const data = res.data || []
-      data.unshift({ id: __DEFAULT_ALL, text: $L('All') })
-      this.setState({ list: data })
-      __FolderData = data
-    })
-  }
-}
-
 // eslint-disable-next-line no-undef
 class FilesList4Docs extends FilesList {
   state = { ...this.props }
@@ -356,11 +363,15 @@ class FilesList4Docs extends FilesList {
     return (
       <React.Fragment>
         <span className="fop">
-          <a title={$L('Download')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+          <a
+            title={$L('下载')}
+            onClick={(e) => $stopEvent(e)}
+            href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`}
+            target="_blank">
             <i className="icon zmdi zmdi-download"></i>
           </a>
           {rb.fileSharable && (
-            <a title={$L('Share0')} onClick={(e) => this._share(item, e)}>
+            <a title={$L('分享')} onClick={(e) => this._share(item, e)}>
               <i className="icon zmdi zmdi-share"></i>
             </a>
           )}
@@ -376,31 +387,9 @@ class FilesList4Docs extends FilesList {
   }
 }
 
-const __findPaths = function (active, push) {
-  const a = active.find('>a')
-  push.unshift([a.text(), a.data('id')])
-  const li = active.parent('ul').parent('li')
-  if (li.length > 0) __findPaths(li, push)
-}
-
-let filesNav
-let currentFolder
-
 $(document).ready(() => {
-  const clickNav = function (item) {
-    filesList && filesList.loadData(item.id)
-    currentFolder = item.id
+  FolderTree.load()
 
-    const paths = []
-    __findPaths($('#navTree li.active'), paths)
-    const ol = $('.file-path ol').empty()
-    $(paths).each((idx, item) => {
-      $(`<li class="breadcrumb-item active">${item[0]}</li>`).appendTo(ol)
-    })
-  }
-  renderRbcomp(<FolderTree call={clickNav} />, 'navTree', function () {
-    filesNav = this
-  })
   renderRbcomp(<FilesList4Docs />, $('.file-viewport'), function () {
     // eslint-disable-next-line no-global-assign
     filesList = this
@@ -412,9 +401,9 @@ $(document).ready(() => {
   $('.J_delete').click(() => {
     const s = filesList.getSelected()
     if (!s) return
-    RbAlert.create($L('DeleteSomeConfirm,File'), {
+    RbAlert.create($L('确认删除此文件？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/files/delete-files?ids=${s}`, (res) => {

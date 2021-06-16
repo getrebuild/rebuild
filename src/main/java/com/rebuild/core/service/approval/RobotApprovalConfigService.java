@@ -54,7 +54,7 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
         if (record.hasValue("flowDefinition")) {
             int inUsed = ApprovalHelper.checkInUsed(record.getPrimary());
             if (inUsed > 0) {
-                throw new DataSpecificationException(Language.LF("UpdateApprovalInUsedOnX", inUsed));
+                throw new DataSpecificationException(Language.L("有 %d 条记录正在使用此流程，禁止修改", inUsed));
             }
         }
         return super.update(record);
@@ -73,7 +73,7 @@ public class RobotApprovalConfigService extends BaseConfigurationService impleme
         }
 
         if (inUsed > 0) {
-            throw new DataSpecificationException(Language.LF("DeleteApprovalInUsedOnX", inUsed));
+            throw new DataSpecificationException(Language.L("有 %d 条记录正在使用此流程，禁止删除", inUsed));
         }
         return super.delete(recordId);
     }

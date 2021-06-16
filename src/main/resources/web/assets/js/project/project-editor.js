@@ -33,7 +33,7 @@ $(document).ready(() => {
       members: _Members.val().join(','),
       metadata: { id: wpc.id },
     }
-    if (!data.members) return RbHighbar.create($L('PlsSelectSome,Members'))
+    if (!data.members) return RbHighbar.create($L('请选择成员'))
 
     $btn.button('loading')
     $.post('/admin/projects/post', JSON.stringify(data), (res) => {
@@ -71,7 +71,7 @@ class PlanList extends React.Component {
             </div>
           )
         })}
-        {this.state.plans && this.state.plans.length === 0 && <p className="text-muted m-3">{$L('PlsAddSome,ProjectPlan')}</p>}
+        {this.state.plans && this.state.plans.length === 0 && <p className="text-muted m-3">{$L('请添加任务面板')}</p>}
       </React.Fragment>
     )
   }
@@ -130,16 +130,16 @@ class PlanList extends React.Component {
 
   _handleDelete(planId) {
     const that = this
-    RbAlert.create($L('DeletePlanConfirm'), {
+    RbAlert.create($L('只有空面板 (面板下无任务) 才能被删除。确认吗？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${planId}`, (res) => {
           this.hide()
           if (res.error_code === 0) {
             that.loadPlans()
-            RbHighbar.success($L('SomeDeleted,ProjectPlan'))
+            RbHighbar.success($L('任务面板已删除'))
           } else RbHighbar.error(res.error_msg)
         })
       },
@@ -157,40 +157,69 @@ class PlanEdit extends RbFormHandler {
   render() {
     const selectedFlowNexts = this.props.selectedFlowNexts || []
     return (
-      <RbModal title={`${$L(this.props.id ? 'Modify' : 'Add')}${$L('ProjectPlan')}`} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
+      <RbModal title={this.props.id ? $L('修改任务面板') : $L('添加任务面板')} ref={(c) => (this._dlg = c)} disposeOnHide={true}>
         <div className="form">
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('PlanName')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('面板名称')}</label>
             <div className="col-sm-7">
-              <input type="text" className="form-control form-control-sm" name="planName" value={this.state.planName || ''} onChange={this.handleChange} maxLength="60" autoFocus />
+              <input
+                type="text"
+                className="form-control form-control-sm"
+                name="planName"
+                value={this.state.planName || ''}
+                onChange={this.handleChange}
+                maxLength="60"
+                autoFocus
+              />
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('PlanStatus')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('工作流状态')}</label>
             <div className="col-sm-7">
               <label className="custom-control custom-control-sm custom-radio mb-1 mt-1">
-                <input className="custom-control-input" type="radio" name="flowStatus" value="1" checked={~~this.state.flowStatus === 1} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="flowStatus"
+                  value="1"
+                  checked={~~this.state.flowStatus === 1}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
-                  {$L('PlanStatus1')} <p className="text-muted mb-0 fs-12">{$L('PlanStatus1Tips')}</p>
+                  {$L('开始状态')} <p className="text-muted mb-0 fs-12">{$L('该状态下可新建任务')}</p>
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input className="custom-control-input" type="radio" name="flowStatus" value="2" checked={~~this.state.flowStatus === 2} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="flowStatus"
+                  value="2"
+                  checked={~~this.state.flowStatus === 2}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
-                  {$L('PlanStatus2')} <p className="text-muted mb-0 fs-12">{$L('PlanStatus2Tips')}</p>
+                  {$L('进行中')} <p className="text-muted mb-0 fs-12">{$L('该状态下不可新建任务，不可完成任务')}</p>
                 </span>
               </label>
               <label className="custom-control custom-control-sm custom-radio mb-1">
-                <input className="custom-control-input" type="radio" name="flowStatus" value="3" checked={~~this.state.flowStatus === 3} onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="radio"
+                  name="flowStatus"
+                  value="3"
+                  checked={~~this.state.flowStatus === 3}
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
-                  {$L('PlanStatus3')} <p className="text-muted mb-0 fs-12">{$L('PlanStatus3Tips')}</p>
+                  {$L('结束状态')} <p className="text-muted mb-0 fs-12">{$L('该状态下任务自动标记完成')}</p>
                 </span>
               </label>
             </div>
           </div>
           {this.props.flowNexts && this.props.flowNexts.length > 0 && (
             <div className="form-group row pt-0">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('FlowNexts')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('可流转到')}</label>
               <div className="col-sm-7 pt-1" ref={(c) => (this._flowNexts = c)}>
                 {this.props.flowNexts.map((item) => {
                   return (
@@ -206,10 +235,10 @@ class PlanEdit extends RbFormHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary" type="button" onClick={this.save}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link" onClick={this.hide}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -219,7 +248,7 @@ class PlanEdit extends RbFormHandler {
   }
 
   save = () => {
-    if (!this.state.planName) return RbHighbar.create($L('PlsInputSome,PlanName'))
+    if (!this.state.planName) return RbHighbar.create($L('请输入面板名称'))
 
     const _data = {
       planName: this.state.planName,
@@ -241,7 +270,7 @@ class PlanEdit extends RbFormHandler {
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
         this.hide()
-        RbHighbar.success($L('SomeSuccess,Save'))
+        RbHighbar.success($L('保存成功'))
         _PlanList.loadPlans()
       } else {
         RbHighbar.error(res.error_msg)

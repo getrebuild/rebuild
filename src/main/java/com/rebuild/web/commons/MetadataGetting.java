@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.BaseMeta;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
@@ -29,7 +30,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 元数据获取
@@ -42,19 +46,17 @@ import java.util.*;
 public class MetadataGetting extends BaseController {
 
     @GetMapping("entities")
-    public List<Map<String, Object>> entities(HttpServletRequest request) {
+    public List<JSON> entities(HttpServletRequest request) {
         ID user = getRequestUser(request);
         // 返回明细实体
         boolean usesDetail = getBoolParameter(request, "detail", false);
 
-        List<Map<String, Object>> data = new ArrayList<>();
+        List<JSON> data = new ArrayList<>();
         for (Entity e : MetadataSorter.sortEntities(user, false, usesDetail)) {
-            Map<String, Object> map = new HashMap<>();
-            EasyEntity easy = EasyMetaFactory.valueOf(e);
-            map.put("name", e.getName());
-            map.put("label", easy.getLabel());
-            map.put("icon", easy.getIcon());
-            data.add(map);
+            JSONObject item = (JSONObject) EasyMetaFactory.valueOf(e).toJSON();
+            item.put("name", item.getString("entity"));
+            item.put("label", item.getString("entityLabel"));
+            data.add(item);
         }
         return data;
     }
@@ -86,7 +88,7 @@ public class MetadataGetting extends BaseController {
 //        if ("VF_USER_TEAMS".equalsIgnoreCase(getParameter(request, "extra"))) {
 //            final JSONObject temp = JSONUtils.toJSONObject(
 //                    new String[] { "name", "label", "type", "ref" },
-//                    new Object[] { null, "." + Language.L("JoinedTeams"), "REFERENCE", new String[] { "Team", "TEXT" } });
+//                    new Object[] { null, "." + Language.L("加入团队"), "REFERENCE", new String[] { "Team", "TEXT" } });
 //
 //            List<JSONObject> dataNew = new ArrayList<>();
 //            for (JSONObject item : data) {

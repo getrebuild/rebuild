@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('PrintPreview')}]]</title>
+    <title>[[${bundle.L('打印视图')}]]</title>
     <style type="text/css">
       html,
       body {
@@ -49,8 +49,8 @@
   </head>
   <body>
     <div class="preview-tools d-print-none">
-      <button class="btn btn-space btn-primary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('Print')}]]</button>
-      <button class="btn btn-space btn-secondary" onclick="window.close()">[[${bundle.L('Close')}]]</button>
+      <button class="btn btn-space btn-primary" onclick="window.print()"><i class="icon zmdi zmdi-print"></i> [[${bundle.L('打印')}]]</button>
+      <button class="btn btn-space btn-secondary" onclick="window.close()">[[${bundle.L('关闭')}]]</button>
     </div>
     <div class="preview-content">
       <div id="preview-table"></div>
@@ -60,7 +60,7 @@
     <script>
       window.__PageConfig = {
         record: '[[${recordId}]]',
-        content: _$unthy('[[${contentBody}]]'),
+        content: [(${contentBody})],
       }
     </script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>

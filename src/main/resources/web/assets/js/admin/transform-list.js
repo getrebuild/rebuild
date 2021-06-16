@@ -29,15 +29,21 @@ class TransformList extends ConfigList {
               </td>
               <td>{item[2]}</td>
               <td>{item[4]}</td>
-              <td>{item[7] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
+              <td>
+                {item[7] ? (
+                  <span className="badge badge-warning font-weight-light">{$L('否')}</span>
+                ) : (
+                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
+                )}
+              </td>
               <td>
                 <DateShow date={item[5]} />
               </td>
               <td className="actions">
-                <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
+                <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </a>
-                <a className="icon danger-hover" title={$L('Delete')} onClick={() => this.handleDelete(item[0])}>
+                <a className="icon danger-hover" title={$L('删除')} onClick={() => this.handleDelete(item[0])}>
                   <i className="zmdi zmdi-delete" />
                 </a>
               </td>
@@ -54,9 +60,9 @@ class TransformList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('DeleteSomeConfirm,TransformConfig'), {
+    RbAlert.create($L('确认删除此记录转换映射？'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         handle(id, () => dlgActionAfter(this))
@@ -68,7 +74,7 @@ class TransformList extends ConfigList {
 class TransformEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.subtitle = $L('TransformConfig')
+    this.subtitle = $L('记录转换映射')
   }
 
   renderFrom() {
@@ -77,7 +83,7 @@ class TransformEdit extends ConfigFormDlg {
         {!this.props.id && (
           <React.Fragment>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,SourceEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择源实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._source = c)}>
                   {(this.state.entities || []).map((item) => {
@@ -91,7 +97,7 @@ class TransformEdit extends ConfigFormDlg {
               </div>
             </div>
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,TargetEntity')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择目标实体')}</label>
               <div className="col-sm-7">
                 <select className="form-control form-control-sm" ref={(c) => (this._target = c)}>
                   {(this.state.entities || []).map((item) => {
@@ -107,7 +113,7 @@ class TransformEdit extends ConfigFormDlg {
           </React.Fragment>
         )}
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
@@ -116,8 +122,14 @@ class TransformEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
-                <span className="custom-control-label">{$L('IsDisable')}</span>
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.isDisabled === true}
+                  data-id="isDisabled"
+                  onChange={this.handleChange}
+                />
+                <span className="custom-control-label">{$L('是否禁用')}</span>
               </label>
             </div>
           </div>
@@ -130,11 +142,11 @@ class TransformEdit extends ConfigFormDlg {
     $.get('/commons/metadata/entities', (res) => {
       this.setState({ entities: res.data }, () => {
         this._$source = $(this._source).select2({
-          placeholder: $L('SelectSome,Entity'),
+          placeholder: $L('选择实体'),
           allowClear: false,
         })
         this._$target = $(this._target).select2({
-          placeholder: $L('SelectSome,Entity'),
+          placeholder: $L('选择实体'),
           allowClear: false,
         })
       })
@@ -143,14 +155,14 @@ class TransformEdit extends ConfigFormDlg {
 
   confirm = () => {
     const post = { name: this.state['name'] }
-    if (!post.name) return RbHighbar.create($L('PlsInputSome,Name'))
+    if (!post.name) return RbHighbar.create($L('请输入名称'))
 
     if (!this.props.id) {
       post.belongEntity = this._$source.val()
-      if (!post.belongEntity) return RbHighbar.create($L('PlsSelectSome,SourceEntity'))
+      if (!post.belongEntity) return RbHighbar.create($L('请选择源实体'))
 
       post.targetEntity = this._$target.val()
-      if (!post.targetEntity) return RbHighbar.create($L('PlsSelectSome,TargetEntity'))
+      if (!post.targetEntity) return RbHighbar.create($L('请选择目标实体'))
     } else {
       post.isDisabled = this.state.isDisabled === true
     }

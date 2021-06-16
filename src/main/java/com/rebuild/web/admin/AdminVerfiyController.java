@@ -16,6 +16,7 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.support.CheckDangers;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +48,7 @@ public class AdminVerfiyController extends BaseController {
         if (admin.isAdmin()) {
             return createModelAndView("/admin/admin-verify");
         } else {
-            response.sendError(403, getLang(request, "NoneAdmin"));
+            response.sendError(403, Language.L("非管理员用户"));
             return null;
         }
     }
@@ -67,7 +68,7 @@ public class AdminVerfiyController extends BaseController {
             return RespBody.ok();
         } else {
             ServletUtils.setSessionAttribute(request, KEY_VERIFIED, null);
-            return RespBody.errorl("SomeError,Password");
+            return RespBody.errorl("密码错误");
         }
     }
 

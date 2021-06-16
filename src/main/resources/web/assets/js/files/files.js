@@ -53,15 +53,17 @@ class FilesList extends React.Component {
                 this.loadData(null, this.__pageNo + 1)
                 e.preventDefault()
               }}>
-              {$L('LoadMore')}
+              {$L('显示更多')}
             </a>
           </div>
         )}
-        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">{$L('AllLoaded')}</div>}
+        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && (
+          <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>
+        )}
         {this.__pageNo === 1 && !hasFiles && (
           <div className="list-nodata pt-8 pb-8">
             <i className="zmdi zmdi-folder-outline"></i>
-            <p>{$L('NoData')}</p>
+            <p>{$L('暂无数据')}</p>
           </div>
         )}
       </div>
@@ -83,7 +85,9 @@ class FilesList extends React.Component {
   loadData(entry, pageNo) {
     this.__lastEntry = entry || this.__lastEntry
     this.__pageNo = pageNo || 1
-    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`
+    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${
+      this.__pageNo
+    }&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
       let files = this.__pageNo === 1 ? [] : this.state.files
@@ -94,7 +98,7 @@ class FilesList extends React.Component {
 
   getSelected() {
     const s = this.state.currentActive
-    if (!s) RbHighbar.create($L('UnselectAnySome,File'))
+    if (!s) RbHighbar.create($L('未选中任何文件'))
     else return s
   }
 }
@@ -105,7 +109,7 @@ const previewFile = function (e, path, checkId) {
   if (checkId) {
     $.get(`/files/check-readable?id=${checkId}`, (res) => {
       if (res.data) RbPreview.create(path)
-      else RbHighbar.error($L('NoPermissionReadFile'))
+      else RbHighbar.error($L('你没有查看此文件的权限'))
     })
   } else {
     RbPreview.create(path)

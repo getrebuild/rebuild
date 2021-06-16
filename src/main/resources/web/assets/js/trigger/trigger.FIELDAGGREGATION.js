@@ -6,13 +6,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 
 const CALC_MODES = {
-  SUM: $L('CalcSUM'),
-  COUNT: $L('CalcCOUNT'),
-  COUNT2: $L('CalcCOUNT2'),
-  AVG: $L('CalcAVG'),
-  MAX: $L('CalcMAX'),
-  MIN: $L('CalcMIN'),
-  FORMULA: $L('CalcFORMULA'),
+  SUM: $L('求和'),
+  COUNT: $L('计数'),
+  COUNT2: $L('去重计数'),
+  AVG: $L('平均值'),
+  MAX: $L('最大值'),
+  MIN: $L('最小值'),
+  FORMULA: $L('计算公式'),
 }
 
 // ~~ 数据聚合
@@ -27,11 +27,11 @@ class ContentFieldAggregation extends ActionContentSpec {
       <div className="field-aggregation">
         <form className="simple">
           <div className="form-group row">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('TargetEntity')}</label>
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('目标实体')}</label>
             <div className="col-md-12 col-lg-9">
               <div className="row">
                 <div className="col-5">
-                  <select className="form-control form-control-sm" ref={(c) => (this._targetEntity = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetEntity = c)}>
                     {(this.state.targetEntities || []).map((item) => {
                       const val = `${item[2]}.${item[0]}`
                       return (
@@ -46,13 +46,13 @@ class ContentFieldAggregation extends ActionContentSpec {
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
                   <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
-                  {$L('TriggerTargetEntityTips')}
+                  {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)')}
                 </div>
               )}
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('AggregationRule')}</label>
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合规则')}</label>
             <div className="col-md-12 col-lg-9">
               <div className="items">
                 {(this.state.items || []).length > 0 &&
@@ -71,7 +71,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                             <span className="badge badge-warning">
                               {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
-                            <a className="del" title={$L('Remove')} onClick={() => this.delItem(item.targetField)}>
+                            <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
                               <span className="zmdi zmdi-close"></span>
                             </a>
                           </div>
@@ -82,7 +82,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
               <div className="row">
                 <div className="col-5">
-                  <select className="form-control form-control-sm" ref={(c) => (this._targetField = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetField = c)}>
                     {(this.state.targetFields || []).map((item) => {
                       return (
                         <option key={item[0]} value={item[0]}>
@@ -91,11 +91,11 @@ class ContentFieldAggregation extends ActionContentSpec {
                       )
                     })}
                   </select>
-                  <p>{$L('TargetField')}</p>
+                  <p>{$L('目标字段')}</p>
                 </div>
                 <div className="col-2 pr-0">
                   <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
-                  <select className="form-control form-control-sm" ref={(c) => (this._calcMode = c)}>
+                  <select className="form-control form-control-sm" ref={(c) => (this._$calcMode = c)}>
                     {Object.keys(CALC_MODES).map((item) => {
                       return (
                         <option key={item} value={item}>
@@ -104,15 +104,19 @@ class ContentFieldAggregation extends ActionContentSpec {
                       )
                     })}
                   </select>
-                  <p>{$L('AggregationMethod')}</p>
+                  <p>{$L('聚合方式')}</p>
                 </div>
                 <div className="col-5">
                   <div className={this.state.calcMode === 'FORMULA' ? '' : 'hide'}>
-                    <div className="form-control-plaintext formula" _title={$L('CalcFORMULA')} ref={(c) => (this._$formula = c)} onClick={() => this.showFormula()}></div>
-                    <p>{$L('CalcFORMULA')}</p>
+                    <div
+                      className="form-control-plaintext formula"
+                      _title={$L('计算公式')}
+                      ref={(c) => (this._$formula = c)}
+                      onClick={() => this.showFormula()}></div>
+                    <p>{$L('计算公式')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
-                    <select className="form-control form-control-sm" ref={(c) => (this._sourceField = c)}>
+                    <select className="form-control form-control-sm" ref={(c) => (this._$sourceField = c)}>
                       {(this.state.sourceFields || []).map((item) => {
                         return (
                           <option key={item[0]} value={item[0]}>
@@ -121,13 +125,13 @@ class ContentFieldAggregation extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('SourceField')}</p>
+                    <p>{$L('源字段')}</p>
                   </div>
                 </div>
               </div>
               <div className="mt-1">
                 <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this.addItem()}>
-                  + {$L('Add')}
+                  + {$L('添加')}
                 </button>
               </div>
             </div>
@@ -136,21 +140,21 @@ class ContentFieldAggregation extends ActionContentSpec {
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" ref={(c) => (this._readonlyFields = c)} />
+                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
                 <span className="custom-control-label">
-                  {$L('SetTargetFieldReadonly')}
-                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('OnlyFormEffectiveTip')} />
+                  {$L('自动设置目标字段为只读')}
+                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
                 </span>
               </label>
             </div>
           </div>
           <div className="form-group row">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('AggregationFilter')}</label>
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合数据条件')}</label>
             <div className="col-md-12 col-lg-9">
               <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={this._dataAdvFilter}>
-                {this.state.dataFilterItems ? `${$L('AdvFiletrSeted')} (${this.state.dataFilterItems})` : $L('ClickSet')}
+                {this.state.dataFilterItems ? `${$L('已设置条件')} (${this.state.dataFilterItems})` : $L('点击设置')}
               </a>
-              <div className="form-text mt-0">{$L('AggregationFilterTips')}</div>
+              <div className="form-text mt-0">{$L('仅会聚合符合过滤条件的数据')}</div>
             </div>
           </div>
         </form>
@@ -163,8 +167,8 @@ class ContentFieldAggregation extends ActionContentSpec {
     this.__select2 = []
     $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
       this.setState({ targetEntities: res.data }, () => {
-        const $s2te = $(this._targetEntity)
-          .select2({ placeholder: $L('SelectSome,TargetEntity') })
+        const $s2te = $(this._$targetEntity)
+          .select2({ placeholder: $L('选择目标实体') })
           .on('change', () => this._changeTargetEntity())
 
         if (content && content.targetEntity) {
@@ -178,13 +182,13 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
 
     if (content) {
-      $(this._readonlyFields).attr('checked', content.readonlyFields === true)
+      $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
       this._saveAdvFilter(content.dataFilter)
     }
   }
 
   _changeTargetEntity() {
-    const te = ($(this._targetEntity).val() || '').split('.')[1]
+    const te = ($(this._$targetEntity).val() || '').split('.')[1]
     if (!te) return
     // 清空现有规则
     this.setState({ items: [] })
@@ -195,13 +199,13 @@ class ContentFieldAggregation extends ActionContentSpec {
 
       if (this.state.targetFields) {
         this.setState({ targetFields: res.data.target }, () => {
-          $(this._calcMode).trigger('change')
+          $(this._$calcMode).trigger('change')
         })
       } else {
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
-          const $s2sf = $(this._sourceField).select2({ placeholder: $L('SelectSome,SourceField') })
-          const $s2cm = $(this._calcMode)
-            .select2({ placeholder: $L('SelectSome,AggregationMethod') })
+          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
+          const $s2cm = $(this._$calcMode)
+            .select2({ placeholder: $L('选择聚合方式') })
             .on('change', (e) => {
               this.setState({ calcMode: e.target.value })
 
@@ -213,7 +217,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                 this.setState({ sourceFields: fs })
               }
             })
-          const $s2tf = $(this._targetField).select2({ placeholder: $L('SelectSome,TargetField') })
+          const $s2tf = $(this._$targetField).select2({ placeholder: $L('选择目标字段') })
 
           $s2cm.trigger('change')
 
@@ -243,7 +247,14 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (that._advFilter) that._advFilter.show()
     else
       renderRbcomp(
-        <AdvFilter title={$L('DataFilter')} inModal={true} canNoFilters={true} entity={this.props.sourceEntity} filter={that._advFilter__data} confirm={that._saveAdvFilter} />,
+        <AdvFilter
+          title={$L('数据过滤条件')}
+          inModal={true}
+          canNoFilters={true}
+          entity={this.props.sourceEntity}
+          filter={that._advFilter__data}
+          confirm={that._saveAdvFilter}
+        />,
         null,
         function () {
           that._advFilter = this
@@ -257,25 +268,25 @@ class ContentFieldAggregation extends ActionContentSpec {
   }
 
   addItem() {
-    const tf = $(this._targetField).val()
-    const calc = $(this._calcMode).val()
-    const sf = calc === 'FORMULA' ? null : $(this._sourceField).val()
+    const tf = $(this._$targetField).val()
+    const calc = $(this._$calcMode).val()
+    const sf = calc === 'FORMULA' ? null : $(this._$sourceField).val()
     const formula = calc === 'FORMULA' ? $(this._$formula).attr('data-v') : null
 
-    if (!tf) return RbHighbar.create($L('PlsSelectSome,TargetField'))
+    if (!tf) return RbHighbar.create($L('请选择目标字段'))
     if (calc === 'FORMULA') {
-      if (!formula) return RbHighbar.create($L('PlsInputSome,CalcFORMULA'))
+      if (!formula) return RbHighbar.create($L('请输入计算公式'))
     } else if (!sf) {
-      return RbHighbar.create($L('PlsSelectSome,SourceField'))
+      return RbHighbar.create($L('请选择源字段'))
     }
 
     // 目标字段=源字段
-    const tfFull = `${$(this._targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
-    if (sf === tfFull) return RbHighbar.create($L('TargetAndSourceNotSame'))
+    const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
+    if (sf === tfFull) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
 
     const items = this.state.items || []
     const exists = items.find((x) => x.targetField === tf)
-    if (exists) return RbHighbar.create($L('SomeDuplicate,TargetField'))
+    if (exists) return RbHighbar.create($L('目标字段重复'))
 
     items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
     this.setState({ items: items })
@@ -290,18 +301,18 @@ class ContentFieldAggregation extends ActionContentSpec {
 
   buildContent() {
     const content = {
-      targetEntity: $(this._targetEntity).val(),
+      targetEntity: $(this._$targetEntity).val(),
       items: this.state.items,
-      readonlyFields: $(this._readonlyFields).prop('checked'),
+      readonlyFields: $(this._$readonlyFields).prop('checked'),
       dataFilter: this._advFilter__data,
     }
 
     if (!content.targetEntity) {
-      RbHighbar.create($L('PlsSelectSome,TargetEntity'))
+      RbHighbar.create($L('请选择目标实体'))
       return false
     }
     if (content.items.length === 0) {
-      RbHighbar.create($L('PlsAdd1AggregationRuleLeast'))
+      RbHighbar.create($L('请至少添加 1 个聚合规则'))
       return false
     }
     return content
@@ -326,7 +337,7 @@ class FormulaCalc2 extends FormulaCalc {
       const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
       const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
       $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
-        const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || $L('Null')}</a>`).appendTo($menu)
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || $L('无')}</a>`).appendTo($menu)
         $a.click(function () {
           _changeCalcMode(this)
         })

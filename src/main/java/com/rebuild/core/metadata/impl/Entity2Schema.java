@@ -68,8 +68,7 @@ public class Entity2Schema extends Field2Schema {
     public String createEntity(String entityName, String entityLabel, String comments, String mainEntity, boolean haveNameField) {
         if (entityName != null) {
             if (MetadataHelper.containsEntity(entityName)) {
-                throw new MetadataModificationException(
-                        Language.L("SomeDuplicate", "EntityName") + " : " + entityName);
+                throw new MetadataModificationException(Language.L("实体已存在 : %s", entityName));
             }
 
         } else {
@@ -85,8 +84,7 @@ public class Entity2Schema extends Field2Schema {
 
         final boolean isDetail = StringUtils.isNotBlank(mainEntity);
         if (isDetail && !MetadataHelper.containsEntity(mainEntity)) {
-            throw new MetadataModificationException(
-                    Language.L("SomeInvalid", "MainEntity") + " : " + mainEntity);
+            throw new MetadataModificationException(Language.L("无效主实体 : %s", mainEntity));
         }
 
         String physicalName = "T__" + entityName.toUpperCase();
@@ -96,7 +94,7 @@ public class Entity2Schema extends Field2Schema {
         int typeCode = maxTypeCode == null || ObjectUtils.toInt(maxTypeCode[0]) == 0
                 ? 999 : (ObjectUtils.toInt(maxTypeCode[0]) - 1);
         if (typeCode <= (License.isCommercial() ? 500 : 900)) {
-            throw new MetadataModificationException("Entity code exceeds system limit : " + typeCode);
+            throw new MetadataModificationException("ENTITY CODE EXCEEDS SYSTEM LIMIT : " + typeCode);
         }
 
         // 名称字段
@@ -129,38 +127,38 @@ public class Entity2Schema extends Field2Schema {
 
             if (haveNameField) {
                 createUnsafeField(
-                        tempEntity, nameFiled, Language.LF("XName", entityLabel), DisplayType.TEXT, false, true, true, true, true, null, null, null, null, null);
+                        tempEntity, nameFiled, Language.L("%s名称", entityLabel), DisplayType.TEXT, false, true, true, true, true, null, null, null, null, null);
             }
 
-            createBuiltinField(tempEntity, EntityHelper.CreatedBy, Language.L("f.createdBy"), DisplayType.REFERENCE, null, "User", null);
-            createBuiltinField(tempEntity, EntityHelper.CreatedOn, Language.L("f.createdOn"), DisplayType.DATETIME, null, null, null);
-            createBuiltinField(tempEntity, EntityHelper.ModifiedBy, Language.L("f.modifiedBy"), DisplayType.REFERENCE, null, "User", null);
-            createBuiltinField(tempEntity, EntityHelper.ModifiedOn, Language.L("f.modifiedOn"), DisplayType.DATETIME, null, null, null);
+            createBuiltinField(tempEntity, EntityHelper.CreatedBy, Language.L("创建人"), DisplayType.REFERENCE, null, "User", null);
+            createBuiltinField(tempEntity, EntityHelper.CreatedOn, Language.L("创建时间"), DisplayType.DATETIME, null, null, null);
+            createBuiltinField(tempEntity, EntityHelper.ModifiedBy, Language.L("修改人"), DisplayType.REFERENCE, null, "User", null);
+            createBuiltinField(tempEntity, EntityHelper.ModifiedOn, Language.L("修改时间"), DisplayType.DATETIME, null, null, null);
 
             // 明细实体关联字段
             // 明细实体无所属用户或部门，使用主实体的
             if (isDetail) {
                 String mainLabel = EasyMetaFactory.valueOf(mainEntity).getLabel();
                 String mainPrimary = mainEntity + "Id";
-                createBuiltinField(tempEntity, mainPrimary, mainLabel, DisplayType.REFERENCE, Language.L("RefMainRecord"), mainEntity, CascadeModel.Delete);
+                createBuiltinField(tempEntity, mainPrimary, mainLabel, DisplayType.REFERENCE, Language.L("引用主记录"), mainEntity, CascadeModel.Delete);
             } else {
                 // 助记码/搜索码
                 createUnsafeField(
-                        tempEntity, EntityHelper.QuickCode, Language.L("f.quickCode"), DisplayType.TEXT, true, false, false, true, false, null, null, null, null, null);
+                        tempEntity, EntityHelper.QuickCode, Language.L("助记码"), DisplayType.TEXT, true, false, false, true, false, null, null, null, null, null);
 
-                createBuiltinField(tempEntity, EntityHelper.OwningUser, Language.L("f.owningUser"), DisplayType.REFERENCE, null, "User", null);
-                createBuiltinField(tempEntity, EntityHelper.OwningDept, Language.L("f.owningDept"), DisplayType.REFERENCE, null, "Department", null);
+                createBuiltinField(tempEntity, EntityHelper.OwningUser, Language.L("所属用户"), DisplayType.REFERENCE, null, "User", null);
+                createBuiltinField(tempEntity, EntityHelper.OwningDept, Language.L("所属部门"), DisplayType.REFERENCE, null, "Department", null);
             }
         } catch (Throwable ex) {
             log.error(null, ex);
             Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
-            throw new MetadataModificationException(Language.L("NotCreateMetasToDb") + " : " + ex.getLocalizedMessage());
+            throw new MetadataModificationException(Language.L("无法同步元数据到数据库 : %s", ex.getLocalizedMessage()));
         }
 
         boolean schemaReady = schema2Database(tempEntity);
         if (!schemaReady) {
             Application.getCommonsService().delete(tempMetaId.toArray(new ID[0]));
-            throw new MetadataModificationException(Language.L("NotCreateMetasToDb"));
+            throw new MetadataModificationException(Language.L("无法同步元数据到数据库"));
         }
 
         MetadataHelper.getMetadataFactory().refresh(false);
@@ -182,13 +180,13 @@ public class Entity2Schema extends Field2Schema {
      */
     public boolean dropEntity(Entity entity, boolean force) {
         if (!user.equals(UserService.ADMIN_USER)) {
-            throw new MetadataModificationException(Language.L("OnlyAdminCanSome", "DeleteEntity"));
+            throw new MetadataModificationException(Language.L("仅超级管理员可删除实体"));
         }
 
         EasyEntity easy = EasyMetaFactory.valueOf(entity);
         ID metaRecordId = easy.getMetaId();
         if (easy.isBuiltin() || metaRecordId == null) {
-            throw new MetadataModificationException(Language.L("BuiltInNotDelete"));
+            throw new MetadataModificationException(Language.L("系统内置，不允许删除"));
         }
 
         // 强制删除先删除明细实体
@@ -199,13 +197,12 @@ public class Entity2Schema extends Field2Schema {
                 boolean dropDetail = this.dropEntity(entity.getDetailEntity(), true);
                 if (dropDetail) {
                     entity = MetadataHelper.getEntity(entity.getEntityCode());
-
                 } else {
-                    throw new MetadataModificationException(Language.L("DeleteMainFirstTips"));
+                    throw new MetadataModificationException(Language.L("不能直接删除主实体，请先删除明细实体"));
                 }
 
             } else {
-                throw new MetadataModificationException(Language.L("DeleteMainFirstTips"));
+                throw new MetadataModificationException(Language.L("不能直接删除主实体，请先删除明细实体"));
             }
         }
 
@@ -213,14 +210,14 @@ public class Entity2Schema extends Field2Schema {
             if (whoRef.getOwnEntity().equals(entity)) continue;
             if (whoRef.getType() == FieldType.ANY_REFERENCE) continue;
             throw new MetadataModificationException(
-                    Language.LF("DeleteEntityHasRefs", EasyMetaFactory.getLabel(whoRef.getOwnEntity())));
+                    Language.L("实体已被其他实体引用 (引用实体 : %s)", Language.L(whoRef.getOwnEntity())));
         }
 
         // 有记录的强删
         if (!force) {
             long count;
             if ((count = checkRecordCount(entity)) > 0) {
-                throw new MetadataModificationException(Language.LF("DeleteEntityHasDatas", count));
+                throw new MetadataModificationException(Language.L("不能删除有数据的实体 (记录数 : %d)", count));
             }
         }
 

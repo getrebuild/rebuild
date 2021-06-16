@@ -16,6 +16,7 @@ import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.OperationDeniedException;
+import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.Language;
@@ -50,9 +51,16 @@ public class ProjectTaskService extends BaseTaskService {
         final ID user = UserContextHolder.getUser();
         checkInMembers(user, record.getID("projectId"));
 
-        record.setLong("taskNumber", getNextTaskNumber(record.getID("projectId")));
-        applyFlowStatue(record);
-        record.setInt("seq", getNextSeqViaMidValue(record.getID("projectPlanId")));
+        ID projectId = record.getID("projectId");
+        ID projectPlanId = record.getID("projectPlanId");
+        ConfigBean p = ProjectManager.instance.getPlanOfProject(projectPlanId, projectId);
+        if (p.getInteger("flowStatus") == ProjectPlanConfigService.FLOW_STATUS_PROCESSING) {
+            throw new DataSpecificationException(Language.L("该任务面板不可新建任务"));
+        }
+
+        record.setLong("taskNumber", getNextTaskNumber(projectId));
+        applyFlowStatus(record);
+        record.setInt("seq", getNextSeqViaMidValue(projectPlanId));
 
         record = super.create(record);
 
@@ -68,17 +76,26 @@ public class ProjectTaskService extends BaseTaskService {
         checkInMembers(user, record.getPrimary());
 
         // 自动完成
-        int flowStatus = applyFlowStatue(record);
+        int newFlowStatus = applyFlowStatus(record);
 
-        if (flowStatus == ProjectPlanConfigService.FLOW_STATUS_END) {
+        if (newFlowStatus == ProjectPlanConfigService.FLOW_STATUS_END) {
             record.setDate("endTime", CalendarUtils.now());
         } else if (record.hasValue("status")) {
             int status = record.getInt("status");
+
             // 处理完成时间
             if (status == 0) {
                 record.setNull("endTime");
                 record.setInt("seq", getSeqInStatus(record.getPrimary(), false));
             } else {
+
+                // 检查工作流
+                Object[] flowStatus = Application.getQueryFactory()
+                        .uniqueNoFilter(record.getPrimary(), "projectPlanId.flowStatus");
+                if ((int) flowStatus[0] == ProjectPlanConfigService.FLOW_STATUS_PROCESSING) {
+                    throw new DataSpecificationException(Language.L("该任务面板不可完成任务"));
+                }
+
                 record.setDate("endTime", CalendarUtils.now());
                 record.setInt("seq", getSeqInStatus(record.getPrimary(), true));
             }
@@ -101,7 +118,7 @@ public class ProjectTaskService extends BaseTaskService {
     @Override
     public int delete(ID taskId) {
         final ID user = UserContextHolder.getUser();
-        if (!ProjectHelper.isManageable(taskId, user)) throw new OperationDeniedException("DELETE TASK");
+        if (!ProjectHelper.isManageable(taskId, user)) throw new OperationDeniedException();
 
         int d = super.delete(taskId);
         ProjectManager.instance.clean(taskId);
@@ -141,13 +158,13 @@ public class ProjectTaskService extends BaseTaskService {
      */
     synchronized
     private int getSeqInStatus(ID taskId, boolean desc) {
-        Object[] taskStatus = Application.createQuery(
+        Object[] taskStatus = Application.createQueryNoFilter(
                 "select status,projectPlanId from ProjectTask where taskId = ?")
                 .setParameter(1, taskId)
                 .unique();
         if (taskStatus == null) return 1;
 
-        Object[] seq = Application.createQuery(
+        Object[] seq = Application.createQueryNoFilter(
                 "select " + (desc ? "max" : "min") + "(seq) from ProjectTask where status = ? and projectPlanId = ?")
                 .setParameter(1, taskStatus[0])
                 .setParameter(2, taskStatus[1])
@@ -162,7 +179,7 @@ public class ProjectTaskService extends BaseTaskService {
      *
      * @param newOrUpdate
      */
-    private int applyFlowStatue(Record newOrUpdate) {
+    private int applyFlowStatus(Record newOrUpdate) {
         if (newOrUpdate.hasValue("projectPlanId")) {
             ConfigBean c = ProjectManager.instance.getPlanOfProject(
                     newOrUpdate.getID("projectPlanId"), newOrUpdate.getID("projectId"));
@@ -178,12 +195,11 @@ public class ProjectTaskService extends BaseTaskService {
         return -1;
     }
 
-    /**
-     * @param taskId
-     */
     private void sendNotification(ID taskId) {
         Object[] task = Application.getQueryFactory().uniqueNoFilter(taskId, "executor", "taskName");
-        String msg = Language.L("MsgNewProjectTaskToYou") + " \n> " + task[1];
+        if (task[0] == null) return;
+
+        String msg = Language.L("有一个新任务分派给你") + " \n> " + task[1];
         Application.getNotifications().send(
                 MessageBuilder.createMessage((ID) task[0], msg, Message.TYPE_PROJECT, taskId));
     }

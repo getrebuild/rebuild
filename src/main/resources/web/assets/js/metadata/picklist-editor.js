@@ -25,13 +25,13 @@ $(document).ready(function () {
 
   $('.J_confirm').click(function () {
     if ($('.J_config>li').length > maxOptions) {
-      RbHighbar.create($L('MaxSupportXOptions').replace('%d', maxOptions))
+      RbHighbar.create($L('最多支持 %d 个选项', maxOptions))
       return false
     }
 
     const text = $val('.J_text')
     if (!text) {
-      RbHighbar.create($L('PlsInputSome,OptionValue'))
+      RbHighbar.create($L('请输入选项值'))
       return false
     }
 
@@ -40,13 +40,13 @@ $(document).ready(function () {
       if ($(this).text() === text) exists = true
     })
     if (exists) {
-      RbHighbar.create($L('SomeDuplicate,OptionValue'))
+      RbHighbar.create($L('选项值重复'))
       return false
     }
 
     const id = $('.J_text').attr('attr-id')
     $('.J_text').val('').attr('attr-id', '')
-    $('.J_confirm').text($L('Add'))
+    $('.J_confirm').text($L('添加'))
     if (!id) {
       render_item([$random(), text])
     } else {
@@ -97,7 +97,7 @@ $(document).ready(function () {
     }
 
     if (force_del > 0) {
-      RbAlert.create($L('DeleteOptionConfirm'), {
+      RbAlert.create($L('将删除部分选项，使用了这些选项的数据 (字段) 将无法显示。[] 确定要删除吗？'), {
         html: true,
         type: 'danger',
         confirm: delConfirm,
@@ -109,9 +109,9 @@ $(document).ready(function () {
 })
 
 render_unset_after = function (item) {
-  const $del = $(`<a href="javascript:;" class="action">[${$L('Delete')}]</a>`).appendTo(item.find('.dd-handle'))
+  const $del = $(`<a href="javascript:;" class="action">[${$L('删除')}]</a>`).appendTo(item.find('.dd-handle'))
   $del.click(() => {
-    $del.text(`[${$L('SaveAfterDelete')}]`)
+    $del.text(`[${$L('保存后删除')}]`)
     $del.parent().parent().attr('data-del', 'force')
     return false
   })
@@ -119,26 +119,26 @@ render_unset_after = function (item) {
 
 render_item_after = function (item, data) {
   if (data[2]) item.addClass('active')
-  item.find('a.J_del').attr('title', $L('Disable'))
+  item.find('a.J_del').attr('title', $L('禁用'))
 
-  const $edit = $(`<a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a>`)
+  const $edit = $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
   item.find('.dd3-action').prepend($edit)
   $edit.click(function () {
-    $('.J_confirm').text($L('Modify'))
+    $('.J_confirm').text($L('修改'))
     $('.J_text').val(data[1]).attr('attr-id', data[0]).focus()
   })
 
-  const $def = $(`<a title="${$L('SetDefault')}" class="J_def"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)
+  const $def = $(`<a title="${$L('设为默认')}" class="J_def"><i class="zmdi zmdi-${isMulti ? 'check-square' : 'check-circle'}"></i></a>`)
   item.find('.dd3-action').prepend($def)
   $def.click(function () {
     if (item.hasClass('active')) {
       item.removeClass('active')
-      $def.attr('title', $L('SetDefault'))
+      $def.attr('title', $L('设为默认'))
     } else {
       // 单选
-      if (!isMulti) $('.J_config li').removeClass('active').find('.J_def').attr('title', $L('SetDefault'))
+      if (!isMulti) $('.J_config li').removeClass('active').find('.J_def').attr('title', $L('设为默认'))
       item.addClass('active')
-      $def.attr('title', $L('CancelDefault'))
+      $def.attr('title', $L('取消默认'))
     }
   })
 

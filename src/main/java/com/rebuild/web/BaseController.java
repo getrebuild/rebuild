@@ -37,33 +37,9 @@ public abstract class BaseController extends Controller {
     protected ID getRequestUser(HttpServletRequest request) {
         ID user = AppUtils.getRequestUser(request);
         if (user == null) {
-            throw new InvalidParameterException(Language.L("BadRequestUser"));
+            throw new InvalidParameterException(Language.L("无效请求用户"));
         }
         return user;
-    }
-
-    /**
-     * @param request
-     * @param key
-     * @param phKey
-     * @return
-     * @see AppUtils#getReuqestBundle(HttpServletRequest)
-     * @see Language#L(String, String...) 
-     */
-    protected String getLang(HttpServletRequest request, String key, String... phKey) {
-        return AppUtils.getReuqestBundle(request).getLang(key, phKey);
-    }
-
-    /**
-     * @param request
-     * @param key
-     * @param phValues
-     * @return
-     * @see AppUtils#getReuqestBundle(HttpServletRequest)
-     * @see Language#LF(String, Object...)
-     */
-    protected String formatLang(HttpServletRequest request, String key, Object... phValues) {
-        return AppUtils.getReuqestBundle(request).formatLang(key, phValues);
     }
 
     /**
@@ -142,7 +118,7 @@ public abstract class BaseController extends Controller {
     protected String getParameterNotNull(HttpServletRequest request, String name) {
         String v = request.getParameter(name);
         if (StringUtils.isEmpty(v)) {
-            throw new InvalidParameterException(Language.LF("BadRequestParamsSome", name, v));
+            throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", name, v));
         }
         return v;
     }
@@ -213,7 +189,7 @@ public abstract class BaseController extends Controller {
     protected ID getIdParameterNotNull(HttpServletRequest request, String name) {
         String v = request.getParameter(name);
         if (ID.isId(v)) return ID.valueOf(v);
-        throw new InvalidParameterException(Language.LF("BadRequestParamsSome", name, v));
+        throw new InvalidParameterException(Language.L("无效请求参数 (%s=%s)", name, v));
     }
 
     /**

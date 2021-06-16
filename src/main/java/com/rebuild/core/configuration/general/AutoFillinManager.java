@@ -50,7 +50,7 @@ public class AutoFillinManager implements ConfigManager {
      * @return
      */
     public JSONArray getFillinValue(Field field, ID source) {
-        // @see field-edit.html 内建字段无配置
+        // @see field-edit.html 内置字段无配置
         if (EasyMetaFactory.valueOf(field).isBuiltin()) {
             return JSONUtils.EMPTY_ARRAY;
         }

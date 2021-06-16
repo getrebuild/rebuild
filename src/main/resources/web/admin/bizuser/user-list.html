@@ -3,7 +3,7 @@
   <head>
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/users" />
-    <title>[[${bundle.L('SomeManage,User')}]]</title>
+    <title>[[${bundle.L('用户管理')}]]</title>
   </head>
   <body>
     <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-aside rb-color-header" th:classappend="${sideCollapsedClazz}">
@@ -12,7 +12,7 @@
       <div class="rb-content">
         <aside class="page-aside">
           <div class="rb-scroller">
-            <div class="aside-tree">
+            <div class="page-aside-tree" id="dept-tree">
               <div class="ph-item rb">
                 <div class="ph-col-12 p-0">
                   <div class="ph-row">
@@ -27,10 +27,10 @@
         <div class="main-content container-fluid">
           <ul class="nav nav-tabs nav-tabs-classic">
             <li class="nav-item">
-              <a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> [[${bundle.L('User')}]]</a>
+              <a href="users" class="nav-link active"><span class="icon zmdi zmdi-account"></span> [[${bundle.L('用户')}]]</a>
             </li>
             <li class="nav-item">
-              <a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> [[${bundle.L('Department')}]]</a>
+              <a href="departments" class="nav-link"><span class="icon zmdi zmdi-accounts"></span> [[${bundle.L('部门')}]]</a>
             </li>
           </ul>
           <div class="card card-table">
@@ -40,7 +40,7 @@
                   <div class="col-12 col-lg-5">
                     <div class="dataTables_filter">
                       <div class="input-group input-search">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('Query')}" maxlength="40" data-quickFields="loginName,fullName,email,quickCode" />
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('查询')}" maxlength="40" data-quickFields="loginName,fullName,email,quickCode" />
                         <span class="input-group-btn">
                           <button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button>
                         </span>
@@ -49,20 +49,20 @@
                   </div>
                   <div class="col-12 col-lg-7">
                     <div class="dataTables_oper">
-                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('Open')}]]</button>
+                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('打开')}]]</button>
                       <div class="btn-group btn-space">
-                        <button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> [[${bundle.L('NewSome,User')}]]</button>
+                        <button class="btn btn-primary J_new" type="button"><i class="icon zmdi zmdi-account-add"></i> [[${bundle.L('新建用户')}]]</button>
                         <button class="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown"><span class="icon zmdi zmdi-chevron-down"></span></button>
                         <div class="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-                          <a class="dropdown-item J_new-dept"><i class="icon zmdi zmdi-accounts-add"></i> [[${bundle.L('NewSome,Department')}]]</a>
+                          <a class="dropdown-item J_new-dept"><i class="icon zmdi zmdi-accounts-add"></i> [[${bundle.L('新建部门')}]]</a>
                           <div class="dropdown-divider"></div>
-                          <a class="dropdown-item J_imports"><i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('ImportUser')}]] <sup class="rbv"></sup></a>
+                          <a class="dropdown-item J_imports"><i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('导入用户')}]] <sup class="rbv"></sup></a>
                         </div>
                       </div>
                       <div class="btn-group btn-space">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
                         <div class="dropdown-menu dropdown-menu-right">
-                          <a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('FieldShow')}]]</a>
+                          <a class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>
                     </div>
@@ -82,16 +82,17 @@
       window.__PageConfig = {
         type: 'RecordList',
         entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
-        privileges: _$unthy('[[${entityPrivileges}]]'),
-        listConfig: _$unthy('[[${DataListConfig}]]'),
+        privileges: [(${entityPrivileges})],
+        listConfig: [(${DataListConfig})],
         advFilter: false,
-        serviceMail: '[[${serviceMail}]]'
+        serviceMail: '[[${serviceMail}]]',
       }
     </script>
     <script th:src="@{/assets/js/rb-datalist.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/rb-forms.append.js}" type="text/babel"></script>
-    <script th:src="@{/assets/js/bizuser/dept-tree.js}"></script>
+    <script th:src="@{/assets/js/aside-tree.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/bizuser/dept-tree.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/bizuser/user-list.js}" type="text/babel"></script>
   </body>
 </html>

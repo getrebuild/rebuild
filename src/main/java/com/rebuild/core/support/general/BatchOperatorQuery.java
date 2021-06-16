@@ -127,7 +127,7 @@ public class BatchOperatorQuery extends SetUser {
         int pageNo = queryData.getIntValue("pageNo");
         int pageSize = queryData.getIntValue("pageSize");
 
-        Object[][] array = Application.getQueryFactory().createQuery(sql, getUser())
+        Object[][] array = Application.createQuery(sql, getUser())
                 .setLimit(pageSize, pageNo * pageSize - pageSize)
                 .setTimeout(60)
                 .array();

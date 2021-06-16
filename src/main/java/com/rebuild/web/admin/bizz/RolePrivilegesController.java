@@ -68,7 +68,9 @@ public class RolePrivilegesController extends EntityController {
 
     @GetMapping("role-list")
     public JSON roleList() {
-        Object[][] array = Application.createQuery("select roleId,name,isDisabled from Role").array();
+        Object[][] array = Application.createQuery(
+                "select roleId,name,isDisabled from Role")
+                .array();
         // 排序 a-z
         Arrays.sort(array, (o1, o2) -> {
             if (RoleService.ADMIN_ROLE.equals(o1[0])) return -1;
@@ -83,7 +85,7 @@ public class RolePrivilegesController extends EntityController {
     @GetMapping("privileges-list")
     public RespBody privilegesList(@IdParam(name = "role") ID roleId) {
         if (RoleService.ADMIN_ROLE.equals(roleId)) {
-            return RespBody.errorl("NotModifyAdminRole");
+            return RespBody.errorl("系统内置管理员角色，不允许修改。此角色拥有高级系统权限，请谨慎使用");
         }
 
         Object[][] array = Application.createQuery(

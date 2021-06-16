@@ -95,7 +95,7 @@ public class ProjectAdminController extends BaseController {
                     .setParameter(1, projectCode)
                     .unique();
             if (exists != null) {
-                return RespBody.errorl("SomeDuplicate,ProjectCode");
+                return RespBody.errorl("项目 ID 重复");
             }
 
             project = Application.getBean(ProjectConfigService.class).createProject(project, useTemplate);

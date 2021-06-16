@@ -318,7 +318,7 @@ a.btn {
 }
 
 .rb-color-header .rb-top-header .rb-navbar-header .rb-toggle-left-sidebar .icon {
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .rb-color-header .dropdown > a > .icon {
@@ -1776,7 +1776,7 @@ th.column-fixed {
   left: 10px;
   margin: -11px 0 0;
   padding: 3px 5px 3px 5px;
-  color: #444;
+  color: #777;
 }
 
 .form-line.hover fieldset legend {
@@ -1913,6 +1913,91 @@ th.column-fixed {
   color: #4285f4;
 }
 
+.page-aside-tree {
+  padding: 25px 18px;
+}
+
+.aside-2tree ul > ul {
+  padding-left: 17px !important;
+}
+
+.aside-2tree ul li {
+  display: flex;
+}
+
+.aside-2tree ul li:hover {
+  background-color: #eee;
+}
+
+.aside-2tree ul li.active {
+  color: #fff !important;
+  background-color: #4285f4 !important;
+  border-radius: 2px;
+}
+
+.aside-2tree ul li > a {
+  flex: 1;
+  display: block;
+  padding: 7px 0;
+}
+
+.aside-2tree ul li > span {
+  width: 22px;
+  cursor: pointer;
+}
+
+.aside-2tree li span.collapse-icon {
+  padding-left: 6px;
+  padding-top: 7px;
+  font-size: 1.6rem;
+}
+
+.aside-2tree li span.collapse-icon:hover {
+  color: #4285f4;
+}
+
+.aside-2tree li.active span.collapse-icon:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.aside-2tree li span.collapse-icon.no-child .zmdi {
+  width: 8px;
+  overflow: hidden;
+}
+
+.aside-2tree li span.collapse-icon.no-child .zmdi::before {
+  content: '\f273';
+}
+
+.aside-2tree li span.action {
+  height: 34px;
+  line-height: 34px;
+  text-align: center;
+  font-size: 1.2rem;
+  border-radius: 2px;
+  display: none;
+}
+
+.aside-2tree li span.action:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+  color: #fff;
+}
+
+.aside-2tree li.active:hover span.action {
+  display: inline-block;
+}
+
+.aside-2tree.hide-collapse li span.collapse-icon {
+  display: none !important;
+}
+
+.aside-2tree.hide-collapse ul li > a {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* AdvFilter */
+
 .adv-search .dropdown-item div.action a {
   height: 34px;
   line-height: 34px;
@@ -1924,8 +2009,6 @@ th.column-fixed {
   color: #4285f4 !important;
   background-color: rgba(0, 0, 0, 0.05);
 }
-
-/* AdvFilter */
 
 .adv-filter-wrap {
   background-color: #fff;
@@ -2356,9 +2439,15 @@ form {
 }
 
 .user-selector .nav-tabs > li.nav-item a.nav-link {
-  padding: 4px 8px;
+  padding: 4px 6px;
   font-size: 12px;
   min-width: 42px;
+}
+
+.user-selector .nav-tabs.w5 > li.nav-item a.nav-link {
+  max-width: 56px;
+  overflow: hidden;
+  text-overflow: clip;
 }
 
 .user-selector .tab-content {
@@ -3003,7 +3092,8 @@ form {
 }
 
 .preview-modal .preview-body .iframe.text > pre {
-  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui', 'microsoft yahei', sans-serif;
+  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui',
+    'microsoft yahei', sans-serif;
   font-size: 1rem;
   background-color: #fff;
 }
@@ -3677,7 +3767,8 @@ a.avatar.x26 img {
 .modal-title,
 .btn,
 .dropdown-item,
-.page-head-title {
+.page-head-title,
+.text-capitalize {
   text-transform: capitalize;
 }
 
@@ -3749,8 +3840,8 @@ a.select-lang:hover {
 }
 
 .use-theme ul li a {
-  width: 24px;
-  height: 24px;
+  width: 21px;
+  height: 21px;
   display: inline-block;
   background-color: #ddd;
   opacity: 0.9;
@@ -3774,11 +3865,15 @@ a.select-lang:hover {
 }
 
 .use-theme ul li a.theme-dark {
-  background-color: #112034 !important;
+  background-color: #2d333b !important;
 }
 
 .use-theme ul li a.theme-blue {
-  background-color: #4285f4 !important;
+  background-color: #4873c0 !important;
+}
+
+.use-theme ul li a.theme-blue2 {
+  background-color: #38adff !important;
 }
 
 .use-theme ul li a.theme-green {
@@ -3931,4 +4026,17 @@ a.select-lang:hover {
 
 .admin-danger-list > div + div {
   border-top: 1px solid #eee;
+}
+
+body.fullscreen .rb-wrapper > .rb-top-header,
+body.fullscreen .rb-wrapper > .rb-left-sidebar {
+  display: none !important;
+}
+
+body.fullscreen .rb-wrapper {
+  padding: 0 !important;
+}
+
+body.fullscreen .rb-wrapper > .rb-content {
+  margin-left: 0 !important;
 }

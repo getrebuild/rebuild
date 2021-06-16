@@ -107,8 +107,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
   box-sizing: border-box;
 }
 
-html, body {
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+html,
+body {
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
+    'Microsoft YaHei', sans-serif;
 }
 
 html {
@@ -4019,8 +4021,9 @@ input[type='submit'].btn-block {
   line-height: 1.428571;
   color: #404040;
   vertical-align: middle;
-  background: #fff url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%233d3c3c' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E") no-repeat
-    right 0.75rem center;
+  background: #fff
+    url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'%3E%3Cpath fill='%233d3c3c' d='M2 0L0 2h4zm0 5L0 3h4z'/%3E%3C/svg%3E")
+    no-repeat right 0.75rem center;
   background-size: 8px 10px;
   border: 1px solid #d5d8de;
   border-radius: 2px;
@@ -5635,7 +5638,16 @@ input[type='submit'].btn-block {
 }
 
 .progress-bar-striped {
-  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
   background-size: 3.077rem 3.077rem;
 }
 
@@ -6113,7 +6125,8 @@ button.close {
   z-index: 1070;
   display: block;
   margin: 0;
-  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'WenQuanYi Micro Hei', 'Microsoft YaHei UI',
+    'Microsoft YaHei', sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.428571;
@@ -6241,7 +6254,8 @@ button.close {
   z-index: 1060;
   display: block;
   max-width: 276px;
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
+    'Microsoft YaHei', sans-serif;
   font-style: normal;
   font-weight: 400;
   line-height: 1.428571;
@@ -11908,7 +11922,7 @@ a.avatar img {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background-color: #ccc;
+  background-color: #eee;
   display: inline-block;
   overflow: hidden;
   font-size: 12px;
@@ -12192,9 +12206,6 @@ a.avatar.x48 img {
 .rb-notifications .notification > .a .notification-info .date {
   color: #8a8a8a;
   display: block;
-  font-size: 0.6923rem;
-  margin-top: 4px;
-  text-transform: uppercase;
   font-size: 11px;
   margin-top: 2px;
 }
@@ -12623,7 +12634,24 @@ a.avatar.x48 img {
     padding-left: 55px;
   }
 
-  .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible .nav-items .content > ul > li > ul > li > ul > li > ul > li > ul > li > a {
+  .rb-collapsible-sidebar-collapsed
+    .rb-left-sidebar
+    .sidebar-elements
+    > li
+    ul.visible
+    .nav-items
+    .content
+    > ul
+    > li
+    > ul
+    > li
+    > ul
+    > li
+    > ul
+    > li
+    > ul
+    > li
+    > a {
     padding-left: 65px;
   }
 }
@@ -14301,7 +14329,8 @@ a.avatar.x48 img {
 }
 
 .rb-sub-header .navbar-nav > .nav-item > .nav-link {
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
+    'Microsoft YaHei', sans-serif;
   font-size: 1.1rem;
   line-height: 40px;
   min-width: 100px;
@@ -20135,7 +20164,8 @@ label {
   z-index: -1;
 }
 
-.inputfile + label, .inputfile-label {
+.inputfile + label,
+.inputfile-label {
   padding: 0 12px;
   font-size: 1rem;
   line-height: 30px;
@@ -21465,7 +21495,6 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-selection__rendered .select2-selection__clear {
   right: 20px;
   font-size: 1.35rem;
-  top: -1px;
   font-weight: normal;
 }
 
@@ -21530,7 +21559,8 @@ fieldset[disabled] .full-calendar .fc-button:hover {
 .select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
   line-height: 2rem;
   font-family: Roboto, Arial, sans-serif;
-  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI', 'Microsoft YaHei', sans-serif;
+  font-family: Roboto, 'Hiragina Sans GB', 'San Francisco', 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Noto Sans SC', 'Microsoft YaHei UI',
+    'Microsoft YaHei', sans-serif;
   font-size: 1rem;
   color: #999;
 }
@@ -21793,7 +21823,8 @@ fieldset[disabled] .full-calendar .fc-button:hover {
   border: 1px dashed #bbb;
   min-height: 100px;
   background-color: #e5e5e5;
-  background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff), linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
+  background-image: linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff),
+    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
   background-size: 60px 60px;
   background-position: 0 0, 30px 30px;
 }
@@ -21873,7 +21904,6 @@ fieldset[disabled] .full-calendar .fc-button:hover {
   background-color: #f9f9f9;
   position: relative;
   min-height: 48px;
-  overflow: hidden;
 }
 
 .fuelux .wizard:after,
@@ -22766,7 +22796,15 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
   margin-left: -250%;
   -webkit-animation: phAnimation 0.8s linear infinite;
   animation: phAnimation 0.8s linear infinite;
-  background: -webkit-gradient(linear, left top, right top, color-stop(46%, rgba(255, 255, 255, 0)), color-stop(50%, rgba(255, 255, 255, 0.35)), color-stop(54%, rgba(255, 255, 255, 0))) 50% 50%;
+  background: -webkit-gradient(
+      linear,
+      left top,
+      right top,
+      color-stop(46%, rgba(255, 255, 255, 0)),
+      color-stop(50%, rgba(255, 255, 255, 0.35)),
+      color-stop(54%, rgba(255, 255, 255, 0))
+    )
+    50% 50%;
   background: linear-gradient(to right, rgba(255, 255, 255, 0) 46%, rgba(255, 255, 255, 0.35) 50%, rgba(255, 255, 255, 0) 54%) 50% 50%;
 }
 
@@ -23017,8 +23055,10 @@ div.table-responsive > div.dataTables_wrapper > div.row > div[class^='col-']:las
 
 /* fileicon.types */
 .file-icon[data-type='zip'],
-.file-icon[data-type='rar'] {
-  background: #acacac;
+.file-icon[data-type='rar'],
+.file-icon[data-type='7z'],
+.file-icon[data-type='gz'] {
+  background: #b10b49;
 }
 
 .file-icon[data-type^='doc'] {

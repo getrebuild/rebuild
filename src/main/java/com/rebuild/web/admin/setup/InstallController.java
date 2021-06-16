@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.rbstore.RBStore;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
 import com.rebuild.utils.AppUtils;
@@ -73,7 +74,7 @@ public class InstallController extends BaseController implements InstallState {
         Installer checker = new Installer(props);
         try (Connection conn = checker.getConnection(null)) {
             DatabaseMetaData dmd = conn.getMetaData();
-            String okMsg = formatLang(request, "ConnectionSucceed",
+            String okMsg = Language.L("连接成功 : %s",
                     dmd.getDatabaseProductName() + " " + dmd.getDatabaseProductVersion());
 
             // 查询表
@@ -83,11 +84,10 @@ public class InstallController extends BaseController implements InstallState {
                     if (hasTable != null) {
                         // 挂载模式
                         if (checker.isRbDatabase()) {
-                            okMsg += String.format(" (%s)",
-                                    formatLang(request, "NoneEmptyDbTips", dbProps.getString("dbName")));
+                            okMsg += " " + Language.L("已发现 **%s** 为 REBUILD 数据库，系统将自动挂载", dbProps.getString("dbName"));
                             okMsg = "1#" + okMsg;
                         } else {
-                            return RespBody.errorl("NoneEmptyDbError");
+                            return RespBody.errorl("非空数据库不可使用，请使用其他数据库");
                         }
                     }
                 }
@@ -98,11 +98,10 @@ public class InstallController extends BaseController implements InstallState {
 
         } catch (SQLException ex) {
             if (ex.getLocalizedMessage().contains("Unknown database")) {
-                String okMsg = formatLang(request, "ConnectionSucceedEmptyDbTips",
-                        dbProps.getString("dbName"));
+                String okMsg = Language.L("连接成功 : 数据库 **%s** 不存在，系统将自动创建", dbProps.getString("dbName"));
                 return RespBody.ok(okMsg);
             } else {
-                return RespBody.error(formatLang(request, "ConnectionError", ex.getLocalizedMessage()));
+                return RespBody.errorl("连接错误 : %s", ex.getLocalizedMessage());
             }
         }
     }
@@ -124,11 +123,10 @@ public class InstallController extends BaseController implements InstallState {
             }
             pool.destroy();
 
-            return RespBody.ok(formatLang(request, "ConnectionSucceed", info));
+            return RespBody.ok(Language.L("连接成功 : %s", info));
 
         } catch (Exception ex) {
-            return RespBody.error(
-                    formatLang(request, "ConnectionError", ThrowableUtils.getRootCause(ex).getLocalizedMessage()));
+            return RespBody.errorl("连接错误 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
     }
 
@@ -138,7 +136,7 @@ public class InstallController extends BaseController implements InstallState {
             return RBStore.fetchMetaschema("index-2.0.json");
         } catch (Exception ex) {
             log.warn(null, ex);
-            return RespBody.errorl("NoInitEntityTips");
+            return RespBody.errorl("暂无可用业务实体。此安装步骤不是必须的，你仍可以继续安装");
         }
     }
 
@@ -151,8 +149,7 @@ public class InstallController extends BaseController implements InstallState {
             return RespBody.ok();
         } catch (Exception ex) {
             log.error("An error occurred during install", ex);
-            return RespBody.error(
-                    getLang(request, "InstallFailed") + " : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage());
+            return RespBody.errorl("安装失败 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
         }
     }
 }

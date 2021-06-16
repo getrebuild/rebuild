@@ -92,7 +92,10 @@ $(function () {
       $('.admin-settings').remove()
     } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      topPopover($('.admin-settings a'), '<div class="p-1">' + $L('CancelYourAdminAccess').replace('#', 'javascript:_cancelAdmin()') + '</div>')
+      topPopover(
+        $('.admin-settings a'),
+        '<div class="p-1">' + $L('当前已启用管理中心访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>'
+      )
     }
 
     $.get('/user/admin-dangers', function (res) {
@@ -149,7 +152,12 @@ $(function () {
 
   // Theme
   $('.use-theme a').click(function () {
-    if (rb.commercial < 1) return RbHighbar.create($L('FreeVerNotSupportted,UseTheme'), { type: 'danger', html: true, timeout: 6000 })
+    if (rb.commercial < 1)
+      return RbHighbar.create($L('免费版不支持选择主题功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
+        type: 'danger',
+        html: true,
+        timeout: 6000,
+      })
 
     var theme = $(this).data('theme')
     $.get('/commons/theme/set-use-theme?theme=' + theme, function () {
@@ -173,9 +181,8 @@ var $addResizeHandler = function (call) {
     })
   }
 }
-
 /**
- * 取消管理员访问
+ * 取消管理中心访问
  */
 var _cancelAdmin = function () {
   $.post('/user/admin-cancel', function (res) {
@@ -186,7 +193,6 @@ var _cancelAdmin = function () {
     }
   })
 }
-
 /**
  * 初始化导航菜单
  */
@@ -254,7 +260,7 @@ var _initNavs = function () {
   }
 
   $('.nav-settings').click(function () {
-    RbModal.create('/p/settings/nav-settings', $L('SetSome,NavMenu'))
+    RbModal.create('/p/settings/nav-settings', $L('设置导航菜单'))
   })
 
   // WHEN SMALL-WIDTH
@@ -273,7 +279,7 @@ var _initNavs = function () {
   }
 
   setTimeout(function () {
-    $('.rbv').attr('title', $L('CommercialFeat'))
+    $('.rbv').attr('title', $L('增值功能'))
   }, 400)
 
   // Active URL Nav
@@ -334,7 +340,7 @@ var _loadMessages = function () {
       $('<span class="date">' + $fromNow(item[2]) + '</span>').appendTo(o)
     })
     _loadMessages__state = true
-    if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('NoSome,Notification') + '</li>').appendTo(dest)
+    if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('暂无通知') + '</li>').appendTo(dest)
   })
 }
 var _showNotification = function () {
@@ -342,7 +348,7 @@ var _showNotification = function () {
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
-      new _Notification($L('HasXNotice').replace('%d', _checkMessage__state), {
+      new _Notification($L('你有 %d 条未读消息', _checkMessage__state), {
         tag: 'rbNotification',
         icon: rb.baseUrl + '/assets/img/favicon.png',
       })
@@ -352,7 +358,6 @@ var _showNotification = function () {
     }
   }
 }
-
 /**
  * 全局搜索
  */
@@ -405,7 +410,6 @@ var _globalSearch = function () {
       }
     })
 }
-
 /**
  * 清理 dropdown 菜单
  */
@@ -425,7 +429,6 @@ var $cleanMenu = function (mbg) {
   // remove btn
   if (mbgMenu.children().length === 0) mbg.remove()
 }
-
 /**
  * 获取附件文件名
  */
@@ -435,7 +438,6 @@ var $fileCutName = function (fileName) {
   fileName = fileName[fileName.length - 1]
   return fileName.substr(fileName.indexOf('__') + 2)
 }
-
 /**
  * 获取附件文件扩展名
  */
@@ -445,7 +447,6 @@ var $fileExtName = function (fileName) {
   fileName = fileName.split('.')
   return fileName[fileName.length - 1] || '*'
 }
-
 /**
  * 创建 Upload 组件（自动判断使用七牛或本地）
  */
@@ -472,11 +473,11 @@ var $createUploader = function (input, next, complete, error) {
           error: function (err) {
             var msg = (err.message || err.error || 'UnknowError').toUpperCase()
             if (imgOnly && msg.contains('FILE TYPE')) {
-              RbHighbar.create($L('PlsUploadImg'))
+              RbHighbar.create($L('请上传图片'))
             } else if (msg.contains('EXCEED FSIZELIMIT')) {
-              RbHighbar.create($L('ExceedMaxLimit') + ' (100MB)')
+              RbHighbar.create($L('超出文件大小限制') + ' (100MB)')
             } else {
-              RbHighbar.error($L('ErrorUpload') + ' : ' + msg)
+              RbHighbar.error($L('上传失败，请稍后重试 : ' + msg))
             }
             typeof error === 'function' && error()
             return false
@@ -494,10 +495,10 @@ var $createUploader = function (input, next, complete, error) {
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
-          RbHighbar.create($L(imgOnly ? 'PlsUploadImg' : 'FileTypeError'))
+          RbHighbar.create(imgOnly ? $L('请上传图片') : $L('文件格式错误'))
           return false
         } else if (err === 'ErrorMaxSize') {
-          RbHighbar.create($L('ExceedMaxLimit'))
+          RbHighbar.create($L('超出文件大小限制'))
           return false
         }
       },
@@ -511,19 +512,18 @@ var $createUploader = function (input, next, complete, error) {
           if (local !== 'temp' && file.size > 0) $.post('/filex/store-filesize?fs=' + file.size + '&fp=' + $encode(e.data) + useToken)
           complete({ key: e.data })
         } else {
-          RbHighbar.error($L('ErrorUpload'))
+          RbHighbar.error($L('上传失败，请稍后重试'))
           typeof error === 'function' && error()
         }
       },
       onClientError: function (e, file) {
-        RbHighbar.error($L('ErrorUpload'))
+        RbHighbar.error($L('上传失败，请稍后重试'))
         typeof error === 'function' && error()
       },
     })
   }
 }
 var $initUploader = $createUploader
-
 /**
  * 卸载 React 组件
  */
@@ -535,14 +535,13 @@ var $unmount = function (container, delay, keepContainer) {
     }, delay || 1000)
   }
 }
-
 /**
  * 初始化引用字段（搜索）
  */
 var $initReferenceSelect2 = function (el, field) {
   var search_input = null
   return $(el).select2({
-    placeholder: field.placeholder || $L('SelectSome').replace('{0}', field.label),
+    placeholder: field.placeholder || $L('选择%s', field.label),
     minimumInputLength: 0,
     maximumSelectionLength: $(el).attr('multiple') ? 999 : 2,
     ajax: {
@@ -558,25 +557,24 @@ var $initReferenceSelect2 = function (el, field) {
     },
     language: {
       noResults: function () {
-        return (search_input || '').length > 0 ? $L('NoResults') : $L('InputForSearch')
+        return (search_input || '').length > 0 ? $L('未找到结果') : $L('输入关键词搜索')
       },
       inputTooShort: function () {
-        return $L('InputForSearch')
+        return $L('输入关键词搜索')
       },
       searching: function () {
-        return $L('Searching')
+        return $L('搜索中')
       },
       maximumSelected: function () {
-        return $L('OnlyXSelected').replace('%d', 1)
+        return $L('只能选择 1 项')
       },
       removeAllItems: function () {
-        return $L('Clean')
+        return $L('清除')
       },
     },
     theme: 'default ' + (field.appendClass || ''),
   })
 }
-
 /**
  * 保持模态窗口（如果需要）
  */
@@ -588,7 +586,6 @@ var $keepModalOpen = function () {
   }
   return false
 }
-
 /**
  * 禁用按钮 N 秒（用在一些危险操作上）
  */
@@ -605,7 +602,6 @@ var $countdownButton = function (btn, seconds) {
     }
   }, 1000)
 }
-
 /**
  * 加载状态条（单线程）
  */
@@ -720,7 +716,6 @@ var $converEmoji = function (text) {
   })
   return text
 }
-
 /**
  * Use momentjs
  */
@@ -733,7 +728,7 @@ var $moment = function (date) {
  */
 var $fromNow = function (date) {
   var m = $moment(date)
-  return Math.abs(moment().diff(m)) < 6000 ? $L('JustNow') : m.fromNow()
+  return Math.abs(moment().diff(m)) < 6000 ? $L('刚刚') : m.fromNow()
 }
 /**
  * 是否过期
@@ -745,52 +740,24 @@ var $expired = function (date, offset) {
 }
 
 /**
- * 转义 Thymeleaf 页面的 JSON
- */
-var _$unthy = function (text) {
-  if (!text) return null
-  text = text.replace(/&quot;/g, '"')
-  text = text.replace(/&amp;/g, '&')
-  text = text.replace(/\n/g, '\\n')
-  var s = $.parseJSON(text)
-  if (rb.env === 'dev') console.log(s)
-  return s
-}
-
-/**
  * 获取语言（PH_KEY）
  */
 var $L = function () {
-  var args = arguments.length === 1 ? arguments[0].split(',') : arguments
-  return _$L(args, true)
-}
-/**
- * 获取语言（PH_VALUE）
- */
-var $LF = function () {
-  var args = arguments.length === 1 ? arguments[0].split(',') : arguments
-  return _$L(args, false)
-}
-var _$L = function (args, isPhKey) {
+  var args = arguments
   var lang = _getLang(args[0])
-  if (args.length < 2) return lang
-
-  for (var i = 1; i < args.length; i++) {
-    var phKey = isPhKey ? '{' + (i - 1) + '}' : '%s'
-    var phLang = isPhKey ? _getLang(args[i]) : args[i]
-    lang = lang.replace(phKey, phLang)
-  }
+  if (args.length <= 1) return lang
+  // 替换占位符 %s %d
+  for (var i = 1; i < args.length; i++) lang = lang.replace(/%[sd]/, args[i])
   return lang
 }
 var _getLang = function (key) {
   var lang = (window._LANGBUNDLE || {})[key]
   if (!lang) {
     console.warn('Missing lang-key `' + key + '`')
-    lang = '[' + key.toUpperCase() + ']'
+    return key
   }
   return lang
 }
-
 /**
  * 点击 Dropdown-Menu 不隐藏
  */

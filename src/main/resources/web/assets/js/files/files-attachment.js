@@ -9,43 +9,26 @@ See LICENSE and COMMERCIAL in the project root for license information.
 // 附件
 const __DEFAULT_ALL = 1
 
-// ~ 实体树
-class EntityTree extends React.Component {
-  state = { activeItem: 1, ...this.props }
-
-  render() {
-    return (
-      <div className="aside-tree p-0">
-        <ul className="list-unstyled">
-          {(this.state.list || []).map((item) => {
-            return (
-              <li key={`entity-${item.id}`} className={this.state.activeItem === item.id ? 'active' : ''}>
-                <a onClick={() => this._clickItem(item)} href={`#!/Entity/${item.id}`}>
-                  {item.text}
-                </a>
-              </li>
-            )
-          })}
-        </ul>
-      </div>
-    )
-  }
-
-  _clickItem(item) {
-    this.setState({ activeItem: item.id }, () => {
-      this.props.call && this.props.call(item)
-    })
-  }
-
-  componentDidMount = () => this.loadData()
-
-  loadData() {
+const EntityTree = {
+  load: function () {
     $.get('/files/tree-entity', (res) => {
-      let _list = res.data || []
-      _list.unshift({ id: __DEFAULT_ALL, text: $L('All') })
-      this.setState({ list: _list })
+      const data = [{ id: __DEFAULT_ALL, text: $L('全部') }, ...res.data]
+
+      renderRbcomp(
+        <AsideTree
+          data={data}
+          hideCollapse
+          activeItem={__DEFAULT_ALL}
+          onItemClick={(item) => {
+            filesList && filesList.loadData(item.id)
+            $('.file-path .active').text(item.text)
+            location.hash = `!/Entity/${item.id}`
+          }}
+        />,
+        'navTree'
+      )
     })
-  }
+  },
 }
 
 // eslint-disable-next-line no-undef
@@ -55,7 +38,7 @@ class FilesList4Atts extends FilesList {
   renderExtras(item) {
     return item.relatedRecord ? (
       <span>
-        <a title={$L('ClickViewReleated')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>
+        <a title={$L('点击查看记录')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/app/list-and-view?id=${item.relatedRecord[0]}`}>
           {item.relatedRecord[1]}
         </a>
       </span>
@@ -64,11 +47,7 @@ class FilesList4Atts extends FilesList {
 }
 
 $(document).ready(() => {
-  const clickNav = function (item) {
-    filesList && filesList.loadData(item.id)
-    $('.file-path .active').text(item.text)
-  }
-  renderRbcomp(<EntityTree call={clickNav} />, 'navTree')
+  EntityTree.load()
 
   renderRbcomp(<FilesList4Atts />, $('.file-viewport'), function () {
     // eslint-disable-next-line no-global-assign

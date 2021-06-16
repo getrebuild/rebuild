@@ -50,10 +50,10 @@ public class EasyBool extends EasyField implements MixValue {
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
         if (wrappedValue instanceof Boolean) {
-            return (Boolean) wrappedValue ? Language.L("True") : Language.L("False");
+            return (Boolean) wrappedValue ? Language.L("是") : Language.L("否");
         }
 
         return StringUtils.equals(BoolEditor.TRUE + "", wrappedValue.toString())
-                ? Language.L("True") : Language.L("False");
+                ? Language.L("是") : Language.L("否");
     }
 }

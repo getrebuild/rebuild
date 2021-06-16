@@ -27,15 +27,21 @@ class ApprovalList extends ConfigList {
                 <a href={`approval/${item[0]}`}>{item[3]}</a>
               </td>
               <td>{item[2] || item[1]}</td>
-              <td>{item[4] ? <span className="badge badge-warning font-weight-light">{$L('False')}</span> : <span className="badge badge-success font-weight-light">{$L('True')}</span>}</td>
+              <td>
+                {item[4] ? (
+                  <span className="badge badge-warning font-weight-light">{$L('否')}</span>
+                ) : (
+                  <span className="badge badge-success font-weight-light">{$L('是')}</span>
+                )}
+              </td>
               <td>
                 <DateShow date={item[5]} />
               </td>
               <td className="actions">
-                <a className="icon" title={$L('Modify')} onClick={() => this.handleEdit(item)}>
+                <a className="icon" title={$L('修改')} onClick={() => this.handleEdit(item)}>
                   <i className="zmdi zmdi-edit" />
                 </a>
-                <a className="icon danger-hover" title={$L('Delete')} onClick={() => this.handleDelete(item[0])}>
+                <a className="icon danger-hover" title={$L('删除')} onClick={() => this.handleDelete(item[0])}>
                   <i className="zmdi zmdi-delete" />
                 </a>
               </td>
@@ -52,10 +58,10 @@ class ApprovalList extends ConfigList {
 
   handleDelete(id) {
     const handle = super.handleDelete
-    RbAlert.create($L('DeleteApprovalConfirm'), {
+    RbAlert.create($L('若流程正在使用则不能删除，建议你将其禁用。[] 确认删除此审批流程吗？'), {
       html: true,
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         handle(id, () => dlgActionAfter(this))
@@ -67,7 +73,7 @@ class ApprovalList extends ConfigList {
 class ApprovalEdit extends ConfigFormDlg {
   constructor(props) {
     super(props)
-    this.subtitle = $L('ApprovalConfig')
+    this.subtitle = $L('审批流程')
   }
 
   renderFrom() {
@@ -75,7 +81,7 @@ class ApprovalEdit extends ConfigFormDlg {
       <React.Fragment>
         {!this.props.id && (
           <div className="form-group row">
-            <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,ApplyEntity')}</label>
+            <label className="col-sm-3 col-form-label text-sm-right">{$L('选择应用实体')}</label>
             <div className="col-sm-7">
               <select className="form-control form-control-sm" ref={(c) => (this._entity = c)}>
                 {(this.state.entities || []).map((item) => {
@@ -90,7 +96,7 @@ class ApprovalEdit extends ConfigFormDlg {
           </div>
         )}
         <div className="form-group row">
-          <label className="col-sm-3 col-form-label text-sm-right">{$L('Name')}</label>
+          <label className="col-sm-3 col-form-label text-sm-right">{$L('名称')}</label>
           <div className="col-sm-7">
             <input type="text" className="form-control form-control-sm" data-id="name" onChange={this.handleChange} value={this.state.name || ''} />
           </div>
@@ -99,10 +105,16 @@ class ApprovalEdit extends ConfigFormDlg {
           <div className="form-group row">
             <div className="col-sm-7 offset-sm-3">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" checked={this.state.isDisabled === true} data-id="isDisabled" onChange={this.handleChange} />
+                <input
+                  className="custom-control-input"
+                  type="checkbox"
+                  checked={this.state.isDisabled === true}
+                  data-id="isDisabled"
+                  onChange={this.handleChange}
+                />
                 <span className="custom-control-label">
-                  {$L('IsDisable')}
-                  <i ref={(c) => (this._tooltip = c)} className="zmdi zmdi-help zicon" title={$L('DisableApprovalTips')}></i>
+                  {$L('是否禁用')}
+                  <i ref={(c) => (this._tooltip = c)} className="zmdi zmdi-help zicon" title={$L('禁用后正在使用此流程的审批记录不受影响')}></i>
                 </span>
               </label>
             </div>
@@ -119,12 +131,12 @@ class ApprovalEdit extends ConfigFormDlg {
 
   confirm = () => {
     const post = { name: this.state['name'] }
-    if (!post.name) return RbHighbar.create($L('PlsInputSome,Name'))
+    if (!post.name) return RbHighbar.create($L('请输入名称'))
 
     if (!this.props.id) {
       post.belongEntity = this.__select2.val()
       if (!post.belongEntity) {
-        RbHighbar.create($L('PlsSelectSome,ApplyEntity'))
+        RbHighbar.create($L('请选择应用实体'))
         return
       }
     } else {

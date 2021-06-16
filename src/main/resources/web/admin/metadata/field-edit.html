@@ -4,7 +4,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/lib/widget/bootstrap-slider.min.css}" />
     <th:block th:replace="~{/_include/header}" />
     <meta name="page-help" content="https://getrebuild.com/docs/admin/meta-entity#%E5%AD%97%E6%AE%B5" />
-    <title>[[${bundle.L('FieldInfo')}]]</title>
+    <title>[[${bundle.L('字段信息')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/meta-edit.css}" />
   </head>
   <body>
@@ -23,46 +23,46 @@
               </div>
               <div class="aside-nav collapse">
                 <ul class="nav">
-                  <li><a href="../base">[[${bundle.L('BasicInfo')}]]</a></li>
-                  <li><a href="../form-design">[[${bundle.L('FormLayout')}]]</a></li>
-                  <li class="active"><a href="../fields">[[${bundle.L('NavFields')}]]</a></li>
-                  <li><a href="../advanced">[[${bundle.L('AdvConf')}]]</a></li>
+                  <li><a href="../base">[[${bundle.L('基本信息')}]]</a></li>
+                  <li><a href="../form-design">[[${bundle.L('表单设计')}]]</a></li>
+                  <li class="active"><a href="../fields">[[${bundle.L('字段管理')}]]</a></li>
+                  <li><a href="../advanced">[[${bundle.L('高级配置')}]]</a></li>
                 </ul>
               </div>
             </div>
           </div>
         </aside>
         <div class="page-head">
-          <div class="page-head-title">[[${bundle.L('FieldInfo')}]]</div>
+          <div class="page-head-title">[[${bundle.L('字段信息')}]]</div>
         </div>
         <div class="main-content container-fluid pt-1">
           <ul th:if="${fieldType == 'REFERENCE'} and ${!fieldBuildin}" class="nav nav-tabs nav-tabs-classic">
-            <li class="nav-item"><a th:href="${fieldName}" class="nav-link active">[[${bundle.L('FieldInfo')}]]</a></li>
-            <li class="nav-item"><a th:href="|${fieldName}/auto-fillin|" class="nav-link">[[${bundle.L('FormFillback')}]]</a></li>
+            <li class="nav-item"><a th:href="${fieldName}" class="nav-link active">[[${bundle.L('字段信息')}]]</a></li>
+            <li class="nav-item"><a th:href="|${fieldName}/auto-fillin|" class="nav-link">[[${bundle.L('表单回填')}]]</a></li>
           </ul>
           <div class="card mb-0">
             <div class="card-body pt-4">
               <form class="simple">
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('FieldName')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('字段名称')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input class="form-control form-control-sm" type="text" id="fieldLabel" maxlength="40" th:value="${fieldLabel}" th:data-o="${fieldLabel}" />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('MetaName')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('内部标识')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input class="form-control form-control-sm" type="text" readonly th:value="${fieldName}" />
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Type')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('类型')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input class="form-control form-control-sm" type="text" readonly th:value="${fieldTypeLabel}" />
                   </div>
                 </div>
                 <div th:if="${fieldType == 'DECIMAL'}" class="form-group row J_for-DECIMAL">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DecimalLength')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('小数位长度')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="decimalFormat">
                       <option value="##,##0.0">1</option>
@@ -76,7 +76,7 @@
                 </div>
                 <div th:if="${fieldType == 'REFERENCE' or fieldType == 'N2NREFERENCE'}" class="J_for-REFERENCE J_for-N2NREFERENCE">
                   <div class="form-group row pt-1 pb-1">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('RefEntity')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('引用实体')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <div class="form-control-plaintext">
                         <a class="J_referenceEntity" th:data-refentity="${fieldRefentity}" th:href="|../../${fieldRefentity}/base|">[[${fieldRefentityLabel}]] ([[${fieldRefentity}]])</a>
@@ -84,15 +84,15 @@
                     </div>
                   </div>
                   <div class="form-group row pt-0 pb-2 J_for-REFERENCE-filter">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SetAdvFiletr')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('附加过滤条件')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
-                      <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('ClickSet')}]]</a>
-                      <p class="form-text mb-0 mt-0">[[${bundle.L('RefEntityUseTips')}]]</p>
+                      <a class="btn btn-sm btn-link pl-0 text-left down-2" id="referenceDataFilter">[[${bundle.L('点击设置')}]]</a>
+                      <p class="form-text mb-0 mt-0">[[${bundle.L('符合过滤条件的数据才能被选择或使用')}]]</p>
                     </div>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'DATE'}" class="form-group row J_for-DATE">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Format')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('格式')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="dateFormat">
                       <option value="yyyy">YYYY</option>
@@ -102,7 +102,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'DATETIME'}" class="form-group row J_for-DATETIME">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Format')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('格式')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <select class="form-control form-control-sm" id="datetimeFormat">
                       <option value="yyyy-MM-dd">YYYY-MM-DD</option>
@@ -112,7 +112,7 @@
                   </div>
                 </div>
                 <div th:if="${fieldType == 'IMAGE' or fieldType == 'FILE'}" class="form-group row J_for-IMAGE J_for-FILE">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('AllowUploadNum')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('允许上传数量')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8 pt-1 pb-1">
                     <input
                       class="bslider form-control"
@@ -124,89 +124,103 @@
                       data-slider-min="0"
                       data-slider-tooltip="show"
                     />
-                    <div class="form-text J_minmax" th:utext="${bundle.L('AllowUploadNumTips')}"></div>
+                    <div class="form-text J_minmax" th:utext="${bundle.L('最少上传 **0** 个，最多上传 **9** 个')}"></div>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'PICKLIST' or fieldType == 'MULTISELECT'}" class="form-group row J_for-PICKLIST J_for-MULTISELECT">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('OptionList')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('选项列表')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div th:class="|rb-scroller sortable-box autoh dt-${fieldType}|">
                       <ol class="dd-list" id="picklist-items">
-                        <li class="no-item">[[${bundle.L('Loading')}]]</li>
+                        <li class="no-item">[[${bundle.L('加载中')}]]</li>
                       </ol>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm J_picklist-edit"><i class="zmdi zmdi-settings"></i> [[${bundle.L('SetOptionList')}]]</button>
+                    <button type="button" class="btn btn-secondary btn-sm J_picklist-edit"><i class="zmdi zmdi-settings"></i> [[${bundle.L('配置选项')}]]</button>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'SERIES'}" class="J_for-SERIES">
                   <div class="form-group row">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SeriesFormat')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('编号规则')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <input class="form-control form-control-sm" type="text" id="seriesFormat" value="{YYYYMMDD}-{0000}" />
-                      <p class="form-text mb-0 help" th:utext="${bundle.L('SeriesFormatTips')}"></p>
+                      <p class="form-text mb-0 help" th:utext="${bundle.L('支持内置变量，内置变量包括 `{YYYYMMDD}` (年月日) `{HHIISS}` (时分秒) `{0000}` (自增数字)')}"></p>
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('SeriesZero')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('自增数字归零')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <select class="form-control form-control-sm" id="seriesZero">
-                        <option value="N" selected="selected">[[${bundle.L('SeriesZeroR1')}]]</option>
-                        <option value="D">[[${bundle.L('SeriesZeroR2')}]]</option>
-                        <option value="M">[[${bundle.L('SeriesZeroR3')}]]</option>
-                        <option value="Y">[[${bundle.L('SeriesZeroR4')}]]</option>
+                        <option value="N" selected="selected">[[${bundle.L('不归零')}]]</option>
+                        <option value="D">[[${bundle.L('每天归零')}]]</option>
+                        <option value="M">[[${bundle.L('每月归零')}]]</option>
+                        <option value="Y">[[${bundle.L('每年归零')}]]</option>
                       </select>
                     </div>
                   </div>
                 </div>
-                <div th:if="${fieldType == 'CLASSIFICATION'}" class="form-group row J_for-CLASSIFICATION pt-1 pb-1">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Classification')}]]</label>
-                  <div class="col-md-12 col-xl-6 col-lg-8">
-                    <div class="form-control-plaintext" id="useClassification">
-                      <a th:href="@{/admin/metadata/classifications}">[[${bundle.L('Loading')}]]</a>
-                      <i class="zmdi zmdi-layers fs-14 ml-1 text-muted"></i>
+                <th:block th:if="${fieldType == 'CLASSIFICATION'}">
+                  <div class="form-group row J_for-CLASSIFICATION pt-1 pb-1">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('分类数据')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <div class="form-control-plaintext" id="useClassification">
+                        <a th:href="@{/admin/metadata/classifications}">[[${bundle.L('加载中')}]]</a>
+                        <i class="zmdi zmdi-layers fs-14 ml-1 text-muted"></i>
+                      </div>
                     </div>
                   </div>
-                </div>
+                  <div class="form-group row J_for-CLASSIFICATION pt-1 pb-1">
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('使用分类级别')}]]</label>
+                    <div class="col-md-12 col-xl-6 col-lg-8">
+                      <select class="form-control form-control-sm" id="classificationLevel">
+                        <option value="-1">[[${bundle.L('默认')}]]</option>
+                        <option value="0">[[${bundle.L('%d 级分类', 1)}]]</option>
+                        <option value="1">[[${bundle.L('%d 级分类', 2)}]]</option>
+                        <option value="2">[[${bundle.L('%d 级分类', 3)}]]</option>
+                        <option value="3">[[${bundle.L('%d 级分类', 4)}]]</option>
+                      </select>
+                    </div>
+                  </div>
+                </th:block>
                 <div th:if="${fieldType == 'DECIMAL' or fieldType == 'NUMBER'}" class="form-group row J_for-DECIMAL J_for-NUMBER">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('AllowNegative')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('是否允许负数')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                      <input class="custom-control-input" type="checkbox" id="notNegative" /><span class="custom-control-label"> [[${bundle.L('NotAllow')}]]</span>
+                      <input class="custom-control-input" type="checkbox" id="notNegative" /><span class="custom-control-label"> [[${bundle.L('不允许')}]]</span>
                     </label>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'STATE'}" class="form-group row J_for-STATE pt-0 pb-0">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('StateClass')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('状态类 (Enum)')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <div class="form-control-plaintext code text-danger" id="stateClass"></div>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'BARCODE'}" class="J_for-BARCODE">
                   <div class="form-group row">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Style')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('显示样式')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8 pt-1">
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE" checked /><span class="custom-control-label"> [[${bundle.L('QrCode')}]]</span>
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="QRCODE" checked /><span class="custom-control-label"> [[${bundle.L('二维码')}]]</span>
                       </label>
                       <label class="custom-control custom-control-sm custom-radio custom-control-inline mb-0">
-                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" /><span class="custom-control-label"> [[${bundle.L('BarCode')}]] (CODE128)</span>
+                        <input class="custom-control-input" type="radio" name="barcodeType" value="BARCODE" /><span class="custom-control-label"> [[${bundle.L('条形码')}]] (CODE128)</span>
                       </label>
                     </div>
                   </div>
                   <div class="form-group row">
-                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('CodeFormat')}]]</label>
+                    <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('编码规则')}]]</label>
                     <div class="col-md-12 col-xl-6 col-lg-8">
                       <input class="form-control form-control-sm" type="text" id="barcodeFormat" />
-                      <p class="form-text mb-0 help" th:utext="${bundle.L('BarCodeFormatTips')}"></p>
+                      <p class="form-text mb-0 help" th:utext="${bundle.L('可使用固定值、内置变量或他们的组合。内置变量如 `{ID}` (其中 ID 为字段内部标识)')}"></p>
                     </div>
                   </div>
                 </div>
                 <div th:if="${!fieldBuildin}" class="form-group row" id="defaultValue">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('DefaultValue')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('默认值')}]]</label>
                   <div th:switch="${fieldType}" class="col-md-12 col-xl-6 col-lg-8">
                     <select th:case="'BOOL'" class="form-control form-control-sm J_defaultValue" th:data-o="${fieldDefaultValue}">
-                      <option value="T">[[${bundle.L('True')}]]</option>
-                      <option value="F" selected>[[${bundle.L('False')}]]</option>
+                      <option value="T">[[${bundle.L('是')}]]</option>
+                      <option value="F" selected>[[${bundle.L('否')}]]</option>
                     </select>
                     <div th:case="*" class="input-group">
                       <input
@@ -216,69 +230,72 @@
                         class="form-control form-control-sm J_defaultValue"
                         th:data-o="${fieldDefaultValue}"
                         th:value="${fieldDefaultValue}"
-                        th:placeholder="${bundle.L('Null')}"
+                        th:placeholder="${bundle.L('无')}"
                       />
                       <div class="input-group-append J_defaultValue-append"></div>
-                      <a class="J_defaultValue-clear hide" th:title="${bundle.L('Clear')}"><i class="icon zmdi zmdi-close"></i></a>
+                      <a class="J_defaultValue-clear hide" th:title="${bundle.L('清空')}"><i class="icon zmdi zmdi-close"></i></a>
                     </div>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'DECIMAL' or fieldType == 'NUMBER'}" class="form-group row J_for-DECIMAL J_for-NUMBER">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('FormCalcFormula')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('表单计算公式')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <input type="hidden" class="form-control" id="calcFormula" />
-                    <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('Null')}">[[${calcFormula ?: calcFormula}]]</div>
-                    <p class="form-text" th:utext="${bundle.L('FormCalcFormulaTips')}"></p>
+                    <div class="form-control-plaintext formula" id="calcFormula2" th:_title="${bundle.L('无')}">[[${calcFormula ?: calcFormula}]]</div>
+                    <p
+                      class="form-text"
+                      th:utext="${bundle.L('本公式仅做前端计算，如公式中所用字段未布局/未显示，则无法进行计算。你也可以通过 [触发器 (自动更新)](/admin/robot/triggers) 实现更强大的计算规则')}"
+                    ></p>
                   </div>
                 </div>
                 <div th:if="${fieldType == 'NTEXT'}" class="form-group row J_for-NTEXT">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('NtextUseMdedit')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('使用富文本编辑器')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                      <input class="custom-control-input" type="checkbox" id="useMdedit" /><span class="custom-control-label"> [[${bundle.L('True')}]]</span>
+                      <input class="custom-control-input" type="checkbox" id="useMdedit" /><span class="custom-control-label"> [[${bundle.L('是')}]]</span>
                     </label>
                   </div>
                 </div>
                 <div class="form-group row">
-                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('Remark')}]]</label>
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right">[[${bundle.L('备注')}]]</label>
                   <div class="col-md-12 col-xl-6 col-lg-8">
-                    <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${fieldComments}" th:placeholder="${bundle.L('Optional')}">[[${fieldComments}]]</textarea>
+                    <textarea class="form-control form-control-sm row2x" id="comments" th:data-o="${fieldComments}" th:placeholder="${bundle.L('可选')}">[[${fieldComments}]]</textarea>
                   </div>
                 </div>
                 <div class="form-group row J_fieldAttrs">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="fieldNullable" th:data-o="${fieldNullable}" />
-                      <span class="custom-control-label"> [[${bundle.L('AllowNullable')}]]</span>
+                      <span class="custom-control-label"> [[${bundle.L('允许为空')}]]</span>
                     </label>
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="fieldCreatable" th:data-o="${fieldCreatable}" />
-                      <span class="custom-control-label"> [[${bundle.L('AllowCreatable')}]]</span>
+                      <span class="custom-control-label"> [[${bundle.L('允许新建')}]]</span>
                     </label>
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                       <input class="custom-control-input" type="checkbox" id="fieldUpdatable" th:data-o="${fieldUpdatable}" />
-                      <span class="custom-control-label"> [[${bundle.L('AllowUpdatable')}]]</span>
+                      <span class="custom-control-label"> [[${bundle.L('允许修改')}]]</span>
                     </label>
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 hide">
                       <input class="custom-control-input" type="checkbox" id="fieldRepeatable" th:data-o="${fieldRepeatable}" />
-                      <span class="custom-control-label">[[${bundle.L('AllowRepeatable')}]]</span>
+                      <span class="custom-control-label">[[${bundle.L('允许重复')}]]</span>
                     </label>
                     <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
                       <input class="custom-control-input" type="checkbox" id="fieldQueryable" th:data-o="${fieldQueryable}" />
-                      <span class="custom-control-label"> [[${bundle.L('AllowUses')}]]</span>
+                      <span class="custom-control-label"> [[${bundle.L('允许使用')}]]</span>
                     </label>
                   </div>
                 </div>
                 <div class="form-group row footer">
                   <div class="col-md-12 col-xl-6 col-lg-8 offset-xl-3 offset-lg-4">
                     <div th:if="${!fieldBuildin}" class="J_action">
-                      <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('Save')}]]</button>
-                      <button class="btn btn-danger btn-outline btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('Delete')}]]</button>
-                      <button th:if="${fieldType == 'SERIES'}" class="btn btn-warning btn-outline btn-space J_series-reindex" type="button">[[${bundle.L('AppendSeries')}]]</button>
+                      <button class="btn btn-primary btn-space J_save" type="button">[[${bundle.L('保存')}]]</button>
+                      <button class="btn btn-danger btn-outline btn-space J_del" type="button"><i class="zmdi zmdi-delete icon"></i> [[${bundle.L('删除')}]]</button>
+                      <button th:if="${fieldType == 'SERIES'}" class="btn btn-warning btn-outline btn-space J_series-reindex" type="button">[[${bundle.L('补充编号')}]]</button>
                     </div>
                     <div th:if="${fieldBuildin}" class="alert alert-warning alert-icon mb-0">
                       <div class="icon"><span class="zmdi zmdi-alert-triangle"></span></div>
-                      <div class="message">[[${bundle.L('BuiltInNotModify')}]]</div>
+                      <div class="message">[[${bundle.L('系统内置，不允许修改')}]]</div>
                     </div>
                   </div>
                 </div>
@@ -293,7 +310,7 @@
       window.__PageConfig = {
         metaId: '[[${fieldMetaId}]]',
         fieldType: '[[${fieldType}]]',
-        extConfig: _$unthy('[[${fieldExtConfig}]]'),
+        extConfig: [(${fieldExtConfig ?:'null'})],
         entityName: '[[${entityName}]]',
         fieldName: '[[${fieldName}]]',
         fieldBuildin: '[[${fieldBuildin}]]' === 'true',

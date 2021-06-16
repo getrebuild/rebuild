@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('Notification')}]]</title>
+    <title>[[${bundle.L('通知')}]]</title>
     <style type="text/css">
       .notification-info .badge {
         border-radius: 99px;
@@ -21,10 +21,10 @@
           <div class="tab-container">
             <ul class="nav nav-tabs nav-tabs-classic notification-tab">
               <li class="nav-item">
-                <a class="nav-link" href="../notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.L('Message')}]]</a>
+                <a class="nav-link" href="../notifications"><span class="icon zmdi zmdi-notifications"></span> [[${bundle.L('消息')}]]</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link active" href="todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.L('Todo')}]]</a>
+                <a class="nav-link active" href="todo"><span class="icon zmdi zmdi-alarm-check"></span> [[${bundle.L('待办')}]]</a>
               </li>
             </ul>
             <div class="tab-content">
@@ -33,7 +33,7 @@
                   <div class="col-md-3 col-12">
                     <div class="list-group notification-type">
                       <a href="#approval" data-type="20" class="list-group-item d-flex list-group-item-action active">
-                        <span class="text">[[${bundle.L('WaitMeApproval')}]]</span>
+                        <span class="text">[[${bundle.L('待我审批')}]]</span>
                         <span class="badge badge-pill badge-primary hide">0</span>
                       </a>
                     </div>

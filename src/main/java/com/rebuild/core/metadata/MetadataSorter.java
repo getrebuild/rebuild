@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata;
 
-import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
@@ -46,7 +45,7 @@ public class MetadataSorter {
      * 用户权限内*可读*实体
      *
      * @param user
-     * @param usesBizz 是否包括内建 BIZZ 实体
+     * @param usesBizz 是否包括内置 BIZZ 实体
      * @param usesDetail 是否包括明细实体
      * @return
      */

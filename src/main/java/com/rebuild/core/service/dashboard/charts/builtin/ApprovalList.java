@@ -48,7 +48,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
 
     @Override
     public String getChartTitle() {
-        return Language.L("MyApproval");
+        return Language.L("我的审批");
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ApprovalList extends ChartData implements BuiltinChart {
                 .setParameter(1, this.getUser())
                 .setParameter(2, ApprovalState.CANCELED.getState())
                 .array();
-        // 排除删除的（可能导致不同状态下数据不一致）
+        // FIXME 排除删除的（可能导致不同状态下数据不一致）
         if (deleted > 0) {
             for (Object[] o : stats) {
                 if ((Integer) o[0] == viewState) {

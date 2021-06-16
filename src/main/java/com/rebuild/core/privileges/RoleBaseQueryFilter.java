@@ -43,7 +43,6 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      */
     public static final Filter DENIED = new RoleBaseQueryFilter() {
         private static final long serialVersionUID = -1841438304452108874L;
-
         @Override
         public String evaluate(Entity entity) {
             return "( 1 = 0 )";
@@ -55,7 +54,6 @@ public class RoleBaseQueryFilter implements Filter, QueryFilter {
      */
     public static final Filter ALLOWED = new RoleBaseQueryFilter() {
         private static final long serialVersionUID = -1300184338130890817L;
-
         @Override
         public String evaluate(Entity entity) {
             return "( 1 = 1 )";

@@ -164,13 +164,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-right: 0;
 }
 
-.aside-tree li > a > .icon {
+.aside-2tree li > a > .icon {
   font-size: 12px;
   color: #aaa;
   margin-left: 6px;
   cursor: help;
 }
 
-.aside-tree li.active > a > .icon {
+.aside-2tree li.active > a > .icon {
   color: #fff;
 }

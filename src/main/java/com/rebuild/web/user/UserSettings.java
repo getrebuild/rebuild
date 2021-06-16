@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.StringUtils;
@@ -47,23 +48,23 @@ public class UserSettings extends EntityController {
     @RequestMapping("/user/send-email-vcode")
     public RespBody sendEmailVcode(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
-            return RespBody.error(getLang(request, "EmailAccountUnset"));
+            return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
         }
 
         String email = getParameterNotNull(request, "email");
         if (Application.getUserStore().existsEmail(email)) {
-            return RespBody.error(getLang(request, "EmailBeUsed"));
+            return RespBody.errorl("邮箱已被占用，请换用其他邮箱");
         }
 
         String vcode = VerfiyCode.generate(email);
-        String subject = getLang(request, "EmailVcode");
-        String content = String.format(getLang(request, "YourVCode", "Email"), vcode);
+        String subject = "邮箱验证码";
+        String content = Language.L("你的邮箱验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, subject, content);
 
         if (sentid != null) {
             return RespBody.ok();
         } else {
-            return RespBody.error(getLang(request, "OperationFailed"));
+            return RespBody.errorl("操作失败，请稍后重试");
         }
     }
 
@@ -74,11 +75,11 @@ public class UserSettings extends EntityController {
         String vcode = getParameterNotNull(request, "vcode");
 
         if (!VerfiyCode.verfiy(email, vcode)) {
-            return RespBody.error(getLang(request, "SomeInvalid", "Vcode"));
+            return RespBody.errorl("验证码无效");
         }
 
         if (Application.getUserStore().existsEmail(email)) {
-            return RespBody.error(getLang(request, "EmailBeUsed"));
+            return RespBody.errorl("邮箱已被占用，请换用其他邮箱");
         }
 
         Record record = EntityHelper.forUpdate(user, user);
@@ -89,7 +90,7 @@ public class UserSettings extends EntityController {
 
     @RequestMapping("/user/save-passwd")
     public RespBody savePasswd(HttpServletRequest request) {
-        ID user = getRequestUser(request);
+        final ID user = getRequestUser(request);
         String oldp = getParameterNotNull(request, "oldp");
         String newp = getParameterNotNull(request, "newp");
 
@@ -97,7 +98,7 @@ public class UserSettings extends EntityController {
                 .setParameter(1, user)
                 .unique();
         if (o == null || !StringUtils.equals((String) o[0], EncryptUtils.toSHA256Hex(oldp))) {
-            return RespBody.error(getLang(request, "OldPasswdWrong"));
+            return RespBody.errorl("原密码输入有误");
         }
 
         Record record = EntityHelper.forUpdate(user, user);

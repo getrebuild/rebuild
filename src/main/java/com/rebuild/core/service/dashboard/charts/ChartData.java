@@ -155,7 +155,7 @@ public abstract class ChartData extends SetUser implements ChartSpec {
     private Field[] getValidFields(JSONObject item) {
         String fieldName = item.getString("field");
         if (MetadataHelper.getLastJoinField(getSourceEntity(), fieldName) == null) {
-            throw new DefinedException(Language.LF("ReConfChartTips", fieldName.toUpperCase()));
+            throw new DefinedException(Language.L("字段 [%s] 已不存在，请调整图表配置", fieldName.toUpperCase()));
         }
 
         Field[] fields = new Field[2];

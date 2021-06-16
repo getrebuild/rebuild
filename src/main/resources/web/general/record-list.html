@@ -11,11 +11,11 @@
       <th:block th:replace="~{/_include/nav-left(active=${'nav_entity-' + entityName})}" />
       <div class="rb-content">
         <aside class="page-aside widgets">
-          <a class="side-toggle" th:title="${bundle.L('Toggle')}"><i class="zmdi zmdi-arrow-left"></i></a>
+          <a class="side-toggle" th:title="${bundle.L('展开/收缩')}"><i class="zmdi zmdi-arrow-left"></i></a>
           <div class="tab-container">
             <ul class="nav nav-tabs">
-              <li class="nav-item"><a class="nav-link active" href="#asideFilters" data-toggle="tab">[[${bundle.L('CommonQuery')}]]</a></li>
-              <li class="nav-item"><a class="nav-link J_load-chart" href="#asideWidgets" data-toggle="tab">[[${bundle.L('Chart')}]]</a></li>
+              <li class="nav-item"><a class="nav-link active" href="#asideFilters" data-toggle="tab">[[${bundle.L('常用查询')}]]</a></li>
+              <li class="nav-item"><a class="nav-link J_load-chart" href="#asideWidgets" data-toggle="tab">[[${bundle.L('图表')}]]</a></li>
             </ul>
             <div class="tab-content rb-scroller">
               <div class="tab-pane active" id="asideFilters">
@@ -31,7 +31,7 @@
               <div class="tab-pane" id="asideWidgets">
                 <div class="charts-wrap"></div>
                 <div class="text-center">
-                  <button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('SelectSome,Chart')}]]</button>
+                  <button class="btn btn-secondary J_add-chart"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('选择图表')}]]</button>
                 </div>
               </div>
             </div>
@@ -55,18 +55,18 @@
                       <div class="adv-search float-left">
                         <div class="btn-group btn-space">
                           <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">
-                            <span class="text-truncate J_name">[[${bundle.L('AllDatas')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
+                            <span class="text-truncate J_name">[[${bundle.L('全部数据')}]]</span><i class="icon zmdi zmdi-caret-down"></i>
                           </button>
                           <div class="dropdown-menu rb-scroller">
-                            <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('AllDatas')}]]</a></div>
+                            <div class="dropdown-item" data-id="$ALL$"><a>[[${bundle.L('全部数据')}]]</a></div>
                           </div>
                           <div class="input-group-append">
-                            <button th:title="${bundle.L('AdvFilter')}" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button>
+                            <button th:title="${bundle.L('高级查询')}" class="btn btn-secondary J_advfilter" type="button"><i class="icon zmdi zmdi-filter-list"></i></button>
                           </div>
                         </div>
                       </div>
                       <div class="input-group input-search float-left">
-                        <input class="form-control" type="text" th:placeholder="${bundle.L('QuickQuery')}" maxlength="40" />
+                        <input class="form-control" type="text" th:placeholder="${bundle.L('快速查询')}" maxlength="40" />
                         <span class="input-group-btn"
                           ><button class="btn btn-secondary" type="button"><i class="icon zmdi zmdi-search"></i></button
                         ></span>
@@ -75,23 +75,23 @@
                   </div>
                   <div class="col-12 col-md-6">
                     <div class="dataTables_oper">
-                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('Open')}]]</button>
-                      <button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('Edit')}]]</button>
-                      <button class="btn btn-space btn-primary J_new"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('New')}]]</button>
+                      <button class="btn btn-space btn-secondary J_view" type="button" disabled="disabled"><i class="icon zmdi zmdi-folder"></i> [[${bundle.L('打开')}]]</button>
+                      <button class="btn btn-space btn-secondary J_edit" type="button" disabled="disabled"><i class="icon zmdi zmdi-border-color"></i> [[${bundle.L('编辑')}]]</button>
+                      <button class="btn btn-space btn-primary J_new"><i class="icon zmdi zmdi-plus"></i> [[${bundle.L('新建')}]]</button>
                       <div class="btn-group btn-space J_action">
-                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('More')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
+                        <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown">[[${bundle.L('更多')}]] <i class="icon zmdi zmdi-more-vert"></i></button>
                         <div class="dropdown-menu dropdown-menu-right">
-                          <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('Delete')}]]</a>
-                          <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('Assign')}]]</a>
-                          <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('Share')}]]</a>
-                          <a class="dropdown-item J_unshare"><i class="icon zmdi zmdi-portable-wifi-off"></i> [[${bundle.L('UnShare')}]]</a>
+                          <a class="dropdown-item J_delete"><i class="icon zmdi zmdi-delete"></i> [[${bundle.L('删除')}]]</a>
+                          <a class="dropdown-item J_assign"><i class="icon zmdi zmdi-mail-reply-all"></i> [[${bundle.L('分派')}]]</a>
+                          <a class="dropdown-item J_share"><i class="icon zmdi zmdi-portable-wifi"></i> [[${bundle.L('共享')}]]</a>
+                          <a class="dropdown-item J_unshare"><i class="icon zmdi zmdi-portable-wifi-off"></i> [[${bundle.L('取消共享')}]]</a>
                           <div class="dropdown-divider"></div>
-                          <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> [[${bundle.L('DataExport')}]]</a>
+                          <a th:if="${AllowDataExport}" class="dropdown-item J_export"><i class="icon zmdi zmdi-cloud-download"></i> [[${bundle.L('数据导出')}]]</a>
                           <a class="dropdown-item admin-show" th:href="|${baseUrl}/admin/data/data-imports?entity=${entityName}|">
-                            <i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('DataImport')}]]
+                            <i class="icon zmdi zmdi-cloud-upload"></i> [[${bundle.L('数据导入')}]]
                           </a>
-                          <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> [[${bundle.L('BatchUpdate')}]]</a>
-                          <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('FieldShow')}]]</a>
+                          <a th:if="${AllowBatchUpdate}" class="dropdown-item J_batch"><i class="icon zmdi zmdi-flash"></i> [[${bundle.L('批量修改')}]]</a>
+                          <a th:if="${AllowCustomDataList}" class="dropdown-item J_columns"><i class="icon zmdi zmdi-code-setting"></i> [[${bundle.L('列显示')}]]</a>
                         </div>
                       </div>
                     </div>
@@ -111,8 +111,8 @@
       window.__PageConfig = {
         type: 'RecordList',
         entity: ['[[${entityName}]]', '[[${entityLabel}]]', '[[${entityIcon}]]'],
-        privileges: _$unthy('[[${entityPrivileges}]]'),
-        listConfig: _$unthy('[[${DataListConfig}]]'),
+        privileges: [(${entityPrivileges})],
+        listConfig: [(${DataListConfig})],
         advFilter: true,
       }
     </script>

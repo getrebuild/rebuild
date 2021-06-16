@@ -13,19 +13,19 @@ $(document).ready(function () {
     .click(function () {
       $.get(`/admin/bizuser/delete-checks?id=${userId}`, (res) => {
         if (res.data.hasMember === 0) {
-          RbAlert.create($L('DeleteUserSafeConfirm'), $L('DeleteSome,User'), {
+          RbAlert.create($L('此用户可以被安全的删除'), $L('删除用户'), {
             icon: 'alert-circle-o',
             type: 'danger',
-            confirmText: $L('Delete'),
+            confirmText: $L('删除'),
             confirm: function () {
               deleteUser(userId, this)
             },
           })
         } else {
-          RbAlert.create($L('DeleteUserUnSafeConfirm'), $L('NotDelete'), {
+          RbAlert.create($L('此用户已被使用过，因此不能删除。如不再使用可将其禁用'), $L('无法删除'), {
             icon: 'alert-circle-o',
             type: 'danger',
-            confirmText: $L('NotDelete'),
+            confirmText: $L('无法删除选中记录'),
             confirm: function () {
               toggleDisabled(true, this)
             },
@@ -35,8 +35,8 @@ $(document).ready(function () {
     })
 
   $('.J_disable').click(() => {
-    RbAlert.create($L('DisableUserConfirm'), {
-      confirmText: $L('Disable'),
+    RbAlert.create($L('确定要禁用此用户吗？'), {
+      confirmText: $L('禁用'),
       confirm: function () {
         toggleDisabled(true, this)
       },
@@ -46,14 +46,14 @@ $(document).ready(function () {
 
   $('.J_resetpwd').click(() => {
     const newpwd = $random(null, true, 8) + '!8'
-    RbAlert.create($L('ResetPasswdConfirm').replace('%s', newpwd), {
+    RbAlert.create($L('密码将重置为 **%s** 是否确认？', newpwd), {
       html: true,
       confirm: function () {
         this.disabled(true)
         $.post(`/admin/bizuser/user-resetpwd?id=${userId}&newp=${$decode(newpwd)}`, (res) => {
           this.disabled()
           if (res.error_code === 0) {
-            RbHighbar.success($L('SomeSuccess,ResetPassword'))
+            RbHighbar.success($L('重置密码成功'))
             this.hide()
           } else RbHighbar.error(res.error_code)
         })
@@ -65,7 +65,7 @@ $(document).ready(function () {
     $.get(`/admin/bizuser/check-user-status?id=${userId}`, (res) => {
       if (res.data.system === true && rb.isAdminVerified === true) {
         $('.view-action').remove()
-        $('.J_tips').removeClass('hide').find('.message p').text($L('NotModifyAdminUser'))
+        $('.J_tips').removeClass('hide').find('.message p').text($L('系统内置超级管理员，不允许修改。此用户拥有最高级系统权限，请谨慎使用'))
         return
       }
 
@@ -78,7 +78,19 @@ $(document).ready(function () {
         if (!res.data.role || !res.data.dept) {
           $('.J_enable')
             .off('click')
-            .click(() => renderRbcomp(<DlgEnableUser user={userId} enable={true} roleSet={!res.data.role} role={res.data.role} roleAppends={res.data.roleAppends} deptSet={!res.data.dept} dept={res.data.dept} />))
+            .click(() =>
+              renderRbcomp(
+                <DlgEnableUser
+                  user={userId}
+                  enable={true}
+                  roleSet={!res.data.role}
+                  role={res.data.role}
+                  roleAppends={res.data.roleAppends}
+                  deptSet={!res.data.dept}
+                  dept={res.data.dept}
+                />
+              )
+            )
         }
       } else {
         $('.J_enable').remove()
@@ -86,15 +98,15 @@ $(document).ready(function () {
 
       if (!res.data.active) {
         const reasons = []
-        if (!res.data.role) reasons.push($L('NotSpecRole'))
-        else if (res.data.roleDisabled) reasons.push($L('OwningRoleDisabled'))
-        if (!res.data.dept) reasons.push($L('NotSpecDept'))
-        else if (res.data.deptDisabled) reasons.push($L('OwningDeptDisabled'))
-        if (res.data.disabled === true) reasons.push($L('Disabled'))
+        if (!res.data.role) reasons.push($L('未指定角色'))
+        else if (res.data.roleDisabled) reasons.push($L('所属角色已禁用'))
+        if (!res.data.dept) reasons.push($L('未指定部门'))
+        else if (res.data.deptDisabled) reasons.push($L('所属部门已禁用'))
+        if (res.data.disabled === true) reasons.push($L('已禁用'))
         $('.J_tips')
           .removeClass('hide')
           .find('.message p')
-          .text($L('UserUnactiveReason').replace('%s', reasons.join(' / ')))
+          .text($L('当前用户处于未激活状态，因为其 %s', reasons.join(' / ')))
       }
     })
   }
@@ -110,7 +122,7 @@ const toggleDisabled = function (disabled, alert) {
   }
   $.post('/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
     if (res.error_code === 0) {
-      RbHighbar.success($L((disabled ? 'SomeDisabled' : 'SomeEnabled') + ',User'))
+      RbHighbar.success(disabled ? $L('用户已禁用') : $L('用户已启用'))
       _reload(200)
     } else {
       RbHighbar.error(res.error_msg)
@@ -137,8 +149,8 @@ class DlgEnableUser extends RbModalHandler {
   constructor(props) {
     super(props)
 
-    if (props.enable) this._title = $L('ActiveUser')
-    else this._title = $L('ModifySome,' + (props.dept ? 'Department' : 'Role'))
+    if (props.enable) this._title = $L('激活用户')
+    else this._title = props.dept ? $L('修改部门') : $L('修改角色')
   }
 
   render() {
@@ -147,27 +159,47 @@ class DlgEnableUser extends RbModalHandler {
         <div className="form">
           {this.props.deptSet && (
             <div className="form-group row">
-              <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,f.owningDept')}</label>
+              <label className="col-sm-3 col-form-label text-sm-right">{$L('选择所属部门')}</label>
               <div className="col-sm-7">
-                <UserSelector hideUser={true} hideRole={true} hideTeam={true} multiple={false} defaultValue={this.props.dept} ref={(c) => (this._deptNew = c)} />
+                <UserSelector
+                  hideUser={true}
+                  hideRole={true}
+                  hideTeam={true}
+                  multiple={false}
+                  defaultValue={this.props.dept}
+                  ref={(c) => (this._deptNew = c)}
+                />
               </div>
             </div>
           )}
           {this.props.roleSet && (
             <React.Fragment>
               <div className="form-group row">
-                <label className="col-sm-3 col-form-label text-sm-right">{$L('SelectSome,Role')}</label>
+                <label className="col-sm-3 col-form-label text-sm-right">{$L('选择角色')}</label>
                 <div className="col-sm-7">
-                  <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} multiple={false} defaultValue={this.props.role} ref={(c) => (this._roleNew = c)} />
+                  <UserSelector
+                    hideUser={true}
+                    hideDepartment={true}
+                    hideTeam={true}
+                    multiple={false}
+                    defaultValue={this.props.role}
+                    ref={(c) => (this._roleNew = c)}
+                  />
                 </div>
               </div>
               <div className="form-group row">
                 <label className="col-sm-3 col-form-label text-sm-right">
-                  {$L('AppendRoles')} ({$L('Optional')}) <sup className="rbv"></sup>
+                  {$L('附加角色')} ({$L('可选')}) <sup className="rbv"></sup>
                 </label>
                 <div className="col-sm-7">
-                  <UserSelector hideUser={true} hideDepartment={true} hideTeam={true} defaultValue={this.props.roleAppends} ref={(c) => (this._roleAppends = c)} />
-                  <p className="form-text">{$L('AppendRolesTips')}</p>
+                  <UserSelector
+                    hideUser={true}
+                    hideDepartment={true}
+                    hideTeam={true}
+                    defaultValue={this.props.roleAppends}
+                    ref={(c) => (this._roleAppends = c)}
+                  />
+                  <p className="form-text">{$L('选择的多个角色权限将被合并，高权限优先')}</p>
                 </div>
               </div>
             </React.Fragment>
@@ -175,10 +207,10 @@ class DlgEnableUser extends RbModalHandler {
           <div className="form-group row footer">
             <div className="col-sm-7 offset-sm-3" ref={(c) => (this._btns = c)}>
               <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
-                {$L('Confirm')}
+                {$L('确定')}
               </button>
               <a className="btn btn-link btn-space" onClick={() => this.hide()}>
-                {$L('Cancel')}
+                {$L('取消')}
               </a>
             </div>
           </div>
@@ -195,25 +227,29 @@ class DlgEnableUser extends RbModalHandler {
     }
     if (this._deptNew) {
       const v = this._deptNew.val()
-      if (v.length === 0) return RbHighbar.create($L('PlsSelectSome,Department'))
+      if (v.length === 0) return RbHighbar.create($L('请选择部门'))
       data.dept = v[0]
     }
     if (this._roleNew) {
       const v = this._roleNew.val()
-      if (v.length === 0) return RbHighbar.create($L('PlsSelectSome,Role'))
+      if (v.length === 0) return RbHighbar.create($L('请选择角色'))
       data.role = v[0]
     }
     if (this._roleAppends) {
       data.roleAppends = this._roleAppends.val().join(',')
       if (data.roleAppends && rb.commercial < 1) {
-        return RbHighbar.create($L('FreeVerNotSupportted,AppendRoles'), { type: 'danger', html: true, timeout: 6000 })
+        return RbHighbar.create($L('免费版不支持附加角色功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
+          type: 'danger',
+          html: true,
+          timeout: 6000,
+        })
       }
     }
 
     const $btns = $(this._btns).find('.btn').button('loading')
     $.post('/admin/bizuser/enable-user', JSON.stringify(data), (res) => {
       if (res.error_code === 0) {
-        if (data.enable === true) RbHighbar.success($L('SomeEnabled,User'))
+        if (data.enable === true) RbHighbar.success($L('用户已激活'))
         _reload(data.enable ? 200 : 0)
       } else {
         $btns.button('reset')

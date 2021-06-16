@@ -43,10 +43,10 @@ class Share2 extends _ChangeHandler {
               </button>
               <div className="dropdown-menu">
                 <a className="dropdown-item" href={`?id=NEW&entity=${this.props.entity || ''}`}>
-                  {$L('AddX').replace('%s', this.props.title || $L('Conf'))}
+                  {$L('添加%s', this.props.title || $L('配置'))}
                 </a>
                 <a className="dropdown-item" onClick={this.showSwitch}>
-                  {$L('SwitchX').replace('%s', this.props.title || $L('Conf'))}
+                  {$L('切换%s', this.props.title || $L('配置'))}
                 </a>
               </div>
             </div>
@@ -56,16 +56,16 @@ class Share2 extends _ChangeHandler {
           <input className="custom-control-input" type="checkbox" checked={this.state.shared === true} name="shared" onChange={this.handleChange} />
           {this.state.shareTo && this.state.shareTo.length >= 20 ? (
             <span className="custom-control-label">
-              {$L('ShareTo')}
+              {$L('共享给')}
               <a href="#" onClick={this.showSettings} className="ml-1">
-                {$L('SpecUser')}({this.state.shareTo.split(',').length})
+                {$L('指定用户')}({this.state.shareTo.split(',').length})
               </a>
             </span>
           ) : (
             <span className="custom-control-label">
-              {$L('ShareToAllUserOr')}
+              {$L('共享给全部用户或')}
               <a href="#" onClick={this.showSettings} className="ml-1">
-                {$L('SpecUser')}
+                {$L('指定用户')}
               </a>
             </span>
           )}
@@ -88,9 +88,19 @@ class Share2 extends _ChangeHandler {
     const that = this
     if (that.__settings) that.__settings.show()
     else
-      renderRbcomp(<Share2Settings configName={this.props.configName} shareTo={this.props.shareTo} call={this.showSettingsCall} id={this.props.id} noName={this.props.noSwitch} />, null, function () {
-        that.__settings = this
-      })
+      renderRbcomp(
+        <Share2Settings
+          configName={this.props.configName}
+          shareTo={this.props.shareTo}
+          call={this.showSettingsCall}
+          id={this.props.id}
+          noName={this.props.noSwitch}
+        />,
+        null,
+        function () {
+          that.__settings = this
+        }
+      )
     return false
   }
 
@@ -135,19 +145,19 @@ class Share2Switch extends _ChangeHandler {
       <div className="rb-scroller" ref={(s) => (this._scrollbar = s)}>
         <ul className="list-unstyled nav-list">
           {list.map((item) => {
-            let st = item[2] === SHARE_ALL ? $L('AllUser') : item[2] === SHARE_SELF ? $L('Private') : `${$L('SpecUser')}(${item[2].split(',').length})`
-            if (this.props.id === item[0]) st += ` [${$L('Current')}]`
+            let st = item[2] === SHARE_ALL ? $L('全部用户') : item[2] === SHARE_SELF ? $L('私有') : `${$L('指定用户')}(${item[2].split(',').length})`
+            if (this.props.id === item[0]) st += ` [${$L('当前')}]`
             return (
               <li key={'item-' + item[0]}>
                 <a href={`?id=${item[0]}&entity=${this.props.entity || ''}`}>
-                  {item[1] || $L('Unname')}
+                  {item[1] || $L('未命名')}
                   <span className="muted">{st}</span>
                 </a>
               </li>
             )
           })}
         </ul>
-        {list.length === 0 && <p className="text-muted">{$L('NoData')}</p>}
+        {list.length === 0 && <p className="text-muted">{$L('暂无数据')}</p>}
       </div>
     )
   }
@@ -171,22 +181,29 @@ class Share2Settings extends Share2Switch {
     return (
       <div className="form">
         <div className="form-group">
-          <label className="text-bold">{$L('ShareTo')}</label>
+          <label className="text-bold">{$L('共享给')}</label>
           <UserSelector ref={(c) => (this._selector = c)} selected={this.state.selected} />
-          <p className="form-text">{$L('ShareConfTips')}</p>
+          <p className="form-text">{$L('可以共享给不同的角色或职能部门，便于统一管理')}</p>
         </div>
         {this.props.noName !== true && (
           <div className="form-group">
-            <input type="text" className="form-control form-control-sm" placeholder={$L('Unname')} value={this.state.configName || ''} name="configName" onChange={this.handleChange} />
+            <input
+              type="text"
+              className="form-control form-control-sm"
+              placeholder={$L('未命名')}
+              value={this.state.configName || ''}
+              name="configName"
+              onChange={this.handleChange}
+            />
           </div>
         )}
         <div className="form-group mb-1">
           <button className="btn btn-primary btn-space" type="button" onClick={this.checkData}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
           {this.props.id && (
             <button className="btn btn-danger btn-outline btn-space" type="button" onClick={this.delete}>
-              <i className="zmdi zmdi-delete icon" /> {$L('Delete')}
+              <i className="zmdi zmdi-delete icon" /> {$L('删除')}
             </button>
           )}
         </div>
@@ -220,7 +237,7 @@ class Share2Settings extends Share2Switch {
 
   delete = () => {
     const id = this.props.id
-    RbAlert.create($L('DeleteSomeConfirm,Conf'), {
+    RbAlert.create($L('确认删除此配置？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/app/entity/common-delete?id=${id}`, () => parent.location.reload())
@@ -238,14 +255,14 @@ const renderSwitchButton = (data, title, current) => {
       <div className="btn-group">
         <button type="button" className="btn btn-link" data-toggle="dropdown">
           <i className="zmdi zmdi-swap-vertical icon"></i>
-          {$L('SwitchX').replace('%s', title)}
+          {$L('切换到%s', title)}
         </button>
         <div className="dropdown-menu">
           {data.map((x) => {
-            let name = x[1] || $L('Unname')
-            if (x[3] === rb.currentUser) name = $L('MyX').replace('%s', title)
-            else name += ` ${$L('Shared')}`
-            if (current && current === x[0]) name += ` ${$L('Current')}`
+            let name = x[1] || $L('未命名')
+            if (x[3] === rb.currentUser) name = $L('我的%s', title)
+            else name += ` ${$L('共享的')}`
+            if (current && current === x[0]) name += ` ${$L('当前')}`
             return (
               <a key={`sw-${x[0]}`} className="dropdown-item" href={`?id=${x[0]}${x[4] ? `&entity=${x[4]}` : ''}`}>
                 {name}

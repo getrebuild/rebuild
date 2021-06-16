@@ -71,7 +71,7 @@ public class RoleService extends BaseServiceImpl implements AdminGuard {
      */
     public void deleteAndTransfer(ID roleId, ID transferTo) {
         if (roleId.equals(ADMIN_ROLE)) {
-            throw new OperationDeniedException("SUPER ROLE");
+            throw new OperationDeniedException("内置角色禁止删除");
         }
 
         super.delete(roleId);

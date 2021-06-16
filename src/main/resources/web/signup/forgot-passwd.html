@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('ResetPassword')}]]</title>
+    <title>[[${bundle.L('重置密码')}]]</title>
   </head>
   <body class="rb-splash-screen">
     <div class="rb-wrapper rb-login">
@@ -13,43 +13,43 @@
               <div class="card-header"><a class="logo-img"></a></div>
               <div class="card-body J_step1">
                 <div class="form-group">
-                  <input class="form-control" id="email" type="email" th:placeholder="${bundle.L('Email')}" autocomplete="off" />
-                  <p class="form-text">[[${bundle.L('UnsetEmail')}]]</p>
+                  <input class="form-control" id="email" type="email" th:placeholder="${bundle.L('邮箱')}" autocomplete="off" />
+                  <p class="form-text">[[${bundle.L('如果你忘记或未填写邮箱，请联系管理员重置密码')}]]</p>
                 </div>
                 <div class="form-group login-submit">
-                  <button class="btn btn-primary btn-xl J_forgot-btn">[[${bundle.L('ResetPassword')}]]</button>
+                  <button class="btn btn-primary btn-xl J_forgot-btn">[[${bundle.L('重置密码')}]]</button>
                 </div>
               </div>
               <div class="card-body J_step2 hide">
                 <div class="alert alert-warning alert-icon alert-icon-border alert-sm">
                   <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
                   <div class="message">
-                    <p>[[${bundle.L('VcodeEmailSent')}]] <b class="J_email ml-1"></b></p>
+                    <p>[[${bundle.L('验证码已发送至你的邮箱')}]] <b class="J_email ml-1"></b></p>
                   </div>
                 </div>
                 <div class="form-group">
                   <div class="row">
                     <div class="col-7">
-                      <input class="form-control" id="vcode" type="text" th:placeholder="${bundle.L('PlsInputSome,Captcha')}" />
+                      <input class="form-control" id="vcode" type="text" th:placeholder="${bundle.L('请输入验证码')}" />
                     </div>
                     <div class="col-5 pl-0">
-                      <button type="button" class="btn btn-secondary J_vcode-resend" style="height: 41px; width: 100%">[[${bundle.L('GetVcode')}]]</button>
+                      <button type="button" class="btn btn-secondary J_vcode-resend" style="height: 41px; width: 100%">[[${bundle.L('获取验证码')}]]</button>
                     </div>
                   </div>
                 </div>
                 <div class="form-group">
-                  <input class="form-control" id="newpwd" type="password" placeholder="新密码" autocomplete="off" />
+                  <input class="form-control" id="newpwd" type="password" th:placeholder="${bundle.L('新密码')}" autocomplete="off" />
                 </div>
                 <div class="form-group">
-                  <input class="form-control" id="newpwd2" type="password" placeholder="重复新密码" />
+                  <input class="form-control" id="newpwd2" type="password" th:placeholder="${bundle.L('重复新密码')}" />
                 </div>
                 <div class="form-group login-submit">
-                  <button class="btn btn-primary btn-xl J_confirm-btn">[[${bundle.L('ConfirmReset')}]]</button>
+                  <button class="btn btn-primary btn-xl J_confirm-btn">[[${bundle.L('确认重置')}]]</button>
                 </div>
               </div>
             </div>
             <div class="splash-footer">
-              <span><a href="login">[[${bundle.L('ReturnLogin')}]]</a></span>
+              <span><a href="login">[[${bundle.L('返回登录')}]]</a></span>
             </div>
           </div>
         </div>
@@ -61,19 +61,19 @@
         let email
         $('.J_forgot-btn, .J_vcode-resend').click(function () {
           email = $val('#email')
-          if (!email) return RbHighbar.create($L('PlsInputSome,Email'))
+          if (!email) return RbHighbar.create($L('请输入邮箱'))
 
           $('.J_email').text(email)
           const $btn = $(this).button('loading')
           $.post('/user/user-forgot-passwd?email=' + $encode(email), function (res) {
-            if (res.error_code == 0) {
+            $btn.button('reset')
+            if (res.error_code === 0) {
               $('.J_step1').hide()
               $('.J_step2').removeClass('hide')
               resend_countdown(true)
             } else {
               RbHighbar.create(res.error_msg)
             }
-            $btn.button('reset')
           })
         })
 
@@ -81,9 +81,9 @@
           const vcode = $val('#vcode')
           const newpwd = $val('#newpwd')
           const newpwd2 = $val('#newpwd2')
-          if (!vcode) return RbHighbar.create($L('PlsInputSome,Captcha'))
-          if (!newpwd) return RbHighbar.create($L('PlsInputSome,NewPassword'))
-          if (newpwd !== newpwd2) returnRbHighbar.create($L('PasswordNotMatch'))
+          if (!vcode) return RbHighbar.create($L('请输入验证码'))
+          if (!newpwd) return RbHighbar.create($L('请输入新密码'))
+          if (newpwd !== newpwd2) returnRbHighbar.create($L('两次输入的新密码不一致'))
 
           const _data = {
             email: email,
@@ -93,11 +93,9 @@
 
           const $btn = $(this).button('loading')
           $.post('/user/user-confirm-passwd', JSON.stringify(_data), function (res) {
-            if (res.error_code == 0) {
-              $btn.text('操作成功')
-              setTimeout(() => {
-                location.href = 'login'
-              }, 1000)
+            if (res.error_code === 0) {
+              $btn.text('密码已重置')
+              setTimeout(() => (location.href = 'login'), 1000)
             } else {
               RbHighbar.create(res.error_msg)
               $btn.button('reset')
@@ -107,15 +105,17 @@
       })
 
       let countdown_timer
-      let countdown_seconds = 60
+      let countdown_seconds
       const resend_countdown = function (first) {
-        if (first === true) {
-          $('.J_vcode-resend').attr('disabled', true)
+        if (first) {
           if (countdown_timer) clearTimeout(countdown_timer)
+          $('.J_vcode-resend').attr('disabled', true)
           countdown_seconds = 60
         }
-        $('.J_vcode-resend').text('重新获取 (' + --countdown_seconds + ')')
-        if (countdown_seconds == 0) {
+
+        $('.J_vcode-resend').text(`重新获取 (${--countdown_seconds})`)
+
+        if (countdown_seconds === 0) {
           $('.J_vcode-resend').attr('disabled', false).text('重新获取')
         } else {
           countdown_timer = setTimeout(resend_countdown, 1000)

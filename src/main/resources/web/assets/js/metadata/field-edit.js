@@ -10,7 +10,21 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
-const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
+const SHOW_DEFAULTVALUE = [
+  'TEXT',
+  'NTEXT',
+  'EMAIL',
+  'PHONE',
+  'URL',
+  'NUMBER',
+  'DECIMAL',
+  'DATE',
+  'DATETIME',
+  'BOOL',
+  'CLASSIFICATION',
+  'REFERENCE',
+  'N2NREFERENCE',
+]
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -27,7 +41,7 @@ $(document).ready(function () {
       repeatable: $val('#fieldRepeatable'),
       queryable: $val('#fieldQueryable'),
     }
-    if (data.fieldLabel === '') return RbHighbar.create($L('PlsInputSome,FieldName'))
+    if (data.fieldLabel === '') return RbHighbar.create($L('请输入字段名称'))
 
     // 默认值
     let dv = $val('.J_defaultValue')
@@ -44,7 +58,7 @@ $(document).ready(function () {
       data.defaultValue = dv
     }
 
-    const extConfigNew = { ...__gExtConfig }
+    const extConfigNew = { ...extConfig, ...__gExtConfig }
     // 不同类型的配置
     $(`.J_for-${dt} .form-control, .J_for-${dt} .custom-control-input`).each(function () {
       const k = $(this).attr('id')
@@ -55,6 +69,7 @@ $(document).ready(function () {
       const k = $(this).attr('name')
       extConfigNew[k] = $val(this)
     })
+    delete extConfigNew['undefined'] // bugfix
 
     if (!$same(extConfigNew, extConfig)) {
       data['extConfig'] = JSON.stringify(extConfigNew)
@@ -87,7 +102,7 @@ $(document).ready(function () {
     }
 
     if (!$('#fieldNullable').prop('disabled') && !$('#fieldNullable').prop('checked') && !$('#fieldCreatable').prop('checked')) {
-      RbAlert.create($L('SetNullAndCreateTips'), {
+      RbAlert.create($L('同时设置不允许为空和不允许新建可能导致无法创建记录。是否仍要保存？'), {
         confirm: function () {
           this.disabled(true)
           save()
@@ -148,30 +163,30 @@ $(document).ready(function () {
     $('#defaultValue').remove()
   }
 
-  // 内建字段
+  // 内置字段
   if (wpc.fieldBuildin) {
     $('.J_fieldAttrs, .J_for-STATE, .J_for-REFERENCE-filter').remove()
   }
 
-  // 只读属性
-  delete extConfig['classification']
-  delete extConfig['stateClass']
+  // // 只读属性
+  // delete extConfig['classification']
+  // delete extConfig['stateClass']
 
   $('.J_del').click(function () {
     if (!wpc.isSuperAdmin) {
-      RbHighbar.error($L('OnlyAdminCanSome,DeleteField'))
+      RbHighbar.error($L('仅超级管理员可删除字段'))
       return
     }
 
-    RbAlert.create($L('DeleteFieldConfirm'), $L('DeleteField'), {
+    RbAlert.create($L('字段删除后将无法恢复，请务必谨慎操作。确认删除吗？'), $L('删除字段'), {
       type: 'danger',
-      confirmText: $L('Delete'),
+      confirmText: $L('删除'),
       confirm: function () {
         this.disabled(true)
         $.post(`/admin/entity/field-drop?id=${wpc.metaId}`, (res) => {
           if (res.error_code === 0) {
             this.hide()
-            RbHighbar.success($L('SomeDeleted,Field'))
+            RbHighbar.success($L('字段已删除'))
             setTimeout(function () {
               location.replace('../fields')
             }, 1500)
@@ -204,14 +219,14 @@ const checkDefaultValue = function (v, t) {
   } else if (t === 'PHONE') {
     valid = $regex.isTel(v)
   }
-  if (valid === false) RbHighbar.create($L('SomeInvalid,DefaultValue'))
+  if (valid === false) RbHighbar.create($L('默认值无效'))
   return valid
 }
 
 const _handlePicklist = function (dt) {
   $.get(`/admin/field/picklist-gets?entity=${wpc.entityName}&field=${wpc.fieldName}&isAll=false`, function (res) {
     if (res.data.length === 0) {
-      $('#picklist-items li').text($L('PlsAddOption'))
+      $('#picklist-items li').text($L('请添加选项'))
       return
     }
     $('#picklist-items').empty()
@@ -220,18 +235,20 @@ const _handlePicklist = function (dt) {
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
   })
-  $('.J_picklist-edit').click(() => RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('SetOptionList')))
+  $('.J_picklist-edit').click(() =>
+    RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置'))
+  )
 }
 
 const _handleSeries = function () {
   $('.J_fieldAttrs input').attr('disabled', true)
   $('.J_series-reindex').click(() => {
-    RbAlert.create($L('AppendSeriesConfirm'), {
+    RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
       confirm: function () {
         this.disabled(true)
         $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
           this.hide()
-          RbHighbar.success($L('SomeSuccess,AppendSeries'))
+          RbHighbar.success($L('补充编号成功'))
         })
       },
     })
@@ -247,7 +264,7 @@ const _handleDate = function (dt) {
     })
     .attr('readonly', true)
 
-  $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('DateFormula')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
+  $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('日期公式')}"><i class="icon zmdi zmdi-settings-square"></i></button>`)
     .appendTo('.J_defaultValue-append')
     .click(() => renderRbcomp(<FormulaDate type={dt} onConfirm={(expr) => $('.J_defaultValue').val(expr)} />))
 }
@@ -297,7 +314,7 @@ const _handleClassification = function (useClassification) {
         <ClassificationSelector
           entity={wpc.entityName}
           field={wpc.fieldName}
-          label={$L('DefaultValue')}
+          label={$L('默认值')}
           openLevel={data.openLevel}
           onSelect={(s) => {
             $dv.attr('data-value-id', s.id).val(s.text)
@@ -312,9 +329,9 @@ const _handleClassification = function (useClassification) {
     }
   }
 
-  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
-    '.J_defaultValue-append'
-  )
+  const $append = $(
+    `<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`
+  ).appendTo('.J_defaultValue-append')
 
   $.get(`/admin/metadata/classification/info?id=${useClassification}`, (res) => {
     $('#useClassification a')
@@ -335,10 +352,10 @@ const _handleReference = function (isN2N) {
   let dataFilter = (wpc.extConfig || {}).referenceDataFilter
   const saveFilter = function (res) {
     if (res && res.items && res.items.length > 0) {
-      $('#referenceDataFilter').text(`${$L('AdvFiletrSeted')} (${res.items.length})`)
+      $('#referenceDataFilter').text(`${$L('已设置条件')} (${res.items.length})`)
       dataFilter = res
     } else {
-      $('#referenceDataFilter').text($L('ClickSet'))
+      $('#referenceDataFilter').text($L('点击设置'))
       dataFilter = null
     }
     __gExtConfig.referenceDataFilter = dataFilter
@@ -350,9 +367,13 @@ const _handleReference = function (isN2N) {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(<AdvFilter title={$L('SetAdvFiletr')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
-        advFilter = this
-      })
+      renderRbcomp(
+        <AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />,
+        null,
+        function () {
+          advFilter = this
+        }
+      )
     }
   })
 
@@ -370,15 +391,15 @@ const _handleReference = function (isN2N) {
     } else {
       const searchUrl = `${rb.baseUrl}/commons/search/reference-search?field=${wpc.fieldName}.${wpc.entityName}`
       // eslint-disable-next-line react/jsx-no-undef
-      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('SelectSome,DefaultValue')} />, function () {
+      renderRbcomp(<ReferenceSearcher url={searchUrl} title={$L('选择默认值')} />, function () {
         _ReferenceSearcher = this
       })
     }
   }
 
-  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('SelectSome,DefaultValue')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo(
-    '.J_defaultValue-append'
-  )
+  const $append = $(
+    `<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`
+  ).appendTo('.J_defaultValue-append')
   $dv.attr('readonly', true)
   $append.click(() => _showSearcher())
 

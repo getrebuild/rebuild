@@ -6,20 +6,20 @@
         <div class="left-sidebar-scroll rb-scroller">
           <div class="left-sidebar-content">
             <ul class="sidebar-elements">
-              <li class="divider">[[${bundle.L('System')}]]</li>
+              <li class="divider">[[${bundle.L('系统')}]]</li>
               <li th:class="${active == 'systems'} ? 'active'">
-                <a th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i><span>[[${bundle.L('GeneralSet')}]]</span></a>
+                <a th:href="@{/admin/systems}"><i class="icon zmdi zmdi-settings"></i><span>[[${bundle.L('通用配置')}]]</span></a>
               </li>
               <li class="parent">
-                <a><i class="icon zmdi zmdi-puzzle-piece"></i><span>[[${bundle.L('Integration')}]]</span></a>
+                <a><i class="icon zmdi zmdi-puzzle-piece"></i><span>[[${bundle.L('服务集成')}]]</span></a>
                 <ul class="sub-menu">
-                  <li class="title">[[${bundle.L('Integration')}]]</li>
+                  <li class="title">[[${bundle.L('服务集成')}]]</li>
                   <li class="nav-items">
                     <div class="rb-scroller">
                       <div class="content">
                         <ul>
-                          <li th:class="${active == 'integration-storage'} ? 'active'"><a th:href="@{/admin/integration/storage}">[[${bundle.L('IntegrationStorage')}]]</a></li>
-                          <li th:class="${active == 'integration-submail'} ? 'active'"><a th:href="@{/admin/integration/submail}">[[${bundle.L('SmsEmail')}]]</a></li>
+                          <li th:class="${active == 'integration-storage'} ? 'active'"><a th:href="@{/admin/integration/storage}">[[${bundle.L('云存储')}]]</a></li>
+                          <li th:class="${active == 'integration-submail'} ? 'active'"><a th:href="@{/admin/integration/submail}">[[${bundle.L('邮件&短信')}]]</a></li>
                         </ul>
                       </div>
                     </div>
@@ -27,56 +27,59 @@
                 </ul>
               </li>
               <li th:class="${active == 'apis-manager'} ? 'active'">
-                <a th:href="@{/admin/apis-manager}"><i class="icon zmdi zmdi-key"></i><span>[[${bundle.L('RebuildApi')}]]</span></a>
+                <a th:href="@{/admin/apis-manager}"><i class="icon zmdi zmdi-key"></i><span>[[${bundle.L('API 秘钥')}]]</span></a>
               </li>
-              <li class="divider">[[${bundle.L('BizAndEntity')}]]</li>
+              <li class="divider">[[${bundle.L('业务实体')}]]</li>
               <li th:class="${active == 'entities'} ? 'active'">
-                <a th:href="@{/admin/entities}"><i class="icon zmdi zmdi-widgets"></i><span>[[${bundle.L('NavEntities')}]]</span></a>
+                <a th:href="@{/admin/entities}"><i class="icon zmdi zmdi-widgets"></i><span>[[${bundle.L('实体管理')}]]</span></a>
               </li>
               <li th:class="${active == 'classifications'} ? 'active'">
-                <a th:href="@{/admin/metadata/classifications}"><i class="icon zmdi zmdi-layers"></i><span>[[${bundle.L('Classification')}]]</span></a>
+                <a th:href="@{/admin/metadata/classifications}"><i class="icon zmdi zmdi-layers"></i><span>[[${bundle.L('分类数据')}]]</span></a>
               </li>
               <li th:class="${active == 'robot-approval'} ? 'active'">
-                <a th:href="@{/admin/robot/approvals}"><i class="icon zmdi zmdi-assignment-check"></i><span>[[${bundle.L('ApprovalConfig')}]]</span></a>
+                <a th:href="@{/admin/robot/approvals}"><i class="icon zmdi zmdi-assignment-check"></i><span>[[${bundle.L('审批流程')}]]</span></a>
               </li>
               <li th:class="${active == 'transforms'} ? 'active'">
-                <a th:href="@{/admin/transforms}"><i class="icon zmdi zmdi-transform"></i><span>[[${bundle.L('TransformConfig')}]]</span></a>
+                <a th:href="@{/admin/transforms}"><i class="icon zmdi zmdi-transform"></i><span>[[${bundle.L('记录转换映射')}]]</span></a>
               </li>
               <li th:class="${active == 'robot-trigger'} ? 'active'">
-                <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('Trigger')}]]</span></a>
-              </li>
-              <li th:class="${active == 'data-imports'} ? 'active'">
-                <a th:href="@{/admin/data/data-imports}"><i class="icon zmdi zmdi-cloud-upload"></i><span>[[${bundle.L('DataImport')}]]</span></a>
-              </li>
-              <li th:class="${active == 'report-templates'} ? 'active'">
-                <a th:href="@{/admin/data/report-templates}"><i class="icon zmdi zmdi-map"></i><span>[[${bundle.L('ReportTemplate')}]]</span></a>
-              </li>
-              <li class="divider">[[${bundle.L('AdvFeature')}]]</li>
-              <li th:class="${active == 'projects'} ? 'active'">
-                <a th:href="@{/admin/projects}"><i class="icon zmdi zmdi-shape"></i><span>[[${bundle.L('NavProject')}]]</span></a>
+                <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
               <li th:class="${active == 'extforms'} ? 'active'">
-                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('ExtForms')}]]</span> <sup class="rbv"></sup></a>
+                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup></a>
               </li>
-              <li class="divider">[[${bundle.L('User')}]]</li>
+              <li th:class="${active == 'data-imports'} ? 'active'">
+                <a th:href="@{/admin/data/data-imports}"><i class="icon zmdi zmdi-cloud-upload"></i><span>[[${bundle.L('数据导入')}]]</span></a>
+              </li>
+              <li th:class="${active == 'report-templates'} ? 'active'">
+                <a th:href="@{/admin/data/report-templates}"><i class="icon zmdi zmdi-map"></i><span>[[${bundle.L('报表模板')}]]</span></a>
+              </li>
+              <li class="divider">[[${bundle.L('高级功能')}]]</li>
+              <li th:class="${active == 'projects'} ? 'active'">
+                <a th:href="@{/admin/projects}"><i class="icon zmdi zmdi-shape"></i><span>[[${bundle.L('项目')}]]</span></a>
+              </li>
+              <li th:class="${active == 'frontjs-code'} ? 'active'">
+                <a th:href="@{/admin/frontjs-code}"><i class="icon zmdi zmdi-code"></i><span>FrontJS</span> <sup class="rbv"></sup></a>
+              </li>
+              <li class="divider">[[${bundle.L('用户')}]]</li>
               <li th:class="${active == 'users'} ? 'active'">
-                <a th:href="@{/admin/bizuser/users}"><i class="icon zmdi zmdi-accounts"></i><span>[[${bundle.L('DeptUser')}]]</span></a>
+                <a th:href="@{/admin/bizuser/users}"><i class="icon zmdi zmdi-accounts"></i><span>[[${bundle.L('部门用户')}]]</span></a>
               </li>
               <li th:class="${active == 'role-privileges'} ? 'active'">
-                <a th:href="@{/admin/bizuser/role-privileges}"><i class="icon zmdi zmdi-lock"></i><span>[[${bundle.L('RolePrivileges')}]]</span></a>
+                <a th:href="@{/admin/bizuser/role-privileges}"><i class="icon zmdi zmdi-lock"></i><span>[[${bundle.L('角色权限')}]]</span></a>
               </li>
               <li th:class="${active == 'teams'} ? 'active'">
-                <a th:href="@{/admin/bizuser/teams}"><i class="icon zmdi zmdi-case"></i><span>[[${bundle.L('BizTeam')}]]</span></a>
+                <a th:href="@{/admin/bizuser/teams}"><i class="icon zmdi zmdi-case"></i><span>[[${bundle.L('团队')}]]</span></a>
               </li>
-              <li class="divider">[[${bundle.L('Audit')}]]</li>
+              <li class="divider">[[${bundle.L('审计')}]]</li>
               <li th:class="${active == 'login-logs'} ? 'active'">
-                <a th:href="@{/admin/audit/login-logs}"><i class="icon zmdi zmdi-pin-account"></i><span>[[${bundle.L('LoginLog')}]]</span></a>
+                <a th:href="@{/admin/audit/login-logs}"><i class="icon zmdi zmdi-pin-account"></i><span>[[${bundle.L('登录日志')}]]</span></a>
               </li>
               <li th:class="${active == 'revision-history'} ? 'active'">
-                <a th:href="@{/admin/audit/revision-history}"><i class="icon zmdi zmdi-wrap-text"></i><span>[[${bundle.L('RevisionHistory')}]]</span></a>
+                <a th:href="@{/admin/audit/revision-history}"><i class="icon zmdi zmdi-wrap-text"></i><span>[[${bundle.L('变更历史')}]]</span></a>
               </li>
               <li th:class="${active == 'recycle-bin'} ? 'active'">
-                <a th:href="@{/admin/audit/recycle-bin}"><i class="icon zmdi zmdi-delete fs-16"></i><span>[[${bundle.L('RecycleBin')}]]</span></a>
+                <a th:href="@{/admin/audit/recycle-bin}"><i class="icon zmdi zmdi-delete fs-16"></i><span>[[${bundle.L('回收站')}]]</span></a>
               </li>
             </ul>
           </div>

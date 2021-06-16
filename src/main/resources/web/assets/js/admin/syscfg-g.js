@@ -17,16 +17,16 @@ useEditComp = function (name, value) {
   if (['OpenSignUp', 'LiveWallpaper', 'FileSharable', 'MarkWatermark', 'DBBackupsEnable', 'MultipleSessions', 'ShowViewHistory'].includes(name)) {
     return (
       <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-        <option value="true">{$L('True')}</option>
-        <option value="false">{$L('False')}</option>
+        <option value="true">{$L('是')}</option>
+        <option value="false">{$L('否')}</option>
       </select>
     )
   } else if ('PasswordPolicy' === name) {
     return (
       <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-        <option value="1">{$L('PasswordPolicyL1')}</option>
-        <option value="2">{$L('PasswordPolicyL2')}</option>
-        <option value="3">{$L('PasswordPolicyL3')}</option>
+        <option value="1">{$L('低 (最低6位，无字符类型限制)')}</option>
+        <option value="2">{$L('中 (最低6位，必须同时包含数字、字母)')}</option>
+        <option value="3">{$L('高 (最低8位，必须同时包含数字、字母、特殊字符)')}</option>
       </select>
     )
   } else if ('DefaultLanguage' === name) {
@@ -49,8 +49,8 @@ useEditComp = function (name, value) {
   } else if ('LoginCaptchaPolicy' === name) {
     return (
       <select name={name} className="form-control form-control-sm" onChange={changeValue} defaultValue={value}>
-        <option value="1">{$L('LoginCaptchaPolicy1')}</option>
-        <option value="2">{$L('LoginCaptchaPolicy2')}</option>
+        <option value="1">{$L('自动')}</option>
+        <option value="2">{$L('总是显示')}</option>
       </select>
     )
   }

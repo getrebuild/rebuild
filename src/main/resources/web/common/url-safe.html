@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('SafeTip')}]]</title>
+    <title>[[${bundle.L('安全提示')}]]</title>
     <style type="text/css">
       .safe-tips {
         background-color: #fff;
@@ -47,21 +47,21 @@
         <div class="main-content container">
           <div class="error-container">
             <div class="safe-tips">
-              <h3>[[${bundle.L('SafeUrlTips1')}]]</h3>
-              <p>[[${bundle.L('SafeUrlTips2')}]]</p>
+              <h3>[[${bundle.L('即将跳转到外部网站')}]]</h3>
+              <p>[[${bundle.L('安全性未知，请谨慎访问')}]]</p>
               <div class="url">
                 <span class="icon"><i class="zmdi zmdi-link"></i></span>
                 <span class="text" th:utext="${outerUrl}"></span>
               </div>
               <div class="clearfix"></div>
-              <a class="btn btn-danger btn-outline" th:href="${outerUrl}" rel="noopener noreferrer">[[${bundle.L('ContinueAccess')}]]</a>
-              <a class="btn btn-link" onclick="window.close()">[[${bundle.L('Close')}]]</a>
+              <a class="btn btn-danger btn-outline" th:href="${outerUrl}" rel="noopener noreferrer">[[${bundle.L('继续访问')}]]</a>
+              <a class="btn btn-link" onclick="window.close()">[[${bundle.L('关闭')}]]</a>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div class="copyright fixed link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('RebuildPowered')}"/></div>
+    <div class="copyright fixed link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" /></div>
     <th:block th:replace="~{/_include/footer}" />
   </body>
 </html>

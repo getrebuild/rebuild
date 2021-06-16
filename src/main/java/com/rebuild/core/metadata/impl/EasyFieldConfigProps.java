@@ -76,6 +76,11 @@ public class EasyFieldConfigProps {
     public static final String CLASSIFICATION_USE = "classification";
 
     /**
+     * 分类数据等级
+     */
+    public static final String CLASSIFICATION_LEVEL = "classificationLevel";
+
+    /**
      * 使用哪个状态类
      */
     public static final String STATE_CLASS = "stateClass";

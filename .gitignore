@@ -36,8 +36,13 @@ hs_err_pid*
 /bin/
 node_modules
 node
+/out/
 
 # MacOS
 
 .DS_Store
 test.*
+
+# Build
+
+**/public/h5app/

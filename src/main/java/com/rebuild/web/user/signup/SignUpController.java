@@ -20,6 +20,7 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.BlockList;
 import com.rebuild.web.BaseController;
@@ -49,9 +50,9 @@ import java.io.IOException;
 public class SignUpController extends BaseController {
 
     @GetMapping("signup")
-    public ModelAndView pageSignup(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public ModelAndView pageSignup(HttpServletResponse response) throws IOException {
         if (!RebuildConfiguration.getBool(ConfigurationItem.OpenSignUp)) {
-            response.sendError(400, getLang(request, "SignupNotOpen"));
+            response.sendError(400, Language.L("管理员未开放公开注册"));
             return null;
         }
         return createModelAndView("/signup/signup");
@@ -60,20 +61,22 @@ public class SignUpController extends BaseController {
     @PostMapping("signup-email-vcode")
     public RespBody signupEmailVcode(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
-            return RespBody.errorl("EmailAccountUnset");
+            return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
         }
 
         String email = getParameterNotNull(request, "email");
 
         if (!RegexUtils.isEMail(email)) {
-            return RespBody.errorl("SomeInvalid,Email");
+            return RespBody.errorl("无效邮箱");
         } else if (Application.getUserStore().existsEmail(email)) {
-            return RespBody.errorl("SomeExists,Email");
+            return RespBody.errorl("邮箱已存在");
         }
 
         String vcode = VerfiyCode.generate(email, 1);
-        String content = String.format(getLang(request, "YourVCode", "Signup"), vcode);
-        String sentid = SMSender.sendMail(email, getLang(request, "SignupVcode"), content);
+        String title = Language.L("注册验证码");
+        String content = Language.L("你的注册验证码是 : **%s**", vcode);
+        String sentid = SMSender.sendMail(email, title, content);
+
 
         log.warn(email + " >>>>> " + content);
         if (sentid != null) {
@@ -90,7 +93,7 @@ public class SignUpController extends BaseController {
         String email = data.getString("email");
         String vcode = data.getString("vcode");
         if (!VerfiyCode.verfiy(email, vcode, true)) {
-            return RespBody.error("SomeInvalid,Captcha");
+            return RespBody.errorl("无效验证码");
         }
 
         String loginName = data.getString("loginName");
@@ -109,8 +112,11 @@ public class SignUpController extends BaseController {
 
             // 通知用户
             String homeUrl = RebuildConfiguration.getHomeUrl();
-            String content = String.format(getLang(request, "SignupPending"), fullName, loginName, passwd, homeUrl, homeUrl);
-            SMSender.sendMail(email, getLang(request, "AdminReviewSignup"), content);
+            String title = Language.L("管理员正在审核你的注册信息");
+            String content = Language.L(
+                    "%s 欢迎注册！以下是你的注册信息，请妥善保管。 [][] 登录账号 : **%s** [] 登录密码 : **%s** [] 登录地址 : [%s](%s) [][] 目前你还无法登录系统，因为系统管理员正在审核你的注册信息。完成后会通过邮件通知你，请耐心等待。",
+                    fullName, loginName, passwd, homeUrl, homeUrl);
+            SMSender.sendMail(email, title, content);
 
             return RespBody.ok();
 

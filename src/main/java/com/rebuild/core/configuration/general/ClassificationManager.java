@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.configuration.general;
 
+import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
@@ -115,22 +116,25 @@ public class ClassificationManager implements ConfigManager {
         }
 
         String ckey = "ClassificationLEVEL-" + dataId;
-        Integer cval = (Integer) Application.getCommonsCache().getx(ckey);
-        if (cval != null) {
-            return cval;
+        Integer cLevel = (Integer) Application.getCommonsCache().getx(ckey);
+        if (cLevel == null) {
+            Object[] o = Application.createQueryNoFilter(
+                    "select openLevel from Classification where dataId = ?")
+                    .setParameter(1, dataId)
+                    .unique();
+
+            cLevel = o == null ? BAD_CLASSIFICATION : (Integer) o[0];
+            Application.getCommonsCache().putx(ckey, cLevel);
         }
 
-        Object[] o = Application.createQueryNoFilter(
-                "select openLevel from Classification where dataId = ?")
-                .setParameter(1, dataId)
-                .unique();
-        if (o == null) {
-            return BAD_CLASSIFICATION;
+        // 字段指定
+        String specLevel = EasyMetaFactory.valueOf(field).getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_LEVEL);
+        int specLevelAsInt = ObjectUtils.toInt(specLevel, -1);
+        if (specLevelAsInt > BAD_CLASSIFICATION && specLevelAsInt <= cLevel) {
+            return specLevelAsInt;
         }
 
-        cval = (Integer) o[0];
-        Application.getCommonsCache().putx(ckey, cval);
-        return cval;
+        return cLevel;
     }
 
     /**

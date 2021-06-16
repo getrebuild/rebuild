@@ -37,9 +37,11 @@ $(document).ready(function () {
       if (this.field === DIVIDER_LINE) {
         render_item({ fieldName: this.field, fieldLabel: this.label || '', isFull: true }, '.form-preview')
       } else if (!field) {
-        const $item = $(`<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L('SomeDeleted,Field')}</span></div></div>`).appendTo(
-          '.form-preview'
-        )
+        const $item = $(
+          `<div class="dd-item"><div class="dd-handle J_field J_missed"><span class="text-danger">[${this.field.toUpperCase()}] ${$L(
+            '字段已删除'
+          )}</span></div></div>`
+        ).appendTo('.form-preview')
         const $action = $('<div class="dd-action"><a><i class="zmdi zmdi-close"></i></a></div>').appendTo($item.find('.dd-handle'))
         $action.find('a').click(function () {
           $item.remove()
@@ -65,29 +67,29 @@ $(document).ready(function () {
   })
 
   // @see field-new.html
-  const FIELD_TYPES = [
-    'TEXT',
-    'NTEXT',
-    'PHONE',
-    'EMAIL',
-    'URL',
-    'NUMBER',
-    'DECIMAL',
-    'DATE',
-    'DATETIME',
-    'PICKLIST',
-    'CLASSIFICATION',
-    'MULTISELECT',
-    'REFERENCE',
-    'N2NREFERENCE',
-    'FILE',
-    'IMAGE',
-    'AVATAR',
-    'SERIES',
-    'BARCODE',
-    'BOOL',
-  ]
-  FIELD_TYPES.forEach((type) => render_type(type))
+  const FIELD_TYPES = {
+    'TEXT': $L('文本'),
+    'NTEXT': $L('多行文本'),
+    'PHONE': $L('电话'),
+    'EMAIL': $L('邮箱'),
+    'URL': $L('链接'),
+    'NUMBER': $L('整数'),
+    'DECIMAL': $L('货币'),
+    'DATE': $L('日期'),
+    'DATETIME': $L('日期时间'),
+    'PICKLIST': $L('下拉列表'),
+    'CLASSIFICATION': $L('分类'),
+    'MULTISELECT': $L('多选'),
+    'REFERENCE': $L('引用'),
+    'N2NREFERENCE': $L('多引用'),
+    'FILE': $L('附件'),
+    'IMAGE': $L('图片'),
+    'AVATAR': $L('头像'),
+    'SERIES': $L('自动编号'),
+    'BARCODE': $L('二维码'),
+    'BOOL': $L('布尔'),
+  }
+  for (let k in FIELD_TYPES) render_type({ name: k, label: FIELD_TYPES[k] })
 
   // SAVE
 
@@ -131,12 +133,12 @@ $(document).ready(function () {
       formElements.push(item)
     })
 
-    if (formElements.length === 0) return RbHighbar.create($L('PlsLayout1FieldsLeast'))
+    if (formElements.length === 0) return RbHighbar.create($L('请至少布局 1 个字段'))
 
     if ($('.field-list .not-nullable').length > 0) {
-      RbAlert.create($L('HasRequiredFieldUnLayoutConfirm'), {
+      RbAlert.create($L('有必填字段未被布局，这可能导致新建记录失败。是否仍要保存？'), {
         type: 'warning',
-        confirmText: $L('Save'),
+        confirmText: $L('保存'),
         confirm: function () {
           this.hide()
           _handleSave(formElements)
@@ -154,7 +156,7 @@ $(document).ready(function () {
   $('.nav-tabs-classic a[href="#adv-control"]').on('click', (e) => {
     if (rb.commercial < 1) {
       e.preventDefault()
-      RbHighbar.create($L('FreeVerNotSupportted,FormAdvControl'), { type: 'danger', html: true, timeout: 6000 })
+      RbHighbar.create($L('免费版不支持高级控制功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), { type: 'danger', html: true, timeout: 6000 })
       return false
     }
 
@@ -176,7 +178,9 @@ const render_item = function (data) {
   const $item = $('<div class="dd-item"></div>').appendTo('.form-preview')
   if (data.isFull === true) $item.addClass('w-100')
 
-  const $handle = $(`<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('Divider')}">${data.fieldLabel}</span></div>`).appendTo($item)
+  const $handle = $(
+    `<div class="dd-handle J_field" data-field="${data.fieldName}" data-label="${data.fieldLabel}"><span _title="${$L('分栏')}">${data.fieldLabel}</span></div>`
+  ).appendTo($item)
   if (data.creatable === false) $handle.addClass('readonly')
   else if (data.nullable === false) $handle.addClass('not-nullable')
   // 填写提示
@@ -185,12 +189,12 @@ const render_item = function (data) {
   const $action = $('<div class="dd-action"></div>').appendTo($handle)
   if (data.displayType) {
     $(`<span class="ft">${data.displayType}</span>`).appendTo($item)
-    $(`<a class="rowspan mr-1" title="${$L('Column1Or2')}"><i class="zmdi zmdi-unfold-more"></i></a>`)
+    $(`<a class="rowspan mr-1" title="${$L('单列/双列')}"><i class="zmdi zmdi-unfold-more"></i></a>`)
       .appendTo($action)
       .click(function () {
         $item.toggleClass('w-100')
       })
-    $(`<a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a>`)
+    $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
       .click(function () {
         const call = function (nv) {
@@ -217,7 +221,7 @@ const render_item = function (data) {
         renderRbcomp(<DlgEditField call={call} {...ov} />)
       })
 
-    $(`<a title="${$L('Remove')}"><i class="zmdi zmdi-close"></i></a>`)
+    $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
       .appendTo($action)
       .click(function () {
         render_unset(data)
@@ -227,7 +231,7 @@ const render_item = function (data) {
 
   if (data.fieldName === DIVIDER_LINE) {
     $item.addClass('divider')
-    $(`<a title="${$L('Modify')}"><i class="zmdi zmdi-edit"></i></a>`)
+    $(`<a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a>`)
       .appendTo($action)
       .click(function () {
         const call = function (nv) {
@@ -237,7 +241,7 @@ const render_item = function (data) {
         renderRbcomp(<DlgEditDivider call={call} dividerName={ov || ''} />)
       })
 
-    $(`<a title="${$L('Remove')}"><i class="zmdi zmdi-close"></i></a>`)
+    $(`<a title="${$L('移除')}"><i class="zmdi zmdi-close"></i></a>`)
       .appendTo($action)
       .click(function () {
         $item.remove()
@@ -260,10 +264,10 @@ const render_unset = function (data) {
 }
 
 const render_type = function (fieldType) {
-  const $item = $(`<li class="dd-item"><div class="dd-handle">${$L(`t.${fieldType}`)}</div></li>`).appendTo('.type-list')
+  const $item = $(`<li class="dd-item"><div class="dd-handle">${$L(fieldType.label)}</div></li>`).appendTo('.type-list')
   $item.click(function () {
-    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType}`, $L('AddField'), { disposeOnHide: true })
-    else RbHighbar.error($L('OnlyAdminCanSome,AddField'))
+    if (wpc.isSuperAdmin) RbModal.create(`/p/admin/metadata/field-new?entity=${wpc.entityName}&type=${fieldType.name}`, $L('添加字段'), { disposeOnHide: true })
+    else RbHighbar.error($L('仅超级管理员可添加字段'))
   })
   return $item
 }
@@ -279,20 +283,20 @@ class DlgEditField extends RbAlert {
     return (
       <form className="field-attr">
         <div className="form-group">
-          <label>{$L('InputTips')}</label>
+          <label>{$L('填写提示')}</label>
           <input
             type="text"
             className="form-control form-control-sm"
             name="fieldTips"
             value={this.state.fieldTips || ''}
             onChange={this.handleChange}
-            placeholder={$L('InputSome,InputTips')}
+            placeholder={$L('输入填写提示')}
             maxLength="200"
           />
         </div>
         <div className="form-group">
           <label>
-            {$L('FieldName')} <span>({$L('SomeFieldsNotModify')})</span>
+            {$L('字段名称')} <span>({$L('部分内置字段不能修改')})</span>
           </label>
           <input
             type="text"
@@ -300,13 +304,13 @@ class DlgEditField extends RbAlert {
             name="fieldLabel"
             value={this.state.fieldLabel || ''}
             onChange={this.handleChange}
-            placeholder={this.props.fieldLabelOld || $L('ModifySome,FieldName')}
+            placeholder={this.props.fieldLabelOld || $L('修改字段名称')}
             maxLength="100"
           />
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
         </div>
       </form>
@@ -336,12 +340,19 @@ class DlgEditDivider extends DlgEditField {
     return (
       <form className="field-attr">
         <div className="form-group">
-          <label>{$L('DividerName')}</label>
-          <input type="text" className="form-control form-control-sm" name="dividerName" value={this.state.dividerName || ''} onChange={this.handleChange} placeholder={$L('InputSome,DividerName')} />
+          <label>{$L('分栏名称')}</label>
+          <input
+            type="text"
+            className="form-control form-control-sm"
+            name="dividerName"
+            value={this.state.dividerName || ''}
+            onChange={this.handleChange}
+            placeholder={$L('输入分栏名称')}
+          />
         </div>
         <div className="form-group mb-1">
           <button type="button" className="btn btn-space btn-primary" onClick={this.confirm}>
-            {$L('Confirm')}
+            {$L('确定')}
           </button>
         </div>
       </form>

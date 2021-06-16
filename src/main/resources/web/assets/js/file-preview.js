@@ -39,9 +39,9 @@ class RbPreview extends React.Component {
     if (this.state.errorMsg || !previewContent) {
       previewContent = (
         <div className="unsupports shadow-lg rounded bg-light" onClick={this._stopEvent}>
-          <h4 className="mt-0">{this.state.errorMsg || $L('UpsupportPreviewTips')}</h4>
+          <h4 className="mt-0">{this.state.errorMsg || $L('暂不支持此类型文件的预览')}</h4>
           <a className="link" target="_blank" rel="noopener noreferrer" href={downloadUrl}>
-            {$L('DownloadFile')}
+            {$L('下载文件')}
           </a>
         </div>
       )
@@ -56,15 +56,15 @@ class RbPreview extends React.Component {
             </div>
             <div className="float-right">
               {rb.fileSharable && (
-                <a onClick={this.share} title={$L('Share0')}>
+                <a onClick={this.share} title={$L('分享')}>
                   <i className="zmdi zmdi-share fs-17"></i>
                 </a>
               )}
-              <a title={$L('Download')} target="_blank" rel="noopener noreferrer" href={downloadUrl}>
+              <a title={$L('下载')} target="_blank" rel="noopener noreferrer" href={downloadUrl}>
                 <i className="zmdi zmdi-download"></i>
               </a>
               {!this.props.unclose && (
-                <a title={`${$L('Close')} (ESC)`} onClick={this.hide}>
+                <a title={`${$L('关闭')} (ESC)`} onClick={this.hide}>
                   <i className="zmdi zmdi-close"></i>
                 </a>
               )}
@@ -94,7 +94,7 @@ class RbPreview extends React.Component {
             alt="Loading"
             onLoad={() => this.setState({ imgRendered: true })}
             onError={() => {
-              RbHighbar.error($L('LoadImgError'))
+              RbHighbar.error($L('无法加载图片'))
               this.hide()
             }}
           />
@@ -125,7 +125,13 @@ class RbPreview extends React.Component {
               <RbSpinner fully={true} />
             </div>
           )}
-          <iframe className={!this.state.docRendered ? 'hide' : ''} src={this.state.previewUrl || ''} onLoad={() => this.setState({ docRendered: true })} frameBorder="0" scrolling="no" />
+          <iframe
+            className={!this.state.docRendered ? 'hide' : ''}
+            src={this.state.previewUrl || ''}
+            onLoad={() => this.setState({ docRendered: true })}
+            frameBorder="0"
+            scrolling="no"
+          />
         </div>
       </div>
     )
@@ -136,7 +142,7 @@ class RbPreview extends React.Component {
       <div className="container fp-content">
         <div className="iframe text" onClick={this._stopEvent}>
           {this.state.previewText || this.state.previewText === '' ? (
-            <pre>{this.state.previewText || <i className="text-muted">{$L('Null')}</i>}</pre>
+            <pre>{this.state.previewText || <i className="text-muted">{$L('无')}</i>}</pre>
           ) : (
             <div className="must-center">
               <RbSpinner fully={true} />
@@ -152,7 +158,7 @@ class RbPreview extends React.Component {
       <div className="container fp-content">
         <div className="audio must-center" onClick={this._stopEvent}>
           <audio src={this._buildAbsoluteUrl()} controls>
-            {$L('YourBrowserUnsupport')}
+            {$L('你的浏览器不支持此功能')}
           </audio>
         </div>
       </div>
@@ -164,7 +170,7 @@ class RbPreview extends React.Component {
       <div className="container fp-content">
         <div className="video must-center" onClick={this._stopEvent}>
           <video src={this._buildAbsoluteUrl()} height="500" controls>
-            {$L('YourBrowserUnsupport')}
+            {$L('你的浏览器不支持此功能')}
           </video>
         </div>
       </div>
@@ -304,13 +310,13 @@ class RbPreview extends React.Component {
 
 // ~ 共享
 const EXPIRES_TIME = [
-  [5, 5 + $L('Minte')],
-  [30, 30 + $L('Minte')],
-  [60, 1 + $L('Hour')],
-  [360, 6 + $L('Hour')],
-  [720, 12 + $L('Hour')],
-  [1440, 1 + $L('Day0')],
-  [4320, 3 + $L('Day0')],
+  [5, 5 + $L('分钟')],
+  [30, 30 + $L('分钟')],
+  [60, 1 + $L('小时')],
+  [360, 6 + $L('小时')],
+  [720, 12 + $L('小时')],
+  [1440, 1 + $L('天')],
+  [4320, 3 + $L('天')],
 ]
 
 class FileShare extends RbModalHandler {
@@ -320,14 +326,14 @@ class FileShare extends RbModalHandler {
 
   render() {
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={$L('Share0File')} disposeOnHide="true">
+      <RbModal ref={(c) => (this._dlg = c)} title={$L('分享文件')} disposeOnHide="true">
         <div className="file-share">
-          <label>{$L('Share0Link')}</label>
+          <label>{$L('分享链接')}</label>
           <div className="input-group input-group-sm">
             <input className="form-control" value={this.state.shareUrl || ''} readOnly onClick={(e) => $(e.target).select()} />
             <span className="input-group-append">
               <button className="btn btn-secondary" ref={(c) => (this._btn = c)}>
-                {$L('Copy')}
+                {$L('复制')}
               </button>
             </span>
           </div>
@@ -336,7 +342,7 @@ class FileShare extends RbModalHandler {
               {EXPIRES_TIME.map((item) => {
                 return (
                   <li key={`time-${item[0]}`} className={`list-inline-item ${this.state.time === item[0] && 'active'}`}>
-                    <a onClick={this._changeTime} data-time={item[0]} _title={$L('Validity')}>
+                    <a onClick={this._changeTime} data-time={item[0]} _title={$L('有效')}>
                       {item[1]}&nbsp;
                     </a>
                   </li>
@@ -361,7 +367,7 @@ class FileShare extends RbModalHandler {
           return that.state.shareUrl
         },
       }).on('success', function () {
-        RbHighbar.success($L('Share0LinkCopyTips'))
+        RbHighbar.success($L('分享链接已复制'))
       })
     }
     if (!window.ClipboardJS) {

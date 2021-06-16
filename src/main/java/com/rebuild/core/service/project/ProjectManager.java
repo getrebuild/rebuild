@@ -42,12 +42,22 @@ public class ProjectManager implements ConfigManager {
     private static final String CKEY_TASK = "Task2Project-";
 
     /**
+     * @param user
+     * @return
+     * @see #getAvailable(ID, boolean)
+     */
+    public ConfigBean[] getAvailable(ID user) {
+        return getAvailable(user, false);
+    }
+
+    /**
      * 获取指定用户可用项目
      *
      * @param user
+     * @param onlyMember
      * @return
      */
-    public ConfigBean[] getAvailable(ID user) {
+    public ConfigBean[] getAvailable(ID user, boolean onlyMember) {
         ConfigBean[] projects = getAllProjects();
 
         // 管理员可见全部
@@ -55,8 +65,10 @@ public class ProjectManager implements ConfigManager {
 
         List<ConfigBean> alist = new ArrayList<>();
         for (ConfigBean e : projects) {
-            if (isAdmin || e.getInteger("scope") == ProjectConfigService.SCOPE_ALL
-                    || e.get("members", Set.class).contains(user)) {
+            boolean isMember = e.get("members", Set.class).contains(user);
+            if (onlyMember) {
+                if (isMember) alist.add(e.clone());
+            } else if (isAdmin || isMember || e.getInteger("scope") == ProjectConfigService.SCOPE_ALL) {
                 alist.add(e.clone());
             }
         }
@@ -122,18 +134,18 @@ public class ProjectManager implements ConfigManager {
      * 获取指定项目
      *
      * @param projectId
-     * @param user
+     * @param checkUser
      * @return
      * @throws ConfigurationException If not found
      */
-    public ConfigBean getProject(ID projectId, ID user) throws ConfigurationException {
-        ConfigBean[] ee = user == null ? getAllProjects() : getAvailable(user);
+    public ConfigBean getProject(ID projectId, ID checkUser) throws ConfigurationException {
+        ConfigBean[] ee = checkUser == null ? getAllProjects() : getAvailable(checkUser);
         for (ConfigBean e : ee) {
             if (projectId.equals(e.getID("id"))) {
                 return e.clone();
             }
         }
-        throw new ConfigurationException(Language.L("CannotReadProjectTips"));
+        throw new ConfigurationException(Language.L("无权访问该项目或项目已删除"));
     }
 
     /**
@@ -160,13 +172,13 @@ public class ProjectManager implements ConfigManager {
         }
 
         if (projectId == null) {
-            throw new ConfigurationException(Language.L("CannotReadTaskTips"));
+            throw new ConfigurationException(Language.L("任务不存在或已被删除"));
         }
 
         try {
             return getProject(projectId, user);
         } catch (ConfigurationException ex) {
-            throw new AccessDeniedException(Language.L("NoReadTask"), ex);
+            throw new AccessDeniedException(Language.L("无权访问该任务"), ex);
         }
     }
 
@@ -225,7 +237,7 @@ public class ProjectManager implements ConfigManager {
         for (ConfigBean e : getPlansOfProject(projectId)) {
             if (e.getID("id").equals(planId)) return e;
         }
-        throw new ConfigurationException(Language.L("SomeInvalid", "ProjectPlan") + " : " + planId);
+        throw new ConfigurationException(Language.L("无效任务面板 (%s)", planId));
     }
 
     @Override

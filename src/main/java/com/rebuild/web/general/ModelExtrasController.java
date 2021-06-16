@@ -28,13 +28,14 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 表单/视图 功能扩展
@@ -67,7 +68,7 @@ public class ModelExtrasController extends BaseController {
 
         RecordTransfomer transfomer = new RecordTransfomer(targetEntity, (JSONObject) config.getJSON("config"));
         if (!transfomer.checkFilter(sourceRecord)) {
-            return RespBody.error(getLang(request, "TransformNotAllow"), 400);
+            return RespBody.error(Language.L("当前记录不符合转换条件"), 400);
         }
 
         ID newId = transfomer.transform(sourceRecord);
@@ -82,7 +83,7 @@ public class ModelExtrasController extends BaseController {
                 entity.getName(), entity.getPrimaryField().getName(), id);
         Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
         if (recordMeta == null) {
-            return RespBody.errorl("RecordNotExists");
+            return RespBody.errorl("记录不存在");
         }
 
         return JSONUtils.toJSONObject(
@@ -102,7 +103,7 @@ public class ModelExtrasController extends BaseController {
         sql = String.format(sql, entity.getName(), entity.getPrimaryField().getName(), id);
         Object[] recordMeta = Application.createQueryNoFilter(sql).unique();
         if (recordMeta == null) {
-            return RespBody.errorl("RecordNotExists");
+            return RespBody.errorl("记录不存在");
         }
 
         recordMeta[0] = I18nUtils.formatDate((Date) recordMeta[0]);
@@ -132,15 +133,7 @@ public class ModelExtrasController extends BaseController {
                 new Object[] { recordMeta[0], recordMeta[1], owning, sharingList });
     }
 
-    private static final Map<Integer, String> REV_TYPE_LANGS = new HashMap<>();
-    static {
-        REV_TYPE_LANGS.put(1, "Create");
-        REV_TYPE_LANGS.put(2, "Delete");
-        REV_TYPE_LANGS.put(4, "Update");
-        REV_TYPE_LANGS.put(16, "Assign");
-        REV_TYPE_LANGS.put(32, "Share");
-        REV_TYPE_LANGS.put(64, "UnShare");
-    }
+
 
     @GetMapping("record-history")
     public JSONAware fetchRecordHistory(@IdParam ID id) {
@@ -151,14 +144,20 @@ public class ModelExtrasController extends BaseController {
                 .array();
 
         for (Object[] o : array) {
-            String type = REV_TYPE_LANGS.get(o[0]);
-            o[0] = Language.L(StringUtils.defaultString(type, "Unknown"));
+            int revType = (int) o[0];
+            if (revType == 1) o[0] = Language.L("新建");
+            else if (revType == 2) o[0] = Language.L("删除");
+            else if (revType == 4) o[0] = Language.L("更新");
+            else if (revType == 16) o[0] = Language.L("分派");
+            else if (revType == 32) o[0] = Language.L("共享");
+            else if (revType == 64) o[0] = Language.L("取消共享");
+            else o[0] = Language.L("未知");
+
             o[1] = I18nUtils.formatDate((Date) o[1]);
             o[2] = new Object[] { o[2], UserHelper.getName((ID) o[2]) };
         }
 
         return JSONUtils.toJSONObjectArray(
-                new String[] { "revisionType", "revisionOn", "revisionBy" },
-                array);
+                new String[] { "revisionType", "revisionOn", "revisionBy" }, array);
     }
 }

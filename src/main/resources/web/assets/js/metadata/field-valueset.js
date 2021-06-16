@@ -10,8 +10,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 class FieldValueSet extends React.Component {
   render() {
     const field = this.props.field
-    if (field.type === 'ID' || field.type === 'AVATAR' || field.type === 'IMAGE' || field.type === 'FILE' || field.type === 'BARCODE' || field.type === 'SERIES') {
-      return <div className="form-control-plaintext text-danger">{$L('Unsupport')}</div>
+    if (
+      field.type === 'ID' ||
+      field.type === 'AVATAR' ||
+      field.type === 'IMAGE' ||
+      field.type === 'FILE' ||
+      field.type === 'BARCODE' ||
+      field.type === 'SERIES'
+    ) {
+      return <div className="form-control-plaintext text-danger">{$L('暂不支持')}</div>
     }
 
     if (
@@ -24,7 +31,11 @@ class FieldValueSet extends React.Component {
       field.type === 'CLASSIFICATION'
     ) {
       return (
-        <select className="form-control form-control-sm" multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE'} ref={(c) => (this._value = c)} key={field.name}>
+        <select
+          className="form-control form-control-sm"
+          multiple={field.type === 'MULTISELECT' || field.type === 'N2NREFERENCE'}
+          ref={(c) => (this._value = c)}
+          key={field.name}>
           {(field.options || []).map((item) => {
             let value = item.id || item.mask
             // for BOOL
@@ -41,7 +52,9 @@ class FieldValueSet extends React.Component {
       )
     }
 
-    return <input className="form-control form-control-sm" placeholder={this.props.placeholder} ref={(c) => (this._value = c)} key={field.name} maxLength="255" />
+    return (
+      <input className="form-control form-control-sm" placeholder={this.props.placeholder} ref={(c) => (this._value = c)} key={field.name} maxLength="255" />
+    )
   }
 
   componentDidMount() {
@@ -104,25 +117,25 @@ class FieldValueSet extends React.Component {
 
     if (field.type === 'NUMBER' || field.type === 'DECIMAL') {
       if (isNaN(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       } else if ($isTrue(field.notNegative) && ~~value < 0) {
-        RbHighbar.create($L('SomeNotBeNegative').replace('{0}', field.label))
+        RbHighbar.create($L('%s 不能为负数', field.label))
         return null
       }
     } else if (field.type === 'EMAIL') {
       if (!$regex.isMail(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       }
     } else if (field.type === 'URL') {
       if (!$regex.isUrl(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       }
     } else if (field.type === 'PHONE') {
       if (!$regex.isTel(value)) {
-        RbHighbar.create($L('SomeNotFormatWell').replace('{0}', field.label))
+        RbHighbar.create($L('%s 格式不正确', field.label))
         return null
       }
     }

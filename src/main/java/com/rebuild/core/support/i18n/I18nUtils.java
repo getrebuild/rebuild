@@ -28,4 +28,13 @@ public class I18nUtils {
         return CalendarUtils.getUTCWithZoneDateTimeFormat().format(date);
     }
 
+    /**
+     * @param key
+     * @param placeholders
+     * @return
+     * @see Language#L(String, Object...)
+     */
+    public static String L(String key, Object... placeholders) {
+        return Language.L(key, placeholders);
+    }
 }

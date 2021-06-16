@@ -8,15 +8,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.support.i18n;
 
 import cn.devezhao.persist4j.Entity;
-import com.alibaba.fastjson.JSON;
 import com.rebuild.TestSupport;
 import com.rebuild.core.Application;
-import com.rebuild.core.configuration.NavBuilder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.service.approval.ApprovalState;
-import com.rebuild.utils.JSONUtils;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -27,27 +24,23 @@ public class LanguageTest extends TestSupport {
 
     @Test
     public void getLang() {
-        System.out.println("Home > " + Language.L("Home"));
-        System.out.println("AddSome > " + Language.L("AddSome", "Home"));
-        System.out.println("HasXNotice > " + Language.LF("HasXNotice", 99));
+        System.out.println(Language.L("首页"));
+        System.out.println(Language.L("%s首页", "谁的"));
+        System.out.println(Language.L("%d条数据", 100));
 
         Entity entity = MetadataHelper.getEntity(EntityHelper.User);
-        System.out.println("e.User > " + Language.L(entity));
-        System.out.println("f.createdOn > " + Language.L(entity.getField(EntityHelper.CreatedOn)));
-        System.out.println("f.User.fullName > " + Language.L(entity.getField("fullName")));
-        System.out.println("s.ApprovalState.PROCESSING > " + Language.L(ApprovalState.PROCESSING));
+        System.out.println(Language.L(entity));
+        System.out.println(Language.L(entity.getField(EntityHelper.CreatedOn)));
+
+        System.out.println(Language.L(ApprovalState.PROCESSING));
+        System.out.println(Language.L(DisplayType.ANYREFERENCE));
     }
 
     @Test
     public void getMdLang() {
-        System.out.println("Support MD > " + Language.L("SystemFailureMemo"));
-    }
-
-    @Test
-    public void replaceLangKey() {
-        JSON resource = NavBuilder.instance.getUserNav(UserService.ADMIN_USER);
-        resource = Application.getLanguage().getDefaultBundle().replaceLangKey(resource);
-        System.out.println(JSONUtils.prettyPrint(resource));
+        System.out.println(Language.L("**加粗**"));
+        System.out.println(Language.L("换行 [] 第二行"));
+        System.out.println(Language.L("这是一个 [链接](https://getrebuild.com/)"));
     }
 
     @Test

@@ -106,9 +106,9 @@ public class TaskTagController extends BaseController {
      */
     static JSONArray getTaskTags(ID taskId) {
         Object[][] tags = Application.createQueryNoFilter(
-                "select tagId.tagName,tagId.color,relationId from ProjectTaskTagRelation where taskId = ? order by createdOn")
+                "select tagId.tagName,tagId.color,relationId,tagId from ProjectTaskTagRelation where taskId = ? order by createdOn")
                 .setParameter(1, taskId)
                 .array();
-        return JSONUtils.toJSONObjectArray(new String[] { "name", "color" , "rid" }, tags);
+        return JSONUtils.toJSONObjectArray(new String[] { "name", "color" , "rid", "id" }, tags);
     }
 }

@@ -55,7 +55,7 @@ public class ProjectPlanConfigService extends BaseConfigurationService implement
                 .setParameter(1, planId)
                 .unique();
         if ((Long) count[0] > 0) {
-            throw new DataSpecificationException(Language.LF("DeletePlanHasXTasks", count[0]));
+            throw new DataSpecificationException(Language.L("任务面板下有 %d 个任务，不能删除", count[0]));
         }
         return super.delete(planId);
     }
