@@ -21,6 +21,7 @@ import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.support.ConfigurationItem;
 import com.rebuild.core.support.RebuildConfiguration;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.IdParam;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -126,9 +127,10 @@ public class GeneralModelController extends EntityController {
 
         // 返回扩展
         if (getBoolParameter(request, "extras") && !model.containsKey("error")) {
-            boolean isDetail = MetadataHelper.getEntity(entity).getMainEntity() != null;
-            model.putAll(getViewExtras(user, entity, isDetail));
+            Entity e = MetadataHelper.getEntity(entity);
+            model.putAll(getViewExtras(user, entity, e.getMainEntity() != null));
             model.put("entityPrivileges", buildEntityPrivileges(id, user));
+            model.put("entityLabel", Language.L(e));
         }
         return model;
     }

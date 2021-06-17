@@ -42,6 +42,7 @@ class ApprovalProcessor extends React.Component {
 
   renderStateProcessing() {
     window.RbViewPage && window.RbViewPage.setReadonly(true)
+
     let aMsg = $L('当前记录正在审批中')
     if (this.state.imApprover) {
       if (this.state.imApproveSatate === 1) aMsg = $L('当前记录正在等待你审批')
