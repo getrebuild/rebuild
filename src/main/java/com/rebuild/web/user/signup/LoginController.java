@@ -133,6 +133,11 @@ public class LoginController extends BaseController {
             ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
         }
 
+        // H5 QR
+        String mobileQrUrl = RebuildConfiguration.getHomeUrl("/h5app/");
+        mobileQrUrl = AppUtils.getContextPath() + "/commons/barcode/render-qr?t=" + CodecUtils.urlEncode(mobileQrUrl);
+        mv.getModel().put("mobileQrUrl", mobileQrUrl);
+
         mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
         return mv;
     }
