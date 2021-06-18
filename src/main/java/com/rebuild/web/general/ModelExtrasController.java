@@ -48,7 +48,7 @@ import java.util.List;
 public class ModelExtrasController extends BaseController {
 
     // 获取表单回填数据
-    @RequestMapping("fillin-value")
+    @GetMapping("fillin-value")
     public JSON getFillinValue(@EntityParam Entity entity, @IdParam(name = "source") ID sourceRecord,
                                HttpServletRequest request) {
         String field = getParameterNotNull(request, "field");
