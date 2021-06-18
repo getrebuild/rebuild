@@ -17,6 +17,8 @@ import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
+import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
@@ -95,7 +97,10 @@ public class TransformConfigController extends BaseController {
 
         for (Field field : MetadataSorter.sortFields(entity)) {
             if (!isSource && !field.isCreatable()) continue;
-            fields.add(EasyMetaFactory.toJSON(field));
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (easyField.getDisplayType() == DisplayType.BARCODE) continue;
+
+            fields.add(easyField.toJSON());
         }
         entityData.put("fields", fields);
 
