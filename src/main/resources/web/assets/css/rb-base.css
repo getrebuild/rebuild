@@ -178,8 +178,7 @@ p {
 abbr[data-original-title],
 abbr[title] {
   text-decoration: underline;
-  -webkit-text-decoration: underline dotted;
-  text-decoration: underline dotted;
+  -webkit-text-decoration: underline;
   cursor: help;
   border-bottom: 0;
 }
@@ -12634,24 +12633,7 @@ a.avatar.x48 img {
     padding-left: 55px;
   }
 
-  .rb-collapsible-sidebar-collapsed
-    .rb-left-sidebar
-    .sidebar-elements
-    > li
-    ul.visible
-    .nav-items
-    .content
-    > ul
-    > li
-    > ul
-    > li
-    > ul
-    > li
-    > ul
-    > li
-    > ul
-    > li
-    > a {
+  .rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements > li ul.visible .nav-items .content > ul > li > ul > li > ul> li > ul > li > ul > li> a {
     padding-left: 65px;
   }
 }
@@ -19934,8 +19916,8 @@ mark {
   color: #34a853 !important;
 }
 
-.text-success aa:focus,
-.text-success aa:hover {
+.text-success a:focus,
+.text-success a:hover {
   color: #288140 !important;
 }
 
@@ -19943,8 +19925,8 @@ mark {
   color: #fbbc05 !important;
 }
 
-.text-warning aa:focus,
-.text-warning aa:hover {
+.text-warning a:focus,
+.text-warning a:hover {
   color: #ca9703 !important;
 }
 
@@ -19952,8 +19934,8 @@ mark {
   color: #ea4335 !important;
 }
 
-.text-danger aa:focus,
-.text-danger aa:hover {
+.text-danger a:focus,
+.text-danger a:hover {
   color: #d62516 !important;
 }
 

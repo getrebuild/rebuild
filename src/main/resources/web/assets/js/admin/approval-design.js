@@ -567,7 +567,7 @@ class StartNodeConfig extends RbFormHandler {
       return
     }
 
-    typeof this.props.call && this.props.call(d)
+    typeof this.props.call === 'function' && this.props.call(d)
     this.cancel()
   }
 

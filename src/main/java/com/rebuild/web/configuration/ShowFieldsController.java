@@ -151,9 +151,6 @@ public class ShowFieldsController extends BaseController implements ShareTo {
         writeSuccess(response, ret);
     }
 
-    /**
-     * @see #getsList(HttpServletRequest)
-     */
     @GetMapping("list-fields/alist")
     public void getsList(@PathVariable String entity,
                          HttpServletRequest request, HttpServletResponse response) {

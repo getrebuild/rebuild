@@ -108,8 +108,7 @@ public class TableBuilder {
         }
 
         String tClazz = (chart.isShowLineNumber() ? "line-number " : "") + (chart.isShowSums() ? "sums" : "");
-        return String.format("<table class=\"table table-bordered %s\">%s%s</table>",
-                tClazz, thead.toString(), tbody.toString());
+        return String.format("<table class=\"table table-bordered %s\">%s%s</table>", tClazz, thead, tbody);
     }
 
     // --
@@ -139,7 +138,7 @@ public class TableBuilder {
             for (TR c : children) {
                 sb.append(c.toString());
             }
-            return String.format("<%s>%s</%s>", tag, sb.toString(), tag);
+            return String.format("<%s>%s</%s>", tag, sb, tag);
         }
     }
 
@@ -159,7 +158,7 @@ public class TableBuilder {
             for (TD c : children) {
                 sb.append(c.toString());
             }
-            return String.format("<tr>%s</tr>", sb.toString());
+            return String.format("<tr>%s</tr>", sb);
         }
     }
 

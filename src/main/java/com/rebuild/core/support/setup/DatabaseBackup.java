@@ -95,7 +95,7 @@ public class DatabaseBackup {
         try {
             int code = process.waitFor();
             if (code != 0 || isGotError) {
-                LOG.error("Command failed : " + code + " # " + echo.toString());
+                LOG.error("Command failed : " + code + " # " + echo);
                 return null;
             }
         } catch (InterruptedException ex) {
