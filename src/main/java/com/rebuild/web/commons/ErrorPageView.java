@@ -14,6 +14,7 @@ import com.rebuild.core.ServerStatus;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingClass;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -29,14 +30,29 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ErrorPageView extends BaseController {
 
+    // Error Defined
+
     @GetMapping("/error/unsupported-browser")
     public ModelAndView pageUnsupportedBrowser() {
+        return createError(
+                Language.L("不支持 IE10 及以下的浏览器 [] 推荐使用 Edge、Chrome、Firefox 或 IE11"));
+    }
+
+    @ConditionalOnMissingClass("com.rebuild.rbv.Rbv")
+    @GetMapping({"/h5app/**"})
+    public ModelAndView pageH5app() {
+        return createError(
+                Language.L("免费版不支持手机访问功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+    }
+
+    private ModelAndView createError(String msg) {
         ModelAndView mv = createModelAndView("/error/error");
         mv.getModelMap().put("error_code", 400);
-        mv.getModelMap().put("error_msg",
-                Language.L("不支持 IE10 及以下的浏览器 [] 推荐使用 Edge、Chrome、Firefox 或 IE11"));
+        mv.getModelMap().put("error_msg", msg);
         return mv;
     }
+
+    // -- Status
 
     @GetMapping("/error/server-status")
     public ModelAndView pageServerStatus(HttpServletRequest request) {

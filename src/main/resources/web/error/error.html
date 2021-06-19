@@ -35,7 +35,7 @@
             <div class="error-number mb-0"><i class="zmdi zmdi-alert-circle text-danger" th:classappend="${'err' + error_code}"></i></div>
             <div class="error-description" th:utext="${error_msg}"></div>
             <div th:if="${error_stack != null}" class="error-description text-left"><pre th:utext="${error_stack}"></pre></div>
-            <div class="error-goback-button">
+            <div class="error-goback-button" th:if="${bundle != null}">
               <a class="btn btn-xl btn-space btn-secondary" th:href="@{/dashboard/home}" id="goHome">[[${bundle.L('返回首页')}]]</a>
               <button class="btn btn-xl btn-space btn-primary" type="button" onclick="location.reload()">[[${bundle.L('重试')}]]</button>
               <div class="mt-4">
