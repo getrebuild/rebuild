@@ -152,7 +152,7 @@ class PlanBoxes extends React.Component {
           const nextSeq = ~~($itemNext.attr('data-seq') || -1) // -1 = At last
           let seq
           if (nextSeq === -1) seq = -1
-          else if (prevSeq === 0) seq = nextSeq * 2
+          else if (prevSeq === 0) seq = nextSeq / 2
           else seq = ~~(prevSeq + (nextSeq - prevSeq) / 2)
 
           // Use state of react for move

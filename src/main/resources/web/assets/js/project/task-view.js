@@ -116,7 +116,7 @@ class TaskForm extends React.Component {
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
-            <i className="icon zmdi zmdi-link zmdi-hc-rotate-45 fs-19" style={{ marginTop: '0.15rem' }} /> {$L('关联记录')}
+            <i className="icon zmdi zmdi-link fs-19 up-1" /> {$L('关联记录')}
           </label>
           <div className="col-12 col-sm-9">
             {this.state.projectId && (
@@ -950,7 +950,8 @@ class TaskCommentsList extends React.Component {
     return (
       <div className="comment-list-wrap">
         <h4>
-          <i className="zmdi zmdi-comments label-icon down-2"></i> {$L('评论列表')} ({this.state.comments.length})
+          <i className="zmdi zmdi-comments label-icon down-2"></i>
+          {$L('评论列表')} ({this.state.comments.length})
         </h4>
         <div className="feeds-list comment-list">
           {this.state.comments.map((item) => {
