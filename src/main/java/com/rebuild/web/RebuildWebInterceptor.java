@@ -165,9 +165,6 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
-        // 清理用户
-        UserContextHolder.clear();
-
         RequestEntry requestEntry = REQUEST_ENTRY.get();
         REQUEST_ENTRY.remove();
 
@@ -176,6 +173,9 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
         if (time > 1000) {
             log.warn("Method handle time {} ms. Request URL(s) {}", time, RebuildWebConfigurer.getRequestUrls(request));
         }
+
+        // 清理用户
+        UserContextHolder.clear();
     }
 
     /**

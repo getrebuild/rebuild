@@ -18,10 +18,15 @@
             <div class="row">
               <div class="col-sm-6">
                 <div class="project-head">
-                  <h4 th:text="${projectName}"></h4>
+                  <h4>
+                    [[${projectName}]]
+                    <span th:if="${scope == 1}" class="badge badge-secondary up-2">[[${bundle.L('公开')}]]</span>
+                  </h4>
                   <div class="project-action">
                     <span class="admin-show">
-                      <a th:href="${baseUrl} + '/admin/project/' + ${projectId}" th:title="${bundle.L('项目管理')}" target="_blank" class="zicon"><i class="zmdi zmdi-settings"></i></a>
+                      <a th:href="${baseUrl} + '/admin/project/' + ${projectId}" th:title="${bundle.L('项目管理')}" target="_blank" class="zicon">
+                        <i class="zmdi zmdi-settings"></i>
+                      </a>
                     </span>
                   </div>
                 </div>

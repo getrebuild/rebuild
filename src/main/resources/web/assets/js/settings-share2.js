@@ -5,6 +5,8 @@ rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
 
+// 系统配置 共享组件
+
 class _ChangeHandler extends React.Component {
   constructor(props) {
     super(props)
@@ -14,9 +16,7 @@ class _ChangeHandler extends React.Component {
   handleChange = (e) => {
     const target = e.target
     const val = target.type === 'checkbox' ? target.checked : target.value
-    let s = {}
-    s[target.name] = val
-    this.setState(s)
+    this.setState({ [target.name]: val })
   }
 }
 
@@ -33,16 +33,17 @@ class Share2 extends _ChangeHandler {
 
   render() {
     if (!rb.isAdminUser) return null
+
     return (
       <React.Fragment>
         {this.props.noSwitch !== true && (
           <div className="float-left">
             <div className="btn-group">
               <button type="button" className="btn btn-link" data-toggle="dropdown">
-                <i className="zmdi zmdi-settings icon"></i>
+                <i className="zmdi zmdi-settings icon" />
               </button>
               <div className="dropdown-menu">
-                <a className="dropdown-item" href={`?id=NEW&entity=${this.props.entity || ''}`}>
+                <a className="dropdown-item" href={`?id=NEW${this.props.entity ? `&entity=${this.props.entity}` : ''}`}>
                   {$L('添加%s', this.props.title || $L('配置'))}
                 </a>
                 <a className="dropdown-item" onClick={this.showSwitch}>
@@ -52,6 +53,7 @@ class Share2 extends _ChangeHandler {
             </div>
           </div>
         )}
+
         <label className="custom-control custom-checkbox custom-control-inline custom-control-sm">
           <input className="custom-control-input" type="checkbox" checked={this.state.shared === true} name="shared" onChange={this.handleChange} />
           {this.state.shareTo && this.state.shareTo.length >= 20 ? (
@@ -76,18 +78,21 @@ class Share2 extends _ChangeHandler {
 
   showSwitch = () => {
     const that = this
-    if (that.__switch) that.__switch.show()
-    else
+    if (that.__switch) {
+      that.__switch.show()
+    } else {
       renderRbcomp(<Share2Switch modalClazz="select-list" list={this.props.list} entity={this.props.entity} id={this.props.id} />, null, function () {
         that.__switch = this
       })
+    }
   }
 
   showSettings = () => {
     event.preventDefault()
     const that = this
-    if (that.__settings) that.__settings.show()
-    else
+    if (that.__settings) {
+      that.__settings.show()
+    } else {
       renderRbcomp(
         <Share2Settings
           configName={this.props.configName}
@@ -101,6 +106,7 @@ class Share2 extends _ChangeHandler {
           that.__settings = this
         }
       )
+    }
     return false
   }
 
@@ -118,10 +124,6 @@ class Share2 extends _ChangeHandler {
 
 // ~~ 多配置切换
 class Share2Switch extends _ChangeHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <div className={`modal rbalert shareTo--box ${this.props.modalClazz || ''}`} ref={(c) => (this._dlg = c)} tabIndex="-1">
@@ -142,11 +144,12 @@ class Share2Switch extends _ChangeHandler {
   renderContent() {
     const list = this.props.list || []
     return (
-      <div className="rb-scroller" ref={(s) => (this._scrollbar = s)}>
+      <div className="rb-scroller" ref={(s) => (this._$scrollbar = s)}>
         <ul className="list-unstyled nav-list">
           {list.map((item) => {
             let st = item[2] === SHARE_ALL ? $L('全部用户') : item[2] === SHARE_SELF ? $L('私有') : `${$L('指定用户')}(${item[2].split(',').length})`
             if (this.props.id === item[0]) st += ` [${$L('当前')}]`
+
             return (
               <li key={'item-' + item[0]}>
                 <a href={`?id=${item[0]}&entity=${this.props.entity || ''}`}>
@@ -164,7 +167,7 @@ class Share2Switch extends _ChangeHandler {
 
   componentDidMount() {
     $(this._dlg).modal({ show: true, keyboard: true })
-    if (this._scrollbar) $(this._scrollbar).perfectScrollbar()
+    if (this._$scrollbar) $(this._$scrollbar).perfectScrollbar()
   }
 
   hide = () => $(this._dlg).modal('hide')
@@ -173,10 +176,6 @@ class Share2Switch extends _ChangeHandler {
 
 // ~~ 配置共享
 class Share2Settings extends Share2Switch {
-  constructor(props) {
-    super(props)
-  }
-
   renderContent() {
     return (
       <div className="form">
@@ -250,19 +249,22 @@ class Share2Settings extends Share2Switch {
 // eslint-disable-next-line no-unused-vars
 const renderSwitchButton = (data, title, current) => {
   if (!data || data.length === 0) return null
+
   const comp = (
     <div className="float-left">
       <div className="btn-group">
         <button type="button" className="btn btn-link" data-toggle="dropdown">
-          <i className="zmdi zmdi-swap-vertical icon"></i>
-          {$L('切换到%s', title)}
+          <i className="zmdi zmdi-swap-vertical icon mr-1" />
+          {$L('切换%s', title)}
         </button>
         <div className="dropdown-menu">
           {data.map((x) => {
             let name = x[1] || $L('未命名')
             if (x[3] === rb.currentUser) name = $L('我的%s', title)
-            else name += ` ${$L('共享的')}`
-            if (current && current === x[0]) name += ` ${$L('当前')}`
+            else name += ` [${$L('共享的')}]`
+
+            if (current && current === x[0]) name += ` [${$L('当前')}]`
+
             return (
               <a key={`sw-${x[0]}`} className="dropdown-item" href={`?id=${x[0]}${x[4] ? `&entity=${x[4]}` : ''}`}>
                 {name}

@@ -42,6 +42,7 @@ class ApprovalProcessor extends React.Component {
 
   renderStateProcessing() {
     window.RbViewPage && window.RbViewPage.setReadonly(true)
+
     let aMsg = $L('当前记录正在审批中')
     if (this.state.imApprover) {
       if (this.state.imApproveSatate === 1) aMsg = $L('当前记录正在等待你审批')
@@ -524,7 +525,7 @@ class ApprovalStepViewer extends React.Component {
                   return idx === 0 ? this.renderSubmitter(item) : this.renderApprover(item, stateLast)
                 })}
                 {stateLast >= 10 && (
-                  <li className="timeline-item last">
+                  <li className="timeline-item last" key="step-last">
                     <span>{stateLast === 13 ? $L('重审') : $L('结束')}</span>
                   </li>
                 )}
@@ -538,7 +539,7 @@ class ApprovalStepViewer extends React.Component {
 
   renderSubmitter(s) {
     return (
-      <li className="timeline-item state0" key={`step-${$random()}`}>
+      <li className="timeline-item state0" key="step-submit">
         {this._formatTime(s.createdOn)}
         <div className="timeline-content">
           <div className="timeline-avatar">
@@ -600,7 +601,7 @@ class ApprovalStepViewer extends React.Component {
     const sm = s[0].signMode
     const clazz = sm === 'OR' || sm === 'AND' ? 'joint' : 'no-joint'
     return (
-      <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null}>
+      <div className={clazz} _title={sm === 'OR' ? $L('或签') : sm === 'AND' ? $L('会签') : null} key={`step-${$random()}`}>
         {sss}
       </div>
     )

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 public class AdvFilterParserTest extends TestSupport {
 
     @Test
-    public void testBaseParse() {
+    void testBaseParse() {
         JSONObject filterExp = new JSONObject();
         filterExp.put("entity", "User");
         JSONArray items = new JSONArray();
@@ -36,7 +36,7 @@ public class AdvFilterParserTest extends TestSupport {
     }
 
     @Test
-    public void testBadJoinsParse() {
+    void testBadJoinsParse() {
         JSONObject filterExp = new JSONObject();
         filterExp.put("entity", "User");
         JSONArray items = new JSONArray();
@@ -50,32 +50,57 @@ public class AdvFilterParserTest extends TestSupport {
     }
 
     @Test
-    public void testDateAndDatetime() {
+    void testDateAndDatetime() {
         JSONObject filterExp = new JSONObject();
         filterExp.put("entity", TestAllFields);
         JSONArray items = new JSONArray();
         filterExp.put("items", items);
 
         // Use `=`
-        items.add(JSON.parseObject("{ op:'EQ', field:'date', value:'2019-09-09' }"));
+        items.add(JSON.parseObject("{ op:'EQ', field:'date1', value:'2019-09-09' }"));
         // Use `between`
         items.add(JSON.parseObject("{ op:'EQ', field:'datetime', value:'2019-09-09' }"));
         System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
 
         items.clear();
         // Use `=`
-        items.add(JSON.parseObject("{ op:'TDA', field:'date' }"));
+        items.add(JSON.parseObject("{ op:'TDA', field:'date1' }"));
         // Use `between`
         items.add(JSON.parseObject("{ op:'TDA', field:'datetime' }"));
         System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
 
         items.clear();
         // No padding
-        items.add(JSON.parseObject("{ op:'GT', field:'date', value:'2019-09-09' }"));
-        // Padding time
+        items.add(JSON.parseObject("{ op:'GT', field:'date1', value:'2019-09-09' }"));
+        // Padding time 23
         items.add(JSON.parseObject("{ op:'GT', field:'datetime', value:'2019-09-09' }"));
+        // Padding time 00
+        items.add(JSON.parseObject("{ op:'LT', field:'datetime', value:'2019-09-09' }"));
         // No padding
         items.add(JSON.parseObject("{ op:'GT', field:'datetime', value:'2019-09-09 12:12:54' }"));
+        System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+    }
+
+    @Test
+    void testDateFunc() {
+        JSONObject filterExp = new JSONObject();
+        filterExp.put("entity", TestAllFields);
+        JSONArray items = new JSONArray();
+        filterExp.put("items", items);
+
+        // 1 天前
+        items.add(JSON.parseObject("{ op:'BFD', field:'date1', value:'1' }"));
+        items.add(JSON.parseObject("{ op:'BFD', field:'datetime', value:'1' }"));
+        // 1 天后
+        items.add(JSON.parseObject("{ op:'AFD', field:'date1', value:'1' }"));
+        items.add(JSON.parseObject("{ op:'AFD', field:'datetime', value:'1' }"));
+        System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
+
+        items.clear();
+        // 最近 1 天
+        items.add(JSON.parseObject("{ op:'RED', field:'date1', value:'1' }"));
+        // 未来 1 天
+        items.add(JSON.parseObject("{ op:'FUD', field:'datetime', value:'1' }"));
         System.out.println(new AdvFilterParser(filterExp).toSqlWhere());
     }
 }

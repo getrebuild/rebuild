@@ -45,8 +45,8 @@ public class TaskTagController extends BaseController {
 
         for (Object o : array) {
             JSONObject item = (JSONObject) o;
-            ID tagId = ID.valueOf(item.getString("id"));
-            item.put("isManageable", ProjectHelper.isManageable(tagId, user));
+            item.put("isManageable",
+                    ProjectHelper.isManageable(ID.valueOf(item.getString("id")), user));
         }
         return array;
     }

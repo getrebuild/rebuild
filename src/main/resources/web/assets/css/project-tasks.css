@@ -40,6 +40,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
   margin-left: 3px;
 }
 
+.project-head .badge {
+  font-weight: normal;
+  border-radius: 99px;
+  color: #777;
+  padding: 0 8px;
+}
+
 .project-right .btn-group {
   margin-top: 7px;
   margin-right: 3px;

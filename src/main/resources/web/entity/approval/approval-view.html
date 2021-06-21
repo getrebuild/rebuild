@@ -34,7 +34,7 @@
         if (ph) $('.J_close').click(() => ph.hide())
         else $('.J_close').remove()
 
-        $.get('/app/entity/approval/flow-definition?id=' + window.__PageConfig.id, function (res) {
+        $.get(`/app/entity/approval/flow-definition?id=${window.__PageConfig.id}`, function (res) {
           ph && ph.hideLoading()
           if (res.error_code !== 0) {
             RbHighbar.error(res.error_msg)

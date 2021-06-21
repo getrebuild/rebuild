@@ -29,6 +29,8 @@ import javax.servlet.http.HttpServletResponse;
 @Controller
 public class ErrorPageView extends BaseController {
 
+    // Error Defined
+
     @GetMapping("/error/unsupported-browser")
     public ModelAndView pageUnsupportedBrowser() {
         ModelAndView mv = createModelAndView("/error/error");
@@ -37,6 +39,8 @@ public class ErrorPageView extends BaseController {
                 Language.L("不支持 IE10 及以下的浏览器 [] 推荐使用 Edge、Chrome、Firefox 或 IE11"));
         return mv;
     }
+
+    // -- Status
 
     @GetMapping("/error/server-status")
     public ModelAndView pageServerStatus(HttpServletRequest request) {

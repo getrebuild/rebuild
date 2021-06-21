@@ -736,11 +736,12 @@ class RbListPagination extends React.Component {
           <div className="float-right paging_sizes">
             <select className="form-control form-control-sm" title={$L('每页显示')} onChange={this.setPageSize} value={this.state.pageSize || 20}>
               {rb.env === 'dev' && <option value="5">5</option>}
-              <option value="20">{$L('%d 条', 20)}</option>
-              <option value="40">{$L('%d 条', 40)}</option>
-              <option value="80">{$L('%d 条', 80)}</option>
-              <option value="100">{$L('%d 条', 100)}</option>
-              <option value="200">{$L('%d 条', 200)}</option>
+              <option value="20">20</option>
+              <option value="40">40</option>
+              <option value="80">80</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
+              <option value="500">500</option>
             </select>
           </div>
           <div className="float-right dataTables_paginate paging_simple_numbers">

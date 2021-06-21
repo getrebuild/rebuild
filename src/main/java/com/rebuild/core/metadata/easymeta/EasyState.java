@@ -11,6 +11,7 @@ import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateHelper;
 import com.rebuild.core.support.state.StateSpec;
 
@@ -51,7 +52,8 @@ public class EasyState extends EasyField implements MixValue {
     @Override
     public Object unpackWrapValue(Object wrappedValue) {
         Class<?> stateClass = StateHelper.getSatetClass(getRawMeta());
-        return StateHelper.valueOf(stateClass, (Integer) wrappedValue).getName();
+        String rawName = StateHelper.valueOf(stateClass, (Integer) wrappedValue).getName();
+        return Language.L(rawName);
     }
 
     @Override

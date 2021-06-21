@@ -25,13 +25,6 @@ REBUILD 更侧重于业务需求实现，而非基础的技术框架或项目启
 5. [优化] 数据导入自动识别表头并映射
 6. ...
 
-1. 共享支持编辑权限（默认为只读）
-2. 审批流程审批人可以选择“发起人”与“审批人”
-3. 触发器-字段转写（自动更新）支持更加丰富的转写规则
-4. 高级查询支持“所属团队”条件
-5. 视图相关项列表支持搜索与排序
-6. ...
-
 更多新特性请移步 [CHANGLOG](https://getrebuild.com/docs/dev/changelog?v=2.4)
 
 ## 在线体验
@@ -94,4 +87,4 @@ REBUILD uses both open source ([GPL-3.0](LICENSE)) and [commercial](COMMERCIAL) 
 
 ## 购买商业版
 
-从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 REBUILD 对贵司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！
+从 2.0 版本开始，RB 将推出商业版增值功能计划。如果 REBUILD 对贵公司业务有帮助，可以考虑 [购买商业授权](https://getrebuild.com/#pricing-plans) 以支持 RB 的日常运营及发展。除了增值功能，还可以得到更好的技术支持服务。非常感谢！

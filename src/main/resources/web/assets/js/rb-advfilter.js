@@ -346,6 +346,9 @@ const OP_TYPE = {
   RED: $L('最近..天'),
   REM: $L('最近..月'),
   REY: $L('最近..年'),
+  FUD: $L('未来..天'),
+  FUM: $L('未来..月'),
+  FUY: $L('未来..年'),
   SFU: $L('本人'),
   SFB: $L('本部门'),
   SFD: $L('本部门及子部门'),
@@ -359,7 +362,7 @@ const OP_TYPE = {
   CUY: $L('本年'),
 }
 const OP_NOVALUE = ['NL', 'NT', 'SFU', 'SFB', 'SFD', 'YTA', 'TDA', 'TTA', 'CUW', 'CUM', 'CUQ', 'CUY']
-const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
+const OP_DATE_NOPICKER = ['TDA', 'YTA', 'TTA', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY']
 const PICKLIST_CACHE = {}
 const REFMETA_CACHE = {}
 const INPUTVALS_HOLD = {} // 输入值保持
@@ -416,7 +419,7 @@ class FilterItem extends React.Component {
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
+      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {

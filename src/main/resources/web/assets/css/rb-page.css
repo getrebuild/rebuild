@@ -4040,3 +4040,11 @@ body.fullscreen .rb-wrapper {
 body.fullscreen .rb-wrapper > .rb-content {
   margin-left: 0 !important;
 }
+
+.hover-opacity {
+  opacity: 1;
+}
+
+.hover-opacity:hover {
+  opacity: 0.8;
+}

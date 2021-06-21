@@ -29,8 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author devezhao zhaofang123@gmail.com
@@ -54,11 +52,15 @@ public class ApprovalController extends BaseController {
     }
 
     @GetMapping("state")
-    public Map<String, Object> getApprovalState(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
+    public RespBody getApprovalState(HttpServletRequest request, @IdParam(name = "record") ID recordId) {
+        if (!MetadataHelper.hasApprovalField(MetadataHelper.getEntity(recordId.getEntityCode()))) {
+            return RespBody.error("NOT AN APPROVAL ENTITY");
+        }
+
         final ID user = getRequestUser(request);
         final ApprovalStatus status = ApprovalHelper.getApprovalStatus(recordId);
 
-        Map<String, Object> data = new HashMap<>();
+        JSONObject data = new JSONObject();
 
         int stateVal = status.getCurrentState().getState();
         data.put("state", stateVal);
@@ -90,7 +92,7 @@ public class ApprovalController extends BaseController {
             }
         }
 
-        return data;
+        return RespBody.ok(data);
     }
 
     @GetMapping("fetch-nextstep")

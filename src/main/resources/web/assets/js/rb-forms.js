@@ -1295,7 +1295,7 @@ class RbFormReference extends RbFormElement {
     if (this.props.onView) return
 
     const $$$parent = this.props.$$$parent
-    $.post(`/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
+    $.get(`/app/entity/extras/fillin-value?entity=${$$$parent.props.entity}&field=${this.props.field}&source=${value}`, (res) => {
       res.error_code === 0 && res.data.length > 0 && $$$parent.setAutoFillin(res.data)
     })
   }

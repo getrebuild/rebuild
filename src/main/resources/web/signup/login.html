@@ -42,15 +42,32 @@
         z-index: 1;
         background: rgba(0, 0, 0, 0.1);
       }
-      .rb-content {
-        z-index: 2;
+      .o-platform a > i.zmdi {
+        background-color: #fc9a00;
+        color: #fff;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        line-height: 26px;
+        font-size: 1.2rem;
+        padding-left: 9px;
+      }
+      .o-platform a > span {
+        color: #666;
+        display: inline-block;
+        margin-left: 2px;
+      }
+      .o-platform .dropdown-menu {
+        min-width: 0;
+        width: 160px;
+        padding: 6px;
       }
     </style>
   </head>
   <body class="rb-splash-screen">
     <div class="rb-wrapper rb-login">
       <div class="rb-bgimg"></div>
-      <div class="rb-content">
+      <div class="rb-content" style="z-index: 2">
         <div class="announcement-wrapper">
           <div class="bg-danger" th:if="${UsersMsg != null}">
             <i class="icon zmdi zmdi-alert-octagon"></i>
@@ -92,17 +109,37 @@
                     <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
                     <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
                   </div>
-                  <div class="text-center mb-2">
-                    <a class="select-lang dropdown-toggle" data-toggle="dropdown"><i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span></a>
-                    <div class="dropdown-menu">
-                      <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="${'?locale=' + lang[0]}">[[${lang[1]}]]</a>
+                  <div class="row mb-2">
+                    <div class="col" th:if="${mobileQrUrl != null}">
+                      <div class="btn-group dropup o-platform">
+                        <a class="hover-opacity dropdown-toggle" data-toggle="dropdown">
+                          <i class="icon zmdi zmdi-smartphone-iphone"></i> <span class="up-1">[[${bundle.L('手机版')}]]</span>
+                        </a>
+                        <div class="dropdown-menu">
+                          <div>
+                            <img class="w-100" th:src="${mobileQrUrl}" alt="Mobile QR" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col text-right">
+                      <div class="btn-group">
+                        <a class="select-lang dropdown-toggle" data-toggle="dropdown">
+                          <i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                          <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="${'?locale=' + lang[0]}">[[${lang[1]}]]</a>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
             <div class="splash-footer">
-              <div class="copyright link">&copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" /></div>
+              <div class="copyright link">
+                &copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" />
+              </div>
             </div>
           </div>
         </div>
@@ -117,7 +154,12 @@
           return
         }
 
-        $('.vcode-row img').click(function () {
+        $('.o-platform .dropdown-toggle').on('mouseenter', function () {
+          $(this).trigger('click')
+          // $(this).dropdown('show')
+        })
+
+        $('.vcode-row img').on('click', function () {
           $(this).attr('src', 'captcha?' + $random())
         })
 
