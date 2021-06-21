@@ -24,10 +24,7 @@ public class RbvMissingController extends BaseController {
 
     @GetMapping({"/h5app/**"})
     public ModelAndView pageH5app() {
-        ModelAndView mv = createModelAndView("/error/error");
-        mv.getModelMap().put("error_code", 400);
-        mv.getModelMap().put("error_msg",
+        return ErrorPageView.createErrorPage(
                 Language.L("免费版不支持手机访问功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
-        return mv;
     }
 }
