@@ -44,7 +44,7 @@ public class UserHelperTest extends TestSupport {
     public void generateAvatar() throws Exception {
         for (int i = 0; i < 100; i++) {
             UserHelper.generateAvatar("你好", true);
-            System.out.println(ServerStatus.getHeapMemoryUsed()[1]);
+            System.out.println(ServerStatus.getJvmMemoryUsed()[1]);
         }
     }
 

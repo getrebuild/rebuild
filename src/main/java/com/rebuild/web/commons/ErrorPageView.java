@@ -57,7 +57,7 @@ public class ErrorPageView extends BaseController {
         ModelAndView mv = createModelAndView("/error/server-status");
         mv.getModel().put("ok", ServerStatus.isStatusOK() && Application.isReady());
         mv.getModel().put("status", ServerStatus.getLastStatus(realtime));
-        mv.getModel().put("MemoryUsage", ServerStatus.getHeapMemoryUsed());
+        mv.getModel().put("MemoryUsage", ServerStatus.getJvmMemoryUsed());
         mv.getModel().put("SystemLoad", ServerStatus.getSystemLoad());
         mv.getModelMap().put("isAdminVerified", AppUtils.isAdminVerified(request));
         return mv;
@@ -76,7 +76,7 @@ public class ErrorPageView extends BaseController {
         for (ServerStatus.Status item : ServerStatus.getLastStatus(realtime)) {
             status.put(item.name, item.success ? true : item.error);
         }
-        status.put("MemoryUsage", ServerStatus.getHeapMemoryUsed()[1]);
+        status.put("MemoryUsage", ServerStatus.getJvmMemoryUsed()[1]);
         status.put("SystemLoad", ServerStatus.getSystemLoad());
 
         ServletUtils.writeJson(response, s.toJSONString());
