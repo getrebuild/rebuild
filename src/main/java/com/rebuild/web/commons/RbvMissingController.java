@@ -18,7 +18,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author ZHAO
  * @since 2021/6/21
  */
-@ConditionalOnMissingClass("com.rebuild.rbv.Rbv")
+@ConditionalOnMissingClass("com.rebuild.Rbv")
 @Controller
 public class RbvMissingController extends BaseController {
 
