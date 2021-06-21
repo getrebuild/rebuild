@@ -44,19 +44,28 @@ public class ParseHelper {
     public static final String IN = "IN";
     public static final String NIN = "NIN";
     public static final String BW = "BW";
+    // 之前 ..
     public static final String BFD = "BFD";
     public static final String BFM = "BFM";
     public static final String BFY = "BFY";
+    // 之后 ..
     public static final String AFD = "AFD";
     public static final String AFM = "AFM";
     public static final String AFY = "AFY";
+    // 最近 ..
     public static final String RED = "RED";
     public static final String REM = "REM";
     public static final String REY = "REY";
+    // 未来 ..
+    public static final String FUD = "FUD";
+    public static final String FUM = "FUM";
+    public static final String FUY = "FUY";
+    // 部门/用户
     public static final String SFU = "SFU";
     public static final String SFB = "SFB";
     public static final String SFD = "SFD";
     public static final String SFT = "SFT";  // 所在团队
+
     public static final String YTA = "YTA";  // 昨天
     public static final String TDA = "TDA";  // 今天
     public static final String TTA = "TTA";  // 明天
@@ -131,6 +140,12 @@ public class ParseHelper {
             return ">";   // "$recent_month(%d)";
         } else if (REY.equalsIgnoreCase(token)) {
             return ">";   // "$recent_year(%d)";
+        }  else if (FUD.equalsIgnoreCase(token)) {
+            return ">=";   // "$future_day(%d)";
+        } else if (FUM.equalsIgnoreCase(token)) {
+            return ">=";   // "$future_month(%d)";
+        } else if (FUY.equalsIgnoreCase(token)) {
+            return ">=";   // "$future_year(%d)";
         } else if (SFU.equalsIgnoreCase(token)) {
             return "=";
         } else if (SFB.equalsIgnoreCase(token)) {

@@ -17,6 +17,7 @@ import cn.devezhao.persist4j.dialect.Type;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
@@ -36,7 +37,6 @@ import java.util.*;
 
 import static cn.devezhao.commons.CalendarUtils.addDay;
 import static cn.devezhao.commons.CalendarUtils.addMonth;
-import static cn.devezhao.commons.DateFormatUtils.getUTCDateFormat;
 
 /**
  * 高级查询解析器
@@ -120,10 +120,10 @@ public class AdvFilterParser extends SetUser {
                 indexItemSqls.put(index, itemSql.trim());
                 this.includeFields.add(item.getString("field"));
             }
+            if (Application.devMode()) log.info("Filter item : {} > {}", item, itemSql);
         }
-        if (indexItemSqls.isEmpty()) {
-            return null;
-        }
+
+        if (indexItemSqls.isEmpty()) return null;
 
         String equationHold = equation;
         if ((equation = validEquation(equation)) == null) {
@@ -225,31 +225,44 @@ public class AdvFilterParser extends SetUser {
 
         // 根据字段类型转换 `op`
 
+        final boolean isDatetime = dt == DisplayType.DATETIME;
+
         // 日期时间
-        if (dt == DisplayType.DATETIME || dt == DisplayType.DATE) {
-            if (ParseHelper.TDA.equalsIgnoreCase(op) || ParseHelper.YTA.equalsIgnoreCase(op)
+        if (isDatetime || dt == DisplayType.DATE) {
+
+            final boolean isREX = ParseHelper.RED.equalsIgnoreCase(op)
+                    || ParseHelper.REM.equalsIgnoreCase(op)
+                    || ParseHelper.REY.equalsIgnoreCase(op);
+
+            if (ParseHelper.TDA.equalsIgnoreCase(op)
+                    || ParseHelper.YTA.equalsIgnoreCase(op)
                     || ParseHelper.TTA.equalsIgnoreCase(op)) {
-                value = getUTCDateFormat().format(CalendarUtils.now());
+
                 if (ParseHelper.YTA.equalsIgnoreCase(op)) {
-                    value = getUTCDateFormat().format(addDay(-1));
+                    value = formatDate(addDay(-1), 0);
                 } else if (ParseHelper.TTA.equalsIgnoreCase(op)) {
-                    value = getUTCDateFormat().format(addDay(1));
+                    value = formatDate(addDay(1), 0);
+                } else {
+                    value = formatDate(CalendarUtils.now(), 0);
                 }
 
-                if (dt == DisplayType.DATETIME) {
+                if (isDatetime) {
                     op = ParseHelper.BW;
                     valueEnd = parseValue(value, op, fieldMeta, true);
                 }
 
-            } else if (ParseHelper.CUW.equalsIgnoreCase(op) || ParseHelper.CUM.equalsIgnoreCase(op)
-                    || ParseHelper.CUQ.equalsIgnoreCase(op) || ParseHelper.CUY.equalsIgnoreCase(op)) {
+            } else if (ParseHelper.CUW.equalsIgnoreCase(op)
+                    || ParseHelper.CUM.equalsIgnoreCase(op)
+                    || ParseHelper.CUQ.equalsIgnoreCase(op)
+                    || ParseHelper.CUY.equalsIgnoreCase(op)) {
+
                 Date begin = Moment.moment().startOf(op.substring(2)).date();
-                value = CalendarUtils.getUTCDateFormat().format(begin);
+                value = formatDate(begin, 0);
 
                 Date end = Moment.moment(begin).endOf(op.substring(2)).date();
-                valueEnd = CalendarUtils.getUTCDateFormat().format(end);
+                valueEnd = formatDate(end, 0);
 
-                if (dt == DisplayType.DATETIME) {
+                if (isDatetime) {
                     value += ParseHelper.ZERO_TIME;
                     valueEnd += ParseHelper.FULL_TIME;
                 }
@@ -257,8 +270,39 @@ public class AdvFilterParser extends SetUser {
 
             } else if (ParseHelper.EQ.equalsIgnoreCase(op)
                     && dt == DisplayType.DATETIME && StringUtils.length(value) == 10) {
+
                 op = ParseHelper.BW;
                 valueEnd = parseValue(value, op, fieldMeta, true);
+
+            } else if (isREX
+                    || ParseHelper.FUD.equalsIgnoreCase(op)
+                    || ParseHelper.FUM.equalsIgnoreCase(op)
+                    || ParseHelper.FUY.equalsIgnoreCase(op)) {
+
+                int xValue = NumberUtils.toInt(value) * (isREX ? -1 : 1);
+                Date date;
+                if (ParseHelper.REM.equalsIgnoreCase(op) || ParseHelper.FUM.equalsIgnoreCase(op)) {
+                    date = CalendarUtils.addMonth(xValue);
+                } else if (ParseHelper.REY.equalsIgnoreCase(op) || ParseHelper.FUY.equalsIgnoreCase(op)) {
+                    date = CalendarUtils.addMonth(xValue * 12);
+                } else {
+                    date = CalendarUtils.addDay(xValue);
+                }
+
+                if (isREX) {
+                    value = formatDate(date, 0);
+                    valueEnd = formatDate(CalendarUtils.now(), 0);
+                } else {
+                    value = formatDate(CalendarUtils.now(), 0);
+                    valueEnd = formatDate(date, 0);
+                }
+
+                if (isDatetime) {
+                    value += ParseHelper.ZERO_TIME;
+                    valueEnd += ParseHelper.FULL_TIME;
+                }
+                op = ParseHelper.BW;
+
             }
 
         } else if (dt == DisplayType.MULTISELECT) {
@@ -287,24 +331,20 @@ public class AdvFilterParser extends SetUser {
         // 自定义函数
 
         if (ParseHelper.BFD.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParseHelper.FULL_TIME;
+            value = formatDate(addDay(-NumberUtils.toInt(value)), isDatetime ? 1 : 0);
         } else if (ParseHelper.BFM.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParseHelper.FULL_TIME;
+            value = formatDate(addMonth(-NumberUtils.toInt(value)), isDatetime ? 1 : 0);
         } else if (ParseHelper.BFY.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value) * 12)) + ParseHelper.FULL_TIME;
+            value = formatDate(addMonth(-NumberUtils.toInt(value) * 12), isDatetime ? 1 : 0);
         } else if (ParseHelper.AFD.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addDay(NumberUtils.toInt(value))) + ParseHelper.ZERO_TIME;
+            value = formatDate(addDay(NumberUtils.toInt(value)), isDatetime ? 2 : 0);
         } else if (ParseHelper.AFM.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value))) + ParseHelper.ZERO_TIME;
+            value = formatDate(addMonth(NumberUtils.toInt(value)), isDatetime ? 2 : 0);
         } else if (ParseHelper.AFY.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addMonth(NumberUtils.toInt(value) * 12)) + ParseHelper.ZERO_TIME;
-        } else if (ParseHelper.RED.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addDay(-NumberUtils.toInt(value))) + ParseHelper.FULL_TIME;
-        } else if (ParseHelper.REM.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value))) + ParseHelper.FULL_TIME;
-        } else if (ParseHelper.REY.equalsIgnoreCase(op)) {
-            value = getUTCDateFormat().format(addMonth(-NumberUtils.toInt(value) * 12)) + ParseHelper.FULL_TIME;
-        } else if (ParseHelper.SFU.equalsIgnoreCase(op)) {
+            value = formatDate(addMonth(NumberUtils.toInt(value) * 12), isDatetime ? 2 : 0);
+        }
+        // 部门/用户
+        else if (ParseHelper.SFU.equalsIgnoreCase(op)) {
             value = getUser().toLiteral();
         } else if (ParseHelper.SFB.equalsIgnoreCase(op)) {
             Department dept = UserHelper.getDepartment(getUser());
@@ -390,10 +430,10 @@ public class AdvFilterParser extends SetUser {
      * @param val
      * @param op
      * @param field
-     * @param endVal 仅对日期时间有意义
+     * @param fullTime 仅对日期时间有意义
      * @return
      */
-    private String parseValue(Object val, String op, Field field, boolean endVal) {
+    private String parseValue(Object val, String op, Field field, boolean fullTime) {
         String value;
         // IN
         if (val instanceof JSONArray) {
@@ -420,7 +460,7 @@ public class AdvFilterParser extends SetUser {
                 } else if (ParseHelper.LE.equalsIgnoreCase(op)) {
                     value += ParseHelper.FULL_TIME;  // 含当日
                 } else if (ParseHelper.BW.equalsIgnoreCase(op)) {
-                    value += (endVal ? ParseHelper.FULL_TIME : ParseHelper.ZERO_TIME);  // 含当日
+                    value += (fullTime ? ParseHelper.FULL_TIME : ParseHelper.ZERO_TIME);  // 含当日
                 }
             }
 
@@ -469,6 +509,18 @@ public class AdvFilterParser extends SetUser {
     private boolean isNumberType(Type type) {
         return type == FieldType.INT || type == FieldType.SMALL_INT || type == FieldType.LONG
                 || type == FieldType.DOUBLE || type == FieldType.DECIMAL;
+    }
+
+    /**
+     * @param date
+     * @param paddingType 0=无, 1=FULLTIME, 2=ZEROTIME
+     * @return
+     */
+    private String formatDate(Date date, int paddingType) {
+        String s = CalendarUtils.getUTCDateFormat().format(date);
+        if (paddingType == 1) s += ParseHelper.FULL_TIME;
+        else if (paddingType == 2) s += ParseHelper.ZERO_TIME;
+        return s;
     }
 
     /**
