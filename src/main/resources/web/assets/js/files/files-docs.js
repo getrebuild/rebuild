@@ -10,14 +10,19 @@ See LICENSE and COMMERCIAL in the project root for license information.
 const __DEFAULT_ALL = 'ALL'
 
 let __FolderData = []
-let filesNav
 let currentFolder
 
 // 目录树
 const FolderTree = {
+  _filesNav: null,
   load: function () {
     $.get('/files/tree-folder', (res) => {
       __FolderData = [{ id: __DEFAULT_ALL, text: $L('全部') }, ...res.data]
+
+      if (FolderTree._filesNav) {
+        ReactDOM.unmountComponentAtNode(document.getElementById('navTree'))
+        FolderTree._filesNav = null
+      }
 
       renderRbcomp(
         <AsideTree
@@ -50,7 +55,7 @@ const FolderTree = {
         />,
         'navTree',
         function () {
-          filesNav = this
+          FolderTree._filesNav = this
         }
       )
     })
@@ -395,7 +400,7 @@ $(document).ready(() => {
     filesList = this
   })
 
-  $('.J_add-folder').click(() => renderRbcomp(<FolderEditDlg call={() => filesNav && filesNav.loadData()} />))
+  $('.J_add-folder').click(() => renderRbcomp(<FolderEditDlg call={() => FolderTree.load()} />))
   $('.J_upload-file').click(() => renderRbcomp(<FileUploadDlg call={() => filesList && filesList.loadData()} inFolder={currentFolder} />))
 
   $('.J_delete').click(() => {
