@@ -120,9 +120,7 @@ class RbList extends React.Component {
             </div>
           </div>
         </div>
-        {this.state.rowsData.length > 0 && (
-          <RbListPagination ref={(c) => (this._pagination = c)} rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />
-        )}
+        {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>
     )
@@ -227,7 +225,7 @@ class RbList extends React.Component {
         })
 
         if (res.data.total > 0) {
-          this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
+          this._pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
         }
       } else {
         RbHighbar.error(res.error_msg)
@@ -712,11 +710,9 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
 class RbListPagination extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props }
-
-    this.state.pageNo = this.state.pageNo || 1
-    this.state.pageSize = this.state.pageSize || 20
-    this.state.rowsTotal = this.state.rowsTotal || 0
+    this.state = { ...props, pageNo: props.pageNo || 1, pageSize: props.pageSize || 20, rowsTotal: props.rowsTotal || 0 }
+    // via List
+    this._entity = this.props.$$$parent.props.config.entity
   }
 
   render() {
@@ -726,13 +722,12 @@ class RbListPagination extends React.Component {
 
     return (
       <div className="row rb-datatable-footer">
-        <div className="col-12 col-md-4">
+        <div className="col-12 col-md-6">
           <div className="dataTables_info" key="page-rowsTotal">
-            {this.state.selectedTotal > 0 && <span className="mr-2">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
-            {this.state.rowsTotal > 0 && <span>{$L('共 %d 条数据', this.state.rowsTotal)}</span>}
+            {this._renderStats()}
           </div>
         </div>
-        <div className="col-12 col-md-8">
+        <div className="col-12 col-md-6">
           <div className="float-right paging_sizes">
             <select className="form-control form-control-sm" title={$L('每页显示')} onChange={this.setPageSize} value={this.state.pageSize || 20}>
               {rb.env === 'dev' && <option value="5">5</option>}
@@ -780,6 +775,27 @@ class RbListPagination extends React.Component {
           </div>
           <div className="clearfix" />
         </div>
+      </div>
+    )
+  }
+
+  _renderStats() {
+    return (
+      <div className="dataTables_info-inner">
+        {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
+        {this.state.rowsTotal > 0 && <span>{$L('共 %d 条数据', this.state.rowsTotal)}</span>}
+        {(this.state.rowsStats || []).map((item, idx) => {
+          return (
+            <span key={idx} className="stat-item">
+              {item.label} <strong>{item.value} </strong>
+            </span>
+          )
+        })}
+        {rb.isAdminUser && (
+          <a className="list-stats-settings" onClick={() => RbModal.create(`/p/admin/metadata/list-stats?entity=${this._entity}`, $L('配置统计字段'))}>
+            <i className="icon zmdi zmdi-settings" title={$L('配置统计字段')} />
+          </a>
+        )}
       </div>
     )
   }

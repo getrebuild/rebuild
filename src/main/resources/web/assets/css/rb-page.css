@@ -1543,6 +1543,51 @@ th.column-fixed {
   display: block;
 }
 
+.rb-datatable-footer .dataTables_info {
+  height: 36px;
+  max-height: 36px;
+  overflow: hidden;
+  padding-top: 0 !important;
+  white-space: normal !important;
+}
+
+.rb-datatable-footer .dataTables_info > .dataTables_info-inner {
+  display: table;
+  height: 36px;
+}
+
+.rb-datatable-footer .dataTables_info > .dataTables_info-inner > span {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.dataTables_info .list-stats-settings {
+  padding: 9px 8px;
+  font-size: 15px;
+  opacity: 0.6;
+  display: none;
+  position: absolute;
+  top: 0;
+  margin-left: 6px;
+  margin-top: -2px;
+  z-index: 1;
+}
+
+.dataTables_info .list-stats-settings:hover {
+  opacity: 1;
+}
+
+.rb-datatable-footer:hover .list-stats-settings {
+  display: inline-block;
+}
+
+.dataTables_info .stat-item::before {
+  content: '·';
+  color: #777;
+  font-weight: bold;
+  margin: 0 5px;
+}
+
 /* DataList ends */
 
 .unselect {

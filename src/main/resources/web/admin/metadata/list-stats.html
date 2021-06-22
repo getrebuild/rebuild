@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('统计字段')}]]</title>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chart-design.css}" />
+    <style>
+      .axis-target .item::before {
+        border-color: #fff;
+      }
+      .set-fields a.item {
+        background-color: #eee;
+        padding: 4px 8px;
+        cursor: pointer;
+      }
+      .set-fields a.item:hover {
+        background-color: #4285f4;
+        color: #fff;
+      }
+      .set-items .item > span {
+        margin: 0 4px;
+      }
+    </style>
+  </head>
+  <body class="dialog">
+    <div class="main-content">
+      <div class="p-3">
+        <h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
+        <div class="axis-target set-items">
+          <span class="text-muted">[[${bundle.L('无')}]]</span>
+        </div>
+        <h5 class="text-bold">[[${bundle.L('可添加')}]]</h5>
+        <div class="axis-target set-fields">
+          <span class="text-muted">[[${bundle.L('无可用字段')}]]</span>
+        </div>
+      </div>
+      <div class="dialog-footer">
+        <button class="btn btn-primary J_save" type="button">[[${bundle.L('保存')}]]</button>
+        <button class="btn btn-secondary" onclick="parent.RbModal.hide()" type="button">[[${bundle.L('取消')}]]</button>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/metadata/list-stats.js}" type="text/babel"></script>
+  </body>
+</html>
