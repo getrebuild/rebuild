@@ -74,18 +74,19 @@ public class CheckDangers {
      * @return
      */
     public static Collection<String> getAdminDanger() {
-        LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
+        LinkedHashMap<String, String> dangers =
+                (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
+        if (dangers != null) {
+            dangers = (LinkedHashMap<String, String>) dangers.clone();
+        }
 
         if (License.isCommercial() && !License.isRbvAttached()) {
             if (dangers == null) dangers = new LinkedHashMap<>();
             dangers.put(CommercialNoRbv, Language.L("系统检测到增值功能包未安装，相关增值功能可能无法使用。请联系 REBUILD 服务人员获取"));
         }
 
-        if (dangers == null || dangers.isEmpty()) {
-            return null;
-        }
+        if (dangers == null || dangers.isEmpty())  return null;
 
-        dangers = (LinkedHashMap<String, String>) dangers.clone();
         dangers.remove(UsersMsg);
 
         String hasUpdate = dangers.get(HasUpdate);
@@ -103,10 +104,9 @@ public class CheckDangers {
      * @return
      */
     public static String getUsersDanger() {
-        LinkedHashMap<String, String> dangers = (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
-        if (dangers == null || dangers.isEmpty()) {
-            return null;
-        }
+        LinkedHashMap<String, String> dangers =
+                (LinkedHashMap<String, String>) Application.getCommonsCache().getx(CKEY_DANGERS);
+        if (dangers == null || dangers.isEmpty()) return null;
         return dangers.get(UsersMsg);
     }
 }
