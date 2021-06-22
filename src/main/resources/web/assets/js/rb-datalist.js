@@ -740,7 +740,7 @@ class RbListPagination extends React.Component {
             </select>
           </div>
           <div className="float-right dataTables_paginate paging_simple_numbers">
-            <ul className="pagination">
+            <ul className="pagination mb-0">
               {this.state.pageNo > 1 && (
                 <li className="paginate_button page-item">
                   <a className="page-link" onClick={() => this.prev()}>
@@ -781,13 +781,13 @@ class RbListPagination extends React.Component {
 
   _renderStats() {
     return (
-      <div className="dataTables_info-inner">
+      <div>
         {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
         {this.state.rowsTotal > 0 && <span>{$L('共 %d 条数据', this.state.rowsTotal)}</span>}
         {(this.state.rowsStats || []).map((item, idx) => {
           return (
             <span key={idx} className="stat-item">
-              {item.label} <strong>{item.value} </strong>
+              {item.label} <strong className="text-warning">{item.value} </strong>
             </span>
           )
         })}

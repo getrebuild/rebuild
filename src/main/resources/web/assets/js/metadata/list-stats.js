@@ -32,6 +32,15 @@ $(document).ready(function () {
     parent.RbModal.resize()
   })
 
+  // // 字段排序 FIXME 拖动布局错乱
+  // $('.set-items')
+  //   .sortable({
+  //     containment: 'parent',
+  //     cursor: 'move',
+  //     opacity: 0.8,
+  //   })
+  //   .disableSelection()
+
   const $btn = $('.J_save').on('click', () => {
     const config = { items: [] }
     $('.set-items > span').each(function () {
@@ -57,6 +66,13 @@ const CALC_TYPES = {
 }
 
 const render_set = function (item) {
+  const len = $('.set-items > span').length
+  if (len >= 3) $('.J_tips').removeClass('hide')
+  if (len >= 9) {
+    RbHighbar.create($L('最多可添加 9 项'))
+    return
+  }
+
   const $to = $('.set-items')
   $to.find('>span.text-muted').remove()
 
@@ -66,7 +82,10 @@ const render_set = function (item) {
   const $a = $(
     `<div class="item" data-toggle="dropdown"><a><i class="zmdi zmdi-chevron-down"></i></a><span>${item.label} (${CALC_TYPES[calc]})</span><a class="del"><i class="zmdi zmdi-close-circle"></i></a></div>`
   ).appendTo($item)
-  $a.find('a.del').on('click', () => $item.remove())
+  $a.find('a.del').on('click', () => {
+    $item.remove()
+    parent.RbModal.resize()
+  })
 
   const $ul = $('<ul class="dropdown-menu"></div>').appendTo($item)
   for (let k in CALC_TYPES) {

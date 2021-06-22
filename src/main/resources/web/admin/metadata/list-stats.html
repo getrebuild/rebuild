@@ -5,6 +5,11 @@
     <title>[[${bundle.L('统计字段')}]]</title>
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/chart-design.css}" />
     <style>
+      .axis-target > span {
+        display: inline-block;
+        margin-right: 4px;
+        margin-bottom: 4px;
+      }
       .axis-target .item::before {
         border-color: #fff;
       }
@@ -25,6 +30,14 @@
   <body class="dialog">
     <div class="main-content">
       <div class="p-3">
+        <div class="alert alert-warning alert-icon alert-icon-border alert-dismissible alert-sm hide J_tips">
+          <div class="icon"><span class="zmdi zmdi-info-outline"></span></div>
+          <div class="message">
+            <a class="close" data-dismiss="alert"><span class="zmdi zmdi-close"></span></a>
+            <p>[[${bundle.L('添加过多的统计字段可能会影响列表加载速度')}]]</p>
+          </div>
+        </div>
+
         <h5 class="mt-0 text-bold">[[${bundle.L('已添加')}]]</h5>
         <div class="axis-target set-items">
           <span class="text-muted">[[${bundle.L('无')}]]</span>

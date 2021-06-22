@@ -1544,33 +1544,28 @@ th.column-fixed {
 }
 
 .rb-datatable-footer .dataTables_info {
-  height: 36px;
-  max-height: 36px;
+  height: 38px;
   overflow: hidden;
   padding-top: 0 !important;
   white-space: normal !important;
+  display: flex;
+  align-items: center;
 }
 
-.rb-datatable-footer .dataTables_info > .dataTables_info-inner {
-  display: table;
-  height: 36px;
-}
-
-.rb-datatable-footer .dataTables_info > .dataTables_info-inner > span {
-  display: table-cell;
-  vertical-align: middle;
+.rb-datatable-footer .dataTables_info > div > span {
+  display: inline-block;
+  line-height: 18px;
 }
 
 .dataTables_info .list-stats-settings {
+  opacity: 0.6;
   padding: 9px 8px;
   font-size: 15px;
-  opacity: 0.6;
-  display: none;
   position: absolute;
-  top: 0;
-  margin-left: 6px;
-  margin-top: -2px;
+  right: 0;
+  top: -2px;
   z-index: 1;
+  display: none;
 }
 
 .dataTables_info .list-stats-settings:hover {
@@ -1578,7 +1573,7 @@ th.column-fixed {
 }
 
 .rb-datatable-footer:hover .list-stats-settings {
-  display: inline-block;
+  display: block;
 }
 
 .dataTables_info .stat-item::before {
