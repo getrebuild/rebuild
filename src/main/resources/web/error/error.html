@@ -58,7 +58,7 @@
             // Check#1
             parent.RbViewModal.currentHolder().hideLoading()
             // Check#2
-            const stack = parent.RbViewModal.__HOLDERsStack
+            var stack = parent.RbViewModal.__HOLDERsStack
             stack[stack.length - 1].hideLoading()
           } catch (ignore) {}
         }

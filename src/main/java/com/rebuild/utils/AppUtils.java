@@ -209,4 +209,16 @@ public class AppUtils {
         }
         return null;
     }
+
+    /**
+     * 是否 IE11（加载 polyfill）
+     *
+     * @param request
+     * @return
+     */
+    public static boolean isIE11(HttpServletRequest request) {
+        // eg: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
+        String ua = request.getHeader("user-agent");
+        return ua != null && ua.contains("Trident/") && ua.contains("rv:11.");
+    }
 }
