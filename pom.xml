@@ -71,8 +71,7 @@
                     <workingDirectory>.deploy</workingDirectory>
                 </configuration>
             </plugin>
-            <!-- USE RB COMMERCIAL MODULES -->
-            <!--
+            <!-- USE COMMERCIAL MODULES IF EXISTS -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -132,7 +131,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
             <!-- Codecov : `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
