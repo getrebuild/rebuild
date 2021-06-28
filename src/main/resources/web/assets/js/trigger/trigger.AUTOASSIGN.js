@@ -21,6 +21,7 @@ class ContentAutoAssign extends ActionContentSpec {
               <UserSelectorWithField ref={(c) => (this._assignTo = c)} />
             </div>
           </div>
+
           <div className="form-group row pb-1">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('(多人) 分派规则')}</label>
             <div className="col-12 col-lg-8 pt-1" ref={(c) => (this._assignRule = c)}>
@@ -34,6 +35,7 @@ class ContentAutoAssign extends ActionContentSpec {
               </label>
             </div>
           </div>
+
           <div className="form-group row pb-1">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时分派关联记录')}</label>
             <div className="col-12 col-lg-8">

@@ -15,7 +15,7 @@ const CALC_MODES = {
   FORMULA: $L('计算公式'),
 }
 
-// ~~ 数据聚合
+// ~~ 字段聚合
 // eslint-disable-next-line no-undef
 class ContentFieldAggregation extends ActionContentSpec {
   constructor(props) {
@@ -45,12 +45,13 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
-                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
+                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
                   {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)')}
                 </div>
               )}
             </div>
           </div>
+
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合规则')}</label>
             <div className="col-md-12 col-lg-9">
@@ -64,7 +65,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                             <span className="badge badge-warning">{_getFieldLabel(item.targetField, this.state.targetFields)}</span>
                           </div>
                           <div className="col-2">
-                            <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                            <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                             <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
@@ -72,7 +73,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                               {item.calcMode === 'FORMULA' ? this.textFormula(item.sourceFormula) : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
-                              <span className="zmdi zmdi-close"></span>
+                              <i className="zmdi zmdi-close" />
                             </a>
                           </div>
                         </div>
@@ -94,7 +95,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                   <p>{$L('目标字段')}</p>
                 </div>
                 <div className="col-2 pr-0">
-                  <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                  <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                   <select className="form-control form-control-sm" ref={(c) => (this._$calcMode = c)}>
                     {Object.keys(CALC_MODES).map((item) => {
                       return (
@@ -112,7 +113,8 @@ class ContentFieldAggregation extends ActionContentSpec {
                       className="form-control-plaintext formula"
                       _title={$L('计算公式')}
                       ref={(c) => (this._$formula = c)}
-                      onClick={() => this.showFormula()}></div>
+                      onClick={() => this.showFormula()}
+                    />
                     <p>{$L('计算公式')}</p>
                   </div>
                   <div className={this.state.calcMode === 'FORMULA' ? 'hide' : ''}>
@@ -125,7 +127,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('源字段')}</p>
+                    <p>{$L('聚合字段')}</p>
                   </div>
                 </div>
               </div>
@@ -136,8 +138,9 @@ class ContentFieldAggregation extends ActionContentSpec {
               </div>
             </div>
           </div>
+
           <div className="form-group row pb-0">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
+            <label className="col-md-12 col-lg-3 col-form-label" />
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
@@ -148,6 +151,7 @@ class ContentFieldAggregation extends ActionContentSpec {
               </label>
             </div>
           </div>
+
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合数据条件')}</label>
             <div className="col-md-12 col-lg-9">

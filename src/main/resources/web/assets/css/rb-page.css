@@ -1562,7 +1562,6 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  right: 0;
   top: -2px;
   z-index: 1;
   display: none;
@@ -1573,12 +1572,12 @@ th.column-fixed {
 }
 
 .rb-datatable-footer:hover .list-stats-settings {
-  display: block;
+  display: inline-block;
 }
 
 .dataTables_info .stat-item::before {
   content: '·';
-  color: #777;
+  color: #999;
   font-weight: bold;
   margin: 0 5px;
 }
