@@ -118,14 +118,14 @@
                         <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('变更历史保留时间')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'RevisionHistoryKeepingDays' : ''}" th:data-value="${RevisionHistoryKeepingDays}">
+                        <td>[[${bundle.L('变更历史保留时间')}]]</td>
+                        <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">
                           [[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('回收站保留时间')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'RecycleBinKeepingDays' : ''}" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
+                        <td>[[${bundle.L('回收站保留时间')}]]</td>
+                        <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                     </tbody>
                   </table>

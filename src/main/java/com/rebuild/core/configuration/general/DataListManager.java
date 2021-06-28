@@ -19,10 +19,10 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.service.dashboard.ChartManager;
 import com.rebuild.utils.JSONUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,9 +35,8 @@ import java.util.Map;
  * @see com.rebuild.core.support.general.DataListBuilder
  * @since 08/30/2018
  */
+@Slf4j
 public class DataListManager extends BaseLayoutManager {
-
-    private static final Logger LOG = LoggerFactory.getLogger(DataListManager.class);
 
     public static final DataListManager instance = new DataListManager();
 
@@ -94,7 +93,7 @@ public class DataListManager extends BaseLayoutManager {
                 String field = item.getString("field");
                 Field lastField = MetadataHelper.getLastJoinField(entityMeta, field);
                 if (lastField == null) {
-                    LOG.warn("Unknown field '" + field + "' in '" + entity + "'");
+                    log.warn("Unknown field '" + field + "' in '" + entity + "'");
                     continue;
                 }
 
@@ -165,5 +164,42 @@ public class DataListManager extends BaseLayoutManager {
             array.add((ID) c[0]);
         }
         return array.toArray(new ID[0]);
+    }
+
+    // --
+
+    /**
+     * 列表-SIDE图表
+     *
+     * @param user
+     * @param entity
+     * @return
+     */
+    public ConfigBean getWidgetCharts(ID user, String entity) {
+        ConfigBean e = getLayout(user, entity, TYPE_WCHARTS);
+        if (e == null) {
+            return null;
+        }
+
+        // 补充图表信息
+        JSONArray charts = (JSONArray) e.getJSON("config");
+        ChartManager.instance.richingCharts(charts, null);
+        return e.set("config", charts)
+                .set("shareTo", null);
+    }
+
+    /**
+     * 列表-统计字段
+     *
+     * @param user
+     * @param entity
+     * @return
+     */
+    public ConfigBean getListStatsField(ID user, String entity) {
+        ConfigBean e = getLayout(user, entity, TYPE_LISTSTATS);
+        if (e == null) {
+            return null;
+        }
+        return e.clone();
     }
 }

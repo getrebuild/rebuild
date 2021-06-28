@@ -239,8 +239,14 @@ public class LoginController extends BaseController {
         String UA = request.getHeader("user-agent");
         UserAgent uas = UserAgent.parseUserAgentString(UA);
         try {
-            UA = String.format("%s-%s (%s)",
-                    uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
+            String browserVersion = uas.getBrowserVersion() == null ? null : uas.getBrowserVersion().getMajorVersion();
+            if (StringUtils.isNotBlank(browserVersion)) browserVersion = "-" + browserVersion;
+
+            UA = String.format("%s%s (%s)",
+                    org.apache.commons.lang.ObjectUtils.defaultIfNull(uas.getBrowser(), "N"),
+                    org.apache.commons.lang.ObjectUtils.defaultIfNull(browserVersion, ""),
+                    org.apache.commons.lang.ObjectUtils.defaultIfNull(uas.getOperatingSystem(), "N"));
+
         } catch (Exception ex) {
             log.warn("Unknown user-agent : " + UA);
             UA = "UNKNOW";
