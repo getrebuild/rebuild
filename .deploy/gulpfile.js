@@ -17,12 +17,12 @@ const revHash = require('rev-hash')
 const replace = require('gulp-replace')
 const filter = require('gulp-filter')
 
-const jsObfuscator = require('gulp-javascript-obfuscator')
+// const jsObfuscator = require('gulp-javascript-obfuscator')
 
 const BABEL_OPTIONS = {
   presets: ['@babel/preset-env', '@babel/preset-react'],
   plugins: ['@babel/plugin-proposal-class-properties'],
-  minified: false,
+  minified: true,
 }
 
 const WEB_ROOT = '../src/main/resources/web'
@@ -30,15 +30,17 @@ const RBV_ROOT = '../@rbv/main/resources/web'
 const OUT_ROOT = '../target/classes/web'
 
 function compileJs(m) {
-  return src(`${m || WEB_ROOT}/assets/js/**/*.js`)
-    .pipe(babel(BABEL_OPTIONS))
-    .pipe(jsObfuscator({ compact: true }))
-    .pipe(
-      debug({
-        title: 'Compiled .js : ',
-      })
-    )
-    .pipe(dest(`${OUT_ROOT}/assets/js`))
+  return (
+    src(`${m || WEB_ROOT}/assets/js/**/*.js`)
+      .pipe(babel(BABEL_OPTIONS))
+      // .pipe(jsObfuscator({ compact: true }))
+      .pipe(
+        debug({
+          title: 'Compiled .js : ',
+        })
+      )
+      .pipe(dest(`${OUT_ROOT}/assets/js`))
+  )
 }
 
 function compileCss(m) {
@@ -63,7 +65,8 @@ function _useAssetsHex(file) {
       try {
         hex = revHash(fs.readFileSync(`${RBV_ROOT}${file}`))
       } catch (err) {
-        console.log('Cannot #revHash :', file, err)
+        if (file.includes('frontjs-sdk.js')) console.log('No `@rbv` exists :', file)
+        else console.log('Cannot #revHash :', file, err)
 
         // Use date
         const d = new Date()
@@ -91,7 +94,7 @@ function compileHtml(m) {
       replace(/<script th:src="@\{(.*)\}"><\/script>/gi, (m, p) => {
         let file = p
         if (file.includes('/lib/') || file.includes('/use-')) {
-          console.log('Use lib :', file)
+          console.log('Using lib :', file)
           if (file.includes('/babel')) return '<!-- No Babel -->'
           if (file.includes('.development.js')) file = file.replace('.development.js', '.production.min.js')
           return '<script th:src="@{' + file + '}"></script>'
@@ -112,7 +115,7 @@ function compileHtml(m) {
       replace(/<link rel="stylesheet" type="text\/css" th:href="@\{(.*)\}" \/>/gi, (m, p) => {
         let file = p
         if (file.includes('/lib/') || file.includes('use-')) {
-          console.log('Use lib :', file)
+          console.log('Using lib :', file)
           return '<link rel="stylesheet" type="text/css" th:href="@{' + file + '}" />'
         } else {
           file += '?v=' + _useAssetsHex(file.split('?')[0], m)

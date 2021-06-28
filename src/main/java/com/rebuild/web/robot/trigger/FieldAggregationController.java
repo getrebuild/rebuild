@@ -16,6 +16,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
+import com.rebuild.core.service.trigger.impl.FieldWriteback;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -38,6 +39,9 @@ import java.util.Locale;
 @RequestMapping("/admin/robot/trigger/")
 public class FieldAggregationController extends BaseController {
 
+    /**
+     * @see FieldWritebackController#getTargetEntities(Entity)
+     */
     @RequestMapping("field-aggregation-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         List<String[]> entities = new ArrayList<>();
@@ -53,6 +57,10 @@ public class FieldAggregationController extends BaseController {
 
         Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
         entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
+
+        // 可更新自己（通过主键字段）
+        entities.add(new String[] {
+                sourceEntity.getName(), EasyMetaFactory.getLabel(sourceEntity), FieldWriteback.SOURCE_SELF });
 
         return entities;
     }
