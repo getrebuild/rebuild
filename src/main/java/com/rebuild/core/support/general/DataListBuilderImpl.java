@@ -9,14 +9,26 @@ package com.rebuild.core.support.general;
 
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.Entity;
+import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Query;
+import cn.devezhao.persist4j.dialect.FieldType;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.dashboard.charts.ChartsHelper;
+import com.rebuild.core.service.dashboard.charts.FormatCalc;
+import com.rebuild.core.support.i18n.Language;
+import com.rebuild.utils.JSONUtils;
+import org.apache.commons.lang.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 数据列表数据构建
@@ -65,16 +77,45 @@ public class DataListBuilderImpl implements DataListBuilder {
     @Override
     public JSON getJSONResult() {
         int totalRows = 0;
+        List<JSON> stats = null;
         if (queryParser.isNeedReload()) {
             Object[] count = Application.createQuery(queryParser.toCountSql(), user).unique();
             totalRows = ObjectUtils.toInt(count[0]);
+
+            // 统计字段
+            if (count.length > 1) {
+                stats = new ArrayList<>();
+                List<Map<String, Object>> countFields = queryParser.getCountFields();
+                for (int i = 1; i < count.length; i++) {
+                    Map<String, Object> cfg = countFields.get(i);
+                    Field field = entity.getField((String) cfg.get("field"));
+                    String label = (String) cfg.get("label");
+                    if (StringUtils.isBlank(label)) {
+                        String calc = (String) cfg.get("calc");
+                        label = String.format("%s (%s)", Language.L(field), FormatCalc.valueOf(calc).getLabel());
+                    }
+
+                    Object value = count[i];
+                    if (ChartsHelper.isZero(value)) {
+                        value = ChartsHelper.VALUE_ZERO;
+                    } else if (field.getType() == FieldType.LONG) {
+                        value = ObjectUtils.toLong(value);
+                    } else {
+                        value = EasyMetaFactory.valueOf(field).wrapValue(value);
+                    }
+
+                    stats.add(JSONUtils.toJSONObject(new String[] { "label", "value" }, new Object[] {label,value} ));
+                }
+            }
         }
 
         Query query = Application.createQuery(queryParser.toSql(), user);
         int[] limits = queryParser.getSqlLimit();
         Object[][] data = query.setLimit(limits[0], limits[1]).array();
 
-        return createDataListWrapper(totalRows, data, query).toJson();
+        JSONObject listdata = (JSONObject) createDataListWrapper(totalRows, data, query).toJson();
+        if (stats != null) listdata.put("stats", stats);
+        return listdata;
     }
 
     /**

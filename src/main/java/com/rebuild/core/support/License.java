@@ -135,7 +135,7 @@ public final class License {
             String result = HttpUtils.get(apiUrl);
             if (JSONUtils.wellFormat(result)) {
                 JSONObject o = JSON.parseObject(result);
-                Application.getCommonsCache().putx(api, o, CommonsCache.TS_DAY);
+                Application.getCommonsCache().putx(api, o, CommonsCache.TS_DAY / 2);
                 return o;
             }
         } catch (Exception ex) {

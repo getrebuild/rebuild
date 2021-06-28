@@ -13,8 +13,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
+import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.query.AdvFilterParser;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -37,6 +39,7 @@ public class QueryParser {
 
     private String sql;
     private String countSql;
+    private List<Map<String, Object>> countFields;
     private int[] limit;
     private boolean reload;
 
@@ -119,6 +122,14 @@ public class QueryParser {
     protected Map<String, Integer> getQueryJoinFields() {
         doParseIfNeed();
         return queryJoinFields;
+    }
+
+    /**
+     * @return
+     */
+    protected List<Map<String, Object>> getCountFields() {
+        doParseIfNeed();
+        return countFields;
     }
 
     /**
@@ -215,10 +226,7 @@ public class QueryParser {
         }
 
         this.sql = fullSql.toString();
-        this.countSql = "select " +
-                "count(" + pkName + ')' +
-                " from " + entity.getName() +
-                " where " + sqlWhere;
+        this.countSql = this.buildCountSql(pkName) + sqlWhere;
 
         int pageNo = NumberUtils.toInt(queryExpr.getString("pageNo"), 1);
         int pageSize = NumberUtils.toInt(queryExpr.getString("pageSize"), 20);
@@ -250,5 +258,33 @@ public class QueryParser {
             return new AdvFilterParser(entity, filterExp).toSqlWhere();
         }
         return null;
+    }
+
+    /**
+     * @param pkName
+     * @return
+     */
+    private String buildCountSql(String pkName) {
+        List<String> counts = new ArrayList<>();
+        counts.add(String.format("count(%s)", pkName));
+
+        countFields = new ArrayList<>();
+        countFields.add(Collections.emptyMap());
+
+        ConfigBean cb = DataListManager.instance.getListStatsField(UserService.SYSTEM_USER, entity.getName());
+        if (cb != null && cb.getJSON("config") != null) {
+            JSONArray items = ((JSONObject) cb.getJSON("config")).getJSONArray("items");
+            for (Object o : items) {
+                JSONObject item = (JSONObject) o;
+                String field = item.getString("field");
+                if (MetadataHelper.checkAndWarnField(entity, field)) {
+                    counts.add(String.format("%s(%s)", item.getString("calc"), field));
+                    countFields.add(item);
+                }
+            }
+        }
+
+        return String.format("select %s from %s where ",
+                StringUtils.join(counts, ","), entity.getName());
     }
 }
