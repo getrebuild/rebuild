@@ -16,7 +16,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.service.approval.RobotApprovalManager;
-import com.rebuild.core.service.trigger.impl.FieldWriteback;
+import com.rebuild.core.service.trigger.impl.FieldAggregation;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -39,29 +39,22 @@ import java.util.Locale;
 @RequestMapping("/admin/robot/trigger/")
 public class FieldAggregationController extends BaseController {
 
-    /**
-     * @see FieldWritebackController#getTargetEntities(Entity)
-     */
     @RequestMapping("field-aggregation-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         List<String[]> entities = new ArrayList<>();
+        // 我引用了谁
         for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
             if (MetadataHelper.isApprovalField(refField.getName())) {
                 continue;
             }
 
             Entity refEntity = refField.getReferenceEntity();
-            String entityLabel = EasyMetaFactory.getLabel(refEntity) + " (" + EasyMetaFactory.getLabel(refField) + ")";
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refField));
             entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
         }
 
-        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
-        entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
-
-        // 可更新自己（通过主键字段）
-        entities.add(new String[] {
-                sourceEntity.getName(), EasyMetaFactory.getLabel(sourceEntity), FieldWriteback.SOURCE_SELF });
-
+        sortEntities(entities, sourceEntity);
         return entities;
     }
 
@@ -118,7 +111,28 @@ public class FieldAggregationController extends BaseController {
                         hadApproval });
     }
 
-    private String[] buildField(Field field) {
+    /**
+     * 排序+添加自己
+     *
+     * @param entities
+     * @param sourceEntity
+     */
+    protected static void sortEntities(List<String[]> entities, Entity sourceEntity) {
+        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
+        entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
+
+        // 可更新自己（通过主键字段）
+        if (sourceEntity != null) {
+            entities.add(new String[] {
+                    sourceEntity.getName(), EasyMetaFactory.getLabel(sourceEntity), FieldAggregation.SOURCE_SELF });
+        }
+    }
+
+    /**
+     * @param field
+     * @return
+     */
+    protected static String[] buildField(Field field) {
         EasyField easyField = EasyMetaFactory.valueOf(field);
         return new String[] { field.getName(), easyField.getLabel(), easyField.getDisplayType().name() };
     }

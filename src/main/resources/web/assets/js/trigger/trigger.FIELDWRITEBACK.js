@@ -284,7 +284,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (exists) return RbHighbar.create($L('目标字段重复'))
 
     items.push({ targetField: tf, updateMode: mode, sourceField: sourceField })
-    this.setState({ items: items }, () => this._$sourceFormula.clear())
+    this.setState({ items: items }, () => this._$sourceFormula && this._$sourceFormula.clear())
   }
 
   delItem(targetField) {
