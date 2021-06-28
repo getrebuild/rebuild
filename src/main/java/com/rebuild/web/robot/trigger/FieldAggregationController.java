@@ -71,17 +71,19 @@ public class FieldAggregationController extends BaseController {
 
         // 本实体
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            if (EasyMetaFactory.getDisplayType(field) == DisplayType.BARCODE) continue;
+            if (isFilterTargetField(field)) continue;
             sourceFields.add(buildField(field));
         }
 
         // 关联实体
         for (Field fieldRef : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
+            if (MetadataHelper.isCommonsField(fieldRef)) continue;
+
             String fieldRefName = fieldRef.getName() + ".";
             String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
 
             for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity())) {
-                if (EasyMetaFactory.getDisplayType(field) == DisplayType.BARCODE) continue;
+                if (isFilterTargetField(field)) continue;
 
                 String[] build = buildField(field);
                 build[0] = fieldRefName + build[0];
@@ -109,6 +111,14 @@ public class FieldAggregationController extends BaseController {
                         sourceFields.toArray(new String[sourceFields.size()][]),
                         targetFields.toArray(new String[targetFields.size()][]),
                         hadApproval });
+    }
+
+    private boolean isFilterTargetField(Field field) {
+        String fieldName = field.getName();
+        if (MetadataHelper.isApprovalField(fieldName)) return true;
+
+        EasyField easyField = EasyMetaFactory.valueOf(field);
+        return !easyField.isQueryable() || easyField.getDisplayType() == DisplayType.BARCODE;
     }
 
     /**

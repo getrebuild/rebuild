@@ -112,7 +112,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                     <div
                       className="form-control-plaintext formula"
                       _title={$L('计算公式')}
-                      ref={(c) => (this._$formula = c)}
+                      ref={(c) => (this._$sourceFormula = c)}
                       onClick={() => this.showFormula()}
                     />
                     <p>{$L('计算公式')}</p>
@@ -155,7 +155,7 @@ class ContentFieldAggregation extends ActionContentSpec {
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合数据条件')}</label>
             <div className="col-md-12 col-lg-9">
-              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={this._dataAdvFilter}>
+              <a className="btn btn-sm btn-link pl-0 text-left down-2" onClick={() => this.dataAdvFilter()}>
                 {this.state.dataFilterItems ? `${$L('已设置条件')} (${this.state.dataFilterItems})` : $L('点击设置')}
               </a>
               <div className="form-text mt-0">{$L('仅会聚合符合过滤条件的数据')}</div>
@@ -187,7 +187,7 @@ class ContentFieldAggregation extends ActionContentSpec {
 
     if (content) {
       $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
-      this._saveAdvFilter(content.dataFilter)
+      this.saveAdvFilter(content.dataFilter)
     }
   }
 
@@ -239,17 +239,18 @@ class ContentFieldAggregation extends ActionContentSpec {
 
   showFormula() {
     const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
-    renderRbcomp(<FormulaCalc2 fields={fs} onConfirm={(v) => $(this._$formula).attr('data-v', v).text(this.textFormula(v))} />)
+    renderRbcomp(<FormulaCalc2 fields={fs} onConfirm={(v) => $(this._$sourceFormula).attr('data-v', v).text(this.textFormula(v))} />)
   }
 
   textFormula(formula) {
     return FormulaCalc2.textFormula(formula, this.__sourceFieldsCache)
   }
 
-  _dataAdvFilter = () => {
-    const that = this
-    if (that._advFilter) that._advFilter.show()
-    else
+  dataAdvFilter() {
+    if (this._advFilter) {
+      this._advFilter.show()
+    } else {
+      const that = this
       renderRbcomp(
         <AdvFilter
           title={$L('数据过滤条件')}
@@ -257,16 +258,17 @@ class ContentFieldAggregation extends ActionContentSpec {
           canNoFilters={true}
           entity={this.props.sourceEntity}
           filter={that._advFilter__data}
-          confirm={that._saveAdvFilter}
+          confirm={that.saveAdvFilter}
         />,
         null,
         function () {
           that._advFilter = this
         }
       )
+    }
   }
 
-  _saveAdvFilter = (filter) => {
+  saveAdvFilter = (filter) => {
     this._advFilter__data = filter
     this.setState({ dataFilterItems: filter && filter.items ? filter.items.length : 0 })
   }
@@ -275,7 +277,7 @@ class ContentFieldAggregation extends ActionContentSpec {
     const tf = $(this._$targetField).val()
     const calc = $(this._$calcMode).val()
     const sf = calc === 'FORMULA' ? null : $(this._$sourceField).val()
-    const formula = calc === 'FORMULA' ? $(this._$formula).attr('data-v') : null
+    const formula = calc === 'FORMULA' ? $(this._$sourceFormula).attr('data-v') : null
 
     if (!tf) return RbHighbar.create($L('请选择目标字段'))
     if (calc === 'FORMULA') {
@@ -293,13 +295,11 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (exists) return RbHighbar.create($L('目标字段重复'))
 
     items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
-    this.setState({ items: items })
+    this.setState({ items: items }, () => $(this._$sourceFormula).empty())
   }
 
   delItem(targetField) {
-    const itemsNew = (this.state.items || []).filter((item) => {
-      return item.targetField !== targetField
-    })
+    const itemsNew = (this.state.items || []).filter((x) => x.targetField !== targetField)
     this.setState({ items: itemsNew })
   }
 
@@ -319,23 +319,20 @@ class ContentFieldAggregation extends ActionContentSpec {
       RbHighbar.create($L('请至少添加 1 个聚合规则'))
       return false
     }
+
     return content
   }
 }
 
 const _getFieldLabel = function (field, fields) {
-  let found = fields.find((x) => x[0] === field)
-  if (found) found = found[1]
-  return found || '[' + field.toUpperCase() + ']'
+  let x = fields.find((x) => x[0] === field)
+  if (x) x = x[1]
+  return x || `[${field.toUpperCase()}]`
 }
 
 // ~ 公式编辑器
 // eslint-disable-next-line no-undef
 class FormulaCalc2 extends FormulaCalc {
-  constructor(props) {
-    super(props)
-  }
-
   handleInput(v) {
     if (typeof v === 'object') {
       const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
