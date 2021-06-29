@@ -70,13 +70,20 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .field-aggregation .col-2 > .zmdi,
-.field-writeback .col-5 > .zmdi {
+.field-writeback .col-5 > .zmdi,
+.group-aggregation .col-5 > .zmdi {
   position: absolute;
   left: -5px;
   color: #fbbc05;
   margin-top: 10px;
   font-size: 1.1rem;
   font-weight: bold;
+}
+
+.group-aggregation .col-5 > .zmdi {
+  color: #4285f4;
+  font-size: 1.3rem;
+  left: -4px;
 }
 
 .field-aggregation .items {
@@ -105,6 +112,10 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .field-aggregation .items > div .col-2 > .zmdi {
   margin-top: 6px;
+}
+
+.group-aggregation .items > div .col-5 > .zmdi {
+  margin-top: 5px;
 }
 
 .field-aggregation .items .del-wrap {

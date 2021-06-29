@@ -36,11 +36,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 字段归集可能存在的问题。
+ * 字段聚合。问题：
  * - 目标记录可能不允许修改（如审批已完成），此时会抛出异常
  *
  * @author devezhao zhaofang123@gmail.com
- * @see com.rebuild.core.service.trigger.RobotTriggerObserver
  * @since 2019/05/29
  */
 @Slf4j

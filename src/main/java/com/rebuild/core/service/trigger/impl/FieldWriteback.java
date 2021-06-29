@@ -42,11 +42,12 @@ import org.apache.commons.lang.StringUtils;
 import java.util.*;
 
 /**
- * 数据转写（自动更新）
+ * 字段更新
  *
  * @author devezhao
- * @see AutoFillinManager
  * @since 2020/2/7
+ *
+ * @see AutoFillinManager
  */
 @Slf4j
 public class FieldWriteback extends FieldAggregation {

@@ -9,25 +9,22 @@ package com.rebuild.web.robot.trigger;
 
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
-import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.service.approval.RobotApprovalManager;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.rebuild.web.robot.trigger.FieldAggregationController.*;
 
 /**
  * @author devezhao
@@ -51,50 +48,60 @@ public class GroupAggregationController extends BaseController {
 
             String entityLabel = String.format("%s (%s)",
                     EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refField));
-            entities.add(new String[] { refEntity.getName(), entityLabel, refField.getName() });
+            entities.add(new String[]{refEntity.getName(), entityLabel, refField.getName()});
         }
 
-        FieldAggregationController.sortEntities(entities, null);
+        sortEntities(entities, null);
 
-        // 分组字段
-        List<String[]> groupFields = new ArrayList<>();
-        // 聚合字段
+        // 分组源字段
+        List<String[]> sourceGroupFields = new ArrayList<>();
+        // 聚合源字段
         List<String[]> sourceFields = new ArrayList<>();
 
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            DisplayType dt = EasyMetaFactory.getDisplayType(field);
-
-            if (dt == DisplayType.DATE || dt == DisplayType.TEXT
-                    || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION
-                    || dt == DisplayType.REFERENCE || dt == DisplayType.BOOL) {
-                groupFields.add(FieldAggregationController.buildField(field));
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (isAllowGroupField(easyField)) {
+                sourceGroupFields.add(buildField(field));
             }
 
-            if (!FieldAggregationController.isFilterTargetField(field)) {
-                sourceFields.add(FieldAggregationController.buildField(field));
+            if (isAllowSourceField(field)) {
+                sourceFields.add(buildField(field));
             }
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "targetEntities", "groupFields", "sourceFields" },
-                new Object[] { entities, groupFields, sourceFields });
+                new String[] { "targetEntities", "sourceGroupFields", "sourceFields" },
+                new Object[] { entities, sourceGroupFields, sourceFields });
     }
 
     @RequestMapping("group-aggregation-fields")
     public JSON getTargetFields(@EntityParam(name = "target") Entity targetEntity) {
+        // 分组目标字段
+        List<String[]> targetGroupFields = new ArrayList<>();
         // 目标字段
         List<String[]> targetFields = new ArrayList<>();
 
         for (Field field : MetadataSorter.sortFields(targetEntity)) {
-            DisplayType dt = EasyMetaFactory.getDisplayType(field);
+            EasyField easyField = EasyMetaFactory.valueOf(field);
+            if (isAllowGroupField(easyField)) {
+                targetGroupFields.add(buildField(field));
+            }
 
+            DisplayType dt = easyField.getDisplayType();
             if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
-                targetFields.add(FieldAggregationController.buildField(field));
+                targetFields.add(buildField(field));
             }
         }
 
         return JSONUtils.toJSONObject(
-                new String[] { "targetFields" },
-                new Object[] { targetFields });
+                new String[] { "targetGroupFields", "targetFields" },
+                new Object[] { targetGroupFields, targetFields });
+    }
+
+    private boolean isAllowGroupField(EasyField field) {
+        DisplayType dt = field.getDisplayType();
+        return (dt == DisplayType.DATE || dt == DisplayType.TEXT
+                || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION
+                || dt == DisplayType.REFERENCE || dt == DisplayType.BOOL);
     }
 }

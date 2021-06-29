@@ -20,7 +20,7 @@ const CALC_MODES = {
 class ContentGroupAggregation extends ActionContentSpec {
   render() {
     return (
-      <div className="field-aggregation">
+      <div className="field-aggregation group-aggregation">
         <form className="simple">
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('目标实体')}</label>
@@ -43,15 +43,17 @@ class ContentGroupAggregation extends ActionContentSpec {
           </div>
 
           <div className="form-group row">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('分组字段')}</label>
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('分组规则')}</label>
             <div className="col-md-12 col-lg-9">
-              {this.state.groupFieldsSet && this.state.groupFieldsSet.length > 0 && (
+              {this.state.groupFields && this.state.groupFields.length > 0 && (
                 <div className="mb-2 mt-1">
-                  {(this.state.groupFieldsSet || []).map((item) => {
+                  {this.state.groupFields.map((item) => {
                     return (
                       <span className="badge badge-square badge-close" key={item} data-field={item}>
-                        {_getFieldLabel(item, this.state.groupFields)}
-                        <a className="close" title={$L('移除')} onClick={() => this.delGroupField(item)}>
+                        <span>{_getFieldLabel(item.targetField, this.state.targetGroupFields)}</span>
+                        <i className="zmdi zmdi-swap ml-2 mr-2" />
+                        <span>{_getFieldLabel(item.sourceField, this.state.sourceGroupFields)}</span>
+                        <a className="close" title={$L('移除')} onClick={() => this.delGroupField(item.targetField)}>
                           <i className="zmdi zmdi-close" />
                         </a>
                       </span>
@@ -61,8 +63,8 @@ class ContentGroupAggregation extends ActionContentSpec {
               )}
               <div className="row">
                 <div className="col-5">
-                  <select className="form-control form-control-sm" ref={(c) => (this._$groupField = c)}>
-                    {(this.state.groupFields || []).map((item) => {
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetGroupField = c)}>
+                    {(this.state.targetGroupFields || []).map((item) => {
                       return (
                         <option key={item[0]} value={item[0]}>
                           {item[1]}
@@ -70,12 +72,26 @@ class ContentGroupAggregation extends ActionContentSpec {
                       )
                     })}
                   </select>
-                  <div className="mt-1">
-                    <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this.addGroupField()}>
-                      + {$L('添加')}
-                    </button>
-                  </div>
+                  <p>{$L('目标字段')}</p>
                 </div>
+                <div className="col-5">
+                  <i className="zmdi zmdi-swap" />
+                  <select className="form-control form-control-sm" ref={(c) => (this._$sourceGroupField = c)}>
+                    {(this.state.sourceGroupFields || []).map((item) => {
+                      return (
+                        <option key={item[0]} value={item[0]}>
+                          {item[1]}
+                        </option>
+                      )
+                    })}
+                  </select>
+                  <p>{$L('源字段')}</p>
+                </div>
+              </div>
+              <div className="mt-1">
+                <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this.addGroupField()}>
+                  + {$L('添加')}
+                </button>
               </div>
             </div>
           </div>
@@ -157,7 +173,7 @@ class ContentGroupAggregation extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('聚合字段')}</p>
+                    <p>{$L('源字段')}</p>
                   </div>
                 </div>
               </div>
@@ -213,9 +229,8 @@ class ContentGroupAggregation extends ActionContentSpec {
         $s2te.trigger('change')
         this.__select2.push($s2te)
 
-        if (content) {
-          this.setState({ groupFieldsSet: content.groupFields || [] })
-        }
+        this.__select2.push($(this._$targetGroupField).select2({ placeholder: $L('选择分组目标字段') }))
+        this.__select2.push($(this._$sourceGroupField).select2({ placeholder: $L('选择分组源字段') }))
       })
     })
 
@@ -231,15 +246,15 @@ class ContentGroupAggregation extends ActionContentSpec {
     const te = ($(this._$targetEntity).val() || '').split('.')[1]
     if (!te) return
     // 清空现有规则
-    this.setState({ items: [] })
+    this.setState({ items: [], groupFields: [] })
 
     $.get(`/admin/robot/trigger/group-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.targetFields }, () => $(this._$calcMode).trigger('change'))
+        this.setState({ ...res.data }, () => $(this._$calcMode).trigger('change'))
       } else {
         // init
         this.setState({ ...res.data }, () => {
-          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择聚合字段') })
+          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
           const $s2cm = $(this._$calcMode)
             .select2({ placeholder: $L('选择聚合方式') })
             .on('change', (e) => {
@@ -260,12 +275,15 @@ class ContentGroupAggregation extends ActionContentSpec {
           this.__select2.push($s2sf)
           this.__select2.push($s2cm)
           this.__select2.push($s2tf)
-        })
 
-        if (this.props.content) {
-          this.setState({ items: this.props.content.items || [] })
-        }
-      }
+          if (this.props.content) {
+            this.setState({
+              groupFields: this.props.content.groupFields || [],
+              items: this.props.content.items || [],
+            })
+          }
+        })
+      } // End `if`
     })
   }
 
@@ -318,12 +336,12 @@ class ContentGroupAggregation extends ActionContentSpec {
     if (calc === 'FORMULA') {
       if (!formula) return RbHighbar.create($L('请输入计算公式'))
     } else if (!sf) {
-      return RbHighbar.create($L('请选择聚合字段'))
+      return RbHighbar.create($L('请选择源字段'))
     }
 
-    // 目标字段=源字段
-    const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
-    if (sf === tfFull) return RbHighbar.create($L('目标字段与聚合字段不能为同一字段'))
+    // // 目标字段=源字段
+    // const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
+    // if (sf === tfFull) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
 
     const items = this.state.items || []
     const exists = items.find((x) => x.targetField === tf)
@@ -339,16 +357,22 @@ class ContentGroupAggregation extends ActionContentSpec {
   }
 
   addGroupField() {
-    const groupFieldsSet = [...(this.state.groupFieldsSet || [])]
-    const field = $(this._$groupField).val()
-    if (groupFieldsSet.contains(field)) return RbHighbar.create($L('分组字段已添加'))
-    else groupFieldsSet.push(field)
-    this.setState({ groupFieldsSet })
+    const groupFields = [...(this.state.groupFields || [])]
+    const tgf = $(this._$targetGroupField).val()
+    const sgf = $(this._$sourceGroupField).val()
+
+    const x1 = groupFields.find((x) => x.targetField === tgf)
+    if (x1) return RbHighbar.create($L('分组目标字段已添加'))
+    const x2 = groupFields.find((x) => x.sourceField === sgf)
+    if (x2) return RbHighbar.create($L('分组源字段已添加'))
+
+    groupFields.push({ targetField: tgf, sourceField: sgf })
+    this.setState({ groupFields })
   }
 
-  delGroupField(field) {
-    const groupFieldsSet = this.state.groupFieldsSet.filter((x) => x !== field)
-    this.setState({ groupFieldsSet })
+  delGroupField(targetField) {
+    const groupFields = this.state.groupFields.filter((x) => x.targetField !== targetField)
+    this.setState({ groupFields })
   }
 
   buildContent() {
@@ -357,7 +381,7 @@ class ContentGroupAggregation extends ActionContentSpec {
       items: this.state.items || [],
       dataFilter: this._advFilter__data,
       autoCreate: $(this._$autoCreate).prop('checked'),
-      groupFields: this.state.groupFieldsSet || [],
+      groupFields: this.state.groupFields || [],
     }
 
     if (!content.targetEntity) {

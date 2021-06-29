@@ -125,7 +125,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('聚合字段')}</p>
+                    <p>{$L('源字段')}</p>
                   </div>
                 </div>
               </div>
@@ -205,7 +205,7 @@ class ContentFieldAggregation extends ActionContentSpec {
       } else {
         // init
         this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
-          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择聚合字段') })
+          const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
           const $s2cm = $(this._$calcMode)
             .select2({ placeholder: $L('选择聚合方式') })
             .on('change', (e) => {
@@ -284,12 +284,12 @@ class ContentFieldAggregation extends ActionContentSpec {
     if (calc === 'FORMULA') {
       if (!formula) return RbHighbar.create($L('请输入计算公式'))
     } else if (!sf) {
-      return RbHighbar.create($L('请选择聚合字段'))
+      return RbHighbar.create($L('请选择源字段'))
     }
 
-    // 目标字段=聚合字段
+    // 目标字段=源字段
     const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
-    if (sf === tfFull) return RbHighbar.create($L('目标字段与聚合字段不能为同一字段'))
+    if (sf === tfFull) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
 
     const items = this.state.items || []
     const exists = items.find((x) => x.targetField === tf)
