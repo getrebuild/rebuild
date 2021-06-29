@@ -113,7 +113,13 @@ public class FieldAggregationController extends BaseController {
                         hadApproval });
     }
 
-    private boolean isFilterTargetField(Field field) {
+    /**
+     * 过滤目标字段
+     *
+     * @param field
+     * @return
+     */
+    protected static boolean isFilterTargetField(Field field) {
         String fieldName = field.getName();
         if (MetadataHelper.isApprovalField(fieldName)) return true;
 

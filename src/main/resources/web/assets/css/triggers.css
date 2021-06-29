@@ -356,3 +356,48 @@ textarea.formula-code {
 .fields ul li.flag-DATETIME > a::before {
   content: 'D';
 }
+
+.badge.badge-square {
+  border: 0 none;
+  background-color: #4285f4;
+  position: relative;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: normal;
+  border-radius: 0;
+  padding: 2px 8px;
+}
+
+.badge.badge-square::before {
+  position: absolute;
+  width: 0;
+  height: 0;
+  content: '';
+  transform: rotate(45deg);
+  border: 4px solid #f7f7f7;
+  top: -4px;
+  right: -4px;
+}
+
+.badge.badge-close {
+  padding-right: 20px;
+}
+
+.badge.badge-close a.close {
+  position: absolute;
+  font-size: 1rem;
+  font-weight: normal;
+  opacity: 0.8;
+  margin-left: 5px;
+  margin-top: 3px;
+  text-shadow: unset;
+  display: none;
+}
+
+.badge.badge-close:hover a.close {
+  display: inline-block;
+}
+
+.badge.badge-close a.close:hover {
+  opacity: 1;
+}
