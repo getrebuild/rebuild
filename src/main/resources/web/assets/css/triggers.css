@@ -80,12 +80,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   font-weight: bold;
 }
 
-.group-aggregation .col-5 > .zmdi {
-  color: #4285f4;
-  font-size: 1.3rem;
-  left: -4px;
-}
-
 .field-aggregation .items {
   margin-bottom: 9px;
 }
@@ -98,7 +92,8 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 3px 0;
 }
 
-.field-aggregation .items > div .badge {
+.field-aggregation .items > div .badge,
+.group-aggregation .badge-primary {
   font-weight: normal;
   font-size: 1rem;
   padding: 3px 10px;
@@ -112,10 +107,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .field-aggregation .items > div .col-2 > .zmdi {
   margin-top: 6px;
-}
-
-.group-aggregation .items > div .col-5 > .zmdi {
-  margin-top: 5px;
 }
 
 .field-aggregation .items .del-wrap {
@@ -140,6 +131,17 @@ See LICENSE and COMMERCIAL in the project root for license information.
 .field-aggregation .items > div:hover a.del {
   display: inline-block;
 }
+
+.group-aggregation .col-5 > .zmdi {
+  color: #4285f4;
+  font-size: 1.25rem;
+}
+
+.group-aggregation .items > div .col-5 > .zmdi {
+  margin-top: 5px;
+}
+
+/* formula */
 
 .formula-calc {
   position: relative;

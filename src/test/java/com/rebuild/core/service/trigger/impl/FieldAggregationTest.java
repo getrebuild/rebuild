@@ -58,15 +58,16 @@ public class FieldAggregationTest extends TestSupport {
         UserContextHolder.setUser(UserService.ADMIN_USER);
 
         Entity sourceEntity = MetadataHelper.getEntity(SalesOrder);
+        String filterSql = String.format("relatedAccount = '%s'", ID.newId(sourceEntity.getEntityCode()));
 
-        JSONObject configUseFormula = JSON.parseObject("{ targetField:'totalAmount', calcMode:'FORMULA', sourceFormula:'{totalAmount$$$$SUM}*1.35' }");
-        new AggregationEvaluator(
-                configUseFormula, sourceEntity, "relatedAccount", null)
-                .eval(ID.newId(sourceEntity.getEntityCode()));
+        JSONObject configUseFormula = JSON.parseObject(
+                "{ targetField:'totalAmount', calcMode:'FORMULA', sourceFormula:'{totalAmount$$$$SUM}*1.35' }");
+        new AggregationEvaluator(configUseFormula, sourceEntity, filterSql)
+                .eval();
 
-        JSONObject configUseMAX = JSON.parseObject("{ targetField:'totalAmount', calcMode:'MAX', sourceField:'totalAmount' }");
-        new AggregationEvaluator(
-                configUseMAX, sourceEntity, "relatedAccount", "(2=2)")
-                .eval(ID.newId(sourceEntity.getEntityCode()));
+        JSONObject configUseMAX = JSON.parseObject(
+                "{ targetField:'totalAmount', calcMode:'MAX', sourceField:'totalAmount' }");
+        new AggregationEvaluator(configUseMAX, sourceEntity, filterSql)
+                .eval();
     }
 }

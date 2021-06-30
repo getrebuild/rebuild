@@ -66,9 +66,9 @@ public class FieldAggregation implements TriggerAction {
     protected Entity targetEntity;
 
     // 目标记录
-    private ID targetRecordId;
-    // 关联字段
-    private String followSourceField;
+    protected ID targetRecordId;
+    // 关联字段条件
+    protected String followSourceWhere;
 
     /**
      * @param context
@@ -93,6 +93,11 @@ public class FieldAggregation implements TriggerAction {
         return ActionType.FIELDAGGREGATION;
     }
 
+    /**
+     * 检查调用链
+     *
+     * @return
+     */
     protected List<ID> checkTriggerChain() {
         List<ID> tschain = TRIGGER_CHAIN_DEPTH.get();
         if (tschain == null) {
@@ -127,7 +132,7 @@ public class FieldAggregation implements TriggerAction {
 
     @Override
     public void execute(OperatingContext operatingContext) throws TriggerException {
-        List<ID> tschain = checkTriggerChain();
+        final List<ID> tschain = checkTriggerChain();
         if (tschain == null) return;
 
         this.prepare(operatingContext);
@@ -157,11 +162,13 @@ public class FieldAggregation implements TriggerAction {
                 continue;
             }
 
-            Object evalValue = new AggregationEvaluator(item, sourceEntity, followSourceField, dataFilterSql)
-                    .eval(targetRecordId);
-            if (evalValue == null) {
-                continue;
+            String filterSql = followSourceWhere;
+            if (dataFilterSql != null) {
+                filterSql = String.format("( %s ) and ( %s )", followSourceWhere, dataFilterSql);
             }
+
+            Object evalValue = new AggregationEvaluator(item, sourceEntity, filterSql).eval();
+            if (evalValue == null) continue;
 
             DisplayType dt = EasyMetaFactory.getDisplayType(targetEntity.getField(targetField));
             if (dt == DisplayType.NUMBER) {
@@ -198,6 +205,8 @@ public class FieldAggregation implements TriggerAction {
         sourceEntity = context.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
 
+        String followSourceField;
+
         // 自己
         if (SOURCE_SELF.equalsIgnoreCase(targetFieldEntity[0])) {
             followSourceField = sourceEntity.getPrimaryField().getName();
@@ -216,6 +225,8 @@ public class FieldAggregation implements TriggerAction {
                 targetRecordId = (ID) o[0];
             }
         }
+
+        this.followSourceWhere = String.format("%s = %s", followSourceField, targetRecordId);
     }
 
     @Override

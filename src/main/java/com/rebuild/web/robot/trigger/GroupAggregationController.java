@@ -10,11 +10,11 @@ package com.rebuild.web.robot.trigger;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
-import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.rebuild.web.robot.trigger.FieldAggregationController.*;
+import static com.rebuild.web.robot.trigger.FieldAggregationController.buildField;
+import static com.rebuild.web.robot.trigger.FieldAggregationController.isAllowSourceField;
 
 /**
  * @author devezhao
@@ -38,31 +39,21 @@ public class GroupAggregationController extends BaseController {
     public JSON getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         // 目标实体
         List<String[]> entities = new ArrayList<>();
-        // 我引用了谁
-        for (Field refField : MetadataSorter.sortFields(sourceEntity, DisplayType.REFERENCE)) {
-            if (MetadataHelper.isApprovalField(refField.getName())) continue;
-
-            Entity refEntity = refField.getReferenceEntity();
-            // 过滤非业务实体
-            if (!MetadataHelper.isBusinessEntity(refEntity)) continue;
-
-            String entityLabel = String.format("%s (%s)",
-                    EasyMetaFactory.getLabel(refEntity), EasyMetaFactory.getLabel(refField));
-            entities.add(new String[]{refEntity.getName(), entityLabel, refField.getName()});
+        // 任意
+        for (Entity entity : MetadataSorter.sortEntities(null, false, true)) {
+            if (entity.equals(sourceEntity)) continue;
+            entities.add(new String[] { entity.getName(), EasyMetaFactory.getLabel(entity) });
         }
 
-        sortEntities(entities, null);
-
-        // 分组源字段
+        // 源-分组字段
         List<String[]> sourceGroupFields = new ArrayList<>();
-        // 聚合源字段
+        // 源-聚合字段
         List<String[]> sourceFields = new ArrayList<>();
 
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (isAllowGroupField(easyField)) {
-                sourceGroupFields.add(buildField(field));
-            }
+            String[] build = buildIfGroupField(easyField);
+            if (build != null) sourceGroupFields.add(build);
 
             if (isAllowSourceField(field)) {
                 sourceFields.add(buildField(field));
@@ -76,16 +67,15 @@ public class GroupAggregationController extends BaseController {
 
     @RequestMapping("group-aggregation-fields")
     public JSON getTargetFields(@EntityParam(name = "target") Entity targetEntity) {
-        // 分组目标字段
+        // 目标-分组字段
         List<String[]> targetGroupFields = new ArrayList<>();
         // 目标字段
         List<String[]> targetFields = new ArrayList<>();
 
         for (Field field : MetadataSorter.sortFields(targetEntity)) {
             EasyField easyField = EasyMetaFactory.valueOf(field);
-            if (isAllowGroupField(easyField)) {
-                targetGroupFields.add(buildField(field));
-            }
+            String[] build = buildIfGroupField(easyField);
+            if (build != null) targetGroupFields.add(build);
 
             DisplayType dt = easyField.getDisplayType();
             if (dt == DisplayType.NUMBER || dt == DisplayType.DECIMAL) {
@@ -98,10 +88,19 @@ public class GroupAggregationController extends BaseController {
                 new Object[] { targetGroupFields, targetFields });
     }
 
-    private boolean isAllowGroupField(EasyField field) {
+    private String[] buildIfGroupField(EasyField field) {
         DisplayType dt = field.getDisplayType();
-        return (dt == DisplayType.DATE || dt == DisplayType.TEXT
-                || dt == DisplayType.PICKLIST || dt == DisplayType.CLASSIFICATION
-                || dt == DisplayType.REFERENCE || dt == DisplayType.BOOL);
+        // TODO 更多字段类型的支持
+        boolean allow = dt == DisplayType.TEXT || dt == DisplayType.DATE
+                || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE;
+        if (!allow) return null;
+
+        String[] build = buildField(field.getRawMeta());
+        if (dt == DisplayType.CLASSIFICATION) {
+            build[2] += ":" + field.getExtraAttr(EasyFieldConfigProps.CLASSIFICATION_USE);
+        } else if (dt == DisplayType.REFERENCE) {
+            build[2] += ":" + field.getRawMeta().getReferenceEntity().getName();
+        }
+        return build;
     }
 }

@@ -151,6 +151,7 @@ public class FieldAggregationController extends BaseController {
      */
     protected static String[] buildField(Field field) {
         EasyField easyField = EasyMetaFactory.valueOf(field);
-        return new String[] { field.getName(), easyField.getLabel(), easyField.getDisplayType().name() };
+        return new String[] {
+                field.getName(), easyField.getLabel(), easyField.getDisplayType().name() };
     }
 }

@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.trigger.impl;
 
-import cn.devezhao.persist4j.Query;
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import cn.devezhao.persist4j.metadata.MissingMetaExcetion;
@@ -23,9 +23,7 @@ import com.rebuild.core.service.trigger.TriggerException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 分组聚合
@@ -35,9 +33,6 @@ import java.util.Map;
  */
 @Slf4j
 public class GroupAggregation extends FieldAggregation {
-
-    // 目标记录
-    private ID targetRecordId;
 
     public GroupAggregation(ActionContext context) {
         super(context);
@@ -49,32 +44,16 @@ public class GroupAggregation extends FieldAggregation {
     }
 
     @Override
-    public void execute(OperatingContext operatingContext) throws TriggerException {
-        List<ID> tschain = checkTriggerChain();
-        if (tschain == null) return;
-
-        this.prepare(operatingContext);
-
-
-    }
-
-    @Override
     public void prepare(OperatingContext operatingContext) throws TriggerException {
         if (sourceEntity != null) return;  // 已经初始化
 
         final JSONObject actionContent = (JSONObject) context.getActionContent();
 
-        // FIELD.ENTITY
-        String[] targetFieldEntity = actionContent.getString("targetEntity").split("\\.");
         sourceEntity = context.getSourceEntity();
-        targetEntity = MetadataHelper.getEntity(targetFieldEntity[1]);
+        targetEntity = MetadataHelper.getEntity(actionContent.getString("targetEntity"));
 
-        String followSourceField = targetFieldEntity[0];
-        if (!sourceEntity.containsField(followSourceField)) {
-            throw new MissingMetaExcetion(followSourceField, sourceEntity.getName());
-        }
+        // 分组字段关联 <Source, Target>
 
-        // 分组字段映射
         Map<String, String> groupFieldsMapping = new HashMap<>();
         for (Object o : actionContent.getJSONArray("groupFields")) {
             JSONObject item = (JSONObject) o;
@@ -90,7 +69,8 @@ public class GroupAggregation extends FieldAggregation {
             groupFieldsMapping.put(sourceField, targetField);
         }
 
-        // 找到源纪录数据
+        // 源纪录数据
+
         String ql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(groupFieldsMapping.keySet().iterator(), ","),
                 sourceEntity.getName(), sourceEntity.getPrimaryField().getName());
@@ -100,44 +80,51 @@ public class GroupAggregation extends FieldAggregation {
                 .record();
 
         // 找到目标记录数据
-        ql = String.format("select %s from %s where",
-                targetEntity.getPrimaryField().getName(), targetEntity.getName());
-        Map<Integer, Object> paramsMap = new HashMap<>();
+
+        List<String> qFields = new ArrayList<>();
+        List<String> qFieldsFollow = new ArrayList<>();
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
             String targetField = e.getValue();
 
             Object val = sourceRecord.getObjectValue(sourceField);
-            paramsMap.put(paramsMap.size() + 1, val);
-            ql += String.format("%s = ? and ", targetField);
-        }
-        ql = ql.substring(0, ql.length() - 5);
-        System.out.println(ql);
+            if (val != null) {
+                if (val instanceof Date) {
+                    val = CalendarUtils.getUTCDateFormat().format(val);
+                }
 
-        Query query = Application.getQueryFactory().createQueryNoFilter(ql);
-        for (Map.Entry<Integer, Object> e : paramsMap.entrySet()) {
-            query.setParameter(e.getKey(), e.getValue());
+                qFields.add(String.format("%s = '%s'", targetField, val));
+                qFieldsFollow.add(String.format("%s = '%s'", sourceField, val));
+            }
         }
 
-        Object[] targetValue = query.unique();
-        if (targetValue != null) {
-            targetRecordId = (ID) targetValue[0];
+        this.followSourceWhere = StringUtils.join(qFieldsFollow.iterator(), " and ");
+
+        ql = String.format("select %s from %s where ( %s )",
+                targetEntity.getPrimaryField().getName(), targetEntity.getName(),
+                StringUtils.join(qFields.iterator(), " and "));
+
+        Object[] targetRecord = Application.getQueryFactory().createQueryNoFilter(ql).unique();
+        if (targetRecord != null) {
+            targetRecordId = (ID) targetRecord[0];
             return;
         }
 
-        boolean autoCreate = actionContent.getBoolean("autoCreate");
-        if (!autoCreate) return;
-
         // 自动创建记录
-        Record targetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
+        if (!actionContent.getBoolean("autoCreate")) return;
+
+        Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
             String targetField = e.getValue();
 
             Object val = sourceRecord.getObjectValue(sourceField);
-            targetRecord.setObjectValue(targetField, val);
+            if (val != null) {
+                newTargetRecord.setObjectValue(targetField, val);
+            }
         }
 
-        Application.getEntityService(targetEntity.getEntityCode()).create(targetRecord);
+        newTargetRecord = Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
+        targetRecordId = newTargetRecord.getPrimary();
     }
 }

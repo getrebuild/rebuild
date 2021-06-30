@@ -4,19 +4,9 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
-
-const CALC_MODES = {
-  SUM: $L('求和'),
-  COUNT: $L('计数'),
-  COUNT2: $L('去重计数'),
-  AVG: $L('平均值'),
-  MAX: $L('最大值'),
-  MIN: $L('最小值'),
-  FORMULA: $L('计算公式'),
-}
+/* global FormulaAggregation, ActionContentSpec */
 
 // ~~ 字段聚合
-// eslint-disable-next-line no-undef
 class ContentFieldAggregation extends ActionContentSpec {
   render() {
     return (
@@ -62,12 +52,12 @@ class ContentFieldAggregation extends ActionContentSpec {
                           </div>
                           <div className="col-2">
                             <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
-                            <span className="badge badge-warning">{CALC_MODES[item.calcMode]}</span>
+                            <span className="badge badge-warning">{FormulaAggregation.CALC_MODES[item.calcMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
                             <span className="badge badge-warning">
                               {item.calcMode === 'FORMULA'
-                                ? FormulaCalcExt.textFormula(item.sourceFormula, this.__sourceFieldsCache)
+                                ? FormulaAggregation.textFormula(item.sourceFormula, this.__sourceFieldsCache)
                                 : _getFieldLabel(item.sourceField, this.__sourceFieldsCache)}
                             </span>
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
@@ -95,10 +85,10 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <div className="col-2 pr-0">
                   <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                   <select className="form-control form-control-sm" ref={(c) => (this._$calcMode = c)}>
-                    {Object.keys(CALC_MODES).map((item) => {
+                    {Object.keys(FormulaAggregation.CALC_MODES).map((item) => {
                       return (
                         <option key={item} value={item}>
-                          {CALC_MODES[item]}
+                          {FormulaAggregation.CALC_MODES[item]}
                         </option>
                       )
                     })}
@@ -197,8 +187,8 @@ class ContentFieldAggregation extends ActionContentSpec {
     this.setState({ items: [] })
 
     $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
-      this.setState({ hadApproval: res.data.hadApproval })
       this.__sourceFieldsCache = res.data.source
+      this.setState({ hadApproval: res.data.hadApproval })
 
       if (this.state.targetFields) {
         this.setState({ targetFields: res.data.target }, () => $(this._$calcMode).trigger('change'))
@@ -238,10 +228,10 @@ class ContentFieldAggregation extends ActionContentSpec {
   showFormula() {
     const fs = this.__sourceFieldsCache.filter((x) => x[2] === 'NUMBER' || x[2] === 'DECIMAL')
     renderRbcomp(
-      <FormulaCalcExt
+      <FormulaAggregation
         fields={fs}
         onConfirm={(v) => {
-          $(this._$sourceFormula).attr('data-v', v).text(FormulaCalcExt.textFormula(v, this.__sourceFieldsCache))
+          $(this._$sourceFormula).attr('data-v', v).text(FormulaAggregation.textFormula(v, this.__sourceFieldsCache))
         }}
       />
     )
@@ -293,7 +283,7 @@ class ContentFieldAggregation extends ActionContentSpec {
 
     const items = this.state.items || []
     const exists = items.find((x) => x.targetField === tf)
-    if (exists) return RbHighbar.create($L('目标字段重复'))
+    if (exists) return RbHighbar.create($L('目标字段已添加'))
 
     items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
     this.setState({ items: items }, () => $(this._$sourceFormula).empty())
@@ -326,71 +316,8 @@ class ContentFieldAggregation extends ActionContentSpec {
 }
 
 const _getFieldLabel = function (field, fields) {
-  let x = fields.find((x) => x[0] === field)
-  if (x) x = x[1]
-  return x || `[${field.toUpperCase()}]`
-}
-
-const _changeCalcMode = function (el) {
-  el = $(el)
-  const $field = el.parent().prev()
-  const mode = el.data('mode')
-  const modeText = mode ? ` (${CALC_MODES[mode]})` : ''
-  $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
-}
-
-// ~ 公式编辑器
-// eslint-disable-next-line no-undef
-class FormulaCalcExt extends FormulaCalc {
-  handleInput(v) {
-    if (typeof v === 'object') {
-      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
-      const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
-      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
-        const $a = $(`<a class="dropdown-item" data-mode="${this}">${CALC_MODES[this] || $L('无')}</a>`).appendTo($menu)
-        $a.click(function () {
-          _changeCalcMode(this)
-        })
-      })
-      $field.appendTo(this._$formula)
-    } else {
-      super.handleInput(v)
-    }
-  }
-
-  confirm() {
-    let expr = []
-    $(this._$formula)
-      .find('i')
-      .each(function () {
-        const $this = $(this)
-        const v = $this.data('v')
-        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
-        else expr.push(v)
-      })
-
-    expr = expr.join('')
-    if ($(this._$formulaInput).val()) expr = $(this._$formulaInput).val()
-
-    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
-    this.hide()
-  }
-
-  // 公式文本化
-  static textFormula(formula, fields) {
-    for (let i = 0; i < fields.length; i++) {
-      const field = fields[i]
-      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
-      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
-    }
-
-    const keys = Object.keys(CALC_MODES)
-    keys.reverse()
-    keys.forEach((k) => {
-      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${CALC_MODES[k]})`)
-    })
-    return formula.toUpperCase()
-  }
+  const x = fields.find((x) => x[0] === field)
+  return x ? x[1] : `[${field.toUpperCase()}]`
 }
 
 // eslint-disable-next-line no-undef
