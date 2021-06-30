@@ -22,6 +22,7 @@ import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -136,7 +137,10 @@ public class FieldAggregation implements TriggerAction {
         if (tschain == null) return;
 
         this.prepare(operatingContext);
-        if (targetRecordId == null) return;  // 无目标记录
+        if (targetRecordId == null) {
+            log.warn("No target record found");
+            return;
+        }
 
         // 如果当前用户对目标记录无修改权限
         if (!allowNoPermissionUpdate
@@ -188,11 +192,10 @@ public class FieldAggregation implements TriggerAction {
             tschain.add(context.getConfigId());
             TRIGGER_CHAIN_DEPTH.set(tschain);
 
-            if (MetadataHelper.isBusinessEntity(targetEntity)) {
-                Application.getEntityService(targetEntity.getEntityCode()).update(targetRecord);
-            } else {
-                Application.getService(targetEntity.getEntityCode()).update(targetRecord);
-            }
+            ServiceSpec useService = MetadataHelper.isBusinessEntity(targetEntity)
+                    ? Application.getEntityService(targetEntity.getEntityCode())
+                    : Application.getService(targetEntity.getEntityCode());
+            useService.update(targetRecord);
         }
     }
 
