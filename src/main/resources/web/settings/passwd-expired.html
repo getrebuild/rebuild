@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <title>[[${bundle.L('密码即将失效')}]]</title>
+    <style type="text/css">
+      .rb-navbar-header .rb-toggle-left-sidebar,
+      .rb-top-header .search-container {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-nosidebar-left">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid">
+          <div class="splash-container">
+            <div class="card card-border-color card-border-color-danger">
+              <div class="card-header">
+                <h4>[[${bundle.L('你的密码将在 **%d** 天后失效')}]]</h4>
+                <p class="fs-13 text-muted">[[${bundle.L('失效后系统将强制修改密码，新密码会发送至你的邮箱 (若有)')}]]</p>
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="form-group">
+                    <input class="form-control" id="newpasswd" type="password" th:placeholder="${bundle.L('输入新密码')}" autocomplete="off" />
+                  </div>
+                  <div class="form-group">
+                    <input class="form-control" id="newpasswd2" type="password" th:placeholder="${bundle.L('再次输入新密码')}" autocomplete="off" />
+                  </div>
+                  <div class="form-group login-submit">
+                    <button class="btn btn-primary btn-xl J_change-btn" type="button">[[${bundle.L('立即修改')}]]</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="splash-footer">
+              <span><a th:href="@{/dashboard/home}">[[${bundle.L('跳过')}]]</a></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script type="text/babel">
+      $(document).ready(function () {
+        const $h4 = $('.card-header h4')
+        $h4.html($h4.html().replace('%d', $urlp('d', 0)))
+
+        const $btn = $('.J_change-btn').click(function () {
+          const newpasswd = $val('#newpasswd')
+          const newpasswd2 = $val('#newpasswd2')
+          if (!newpasswd) return RbHighbar.create($L('请输入新密码'))
+          if (!newpasswd2) return RbHighbar.create($L('请再次输入新密码'))
+          if (newpasswd !== newpasswd2) return RbHighbar.create($L('两次输入的密码不一致'))
+
+          $btn.button('loading')
+          $.post('passwd-expired-save?passwd=******', JSON.stringify({ newpasswd: newpasswd }), function (res) {
+            if (res.error_code === 0) {
+              location.replace('../dashboard/home')
+            } else {
+              RbHighbar.create(res.error_msg)
+              $btn.button('reset')
+            }
+          })
+        })
+      })
+    </script>
+  </body>
+</html>

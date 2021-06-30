@@ -67,6 +67,13 @@
                         <td data-id="OpenSignUp" th:data-value="${OpenSignUp}">[[${OpenSignUp ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
+                        <td>[[${bundle.L('登录验证码显示模式')}]]</td>
+                        <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
+                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('自动')}]]</th:block>
+                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('总是显示')}]]</th:block>
+                        </td>
+                      </tr>
+                      <tr>
                         <td>[[${bundle.L('登录密码等级')}]]</td>
                         <td data-id="PasswordPolicy" th:data-value="${PasswordPolicy}">
                           <th:block th:if="${PasswordPolicy == '1'}">[[${bundle.L('低 (最低6位，无字符类型限制)')}]]</th:block>
@@ -75,11 +82,11 @@
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('登录验证码显示模式')}]]</td>
-                        <td data-id="LoginCaptchaPolicy" th:data-value="${LoginCaptchaPolicy}">
-                          <th:block th:if="${LoginCaptchaPolicy == '1'}">[[${bundle.L('自动')}]]</th:block>
-                          <th:block th:if="${LoginCaptchaPolicy == '2'}">[[${bundle.L('总是显示')}]]</th:block>
+                        <td>
+                          [[${bundle.L('登录密码失效时间')}]] <sup class="rbv"></sup>
+                          <p>[[${bundle.L('设为 0 表示永不失效')}]]</p>
                         </td>
+                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>

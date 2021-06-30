@@ -183,8 +183,11 @@
 
           $.post(url, passwd, function (res) {
             if (res.error_code === 0) {
-              if (res.data && res.data.danger) alert(res.data.danger)
-              location.replace($decode($urlp('nexturl') || '../dashboard/home'))
+              let nexturl = $decode($urlp('nexturl') || '../dashboard/home')
+              if (res.data && res.data.passwdExpiredDays < 8) {
+                nexturl = '../settings/passwd-expired?d=' + res.data.passwdExpiredDays
+              }
+              location.replace(nexturl)
             } else if (res.error_msg === 'VCODE') {
               location.reload()
             } else {
