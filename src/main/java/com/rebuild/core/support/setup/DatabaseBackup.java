@@ -126,7 +126,7 @@ public class DatabaseBackup {
      */
     protected void deleteOldBackups(File backups) {
         int keepDays = RebuildConfiguration.getInt(ConfigurationItem.DBBackupsKeepingDays);
-        if (keepDays < 9999) {
+        if (keepDays > 1) {
             FileFilterByLastModified.deletes(backups, keepDays);
         }
     }

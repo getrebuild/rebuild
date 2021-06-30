@@ -125,10 +125,13 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
+                            String localUrl = BootApplication.getLocalUrl();
                             String banner = RebuildBanner.formatSimple(
                                     "Rebuild (" + VER + ") start successfully in " + (System.currentTimeMillis() - time) + " ms.",
-                                    "License   : " + License.queryAuthority(false).values(),
-                                    "Local URL : " + BootApplication.getLocalUrl());
+                                    "    License : " + License.queryAuthority(false).values(),
+                                    "Access URLs : ",
+                                    "      Local : " + localUrl,
+                                    "   External : " + localUrl.replace("localhost", ServerStatus.getLocalIp()));
                             log.info(banner);
                         }
                     }, 1500);
@@ -140,7 +143,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     public void run() {
                         log.warn(RebuildBanner.formatBanner(
                                 "REBUILD IS WAITING FOR INSTALL ...",
-                                "Install : " + BootApplication.getLocalUrl() + "/setup/install"));
+                                "Install URL : " + BootApplication.getLocalUrl() + "/setup/install"));
                     }
                 }, 1500);
             }

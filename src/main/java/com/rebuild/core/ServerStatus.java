@@ -242,11 +242,11 @@ public final class ServerStatus {
      */
     public static String getLocalIp() {
         List<NetworkIF> nets = SI.getHardware().getNetworkIFs();
-        if (nets.isEmpty()) return "localhost";
+        if (nets == null || nets.isEmpty()) return "localhost";
 
         for (NetworkIF net : nets) {
             String[] ipsv4 = net.getIPv4addr();
-            if (ipsv4.length > 0) return ipsv4[0];
+            if (ipsv4 != null && ipsv4.length > 0) return ipsv4[0];
         }
         return "127.0.0.1";
     }
