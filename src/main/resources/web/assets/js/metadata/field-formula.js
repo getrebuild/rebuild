@@ -17,7 +17,7 @@ class FormulaCalc extends RbAlert {
   renderContent() {
     return (
       <div className="formula-calc">
-        <div className="form-control-plaintext formula mb-2" _title={$L('计算公式')} ref={(c) => (this._$formula = c)}></div>
+        <div className="form-control-plaintext formula mb-2" _title={$L('计算公式')} ref={(c) => (this._$formula = c)} />
         <div className="row unselect">
           <div className="col-6">
             <div className="fields rb-scroller" ref={(c) => (this._$fields = c)}>
@@ -173,5 +173,84 @@ class FormulaDate extends RbAlert {
 
     typeof this.props.onConfirm === 'function' && this.props.onConfirm(`{${expr}}`)
     this.hide()
+  }
+}
+
+// ~ 聚合公式
+// eslint-disable-next-line no-unused-vars
+class FormulaAggregation extends FormulaCalc {
+  handleInput(v) {
+    if (typeof v === 'object') {
+      const that = this
+      const $field = $(`<span class="v field hover"><i data-toggle="dropdown" data-v="{${v[0]}}" data-name="${v[1]}">{${v[1]}}<i></span>`)
+      const $menu = $('<div class="dropdown-menu"></div>').appendTo($field)
+      $(['', 'SUM', 'COUNT', 'COUNT2', 'AVG', 'MAX', 'MIN']).each(function () {
+        const $a = $(`<a class="dropdown-item" data-mode="${this}">${FormulaAggregation.CALC_MODES[this] || $L('无')}</a>`).appendTo($menu)
+        $a.click(function () {
+          that._changeCalcMode(this)
+        })
+      })
+      $field.appendTo(this._$formula)
+    } else {
+      super.handleInput(v)
+    }
+  }
+
+  _changeCalcMode(el) {
+    el = $(el)
+    const $field = el.parent().prev()
+    const mode = el.data('mode')
+    const modeText = mode ? ` (${FormulaAggregation.CALC_MODES[mode]})` : ''
+    $field.attr('data-mode', mode || '').text(`{${$field.data('name')}${modeText}}`)
+  }
+
+  confirm() {
+    let expr = []
+    $(this._$formula)
+      .find('i')
+      .each(function () {
+        const $this = $(this)
+        const v = $this.data('v')
+        if ($this.attr('data-mode')) expr.push(`${v.substr(0, v.length - 1)}$$$$${$this.attr('data-mode')}}`)
+        else expr.push(v)
+      })
+
+    if ($(this._$formulaInput).val()) expr = $(this._$formulaInput).val()
+    else expr = expr.join('')
+
+    typeof this.props.onConfirm === 'function' && this.props.onConfirm(expr)
+    this.hide()
+  }
+
+  static CALC_MODES = {
+    SUM: $L('求和'),
+    COUNT: $L('计数'),
+    COUNT2: $L('去重计数'),
+    AVG: $L('平均值'),
+    MAX: $L('最大值'),
+    MIN: $L('最小值'),
+    FORMULA: $L('计算公式'),
+  }
+
+  /**
+   * 公式文本化
+   *
+   * @param {*} formula
+   * @param {*} fields
+   * @returns
+   */
+  static textFormula(formula, fields) {
+    for (let i = 0; i < fields.length; i++) {
+      const field = fields[i]
+      formula = formula.replace(new RegExp(`{${field[0]}}`, 'ig'), `{${field[1]}}`)
+      formula = formula.replace(new RegExp(`{${field[0]}\\$`, 'ig'), `{${field[1]}$`)
+    }
+
+    const keys = Object.keys(FormulaAggregation.CALC_MODES)
+    keys.reverse()
+    keys.forEach((k) => {
+      formula = formula.replace(new RegExp(`\\$\\$\\$\\$${k}`, 'g'), ` (${FormulaAggregation.CALC_MODES[k]})`)
+    })
+    return formula.toUpperCase()
   }
 }

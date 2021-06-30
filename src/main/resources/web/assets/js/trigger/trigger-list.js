@@ -13,8 +13,8 @@ $(document).ready(function () {
 
 const WHENS = {
   1: $L('新建'),
-  2: $L('删除'),
   4: $L('更新'),
+  2: $L('删除'),
   16: $L('分派'),
   32: $L('共享'),
   64: $L('取消共享'),
@@ -26,6 +26,7 @@ const WHENS = {
 const RBV_TRIGGERS = {
   'HOOKURL': $L('回调 URL'),
   'AUTOTRANSFORM': $L('自动记录转换'),
+  'DATAVALIDATE': $L('数据校验'),
 }
 
 const formatWhen = function (maskVal) {

@@ -28,6 +28,7 @@ import com.rebuild.core.service.general.RecentlyUsedHelper;
 import com.rebuild.core.service.query.ParseHelper;
 import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.general.ProtocolFilterParser;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
 import com.rebuild.web.EntityParam;
@@ -86,7 +87,7 @@ public class ReferenceSearchController extends EntityController {
             if (recently == null || recently.length == 0) {
                 return JSONUtils.EMPTY_ARRAY;
             } else {
-                return RecentlyUsedSearchController.formatSelect2(recently, null);
+                return RecentlyUsedSearchController.formatSelect2(recently, Language.L("最近使用"));
             }
         }
 

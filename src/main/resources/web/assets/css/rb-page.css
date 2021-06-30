@@ -711,7 +711,7 @@ body.view-body {
 }
 
 .select2-container--default .select2-results__group {
-  color: #888;
+  color: #777;
   font-size: 12px;
   font-weight: normal;
 }
@@ -721,6 +721,16 @@ body.view-body {
   display: block;
   float: right;
   color: #4285f4;
+}
+
+.select2-container--default.data-filter-tip .select2-results__options::after {
+  content: '当前字段已启用数据过滤';
+  display: block;
+  background-color: #f2f3f4;
+  color: #777;
+  font-style: italic;
+  font-size: 12px;
+  padding: 2px 10px;
 }
 
 textarea.row2x {
@@ -1562,7 +1572,6 @@ th.column-fixed {
   padding: 9px 8px;
   font-size: 15px;
   position: absolute;
-  right: 0;
   top: -2px;
   z-index: 1;
   display: none;
@@ -1573,12 +1582,12 @@ th.column-fixed {
 }
 
 .rb-datatable-footer:hover .list-stats-settings {
-  display: block;
+  display: inline-block;
 }
 
 .dataTables_info .stat-item::before {
   content: '·';
-  color: #777;
+  color: #999;
   font-weight: bold;
   margin: 0 5px;
 }

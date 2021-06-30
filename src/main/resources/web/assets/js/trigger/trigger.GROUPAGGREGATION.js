@@ -6,11 +6,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 */
 /* global FormulaAggregation, ActionContentSpec */
 
-// ~~ 字段聚合
-class ContentFieldAggregation extends ActionContentSpec {
+// ~~ 分组聚合
+class ContentGroupAggregation extends ActionContentSpec {
   render() {
     return (
-      <div className="field-aggregation">
+      <div className="field-aggregation group-aggregation">
         <form className="simple">
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('目标实体')}</label>
@@ -19,9 +19,8 @@ class ContentFieldAggregation extends ActionContentSpec {
                 <div className="col-5">
                   <select className="form-control form-control-sm" ref={(c) => (this._$targetEntity = c)}>
                     {(this.state.targetEntities || []).map((item) => {
-                      const val = `${item[2]}.${item[0]}`
                       return (
-                        <option key={val} value={val}>
+                        <option key={item[0]} value={item[0]}>
                           {item[1]}
                         </option>
                       )
@@ -29,12 +28,60 @@ class ContentFieldAggregation extends ActionContentSpec {
                   </select>
                 </div>
               </div>
-              {this.state.hadApproval && (
-                <div className="form-text text-danger">
-                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
-                  {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)')}
+            </div>
+          </div>
+
+          <div className="form-group row">
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('分组字段关联')}</label>
+            <div className="col-md-12 col-lg-9">
+              {this.state.groupFields && this.state.groupFields.length > 0 && (
+                <div className="mb-2 mt-1">
+                  {this.state.groupFields.map((item) => {
+                    return (
+                      <span className="badge badge-primary badge-close" key={item.targetField}>
+                        <span>{_getFieldLabel(item.targetField, this.state.targetGroupFields)}</span>
+                        <i className="zmdi zmdi-swap ml-2 mr-2" />
+                        <span>{_getFieldLabel(item.sourceField, this.__sourceGroupFieldsCache)}</span>
+                        <a className="close" title={$L('移除')} onClick={() => this.delGroupField(item.targetField)}>
+                          <i className="zmdi zmdi-close" />
+                        </a>
+                      </span>
+                    )
+                  })}
                 </div>
               )}
+              <div className="row">
+                <div className="col-5">
+                  <select className="form-control form-control-sm" ref={(c) => (this._$targetGroupField = c)}>
+                    {(this.state.targetGroupFields || []).map((item) => {
+                      return (
+                        <option key={item[0]} value={item[0]}>
+                          {item[1]}
+                        </option>
+                      )
+                    })}
+                  </select>
+                  <p>{$L('目标字段')}</p>
+                </div>
+                <div className="col-5">
+                  <i className="zmdi zmdi-swap" />
+                  <select className="form-control form-control-sm" ref={(c) => (this._$sourceGroupField = c)}>
+                    {(this.state.sourceGroupFields || []).map((item) => {
+                      return (
+                        <option key={item[0]} value={item[0]}>
+                          {item[1]}
+                        </option>
+                      )
+                    })}
+                  </select>
+                  <p>{$L('源字段')}</p>
+                </div>
+              </div>
+              <div className="mt-1">
+                <button type="button" className="btn btn-primary btn-sm btn-outline" onClick={() => this.addGroupField()}>
+                  + {$L('添加')}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -127,19 +174,6 @@ class ContentFieldAggregation extends ActionContentSpec {
             </div>
           </div>
 
-          <div className="form-group row pb-0">
-            <label className="col-md-12 col-lg-3 col-form-label" />
-            <div className="col-md-12 col-lg-9">
-              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
-                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
-                <span className="custom-control-label">
-                  {$L('自动设置目标字段为只读')}
-                  <i className="zmdi zmdi-help zicon down-1" data-toggle="tooltip" title={$L('本选项仅针对表单有效')} />
-                </span>
-              </label>
-            </div>
-          </div>
-
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('聚合数据条件')}</label>
             <div className="col-md-12 col-lg-9">
@@ -147,6 +181,16 @@ class ContentFieldAggregation extends ActionContentSpec {
                 {this.state.dataFilterItems ? `${$L('已设置条件')} (${this.state.dataFilterItems})` : $L('点击设置')}
               </a>
               <div className="form-text mt-0">{$L('仅会聚合符合过滤条件的数据')}</div>
+            </div>
+          </div>
+
+          <div className="form-group row">
+            <label className="col-md-12 col-lg-3 col-form-label text-lg-right" />
+            <div className="col-md-12 col-lg-9">
+              <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
+                <input className="custom-control-input" type="checkbox" ref={(c) => (this._$autoCreate = c)} />
+                <span className="custom-control-label">{$L('目标记录不存在时自动新建')}</span>
+              </label>
             </div>
           </div>
         </form>
@@ -158,8 +202,11 @@ class ContentFieldAggregation extends ActionContentSpec {
     const content = this.props.content
     this.__select2 = []
 
-    $.get(`/admin/robot/trigger/field-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
-      this.setState({ targetEntities: res.data }, () => {
+    $.get(`/admin/robot/trigger/group-aggregation-entities?source=${this.props.sourceEntity}`, (res) => {
+      this.__sourceFieldsCache = res.data.sourceFields
+      this.__sourceGroupFieldsCache = res.data.sourceGroupFields
+
+      this.setState({ ...res.data }, () => {
         const $s2te = $(this._$targetEntity)
           .select2({ placeholder: $L('选择目标实体') })
           .on('change', () => this._changeTargetEntity())
@@ -175,26 +222,49 @@ class ContentFieldAggregation extends ActionContentSpec {
     })
 
     if (content) {
-      $(this._$readonlyFields).attr('checked', content.readonlyFields === true)
+      $(this._$autoCreate).attr('checked', content.autoCreate === true)
       this.saveAdvFilter(content.dataFilter)
+    } else {
+      $(this._$autoCreate).attr('checked', true)
     }
   }
 
   _changeTargetEntity() {
-    const te = ($(this._$targetEntity).val() || '').split('.')[1]
+    const te = $(this._$targetEntity).val()
     if (!te) return
     // 清空现有规则
-    this.setState({ items: [] })
+    this.setState({ items: [], groupFields: [] })
 
-    $.get(`/admin/robot/trigger/field-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
-      this.__sourceFieldsCache = res.data.source
-      this.setState({ hadApproval: res.data.hadApproval })
-
+    $.get(`/admin/robot/trigger/group-aggregation-fields?source=${this.props.sourceEntity}&target=${te}`, (res) => {
       if (this.state.targetFields) {
-        this.setState({ targetFields: res.data.target }, () => $(this._$calcMode).trigger('change'))
+        this.setState({ ...res.data }, () => {
+          $(this._$targetGroupField).trigger('change')
+          $(this._$calcMode).trigger('change')
+        })
       } else {
         // init
-        this.setState({ sourceFields: res.data.source, targetFields: res.data.target }, () => {
+        this.setState({ ...res.data }, () => {
+          // 字段关联
+
+          const $s2tgf = $(this._$targetGroupField)
+            .select2({ placeholder: $L('选择目标字段') })
+            .on('change', () => {
+              let stf = $s2tgf.val()
+              stf = this.state.targetGroupFields.find((x) => x[0] === stf)
+
+              // FIXME 仅同类型的字段
+              const fs = this.__sourceGroupFieldsCache.filter((x) => x[2] === stf[2])
+              this.setState({ sourceGroupFields: fs })
+            })
+          const $s2sgf = $(this._$sourceGroupField).select2({ placeholder: $L('选择源字段') })
+
+          $s2tgf.trigger('change')
+
+          this.__select2.push($s2tgf)
+          this.__select2.push($s2sgf)
+
+          // 聚合规则
+
           const $s2sf = $(this._$sourceField).select2({ placeholder: $L('选择源字段') })
           const $s2cm = $(this._$calcMode)
             .select2({ placeholder: $L('选择聚合方式') })
@@ -216,12 +286,15 @@ class ContentFieldAggregation extends ActionContentSpec {
           this.__select2.push($s2sf)
           this.__select2.push($s2cm)
           this.__select2.push($s2tf)
-        })
 
-        if (this.props.content) {
-          this.setState({ items: this.props.content.items || [] })
-        }
-      }
+          if (this.props.content) {
+            this.setState({
+              groupFields: this.props.content.groupFields || [],
+              items: this.props.content.items || [],
+            })
+          }
+        })
+      } // End `if`
     })
   }
 
@@ -277,12 +350,8 @@ class ContentFieldAggregation extends ActionContentSpec {
       return RbHighbar.create($L('请选择源字段'))
     }
 
-    // 目标字段=源字段
-    const tfFull = `${$(this._$targetEntity).val().split('.')[0]}.${tf}`.replace('$PRIMARY$.', '')
-    if (sf === tfFull) return RbHighbar.create($L('目标字段与源字段不能为同一字段'))
-
     const items = this.state.items || []
-    const exists = items.find((x) => x.targetField === tf)
+    let exists = items.find((x) => x.targetField === tf)
     if (exists) return RbHighbar.create($L('目标字段已添加'))
 
     items.push({ targetField: tf, calcMode: calc, sourceField: sf, sourceFormula: formula })
@@ -294,16 +363,42 @@ class ContentFieldAggregation extends ActionContentSpec {
     this.setState({ items: itemsNew })
   }
 
+  addGroupField() {
+    const groupFields = [...(this.state.groupFields || [])]
+    const tgf = $(this._$targetGroupField).val()
+    const sgf = $(this._$sourceGroupField).val()
+    if (!tgf) return RbHighbar.create($L('请选择目标字段'))
+    if (!sgf) return RbHighbar.create($L('请选择源字段'))
+
+    let exists = groupFields.find((x) => x.targetField === tgf)
+    if (exists) return RbHighbar.create($L('目标字段已添加'))
+    exists = groupFields.find((x) => x.sourceField === sgf)
+    if (exists) return RbHighbar.create($L('源字段已添加'))
+
+    groupFields.push({ targetField: tgf, sourceField: sgf })
+    this.setState({ groupFields })
+  }
+
+  delGroupField(targetField) {
+    const groupFields = this.state.groupFields.filter((x) => x.targetField !== targetField)
+    this.setState({ groupFields })
+  }
+
   buildContent() {
     const content = {
       targetEntity: $(this._$targetEntity).val(),
       items: this.state.items || [],
-      readonlyFields: $(this._$readonlyFields).prop('checked'),
       dataFilter: this._advFilter__data,
+      autoCreate: $(this._$autoCreate).prop('checked'),
+      groupFields: this.state.groupFields || [],
     }
 
     if (!content.targetEntity) {
       RbHighbar.create($L('请选择目标实体'))
+      return false
+    }
+    if (content.groupFields.length === 0) {
+      RbHighbar.create($L('请至少添加 1 个分组字段'))
       return false
     }
     if (content.items.length === 0) {
@@ -322,7 +417,7 @@ const _getFieldLabel = function (field, fields) {
 
 // eslint-disable-next-line no-undef
 renderContentComp = function (props) {
-  renderRbcomp(<ContentFieldAggregation {...props} />, 'react-content', function () {
+  renderRbcomp(<ContentGroupAggregation {...props} />, 'react-content', function () {
     // eslint-disable-next-line no-undef
     contentComp = this
     $('#react-content [data-toggle="tooltip"]').tooltip()

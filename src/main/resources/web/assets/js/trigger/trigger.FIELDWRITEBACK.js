@@ -13,7 +13,7 @@ const UPDATE_MODES = {
   FORMULA: $L('计算公式'),
 }
 
-// ~~ 数据转写（自动更新）
+// ~~ 字段更新
 // eslint-disable-next-line no-undef
 class ContentFieldWriteback extends ActionContentSpec {
   constructor(props) {
@@ -44,12 +44,13 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
               {this.state.hadApproval && (
                 <div className="form-text text-danger">
-                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1"></i>
+                  <i className="zmdi zmdi-alert-triangle fs-16 down-1 mr-1" />
                   {$L('目标实体已启用审批流程，可能影响源实体操作 (触发动作)')}
                 </div>
               )}
             </div>
           </div>
+
           <div className="form-group row">
             <label className="col-md-12 col-lg-3 col-form-label text-lg-right">{$L('更新规则')}</label>
             <div className="col-md-12 col-lg-9">
@@ -67,7 +68,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                             <span className="badge badge-warning">{_getFieldLabel(this.state.targetFields, item.targetField)}</span>
                           </div>
                           <div className="col-2">
-                            <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                            <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                             <span className="badge badge-warning">{UPDATE_MODES[item.updateMode]}</span>
                           </div>
                           <div className="col-5 del-wrap">
@@ -81,7 +82,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                               <span className="badge badge-warning">{FieldFormula.formatText(item.sourceField, this.__sourceFieldsCache)}</span>
                             )}
                             <a className="del" title={$L('移除')} onClick={() => this.delItem(item.targetField)}>
-                              <span className="zmdi zmdi-close"></span>
+                              <i className="zmdi zmdi-close" />
                             </a>
                           </div>
                         </div>
@@ -103,7 +104,7 @@ class ContentFieldWriteback extends ActionContentSpec {
                   <p>{$L('目标字段')}</p>
                 </div>
                 <div className="col-2 pr-0">
-                  <span className="zmdi zmdi-forward zmdi-hc-rotate-180"></span>
+                  <i className="zmdi zmdi-forward zmdi-hc-rotate-180" />
                   <select className="form-control form-control-sm" ref={(c) => (this._$updateMode = c)}>
                     {Object.keys(UPDATE_MODES).map((item) => {
                       return (
@@ -154,8 +155,9 @@ class ContentFieldWriteback extends ActionContentSpec {
               </div>
             </div>
           </div>
+
           <div className="form-group row pb-0">
-            <label className="col-md-12 col-lg-3 col-form-label text-lg-right"></label>
+            <label className="col-md-12 col-lg-3 col-form-label" />
             <div className="col-md-12 col-lg-9">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._$readonlyFields = c)} />
@@ -282,7 +284,7 @@ class ContentFieldWriteback extends ActionContentSpec {
     if (exists) return RbHighbar.create($L('目标字段重复'))
 
     items.push({ targetField: tf, updateMode: mode, sourceField: sourceField })
-    this.setState({ items: items }, () => this._$sourceFormula.clear())
+    this.setState({ items: items }, () => this._$sourceFormula && this._$sourceFormula.clear())
   }
 
   delItem(targetField) {
@@ -498,7 +500,7 @@ class FormulaCode extends React.Component {
               <a href="https://getrebuild.com/docs/admin/triggers#%E9%AB%98%E7%BA%A7%E8%AE%A1%E7%AE%97%E5%85%AC%E5%BC%8F" target="_blank" className="link">
                 {$L('如何使用高级计算公式')}
               </a>
-              <i className="zmdi zmdi-help zicon"></i>
+              <i className="zmdi zmdi-help zicon" />
             </span>
           </div>
           <div className="col text-right">
