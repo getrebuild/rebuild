@@ -24,6 +24,7 @@ public enum ActionType {
     FIELDAGGREGATION("字段聚合", FieldAggregation.class),
     FIELDWRITEBACK("字段更新", FieldWriteback.class),
     GROUPAGGREGATION("分组聚合", GroupAggregation.class),
+    DATAVALIDATE("数据校验", "com.rebuild.rbv.trigger.DataValidate"),
     AUTOSHARE("自动共享", AutoShare.class),
     AUTOASSIGN("自动分派", AutoAssign.class),
     AUTOAPPROVAL("自动审批", AutoApproval.class),

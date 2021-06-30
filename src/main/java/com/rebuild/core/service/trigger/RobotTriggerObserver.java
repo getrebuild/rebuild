@@ -69,6 +69,9 @@ public class RobotTriggerObserver extends OperatingObserver {
             try {
                 action.prepare(context);
             } catch (Exception ex) {
+                // DataValidate 直接抛出
+                if (ex instanceof DataValidateException) throw ex;
+
                 log.error("Preparing context of trigger failed : {}", action, ex);
             }
         }
@@ -121,6 +124,9 @@ public class RobotTriggerObserver extends OperatingObserver {
                 try {
                     action.execute(context);
                 } catch (Throwable ex) {
+                    // DataValidate 直接抛出
+                    if (ex instanceof DataValidateException) throw ex;
+
                     log.error("Trigger execution failed : {} << {}", action, context, ex);
 
                     // FIXME 触发器执行失败是否抛出
