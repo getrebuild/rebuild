@@ -113,6 +113,8 @@ public class GroupAggregation extends FieldAggregation {
         // 自动创建记录
         if (!actionContent.getBoolean("autoCreate")) return;
 
+        // FIXME 自动创建可能失败，因为可能存在必填字段
+
         Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
             String sourceField = e.getKey();
