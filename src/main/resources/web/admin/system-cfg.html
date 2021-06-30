@@ -86,11 +86,15 @@
                           [[${bundle.L('登录密码失效时间')}]] <sup class="rbv"></sup>
                           <p>[[${bundle.L('设为 0 表示永不失效')}]]</p>
                         </td>
-                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</td>
+                        <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">
+                          [[${PasswordExpiredDays}]] [[${bundle.L('天')}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('同一用户允许多地登录')}]] <sup class="rbv"></sup></td>
-                        <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">[[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]</td>
+                        <td th:data-id="${commercial > 0 ? 'MultipleSessions' : ''}" th:data-value="${MultipleSessions}">
+                          [[${MultipleSessions ? bundle.L('是') : bundle.L('否')}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('登录页每日一图')}]]</td>
@@ -121,17 +125,26 @@
                         <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('备份保留时间')}]]</td>
+                        <td>
+                          [[${bundle.L('备份保留时间')}]]
+                          <p>[[${bundle.L('设为 0 表示永久保留')}]]</p>
+                        </td>
                         <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('变更历史保留时间')}]]</td>
+                        <td>
+                          [[${bundle.L('变更历史保留时间')}]]
+                          <p>[[${bundle.L('设为 0 表示永久保留')}]]</p>
+                        </td>
                         <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">
                           [[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]
                         </td>
                       </tr>
                       <tr>
-                        <td>[[${bundle.L('回收站保留时间')}]]</td>
+                        <td>
+                          [[${bundle.L('回收站保留时间')}]]
+                          <p>[[${bundle.L('设为 0 表示永久保留')}]]</p>
+                        </td>
                         <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                     </tbody>
@@ -147,15 +160,21 @@
               <div class="alert alert-danger alert-dismissible rbv-hide">
                 <button class="close" type="button" data-dismiss="alert"><i class="zmdi zmdi-close"></i></button>
                 <div class="icon"><i class="zmdi zmdi-thumb-up animated tada infinite"></i></div>
-                <div class="message" style="line-height:1.3">
-                  <a href="https://getrebuild.com/#pricing-plans" target="_blank" class="text-white text-bold text-underline">即刻升级! 获取更多增值功能与专业技术支持</a>
+                <div class="message" style="line-height: 1.3">
+                  <a href="https://getrebuild.com/#pricing-plans" target="_blank" class="text-white text-bold text-underline"
+                    >即刻升级! 获取更多增值功能与专业技术支持</a
+                  >
                 </div>
               </div>
               <div class="card">
                 <div class="card-header card-header-divider">[[${bundle.L('关于')}]] REBUILD</div>
                 <div class="card-body">
-                  <p class="mb-1">[[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a></p>
-                  <p class="mb-2">[[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a></p>
+                  <p class="mb-1">
+                    [[${bundle.L('系统版本')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/download?v=${Version}|">[[${Version}]]</a>
+                  </p>
+                  <p class="mb-2">
+                    [[${bundle.L('授权类型')}]] <a class="link" target="_blank" th:href="|https://getrebuild.com/authority?sn=${SN}|">[[${LicenseType}]]</a>
+                  </p>
                   <ul style="line-height: 2">
                     <li><a class="link" target="_blank" th:href="@{/error/server-status}">[[${bundle.L('系统状态')}]]</a></li>
                     <li><a class="link" target="_blank" href="https://getrebuild.com/docs/">[[${bundle.L('帮助文档')}]]</a></li>
