@@ -1203,16 +1203,16 @@ class RbFormPickList extends RbFormElement {
 class RbFormReference extends RbFormElement {
   constructor(props) {
     super(props)
+    this._hasDataFilter = props.referenceDataFilter && (props.referenceDataFilter.items || []).length > 0
   }
 
   renderElement() {
-    const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
     return (
       <div className="input-group has-append">
         <select
           ref={(c) => (this._fieldValue = c)}
           className="form-control form-control-sm"
-          title={hasDataFilter ? $L('当前字段已启用数据过滤') : null}
+          title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null}
           multiple={this._multiple === true}
         />
         {!this.props.readonly && (
@@ -1261,12 +1261,12 @@ class RbFormReference extends RbFormElement {
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
-      const entity = this.props.$$$parent.props.entity
-      const field = this.props.field
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
-        name: field,
+        name: this.props.field,
         label: this.props.label,
-        entity: entity,
+        entity: this.props.$$$parent.props.entity,
+        // appendClass: this._hasDataFilter ? 'data-filter-tip' : null,
+        // appendClass: 'recently-use-tip'
       })
 
       const val = this.state.value
