@@ -27,7 +27,7 @@ class Setup extends React.Component {
           <div>
             <div className="rb-finish text-center">
               <div>
-                <i className={`zmdi icon ${state[0]}`}></i>
+                <i className={`zmdi icon ${state[0]}`} />
               </div>
               <h2 className="mb-0">{state[1]}</h2>
               {this.state.installState === 11 && (
@@ -43,7 +43,7 @@ class Setup extends React.Component {
               {this.state.installState === 12 && this.state.installError && (
                 <div className="alert alert-danger alert-icon alert-icon-border alert-sm mt-5 mb-0 text-left">
                   <div className="icon">
-                    <span className="zmdi zmdi-close-circle-o"></span>
+                    <i className="zmdi zmdi-close-circle-o" />
                   </div>
                   <div className="message">{this.state.installError}</div>
                 </div>
@@ -205,15 +205,15 @@ class DatabaseConf extends React.Component {
           </div>
         </form>
         <div className="progress">
-          <div className="progress-bar" style={{ width: '20%' }}></div>
+          <div className="progress-bar" style={{ width: '20%' }} />
         </div>
         <div className="splash-footer">
           {this.state.testMessage && (
             <div className={`alert ${this.state.testState ? 'alert-success' : 'alert-danger'} alert-icon alert-icon-border text-left alert-sm`}>
               <div className="icon">
-                <span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span>
+                <i className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`} />
               </div>
-              <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }}></div>
+              <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }} />
             </div>
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
@@ -229,7 +229,7 @@ class DatabaseConf extends React.Component {
               {$L('下一步')}
             </button>
           </div>
-          <div className="clearfix"></div>
+          <div className="clearfix" />
         </div>
       </div>
     )
@@ -347,15 +347,15 @@ class CacheConf extends DatabaseConf {
           )}
         </form>
         <div className="progress">
-          <div className="progress-bar" style={{ width: '40%' }}></div>
+          <div className="progress-bar" style={{ width: '40%' }} />
         </div>
         <div className="splash-footer">
           {this.state.testMessage && (
             <div className={`alert ${this.state.testState ? 'alert-success' : 'alert-danger'} alert-icon alert-icon-border text-left alert-sm`}>
               <div className="icon">
-                <span className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`}></span>
+                <i className={`zmdi ${this.state.testState ? 'zmdi-check' : 'zmdi-close-circle-o'}`} />
               </div>
-              <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }}></div>
+              <div className="message" dangerouslySetInnerHTML={{ __html: this.state.testMessage }} />
             </div>
           )}
           <button className="btn btn-link float-left text-left pl-0" onClick={this._prev}>
@@ -373,7 +373,7 @@ class CacheConf extends DatabaseConf {
               {$L('下一步')}
             </button>
           </div>
-          <div className="clearfix"></div>
+          <div className="clearfix" />
         </div>
       </div>
     )
@@ -461,7 +461,7 @@ class AdminConf extends DatabaseConf {
           </div>
         </form>
         <div className="progress">
-          <div className="progress-bar" style={{ width: '60%' }}></div>
+          <div className="progress-bar" style={{ width: '60%' }} />
         </div>
         <div className="splash-footer">
           {this.props.$$$parent.state.installType === 1 && (
@@ -481,7 +481,7 @@ class AdminConf extends DatabaseConf {
               {$L('下一步')}
             </button>
           </div>
-          <div className="clearfix"></div>
+          <div className="clearfix" />
         </div>
       </div>
     )
@@ -547,9 +547,9 @@ class ModelConf extends React.Component {
             <RbAlertBox message={ModelConf_error} />
           </div>
         )}
-        <div className="clearfix"></div>
+        <div className="clearfix" />
         <div className="progress">
-          <div className="progress-bar" style={{ width: '80%' }}></div>
+          <div className="progress-bar" style={{ width: '80%' }} />
         </div>
         <div className="splash-footer">
           <button className="btn btn-link float-left text-left pl-0" onClick={() => this._prev(4)}>
@@ -561,7 +561,7 @@ class ModelConf extends React.Component {
               {$L('完成安装')}
             </button>
           </div>
-          <div className="clearfix"></div>
+          <div className="clearfix" />
         </div>
       </div>
     )
