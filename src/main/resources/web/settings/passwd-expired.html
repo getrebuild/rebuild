@@ -30,7 +30,7 @@
                     <input class="form-control" id="newpasswd2" type="password" th:placeholder="${bundle.L('再次输入新密码')}" autocomplete="off" />
                   </div>
                   <div class="form-group login-submit">
-                    <button class="btn btn-primary btn-xl J_change-btn" type="button">[[${bundle.L('立即修改')}]]</button>
+                    <button class="btn btn-primary btn-xl J_change-btn" type="button">[[${bundle.L('修改密码')}]]</button>
                   </div>
                 </form>
               </div>
@@ -46,7 +46,7 @@
     <script type="text/babel">
       $(document).ready(function () {
         const $h4 = $('.card-header h4')
-        $h4.html($h4.html().replace('%d', $urlp('d', 0)))
+        $h4.html($h4.html().replace('%d', $urlp('d') || 0))
 
         const $btn = $('.J_change-btn').click(function () {
           const newpasswd = $val('#newpasswd')
@@ -58,7 +58,8 @@
           $btn.button('loading')
           $.post('passwd-expired-save?passwd=******', JSON.stringify({ newpasswd: newpasswd }), function (res) {
             if (res.error_code === 0) {
-              location.replace('../dashboard/home')
+              RbHighbar.success($L('密码修改成功'))
+              setTimeout(() => location.replace('../dashboard/home'), 1500)
             } else {
               RbHighbar.create(res.error_msg)
               $btn.button('reset')

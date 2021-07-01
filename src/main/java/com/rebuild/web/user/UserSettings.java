@@ -127,6 +127,12 @@ public class UserSettings extends EntityController {
     public RespBody passwdExpiredSave(@RequestBody JSONObject post, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         String newpasswd = post.getString("newpasswd");
+
+        Object[] oldpasswd = Application.getQueryFactory().uniqueNoFilter(user, "password");
+        if (oldpasswd[0].equals(EncryptUtils.toSHA256Hex(newpasswd))) {
+            return RespBody.errorl("新密码与原密码不能相同");
+        }
+
         return savePasswd(user, newpasswd);
     }
 
