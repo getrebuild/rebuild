@@ -46,6 +46,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -172,13 +173,19 @@ public class LoginController extends BaseController {
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
 
+        // 密码失效
+        Integer passwdExpiredDays = UserService.getPasswdExpiredDayLeft(loginUser.getId());
+
+        Map<String, Object> resMap = new HashMap<>();
+        if (passwdExpiredDays != null) resMap.put("passwdExpiredDays", passwdExpiredDays);
+
         if (AppUtils.isRbMobile(request)) {
-            request.getSession().invalidate();
             String authToken = AuthTokenManager.generateToken(loginUser.getId(), AuthTokenManager.TOKEN_EXPIRES * 12);
-            return RespBody.ok(authToken);
-        } else {
-            return RespBody.ok();
+            resMap.put("authToken", authToken);
+            request.getSession().invalidate();
         }
+
+        return RespBody.ok(resMap);
     }
 
     /**

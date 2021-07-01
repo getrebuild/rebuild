@@ -420,9 +420,10 @@ var $empty = function (a) {
 /**
  * 停止事件传播
  */
-var $stopEvent = function (e) {
+var $stopEvent = function (e, preventDefault) {
   if (e && e.stopPropagation) e.stopPropagation()
   if (e && e.nativeEvent) e.nativeEvent.stopImmediatePropagation()
+  preventDefault && e && e.preventDefault()
   return false
 }
 /**

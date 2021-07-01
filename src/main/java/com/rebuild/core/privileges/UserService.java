@@ -11,6 +11,7 @@ import cn.devezhao.bizz.privileges.Permission;
 import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.bizz.security.AccessDeniedException;
 import cn.devezhao.bizz.security.member.User;
+import cn.devezhao.commons.CalendarUtils;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.persist4j.PersistManagerFactory;
@@ -33,6 +34,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.BlockList;
 import com.rebuild.utils.CommonsUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -95,6 +97,14 @@ public class UserService extends BaseServiceImpl {
         saveBefore(record);
         Record r = super.update(record);
         Application.getUserStore().refreshUser(record.getPrimary());
+
+        // @see #getPasswdExpiredDayLeft
+        if (record.hasValue("password")) {
+            String key = ConfigurationItem.PasswordExpiredDays.name() + r.getPrimary();
+            RebuildConfiguration.setCustomValue(key,
+                    CalendarUtils.getUTCDateTimeFormat().format(CalendarUtils.now()));
+        }
+
         return r;
     }
 
@@ -375,5 +385,22 @@ public class UserService extends BaseServiceImpl {
         Application.getNotifications().send(message);
 
         return newUserId;
+    }
+
+    /**
+     * 密码失效时间（剩余天数）
+     *
+     * @param user
+     * @return
+     */
+    public static Integer getPasswdExpiredDayLeft(ID user) {
+        int peDays = RebuildConfiguration.getInt(ConfigurationItem.PasswordExpiredDays);
+        if (peDays > 0) {
+            String key = ConfigurationItem.PasswordExpiredDays.name() + user;
+            String lastChanged = StringUtils.defaultIfBlank(RebuildConfiguration.getCustomValue(key), "2021-06-30");
+            int peLeft = -CalendarUtils.getDayLeft(CalendarUtils.parse(lastChanged));
+            return peDays - peLeft;
+        }
+        return null;
     }
 }

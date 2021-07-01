@@ -4097,3 +4097,7 @@ body.fullscreen .rb-wrapper > .rb-content {
 .hover-opacity:hover {
   opacity: 0.8;
 }
+
+.card-header {
+  font-weight: normal;
+}

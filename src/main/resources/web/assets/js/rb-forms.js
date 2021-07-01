@@ -1266,7 +1266,6 @@ class RbFormReference extends RbFormElement {
         label: this.props.label,
         entity: this.props.$$$parent.props.entity,
         // appendClass: this._hasDataFilter ? 'data-filter-tip' : null,
-        // appendClass: 'recently-use-tip'
       })
 
       const val = this.state.value

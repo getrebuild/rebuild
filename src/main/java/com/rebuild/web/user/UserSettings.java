@@ -10,19 +10,19 @@ package com.rebuild.web.user;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.web.EntityController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -57,7 +57,7 @@ public class UserSettings extends EntityController {
         }
 
         String vcode = VerfiyCode.generate(email);
-        String subject = "邮箱验证码";
+        String subject = Language.L("邮箱验证码");
         String content = Language.L("你的邮箱验证码是 : **%s**", vcode);
         String sentid = SMSender.sendMail(email, subject, content);
 
@@ -101,10 +101,7 @@ public class UserSettings extends EntityController {
             return RespBody.errorl("原密码输入有误");
         }
 
-        Record record = EntityHelper.forUpdate(user, user);
-        record.setString("password", newp);
-        Application.getBean(UserService.class).update(record);
-        return RespBody.ok();
+        return savePasswd(user, newp);
     }
 
     @GetMapping("/user/login-logs")
@@ -119,5 +116,34 @@ public class UserSettings extends EntityController {
             o[0] = I18nUtils.formatDate((Date) o[0]);
         }
         return logs;
+    }
+
+    @GetMapping("/passwd-expired")
+    public ModelAndView pagePasswdExpired() {
+        return createModelAndView("/settings/passwd-expired");
+    }
+
+    @PostMapping("/passwd-expired-save")
+    public RespBody passwdExpiredSave(@RequestBody JSONObject post, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        String newpasswd = post.getString("newpasswd");
+
+        Object[] oldpasswd = Application.getQueryFactory().uniqueNoFilter(user, "password");
+        if (oldpasswd[0].equals(EncryptUtils.toSHA256Hex(newpasswd))) {
+            return RespBody.errorl("新密码与原密码不能相同");
+        }
+
+        return savePasswd(user, newpasswd);
+    }
+
+    private RespBody savePasswd(ID user, String password) {
+        Record record = EntityHelper.forUpdate(user, user);
+        record.setString("password", password);
+        try {
+            Application.getBean(UserService.class).update(record);
+        } catch (DataSpecificationException ex) {
+            return RespBody.error(ex.getMessage());
+        }
+        return RespBody.ok();
     }
 }

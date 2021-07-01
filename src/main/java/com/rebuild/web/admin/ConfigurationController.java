@@ -82,7 +82,8 @@ public class ConfigurationController extends BaseController {
         ConfigurationItem[] validNumbers = new ConfigurationItem[] {
                 ConfigurationItem.RecycleBinKeepingDays,
                 ConfigurationItem.RevisionHistoryKeepingDays,
-                ConfigurationItem.DBBackupsKeepingDays
+                ConfigurationItem.DBBackupsKeepingDays,
+                ConfigurationItem.PasswordExpiredDays
         };
         for (ConfigurationItem item : validNumbers) {
             String number = defaultIfBlank(data, item);

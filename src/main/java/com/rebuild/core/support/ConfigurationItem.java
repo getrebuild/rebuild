@@ -86,6 +86,9 @@ public enum ConfigurationItem {
     // 登录验证码显示策略（1为自动，2为总是）
     LoginCaptchaPolicy(1),
 
+    // 登录密码过期时间
+    PasswordExpiredDays(0),
+
     ;
 
     private Object defaultVal;
