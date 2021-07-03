@@ -9,12 +9,12 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 // PAGE INITIAL
 $(function () {
-  var t = $('.rb-scroller')
-  t.perfectScrollbar()
-
+  // scroller
+  var $t = $('.rb-scroller')
+  $t.perfectScrollbar()
   $addResizeHandler(function () {
     if ($.browser.msie) $('.left-sidebar-scroll').height($('.left-sidebar-spacer').height())
-    t.perfectScrollbar('update')
+    $t.perfectScrollbar('update')
   })()
 
   // tooltip
@@ -31,18 +31,18 @@ $(function () {
       })
     })
     _initNavs()
-    setTimeout(_globalSearch, 200)
+    setTimeout(_initGlobalSearch, 500)
   }
 
-  var hasNotification = $('.J_top-notifications')
-  if (hasNotification.length > 0) {
-    $unhideDropdown(hasNotification).on('shown.bs.dropdown', _loadMessages)
+  var $hasNotification = $('.J_top-notifications')
+  if ($hasNotification.length > 0) {
+    $unhideDropdown($hasNotification).on('shown.bs.dropdown', _loadMessages)
     setTimeout(_checkMessage, 2000)
   }
 
-  var hasUser = $('.J_top-user')
-  if (hasUser.length > 0) {
-    $unhideDropdown(hasUser)
+  var $hasUser = $('.J_top-user')
+  if ($hasUser.length > 0) {
+    $unhideDropdown($hasUser)
   }
 
   if (rb.isAdminUser) {
@@ -181,6 +181,7 @@ var $addResizeHandler = function (call) {
     })
   }
 }
+
 /**
  * 取消管理中心访问
  */
@@ -193,6 +194,7 @@ var _cancelAdmin = function () {
     }
   })
 }
+
 /**
  * 初始化导航菜单
  */
@@ -222,21 +224,21 @@ var _initNavs = function () {
   }
 
   // SubNavs
-  var currsntSubnav
+  var $currsntSubnav
   $('.sidebar-elements li.parent').click(function (e) {
     e.preventDefault()
     e.stopPropagation()
-    var _this = $(this)
-    _this.toggleClass('open')
-    var $sub = _this.find('.sub-menu')
+    var $this = $(this)
+    $this.toggleClass('open')
+    var $sub = $this.find('.sub-menu')
     // if (!$sub.hasClass('visible')) {
     //   var subHeight = $sub.height()
     //   $sub.css({ height: 0, overflow: 'hidden' })
     //   $sub.animate({ height: subHeight + 22 }, 200)
     // }
     $sub.toggleClass('visible')
-    currsntSubnav = _this
-    _this.find('a').eq(0).tooltip('hide')
+    $currsntSubnav = $this
+    $this.find('a').eq(0).tooltip('hide')
     $('.left-sidebar-scroll').perfectScrollbar('update')
   })
   $('.sidebar-elements li.parent .sub-menu').click(function (e) {
@@ -244,18 +246,18 @@ var _initNavs = function () {
   })
   $(document.body).click(function () {
     // MinNav && SubnavOpen
-    if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && currsntSubnav && currsntSubnav.hasClass('open')) {
-      currsntSubnav.removeClass('open')
-      currsntSubnav.find('.sub-menu').removeClass('visible')
+    if ($('.rb-collapsible-sidebar').hasClass('rb-collapsible-sidebar-collapsed') && $currsntSubnav && $currsntSubnav.hasClass('open')) {
+      $currsntSubnav.removeClass('open')
+      $currsntSubnav.find('.sub-menu').removeClass('visible')
     }
     if (isOffcanvas) {
       $(document.body).removeClass('open-left-sidebar')
     }
   })
 
-  var activeNav = $('.sidebar-elements li.active')
-  if (!(activeNav.attr('class') || '').contains('nav_entity-') && activeNav.parents('li.parent').length > 0) {
-    activeNav.parents('li.parent').addClass('active').first().trigger('click')
+  var $activeNav = $('.sidebar-elements li.active')
+  if (!($activeNav.attr('class') || '').contains('nav_entity-') && $activeNav.parents('li.parent').length > 0) {
+    $activeNav.parents('li.parent').addClass('active').first().trigger('click')
     $(document.body).trigger('click')
   }
 
@@ -323,15 +325,16 @@ var _checkMessage = function () {
 var _loadMessages__state = false
 var _loadMessages = function () {
   if (_loadMessages__state) return
-  var dest = $('.rb-notifications .content ul').empty()
-  if (dest.find('li').length === 0) {
-    $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo(dest)
+
+  var $ul = $('.rb-notifications .content ul').empty()
+  if ($ul.find('li').length === 0) {
+    $('<li class="text-center mt-3 mb-3"><i class="zmdi zmdi-refresh zmdi-hc-spin fs-18"></i></li>').appendTo($ul)
   }
 
   $.get('/notification/messages?pageSize=10&preview=true', function (res) {
-    dest.empty()
+    $ul.empty()
     $(res.data).each(function (idx, item) {
-      var o = $('<li class="notification"></li>').appendTo(dest)
+      var o = $('<li class="notification"></li>').appendTo($ul)
       if (item[3] === true) o.addClass('notification-unread')
       o = $('<a class="a" href="' + rb.baseUrl + '/notifications#' + (item[3] ? 'unread=' : 'all=') + item[4] + '"></a>').appendTo(o)
       $('<div class="image"><img src="' + rb.baseUrl + '/account/user-avatar/' + item[0][0] + '" alt="Avatar"></div>').appendTo(o)
@@ -339,12 +342,14 @@ var _loadMessages = function () {
       $('<div class="text text-truncate">' + item[1] + '</div>').appendTo(o)
       $('<span class="date">' + $fromNow(item[2]) + '</span>').appendTo(o)
     })
+
     _loadMessages__state = true
-    if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('暂无通知') + '</li>').appendTo(dest)
+    if (res.data.length === 0) $('<li class="text-center mt-4 mb-4 text-muted">' + $L('暂无通知') + '</li>').appendTo($ul)
   })
 }
 var _showNotification = function () {
   if ($.cookie('grantedNotification')) return
+
   var _Notification = window.Notification || window.mozNotification || window.webkitNotification
   if (_Notification) {
     if (_Notification.permission === 'granted') {
@@ -358,27 +363,28 @@ var _showNotification = function () {
     }
   }
 }
+
 /**
  * 全局搜索
  */
-var _globalSearch = function () {
+var _initGlobalSearch = function () {
+  var $sm = $('.search-models')
   $('.sidebar-elements li').each(function (idx, item) {
-    if (idx > 40) return false
     var $item = $(item)
     if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
       var $a = $item.find('>a')
-      $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo('.search-models')
+      $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo($sm)
     } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
       var $a = $item.find('>a')
-      $('<a class="text-truncate QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo('.search-models')
+      $('<a class="text-truncate QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo($sm)
     }
   })
 
-  var aModels = $('.search-models a').click(function () {
+  var $smModels = $('.search-models a').click(function () {
     var s = $('.search-input-gs').val()
     location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
-  if (aModels.length === 0) return
+  if ($smModels.length === 0) return
 
   $(document).click(function (e) {
     if ($(e.target).parents('.search-container').length === 0) $('.search-models').hide()
@@ -391,7 +397,7 @@ var _globalSearch = function () {
     }
   }
 
-  aModels.eq(0).addClass('active')
+  $smModels.eq(0).addClass('active')
   $('.search-container input')
     .on('focus', function (e) {
       $('.search-models').show()
@@ -410,25 +416,44 @@ var _globalSearch = function () {
       }
     })
 }
+
 /**
  * 清理 dropdown 菜单
  */
 var $cleanMenu = function (mbg) {
-  mbg = $(mbg)
-  var mbgMenu = mbg.find('.dropdown-menu')
-  var first = mbgMenu.children().first()
-  if (first.hasClass('dropdown-divider')) first.remove()
-  var last = mbgMenu.children().last()
-  if (last.hasClass('dropdown-divider')) last.remove()
+  var $mbg = $(mbg)
+  var $mbgMenu = $mbg.find('.dropdown-menu')
 
-  $(mbgMenu.children()).each(function () {
-    var item = $(this)
-    if (item.hasClass('hide')) item.remove()
+  var $first = $mbgMenu.children().first()
+  if ($first.hasClass('dropdown-divider')) $first.remove()
+  var $last = $mbgMenu.children().last()
+  if ($last.hasClass('dropdown-divider')) $last.remove()
+
+  $($mbgMenu.children()).each(function () {
+    var $this = $(this)
+    if ($this.hasClass('hide')) $this.remove()
   })
 
   // remove btn
-  if (mbgMenu.children().length === 0) mbg.remove()
+  if ($mbgMenu.children().length === 0) $mbg.remove()
 }
+var $cleanDropdown = $cleanMenu
+
+/**
+ * 点击 Dropdown-Menu 不隐藏
+ */
+var $unhideDropdown = function (dp) {
+  return $(dp).on({
+    'hide.bs.dropdown': function (e) {
+      if (!e.clickEvent || !e.clickEvent.target) return
+      var $target = $(e.clickEvent.target)
+      if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
+        return false
+      }
+    },
+  })
+}
+
 /**
  * 获取附件文件名
  */
@@ -438,6 +463,7 @@ var $fileCutName = function (fileName) {
   fileName = fileName[fileName.length - 1]
   return fileName.substr(fileName.indexOf('__') + 2)
 }
+
 /**
  * 获取附件文件扩展名
  */
@@ -447,19 +473,20 @@ var $fileExtName = function (fileName) {
   fileName = fileName.split('.')
   return fileName[fileName.length - 1] || '*'
 }
+
 /**
  * 创建 Upload 组件（自动判断使用七牛或本地）
  */
 var $createUploader = function (input, next, complete, error) {
-  input = $(input).off('change')
-  var imgOnly = input.attr('accept') === 'image/*'
-  var local = input.data('local')
-  if (!input.attr('data-maxsize')) input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
+  var $input = $(input).off('change')
+  var imgOnly = $input.attr('accept') === 'image/*'
+  var local = $input.data('local')
+  if (!$input.attr('data-maxsize')) $input.attr('data-maxsize', 1024 * 1024 * 100) // default 100M
 
   var useToken = rb.csrfToken ? '&_csrfToken=' + rb.csrfToken : ''
 
   if (window.qiniu && rb.storageUrl && !local) {
-    input.on('change', function () {
+    $input.on('change', function () {
       var file = this.files[0]
       if (!file) return
 
@@ -490,8 +517,8 @@ var $createUploader = function (input, next, complete, error) {
       })
     })
   } else {
-    input.html5Uploader({
-      name: input.attr('id') || input.attr('name') || 'H5Upload',
+    $input.html5Uploader({
+      name: $input.attr('id') || $input.attr('name') || 'H5Upload',
       postUrl: rb.baseUrl + '/filex/upload?type=' + (imgOnly ? 'image' : 'file') + '&temp=' + (local === 'temp') + useToken,
       onSelectError: function (file, err) {
         if (err === 'ErrorType') {
@@ -524,6 +551,7 @@ var $createUploader = function (input, next, complete, error) {
   }
 }
 var $initUploader = $createUploader
+
 /**
  * 卸载 React 组件
  */
@@ -535,6 +563,7 @@ var $unmount = function (container, delay, keepContainer) {
     }, delay || 1000)
   }
 }
+
 /**
  * 初始化引用字段（搜索）
  */
@@ -575,6 +604,7 @@ var $initReferenceSelect2 = function (el, field) {
     theme: 'default ' + (field.appendClass || ''),
   })
 }
+
 /**
  * 保持模态窗口（如果需要）
  */
@@ -586,6 +616,7 @@ var $keepModalOpen = function () {
   }
   return false
 }
+
 /**
  * 禁用按钮 N 秒（用在一些危险操作上）
  */
@@ -602,6 +633,7 @@ var $countdownButton = function (btn, seconds) {
     }
   }, 1000)
 }
+
 /**
  * 加载状态条（单线程）
  */
@@ -716,6 +748,7 @@ var $converEmoji = function (text) {
   })
   return text
 }
+
 /**
  * Use momentjs
  */
@@ -757,18 +790,4 @@ var _getLang = function (key) {
     return key
   }
   return lang
-}
-/**
- * 点击 Dropdown-Menu 不隐藏
- */
-var $unhideDropdown = function (dp) {
-  return $(dp).on({
-    'hide.bs.dropdown': function (e) {
-      if (!e.clickEvent || !e.clickEvent.target) return
-      var $target = $(e.clickEvent.target)
-      if ($target.hasClass('dropdown-menu') || $target.parents('.dropdown-menu').length === 1) {
-        return false
-      }
-    },
-  })
 }
