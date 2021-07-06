@@ -130,7 +130,7 @@ class LightTaskList extends RelatedList {
                 disabled={item.planFlow === 2 || !item.projectMember}
                 onClick={() => this._toggleStatus(item)}
               />
-              <span className="custom-control-label"></span>
+              <span className="custom-control-label" />
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
               [{item.taskNumber}] {item.taskName}
@@ -268,7 +268,7 @@ class LightTaskDlg extends RbModalHandler {
           </div>
           <div className="form-group">
             <label>{$L('任务标题')}</label>
-            <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)}></textarea>
+            <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)} />
           </div>
         </div>
         <div className="mt-3 text-right" ref={(c) => (this._btns = c)}>

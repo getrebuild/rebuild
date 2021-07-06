@@ -41,7 +41,7 @@ class FeedsPost extends React.Component {
             </li>
           )}
         </ul>
-        <div className="arrow_box" ref={(c) => (this._$activeArrow = c)}></div>
+        <div className="arrow_box" ref={(c) => (this._$activeArrow = c)} />
 
         <div>
           <FeedsEditor ref={(c) => (this._FeedsEditor = c)} type={activeType} />
@@ -75,7 +75,7 @@ class FeedsPost extends React.Component {
               </div>
             </div>
           </div>
-          <div className="clearfix"></div>
+          <div className="clearfix" />
         </div>
       </div>
     )
@@ -148,7 +148,7 @@ class FeedsEditor extends React.Component {
       const item = EMOJIS[k]
       this.__es.push(
         <a key={`em-${item}`} title={k} onClick={() => this._selectEmoji(k)}>
-          <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} />
+          <img src={`${rb.baseUrl}/assets/img/emoji/${item}`} alt={k} />
         </a>
       )
     }
@@ -232,7 +232,7 @@ class FeedsEditor extends React.Component {
                     <a title={$fileCutName(item)} className="img-thumbnail img-upload">
                       <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
                       <b title={$L('移除')} onClick={() => this._removeImage(item)}>
-                        <span className="zmdi zmdi-close"></span>
+                        <span className="zmdi zmdi-close" />
                       </b>
                     </a>
                   </span>
@@ -247,7 +247,7 @@ class FeedsEditor extends React.Component {
                     <i className="file-icon" data-type={$fileExtName(fileName)} />
                     <span>{fileName}</span>
                     <b title={$L('移除')} onClick={() => this._removeFile(item)}>
-                      <span className="zmdi zmdi-close"></span>
+                      <span className="zmdi zmdi-close" />
                     </b>
                   </div>
                 )
@@ -389,7 +389,7 @@ class SelectGroup extends React.Component {
                       <li key={'g-' + item.id}>
                         <a className="text-truncate" onClick={() => this._handleClick(item)}>
                           {item.name}
-                          <i className="zmdi zmdi-check"></i>
+                          <i className="zmdi zmdi-check" />
                         </a>
                       </li>
                     )
@@ -597,28 +597,54 @@ class ScheduleOptions extends React.Component {
 }
 
 // ~~ 新建/编辑动态
+// 新建主要从记录视图新建相关
 // eslint-disable-next-line no-unused-vars
 class FeedsEditDlg extends RbModalHandler {
   constructor(props) {
     super(props)
+    this.state = { type: props.type }
   }
 
   render() {
     const _data = {
-      initValue: this.props.content.replace(/<\/?.+?>/g, ''),
-      type: this.props.type,
+      initValue: (this.props.content || '').replace(/<\/?.+?>/g, ''),
       images: this.props.images,
       files: this.props.attachments,
       relatedRecord: this.props.relatedRecord,
       contentMore: this.props.contentMore,
+      type: this.state.type,
     }
+
+    const activeType = this.state.type
+    const activeClass = 'text-primary text-bold'
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide={true}>
-        <div className="m-1">
-          <FeedsEditor ref={(c) => (this._FeedsEditor = c)} {..._data} />
+        <div className="feeds-post p-0 m-1">
+          {!this.props.id && (
+            <React.Fragment>
+              <ul className="list-unstyled list-inline mb-1 pl-1" ref={(c) => (this._$activeType = c)}>
+                <li className="list-inline-item">
+                  <a onClick={() => this._clickTypeTab(2)} className={`${activeType === 2 ? activeClass : ''}`}>
+                    {$L('跟进')}
+                  </a>
+                </li>
+                <li className="list-inline-item">
+                  <a onClick={() => this._clickTypeTab(4)} className={`${activeType === 4 ? activeClass : ''}`}>
+                    {$L('日程')}
+                  </a>
+                </li>
+              </ul>
+              <div className="arrow_box" ref={(c) => (this._$activeArrow = c)} />
+            </React.Fragment>
+          )}
+
+          <div>
+            <FeedsEditor ref={(c) => (this._FeedsEditor = c)} {..._data} />
+          </div>
         </div>
-        <div className="mt-3 text-right" ref={(c) => (this._$btn = c)}>
+
+        <div className="mt-4 text-right" ref={(c) => (this._$btn = c)}>
           <button className="btn btn-primary btn-space" type="button" onClick={this._post}>
             {$L('保存')}
           </button>
@@ -631,16 +657,30 @@ class FeedsEditDlg extends RbModalHandler {
   }
 
   componentDidMount() {
-    if (!this.props.id) setTimeout(() => this._FeedsEditor._$editor.focus(), 100)
+    if (!this.props.id) {
+      setTimeout(() => this._FeedsEditor._$editor.focus(), 100)
+      this._clickTypeTab(this.state.type)
+    }
+  }
+
+  _clickTypeTab(type) {
+    this.setState({ type: type }, () => {
+      const pos = $(this._$activeType).find('.text-primary').position()
+      $(this._$activeArrow).css('margin-left', pos.left - 20)
+    })
   }
 
   _post = () => {
     const _data = this._FeedsEditor.vals()
     if (!_data) return
     if (!_data.content) return RbHighbar.create($L('请输入动态内容'))
-    if (!this.props.id && this.props.type) _data.type = this.props.type
 
-    _data.metadata = { entity: 'Feeds', id: this.props.id }
+    // 新建
+    if (!this.props.id && this.props.type) {
+      _data.type = this.state.type
+    }
+
+    _data.metadata = { entity: 'Feeds', id: this.props.id || null }
 
     const $btn = $(this._$btn).find('.btn').button('loading')
     $.post('/feeds/post/publish', JSON.stringify(_data), (res) => {

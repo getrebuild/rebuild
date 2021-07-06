@@ -196,6 +196,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .rich-content > .texts {
   margin-bottom: 6px;
+  font-size: 1.077rem;
 }
 
 .rich-content > .texts img.emoji {
