@@ -527,14 +527,6 @@ body {
   margin: -32px 0 0;
 }
 
-.feeds-list.inview .feeds > .content .rich-content {
-  font-size: 1rem;
-}
-
-.feeds-list.inview .feeds > .content .rich-content > .appends {
-  font-size: 12px;
-}
-
 .feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {
   cursor: default;
 }

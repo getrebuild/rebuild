@@ -54,26 +54,7 @@ class FeedsPost extends React.Component {
             </button>
           </div>
           <div className="float-right mr-4">
-            <div className="btn-group" style={{ border: '0 none' }}>
-              <button className="btn btn-scope btn-link" data-toggle="dropdown" ref={(c) => (this._scopeBtn = c)}>
-                <i className="icon up-1 zmdi zmdi-chart-donut" />
-                {$L('公开')}
-              </button>
-              <div className="dropdown-menu dropdown-menu-right">
-                <a className="dropdown-item" onClick={this._selectScope} data-scope="ALL" title={$L('全部人员可见')}>
-                  <i className="icon up-1 zmdi zmdi-chart-donut" />
-                  {$L('公开')}
-                </a>
-                <a className="dropdown-item" onClick={this._selectScope} data-scope="SELF" title={$L('仅自己可见')}>
-                  <i className="icon up-1 zmdi zmdi-lock" />
-                  {$L('私密')}
-                </a>
-                <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title={$L('团队成员可见')}>
-                  <i className="icon up-1 zmdi zmdi-accounts" />
-                  {$L('团队')}
-                </a>
-              </div>
-            </div>
+            <FeedsScope ref={(c) => (this.__FeedsScope = c)} />
           </div>
           <div className="clearfix" />
         </div>
@@ -90,38 +71,13 @@ class FeedsPost extends React.Component {
 
   componentDidMount = () => $('#rb-feeds').attr('class', '')
 
-  _selectScope = (e) => {
-    const target = e.target
-    this.setState({ scope: target.dataset.scope }, () => {
-      $(this._scopeBtn).html($(target).html())
-      if (this.state.scope === 'GROUP') {
-        if (this.__group) this._renderGroupScope(this.__group)
-        const that = this
-        if (this.__selectGroup) this.__selectGroup.show()
-        else
-          renderRbcomp(<SelectGroup call={this._renderGroupScope} />, null, function () {
-            that.__selectGroup = this
-          })
-      }
-    })
-  }
-
-  _renderGroupScope = (item) => {
-    if (!item) return
-    $(this._scopeBtn).html(`<i class="icon up-1 zmdi zmdi-accounts"></i>${item.name}`)
-    this.__group = item
-  }
-
   _post = () => {
     const _data = this._FeedsEditor.vals()
     if (!_data) return
     if (!_data.content) return RbHighbar.create($L('请输入动态内容'))
 
-    _data.scope = this.state.scope
-    if (_data.scope === 'GROUP') {
-      if (!this.__group) return RbHighbar.create($L('请选择团队'))
-      _data.scope = this.__group.id
-    }
+    _data.scope = this.__FeedsScope.val()
+    if (_data.scope === false) return
 
     _data.type = this.state.type
     _data.metadata = { entity: 'Feeds', id: this.props.id }
@@ -134,6 +90,84 @@ class FeedsPost extends React.Component {
       this._FeedsEditor.reset()
       typeof this.props.call === 'function' && this.props.call()
     })
+  }
+}
+
+// ~ 动态范围
+class FeedsScope extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = { scope: 'ALL', ...props }
+    this._$items = {}
+  }
+
+  render() {
+    return (
+      <div className="btn-group border-0">
+        <button className="btn btn-scope btn-link" data-toggle="dropdown" ref={(c) => (this._$btn = c)}>
+          <i className="icon up-1 zmdi zmdi-chart-donut" />
+          {$L('公开')}
+        </button>
+        <div className="dropdown-menu dropdown-menu-right">
+          <a className="dropdown-item" onClick={this._selectScope} data-scope="ALL" title={$L('全部人员可见')} ref={(c) => (this._$items['ALL'] = c)}>
+            <i className="icon up-1 zmdi zmdi-chart-donut" />
+            {$L('公开')}
+          </a>
+          <a className="dropdown-item" onClick={this._selectScope} data-scope="SELF" title={$L('仅自己可见')} ref={(c) => (this._$items['SELF'] = c)}>
+            <i className="icon up-1 zmdi zmdi-lock" />
+            {$L('私密')}
+          </a>
+          <a className="dropdown-item" onClick={this._selectScope} data-scope="GROUP" title={$L('团队成员可见')} ref={(c) => (this._$items['GROUP'] = c)}>
+            <i className="icon up-1 zmdi zmdi-accounts" />
+            {$L('团队')}
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  componentDidMount() {
+    const iv = this.props.initValue
+    if (iv) {
+      if (iv === 'ALL' || iv === 'SELF') $(this._$items[iv]).trigger('click')
+      else this._renderGroupScope({ id: iv[0], name: iv[1] })
+    }
+  }
+
+  _selectScope = (e) => {
+    const $target = e.target
+    this.setState({ scope: $target.dataset.scope }, () => {
+      $(this._$btn).html($($target).html())
+      if (this.state.scope === 'GROUP') {
+        if (this.__group) this._renderGroupScope(this.__group)
+        const that = this
+        if (this.__SelectGroup) {
+          this.__SelectGroup.show()
+        } else {
+          renderRbcomp(<SelectGroup call={this._renderGroupScope} />, null, function () {
+            that.__SelectGroup = this
+          })
+        }
+      }
+    })
+  }
+
+  _renderGroupScope = (item) => {
+    if (!item) return
+    $(this._$btn).html(`<i class="icon up-1 zmdi zmdi-accounts"></i>${item.name}`)
+    this.__group = item
+  }
+
+  val() {
+    let scope = this.state.scope
+    if (scope === 'GROUP') {
+      if (!this.__group) {
+        RbHighbar.create($L('请选择团队'))
+        return false
+      }
+      scope = this.__group.id
+    }
+    return scope
   }
 }
 
@@ -230,7 +264,7 @@ class FeedsEditor extends React.Component {
                 return (
                   <span key={'img-' + item}>
                     <a title={$fileCutName(item)} className="img-thumbnail img-upload">
-                      <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+                      <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="Avatar" />
                       <b title={$L('移除')} onClick={() => this._removeImage(item)}>
                         <span className="zmdi zmdi-close" />
                       </b>
@@ -617,6 +651,7 @@ class FeedsEditDlg extends RbModalHandler {
 
     const activeType = this.state.type
     const activeClass = 'text-primary text-bold'
+    const scope = (this.props.scopeRaw || '').length > 10 /*ID*/ ? this.props.scope : this.props.scopeRaw
 
     return (
       <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide={true}>
@@ -645,8 +680,10 @@ class FeedsEditDlg extends RbModalHandler {
         </div>
 
         <div className="mt-4 text-right" ref={(c) => (this._$btn = c)}>
-          <button className="btn btn-primary btn-space" type="button" onClick={this._post}>
-            {$L('保存')}
+          <FeedsScope ref={(c) => (this.__FeedsScope = c)} initValue={scope} />
+
+          <button className="btn btn-primary btn-space ml-4" type="button" onClick={this._post}>
+            {this.props.id ? $L('保存') : $L('发布')}
           </button>
           <button className="btn btn-secondary btn-space" type="button" onClick={this.hide}>
             {$L('取消')}
@@ -675,8 +712,11 @@ class FeedsEditDlg extends RbModalHandler {
     if (!_data) return
     if (!_data.content) return RbHighbar.create($L('请输入动态内容'))
 
+    _data.scope = this.__FeedsScope.val()
+    if (_data.scope === false) return
+
     // 新建
-    if (!this.props.id && this.props.type) {
+    if (!this.props.id) {
       _data.type = this.state.type
     }
 

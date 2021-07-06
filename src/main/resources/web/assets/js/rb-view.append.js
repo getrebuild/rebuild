@@ -19,6 +19,7 @@ class LightFeedsList extends RelatedList {
     // 复写组件
     this.__FeedsList = new FeedsList()
     this.__FeedsList.setState = (s) => this.setState(s)
+    this.__FeedsList.fetchFeeds = () => this.fetchData(false)
 
     this.__listClass = 'feeds-list inview'
     this.__listNoData = (
@@ -46,7 +47,7 @@ class LightFeedsList extends RelatedList {
   }
 
   renderItem(item) {
-    return this.__FeedsList.renderItem({ ...item, self: false })
+    return this.__FeedsList.renderItem({ ...item })
   }
 
   fetchData(append) {
