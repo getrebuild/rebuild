@@ -16,23 +16,23 @@ class AdvFilter extends React.Component {
   constructor(props) {
     super(props)
 
-    const ext = { useEquation: 'OR' }
+    const extras = { useEquation: 'OR' }
     if (props.filter) {
       if (props.filter.equation) {
-        ext.equation = props.filter.equation
-        if (props.filter.equation === 'OR') ext.useEquation = 'OR'
-        else if (props.filter.equation === 'AND') ext.useEquation = 'AND'
-        else ext.useEquation = '9999'
+        extras.equation = props.filter.equation
+        if (props.filter.equation === 'OR') extras.useEquation = 'OR'
+        else if (props.filter.equation === 'AND') extras.useEquation = 'AND'
+        else extras.useEquation = '9999'
       }
       this.__items = props.filter.items
     }
 
-    this.state = { ...props, ...ext }
-    this.childrenRef = []
+    this.state = { items: [], ...props, ...extras }
+    this._itemsRef = []
   }
 
   render() {
-    const opButtons = this.props.fromList ? (
+    const cAction = this.props.fromList ? (
       <div className="float-right">
         <button className="btn btn-primary" type="button" onClick={() => this.confirm()}>
           {$L('保存')}
@@ -62,11 +62,11 @@ class AdvFilter extends React.Component {
             <div className="message pl-0">{this.state.hasErrorTip}</div>
           </div>
         )}
+
         <div className="adv-filter">
           <div className="filter-items" onKeyPress={this.searchByKey}>
-            {(this.state.items || []).map((item) => {
-              return item
-            })}
+            {this.state.items}
+
             <div className="item plus">
               <a onClick={() => this.addItem()} tabIndex="-1">
                 <i className="zmdi zmdi-plus-circle icon" /> {$L('添加条件')}
@@ -74,6 +74,7 @@ class AdvFilter extends React.Component {
             </div>
           </div>
         </div>
+
         <div className="adv-filter adv-filter-option">
           <div className="mb-1">
             <div className="item mt-1">
@@ -131,6 +132,7 @@ class AdvFilter extends React.Component {
               </div>
             )}
           </div>
+
           {this.props.fromList ? (
             <div className="item dialog-footer">
               <div className="float-left">
@@ -146,11 +148,11 @@ class AdvFilter extends React.Component {
                 </div>
                 {rb.isAdminUser && <Share2 ref={(c) => (this._shareTo = c)} noSwitch={true} shareTo={this.props.shareTo} />}
               </div>
-              {opButtons}
+              {cAction}
               <div className="clearfix" />
             </div>
           ) : (
-            <div className="btn-footer">{opButtons}</div>
+            <div className="btn-footer">{cAction}</div>
           )}
         </div>
       </div>
@@ -168,7 +170,7 @@ class AdvFilter extends React.Component {
   componentDidMount() {
     $.get(`/commons/metadata/fields?deep=2&entity=${this.props.entity}`, (res) => {
       const validFs = []
-      this.fields = res.data.map((item) => {
+      const fields = res.data.map((item) => {
         validFs.push(item.name)
         if (item.type === 'REFERENCE') {
           REFMETA_CACHE[this.props.entity + '.' + item.name] = item.ref
@@ -180,10 +182,12 @@ class AdvFilter extends React.Component {
         } else if (item.type === 'DATETIME') {
           item.type = 'DATE'
         }
-
         return item
       })
+      // No BARCODE field
+      this._fields = fields.filter((x) => x.type !== 'BARCODE')
 
+      // init
       if (this.__items) {
         this.__items.forEach((item) => {
           if (item.field.substr(0, 1) === NAME_FLAG) item.field = item.field.substr(1)
@@ -199,21 +203,17 @@ class AdvFilter extends React.Component {
     })
   }
 
-  onRef = (child) => {
-    this.childrenRef.push(child)
+  handleChange = (e) => {
+    const name = e.target.dataset.id || e.target.name
+    this.setState({ [name]: e.target.value })
   }
 
-  handleChange = (e) => {
-    const val = e.target.value
-    const name = e.target.dataset.id || e.target.name
-    const state = { [name]: val }
-    this.setState({ ...state })
-  }
+  onRef = (c) => this._itemsRef.push(c)
 
   addItem(props) {
-    if (!this.fields) return
+    if (!this._fields) return
 
-    const items = this.state.items || []
+    const items = [...this.state.items]
     if (items.length >= 9) {
       RbHighbar.create($L('最多可添加 9 个条件'))
       return
@@ -221,9 +221,9 @@ class AdvFilter extends React.Component {
 
     const id = `item-${$random()}`
     let itemProps = {
-      fields: this.fields,
+      fields: this._fields,
       $$$parent: this,
-      key: 'key-' + id,
+      key: id,
       id: id,
       onRef: this.onRef,
       index: items.length + 1,
@@ -231,34 +231,24 @@ class AdvFilter extends React.Component {
     if (props) itemProps = { ...itemProps, ...props }
     items.push(<FilterItem {...itemProps} />)
 
-    this.setState({ items: items }, () => this.renderEquation())
+    this.setState({ items }, () => this.renderEquation())
   }
 
   removeItem(id) {
-    const _items = []
-    this.state.items.forEach((item) => {
-      if (item.props.id !== id) _items.push(item)
-    })
+    this._itemsRef = this._itemsRef.filter((c) => c.props.id !== id)
+    const items = this.state.items.filter((c) => c.props.id !== id)
 
-    const _children = []
-    this.childrenRef.forEach((item) => {
-      if (item.props.id !== id) _children.push(item)
-    })
-    this.childrenRef = _children
-
-    this.setState({ items: _items }, () => {
-      this.childrenRef.forEach((child, idx) => {
-        child.setIndex(idx + 1)
-      })
+    this.setState({ items }, () => {
+      this._itemsRef.forEach((c, i) => c.setIndex(i + 1))
       this.renderEquation()
     })
   }
 
   checkEquation(e) {
-    const val = e.target.value
-    if (!val) return
+    const v = e.target.value
+    if (!v) return
 
-    $.post('/app/entity/advfilter/test-equation', val, (res) => {
+    $.post('/app/entity/advfilter/test-equation', v, (res) => {
       this.setState({ equationError: res.error_code !== 0 })
     })
   }
@@ -272,8 +262,8 @@ class AdvFilter extends React.Component {
   toFilterJson(canNoFilters) {
     const filters = []
     let hasError = false
-    for (let i = 0; i < this.childrenRef.length; i++) {
-      const item = this.childrenRef[i].getFilterJson()
+    for (let i = 0; i < this._itemsRef.length; i++) {
+      const item = this._itemsRef[i].getFilterJson()
       if (!item) hasError = true
       else filters.push(item)
     }
@@ -478,15 +468,7 @@ class FilterItem extends React.Component {
   }
 
   renderValue() {
-    let valComp = (
-      <input
-        className="form-control form-control-sm"
-        ref={(c) => (this._filterVal = c)}
-        onChange={this.valueHandle}
-        onBlur={this.valueCheck}
-        value={this.state.value || ''}
-      />
-    )
+    let valComp
     if (this.state.op === 'BW') {
       valComp = (
         <div className="val-range">
@@ -531,13 +513,23 @@ class FilterItem extends React.Component {
           <option value="F">{$L('否')}</option>
         </select>
       )
+    } else {
+      valComp = (
+        <input
+          className="form-control form-control-sm"
+          ref={(c) => (this._filterVal = c)}
+          onChange={this.valueHandle}
+          onBlur={this.valueCheck}
+          value={this.state.value || ''}
+        />
+      )
     }
 
     INPUTVALS_HOLD[this.state.field] = this.state.value
     return valComp
   }
 
-  // 引用 User/Department/Role
+  // 引用 User/Department/Role/Team
   isBizzField(entity) {
     if (this.state.type === 'REFERENCE') {
       const ref = REFMETA_CACHE[this.$$$entity + '.' + this.state.field]
