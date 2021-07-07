@@ -15,7 +15,9 @@
         <ul class="nav nav-tabs">
           <li class="nav-item"><a class="nav-link active" href="#MANUAL" data-toggle="tab">[[${bundle.L('手动')}]]</a></li>
           <li class="nav-item">
-            <a class="nav-link J_imports" href="#IMPORTS" data-toggle="tab"><i class="icon zmdi zmdi-cloud-outline-alt"></i> [[${bundle.L('从 RB 仓库导入')}]]</a>
+            <a class="nav-link J_imports" href="#IMPORTS" data-toggle="tab">
+              <i class="icon zmdi zmdi-cloud-outline-alt"></i> [[${bundle.L('从 RB 仓库导入')}]]
+            </a>
           </li>
         </ul>
         <div class="tab-content m-0 pb-0">
@@ -49,7 +51,11 @@
                     <input class="custom-control-input" type="checkbox" id="isDetail" />
                     <span class="custom-control-label">
                       [[${bundle.L('这是一个明细实体')}]]
-                      <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('通过明细实体可以更好的组织业务关系。例如订单明细通常依附于订单，而非独立存在')}"></i>
+                      <i
+                        class="zmdi zmdi-help zicon"
+                        data-toggle="tooltip"
+                        th:title="${bundle.L('通过明细实体可以更好的组织业务关系。例如订单明细通常依附于订单，而非独立存在')}"
+                      ></i>
                     </span>
                   </label>
                 </div>

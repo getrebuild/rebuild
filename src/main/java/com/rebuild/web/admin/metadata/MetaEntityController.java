@@ -13,6 +13,7 @@ import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
@@ -25,16 +26,13 @@ import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.rbstore.MetaSchemaGenerator;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.RebuildConfiguration;
-import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.JSONUtils;
-import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.commons.FileDownloader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -52,7 +50,7 @@ import java.util.Map;
  * @since 08/03/2018
  */
 @Slf4j
-@Controller
+@RestController
 @RequestMapping("/admin/")
 public class MetaEntityController extends BaseController {
 
@@ -98,26 +96,14 @@ public class MetaEntityController extends BaseController {
         return mv;
     }
 
-    @GetMapping("entity/{entity}/frontjs")
-    public ModelAndView pageFrontJs(@PathVariable String entity, HttpServletRequest request) {
-        RbAssert.isCommercial(
-                Language.L("免费版不支持 FrontJS 功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
-
-        ModelAndView mv = createModelAndView("/admin/metadata/frontjs");
-        mv.getModel().put("isSuperAdmin", UserHelper.isSuperAdmin(getRequestUser(request)));
-        setEntityBase(mv, entity);
-        return mv;
-    }
-
-    @ResponseBody
     @RequestMapping("entity/entity-list")
-    public Object listEntity(HttpServletRequest request) {
+    public RespBody listEntity(HttpServletRequest request) {
         // 默认无BIZZ实体
         final boolean usesBizz = getBoolParameter(request, "bizz", false);
         // 默认无明细实体
         final boolean usesDetail = getBoolParameter(request, "detail", false);
 
-        List<Map<String, Object>> ret = new ArrayList<>();
+        List<Map<String, Object>> data = new ArrayList<>();
         for (Entity entity : MetadataSorter.sortEntities(null, usesBizz, usesDetail)) {
             EasyEntity easyMeta = EasyMetaFactory.valueOf(entity);
             Map<String, Object> map = new HashMap<>();
@@ -132,49 +118,47 @@ public class MetaEntityController extends BaseController {
             if (entity.getMainEntity() != null) {
                 map.put("mainEntity", entity.getMainEntity().getName());
             }
-            ret.add(map);
+            data.add(map);
         }
-        return ret;
+        return RespBody.ok(data);
     }
 
     @PostMapping("entity/entity-new")
-    public void entityNew(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
+    public RespBody entityNew(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        final JSONObject reqJson = (JSONObject) ServletUtils.getRequestJson(request);
 
         String label = reqJson.getString("label");
         String comments = reqJson.getString("comments");
         String mainEntity = reqJson.getString("mainEntity");
         if (StringUtils.isNotBlank(mainEntity)) {
             if (!MetadataHelper.containsEntity(mainEntity)) {
-                writeFailure(response, Language.L("无效主实体 : %s", mainEntity));
-                return;
+                return RespBody.errorl("无效主实体 : %s", mainEntity);
             }
 
             Entity useMain = MetadataHelper.getEntity(mainEntity);
             if (useMain.getMainEntity() != null) {
-                writeFailure(response, Language.L("明细实体不能作为主实体"));
-                return;
+                return RespBody.errorl("明细实体不能作为主实体");
             } else if (useMain.getDetailEntity() != null) {
-                writeFailure(response, Language.L("选择的主实体已被 [%s] 使用", useMain.getDetailEntity()));
-                return;
+                return RespBody.errorl("选择的主实体已被 [%s] 使用", useMain.getDetailEntity());
             }
         }
 
         try {
             String entityName = new Entity2Schema(user)
                     .createEntity(label, comments, mainEntity, getBoolParameter(request, "nameField"));
-            writeSuccess(response, entityName);
+            return RespBody.ok(entityName);
         } catch (Exception ex) {
             log.error("entity-new", ex);
-            writeFailure(response, ex.getLocalizedMessage());
+            return RespBody.error(ex.getLocalizedMessage());
         }
     }
 
-    @RequestMapping("entity/entity-update")
-    public void entityUpdate(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        JSON formJson = ServletUtils.getRequestJson(request);
+    @PostMapping("entity/entity-update")
+    public RespBody entityUpdate(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        final JSON formJson = ServletUtils.getRequestJson(request);
+
         Record record = EntityHelper.parse((JSONObject) formJson, user);
 
         // 修改了名称字段
@@ -200,34 +184,32 @@ public class MetaEntityController extends BaseController {
             }
         }
 
-        writeSuccess(response);
+        return RespBody.ok();
     }
 
     @RequestMapping("entity/entity-drop")
-    public void entityDrop(HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
-        boolean force = getBoolParameter(request, "force", false);
+    public RespBody entityDrop(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        final Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
+        final boolean force = getBoolParameter(request, "force", false);
 
         try {
             boolean drop = new Entity2Schema(user).dropEntity(entity, force);
-            if (drop) writeSuccess(response);
-            else writeFailure(response);
+            return drop ? RespBody.ok() : RespBody.error();
 
         } catch (Exception ex) {
             log.error("entity-drop", ex);
-            writeFailure(response, ex.getLocalizedMessage());
+            return RespBody.error(ex.getLocalizedMessage());
         }
     }
 
     @GetMapping("entity/entity-export")
     public void entityExport(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
+        final Entity entity = getEntityById(getIdParameterNotNull(request, "id"));
 
         File dest = RebuildConfiguration.getFileOfTemp("schema-" + entity.getName() + ".json");
-        if (dest.exists()) {
-            FileUtils.deleteQuietly(dest);
-        }
+        if (dest.exists()) FileUtils.deleteQuietly(dest);
+
         new MetaSchemaGenerator(entity).generate(dest);
 
         if (ServletUtils.isAjaxRequest(request)) {
@@ -238,10 +220,6 @@ public class MetaEntityController extends BaseController {
         }
     }
 
-    /**
-     * @param metaId
-     * @return
-     */
     private Entity getEntityById(ID metaId) {
         Object[] entityRecord = Application.createQueryNoFilter(
                 "select entityName from MetaEntity where entityId = ?")
@@ -258,7 +236,7 @@ public class MetaEntityController extends BaseController {
      * @param entity
      * @return
      */
-    static EasyEntity setEntityBase(ModelAndView mv, String entity) {
+    protected static EasyEntity setEntityBase(ModelAndView mv, String entity) {
         EasyEntity entityMeta = EasyMetaFactory.valueOf(entity);
         mv.getModel().put("entityMetaId", entityMeta.getMetaId());
         mv.getModel().put("entityName", entityMeta.getName());
