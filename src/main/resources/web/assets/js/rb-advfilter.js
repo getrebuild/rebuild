@@ -53,7 +53,7 @@ class AdvFilter extends React.Component {
     )
 
     const advFilter = (
-      <div className={'adv-filter-wrap ' + (this.props.inModal ? 'in-modal' : 'shadow rounded')}>
+      <div className={`adv-filter-wrap ${this.props.inModal ? 'in-modal' : 'shadow rounded'}`}>
         {this.state.hasErrorTip && (
           <div className="alert alert-warning alert-sm">
             <div className="icon">
@@ -69,7 +69,7 @@ class AdvFilter extends React.Component {
             })}
             <div className="item plus">
               <a onClick={() => this.addItem()} tabIndex="-1">
-                <i className="zmdi zmdi-plus-circle icon"></i> {$L('添加条件')}
+                <i className="zmdi zmdi-plus-circle icon" /> {$L('添加条件')}
               </a>
             </div>
           </div>
@@ -86,7 +86,7 @@ class AdvFilter extends React.Component {
                   checked={this.state.useEquation === 'OR'}
                   onChange={this.handleChange}
                 />
-                <span className="custom-control-label"> {$L('或关系')}</span>
+                <span className="custom-control-label pl-1">{$L('或关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input
@@ -97,7 +97,7 @@ class AdvFilter extends React.Component {
                   checked={this.state.useEquation === 'AND'}
                   onChange={this.handleChange}
                 />
-                <span className="custom-control-label"> {$L('且关系')}</span>
+                <span className="custom-control-label pl-1">{$L('且关系')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-2">
                 <input
@@ -108,9 +108,8 @@ class AdvFilter extends React.Component {
                   checked={this.state.useEquation === '9999'}
                   onChange={this.handleChange}
                 />
-                <span className="custom-control-label">
-                  {' '}
-                  {$L('高级表达式')}{' '}
+                <span className="custom-control-label pl-1">
+                  {$L('高级表达式')}
                   <a href="https://getrebuild.com/docs/manual/basic#%E9%AB%98%E7%BA%A7%E8%A1%A8%E8%BE%BE%E5%BC%8F" target="_blank">
                     <i className="zmdi zmdi-help zicon down-1" style={{ cursor: 'pointer' }} />
                   </a>
@@ -128,7 +127,7 @@ class AdvFilter extends React.Component {
                   onChange={this.handleChange}
                   onBlur={(e) => this.checkEquation(e)}
                 />
-                {this.state.equationError ? <i className="zmdi zmdi-alert-triangle text-danger"></i> : <i className="zmdi zmdi-check text-success"></i>}
+                <i className={`zmdi ${this.state.equationError ? 'zmdi-alert-triangle text-danger' : 'zmdi-check text-success'}`} />
               </div>
             )}
           </div>
@@ -282,7 +281,10 @@ class AdvFilter extends React.Component {
     if (hasError) return RbHighbar.create($L('部分条件设置有误，请检查'))
     if (filters.length === 0 && canNoFilters !== true) return RbHighbar.create($L('请至少添加 1 个条件'))
 
-    const adv = { entity: this.props.entity, items: filters }
+    const adv = {
+      entity: this.props.entity,
+      items: filters,
+    }
     if (this.state.useEquation === 'AND') {
       adv.equation = 'AND'
     } else if (this.state.useEquation === '9999') {
@@ -385,7 +387,7 @@ class FilterItem extends React.Component {
       <div className="row item">
         <div className="col-sm-5 field">
           <em>{this.state.index}</em>
-          <i className="zmdi zmdi-minus-circle" title={$L('移除')} onClick={() => this.props.$$$parent.removeItem(this.props.id)}></i>
+          <i className="zmdi zmdi-minus-circle" title={$L('移除')} onClick={() => this.props.$$$parent.removeItem(this.props.id)} />
           <select className="form-control form-control-sm" ref={(c) => (this._filterField = c)}>
             {this.state.fields.map((item) => {
               return (
@@ -407,7 +409,7 @@ class FilterItem extends React.Component {
             })}
           </select>
         </div>
-        <div className={'col-sm-5 val' + (OP_NOVALUE.includes(this.state.op) ? ' hide' : '')}>{this.renderValue()}</div>
+        <div className={`col-sm-5 val ${OP_NOVALUE.includes(this.state.op) && 'hide'}`}>{this.renderValue()}</div>
       </div>
     )
   }
@@ -419,7 +421,31 @@ class FilterItem extends React.Component {
     if (fieldType === 'NUMBER' || fieldType === 'DECIMAL') {
       op = ['GT', 'LT', 'EQ', 'BW', 'GE', 'LE']
     } else if (fieldType === 'DATE' || fieldType === 'DATETIME') {
-      op = ['TDA', 'YTA', 'TTA', 'GT', 'LT', 'EQ', 'BW', 'RED', 'REM', 'REY', 'FUD', 'FUM', 'FUY', 'BFD', 'BFM', 'BFY', 'AFD', 'AFM', 'AFY', 'CUW', 'CUM', 'CUQ', 'CUY']
+      op = [
+        'TDA',
+        'YTA',
+        'TTA',
+        'GT',
+        'LT',
+        'EQ',
+        'BW',
+        'RED',
+        'REM',
+        'REY',
+        'FUD',
+        'FUM',
+        'FUY',
+        'BFD',
+        'BFM',
+        'BFY',
+        'AFD',
+        'AFM',
+        'AFY',
+        'CUW',
+        'CUM',
+        'CUQ',
+        'CUY',
+      ]
     } else if (fieldType === 'FILE' || fieldType === 'IMAGE' || fieldType === 'AVATAR') {
       op = []
     } else if (fieldType === 'PICKLIST' || fieldType === 'STATE' || fieldType === 'MULTISELECT') {
@@ -541,15 +567,15 @@ class FilterItem extends React.Component {
     this.props.onRef(this)
 
     const that = this
-    const s2field = $(this._filterField)
+    const $s2field = $(this._filterField)
       .select2({
         allowClear: false,
       })
       .on('change', function (e) {
         const ft = e.target.value.split(NT_SPLIT)
-        that.setState({ field: ft[0], type: ft[1] }, () => s2op.val(that.__op[0]).trigger('change'))
+        that.setState({ field: ft[0], type: ft[1] }, () => $s2op.val(that.__op[0]).trigger('change'))
       })
-    const s2op = $(this._filterOp)
+    const $s2op = $(this._filterOp)
       .select2({
         allowClear: false,
       })
@@ -557,7 +583,7 @@ class FilterItem extends React.Component {
         that.setState({ op: e.target.value }, () => that._componentDidUpdate())
       })
 
-    this.__select2 = [s2field, s2op]
+    this.__select2 = [$s2field, $s2op]
 
     // Load
     if (this.props.field) {
@@ -568,10 +594,10 @@ class FilterItem extends React.Component {
           return false
         }
       })
-      s2field.val(field).trigger('change')
-      setTimeout(() => s2op.val(that.props.op).trigger('change'), 100)
+      $s2field.val(field).trigger('change')
+      setTimeout(() => $s2op.val(that.props.op).trigger('change'), 100)
     } else {
-      s2field.trigger('change')
+      $s2field.trigger('change')
     }
   }
 
@@ -626,22 +652,23 @@ class FilterItem extends React.Component {
   }
 
   valueHandle = (e) => {
-    const val = e.target.value
-    if (~~e.target.dataset.at === 2) this.setState({ value2: val })
-    else this.setState({ value: val })
+    const v = e.target.value
+    if (~~e.target.dataset.at === 2) this.setState({ value2: v })
+    else this.setState({ value: v })
   }
+
   // @e = el or event
   valueCheck = (e) => {
-    let el = e.target ? $(e.target) : e
-    let val = e.target ? e.target.value : e.val()
-    el.removeClass('is-invalid')
-    if (!val) {
-      el.addClass('is-invalid')
+    const $el = e.target ? $(e.target) : e
+    let v = e.target ? e.target.value : e.val()
+    $el.removeClass('is-invalid')
+    if (!v) {
+      $el.addClass('is-invalid')
     } else {
       if (this.isNumberValue()) {
-        if ($regex.isDecimal(val) === false) el.addClass('is-invalid')
+        if ($regex.isDecimal(v) === false) $el.addClass('is-invalid')
       } else if (this.state.type === 'DATE') {
-        if ($regex.isUTCDate(val) === false) el.addClass('is-invalid')
+        if ($regex.isUTCDate(v) === false) $el.addClass('is-invalid')
       }
     }
   }
@@ -651,6 +678,7 @@ class FilterItem extends React.Component {
   renderPickList(field) {
     const entity = this.props.$$$parent.props.entity
     const plKey = entity + '.' + field
+
     if (PICKLIST_CACHE[plKey]) {
       this.setState({ options: PICKLIST_CACHE[plKey] }, () => this.renderPickListAfter())
     } else {
@@ -667,17 +695,17 @@ class FilterItem extends React.Component {
 
   renderPickListAfter() {
     const that = this
-    const s2val = $(this._filterVal)
+    const $s2val = $(this._filterVal)
       .select2({})
       .on('change.select2', function () {
-        that.setState({ value: s2val.val().join('|') })
+        that.setState({ value: $s2val.val().join('|') })
       })
-    this.__select2_PickList = s2val
+    this.__select2_PickList = $s2val
 
     // Load
     if (this.props.value && this.loadedPickList === false) {
-      const val = this.props.value.split('|')
-      s2val.val(val).trigger('change')
+      const v = this.props.value.split('|')
+      $s2val.val(v).trigger('change')
       this.loadedPickList = true
     }
   }
@@ -694,7 +722,7 @@ class FilterItem extends React.Component {
 
   renderBizzSearch(entity) {
     const that = this
-    const s2val = $(this._filterVal)
+    const $s2val = $(this._filterVal)
       .select2({
         minimumInputLength: 1,
         ajax: {
@@ -717,17 +745,17 @@ class FilterItem extends React.Component {
         },
       })
       .on('change.select2', function () {
-        const val = s2val.val()
+        const val = $s2val.val()
         that.setState({ value: val.join('|') })
       })
-    this.__select2_BizzSearch = s2val
+    this.__select2_BizzSearch = $s2val
 
     // Load
     if (this.props.value && this.loadedBizzSearch === false) {
       $.get(`/commons/search/read-labels?ids=${$encode(this.props.value)}`, (res) => {
         for (let kid in res.data) {
-          const option = new Option(res.data[kid], kid, true, true)
-          s2val.append(option)
+          const o = new Option(res.data[kid], kid, true, true)
+          $s2val.append(o)
         }
       })
       this.loadedBizzSearch = true
@@ -752,30 +780,28 @@ class FilterItem extends React.Component {
     }
 
     const that = this
-    const dp1 = $(this._filterVal).datetimepicker(dpcfg)
-    dp1.on('change.select2', function (e) {
+    const $dp1 = $(this._filterVal).datetimepicker(dpcfg)
+    $dp1.on('change.select2', function (e) {
       that.setState({ value: e.target.value }, () => {
         that.valueCheck($(that._filterVal))
       })
     })
-    this.__datepicker = [dp1]
+    this.__datepicker = [$dp1]
 
     if (this._filterVal2) {
-      const dp2 = $(this._filterVal2).datetimepicker(dpcfg)
-      dp2.on('change.select2', function (e) {
+      const $dp2 = $(this._filterVal2).datetimepicker(dpcfg)
+      $dp2.on('change.select2', function (e) {
         that.setState({ value2: e.target.value }, () => {
           that.valueCheck($(that._filterVal2))
         })
       })
-      this.__datepicker.push(dp2)
+      this.__datepicker.push($dp2)
     }
   }
 
   removeDatepicker() {
     if (this.__datepicker) {
-      this.__datepicker.forEach((item) => {
-        item.datetimepicker('remove')
-      })
+      this.__datepicker.forEach((item) => item.datetimepicker('remove'))
       this.__datepicker = null
     }
   }
@@ -784,15 +810,15 @@ class FilterItem extends React.Component {
 
   renderBool() {
     const that = this
-    const s2val = $(this._filterVal)
+    const $s2val = $(this._filterVal)
       .select2({
         allowClear: false,
       })
       .on('change.select2', function () {
-        that.setState({ value: s2val.val() })
+        that.setState({ value: $s2val.val() })
       })
-    this.__select2_Bool = s2val
-    s2val.val(this.props.value || 'T').trigger('change')
+    this.__select2_Bool = $s2val
+    $s2val.val(this.props.value || 'T').trigger('change')
   }
 
   removeBool() {
@@ -827,7 +853,11 @@ class FilterItem extends React.Component {
       return
     }
 
-    const item = { index: s.index, field: s.field, op: s.op }
+    const item = {
+      index: s.index,
+      field: s.field,
+      op: s.op,
+    }
     if (s.value) item.value = s.value
     if (s.value2) item.value2 = s.value2
     // 引用字段查询名称字段
