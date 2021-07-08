@@ -246,11 +246,13 @@ class AdvFilter extends React.Component {
 
   checkEquation(e) {
     const v = e.target.value
-    if (!v) return
-
-    $.post('/app/entity/advfilter/test-equation', v, (res) => {
-      this.setState({ equationError: res.error_code !== 0 })
-    })
+    if (v) {
+      $.post('/app/entity/advfilter/test-equation', v, (res) => {
+        this.setState({ equationError: res.error_code !== 0 })
+      })
+    } else {
+      this.setState({ equationError: false })
+    }
   }
 
   renderEquation() {
