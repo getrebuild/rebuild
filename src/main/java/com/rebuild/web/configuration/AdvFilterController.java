@@ -12,6 +12,7 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AdvFilterManager;
@@ -22,12 +23,9 @@ import com.rebuild.core.service.query.AdvFilterParser;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 高级查询
@@ -35,14 +33,14 @@ import javax.servlet.http.HttpServletResponse;
  * @author devezhao
  * @since 10/14/2018
  */
-@Controller
+@RestController
 @RequestMapping("/app/{entity}/")
 public class AdvFilterController extends BaseController implements ShareTo {
 
-    @RequestMapping("advfilter/post")
-    public void sets(@PathVariable String entity,
-                     HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
+    @PostMapping("advfilter/post")
+    public RespBody sets(@PathVariable String entity, HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+
         ID filterId = getIdParameter(request, "id");
         String filterName = getParameter(request, "name");
 
@@ -76,43 +74,31 @@ public class AdvFilterController extends BaseController implements ShareTo {
         }
         record = Application.getBean(AdvFilterService.class).createOrUpdate(record);
 
-        writeSuccess(response, JSONUtils.toJSONObject("id", record.getPrimary()));
+        return RespBody.ok(JSONUtils.toJSONObject("id", record.getPrimary()));
     }
 
-    @RequestMapping("advfilter/get")
-    public void gets(@PathVariable String entity,
-                     HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("advfilter/get")
+    public RespBody gets(@PathVariable String entity, HttpServletRequest request) {
         ID filterId = getIdParameter(request, "id");
         ConfigBean filter = AdvFilterManager.instance.getAdvFilter(filterId);
         if (filter == null) {
-            writeFailure(response, "无效过滤条件");
+            return RespBody.errorl("未知过滤条件");
         } else {
-            writeSuccess(response, filter.toJSON());
+            return RespBody.ok(filter.toJSON());
         }
     }
 
-    @RequestMapping("advfilter/list")
-    public void list(@PathVariable String entity,
-                     HttpServletRequest request, HttpServletResponse response) {
-        ID user = getRequestUser(request);
-        JSON filters = AdvFilterManager.instance.getAdvFilterList(entity, user);
-        writeSuccess(response, filters);
+    @GetMapping("advfilter/list")
+    public JSON list(@PathVariable String entity, HttpServletRequest request) {
+        return AdvFilterManager.instance.getAdvFilterList(entity, getRequestUser(request));
     }
 
     @RequestMapping("advfilter/test-equation")
-    public void testEquation(@PathVariable String entity,
-                             HttpServletRequest request, HttpServletResponse response) {
+    public RespBody testEquation(@PathVariable String entity, HttpServletRequest request) {
         final String equation = ServletUtils.getRequestString(request);
-        if (StringUtils.isBlank(equation)) {
-            writeSuccess(response);
-            return;
-        }
+        if (StringUtils.isBlank(equation)) return RespBody.ok();
 
         String valid = AdvFilterParser.validEquation(equation);
-        if (valid == null) {
-            writeFailure(response);
-        } else {
-            writeSuccess(response);
-        }
+        return valid == null ? RespBody.error() : RespBody.ok();
     }
 }
