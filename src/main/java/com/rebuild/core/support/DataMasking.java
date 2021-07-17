@@ -36,7 +36,7 @@ public class DataMasking {
             int starLen = textLen - len3 * 2;
             return text.substring(0, len3)
                     + StringUtils.repeat("*", Math.min(starLen, 20))
-                    + text.substring(len3 * 2);
+                    + text.substring(textLen - len3 * 2);
         }
     }
 

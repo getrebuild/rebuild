@@ -54,25 +54,33 @@
                           <span class="smtp-hide">APPID</span>
                           <span class="smtp-show">[[${bundle.L('SMTP 用户名')}]]</span>
                         </td>
-                        <td data-id="MailUser" th:data-value="${mailAccount == null ? '' : mailAccount[0]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[0]}]]</td>
+                        <td data-id="MailUser" th:data-value="${mailAccount == null ? '' : mailAccount[0]}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[0]}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>
                           <span class="smtp-hide">APPKEY</span>
                           <span class="smtp-show">[[${bundle.L('SMTP 密码')}]]</span>
                         </td>
-                        <td data-id="MailPassword" th:data-value="${mailAccount == null ? '' : mailAccount[1]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[1]}]]</td>
+                        <td data-id="MailPassword" th:data-value="${mailAccount == null ? '' : mailAccount[1]}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[1]}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>
                           [[${bundle.L('发件人地址')}]]
                           <p class="smtp-hide">[[${bundle.L('地址域名需与 SUBMAIL 中配置的域名匹配')}]]</p>
                         </td>
-                        <td data-id="MailAddr" th:data-value="${mailAccount == null ? '' : mailAccount[2]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[2]}]]</td>
+                        <td data-id="MailAddr" th:data-value="${mailAccount == null ? '' : mailAccount[2]}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[2]}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('发件人名称')}]]</td>
-                        <td data-id="MailName" th:data-value="${mailAccount == null ? '' : mailAccount[3]}">[[${mailAccount == null ? bundle.L('未设置') : mailAccount[3]}]]</td>
+                        <td data-id="MailName" th:data-value="${mailAccount == null ? '' : mailAccount[3]}">
+                          [[${mailAccount == null ? bundle.L('未设置') : mailAccount[3]}]]
+                        </td>
                       </tr>
                       <tr class="show-on-edit">
                         <td></td>
@@ -93,15 +101,21 @@
                     <tbody>
                       <tr>
                         <td width="40%">APPID</td>
-                        <td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">[[${smsAccount == null ? bundle.L('未设置') : smsAccount[0]}]]</td>
+                        <td data-id="SmsUser" th:data-value="${smsAccount == null ? '' : smsAccount[0]}">
+                          [[${smsAccount == null ? bundle.L('未设置') : smsAccount[0]}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>APPKEY</td>
-                        <td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">[[${smsAccount == null ? bundle.L('未设置') : smsAccount[1]}]]</td>
+                        <td data-id="SmsPassword" th:data-value="${smsAccount == null ? '' : smsAccount[1]}">
+                          [[${smsAccount == null ? bundle.L('未设置') : smsAccount[1]}]]
+                        </td>
                       </tr>
                       <tr>
                         <td>[[${bundle.L('短信签名')}]]</td>
-                        <td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">[[${smsAccount == null ? bundle.L('未设置') : smsAccount[2]}]]</td>
+                        <td data-id="SmsSign" th:data-value="${smsAccount == null ? '' : smsAccount[2]}">
+                          [[${smsAccount == null ? bundle.L('未设置') : smsAccount[2]}]]
+                        </td>
                       </tr>
                       <tr class="show-on-edit">
                         <td></td>

@@ -89,6 +89,12 @@ public enum ConfigurationItem {
     // 登录密码过期时间
     PasswordExpiredDays(0),
 
+    // DingTalk
+    DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
+    DingtalkPushAeskey, DingtalkPushToken,
+    // WxWork
+    WxworkCorpid, WxworkAgentid, WxworkSecret
+
     ;
 
     private Object defaultVal;
