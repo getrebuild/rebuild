@@ -310,9 +310,9 @@
             <version>1.6.2</version>
         </dependency>
         <dependency>
-            <groupId>eu.bitwalker</groupId>
-            <artifactId>UserAgentUtils</artifactId>
-            <version>1.21</version>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>5.7.4</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>

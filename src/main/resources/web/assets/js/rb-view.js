@@ -154,9 +154,9 @@ const _renderError = (message) => {
   return (
     <div className="alert alert-danger alert-icon mt-5 w-75" style={{ margin: '0 auto' }}>
       <div className="icon">
-        <i className="zmdi zmdi-alert-triangle"></i>
+        <i className="zmdi zmdi-alert-triangle" />
       </div>
-      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}!</strong> ${message}` }}></div>
+      <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}!</strong> ${message}` }} />
     </div>
   )
 }
@@ -210,7 +210,7 @@ class RelatedList extends React.Component {
               <div className="col text-right">
                 <div className="btn-group">
                   <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
-                    {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                    {this.state.sortDisplayText || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
                   </button>
                   {this.renderSorts()}
                 </div>
@@ -433,7 +433,7 @@ class SelectReport extends React.Component {
                   {$L('暂无报表')}
                   {rb.isAdminUser && (
                     <a className="icon-link ml-1" target="_blank" href={`${rb.baseUrl}/admin/data/report-templates`}>
-                      <i className="zmdi zmdi-settings"></i> {$L('点击配置')}
+                      <i className="zmdi zmdi-settings" /> {$L('点击配置')}
                     </a>
                   )}
                 </p>
@@ -448,7 +448,7 @@ class SelectReport extends React.Component {
                       <li key={'r-' + item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate">
                           {item.name}
-                          <i className="zmdi zmdi-download"></i>
+                          <i className="zmdi zmdi-download" />
                         </a>
                       </li>
                     )
@@ -716,9 +716,8 @@ const RbViewPage = {
       $item.click(function () {
         if (e.entity === 'Feeds.relatedRecord') {
           const data = {
-            content: '',
             type: 2,
-            relatedRecord: { id: that.__id, entity: that.__entity[0] },
+            relatedRecord: { id: that.__id, entity: that.__entity[0], text: `@${that.__id.toUpperCase()}` },
           }
           // eslint-disable-next-line react/jsx-no-undef
           renderRbcomp(<FeedsEditDlg {...data} call={() => that.reload()} />)

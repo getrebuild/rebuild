@@ -180,7 +180,9 @@ public class FeedsListController extends BaseController {
 
     private JSONObject buildItem(Object[] o, ID user) {
         JSONObject item = formatBase(o, user);
+
         FeedsScope scope = FeedsScope.parse((String) o[7]);
+        item.put("scopeRaw", o[7]);
         if (scope == FeedsScope.GROUP) {
             Team team = Application.getUserStore().getTeam(ID.valueOf((String) o[7]));
             item.put("scope", new Object[]{team.getIdentity(), team.getName()});

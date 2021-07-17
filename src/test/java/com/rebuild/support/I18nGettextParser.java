@@ -47,8 +47,8 @@ public class I18nGettextParser {
 
         Set<String> into = new TreeSet<>();
         parse(root, into);
-        // append mob
-//        parse(new File("D:\\GitHub\\rebuild\\rebuild-mob"), into);
+        // append rebuild-mob
+        parse(new File("D:\\GitHub\\rebuild\\rebuild-mob"), into);
 
         log.info("Found {} items", into.size());
         // Bad text

@@ -968,7 +968,7 @@ const AdvFilters = {
               confirmText: $L('删除'),
               confirm: function () {
                 this.disabled(true)
-                $.post(`/app/entity/record-delete?id=${item.id}`, (res) => {
+                $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
                   if (res.error_code === 0) {
                     this.hide()
                     that.loadFilters()

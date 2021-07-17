@@ -60,9 +60,9 @@ See LICENSE and COMMERCIAL in the project root for license information.
   $('meta[name^="rb."]').each(function (idx, item) {
     var k = $(item).attr('name').substr(3) // remove `rb.`
     var v = $(item).attr('content')
-    if (v === 'true') v = true
-    else if (v === 'false') v = false
-    window.rb[k] = v || ''
+    if (v === 'true') window.rb[k] = true
+    else if (v === 'false') window.rb[k] = false
+    else window.rb[k] = v || ''
   })
 
   if ($.browser.msie && $.browser.version < 11) location.replace(rb.baseUrl + '/error/unsupported-browser')
@@ -207,6 +207,7 @@ var $setTimeout = function (e, t, id) {
   if (id) $setTimeout__timers[id] = timer
   return timer
 }
+
 /**
  * 获取 URL 参数
  */
@@ -223,24 +224,25 @@ var $urlp = function (key, qstr) {
   }
   return !key || key === '*' ? map : map[key]
 }
+
 /**
  * 获取元素值。兼容旧值比较（根据 data-o 属性），如与旧值一致则返回 null
  */
 var $val = function (el) {
-  el = $(el)
-  if (el.length === 0) return null
+  var $el = $(el)
+  if ($el.length === 0) return null
 
   var nVal
-  var tagName = el.prop('tagName')
-  var isCheckbox = tagName === 'INPUT' && el.attr('type') === 'checkbox'
+  var tagName = $el.prop('tagName')
+  var isCheckbox = tagName === 'INPUT' && $el.attr('type') === 'checkbox'
   if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT') {
-    nVal = isCheckbox ? el.prop('checked') : el.val()
+    nVal = isCheckbox ? $el.prop('checked') : $el.val()
   } else {
-    nVal = el.attr('value')
+    nVal = $el.attr('value')
   }
 
   // 无 data-o 值
-  var oVal = el.data('o')
+  var oVal = $el.data('o')
   if (oVal === undefined || !(oVal + '')) {
     return isCheckbox ? nVal : $.trim(nVal) || null
   }
@@ -255,6 +257,7 @@ var $val = function (el) {
   if (!!oVal && !nVal) return ''
   else return $.trim(nVal) || null
 }
+
 /**
  * 清理 Map 中的无效值（null、undefined）
  */
@@ -267,6 +270,7 @@ var $cleanMap = function (map) {
   }
   return newMap
 }
+
 /**
  * 常用正则
  */
@@ -316,6 +320,7 @@ var $regex = {
     return /^([0-9]{3}-[a-z0-9]{16})$/gi.test(id)
   },
 }
+
 /**
  * URL 编码
  */
@@ -330,6 +335,7 @@ var $decode = function (s) {
   if (!s) return ''
   return decodeURIComponent(s)
 }
+
 /**
  * localStorage
  */
@@ -363,8 +369,9 @@ var $random = function (prefix, alphabetic, maxLength) {
   }
   return (prefix || '') + new Date().getTime() + '' + $random__times++
 }
+
 /**
- * 计算分页
+ * 分页计算
  */
 var $pages = function (tp, cp) {
   var pages = []
@@ -385,6 +392,7 @@ var $pages = function (tp, cp) {
   if (end <= tp) pages.push(tp)
   return pages
 }
+
 /**
  * 是否相同。兼容对象或数组
  */
@@ -408,6 +416,7 @@ var $same = function (a, b) {
   return a == b
 }
 var $is = $same
+
 /**
  * 是否为空。兼容对象或数组
  */
@@ -417,6 +426,7 @@ var $empty = function (a) {
   if (type === 'array' && a.length === 0) return true
   else return type === 'object' && Object.keys(a).length === 0
 }
+
 /**
  * 停止事件传播
  */
@@ -426,18 +436,21 @@ var $stopEvent = function (e, preventDefault) {
   preventDefault && e && e.preventDefault()
   return false
 }
+
 /**
  * 是否为 true 或 'true'
  */
 var $isTrue = function (a) {
   return a === true || a === 'true' || a === 'T'
 }
+
 /**
  * 定位到指定元素
  */
 var $gotoSection = function (top, target) {
   $(target || 'html').animate({ scrollTop: top || 0 }, 600)
 }
+
 /**
  * 节流函数
  */
@@ -463,6 +476,7 @@ var $throttle = function (fn, delay) {
     }, delay || 200)
   }
 }
+
 /**
  * 分时函数
  */

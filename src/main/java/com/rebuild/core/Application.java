@@ -143,7 +143,7 @@ public class Application implements ApplicationListener<ApplicationStartedEvent>
                     public void run() {
                         log.warn(RebuildBanner.formatBanner(
                                 "REBUILD IS WAITING FOR INSTALL ...",
-                                "Install URL : " + BootApplication.getLocalUrl() + "/setup/install"));
+                                "Install : " + BootApplication.getLocalUrl() + "/setup/install"));
                     }
                 }, 1500);
             }

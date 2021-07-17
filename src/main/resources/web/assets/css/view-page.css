@@ -182,6 +182,10 @@ body {
   padding-bottom: 13px;
 }
 
+.view-operating {
+  margin-top: 33px;
+}
+
 .view-operating > div {
   margin-bottom: 15px !important;
 }
@@ -193,10 +197,6 @@ body {
 
 .view-operating dt {
   font-weight: normal;
-}
-
-.view-action {
-  margin-top: 33px;
 }
 
 .view-action .col-lg-6 {
@@ -525,14 +525,6 @@ body {
   border: 0 none;
   padding: 0;
   margin: -32px 0 0;
-}
-
-.feeds-list.inview .feeds > .content .rich-content {
-  font-size: 1rem;
-}
-
-.feeds-list.inview .feeds > .content .rich-content > .appends {
-  font-size: 12px;
 }
 
 .feeds-list.inview .feeds > .content .rich-content > .appends a:not([href]):not([tabindex]) {

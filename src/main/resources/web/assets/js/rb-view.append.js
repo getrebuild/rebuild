@@ -19,6 +19,7 @@ class LightFeedsList extends RelatedList {
     // 复写组件
     this.__FeedsList = new FeedsList()
     this.__FeedsList.setState = (s) => this.setState(s)
+    this.__FeedsList.fetchFeeds = () => this.fetchData(false)
 
     this.__listClass = 'feeds-list inview'
     this.__listNoData = (
@@ -46,7 +47,7 @@ class LightFeedsList extends RelatedList {
   }
 
   renderItem(item) {
-    return this.__FeedsList.renderItem({ ...item, self: false })
+    return this.__FeedsList.renderItem({ ...item })
   }
 
   fetchData(append) {
@@ -130,7 +131,7 @@ class LightTaskList extends RelatedList {
                 disabled={item.planFlow === 2 || !item.projectMember}
                 onClick={() => this._toggleStatus(item)}
               />
-              <span className="custom-control-label"></span>
+              <span className="custom-control-label" />
             </label>
             <a href={`${rb.baseUrl}/app/list-and-view?id=${item.id}`} target="_blank" title={$L('打开')}>
               [{item.taskNumber}] {item.taskName}
@@ -268,7 +269,7 @@ class LightTaskDlg extends RbModalHandler {
           </div>
           <div className="form-group">
             <label>{$L('任务标题')}</label>
-            <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)}></textarea>
+            <textarea className="form-control form-control-sm row2x" ref={(c) => (this._$title = c)} />
           </div>
         </div>
         <div className="mt-3 text-right" ref={(c) => (this._btns = c)}>

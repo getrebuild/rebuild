@@ -15,6 +15,9 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentInfo;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
@@ -33,7 +36,6 @@ import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
-import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -244,25 +246,22 @@ public class LoginController extends BaseController {
     protected void createLoginLog(HttpServletRequest request, ID user) {
         String ipAddr = ServletUtils.getRemoteAddr(request);
         String UA = request.getHeader("user-agent");
-        UserAgent uas = UserAgent.parseUserAgentString(UA);
-        try {
-            String browserVersion = uas.getBrowserVersion() == null ? null : uas.getBrowserVersion().getMajorVersion();
-            if (StringUtils.isNotBlank(browserVersion)) browserVersion = "-" + browserVersion;
 
-            UA = String.format("%s%s (%s)",
-                    org.apache.commons.lang.ObjectUtils.defaultIfNull(uas.getBrowser(), "N"),
-                    org.apache.commons.lang.ObjectUtils.defaultIfNull(browserVersion, ""),
-                    org.apache.commons.lang.ObjectUtils.defaultIfNull(uas.getOperatingSystem(), "N"));
+        try {
+            UserAgent uas = UserAgentUtil.parse(UA);
+            UA = String.format("%s-%s (%s)",
+                    uas.getBrowser(), uas.getVersion().split("\\.")[0], uas.getPlatform());
+            if (uas.isMobile()) UA += " [Mobile]";
 
         } catch (Exception ex) {
             log.warn("Unknown user-agent : " + UA);
-            UA = "UNKNOW";
+            UA = UserAgentInfo.NameUnknown;
         }
 
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
         record.setString("ipAddr", ipAddr);
-        record.setString("userAgent", UA);
+        record.setString("userAgent", UA.toUpperCase());
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
     }

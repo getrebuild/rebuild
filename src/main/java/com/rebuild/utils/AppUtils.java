@@ -109,13 +109,14 @@ public class AppUtils {
      * @return
      */
     public static String getReuqestLocale(HttpServletRequest request) {
-        String locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
-        if (locale == null) {
-            locale = StringUtils.defaultIfBlank(request.getHeader(HF_LOCALE), null);
-        }
-        if (locale == null) {
-            locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
-        }
+        // in URL
+        String locale = request.getParameter("locale");
+        // in Session
+        if (locale == null) locale = (String) ServletUtils.getSessionAttribute(request, SK_LOCALE);
+        // in Header
+        if (locale == null) locale = request.getHeader(HF_LOCALE);
+        // in System
+        if (StringUtils.isBlank(locale)) locale = RebuildConfiguration.get(ConfigurationItem.DefaultLanguage);
         return locale;
     }
 
