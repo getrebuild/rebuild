@@ -297,7 +297,7 @@ public class ConfigurationController extends BaseController {
             }
         }
 
-        String homeUrl = RebuildConfiguration.getHomeUrl();
+        String homeUrl = RebuildConfiguration.getHomeUrl("/user/dingtalk");
         mv.getModel().put("_DingtalkHomeUrl", homeUrl);
 
         return mv;
@@ -329,7 +329,7 @@ public class ConfigurationController extends BaseController {
             }
         }
 
-        String homeUrl = RebuildConfiguration.getHomeUrl();
+        String homeUrl = RebuildConfiguration.getHomeUrl("/user/wxwork");
         mv.getModel().put("_WxworkHomeUrl", homeUrl);
         mv.getModel().put("_WxworkAuthCallUrl", homeUrl.split("//")[1].split("/")[0]);
 

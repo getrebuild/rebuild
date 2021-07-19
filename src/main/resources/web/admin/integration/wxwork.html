@@ -19,7 +19,7 @@
                   <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                 </div>
                 <div class="card-body">
-                  <h5>[[${bundle.L('接口调用凭证')}]]</h5>
+                  <h5>[[${bundle.L('接口凭证')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
@@ -31,7 +31,7 @@
                         <td data-id="WxworkSecret" th:data-value="${WxworkSecret ?:''}">[[${WxworkSecret ?:bundle.L('未设置')}]]</td>
                       </tr>
                       <tr>
-                        <td>企业 ID</td>
+                        <td>[[${bundle.L('企业 ID')}]]</td>
                         <td data-id="WxworkCorpid" th:data-value="${WxworkCorpid ?:''}">[[${WxworkCorpid ?:bundle.L('未设置')}]]</td>
                       </tr>
                     </tbody>
@@ -40,11 +40,11 @@
                   <table class="table">
                     <tbody>
                       <tr>
-                        <td width="40%">应用主页</td>
+                        <td width="40%">[[${bundle.L('应用主页')}]]</td>
                         <td>[[${_WxworkHomeUrl}]]</td>
                       </tr>
                       <tr>
-                        <td>授权回调域</td>
+                        <td>[[${bundle.L('可信域名')}]]</td>
                         <td>[[${_WxworkAuthCallUrl}]]</td>
                       </tr>
                     </tbody>

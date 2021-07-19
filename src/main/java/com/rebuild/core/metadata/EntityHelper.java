@@ -177,6 +177,7 @@ public class EntityHelper {
     public static final int RoleMember = 5;
     public static final int Team = 6;
     public static final int TeamMember = 7;
+    public static final int ExternalUser = 8;
 
     // 配置
 

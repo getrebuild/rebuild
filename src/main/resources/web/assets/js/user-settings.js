@@ -50,6 +50,22 @@ $(document).ready(function () {
     })
   })
 
+  const $unauth = $('.J_unauth-dingtalk, .J_unauth-wxwork').on('click', () => {
+    RbAlert.create($L('确认要取消授权吗？'), {
+      confirm: function () {
+        this.hide()
+        $.post(`/settings/cancel-external-user?type=${$unauth.data('type')}`, (res) => {
+          if (res.error_code === 0) {
+            location.hash = 'secure'
+            location.reload()
+          } else {
+            RbHighbar.create(res.error_msg)
+          }
+        })
+      },
+    })
+  })
+
   // load log
 
   $('a.nav-link[href="#logs"]').click(() => {

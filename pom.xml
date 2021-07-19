@@ -421,5 +421,15 @@
             <artifactId>oshi-core</artifactId>
             <version>5.8.0</version>
         </dependency>
+
+        <!-- Local .deps -->
+        <dependency>
+            <groupId>local</groupId>
+            <artifactId>dingtalk-sdk</artifactId>
+            <version>20210719</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/.deps/taobao-sdk-java-auto_1479188381469-20210716.jar</systemPath>
+        </dependency>
+
     </dependencies>
 </project>

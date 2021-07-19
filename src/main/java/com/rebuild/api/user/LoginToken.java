@@ -58,7 +58,7 @@ public class LoginToken extends BaseApi {
      *
      * @param user
      * @param password
-     * @return
+     * @return 返回 null 表示成功
      */
     public static String checkUser(String user, String password) {
         if (!Application.getUserStore().existsUser(user)) {

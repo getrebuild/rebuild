@@ -1,6 +1,18 @@
 -- Database upgrade scripts for rebuild 1.x and 2.x
 -- Each upgraded starts with `-- #VERSION`
 
+-- #37 (v2.5)
+-- ************ Entity [ExternalUser] DDL ************
+create table if not exists `external_user` (
+  `USER_ID`            char(20) not null,
+  `USER`               varchar(100) not null,
+  `APP_ID`             varchar(100) not null,
+  `APP_TYPE`           smallint(6) not null default '1' comment '1=DingTalk,2=WxWork',
+  `BIND_USER`          char(20) not null,
+  primary key  (`USER_ID`),
+  unique index UIX0_external_user (`BIND_USER`, `USER`)
+)Engine=InnoDB;
+
 -- #36 (v2.4)
 -- ************ Entity [FrontjsCode] DDL ************
 create table if not exists `frontjs_code` (
