@@ -7,16 +7,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.notification;
 
-import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.I18nUtils;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -60,8 +60,9 @@ public class NotificationController extends BaseController {
 
         if ("ALL".equalsIgnoreCase(ids)) {
             Object[][] unreads = Application.createQueryNoFilter(
-                    "select messageId from Notification where toUser = ?")
+                    "select messageId from Notification where toUser = ? and unread = ?")
                     .setParameter(1, user)
+                    .setParameter(2, true)
                     .array();
 
             StringBuilder sb = new StringBuilder();
@@ -71,13 +72,9 @@ public class NotificationController extends BaseController {
             ids = sb.toString();
         }
 
-        for (String id : ids.split(",")) {
-            if (!ID.isId(id)) continue;
-
-            Record record = EntityHelper.forUpdate(ID.valueOf(id), user);
-            record.setBoolean("unread", false);
-            Application.getNotifications().update(record);
-        }
+        Arrays.stream(ids.split(","))
+                .filter(ID::isId)
+                .forEach(id -> Application.getNotifications().makeRead(ID.valueOf(id)));
 
         return RespBody.ok();
     }
@@ -141,19 +138,20 @@ public class NotificationController extends BaseController {
                     .setParameter(1, approvalStep)
                     .unique();
             if (stepState == null) {
-                m[3] = new Object[]{0};
+                m[3] = new Object[] { 0 };
             } else {
-                boolean canceled = (Boolean) stepState[0];
                 ApprovalState state = (ApprovalState) ApprovalState.valueOf((Integer) stepState[1]);
                 if (state == ApprovalState.DRAFT) {
-                    m[3] = canceled ? new Object[]{2, "已处理"} : new Object[]{1, "待处理"};
+                    boolean canceled = (Boolean) stepState[0];
+                    m[3] = canceled
+                            ? new Object[] { 2, Language.L("已处理") }
+                            : new Object[] { 1, Language.L("待处理") };
                 } else if (state == ApprovalState.APPROVED) {
-                    m[3] = new Object[]{10, "已同意"};
+                    m[3] = new Object[] { 10, Language.L("已同意") };
                 } else if (state == ApprovalState.REJECTED) {
-                    m[3] = new Object[]{11, "已驳回"};
+                    m[3] = new Object[] { 11, Language.L("已驳回") };
                 }
             }
-
             array[i] = m;
         }
 
