@@ -207,6 +207,15 @@ public class RebuildConfiguration extends KVStorage {
      * @param name
      * @return
      */
+    public static long getLong(ConfigurationItem name) {
+        String s = get(name);
+        return s == null ? (Long) name.getDefaultValue() : NumberUtils.toLong(s);
+    }
+
+    /**
+     * @param name
+     * @return
+     */
     public static boolean getBool(ConfigurationItem name) {
         String s = get(name);
         return s == null ? (Boolean) name.getDefaultValue() : BooleanUtils.toBoolean(s);

@@ -20,6 +20,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.general.QuickCodeReindexTask;
 import com.rebuild.core.support.i18n.Language;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/10
  */
+@Slf4j
 @Service
 public class ClassificationService extends BaseConfigurationService implements AdminGuard {
 
@@ -87,7 +89,7 @@ public class ClassificationService extends BaseConfigurationService implements A
                 } finally {
                     long cost = System.currentTimeMillis() - start;
                     if (cost > 2000 || Application.devMode()) {
-                        LOG.info("Reindex FullName [ " + itemId + " ] in " + cost + " ms");
+                        log.info("Reindex FullName [ {} ] in {} ms", itemId, cost);
                     }
                 }
             });

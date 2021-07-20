@@ -101,7 +101,7 @@ public class SendNotification implements TriggerAction {
                 }
 
             } else {  // TYPE_NOTIFICATION
-                Message m = MessageBuilder.createMessage(user, message, context.getSourceRecord());
+                Message m = MessageBuilder.createMessage(user, message, Message.TYPE_DEFAULT, context.getSourceRecord());
                 Application.getNotifications().send(m);
             }
         }

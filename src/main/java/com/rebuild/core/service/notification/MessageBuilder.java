@@ -30,11 +30,10 @@ public class MessageBuilder {
     /**
      * @param toUser
      * @param message
-     * @param recordId
      * @return
      */
-    public static Message createMessage(ID toUser, String message, ID recordId) {
-        return new Message(null, toUser, message, recordId, Message.TYPE_DEFAULT);
+    public static Message createMessage(ID toUser, String message) {
+        return new Message(null, toUser, message, null, Message.TYPE_DEFAULT);
     }
 
     /**
@@ -50,22 +49,22 @@ public class MessageBuilder {
     /**
      * @param toUser
      * @param message
-     * @param type
-     * @param recordId
+     * @param relatedRecord
      * @return
      */
-    public static Message createMessage(ID toUser, String message, int type, ID recordId) {
-        return new Message(null, toUser, message, recordId, type);
+    public static Message createApproval(ID toUser, String message, ID relatedRecord) {
+        return new Message(null, toUser, message, relatedRecord, Message.TYPE_APPROVAL);
     }
 
     /**
      * @param toUser
      * @param message
-     * @param recordId
+     * @param type
+     * @param relatedRecord
      * @return
      */
-    public static Message createApproval(ID toUser, String message, ID recordId) {
-        return new Message(null, toUser, message, recordId, Message.TYPE_APPROVAL);
+    public static Message createMessage(ID toUser, String message, int type, ID relatedRecord) {
+        return new Message(null, toUser, message, relatedRecord, type);
     }
 
     // --

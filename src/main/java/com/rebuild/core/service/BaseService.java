@@ -11,8 +11,6 @@ import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * 基础服务类
@@ -21,8 +19,6 @@ import org.slf4j.LoggerFactory;
  * @since 05/21/2017
  */
 public abstract class BaseService implements ServiceSpec {
-
-    protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
     private final PersistManagerFactory aPMFactory;
 
