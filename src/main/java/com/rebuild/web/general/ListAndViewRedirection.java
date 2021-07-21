@@ -31,9 +31,15 @@ import java.text.MessageFormat;
 @Controller
 public class ListAndViewRedirection extends BaseController {
 
-    @GetMapping("/app/list-and-view")
+    @GetMapping({ "/app/list-and-view", "/app/redirect" })
     public void redirect(@IdParam ID anyId, HttpServletResponse response) throws IOException {
         String url = null;
+
+        // 使用相关记录
+        if (anyId.getEntityCode() == EntityHelper.Notification) {
+            ID relatedRecord = findAndMakeMessageRead(anyId);
+            anyId = relatedRecord == null ? ID.newId(0) : relatedRecord;
+        }
 
         if (MetadataHelper.containsEntity(anyId.getEntityCode())) {
             Entity entity = MetadataHelper.getEntity(anyId.getEntityCode());
@@ -81,5 +87,15 @@ public class ListAndViewRedirection extends BaseController {
         Object[] feeds = Application.getQueryFactory().uniqueNoFilter(
                 commentId, "feedsId");
         return feeds == null ? null : (ID) feeds[0];
+    }
+
+    private ID findAndMakeMessageRead(ID messageId) {
+        Object[] m = Application.getQueryFactory().uniqueNoFilter(messageId, "unread", "relatedRecord");
+        if (m == null) return null;
+
+        if ((Boolean) m[0]) {
+            Application.getNotifications().makeRead(messageId);
+        }
+        return (ID) m[1];
     }
 }

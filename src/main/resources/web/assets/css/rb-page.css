@@ -4101,3 +4101,42 @@ body.fullscreen .rb-wrapper > .rb-content {
 .card-header {
   font-weight: normal;
 }
+
+html.external-auth,
+html.external-auth body {
+  height: auto;
+  background-color: #fff;
+}
+
+html.external-auth .auth-body {
+  max-width: 421px;
+  margin: 0 auto;
+}
+
+html.external-auth .auth-body .alogo {
+  margin-top: 61px;
+  margin-bottom: 51px;
+}
+
+html.external-auth .auth-body .alogo img {
+  display: inline-block;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+}
+
+html.external-auth .auth-body .alogo .zmdi {
+  font-size: 3rem;
+  margin-top: 12px;
+}
+
+html.external-auth .auth-body .card {
+  margin-left: 20px;
+  margin-right: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+html.external-auth .auth-body.must-center .card {
+  display: none;
+}

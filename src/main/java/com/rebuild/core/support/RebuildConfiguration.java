@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
+import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -156,6 +157,24 @@ public class RebuildConfiguration extends KVStorage {
             return homeUrl + path;
         }
         return homeUrl;
+    }
+
+    /**
+     * 获取绝对 URL（H5）
+     *
+     * @param path
+     * @return
+     */
+    public static String getMobileUrl(String path) {
+        if (path == null) {
+            path = "/h5app/";
+        } else {
+            if (path.startsWith("/")) path = "/h5app" + path;
+            else path = "/h5app/" + path;
+        }
+
+        if (Application.devMode()) return "http://192.168.0.199:3000" + path;
+        else return getHomeUrl(path);
     }
 
     /**

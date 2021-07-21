@@ -20,6 +20,7 @@ import com.rebuild.core.service.trigger.ActionContext;
 import com.rebuild.core.service.trigger.ActionType;
 import com.rebuild.core.service.trigger.TriggerAction;
 import com.rebuild.core.support.general.ContentWithFieldVars;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
@@ -85,7 +86,8 @@ public class SendNotification implements TriggerAction {
         String message = content.getString("content");
         message = ContentWithFieldVars.replaceWithRecord(message, context.getSourceRecord());
 
-        String emailSubject = StringUtils.defaultIfBlank(content.getString("title"), "你有一条新通知");
+        String emailSubject = content.getString("title");
+        if (StringUtils.isBlank(emailSubject)) emailSubject = Language.L("你有一条新通知");
 
         for (ID user : toUsers) {
             if (type == TYPE_MAIL) {

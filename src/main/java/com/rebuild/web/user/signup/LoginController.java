@@ -137,7 +137,7 @@ public class LoginController extends BaseController {
         }
 
         // H5 QR
-        String mobileQrUrl = RebuildConfiguration.getHomeUrl("/h5app/");
+        String mobileQrUrl = RebuildConfiguration.getMobileUrl("/");
         mobileQrUrl = AppUtils.getContextPath() + "/commons/barcode/render-qr?t=" + CodecUtils.urlEncode(mobileQrUrl);
         mv.getModel().put("mobileQrUrl", mobileQrUrl);
 

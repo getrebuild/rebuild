@@ -11,6 +11,8 @@ import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.rebuild.api.user.AuthTokenManager;
 import com.rebuild.core.Application;
 import com.rebuild.core.BootApplication;
@@ -221,5 +223,16 @@ public class AppUtils {
         // eg: Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko
         String ua = request.getHeader("user-agent");
         return ua != null && ua.contains("Trident/") && ua.contains("rv:11.");
+    }
+
+    /**
+     * 是否移动端
+     *
+     * @param request
+     * @return
+     */
+    public static boolean isMobile(HttpServletRequest request) {
+        UserAgent ua = UserAgentUtil.parse(request.getHeader("user-agent"));
+        return ua != null && ua.isMobile();
     }
 }
