@@ -62,17 +62,14 @@ import java.util.Map;
 public class LoginController extends BaseController {
 
     public static final String CK_AUTOLOGIN = "rb.alt";
-
-    private static final String SK_NEED_VCODE = "needLoginVCode";
-
     public static final String SK_USER_THEME = "currentUseTheme";
-
-    private static final String DEFAULT_HOME = "../dashboard/home";
+    private static final String SK_NEED_VCODE = "needLoginVCode";
 
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String homeUrl = "../dashboard/home";
         if (AppUtils.getRequestUser(request) != null) {
-            response.sendRedirect(DEFAULT_HOME);
+            response.sendRedirect(homeUrl);
             return null;
         }
 
@@ -83,7 +80,7 @@ public class LoginController extends BaseController {
             if (tokenUser != null) {
                 loginSuccessed(request, response, tokenUser, false);
 
-                String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
+                String nexturl = getParameter(request, "nexturl", homeUrl);
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;
             } else {
@@ -116,7 +113,7 @@ public class LoginController extends BaseController {
             if (altUser != null && Application.getUserStore().existsUser(altUser)) {
                 loginSuccessed(request, response, altUser, true);
 
-                String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
+                String nexturl = getParameter(request, "nexturl", homeUrl);
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;
             } else {
@@ -136,9 +133,10 @@ public class LoginController extends BaseController {
             ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
         }
 
-        // H5 QR
-        String mobileQrUrl = RebuildConfiguration.getMobileUrl("/");
-        mobileQrUrl = AppUtils.getContextPath() + "/commons/barcode/render-qr?t=" + CodecUtils.urlEncode(mobileQrUrl);
+        // H5
+        String mobileUrl = RebuildConfiguration.getMobileUrl("/");
+        String mobileQrUrl = AppUtils.getContextPath() + "/commons/barcode/render-qr?t=" + CodecUtils.urlEncode(mobileUrl);
+        mv.getModel().put("mobileUrl", mobileUrl);
         mv.getModel().put("mobileQrUrl", mobileQrUrl);
 
         mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
@@ -190,35 +188,22 @@ public class LoginController extends BaseController {
         return RespBody.ok(resMap);
     }
 
-    /**
-     * @param user
-     * @param state
-     * @return
-     */
     private int getLoginRetryTimes(String user, int state) {
-        String key = "LoginRetry-" + user;
+        final String ckey = "LoginRetry-" + user;
         if (state == -1) {
-            Application.getCommonsCache().evict(key);
+            Application.getCommonsCache().evict(ckey);
             return 0;
         }
 
-        Integer retry = (Integer) Application.getCommonsCache().getx(key);
+        Integer retry = (Integer) Application.getCommonsCache().getx(ckey);
         retry = retry == null ? 0 : retry;
         if (state == 1) {
             retry += 1;
-            Application.getCommonsCache().putx(key, retry, CommonsCache.TS_HOUR);
+            Application.getCommonsCache().putx(ckey, retry, CommonsCache.TS_HOUR);
         }
         return retry;
     }
 
-    /**
-     * 登录成功
-     *
-     * @param request
-     * @param response
-     * @param user
-     * @param autoLogin
-     */
     private void loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
         // 自动登录
         if (autoLogin) {
@@ -237,16 +222,8 @@ public class LoginController extends BaseController {
         Application.getSessionStore().storeLoginSuccessed(request);
     }
 
-    /**
-     * 创建登陆日志
-     *
-     * @param request
-     * @param user
-     */
-    protected void createLoginLog(HttpServletRequest request, ID user) {
-        String ipAddr = ServletUtils.getRemoteAddr(request);
+    private void createLoginLog(HttpServletRequest request, ID user) {
         String UA = request.getHeader("user-agent");
-
         try {
             UserAgent uas = UserAgentUtil.parse(UA);
             UA = String.format("%s-%s (%s)",
@@ -260,7 +237,7 @@ public class LoginController extends BaseController {
 
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
-        record.setString("ipAddr", ipAddr);
+        record.setString("ipAddr", ServletUtils.getRemoteAddr(request));
         record.setString("userAgent", UA.toUpperCase());
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);

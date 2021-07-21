@@ -7,7 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support;
 
-import com.rebuild.core.Application;
+import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -146,35 +146,33 @@ public class RebuildConfiguration extends KVStorage {
      */
     public static String getHomeUrl(String path) {
         String homeUrl = get(ConfigurationItem.HomeURL);
-        if (!homeUrl.endsWith("/")) {
-            homeUrl += "/";
-        }
-
-        if (path != null) {
-            if (path.startsWith("/")) {
-                path = path.substring(1);
-            }
-            return homeUrl + path;
-        }
+        if (path != null) homeUrl = joinPath(homeUrl, path);
+        else if (!homeUrl.endsWith("/")) homeUrl += "/";
         return homeUrl;
     }
 
     /**
-     * 获取绝对 URL（H5）
+     * 获取绝对 URL H5
      *
      * @param path
      * @return
+     * @see #getHomeUrl(String)
      */
     public static String getMobileUrl(String path) {
-        if (path == null) {
-            path = "/h5app/";
-        } else {
-            if (path.startsWith("/")) path = "/h5app" + path;
-            else path = "/h5app/" + path;
+        String mobileUrl = BootEnvironmentPostProcessor.getProperty(ConfigurationItem.MobileUrl.name());
+        if (mobileUrl != null) {
+            return path == null ? mobileUrl : joinPath(mobileUrl, path);
         }
 
-        if (Application.devMode()) return "http://192.168.0.199:3000" + path;
-        else return getHomeUrl(path);
+        mobileUrl = "/h5app/";
+        if (path != null) mobileUrl = joinPath(mobileUrl, path);
+        return getHomeUrl(mobileUrl);
+    }
+
+    static String joinPath(String path1, String path2) {
+        if (path1.endsWith("/")) path1 = path1.substring(0, path1.length() - 1);
+        if (path2.startsWith("/")) path2 = path2.substring(1);
+        return path1 + "/" + path2;
     }
 
     /**

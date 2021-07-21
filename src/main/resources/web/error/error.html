@@ -22,14 +22,16 @@
         color: #fbbc05;
         font-size: 5rem;
       }
-      .rb-error .error-container {
-        max-width: 801px;
-      }
       .error-description > pre:empty {
         display: none;
       }
       .error-container a[target='_blank']:hover {
           text-decoration: underline;
+      }
+      @media (max-width: 576px) {
+        .rb-error .error-container {
+          max-width: 100%;
+        }
       }
     </style>
   </head>

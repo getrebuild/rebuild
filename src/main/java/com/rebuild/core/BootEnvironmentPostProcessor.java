@@ -155,9 +155,11 @@ public class BootEnvironmentPostProcessor implements EnvironmentPostProcessor, I
      */
     public static String getProperty(String name, String defaultValue) {
         String value = null;
-        if (ConfigurationItem.DataDirectory.name().equalsIgnoreCase(name)) {
+        if (ConfigurationItem.DataDirectory.name().equalsIgnoreCase(name)
+                || ConfigurationItem.MobileUrl.name().equalsIgnoreCase(name)) {
             value = StringUtils.defaultIfBlank(
-                    System.getProperty("DataDirectory"), System.getProperty(V2_PREFIX + "DataDirectory"));
+                    System.getProperty(name), System.getProperty(V2_PREFIX + name));
+
         } else if (ENV_HOLD != null) {
             if (!(name.startsWith(V2_PREFIX) || name.contains("."))) {
                 name = V2_PREFIX + name;
