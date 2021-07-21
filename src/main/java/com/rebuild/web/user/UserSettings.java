@@ -50,14 +50,14 @@ public class UserSettings extends EntityController {
 
         if (RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid) != null) {
             Object[] dingtalkUser = Application.createQueryNoFilter(
-                    "select user from ExternalUser where bindUser = ? and appType = 1")
+                    "select appUser from ExternalUser where bindUser = ? and appType = 1")
                     .setParameter(1, user.getId())
                     .unique();
             if (dingtalkUser != null) mv.getModelMap().put("dingtalkUser", dingtalkUser[0]);
         }
         if (RebuildConfiguration.get(ConfigurationItem.WxworkCorpid) != null) {
             Object[] wxworkUser = Application.createQueryNoFilter(
-                    "select user from ExternalUser where bindUser = ? and appType = 2")
+                    "select appUser from ExternalUser where bindUser = ? and appType = 2")
                     .setParameter(1, user.getId())
                     .unique();
             if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser[0]);
