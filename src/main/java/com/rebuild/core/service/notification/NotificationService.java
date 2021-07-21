@@ -107,7 +107,7 @@ public class NotificationService extends BaseService {
     }
 
     /**
-     * 获取维度消息数量
+     * 获取未读消息数
      *
      * @param user
      * @return
