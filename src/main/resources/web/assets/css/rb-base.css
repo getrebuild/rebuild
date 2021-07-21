@@ -11542,7 +11542,7 @@ canvas {
   .rb-offcanvas-menu .rb-top-header .rb-navbar-header {
     display: block;
     width: auto;
-    background-color: #4285f4;
+    /*background-color: #4285f4;*/
   }
 }
 

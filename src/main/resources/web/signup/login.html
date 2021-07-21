@@ -42,7 +42,7 @@
         z-index: 1;
         background: rgba(0, 0, 0, 0.1);
       }
-      .o-platform a > i.zmdi {
+      .o-platform a > .icon {
         background-color: #fc9a00;
         color: #fff;
         border-radius: 50%;
@@ -50,7 +50,7 @@
         height: 25px;
         line-height: 26px;
         font-size: 1.2rem;
-        padding-left: 9px;
+        text-align: center;
       }
       .o-platform a > span {
         color: #666;
@@ -61,6 +61,10 @@
         min-width: 0;
         width: 160px;
         padding: 6px;
+      }
+      .o-platform:hover .dropdown-menu {
+        display: block;
+        margin-top: 0; /* remove the gap so it doesn't close */
       }
     </style>
   </head>
@@ -112,7 +116,7 @@
                   <div class="row mb-2">
                     <div class="col" th:if="${mobileQrUrl != null}">
                       <div class="btn-group dropup o-platform">
-                        <a class="hover-opacity dropdown-toggle" data-toggle="dropdown">
+                        <a class="hover-opacity dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}">
                           <i class="icon zmdi zmdi-smartphone-iphone"></i> <span class="up-1">[[${bundle.L('手机版')}]]</span>
                         </a>
                         <div class="dropdown-menu">
@@ -154,10 +158,11 @@
           return
         }
 
-        $('.o-platform .dropdown-toggle').on('mouseenter', function () {
-          $(this).trigger('click')
-          // $(this).dropdown('show')
-        })
+        if ($.browser.mobile) {
+          $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机版访问')}</p></div>`)
+            .appendTo('.announcement-wrapper')
+            .on('click', () => (location.href = $('.o-platform .dropdown-toggle').attr('href')))
+        }
 
         $('.vcode-row img').on('click', function () {
           $(this).attr('src', 'captcha?' + $random())

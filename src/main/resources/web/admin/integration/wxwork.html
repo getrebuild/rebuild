@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <th:block th:replace="~{/_include/header}" />
+    <meta name="page-help" content="https://getrebuild.com/docs/admin/integration-wxwork" />
+    <title>[[${bundle.L('企业微信')}]]</title>
+  </head>
+  <body>
+    <div class="rb-wrapper rb-fixed-sidebar rb-collapsible-sidebar rb-collapsible-sidebar-hide-logo rb-color-header" th:classappend="${sideCollapsedClazz}">
+      <th:block th:replace="~{/_include/nav-top}" />
+      <th:block th:replace="~{/_include/nav-left-admin(active='integration-wxwork')}" />
+      <div class="rb-content">
+        <div class="main-content container-fluid syscfg">
+          <div class="row">
+            <div class="col-lg-9 col-12">
+              <div class="card">
+                <div class="card-header pb-1">
+                  [[${bundle.L('企业微信')}]]
+                  <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
+                </div>
+                <div class="card-body">
+                  <h5>[[${bundle.L('接口凭证')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">AgentId</td>
+                        <td data-id="WxworkAgentid" th:data-value="${WxworkAgentid ?:''}">[[${WxworkAgentid ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>Secret</td>
+                        <td data-id="WxworkSecret" th:data-value="${WxworkSecret ?:''}">[[${WxworkSecret ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('企业 ID')}]]</td>
+                        <td data-id="WxworkCorpid" th:data-value="${WxworkCorpid ?:''}">[[${WxworkCorpid ?:bundle.L('未设置')}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <h5>[[${bundle.L('企业微信侧配置')}]]</h5>
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <td width="40%">[[${bundle.L('应用主页')}]]</td>
+                        <td>[[${_WxworkHomeUrl}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('可信域名')}]]</td>
+                        <td>[[${_WxworkAuthCallUrl}]]</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <div class="edit-footer">
+                    <button class="btn btn-link">[[${bundle.L('取消')}]]</button>
+                    <button class="btn btn-primary">[[${bundle.L('保存')}]]</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-12"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <th:block th:replace="~{/_include/footer}" />
+    <script th:src="@{/assets/js/admin/syscfg.js}" type="text/babel"></script>
+  </body>
+</html>

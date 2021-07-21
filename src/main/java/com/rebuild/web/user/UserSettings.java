@@ -15,7 +15,10 @@ import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.support.ConfigurationItem;
+import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
@@ -41,7 +44,25 @@ public class UserSettings extends EntityController {
     @GetMapping("/user")
     public ModelAndView pageUser(HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/settings/user-settings");
-        mv.getModelMap().put("user", Application.getUserStore().getUser(getRequestUser(request)));
+
+        User user = Application.getUserStore().getUser(getRequestUser(request));
+        mv.getModelMap().put("user", user);
+
+        if (RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid) != null) {
+            Object[] dingtalkUser = Application.createQueryNoFilter(
+                    "select appUser from ExternalUser where bindUser = ? and appType = 1")
+                    .setParameter(1, user.getId())
+                    .unique();
+            if (dingtalkUser != null) mv.getModelMap().put("dingtalkUser", dingtalkUser[0]);
+        }
+        if (RebuildConfiguration.get(ConfigurationItem.WxworkCorpid) != null) {
+            Object[] wxworkUser = Application.createQueryNoFilter(
+                    "select appUser from ExternalUser where bindUser = ? and appType = 2")
+                    .setParameter(1, user.getId())
+                    .unique();
+            if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser[0]);
+        }
+
         return mv;
     }
 
@@ -144,6 +165,21 @@ public class UserSettings extends EntityController {
         } catch (DataSpecificationException ex) {
             return RespBody.error(ex.getMessage());
         }
+        return RespBody.ok();
+    }
+
+    @PostMapping("/cancel-external-user")
+    public RespBody cancelExternalUser(HttpServletRequest request) {
+        int appType = getIntParameter(request, "type", 0);
+        Object[] externalUser = Application.createQueryNoFilter(
+                "select userId from ExternalUser where bindUser = ? and appType = ?")
+                .setParameter(1, getRequestUser(request))
+                .setParameter(2, appType)
+                .unique();
+        if (externalUser != null) {
+            Application.getCommonsService().delete((ID) externalUser[0]);
+        }
+
         return RespBody.ok();
     }
 }

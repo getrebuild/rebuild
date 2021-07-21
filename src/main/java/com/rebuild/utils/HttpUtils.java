@@ -7,13 +7,11 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.RebuildConfiguration;
 import lombok.extern.slf4j.Slf4j;
-import okhttp3.FormBody;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.springframework.http.HttpHeaders;
@@ -95,35 +93,47 @@ public class HttpUtils {
      * POST
      *
      * @param url
-     * @param formData
+     * @param reqData
      * @return
      * @throws IOException
      */
-    public static String post(String url, Map<String, Object> formData) throws IOException {
-        return post(url, formData, null);
+    public static String post(String url, Object reqData) throws IOException {
+        return post(url, reqData, null);
     }
 
     /**
      * POST with Headers
      *
      * @param url
-     * @param formData
+     * @param reqData
      * @param headers
      * @return
      * @throws IOException
      */
-    public static String post(String url, Map<String, Object> formData, Map<String, String> headers) throws IOException {
-        FormBody.Builder formBuilder = new FormBody.Builder();
-        if (formData != null && !formData.isEmpty()) {
-            for (Map.Entry<String, Object> e : formData.entrySet()) {
+    public static String post(String url, Object reqData, Map<String, String> headers) throws IOException {
+        RequestBody requestBody;
+
+        // JSON
+        if (reqData instanceof JSON) {
+            requestBody = RequestBody.create(((JSON) reqData).toJSONString(), MediaType.parse("application/json"));
+        }
+        // Map
+        else if (reqData instanceof Map) {
+            FormBody.Builder formBuilder = new FormBody.Builder();
+            for (Map.Entry<?, ?> e : ((Map<?, ?>) reqData).entrySet()) {
                 Object v = e.getValue();
-                formBuilder.add(e.getKey(), v == null ? StringUtils.EMPTY : v.toString());
+                formBuilder.add(e.getKey().toString(), v == null ? StringUtils.EMPTY : v.toString());
             }
+            requestBody = formBuilder.build();
+        }
+        // Text
+        else {
+            requestBody = RequestBody.create(reqData.toString(), MediaType.parse("text/plain"));
         }
 
         Request.Builder builder = new Request.Builder().url(url);
         Request request = useHeaders(builder, headers)
-                .post(formBuilder.build())
+                .post(requestBody)
                 .build();
 
         long ms = System.currentTimeMillis();

@@ -75,6 +75,14 @@
         <index field-list="teamId,userId" type="unique"/>
     </entity>
 
+    <entity name="ExternalUser" type-code="008" description="外部用户" queryable="false" parent="false">
+        <field name="userId" type="primary"/>
+        <field name="appUser" type="string" max-length="100" nullable="false" updatable="false"/>
+        <field name="appType" type="small-int" nullable="false" updatable="false" description="1=DingTalk,2=WxWork"/>
+        <field name="bindUser" type="reference" ref-entity="User" cascade="delete" nullable="false" updatable="false"/>
+        <index field-list="appType,appUser" type="unique"/>
+    </entity>
+
     <entity name="MetaEntity" type-code="010" description="实体" name-field="entityName" queryable="false">
         <field name="entityId" type="primary"/>
         <field name="typeCode" type="small-int" nullable="false" updatable="false"/>

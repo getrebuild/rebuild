@@ -34,6 +34,7 @@ import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.utils.BlockList;
 import com.rebuild.utils.CommonsUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +47,7 @@ import java.util.Map;
  * @author zhaofang123@gmail.com
  * @since 07/25/2018
  */
+@Slf4j
 @Service
 public class UserService extends BaseServiceImpl {
 
@@ -155,7 +157,7 @@ public class UserService extends BaseServiceImpl {
             try {
                 UserHelper.generateAvatar(record.getString("fullName"), true);
             } catch (Exception ex) {
-                LOG.error(null, ex);
+                log.error(null, ex);
             }
         }
     }
@@ -381,7 +383,7 @@ public class UserService extends BaseServiceImpl {
                 newUserId);
         content += String.format("[%s](%s)", Language.L("点击开始激活"), viewUrl);
 
-        Message message = MessageBuilder.createMessage(ADMIN_USER, content, newUserId);
+        Message message = MessageBuilder.createMessage(ADMIN_USER, content, Message.TYPE_DEFAULT, newUserId);
         Application.getNotifications().send(message);
 
         return newUserId;

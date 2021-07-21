@@ -35,7 +35,7 @@ $(document).ready(function () {
     })
 
   $('.J_disable').click(() => {
-    RbAlert.create($L('确定要禁用此用户吗？'), {
+    RbAlert.create($L('确认要禁用此用户吗？'), {
       confirmText: $L('禁用'),
       confirm: function () {
         toggleDisabled(true, this)

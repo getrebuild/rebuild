@@ -31,7 +31,8 @@ import java.text.MessageFormat;
 @Controller
 public class ListAndViewRedirection extends BaseController {
 
-    @GetMapping("/app/list-and-view")
+    // H5: "/app/redirect"
+    @GetMapping({ "/app/list-and-view", "/app/redirect" })
     public void redirect(@IdParam ID anyId, HttpServletResponse response) throws IOException {
         String url = null;
 

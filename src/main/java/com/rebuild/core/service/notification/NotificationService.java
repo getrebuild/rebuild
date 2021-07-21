@@ -8,12 +8,15 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.notification;
 
 import cn.devezhao.commons.ObjectUtils;
+import cn.devezhao.commons.ThreadPool;
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.Application;
+import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.service.BaseService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
  * @author devezhao
  * @since 10/17/2018
  */
+@Slf4j
 @Service
 public class NotificationService extends BaseService {
 
@@ -66,6 +70,8 @@ public class NotificationService extends BaseService {
         }
     }
 
+    // --
+
     /**
      * 发送消息
      *
@@ -82,10 +88,27 @@ public class NotificationService extends BaseService {
         if (message.getRelatedRecord() != null) {
             record.setID("relatedRecord", message.getRelatedRecord());
         }
-        this.create(record);
+
+        record = this.create(record);
+
+        // 分发消息
+        final ID messageId = record.getPrimary();
+        ThreadPool.exec(() -> {
+            String[] mdNames = Application.getContext().getBeanNamesForType(MessageDistributor.class);
+            for (String md : mdNames) {
+                try {
+                    boolean s = ((MessageDistributor) Application.getContext().getBean(md)).send(message, messageId);
+                    log.info("Distribute message : {} >> {}", messageId, s);
+                } catch (Exception ex) {
+                    log.error("Distribute message failed : {}", messageId, ex);
+                }
+            }
+        });
     }
 
     /**
+     * 获取未读消息数
+     *
      * @param user
      * @return
      */
@@ -103,5 +126,16 @@ public class NotificationService extends BaseService {
         int count = unread == null ? 0 : ObjectUtils.toInt(unread[0]);
         Application.getCommonsCache().putx(ckey, count);
         return count;
+    }
+
+    /**
+     * 设为已读
+     *
+     * @param messageId
+     */
+    public void makeRead(ID messageId) {
+        Record record = EntityHelper.forUpdate(messageId, UserContextHolder.getUser());
+        record.setBoolean("unread", false);
+        this.update(record);
     }
 }

@@ -17,10 +17,12 @@ import com.rebuild.core.support.i18n.LanguageBundle;
  */
 public enum ConfigurationItem {
 
+    // 仅命令行指定
+    DataDirectory,  // 数据目录
+    MobileUrl,  // 移动端地址
+    
     // 系统指定
     SN, DBVer, AppBuild,
-    // 数据目录（命令行指定）
-    DataDirectory,
     // 缓存服务（安装/配置文件指定）
     CacheHost, CachePort, CacheUser, CachePassword,
 
@@ -88,6 +90,12 @@ public enum ConfigurationItem {
 
     // 登录密码过期时间
     PasswordExpiredDays(0),
+
+    // DingTalk
+    DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
+    DingtalkPushAeskey, DingtalkPushToken,
+    // WxWork
+    WxworkCorpid, WxworkAgentid, WxworkSecret
 
     ;
 

@@ -25,6 +25,7 @@ import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.core.support.integration.SMSender;
 import com.rebuild.utils.JSONUtils;
+import com.rebuild.utils.RbAssert;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.RebuildWebConfigurer;
 import lombok.extern.slf4j.Slf4j;
@@ -274,5 +275,70 @@ public class ConfigurationController extends BaseController {
                 log.error("Invalid item : " + e.getKey() + " = " + e.getValue());
             }
         }
+    }
+
+    // DingTalk
+
+    @GetMapping("integration/dingtalk")
+    public ModelAndView pageIntegrationDingtalk() {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持钉钉集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/integration/dingtalk");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Dingtalk")) {
+                String value = RebuildConfiguration.get(item);
+
+                if (value != null && item == ConfigurationItem.DingtalkAppsecret) {
+                    value = DataMasking.masking(value);
+                }
+                mv.getModel().put(name, value);
+            }
+        }
+
+        String homeUrl = RebuildConfiguration.getHomeUrl("/user/dingtalk");
+        mv.getModel().put("_DingtalkHomeUrl", homeUrl);
+
+        return mv;
+    }
+
+    @PostMapping("integration/dingtalk")
+    public RespBody postIntegrationDingtalk(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
+    }
+
+    // WxWork
+
+    @GetMapping("integration/wxwork")
+    public ModelAndView pageIntegrationWxwork() {
+        RbAssert.isCommercial(
+                Language.L("免费版不支持企业微信集成 [(查看详情)](https://getrebuild.com/docs/rbv-features)"));
+
+        ModelAndView mv = createModelAndView("/admin/integration/wxwork");
+        for (ConfigurationItem item : ConfigurationItem.values()) {
+            String name = item.name();
+            if (name.startsWith("Wxwork")) {
+                String value = RebuildConfiguration.get(item);
+
+                if (value != null && item == ConfigurationItem.WxworkSecret) {
+                    value = DataMasking.masking(value);
+                }
+                mv.getModel().put(name, value);
+            }
+        }
+
+        String homeUrl = RebuildConfiguration.getHomeUrl("/user/wxwork");
+        mv.getModel().put("_WxworkHomeUrl", homeUrl);
+        mv.getModel().put("_WxworkAuthCallUrl", homeUrl.split("//")[1].split("/")[0]);
+
+        return mv;
+    }
+
+    @PostMapping("integration/wxwork")
+    public RespBody postIntegrationWxwork(@RequestBody JSONObject data) {
+        setValues(data);
+        return RespBody.ok();
     }
 }
