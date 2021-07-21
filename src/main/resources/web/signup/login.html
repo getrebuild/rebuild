@@ -62,6 +62,9 @@
         width: 160px;
         padding: 6px;
       }
+      .o-platform:hover .dropdown-menu {
+        display: block;
+      }
     </style>
   </head>
   <body class="rb-splash-screen">
@@ -155,14 +158,9 @@
         }
 
         if ($.browser.mobile) {
-          $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机端访问')}</p></div>`)
+          $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机版访问')}</p></div>`)
             .appendTo('.announcement-wrapper')
             .on('click', () => (location.href = $('.o-platform .dropdown-toggle').attr('href')))
-        } else {
-          // $('.o-platform .dropdown-toggle').on('mouseenter', function () {
-          //   $(this).trigger('click')
-          //   // $(this).dropdown('show')
-          // })
         }
 
         $('.vcode-row img').on('click', function () {
