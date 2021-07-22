@@ -10,21 +10,7 @@ const wpc = window.__PageConfig
 const __gExtConfig = {}
 
 const SHOW_REPEATABLE = ['TEXT', 'DATE', 'DATETIME', 'EMAIL', 'URL', 'PHONE', 'REFERENCE', 'CLASSIFICATION']
-const SHOW_DEFAULTVALUE = [
-  'TEXT',
-  'NTEXT',
-  'EMAIL',
-  'PHONE',
-  'URL',
-  'NUMBER',
-  'DECIMAL',
-  'DATE',
-  'DATETIME',
-  'BOOL',
-  'CLASSIFICATION',
-  'REFERENCE',
-  'N2NREFERENCE',
-]
+const SHOW_DEFAULTVALUE = ['TEXT', 'NTEXT', 'EMAIL', 'PHONE', 'URL', 'NUMBER', 'DECIMAL', 'DATE', 'DATETIME', 'BOOL', 'CLASSIFICATION', 'REFERENCE', 'N2NREFERENCE']
 
 $(document).ready(function () {
   const dt = wpc.fieldType
@@ -235,9 +221,7 @@ const _handlePicklist = function (dt) {
     })
     if (res.data.length > 5) $('#picklist-items').parent().removeClass('autoh')
   })
-  $('.J_picklist-edit').click(() =>
-    RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置'))
-  )
+  $('.J_picklist-edit').click(() => RbModal.create(`/p/admin/metadata/picklist-editor?entity=${wpc.entityName}&field=${wpc.fieldName}&multi=${dt === 'MULTISELECT'}`, $L('选项配置')))
 }
 
 const _handleSeries = function () {
@@ -329,9 +313,7 @@ const _handleClassification = function (useClassification) {
     }
   }
 
-  const $append = $(
-    `<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`
-  ).appendTo('.J_defaultValue-append')
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
 
   $.get(`/admin/metadata/classification/info?id=${useClassification}`, (res) => {
     $('#useClassification a')
@@ -367,13 +349,9 @@ const _handleReference = function (isN2N) {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(
-        <AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />,
-        null,
-        function () {
-          advFilter = this
-        }
-      )
+      renderRbcomp(<AdvFilter title={$L('附加过滤条件')} inModal={true} canNoFilters={true} entity={referenceEntity} filter={dataFilter} confirm={saveFilter} />, null, function () {
+        advFilter = this
+      })
     }
   })
 
@@ -397,9 +375,7 @@ const _handleReference = function (isN2N) {
     }
   }
 
-  const $append = $(
-    `<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`
-  ).appendTo('.J_defaultValue-append')
+  const $append = $(`<button class="btn btn-secondary mw-auto" type="button" title="${$L('选择默认值')}"><i class="icon zmdi zmdi-search"></i></button>`).appendTo('.J_defaultValue-append')
   $dv.attr('readonly', true)
   $append.click(() => _showSearcher())
 

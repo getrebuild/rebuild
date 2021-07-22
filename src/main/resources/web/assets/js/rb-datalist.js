@@ -59,7 +59,7 @@ class RbList extends React.Component {
                         <div>
                           <label className="custom-control custom-control-sm custom-checkbox">
                             <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => (this._checkAll = c)} />
-                            <span className="custom-control-label"></span>
+                            <i className="custom-control-label" />
                           </label>
                         </div>
                       </th>
@@ -69,12 +69,7 @@ class RbList extends React.Component {
                       const styles = { width: cWidth + 'px' }
                       const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
-                        <th
-                          key={'column-' + item.field}
-                          style={styles}
-                          className={clazz}
-                          data-field={item.field}
-                          onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
+                        <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={styles}>
                             <span style={{ width: cWidth - 8 + 'px' }}>{item.label}</span>
                             <i className={'zmdi ' + (item.sort || '')} />
@@ -83,7 +78,7 @@ class RbList extends React.Component {
                         </th>
                       )
                     })}
-                    <th className="column-empty"></th>
+                    <th className="column-empty" />
                   </tr>
                 </thead>
                 <tbody ref={(c) => (this._rblistBody = c)}>
@@ -97,7 +92,7 @@ class RbList extends React.Component {
                             <div>
                               <label className="custom-control custom-control-sm custom-checkbox">
                                 <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
-                                <span className="custom-control-label"></span>
+                                <i className="custom-control-label" />
                               </label>
                             </div>
                           </td>
@@ -105,7 +100,7 @@ class RbList extends React.Component {
                         {item.map((cell, index) => {
                           return that.renderCell(cell, index, lastPrimary)
                         })}
-                        <td className="column-empty"></td>
+                        <td className="column-empty" />
                       </tr>
                     )
                   })}
@@ -610,12 +605,7 @@ CellRenders.addRender('URL', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a
-          href={`${rb.baseUrl}/commons/url-safe?url=${$encode(v)}`}
-          className="column-url"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => $stopEvent(e)}>
+        <a href={`${rb.baseUrl}/commons/url-safe?url=${$encode(v)}`} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>
           {v}
         </a>
       </div>
@@ -744,7 +734,7 @@ class RbListPagination extends React.Component {
               {this.state.pageNo > 1 && (
                 <li className="paginate_button page-item">
                   <a className="page-link" onClick={() => this.prev()}>
-                    <span className="icon zmdi zmdi-chevron-left"></span>
+                    <i className="icon zmdi zmdi-chevron-left" />
                   </a>
                 </li>
               )}
@@ -767,7 +757,7 @@ class RbListPagination extends React.Component {
               {this.state.pageNo !== this.__pageTotal && (
                 <li className="paginate_button page-item">
                   <a className="page-link" onClick={() => this.next()}>
-                    <span className="icon zmdi zmdi-chevron-right"></span>
+                    <i className="icon zmdi zmdi-chevron-right" />
                   </a>
                 </li>
               )}
@@ -952,9 +942,7 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
-          const $action = $(
-            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`
-          ).appendTo($item)
+          const $action = $(`<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
 
           $action.find('a:eq(0)').click(function () {
             that.showAdvFilter(item.id)
@@ -1080,9 +1068,7 @@ $(document).ready(() => {
   const via = $urlp('via', location.hash)
   if (via) {
     wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo(
-      '.dataTables_filter'
-    )
+    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
     $cleanVia.find('a').click(() => {
       wpc.protocolFilter = null
       RbListPage.reload()
@@ -1116,12 +1102,7 @@ class RbViewModal extends React.Component {
             <div className="modal-dialog">
               <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
                 <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                  <iframe
-                    ref={(c) => (this._iframe = c)}
-                    className={this.state.isHide ? 'invisible' : ''}
-                    src={this.state.showAfterUrl || 'about:blank'}
-                    frameBorder="0"
-                    scrolling="no"></iframe>
+                  <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
                   <RbSpinner />
                 </div>
               </div>
@@ -1271,10 +1252,8 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-chart').click(() => {
-      if (this.chartLoaded !== true) this.loadWidget()
-    })
-    $('.J_add-chart').click(() => this.showChartSelect())
+    $('.J_load-charts').on('click', () => this.chartLoaded !== true && this.loadWidget())
+    $('.J_add-chart').on('click', () => this.showChartSelect())
 
     $('.charts-wrap')
       .sortable({
@@ -1349,7 +1328,7 @@ $(document).ready(() => {
 
   // ASIDE
   if ($('#asideFilters, #asideWidgets').length > 0) {
-    $('.side-toggle').click(() => {
+    $('.side-toggle').on('click', () => {
       const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
     })
@@ -1360,5 +1339,11 @@ $(document).ready(() => {
       $content.perfectScrollbar('update')
     })()
     ChartsWidget.init()
+  }
+
+  const $wtab = $('.page-aside.widgets .nav a:eq(0)')
+  if ($wtab.length > 0) {
+    $('.page-aside.widgets .ph-item.rb').remove()
+    $wtab.trigger('click')
   }
 })
