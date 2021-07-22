@@ -1998,20 +1998,20 @@ th.column-fixed {
 .aside-2tree li span.collapse-icon {
   padding-left: 6px;
   padding-top: 7px;
-  font-size: 1.6rem;
+  font-size: 1.22rem;
+  color: #999;
 }
 
-.aside-2tree li span.collapse-icon:hover {
+.aside-2tree li.active span.collapse-icon {
+  color: #fff;
+}
+
+.aside-2tree li span.collapse-icon:not(.no-child):hover {
   color: #4285f4;
 }
 
 .aside-2tree li.active span.collapse-icon:hover {
   color: rgba(255, 255, 255, 0.8);
-}
-
-.aside-2tree li span.collapse-icon.no-child .zmdi {
-  width: 8px;
-  overflow: hidden;
 }
 
 .aside-2tree li span.collapse-icon.no-child .zmdi::before {
