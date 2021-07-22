@@ -44,7 +44,7 @@ public interface TriggerAction {
     void execute(OperatingContext operatingContext) throws TriggerException;
 
     /**
-     * 如果是删除动作，会先调用此方法。应该在此方法中保持一些数据的状态，以便删除后还可以继续使用
+     * 如果是删除动作，会先调用此方法。可在此方法中保持一些数据状态，以便删除后还可继续使用
      *
      * @param operatingContext
      * @throws TriggerException
