@@ -117,8 +117,8 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * @return
      */
     protected Record record(Record base) {
-        final ID primary = base.getPrimary();
-        Assert.notNull(primary, "Record primary cannot be null");
+        final ID primaryId = base.getPrimary();
+        Assert.notNull(primaryId, "Record primary cannot be null");
 
         StringBuilder sql = new StringBuilder("select ");
         for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
@@ -128,9 +128,9 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         sql.append(" from ").append(base.getEntity().getName());
         sql.append(" where ").append(base.getEntity().getPrimaryField().getName()).append(" = ?");
 
-        Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
+        Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primaryId).record();
         if (current == null) {
-            throw new NoRecordFoundException("ID : " + primary);
+            throw new NoRecordFoundException(primaryId);
         }
         return current;
     }
