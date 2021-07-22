@@ -58,7 +58,6 @@ import java.util.*;
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
 
-    @SuppressWarnings("deprecation")
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
 
@@ -66,11 +65,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         addObserver(new NotificationObserver());
         // 触发器
         addObserver(new RobotTriggerObserver());
-
-        // Redis 队列（Redis 可用才有效）
-        if (RebuildConfiguration.getBool(ConfigurationItem.RedisQueueEnable)) {
-            addObserver(new RedisQueueObserver());
-        }
     }
 
     @Override

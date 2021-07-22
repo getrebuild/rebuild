@@ -75,13 +75,6 @@ public enum ConfigurationItem {
     // 默认语言
     DefaultLanguage(LanguageBundle.SYS_LC),
 
-    // 数据脱敏（实验功能!!! 仅 PHONE/EMAIL 字段）
-    DataMasking(false),
-
-    // 激活 Redis 队列 (since = "2.1")
-    @Deprecated
-    RedisQueueEnable(false),
-
     // 视图页显示修改历史
     ShowViewHistory(true),
 
