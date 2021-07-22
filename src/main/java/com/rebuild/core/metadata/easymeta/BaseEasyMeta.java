@@ -61,6 +61,7 @@ public abstract class BaseEasyMeta<T extends BaseMeta> implements BaseMeta, JSON
         return baseMeta.isUpdatable();
     }
 
+    // 允许使用
     @Override
     public boolean isQueryable() {
         return baseMeta.isQueryable();

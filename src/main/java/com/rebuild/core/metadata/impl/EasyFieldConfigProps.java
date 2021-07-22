@@ -100,4 +100,9 @@ public class EasyFieldConfigProps {
      * 多行文本使用 MD 编辑器
      */
     public static final String NTEXT_USE_MDEDIT = "useMdedit";
+
+    /**
+     * 信息脱敏
+     */
+    public static final String ADV_DESENSITIZED = "advDesensitized";
 }

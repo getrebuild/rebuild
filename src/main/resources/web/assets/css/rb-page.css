@@ -2243,10 +2243,6 @@ div.dataTables_wrapper div.paging_sizes select {
   margin-left: 0.384615rem;
 }
 
-.col-form-label .zicon.zmdi-help {
-  margin-top: -0.08rem;
-}
-
 form.dropzone {
   position: relative;
   border: 2px dashed #e3e3e3;
@@ -3141,8 +3137,7 @@ form {
 }
 
 .preview-modal .preview-body .iframe.text > pre {
-  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui',
-    'microsoft yahei', sans-serif;
+  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui', 'microsoft yahei', sans-serif;
   font-size: 1rem;
   background-color: #fff;
 }

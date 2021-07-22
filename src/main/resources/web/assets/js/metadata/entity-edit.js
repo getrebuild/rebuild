@@ -35,12 +35,12 @@ $(document).ready(function () {
     const icon = $val('#entityIcon')
     if (icon) data.icon = icon
 
-    const extConfig = {
+    const extConfigNew = {
       quickFields: $('#quickFields').val().join(','),
       advListHideFilters: $val('#advListHideFilters'),
       advListHideCharts: $val('#advListHideCharts'),
     }
-    if (!$same(extConfig, wpc.extConfig)) data.extConfig = extConfig
+    if (!$same(extConfigNew, wpc.extConfig)) data.extConfig = extConfigNew
 
     data = $cleanMap(data)
     if (Object.keys(data).length === 0) {

@@ -57,6 +57,8 @@ $(document).ready(function () {
     })
     delete extConfigNew['undefined'] // bugfix
 
+    extConfigNew['advDesensitized'] = $val('#advDesensitized')
+
     if (!$same(extConfigNew, extConfig)) {
       data['extConfig'] = JSON.stringify(extConfigNew)
       if (Object.keys(extConfigNew).length === 0) data['extConfig'] = ''
@@ -104,6 +106,8 @@ $(document).ready(function () {
   $('#fieldUpdatable').attr('checked', $isTrue($('#fieldUpdatable').data('o')))
   $('#fieldRepeatable').attr('checked', $isTrue($('#fieldRepeatable').data('o')))
   $('#fieldQueryable').attr('checked', $isTrue($('#fieldQueryable').data('o')))
+
+  if (extConfig.advDesensitized) $('#advDesensitized').attr('checked', true)
 
   // 设置扩展值
   for (let k in extConfig) {
