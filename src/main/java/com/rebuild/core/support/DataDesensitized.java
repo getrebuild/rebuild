@@ -17,6 +17,8 @@ import org.apache.commons.lang.StringUtils;
  */
 public class DataDesensitized {
 
+    public static final String SECURE_TEXT = "******";
+
     /**
      * 给敏感文本加星号/打码
      *

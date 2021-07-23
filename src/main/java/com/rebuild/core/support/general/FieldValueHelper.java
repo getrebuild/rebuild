@@ -26,6 +26,7 @@ import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.ApprovalStepService;
+import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -50,16 +51,14 @@ public class FieldValueHelper {
      * 引用值被删除时的默认显示
      */
     public static final String MISS_REF_PLACE = "[DELETED]";
-
     /**
      * 名称字段为空时，采用 @+ID 的方式显示
      */
     public static final String NO_LABEL_PREFIX = "@";
-
     /**
-     * 加密显示
+     * 无权限标识
      */
-    public static final String SECURE_TEXT = "******";
+    public static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
 
     /**
      * @param value
@@ -94,7 +93,7 @@ public class FieldValueHelper {
     public static Object wrapFieldValue(Object value, EasyField field) {
         if (!field.isQueryable() &&
                 (field.getDisplayType() == DisplayType.TEXT || field.getDisplayType() == DisplayType.NTEXT)) {
-            return SECURE_TEXT;
+            return DataDesensitized.SECURE_TEXT;
         }
 
         if (value == null || StringUtils.isBlank(value.toString())) {
@@ -246,5 +245,27 @@ public class FieldValueHelper {
         }
 
         return null;
+    }
+
+    /**
+     * 字段值脱敏。仅适用文本、邮箱、电话字段
+     *
+     * @param field
+     * @param value
+     * @return
+     */
+    public static Object desensitized(EasyField field, Object value) {
+        if (value == null) return null;
+
+        DisplayType dt = field.getDisplayType();
+        if (dt == DisplayType.EMAIL) {
+            return DataDesensitized.email((String) value);
+        } else if (dt == DisplayType.PHONE) {
+            return DataDesensitized.phone((String) value);
+        } else if (dt == DisplayType.TEXT) {
+            return DataDesensitized.any((String) value);
+        } else {
+            return value;
+        }
     }
 }

@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.metadata.easymeta;
 
 import cn.devezhao.persist4j.Field;
-import com.rebuild.core.support.DataDesensitized;
 
 /**
  * @author devezhao
@@ -19,11 +18,5 @@ public class EasyText extends EasyField {
 
     protected EasyText(Field field, DisplayType displayType) {
         super(field, displayType);
-    }
-
-    @Override
-    public Object wrapValue(Object value) {
-        Object text = super.wrapValue(value);
-        return isUseDesensitized() ? DataDesensitized.any((String) text) : text;
     }
 }
