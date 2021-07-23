@@ -72,6 +72,7 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         }
         thymeleafViewResolver.addStaticVariable(WebConstants.FILE_SHARABLE, RebuildConfiguration.get(ConfigurationItem.FileSharable));
         thymeleafViewResolver.addStaticVariable(WebConstants.MARK_WATERMARK, RebuildConfiguration.get(ConfigurationItem.MarkWatermark));
+        thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, RebuildConfiguration.get(ConfigurationItem.PageFooter));
 
         // 清理缓存
         thymeleafViewResolver.clearCache();

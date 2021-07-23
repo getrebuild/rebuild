@@ -58,6 +58,7 @@
         </div>
       </div>
     </div>
+    <div th:if="${pageFooter != null}" class="page-footer">[(${pageFooter})]</div>
     <th:block th:replace="~{/_include/footer}" />
     <script th:src="@{/assets/js/signup.js}"></script>
   </body>

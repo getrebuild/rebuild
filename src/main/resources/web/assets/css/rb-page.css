@@ -4135,3 +4135,16 @@ html.external-auth .auth-body .card {
 html.external-auth .auth-body.must-center .card {
   display: none;
 }
+
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  padding: 4px 0;
+  text-align: center;
+  background-color: #eee;
+  font-size: 1rem;
+  color: #222;
+}

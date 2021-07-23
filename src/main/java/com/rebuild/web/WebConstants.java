@@ -50,6 +50,11 @@ public class WebConstants {
      */
     public static final String MARK_WATERMARK = "markWatermark";
 
+    /**
+     * 页脚
+     */
+    public static final String PAGE_FOOTER = "pageFooter";
+
     // Per-Request
 
     /**

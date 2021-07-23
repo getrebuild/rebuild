@@ -21,8 +21,6 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 
 /**
@@ -72,14 +70,8 @@ public class UrlSafe extends BaseController {
             TRUSTED_URLS.add("getrebuild.com");
         }
 
-        String host = url;
-        try {
-            host = new URL(url).getHost();
-        } catch (MalformedURLException ignored) {
-        }
-
         for (Object t : TRUSTED_URLS) {
-            if (host.equals(t) || host.contains((String) t)) return true;
+            if (url.contains((String) t)) return true;
         }
         return false;
     }
