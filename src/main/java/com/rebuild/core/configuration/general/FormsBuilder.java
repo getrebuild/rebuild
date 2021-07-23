@@ -25,6 +25,7 @@ import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalState;
 import com.rebuild.core.service.approval.RobotApprovalManager;
@@ -347,7 +348,7 @@ public class FormsBuilder extends FormsManager {
 
             // 编辑/视图
             if (data != null) {
-                Object value = wrapFieldValue(data, easyField);
+                Object value = wrapFieldValue(data, easyField, user);
                 if (value != null) {
                     el.put("value", value);
                 }
@@ -460,16 +461,29 @@ public class FormsBuilder extends FormsManager {
      *
      * @param data
      * @param field
+     * @param user4Desensitized 不传则不脱敏
      * @return
-     * @see EasyField#wrapValue(Object)
+     * // @see com.rebuild.core.support.general.DataListWrapper#wrapFieldValue(Object, Field)
      * @see FieldValueHelper#wrapFieldValue(Object, EasyField)
      */
-    public Object wrapFieldValue(Record data, EasyField field) {
+    public Object wrapFieldValue(Record data, EasyField field, ID user4Desensitized) {
         Object value = data.getObjectValue(field.getName());
         if (field.getDisplayType() == DisplayType.BARCODE) {
             value = data.getPrimary();
         }
-        return FieldValueHelper.wrapFieldValue(value, field);
+
+        value = FieldValueHelper.wrapFieldValue(value, field);
+
+        if (value != null && isUseDesensitized(field, user4Desensitized)) {
+            value = FieldValueHelper.desensitized(field, value);
+        }
+        return value;
+    }
+
+    private boolean isUseDesensitized(EasyField field, ID user) {
+        if (user == null) return false;
+        return "true".equals(field.getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED))
+                && !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
     }
 
     /**

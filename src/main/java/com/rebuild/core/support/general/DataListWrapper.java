@@ -17,7 +17,9 @@ import com.rebuild.core.Application;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
 import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyFieldConfigProps;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 
@@ -31,11 +33,6 @@ import java.util.Map;
  */
 public class DataListWrapper {
 
-    /**
-     * 无权限标识
-     */
-    public static final String NO_READ_PRIVILEGES = "$NOPRIVILEGES$";
-
     final protected int total;
     final protected Object[][] data;
     final protected SelectItem[] selectFields;
@@ -44,6 +41,9 @@ public class DataListWrapper {
     // for 权限验证
     private ID user;
     private Map<String, Integer> queryJoinFields;
+
+    // 信息脱敏
+    private boolean useDesensitized = true;
 
     /**
      * @param total
@@ -68,6 +68,7 @@ public class DataListWrapper {
         if (user != null && joinFields != null && !joinFields.isEmpty()) {
             this.user = user;
             this.queryJoinFields = joinFields;
+            this.useDesensitized = !Application.getPrivilegesManager().allow(user, ZeroEntry.AllowNoDesensitized);
         }
     }
 
@@ -92,7 +93,7 @@ public class DataListWrapper {
             Object nameValue = null;
             for (int colIndex = 0; colIndex < selectFieldsLen; colIndex++) {
                 if (!checkHasJoinFieldPrivileges(selectFields[colIndex], original)) {
-                    row[colIndex] = NO_READ_PRIVILEGES;
+                    row[colIndex] = FieldValueHelper.NO_READ_PRIVILEGES;
                     continue;
                 }
 
@@ -146,7 +147,17 @@ public class DataListWrapper {
                 || easyField.getDisplayType() == DisplayType.STATE
                 || easyField.getDisplayType() == DisplayType.BOOL;
 
-        return FieldValueHelper.wrapFieldValue(value, easyField, unpack);
+        value = FieldValueHelper.wrapFieldValue(value, easyField, unpack);
+
+        if (value != null && isUseDesensitized(easyField)) {
+            value = FieldValueHelper.desensitized(easyField, value);
+        }
+        return value;
+    }
+
+    private boolean isUseDesensitized(EasyField easyField) {
+        return this.useDesensitized
+                && "true".equals(easyField.getExtraAttr(EasyFieldConfigProps.ADV_DESENSITIZED));
     }
 
     /**

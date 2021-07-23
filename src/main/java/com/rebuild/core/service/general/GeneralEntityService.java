@@ -58,7 +58,6 @@ import java.util.*;
 @Service
 public class GeneralEntityService extends ObservableService implements EntityService {
 
-    @SuppressWarnings("deprecation")
     protected GeneralEntityService(PersistManagerFactory aPMFactory) {
         super(aPMFactory);
 
@@ -66,11 +65,6 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         addObserver(new NotificationObserver());
         // 触发器
         addObserver(new RobotTriggerObserver());
-
-        // Redis 队列（Redis 可用才有效）
-        if (RebuildConfiguration.getBool(ConfigurationItem.RedisQueueEnable)) {
-            addObserver(new RedisQueueObserver());
-        }
     }
 
     @Override
@@ -295,6 +289,8 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         return 1;
     }
 
+    // FIXME Transaction rolled back because it has been marked as rollback-only
+    // 20210722 删除时出错会报以上错误
     @Override
     public int bulk(BulkContext context) {
         BulkOperator operator = buildBulkOperator(context);

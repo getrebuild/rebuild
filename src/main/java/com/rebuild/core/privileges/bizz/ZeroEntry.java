@@ -8,7 +8,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.privileges.bizz;
 
 /**
- * 扩权限项
+ * 扩权限项。注意前端默认值匹配
  *
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/04/13
@@ -43,8 +43,10 @@ public enum ZeroEntry {
      * 允许自定义图表
      */
     AllowCustomChart(true),
-
-    // NOTE 对于新增权限都应该设置默认值为 true 以保持老版本兼容
+    /**
+     * 忽略脱敏（即可见明文）
+     */
+    AllowNoDesensitized(false),
 
     ;
 

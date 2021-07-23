@@ -1408,6 +1408,7 @@ i.dividing.ui-draggable-dragging {
 
 .column-checkbox .custom-control-label::after {
   margin-left: 0 !important;
+  transform: translateX(-1.4px);
 }
 
 .column-main {
@@ -1998,20 +1999,20 @@ th.column-fixed {
 .aside-2tree li span.collapse-icon {
   padding-left: 6px;
   padding-top: 7px;
-  font-size: 1.6rem;
+  font-size: 1.22rem;
+  color: #999;
 }
 
-.aside-2tree li span.collapse-icon:hover {
+.aside-2tree li.active span.collapse-icon {
+  color: #fff;
+}
+
+.aside-2tree li span.collapse-icon:not(.no-child):hover {
   color: #4285f4;
 }
 
 .aside-2tree li.active span.collapse-icon:hover {
   color: rgba(255, 255, 255, 0.8);
-}
-
-.aside-2tree li span.collapse-icon.no-child .zmdi {
-  width: 8px;
-  overflow: hidden;
 }
 
 .aside-2tree li span.collapse-icon.no-child .zmdi::before {
@@ -2207,15 +2208,19 @@ th.column-fixed {
   font-size: 1.2rem;
 }
 
-div.dataTables_wrapper div.paging_sizes {
+.dataTables_wrapper .paging_sizes {
   padding-top: 2px;
   padding-left: 9px;
 }
 
-div.dataTables_wrapper div.paging_sizes select {
-  height: 36px !important;
+.dataTables_wrapper .paging_sizes select {
   padding: 4px 6px;
   width: 54px;
+}
+
+.dataTables_wrapper .paging_sizes select,
+.dataTables_wrapper .paging_simple_numbers .page-link {
+  height: 36px !important;
 }
 
 .must-center {
@@ -2241,10 +2246,6 @@ div.dataTables_wrapper div.paging_sizes select {
   cursor: help;
   float: right;
   margin-left: 0.384615rem;
-}
-
-.col-form-label .zicon.zmdi-help {
-  margin-top: -0.08rem;
 }
 
 form.dropzone {
@@ -3141,8 +3142,7 @@ form {
 }
 
 .preview-modal .preview-body .iframe.text > pre {
-  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui',
-    'microsoft yahei', sans-serif;
+  font-family: Roboto, San Francisco, 'Helvetica Neue', Helvetica, Arial, PingFangSC-Light, 'Hiragina Sans GB', 'WenQuanYi Micro Hei', 'microsoft yahei ui', 'microsoft yahei', sans-serif;
   font-size: 1rem;
   background-color: #fff;
 }
@@ -3846,7 +3846,7 @@ a.select-lang:hover {
   content: 'V';
 }
 
-.rb-collapsible-sidebar-collapsed .rb-left-sidebar .sidebar-elements .rbv {
+.rb-collapsible-sidebar-collapsed .left-sidebar-content > .sidebar-elements > li > a .rbv {
   margin-left: -10px;
 }
 
@@ -4139,4 +4139,17 @@ html.external-auth .auth-body .card {
 
 html.external-auth .auth-body.must-center .card {
   display: none;
+}
+
+.page-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;
+  padding: 4px 0;
+  text-align: center;
+  background-color: #eee;
+  font-size: 1rem;
+  color: #222;
 }

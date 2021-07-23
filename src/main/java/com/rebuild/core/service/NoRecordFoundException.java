@@ -24,7 +24,7 @@ public class NoRecordFoundException extends RebuildException {
     }
 
     public NoRecordFoundException(ID record) {
-        super(record.toLiteral());
+        super("No record : " + record.toLiteral());
     }
 
     public NoRecordFoundException(String msg, Throwable cause) {

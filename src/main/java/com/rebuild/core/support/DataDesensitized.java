@@ -10,12 +10,14 @@ package com.rebuild.core.support;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * 脱敏
+ * 信息脱敏
  *
  * @author devezhao
  * @since 2020/12/22
  */
-public class DataMasking {
+public class DataDesensitized {
+
+    public static final String SECURE_TEXT = "******";
 
     /**
      * 给敏感文本加星号/打码
@@ -23,7 +25,7 @@ public class DataMasking {
      * @param text
      * @return
      */
-    public static String masking(String text) {
+    public static String any(String text) {
         if (StringUtils.isBlank(text)) return text;
 
         int textLen = text.length();
@@ -44,7 +46,7 @@ public class DataMasking {
      * @param phone
      * @return
      */
-    public static String maskingPhone(String phone) {
+    public static String phone(String phone) {
         if (StringUtils.isBlank(phone)) return phone;
 
         if (phone.length() <= 7) {
@@ -58,9 +60,9 @@ public class DataMasking {
      * @param email
      * @return
      */
-    public static String maskingEmail(String email) {
+    public static String email(String email) {
         if (StringUtils.isBlank(email)) return email;
-        if (!email.contains("@")) return masking(email);
+        if (!email.contains("@")) return any(email);
 
         String[] nd = email.split("@");
         int nLen = nd[0].length();

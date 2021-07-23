@@ -281,9 +281,24 @@
                       <input class="custom-control-input" type="checkbox" id="fieldRepeatable" th:data-o="${fieldRepeatable}" />
                       <span class="custom-control-label">[[${bundle.L('允许重复')}]]</span>
                     </label>
-                    <label class="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0 bosskey-show">
+                  </div>
+                </div>
+                <div class="form-group row bosskey-show">
+                  <label class="col-md-12 col-xl-3 col-lg-4 col-form-label text-lg-right pt-1">[[${bundle.L('高级配置')}]]</label>
+                  <div class="col-md-12 col-xl-6 col-lg-8">
+                    <label class="custom-control custom-control-sm custom-checkbox">
+                      <input class="custom-control-input" type="checkbox" id="advDesensitized" />
+                      <span class="custom-control-label">
+                        [[${bundle.L('信息脱敏 (Beta)')}]]
+                        <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('可在权限角色中启用“允许查看明文”选项')}"></i>
+                      </span>
+                    </label>
+                    <label class="custom-control custom-control-sm custom-checkbox mb-0">
                       <input class="custom-control-input" type="checkbox" id="fieldQueryable" th:data-o="${fieldQueryable}" />
-                      <span class="custom-control-label"> [[${bundle.L('允许使用')}]]</span>
+                      <span class="custom-control-label">
+                        [[${bundle.L('允许使用')}]]
+                        <i class="zmdi zmdi-help zicon" data-toggle="tooltip" th:title="${bundle.L('不允许使用的字段仅在字段管理中可见')}"></i>
+                      </span>
                     </label>
                   </div>
                 </div>

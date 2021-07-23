@@ -15,11 +15,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.impl.EasyEntityConfigProps;
 import com.rebuild.core.privileges.bizz.ZeroEntry;
 import com.rebuild.core.support.general.DataListBuilder;
 import com.rebuild.core.support.general.DataListBuilderImpl;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.web.EntityController;
+import org.apache.commons.lang.BooleanUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -62,6 +66,15 @@ public class GeneralListController extends EntityController {
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowDataExport));
         mv.getModel().put(ZeroEntry.AllowBatchUpdate.name(),
                 Application.getPrivilegesManager().allow(user, ZeroEntry.AllowBatchUpdate));
+
+        // 扩展配置
+        EasyEntity easyEntity = EasyMetaFactory.valueOf(useEntity);
+        String advListHideFilters = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS);
+        String advListHideCharts = easyEntity.getExtraAttr(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS);
+        mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_FILTERS, advListHideFilters);
+        mv.getModel().put(EasyEntityConfigProps.ADV_LIST_HIDE_CHARTS, advListHideCharts);
+        mv.getModel().put("hideAside",
+                BooleanUtils.toBoolean(advListHideFilters) && BooleanUtils.toBoolean(advListHideCharts));
 
         return mv;
     }

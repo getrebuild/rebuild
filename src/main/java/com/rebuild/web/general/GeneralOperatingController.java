@@ -119,7 +119,8 @@ public class GeneralOperatingController extends BaseController {
                     continue;
                 }
 
-                Object newValue = FormsBuilder.instance.wrapFieldValue(record, EasyMetaFactory.valueOf(fieldMeta));
+                Object newValue = FormsBuilder.instance.wrapFieldValue(
+                        record, EasyMetaFactory.valueOf(fieldMeta), null);
                 ret.put(field, newValue);
             }
         }

@@ -18,7 +18,7 @@ import com.qiniu.util.Auth;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.DataMasking;
+import com.rebuild.core.support.DataDesensitized;
 import com.rebuild.core.support.License;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
@@ -257,7 +257,7 @@ public class ConfigurationController extends BaseController {
         if (account == null || account.length == 0) return null;
 
         for (int i : index) {
-            account[i] = DataMasking.masking(account[i]);
+            account[i] = DataDesensitized.any(account[i]);
         }
         return account;
     }
@@ -291,7 +291,7 @@ public class ConfigurationController extends BaseController {
                 String value = RebuildConfiguration.get(item);
 
                 if (value != null && item == ConfigurationItem.DingtalkAppsecret) {
-                    value = DataMasking.masking(value);
+                    value = DataDesensitized.any(value);
                 }
                 mv.getModel().put(name, value);
             }
@@ -323,7 +323,7 @@ public class ConfigurationController extends BaseController {
                 String value = RebuildConfiguration.get(item);
 
                 if (value != null && item == ConfigurationItem.WxworkSecret) {
-                    value = DataMasking.masking(value);
+                    value = DataDesensitized.any(value);
                 }
                 mv.getModel().put(name, value);
             }

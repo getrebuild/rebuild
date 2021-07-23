@@ -243,6 +243,7 @@ public class MetaEntityController extends BaseController {
         mv.getModel().put("entityLabel", entityMeta.getLabel());
         mv.getModel().put("icon", entityMeta.getIcon());
         mv.getModel().put("comments", entityMeta.getComments());
+        mv.getModel().put("entityCode", entityMeta.getRawMeta().getEntityCode());
         return entityMeta;
     }
 }

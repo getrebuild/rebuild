@@ -17,12 +17,13 @@ import com.rebuild.core.support.i18n.LanguageBundle;
  */
 public enum ConfigurationItem {
 
-    // 仅命令行指定
+    // 仅命令行适用
     DataDirectory,  // 数据目录
     MobileUrl,  // 移动端地址
     
-    // 系统指定
+    // 系统适用
     SN, DBVer, AppBuild,
+
     // 缓存服务（安装/配置文件指定）
     CacheHost, CachePort, CacheUser, CachePassword,
 
@@ -31,6 +32,7 @@ public enum ConfigurationItem {
     LOGO,
     LOGOWhite,
     HomeURL("https://getrebuild.com/"),
+    PageFooter,
 
     // 云存储
     StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
@@ -74,13 +76,6 @@ public enum ConfigurationItem {
 
     // 默认语言
     DefaultLanguage(LanguageBundle.SYS_LC),
-
-    // 数据脱敏（实验功能!!! 仅 PHONE/EMAIL 字段）
-    DataMasking(false),
-
-    // 激活 Redis 队列 (since = "2.1")
-    @Deprecated
-    RedisQueueEnable(false),
 
     // 视图页显示修改历史
     ShowViewHistory(true),

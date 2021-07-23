@@ -10,7 +10,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 $(document).ready(() => {
   $('.card-header>a').click((e) => {
-    e.preventDefault()
+    $stopEvent(e, true)
     enableEditMode()
   })
 
@@ -31,32 +31,27 @@ const enableEditMode = function () {
     const name = $item.data('id')
     const value = $item.data('value')
 
-    const comp = useEditComp(name, value)
-    if (comp) {
-      renderRbcomp(comp, $item)
+    const c = useEditComp(name, value)
+    if (c) {
+      renderRbcomp(React.cloneElement(c, { name: name, onChange: changeValue, defaultValue: value }), $item)
     } else {
-      renderRbcomp(<input defaultValue={value} name={name} className="form-control form-control-sm" onChange={changeValue} />, $item)
+      renderRbcomp(<input className="form-control form-control-sm" name={name} onChange={changeValue} defaultValue={value} />, $item)
     }
   })
   $('.syscfg').addClass('edit')
 }
 
-// 复写
-// eslint-disable-next-line no-unused-vars
-var useEditComp = function (name, value) {
-  return null
-}
-
 // 提交
 const post = function (data) {
-  for (let k in data) {
-    if (!data[k]) {
-      if ($('td[data-id=' + k + ']').data('ignore')) continue
+  for (let name in data) {
+    if (!data[name]) {
+      const $field = $('td[data-id=' + name + ']')
+      if ($isTrue($field.data('nullable'))) continue
 
-      const field = $('td[data-id=' + k + ']')
-        .prev()
-        .text()
-      RbHighbar.create($L('%s 不能为空', field))
+      const $c = $field.prev().clone()
+      $c.find('p').remove()
+
+      RbHighbar.create($L('%s 不能为空', $c.text()))
       return false
     }
   }
@@ -69,6 +64,12 @@ const post = function (data) {
     if (res.error_code === 0) location.reload()
     else RbHighbar.error(res.error_msg)
   })
+}
+
+// 复写-指定编辑控件
+// eslint-disable-next-line no-unused-vars
+var useEditComp = function (name, value) {
+  return null
 }
 
 // 复写-保存前检查

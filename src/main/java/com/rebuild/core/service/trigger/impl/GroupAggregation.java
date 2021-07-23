@@ -110,10 +110,11 @@ public class GroupAggregation extends FieldAggregation {
             return;
         }
 
-        // 自动创建记录
+        // 是否自动创建记录
         if (!actionContent.getBoolean("autoCreate")) return;
 
-        // FIXME 自动创建可能失败，因为可能存在必填字段
+        // 不必担心必填字段，必填只是前端约束
+        // 还可以通过设置字段默认值来完成必填字段的自动填写
 
         Record newTargetRecord = EntityHelper.forNew(targetEntity.getEntityCode(), UserService.SYSTEM_USER);
         for (Map.Entry<String, String> e : groupFieldsMapping.entrySet()) {
