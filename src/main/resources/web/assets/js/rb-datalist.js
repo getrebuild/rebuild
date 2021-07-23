@@ -712,12 +712,12 @@ class RbListPagination extends React.Component {
 
     return (
       <div className="row rb-datatable-footer">
-        <div className="col-12 col-md-6">
+        <div className="col-12 col-lg-6 col-xl-7">
           <div className="dataTables_info" key="page-rowsTotal">
             {this._renderStats()}
           </div>
         </div>
-        <div className="col-12 col-md-6">
+        <div className="col-12 col-lg-6 col-xl-5">
           <div className="float-right paging_sizes">
             <select className="form-control form-control-sm" title={$L('每页显示')} onChange={this.setPageSize} value={this.state.pageSize || 20}>
               {rb.env === 'dev' && <option value="5">5</option>}
@@ -734,7 +734,7 @@ class RbListPagination extends React.Component {
               {this.state.pageNo > 1 && (
                 <li className="paginate_button page-item">
                   <a className="page-link" onClick={() => this.prev()}>
-                    <i className="icon zmdi zmdi-chevron-left" />
+                    <span className="icon zmdi zmdi-chevron-left" />
                   </a>
                 </li>
               )}
@@ -757,7 +757,7 @@ class RbListPagination extends React.Component {
               {this.state.pageNo !== this.__pageTotal && (
                 <li className="paginate_button page-item">
                   <a className="page-link" onClick={() => this.next()}>
-                    <i className="icon zmdi zmdi-chevron-right" />
+                    <span className="icon zmdi zmdi-chevron-right" />
                   </a>
                 </li>
               )}
