@@ -3043,36 +3043,89 @@ form {
   display: none;
 }
 
-.rb-top-header .search-container .search-models {
+.search-container > .global-search > .icon {
   position: absolute;
-  min-width: 320px;
-  max-width: 600px;
-  padding: 20px 15px 15px;
-  box-shadow: 0 3px 0.6rem rgba(0, 0, 0, 0.1);
-  background: #fff;
-  border-radius: 2px;
+  left: 160px;
+  margin-left: -10.5px;
+  top: 9px;
+  font-size: 1.55rem;
+  color: #878787;
+  pointer-events: none;
+}
+
+.search-container > .global-search > input:focus ~ .icon,
+.search-container > .global-search > input:valid ~ .icon {
   display: none;
 }
 
-.search-models a {
-  background: #f7f7f7;
-  color: #999 !important;
+.search-container > .global-search > .dropdown-menu {
+  width: auto;
+  min-width: 320px;
+  max-width: 600px;
+  padding: 15px 20px 10px;
+}
+
+.search-container .dropdown-menu {
+  box-shadow: 0 3px 0.6rem rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  margin-top: 0;
+}
+
+.search-container .dropdown-menu:empty {
+  padding: 15px;
+}
+
+.search-container .dropdown-menu:empty::after {
+  content: attr(_title);
+  font-style: italic;
+  color: #999;
+}
+
+.search-container > .global-search > .dropdown-menu a.badge {
+  background: #f5f5f5;
+  color: #5a5a5a !important;
   border-radius: 99px;
-  padding: 4px 9px;
-  max-width: 120px;
-  display: inline-block;
+  border-width: 0;
   font-size: 12px;
-  margin: 1px 0;
+  font-weight: normal;
+  padding: 4px 10px;
+  margin-bottom: 5px;
+  margin-right: 2px;
 }
 
-.search-models a + a {
-  margin-left: 6px;
-}
-
-.search-models a:hover,
-.search-models a.active {
+.search-container > .global-search > .dropdown-menu a.badge:hover,
+.search-container > .global-search > .dropdown-menu a.badge.active,
+.search-container > .global-create .dropdown-item:hover {
   background: #4285f4;
   color: #fff !important;
+}
+
+.search-container > .global-create .dropdown-item:hover > .icon {
+  color: #fff;
+}
+
+.search-container > .global-create {
+  position: absolute;
+  left: 355px;
+  top: 12px;
+}
+
+.search-container > .global-create > a {
+  display: inline-block;
+  width: 35px;
+  line-height: 35px;
+  height: 35px;
+  text-align: center;
+  color: #5a5a5a;
+  border-radius: 99px;
+  font-size: 1.615rem;
+  font-size: 1.73rem;
+}
+
+.search-container > .global-create > a:hover,
+.search-container > .global-create.show > a {
+  background: #4285f4;
+  color: #fff;
 }
 
 .preview-modal {

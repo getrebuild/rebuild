@@ -7,10 +7,13 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.web.general;
 
+import cn.devezhao.bizz.privileges.Permission;
+import cn.devezhao.bizz.privileges.impl.BizzPermission;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
@@ -19,6 +22,8 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.AutoFillinManager;
 import com.rebuild.core.configuration.general.TransformManager;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.metadata.easymeta.EasyEntity;
+import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.general.transform.RecordTransfomer;
@@ -28,14 +33,13 @@ import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import com.rebuild.web.EntityParam;
 import com.rebuild.web.IdParam;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 表单/视图 功能扩展
@@ -133,8 +137,6 @@ public class ModelExtrasController extends BaseController {
                 new Object[] { recordMeta[0], recordMeta[1], owning, sharingList });
     }
 
-
-
     @GetMapping("record-history")
     public JSONAware fetchRecordHistory(@IdParam ID id) {
         Object[][] array = Application.createQueryNoFilter(
@@ -159,5 +161,23 @@ public class ModelExtrasController extends BaseController {
 
         return JSONUtils.toJSONObjectArray(
                 new String[] { "revisionType", "revisionOn", "revisionBy" }, array);
+    }
+
+    @GetMapping("check-creates")
+    public JSON checkCreates(HttpServletRequest request) {
+        final ID user = getRequestUser(request);
+        String entity = getParameter(request, "entity", "");
+
+        JSONArray allowed = new JSONArray();
+        for (String e : entity.split(",")) {
+            if (!MetadataHelper.containsEntity(e)) continue;
+
+            EasyEntity easyEntity = EasyMetaFactory.valueOf(e);
+            if (Application.getPrivilegesManager()
+                    .allow(user, easyEntity.getRawMeta().getEntityCode(), BizzPermission.CREATE)) {
+                allowed.add(easyEntity.toJSON());
+            }
+        }
+        return allowed;
     }
 }

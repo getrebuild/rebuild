@@ -30,8 +30,10 @@ $(function () {
         delay: 200,
       })
     })
+
     _initNavs()
     setTimeout(_initGlobalSearch, 500)
+    setTimeout(_initGlobalCreate, 500)
   }
 
   var $hasNotification = $('.J_top-notifications')
@@ -92,10 +94,7 @@ $(function () {
       $('.admin-settings').remove()
     } else if (rb.isAdminVerified) {
       $('.admin-settings a>.icon').addClass('text-danger')
-      topPopover(
-        $('.admin-settings a'),
-        '<div class="p-1">' + $L('当前已启用管理中心访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>'
-      )
+      topPopover($('.admin-settings a'), '<div class="p-1">' + $L('当前已启用管理中心访问功能，如不再使用建议你 [取消访问](#)').replace('#', 'javascript:_cancelAdmin()') + '</div>')
     }
 
     $.get('/user/admin-dangers', function (res) {
@@ -368,27 +367,25 @@ var _showNotification = function () {
  * 全局搜索
  */
 var _initGlobalSearch = function () {
-  var $sm = $('.search-models')
+  var $gs = $('.global-search .dropdown-menu').on('click', function (e) {
+    $stopEvent(e)
+    return false
+  })
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
+    var $a = $item.find('>a')
     if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
-      var $a = $item.find('>a')
-      $('<a class="text-truncate" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo($sm)
+      $('<a class="badge" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo($gs)
     } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
-      var $a = $item.find('>a')
-      $('<a class="text-truncate QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo($sm)
+      $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo($gs)
     }
   })
 
-  var $smModels = $('.search-models a').click(function () {
+  var $aa = $gs.find('a').on('click', function () {
     var s = $('.search-input-gs').val()
     location.href = $(this).data('url') + ($(this).hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
   })
-  if ($smModels.length === 0) return
-
-  $(document).click(function (e) {
-    if ($(e.target).parents('.search-container').length === 0) $('.search-models').hide()
-  })
+  if ($aa.length === 0) return
 
   var _tryActive = function ($active, $el) {
     if ($el.length === 1) {
@@ -397,24 +394,40 @@ var _initGlobalSearch = function () {
     }
   }
 
-  $smModels.eq(0).addClass('active')
-  $('.search-container input')
-    .on('focus', function (e) {
-      $('.search-models').show()
+  $aa.eq(0).addClass('active')
+  $('.global-search input').on('keydown', function (e) {
+    var $active = $('.global-search a.active')
+    if (e.keyCode === 37) {
+      _tryActive($active, $active.prev())
+    } else if (e.keyCode === 39) {
+      _tryActive($active, $active.next())
+    } else if (e.keyCode === 13) {
+      var s = $('.search-input-gs').val()
+      location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
+    }
+  })
+}
+/**
+ * 全局新建
+ */
+var _initGlobalCreate = function () {
+  var entities = []
+  $('.sidebar-elements li').each(function () {
+    var e = $(this).data('entity')
+    if (e) entities.push(e)
+  })
+  if (entities.length === 0) return
+
+  $.get('/app/entity/extras/check-creates?entity=' + entities.join(','), function (res) {
+    var $gc = $('.global-create .dropdown-menu')
+    $(res.data || []).each(function () {
+      var $item = $('<a class="dropdown-item"><i class="icon zmdi zmdi-' + this.icon + '"></i>' + this.entityLabel + '</a>').appendTo($gc)
+      var _this = this
+      $item.on('click', function () {
+        RbFormModal.create({ title: $L('新建%s', _this.entityLabel), entity: _this.entity, icon: _this.icon })
+      })
     })
-    .on('keydown', function (e) {
-      if (e.keyCode === 37) {
-        var $active = $('.search-models .active')
-        _tryActive($active, $active.prev())
-      } else if (e.keyCode === 39) {
-        var $active = $('.search-models .active')
-        _tryActive($active, $active.next())
-      } else if (e.keyCode === 13) {
-        var s = $('.search-input-gs').val()
-        var $active = $('.search-models .active')
-        location.href = $active.data('url') + ($active.hasClass('QUERY') ? '?' : '#') + 'gs=' + $encode(s)
-      }
-    })
+  })
 }
 
 /**
@@ -742,7 +755,7 @@ var $converEmoji = function (text) {
   $(es).each(function () {
     var key = this.substr(1, this.length - 2)
     if (EMOJIS[key]) {
-      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" />'
+      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" alt="' + key + '" />'
       text = text.replace(this, img)
     }
   })
