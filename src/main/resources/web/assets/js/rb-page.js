@@ -373,11 +373,10 @@ var _initGlobalSearch = function () {
   })
   $('.sidebar-elements li').each(function (idx, item) {
     var $item = $(item)
+    var $a = $item.find('>a')
     if (!$item.hasClass('parent') && ($item.attr('class') || '').contains('nav_entity-')) {
-      var $a = $item.find('>a')
       $('<a class="badge" data-url="' + $a.attr('href') + '">' + $a.text() + '</a>').appendTo($gs)
     } else if ($item.hasClass('nav_entity-PROJECT') && $item.hasClass('parent')) {
-      var $a = $item.find('>a')
       $('<a class="badge QUERY" data-url="' + rb.baseUrl + '/project/search">' + $a.text() + '</a>').appendTo($gs)
     }
   })
@@ -756,7 +755,7 @@ var $converEmoji = function (text) {
   $(es).each(function () {
     var key = this.substr(1, this.length - 2)
     if (EMOJIS[key]) {
-      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" />'
+      var img = '<img class="emoji" src="' + rb.baseUrl + '/assets/img/emoji/' + EMOJIS[key] + '" alt="' + key + '" />'
       text = text.replace(this, img)
     }
   })
