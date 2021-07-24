@@ -48,17 +48,21 @@ public class UserSettings extends EntityController {
         User user = Application.getUserStore().getUser(getRequestUser(request));
         mv.getModelMap().put("user", user);
 
-        if (RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid) != null) {
+        String dingtalkCorpid = RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid);
+        if (dingtalkCorpid != null) {
             Object[] dingtalkUser = Application.createQueryNoFilter(
-                    "select appUser from ExternalUser where bindUser = ? and appType = 1")
+                    "select appUser from ExternalUser where bindUser = ? and appId = ?")
                     .setParameter(1, user.getId())
+                    .setParameter(2, dingtalkCorpid)
                     .unique();
             if (dingtalkUser != null) mv.getModelMap().put("dingtalkUser", dingtalkUser[0]);
         }
-        if (RebuildConfiguration.get(ConfigurationItem.WxworkCorpid) != null) {
+        String wxworkCorpid = RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
+        if (wxworkCorpid != null) {
             Object[] wxworkUser = Application.createQueryNoFilter(
-                    "select appUser from ExternalUser where bindUser = ? and appType = 2")
+                    "select appUser from ExternalUser where bindUser = ? and appId = 2")
                     .setParameter(1, user.getId())
+                    .setParameter(2, wxworkCorpid)
                     .unique();
             if (wxworkUser != null) mv.getModelMap().put("wxworkUser", wxworkUser[0]);
         }
@@ -171,10 +175,15 @@ public class UserSettings extends EntityController {
     @PostMapping("/cancel-external-user")
     public RespBody cancelExternalUser(HttpServletRequest request) {
         int appType = getIntParameter(request, "type", 0);
+        // 1=Dingtalk, 2=Wxwork
+        String appId = appType == 1
+                ? RebuildConfiguration.get(ConfigurationItem.DingtalkCorpid)
+                : RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
+
         Object[] externalUser = Application.createQueryNoFilter(
-                "select userId from ExternalUser where bindUser = ? and appType = ?")
+                "select userId from ExternalUser where bindUser = ? and appId = ?")
                 .setParameter(1, getRequestUser(request))
-                .setParameter(2, appType)
+                .setParameter(2, appId)
                 .unique();
         if (externalUser != null) {
             Application.getCommonsService().delete((ID) externalUser[0]);
