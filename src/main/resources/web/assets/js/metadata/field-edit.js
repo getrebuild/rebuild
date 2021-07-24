@@ -58,6 +58,7 @@ $(document).ready(function () {
     delete extConfigNew['undefined'] // bugfix
 
     extConfigNew['advDesensitized'] = $val('#advDesensitized')
+    extConfigNew['advPattern'] = $val('#advPattern')
 
     if (!$same(extConfigNew, extConfig)) {
       data['extConfig'] = JSON.stringify(extConfigNew)
@@ -108,6 +109,7 @@ $(document).ready(function () {
   $('#fieldQueryable').attr('checked', $isTrue($('#fieldQueryable').data('o')))
 
   if (extConfig.advDesensitized) $('#advDesensitized').attr('checked', true)
+  if (extConfig.advPattern) $('#advPattern').val(extConfig.advPattern)
 
   // 设置扩展值
   for (let k in extConfig) {

@@ -104,5 +104,11 @@ public class EasyFieldConfigProps {
     /**
      * 信息脱敏
      */
+
     public static final String ADV_DESENSITIZED = "advDesensitized";
+
+    /**
+     * 正则表达式
+     */
+    public static final String ADV_PATTERN = "advPattern";
 }
