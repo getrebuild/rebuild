@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
   <head>
     <th:block th:replace="~{/_include/header}" />
-    <title>[[${bundle.L('密码即将失效')}]]</title>
+    <title>[[${bundle.L('密码即将过期')}]]</title>
     <style type="text/css">
       .rb-navbar-header .rb-toggle-left-sidebar,
       .rb-top-header .search-container {
@@ -18,8 +18,8 @@
           <div class="splash-container">
             <div class="card card-border-color card-border-color-danger">
               <div class="card-header">
-                <h4>[[${bundle.L('你的密码将在 **%d** 天后失效')}]]</h4>
-                <p class="fs-13 text-muted">[[${bundle.L('失效后系统将强制修改密码，新密码会发送至你的邮箱 (若有)')}]]</p>
+                <h4>[[${bundle.L('你的密码将在 **%d** 天后过期')}]]</h4>
+                <p class="fs-13 text-muted">[[${bundle.L('过期后系统将强制修改密码，新密码会发送至你的邮箱 (若有)')}]]</p>
               </div>
               <div class="card-body">
                 <form>

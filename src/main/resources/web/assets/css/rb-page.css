@@ -1406,7 +1406,7 @@ i.dividing.ui-draggable-dragging {
   padding-left: 0;
 }
 
-.column-checkbox .custom-control-label::after {
+td.column-checkbox .custom-control-label::after {
   margin-left: 0 !important;
   transform: translateX(-1.4px);
 }

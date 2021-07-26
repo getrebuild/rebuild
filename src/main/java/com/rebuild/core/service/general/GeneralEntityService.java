@@ -27,13 +27,12 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
+import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
 import com.rebuild.core.service.trigger.RobotTriggerManual;
 import com.rebuild.core.service.trigger.RobotTriggerObserver;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.task.TaskExecutors;
 import lombok.extern.slf4j.Slf4j;
@@ -98,15 +97,14 @@ public class GeneralEntityService extends ObservableService implements EntitySer
         final ID currentUser = UserContextHolder.getUser();
 
         RecycleStore recycleBin = null;
-        if (RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0) {
+        if (RecycleBinCleanerJob.isEnableRecycleBin()) {
             recycleBin = new RecycleStore(currentUser);
         } else {
-            log.warn("RecycleBin inactivated : " + record + " by " + currentUser);
+            log.warn("RecycleBin inactivated! DELETE {} by {}", record, currentUser);
         }
 
-        if (recycleBin != null) {
-            recycleBin.add(record);
-        }
+        if (recycleBin != null) recycleBin.add(record);
+
         this.deleteInternal(record);
         int affected = 1;
 
@@ -118,9 +116,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
 
             for (ID id : e.getValue()) {
                 if (Application.getPrivilegesManager().allowDelete(currentUser, id)) {
-                    if (recycleBin != null) {
-                        recycleBin.add(id, record);
-                    }
+                    if (recycleBin != null) recycleBin.add(id, record);
 
                     int deleted = 0;
                     try {
@@ -131,7 +127,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
                         if (deleted > 0) {
                             affected++;
                         } else if (recycleBin != null) {
-                            recycleBin.removeLast();
+                            recycleBin.removeLast();  // If not delete
                         }
                     }
                 } else {
@@ -140,9 +136,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
             }
         }
 
-        if (recycleBin != null) {
-            recycleBin.store();
-        }
+        if (recycleBin != null) recycleBin.store();
 
         return affected;
     }

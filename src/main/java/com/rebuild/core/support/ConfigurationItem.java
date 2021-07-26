@@ -68,7 +68,7 @@ public enum ConfigurationItem {
     // 启用数据库备份
     DBBackupsEnable(false),
 
-    // 数据备份保留时间
+    // 数据备份保留时间（0为禁用）
     DBBackupsKeepingDays(180),
 
     // 允许同一用户多个会话
@@ -83,7 +83,7 @@ public enum ConfigurationItem {
     // 登录验证码显示策略（1为自动，2为总是）
     LoginCaptchaPolicy(1),
 
-    // 登录密码过期时间
+    // 登录密码过期时间（0为不过期）
     PasswordExpiredDays(0),
 
     // DingTalk
