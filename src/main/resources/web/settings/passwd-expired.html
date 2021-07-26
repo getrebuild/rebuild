@@ -18,7 +18,7 @@
           <div class="splash-container">
             <div class="card card-border-color card-border-color-danger">
               <div class="card-header">
-                <h4>[[${bundle.L('你的密码将在 **%d** 天后过期')}]]</h4>
+                <h4>[(${bundle.L('你的密码将在 **%d** 天后过期')})]</h4>
                 <p class="fs-13 text-muted">[[${bundle.L('过期后系统将强制修改密码，新密码会发送至你的邮箱 (若有)')}]]</p>
               </div>
               <div class="card-body">
@@ -46,7 +46,7 @@
     <script type="text/babel">
       $(document).ready(function () {
         const $h4 = $('.card-header h4')
-        $h4.html($h4.html().replace('%d', $urlp('d') || 0))
+        $h4.html($h4.html().replace('%d', Math.max(~~$urlp('d') || 0, 0)))
 
         const $btn = $('.J_change-btn').click(function () {
           const newpasswd = $val('#newpasswd')
