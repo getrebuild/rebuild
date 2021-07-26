@@ -52,9 +52,6 @@ public class FeedsService extends BaseFeedsService {
 
     @Override
     public int delete(ID recordId) {
-        // 只有动态本身可以恢复
-        final RecycleStore recycleBin = useRecycleStore(recordId);
-
         // 先删评论
         Object[][] comments = Application.createQueryNoFilter(
                 "select commentId from FeedsComment where feedsId = ?")
@@ -63,6 +60,9 @@ public class FeedsService extends BaseFeedsService {
         for (Object[] c : comments) {
             Application.getBean(FeedsCommentService.class).delete((ID) c[0]);
         }
+
+        // 只有动态本身可以恢复
+        final RecycleStore recycleBin = useRecycleStore(recordId);
 
         int d = super.delete(recordId);
 
