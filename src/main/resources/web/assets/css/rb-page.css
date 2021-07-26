@@ -1411,7 +1411,7 @@ i.dividing.ui-draggable-dragging {
   padding-left: 0;
 }
 
-td.column-checkbox .custom-control-label::after {
+.column-checkbox .custom-control-label::after {
   margin-left: 0 !important;
   transform: translateX(-1.4px);
 }
@@ -3781,6 +3781,7 @@ a.icon-link > .zmdi {
   height: 12px;
   margin-top: 5px;
   margin-left: 5px !important;
+  transform: translateX(0);
 }
 
 .custom-checkbox.custom-control-sm.indeterminate .custom-control-label::after {

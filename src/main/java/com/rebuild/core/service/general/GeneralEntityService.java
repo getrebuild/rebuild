@@ -27,7 +27,6 @@ import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.approval.ApprovalHelper;
 import com.rebuild.core.service.approval.ApprovalState;
-import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
 import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.general.series.SeriesGeneratorFactory;
 import com.rebuild.core.service.notification.NotificationObserver;
@@ -95,15 +94,7 @@ public class GeneralEntityService extends ObservableService implements EntitySer
     @Override
     public int delete(ID record, String[] cascades) {
         final ID currentUser = UserContextHolder.getUser();
-
-        RecycleStore recycleBin = null;
-        if (RecycleBinCleanerJob.isEnableRecycleBin()) {
-            recycleBin = new RecycleStore(currentUser);
-        } else {
-            log.warn("RecycleBin inactivated! DELETE {} by {}", record, currentUser);
-        }
-
-        if (recycleBin != null) recycleBin.add(record);
+        final RecycleStore recycleBin = useRecycleStore(record);
 
         this.deleteInternal(record);
         int affected = 1;
