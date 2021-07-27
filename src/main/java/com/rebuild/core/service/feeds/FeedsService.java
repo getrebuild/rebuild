@@ -9,12 +9,17 @@ package com.rebuild.core.service.feeds;
 
 import cn.devezhao.persist4j.PersistManagerFactory;
 import cn.devezhao.persist4j.Record;
+import cn.devezhao.persist4j.engine.ID;
+import com.rebuild.core.Application;
 import com.rebuild.core.UserContextHolder;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.support.i18n.Language;
 import org.springframework.stereotype.Service;
+
+import java.util.Set;
 
 /**
  * 动态
@@ -43,5 +48,35 @@ public class FeedsService extends BaseFeedsService {
         }
 
         return super.createOrUpdate(record);
+    }
+
+    @Override
+    public int delete(ID recordId) {
+        // 先删评论
+        Object[][] comments = Application.createQueryNoFilter(
+                "select commentId from FeedsComment where feedsId = ?")
+                .setParameter(1, recordId)
+                .array();
+        for (Object[] c : comments) {
+            Application.getBean(FeedsCommentService.class).delete((ID) c[0]);
+        }
+
+        // 只有动态本身可以恢复
+        final RecycleStore recycleBin = useRecycleStore(recordId);
+
+        int d = super.delete(recordId);
+
+        if (recycleBin != null) recycleBin.store();
+        return d;
+    }
+
+    /**
+     * 刷新提及
+     *
+     * @param record
+     * @return
+     */
+    public Set<ID> awareMentionCreate(Record record) {
+        return super.awareMentionCreate(record);
     }
 }

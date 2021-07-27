@@ -17,6 +17,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.OperationDeniedException;
 import com.rebuild.core.service.DataSpecificationException;
+import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
 import com.rebuild.core.support.i18n.Language;
@@ -120,8 +121,22 @@ public class ProjectTaskService extends BaseTaskService {
         final ID user = UserContextHolder.getUser();
         if (!ProjectHelper.isManageable(taskId, user)) throw new OperationDeniedException();
 
+        // 先删评论
+        Object[][] comments = Application.createQueryNoFilter(
+                "select commentId from ProjectTaskComment where taskId = ?")
+                .setParameter(1, taskId)
+                .array();
+        for (Object[] c : comments) {
+            Application.getBean(ProjectCommentService.class).delete((ID) c[0]);
+        }
+
+        // 只有任务本身可以恢复
+        final RecycleStore recycleBin = useRecycleStore(taskId);
+
         int d = super.delete(taskId);
         ProjectManager.instance.clean(taskId);
+
+        if (recycleBin != null) recycleBin.store();
         return d;
     }
 

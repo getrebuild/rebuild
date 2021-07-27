@@ -90,8 +90,8 @@
                       </tr>
                       <tr>
                         <td>
-                          [[${bundle.L('登录密码失效时间')}]] <sup class="rbv"></sup>
-                          <p>[[${bundle.L('设为 0 表示永不失效')}]]</p>
+                          [[${bundle.L('登录密码过期时间')}]] <sup class="rbv"></sup>
+                          <p>[[${bundle.L('设为 0 表示永不过期')}]]</p>
                         </td>
                         <td th:data-id="${commercial > 0 ? 'PasswordExpiredDays' : ''}" th:data-value="${PasswordExpiredDays}">[[${PasswordExpiredDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
@@ -128,24 +128,15 @@
                         <td data-id="DBBackupsEnable" th:data-value="${DBBackupsEnable}">[[${DBBackupsEnable ? bundle.L('是') : bundle.L('否')}]]</td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('备份保留时间')}]]
-                          <p>[[${bundle.L('设为 0 表示永久保留')}]]</p>
-                        </td>
+                        <td>[[${bundle.L('备份保留时间')}]]</td>
                         <td data-id="DBBackupsKeepingDays" th:data-value="${DBBackupsKeepingDays}">[[${DBBackupsKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('变更历史保留时间')}]]
-                          <p>[[${bundle.L('设为 0 表示永久保留')}]]</p>
-                        </td>
+                        <td>[[${bundle.L('变更历史保留时间')}]]</td>
                         <td data-id="RevisionHistoryKeepingDays" th:data-value="${RevisionHistoryKeepingDays}">[[${RevisionHistoryKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                       <tr>
-                        <td>
-                          [[${bundle.L('回收站保留时间')}]]
-                          <p>[[${bundle.L('设为 0 表示永久保留')}]]</p>
-                        </td>
+                        <td>[[${bundle.L('回收站保留时间')}]]</td>
                         <td data-id="RecycleBinKeepingDays" th:data-value="${RecycleBinKeepingDays}">[[${RecycleBinKeepingDays}]] [[${bundle.L('天')}]]</td>
                       </tr>
                     </tbody>

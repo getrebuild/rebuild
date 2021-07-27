@@ -19,6 +19,8 @@ import com.rebuild.core.service.BaseServiceImpl;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
+import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
+import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -133,5 +135,25 @@ public abstract class ObservableService extends Observable implements ServiceSpe
             throw new NoRecordFoundException(primaryId);
         }
         return current;
+    }
+
+    /**
+     * 使用回收站
+     *
+     * @param recordId
+     * @return 返回 null 表示没开启
+     */
+    protected RecycleStore useRecycleStore(ID recordId) {
+        final ID currentUser = UserContextHolder.getUser();
+
+        RecycleStore recycleBin = null;
+        if (RecycleBinCleanerJob.isEnableRecycleBin()) {
+            recycleBin = new RecycleStore(currentUser);
+        } else {
+            log.warn("RecycleBin inactivated! DELETE {} by {}", recordId, currentUser);
+        }
+
+        if (recycleBin != null) recycleBin.add(recordId);
+        return recycleBin;
     }
 }

@@ -390,7 +390,7 @@ public class UserService extends BaseServiceImpl {
     }
 
     /**
-     * 密码失效时间（剩余天数）
+     * 密码过期时间（剩余天数）
      *
      * @param user
      * @return

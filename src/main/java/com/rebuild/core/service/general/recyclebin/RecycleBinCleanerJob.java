@@ -72,4 +72,20 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             log.warn("RevisionHistory cleaned : " + del);
         }
     }
+
+    /**
+     * 回收站激活
+     * @return
+     */
+    public static boolean isEnableRecycleBin() {
+        return RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0;
+    }
+
+    /**
+     * 修改历史激活
+     * @return
+     */
+    public static boolean isEnableRevisionHistory() {
+        return RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays) > 0;
+    }
 }

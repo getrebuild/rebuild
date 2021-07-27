@@ -205,7 +205,7 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(Field field) {
-        return isCommonsField(field.getName());
+        return isSystemField(field) || isCommonsField(field.getName());
     }
 
     /**

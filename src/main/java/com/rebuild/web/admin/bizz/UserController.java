@@ -164,11 +164,11 @@ public class UserController extends EntityController {
             }
         }
 
-        // 禁用后马上使之登录失效
+        // 禁用后马上销毁会话
         if (!enUser.isActive()) {
             HttpSession s = Application.getSessionStore().getSession(enUser.getId());
             if (s != null) {
-                log.warn("Force destroy user session : " + enUser.getId());
+                log.warn("FORCE DESTROY USER SESSION : {} < {}", enUser.getId(), s.getId());
                 s.invalidate();
             }
         }

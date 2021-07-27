@@ -173,7 +173,7 @@ public class LoginController extends BaseController {
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
 
-        // 密码失效
+        // 密码过期
         Integer passwdExpiredDays = UserService.getPasswdExpiredDayLeft(loginUser.getId());
 
         Map<String, Object> resMap = new HashMap<>();

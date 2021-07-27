@@ -48,6 +48,11 @@ code {
   max-width: 300px;
 }
 
+.dropdown-menu.auto-scroller {
+  max-height: 500px;
+  overflow-x: auto;
+}
+
 .dropdown-menu.primary > .dropdown-item:hover,
 .dropdown-menu.primary > a.dropdown-item:hover {
   background-color: #4285f4;
@@ -3118,7 +3123,6 @@ form {
   text-align: center;
   color: #5a5a5a;
   border-radius: 99px;
-  font-size: 1.615rem;
   font-size: 1.73rem;
 }
 
@@ -3777,6 +3781,7 @@ a.icon-link > .zmdi {
   height: 12px;
   margin-top: 5px;
   margin-left: 5px !important;
+  transform: translateX(0);
 }
 
 .custom-checkbox.custom-control-sm.indeterminate .custom-control-label::after {
@@ -4141,14 +4146,6 @@ body.fullscreen .rb-wrapper {
 
 body.fullscreen .rb-wrapper > .rb-content {
   margin-left: 0 !important;
-}
-
-.hover-opacity {
-  opacity: 1;
-}
-
-.hover-opacity:hover {
-  opacity: 0.8;
 }
 
 .card-header {
