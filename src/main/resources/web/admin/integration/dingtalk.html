@@ -19,7 +19,7 @@
                   <a href="#modfiy" class="float-right"><i class="icon zmdi zmdi-edit"></i> [[${bundle.L('修改')}]]</a>
                 </div>
                 <div class="card-body">
-                  <h5>[[${bundle.L('接口凭证')}]]</h5>
+                  <h5>[[${bundle.L('应用凭证')}]]</h5>
                   <table class="table">
                     <tbody>
                       <tr>
@@ -43,10 +43,14 @@
                   <h5>[[${bundle.L('钉钉侧配置')}]]</h5>
                   <table class="table">
                     <tbody>
-                    <tr>
-                      <td width="40%">[[${bundle.L('应用首页地址')}]]</td>
-                      <td>[[${_DingtalkHomeUrl}]]</td>
-                    </tr>
+                      <tr>
+                        <td width="40%">[[${bundle.L('应用首页地址')}]]</td>
+                        <td class="click-copy">[[${_DingtalkHomeUrl}]]</td>
+                      </tr>
+                      <tr>
+                        <td>[[${bundle.L('回调域名')}]]</td>
+                        <td class="click-copy">[[${_DingtalkAuthCallUrl}]]</td>
+                      </tr>
                     </tbody>
                   </table>
                   <div class="edit-footer">

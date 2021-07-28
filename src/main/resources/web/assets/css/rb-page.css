@@ -3701,6 +3701,8 @@ a.icon-link > .zmdi {
 .announcement-wrapper > div .icon {
   float: left;
   font-size: 1.65rem;
+  width: 18px;
+  text-align: center;
 }
 
 .announcement-wrapper > div p {
