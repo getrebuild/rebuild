@@ -60,7 +60,7 @@ public class UserSettings extends EntityController {
         String wxworkCorpid = RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
         if (wxworkCorpid != null) {
             Object[] wxworkUser = Application.createQueryNoFilter(
-                    "select appUser from ExternalUser where bindUser = ? and appId = 2")
+                    "select appUser from ExternalUser where bindUser = ? and appId = ?")
                     .setParameter(1, user.getId())
                     .setParameter(2, wxworkCorpid)
                     .unique();

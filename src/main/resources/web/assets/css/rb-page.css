@@ -4161,7 +4161,7 @@ html.external-auth body {
 }
 
 html.external-auth .auth-body {
-  max-width: 421px;
+  max-width: 441px;
   margin: 0 auto;
 }
 
@@ -4189,7 +4189,8 @@ html.external-auth .auth-body .card {
   padding-right: 20px;
 }
 
-html.external-auth .auth-body.must-center .card {
+html.external-auth .auth-body.must-center .card,
+html.external-auth .auth-body.must-center .login {
   display: none;
 }
 
