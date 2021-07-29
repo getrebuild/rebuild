@@ -97,8 +97,7 @@ public class NotificationService extends BaseService {
             String[] mdNames = Application.getContext().getBeanNamesForType(MessageDistributor.class);
             for (String md : mdNames) {
                 try {
-                    boolean s = ((MessageDistributor) Application.getContext().getBean(md)).send(message, messageId);
-                    log.info("Distribute message : {} >> {}", messageId, s);
+                    ((MessageDistributor) Application.getContext().getBean(md)).send(message, messageId);
                 } catch (Exception ex) {
                     log.error("Distribute message failed : {}", messageId, ex);
                 }

@@ -50,11 +50,24 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     @Override
     public boolean onSetFieldValueWarn(Field field, String value, Record record) {
-        return record.getPrimary() == null && isDTF(field);
+        final boolean isNew = record.getPrimary() == null;
+        if (isNew && isDTF(field)) return true;
+
+        // 公共字段前台可能会布局出来
+        // 此处忽略检查没问题，因为最后还会复写，即 #bindCommonsFieldsValue
+        boolean isCommonField = MetadataHelper.isCommonsField(field);
+        if (!isCommonField) return false;
+
+        String fieldName = field.getName();
+        return isNew || (!EntityHelper.OwningUser.equalsIgnoreCase(fieldName)
+                && !EntityHelper.OwningDept.equalsIgnoreCase(fieldName)
+                && !EntityHelper.CreatedBy.equalsIgnoreCase(fieldName)
+                && !EntityHelper.CreatedOn.equalsIgnoreCase(fieldName));
     }
 
     @Override
     protected void afterCreate(Record record) {
+        // 业务实体才验证
         if (MetadataHelper.isBusinessEntity(entity)) verify(record);
         EntityHelper.bindCommonsFieldsValue(record, record.getPrimary() == null);
     }
