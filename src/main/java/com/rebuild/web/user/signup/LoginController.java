@@ -155,7 +155,12 @@ public class LoginController extends BaseController {
                     "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=%s&agentid=%s&redirect_uri=%s&state=",
                     wxworkCorpid, RebuildConfiguration.get(ConfigurationItem.WxworkAgentid),
                     CodecUtils.urlEncode(RebuildConfiguration.getHomeUrl("/user/wxwork-login")));
-            mv.getModel().put("wxworkUrl1", wxworkUrl);
+            mv.getModel().put("wxworkUrl", wxworkUrl);
+        }
+
+        if (!License.isCommercial()) {
+            mv.getModel().put("dingtalkUrl", "#");
+            mv.getModel().put("wxworkUrl", "#");
         }
 
         mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
