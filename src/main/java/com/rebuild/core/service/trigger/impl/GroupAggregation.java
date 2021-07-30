@@ -15,6 +15,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
+import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -127,7 +128,15 @@ public class GroupAggregation extends FieldAggregation {
             }
         }
 
-        newTargetRecord = Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
+//        // 若无权限可能抛出异常（无权新建）
+//        if (allowNoPermissionUpdate) {
+//            PrivilegesGuardContextHolder.setSkipGuard(PrivilegesGuardContextHolder.FOR_NEW_RECORD);
+//        }
+//        newTargetRecord = Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
+
+        // FIXME 忽略业务规则新建
+        newTargetRecord = Application.getCommonsService().create(newTargetRecord, false);
+
         targetRecordId = newTargetRecord.getPrimary();
     }
 }
