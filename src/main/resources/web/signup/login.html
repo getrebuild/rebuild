@@ -42,29 +42,60 @@
         z-index: 1;
         background: rgba(0, 0, 0, 0.1);
       }
-      .o-platform a > .icon {
+      .h5-mobile .icon {
         background-color: #fc9a00;
         color: #fff;
         border-radius: 50%;
         width: 25px;
         height: 25px;
-        line-height: 26px;
+        line-height: 25px;
         font-size: 1.2rem;
         text-align: center;
+        overflow: hidden;
       }
-      .o-platform a > span {
-        color: #666;
-        display: inline-block;
-        margin-left: 2px;
+      .h5-mobile span {
+        float: right;
+        color: rgb(64, 64, 64);
+        margin-left: 6px;
+        margin-top: 6px;
+        font-size: 13px;
       }
-      .o-platform .dropdown-menu {
+      .h5-mobile.dropup .dropdown-menu {
         min-width: 0;
         width: 160px;
         padding: 6px;
       }
-      .o-platform:hover .dropdown-menu {
+      .h5-mobile.dropup:hover .dropdown-menu {
         display: block;
         margin-top: 0; /* remove the gap so it doesn't close */
+      }
+      .login-with {
+        text-align: center;
+        border-top: 1px solid #ebebeb;
+        position: relative;
+        padding-top: 25px;
+        margin: 25px 0 20px;
+      }
+      .login-with > span {
+        position: absolute;
+        font-size: 13px;
+        color: #777;
+        background-color: #fff;
+        top: -9px;
+        width: 88px;
+        left: 50%;
+        margin-left: -44px;
+      }
+      .login-with > a {
+        display: inline-block;
+        margin: 0 8px;
+      }
+      .login-with > a > img {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        background-color: #eee;
       }
     </style>
   </head>
@@ -113,11 +144,21 @@
                     <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
                     <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
                   </div>
+                  <div class="login-with d-none d-md-block">
+                    <span>[[${bundle.L('第三方登录')}]]</span>
+                    <a th:href="${dingtalkUrl ?:'#'}">
+                      <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" th:title="${bundle.L('钉钉')}" />
+                    </a>
+                    <a th:href="${wxworkUrl ?:'#'}">
+                      <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" th:title="${bundle.L('企业微信')}" />
+                    </a>
+                  </div>
                   <div class="row mb-2">
-                    <div class="col" th:if="${mobileQrUrl != null}">
-                      <div class="btn-group dropup o-platform">
+                    <div class="col">
+                      <div class="btn-group dropup h5-mobile fs-0">
                         <a class="dropdown-toggle" data-toggle="dropdown" th:href="${mobileUrl}">
-                          <i class="icon zmdi zmdi-smartphone-iphone"></i> <span class="up-1">[[${bundle.L('手机版')}]]</span>
+                          <i class="icon zmdi zmdi-smartphone-iphone"></i>
+                          <span class="up-1">[[${bundle.L('手机版')}]]</span>
                         </a>
                         <div class="dropdown-menu">
                           <div>
@@ -129,7 +170,8 @@
                     <div class="col text-right">
                       <div class="btn-group">
                         <a class="select-lang dropdown-toggle" data-toggle="dropdown">
-                          <i class="icon zmdi zmdi-globe-alt"></i> <span>[[${currentLang}]]</span>
+                          <i class="icon zmdi zmdi-globe-alt"></i>
+                          <span>[[${currentLang}]]</span>
                         </a>
                         <div class="dropdown-menu dropdown-menu-right">
                           <a class="dropdown-item" th:each="lang : ${availableLangs}" th:href="${'?locale=' + lang[0]}">[[${lang[1]}]]</a>
@@ -142,7 +184,8 @@
             </div>
             <div class="splash-footer">
               <div class="copyright link">
-                &copy; <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" />
+                &copy;
+                <th:block th:utext="${commercial > 10 ? appName : bundle.L('[REBUILD](https://getrebuild.com/) 强力驱动')}" />
               </div>
             </div>
           </div>
@@ -160,9 +203,26 @@
         }
 
         if ($.browser.mobile) {
-          $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机版访问')}</p></div>`)
-            .appendTo('.announcement-wrapper')
-            .on('click', () => (location.href = $('.o-platform .dropdown-toggle').attr('href')))
+          setTimeout(function () {
+            $(`<div class="bg-info"><i class="icon zmdi zmdi-smartphone-iphone"></i><p>${$L('点击切换到手机版访问')}</p></div>`)
+              .appendTo('.announcement-wrapper')
+              .on('click', () => (location.href = $('.login-icon>a').attr('href')))
+          }, 1000)
+        }
+
+        $('.login-with > a').each(function () {
+          var $this = $(this)
+          if ($this.attr('href') === '#') {
+            $this.on('click', function () {
+              RbHighbar.create($L('请联系管理员配置后使用'))
+              return false
+            })
+          }
+        })
+
+        var error = $urlp('error', location.hash)
+        if (error === 'dingtalk-not-bind' || error === 'wxwork-not-bind') {
+          RbHighbar.create($L('请绑定用户后使用'), { timeout: 5000 })
         }
 
         $('.vcode-row img').on('click', function () {

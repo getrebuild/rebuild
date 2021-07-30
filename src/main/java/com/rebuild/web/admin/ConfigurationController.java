@@ -299,6 +299,8 @@ public class ConfigurationController extends BaseController {
 
         String homeUrl = RebuildConfiguration.getHomeUrl("/user/dingtalk");
         mv.getModel().put("_DingtalkHomeUrl", homeUrl);
+        String[] authCallUrl = homeUrl.split("/");
+        mv.getModel().put("_DingtalkAuthCallUrl", authCallUrl[0] + "//" + authCallUrl[2] + "/");
 
         return mv;
     }

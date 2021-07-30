@@ -35,10 +35,10 @@ class EntityRecordCreatorTest extends TestSupport {
 
     @Test
     void testUpdate() {
-        // modifiedBy: Not update
         // TestAllFieldsName: Not null
+        // owningUser: Not update
         JSONObject forUpdate = JSON.parseObject(
-                String.format("{ metadata:{ entity:'TestAllFields', id:'%s' }, TestAllFieldsName:'', modifiedBy:'%s' }",
+                String.format("{ metadata:{ entity:'TestAllFields', id:'%s' }, TestAllFieldsName:'', owningUser:'%s' }",
                         ID.newId(0), UserService.SYSTEM_USER));
 
         EntityRecordCreator recordCreator = new EntityRecordCreator(

@@ -139,6 +139,25 @@ public class LoginController extends BaseController {
         mv.getModel().put("mobileUrl", mobileUrl);
         mv.getModel().put("mobileQrUrl", mobileQrUrl);
 
+        // DingTalk
+        String dingtalkAppid = RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey);
+        if (StringUtils.isNotBlank(dingtalkAppid)) {
+            String dingtalkUrl = String.format(
+                    "https://oapi.dingtalk.com/connect/qrconnect?appid=%s&response_type=code&scope=snsapi_login&state=&redirect_uri=%s",
+                    dingtalkAppid,
+                    CodecUtils.urlEncode(RebuildConfiguration.getHomeUrl("/user/dingtalk-login")));
+            mv.getModel().put("dingtalkUrl", dingtalkUrl);
+        }
+        // WxWork
+        String wxworkCorpid = RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
+        if (StringUtils.isNotBlank(wxworkCorpid)) {
+            String wxworkUrl = String.format(
+                    "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=%s&agentid=%s&redirect_uri=%s&state=",
+                    wxworkCorpid, RebuildConfiguration.get(ConfigurationItem.WxworkAgentid),
+                    CodecUtils.urlEncode(RebuildConfiguration.getHomeUrl("/user/wxwork-login")));
+            mv.getModel().put("wxworkUrl1", wxworkUrl);
+        }
+
         mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
         return mv;
     }

@@ -50,9 +50,7 @@ public class EntityHelper {
         }
 
         EntityRecordCreator creator = new EntityRecordCreator(MetadataHelper.getEntity(entityName), data, user);
-        Record record = creator.create(false);
-        bindCommonsFieldsValue(record, record.getPrimary() == null);
-        return record;
+        return creator.create(false);
     }
 
     /**
