@@ -49,6 +49,8 @@ import java.util.*;
  *
  * 如有需要，其他实体可根据自身业务继承并复写
  *
+ * FIXME 删除主记录时会关联删除明细记录（持久层实现），但明细记录不会触发业务规则
+ *
  * @author zhaofang123@gmail.com
  * @since 11/06/2017
  */

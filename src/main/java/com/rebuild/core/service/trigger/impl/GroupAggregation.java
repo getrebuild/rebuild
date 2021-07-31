@@ -15,7 +15,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.privileges.PrivilegesGuardContextHolder;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.OperatingContext;
 import com.rebuild.core.service.trigger.ActionContext;
@@ -28,6 +27,8 @@ import java.util.*;
 
 /**
  * 分组聚合
+ *
+ * FIXME 目标实体记录自动新建时不会触发业务规则，因为使用了 CommonService 创建
  *
  * @author devezhao
  * @since 2021/6/28

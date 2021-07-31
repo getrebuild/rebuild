@@ -303,8 +303,8 @@ class EntityRelatedList extends RelatedList {
     this.__entity = props.entity.split('.')[0]
     const openListUrl = `${rb.baseUrl}/app/${this.__entity}/list?via=${this.props.mainid}:${this.props.entity}`
     this.__listExtraLink = (
-      <a className="btn btn-link" href={openListUrl} target="_blank">
-        <i className="zmdi zmdi-open-in-new zicon down-1 mr-1" /> {$L('列表页查看')}
+      <a className="btn btn-link w-auto" href={openListUrl} target="_blank" title={$L('列表页查看')}>
+        <i className="icon zmdi zmdi-open-in-new" />
       </a>
     )
   }

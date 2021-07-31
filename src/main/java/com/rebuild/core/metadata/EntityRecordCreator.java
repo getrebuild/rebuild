@@ -50,7 +50,12 @@ public class EntityRecordCreator extends JsonRecordCreator {
 
     @Override
     public boolean onSetFieldValueWarn(Field field, String value, Record record) {
+        // 非业务实体
+        if (MetadataHelper.isBusinessEntity(field.getOwnEntity())) return true;
+
         final boolean isNew = record.getPrimary() == null;
+
+        // 明细关联主记录
         if (isNew && isDTF(field)) return true;
 
         // 公共字段前台可能会布局出来
