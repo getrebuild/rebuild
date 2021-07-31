@@ -29,12 +29,13 @@ public class BulkUnshare extends BulkOperator {
 
         final ID realTarget = context.getTargetRecord();
 
-        // 只需要验证主记录权限
+        // 只需要验证记录权限
         if (!Application.getPrivilegesManager().allowShare(context.getOpUser(), realTarget)) {
             this.setCompleted(records.length);
             return 0;
         }
 
+        // 这里的取消实际是删除了共享表记录
         for (ID id : records) {
             int a = ges.unshare(realTarget, id);
             if (a > 0) {

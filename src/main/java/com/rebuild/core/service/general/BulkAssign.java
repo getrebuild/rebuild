@@ -43,12 +43,10 @@ public class BulkAssign extends BulkOperator {
                 int a = ges.assign(id, context.getToUser(), context.getCascades());
                 if (a > 0) {
                     this.addSucceeded();
-                    if (firstAssigned == null) {
-                        firstAssigned = id;
-                    }
+                    if (firstAssigned == null) firstAssigned = id;
                 }
             } else {
-                log.warn("No have privileges to ASSIGN : " + context.getOpUser() + " > " + id);
+                log.warn("No have privileges to ASSIGN : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
         }
