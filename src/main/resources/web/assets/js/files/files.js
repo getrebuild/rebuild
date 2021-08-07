@@ -21,10 +21,10 @@ class FilesList extends React.Component {
         {(this.state.files || []).map((item) => {
           const checked = this.state.currentActive === item.id
           return (
-            <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={() => this._handleClick(item.id)}>
+            <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
                 <div className="custom-control custom-checkbox m-0">
-                  <input className="custom-control-input" type="checkbox" checked={checked} onChange={() => this._handleClick(item.id)} />
+                  <input className="custom-control-input" type="checkbox" checked={checked === true} readOnly />
                   <label className="custom-control-label" />
                 </div>
               </div>
@@ -68,9 +68,9 @@ class FilesList extends React.Component {
     )
   }
 
-  _handleClick(id) {
-    event.preventDefault()
-    if (this.state.currentActive === id) this.setState({ currentActive: null })
+  _handleClick(e, id) {
+    $stopEvent(e, true)
+    if (id === this.state.currentActive) this.setState({ currentActive: null })
     else this.setState({ currentActive: id })
   }
 
