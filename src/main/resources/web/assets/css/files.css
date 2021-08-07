@@ -107,6 +107,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 }
 
 .file-list-item > div.detail > .extras > span.fop {
+  position: relative;
   display: none;
 }
 
@@ -116,8 +117,14 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 .file-list-item > div.detail > .extras > span.fop > a {
   color: #999;
-  display: inline-block;
-  padding: 0 10px 0 4px;
+  padding: 0 6px;
+  font-size: 14px;
+  position: absolute;
+  margin-top: -1px;
+}
+
+.file-list-item > div.detail > .extras > span.fop > a + a {
+  margin-left: 24px;
 }
 
 .file-list-item > div.detail > .extras > span.fop > a:hover {

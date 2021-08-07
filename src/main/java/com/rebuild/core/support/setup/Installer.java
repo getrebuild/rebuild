@@ -157,7 +157,7 @@ public class Installer implements InstallState {
         // 刷新: REDIS
         JedisPool pool = BootConfiguration.createJedisPoolInternal();
         for (Object o : Application.getContext().getBeansOfType(UseRedis.class).values()) {
-            if (!((BaseCacheTemplate<?>) o).refreshJedisPool(pool)) break;
+            if (!((BaseCacheTemplate<?>) o).reinjectJedisPool(pool)) break;
         }
 
         Application.init();

@@ -51,19 +51,21 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         this.setTotal(modelFiles.length);
 
         for (String fileUrl : modelFiles) {
-            JSONObject data;
-            if (fileUrl.startsWith("http")) {
-                data = (JSONObject) RBStore.fetchRemoteJson(fileUrl);
-            } else {
-                data = (JSONObject) RBStore.fetchMetaschema(fileUrl);
+            JSONObject data = null;
+            try {
+                data = fileUrl.startsWith("http")
+                        ? (JSONObject) RBStore.fetchRemoteJson(fileUrl)
+                        : (JSONObject) RBStore.fetchMetaschema(fileUrl);
+
+                String created = new MetaschemaImporter(data).exec();
+                createdEntity.add(created);
+                log.info("Entity imported : " + created);
+                this.addSucceeded();
+
+            } catch (Exception ex) {
+                log.error("Cannot importing entity : {}", (data == null ? "<null>" : data), ex);
             }
-
-            String created = new MetaschemaImporter(data).exec();
-            createdEntity.add(created);
-            log.info("Entity created : " + created);
-
             this.addCompleted();
-            this.addSucceeded();
         }
 
         return modelFiles.length;
@@ -121,7 +123,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
                 JSONArray refs = item.getJSONArray("refs");
                 if (refs != null) {
                     for (Object refKey : refs) {
-                        if (!into.contains(refKey)) {
+                        if (!into.contains(refKey.toString())) {
                             findRefs(index, (String) refKey, into);
                         }
                     }

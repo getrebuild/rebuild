@@ -10,7 +10,7 @@ package com.rebuild.core.service.trigger;
 import com.rebuild.core.service.DataSpecificationException;
 
 /**
- * 数据效验专用
+ * 数据校验专用
  *
  * @author devezhao
  * @since 2021/6/30

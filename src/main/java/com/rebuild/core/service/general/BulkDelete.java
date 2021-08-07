@@ -36,10 +36,10 @@ public class BulkDelete extends BulkOperator {
                     ges.delete(id, context.getCascades());
                     this.addSucceeded();
                 } catch (DataSpecificationException ex) {
-                    log.warn("Cannot delete : " + id + " Ex : " + ex);
+                    log.warn("Cannot delete `{}` because : {}", id, ex.getLocalizedMessage());
                 }
             } else {
-                log.warn("No have privileges to DELETE : " + context.getOpUser() + " > " + id);
+                log.warn("No have privileges to DELETE : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
         }

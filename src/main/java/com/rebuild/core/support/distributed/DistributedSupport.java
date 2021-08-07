@@ -7,6 +7,7 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.support.distributed;
 
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.config.Config;
@@ -25,19 +26,20 @@ import java.util.concurrent.ConcurrentMap;
  * @author devezhao
  * @since 2020/9/27
  */
+@Slf4j
 public class DistributedSupport implements UseRedis {
 
     private RedissonClient redissonClient;
 
     public DistributedSupport(JedisPool jedisPool) {
-        refreshJedisPool(jedisPool);
+        reinjectJedisPool(jedisPool);
     }
 
     @Override
-    public boolean refreshJedisPool(JedisPool jedisPool) {
+    public boolean reinjectJedisPool(JedisPool jedisPool) {
         if (jedisPool instanceof KnownJedisPool && testJedisPool(jedisPool)) {
             redissonClient = Redisson.create(createConfig((KnownJedisPool) jedisPool));
-            LOG.info("Use distributed env : " + redissonClient);
+            log.info("Use distributed env : " + redissonClient);
         }
         return false;
     }

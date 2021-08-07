@@ -249,7 +249,8 @@ a.link.inline {
   min-width: 98px;
 }
 
-.btn.auto {
+.btn.auto,
+.btn.w-auto {
   min-width: auto;
 }
 

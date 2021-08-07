@@ -66,7 +66,7 @@ public class BulkBacthUpdate extends BulkOperator {
         metadata.put("entity", context.getMainEntity().getName());
         formJson.put(JsonRecordCreator.META_FIELD, metadata);
         if (log.isDebugEnabled()) {
-            log.debug("Converter to : " + formJson);
+            log.debug("Conversion to : {}", formJson);
         }
 
         for (ID id : willUpdates) {
@@ -79,11 +79,11 @@ public class BulkBacthUpdate extends BulkOperator {
                     ges.update(record);
                     this.addSucceeded();
                 } catch (DataSpecificationException ex) {
-                    log.warn("Cannot update : " + id + " Ex : " + ex);
+                    log.warn("Cannot update `{}` because : {}", id, ex.getLocalizedMessage());
                 }
 
             } else {
-                log.warn("No have privileges to UPDATE : " + context.getOpUser() + " > " + id);
+                log.warn("No have privileges to UPDATE : {} < {}", id, context.getOpUser());
             }
             this.addCompleted();
         }

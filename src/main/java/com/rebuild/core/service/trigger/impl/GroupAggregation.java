@@ -28,6 +28,8 @@ import java.util.*;
 /**
  * 分组聚合
  *
+ * FIXME 目标实体记录自动新建时不会触发业务规则，因为使用了 CommonService 创建
+ *
  * @author devezhao
  * @since 2021/6/28
  */
@@ -127,7 +129,15 @@ public class GroupAggregation extends FieldAggregation {
             }
         }
 
-        newTargetRecord = Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
+//        // 若无权限可能抛出异常（无权新建）
+//        if (allowNoPermissionUpdate) {
+//            PrivilegesGuardContextHolder.setSkipGuard(PrivilegesGuardContextHolder.FOR_NEW_RECORD);
+//        }
+//        newTargetRecord = Application.getEntityService(targetEntity.getEntityCode()).create(newTargetRecord);
+
+        // FIXME 忽略业务规则新建
+        newTargetRecord = Application.getCommonsService().create(newTargetRecord, false);
+
         targetRecordId = newTargetRecord.getPrimary();
     }
 }

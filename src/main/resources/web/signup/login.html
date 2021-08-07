@@ -144,12 +144,12 @@
                     <button class="btn btn-primary btn-xl" type="submit" data-spinner>[[${bundle.L('登录')}]]</button>
                     <div class="mt-4 text-center" th:utext="${bundle.L('还没有账号? [立即注册](signup)')}"></div>
                   </div>
-                  <div class="login-with d-none d-md-block">
+                  <div class="login-with d-none d-md-block" th:if="${dingtalkUrl != null || wxworkUrl != null}">
                     <span>[[${bundle.L('第三方登录')}]]</span>
-                    <a th:href="${dingtalkUrl ?:'#'}">
+                    <a th:href="${dingtalkUrl}" th:if="${dingtalkUrl != null}">
                       <img th:src="@{/assets/img/dingtalk256.png}" alt="DingTalk" th:title="${bundle.L('钉钉')}" />
                     </a>
-                    <a th:href="${wxworkUrl ?:'#'}">
+                    <a th:href="${wxworkUrl}" th:if="${wxworkUrl != null}">
                       <img th:src="@{/assets/img/wxwork512.png}" alt="WeCom" th:title="${bundle.L('企业微信')}" />
                     </a>
                   </div>

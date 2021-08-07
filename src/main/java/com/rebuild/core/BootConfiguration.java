@@ -27,6 +27,9 @@ import java.io.IOException;
 @Configuration
 public class BootConfiguration implements InstallState {
 
+    /**
+     * Fake instance
+     */
     public static final JedisPool USE_EHCACHE = new JedisPool();
 
     @Bean
