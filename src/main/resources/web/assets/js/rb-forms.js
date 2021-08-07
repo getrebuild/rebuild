@@ -26,11 +26,11 @@ class RbFormModal extends React.Component {
                   <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
                   {rb.isAdminUser && (
                     <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('表单设计')} target="_blank">
-                      <span className="zmdi zmdi-settings"></span>
+                      <span className="zmdi zmdi-settings" />
                     </a>
                   )}
                   <button className="close md-close" type="button" onClick={() => this.hide()}>
-                    <span className="zmdi zmdi-close"></span>
+                    <span className="zmdi zmdi-close" />
                   </button>
                 </div>
                 <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
@@ -85,7 +85,12 @@ class RbFormModal extends React.Component {
           })}
         </RbForm>
       )
-      that.setState({ formComponent: FORM, __formModel: res.data }, () => that.setState({ inLoad: false }))
+      that.setState({ formComponent: FORM, __formModel: res.data }, () => {
+        that.setState({ inLoad: false })
+        if (window.FrontJS) {
+          window.FrontJS.Form._trigger('open', [res.data])
+        }
+      })
       that.__lastModified = res.data.lastModified || 0
     })
   }
@@ -94,9 +99,9 @@ class RbFormModal extends React.Component {
     const error = (
       <div className="alert alert-danger alert-icon mt-5 w-75 mlr-auto">
         <div className="icon">
-          <i className="zmdi zmdi-alert-triangle"></i>
+          <i className="zmdi zmdi-alert-triangle" />
         </div>
-        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}</strong> ` + message }}></div>
+        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}</strong> ` + message }} />
       </div>
     )
     this.setState({ formComponent: error }, () => this.setState({ inLoad: false }))
@@ -366,11 +371,18 @@ class RbForm extends React.Component {
   // 保存前调用，返回 false 则不继续保存
   // eslint-disable-next-line no-unused-vars
   static postBefore(data) {
+    if (window.FrontJS) {
+      const ret = window.FrontJS.Form._trigger('saveBefore', [data])
+      if (ret === false) return false
+    }
     return true
   }
 
   // 保存后调用
   static postAfter(data, next) {
+    if (window.FrontJS) {
+      window.FrontJS.Form._trigger('saveAfter', [data, next])
+    }
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload()
     if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
@@ -418,10 +430,10 @@ class RbFormElement extends React.Component {
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
                 <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()}>
-                  <i className="icon zmdi zmdi-check"></i>
+                  <i className="icon zmdi zmdi-check" />
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)}>
-                  <i className="icon zmdi zmdi-close"></i>
+                  <i className="icon zmdi zmdi-close" />
                 </button>
               </div>
             </div>
@@ -554,7 +566,7 @@ class RbFormElement extends React.Component {
   /**
    * 视图编辑-编辑模式
    *
-   * @param {*} mode
+   * @param {*} editMode
    */
   toggleEditMode(editMode) {
     // if (editMode) {
@@ -744,7 +756,7 @@ class RbFormNumber extends RbFormText {
         if (formula.includes('{')) return
 
         try {
-          let calcv
+          let calcv = null
           eval(`calcv = ${formula}`)
           if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
         } catch (err) {
@@ -901,10 +913,10 @@ class RbFormDateTime extends RbFormElement {
           onBlur={this.checkValue}
           maxLength="20"
         />
-        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
+        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" ref={(c) => (this._fieldValue__icon = c)}>
-            <i className="icon zmdi zmdi-calendar"></i>
+            <i className="icon zmdi zmdi-calendar" />
           </button>
         </div>
       </div>
@@ -969,7 +981,7 @@ class RbFormImage extends RbFormElement {
                 <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
                 {!this.props.readonly && (
                   <b title={$L('移除')} onClick={() => this.removeItem(item)}>
-                    <span className="zmdi zmdi-close"></span>
+                    <span className="zmdi zmdi-close" />
                   </b>
                 )}
               </a>
@@ -980,7 +992,7 @@ class RbFormImage extends RbFormElement {
           <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)}>
             <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
             <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
-              <span className="zmdi zmdi-image-alt"></span>
+              <span className="zmdi zmdi-image-alt" />
             </label>
           </span>
         )}
@@ -1068,7 +1080,7 @@ class RbFormFile extends RbFormImage {
               <span>{fileName}</span>
               {!this.props.readonly && (
                 <b title={$L('移除')} onClick={() => this.removeItem(item)}>
-                  <span className="zmdi zmdi-close"></span>
+                  <span className="zmdi zmdi-close" />
                 </b>
               )}
             </div>
@@ -1078,7 +1090,7 @@ class RbFormFile extends RbFormImage {
           <div className="file-select">
             <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
             <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
-              <i className="zmdi zmdi-upload"></i>
+              <i className="zmdi zmdi-upload" />
               <span>{$L('上传文件')}</span>
             </label>
           </div>
@@ -1135,7 +1147,7 @@ class RbFormPickList extends RbFormElement {
     const keyName = `${this.state.field}-opt-`
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
-        <option value=""></option>
+        <option value="" />
         {this.state.options.map((item) => {
           return (
             <option key={`${keyName}${item.id}`} value={item.id}>
@@ -1836,7 +1848,7 @@ class RepeatedViewer extends RbModalHandler {
                 if (idx === 0) return null
                 return <th key={`field-${idx}`}>{item}</th>
               })}
-              <th width="30"></th>
+              <th width="30" />
             </tr>
           </thead>
           <tbody>

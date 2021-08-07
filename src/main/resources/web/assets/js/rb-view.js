@@ -52,7 +52,12 @@ class RbViewForm extends React.Component {
           </div>
         </div>
       )
-      this.setState({ formComponent: VFORM }, () => this.hideLoading())
+      this.setState({ formComponent: VFORM }, () => {
+        this.hideLoading()
+        if (window.FrontJS) {
+          window.FrontJS.View._trigger('open', [res.data])
+        }
+      })
       this.__lastModified = res.data.lastModified || 0
     })
   }
@@ -191,14 +196,7 @@ class RelatedList extends React.Component {
             <div className="row">
               <div className="col">
                 <div className="input-group input-search float-left">
-                  <input
-                    className="form-control"
-                    type="text"
-                    placeholder={$L('快速查询')}
-                    maxLength="40"
-                    ref={(c) => (this._$quickSearch = c)}
-                    onKeyDown={(e) => e.keyCode === 13 && this._search()}
-                  />
+                  <input className="form-control" type="text" placeholder={$L('快速查询')} maxLength="40" ref={(c) => (this._$quickSearch = c)} onKeyDown={(e) => e.keyCode === 13 && this._search()} />
                   <span className="input-group-btn">
                     <button className="btn btn-secondary" type="button" onClick={() => this._search()}>
                       <i className="icon zmdi zmdi-search" />
@@ -335,9 +333,7 @@ class EntityRelatedList extends RelatedList {
     const pageSize = 20
 
     $.get(
-      `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${
-        this.__searchSort || ''
-      }&q=${$encode(this.__searchKey)}`,
+      `/app/entity/related-list?mainid=${this.props.mainid}&related=${this.props.entity}&pageNo=${this.__pageNo}&pageSize=${pageSize}&sort=${this.__searchSort || ''}&q=${$encode(this.__searchKey)}`,
       (res) => {
         if (res.error_code !== 0) return RbHighbar.error(res.error_msg)
 
@@ -441,9 +437,7 @@ class SelectReport extends React.Component {
               <div>
                 <ul className="list-unstyled">
                   {(this.state.reports || []).map((item) => {
-                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}&attname=${$encode(
-                      item.name
-                    )}`
+                    const reportUrl = `${rb.baseUrl}/app/${this.props.entity}/report/export?report=${item.id}&record=${this.props.id}&attname=${$encode(item.name)}`
                     return (
                       <li key={'r-' + item.id}>
                         <a target="_blank" href={reportUrl} className="text-truncate">
@@ -666,15 +660,12 @@ const RbViewPage = {
 
       const tabId = 'tab-' + entity.replace('.', '--') // `.` is JS keyword
       const $tabNav = $(
-        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${
-          this.entityLabel
-        }">${this.entityLabel}</a></li>`
+        `<li class="nav-item ${$isTrue(wpc.viewTabsAutoHide) ? 'hide' : ''}"><a class="nav-link" href="#${tabId}" data-toggle="tab" title="${this.entityLabel}">${this.entityLabel}</a></li>`
       ).appendTo('.nav-tabs')
       const $tabPane = $(`<div class="tab-pane" id="${tabId}"></div>`).appendTo('.tab-content')
 
       $tabNav.find('a').click(function () {
-        $tabPane.find('.related-list').length === 0 &&
-          renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
+        $tabPane.find('.related-list').length === 0 && renderRbcomp(<MixRelatedList entity={entity} mainid={that.__id} autoExpand={$isTrue(wpc.viewTabsAutoExpand)} />, $tabPane)
       })
     })
     this.updateVTabs()

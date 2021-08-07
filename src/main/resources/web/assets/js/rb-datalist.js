@@ -826,6 +826,9 @@ const RbListPage = {
   init: function (config, entity, ep) {
     renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () {
       RbListPage._RbList = this
+      if (window.FrontJS) {
+        window.FrontJS.DataList._trigger('open', [])
+      }
     })
 
     const that = this
