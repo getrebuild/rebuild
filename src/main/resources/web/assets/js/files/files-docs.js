@@ -130,25 +130,11 @@ class FolderEditDlg extends RbFormHandler {
             <label className="col-sm-3 col-form-label text-sm-right">{$L('可见范围')}</label>
             <div className="col-sm-7 pt-1 down-1">
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="scope"
-                  checked={this.state.scope === 'ALL'}
-                  value="ALL"
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'ALL'} value="ALL" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('公开')}</span>
               </label>
               <label className="custom-control custom-control-sm custom-radio custom-control-inline mb-1">
-                <input
-                  className="custom-control-input"
-                  type="radio"
-                  name="scope"
-                  checked={this.state.scope === 'SELF'}
-                  value="SELF"
-                  onChange={this.handleChange}
-                />
+                <input className="custom-control-input" type="radio" name="scope" checked={this.state.scope === 'SELF'} value="SELF" onChange={this.handleChange} />
                 <span className="custom-control-label">{$L('私有 (仅自己可见)')}</span>
               </label>
               <div className="form-text mb-1">{$L('目录可见范围将影响子目录以及目录内的文件')}</div>
@@ -226,7 +212,7 @@ class FileUploadDlg extends RbFormHandler {
                       <i className="file-icon" data-type={$fileExtName(fileName)} />
                       <span>{fileName}</span>
                       <b title={$L('移除')} onClick={() => this._removeFile(item)}>
-                        <span className="zmdi zmdi-close"></span>
+                        <span className="zmdi zmdi-close" />
                       </b>
                     </div>
                   )
@@ -274,6 +260,8 @@ class FileUploadDlg extends RbFormHandler {
       () => mp_end()
     )
 
+    const that = this
+
     // 拖拽上传
     const $da = $(this._dropArea)
     $da.on('dragenter', (e) => e.preventDefault())
@@ -285,7 +273,7 @@ class FileUploadDlg extends RbFormHandler {
       e.preventDefault()
       $da.find('.upload-box').addClass('active')
     })
-    const that = this
+
     $da.on('drop', function (e) {
       e.preventDefault()
       const files = e.originalEvent.dataTransfer.files
@@ -294,6 +282,20 @@ class FileUploadDlg extends RbFormHandler {
       $(that._upload).trigger('change')
       $da.find('.upload-box').removeClass('active')
     })
+
+    // Ctrl+V 上传
+    document.addEventListener('paste', (e) => {
+      const data = e.clipboardData || window.clipboardData
+      if (data && data.items && data.files && data.files.length > 0) {
+        that._upload.files = data.files
+        $(that._upload).trigger('change')
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    super.componentWillUnmount()
+    $(document).off('paste')
   }
 
   _removeFile(file) {
@@ -368,16 +370,12 @@ class FilesList4Docs extends FilesList {
     return (
       <React.Fragment>
         <span className="fop">
-          <a
-            title={$L('下载')}
-            onClick={(e) => $stopEvent(e)}
-            href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`}
-            target="_blank">
-            <i className="icon zmdi zmdi-download"></i>
+          <a title={$L('下载')} onClick={(e) => $stopEvent(e)} href={`${rb.baseUrl}/filex/download/${item.filePath}?attname=${$fileCutName(item.filePath)}`} target="_blank">
+            <i className="icon zmdi zmdi-download" />
           </a>
           {rb.fileSharable && (
             <a title={$L('分享')} onClick={(e) => this._share(item, e)}>
-              <i className="icon zmdi zmdi-share"></i>
+              <i className="icon zmdi zmdi-share" />
             </a>
           )}
         </span>
