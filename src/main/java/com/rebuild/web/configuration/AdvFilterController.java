@@ -20,6 +20,7 @@ import com.rebuild.core.configuration.general.AdvFilterService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
+import com.rebuild.core.support.i18n.Language;
 import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.BaseController;
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +50,7 @@ public class AdvFilterController extends BaseController implements ShareTo {
             if (StringUtils.isBlank(filterName)) {
                 ConfigBean o = AdvFilterManager.instance.getAdvFilter(filterId);
                 if (o != null) {
-                    filterName = o.getString("name") + "-复制";
+                    filterName = o.getString("name") + "-" + Language.L("复制");
                 }
             }
             filterId = null;
@@ -61,7 +62,7 @@ public class AdvFilterController extends BaseController implements ShareTo {
             record = EntityHelper.forNew(EntityHelper.FilterConfig, user);
             record.setString("belongEntity", entity);
             if (StringUtils.isBlank(filterName)) {
-                filterName = "查询-" + CalendarUtils.getPlainDateFormat().format(CalendarUtils.now());
+                filterName =  Language.L("筛选") + "-" + CalendarUtils.format("MMddHHmm", CalendarUtils.now());
             }
         } else {
             record = EntityHelper.forUpdate(filterId, user);

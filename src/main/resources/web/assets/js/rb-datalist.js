@@ -1039,7 +1039,7 @@ const AdvFilters = {
     } else {
       this.current = id
       this.__getFilter(id, (res) => {
-        renderRbcomp(<AdvFilter {...props} title={$L('修改查询条件')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
+        renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
       })
     }
   },
