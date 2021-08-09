@@ -31,13 +31,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <!-- /etc/init.d/rebuild.jar start|stop|restart -->
-                <!--
                 <configuration>
+                    <!-- /etc/init.d/rebuild.jar start|stop|restart -->
+                    <!--
                     <executable>true</executable>
                     <fork>true</fork>
+                    -->
+                    <includeSystemScope>true</includeSystemScope>
                 </configuration>
-                -->
             </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -424,7 +425,7 @@
 
         <!-- Local .deps -->
         <dependency>
-            <groupId>local</groupId>
+            <groupId>deps</groupId>
             <artifactId>dingtalk-sdk</artifactId>
             <version>20210719</version>
             <scope>system</scope>
