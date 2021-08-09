@@ -1592,6 +1592,10 @@ th.column-fixed {
   display: inline-block;
 }
 
+.data-list-unstats .list-stats-settings {
+  display: none !important;
+}
+
 .dataTables_info .stat-item::before {
   content: '·';
   color: #999;

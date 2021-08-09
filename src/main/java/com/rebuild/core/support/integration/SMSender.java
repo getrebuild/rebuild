@@ -34,6 +34,7 @@ import org.springframework.util.Assert;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * SUBMAIL SMS/MAIL 发送
@@ -174,9 +175,11 @@ public class SMSender {
         email.setAuthentication(specAccount[0], specAccount[1]);
         email.setFrom(specAccount[2], specAccount[3]);
 
-        String[] hostPort = specAccount[4].split(":");
-        email.setHostName(hostPort[0]);
-        if (hostPort.length > 1) email.setSmtpPort(Integer.parseInt(hostPort[1]));
+        // host:port:ssl
+        String[] hostPortSsl = specAccount[4].split(":");
+        email.setHostName(hostPortSsl[0]);
+        if (hostPortSsl.length > 1) email.setSmtpPort(Integer.parseInt(hostPortSsl[1]));
+        if (hostPortSsl.length > 2) email.setSSLOnConnect("ssl".equalsIgnoreCase(hostPortSsl[2]));
 
         email.setCharset("UTF-8");
         return email.send();
