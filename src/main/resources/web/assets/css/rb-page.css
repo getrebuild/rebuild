@@ -4211,3 +4211,7 @@ html.external-auth .auth-body.must-center .login {
   font-size: 1rem;
   color: #222;
 }
+
+.page-footer > p {
+  margin: 0;
+}
