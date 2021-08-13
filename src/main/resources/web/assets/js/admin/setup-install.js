@@ -4,6 +4,7 @@ Copyright (c) REBUILD <https://getrebuild.com/> and/or its owners. All rights re
 rebuild is dual-licensed under commercial and open source licenses (GPLv3).
 See LICENSE and COMMERCIAL in the project root for license information.
 */
+/* global InitModels */
 
 const _INSTALL_STATES = {
   10: ['zmdi-settings zmdi-hc-spin', $L('正在安装')],
@@ -139,68 +140,33 @@ class DatabaseConf extends React.Component {
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('主机')}</div>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="dbHost"
-                value={this.state.dbHost || ''}
-                onChange={this.handleValue}
-                placeholder="127.0.0.1"
-              />
+              <input type="text" className="form-control form-control-sm" name="dbHost" value={this.state.dbHost || ''} onChange={this.handleValue} placeholder="127.0.0.1" />
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('端口')}</div>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="dbPort"
-                value={this.state.dbPort || ''}
-                onChange={this.handleValue}
-                placeholder="3306"
-              />
+              <input type="text" className="form-control form-control-sm" name="dbPort" value={this.state.dbPort || ''} onChange={this.handleValue} placeholder="3306" />
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('数据库名称')}</div>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="dbName"
-                value={this.state.dbName || ''}
-                onChange={this.handleValue}
-                placeholder="rebuild20"
-              />
+              <input type="text" className="form-control form-control-sm" name="dbName" value={this.state.dbName || ''} onChange={this.handleValue} placeholder="rebuild20" />
               <div className="form-text">{$L('如数据库不存在系统将自动创建')}</div>
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('用户')}</div>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="dbUser"
-                value={this.state.dbUser || ''}
-                onChange={this.handleValue}
-                placeholder="rebuild"
-              />
+              <input type="text" className="form-control form-control-sm" name="dbUser" value={this.state.dbUser || ''} onChange={this.handleValue} placeholder="rebuild" />
               <div className="form-text">{$L('请赋予用户除管理员权限以外的所有权限')}</div>
             </div>
           </div>
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('密码')}</div>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="dbPassword"
-                value={this.state.dbPassword || ''}
-                onChange={this.handleValue}
-                placeholder="rebuild"
-              />
+              <input type="text" className="form-control form-control-sm" name="dbPassword" value={this.state.dbPassword || ''} onChange={this.handleValue} placeholder="rebuild" />
             </div>
           </div>
         </form>
@@ -307,27 +273,13 @@ class CacheConf extends DatabaseConf {
               <div className="form-group row">
                 <div className="col-sm-3 col-form-label text-sm-right">{$L('主机')}</div>
                 <div className="col-sm-7">
-                  <input
-                    type="text"
-                    className="form-control form-control-sm"
-                    name="CacheHost"
-                    value={this.state.CacheHost || ''}
-                    onChange={this.handleValue}
-                    placeholder="127.0.0.1"
-                  />
+                  <input type="text" className="form-control form-control-sm" name="CacheHost" value={this.state.CacheHost || ''} onChange={this.handleValue} placeholder="127.0.0.1" />
                 </div>
               </div>
               <div className="form-group row">
                 <div className="col-sm-3 col-form-label text-sm-right">{$L('端口')}</div>
                 <div className="col-sm-7">
-                  <input
-                    type="text"
-                    className="form-control form-control-sm"
-                    name="CachePort"
-                    value={this.state.CachePort || ''}
-                    onChange={this.handleValue}
-                    placeholder="6379"
-                  />
+                  <input type="text" className="form-control form-control-sm" name="CachePort" value={this.state.CachePort || ''} onChange={this.handleValue} placeholder="6379" />
                 </div>
               </div>
               <div className="form-group row">
@@ -401,10 +353,7 @@ class CacheConf extends DatabaseConf {
 
     this.setState({ inTest: true })
     $.post('/setup/test-cache', JSON.stringify(ps), (res) => {
-      this.setState(
-        { inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg },
-        () => typeof call === 'function' && call(ps, res)
-      )
+      this.setState({ inTest: false, testState: res.error_code === 0, testMessage: res.data || res.error_msg }, () => typeof call === 'function' && call(ps, res))
     })
   }
 
@@ -432,14 +381,7 @@ class AdminConf extends DatabaseConf {
           <div className="form-group row pt-0">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('管理员密码')}</div>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="adminPasswd"
-                value={this.state.adminPasswd || ''}
-                onChange={this.handleValue}
-                placeholder="admin"
-              />
+              <input type="text" className="form-control form-control-sm" name="adminPasswd" value={this.state.adminPasswd || ''} onChange={this.handleValue} placeholder="admin" />
               <div className="form-text">
                 {$L('默认用户名/密码均为')} <code className="text-danger">admin</code>
               </div>
@@ -448,14 +390,7 @@ class AdminConf extends DatabaseConf {
           <div className="form-group row">
             <div className="col-sm-3 col-form-label text-sm-right">{$L('管理员邮箱')}</div>
             <div className="col-sm-7">
-              <input
-                type="text"
-                className="form-control form-control-sm"
-                name="adminMail"
-                value={this.state.adminMail || ''}
-                onChange={this.handleValue}
-                placeholder={$L('(选填)')}
-              />
+              <input type="text" className="form-control form-control-sm" name="adminMail" value={this.state.adminMail || ''} onChange={this.handleValue} placeholder={$L('(选填)')} />
               <div className="form-text">{$L('用于找回密码等重要操作，也可在安装完成后填写')}</div>
             </div>
           </div>
@@ -508,46 +443,25 @@ class AdminConf extends DatabaseConf {
 }
 
 // ~
-let ModelConf_data
-let ModelConf_error
 class ModelConf extends React.Component {
-  constructor(props) {
-    super(props)
-    this.state = { ...props }
-    this._$refs = {}
-  }
+  state = { ...this.props }
 
   render() {
-    const _canUse = !DatabaseConf_mount && !ModelConf_error && ModelConf_data
     return (
       <div className="rb-model">
-        <h3>{$L('选择初始业务实体')}</h3>
-        <form>
-          {_canUse &&
-            ModelConf_data.map((item) => {
-              return (
-                <div key={item.key}>
-                  <label className="custom-control custom-checkbox" title={item.desc} ref={(c) => (this._$refs[item.key] = c)}>
-                    <input className="custom-control-input" type="checkbox" value={item.key} data-refs={item.refs} onClick={(e) => this._onClick(e)} />
-                    <span className="custom-control-label text-bold">{item.name}</span>
-                    <p>{item.desc}</p>
-                  </label>
-                </div>
-              )
-            })}
-        </form>
-        {_canUse && <p className="mt-1 mb-1 protips">{$L('你可以选择需要的业务实体使用，或在安装完成后再进行添加')}</p>}
-        {DatabaseConf_mount && (
+        <h3>
+          {$L('选择初始业务实体')}
+          <small>{$L('你可以选择需要的业务实体使用，或在安装完成后再进行添加')}</small>
+        </h3>
+
+        {DatabaseConf_mount ? (
           <div className="mb-6">
             <RbAlertBox message={$L('由于使用了已存在的 REBUILD 数据库，因此此步骤不可用，你仍可以继续安装')} />
           </div>
+        ) : (
+          <InitModels ref={(c) => (this._InitModels = c)} />
         )}
-        {!DatabaseConf_mount && ModelConf_error && (
-          <div className="mb-6">
-            <RbAlertBox message={ModelConf_error} />
-          </div>
-        )}
-        <div className="clearfix" />
+
         <div className="progress">
           <div className="progress-bar" style={{ width: '80%' }} />
         </div>
@@ -567,23 +481,8 @@ class ModelConf extends React.Component {
     )
   }
 
-  _onClick(e) {
-    const $el = $(e.currentTarget)
-    if (!$el.prop('checked')) return
-    const refs = ($el.data('refs') || '').split(',')
-    refs.forEach((s) => {
-      $(this._$refs[s]).find('input').prop('checked', true)
-    })
-  }
-
   _buildProps() {
-    if (ModelConf_error) return []
-    const sm = []
-    for (let k in this._$refs) {
-      const $s = $(this._$refs[k]).find('input')
-      if ($s.prop('checked')) sm.push($s.val())
-    }
-    return sm
+    return this._InitModels ? this._InitModels.getSelected() : []
   }
 
   _prev = () => this.props.$$$parent.setState({ stepNo: 4, modelProps: this._buildProps() })
@@ -595,9 +494,4 @@ class ModelConf extends React.Component {
 
 $(document).ready(() => {
   renderRbcomp(<Setup />, $('.card-body'))
-
-  $.get('/setup/init-entity', (res) => {
-    if (res.error_code === 0) ModelConf_data = res.data
-    else ModelConf_error = res.error_msg
-  })
 })

@@ -10,11 +10,9 @@ package com.rebuild.web.admin.setup;
 import cn.devezhao.commons.ObjectUtils;
 import cn.devezhao.commons.ThrowableUtils;
 import cn.devezhao.commons.web.ServletUtils;
-import com.alibaba.fastjson.JSONAware;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
-import com.rebuild.core.rbstore.RBStore;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.setup.InstallState;
 import com.rebuild.core.support.setup.Installer;
@@ -127,16 +125,6 @@ public class InstallController extends BaseController implements InstallState {
 
         } catch (Exception ex) {
             return RespBody.errorl("连接错误 : %s", ThrowableUtils.getRootCause(ex).getLocalizedMessage());
-        }
-    }
-
-    @GetMapping("init-entity")
-    public JSONAware getInitModels() {
-        try {
-            return RBStore.fetchMetaschema("index-2.0.json");
-        } catch (Exception ex) {
-            log.warn(null, ex);
-            return RespBody.errorl("暂无可用业务实体。此安装步骤不是必须的，你仍可以继续安装");
         }
     }
 
