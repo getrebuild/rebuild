@@ -75,6 +75,7 @@
       window.__PageConfig = {
         id: '[[${entityMetaId}]]',
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+        entityName: '[[${entityName}]]'
       }
     </script>
     <script type="text/babel">
@@ -122,5 +123,6 @@
         })
       })
     </script>
+    <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
   </body>
 </html>

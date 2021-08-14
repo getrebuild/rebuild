@@ -4251,3 +4251,8 @@ html.external-auth .auth-body.must-center .login {
   font-size: 12px;
   color: #777;
 }
+
+.aside-header .title.dropdown-toggle:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}

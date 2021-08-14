@@ -15,8 +15,7 @@
           <div class="rb-scroller-aside rb-scroller">
             <div class="aside-content">
               <div class="content">
-                <div class="aside-header">
-                  <button class="navbar-toggle collapsed" type="button"><span class="icon zmdi zmdi-caret-down"></span></button>
+                <div class="aside-header dropdown">
                   <span class="title">[[${entityLabel}]]</span>
                   <p class="description">[[${comments}]]</p>
                 </div>
@@ -120,6 +119,7 @@
         extConfig: [(${entityExtConfig ?:'null'})],
       }
     </script>
-    <script th:src="@{/assets/js/metadata/entity-edit.js}"></script>
+    <script th:src="@{/assets/js/metadata/entity-edit.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
   </body>
 </html>

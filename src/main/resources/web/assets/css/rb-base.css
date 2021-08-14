@@ -13360,7 +13360,7 @@ a.avatar.x48 img {
   display: block;
   margin-bottom: 5px;
   margin-top: 6px;
-  font-weight: 300;
+  /*font-weight: 300;*/
   letter-spacing: -1px;
   font-size: 24px;
   font-size: 1.462rem;
