@@ -87,6 +87,7 @@ public enum ConfigurationItem {
     DingtalkPushAeskey, DingtalkPushToken,
     // WxWork
     WxworkCorpid, WxworkAgentid, WxworkSecret,
+    WxworkRxToken, WxworkRxEncodingAESKey,
 
     // !!! 仅命令行适用
     DataDirectory,  // 数据目录
