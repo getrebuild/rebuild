@@ -134,7 +134,7 @@ $(document).ready(function () {
     })
 
     $('#quickFields').select2({
-      placeholder: $L('选择字段'),
+      placeholder: $L('默认'),
       allowClear: true,
       data: sortFields(cQuickFields),
       multiple: true,

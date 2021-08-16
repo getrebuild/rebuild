@@ -17,10 +17,6 @@ import com.rebuild.core.support.i18n.LanguageBundle;
  */
 public enum ConfigurationItem {
 
-    // 仅命令行适用
-    DataDirectory,  // 数据目录
-    MobileUrl,  // 移动端地址
-    
     // 系统适用
     SN, DBVer, AppBuild,
 
@@ -90,7 +86,13 @@ public enum ConfigurationItem {
     DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
     DingtalkPushAeskey, DingtalkPushToken,
     // WxWork
-    WxworkCorpid, WxworkAgentid, WxworkSecret
+    WxworkCorpid, WxworkAgentid, WxworkSecret,
+    WxworkRxToken, WxworkRxEncodingAESKey,
+
+    // !!! 仅命令行适用
+    DataDirectory,  // 数据目录
+    MobileUrl,      // 移动端地址
+    RbStoreUrl      // 在线仓库地址
 
     ;
 

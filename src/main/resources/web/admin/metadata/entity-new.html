@@ -7,6 +7,14 @@
       .text-muted.desc {
         max-width: 80%;
       }
+      .init-models {
+        margin: 0 -10px;
+      }
+      .dialog-footer {
+        margin: 15px -15px 0;
+        padding-top: 20px;
+        text-align: center;
+      }
     </style>
   </head>
   <body class="dialog">
@@ -84,7 +92,7 @@
       </div>
     </div>
     <th:block th:replace="~{/_include/footer}" />
-    <script th:src="@{/assets/js/metadata/business-model-builder.js}" type="text/babel"></script>
+    <script th:src="@{/assets/js/admin/init-models.js}" type="text/babel"></script>
     <script th:src="@{/assets/js/metadata/entity-new.js}" type="text/babel"></script>
   </body>
 </html>

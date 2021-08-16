@@ -10,6 +10,7 @@ package com.rebuild.web.robot.trigger;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import com.alibaba.fastjson.JSON;
+import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.metadata.MetadataSorter;
 import com.rebuild.core.metadata.easymeta.DisplayType;
 import com.rebuild.core.metadata.easymeta.EasyField;
@@ -59,6 +60,21 @@ public class GroupAggregationController extends BaseController {
                 sourceFields.add(buildField(field));
             }
         }
+        // 明细实体则包括主实体
+        if (sourceEntity.getMainEntity() != null) {
+            String prefixName = MetadataHelper.getDetailToMainField(sourceEntity).getName() + ".";
+            String prefixLabel = EasyMetaFactory.getLabel(sourceEntity.getMainEntity()) + ".";
+
+            for (Field field : MetadataSorter.sortFields(sourceEntity.getMainEntity())) {
+                EasyField easyField = EasyMetaFactory.valueOf(field);
+                String[] build = buildIfGroupField(easyField);
+                if (build != null) {
+                    build[0] = prefixName + build[0];
+                    build[1] = prefixLabel + build[1];
+                    sourceGroupFields.add(build);
+                }
+            }
+        }
 
         return JSONUtils.toJSONObject(
                 new String[] { "targetEntities", "sourceGroupFields", "sourceFields" },
@@ -90,7 +106,7 @@ public class GroupAggregationController extends BaseController {
 
     private String[] buildIfGroupField(EasyField field) {
         DisplayType dt = field.getDisplayType();
-        // TODO 更多字段类型的支持
+        // TODO 更多分组字段类型的支持
         boolean allow = dt == DisplayType.TEXT || dt == DisplayType.DATE
                 || dt == DisplayType.CLASSIFICATION || dt == DisplayType.REFERENCE;
         if (!allow) return null;

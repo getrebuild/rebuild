@@ -54,7 +54,7 @@ public class GroupAggregation extends FieldAggregation {
         sourceEntity = context.getSourceEntity();
         targetEntity = MetadataHelper.getEntity(actionContent.getString("targetEntity"));
 
-        // 分组字段关联 <Source, Target>
+        // 0.分组字段关联 <Source, Target>
 
         Map<String, String> groupFieldsMapping = new HashMap<>();
         for (Object o : actionContent.getJSONArray("groupFields")) {
@@ -62,7 +62,7 @@ public class GroupAggregation extends FieldAggregation {
             String sourceField = item.getString("sourceField");
             String targetField = item.getString("targetField");
 
-            if (!sourceEntity.containsField(sourceField)) {
+            if (MetadataHelper.getLastJoinField(sourceEntity, sourceField) == null) {
                 throw new MissingMetaExcetion(sourceField, sourceEntity.getName());
             }
             if (!targetEntity.containsField(targetField)) {
@@ -71,7 +71,7 @@ public class GroupAggregation extends FieldAggregation {
             groupFieldsMapping.put(sourceField, targetField);
         }
 
-        // 源纪录数据
+        // 1.源纪录数据
 
         String ql = String.format("select %s from %s where %s = ?",
                 StringUtils.join(groupFieldsMapping.keySet().iterator(), ","),
@@ -81,7 +81,7 @@ public class GroupAggregation extends FieldAggregation {
                 .setParameter(1, context.getSourceRecord())
                 .record();
 
-        // 找到目标记录数据
+        // 2.找到目标记录
 
         List<String> qFields = new ArrayList<>();
         List<String> qFieldsFollow = new ArrayList<>();

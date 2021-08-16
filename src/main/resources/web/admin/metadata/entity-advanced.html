@@ -75,12 +75,14 @@
       window.__PageConfig = {
         id: '[[${entityMetaId}]]',
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
+        entityName: '[[${entityName}]]',
       }
     </script>
+    <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
     <script type="text/babel">
       $(document).ready(function () {
-        const metaId = window.__PageConfig.id
-        if (!!!metaId) {
+        const metaid = window.__PageConfig.id
+        if (!!!metaid) {
           $('.J_drop-confirm').next().removeClass('hide')
           $('.J_drop-confirm').remove()
           $('.J_drop-check').parent().parent().remove()
@@ -104,12 +106,10 @@
             confirm: function () {
               $drop.button('loading')
               this.disabled(true)
-              $.post('../entity-drop?id=' + metaId + '&force=' + $('.J_drop-force').prop('checked'), (res) => {
+              $.post(`../entity-drop?id=${metaid}&force=${$('.J_drop-force').prop('checked')}`, (res) => {
                 if (res.error_code === 0) {
                   RbHighbar.success($L('实体已删除'))
-                  setTimeout(function () {
-                    location.replace('../../entities')
-                  }, 1500)
+                  setTimeout(() => location.replace('../../entities'), 1500)
                 } else {
                   RbHighbar.error(res.error_msg)
                 }

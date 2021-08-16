@@ -4215,3 +4215,44 @@ html.external-auth .auth-body.must-center .login {
 .page-footer > p {
   margin: 0;
 }
+
+.init-models fieldset legend {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.init-models fieldset + fieldset {
+  margin-top: 12px;
+}
+
+.init-models fieldset legend .custom-control-sm {
+  margin: 0 -6px 0 0 !important;
+}
+
+.init-models form > div {
+  width: 49%;
+  border: 1px solid #eee;
+  padding: 10px;
+  float: left;
+  margin-bottom: 12px;
+  border-radius: 2px;
+}
+
+.init-models form > div:nth-child(even) {
+  margin-left: 2%;
+}
+
+.init-models form > div p {
+  max-height: 36px;
+  line-height: 18px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  font-size: 12px;
+  color: #777;
+}
+
+.aside-header .title.dropdown-toggle:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}

@@ -82,6 +82,8 @@ public class TransformConfigController extends BaseController {
             mv.getModelMap().put("targetDetailEntity", buildEntity(targetEntity.getDetailEntity(), false));
         }
 
+        mv.getModelMap().put("name", config.getString("name"));
+
         return mv;
     }
 

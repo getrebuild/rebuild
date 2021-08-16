@@ -13,13 +13,15 @@ import com.rebuild.core.rbstore.BusinessModelImporter;
 import com.rebuild.core.support.task.TaskExecutors;
 import com.rebuild.web.BaseController;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 导入元数据模型
@@ -33,13 +35,15 @@ public class MetaschemaController extends BaseController {
 
     @RequestMapping("/admin/metadata/imports")
     public RespBody imports(HttpServletRequest request) {
-        final String mainKey = getParameterNotNull(request, "key");
+        String[] mainKeys = getParameterNotNull(request, "key").split(",");
 
         BusinessModelImporter bmi = new BusinessModelImporter();
+        Map<String, String> refs = new HashMap<>();
+        for (String k : mainKeys) {
+            refs.putAll(bmi.findRefs(k));
+        }
 
-        Map<String, String> refs = bmi.findRefs(mainKey);
-
-        List<String> entityFiles = new ArrayList<>();
+        Set<String> entityFiles = new HashSet<>();
         for (Map.Entry<String, String> e : refs.entrySet()) {
             if (!MetadataHelper.containsEntity(e.getKey())) {
                 entityFiles.add(e.getValue());
@@ -49,15 +53,10 @@ public class MetaschemaController extends BaseController {
 
         try {
             TaskExecutors.run(bmi);
-
-            if (bmi.getSucceeded() > 0) {
-                return RespBody.ok(mainKey);
-            } else {
-                return RespBody.error();
-            }
+            return bmi.getSucceeded() > 0 ? RespBody.ok() : RespBody.error();
 
         } catch (Exception ex) {
-            log.error("Cannot import entity : " + mainKey, ex);
+            log.error("Cannot import entities : {}", StringUtils.join(mainKeys, ", "), ex);
             return RespBody.error(ex.getLocalizedMessage());
         }
     }
