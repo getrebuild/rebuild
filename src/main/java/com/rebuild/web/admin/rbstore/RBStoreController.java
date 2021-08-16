@@ -37,7 +37,7 @@ public class RBStoreController extends BaseController {
 
     @GetMapping({"/admin/rbstore/load-metaschemas", "/setup/init-models"})
     public JSON loadMetaschemas() {
-        JSONObject index = (JSONObject) RBStore.fetchMetaschema("index-3.0.json");
+        JSONObject index = (JSONObject) RBStore.fetchMetaschema(null);
         JSONArray schemas = index.getJSONArray("schemas");
         for (Object o : schemas) {
             JSONObject item = (JSONObject) o;

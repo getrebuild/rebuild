@@ -9,6 +9,7 @@ package com.rebuild.core.rbstore;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import com.rebuild.core.BootEnvironmentPostProcessor;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.support.ConfigurationItem;
@@ -16,6 +17,7 @@ import com.rebuild.core.support.License;
 import com.rebuild.utils.HttpUtils;
 import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * RB 在线元数据仓库
@@ -43,11 +45,12 @@ public class RBStore {
     /**
      * for Metaschema
      *
-     * @param fileUri
+     * @param fileUri default use index.json
      * @return
      */
     public static JSON fetchMetaschema(String fileUri) {
-        return fetchRemoteJson("metaschemas/" + fileUri);
+        return fetchRemoteJson("metaschemas/" +
+                StringUtils.defaultIfBlank(fileUri, "index-3.0.json"));
     }
 
     /**
@@ -76,7 +79,7 @@ public class RBStore {
         try {
             String content = HttpUtils.get(fileUrl);
             if (JSONUtils.wellFormat(content)) {
-                return (JSON) JSON.parse(content);
+                return (JSON) JSON.parse(content, Feature.OrderedField);
             }
 
         } catch (Exception e) {

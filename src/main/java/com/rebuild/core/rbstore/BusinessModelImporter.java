@@ -28,14 +28,12 @@ import java.util.*;
 public class BusinessModelImporter extends HeavyTask<Integer> {
 
     private String[] modelFiles;
-
     private List<String> createdEntity = new ArrayList<>();
 
-    public BusinessModelImporter() {
-    }
+    private JSONArray indexSchemas;
 
-    public BusinessModelImporter(String[] modelFiles) {
-        this.modelFiles = modelFiles;
+    public BusinessModelImporter() {
+        super();
     }
 
     public void setModelFiles(String[] modelFiles) {
@@ -88,6 +86,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         MetadataHelper.getMetadataFactory().refresh(false);
     }
 
+
     /**
      * 获取所有依赖实体
      *
@@ -95,14 +94,17 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
      * @return
      */
     public Map<String, String> findRefs(String mainKey) {
-        JSONArray index = (JSONArray) RBStore.fetchMetaschema("index-2.0.json");
+        if (indexSchemas == null) {
+            JSONObject index = (JSONObject) RBStore.fetchMetaschema(null);
+            this.indexSchemas = index.getJSONArray("schemas");
+        }
 
         Set<String> refs = new HashSet<>();
-        findRefs(index, mainKey, refs);
+        findRefs(indexSchemas, mainKey, refs);
 
         Map<String, String> map = new HashMap<>();
         for (String key : refs) {
-            map.put(key, findFile(index, key));
+            map.put(key, findFile(indexSchemas, key));
         }
         return map;
     }
