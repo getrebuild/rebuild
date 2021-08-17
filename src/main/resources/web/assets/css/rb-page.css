@@ -249,9 +249,12 @@ a.link.inline {
   min-width: 98px;
 }
 
-.btn.auto,
-.btn.w-auto {
+.btn.dropdown-toggle {
   min-width: auto;
+}
+
+.btn.w-auto {
+  min-width: 37px;
 }
 
 a.btn {
@@ -4255,4 +4258,12 @@ html.external-auth .auth-body.must-center .login {
 .aside-header .title.dropdown-toggle:hover {
   cursor: pointer;
   opacity: 0.8;
+}
+
+.btn.btn-light {
+  box-shadow: none;
+}
+
+.btn.btn-light:hover {
+  background-color: #e6e6e6;
 }

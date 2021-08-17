@@ -231,18 +231,25 @@ const _handlePicklist = function (dt) {
 }
 
 const _handleSeries = function () {
-  $('.J_fieldAttrs input').attr('disabled', true)
-  $('.J_series-reindex').click(() => {
-    RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
-      confirm: function () {
-        this.disabled(true)
-        $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
-          this.hide()
-          RbHighbar.success($L('补充编号成功'))
-        })
-      },
-    })
+  $('.J_fieldAttrs input').attr({
+    checked: false,
+    disabled: true,
   })
+
+  $('.J_action .dropdown-toggle').removeClass('hide')
+  $(`<a class="dropdown-item">${$L('补充编号')}</a>`)
+    .appendTo('.J_action .dropdown-menu')
+    .on('click', () => {
+      RbAlert.create($L('此操作将为空字段补充编号，空字段过多耗时会较长，请耐心等待。是否继续？'), {
+        confirm: function () {
+          this.disabled(true)
+          $.post(`/admin/field/series-reindex?entity=${wpc.entityName}&field=${wpc.fieldName}`, () => {
+            this.hide()
+            RbHighbar.success($L('补充编号成功'))
+          })
+        },
+      })
+    })
 }
 
 const _handleDate = function (dt) {
