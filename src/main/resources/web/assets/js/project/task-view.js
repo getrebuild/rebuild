@@ -102,9 +102,7 @@ class TaskForm extends React.Component {
           <label className="col-12 col-sm-3 col-form-label">
             <i className="icon zmdi zmdi-label" /> {$L('标签')}
           </label>
-          <div className="col-12 col-sm-9">
-            {this.state.projectId && <ValueTags tags={this.state.tags} projectId={this.state.projectId} taskid={this.props.id} $$$parent={this} />}
-          </div>
+          <div className="col-12 col-sm-9">{this.state.projectId && <ValueTags tags={this.state.tags} projectId={this.state.projectId} taskid={this.props.id} $$$parent={this} />}</div>
         </div>
         <div className="form-group row">
           <label className="col-12 col-sm-3 col-form-label">
@@ -119,9 +117,7 @@ class TaskForm extends React.Component {
             <i className="icon zmdi zmdi-link fs-19 up-1" /> {$L('关联记录')}
           </label>
           <div className="col-12 col-sm-9">
-            {this.state.projectId && (
-              <ValueRelatedRecord relatedRecord={this.state.relatedRecord} relatedRecordData={this.state.relatedRecordData} $$$parent={this} />
-            )}
+            {this.state.projectId && <ValueRelatedRecord relatedRecord={this.state.relatedRecord} relatedRecordData={this.state.relatedRecordData} $$$parent={this} />}
           </div>
         </div>
         <TaskCommentsList taskid={this.props.id} ref={(c) => (this._TaskCommentsList = c)} editable={this.props.editable} />
@@ -234,9 +230,7 @@ class ValueTaskName extends ValueComp {
   renderViewElement() {
     const editable = this.props.$$$parent.props.editable
     return (
-      <div
-        className={`task-title text-break ${editable ? 'hover' : ''}`}
-        onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
+      <div className={`task-title text-break ${editable ? 'hover' : ''}`} onClick={() => editable && this.setState({ editMode: true }, () => this._taskName.focus())}>
         {this.state.taskName}
       </div>
     )
@@ -262,13 +256,7 @@ class ValueStatus extends ValueComp {
       <div className="form-control-plaintext">
         <span className="status-checkbox">
           <label className="custom-control custom-checkbox custom-control-inline" onClick={(e) => $stopEvent(e)}>
-            <input
-              className="custom-control-input"
-              type="checkbox"
-              disabled={this.props.readonly}
-              ref={(c) => (this._status = c)}
-              onChange={(e) => this._handleChangeStatus(e)}
-            />
+            <input className="custom-control-input" type="checkbox" disabled={this.props.readonly} ref={(c) => (this._status = c)} onChange={(e) => this._handleChangeStatus(e)} />
             <span className="custom-control-label">{this.state.status > 0 ? $L('已完成') : $L('未完成')}</span>
           </label>
         </span>
@@ -378,11 +366,7 @@ class ValueDeadline extends ValueComp {
   }
 
   renderViewElement() {
-    return this.state.deadline ? (
-      <div className="form-control-plaintext">{this._renderValue()}</div>
-    ) : (
-      <div className="form-control-plaintext text-muted">{$L('无')}</div>
-    )
+    return this.state.deadline ? <div className="form-control-plaintext">{this._renderValue()}</div> : <div className="form-control-plaintext text-muted">{$L('无')}</div>
   }
 
   _renderValue(defaultValue) {
@@ -416,7 +400,7 @@ class ValueDescription extends ValueComp {
       return (
         <div className="form-control-plaintext">
           <textarea defaultValue={this.state.description || ''} ref={(c) => (this._editor = c)} />
-          <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />
+          <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />
           <div className="mt-2 text-right">
             <button onClick={() => this._handleEditMode(false)} className="btn btn-sm btn-link mr-1">
               {$L('取消')}
@@ -447,9 +431,7 @@ class ValueDescription extends ValueComp {
 
   renderViewElement() {
     if (this.state.description) {
-      return (
-        <div className="form-control-plaintext mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
-      )
+      return <div className="form-control-plaintext mdedit-content" dangerouslySetInnerHTML={{ __html: SimpleMDE.prototype.markdown(this.state.description) }} />
     } else {
       return (
         <div className="form-control-plaintext mdedit-content">
@@ -473,7 +455,7 @@ class ValueDescription extends ValueComp {
           autoDownloadFontAwesome: false,
           spellChecker: false,
           // eslint-disable-next-line no-undef
-          toolbar: DEFAULT_MDE_TOOLBAR,
+          toolbar: DEFAULT_MDE_TOOLBAR(this),
         })
         this._simplemde = mde
 

@@ -800,7 +800,7 @@ class RbFormTextarea extends RbFormElement {
           readOnly={this.props.readonly}
           maxLength="6000"
         />
-        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />}
+        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />}
       </React.Fragment>
     )
   }
@@ -861,7 +861,7 @@ class RbFormTextarea extends RbFormElement {
       autoDownloadFontAwesome: false,
       spellChecker: false,
       // eslint-disable-next-line no-undef
-      toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR,
+      toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR(this),
     })
     this._simplemde = mde
 
@@ -871,7 +871,7 @@ class RbFormTextarea extends RbFormElement {
       $createUploader(this._fieldValue__upload, null, (res) => {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
-        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+        mde.codemirror.replaceSelection(`![${$L('图片')}](${rb.baseUrl}/filex/img/${res.key})`)
       })
       if (this.props.onView) {
         setTimeout(() => {
