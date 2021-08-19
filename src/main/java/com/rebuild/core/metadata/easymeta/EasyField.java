@@ -12,8 +12,6 @@ import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.dialect.FieldType;
 import com.alibaba.fastjson.JSON;
 import com.rebuild.core.metadata.MetadataHelper;
-import com.rebuild.core.support.ConfigurationItem;
-import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.utils.JSONUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.Assert;
@@ -26,8 +24,6 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
     private static final long serialVersionUID = 6027165766338449527L;
 
     private final DisplayType displayType;
-
-    transient private boolean useMasking = true;
 
     protected EasyField(Field field, DisplayType displayType) {
         super(field);
@@ -116,7 +112,6 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
      * @return
      */
     public Object convertCompatibleValue(Object value, EasyField targetField) {
-        this.useMasking = false;
         DisplayType targetType = targetField.getDisplayType();
         boolean is2Text = targetType == DisplayType.TEXT || targetType == DisplayType.NTEXT;
         if (is2Text) {
@@ -126,7 +121,6 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
         }
 
         Assert.isTrue(targetField.getDisplayType() == getDisplayType(), "type-by-type is must");
-        this.useMasking = true;
         return value;
     }
 
@@ -160,13 +154,4 @@ public abstract class EasyField extends BaseEasyMeta<Field> {
 //     * @return
 //     */
 //    abstract T checkoutValue(Object rawValue);
-
-    /**
-     * 是否脱敏
-     *
-     * @return
-     */
-    protected boolean isUseMasking() {
-        return useMasking && RebuildConfiguration.getBool(ConfigurationItem.DataMasking);
-    }
 }

@@ -57,19 +57,19 @@ class RbPreview extends React.Component {
             <div className="float-right">
               {rb.fileSharable && (
                 <a onClick={this.share} title={$L('分享')}>
-                  <i className="zmdi zmdi-share fs-17"></i>
+                  <i className="zmdi zmdi-share fs-17" />
                 </a>
               )}
               <a title={$L('下载')} target="_blank" rel="noopener noreferrer" href={downloadUrl}>
-                <i className="zmdi zmdi-download"></i>
+                <i className="zmdi zmdi-download" />
               </a>
               {!this.props.unclose && (
                 <a title={`${$L('关闭')} (ESC)`} onClick={this.hide}>
-                  <i className="zmdi zmdi-close"></i>
+                  <i className="zmdi zmdi-close" />
                 </a>
               )}
             </div>
-            <div className="clearfix"></div>
+            <div className="clearfix" />
           </div>
           <div className="preview-body" onClick={HIDE_ONCLICK ? this.hide : () => {}} ref={(c) => (this._previewBody = c)}>
             {previewContent}
@@ -217,8 +217,9 @@ class RbPreview extends React.Component {
 
     $(document)
       .unbind('keyup')
-      .keyup(function (event) {
-        if (event.keyCode === 27) that.hide()
+      .keyup(function (e) {
+        // ESC
+        if (e.keyCode === 27) that.hide()
       })
     $(that._previewBody)
       .find('>div.fp-content')

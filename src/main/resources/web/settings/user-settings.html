@@ -99,20 +99,20 @@
                       <div class="col-md-8 col-12">
                         <form>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('用户名')}]]</label>
-                            <div class="col-sm-8">
+                            <label class="col-4 col-form-label">[[${bundle.L('用户名')}]]</label>
+                            <div class="col-8">
                               <div class="form-control-plaintext" th:text="${user.getName()}"></div>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('所属部门')}]]</label>
-                            <div class="col-sm-8">
+                            <label class="col-4 col-form-label">[[${bundle.L('所属部门')}]]</label>
+                            <div class="col-8">
                               <div class="form-control-plaintext" th:text="${user.getOwningBizUnit().getName()}"></div>
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('加入团队')}]]</label>
-                            <div class="col-sm-8">
+                            <label class="col-4 col-form-label">[[${bundle.L('加入团队')}]]</label>
+                            <div class="col-8">
                               <div class="form-control-plaintext split-span">
                                 <th:block th:each="team : ${user.getOwningTeams()}">
                                   <span th:text="${team.getName()}"></span>
@@ -122,14 +122,20 @@
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('姓名')}]]</label>
-                            <div class="col-sm-8">
-                              <input class="form-control form-control-sm" type="text" id="fullName" th:value="${user.getFullName()}" th:data-o="${user.getFullName()}" />
+                            <label class="col-4 col-form-label">[[${bundle.L('姓名')}]]</label>
+                            <div class="col-8">
+                              <input
+                                class="form-control form-control-sm"
+                                type="text"
+                                id="fullName"
+                                th:value="${user.getFullName()}"
+                                th:data-o="${user.getFullName()}"
+                              />
                             </div>
                           </div>
                           <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-left">[[${bundle.L('工作电话')}]]</label>
-                            <div class="col-sm-8">
+                            <label class="col-4 col-form-label">[[${bundle.L('工作电话')}]]</label>
+                            <div class="col-8">
                               <input
                                 class="form-control form-control-sm"
                                 type="text"
@@ -141,7 +147,7 @@
                             </div>
                           </div>
                           <div class="form-group row border-none mt-3">
-                            <div class="col-sm-8 offset-sm-4">
+                            <div class="col-8 offset-sm-4">
                               <button class="btn btn-primary J_save" type="button">[[${bundle.L('确定')}]]</button>
                             </div>
                           </div>
@@ -152,21 +158,39 @@
                   <div class="tab-pane" id="secure">
                     <form>
                       <div class="form-group row">
-                        <label class="col-sm-2 col-form-label text-left">[[${bundle.L('修改邮箱')}]]</label>
-                        <div class="col-sm-7 pl-0">
+                        <label class="col-2 col-form-label">[[${bundle.L('修改邮箱')}]]</label>
+                        <div class="col-7 pl-0">
                           <div class="form-control-plaintext text-muted J_email-account" th:text="${user.getEmail() ?: bundle.L('邮箱未设置')}"></div>
                         </div>
-                        <div class="col-sm-3 text-right">
+                        <div class="col-3 text-right">
                           <button class="btn btn-primary btn-outline J_email" type="button">[[${bundle.L('修改')}]]</button>
                         </div>
                       </div>
                       <div class="form-group row">
-                        <label class="col-sm-2 col-form-label text-left">[[${bundle.L('修改密码')}]]</label>
-                        <div class="col-sm-7 pl-0">
+                        <label class="col-2 col-form-label">[[${bundle.L('修改密码')}]]</label>
+                        <div class="col-7 pl-0">
                           <div class="form-control-plaintext text-muted">[[${bundle.L('建议 90 天更改一次密码')}]]</div>
                         </div>
-                        <div class="col-sm-3 text-right">
+                        <div class="col-3 text-right">
                           <button class="btn btn-primary btn-outline J_passwd" type="button">[[${bundle.L('修改')}]]</button>
+                        </div>
+                      </div>
+                      <div th:if="${dingtalkUser != null}" class="form-group row">
+                        <label class="col-2 col-form-label">[[${bundle.L('钉钉授权')}]]</label>
+                        <div class="col-7 pl-0">
+                          <div class="form-control-plaintext text-muted">[[${dingtalkUser}]]</div>
+                        </div>
+                        <div class="col-3 text-right">
+                          <button class="btn btn-danger btn-outline J_unauth-dingtalk" type="button" data-type="1">[[${bundle.L('取消授权')}]]</button>
+                        </div>
+                      </div>
+                      <div th:if="${wxworkUser != null}" class="form-group row">
+                        <label class="col-2 col-form-label">[[${bundle.L('企业微信授权')}]]</label>
+                        <div class="col-7 pl-0">
+                          <div class="form-control-plaintext text-muted">[[${wxworkUser}]]</div>
+                        </div>
+                        <div class="col-3 text-right">
+                          <button class="btn btn-danger btn-outline J_unauth-wxwork" type="button" data-type="2">[[${bundle.L('取消授权')}]]</button>
                         </div>
                       </div>
                     </form>

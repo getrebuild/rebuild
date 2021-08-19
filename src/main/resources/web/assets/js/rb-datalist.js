@@ -59,7 +59,7 @@ class RbList extends React.Component {
                         <div>
                           <label className="custom-control custom-control-sm custom-checkbox">
                             <input className="custom-control-input" type="checkbox" onChange={(e) => this._toggleRows(e)} ref={(c) => (this._checkAll = c)} />
-                            <span className="custom-control-label"></span>
+                            <i className="custom-control-label" />
                           </label>
                         </div>
                       </th>
@@ -69,12 +69,7 @@ class RbList extends React.Component {
                       const styles = { width: cWidth + 'px' }
                       const clazz = `unselect ${item.unsort ? '' : 'sortable'} ${idx === 0 && this.fixedColumns ? 'column-fixed column-fixed-2nd' : ''}`
                       return (
-                        <th
-                          key={'column-' + item.field}
-                          style={styles}
-                          className={clazz}
-                          data-field={item.field}
-                          onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
+                        <th key={'column-' + item.field} style={styles} className={clazz} data-field={item.field} onClick={(e) => !item.unsort && this._sortField(item.field, e)}>
                           <div style={styles}>
                             <span style={{ width: cWidth - 8 + 'px' }}>{item.label}</span>
                             <i className={'zmdi ' + (item.sort || '')} />
@@ -83,7 +78,7 @@ class RbList extends React.Component {
                         </th>
                       )
                     })}
-                    <th className="column-empty"></th>
+                    <th className="column-empty" />
                   </tr>
                 </thead>
                 <tbody ref={(c) => (this._rblistBody = c)}>
@@ -97,7 +92,7 @@ class RbList extends React.Component {
                             <div>
                               <label className="custom-control custom-control-sm custom-checkbox">
                                 <input className="custom-control-input" type="checkbox" onChange={(e) => this._clickRow(e)} />
-                                <span className="custom-control-label"></span>
+                                <i className="custom-control-label" />
                               </label>
                             </div>
                           </td>
@@ -105,7 +100,7 @@ class RbList extends React.Component {
                         {item.map((cell, index) => {
                           return that.renderCell(cell, index, lastPrimary)
                         })}
-                        <td className="column-empty"></td>
+                        <td className="column-empty" />
                       </tr>
                     )
                   })}
@@ -120,9 +115,7 @@ class RbList extends React.Component {
             </div>
           </div>
         </div>
-        {this.state.rowsData.length > 0 && (
-          <RbListPagination ref={(c) => (this._pagination = c)} rowsTotal={this.state.rowsTotal} pageSize={this.pageSize} $$$parent={this} />
-        )}
+        {this.state.rowsData.length > 0 && <RbListPagination ref={(c) => (this._pagination = c)} pageSize={this.pageSize} $$$parent={this} />}
         {this.state.inLoad === true && <RbSpinner />}
       </React.Fragment>
     )
@@ -227,7 +220,7 @@ class RbList extends React.Component {
         })
 
         if (res.data.total > 0) {
-          this._pagination.setState({ rowsTotal: res.data.total, pageNo: this.pageNo })
+          this._pagination.setState({ rowsTotal: res.data.total, rowsStats: res.data.stats, pageNo: this.pageNo })
         }
       } else {
         RbHighbar.error(res.error_msg)
@@ -612,12 +605,7 @@ CellRenders.addRender('URL', function (v, s, k) {
   return (
     <td key={k}>
       <div style={s} title={v}>
-        <a
-          href={`${rb.baseUrl}/commons/url-safe?url=${$encode(v)}`}
-          className="column-url"
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => $stopEvent(e)}>
+        <a href={`${rb.baseUrl}/commons/url-safe?url=${$encode(v)}`} className="column-url" target="_blank" rel="noopener noreferrer" onClick={(e) => $stopEvent(e)}>
           {v}
         </a>
       </div>
@@ -712,11 +700,9 @@ CellRenders.addRender('AVATAR', function (v, s, k) {
 class RbListPagination extends React.Component {
   constructor(props) {
     super(props)
-    this.state = { ...props }
-
-    this.state.pageNo = this.state.pageNo || 1
-    this.state.pageSize = this.state.pageSize || 20
-    this.state.rowsTotal = this.state.rowsTotal || 0
+    this.state = { ...props, pageNo: props.pageNo || 1, pageSize: props.pageSize || 20, rowsTotal: props.rowsTotal || 0 }
+    // via List
+    this._entity = this.props.$$$parent.props.config.entity
   }
 
   render() {
@@ -726,13 +712,12 @@ class RbListPagination extends React.Component {
 
     return (
       <div className="row rb-datatable-footer">
-        <div className="col-12 col-md-4">
+        <div className="col-12 col-lg-6 col-xl-7">
           <div className="dataTables_info" key="page-rowsTotal">
-            {this.state.selectedTotal > 0 && <span className="mr-2">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
-            {this.state.rowsTotal > 0 && <span>{$L('共 %d 条数据', this.state.rowsTotal)}</span>}
+            {this._renderStats()}
           </div>
         </div>
-        <div className="col-12 col-md-8">
+        <div className="col-12 col-lg-6 col-xl-5">
           <div className="float-right paging_sizes">
             <select className="form-control form-control-sm" title={$L('每页显示')} onChange={this.setPageSize} value={this.state.pageSize || 20}>
               {rb.env === 'dev' && <option value="5">5</option>}
@@ -741,15 +726,17 @@ class RbListPagination extends React.Component {
               <option value="80">80</option>
               <option value="100">100</option>
               <option value="200">200</option>
+              <option value="300">300</option>
+              <option value="400">400</option>
               <option value="500">500</option>
             </select>
           </div>
           <div className="float-right dataTables_paginate paging_simple_numbers">
-            <ul className="pagination">
+            <ul className="pagination mb-0">
               {this.state.pageNo > 1 && (
                 <li className="paginate_button page-item">
                   <a className="page-link" onClick={() => this.prev()}>
-                    <span className="icon zmdi zmdi-chevron-left"></span>
+                    <span className="icon zmdi zmdi-chevron-left" />
                   </a>
                 </li>
               )}
@@ -772,7 +759,7 @@ class RbListPagination extends React.Component {
               {this.state.pageNo !== this.__pageTotal && (
                 <li className="paginate_button page-item">
                   <a className="page-link" onClick={() => this.next()}>
-                    <span className="icon zmdi zmdi-chevron-right"></span>
+                    <span className="icon zmdi zmdi-chevron-right" />
                   </a>
                 </li>
               )}
@@ -780,6 +767,27 @@ class RbListPagination extends React.Component {
           </div>
           <div className="clearfix" />
         </div>
+      </div>
+    )
+  }
+
+  _renderStats() {
+    return (
+      <div>
+        {this.state.selectedTotal > 0 && <span className="mr-1">{$L('已选中 %d 条', this.state.selectedTotal)}.</span>}
+        {this.state.rowsTotal > 0 && <span>{$L('共 %d 条数据', this.state.rowsTotal)}</span>}
+        {(this.state.rowsStats || []).map((item, idx) => {
+          return (
+            <span key={idx} className="stat-item">
+              {item.label} <strong className="text-warning">{item.value} </strong>
+            </span>
+          )
+        })}
+        {rb.isAdminUser && (
+          <a className="list-stats-settings" onClick={() => RbModal.create(`/p/admin/metadata/list-stats?entity=${this._entity}`, $L('配置统计字段'))}>
+            <i className="icon zmdi zmdi-settings" title={$L('配置统计字段')} />
+          </a>
+        )}
       </div>
     )
   }
@@ -820,6 +828,9 @@ const RbListPage = {
   init: function (config, entity, ep) {
     renderRbcomp(<RbList config={config} uncheckbox={config.uncheckbox} />, 'react-list', function () {
       RbListPage._RbList = this
+      if (window.FrontJS) {
+        window.FrontJS.DataList._trigger('open', [])
+      }
     })
 
     const that = this
@@ -936,9 +947,7 @@ const AdvFilters = {
 
         // 可修改
         if (item.editable) {
-          const $action = $(
-            `<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`
-          ).appendTo($item)
+          const $action = $(`<div class="action"><a title="${$L('修改')}"><i class="zmdi zmdi-edit"></i></a><a title="${$L('删除')}"><i class="zmdi zmdi-delete"></i></a></div>`).appendTo($item)
 
           $action.find('a:eq(0)').click(function () {
             that.showAdvFilter(item.id)
@@ -952,7 +961,7 @@ const AdvFilters = {
               confirmText: $L('删除'),
               confirm: function () {
                 this.disabled(true)
-                $.post(`/app/entity/record-delete?id=${item.id}`, (res) => {
+                $.post(`/app/entity/common-delete?id=${item.id}`, (res) => {
                   if (res.error_code === 0) {
                     this.hide()
                     that.loadFilters()
@@ -1032,7 +1041,7 @@ const AdvFilters = {
     } else {
       this.current = id
       this.__getFilter(id, (res) => {
-        renderRbcomp(<AdvFilter {...props} title={$L('修改查询条件')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
+        renderRbcomp(<AdvFilter {...props} title={$L('修改高级查询')} filter={res.filter} filterName={res.name} shareTo={res.shareTo} />)
       })
     }
   },
@@ -1064,9 +1073,7 @@ $(document).ready(() => {
   const via = $urlp('via', location.hash)
   if (via) {
     wpc.protocolFilter = `via:${via}`
-    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo(
-      '.dataTables_filter'
-    )
+    const $cleanVia = $(`<div class="badge filter-badge">${$L('当前数据已过滤')}<a class="close" title="${$L('查看全部数据')}">&times;</a></div>`).appendTo('.dataTables_filter')
     $cleanVia.find('a').click(() => {
       wpc.protocolFilter = null
       RbListPage.reload()
@@ -1100,12 +1107,7 @@ class RbViewModal extends React.Component {
             <div className="modal-dialog">
               <div className="modal-content" style={{ width: this.mcWidth + 'px' }}>
                 <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-                  <iframe
-                    ref={(c) => (this._iframe = c)}
-                    className={this.state.isHide ? 'invisible' : ''}
-                    src={this.state.showAfterUrl || 'about:blank'}
-                    frameBorder="0"
-                    scrolling="no"></iframe>
+                  <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state.showAfterUrl || 'about:blank'} frameBorder="0" scrolling="no" />
                   <RbSpinner />
                 </div>
               </div>
@@ -1255,10 +1257,8 @@ const ChartsWidget = {
     // eslint-disable-next-line no-undef
     ECHART_BASE.grid = { left: 40, right: 20, top: 30, bottom: 20 }
 
-    $('.J_load-chart').click(() => {
-      if (this.chartLoaded !== true) this.loadWidget()
-    })
-    $('.J_add-chart').click(() => this.showChartSelect())
+    $('.J_load-charts').on('click', () => this.chartLoaded !== true && this.loadWidget())
+    $('.J_add-chart').on('click', () => this.showChartSelect())
 
     $('.charts-wrap')
       .sortable({
@@ -1333,7 +1333,7 @@ $(document).ready(() => {
 
   // ASIDE
   if ($('#asideFilters, #asideWidgets').length > 0) {
-    $('.side-toggle').click(() => {
+    $('.side-toggle').on('click', () => {
       const $el = $('.rb-aside').toggleClass('rb-aside-collapsed')
       $.cookie('rb.asideCollapsed', $el.hasClass('rb-aside-collapsed'), { expires: 180 })
     })
@@ -1344,5 +1344,11 @@ $(document).ready(() => {
       $content.perfectScrollbar('update')
     })()
     ChartsWidget.init()
+  }
+
+  const $wtab = $('.page-aside.widgets .nav a:eq(0)')
+  if ($wtab.length > 0) {
+    $('.page-aside.widgets .ph-item.rb').remove()
+    $wtab.trigger('click')
   }
 })

@@ -112,6 +112,16 @@ create table if not exists `team_member` (
   unique index UIX0_team_member (`TEAM_ID`, `USER_ID`)
 )Engine=InnoDB;
 
+-- ************ Entity [ExternalUser] DDL ************
+create table if not exists `external_user` (
+  `USER_ID`            char(20) not null,
+  `APP_USER`           varchar(100) not null,
+  `APP_ID`           varchar(100) not null,
+  `BIND_USER`          char(20) not null,
+  primary key  (`USER_ID`),
+  unique index UIX0_external_user (`APP_USER`, `APP_ID`)
+)Engine=InnoDB;
+
 -- ************ Entity [MetaEntity] DDL ************
 create table if not exists `meta_entity` (
   `ENTITY_ID`          char(20) not null,
@@ -790,4 +800,4 @@ insert into `project_plan_config` (`CONFIG_ID`, `PROJECT_ID`, `PLAN_NAME`, `SEQ`
 
 -- DB Version (see `db-upgrade.sql`)
 insert into `system_config` (`CONFIG_ID`, `ITEM`, `VALUE`)
-  values ('021-9000000000000001', 'DBVer', 36);
+  values ('021-9000000000000001', 'DBVer', 37);

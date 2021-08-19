@@ -18,14 +18,14 @@ import org.junit.jupiter.api.Test;
 public class NotificationServiceTest extends TestSupport {
 
     @Test
-    public void testSend() {
-        Message msg = MessageBuilder.createMessage(SIMPLE_USER, "发一条消息", null);
+    void testSend() {
+        Message msg = MessageBuilder.createMessage(SIMPLE_USER, "发一条消息");
         Application.getNotifications().send(msg);
         System.out.println("Notification Sent");
     }
 
     @Test
-    public void testGetUnread() {
+    void testGetUnread() {
         Application.getNotifications().getUnreadMessage(SIMPLE_USER);
     }
 }

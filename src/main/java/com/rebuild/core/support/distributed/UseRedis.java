@@ -21,7 +21,8 @@ import redis.clients.jedis.JedisPool;
  */
 public interface UseRedis {
 
-    Logger LOG = LoggerFactory.getLogger(UseRedis.class);
+    // private
+    Logger _log = LoggerFactory.getLogger(UseRedis.class);
 
     /**
      * @param pool
@@ -35,15 +36,15 @@ public interface UseRedis {
             IOUtils.closeQuietly(jedis);
             return true;
         } catch (Exception ex) {
-            LOG.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
+            _log.warn("Acquisition J/Redis failed : " + ThrowableUtils.getRootCause(ex).getLocalizedMessage()
                     + " !!! falling back to EhCache");
+            return false;
         }
-        return false;
     }
 
     /**
      * @param pool
      * @return
      */
-    boolean refreshJedisPool(JedisPool pool);
+    boolean reinjectJedisPool(JedisPool pool);
 }

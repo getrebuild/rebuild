@@ -40,7 +40,7 @@ public class AuthTokenManager {
     public static String generateToken(ID user, int expires) {
         String token = String.format("%s,%d,%s,v1",
                 user, System.currentTimeMillis(), CodecUtils.randomCode(10));
-        token = CodecUtils.base64UrlEncode(token);
+        token = CodecUtils.base64UrlEncode(token);  // 64bit
         Application.getCommonsCache().putx(TOKEN_PREFIX + token, user, expires);
         return token;
     }

@@ -91,6 +91,7 @@
         isSuperAdmin: '[[${isSuperAdmin}]]' === 'true',
       }
     </script>
+    <script th:src="@{/assets/js/metadata/entity-switch.js}" type="text/babel"></script>
     <script type="text/babel">
       const wpc = window.__PageConfig
       $(document).ready(function () {
@@ -120,8 +121,8 @@
         $(fields_data || []).each(function (idx, item) {
           if (q && !(item.fieldName.toLowerCase().contains(q) || item.fieldLabel.toLowerCase().contains(q))) return
 
-          const $tr = $('<tr data-id="' + (item.fieldId || '') + '"></tr>').appendTo($tbody)
-          const $name = $('<td><a href="field/' + item.fieldName + '" class="column-main">' + item.fieldLabel + '</a></td>').appendTo($tr)
+          const $tr = $(`<tr data-id="${item.fieldId || ''}"></tr>`).appendTo($tbody)
+          const $name = $(`<td><a href="field/${item.fieldName}" class="column-main">${item.fieldLabel}</a></td>`).appendTo($tr)
           if (item.fieldName === wpc.nameField) {
             $tr.addClass('primary')
             $(`<span class="badge badge-pill badge-secondary thin ml-1">${$L('名称')}</span>`).appendTo($name)

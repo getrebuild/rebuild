@@ -18,8 +18,18 @@
                     <div class="rb-scroller">
                       <div class="content">
                         <ul>
-                          <li th:class="${active == 'integration-storage'} ? 'active'"><a th:href="@{/admin/integration/storage}">[[${bundle.L('云存储')}]]</a></li>
-                          <li th:class="${active == 'integration-submail'} ? 'active'"><a th:href="@{/admin/integration/submail}">[[${bundle.L('邮件&短信')}]]</a></li>
+                          <li th:class="${active == 'integration-storage'} ? 'active'">
+                            <a th:href="@{/admin/integration/storage}"><span>[[${bundle.L('云存储')}]]</span></a>
+                          </li>
+                          <li th:class="${active == 'integration-submail'} ? 'active'">
+                            <a th:href="@{/admin/integration/submail}"><span>[[${bundle.L('邮件&短信')}]]</span></a>
+                          </li>
+                          <li th:class="${active == 'integration-dingtalk'} ? 'active'">
+                            <a th:href="@{/admin/integration/dingtalk}"><span>[[${bundle.L('钉钉')}]]</span> <sup class="rbv"></sup></a>
+                          </li>
+                          <li th:class="${active == 'integration-wxwork'} ? 'active'">
+                            <a th:href="@{/admin/integration/wxwork}"><span>[[${bundle.L('企业微信')}]]</span> <sup class="rbv"></sup></a>
+                          </li>
                         </ul>
                       </div>
                     </div>
@@ -46,7 +56,7 @@
                 <a th:href="@{/admin/robot/triggers}"><i class="icon zmdi zmdi-rotate-cw"></i><span>[[${bundle.L('触发器')}]]</span></a>
               </li>
               <li th:class="${active == 'extforms'} ? 'active'">
-                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup></a>
+                <a th:href="@{/admin/extforms}"><i class="icon zmdi zmdi-collection-text"></i><span>[[${bundle.L('外部表单')}]]</span> <sup class="rbv"></sup> </a>
               </li>
               <li th:class="${active == 'data-imports'} ? 'active'">
                 <a th:href="@{/admin/data/data-imports}"><i class="icon zmdi zmdi-cloud-upload"></i><span>[[${bundle.L('数据导入')}]]</span></a>

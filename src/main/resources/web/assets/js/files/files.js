@@ -21,15 +21,15 @@ class FilesList extends React.Component {
         {(this.state.files || []).map((item) => {
           const checked = this.state.currentActive === item.id
           return (
-            <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={() => this._handleClick(item.id)}>
+            <div key={`file-${item.id}`} className={`file-list-item ${checked ? 'active' : ''}`} onClick={(e) => this._handleClick(e, item.id)}>
               <div className="check">
                 <div className="custom-control custom-checkbox m-0">
-                  <input className="custom-control-input" type="checkbox" checked={checked} onChange={() => this._handleClick(item.id)} />
-                  <label className="custom-control-label"></label>
+                  <input className="custom-control-input" type="checkbox" checked={checked === true} readOnly />
+                  <label className="custom-control-label" />
                 </div>
               </div>
               <div className="type">
-                <i className="file-icon" data-type={item.fileType}></i>
+                <i className="file-icon" data-type={item.fileType} />
               </div>
               <div className="detail">
                 <a onClick={(e) => previewFile(e, item.filePath, item.relatedRecord ? item.relatedRecord[0] : null)}>{$fileCutName(item.filePath)}</a>
@@ -57,12 +57,10 @@ class FilesList extends React.Component {
             </a>
           </div>
         )}
-        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && (
-          <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>
-        )}
+        {this.__pageNo > 1 && this.state.currentLen > 0 && this.state.currentLen < PAGE_SIZE && <div className="text-center mt-3 pb-3 text-muted">{$L('已显示全部')}</div>}
         {this.__pageNo === 1 && !hasFiles && (
           <div className="list-nodata pt-8 pb-8">
-            <i className="zmdi zmdi-folder-outline"></i>
+            <i className="zmdi zmdi-folder-outline" />
             <p>{$L('暂无数据')}</p>
           </div>
         )}
@@ -70,9 +68,9 @@ class FilesList extends React.Component {
     )
   }
 
-  _handleClick(id) {
-    event.preventDefault()
-    if (this.state.currentActive === id) this.setState({ currentActive: null })
+  _handleClick(e, id) {
+    $stopEvent(e, true)
+    if (id === this.state.currentActive) this.setState({ currentActive: null })
     else this.setState({ currentActive: id })
   }
 
@@ -85,9 +83,7 @@ class FilesList extends React.Component {
   loadData(entry, pageNo) {
     this.__lastEntry = entry || this.__lastEntry
     this.__pageNo = pageNo || 1
-    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${
-      this.__pageNo
-    }&pageSize=${PAGE_SIZE}`
+    const url = `/files/list-file?entry=${this.__lastEntry}&sort=${currentSort || ''}&q=${$encode(currentSearch || '')}&pageNo=${this.__pageNo}&pageSize=${PAGE_SIZE}`
     $.get(url, (res) => {
       const current = res.data || []
       let files = this.__pageNo === 1 ? [] : this.state.files

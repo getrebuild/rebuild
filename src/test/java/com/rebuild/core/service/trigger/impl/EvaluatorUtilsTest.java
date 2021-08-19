@@ -31,22 +31,22 @@ class EvaluatorUtilsTest {
 
     @Test
     void func() {
-        Object result = EvaluatorUtils.eval("datediff('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H')");
+        Object result = EvaluatorUtils.eval("DATEDIFF('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H')");
         System.out.println(result);
 
-        result = EvaluatorUtils.eval("dateadd('2021-01-01 18:17:00', '2H')");
+        result = EvaluatorUtils.eval("DATEADD('2021-01-01 18:17:00', '2H')");
         System.out.println(result);
 
-        result = EvaluatorUtils.eval("datesub('2021-01-01 18:17:00', '1')");
+        result = EvaluatorUtils.eval("DATESUB('2021-01-01 18:17:00', '1')");
         System.out.println(result);
     }
 
     @Test
     void funcComplex() {
-        Object result = EvaluatorUtils.eval("100 + datediff('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H')");
+        Object result = EvaluatorUtils.eval("100 + DATEDIFF('2021-01-01 18:17:00', '2021-01-01 16:17:00', 'H')");
         System.out.println(result);
 
-        result = EvaluatorUtils.eval("dateadd(dateadd('2021-01-01 18:17:00', '2H'), '1D')");
+        result = EvaluatorUtils.eval("DATEADD(DATEADD('2021-01-01 18:17:00', '2H'), '1D')");
         System.out.println(result);
     }
 }

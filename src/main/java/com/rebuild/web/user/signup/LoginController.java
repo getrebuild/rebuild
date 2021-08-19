@@ -15,6 +15,9 @@ import cn.devezhao.commons.web.ServletUtils;
 import cn.devezhao.commons.web.WebUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import cn.hutool.http.useragent.UserAgent;
+import cn.hutool.http.useragent.UserAgentInfo;
+import cn.hutool.http.useragent.UserAgentUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.api.user.AuthTokenManager;
@@ -33,7 +36,6 @@ import com.rebuild.utils.AES;
 import com.rebuild.utils.AppUtils;
 import com.rebuild.web.BaseController;
 import com.wf.captcha.utils.CaptchaUtil;
-import eu.bitwalker.useragentutils.UserAgent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,6 +48,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,17 +62,14 @@ import java.util.Map;
 public class LoginController extends BaseController {
 
     public static final String CK_AUTOLOGIN = "rb.alt";
-
-    private static final String SK_NEED_VCODE = "needLoginVCode";
-
     public static final String SK_USER_THEME = "currentUseTheme";
-
-    private static final String DEFAULT_HOME = "../dashboard/home";
+    private static final String SK_NEED_VCODE = "needLoginVCode";
 
     @GetMapping("login")
     public ModelAndView checkLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        final String homeUrl = "../dashboard/home";
         if (AppUtils.getRequestUser(request) != null) {
-            response.sendRedirect(DEFAULT_HOME);
+            response.sendRedirect(homeUrl);
             return null;
         }
 
@@ -80,7 +80,7 @@ public class LoginController extends BaseController {
             if (tokenUser != null) {
                 loginSuccessed(request, response, tokenUser, false);
 
-                String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
+                String nexturl = getParameter(request, "nexturl", homeUrl);
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;
             } else {
@@ -113,7 +113,7 @@ public class LoginController extends BaseController {
             if (altUser != null && Application.getUserStore().existsUser(altUser)) {
                 loginSuccessed(request, response, altUser, true);
 
-                String nexturl = StringUtils.defaultIfBlank(request.getParameter("nexturl"), DEFAULT_HOME);
+                String nexturl = getParameter(request, "nexturl", homeUrl);
                 response.sendRedirect(CodecUtils.urlDecode(nexturl));
                 return null;
             } else {
@@ -133,10 +133,35 @@ public class LoginController extends BaseController {
             ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, true);
         }
 
-        // H5 QR
-        String mobileQrUrl = RebuildConfiguration.getHomeUrl("/h5app/");
-        mobileQrUrl = AppUtils.getContextPath() + "/commons/barcode/render-qr?t=" + CodecUtils.urlEncode(mobileQrUrl);
+        // H5
+        String mobileUrl = RebuildConfiguration.getMobileUrl("/");
+        String mobileQrUrl = AppUtils.getContextPath() + "/commons/barcode/render-qr?t=" + CodecUtils.urlEncode(mobileUrl);
+        mv.getModel().put("mobileUrl", mobileUrl);
         mv.getModel().put("mobileQrUrl", mobileQrUrl);
+
+        // DingTalk
+        String dingtalkAppid = RebuildConfiguration.get(ConfigurationItem.DingtalkAppkey);
+        if (StringUtils.isNotBlank(dingtalkAppid)) {
+            String dingtalkUrl = String.format(
+                    "https://oapi.dingtalk.com/connect/qrconnect?appid=%s&response_type=code&scope=snsapi_login&state=&redirect_uri=%s",
+                    dingtalkAppid,
+                    CodecUtils.urlEncode(RebuildConfiguration.getHomeUrl("/user/dingtalk-login")));
+            mv.getModel().put("dingtalkUrl", dingtalkUrl);
+        }
+        // WxWork
+        String wxworkCorpid = RebuildConfiguration.get(ConfigurationItem.WxworkCorpid);
+        if (StringUtils.isNotBlank(wxworkCorpid)) {
+            String wxworkUrl = String.format(
+                    "https://open.work.weixin.qq.com/wwopen/sso/qrConnect?appid=%s&agentid=%s&redirect_uri=%s&state=",
+                    wxworkCorpid, RebuildConfiguration.get(ConfigurationItem.WxworkAgentid),
+                    CodecUtils.urlEncode(RebuildConfiguration.getHomeUrl("/user/wxwork-login")));
+            mv.getModel().put("wxworkUrl", wxworkUrl);
+        }
+
+        if (!License.isCommercial()) {
+            mv.getModel().put("dingtalkUrl", "#");
+            mv.getModel().put("wxworkUrl", "#");
+        }
 
         mv.getModelMap().put("UsersMsg", CheckDangers.getUsersDanger());
         return mv;
@@ -172,44 +197,37 @@ public class LoginController extends BaseController {
         getLoginRetryTimes(user, -1);
         ServletUtils.setSessionAttribute(request, SK_NEED_VCODE, null);
 
+        // 密码过期
+        Integer passwdExpiredDays = UserService.getPasswdExpiredDayLeft(loginUser.getId());
+
+        Map<String, Object> resMap = new HashMap<>();
+        if (passwdExpiredDays != null) resMap.put("passwdExpiredDays", passwdExpiredDays);
+
         if (AppUtils.isRbMobile(request)) {
-            request.getSession().invalidate();
             String authToken = AuthTokenManager.generateToken(loginUser.getId(), AuthTokenManager.TOKEN_EXPIRES * 12);
-            return RespBody.ok(authToken);
-        } else {
-            return RespBody.ok();
+            resMap.put("authToken", authToken);
+            request.getSession().invalidate();
         }
+
+        return RespBody.ok(resMap);
     }
 
-    /**
-     * @param user
-     * @param state
-     * @return
-     */
     private int getLoginRetryTimes(String user, int state) {
-        String key = "LoginRetry-" + user;
+        final String ckey = "LoginRetry-" + user;
         if (state == -1) {
-            Application.getCommonsCache().evict(key);
+            Application.getCommonsCache().evict(ckey);
             return 0;
         }
 
-        Integer retry = (Integer) Application.getCommonsCache().getx(key);
+        Integer retry = (Integer) Application.getCommonsCache().getx(ckey);
         retry = retry == null ? 0 : retry;
         if (state == 1) {
             retry += 1;
-            Application.getCommonsCache().putx(key, retry, CommonsCache.TS_HOUR);
+            Application.getCommonsCache().putx(ckey, retry, CommonsCache.TS_HOUR);
         }
         return retry;
     }
 
-    /**
-     * 登录成功
-     *
-     * @param request
-     * @param response
-     * @param user
-     * @param autoLogin
-     */
     private void loginSuccessed(HttpServletRequest request, HttpServletResponse response, ID user, boolean autoLogin) {
         // 自动登录
         if (autoLogin) {
@@ -228,28 +246,23 @@ public class LoginController extends BaseController {
         Application.getSessionStore().storeLoginSuccessed(request);
     }
 
-    /**
-     * 创建登陆日志
-     *
-     * @param request
-     * @param user
-     */
-    protected void createLoginLog(HttpServletRequest request, ID user) {
-        String ipAddr = ServletUtils.getRemoteAddr(request);
+    private void createLoginLog(HttpServletRequest request, ID user) {
         String UA = request.getHeader("user-agent");
-        UserAgent uas = UserAgent.parseUserAgentString(UA);
         try {
+            UserAgent uas = UserAgentUtil.parse(UA);
             UA = String.format("%s-%s (%s)",
-                    uas.getBrowser(), uas.getBrowserVersion().getMajorVersion(), uas.getOperatingSystem());
+                    uas.getBrowser(), uas.getVersion().split("\\.")[0], uas.getPlatform());
+            if (uas.isMobile()) UA += " [Mobile]";
+
         } catch (Exception ex) {
             log.warn("Unknown user-agent : " + UA);
-            UA = "UNKNOW";
+            UA = UserAgentInfo.NameUnknown;
         }
 
         Record record = EntityHelper.forNew(EntityHelper.LoginLog, UserService.SYSTEM_USER);
         record.setID("user", user);
-        record.setString("ipAddr", ipAddr);
-        record.setString("userAgent", UA);
+        record.setString("ipAddr", ServletUtils.getRemoteAddr(request));
+        record.setString("userAgent", UA.toUpperCase());
         record.setDate("loginTime", CalendarUtils.now());
         Application.getCommonsService().create(record);
     }

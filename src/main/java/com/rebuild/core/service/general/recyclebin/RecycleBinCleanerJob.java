@@ -31,9 +31,6 @@ import java.util.Date;
 @Component
 public class RecycleBinCleanerJob extends DistributedJobLock {
 
-    // 永久保留
-    private static final int KEEPING_FOREVER = 9999;
-
     @Scheduled(cron = "0 0 4 * * ?")
     protected void executeJob() {
         if (!tryLock()) return;
@@ -41,7 +38,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
         // 回收站
 
         final int rbDays = RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays);
-        if (rbDays < KEEPING_FOREVER) {
+        if (rbDays > 0) {
             log.info("RecycleBin clean running ... " + rbDays);
 
             Entity entity = MetadataHelper.getEntity(EntityHelper.RecycleBin);
@@ -61,7 +58,7 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
         // 变更历史
 
         final int rhDays = RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays);
-        if (rhDays < KEEPING_FOREVER) {
+        if (rhDays > 0) {
             log.info("RevisionHistory clean running ... " + rhDays);
 
             Entity entity = MetadataHelper.getEntity(EntityHelper.RevisionHistory);
@@ -74,5 +71,21 @@ public class RecycleBinCleanerJob extends DistributedJobLock {
             int del = Application.getSqlExecutor().execute(delSql, 120);
             log.warn("RevisionHistory cleaned : " + del);
         }
+    }
+
+    /**
+     * 回收站激活
+     * @return
+     */
+    public static boolean isEnableRecycleBin() {
+        return RebuildConfiguration.getInt(ConfigurationItem.RecycleBinKeepingDays) > 0;
+    }
+
+    /**
+     * 修改历史激活
+     * @return
+     */
+    public static boolean isEnableRevisionHistory() {
+        return RebuildConfiguration.getInt(ConfigurationItem.RevisionHistoryKeepingDays) > 0;
     }
 }

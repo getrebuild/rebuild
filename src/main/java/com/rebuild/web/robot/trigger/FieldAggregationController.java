@@ -71,8 +71,9 @@ public class FieldAggregationController extends BaseController {
 
         // 本实体
         for (Field field : MetadataSorter.sortFields(sourceEntity)) {
-            if (isFilterTargetField(field)) continue;
-            sourceFields.add(buildField(field));
+            if (isAllowSourceField(field)) {
+                sourceFields.add(buildField(field));
+            }
         }
 
         // 关联实体
@@ -83,12 +84,12 @@ public class FieldAggregationController extends BaseController {
             String fieldRefLabel = EasyMetaFactory.getLabel(fieldRef) + ".";
 
             for (Field field : MetadataSorter.sortFields(fieldRef.getReferenceEntity())) {
-                if (isFilterTargetField(field)) continue;
-
-                String[] build = buildField(field);
-                build[0] = fieldRefName + build[0];
-                build[1] = fieldRefLabel + build[1];
-                sourceFields.add(build);
+                if (isAllowSourceField(field)) {
+                    String[] build = buildField(field);
+                    build[0] = fieldRefName + build[0];
+                    build[1] = fieldRefLabel + build[1];
+                    sourceFields.add(build);
+                }
             }
         }
 
@@ -113,12 +114,18 @@ public class FieldAggregationController extends BaseController {
                         hadApproval });
     }
 
-    private boolean isFilterTargetField(Field field) {
+    /**
+     * 允许作为源字段
+     *
+     * @param field
+     * @return
+     */
+    protected static boolean isAllowSourceField(Field field) {
         String fieldName = field.getName();
-        if (MetadataHelper.isApprovalField(fieldName)) return true;
+        if (MetadataHelper.isApprovalField(fieldName)) return false;
 
         EasyField easyField = EasyMetaFactory.valueOf(field);
-        return !easyField.isQueryable() || easyField.getDisplayType() == DisplayType.BARCODE;
+        return easyField.isQueryable() && easyField.getDisplayType() != DisplayType.BARCODE;
     }
 
     /**
@@ -144,6 +151,7 @@ public class FieldAggregationController extends BaseController {
      */
     protected static String[] buildField(Field field) {
         EasyField easyField = EasyMetaFactory.valueOf(field);
-        return new String[] { field.getName(), easyField.getLabel(), easyField.getDisplayType().name() };
+        return new String[] {
+                field.getName(), easyField.getLabel(), easyField.getDisplayType().name() };
     }
 }

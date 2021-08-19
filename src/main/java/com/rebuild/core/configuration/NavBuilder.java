@@ -238,6 +238,8 @@ public class NavBuilder extends NavManager {
         String navName = item.getString("value");
         String navUrl = item.getString("value");
 
+        String navEntity = null;
+
         boolean isOutUrl = isUrlType && navUrl.startsWith("http");
         if (isUrlType) {
             navName = "nav_url-" + navName.hashCode();
@@ -268,6 +270,7 @@ public class NavBuilder extends NavManager {
             navUrl = AppUtils.getContextPath() + "/admin/projects";
 
         } else {
+            navEntity = navName;
             navName = "nav_entity-" + navName;
             navUrl = AppUtils.getContextPath() + "/app/" + navUrl + "/list";
         }
@@ -284,8 +287,9 @@ public class NavBuilder extends NavManager {
         }
 
         String navItemHtml = String.format(
-                "<li class=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
+                "<li class=\"%s\" data-entity=\"%s\"><a href=\"%s\" target=\"%s\"><i class=\"icon zmdi zmdi-%s\"></i><span>%s</span></a>",
                 navName + (subNavs == null ? StringUtils.EMPTY : " parent"),
+                navEntity == null ? StringUtils.EMPTY : navEntity,
                 subNavs == null ? navUrl : "###",
                 isOutUrl ? "_blank" : "_self",
                 navIcon,

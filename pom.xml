@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.2</version>
+        <version>2.5.2</version>
         <relativePath/>
     </parent>
     <groupId>com.rebuild</groupId>
     <artifactId>rebuild</artifactId>
-    <version>2.4.1</version>
+    <version>2.5.0-beta1</version>
     <name>rebuild</name>
     <description>RB V2 use SpringBoot</description>
     <!-- UNCOMMENT USE TOMCAT -->
@@ -31,13 +31,14 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <!-- /etc/init.d/rebuild.jar start|stop|restart -->
-                <!--
                 <configuration>
+                    <!-- /etc/init.d/rebuild.jar start|stop|restart -->
+                    <!--
                     <executable>true</executable>
                     <fork>true</fork>
+                    -->
+                    <includeSystemScope>true</includeSystemScope>
                 </configuration>
-                -->
             </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -71,8 +72,7 @@
                     <workingDirectory>.deploy</workingDirectory>
                 </configuration>
             </plugin>
-            <!-- USE RB COMMERCIAL MODULES -->
-            <!--
+            <!-- USE COMMERCIAL MODULES IF EXISTS -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -132,7 +132,6 @@
                     </execution>
                 </executions>
             </plugin>
-            -->
             <!-- Codecov : `mvn cobertura:cobertura -DskipTests=false -Drbpass=PASSKEY` & `bash <(curl -s https://codecov.io/bash) -t TOKEN` -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -161,6 +160,14 @@
             </resource>
         </resources>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub OWNER Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/getrebuild/rebuild</url>
+        </repository>
+    </distributionManagement>
 
     <repositories>
         <repository>
@@ -225,10 +232,11 @@
             <optional>true</optional>
         </dependency>
         -->
+        <!-- Use SPEC -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context-support</artifactId>
-            <version>5.3.3</version>
+            <version>5.3.9</version>
         </dependency>
 
         <dependency>
@@ -284,17 +292,17 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.6</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.23</version>
+            <version>8.0.25</version>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache</artifactId>
-            <version>2.10.6</version>
+            <version>2.10.9.2</version>
         </dependency>
         <dependency>
             <groupId>redis.clients</groupId>
@@ -304,7 +312,7 @@
         <dependency>
             <groupId>com.qiniu</groupId>
             <artifactId>qiniu-java-sdk</artifactId>
-            <version>7.4.0</version>
+            <version>7.8.0</version>
         </dependency>
         <dependency>
             <groupId>com.github.whvcse</groupId>
@@ -312,19 +320,19 @@
             <version>1.6.2</version>
         </dependency>
         <dependency>
-            <groupId>eu.bitwalker</groupId>
-            <artifactId>UserAgentUtils</artifactId>
-            <version>1.21</version>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-http</artifactId>
+            <version>5.7.4</version>
         </dependency>
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.13.1</version>
+            <version>1.14.1</version>
         </dependency>
         <dependency>
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
-            <version>portable-1.7.8</version>
+            <version>portable-1.8.2</version>
         </dependency>
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
@@ -344,7 +352,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>easyexcel</artifactId>
-            <version>2.2.8</version>
+            <version>2.2.10</version>
             <exclusions>
                 <exclusion>
                     <artifactId>ehcache</artifactId>
@@ -390,17 +398,17 @@
         <dependency>
             <groupId>com.googlecode.aviator</groupId>
             <artifactId>aviator</artifactId>
-            <version>5.2.3</version>
+            <version>5.2.6</version>
         </dependency>
         <dependency>
             <groupId>net.coobird</groupId>
             <artifactId>thumbnailator</artifactId>
-            <version>0.4.13</version>
+            <version>0.4.14</version>
         </dependency>
         <dependency>
             <groupId>es.moki.ratelimitj</groupId>
             <artifactId>ratelimitj-inmemory</artifactId>
-            <version>0.6.0</version>
+            <version>0.7.0</version>
         </dependency>
         <dependency>
             <groupId>com.google.zxing</groupId>
@@ -410,7 +418,7 @@
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
-            <version>3.15.0</version>
+            <version>3.16.0</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -420,7 +428,17 @@
         <dependency>
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
-            <version>5.7.0</version>
+            <version>5.8.0</version>
         </dependency>
+
+        <!-- Local .deps -->
+        <dependency>
+            <groupId>deps</groupId>
+            <artifactId>dingtalk-sdk</artifactId>
+            <version>20210719</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/.deps/taobao-sdk-java-auto_1479188381469-20210716.jar</systemPath>
+        </dependency>
+
     </dependencies>
 </project>

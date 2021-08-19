@@ -65,7 +65,7 @@ class FeedsList extends React.Component {
             <span className="float-right">
               <div className="btn-group">
                 <button type="button" className="btn btn-link pr-0 text-right" data-toggle="dropdown">
-                  {FeedsSorts[this.state.sort] || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1"></i>
+                  {FeedsSorts[this.state.sort] || $L('默认排序')} <i className="icon zmdi zmdi-chevron-down up-1" />
                 </button>
                 <div className="dropdown-menu dropdown-menu-right">
                   <a className="dropdown-item" data-sort="newer" onClick={this._sortFeeds}>
@@ -85,7 +85,7 @@ class FeedsList extends React.Component {
         <div className="feeds-list">
           {this.state.data && this.state.data.length === 0 && (
             <div className="list-nodata pt-8 pb-8">
-              <i className="zmdi zmdi-chart-donut"></i>
+              <i className="zmdi zmdi-chart-donut" />
               <p>
                 {$L('暂无动态')}
                 {this.state.tabType === 11 && (
@@ -116,7 +116,7 @@ class FeedsList extends React.Component {
           <div className="user">
             <a className="user-show">
               <div className="avatar">
-                <img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} />
+                <img src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} alt="Avatar" />
               </div>
             </a>
           </div>
@@ -136,7 +136,7 @@ class FeedsList extends React.Component {
                   item.scope
                 ) : (
                   <span>
-                    {item.scope[1]} <i title={$L('团队成员可见')} className="zmdi zmdi-accounts fs-14 down-1"></i>
+                    {item.scope[1]} <i title={$L('团队成员可见')} className="zmdi zmdi-accounts fs-14 down-1" />
                   </span>
                 )}
               </p>
@@ -150,7 +150,8 @@ class FeedsList extends React.Component {
             {item.self && (
               <li className="list-inline-item mr-2">
                 <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
-                  <i className="zmdi zmdi-more"></i>&nbsp;
+                  <i className="zmdi zmdi-more" />
+                  &nbsp;
                 </a>
                 <div className="dropdown-menu dropdown-menu-right">
                   {this._renderMoreMenu(item)}
@@ -166,12 +167,12 @@ class FeedsList extends React.Component {
             )}
             <li className="list-inline-item mr-3">
               <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                <i className="zmdi zmdi-thumb-up"></i> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
+                <i className="zmdi zmdi-thumb-up" /> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
               </a>
             </li>
             <li className="list-inline-item">
               <a href="#comments" onClick={() => this._toggleComment(item.id)} className={`fixed-icon ${item.shownComments && 'text-primary'}`}>
-                <i className="zmdi zmdi-comment-outline"></i> {$L('评论')} {item.numComments > 0 && <span>({item.numComments})</span>}
+                <i className="zmdi zmdi-comment-outline" /> {$L('评论')} {item.numComments > 0 && <span>({item.numComments})</span>}
               </a>
             </li>
           </ul>
@@ -261,7 +262,7 @@ class FeedsList extends React.Component {
           <a className="dropdown-item" onClick={() => this._handleFinish(item.id)}>
             <i className="icon zmdi zmdi-check" /> {$L('完成')}
           </a>
-          <div className="dropdown-divider"></div>
+          <div className="dropdown-divider" />
         </React.Fragment>
       )
     }
@@ -322,7 +323,7 @@ class FeedsComments extends React.Component {
                   <div className="user">
                     <a className="user-show">
                       <div className="avatar">
-                        <img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} />
+                        <img src={`${rb.baseUrl}/account/user-avatar/${item.createdBy[0]}`} alt="Avatar" />
                       </div>
                     </a>
                   </div>
@@ -339,7 +340,8 @@ class FeedsComments extends React.Component {
                         {item.self && (
                           <li className="list-inline-item mr-2">
                             <a data-toggle="dropdown" href="#mores" className="fixed-icon" title={$L('更多')}>
-                              <i className="zmdi zmdi-more"></i>&nbsp;
+                              <i className="zmdi zmdi-more" />
+                              &nbsp;
                             </a>
                             <div className="dropdown-menu dropdown-menu-right">
                               <a className="dropdown-item" onClick={() => this._handleDelete(item.id)}>
@@ -351,12 +353,12 @@ class FeedsComments extends React.Component {
                         )}
                         <li className="list-inline-item mr-3">
                           <a href="#thumbup" onClick={() => this._handleLike(item.id)} className={`fixed-icon ${item.myLike && 'text-primary'}`}>
-                            <i className="zmdi zmdi-thumb-up"></i> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
+                            <i className="zmdi zmdi-thumb-up" /> {$L('赞')} {item.numLike > 0 && <span>({item.numLike})</span>}
                           </a>
                         </li>
                         <li className="list-inline-item">
                           <a href="#reply" onClick={() => this._toggleReply(item.id)} className={`fixed-icon ${item.shownReply && 'text-primary'}`}>
-                            <i className="zmdi zmdi-mail-reply"></i> {$L('回复')}
+                            <i className="zmdi zmdi-mail-reply" /> {$L('回复')}
                           </a>
                         </li>
                       </ul>
@@ -489,7 +491,7 @@ class Pagination extends React.Component {
             {this.state.pageNo > 1 && (
               <li className="paginate_button page-item">
                 <a className="page-link" onClick={this._prev}>
-                  <span className="icon zmdi zmdi-chevron-left"></span>
+                  <span className="icon zmdi zmdi-chevron-left" />
                 </a>
               </li>
             )}
@@ -512,13 +514,13 @@ class Pagination extends React.Component {
             {this.state.pageNo !== this.__pageTotal && (
               <li className="paginate_button page-item">
                 <a className="page-link" onClick={this._next}>
-                  <span className="icon zmdi zmdi-chevron-right"></span>
+                  <span className="icon zmdi zmdi-chevron-right" />
                 </a>
               </li>
             )}
           </ul>
         </div>
-        <div className="clearfix"></div>
+        <div className="clearfix" />
       </div>
     )
   }
@@ -596,7 +598,7 @@ function __renderRichContent(e) {
             return (
               <span key={'img-' + item}>
                 <a title={$fileCutName(item)} onClick={() => RbPreview.create(e.images, idx)} className="img-thumbnail img-upload zoom-in">
-                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} />
+                  <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="Avatar" />
                 </a>
               </span>
             )

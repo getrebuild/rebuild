@@ -35,12 +35,12 @@ $(document).ready(function () {
     const icon = $val('#entityIcon')
     if (icon) data.icon = icon
 
-    const quickFields = $('#quickFields').val().join(',')
-    if (quickFields !== wpc.extConfig.quickFields) {
-      data.extConfig = {
-        quickFields: quickFields,
-      }
+    const extConfigNew = {
+      quickFields: $('#quickFields').val().join(','),
+      advListHideFilters: $val('#advListHideFilters'),
+      advListHideCharts: $val('#advListHideCharts'),
     }
+    if (!$same(extConfigNew, wpc.extConfig)) data.extConfig = extConfigNew
 
     data = $cleanMap(data)
     if (Object.keys(data).length === 0) {
@@ -134,7 +134,7 @@ $(document).ready(function () {
     })
 
     $('#quickFields').select2({
-      placeholder: $L('选择字段'),
+      placeholder: $L('默认'),
       allowClear: true,
       data: sortFields(cQuickFields),
       multiple: true,
@@ -144,4 +144,7 @@ $(document).ready(function () {
       $('#quickFields').val(wpc.extConfig.quickFields.split(',')).trigger('change')
     }
   })
+
+  if (wpc.extConfig.advListHideFilters) $('#advListHideFilters').attr('checked', true)
+  if (wpc.extConfig.advListHideCharts) $('#advListHideCharts').attr('checked', true)
 })

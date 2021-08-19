@@ -15,6 +15,7 @@ import cn.devezhao.persist4j.engine.ID;
 import com.rebuild.core.cache.BaseCacheTemplate;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.NoRecordFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 import redis.clients.jedis.JedisPool;
@@ -25,6 +26,7 @@ import redis.clients.jedis.JedisPool;
  * @author devezhao
  * @since 10/12/2018
  */
+@Slf4j
 @Service
 public class RecordOwningCache extends BaseCacheTemplate<ID> {
 
@@ -75,7 +77,7 @@ public class RecordOwningCache extends BaseCacheTemplate<ID> {
             if (tryIfNotExists) {
                 throw new NoRecordFoundException(error);
             } else {
-                LOG.warn(error);
+                log.warn(error);
                 return null;
             }
         }

@@ -19,6 +19,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.AdminGuard;
 import com.rebuild.core.service.BaseService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,6 +28,7 @@ import org.springframework.stereotype.Service;
  * @author zhaofang123@gmail.com
  * @since 08/03/2018
  */
+@Slf4j
 @Service
 public class MetaFieldService extends BaseService implements AdminGuard {
 
@@ -70,7 +72,8 @@ public class MetaFieldService extends BaseService implements AdminGuard {
             }
 
             if (usedArray.length > 0) {
-                LOG.warn("deleted configuration of field [ " + field.getOwnEntity().getName() + "." + field.getName() + " ] in [ " + who + " ] : " + usedArray.length);
+                log.warn("Deleted configuration of field [ {}.{} ] in [ {} ] : {}",
+                        field.getOwnEntity().getName(), field.getName(), who, usedArray.length);
 
                 if ("PickList".equals(who)) {
                     PickListManager.instance.clean(field);

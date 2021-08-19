@@ -9,11 +9,9 @@ package com.rebuild.core.configuration.general;
 
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.rebuild.core.Application;
 import com.rebuild.core.RebuildException;
 import com.rebuild.core.configuration.ConfigBean;
-import com.rebuild.core.service.dashboard.ChartManager;
 
 /**
  * 基础布局管理
@@ -34,12 +32,15 @@ public class BaseLayoutManager extends ShareToManager {
     public static final String TYPE_FORM = "FORM";
     // 列表
     public static final String TYPE_DATALIST = "DATALIST";
+    // 列表-统计字段
+    public static final String TYPE_LISTSTATS = "LISTSTATS";
+    // 列表-图表 of Widget
+    public static final String TYPE_WCHARTS = "WCHARTS";
     // 视图-相关项
     public static final String TYPE_TAB = "TAB";
     // 视图-新建相关
     public static final String TYPE_ADD = "ADD";
-    // 列表-图表 of Widget
-    public static final String TYPE_WCHARTS = "WCHARTS";
+
 
     @Override
     protected String getConfigEntity() {
@@ -70,26 +71,6 @@ public class BaseLayoutManager extends ShareToManager {
      */
     public ConfigBean getLayoutOfNav(ID user) {
         return getLayout(user, null, TYPE_NAV);
-    }
-
-    /**
-     * 列表页 SIDE 图表
-     *
-     * @param user
-     * @param entity
-     * @return
-     */
-    public ConfigBean getWidgetCharts(ID user, String entity) {
-        ConfigBean e = getLayout(user, entity, TYPE_WCHARTS);
-        if (e == null) {
-            return null;
-        }
-
-        // 补充图表信息
-        JSONArray charts = (JSONArray) e.getJSON("config");
-        ChartManager.instance.richingCharts(charts, null);
-        return e.set("config", charts)
-                .set("shareTo", null);
     }
 
     /**

@@ -180,7 +180,17 @@ public class MetadataHelper {
      * @return
      */
     public static boolean isSystemField(Field field) {
-        return isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
+        boolean is = isSystemField(field.getName()) || field.getType() == FieldType.PRIMARY;
+        if (is || field.getType() != FieldType.REFERENCE) return is;
+
+        // DTM 字段
+        if (field.getOwnEntity().getMainEntity() != null) {
+            try {
+                return field.equals(getDetailToMainField(field.getOwnEntity()));
+            } catch (MetadataException ignored) {
+            }
+        }
+        return false;
     }
 
     /**
@@ -205,7 +215,7 @@ public class MetadataHelper {
      * @see EntityHelper
      */
     public static boolean isCommonsField(Field field) {
-        return isCommonsField(field.getName());
+        return isSystemField(field) || isCommonsField(field.getName());
     }
 
     /**

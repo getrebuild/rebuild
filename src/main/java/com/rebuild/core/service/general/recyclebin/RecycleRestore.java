@@ -21,8 +21,7 @@ import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.TransactionManual;
-import com.rebuild.core.service.files.AttachmentAwareObserver;
-import com.rebuild.core.service.general.OperatingContext;
+import com.rebuild.core.service.feeds.FeedsService;
 import com.rebuild.core.support.i18n.Language;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.TransactionStatus;
@@ -108,7 +107,9 @@ public class RecycleRestore {
                 String primaryName = r.getEntity().getPrimaryField().getName();
                 ID primaryId = (ID) r.removeValue(primaryName);
                 PM.saveInternal(r, primaryId);
+
                 restoreAttachment(PM, primaryId);
+                if (primaryId.getEntityCode() == EntityHelper.Feeds) restoreFeedsMention(r);
 
                 restored++;
             }
@@ -158,11 +159,7 @@ public class RecycleRestore {
         return records;
     }
 
-    /**
-     * @param PM
-     * @param recordId
-     * @see AttachmentAwareObserver#onDelete(OperatingContext)
-     */
+    // 附件恢复
     private void restoreAttachment(PersistManagerImpl PM, ID recordId) {
         Object[][] array = Application.createQueryNoFilter(
                 "select attachmentId from Attachment where relatedRecord = ?")
@@ -172,6 +169,13 @@ public class RecycleRestore {
             Record u = EntityHelper.forUpdate((ID) o[0], UserService.SYSTEM_USER, false);
             u.setBoolean(EntityHelper.IsDeleted, false);
             PM.update(u);
+        }
+    }
+
+    // 动态提及
+    private void restoreFeedsMention(Record feed) {
+        if (feed.getString("content").contains("@")) {
+            Application.getBean(FeedsService.class).awareMentionCreate(feed);
         }
     }
 }

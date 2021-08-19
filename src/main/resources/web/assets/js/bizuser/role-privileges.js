@@ -10,7 +10,9 @@ RbForm.postAfter = function (data) {
   location.href = rb.baseUrl + '/admin/bizuser/role/' + data.id
 }
 
+// 当前编辑
 const roleId = window.__PageConfig.recordId
+
 $(document).ready(function () {
   $('.J_new-role').click(() => RbFormModal.create({ title: $L('新建角色'), entity: 'Role', icon: 'lock' }))
 
@@ -18,6 +20,7 @@ $(document).ready(function () {
     $('.J_save').attr('disabled', false).click(updatePrivileges)
     loadPrivileges()
   }
+
   loadRoles()
 
   // ENTITY
@@ -69,36 +72,52 @@ const clickPriv = function (elements, action) {
   }
 }
 
+let _AsideTree
 const loadRoles = function () {
-  $.get('/admin/bizuser/role-list', function (res) {
-    $('.aside-tree .ph-item').remove()
-    $('.aside-tree ul').empty()
-    $(res.data).each(function () {
-      const _id = this.id
-      const $item = $(
-        `<li><a class="text-truncate ${this.disabled ? 'text-disabled' : ''}" title="${this.disabled ? $L('已禁用') : ''}" href="${
-          rb.baseUrl
-        }/admin/bizuser/role/${_id}">${this.name}</a></li>`
-      ).appendTo('.aside-tree ul')
+  $.get('/admin/bizuser/role-list', (res) => {
+    if (_AsideTree) {
+      ReactDOM.unmountComponentAtNode(document.getElementById('role-tree'))
+      _AsideTree = null
+    }
 
-      const $action = $(
-        '<div class="action"><a class="J_edit"><i class="zmdi zmdi-edit"></i></a><a class="J_del"><i class="zmdi zmdi-delete"></i></a></div>'
-      ).appendTo($item)
-      if (roleId === _id) $item.addClass('active')
-      if (_id === '003-0000000000000001') $action.remove()
-
-      $action.find('a.J_edit').click(() =>
-        RbFormModal.create({
-          title: $L('编辑角色'),
-          entity: 'Role',
-          icon: 'lock',
-          id: _id,
-        })
-      )
-
-      // eslint-disable-next-line no-undef
-      $action.find('a.J_del').click(() => deleteRole(_id))
-    })
+    renderRbcomp(
+      <AsideTree
+        data={res.data}
+        activeItem={roleId}
+        onItemClick={(item) => (location.href = `${rb.baseUrl}/admin/bizuser/role/${item.id}`)}
+        extrasAction={(item) => {
+          return (
+            <React.Fragment>
+              <span
+                className="action"
+                onClick={() => {
+                  RbFormModal.create({
+                    title: $L('编辑角色'),
+                    entity: 'Role',
+                    icon: 'lock',
+                    id: item.id,
+                  })
+                }}>
+                <i className="zmdi zmdi-edit" />
+              </span>
+              <span
+                className="action"
+                onClick={() => {
+                  // eslint-disable-next-line no-undef
+                  deleteRole(item.id)
+                }}>
+                <i className="zmdi zmdi-delete" />
+              </span>
+            </React.Fragment>
+          )
+        }}
+        hideCollapse
+      />,
+      'role-tree',
+      function () {
+        _AsideTree = this
+      }
+    )
   })
 }
 

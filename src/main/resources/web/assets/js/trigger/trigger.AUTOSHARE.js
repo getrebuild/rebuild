@@ -21,6 +21,7 @@ class ContentAutoShare extends ActionContentSpec {
               <UserSelectorWithField ref={(c) => (this._shareTo = c)} />
             </div>
           </div>
+
           <div className="form-group row pb-1">
             <label className="col-12 col-lg-3 col-form-label text-lg-right">{$L('同时共享关联记录')}</label>
             <div className="col-12 col-lg-8">
@@ -37,8 +38,9 @@ class ContentAutoShare extends ActionContentSpec {
               </div>
             </div>
           </div>
+
           <div className="form-group row pb-0">
-            <label className="col-12 col-sm-3 col-form-label text-lg-right"></label>
+            <label className="col-12 col-sm-3 col-form-label" />
             <div className="col-12 col-lg-8">
               <label className="custom-control custom-control-sm custom-checkbox custom-control-inline mb-0">
                 <input className="custom-control-input" type="checkbox" ref={(c) => (this._withUpdate = c)} />

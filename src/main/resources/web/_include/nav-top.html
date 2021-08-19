@@ -13,8 +13,25 @@
       </div>
       -->
       <div class="search-container">
-        <input class="form-control form-control-sm search-input-gs" type="text" name="search" maxlength="100" th:placeholder="${bundle.L('搜索')}" autocomplete="off" />
-        <div class="search-models animated fadeIn faster"></div>
+        <div class="global-search dropdown">
+          <input
+            class="form-control form-control-sm search-input-gs dropdown-toggle"
+            type="search"
+            name="search"
+            maxlength="100"
+            autocomplete="off"
+            data-toggle="dropdown"
+            tabindex="1"
+            required
+            th:title="${bundle.L('搜索')}"
+          />
+          <i class="icon zmdi zmdi-search"></i>
+          <div class="dropdown-menu" th:_title="${bundle.L('无可搜索项')}"></div>
+        </div>
+        <div class="global-create dropdown">
+          <a class="dropdown-toggle" data-toggle="dropdown" th:title="${bundle.L('新建')}"><i class="zmdi zmdi-plus icon"></i></a>
+          <div class="dropdown-menu auto-scroller" th:_title="${bundle.L('无可新建项')}"></div>
+        </div>
       </div>
       <div class="rb-right-navbar">
         <ul class="nav navbar-nav float-right rb-user-nav">

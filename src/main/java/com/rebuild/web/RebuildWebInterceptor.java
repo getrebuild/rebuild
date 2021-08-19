@@ -79,11 +79,13 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
 
         // 服务暂不可用
         if (!Application.isReady()) {
+            final boolean isError = requestUri.endsWith("/error") || requestUri.contains("/error/");
+
             // 已安装
             if (checkInstalled()) {
                 log.error("Server Unavailable : " + requestEntry);
 
-                if (requestUri.endsWith("/error") || requestUri.contains("/error/")) {
+                if (isError) {
                     return true;
                 } else {
                     sendRedirect(response, "/error/server-status", null);
@@ -91,7 +93,7 @@ public class RebuildWebInterceptor implements AsyncHandlerInterceptor, InstallSt
                 }
             }
             // 未安装
-            else if (!requestUri.contains("/setup/")) {
+            else if (!(requestUri.contains("/setup/") || requestUri.contains("/commons/theme/") || isError)) {
                 sendRedirect(response, "/setup/install", null);
                 return false;
             } else {

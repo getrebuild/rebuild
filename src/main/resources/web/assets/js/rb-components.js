@@ -310,11 +310,7 @@ class RbHighbar extends React.Component {
   render() {
     let icon = this.props.type === 'success' ? 'check' : 'info-outline'
     icon = this.props.type === 'danger' ? 'close-circle-o' : icon
-    const content = this.props.htmlMessage ? (
-      <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} />
-    ) : (
-      <div className="message pl-0">{this.props.message}</div>
-    )
+    const content = this.props.htmlMessage ? <div className="message pl-0" dangerouslySetInnerHTML={{ __html: this.props.htmlMessage }} /> : <div className="message pl-0">{this.props.message}</div>
 
     return (
       <div ref={(c) => (this._rbhighbar = c)} className={`rbhighbar animated faster ${this.state.animatedClass}`}>
@@ -690,9 +686,7 @@ const UserShow = function (props) {
 
   return (
     <a href={viewUrl} className="user-show" title={props.name} onClick={props.onClick}>
-      <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>
-        {props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}
-      </div>
+      <div className={`avatar ${props.showName === true ? ' float-left' : ''}`}>{props.icon ? <i className={props.icon} /> : <img src={avatarUrl} alt="Avatar" />}</div>
       {props.showName && (
         <div className={`text-truncate name ${props.deptName ? 'vm' : ''}`}>
           {props.name}
@@ -823,81 +817,84 @@ class AnyRecordSelector extends React.Component {
 }
 
 // ~~ 默认 SimpleMDE 工具栏
-const DEFAULT_MDE_TOOLBAR = [
-  {
-    name: 'bold',
-    action: SimpleMDE.toggleBold,
-    className: 'zmdi zmdi-format-bold',
-    title: $L('粗体'),
-  },
-  {
-    name: 'italic',
-    action: SimpleMDE.toggleItalic,
-    className: 'zmdi zmdi-format-italic',
-    title: $L('斜体'),
-  },
-  {
-    name: 'strikethrough',
-    action: SimpleMDE.toggleStrikethrough,
-    className: 'zmdi zmdi-format-strikethrough',
-    title: $L('删除线'),
-  },
-  {
-    name: 'heading',
-    action: SimpleMDE.toggleHeadingSmaller,
-    className: 'zmdi zmdi-format-size',
-    title: $L('标题'),
-  },
-  {
-    name: 'unordered-list',
-    action: SimpleMDE.toggleUnorderedList,
-    className: 'zmdi zmdi-format-list-bulleted',
-    title: $L('列表'),
-  },
-  {
-    name: 'ordered-list',
-    action: SimpleMDE.toggleOrderedList,
-    className: 'zmdi zmdi-format-list-numbered',
-    title: $L('数字列表'),
-  },
-  {
-    name: 'link',
-    action: SimpleMDE.drawLink,
-    className: 'zmdi zmdi-link',
-    title: $L('链接'),
-  },
-  {
-    name: 'image',
-    action: () => this._fieldValue__upload.click(),
-    className: 'zmdi zmdi-image-o',
-    title: $L('图片'),
-  },
-  {
-    name: 'table',
-    action: SimpleMDE.drawTable,
-    className: 'zmdi zmdi-border-all',
-    title: $L('表格'),
-  },
-  '|',
-  {
-    name: 'fullscreen',
-    action: SimpleMDE.toggleFullScreen,
-    className: 'zmdi zmdi-fullscreen no-disable',
-    title: $L('全屏'),
-  },
-  {
-    name: 'preview',
-    action: SimpleMDE.togglePreview,
-    className: 'zmdi zmdi-eye no-disable',
-    title: $L('预览'),
-  },
-  {
-    name: 'guide',
-    action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
-    className: 'zmdi zmdi-help-outline no-disable',
-    title: $L('编辑器帮助'),
-  },
-]
+const DEFAULT_MDE_TOOLBAR = (c) => {
+  return [
+    {
+      name: 'bold',
+      action: SimpleMDE.toggleBold,
+      className: 'zmdi zmdi-format-bold',
+      title: $L('粗体'),
+    },
+    {
+      name: 'italic',
+      action: SimpleMDE.toggleItalic,
+      className: 'zmdi zmdi-format-italic',
+      title: $L('斜体'),
+    },
+    {
+      name: 'strikethrough',
+      action: SimpleMDE.toggleStrikethrough,
+      className: 'zmdi zmdi-format-strikethrough',
+      title: $L('删除线'),
+    },
+    {
+      name: 'heading',
+      action: SimpleMDE.toggleHeadingSmaller,
+      className: 'zmdi zmdi-format-size',
+      title: $L('标题'),
+    },
+    {
+      name: 'unordered-list',
+      action: SimpleMDE.toggleUnorderedList,
+      className: 'zmdi zmdi-format-list-bulleted',
+      title: $L('列表'),
+    },
+    {
+      name: 'ordered-list',
+      action: SimpleMDE.toggleOrderedList,
+      className: 'zmdi zmdi-format-list-numbered',
+      title: $L('数字列表'),
+    },
+    {
+      name: 'link',
+      action: SimpleMDE.drawLink,
+      className: 'zmdi zmdi-link',
+      title: $L('链接'),
+    },
+    {
+      name: 'image',
+      action: () => c && c._fieldValue__upload && c._fieldValue__upload.click(),
+      className: 'zmdi zmdi-image-o',
+      title: $L('图片'),
+    },
+    {
+      name: 'table',
+      action: SimpleMDE.drawTable,
+      className: 'zmdi zmdi-border-all',
+      title: $L('表格'),
+    },
+    '|',
+    {
+      name: 'preview',
+      action: SimpleMDE.togglePreview,
+      className: 'zmdi zmdi-eye no-disable',
+      title: $L('预览'),
+    },
+    {
+      name: 'fullscreen',
+      action: SimpleMDE.toggleFullScreen,
+      className: 'zmdi zmdi-fullscreen no-disable',
+      title: $L('全屏'),
+    },
+    {
+      name: 'guide',
+      action: () => window.open('https://getrebuild.com/docs/markdown-guide'),
+      className: 'zmdi zmdi-help-outline no-disable',
+      title: $L('编辑器帮助'),
+    },
+  ]
+}
+
 /**
  * JSX 组件渲染
  *

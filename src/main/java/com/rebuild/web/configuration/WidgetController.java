@@ -14,6 +14,7 @@ import com.alibaba.fastjson.JSON;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.general.BaseLayoutManager;
+import com.rebuild.core.configuration.general.DataListManager;
 import com.rebuild.core.configuration.general.LayoutConfigService;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserHelper;
@@ -65,7 +66,7 @@ public class WidgetController extends BaseController implements ShareTo {
     public void gets(@PathVariable String entity,
                      HttpServletRequest request, HttpServletResponse response) {
         ID user = getRequestUser(request);
-        ConfigBean config = BaseLayoutManager.instance.getWidgetCharts(user, entity);
+        ConfigBean config = DataListManager.instance.getWidgetCharts(user, entity);
         writeSuccess(response, config == null ? null : config.toJSON());
     }
 }

@@ -12,6 +12,7 @@ import cn.devezhao.commons.ObjectUtils;
 import com.googlecode.aviator.AviatorEvaluator;
 import com.googlecode.aviator.AviatorEvaluatorInstance;
 import com.googlecode.aviator.Options;
+import com.googlecode.aviator.exception.ExpressionRuntimeException;
 import com.googlecode.aviator.exception.ExpressionSyntaxErrorException;
 import com.googlecode.aviator.runtime.function.AbstractFunction;
 import com.googlecode.aviator.runtime.type.AviatorLong;
@@ -42,7 +43,7 @@ public class EvaluatorUtils {
         // 关闭语法糖
         AVIATOR.setOption(Options.ENABLE_PROPERTY_SYNTAX_SUGAR, false);
 
-        // 函数
+        // 函数（函数名区分大小写）
         AVIATOR.addFunction(new DateDiffFunction());
         AVIATOR.addFunction(new DateAddFunction());
         AVIATOR.addFunction(new DateSubFunction());
@@ -70,7 +71,7 @@ public class EvaluatorUtils {
         } catch (ArithmeticException ex) {
             log.error("Bad expression : `{}`", expression, ex);
             throw new RebuildException("EXPRESSION ERROR : " + ex.getLocalizedMessage().toUpperCase());
-        } catch (ExpressionSyntaxErrorException ex) {
+        } catch (ExpressionRuntimeException ex) {
             log.error("Bad expression : `{}`", expression, ex);
             return null;
         }

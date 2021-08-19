@@ -66,8 +66,6 @@ public class MetaFieldController extends BaseController {
     public List<Map<String, Object>> listField(@EntityParam Entity entity) {
         List<Map<String, Object>> fieldList = new ArrayList<>();
         for (Field field : MetadataSorter.sortFields(entity)) {
-            if (MetadataHelper.isSystemField(field)) continue;
-
             EasyField easyMeta = EasyMetaFactory.valueOf(field);
             Map<String, Object> map = new HashMap<>();
             if (easyMeta.getMetaId() != null) {

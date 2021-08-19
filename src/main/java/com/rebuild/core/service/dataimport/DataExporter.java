@@ -19,7 +19,7 @@ import com.rebuild.core.metadata.easymeta.MixValue;
 import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.SetUser;
 import com.rebuild.core.support.general.DataListBuilderImpl;
-import com.rebuild.core.support.general.DataListWrapper;
+import com.rebuild.core.support.general.FieldValueHelper;
 import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
@@ -155,7 +155,7 @@ public class DataExporter extends SetUser {
                     cellVal = StringUtils.EMPTY;
                 }
 
-                if (cellVal.toString().equals(DataListWrapper.NO_READ_PRIVILEGES)) {
+                if (cellVal.toString().equals(FieldValueHelper.NO_READ_PRIVILEGES)) {
                     cellVal = Language.L("[无权限]");
 
                 } else if (dt == DisplayType.FILE

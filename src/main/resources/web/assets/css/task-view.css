@@ -174,11 +174,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
   padding: 15px 25px;
 }
 
-.comment-list-wrap h4 {
-  font-size: 1.2rem;
-  font-weight: bold;
-}
-
 .status-checkbox > .custom-checkbox {
   margin: -2px 10px 0 0;
   padding: 0 0 0 30px;

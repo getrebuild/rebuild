@@ -26,11 +26,11 @@ class RbFormModal extends React.Component {
                   <h3 className="modal-title">{this.state.title || $L('新建')}</h3>
                   {rb.isAdminUser && (
                     <a className="close s" href={`${rb.baseUrl}/admin/entity/${this.state.entity}/form-design`} title={$L('表单设计')} target="_blank">
-                      <span className="zmdi zmdi-settings"></span>
+                      <span className="zmdi zmdi-settings" />
                     </a>
                   )}
                   <button className="close md-close" type="button" onClick={() => this.hide()}>
-                    <span className="zmdi zmdi-close"></span>
+                    <span className="zmdi zmdi-close" />
                   </button>
                 </div>
                 <div className={'modal-body rb-loading' + (this.state.inLoad ? ' rb-loading-active' : '')}>
@@ -85,7 +85,12 @@ class RbFormModal extends React.Component {
           })}
         </RbForm>
       )
-      that.setState({ formComponent: FORM, __formModel: res.data }, () => that.setState({ inLoad: false }))
+      that.setState({ formComponent: FORM, __formModel: res.data }, () => {
+        that.setState({ inLoad: false })
+        if (window.FrontJS) {
+          window.FrontJS.Form._trigger('open', [res.data])
+        }
+      })
       that.__lastModified = res.data.lastModified || 0
     })
   }
@@ -94,9 +99,9 @@ class RbFormModal extends React.Component {
     const error = (
       <div className="alert alert-danger alert-icon mt-5 w-75 mlr-auto">
         <div className="icon">
-          <i className="zmdi zmdi-alert-triangle"></i>
+          <i className="zmdi zmdi-alert-triangle" />
         </div>
-        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}</strong> ` + message }}></div>
+        <div className="message" dangerouslySetInnerHTML={{ __html: `<strong>${$L('抱歉!')}</strong> ` + message }} />
       </div>
     )
     this.setState({ formComponent: error }, () => this.setState({ inLoad: false }))
@@ -234,33 +239,22 @@ class RbForm extends React.Component {
       )
     }
 
-    let actionBtn = (
-      <button className="btn btn-primary btn-space" type="button" onClick={() => this.post()}>
-        {$L('保存')}
-      </button>
-    )
-    if (moreActions.length > 0) {
-      actionBtn = (
-        <div className="btn-group dropup btn-space">
-          <button className="btn btn-primary" type="button" onClick={() => this.post()}>
-            {$L('保存')}
-          </button>
-          <button className="btn btn-primary dropdown-toggle auto" type="button" data-toggle="dropdown">
-            <span className="icon zmdi zmdi-chevron-up"></span>
-          </button>
-          <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">
-            {moreActions.map((item) => {
-              return item
-            })}
-          </div>
-        </div>
-      )
-    }
-
     return (
       <div className="form-group row footer">
         <div className="col-12 col-sm-8 offset-sm-3" ref={(c) => (this._formAction = c)}>
-          {actionBtn}
+          <div className="btn-group dropup btn-space">
+            <button className="btn btn-primary" type="button" onClick={() => this.post()}>
+              {$L('保存')}
+            </button>
+            {moreActions.length > 0 && (
+              <React.Fragment>
+                <button className="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                  <i className="icon zmdi zmdi-chevron-up" />
+                </button>
+                <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
+              </React.Fragment>
+            )}
+          </div>
           <button className="btn btn-secondary btn-space" type="button" onClick={() => this.props.$$$parent.hide()}>
             {$L('取消')}
           </button>
@@ -364,7 +358,7 @@ class RbForm extends React.Component {
           } else if (next === RbForm.__NEXT_APPROVAL) {
             renderRbcomp(<ApprovalSubmitForm id={res.data.id} disposeOnHide={true} />)
           }
-        }, 100)
+        }, 200)
       } else if (res.error_code === 499) {
         renderRbcomp(<RepeatedViewer entity={this.state.entity} data={res.data} />)
       } else {
@@ -377,11 +371,18 @@ class RbForm extends React.Component {
   // 保存前调用，返回 false 则不继续保存
   // eslint-disable-next-line no-unused-vars
   static postBefore(data) {
+    if (window.FrontJS) {
+      const ret = window.FrontJS.Form._trigger('saveBefore', [data])
+      if (ret === false) return false
+    }
     return true
   }
 
   // 保存后调用
   static postAfter(data, next) {
+    if (window.FrontJS) {
+      window.FrontJS.Form._trigger('saveAfter', [data, next])
+    }
     const rlp = window.RbListPage || parent.RbListPage
     if (rlp) rlp.reload()
     if (window.RbViewPage && (next || 0) < 101) window.RbViewPage.reload()
@@ -418,9 +419,7 @@ class RbFormElement extends React.Component {
 
     return (
       <div className={`form-group row type-${props.type} ${editable ? 'editable' : ''}`} data-field={props.field}>
-        <label
-          ref={(c) => (this._fieldLabel = c)}
-          className={`col-12 col-sm-${colWidths[0]} col-form-label text-sm-right ${!props.onView && !props.nullable ? 'required' : ''}`}>
+        <label ref={(c) => (this._fieldLabel = c)} className={`col-12 col-sm-${colWidths[0]} col-form-label text-sm-right ${!props.onView && !props.nullable ? 'required' : ''}`}>
           {props.label}
         </label>
         <div ref={(c) => (this._fieldText = c)} className={'col-12 col-sm-' + colWidths[1]}>
@@ -431,10 +430,10 @@ class RbFormElement extends React.Component {
             <div className="edit-oper">
               <div className="btn-group shadow-sm">
                 <button type="button" className="btn btn-secondary" onClick={() => this.handleEditConfirm()}>
-                  <i className="icon zmdi zmdi-check"></i>
+                  <i className="icon zmdi zmdi-check" />
                 </button>
                 <button type="button" className="btn btn-secondary" onClick={() => this.toggleEditMode(false)}>
-                  <i className="icon zmdi zmdi-close"></i>
+                  <i className="icon zmdi zmdi-close" />
                 </button>
               </div>
             </div>
@@ -567,7 +566,7 @@ class RbFormElement extends React.Component {
   /**
    * 视图编辑-编辑模式
    *
-   * @param {*} mode
+   * @param {*} editMode
    */
   toggleEditMode(editMode) {
     // if (editMode) {
@@ -757,7 +756,7 @@ class RbFormNumber extends RbFormText {
         if (formula.includes('{')) return
 
         try {
-          let calcv
+          let calcv = null
           eval(`calcv = ${formula}`)
           if (!isNaN(calcv)) this.setValue(calcv.toFixed(fixed))
         } catch (err) {
@@ -793,9 +792,7 @@ class RbFormTextarea extends RbFormElement {
       <React.Fragment>
         <textarea
           ref={(c) => (this._fieldValue = c)}
-          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${
-            this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''
-          }`}
+          className={`form-control form-control-sm row3x ${this.state.hasError ? 'is-invalid' : ''} ${this.props.useMdedit && this.props.readonly ? 'cm-readonly' : ''}`}
           title={this.state.hasError}
           value={this.state.value || ''}
           onChange={this.handleChange}
@@ -803,7 +800,7 @@ class RbFormTextarea extends RbFormElement {
           readOnly={this.props.readonly}
           maxLength="6000"
         />
-        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" ref={(c) => (this._fieldValue__upload = c)} />}
+        {this.props.useMdedit && !this.props.readonly && <input type="file" className="hide" accept="image/*" ref={(c) => (this._fieldValue__upload = c)} />}
       </React.Fragment>
     )
   }
@@ -864,7 +861,7 @@ class RbFormTextarea extends RbFormElement {
       autoDownloadFontAwesome: false,
       spellChecker: false,
       // eslint-disable-next-line no-undef
-      toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR,
+      toolbar: this.props.readonly ? false : DEFAULT_MDE_TOOLBAR(this),
     })
     this._simplemde = mde
 
@@ -874,7 +871,7 @@ class RbFormTextarea extends RbFormElement {
       $createUploader(this._fieldValue__upload, null, (res) => {
         const pos = mde.codemirror.getCursor()
         mde.codemirror.setSelection(pos, pos)
-        mde.codemirror.replaceSelection(`![](${rb.baseUrl}/filex/img/${res.key})`)
+        mde.codemirror.replaceSelection(`![${$L('图片')}](${rb.baseUrl}/filex/img/${res.key})`)
       })
       if (this.props.onView) {
         setTimeout(() => {
@@ -916,10 +913,10 @@ class RbFormDateTime extends RbFormElement {
           onBlur={this.checkValue}
           maxLength="20"
         />
-        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear}></span>
+        <span className={'zmdi zmdi-close clean ' + (this.state.value ? '' : 'hide')} onClick={this.handleClear} />
         <div className="input-group-append">
           <button className="btn btn-secondary" type="button" ref={(c) => (this._fieldValue__icon = c)}>
-            <i className="icon zmdi zmdi-calendar"></i>
+            <i className="icon zmdi zmdi-calendar" />
           </button>
         </div>
       </div>
@@ -984,7 +981,7 @@ class RbFormImage extends RbFormElement {
                 <img src={`${rb.baseUrl}/filex/img/${item}?imageView2/2/w/100/interlace/1/q/100`} alt="IMG" />
                 {!this.props.readonly && (
                   <b title={$L('移除')} onClick={() => this.removeItem(item)}>
-                    <span className="zmdi zmdi-close"></span>
+                    <span className="zmdi zmdi-close" />
                   </b>
                 )}
               </a>
@@ -995,7 +992,7 @@ class RbFormImage extends RbFormElement {
           <span title={$L('上传图片。需要 %s 个', `${this.__minUpload}~${this.__maxUpload}`)}>
             <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
             <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
-              <span className="zmdi zmdi-image-alt"></span>
+              <span className="zmdi zmdi-image-alt" />
             </label>
           </span>
         )}
@@ -1083,7 +1080,7 @@ class RbFormFile extends RbFormImage {
               <span>{fileName}</span>
               {!this.props.readonly && (
                 <b title={$L('移除')} onClick={() => this.removeItem(item)}>
-                  <span className="zmdi zmdi-close"></span>
+                  <span className="zmdi zmdi-close" />
                 </b>
               )}
             </div>
@@ -1092,11 +1089,8 @@ class RbFormFile extends RbFormImage {
         {showUpload && (
           <div className="file-select">
             <input type="file" className="inputfile" ref={(c) => (this._fieldValue__input = c)} id={`${this.props.field}-input`} />
-            <label
-              htmlFor={`${this.props.field}-input`}
-              title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)}
-              className="btn-secondary">
-              <i className="zmdi zmdi-upload"></i>
+            <label htmlFor={`${this.props.field}-input`} title={$L('上传文件。需要 %d 个', `${this.__minUpload}~${this.__maxUpload}`)} className="btn-secondary">
+              <i className="zmdi zmdi-upload" />
               <span>{$L('上传文件')}</span>
             </label>
           </div>
@@ -1153,7 +1147,7 @@ class RbFormPickList extends RbFormElement {
     const keyName = `${this.state.field}-opt-`
     return (
       <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" value={this.state.value || ''} onChange={this.handleChange}>
-        <option value=""></option>
+        <option value="" />
         {this.state.options.map((item) => {
           return (
             <option key={`${keyName}${item.id}`} value={item.id}>
@@ -1203,18 +1197,13 @@ class RbFormPickList extends RbFormElement {
 class RbFormReference extends RbFormElement {
   constructor(props) {
     super(props)
+    this._hasDataFilter = props.referenceDataFilter && (props.referenceDataFilter.items || []).length > 0
   }
 
   renderElement() {
-    const hasDataFilter = this.props.referenceDataFilter && (this.props.referenceDataFilter.items || []).length > 0
     return (
       <div className="input-group has-append">
-        <select
-          ref={(c) => (this._fieldValue = c)}
-          className="form-control form-control-sm"
-          title={hasDataFilter ? $L('当前字段已启用数据过滤') : null}
-          multiple={this._multiple === true}
-        />
+        <select ref={(c) => (this._fieldValue = c)} className="form-control form-control-sm" title={this._hasDataFilter ? $L('当前字段已启用数据过滤') : null} multiple={this._multiple === true} />
         {!this.props.readonly && (
           <div className="input-group-append">
             <button className="btn btn-secondary" type="button" onClick={() => this.showSearcher()}>
@@ -1261,12 +1250,11 @@ class RbFormReference extends RbFormElement {
     if (destroy) {
       super.onEditModeChanged(destroy)
     } else {
-      const entity = this.props.$$$parent.props.entity
-      const field = this.props.field
       this.__select2 = $initReferenceSelect2(this._fieldValue, {
-        name: field,
+        name: this.props.field,
         label: this.props.label,
-        entity: entity,
+        entity: this.props.$$$parent.props.entity,
+        // appendClass: this._hasDataFilter ? 'data-filter-tip' : null,
       })
 
       const val = this.state.value
@@ -1500,14 +1488,7 @@ class RbFormClassification extends RbFormElement {
       const that = this
       renderRbcomp(
         // eslint-disable-next-line react/jsx-no-undef
-        <ClassificationSelector
-          entity={p.$$$parent.state.entity}
-          field={p.field}
-          label={p.label}
-          openLevel={p.openLevel}
-          onSelect={(s) => this._setClassificationValue(s)}
-          keepModalOpen={true}
-        />,
+        <ClassificationSelector entity={p.$$$parent.state.entity} field={p.field} label={p.label} openLevel={p.openLevel} onSelect={(s) => this._setClassificationValue(s)} keepModalOpen={true} />,
         null,
         function () {
           that.__selector = this
@@ -1689,9 +1670,7 @@ class RbFormAvatar extends RbFormElement {
     return (
       <div className="img-field avatar">
         <span title={this.props.readonly ? null : $L('选择头像')}>
-          {!this.props.readonly && (
-            <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />
-          )}
+          {!this.props.readonly && <input ref={(c) => (this._fieldValue__input = c)} type="file" className="inputfile" id={`${this.props.field}-input`} accept="image/*" />}
           <label htmlFor={`${this.props.field}-input`} className="img-thumbnail img-upload">
             <img src={aUrl} alt="Avatar" />
           </label>
@@ -1869,7 +1848,7 @@ class RepeatedViewer extends RbModalHandler {
                 if (idx === 0) return null
                 return <th key={`field-${idx}`}>{item}</th>
               })}
-              <th width="30"></th>
+              <th width="30" />
             </tr>
           </thead>
           <tbody>

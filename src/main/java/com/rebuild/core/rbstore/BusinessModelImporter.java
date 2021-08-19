@@ -28,14 +28,12 @@ import java.util.*;
 public class BusinessModelImporter extends HeavyTask<Integer> {
 
     private String[] modelFiles;
-
     private List<String> createdEntity = new ArrayList<>();
 
-    public BusinessModelImporter() {
-    }
+    private JSONArray indexSchemas;
 
-    public BusinessModelImporter(String[] modelFiles) {
-        this.modelFiles = modelFiles;
+    public BusinessModelImporter() {
+        super();
     }
 
     public void setModelFiles(String[] modelFiles) {
@@ -51,19 +49,21 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         this.setTotal(modelFiles.length);
 
         for (String fileUrl : modelFiles) {
-            JSONObject data;
-            if (fileUrl.startsWith("http")) {
-                data = (JSONObject) RBStore.fetchRemoteJson(fileUrl);
-            } else {
-                data = (JSONObject) RBStore.fetchMetaschema(fileUrl);
+            JSONObject data = null;
+            try {
+                data = fileUrl.startsWith("http")
+                        ? (JSONObject) RBStore.fetchRemoteJson(fileUrl)
+                        : (JSONObject) RBStore.fetchMetaschema(fileUrl);
+
+                String created = new MetaschemaImporter(data).exec();
+                createdEntity.add(created);
+                log.info("Entity imported : " + created);
+                this.addSucceeded();
+
+            } catch (Exception ex) {
+                log.error("Cannot importing entity : {}", (data == null ? "<null>" : data), ex);
             }
-
-            String created = new MetaschemaImporter(data).exec();
-            createdEntity.add(created);
-            log.info("Entity created : " + created);
-
             this.addCompleted();
-            this.addSucceeded();
         }
 
         return modelFiles.length;
@@ -86,6 +86,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
         MetadataHelper.getMetadataFactory().refresh(false);
     }
 
+
     /**
      * 获取所有依赖实体
      *
@@ -93,14 +94,17 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
      * @return
      */
     public Map<String, String> findRefs(String mainKey) {
-        JSONArray index = (JSONArray) RBStore.fetchMetaschema("index-2.0.json");
+        if (indexSchemas == null) {
+            JSONObject index = (JSONObject) RBStore.fetchMetaschema(null);
+            this.indexSchemas = index.getJSONArray("schemas");
+        }
 
         Set<String> refs = new HashSet<>();
-        findRefs(index, mainKey, refs);
+        findRefs(indexSchemas, mainKey, refs);
 
         Map<String, String> map = new HashMap<>();
         for (String key : refs) {
-            map.put(key, findFile(index, key));
+            map.put(key, findFile(indexSchemas, key));
         }
         return map;
     }
@@ -121,7 +125,7 @@ public class BusinessModelImporter extends HeavyTask<Integer> {
                 JSONArray refs = item.getJSONArray("refs");
                 if (refs != null) {
                     for (Object refKey : refs) {
-                        if (!into.contains(refKey)) {
+                        if (!into.contains(refKey.toString())) {
                             findRefs(index, (String) refKey, into);
                         }
                     }

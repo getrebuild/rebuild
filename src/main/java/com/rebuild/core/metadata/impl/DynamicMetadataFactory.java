@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.utils.JSONUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
@@ -149,10 +150,10 @@ public class DynamicMetadataFactory extends ConfigurationMetadataFactory {
 
             // 字段扩展配置
             JSONObject extraAttrs;
-            if (StringUtils.isBlank((String) c[14])) {
-                extraAttrs = new JSONObject();
-            } else {
+            if (JSONUtils.wellFormat((String) c[14])) {
                 extraAttrs = JSON.parseObject((String) c[14]);
+            } else {
+                extraAttrs = new JSONObject();
             }
 
             extraAttrs.put("metaId", c[12]);

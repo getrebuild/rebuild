@@ -203,9 +203,9 @@ public class PrivilegesManager {
         if (action.getMask() <= BizzPermission.READ.getMask() && EasyMetaFactory.valueOf(entity).isPlainEntity()) {
             return true;
         }
-        // 允许读取
+        // 任何人允许读取、创建
         if ((entity == EntityHelper.Feeds || entity == EntityHelper.ProjectTask)
-                && action == BizzPermission.READ) {
+                && (action == BizzPermission.READ || action == BizzPermission.CREATE)) {
             return true;
         }
 

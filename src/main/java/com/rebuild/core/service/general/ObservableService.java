@@ -19,6 +19,8 @@ import com.rebuild.core.service.BaseServiceImpl;
 import com.rebuild.core.service.NoRecordFoundException;
 import com.rebuild.core.service.ServiceSpec;
 import com.rebuild.core.service.files.AttachmentAwareObserver;
+import com.rebuild.core.service.general.recyclebin.RecycleBinCleanerJob;
+import com.rebuild.core.service.general.recyclebin.RecycleStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 
@@ -117,8 +119,8 @@ public abstract class ObservableService extends Observable implements ServiceSpe
      * @return
      */
     protected Record record(Record base) {
-        final ID primary = base.getPrimary();
-        Assert.notNull(primary, "Record primary cannot be null");
+        final ID primaryId = base.getPrimary();
+        Assert.notNull(primaryId, "Record primary cannot be null");
 
         StringBuilder sql = new StringBuilder("select ");
         for (Iterator<String> iter = base.getAvailableFieldIterator(); iter.hasNext(); ) {
@@ -128,10 +130,30 @@ public abstract class ObservableService extends Observable implements ServiceSpe
         sql.append(" from ").append(base.getEntity().getName());
         sql.append(" where ").append(base.getEntity().getPrimaryField().getName()).append(" = ?");
 
-        Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primary).record();
+        Record current = Application.createQueryNoFilter(sql.toString()).setParameter(1, primaryId).record();
         if (current == null) {
-            throw new NoRecordFoundException("ID : " + primary);
+            throw new NoRecordFoundException(primaryId);
         }
         return current;
+    }
+
+    /**
+     * 使用回收站
+     *
+     * @param recordId
+     * @return 返回 null 表示没开启
+     */
+    protected RecycleStore useRecycleStore(ID recordId) {
+        final ID currentUser = UserContextHolder.getUser();
+
+        RecycleStore recycleBin = null;
+        if (RecycleBinCleanerJob.isEnableRecycleBin()) {
+            recycleBin = new RecycleStore(currentUser);
+        } else {
+            log.warn("RecycleBin inactivated! DELETE {} by {}", recordId, currentUser);
+        }
+
+        if (recycleBin != null) recycleBin.add(recordId);
+        return recycleBin;
     }
 }

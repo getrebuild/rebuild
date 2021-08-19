@@ -18,6 +18,7 @@ import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.service.general.ObservableService;
 import com.rebuild.core.service.notification.Message;
 import com.rebuild.core.service.notification.MessageBuilder;
+import com.rebuild.core.support.i18n.Language;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.HashSet;
@@ -55,10 +56,10 @@ public abstract class BaseFeedsService extends ObservableService {
 
     @Override
     public int delete(ID recordId) {
-        int del = super.delete(recordId);
+        int d = super.delete(recordId);
 
-        awareMention(recordId);
-        return del;
+        this.awareMentionDelete(recordId, false);
+        return d;
     }
 
     /**
@@ -66,17 +67,37 @@ public abstract class BaseFeedsService extends ObservableService {
      *
      * @param record
      * @param isNew
+     * @see #awareMentionCreate(Record)
      */
     protected void awareMention(Record record, boolean isNew) {
         String content = record.getString("content");
-        if (content == null || record.getID("feedsId") == null) {
-            return;
+        if (content == null || record.getID("feedsId") == null) return;
+
+        // 已存在的
+        Set<ID> existsAtUsers = isNew ? null : this.awareMentionDelete(record.getPrimary(), true);
+
+        Set<ID> atUsers = this.awareMentionCreate(record);
+        if (atUsers.isEmpty()) return;
+
+        // 发送通知
+        final String msgContent = Language.L("@%s 在动态中提到了你", record.getEditor()) + " \n> " + content;
+        ID related = record.getPrimary();
+        if (related.getEntityCode() == EntityHelper.FeedsComment) {
+            related = record.getID("feedsId");
         }
 
-        if (!isNew) {
-            this.awareMention(record.getPrimary());
+        for (ID to : atUsers) {
+            if (existsAtUsers != null && existsAtUsers.contains(to)) continue;
+            Application.getNotifications().send(
+                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related));
         }
+    }
 
+    /**
+     * @param record
+     * @return
+     */
+    protected Set<ID> awareMentionCreate(Record record) {
         final Record mention = EntityHelper.forNew(EntityHelper.FeedsMention, UserService.SYSTEM_USER);
         mention.setID("feedsId", record.getID("feedsId"));
         // Can be null
@@ -85,7 +106,7 @@ public abstract class BaseFeedsService extends ObservableService {
         }
 
         Set<ID> atUsers = new HashSet<>();
-        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(content);
+        Matcher atMatcher = MessageBuilder.AT_PATTERN.matcher(record.getString("content"));
         while (atMatcher.find()) {
             String at = atMatcher.group().substring(1);
             ID atUser = ID.valueOf(at);
@@ -99,33 +120,31 @@ public abstract class BaseFeedsService extends ObservableService {
             atUsers.add(atUser);
         }
 
-        if (atUsers.isEmpty()) return;
-
-        // 发送通知
-        final String msgContent = "@" + record.getEditor() + " 在动态中提到了你 \n> " + content;
-        ID related = record.getPrimary();
-        if (related.getEntityCode() == EntityHelper.FeedsComment) {
-            related = record.getID("feedsId");
-        }
-
-        for (ID to : atUsers) {
-            Application.getNotifications().send(
-                    MessageBuilder.createMessage(to, msgContent, Message.TYPE_FEEDS, related));
-        }
+        return atUsers;
     }
 
-    /**
-     * 内容中涉及的用户要移除 FeedsMention
-     *
-     * @param deleted
-     */
-    protected void awareMention(ID deleted) {
+    // 删除动态提及
+    private Set<ID> awareMentionDelete(ID feedsOrComment, boolean needReturns) {
         Entity entity = MetadataHelper.getEntity(EntityHelper.FeedsMention);
-        String whichField = deleted.getEntityCode() == EntityHelper.FeedsComment ? "commentId" : "feedsId";
+        String whichField = feedsOrComment.getEntityCode() == EntityHelper.FeedsComment ? "commentId" : "feedsId";
+
+        Set<ID> existsAtUsers = null;
+        if (needReturns) {
+            String sql = String.format("select user from %s where %s = '%s'",
+                    entity.getName(), entity.getField(whichField).getName(), feedsOrComment);
+            Object[][] array = Application.createQueryNoFilter(sql).array();
+
+            existsAtUsers = new HashSet<>();
+            for (Object[] o : array) {
+                existsAtUsers.add((ID) o[0]);
+            }
+        }
 
         String dql = String.format("delete from `%s` where `%s` = '%s'",
-                entity.getPhysicalName(), entity.getField(whichField).getPhysicalName(), deleted);
+                entity.getPhysicalName(), entity.getField(whichField).getPhysicalName(), feedsOrComment);
         Application.getSqlExecutor().execute(dql);
+
+        return existsAtUsers;
     }
 
     /**
@@ -136,9 +155,7 @@ public abstract class BaseFeedsService extends ObservableService {
      */
     private Record converContent(Record record) {
         String content = record.getString("content");
-        if (StringUtils.isBlank(content)) {
-            return record;
-        }
+        if (StringUtils.isBlank(content)) return record;
 
         Map<String, ID> map = FeedsHelper.findMentionsMap(content);
         for (Map.Entry<String, ID> e : map.entrySet()) {

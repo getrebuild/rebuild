@@ -117,8 +117,8 @@
 
       const render_entity = function (item) {
         const $t = $($('#entity-tmpl').html()).appendTo('#entityList')
-        $t.find('a.card').attr('href', 'entity/' + item.entityName + '/base')
-        $t.find('.icon').addClass('zmdi-' + item.icon)
+        $t.find('a.card').attr('href', `entity/${item.entityName}/base`)
+        $t.find('.icon').addClass(`zmdi-${item.icon}`)
         $t.find('span').text(item.entityLabel)
         $t.find('p').text(item.comments || '-')
         if (item.builtin) $(`<i class="badge badge-pill badge-secondary thin text-muted">${$L('内置')}</i>`).appendTo($t.find('a.card'))

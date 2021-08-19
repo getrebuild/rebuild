@@ -16,6 +16,7 @@ import com.rebuild.core.configuration.ConfigBean;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.service.query.AdvFilterParser;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.lang.StringUtils;
 
@@ -28,6 +29,7 @@ import java.util.*;
  * @author devezhao zhaofang123@gmail.com
  * @since 2019/05/27
  */
+@Slf4j
 public class RobotTriggerManager implements ConfigManager {
 
     public static final RobotTriggerManager instance = new RobotTriggerManager();
@@ -53,6 +55,7 @@ public class RobotTriggerManager implements ConfigManager {
         return filterActions(entity, null, when);
     }
 
+    private static final ThreadLocal<List<String>> TRIGGERS_CHAIN_4DEBUG = ThreadLocal.withInitial(ArrayList::new);
     /**
      * @param record
      * @param entity
@@ -60,17 +63,27 @@ public class RobotTriggerManager implements ConfigManager {
      * @return
      */
     private TriggerAction[] filterActions(Entity entity, ID record, TriggerWhen... when) {
-        final List<ConfigBean> entries = getConfig(entity);
         List<TriggerAction> actions = new ArrayList<>();
-        for (ConfigBean e : entries) {
-            if (allowedWhen(e, when)) {
-                if (record == null || !isFiltered((JSONObject) e.getJSON("whenFilter"), record)) {
-                    ActionContext ctx = new ActionContext(record, entity, e.getJSON("actionContent"), e.getID("id"));
-                    TriggerAction o = ActionFactory.createAction(e.getString("actionType"), ctx);
+        for (ConfigBean cb : getConfig(entity)) {
+            if (allowedWhen(cb, when)) {
+                if (record == null || !isFiltered((JSONObject) cb.getJSON("whenFilter"), record)) {
+                    ActionContext ctx = new ActionContext(record, entity, cb.getJSON("actionContent"), cb.getID("id"));
+                    TriggerAction o = ActionFactory.createAction(cb.getString("actionType"), ctx);
                     actions.add(o);
+
+                    if (Application.devMode() || log.isDebugEnabled()) {
+                        TRIGGERS_CHAIN_4DEBUG.get().add(o.getType() + "#" + ctx.getConfigId()
+                                + " on " + when[0] + " " + entity.getName() + " with " + record);
+                    }
                 }
             }
         }
+
+        if (!TRIGGERS_CHAIN_4DEBUG.get().isEmpty()) {
+            log.info("Record ({}) triggers chain : \n  > {}",
+                    record, StringUtils.join(TRIGGERS_CHAIN_4DEBUG.get(), "\n  > "));
+        }
+
         return actions.toArray(new TriggerAction[0]);
     }
 

@@ -18,7 +18,6 @@ module.exports = {
       version: '16.10.2',
     },
   },
-
   rules: {
     'react/jsx-no-target-blank': 0,
     'react/prop-types': 0,
@@ -30,7 +29,6 @@ module.exports = {
     'semi': [2, 'never'],
     'eqeqeq': [2, 'always'],
   },
-
   globals: {
     module: true,
     define: true,
@@ -74,6 +72,7 @@ module.exports = {
     RbFormElement: true,
     RbList: true,
     RbListPage: true,
+    RbViewPage: true,
     CellRenders: true,
     AdvFilter: true,
     UserSelector: true,

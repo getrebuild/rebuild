@@ -31,13 +31,9 @@ $(document).ready(() => {
     if (advFilter) {
       advFilter.show()
     } else {
-      renderRbcomp(
-        <AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal={true} canNoFilters={true} />,
-        null,
-        function () {
-          advFilter = this
-        }
-      )
+      renderRbcomp(<AdvFilter entity={wpc.sourceEntity} filter={wpc.whenFilter} confirm={saveFilter} title={$L('附加过滤条件')} inModal={true} canNoFilters={true} />, null, function () {
+        advFilter = this
+      })
     }
   })
   saveFilter(wpc.whenFilter)
@@ -53,25 +49,38 @@ $(document).ready(() => {
     })
     const whenTimer = ($('.J_whenTimer1').val() || 'D') + ':' + ($('.J_whenTimer2').val() || 1)
     if (rb.commercial < 1 && (when & 512) !== 0) {
-      return RbHighbar.create($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
+      RbHighbar.create($L('免费版不支持定时执行功能 [(查看详情)](https://getrebuild.com/docs/rbv-features)'), {
         type: 'danger',
         html: true,
         timeout: 6000,
       })
+      return
     }
 
     const content = contentComp.buildContent()
     if (content === false) return
 
-    const _data = { when: when, whenTimer: whenTimer, whenFilter: wpc.whenFilter || null, actionContent: content }
+    const data = {
+      when: when,
+      whenTimer: whenTimer,
+      whenFilter: wpc.whenFilter || null,
+      actionContent: content,
+      metadata: {
+        entity: 'RobotTriggerConfig',
+        id: wpc.configId,
+      },
+    }
     const priority = $val('#priority')
-    if (priority) _data.priority = ~~priority || 1
-    _data.metadata = { entity: 'RobotTriggerConfig', id: wpc.configId }
+    if (priority && !isNaN(priority)) data.priority = ~~priority
 
     $btn.button('loading')
-    $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
-      if (res.error_code === 0) location.href = '../triggers'
-      else RbHighbar.error(res.error_msg)
+    $.post('/app/entity/common-save', JSON.stringify(data), (res) => {
+      if (res.error_code === 0) {
+        if (rb.env === 'dev') location.reload()
+        else location.href = '../triggers'
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
       $btn.button('reset')
     })
   })
@@ -79,8 +88,7 @@ $(document).ready(() => {
 
 const saveFilter = function (res) {
   wpc.whenFilter = res
-  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0)
-    $('.J_whenFilter a').text(`${$L('已设置条件')} (${wpc.whenFilter.items.length})`)
+  if (wpc.whenFilter && wpc.whenFilter.items && wpc.whenFilter.items.length > 0) $('.J_whenFilter a').text(`${$L('已设置条件')} (${wpc.whenFilter.items.length})`)
   else $('.J_whenFilter a').text($L('点击设置'))
 }
 

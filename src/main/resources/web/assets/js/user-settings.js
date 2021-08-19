@@ -8,8 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 let __cropper
 $(document).ready(function () {
-  if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
-
   $createUploader(
     '#avatar-input',
     function () {
@@ -52,6 +50,24 @@ $(document).ready(function () {
     })
   })
 
+  const $unauth = $('.J_unauth-dingtalk, .J_unauth-wxwork').on('click', () => {
+    RbAlert.create($L('确认要取消授权吗？'), {
+      confirm: function () {
+        this.hide()
+        $.post(`/settings/cancel-external-user?type=${$unauth.data('type')}`, (res) => {
+          if (res.error_code === 0) {
+            location.hash = 'secure'
+            location.reload()
+          } else {
+            RbHighbar.create(res.error_msg)
+          }
+        })
+      },
+    })
+  })
+
+  // load log
+
   $('a.nav-link[href="#logs"]').click(() => {
     if ($('#logs tbody>tr').length > 0) return
 
@@ -61,7 +77,7 @@ $(document).ready(function () {
         $(`<td class="text-muted">${idx + 1}.</td>`).appendTo($tr)
         $(`<td>${this[0].split('UTC')[0]}</td>`).appendTo($tr)
         $(`<td>${this[1]}</td>`).appendTo($tr)
-        $(`<td>${this[2]}</td>`).appendTo($tr)
+        $(`<td>${this[2].replace(/\[Mobile]/i, '<i class="ml-1 zmdi zmdi-smartphone-iphone text-warning"></i>')}</td>`).appendTo($tr)
       })
 
       $('#logs tbody>tr').each(function () {
@@ -76,14 +92,13 @@ $(document).ready(function () {
       })
     })
   })
+
+  if (location.hash === '#secure') $('.nav-tabs a:eq(1)').trigger('click')
+  else if (location.hash === '#logs') $('.nav-tabs a:eq(2)').trigger('click')
 })
 
 // 修改密码
 class DlgChangePasswd extends RbFormHandler {
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
       <RbModal title={$L('修改密码')} ref="dlg" disposeOnHide={true}>

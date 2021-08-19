@@ -20,6 +20,7 @@ import com.rebuild.core.support.RebuildConfiguration;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.QiniuCloud;
 import com.rebuild.utils.AppUtils;
+import com.rebuild.utils.MarkdownUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -72,6 +73,12 @@ public class RebuildWebConfigurer implements WebMvcConfigurer, ErrorViewResolver
         }
         thymeleafViewResolver.addStaticVariable(WebConstants.FILE_SHARABLE, RebuildConfiguration.get(ConfigurationItem.FileSharable));
         thymeleafViewResolver.addStaticVariable(WebConstants.MARK_WATERMARK, RebuildConfiguration.get(ConfigurationItem.MarkWatermark));
+
+        String pageFooter = RebuildConfiguration.get(ConfigurationItem.PageFooter);
+        if (StringUtils.isNotBlank(pageFooter)) {
+            pageFooter = MarkdownUtils.render(pageFooter);
+            thymeleafViewResolver.addStaticVariable(WebConstants.PAGE_FOOTER, pageFooter);
+        }
 
         // 清理缓存
         thymeleafViewResolver.clearCache();

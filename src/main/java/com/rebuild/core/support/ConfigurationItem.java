@@ -17,10 +17,9 @@ import com.rebuild.core.support.i18n.LanguageBundle;
  */
 public enum ConfigurationItem {
 
-    // 系统指定
+    // 系统适用
     SN, DBVer, AppBuild,
-    // 数据目录（命令行指定）
-    DataDirectory,
+
     // 缓存服务（安装/配置文件指定）
     CacheHost, CachePort, CacheUser, CachePassword,
 
@@ -29,6 +28,7 @@ public enum ConfigurationItem {
     LOGO,
     LOGOWhite,
     HomeURL("https://getrebuild.com/"),
+    PageFooter,
 
     // 云存储
     StorageURL, StorageApiKey, StorageApiSecret, StorageBucket,
@@ -64,7 +64,7 @@ public enum ConfigurationItem {
     // 启用数据库备份
     DBBackupsEnable(false),
 
-    // 数据备份保留时间
+    // 数据备份保留时间（0为禁用）
     DBBackupsKeepingDays(180),
 
     // 允许同一用户多个会话
@@ -73,18 +73,26 @@ public enum ConfigurationItem {
     // 默认语言
     DefaultLanguage(LanguageBundle.SYS_LC),
 
-    // 数据脱敏（实验功能!!! 仅 PHONE/EMAIL 字段）
-    DataMasking(false),
-
-    // 激活 Redis 队列 (since = "2.1")
-    @Deprecated
-    RedisQueueEnable(false),
-
     // 视图页显示修改历史
     ShowViewHistory(true),
 
     // 登录验证码显示策略（1为自动，2为总是）
     LoginCaptchaPolicy(1),
+
+    // 登录密码过期时间（0为不过期）
+    PasswordExpiredDays(0),
+
+    // DingTalk
+    DingtalkAgentid, DingtalkAppkey, DingtalkAppsecret, DingtalkCorpid,
+    DingtalkPushAeskey, DingtalkPushToken,
+    // WxWork
+    WxworkCorpid, WxworkAgentid, WxworkSecret,
+    WxworkRxToken, WxworkRxEncodingAESKey,
+
+    // !!! 仅命令行适用
+    DataDirectory,  // 数据目录
+    MobileUrl,      // 移动端地址
+    RbStoreUrl      // 在线仓库地址
 
     ;
 

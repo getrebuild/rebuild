@@ -10,7 +10,7 @@ class AnnouncementModal extends React.Component {
   state = { ...this.props }
 
   render() {
-    const contentHtml = $converEmoji(this.props.content.replace(/\n/g, '<br />'))
+    const contentHtml = $converEmoji(this.props.content.replace(/\n/g, '<br/>'))
     return (
       <div className="modal" tabIndex={this.state.tabIndex || -1} ref={(c) => (this._dlg = c)}>
         <div className="modal-dialog modal-dialog-centered">
@@ -48,15 +48,16 @@ class AnnouncementModal extends React.Component {
   hide = () => $(this._dlg).modal('hide')
 }
 
-var $showAnnouncement = function () {
+const $showAnnouncement = function () {
   const $aw = $('.announcement-wrapper')
   if ($aw.length === 0 || $aw.find('div').length > 0) return
 
   $.get('/commons/announcements', (res) => {
     if (res.error_code !== 0 || !res.data || res.data.length === 0) return
+
     const as = res.data.map((item, idx) => {
       return (
-        <div className="bg-warning" key={'a-' + idx} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
+        <div className="bg-warning" key={idx} title={$L('查看详情')} onClick={() => renderRbcomp(<AnnouncementModal {...item} />)}>
           <i className="icon zmdi zmdi-notifications-active" />
           <p dangerouslySetInnerHTML={{ __html: item.content }}></p>
         </div>

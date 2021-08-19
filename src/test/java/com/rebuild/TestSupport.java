@@ -49,8 +49,9 @@ public class TestSupport {
         LOG.warn("TESTING Setup ...");
 
         try {
-//            System.setProperty("spring.main.web-application-type", "none");  // No Web
             System.setProperty("rbdev", "true");  // dev/debug mode
+//            System.setProperty("spring.main.web-application-type", "none");  // No Web
+            System.setProperty("server.port", "0");  // random port
             BootApplication.main(new String[0]);
             RebuildReady = true;
 
@@ -60,7 +61,7 @@ public class TestSupport {
             }
 
         } catch (Exception ex) {
-            LOG.error("Add entities of test error!", ex);
+            LOG.error("TESTING Setup failed!", ex);
             System.exit(-1);
         }
     }

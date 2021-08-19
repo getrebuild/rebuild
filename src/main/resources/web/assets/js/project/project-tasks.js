@@ -309,9 +309,7 @@ class PlanBox extends React.Component {
       this.pageSize = Math.max(this.state.tasks.length + 1, __DEFAULT_PAGE_SIZE)
     }
 
-    const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${
-      this.pageNo
-    }&pageSize=${this.pageSize}`
+    const url = `/project/tasks/list?plan=${this.props.id}&sort=${this.props.sort || ''}&search=${$encode(this.props.search || '')}&pageNo=${this.pageNo}&pageSize=${this.pageSize}`
     $.post(url, JSON.stringify(this.props.filter), (res) => {
       if (res.error_code === 0) {
         const ns = isAppend ? (this.state.tasks || []).concat(res.data.tasks) : res.data.tasks
@@ -576,13 +574,7 @@ class TaskViewModal extends React.Component {
         <div className="modal-dialog">
           <div className="modal-content">
             <div className={'modal-body iframe rb-loading ' + (this.state.inLoad === true && 'rb-loading-active')}>
-              <iframe
-                ref={(c) => (this._iframe = c)}
-                className={this.state.isHide ? 'invisible' : ''}
-                src={this.state._taskUrl || ''}
-                frameBorder="0"
-                scrolling="no"
-              />
+              <iframe ref={(c) => (this._iframe = c)} className={this.state.isHide ? 'invisible' : ''} src={this.state._taskUrl || ''} frameBorder="0" scrolling="no" />
               <RbSpinner />
             </div>
           </div>

@@ -44,20 +44,15 @@ public class FieldWritebackController extends BaseController {
     @RequestMapping("field-writeback-entities")
     public List<String[]> getTargetEntities(@EntityParam(name = "source") Entity sourceEntity) {
         List<String[]> entities = new ArrayList<>();
+        // 谁引用了我
         for (Field refto : MetadataHelper.getReferenceToFields(sourceEntity)) {
-            String entityLabel = EasyMetaFactory.getLabel(refto.getOwnEntity())
-                    + " (" + EasyMetaFactory.getLabel(refto) + ")";
+            String entityLabel = String.format("%s (%s)",
+                    EasyMetaFactory.getLabel(refto.getOwnEntity()), EasyMetaFactory.getLabel(refto));
             entities.add(new String[] {
                     refto.getOwnEntity().getName(), entityLabel, refto.getName() });
         }
 
-        Comparator<Object> comparator = Collator.getInstance(Locale.CHINESE);
-        entities.sort((o1, o2) -> comparator.compare(o1[1], o2[1]));
-
-        // 可更新自己（通过主键字段）
-        entities.add(new String[] {
-                sourceEntity.getName(), EasyMetaFactory.getLabel(sourceEntity), FieldWriteback.SOURCE_SELF });
-
+        FieldAggregationController.sortEntities(entities, sourceEntity);
         return entities;
     }
 
