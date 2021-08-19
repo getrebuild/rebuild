@@ -115,7 +115,7 @@ class ContentFieldAggregation extends ActionContentSpec {
                         )
                       })}
                     </select>
-                    <p>{$L('源字段')}</p>
+                    <p>{$L('聚合字段')}</p>
                   </div>
                 </div>
               </div>
