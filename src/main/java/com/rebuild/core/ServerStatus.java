@@ -241,6 +241,7 @@ public final class ServerStatus {
      * @return
      */
     public static String getLocalIp() {
+        // FIXME 太慢 ???
         List<NetworkIF> nets = SI.getHardware().getNetworkIFs();
         if (nets == null || nets.isEmpty()) return "localhost";
 
