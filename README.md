@@ -1,5 +1,6 @@
 [![Codacy](https://api.codacy.com/project/badge/Grade/599a0a3e46f84e6bbc29e8fbe4632860)](https://www.codacy.com/app/getrebuild/rebuild)
 [![codecov](https://codecov.io/gh/getrebuild/rebuild/branch/master/graph/badge.svg)](https://codecov.io/gh/getrebuild/rebuild)
+[![Package](https://github.com/getrebuild/rebuild/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/getrebuild/rebuild/actions/workflows/maven-publish.yml)
 [![Build Status](https://travis-ci.com/getrebuild/rebuild.svg?branch=master)](https://travis-ci.com/getrebuild/rebuild)
 [![License GPLv3](https://img.shields.io/github/license/getrebuild/rebuild.svg)](LICENSE)
 [![License COMMERCIAL](https://img.shields.io/badge/license-COMMERCIAL-orange.svg)](COMMERCIAL)
@@ -72,7 +73,7 @@ RB 从 2.0 版本开始支持 `jar` 与 `war` 两种打包/运行模式，两种
 
 #### 启动参数
 
-RB 中有几个非常重要的启动参数需要了解，无论是开发还是运行都非常重要。
+RB 中有几个非常重要地启动参数需要了解，无论是开发还是运行都非常重要。
 
 | 参数       | 说明                                                 | 默认值        |
 | ---------- | ---------------------------------------------------- | ------------- |
