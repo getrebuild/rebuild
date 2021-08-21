@@ -203,6 +203,7 @@ class FeedsEditor extends React.Component {
             maxLength="2000"
             onFocus={() => this.setState({ focus: true })}
             onBlur={() => this.setState({ focus: false })}
+            onKeyDown={(e) => this._handleInputAt(e)}
             defaultValue={this.props.initValue}
           />
           <div className="action-btns">
@@ -215,10 +216,10 @@ class FeedsEditor extends React.Component {
               </li>
               <li className="list-inline-item">
                 <UserSelector
-                  hideDepartment={true}
-                  hideRole={true}
-                  hideTeam={true}
-                  hideSelection={true}
+                  hideDepartment
+                  hideRole
+                  hideTeam
+                  hideSelection
                   multiple={false}
                   ref={(c) => (this._UserSelector = c)}
                   compToggle={
@@ -226,6 +227,7 @@ class FeedsEditor extends React.Component {
                       <i className="zmdi at-text">@</i>
                     </a>
                   }
+                  targetInput={this._$editor}
                   onSelectItem={this._selectAtUser}
                 />
               </li>
@@ -243,9 +245,7 @@ class FeedsEditor extends React.Component {
           </div>
         </div>
 
-        {this.state.type === 4 && (
-          <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />
-        )}
+        {this.state.type === 4 && <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />}
         {(this.state.type === 2 || this.state.type === 4) && (
           <div className="feed-options related">
             <dl className="row">
@@ -346,7 +346,12 @@ class FeedsEditor extends React.Component {
   }
 
   _selectAtUser = (s) => {
-    $(this._$editor).insertAtCursor(`@${s.text} `)
+    let text = `@${s.text} `
+    if (this.__lastInputKey === '@') {
+      text = `${s.text} `
+    }
+
+    $(this._$editor).insertAtCursor(text)
     this.setState({ showAtUser: false })
   }
 
@@ -360,6 +365,18 @@ class FeedsEditor extends React.Component {
     const files = this.state.files
     files.remove(file)
     this.setState({ files: files })
+  }
+
+  _handleInputAt(e) {
+    if (this._handleInput__Timer) {
+      clearTimeout(this._handleInput__Timer)
+      this._handleInput__Timer = null
+    }
+
+    this.__lastInputKey = e.key
+    if (e.key === '@') {
+      this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
+    }
   }
 
   val() {
@@ -654,7 +671,7 @@ class FeedsEditDlg extends RbModalHandler {
     const scope = (this.props.scopeRaw || '').length > 10 /*ID*/ ? this.props.scope : this.props.scopeRaw
 
     return (
-      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide={true}>
+      <RbModal ref={(c) => (this._dlg = c)} title={this.props.id ? $L('编辑动态') : $L('新建动态')} disposeOnHide>
         <div className="feeds-post p-0 m-1">
           {!this.props.id && (
             <React.Fragment>
