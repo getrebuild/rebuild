@@ -106,7 +106,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     }
                 } else {
                     if (field.isCreatable()) {
-                        if (notMatchPattern(easyField, hasVal)) {
+                        if (!matchsPattern(easyField, hasVal)) {
                             notWells.add(easyField.getLabel());
                         }
                     } else {
@@ -135,7 +135,7 @@ public class EntityRecordCreator extends JsonRecordCreator {
                     }
                 } else {
                     if (field.isUpdatable()) {
-                        if (notMatchPattern(easyField, hasVal)) {
+                        if (!matchsPattern(easyField, hasVal)) {
                             notWells.add(easyField.getLabel());
                         }
                     } else {
@@ -166,11 +166,10 @@ public class EntityRecordCreator extends JsonRecordCreator {
     }
 
     // 正则匹配
-    private boolean notMatchPattern(EasyField easyField, Object val) {
-        if (!(easyField instanceof EasyText)) return false;
+    private boolean matchsPattern(EasyField easyField, Object val) {
+        if (!(easyField instanceof EasyText)) return true;
 
         Pattern patt = ((EasyText) easyField).getPattern();
-        if (patt == null) return false;
-        else return !patt.matcher((CharSequence) val).find();
+        return patt == null || patt.matcher((CharSequence) val).matches();
     }
 }

@@ -20,14 +20,14 @@ import org.junit.jupiter.api.Test;
 public class EasyMetaTest extends TestSupport {
 
     @Test
-    public void getLabel() {
+    void getLabel() {
         Entity user = MetadataHelper.getEntity("User");
         EasyMetaFactory.getLabel(user, "roleId.name");
         System.out.println(EasyMetaFactory.toJSON(user));
     }
 
     @Test
-    public void testEntities() {
+    void testEntities() {
         for (Entity entity : MetadataHelper.getEntities()) {
             System.out.println(entity);
         }

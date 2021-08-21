@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.metadata.easymeta;
 
-import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Field;
 
 import java.util.regex.Pattern;
@@ -26,6 +25,18 @@ public class EasyPhone extends EasyText {
     @Override
     public Pattern getPattern() {
         Pattern patt = super.getPattern();
-        return patt == null ? RegexUtils.TEL_PATTERN : patt;
+        return patt == null ? PATT_PHONE : patt;
+    }
+
+    // 兼容电话、手机
+    public static Pattern PATT_PHONE = Pattern.compile(
+            "((\\([0-9]{1,5}\\))?([0-9]{3,4}-)?[0-9]{7,8}(-[0-9]{2,6})?)|(1[356789][0-9]{9})");
+
+    /**
+     * @param phone
+     * @return
+     */
+    public static boolean isPhone(String phone) {
+        return phone != null && PATT_PHONE.matcher(phone).matches();
     }
 }

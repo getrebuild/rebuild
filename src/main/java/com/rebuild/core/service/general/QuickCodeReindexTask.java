@@ -8,7 +8,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 package com.rebuild.core.service.general;
 
 import cn.devezhao.commons.CalendarUtils;
-import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
 import cn.devezhao.persist4j.Record;
@@ -18,8 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.easymeta.DisplayType;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.privileges.UserService;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.state.StateManager;
@@ -166,7 +164,7 @@ public class QuickCodeReindexTask extends HeavyTask<Integer> {
         if (nameVal.length() > 100) {
             nameVal = nameVal.substring(0, 100);
         }
-        if (RegexUtils.isTel(nameVal) || RegexUtils.isEMail(nameVal) || RegexUtils.isUrl(nameVal)) {
+        if (EasyPhone.isPhone(nameVal) || EasyEmail.isEmail(nameVal) || EasyUrl.isUrl(nameVal)) {
             return StringUtils.EMPTY;
         }
         // 提取 0-9+a-z+A-Z+中文+空格，忽略特殊字符

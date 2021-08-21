@@ -28,4 +28,12 @@ public class EasyEmail extends EasyText {
         Pattern patt = super.getPattern();
         return patt == null ? RegexUtils.EMAIL_PATTERN : patt;
     }
+
+    /**
+     * @param email
+     * @return
+     */
+    public static boolean isEmail(String email) {
+        return email != null && RegexUtils.EMAIL_PATTERN.matcher(email).matches();
+    }
 }
