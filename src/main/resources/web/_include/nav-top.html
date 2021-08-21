@@ -37,7 +37,7 @@
         <ul class="nav navbar-nav float-right rb-user-nav">
           <li class="nav-item dropdown J_top-user">
             <a class="nav-link dropdown-toggle" th:href="@{/settings/user}" data-toggle="dropdown">
-              <img th:src="|${baseUrl}/account/user-avatar?${session.davatarTime}|" alt="Avatar" />
+              <img th:src="|${baseUrl}/account/user-avatar?${session.davatarTime ?:''}|" alt="Avatar" />
               <span class="user-name" th:text="${user.getFullName()}">[[${bundle.L('姓名')}]]</span>
             </a>
             <div class="dropdown-menu">

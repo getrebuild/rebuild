@@ -82,7 +82,7 @@ class FeedsList extends React.Component {
             </span>
           </ul>
         </div>
-        <div className="feeds-list">
+        <div className="feeds-list" ref={(c) => (this._$feedsList = c)}>
           {this.state.data && this.state.data.length === 0 && (
             <div className="list-nodata pt-8 pb-8">
               <i className="zmdi zmdi-chart-donut" />
@@ -101,7 +101,7 @@ class FeedsList extends React.Component {
             return this.renderItem(item)
           })}
         </div>
-        <Pagination ref={(c) => (this._pagination = c)} call={this.gotoPage} pageSize={40} />
+        <Pagination ref={(c) => (this._Pagination = c)} call={this.gotoPage} pageSize={40} />
       </div>
     )
   }
@@ -195,15 +195,16 @@ class FeedsList extends React.Component {
     const firstFetch = !s.data
     // s.focusFeed 首次加载有效
 
-    $.post(
-      `/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`,
-      JSON.stringify(filter),
-      (res) => {
-        const _data = res.data || { data: [], total: 0 }
-        this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
-        this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null })
-      }
-    )
+    $.post(`/feeds/feeds-list?pageNo=${s.pageNo}&sort=${s.sort || ''}&type=${s.tabType}&foucs=${firstFetch ? s.focusFeed : ''}`, JSON.stringify(filter), (res) => {
+      const _data = res.data || { data: [], total: 0 }
+      this.state.pageNo === 1 && this._Pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
+      this.setState({ data: _data.data, focusFeed: firstFetch ? s.focusFeed : null }, () => {
+        $(this._$feedsList)
+          .find('.rich-content .texts a[data-uid]')
+          // eslint-disable-next-line no-undef
+          .each((idx, item) => UserPopup.create(item))
+      })
+    })
   }
 
   _switchTab(t) {
@@ -313,9 +314,11 @@ class FeedsComments extends React.Component {
             </div>
           </span>
         </div>
-        <div className="feeds-list comment-list">
+
+        <div className="feeds-list comment-list" ref={(c) => (this._$commentsList = c)}>
           {(this.state.data || []).map((item) => {
             if (item.deleted) return null
+
             const id = `comment-${item.id}`
             return (
               <div key={id} id={id}>
@@ -364,9 +367,7 @@ class FeedsComments extends React.Component {
                       </ul>
                     </div>
                     <div className={`comment-reply ${!item.shownReply && 'hide'}`}>
-                      {item.shownReplyReal && (
-                        <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />
-                      )}
+                      {item.shownReplyReal && <FeedsEditor placeholder={$L('添加回复')} initValue={`@${item.createdBy[1]} : `} ref={(c) => (item._editor = c)} />}
                       <div className="mt-2 text-right">
                         <button onClick={() => this._toggleReply(item.id, false)} className="btn btn-sm btn-link">
                           {$L('取消')}
@@ -382,7 +383,7 @@ class FeedsComments extends React.Component {
             )
           })}
         </div>
-        <Pagination ref={(c) => (this._pagination = c)} call={this.gotoPage} pageSize={20} comment={true} />
+        <Pagination ref={(c) => (this._Pagination = c)} call={this.gotoPage} pageSize={20} comment={true} />
       </div>
     )
   }
@@ -392,8 +393,13 @@ class FeedsComments extends React.Component {
   _fetchComments() {
     $.get(`/feeds/comments-list?feeds=${this.props.feeds}&pageNo=${this.state.pageNo}`, (res) => {
       const _data = res.data || {}
-      this.state.pageNo === 1 && this._pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
-      this.setState({ data: _data.data })
+      this.state.pageNo === 1 && this._Pagination.setState({ rowsTotal: _data.total, pageNo: 1 })
+      this.setState({ data: _data.data }, () => {
+        $(this._$commentsList)
+          .find('.rich-content .texts a[data-uid]')
+          // eslint-disable-next-line no-undef
+          .each((idx, item) => UserPopup.create(item))
+      })
     })
   }
 
