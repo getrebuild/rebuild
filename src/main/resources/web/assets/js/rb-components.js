@@ -604,7 +604,6 @@ class UserSelector extends React.Component {
   }
 
   _keyEvent(e) {
-    console.log(e.keyCode)
     if (e.keyCode === 40) {
       // DOWN
       const $active = $(this._$scroller).find('li.active')
@@ -625,6 +624,7 @@ class UserSelector extends React.Component {
       }
     } else if (e.keyCode === 27) {
       // ESC
+      e.preventDefault()
       this.toggle() // hide
       // Auto focus for textarea
       this.props.targetInput && this.props.targetInput.focus()

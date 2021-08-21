@@ -289,9 +289,9 @@ class ValueExecutor extends ValueComp {
         {this.state.executor ? (
           <div className="executor-show">
             <UserSelector
-              hideDepartment={true}
-              hideRole={true}
-              hideTeam={true}
+              hideDepartment
+              hideRole
+              hideTeam
               multiple={false}
               ref={(c) => (this._UserSelector = c)}
               compToggle={
@@ -313,9 +313,9 @@ class ValueExecutor extends ValueComp {
         ) : (
           <div className="form-control-plaintext">
             <UserSelector
-              hideDepartment={true}
-              hideRole={true}
-              hideTeam={true}
+              hideDepartment
+              hideRole
+              hideTeam
               multiple={false}
               ref={(c) => (this._UserSelector = c)}
               compToggle={
@@ -952,7 +952,7 @@ class TaskCommentsList extends React.Component {
                     <div className="meta">
                       <a>{item.createdBy[1]}</a>
                     </div>
-                    {TextEditor.renderRichContent(item)}
+                    {RichTextEditor.renderRichContent(item)}
                     <div className="actions">
                       <div className="float-left text-muted fs-12 time">
                         <DateShow date={item.createdOn} />
@@ -1023,7 +1023,7 @@ class TaskComment extends React.Component {
             {$L('添加评论')}
           </div>
           <span className={`${!this.state.openComment && 'hide'}`}>
-            <TextEditor placeholder={$L('添加评论')} ref={(c) => (this._editor = c)} />
+            <RichTextEditor placeholder={$L('添加评论')} ref={(c) => (this._RichTextEditor = c)} />
             <div className="mt-2 text-right" ref={(c) => (this._btns = c)}>
               <button onClick={() => this.commentState(false)} className="btn btn-sm btn-link mr-1">
                 {$L('取消')}
@@ -1039,11 +1039,11 @@ class TaskComment extends React.Component {
   }
 
   commentState = (state, initValue) => {
-    this.setState({ openComment: state }, () => this.state.openComment && this._editor.focus(initValue))
+    this.setState({ openComment: state }, () => this.state.openComment && this._RichTextEditor.focus(initValue))
   }
 
   _post() {
-    const _data = this._editor.vals()
+    const _data = this._RichTextEditor.vals()
     if (!_data.content) return RbHighbar.create($L('请输入评论内容'))
 
     _data.taskId = this.props.id
@@ -1051,21 +1051,22 @@ class TaskComment extends React.Component {
 
     $.post('/app/entity/common-save', JSON.stringify(_data), (res) => {
       if (res.error_code === 0) {
-        this._editor.reset()
+        this._RichTextEditor.reset()
         this.commentState(false)
         typeof this.props.call === 'function' && this.props.call()
-      } else RbHighbar.error(res.error_msg)
+      } else {
+        RbHighbar.error(res.error_msg)
+      }
     })
   }
 }
 
 // ~ 编辑框
 // @see feeds-post.js
-class TextEditor extends React.Component {
-  state = { ...this.props }
-
+class RichTextEditor extends React.Component {
   constructor(props) {
     super(props)
+    this.state = { ...props }
 
     this.__es = []
     for (let k in EMOJIS) {
@@ -1083,49 +1084,54 @@ class TextEditor extends React.Component {
       <React.Fragment>
         <div className={`rich-editor ${this.state.focus ? 'active' : ''}`}>
           <textarea
-            ref={(c) => (this._textarea = c)}
+            ref={(c) => (this._$editor = c)}
             placeholder={this.props.placeholder}
-            maxLength="2000"
+            maxLength="1000"
             onFocus={() => this.setState({ focus: true })}
             onBlur={() => this.setState({ focus: false })}
+            onKeyDown={(e) => this._handleInputAt(e)}
             defaultValue={this.props.initValue}
           />
-          {!this.props.hideToolbar && (
-            <div className="action-btns">
-              <ul className="list-unstyled list-inline m-0 p-0">
-                <li className="list-inline-item use-dropdown">
-                  <a title={$L('表情')} data-toggle="dropdown">
-                    <i className="zmdi zmdi-mood" />
-                  </a>
-                  <div className="dropdown-menu">
-                    <div className="emoji-wrapper">{this.__es}</div>
-                  </div>
-                </li>
-                <li className="list-inline-item">
-                  <UserSelector
-                    hideDepartment={true}
-                    hideRole={true}
-                    hideTeam={true}
-                    hideSelection={true}
-                    multiple={false}
-                    ref={(c) => (this._UserSelector = c)}
-                    compToggle={
-                      <a title={'@' + $L('用户')} data-toggle="dropdown">
-                        <i className="zmdi at-text">@</i>
-                      </a>
-                    }
-                    onSelectItem={this._selectAtUser}
-                  />
-                </li>
-                <li className="list-inline-item">
-                  <a title={$L('附件')} onClick={() => this._fileInput.click()}>
-                    <i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" />
-                  </a>
-                </li>
-              </ul>
-            </div>
-          )}
+
+          <div className="action-btns">
+            <ul className="list-unstyled list-inline m-0 p-0">
+              <li className="list-inline-item use-dropdown">
+                <a title={$L('表情')} data-toggle="dropdown">
+                  <i className="zmdi zmdi-mood" />
+                </a>
+                <div className="dropdown-menu">
+                  <div className="emoji-wrapper">{this.__es}</div>
+                </div>
+              </li>
+              <li className="list-inline-item">
+                <UserSelector
+                  hideDepartment
+                  hideRole
+                  hideTeam
+                  hideSelection
+                  multiple={false}
+                  ref={(c) => (this._UserSelector = c)}
+                  compToggle={
+                    <a title={'@' + $L('用户')} data-toggle="dropdown">
+                      <i className="zmdi at-text">@</i>
+                    </a>
+                  }
+                  targetInput={this._$editor}
+                  onSelectItem={this._selectAtUser}
+                />
+              </li>
+              <li className="list-inline-item">
+                <a title={$L('附件')} onClick={() => this._$fileInput.click()}>
+                  <i className="zmdi zmdi-attachment-alt zmdi-hc-rotate-45" />
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
+        <span className="hide">
+          <input type="file" ref={(c) => (this._$fileInput = c)} />
+        </span>
+
         {(this.state.files || []).length > 0 && (
           <div className="attachment">
             <div className="file-field attachments">
@@ -1144,9 +1150,6 @@ class TextEditor extends React.Component {
             </div>
           </div>
         )}
-        <span className="hide">
-          <input type="file" ref={(c) => (this._fileInput = c)} />
-        </span>
       </React.Fragment>
     )
   }
@@ -1154,10 +1157,8 @@ class TextEditor extends React.Component {
   UNSAFE_componentWillReceiveProps = (props) => this.setState(props)
 
   componentDidMount() {
-    if (this.hideToolbar) return
-
-    autosize(this._editor)
-    setTimeout(() => this.props.initValue && autosize.update(this._editor), 200)
+    autosize(this._$editor)
+    setTimeout(() => this.props.initValue && autosize.update(this._$editor), 200)
 
     let mp
     const mp_end = function () {
@@ -1166,7 +1167,7 @@ class TextEditor extends React.Component {
     }
 
     $createUploader(
-      this._fileInput,
+      this._$fileInput,
       (res) => {
         if (!mp) mp = new Mprogress({ template: 1, start: true })
         mp.set(res.percent / 100)
@@ -1182,13 +1183,26 @@ class TextEditor extends React.Component {
   }
 
   _selectEmoji(emoji) {
-    $(this._textarea).insertAtCursor(`[${emoji}] `)
+    $(this._$editor).insertAtCursor(`[${emoji}] `)
     this.setState({ showEmoji: false })
   }
 
   _selectAtUser = (s) => {
-    $(this._textarea).insertAtCursor(`@${s.text} `)
+    const text = this.__lastInputKey === '@' ? `${s.text} ` : `@${s.text} `
+    $(this._$editor).insertAtCursor(text)
     this.setState({ showAtUser: false })
+  }
+
+  _handleInputAt(e) {
+    if (this._handleInput__Timer) {
+      clearTimeout(this._handleInput__Timer)
+      this._handleInput__Timer = null
+    }
+
+    this.__lastInputKey = e.key
+    if (e.key === '@') {
+      this._handleInput__Timer = setTimeout(() => this._UserSelector.toggle('show'), 400)
+    }
   }
 
   _removeFile(file) {
@@ -1198,7 +1212,7 @@ class TextEditor extends React.Component {
   }
 
   val() {
-    return $(this._textarea).val()
+    return $(this._$editor).val()
   }
 
   vals() {
@@ -1210,15 +1224,15 @@ class TextEditor extends React.Component {
 
   focus(initValue) {
     if (typeof initValue !== 'undefined') {
-      setTimeout(() => autosize.update(this._textarea), 100)
-      $(this._textarea).val(initValue)
+      setTimeout(() => autosize.update(this._$editor), 100)
+      $(this._$editor).val(initValue)
     }
-    $(this._textarea).selectRange(9999, 9999) // Move to last
+    $(this._$editor).selectRange(9999, 9999) // Move to last
   }
 
   reset() {
-    $(this._textarea).val('')
-    autosize.update(this._textarea)
+    $(this._$editor).val('')
+    autosize.update(this._$editor)
     this.setState({ files: null, images: null })
   }
 

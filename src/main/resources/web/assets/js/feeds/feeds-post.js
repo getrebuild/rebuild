@@ -244,8 +244,13 @@ class FeedsEditor extends React.Component {
             </ul>
           </div>
         </div>
+        <span className="hide">
+          <input type="file" ref={(c) => (this._$fileInput = c)} />
+          <input type="file" ref={(c) => (this._$imageInput = c)} accept="image/*" />
+        </span>
 
         {this.state.type === 4 && <ScheduleOptions ref={(c) => (this._scheduleOptions = c)} initValue={this.state.contentMore} contentMore={this.state.contentMore} />}
+
         {(this.state.type === 2 || this.state.type === 4) && (
           <div className="feed-options related">
             <dl className="row">
@@ -256,7 +261,9 @@ class FeedsEditor extends React.Component {
             </dl>
           </div>
         )}
+
         {this.state.type === 3 && <AnnouncementOptions ref={(c) => (this._announcementOptions = c)} initValue={this.state.contentMore} />}
+
         {((this.state.images || []).length > 0 || (this.state.files || []).length > 0) && (
           <div className="attachment">
             <div className="img-field">
@@ -289,10 +296,6 @@ class FeedsEditor extends React.Component {
             </div>
           </div>
         )}
-        <span className="hide">
-          <input type="file" ref={(c) => (this._$fileInput = c)} />
-          <input type="file" ref={(c) => (this._$imageInput = c)} accept="image/*" />
-        </span>
       </React.Fragment>
     )
   }
@@ -346,25 +349,9 @@ class FeedsEditor extends React.Component {
   }
 
   _selectAtUser = (s) => {
-    let text = `@${s.text} `
-    if (this.__lastInputKey === '@') {
-      text = `${s.text} `
-    }
-
+    const text = this.__lastInputKey === '@' ? `${s.text} ` : `@${s.text} `
     $(this._$editor).insertAtCursor(text)
     this.setState({ showAtUser: false })
-  }
-
-  _removeImage(image) {
-    const images = this.state.images
-    images.remove(image)
-    this.setState({ images: images })
-  }
-
-  _removeFile(file) {
-    const files = this.state.files
-    files.remove(file)
-    this.setState({ files: files })
   }
 
   _handleInputAt(e) {
@@ -379,6 +366,18 @@ class FeedsEditor extends React.Component {
     }
   }
 
+  _removeImage(image) {
+    const images = this.state.images
+    images.remove(image)
+    this.setState({ images: images })
+  }
+
+  _removeFile(file) {
+    const files = this.state.files
+    files.remove(file)
+    this.setState({ files: files })
+  }
+
   val() {
     return $(this._$editor).val()
   }
@@ -389,18 +388,22 @@ class FeedsEditor extends React.Component {
       images: this.state.images,
       attachments: this.state.files,
     }
+
     if ((this.state.type === 2 || this.state.type === 4) && this._selectRelated) {
       vals.relatedRecord = this._selectRelated.val()
     }
+
     if (this.state.type === 3 && this._announcementOptions) {
       vals.contentMore = this._announcementOptions.val()
       if (!vals.contentMore) return
     }
+
     if (this.state.type === 4 && this._scheduleOptions) {
       vals.contentMore = this._scheduleOptions.val()
       if (!vals.contentMore) return
       vals.scheduleTime = vals.contentMore.scheduleTime + ':00'
     }
+
     return vals
   }
 
