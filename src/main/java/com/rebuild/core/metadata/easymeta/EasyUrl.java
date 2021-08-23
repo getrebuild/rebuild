@@ -28,4 +28,12 @@ public class EasyUrl extends EasyText {
         Pattern patt = super.getPattern();
         return patt == null ? RegexUtils.URL_PATTERN : patt;
     }
+
+    /**
+     * @param url
+     * @return
+     */
+    public static boolean isUrl(String url) {
+        return url != null && RegexUtils.URL_PATTERN.matcher(url).matches();
+    }
 }

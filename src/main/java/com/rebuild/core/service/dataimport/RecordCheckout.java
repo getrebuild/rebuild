@@ -7,7 +7,6 @@ See LICENSE and COMMERCIAL in the project root for license information.
 
 package com.rebuild.core.service.dataimport;
 
-import cn.devezhao.commons.RegexUtils;
 import cn.devezhao.commons.excel.Cell;
 import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.Field;
@@ -18,8 +17,7 @@ import com.rebuild.core.Application;
 import com.rebuild.core.configuration.general.ClassificationManager;
 import com.rebuild.core.configuration.general.PickListManager;
 import com.rebuild.core.metadata.EntityHelper;
-import com.rebuild.core.metadata.easymeta.EasyMetaFactory;
-import com.rebuild.core.metadata.easymeta.DisplayType;
+import com.rebuild.core.metadata.easymeta.*;
 import com.rebuild.core.metadata.impl.MetadataModificationException;
 import com.rebuild.core.support.state.StateManager;
 import org.apache.commons.lang.StringEscapeUtils;
@@ -108,13 +106,13 @@ public class RecordCheckout {
         if (validate) {
             if (dt == DisplayType.EMAIL) {
                 string = cell.asString();
-                return RegexUtils.isEMail(string) ? string : null;
+                return EasyEmail.isEmail(string) ? string : null;
             } else if (dt == DisplayType.URL) {
                 string = cell.asString();
-                return RegexUtils.isUrl(string) ? string : null;
+                return EasyUrl.isUrl(string) ? string : null;
             } else if (dt == DisplayType.PHONE) {
                 string = cell.asString();
-                return RegexUtils.isCNMobile(string) || RegexUtils.isTel(string) ? string : null;
+                return EasyPhone.isPhone(string) ? string : null;
             }
         }
 
