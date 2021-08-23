@@ -4267,3 +4267,61 @@ html.external-auth .auth-body.must-center .login {
 .btn.btn-light:hover {
   background-color: #e6e6e6;
 }
+
+.user-popup {
+  position: fixed;
+  z-index: 1;
+  width: 300px;
+  max-height: 90px;
+  background-color: #fff;
+  left: 0;
+  right: 0;
+  display: none;
+}
+
+.user-popup .avatar {
+  width: 90px;
+  height: 90px;
+  float: left;
+  background-color: #ccc;
+}
+
+.user-popup .avatar img {
+  width: 100%;
+  height: 100%;
+}
+
+.user-popup .infos {
+  margin-left: 90px;
+  padding: 10px 15px 0;
+}
+
+.user-popup .infos strong {
+  font-size: 1.1rem;
+}
+
+.user-popup .infos p {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.user-popup .infos p.phone,
+.user-popup .infos p.email {
+  font-family: 'Material-Design-Iconic-Font';
+}
+
+.user-popup .infos p.phone::after,
+.user-popup .infos p.email::after {
+  color: #999;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.user-popup .infos p.phone::after {
+  content: '\f2d4';
+}
+
+.user-popup .infos p.email::after {
+  content: '\f15a';
+  transform: translateY(1px);
+}

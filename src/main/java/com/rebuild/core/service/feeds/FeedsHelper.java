@@ -194,7 +194,7 @@ public class FeedsHelper {
             if (user.getEntityCode() == EntityHelper.User && Application.getUserStore().existsUser(user)) {
                 String fullName = Application.getUserStore().getUser(user).getFullName();
                 content = content.replace(at,
-                        String.format("<a data-id=\"%s\">@%s</a>", user, fullName));
+                        String.format("<a data-uid=\"%s\">@%s</a>", user, fullName));
             }
         }
 

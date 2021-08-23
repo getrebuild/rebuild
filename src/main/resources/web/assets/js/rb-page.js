@@ -569,12 +569,12 @@ var $initUploader = $createUploader
  * 卸载 React 组件
  */
 var $unmount = function (container, delay, keepContainer) {
-  if (container && container[0]) {
-    setTimeout(function () {
-      ReactDOM.unmountComponentAtNode(container[0])
-      if (keepContainer !== true && container.prop('tagName') !== 'BODY') container.remove()
-    }, delay || 1000)
-  }
+  if (!container) return
+  const $c = container[0] ? container : $(container)
+  setTimeout(function () {
+    ReactDOM.unmountComponentAtNode($c[0])
+    if (keepContainer !== true && $c.prop('tagName') !== 'BODY') $c.remove()
+  }, delay || 1000)
 }
 
 /**

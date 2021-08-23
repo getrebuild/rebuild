@@ -895,6 +895,74 @@ const DEFAULT_MDE_TOOLBAR = (c) => {
   ]
 }
 
+function UserPopup({ info }) {
+  return (
+    <div className="user-popup shadow">
+      <div className="avatar">
+        <img src={`${rb.baseUrl}/account/user-avatar/${info.id}`} alt="Avatar" />
+      </div>
+      <div className="infos">
+        <strong>{info.name}</strong>
+        {info.dept && <p className="text-muted fs-12">{info.dept}</p>}
+        {info.email && <p className="email">{info.email}</p>}
+        {info.phone && <p className="phone">{info.phone}</p>}
+      </div>
+    </div>
+  )
+}
+
+UserPopup.create = function (el) {
+  const uid = $(el).data('uid')
+  if (!uid) {
+    console.warn('No attr `data-id` defined')
+    return
+  }
+
+  function _clear() {
+    if (UserPopup.__timer) {
+      clearTimeout(UserPopup.__timer)
+      UserPopup.__timer = null
+    }
+  }
+
+  function _leave() {
+    _clear()
+    UserPopup.__timer2 = setTimeout(() => {
+      if (UserPopup.__$target) {
+        $unmount(UserPopup.__$target, 20)
+        UserPopup.__$target = null
+      }
+    }, 200)
+  }
+
+  $(el).on({
+    mouseover: function (e) {
+      _clear()
+      const pos = { top: Math.max(e.clientY - 90, 0), left: e.clientX, display: 'block' }
+
+      UserPopup.__timer = setTimeout(function () {
+        $.get(`/account/user-info?id=${uid}`, (res) => {
+          if (UserPopup.__timer) {
+            UserPopup.__$target = renderRbcomp(<UserPopup info={{ ...res.data, id: uid }} />)
+
+            const $popup = $(UserPopup.__$target).find('.user-popup').css(pos)
+            $popup.on({
+              mouseover: function () {
+                if (UserPopup.__timer2) {
+                  clearTimeout(UserPopup.__timer2)
+                  UserPopup.__timer2 = null
+                }
+              },
+              mouseleave: _leave,
+            })
+          }
+        })
+      }, 400)
+    },
+    mouseleave: _leave,
+  })
+}
+
 /**
  * JSX 组件渲染
  *
@@ -922,4 +990,5 @@ const renderRbcomp = function (jsx, target, call) {
     target = target[0]
   }
   ReactDOM.render(jsx, target, call)
+  return target
 }
