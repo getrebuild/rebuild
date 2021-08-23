@@ -30,7 +30,7 @@ public class EasyPhone extends EasyText {
 
     // 兼容电话、手机
     public static Pattern PATT_PHONE = Pattern.compile(
-            "((\\([0-9]{1,5}\\))?([0-9]{3,4}-)?[0-9]{7,8}(-[0-9]{2,6})?)|(1[356789][0-9]{9})");
+            "((\\(\\d{1,5}\\))?(\\d{3,4}-)?\\d{7,8}(-\\d{1,6})?)|(1[356789]\\d{9})");
 
     /**
      * @param phone
