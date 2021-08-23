@@ -427,16 +427,16 @@ class UserSelector extends React.Component {
     } else {
       inResult = this.state.items.map((item) => {
         return (
-          <li key={`o-${item.id}`} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
-            <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`}></i>
-            {this.state.tabType === 'User' && <img alt="Avatar" src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" />}
+          <li key={item.id} className="select2-results__option" data-id={item.id} onClick={(e) => this.clickItem(e)}>
+            <i className={`zmdi ${!this.props.hideSelection && this.containsItem(item.id) ? ' zmdi-check' : ''}`} />
+            {this.state.tabType === 'User' && <img src={`${rb.baseUrl}/account/user-avatar/${item.id}`} className="avatar" alt="Avatar" />}
             <span className="text">{item.text}</span>
           </li>
         )
       })
     }
 
-    const _DropdownMenu = (
+    const dropdownMenu = (
       <div className="dropdown-menu">
         <div className="selector-search">
           <div>
@@ -445,8 +445,8 @@ class UserSelector extends React.Component {
               className="form-control search"
               placeholder={$L('输入关键词搜索')}
               value={this.state.query || ''}
-              ref={(c) => (this._input = c)}
-              onChange={(e) => this.searchItems(e)}
+              ref={(c) => (this._$input = c)}
+              onChange={(e) => this.search(e)}
               onKeyDown={(e) => this._keyEvent(e)}
             />
           </div>
@@ -465,7 +465,7 @@ class UserSelector extends React.Component {
           </ul>
           <div className="tab-content">
             <div className="tab-pane active">
-              <div className="rb-scroller" ref={(c) => (this._scroller = c)}>
+              <div className="rb-scroller" ref={(c) => (this._$scroller = c)}>
                 <ul className="select2-results__options">{inResult}</ul>
               </div>
             </div>
@@ -480,13 +480,13 @@ class UserSelector extends React.Component {
       <span className="select2 select2-container select2-container--default user-selector">
         <span className="selection">
           {this.props.compToggle ? (
-            <span ref={(c) => (this._dropdownParent = c)}>
+            <span ref={(c) => (this._$dropdownParent = c)}>
               {this.props.compToggle}
-              {_DropdownMenu}
+              {dropdownMenu}
             </span>
           ) : (
             <div className="select2-selection select2-selection--multiple">
-              <div className="select2-selection__rendered" ref={(c) => (this._dropdownParent = c)}>
+              <div className="select2-selection__rendered" ref={(c) => (this._$dropdownParent = c)}>
                 {this.state.selected.length > 0 && (
                   <span className="select2-selection__clear" onClick={() => this.clearSelection()}>
                     &times;
@@ -494,7 +494,7 @@ class UserSelector extends React.Component {
                 )}
                 {this.state.selected.map((item) => {
                   return (
-                    <span key={`s-${item.id}`} className="select2-selection__choice">
+                    <span key={item.id} className="select2-selection__choice">
                       <span className="select2-selection__choice__remove" data-id={item.id} onClick={(e) => this.removeItem(e)}>
                         &times;
                       </span>
@@ -507,7 +507,7 @@ class UserSelector extends React.Component {
                     <i className="zmdi zmdi-plus" /> {this.props.multiple === false ? $L('选择') : $L('添加')}
                   </a>
                 </span>
-                {_DropdownMenu}
+                {dropdownMenu}
               </div>
             </div>
           )}
@@ -517,17 +517,15 @@ class UserSelector extends React.Component {
   }
 
   componentDidMount() {
-    $(this._scroller).perfectScrollbar()
+    $(this._$scroller).perfectScrollbar()
 
     const that = this
-    $(this._dropdownParent).on({
-      'show.bs.dropdown': function () {
+    $(this._$dropdownParent).on({
+      'shown.bs.dropdown': function () {
         // 初始化
         if (!that.state.items) that.switchTab()
-      },
-      'shown.bs.dropdown': function () {
-        that._input && that._input.focus()
-        $(that._scroller).find('li.active').removeClass('active')
+        that._$input && that._$input.focus()
+        $(that._$scroller).find('li.active').removeClass('active')
       },
       'hide.bs.dropdown': function (e) {
         if (!e.clickEvent || !e.clickEvent.target) return
@@ -555,7 +553,7 @@ class UserSelector extends React.Component {
   }
 
   componentWillUnmount() {
-    $(this._scroller).perfectScrollbar('destroy')
+    $(this._$scroller).perfectScrollbar('destroy')
   }
 
   UNSAFE_componentWillReceiveProps(props) {
@@ -584,7 +582,7 @@ class UserSelector extends React.Component {
           this.switchTab(type)
         })
       }
-      $(this._scroller).perfectScrollbar('update')
+      $(this._$scroller).perfectScrollbar('update')
     })
   }
 
@@ -593,38 +591,47 @@ class UserSelector extends React.Component {
       $active.removeClass('active')
       $el.addClass('active')
 
-      const st = $(this._scroller).scrollTop()
+      const st = $(this._$scroller).scrollTop()
       const et = $el.position().top
       if (et >= 0) {
         const top = et + st - (222 - 36) // maxHeight - elementHeight
-        if (top > 0) $(this._scroller).scrollTop(top)
+        if (top > 0) $(this._$scroller).scrollTop(top)
       } else {
         const top = st + et
-        if (top >= 0) $(this._scroller).scrollTop(top)
+        if (top >= 0) $(this._$scroller).scrollTop(top)
       }
     }
   }
 
   _keyEvent(e) {
     if (e.keyCode === 40) {
-      const $active = $(this._scroller).find('li.active')
-      const $next = $active.length === 0 ? $(this._scroller).find('li:eq(0)') : $active.next()
+      // DOWN
+      const $active = $(this._$scroller).find('li.active')
+      const $next = $active.length === 0 ? $(this._$scroller).find('li:eq(0)') : $active.next()
       this._tryActive($active, $next)
     } else if (e.keyCode === 38) {
-      const $active = $(this._scroller).find('li.active')
+      // UP
+      const $active = $(this._$scroller).find('li.active')
       const $prev = $active.length === 0 ? null : $active.prev()
       this._tryActive($active, $prev)
     } else if (e.keyCode === 13) {
+      // ENTER
       e.preventDefault()
-      const $active = $(this._scroller).find('li.active')
+      const $active = $(this._$scroller).find('li.active')
       if ($active.length === 1) {
         $active.trigger('click')
         $stopEvent(e)
       }
+    } else if (e.keyCode === 27) {
+      // ESC
+      e.preventDefault()
+      this.toggle() // hide
+      // Auto focus for textarea
+      this.props.targetInput && this.props.targetInput.focus()
     }
   }
 
-  searchItems(e) {
+  search(e) {
     this.setState({ query: e.target.value }, () => {
       $setTimeout(() => this.switchTab(), 300, 'us-search-items')
     })
@@ -676,6 +683,11 @@ class UserSelector extends React.Component {
 
   val() {
     return this.getSelected()
+  }
+
+  toggle() {
+    // $(this._$dropdownParent).dropdown('toggle')
+    $(this._$dropdownParent).find('[data-toggle="dropdown"]').dropdown('toggle')
   }
 }
 
