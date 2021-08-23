@@ -10,11 +10,13 @@ package com.rebuild.web.user;
 import cn.devezhao.commons.EncryptUtils;
 import cn.devezhao.persist4j.Record;
 import cn.devezhao.persist4j.engine.ID;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.rebuild.api.RespBody;
 import com.rebuild.core.Application;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.privileges.UserService;
+import com.rebuild.core.privileges.bizz.Department;
 import com.rebuild.core.privileges.bizz.User;
 import com.rebuild.core.service.DataSpecificationException;
 import com.rebuild.core.support.ConfigurationItem;
@@ -23,7 +25,9 @@ import com.rebuild.core.support.VerfiyCode;
 import com.rebuild.core.support.i18n.I18nUtils;
 import com.rebuild.core.support.i18n.Language;
 import com.rebuild.core.support.integration.SMSender;
+import com.rebuild.utils.JSONUtils;
 import com.rebuild.web.EntityController;
+import com.rebuild.web.IdParam;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -38,10 +42,9 @@ import java.util.Date;
  * @since 10/08/2018
  */
 @RestController
-@RequestMapping("/settings")
-public class UserSettings extends EntityController {
+public class UserAccountController extends EntityController {
 
-    @GetMapping("/user")
+    @GetMapping("/settings/user")
     public ModelAndView pageUser(HttpServletRequest request) {
         ModelAndView mv = createModelAndView("/settings/user-settings");
 
@@ -70,7 +73,7 @@ public class UserSettings extends EntityController {
         return mv;
     }
 
-    @RequestMapping("/user/send-email-vcode")
+    @RequestMapping("/settings/user/send-email-vcode")
     public RespBody sendEmailVcode(HttpServletRequest request) {
         if (!SMSender.availableMail()) {
             return RespBody.errorl("邮件服务账户未配置，请联系管理员配置");
@@ -93,7 +96,7 @@ public class UserSettings extends EntityController {
         }
     }
 
-    @RequestMapping("/user/save-email")
+    @RequestMapping("/settings/user/save-email")
     public RespBody saveEmail(HttpServletRequest request) {
         ID user = getRequestUser(request);
         String email = getParameterNotNull(request, "email");
@@ -113,7 +116,7 @@ public class UserSettings extends EntityController {
         return RespBody.ok();
     }
 
-    @RequestMapping("/user/save-passwd")
+    @RequestMapping("/settings/user/save-passwd")
     public RespBody savePasswd(HttpServletRequest request) {
         final ID user = getRequestUser(request);
         String oldp = getParameterNotNull(request, "oldp");
@@ -129,7 +132,7 @@ public class UserSettings extends EntityController {
         return savePasswd(user, newp);
     }
 
-    @GetMapping("/user/login-logs")
+    @GetMapping("/settings/user/login-logs")
     public Object[][] loginLogs(HttpServletRequest request) {
         Object[][] logs = Application.createQueryNoFilter(
                 "select loginTime,ipAddr,userAgent from LoginLog where user = ? order by loginTime desc")
@@ -143,12 +146,12 @@ public class UserSettings extends EntityController {
         return logs;
     }
 
-    @GetMapping("/passwd-expired")
+    @GetMapping("/settings/passwd-expired")
     public ModelAndView pagePasswdExpired() {
         return createModelAndView("/settings/passwd-expired");
     }
 
-    @PostMapping("/passwd-expired-save")
+    @PostMapping("/settings/passwd-expired-save")
     public RespBody passwdExpiredSave(@RequestBody JSONObject post, HttpServletRequest request) {
         final ID user = getRequestUser(request);
         String newpasswd = post.getString("newpasswd");
@@ -172,7 +175,7 @@ public class UserSettings extends EntityController {
         return RespBody.ok();
     }
 
-    @PostMapping("/cancel-external-user")
+    @PostMapping("/settings/cancel-external-user")
     public RespBody cancelExternalUser(HttpServletRequest request) {
         int appType = getIntParameter(request, "type", 0);
         // 1=Dingtalk, 2=Wxwork
@@ -190,5 +193,14 @@ public class UserSettings extends EntityController {
         }
 
         return RespBody.ok();
+    }
+
+    @GetMapping("/account/user-info")
+    public JSON userInfo(@IdParam ID id) {
+        User u = Application.getUserStore().getUser(id);
+        Department dept = u.getOwningDept();
+        return JSONUtils.toJSONObject(
+                new String[]{"name", "dept", "email", "phone", "isActive"},
+                new Object[]{u.getFullName(), dept == null ? null : dept.getName(), u.getEmail(), u.getWorkphone(), u.isActive() });
     }
 }
