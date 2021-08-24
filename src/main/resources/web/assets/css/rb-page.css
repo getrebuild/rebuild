@@ -249,12 +249,8 @@ a.link.inline {
   min-width: 98px;
 }
 
-.btn.dropdown-toggle {
-  min-width: auto;
-}
-
 .btn.w-auto {
-  min-width: 37px;
+  min-width: 36px;
 }
 
 a.btn {
@@ -2071,6 +2067,10 @@ th.column-fixed {
 .adv-search .dropdown-item div.action a:hover {
   color: #4285f4 !important;
   background-color: rgba(0, 0, 0, 0.05);
+}
+
+.adv-search .dropdown-item div.action a.danger-hover:hover {
+  color: #ea4335 !important;
 }
 
 .adv-filter-wrap {

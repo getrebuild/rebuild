@@ -248,7 +248,7 @@ class RbForm extends React.Component {
             </button>
             {moreActions.length > 0 && (
               <React.Fragment>
-                <button className="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">
+                <button className="btn btn-primary dropdown-toggle w-auto" type="button" data-toggle="dropdown">
                   <i className="icon zmdi zmdi-chevron-up" />
                 </button>
                 <div className="dropdown-menu dropdown-menu-primary dropdown-menu-right">{moreActions}</div>
