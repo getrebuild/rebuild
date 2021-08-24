@@ -11,12 +11,14 @@ import cn.devezhao.persist4j.Entity;
 import cn.devezhao.persist4j.engine.ID;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.rebuild.core.Application;
 import com.rebuild.core.configuration.ConfigManager;
 import com.rebuild.core.configuration.ConfigurationException;
 import com.rebuild.core.metadata.EntityHelper;
 import com.rebuild.core.metadata.MetadataHelper;
 import com.rebuild.core.privileges.UserHelper;
+import com.rebuild.core.service.query.QueryHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,10 +111,16 @@ public class RobotApprovalManager implements ConfigManager {
             if (users == null || users.isEmpty()) {
                 users = JSON.parseArray("['OWNS']");
             }
+
             if (FlowNode.USER_ALL.equals(users.getString(0))
                     || (FlowNode.USER_OWNS.equals(users.getString(0)) && owning.equals(user))
                     || UserHelper.parseUsers(users, record).contains(user)) {
-                workable.add(def);
+
+                // 过滤条件
+                JSONObject filter = root.getDataMap().getJSONObject("filter");
+                if (QueryHelper.isMatchAdvFilter(record, filter)) {
+                    workable.add(def);
+                }
             }
         }
         return workable.toArray(new FlowDefinition[0]);
