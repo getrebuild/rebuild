@@ -229,7 +229,7 @@ public class FieldAggregation implements TriggerAction {
             }
         }
 
-        this.followSourceWhere = String.format("%s = %s", followSourceField, targetRecordId);
+        this.followSourceWhere = String.format("%s = '%s'", followSourceField, targetRecordId);
     }
 
     @Override
